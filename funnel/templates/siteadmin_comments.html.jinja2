@@ -11,10 +11,11 @@
   <table class="mui-table mui-table--bordered mui-table--responsive">
     <thead>
       <tr>
-      <th><button id="btn-comments-selectall" class="mui-btn mui-btn--accent">Select all</button></th>
+      <th><button id="btn-comments-selectall" class="mui-btn mui-btn--accent">✓ All</button></th>
       <th>{% trans %}User{% endtrans %}</th>
+      <th>{% trans %}Comment{% endtrans %}</th>
       <th>{% trans %}Content{% endtrans %}</th>
-      <th>{% trans %}Actions{% endtrans %}</th>
+      {# <th>{% trans %}Actions{% endtrans %}</th> #}
       </tr>
     </thead>
     <tbody class="mui--text-subhead">
@@ -26,8 +27,13 @@
           </div>
         </td>
         <td data-th="User">{{ comment.user.pickername }}</td>
+        <td data-th="User"><a href="{{ comment.url_for() }}">Link</a></td>
         <td data-th="Content">{{ comment.message }}</td>
-        <td data-th="Actions"></td>
+        <td data-th="Actions">
+        {# {% if current_auth.user.is_user_moderator %}
+          <button id="btn-user-deleteall" class="mui-btn mui-btn--accent">Delete all comments by user</button>
+        {% endif %} #}
+        </td>
       </tr>
       {% else %}
       <tr>

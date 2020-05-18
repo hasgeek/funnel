@@ -2,7 +2,7 @@
 
 from sqlalchemy.ext.declarative import declared_attr
 
-from . import db
+from . import User, db
 from .membership import ImmutableMembershipMixin
 
 __all__ = ['SiteMembership']
@@ -52,7 +52,24 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         roles.add('site_admin')
         return roles
 
-    def roles_for(self, actor=None, anchors=()):
-        # FIXME: is this method required?
-        roles = super(SiteMembership, self).roles_for(actor, anchors)
-        return roles
+
+def _is_comment_moderator(self):
+    return (
+        SiteMembership.query.filter_by(
+            user=self, is_comment_moderator=True, is_active=True
+        ).one_or_none()
+        is not None
+    )
+
+
+def _is_user_moderator(self):
+    return (
+        SiteMembership.query.filter_by(
+            user=self, is_user_moderator=True, is_active=True
+        ).one_or_none()
+        is not None
+    )
+
+
+User.is_comment_moderator = property(fget=_is_comment_moderator)
+User.is_user_moderator = property(fget=_is_user_moderator)

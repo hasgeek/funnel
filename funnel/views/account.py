@@ -103,7 +103,7 @@ class AccountView(ClassView):
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
         ):
-            return redirect('/')
+            return abort(403)
 
         comments = []
         comment_search_form = CommentSearchForm()
@@ -132,7 +132,7 @@ class AccountView(ClassView):
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
         ):
-            return redirect('/')
+            return abort(403)
 
         comment_delete_form = Form()
         comment_delete_form.form_nonce.data = comment_delete_form.form_nonce.default()

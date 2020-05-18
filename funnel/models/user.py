@@ -188,28 +188,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
 
-    @property
-    def is_comment_moderator(self):
-        from .site_membership import SiteMembership
-
-        return (
-            SiteMembership.query.filter_by(
-                user=self, is_comment_moderator=True, is_active=True
-            ).one_or_none()
-            is not None
-        )
-
-    @property
-    def is_user_moderator(self):
-        from .site_membership import SiteMembership
-
-        return (
-            SiteMembership.query.filter_by(
-                user=self, is_user_moderator=True, is_active=True
-            ).one_or_none()
-            is not None
-        )
-
     def merged_user(self):
         if self.status == USER_STATUS.MERGED:
             return UserOldId.get(self.uuid).user
