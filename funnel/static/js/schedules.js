@@ -192,6 +192,12 @@ $(function () {
         else return this.form().find('[name=' + input + ']');
       };
       popup.save = function () {
+        popup.container
+          .find('.save')
+          .prop('disabled', true);
+        popup.container
+          .find('.loading')
+          .removeClass('mui--hide');
         popup.form('start_at').val(events.current.obj_data.start_at);
         popup.form('end_at').val(events.current.obj_data.end_at);
         var data = popup.form().serializeArray();
@@ -224,6 +230,12 @@ $(function () {
                 'There was a problem in contacting the server. Please try again.'
               );
             }
+            popup.container
+              .find('.save')
+              .prop('disabled', false);
+            popup.container
+              .find('.loading')
+              .addClass('mui--hide');
           },
         });
       };
