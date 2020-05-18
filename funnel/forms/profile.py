@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from flask import current_app
+
 from baseframe import _, __
 import baseframe.forms as forms
 
@@ -27,7 +29,14 @@ class ProfileForm(OrganizationForm):
         description=__("Profile logo"),
         validators=[
             forms.validators.Optional(),
-            forms.validators.ValidUrl(),
+            forms.validators.ValidUrl(
+                allowed_schemes=lambda: current_app.config.get(
+                    'IMAGE_URL_SCHEMES', ('https',)
+                ),
+                allowed_domains=lambda: current_app.config.get('IMAGE_URL_DOMAINS'),
+                message_schemes=__("A https:// URL is required"),
+                message_domains=__("Images must be hosted at images.hasgeek.com"),
+            ),
             forms.validators.Length(max=2000),
         ],
     )
