@@ -6,7 +6,7 @@
   {{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
 {% endif %}
 
-<form action="{{ url_for('siteadmin_comments_delete') }}" method="post" class="form-inline">
+<form id="form-comments-delete" action="{{ url_for('siteadmin_comments_delete') }}" method="post" class="form-inline">
   {{ comment_delete_form.hidden_tag() }}
   <table class="mui-table mui-table--bordered mui-table--responsive">
     <thead>
@@ -47,6 +47,12 @@
   $('#btn-comments-selectall').click(function (e) {
     e.preventDefault();
     $('.field-comment-id').attr('checked', true);
+  })
+  $('#form-comments-delete').submit(function (e) {
+    var checkedboxes = $('.field-comment-id:checked').length;
+    if (confirm(`Do you want to delete ${checkedboxes} comments?`)) {
+      return true;
+    }
   })
   </script>
 {% endblock %}

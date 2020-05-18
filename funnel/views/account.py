@@ -11,6 +11,7 @@ from baseframe.forms import (
     render_redirect,
 )
 from coaster.auth import current_auth
+from coaster.utils import for_tsquery
 from coaster.views import (
     ClassView,
     get_next_url,
@@ -109,7 +110,9 @@ class AccountView(ClassView):
 
         if comment_search_form.validate_on_submit():
             query = comment_search_form.query.data
-            comments = Comment.query.filter(Comment.search_vector.match(query)).all()
+            comments = Comment.query.filter(
+                Comment.search_vector.match(for_tsquery(query or ''))
+            ).all()
 
         return {
             'comments': comments,
@@ -132,10 +135,17 @@ class AccountView(ClassView):
             return redirect('/')
 
         comment_delete_form = Form()
+        comment_delete_form.form_nonce.data = comment_delete_form.form_nonce.default()
         if comment_delete_form.validate_on_submit():
-            app.logger.info(request.form.getlist('comment_id'))
+            Comment.query.filter(
+                Comment.uuid_b58.in_(request.form.getlist('comment_id'))
+            ).delete(synchronize_session=False)
+            db.session.commit()
         else:
-            app.logger.info(comment_delete_form.errors)
+            flash(
+                _("There was a problem deleting the comments. Please try again."),
+                category='error',
+            )
 
         return redirect(url_for('siteadmin_comments'))
 
