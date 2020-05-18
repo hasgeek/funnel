@@ -141,6 +141,9 @@ class AccountView(ClassView):
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             ).delete(synchronize_session=False)
             db.session.commit()
+            flash(
+                _("Comment(s) successfully deleted."), category='info',
+            )
         else:
             flash(
                 _("There was a problem deleting the comments. Please try again."),

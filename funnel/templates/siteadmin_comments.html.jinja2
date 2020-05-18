@@ -1,21 +1,30 @@
 {% extends 'siteadmin_layout.html.jinja2' %}
-
 {% block admincontentblock %}
-
 {% if comment_search_form %}
-  {{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
+{{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
 {% endif %}
 
-<form id="form-comments-delete" action="{{ url_for('siteadmin_comments_delete') }}" method="post" class="form-inline">
+<form
+  id="form-comments-delete"
+  action="{{ url_for('siteadmin_comments_delete') }}"
+  method="post"
+  class="form-inline"
+>
   {{ comment_delete_form.hidden_tag() }}
   <table class="mui-table mui-table--bordered mui-table--responsive">
     <thead>
       <tr>
-      <th><button id="btn-comments-selectall" class="mui-btn mui-btn--accent">✓ All</button></th>
-      <th>{% trans %}User{% endtrans %}</th>
-      <th>{% trans %}Comment{% endtrans %}</th>
-      <th>{% trans %}Content{% endtrans %}</th>
-      {# <th>{% trans %}Actions{% endtrans %}</th> #}
+        <th>
+          <button id="btn-comments-selectall" class="mui-btn mui-btn--accent">
+            ✓ All
+          </button>
+        </th>
+        <th>{% trans %}User{% endtrans %}</th>
+        <th>{% trans %}Comment{% endtrans %}</th>
+        <th>{% trans %}Content{% endtrans %}</th>
+        {#
+        <th>{% trans %}Actions{% endtrans %}</th>
+        #}
       </tr>
     </thead>
     <tbody class="mui--text-subhead">
@@ -23,17 +32,26 @@
       <tr>
         <td data-th="#">
           <div class="mui-checkbox">
-            <input type="checkbox" class="field-comment-id" name="comment_id" value="{{ comment.uuid_b58 }}">
+            <input
+              type="checkbox"
+              class="field-comment-id"
+              name="comment_id"
+              value="{{ comment.uuid_b58 }}"
+            />
           </div>
         </td>
         <td data-th="User">{{ comment.user.pickername }}</td>
         <td data-th="User"><a href="{{ comment.url_for() }}">Link</a></td>
         <td data-th="Content">{{ comment.message }}</td>
-        {# <td data-th="Actions">
-        {% if current_auth.user.is_user_moderator %}
-          <button id="btn-user-deleteall" class="mui-btn mui-btn--accent">Delete all comments by user</button>
-        {% endif %}
-        </td> #}
+        {#
+        <td data-th="Actions">
+          {% if current_auth.user.is_user_moderator %}
+          <button id="btn-user-deleteall" class="mui-btn mui-btn--accent">
+            Delete all comments by user
+          </button>
+          {% endif %}
+        </td>
+        #}
       </tr>
       {% else %}
       <tr>
@@ -49,16 +67,16 @@
 {% endblock admincontentblock %}
 
 {% block footerscripts %}
-  <script type="text/javascript">
-  $('#btn-comments-selectall').click(function (e) {
+<script type="text/javascript">
+  $("#btn-comments-selectall").click(function (e) {
     e.preventDefault();
-    $('.field-comment-id').attr('checked', true);
-  })
-  $('#form-comments-delete').submit(function (e) {
-    var checkedboxes = $('.field-comment-id:checked').length;
+    $(".field-comment-id").attr("checked", true);
+  });
+  $("#form-comments-delete").submit(function (e) {
+    var checkedboxes = $(".field-comment-id:checked").length;
     if (confirm(`Do you want to delete ${checkedboxes} comments?`)) {
       return true;
     }
-  })
-  </script>
+  });
+</script>
 {% endblock %}
