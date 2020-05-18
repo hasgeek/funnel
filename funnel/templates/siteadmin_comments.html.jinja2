@@ -1,7 +1,8 @@
 {% extends 'siteadmin_layout.html.jinja2' %}
+
 {% block admincontentblock %}
 {% if comment_search_form %}
-{{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
+  {{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
 {% endif %}
 
 <form
