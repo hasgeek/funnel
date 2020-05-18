@@ -20,16 +20,13 @@
 {% endblock %}
 
 {% block pagescripts %}
-  <script src="https://codemirror.net/lib/codemirror.js"></script>
-  <script src="https://codemirror.net/addon/mode/overlay.js"></script>
-  <script src="https://codemirror.net/mode/markdown/markdown.js"></script>
-  <script src="https://codemirror.net/mode/gfm/gfm.js"></script>
-  <script src="https://codemirror.net/mode/gfm/htmlmixed.js"></script>
-  <script src="https://codemirror.net/addon/edit/continuelist.js"></script>
+  {% assets "js_codemirrormarkdown" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
 {% endblock %}
 
 {% block layoutscripts %}
-  <script>
+  <script type="text/javascript">
     $(function() {
       var hash = window.location.hash;
       if (hash) {
