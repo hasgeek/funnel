@@ -108,16 +108,13 @@ class AccountView(ClassView):
         comment_search_form = CommentSearchForm()
 
         if comment_search_form.validate_on_submit():
-            comment_search_form.form_nonce.data = (
-                comment_search_form.form_nonce.default()
-            )
             query = comment_search_form.query.data
             comments = Comment.query.filter(Comment.search_vector.match(query)).all()
 
         return {
             'comments': comments,
             'comment_search_form': comment_search_form,
-            'default_form': Form(),
+            'comment_delete_form': Form(),
         }
 
     @route(
@@ -134,11 +131,11 @@ class AccountView(ClassView):
         ):
             return redirect('/')
 
-        Form()
-        # if moderation_form.validate_on_submit():
-        #     print(request.form.getlist('comment_id'))
-        # else:
-        #     print(moderation_form.errors)
+        comment_delete_form = Form()
+        if comment_delete_form.validate_on_submit():
+            app.logger.info(request.form.getlist('comment_id'))
+        else:
+            app.logger.info(comment_delete_form.errors)
 
         return redirect(url_for('siteadmin_comments'))
 

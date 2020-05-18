@@ -7,7 +7,7 @@
 {% endif %}
 
 <form action="{{ url_for('siteadmin_comments_delete') }}" method="post" class="form-inline">
-  {{ default_form.hidden_tag() }}
+  {{ comment_delete_form.hidden_tag() }}
   <table class="mui-table mui-table--bordered mui-table--responsive">
     <thead>
       <tr>
