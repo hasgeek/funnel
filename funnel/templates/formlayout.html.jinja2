@@ -5,9 +5,6 @@
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
-  {% assets "css_leaflet" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
   {% block pageheaders %}{% endblock %}
 {% endblock %}
 
@@ -23,12 +20,12 @@
 {% endblock %}
 
 {% block pagescripts %}
-  {% assets "js_codemirrormarkdown" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-  {% assets "js_leaflet" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+  <script src="https://codemirror.net/lib/codemirror.js"></script>
+  <script src="https://codemirror.net/addon/mode/overlay.js"></script>
+  <script src="https://codemirror.net/mode/markdown/markdown.js"></script>
+  <script src="https://codemirror.net/mode/gfm/gfm.js"></script>
+  <script src="https://codemirror.net/mode/gfm/htmlmixed.js"></script>
+  <script src="https://codemirror.net/addon/edit/continuelist.js"></script>
 {% endblock %}
 
 {% block layoutscripts %}
