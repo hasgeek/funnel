@@ -126,7 +126,6 @@ class AccountView(ClassView):
         methods=['GET', 'POST'],
     )
     @requires_login
-    @render_with('siteadmin_comments_delete.html.jinja2')
     def siteadmin_comments_delete(self):
         if not (
             current_auth.user.is_comment_moderator
