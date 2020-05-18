@@ -29,11 +29,11 @@
         <td data-th="User">{{ comment.user.pickername }}</td>
         <td data-th="User"><a href="{{ comment.url_for() }}">Link</a></td>
         <td data-th="Content">{{ comment.message }}</td>
-        <td data-th="Actions">
-        {# {% if current_auth.user.is_user_moderator %}
+        {# <td data-th="Actions">
+        {% if current_auth.user.is_user_moderator %}
           <button id="btn-user-deleteall" class="mui-btn mui-btn--accent">Delete all comments by user</button>
-        {% endif %} #}
-        </td>
+        {% endif %}
+        </td> #}
       </tr>
       {% else %}
       <tr>
