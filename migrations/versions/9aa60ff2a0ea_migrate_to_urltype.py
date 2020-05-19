@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """migrate to urltype
 
 Revision ID: 9aa60ff2a0ea
@@ -13,7 +11,7 @@ revision = '9aa60ff2a0ea'
 down_revision = '38394aa411d0'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy import UrlType
 

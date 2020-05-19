@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """session's start end fields are nullable
 
 Revision ID: d62b392b0f25
@@ -14,7 +12,6 @@ down_revision = '07ebe99161d5'
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

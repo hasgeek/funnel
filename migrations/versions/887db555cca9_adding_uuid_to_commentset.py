@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """adding uuid to commentset
 
 Revision ID: 887db555cca9
@@ -12,7 +11,7 @@ from uuid import uuid4
 from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from progressbar import ProgressBar
 import progressbar.widgets

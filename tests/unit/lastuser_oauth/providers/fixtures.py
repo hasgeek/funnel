@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 class Fixtures(object):
     def make_fixtures(self):
         """

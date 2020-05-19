@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """migrating preview_video to video field
 
 Revision ID: 41b3af7e4449

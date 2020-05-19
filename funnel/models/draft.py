@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy_utils import UUIDType
 
 from werkzeug.datastructures import MultiDict

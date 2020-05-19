@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Use timezone type
 
 Revision ID: e3bf172763bc
@@ -14,7 +12,7 @@ down_revision = '94ce3a9b7a3a'
 
 from alembic import op
 from sqlalchemy_utils import TimezoneType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

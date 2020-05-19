@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from collections import namedtuple
 
 from flask import abort, flash, jsonify, redirect
@@ -87,9 +85,7 @@ FunnelProposalVoteView.init_app(funnelapp)
 @route('/comments/<commentset>')
 class CommentsetView(UrlForView, ModelView):
     model = Commentset
-    route_model_map = {
-        'commentset': 'uuid_b58',
-    }
+    route_model_map = {'commentset': 'uuid_b58'}
 
     def loader(self, commentset, profile=None):
         # `profile` remains for funnelapp even though it's not used.
@@ -143,10 +139,7 @@ FunnelCommentsetView.init_app(funnelapp)
 @route('/comments/<commentset>/<comment>')
 class CommentView(UrlForView, ModelView):
     model = Comment
-    route_model_map = {
-        'commentset': 'commentset.uuid_b58',
-        'comment': 'uuid_b58',
-    }
+    route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
 
     def loader(self, commentset, comment, profile=None):
         comment = (
@@ -159,7 +152,7 @@ class CommentView(UrlForView, ModelView):
     @route('')
     @requires_roles({'reader'})
     def view(self):
-        return redirect(self.obj.views.url(), code=303,)
+        return redirect(self.obj.views.url(), code=303)
 
     @route('json')
     @requires_roles({'reader'})

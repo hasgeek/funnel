@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Saved projects and sessions
 
 Revision ID: 56ba15eff9ad

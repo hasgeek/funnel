@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import six
 
 import csv
@@ -547,9 +545,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         project_save_form = SavedProjectForm()
         comments = (
             Comment.query.join(Voteset)
-            .filter(
-                Comment.commentset == self.obj.commentset, Comment.parent == None
-            )  # NOQA
+            .filter(Comment.commentset == self.obj.commentset, Comment.parent.is_(None))
             .order_by(Voteset.count, Comment.created_at.asc())
             .all()
         )

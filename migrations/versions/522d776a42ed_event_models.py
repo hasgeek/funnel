@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """event_models
 
 Revision ID: 522d776a42ed
@@ -12,7 +10,7 @@ revision = '522d776a42ed'
 down_revision = '447728ca6d2e'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

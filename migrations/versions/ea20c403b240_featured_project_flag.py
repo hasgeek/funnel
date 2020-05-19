@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Featured project flag
 
 Revision ID: ea20c403b240

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Remove account_name
 
 Revision ID: 41a4531be082

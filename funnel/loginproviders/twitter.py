@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from functools import wraps
 from http.client import BadStatusLine
 from socket import error as socket_error

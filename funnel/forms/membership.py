@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from baseframe import _, __
 from coaster.utils import getbool
 import baseframe.forms as forms

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
@@ -166,11 +164,11 @@ class Label(BaseScopedNameMixin, db.Model):
         return case(
             [
                 (
-                    cls.main_label_id != None,
+                    cls.main_label_id.isnot(None),
                     db.select([Label._restricted])
                     .where(Label.id == cls.main_label_id)
                     .as_scalar(),
-                )  # NOQA
+                )
             ],
             else_=cls._restricted,
         )
@@ -189,13 +187,13 @@ class Label(BaseScopedNameMixin, db.Model):
     def archived(cls):  # NOQA: N805
         return case(
             [
-                (cls._archived == True, cls._archived),  # NOQA
+                (cls._archived.is_(True), cls._archived),
                 (
-                    cls.main_label_id != None,
+                    cls.main_label_id.isnot(None),
                     db.select([Label._archived])
                     .where(Label.id == cls.main_label_id)
                     .as_scalar(),
-                ),  # NOQA
+                ),
             ],
             else_=cls._archived,
         )
@@ -302,8 +300,8 @@ class ProposalLabelProxyWrapper(object):
         label = Label.query.filter(
             Label.name == name,
             Label.project == self._obj.project,
-            Label._archived == False,
-        ).one_or_none()  # NOQA
+            Label._archived.is_(False),
+        ).one_or_none()
         if not label:
             raise AttributeError
 

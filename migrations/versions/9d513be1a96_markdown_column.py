@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Migrations for using MarkdownComposite
 
 Revision ID: 9d513be1a96
@@ -13,7 +11,6 @@ revision = '9d513be1a96'
 down_revision = '5290f9238875'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

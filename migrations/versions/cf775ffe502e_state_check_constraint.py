@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """state check constraint
 
 Revision ID: cf775ffe502e
@@ -13,7 +11,6 @@ revision = 'cf775ffe502e'
 down_revision = 'd576f55f9eba'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

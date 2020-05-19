@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Populate membership models
 
 Revision ID: 71fcac85957c

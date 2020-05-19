@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """added sequence to venue and venue_room
 
 Revision ID: e417a13e136d
@@ -13,7 +11,7 @@ down_revision = 'c3069d33419a'
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 project = table('project', column('id', sa.Integer()))
 

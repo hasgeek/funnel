@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from funnel.utils import extract_twitter_handle
 
 event_ticket_types = [

@@ -1,8 +1,8 @@
-describe('Test comments feature', function () {
+describe('Test comments feature', function() {
   const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
 
-  it('Post comment on project page', function () {
+  it('Post comment on project page', function() {
     cy.server();
     cy.route('**/json').as('edit-comment');
 
@@ -43,8 +43,12 @@ describe('Test comments feature', function () {
     cid = window.location.hash;
     cy.get(`${cid} .comment--body`).contains(project.reply_comment);
 
-    cy.get('a[data-cy="delete"]').first().click();
+    cy.get('a[data-cy="delete"]')
+      .first()
+      .click();
     cy.get('[data-cy="delete-comment"]').click();
-    cy.get('.comment--body').contains(project.comment).should('not.exist');
+    cy.get('.comment--body')
+      .contains(project.comment)
+      .should('not.exist');
   });
 });

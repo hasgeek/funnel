@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Sync DB with models
 
 Revision ID: cd8d073d7557
@@ -13,7 +11,7 @@ revision = 'cd8d073d7557'
 down_revision = '71f961809275'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

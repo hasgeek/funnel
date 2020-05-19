@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Add proposal_suuid_redirect
 
 Revision ID: e2b28adfa135

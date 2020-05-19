@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """UUID columns for Project, Profile, User, Team
 
 Revision ID: b34aa62af7fc
@@ -17,7 +15,7 @@ from uuid import uuid4
 from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from progressbar import ProgressBar
 import progressbar.widgets

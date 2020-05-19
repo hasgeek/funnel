@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """url field leng
 
 Revision ID: 60a132ae73f1
@@ -13,7 +11,7 @@ revision = '60a132ae73f1'
 down_revision = 'd6b1904bea0e'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

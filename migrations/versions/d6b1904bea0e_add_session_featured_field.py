@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add session featured field
 
 Revision ID: d6b1904bea0e
@@ -12,7 +10,7 @@ revision = 'd6b1904bea0e'
 down_revision = '70ffbc1bcf88'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

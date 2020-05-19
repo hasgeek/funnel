@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from werkzeug.utils import cached_property

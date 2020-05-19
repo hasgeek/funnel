@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from flask import current_app

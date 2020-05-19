@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Proposal.status
 
 Revision ID: 3c47ba103724
@@ -14,11 +12,11 @@ down_revision = '6f98e24760d'
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 # The PROPOSALSTATUS class as it was when this migration was created
-class PROPOSALSTATUS:  # NOQA
+class PROPOSALSTATUS:
     # Draft-state for future use, so people can save their proposals and submit only when ready
     DRAFT = 0
     SUBMITTED = 1
@@ -36,14 +34,14 @@ def upgrade():
     )
     connection.execute(
         proposal.update()
-        .where(proposal.c.confirmed == True)
+        .where(proposal.c.confirmed.is_(True))
         .values({proposal.c.status: PROPOSALSTATUS.CONFIRMED})
-    )  # NOQA
+    )
     connection.execute(
         proposal.update()
-        .where(proposal.c.confirmed == False)
+        .where(proposal.c.confirmed.is_(False))
         .values({proposal.c.status: PROPOSALSTATUS.SUBMITTED})
-    )  # NOQA
+    )
     op.drop_column('proposal', 'confirmed')
 
 

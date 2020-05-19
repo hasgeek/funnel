@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Remove UserGroup model
 
 Revision ID: 38394aa411d0
@@ -14,7 +12,7 @@ down_revision = 'e3bf172763bc'
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

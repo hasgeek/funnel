@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add_title_to_event
 
 Revision ID: 39eed1e99156
@@ -12,7 +10,7 @@ revision = '39eed1e99156'
 down_revision = '4083b7bd0cc8'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy.ext.declarative import declared_attr
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles

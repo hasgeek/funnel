@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from baseframe import __
 
 from ..registry import login_registry

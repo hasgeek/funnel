@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask import get_flashed_messages, jsonify, redirect, render_template, request
 
 from baseframe import _, forms

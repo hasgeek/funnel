@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import urllib.parse
 
 from pytz import UTC

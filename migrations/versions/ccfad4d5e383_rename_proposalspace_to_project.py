@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Rename ProposalSpace to Project
 
 Revision ID: ccfad4d5e383
@@ -13,7 +11,7 @@ revision = 'ccfad4d5e383'
 down_revision = '488077138ee4'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 # (old, new)
 renamed_tables = [

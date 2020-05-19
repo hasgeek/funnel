@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Remove blogpost column
 
 Revision ID: 50a8f43b4e5f
@@ -13,7 +11,7 @@ revision = '50a8f43b4e5f'
 down_revision = '411fc4124fb5'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

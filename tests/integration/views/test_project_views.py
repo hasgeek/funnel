@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from werkzeug.datastructures import MultiDict
 
 from funnel.forms import LabelForm

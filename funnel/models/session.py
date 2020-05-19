@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from werkzeug.utils import cached_property
@@ -117,7 +115,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
 
     @scheduled.expression
     def scheduled(self):
-        return (self.start_at != None) & (self.end_at != None)  # NOQA
+        return (self.start_at.isnot(None)) & (self.end_at.isnot(None))
 
     @cached_property
     def start_at_localized(self):

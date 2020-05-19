@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Fix column lengths
 
 Revision ID: 530c22761e27

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """room bgcolor default
 
 Revision ID: 58588eba8cb8
@@ -13,7 +11,7 @@ revision = '58588eba8cb8'
 down_revision = '31253f116e1e'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from funnel.models import VenueRoom
 
@@ -21,9 +19,7 @@ from funnel.models import VenueRoom
 def upgrade():
     connection = op.get_bind()
     room = VenueRoom.__table__
-    updt_stmt = (
-        room.update().where(room.c.bgcolor == None).values(bgcolor='229922')
-    )  # NOQA
+    updt_stmt = room.update().where(room.c.bgcolor.is_(None)).values(bgcolor='229922')
     connection.execute(updt_stmt)
     op.alter_column(
         'venue_room', 'bgcolor', existing_type=sa.VARCHAR(length=6), nullable=False

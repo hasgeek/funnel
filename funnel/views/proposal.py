@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask import Markup, abort, escape, flash, redirect, request
 
 from bleach import linkify
@@ -208,9 +206,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         delcommentform = CommentDeleteForm()
 
         links = [
-            Markup(linkify(str(escape(l))))
-            for l in self.obj.links.replace('\r\n', '\n').split('\n')
-            if l
+            Markup(linkify(str(escape(link))))
+            for link in self.obj.links.replace('\r\n', '\n').split('\n')
+            if link
         ]
 
         transition_form = ProposalTransitionForm(obj=self.obj)
