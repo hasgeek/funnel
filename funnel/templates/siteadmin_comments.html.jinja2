@@ -16,9 +16,9 @@
     <thead>
       <tr>
         <th>
-          <button id="btn-comments-selectall" class="mui-btn mui-btn--accent">
-            ✓ All
-          </button>
+          <div class="mui-checkbox">
+            <input id="check-comments-selectall" type="checkbox" />
+          </div>
         </th>
         <th>{% trans %}User{% endtrans %}</th>
         <th>{% trans %}Comment{% endtrans %}</th>
@@ -69,9 +69,9 @@
 
 {% block footerscripts %}
 <script type="text/javascript">
-  $("#btn-comments-selectall").click(function (e) {
+  $("#check-comments-selectall:checkbox").change(function (e) {
     e.preventDefault();
-    $(".field-comment-id").attr("checked", true);
+    $(".field-comment-id").attr("checked", this.checked);
   });
   $("#form-comments-delete").submit(function (e) {
     var checkedboxes = $(".field-comment-id:checked").length;
