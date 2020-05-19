@@ -1,0 +1,85 @@
+{% extends 'siteadmin_layout.html.jinja2' %}
+
+{% block admincontentblock %}
+{% if comment_search_form %}
+  {{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
+{% endif %}
+
+<form
+  id="form-comments-delete"
+  action="{{ url_for('siteadmin_comments_delete') }}"
+  method="post"
+  class="form-inline"
+>
+  {{ comment_delete_form.hidden_tag() }}
+  <table class="mui-table mui-table--bordered mui-table--responsive">
+    <thead>
+      <tr>
+        <th>
+          <div class="mui-checkbox">
+            <input id="check-comments-selectall" type="checkbox" />
+          </div>
+        </th>
+        <th>{% trans %}User{% endtrans %}</th>
+        <th>{% trans %}Comment{% endtrans %}</th>
+        <th>{% trans %}Content{% endtrans %}</th>
+        {#
+        <th>{% trans %}Actions{% endtrans %}</th>
+        #}
+      </tr>
+    </thead>
+    <tbody class="mui--text-subhead">
+      {% for comment in comments %}
+      <tr>
+        <td data-th="#">
+          <div class="mui-checkbox">
+            <input
+              type="checkbox"
+              class="field-comment-id"
+              name="comment_id"
+              value="{{ comment.uuid_b58 }}"
+            />
+          </div>
+        </td>
+        <td data-th="User">{{ comment.user.pickername }}</td>
+        <td data-th="User"><a href="{{ comment.url_for() }}">Link</a></td>
+        <td data-th="Content">{{ comment.message }}</td>
+        {#
+        <td data-th="Actions">
+          {% if current_auth.user.is_user_moderator %}
+          <button id="btn-user-deleteall" class="mui-btn mui-btn--accent">
+            Delete all comments by user
+          </button>
+          {% endif %}
+        </td>
+        #}
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4">{% trans %}No comment available{% endtrans %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div>
+    {{ rendersubmit([("delete-comments-bulk", "Delete", '')]) }}
+  </div>
+</form>
+{% endblock admincontentblock %}
+
+{% block footerscripts %}
+<script type="text/javascript">
+  $("#check-comments-selectall:checkbox").change(function (e) {
+    e.preventDefault();
+    $(".field-comment-id").attr("checked", this.checked);
+  });
+  $("#form-comments-delete").submit(function (e) {
+    var checkedboxes = $(".field-comment-id:checked").length;
+    if (confirm(`Do you want to delete ${checkedboxes} comments?`)) {
+      return true;
+    } else {
+      e.preventDefault();
+    }
+  });
+</script>
+{% endblock %}
