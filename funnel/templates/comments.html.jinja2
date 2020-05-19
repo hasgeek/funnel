@@ -12,22 +12,24 @@
           </button>
           <button class="js-uncollapse mui-btn mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
             {{ faicon(icon='caret-circle-down', icon_size='subhead') }}
-          </button>&nbsp;
-          {% if comment.state.DELETED -%}
-            <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
-          {%- else -%}
-            <span class="commenter"><strong>{{ comment.user.pickername }}</strong></span>
-            {%- if comment.user == document.user %}
-              <span class="badge">Proposer</span>
-            {% endif %}
-            {%- if 'crew' in project.roles_for(comment.user) %}
-              <span class="badge">Crew</span>
-            {% endif %}
-            <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
-            {%- if comment.edited_at %}
-              <span class="mui--text-caption mui--text-accent">({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})</span>
+          </button>
+          <div class="comment--header__details">
+            {% if comment.state.DELETED -%}
+              <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
+            {%- else -%}
+              <span class="commenter"><strong>{{ comment.user.pickername }}</strong></span>
+              {%- if comment.user == document.user %}
+                <span class="badge">Proposer</span>
+              {% endif %}
+              {%- if 'crew' in project.roles_for(comment.user) %}
+                <span class="badge">Crew</span>
+              {% endif %}
+              <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
+              {%- if comment.edited_at %}
+                <span class="mui--text-caption mui--text-accent">({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})</span>
+              {%- endif %}
             {%- endif %}
-          {%- endif %}
+          </div>
         </div>
         <div class="comment--body">
           {% if not comment.state.DELETED -%}
@@ -71,6 +73,7 @@
       {{ renderfield(commentform.message, nolabel=true, css_class='message') }}
       {{ renderfield(commentform.recaptcha, nolabel=true, css_class='recaptcha-field') }}
       <input id="comment-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" value="{% trans %}Post comment{% endtrans %}"/>
+      <button id="comment-cancel" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent mui--hide" href="#">{% trans %}Cancel{% endtrans %}</button>
     </form>
     <p id="toplevel-comment" class="mui--hide">
       <a href="#">{% trans %}Post a comment &rarr;{% endtrans %}</a>

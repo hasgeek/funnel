@@ -5,9 +5,6 @@
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
-  {% assets "css_leaflet" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
   {% block pageheaders %}{% endblock %}
 {% endblock %}
 
@@ -26,13 +23,10 @@
   {% assets "js_codemirrormarkdown" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  {% assets "js_leaflet" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
 {% endblock %}
 
 {% block layoutscripts %}
-  <script>
+  <script type="text/javascript">
     $(function() {
       var hash = window.location.hash;
       if (hash) {
