@@ -51,9 +51,11 @@ def proposal_label_form(project, proposal):
                 ),
             )
 
-    return ProposalLabelForm(
+    form = ProposalLabelForm(
         obj=proposal.formlabels if proposal else None, meta={'csrf': False}
     )
+    del form.form_nonce
+    return form
 
 
 def proposal_label_admin_form(project, proposal):
@@ -92,9 +94,11 @@ def proposal_label_admin_form(project, proposal):
                 ),
             )
 
-    return ProposalLabelAdminForm(
+    form = ProposalLabelAdminForm(
         obj=proposal.formlabels if proposal else None, meta={'csrf': False}
     )
+    del form.form_nonce
+    return form
 
 
 @Proposal.forms('transfer')
