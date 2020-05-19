@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
 
 from . import BaseScopedNameMixin, CoordinatesMixin, MarkdownColumn, UuidMixin, db
 from .project import Project
+from .project_membership import project_child_role_map
 
 __all__ = ['Venue', 'VenueRoom']
 
@@ -15,7 +15,9 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     __tablename__ = 'venue'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(Project)
+    project = with_roles(
+        db.relationship(Project), grants_via={None: project_child_role_map}
+    )
     parent = db.synonym('project')
     description = MarkdownColumn('description', default='', nullable=False)
     address1 = db.Column(db.Unicode(160), default='', nullable=False)
@@ -33,16 +35,6 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     )
 
     seq = db.Column(db.Integer, nullable=False)
-
-    project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editor'}
-    )
-    project_concierges = with_roles(
-        association_proxy('project', 'concierges'), grants={'project_concierge'}
-    )
-    project_ushers = with_roles(
-        association_proxy('project', 'ushers'), grants={'project_usher'}
-    )
 
     __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
 
@@ -88,7 +80,11 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
 
     venue_id = db.Column(None, db.ForeignKey('venue.id'), nullable=False)
     venue = db.relationship(Venue)
-    parent = db.synonym('venue')
+    parent = with_roles(
+        db.synonym('venue'),
+        # Since Venue already remaps Project roles, we just want the remapped role names
+        grants_via={None: set(project_child_role_map.values())},
+    )
     description = MarkdownColumn('description', default='', nullable=False)
     bgcolor = db.Column(db.Unicode(6), nullable=False, default='229922')
 
@@ -97,16 +93,6 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     scheduled_sessions = db.relationship(
         "Session",
         primaryjoin='and_(Session.venue_room_id == VenueRoom.id, Session.scheduled)',
-    )
-
-    project_editors = with_roles(
-        association_proxy('venue', 'project_editors'), grants={'project_editor'}
-    )
-    project_concierges = with_roles(
-        association_proxy('venue', 'project_concierges'), grants={'project_concierge'}
-    )
-    project_ushers = with_roles(
-        association_proxy('venue', 'project_ushers'), grants={'project_usher'}
     )
 
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)

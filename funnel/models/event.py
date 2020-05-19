@@ -3,10 +3,9 @@
 import base64
 import os
 
-from sqlalchemy.ext.associationproxy import association_proxy
-
 from . import BaseMixin, BaseScopedNameMixin, UuidMixin, db, with_roles
 from .project import Project
+from .project_membership import project_child_role_map
 from .user import User
 
 __all__ = [
@@ -86,23 +85,16 @@ class Event(ScopedNameTitleMixin, db.Model):
     __tablename__ = 'event'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(Project, backref=db.backref('events', cascade='all'))
+    project = with_roles(
+        db.relationship(Project, backref=db.backref('events', cascade='all')),
+        grants_via={None: project_child_role_map},
+    )
     parent = db.synonym('project')
     ticket_types = db.relationship('TicketType', secondary=event_ticket_type)
     participants = db.relationship(
         'Participant', secondary='attendee', backref='events', lazy='dynamic'
     )
     badge_template = db.Column(db.Unicode(250), nullable=True)
-
-    project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editor'}
-    )
-    project_concierges = with_roles(
-        association_proxy('project', 'concierges'), grants={'project_concierge'}
-    )
-    project_ushers = with_roles(
-        association_proxy('project', 'ushers'), grants={'project_usher'}
-    )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
@@ -119,21 +111,12 @@ class TicketType(ScopedNameTitleMixin, db.Model):
     __tablename__ = 'ticket_type'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(
-        Project, backref=db.backref('ticket_types', cascade='all')
+    project = with_roles(
+        db.relationship(Project, backref=db.backref('ticket_types', cascade='all')),
+        grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
     events = db.relationship('Event', secondary=event_ticket_type)
-
-    project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editor'}
-    )
-    project_concierges = with_roles(
-        association_proxy('project', 'concierges'), grants={'project_concierge'}
-    )
-    project_ushers = with_roles(
-        association_proxy('project', 'ushers'), grants={'project_usher'}
-    )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
@@ -198,16 +181,7 @@ class Participant(UuidMixin, BaseMixin, db.Model):
             Project, backref=db.backref('participants', lazy='dynamic', cascade='all')
         ),
         read={'concierge', 'subject', 'scanner'},
-    )
-
-    project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editor'}
-    )
-    project_concierges = with_roles(
-        association_proxy('project', 'concierges'), grants={'project_concierge'}
-    )
-    project_ushers = with_roles(
-        association_proxy('project', 'ushers'), grants={'project_usher'}
+        grants_via={None: project_child_role_map},
     )
 
     __table_args__ = (db.UniqueConstraint('project_id', 'email'),)
@@ -325,18 +299,9 @@ class TicketClient(BaseMixin, db.Model):
     client_secret = db.Column(db.Unicode(80), nullable=False)
     client_access_token = db.Column(db.Unicode(80), nullable=False)
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(
-        Project, backref=db.backref('ticket_clients', cascade='all')
-    )
-
-    project_editors = with_roles(
-        association_proxy('project', 'editors'), grants={'project_editor'}
-    )
-    project_concierges = with_roles(
-        association_proxy('project', 'concierges'), grants={'project_concierge'}
-    )
-    project_ushers = with_roles(
-        association_proxy('project', 'ushers'), grants={'project_usher'}
+    project = with_roles(
+        db.relationship(Project, backref=db.backref('ticket_clients', cascade='all')),
+        grants_via={None: project_child_role_map},
     )
 
     def import_from_list(self, ticket_list):

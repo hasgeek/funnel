@@ -71,20 +71,15 @@ def growthstats():
     tz = pytz.timezone('Asia/Kolkata')
     now = utcnow().astimezone(tz)
     display_date = now - relativedelta(days=1)
-    display_prev_date = now - relativedelta(days=2)
     # Dates cast into UTC (for db queries)
     today = midnight_to_utc(now)
     yesterday = today - relativedelta(days=1)
     two_days_ago = today - relativedelta(days=2)
-    three_days_ago = today - relativedelta(days=3)
     last_week = today - relativedelta(weeks=1)
     last_week_and_a_day = today - relativedelta(days=8)
-    last_week_and_two_days = today - relativedelta(days=9)
     two_weeks_ago = today - relativedelta(weeks=2)
-    three_weeks_ago = today - relativedelta(weeks=3)
     last_month = today - relativedelta(months=1)
     two_months_ago = today - relativedelta(months=2)
-    three_months_ago = today - relativedelta(months=3)
 
     stats = {
         key: {
@@ -126,24 +121,6 @@ def growthstats():
                 )
                 .distinct(models.UserSession.user_id)
                 .count(),
-                'day_before': models.UserSession.query.join(models.User)
-                .filter(
-                    models.UserSession.accessed_at >= two_days_ago,
-                    models.UserSession.accessed_at < yesterday,
-                    models.User.created_at >= three_days_ago,
-                    models.User.created_at < two_days_ago,
-                )
-                .distinct(models.UserSession.user_id)
-                .count(),
-                'weekday_before': models.UserSession.query.join(models.User)
-                .filter(
-                    models.UserSession.accessed_at >= last_week_and_a_day,
-                    models.UserSession.accessed_at < last_week,
-                    models.User.created_at >= last_week_and_two_days,
-                    models.User.created_at < last_week_and_a_day,
-                )
-                .distinct(models.UserSession.user_id)
-                .count(),
                 # User from last week was active this week
                 'week': models.UserSession.query.join(models.User)
                 .filter(
@@ -154,15 +131,6 @@ def growthstats():
                 )
                 .distinct(models.UserSession.user_id)
                 .count(),
-                'week_before': models.UserSession.query.join(models.User)
-                .filter(
-                    models.UserSession.accessed_at >= two_weeks_ago,
-                    models.UserSession.accessed_at < last_week,
-                    models.User.created_at >= three_weeks_ago,
-                    models.User.created_at < two_weeks_ago,
-                )
-                .distinct(models.UserSession.user_id)
-                .count(),
                 # User from last month was active this month
                 'month': models.UserSession.query.join(models.User)
                 .filter(
@@ -170,15 +138,6 @@ def growthstats():
                     models.UserSession.accessed_at < today,
                     models.User.created_at >= two_months_ago,
                     models.User.created_at < last_month,
-                )
-                .distinct(models.UserSession.user_id)
-                .count(),
-                'month_before': models.UserSession.query.join(models.User)
-                .filter(
-                    models.UserSession.accessed_at >= two_months_ago,
-                    models.UserSession.accessed_at < last_month,
-                    models.User.created_at >= three_months_ago,
-                    models.User.created_at < two_months_ago,
                 )
                 .distinct(models.UserSession.user_id)
                 .count(),
@@ -198,44 +157,30 @@ def growthstats():
         return '🔽'
 
     for key in stats:
-        for period in ('day', 'week', 'month'):
-            stats[key][period + '_trend'] = trend_symbol(
-                stats[key][period], stats[key][period + '_before']
+        if key not in ('user_sessions', 'app_user_sessions', 'returning_users'):
+            for period in ('day', 'week', 'month'):
+                stats[key][period + '_trend'] = trend_symbol(
+                    stats[key][period], stats[key][period + '_before']
+                )
+            stats[key]['weekday_trend'] = trend_symbol(
+                stats[key]['day'], stats[key]['weekday_before']
             )
-        stats[key]['weekday_trend'] = trend_symbol(
-            stats[key]['day'], stats[key]['weekday_before']
-        )
 
     message = (
         f"*Growth statistics for {display_date.strftime('%a, %-d %b %Y')}*\n"
         f"\n"
         f"*Active users*, of which\n"
-        f"↝ using other apps, and\n"
+        f"↝ also using other apps, and\n"
         f"⟳ returning new users from last period\n\n"
         f"*{display_date.strftime('%A')}:* {stats['user_sessions']['day']} "
         f"↝ {stats['app_user_sessions']['day']} "
         f"⟳ {stats['returning_users']['day']}\n"
-        f"{stats['user_sessions']['day_trend']} {display_prev_date.strftime('%A')}: {stats['user_sessions']['day_before']} "
-        f"↝ {stats['app_user_sessions']['day_trend']} {stats['app_user_sessions']['day_before']} "
-        f"⟳ {stats['returning_users']['day_trend']} {stats['returning_users']['day_before']}\n"
-        f"{stats['user_sessions']['weekday_trend']} Last {today.strftime('%a')}: {stats['user_sessions']['weekday_before']} "
-        f"↝ {stats['app_user_sessions']['weekday_trend']} {stats['app_user_sessions']['weekday_before']} "
-        f"⟳ {stats['returning_users']['weekday_trend']} {stats['returning_users']['weekday_before']}\n"
         f"*Week:* {stats['user_sessions']['week']} "
         f"↝ {stats['app_user_sessions']['week']} "
         f"⟳ {stats['returning_users']['week']}\n"
-        f"{stats['user_sessions']['week_trend']} {stats['user_sessions']['week_before']} "
-        f"↝ {stats['app_user_sessions']['week_trend']} {stats['app_user_sessions']['week_before']} "
-        f"⟳ {stats['returning_users']['week_trend']} {stats['returning_users']['week_before']}\n"
         f"*Month:* {stats['user_sessions']['month']} "
         f"↝ {stats['app_user_sessions']['month']} "
         f"⟳ {stats['returning_users']['month']}\n"
-        f"{stats['user_sessions']['month_trend']} {stats['user_sessions']['month_before']} "
-        f"↝ {stats['app_user_sessions']['month_trend']} {stats['app_user_sessions']['month_before']} "
-        f"⟳ {stats['returning_users']['month_trend']} {stats['returning_users']['month_before']}\n"
-        f"\n"
-        f"⚠️ Active user counts for previous periods _do not_ include users who have "
-        f"been subsequently active, as only the last access time is recorded.\n"
         f"\n"
     )
     for key, data in stats.items():

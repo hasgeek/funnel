@@ -3,7 +3,6 @@
 from collections import OrderedDict, defaultdict
 from datetime import timedelta
 
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy_utils import TimezoneType
 
@@ -76,8 +75,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         backref=db.backref('projects', cascade='all'),
     )
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
-    profile = db.relationship(
-        'Profile', backref=db.backref('projects', cascade='all', lazy='dynamic')
+    profile = with_roles(
+        db.relationship(
+            'Profile', backref=db.backref('projects', cascade='all', lazy='dynamic')
+        ),
+        # If profile grants an 'admin' role, make it 'profile_admin' here
+        grants_via={None: {'admin': 'profile_admin'}},
     )
     parent = db.synonym('profile')
     tagline = db.Column(db.Unicode(250), nullable=False)
@@ -220,11 +223,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)',
     )
 
-    participant_users = with_roles(
-        association_proxy('participants', 'user'), grants={'participant'}
-    )
-    rsvp_users = with_roles(association_proxy('rsvps', 'user'), grants={'participant'})
-
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
         db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
@@ -259,7 +257,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'cfp_end_at_localized',
             },
             'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
-        }
+        },
+        'participant': {'granted_via': {'rsvps': 'user', 'participants': 'user'}},
     }
 
     def __init__(self, **kwargs):
@@ -381,6 +380,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         and utcnow() < project.schedule_start_at,
         lambda project: db.func.utcnow() < project.schedule_start_at,
         label=('upcoming', __("Upcoming")),
+    )
+    schedule_state.add_conditional_state(
+        'PUBLISHED_WITHOUT_SESSIONS',
+        schedule_state.PUBLISHED,
+        lambda project: project.schedule_start_at is None,
+        lambda project: project.schedule_start_at.is_(None),
+        label=('published_without_sessions', __("Published without sessions"))
     )
 
     cfp_state.add_conditional_state(
@@ -873,17 +879,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
-
-        if actor is not None:
-            profile_roles = self.profile.roles_for(actor, anchors)
-            if 'admin' in profile_roles:
-                roles.add('profile_admin')
-
-            crew_membership = self.active_crew_memberships.filter_by(
-                user=actor
-            ).one_or_none()
-            if crew_membership is not None:
-                roles.update(crew_membership.offered_roles())
         return roles
 
     def is_saved_by(self, user):

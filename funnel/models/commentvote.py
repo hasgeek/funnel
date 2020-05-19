@@ -131,7 +131,8 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super().roles_for(actor, anchors)
-        if 'participant' in self.parent.roles_for(actor, anchors):
+        parent_roles = self.parent.roles_for(actor, anchors)
+        if 'participant' in parent_roles or 'commenter' in parent_roles:
             roles.add('parent_participant')
         return roles
 

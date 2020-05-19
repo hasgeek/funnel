@@ -539,6 +539,7 @@ team_membership = db.Table(
 class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
+
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
