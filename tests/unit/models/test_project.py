@@ -5,13 +5,13 @@ from funnel.models import Project, Session
 
 
 class TestProject(object):
-    def test_project_state_conditional(self, test_client, test_db):
+    def test_project_state_conditional(self, test_db):
         past_projects = Project.query.filter(Project.schedule_state.PAST).all()
         assert len(past_projects) >= 0
         upcoming_projects = Project.query.filter(Project.schedule_state.UPCOMING).all()
         assert len(upcoming_projects) >= 0
 
-    def test_project_cfp_state_conditional(self, test_client, test_db):
+    def test_project_cfp_state_conditional(self, test_db):
         private_draft_cfp_projects = Project.query.filter(
             Project.cfp_state.PRIVATE_DRAFT
         ).all()
@@ -25,7 +25,7 @@ class TestProject(object):
         expired_cfp_projects = Project.query.filter(Project.cfp_state.EXPIRED).all()
         assert len(expired_cfp_projects) >= 0
 
-    def test_cfp_state_draft(self, test_client, test_db, new_organization, new_project):
+    def test_cfp_state_draft(self, test_db, new_organization, new_project):
         assert new_project.cfp_start_at is None
         assert new_project.state.DRAFT
         assert new_project.cfp_state.NONE
@@ -55,7 +55,7 @@ class TestProject(object):
         assert not new_project.state.DRAFT
         assert new_project not in new_organization.profile.draft_projects
 
-    def test_project_dates(self, test_client, test_db, new_project):
+    def test_project_dates(self, test_db, new_project):
         # without any session the project will have no start and end dates
         assert new_project.sessions.count() == 0
         assert new_project.schedule_start_at is None

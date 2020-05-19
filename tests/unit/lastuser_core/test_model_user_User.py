@@ -148,7 +148,7 @@ class TestUser(TestDatabaseFixture):
         db.session.commit()
         result1 = mr_jones.emails
         assert isinstance(result1, list)
-        result1 == [mr_jones_secondary_email, mr_jones_spare_email]
+        set(result1) == {mr_jones_secondary_email, mr_jones_spare_email}
         mr_jones_secondary_email.primary is True
         # scenario 2: when email requested to be delete is not primary
         spare_email = mr_jones_spare_email.email
@@ -286,7 +286,7 @@ class TestUser(TestDatabaseFixture):
             assert crusoe2.status == 2
             assert merged_user.username == "crusoe"
             assert isinstance(merged_user.oldids, InstrumentedList)
-            assert crusoe.oldids == merged_user.oldids
+            assert set(crusoe.oldids) == set(merged_user.oldids)
 
     def test_user_get(self):
         """
@@ -344,24 +344,24 @@ class TestUser(TestDatabaseFixture):
             buids=[crusoe.buid], usernames=[oakley.username]
         )
         assert isinstance(lookup_by_both, list)
-        assert lookup_by_both == expected_result
+        assert set(lookup_by_both) == set(expected_result)
         # scenario 3: when only buids are passed
         lookup_by_buids = models.User.all(buids=[crusoe.buid, oakley.buid])
         assert isinstance(lookup_by_buids, list)
-        assert lookup_by_buids == expected_result
+        assert set(lookup_by_buids) == set(expected_result)
         # scenario 4: when only usernames are passed
         lookup_by_usernames = models.User.all(
             usernames=[crusoe.username, oakley.username]
         )
         assert isinstance(lookup_by_usernames, list)
-        assert lookup_by_usernames == expected_result
+        assert set(lookup_by_usernames) == set(expected_result)
         # scenario 5: when defercols is set to True
         lookup_by_usernames_defercols = models.User.all(
             usernames=[crusoe.username, oakley.username], defercols=True
         )
         lookup_by_usernames_defercols
         assert isinstance(lookup_by_usernames, list)
-        assert lookup_by_usernames == expected_result
+        assert set(lookup_by_usernames) == set(expected_result)
         # scenario 6: when user.status is active
         hannibal = models.User(username='hannibal')
         hannibal.status = models.USER_STATUS.ACTIVE

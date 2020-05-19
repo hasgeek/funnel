@@ -42,9 +42,9 @@ class TestMembershipViews(object):
             assert resp3.status_code == 200
             assert new_user.fullname not in resp3.data.decode('utf-8')
 
-    def test_create_new_member(self, test_client, new_user, new_project):
+    def test_create_new_member(self, test_client, new_user_owner, new_project):
         with test_client.session_transaction() as session:
-            session['userid'] = new_user.userid
+            session['userid'] = new_user_owner.userid
         with test_client as c:
             # GET request should return a form
             resp = c.get(new_project.url_for('new_member'))
@@ -58,11 +58,11 @@ class TestMembershipViews(object):
         self, test_client, test_db, new_user, new_user_owner, new_project
     ):
         with test_client.session_transaction() as session:
-            session['userid'] = new_user.userid
+            session['userid'] = new_user_owner.userid
         with test_client as c:
             # let's add a member to the project
             new_membership = ProjectCrewMembership(
-                parent=new_project, user=new_user_owner, is_editor=True
+                parent=new_project, user=new_user, is_editor=True
             )
             test_db.session.add(new_membership)
             test_db.session.commit()
@@ -73,7 +73,7 @@ class TestMembershipViews(object):
             assert 'form' in resp.json
             assert new_membership.url_for('edit') in resp.json.get('form')
 
-            new_membership.revoke(actor=new_user)
+            new_membership.revoke(actor=new_user_owner)
             test_db.session.commit()
 
             # FIXME: Can't test member edit because SelectUserField validation fails
