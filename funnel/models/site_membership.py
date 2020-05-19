@@ -67,3 +67,11 @@ User.is_user_moderator = db.column_property(
     .where(SiteMembership.user_id == User.id)
     .correlate_except(SiteMembership)
 )
+
+
+User.active_site_memberships = db.relationship(
+    SiteMembership,
+    lazy='dynamic',
+    primaryjoin=db.and_(SiteMembership.user_id == User.id, SiteMembership.is_active),
+    viewonly=True,
+)
