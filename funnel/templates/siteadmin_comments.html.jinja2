@@ -77,6 +77,8 @@
     var checkedboxes = $(".field-comment-id:checked").length;
     if (confirm(`Do you want to delete ${checkedboxes} comments?`)) {
       return true;
+    } else {
+      e.preventDefault();
     }
   });
 </script>
