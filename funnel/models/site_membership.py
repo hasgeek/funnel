@@ -16,10 +16,18 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
     __tablename__ = 'site_membership'
 
     # List of is_role columns in this model
-    __data_columns__ = {'is_comment_moderator', 'is_user_moderator'}
+    __data_columns__ = {'is_comment_moderator', 'is_user_moderator', 'is_site_editor'}
 
     __roles__ = {
-        'all': {'read': {'urls', 'user', 'is_comment_moderator', 'is_user_moderator'}}
+        'all': {
+            'read': {
+                'urls',
+                'user',
+                'is_comment_moderator',
+                'is_user_moderator',
+                'is_site_editor',
+            }
+        }
     }
 
     # Site admin roles (at least one must be True):
@@ -28,6 +36,8 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
     is_comment_moderator = db.Column(db.Boolean, nullable=False, default=False)
     #: User moderators can suspend users
     is_user_moderator = db.Column(db.Boolean, nullable=False, default=False)
+    #: Site editors can feature or reject projects
+    is_site_editor = db.Column(db.Boolean, nullable=False, default=False)
 
     @declared_attr
     def __table_args__(cls):
@@ -35,7 +45,9 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         args.append(
             db.CheckConstraint(
                 db.or_(
-                    cls.is_comment_moderator.is_(True), cls.is_user_moderator.is_(True),
+                    cls.is_comment_moderator.is_(True),
+                    cls.is_user_moderator.is_(True),
+                    cls.is_site_editor.is_(True),
                 ),
                 name='site_membership_has_role',
             )
@@ -49,6 +61,8 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
             roles.add('comment_moderator')
         if self.is_user_moderator:
             roles.add('user_moderator')
+        if self.is_site_editor:
+            roles.add('site_editor')
         roles.add('site_admin')
         return roles
 
@@ -63,6 +77,14 @@ User.is_comment_moderator = db.column_property(
 
 User.is_user_moderator = db.column_property(
     db.select([SiteMembership.is_user_moderator])
+    .where(SiteMembership.is_active == True)  # NOQA
+    .where(SiteMembership.user_id == User.id)
+    .correlate_except(SiteMembership)
+)
+
+
+User.is_site_editor = db.column_property(
+    db.select([SiteMembership.is_site_editor])
     .where(SiteMembership.is_active == True)  # NOQA
     .where(SiteMembership.user_id == User.id)
     .correlate_except(SiteMembership)
