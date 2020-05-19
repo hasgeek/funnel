@@ -132,6 +132,7 @@ class LoginManager(object):
             add_auth_attribute('user', User.get(buid=lastuser_cookie['userid']))
             if current_auth.is_authenticated:
                 add_auth_attribute('session', UserSession(user=current_auth.user))
+                current_auth.session.access()
 
         if current_auth.session:
             lastuser_cookie['sessionid'] = current_auth.session.buid
