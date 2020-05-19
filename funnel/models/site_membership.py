@@ -16,7 +16,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
     __tablename__ = 'site_membership'
 
     # List of is_role columns in this model
-    __data_columns__ = {'is_comment_moderator'}
+    __data_columns__ = {'is_comment_moderator', 'is_user_moderator'}
 
     __roles__ = {
         'all': {'read': {'urls', 'user', 'is_comment_moderator', 'is_user_moderator'}}
@@ -53,23 +53,17 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         return roles
 
 
-def _is_comment_moderator(self):
-    return (
-        SiteMembership.query.filter_by(
-            user=self, is_comment_moderator=True, is_active=True
-        ).one_or_none()
-        is not None
-    )
+User.is_comment_moderator = db.column_property(
+    db.select([SiteMembership.is_comment_moderator])
+    .where(SiteMembership.is_active == True)  # NOQA
+    .where(SiteMembership.user_id == User.id)
+    .correlate_except(SiteMembership)
+)
 
 
-def _is_user_moderator(self):
-    return (
-        SiteMembership.query.filter_by(
-            user=self, is_user_moderator=True, is_active=True
-        ).one_or_none()
-        is not None
-    )
-
-
-User.is_comment_moderator = property(fget=_is_comment_moderator)
-User.is_user_moderator = property(fget=_is_user_moderator)
+User.is_user_moderator = db.column_property(
+    db.select([SiteMembership.is_user_moderator])
+    .where(SiteMembership.is_active == True)  # NOQA
+    .where(SiteMembership.user_id == User.id)
+    .correlate_except(SiteMembership)
+)

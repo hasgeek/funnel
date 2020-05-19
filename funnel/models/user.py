@@ -292,7 +292,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         Returns primary phone number for user.
         """
-        # Look for a primary address
+        # Look for a primary phone number
         userphone = self.primary_phone
         if userphone:
             return userphone

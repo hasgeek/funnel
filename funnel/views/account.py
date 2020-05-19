@@ -141,11 +141,11 @@ class AccountView(ClassView):
             ).delete(synchronize_session=False)
             db.session.commit()
             flash(
-                _("Comment(s) successfully deleted."), category='info',
+                _("Comment(s) successfully deleted"), category='info',
             )
         else:
             flash(
-                _("There was a problem deleting the comments. Please try again."),
+                _("There was a problem deleting the comments. Please try again"),
                 category='error',
             )
 
