@@ -134,16 +134,18 @@ class AccountView(ClassView):
         comment_delete_form = Form()
         comment_delete_form.form_nonce.data = comment_delete_form.form_nonce.default()
         if comment_delete_form.validate_on_submit():
-            Comment.query.filter(
+            comments = Comment.query.filter(
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
-            ).delete(synchronize_session=False)
+            )
+            for comment in comments:
+                comment.mark_spam()
             db.session.commit()
             flash(
-                _("Comment(s) successfully deleted"), category='info',
+                _("Comment(s) successfully marked as spam"), category='info',
             )
         else:
             flash(
-                _("There was a problem deleting the comments. Please try again"),
+                _("There was a problem marking the comments as spam. Please try again"),
                 category='error',
             )
 

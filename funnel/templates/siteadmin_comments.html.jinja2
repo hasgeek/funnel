@@ -75,7 +75,7 @@
   });
   $("#form-comments-delete").submit(function (e) {
     var checkedboxes = $(".field-comment-id:checked").length;
-    if (confirm(`Do you want to delete ${checkedboxes} comments?`)) {
+    if (confirm(`Do you want to mark ${checkedboxes} comments as spam?`)) {
       return true;
     } else {
       e.preventDefault();

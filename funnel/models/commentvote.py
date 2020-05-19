@@ -23,6 +23,8 @@ class COMMENT_STATE(LabeledEnum):  # NOQA: N801
     # Deleted state for when there are children to be preserved
     DELETED = (4, 'deleted', __("Deleted"))
 
+    REMOVED = {SPAM, DELETED}
+
 
 # What is this Voteset or Commentset attached to?
 class SET_TYPE:  # NOQA: N801
@@ -247,6 +249,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 parent.delete()
             else:
                 db.session.delete(self)
+
+    @state.transition(None, state.SPAM)
+    def mark_spam(self):
+        """
+        Mark this comment as spam.
+        """
 
     def sorted_children(self):
         return sorted(self.children, key=lambda child: child.voteset.count)
