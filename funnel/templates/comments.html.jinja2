@@ -21,11 +21,8 @@
               <span class="commenter">[{% trans %}removed{% endtrans %}]</span>
             {%- else -%}
               <span class="commenter"><strong>{{ comment.user.pickername }}</strong></span>
-              {%- if comment.user == document.user %}
-                <span class="badge">Proposer</span>
-              {% endif %}
-              {%- if 'crew' in project.roles_for(comment.user) %}
-                <span class="badge">Crew</span>
+              {%- if comment.badge %}
+                <span class="badge">{{ comment.badge }}</span>
               {% endif %}
               <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
               {%- if comment.edited_at %}

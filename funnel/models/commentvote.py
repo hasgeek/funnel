@@ -232,6 +232,18 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         else:
             return _("{user} commented").format(user=self.user.pickername)
 
+    @property
+    def badge(self):
+        if self.commentset.project is not None:
+            if 'crew' in self.commentset.project.roles_for(self.user):
+                return 'Crew'
+        elif self.commentset.proposal is not None:
+            if self.commentset.proposal.user == self.user:
+                return 'Proposer'
+            elif 'crew' in self.commentset.proposal.project.roles_for(self.user):
+                return 'Crew'
+        return ''
+
     @state.transition(None, state.DELETED)
     def delete(self):
         """
