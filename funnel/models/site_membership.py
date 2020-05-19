@@ -56,14 +56,13 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
 
     def offered_roles(self):
         """Roles offered by this membership record"""
-        roles = set()
+        roles = {'site_admin'}
         if self.is_comment_moderator:
             roles.add('comment_moderator')
         if self.is_user_moderator:
             roles.add('user_moderator')
         if self.is_site_editor:
             roles.add('site_editor')
-        roles.add('site_admin')
         return roles
 
 
