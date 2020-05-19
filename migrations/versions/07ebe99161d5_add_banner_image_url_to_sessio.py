@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add banner_image_url field to session
 
 Revision ID: 07ebe99161d5
@@ -13,7 +11,7 @@ revision = '07ebe99161d5'
 down_revision = '60a132ae73f1'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

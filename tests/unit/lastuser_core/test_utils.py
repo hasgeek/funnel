@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 from funnel.utils import make_redirect_url, mask_email, strip_phone, valid_phone

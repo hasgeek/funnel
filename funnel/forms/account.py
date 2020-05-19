@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from baseframe import _, __
 from coaster.auth import current_auth
 from coaster.utils import nullstr, sorted_timezones

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Remove organization.description
 
 Revision ID: 222b78a8508d

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Fix column settings
 
 Revision ID: b553db89a76e
@@ -13,7 +11,7 @@ revision = 'b553db89a76e'
 down_revision = 'ccfad4d5e383'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

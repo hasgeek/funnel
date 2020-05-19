@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add inherit sections to proposal space
 
 Revision ID: 3b189f2e5c56
@@ -13,7 +11,7 @@ revision = '3b189f2e5c56'
 down_revision = '416a2f958279'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

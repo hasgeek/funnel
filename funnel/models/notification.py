@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from baseframe import __
 from coaster.utils import LabeledEnum
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """uuid fields venue_room
 
 Revision ID: a9cb0e1c52ed
@@ -17,7 +15,7 @@ from uuid import uuid4
 from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 venue_room = table(
     'venue_room', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))

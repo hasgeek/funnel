@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Remove sections
 
 Revision ID: 3afa589814a9
@@ -14,7 +12,7 @@ down_revision = '1b8fc63c0fb0'
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

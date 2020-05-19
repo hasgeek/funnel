@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Remove team fkeys
 
 Revision ID: 7ee3c83f713f

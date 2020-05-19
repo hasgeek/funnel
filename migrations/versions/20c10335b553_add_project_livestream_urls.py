@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add project livestream urls
 
 Revision ID: 20c10335b553
@@ -13,7 +11,7 @@ revision = '20c10335b553'
 down_revision = 'c11dc931b903'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """logo url banner url hasjob embed
 
 Revision ID: 70ffbc1bcf88
@@ -12,7 +10,7 @@ revision = '70ffbc1bcf88'
 down_revision = 'b553db89a76e'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy import JsonDict
 

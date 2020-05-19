@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from flask import abort, jsonify, redirect, render_template, request
 
 from baseframe import _, localize_timezone, request_is_xhr

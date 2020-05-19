@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Remove unused proposal.data
 
 Revision ID: 752dee4ae101
@@ -13,7 +11,7 @@ revision = '752dee4ae101'
 down_revision = '3afa589814a9'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy import JsonDict
 

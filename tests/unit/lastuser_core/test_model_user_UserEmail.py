@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from coaster.utils import md5sum
 import funnel.models as models
 

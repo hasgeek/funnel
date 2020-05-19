@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """migrate old labels
 
 Revision ID: e2be4ab896d3

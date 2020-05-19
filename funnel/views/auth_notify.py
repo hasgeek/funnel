@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from ..jobs import send_auth_client_notice
 from ..models import AuthToken
 from ..signals import (

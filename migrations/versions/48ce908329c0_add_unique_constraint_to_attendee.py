@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add_unique_constraint_to_attendee
 
 Revision ID: 48ce908329c0

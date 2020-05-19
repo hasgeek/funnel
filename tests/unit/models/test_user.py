@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 class TestUser(object):
     def test_admin_role(self, test_client, test_db, new_user_owner, new_organization):
         with test_client.session_transaction() as session:

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """drop old state from project model
 
 Revision ID: 347c236041d3
@@ -13,7 +11,7 @@ down_revision = '4b80fb451c8e'
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 class OLD_STATE:  # NOQA: N801

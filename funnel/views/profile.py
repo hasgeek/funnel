@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask import flash, redirect
 
 from baseframe import _

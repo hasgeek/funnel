@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Added session
 
 Revision ID: 1fcee2e6280
@@ -13,7 +11,7 @@ revision = '1fcee2e6280'
 down_revision = '1925329c798a'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

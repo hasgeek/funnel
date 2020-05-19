@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ContactExchange notes and metadata
 
 Revision ID: b61a489d34a4
@@ -14,7 +12,7 @@ down_revision = '1829e53eba75'
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 contact_exchange = table(
     'contact_exchange',

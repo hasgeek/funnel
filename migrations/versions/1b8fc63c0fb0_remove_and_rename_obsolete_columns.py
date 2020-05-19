@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Remove and rename obsolete columns
 
 Revision ID: 1b8fc63c0fb0
@@ -16,7 +14,7 @@ import json
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 default_part_labels = {
     "proposal": {

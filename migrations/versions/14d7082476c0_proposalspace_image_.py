@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ProposalSpace image and color
 
 Revision ID: 14d7082476c0
@@ -13,7 +11,7 @@ revision = '14d7082476c0'
 down_revision = '577689971aa0'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

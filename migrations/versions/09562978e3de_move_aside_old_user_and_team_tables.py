@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Move aside old user and team tables
 
 Revision ID: 09562978e3de

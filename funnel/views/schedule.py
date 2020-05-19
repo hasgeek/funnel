@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from collections import defaultdict
 from datetime import timedelta
 from time import mktime
@@ -158,7 +156,7 @@ def session_ical(session):
     if session.proposal:
         event.add('url', session.url_for(_external=True))
         if session.proposal.labels:
-            event.add('categories', [l.title for l in session.proposal.labels])
+            event.add('categories', [label.title for label in session.proposal.labels])
     alarm = Alarm()
     alarm.add('trigger', timedelta(minutes=-5))
     alarm.add('action', 'display')
@@ -411,14 +409,12 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             Session.start_at <= now,
             Session.end_at >= now,
             Session.project == self.obj.venue.project,
-            db.or_(Session.venue_room == self.obj, Session.is_break == True),  # NOQA
+            db.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
         ).first()
         next_session = (
             Session.query.filter(
                 Session.start_at > now,
-                db.or_(
-                    Session.venue_room == self.obj, Session.is_break == True
-                ),  # NOQA
+                db.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
                 Session.project == self.obj.venue.project,
             )
             .order_by(Session.start_at)

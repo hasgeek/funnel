@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask import abort, g, redirect, render_template, request
 
 from baseframe import _

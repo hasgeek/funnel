@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """naming fixes
 
 Revision ID: 2d73dbe935dc
@@ -13,7 +11,7 @@ revision = '2d73dbe935dc'
 down_revision = '380089617763'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

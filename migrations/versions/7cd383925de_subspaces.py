@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Subspaces
 
 Revision ID: 7cd383925de
@@ -13,7 +11,7 @@ revision = '7cd383925de'
 down_revision = '21a7dfe8ab4d'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

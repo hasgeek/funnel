@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from collections import OrderedDict, defaultdict
 from datetime import timedelta
 
@@ -386,7 +384,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         schedule_state.PUBLISHED,
         lambda project: project.schedule_start_at is None,
         lambda project: project.schedule_start_at.is_(None),
-        label=('published_without_sessions', __("Published without sessions"))
+        label=('published_without_sessions', __("Published without sessions")),
     )
 
     cfp_state.add_conditional_state(

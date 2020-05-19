@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 from baseframe import _

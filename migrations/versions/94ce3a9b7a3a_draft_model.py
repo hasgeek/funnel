@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """draft model
 
 Revision ID: 94ce3a9b7a3a
@@ -13,7 +11,7 @@ down_revision = 'a9cb0e1c52ed'
 
 from alembic import op
 from sqlalchemy_utils.types.uuid import UUIDType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy.columns import JsonDict
 

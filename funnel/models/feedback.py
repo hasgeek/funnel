@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from . import BaseMixin, db
 from .proposal import Proposal
 
@@ -9,7 +7,7 @@ __all__ = ['FEEDBACK_AUTH_TYPE', 'ProposalFeedback']
 # --- Constants ---------------------------------------------------------------
 
 
-class FEEDBACK_AUTH_TYPE:  # NOQA
+class FEEDBACK_AUTH_TYPE:  # NOQA: N801
     NOAUTH = 0
     HGAUTH = 1
 

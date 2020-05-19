@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add title index to event and ticket type
 
 Revision ID: 416a2f958279

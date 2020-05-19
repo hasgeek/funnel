@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Set null constraint
 
 Revision ID: 1c496c114b6

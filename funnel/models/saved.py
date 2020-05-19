@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from . import NoIdMixin, db
 from .project import Project
 from .session import Session

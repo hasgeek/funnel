@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Remove ProposalSpace.content
 
 Revision ID: 436114dffa00
@@ -13,7 +11,7 @@ revision = '436114dffa00'
 down_revision = 'f8204bcd438'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy import JsonDict
 

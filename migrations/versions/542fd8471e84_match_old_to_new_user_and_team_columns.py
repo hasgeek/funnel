@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Match old to new user and team columns
 
 Revision ID: 542fd8471e84
