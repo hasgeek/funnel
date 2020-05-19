@@ -103,7 +103,9 @@ def new_organization(test_db, new_user_owner, new_user_admin):
     )
     test_db.session.add(org)
 
-    admin_membership = OrganizationMembership(organization=org, user=new_user_admin)
+    admin_membership = OrganizationMembership(
+        organization=org, user=new_user_admin, is_owner=False, granted_by=new_user_owner
+    )
     test_db.session.add(admin_membership)
     test_db.session.commit()
     return org
