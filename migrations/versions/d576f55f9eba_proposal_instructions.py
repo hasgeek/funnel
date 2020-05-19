@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """proposal instructions
 
 Revision ID: d576f55f9eba
@@ -13,7 +11,7 @@ revision = 'd576f55f9eba'
 down_revision = '570f4ea99cda'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

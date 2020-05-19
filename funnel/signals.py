@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy import event as sqla_event
 
 from flask.signals import Namespace

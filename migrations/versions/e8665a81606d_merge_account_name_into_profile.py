@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Merge account_name into profile
 
 Revision ID: e8665a81606d

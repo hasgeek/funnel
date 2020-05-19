@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from urllib.parse import urlparse
 
 from flask import abort, jsonify, render_template, request

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """add video mixin to proposal and session
 
 Revision ID: 664141d5ec56
@@ -11,7 +10,7 @@ revision = '664141d5ec56'
 down_revision = '20c10335b553'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

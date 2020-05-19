@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """space date upto
 
 Revision ID: 31253f116e1e
@@ -13,7 +11,7 @@ revision = '31253f116e1e'
 down_revision = '4aedc1062818'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """init
 
 Revision ID: 4b630fb42760
@@ -13,7 +11,7 @@ revision = '4b630fb42760'
 down_revision = None
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

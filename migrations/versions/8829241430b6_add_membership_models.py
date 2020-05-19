@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Add membership models
 
 Revision ID: 8829241430b6

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #: The title of this site
 SITE_TITLE = 'HasGeek Funnel'
 #: Support contact email

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Event timezone
 
 Revision ID: 55097480a655
@@ -13,7 +11,7 @@ revision = '55097480a655'
 down_revision = '3a6b2ab00e3e'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import six
 
 import csv
@@ -548,8 +546,8 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         comments = (
             Comment.query.join(Voteset)
             .filter(
-                Comment.commentset == self.obj.commentset, Comment.parent == None
-            )  # NOQA
+                Comment.commentset == self.obj.commentset, Comment.parent_id.is_(None)
+            )
             .order_by(Voteset.count, Comment.created_at.asc())
             .all()
         )

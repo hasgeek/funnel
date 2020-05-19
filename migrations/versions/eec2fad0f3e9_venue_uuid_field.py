@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """venue uuid field
 
 Revision ID: eec2fad0f3e9
@@ -16,7 +14,7 @@ from uuid import uuid4
 from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from progressbar import ProgressBar
 import progressbar.widgets

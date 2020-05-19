@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """remove proposal_space_id from sync_ticket
 
 Revision ID: 2d55f804a4ed
@@ -14,7 +12,7 @@ down_revision = '48ce908329c0'
 
 from alembic import op
 from sqlalchemy.sql import column, select, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

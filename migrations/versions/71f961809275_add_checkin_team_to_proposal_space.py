@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add_checkin_team_to_proposal_space
 
 Revision ID: 71f961809275
@@ -13,7 +11,7 @@ revision = '71f961809275'
 down_revision = '90cc904ece17'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

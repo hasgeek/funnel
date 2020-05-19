@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from coaster.utils import utcnow
 from funnel import db
 import funnel.models as models

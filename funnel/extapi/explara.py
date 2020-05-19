@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import requests
 
 from ..utils import extract_twitter_handle

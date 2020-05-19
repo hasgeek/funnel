@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Adds support for texting Indian mobile numbers
 """

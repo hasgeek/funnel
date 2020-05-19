@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Main label index
 
 Revision ID: e679554261b2
@@ -13,7 +11,6 @@ revision = 'e679554261b2'
 down_revision = 'e2be4ab896d3'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

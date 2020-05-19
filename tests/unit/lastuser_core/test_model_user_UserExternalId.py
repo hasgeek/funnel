@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from os import environ
 
 from funnel import db

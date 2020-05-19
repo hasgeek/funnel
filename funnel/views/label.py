@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask import flash, g, redirect, request
 from werkzeug.datastructures import MultiDict
 

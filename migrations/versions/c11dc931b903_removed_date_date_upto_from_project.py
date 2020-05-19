@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """removed date, date_upto from project
 
 Revision ID: c11dc931b903
@@ -13,7 +12,7 @@ down_revision = '56ba15eff9ad'
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 project = table(
     'project',

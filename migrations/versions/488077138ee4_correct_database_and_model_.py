@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Correct database and model inconsistencies
 
 Revision ID: 488077138ee4
@@ -14,7 +12,7 @@ down_revision = '2cbfbcca4737'
 
 from alembic import op
 from sqlalchemy.schema import CreateSequence, DropSequence, Sequence
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy import JsonDict
 

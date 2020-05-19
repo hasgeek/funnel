@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from flask import get_flashed_messages, jsonify, redirect, render_template, request
 
 from baseframe import _, forms
@@ -399,12 +397,12 @@ def oauth_make_token(user, auth_client, scope, user_session=None):
     else:
         # If there's no existing token, create one
         if auth_client.confidential:
-            token = AuthToken(
+            token = AuthToken(  # nosec
                 user=user, auth_client=auth_client, scope=scope, token_type='bearer'
             )
             token = failsafe_add(db.session, token, user=user, auth_client=auth_client)
         elif user_session:
-            token = AuthToken(
+            token = AuthToken(  # nosec
                 user_session=user_session,
                 auth_client=auth_client,
                 scope=scope,

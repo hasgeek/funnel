@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Proposal video blogpost
 
 Revision ID: 1195a2789872
@@ -13,7 +11,7 @@ revision = '1195a2789872'
 down_revision = '3c47ba103724'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

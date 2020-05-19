@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """coaster_models
 
 Revision ID: 316aaa757c8c
@@ -14,7 +12,7 @@ down_revision = '9d513be1a96'
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

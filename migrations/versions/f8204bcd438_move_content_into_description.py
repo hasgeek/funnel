@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Move content into description
 
 Revision ID: f8204bcd438
@@ -14,7 +12,7 @@ down_revision = '55b1ef63bee'
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.gfm import markdown
 from coaster.sqlalchemy import JsonDict

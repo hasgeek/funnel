@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Space content
 
 Revision ID: 577689971aa0
@@ -13,7 +11,7 @@ revision = '577689971aa0'
 down_revision = '1195a2789872'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy import JsonDict
 

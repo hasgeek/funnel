@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Proposal location and additional data
 
 Revision ID: 39af75387b10
@@ -13,7 +11,7 @@ revision = '39af75387b10'
 down_revision = '50f58275fc1c'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy import JsonDict
 

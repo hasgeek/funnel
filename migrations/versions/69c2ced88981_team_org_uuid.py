@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Team org UUID
 
 Revision ID: 69c2ced88981
@@ -15,7 +13,7 @@ down_revision = 'b34aa62af7fc'
 from alembic import op
 from sqlalchemy.sql import column, table
 from sqlalchemy_utils import UUIDType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from progressbar import ProgressBar
 import progressbar.widgets

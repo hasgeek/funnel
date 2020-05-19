@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Legacy profile flag
 
 Revision ID: 2441cb4f44d4
@@ -13,7 +11,7 @@ revision = '2441cb4f44d4'
 down_revision = 'd62b392b0f25'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

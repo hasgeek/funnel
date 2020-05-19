@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from flask import current_app
@@ -87,7 +85,8 @@ def do_migrate_instances(old_instance, new_instance, helper_method=None):
     ``id`` (typically provided by :class:`BaseMixin`).
     """
 
-    assert old_instance != new_instance
+    if old_instance == new_instance:
+        raise ValueError("Old and new are the same")
 
     # User id column (for foreign keys)
     id_column = (

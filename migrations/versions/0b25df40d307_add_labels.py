@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add labels
 
 # Revision ID: 0b25df40d307

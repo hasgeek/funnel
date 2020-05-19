@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Switch to timestamptz
 
 Revision ID: 111c9755ae39
@@ -13,7 +11,7 @@ revision = '111c9755ae39'
 down_revision = 'e679554261b2'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 migrate_table_columns = [
     ('attendee', 'created_at'),

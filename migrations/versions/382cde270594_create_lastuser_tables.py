@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Create Lastuser tables
 
 Revision ID: 382cde270594

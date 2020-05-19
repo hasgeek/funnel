@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Add search vectors
 
 Revision ID: 1829e53eba75
@@ -16,7 +14,7 @@ from textwrap import dedent
 
 from alembic import op
 from sqlalchemy_utils import TSVectorType
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

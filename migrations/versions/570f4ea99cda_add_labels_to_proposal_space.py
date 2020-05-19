@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add labels to proposal space
 
 Revision ID: 570f4ea99cda
@@ -14,7 +12,7 @@ down_revision = '3b189f2e5c56'
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 from coaster.sqlalchemy import JsonDict
 

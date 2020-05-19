@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """add participant uuid field
 
 Revision ID: 321b11b6a413

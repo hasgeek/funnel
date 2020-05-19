@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Profiles and UserBase2
 
 Revision ID: 1bb2df0df8e2
@@ -13,7 +11,7 @@ revision = '1bb2df0df8e2'
 down_revision = '523c53593e3c'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

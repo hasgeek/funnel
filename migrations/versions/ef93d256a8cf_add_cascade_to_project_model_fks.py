@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add cascade to project model fks
 
 Revision ID: ef93d256a8cf

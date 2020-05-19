@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add_title_to_ticket_type
 
 Revision ID: 380089617763
@@ -13,7 +11,7 @@ revision = '380089617763'
 down_revision = '39eed1e99156'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

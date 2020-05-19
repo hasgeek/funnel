@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Proposal redirects
 
 Revision ID: 21a7dfe8ab4d
@@ -13,7 +11,7 @@ revision = '21a7dfe8ab4d'
 down_revision = '2a5516432f66'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

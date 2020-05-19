@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """change_constraint_ticket_no
 
 Revision ID: 40c4ad7c0909
@@ -12,8 +10,6 @@ revision = '40c4ad7c0909'
 down_revision = '2c64e60b80a'
 
 from alembic import op
-
-# import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

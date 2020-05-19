@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """remove_id_from_contact_exchange_use_composite_primary_key
 Revision ID: 4083b7bd0cc8
 Revises: 22fb4e1e3139
@@ -11,7 +9,7 @@ revision = '4083b7bd0cc8'
 down_revision = '22fb4e1e3139'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

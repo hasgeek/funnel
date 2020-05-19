@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Proposal fields are now optional
 
 Revision ID: a2115fab4c4
@@ -13,7 +11,7 @@ revision = 'a2115fab4c4'
 down_revision = '39af75387b10'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

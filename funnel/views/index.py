@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os.path
 
 from flask import Response, g, jsonify, redirect, render_template
@@ -78,7 +76,7 @@ class FunnelIndexView(ClassView):
     @render_with('funnelindex.html.jinja2')
     def home(self):
         g.profile = None
-        projects = Project.fetch_sorted(legacy=True).all()  # NOQA
+        projects = Project.fetch_sorted(legacy=True).all()
         return {'projects': projects}
 
 
@@ -100,7 +98,7 @@ def whoami():
 @app.route('/json')
 def all_projects_json():
     g.profile = None
-    projects = Project.fetch_sorted(legacy=False).all()  # NOQA
+    projects = Project.fetch_sorted(legacy=False).all()
     return jsonp(
         projects=list(map(project_data, projects)),
         spaces=list(map(project_data, projects)),
@@ -110,7 +108,7 @@ def all_projects_json():
 @funnelapp.route('/json')
 def funnelapp_all_projects_json():
     g.profile = None
-    projects = Project.fetch_sorted().all()  # NOQA
+    projects = Project.fetch_sorted().all()
     return jsonp(
         projects=list(map(project_data, projects)),
         spaces=list(map(project_data, projects)),

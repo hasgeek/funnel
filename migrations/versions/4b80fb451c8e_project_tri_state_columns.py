@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project tri-state columns
 
 Revision ID: 4b80fb451c8e
@@ -14,7 +12,7 @@ down_revision = '9aa60ff2a0ea'
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 class OLD_STATE:  # NOQA: N801

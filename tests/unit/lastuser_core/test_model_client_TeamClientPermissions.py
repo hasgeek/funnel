@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture

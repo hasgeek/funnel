@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """add ticket client
 
 Revision ID: 22fb4e1e3139
@@ -12,7 +10,7 @@ revision = '22fb4e1e3139'
 down_revision = '40c4ad7c0909'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

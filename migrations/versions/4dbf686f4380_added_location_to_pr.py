@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Added location to proposal
 
 Revision ID: 4dbf686f4380
@@ -13,7 +11,7 @@ revision = '4dbf686f4380'
 down_revision = '1fcee2e6280'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

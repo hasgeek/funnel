@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Contact exchange cascades
 
 Revision ID: 252f9a705901
@@ -13,7 +11,6 @@ revision = '252f9a705901'
 down_revision = '034863dbaac2'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
 
 
 def upgrade():

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Drop old user and team columns
 
 Revision ID: 62d770006955

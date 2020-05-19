@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Proposal space to profile
 
 Revision ID: 50f58275fc1c

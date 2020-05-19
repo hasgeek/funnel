@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
 from coaster.auth import current_auth

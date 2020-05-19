@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """contact_exchange
 
 Revision ID: 2c64e60b80a
@@ -12,7 +10,7 @@ revision = '2c64e60b80a'
 down_revision = '522d776a42ed'
 
 from alembic import op
-import sqlalchemy as sa  # NOQA
+import sqlalchemy as sa
 
 
 def upgrade():

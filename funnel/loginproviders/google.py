@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from flask import redirect, request, session
 
 from oauth2client import client
