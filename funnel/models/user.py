@@ -290,7 +290,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         Returns primary phone number for user.
         """
-        # Look for a primary address
+        # Look for a primary phone number
         userphone = self.primary_phone
         if userphone:
             return userphone
@@ -359,7 +359,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if user and user.is_active:
             return user
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(  # NOQA: A003
         cls, buids=None, userids=None, usernames=None, defercols=False
     ):
@@ -647,7 +647,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             query = query.options(*cls._defercols)
         return query.one_or_none()
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, buids=None, names=None, defercols=False):  # NOQA: A003
         orgs = []
         if buids:
@@ -908,7 +908,7 @@ class UserEmailClaim(BaseMixin, db.Model):
             md5sum=md5sum, verification_code=verification_code
         ).one_or_none()
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, email):  # NOQA: A003
         """
         Return all UserEmailClaim instances with matching email address.
@@ -1075,7 +1075,7 @@ class UserPhoneClaim(BaseMixin, db.Model):
         """
         return cls.query.filter_by(phone=phone, user=user).one_or_none()
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, phone):  # NOQA: A003
         """
         Return all UserPhoneClaim instances with matching phone number.

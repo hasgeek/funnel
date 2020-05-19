@@ -104,15 +104,25 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @declared_attr
     def __table_args__(cls):
-        return (
-            db.Index(
-                'ix_' + cls.__tablename__ + '_active',
-                cls.parent_id.name,
-                'user_id',
-                unique=True,
-                postgresql_where=db.text('revoked_at IS NULL'),
-            ),
-        )
+        if cls.parent_id is not None:
+            return (
+                db.Index(
+                    'ix_' + cls.__tablename__ + '_active',
+                    cls.parent_id.name,
+                    'user_id',
+                    unique=True,
+                    postgresql_where=db.text('revoked_at IS NULL'),
+                ),
+            )
+        else:
+            return (
+                db.Index(
+                    'ix_' + cls.__tablename__ + '_active',
+                    'user_id',
+                    unique=True,
+                    postgresql_where=db.text('revoked_at IS NULL'),
+                ),
+            )
 
     def offered_roles(self):
         """Roles offered by this membership record"""
@@ -135,7 +145,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise AttributeError("Unknown role")
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
-        new = type(self)(user=self.user, parent=self.parent, granted_by=self.granted_by)
+        new = type(self)(
+            user=self.user, parent_id=self.parent_id, granted_by=self.granted_by
+        )
 
         # if existing record type is INVITE, replace it with ACCEPT,
         # else, replace it with AMEND.

@@ -2,12 +2,14 @@ from flask import Markup, abort, current_app, escape, flash, redirect, request, 
 
 from baseframe import _
 from baseframe.forms import (
+    Form,
     render_delete_sqla,
     render_form,
     render_message,
     render_redirect,
 )
 from coaster.auth import current_auth
+from coaster.utils import for_tsquery
 from coaster.views import (
     ClassView,
     get_next_url,
@@ -20,6 +22,7 @@ from coaster.views import (
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
     AccountForm,
+    CommentSearchForm,
     EmailPrimaryForm,
     NewEmailAddressForm,
     NewPhoneForm,
@@ -30,6 +33,7 @@ from ..forms import (
     VerifyPhoneForm,
 )
 from ..models import (
+    Comment,
     UserEmail,
     UserEmailClaim,
     UserExternalId,
@@ -88,6 +92,62 @@ class AccountView(ClassView):
     @render_with('account_saved.html.jinja2')
     def saved(self):
         return {'saved_projects': current_auth.user.saved_projects}
+
+    @route('siteadmin/comments', endpoint='siteadmin_comments', methods=['GET', 'POST'])
+    @requires_login
+    @render_with('siteadmin_comments.html.jinja2')
+    def siteadmin_comments(self):
+        if not (
+            current_auth.user.is_comment_moderator
+            or current_auth.user.is_user_moderator
+        ):
+            return abort(403)
+
+        comments = []
+        comment_search_form = CommentSearchForm()
+
+        if comment_search_form.validate_on_submit():
+            query = comment_search_form.query.data
+            comments = Comment.query.filter(
+                Comment.search_vector.match(for_tsquery(query or ''))
+            ).all()
+
+        return {
+            'comments': comments,
+            'comment_search_form': comment_search_form,
+            'comment_delete_form': Form(),
+        }
+
+    @route(
+        'siteadmin/comments/delete',
+        endpoint='siteadmin_comments_delete',
+        methods=['GET', 'POST'],
+    )
+    @requires_login
+    def siteadmin_comments_delete(self):
+        if not (
+            current_auth.user.is_comment_moderator
+            or current_auth.user.is_user_moderator
+        ):
+            return abort(403)
+
+        comment_delete_form = Form()
+        comment_delete_form.form_nonce.data = comment_delete_form.form_nonce.default()
+        if comment_delete_form.validate_on_submit():
+            Comment.query.filter(
+                Comment.uuid_b58.in_(request.form.getlist('comment_id'))
+            ).delete(synchronize_session=False)
+            db.session.commit()
+            flash(
+                _("Comment(s) successfully deleted"), category='info',
+            )
+        else:
+            flash(
+                _("There was a problem deleting the comments. Please try again"),
+                category='error',
+            )
+
+        return redirect(url_for('siteadmin_comments'))
 
 
 @route('/account')
