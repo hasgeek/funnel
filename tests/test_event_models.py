@@ -1,11 +1,11 @@
 import unittest
 
-from coaster.utils import buid
+from coaster.utils import uuid_b58
 from funnel import app
 from funnel.models import (
     Event,
+    Organization,
     Participant,
-    Profile,
     Project,
     SyncTicket,
     TicketClient,
@@ -49,10 +49,9 @@ class TestEventModels(unittest.TestCase):
         self.ctx.push()
         db.create_all()
         # Initial Setup
-        random_user_id = buid()
+        random_user_id = uuid_b58()
         self.user = User(
-            userid=random_user_id,
-            username='lukes{userid}'.format(userid=random_user_id),
+            username='lukes{userid}'.format(userid=random_user_id.lower()),
             fullname="Luke Skywalker",
             email='luke{userid}@dagobah.org'.format(userid=random_user_id),
         )
@@ -60,9 +59,12 @@ class TestEventModels(unittest.TestCase):
         db.session.add(self.user)
         db.session.commit()
 
-        self.profile = Profile(title="SpaceCon", userid=self.user.userid)
-        db.session.add(self.profile)
+        self.organization = Organization(
+            name='spacecon', title="SpaceCon", owner=self.user
+        )
+        db.session.add(self.organization)
         db.session.commit()
+        self.profile = self.organization.profile
 
         self.project = Project(
             title="20000 AD",
@@ -70,8 +72,8 @@ class TestEventModels(unittest.TestCase):
             profile=self.profile,
             user=self.user,
         )
-        self.project.make_name()
         db.session.add(self.project)
+        self.project.make_name()
         db.session.commit()
 
         self.ticket_client = TicketClient(

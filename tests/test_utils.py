@@ -29,7 +29,7 @@ class TestUtils(object):
             assert expected_geonameid in geonameid_from_location(location)
 
     def test_split_name(self):
-        assert split_name("ABC DEF EFG") == ("ABC", "DEF EFG")
+        assert split_name("ABC DEF EFG") == ["ABC", "DEF EFG"]
 
     def test_format_twitter_handle(self):
         assert format_twitter_handle("testusername") == "@testusername"
