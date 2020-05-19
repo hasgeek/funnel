@@ -317,7 +317,7 @@ export const LazyloadImg = {
   },
 };
 export const SaveProject = function ({ formId, postUrl, config = {} }) {
-  const onSuccess = function () {
+  const onSuccess = function (response) {
     $(`#${formId}`)
       .find('button')
       .prop('disabled', false)
@@ -336,6 +336,9 @@ export const SaveProject = function ({ formId, postUrl, config = {} }) {
           }
         }
       });
+
+    // Update form nonce value
+    $('input[name="form_nonce"]').val(response.form_nonce);
   };
 
   const onError = function (response) {

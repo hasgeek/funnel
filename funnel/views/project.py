@@ -481,7 +481,8 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 if proj_save is not None:
                     db.session.delete(proj_save)
                     db.session.commit()
-            return {'status': 'ok'}
+            # Send new form nonce
+            return {'status': 'ok', 'form_nonce': form.form_nonce.data}
         else:
             return (
                 {
