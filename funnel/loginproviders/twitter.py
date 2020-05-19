@@ -65,7 +65,7 @@ class TwitterProvider(LoginProvider):
         self.access_key = access_key
         self.access_secret = access_secret
         oauth = OAuth()
-        twitter = oauth.remote_app(
+        twitter = oauth.remote_app(  # nosec
             'twitter',
             base_url='https://api.twitter.com/1/',
             request_token_url='https://api.twitter.com/oauth/request_token',
