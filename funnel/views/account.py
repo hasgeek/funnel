@@ -115,7 +115,7 @@ class AccountView(ClassView):
         return {
             'comments': comments,
             'comment_search_form': comment_search_form,
-            'comment_delete_form': Form(),
+            'comment_spam_form': Form(),
         }
 
     @route(
@@ -131,9 +131,9 @@ class AccountView(ClassView):
         ):
             return abort(403)
 
-        comment_delete_form = Form()
-        comment_delete_form.form_nonce.data = comment_delete_form.form_nonce.default()
-        if comment_delete_form.validate_on_submit():
+        comment_spam_form = Form()
+        comment_spam_form.form_nonce.data = comment_spam_form.form_nonce.default()
+        if comment_spam_form.validate_on_submit():
             comments = Comment.query.filter(
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
