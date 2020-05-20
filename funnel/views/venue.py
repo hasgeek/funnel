@@ -165,9 +165,6 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'project_editor'})
     def delete(self):
-        if self.obj == self.obj.project.primary_venue:
-            flash(_("You can not delete the primary venue"), 'danger')
-            return render_redirect(self.obj.project.url_for('venues'), code=303)
         return render_delete_sqla(
             self.obj,
             db,
