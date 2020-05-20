@@ -403,74 +403,96 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         # Escape the '%' and '_' wildcards in SQL LIKE clauses.
         # Some SQL dialects respond to '[' and ']', so remove them.
-        query = (
+        like_query = (
             query.replace('%', r'\%')
             .replace('_', r'\_')
             .replace('[', '')
             .replace(']', '')
             + '%'
         )
-        # Use User._username since 'username' is a hybrid property that checks for validity
-        # before passing on to _username, the actual column name on the model.
+
         # We convert to lowercase and use the LIKE operator since ILIKE isn't standard
-        # and doesn't use an index on PostgreSQL (there's a functional index defined below).
-        if not query:
+        # and doesn't use an index in PostgreSQL. There's a functional index for lower()
+        # defined above in __table_args__ that also applies to LIKE lower(val) queries.
+
+        if not like_query:
             return []
-        users = (
+
+        # base_users is used in two of the three possible queries below
+        base_users = (
             cls.query.join(Profile)
             .filter(
                 cls.status == USER_STATUS.ACTIVE,
-                or_(  # Match against buid (exact value only), fullname or username, case insensitive
-                    cls.buid == query[:-1],
-                    db.func.lower(cls.fullname).like(db.func.lower(query)),
-                    db.func.lower(Profile.name).like(db.func.lower(query)),
+                or_(
+                    db.func.lower(cls.fullname).like(db.func.lower(like_query)),
+                    db.func.lower(Profile.name).like(db.func.lower(like_query)),
                 ),
             )
             .options(*cls._defercols)
-            .limit(100)
-            .all()
-        )  # Limit to 100 results
-        if query.startswith('@') and UserExternalId.__at_username_services__:
-            # Add Twitter/GitHub accounts to the head of results
+            .limit(100)  # Limit to 100 results
+        )
+
+        if (
+            query != '@'
+            and query.startswith('@')
+            and UserExternalId.__at_username_services__
+        ):
+            # @-prefixed, so look for usernames, including other @username-using
+            # services like Twitter and GitHub. Make a union of three queries.
             users = (
-                cls.query.filter(
+                # Query 1: @query -> User.username
+                cls.query.join(Profile)
+                .filter(
                     cls.status == USER_STATUS.ACTIVE,
-                    cls.id.in_(
-                        db.session.query(UserExternalId.user_id)
-                        .filter(
-                            UserExternalId.service.in_(
-                                UserExternalId.__at_username_services__
-                            ),
-                            db.func.lower(UserExternalId.username).like(
-                                db.func.lower(query[1:])
-                            ),
-                        )
-                        .subquery()
-                    ),
+                    db.func.lower(Profile.name).like(db.func.lower(like_query[1:])),
                 )
                 .options(*cls._defercols)
                 .limit(100)
+                .union(
+                    # Query 2: @query -> UserExternalId.username
+                    cls.query.join(UserExternalId)
+                    .filter(
+                        cls.status == USER_STATUS.ACTIVE,
+                        UserExternalId.service.in_(
+                            UserExternalId.__at_username_services__
+                        ),
+                        db.func.lower(UserExternalId.username).like(
+                            db.func.lower(like_query[1:])
+                        ),
+                    )
+                    .options(*cls._defercols)
+                    .limit(100),
+                    # Query 3: like_query -> User.fullname
+                    cls.query.filter(
+                        cls.status == USER_STATUS.ACTIVE,
+                        db.func.lower(cls.fullname).like(db.func.lower(like_query)),
+                    )
+                    .options(*cls._defercols)
+                    .limit(100),
+                )
                 .all()
-                + users
             )
-        elif '@' in query:
+        elif '@' in query and not query.startswith('@'):
+            # Query has an @ in the middle. Match email address (exact match only).
+            # Use `query` instead of `like_query` because it's not a LIKE query.
+            # Combine results with regular user search
             users = (
-                cls.query.filter(
-                    cls.status == USER_STATUS.ACTIVE,
-                    cls.id.in_(
-                        db.session.query(UserEmail.user_id)
-                        .filter(UserEmail.user_id.isnot(None))
-                        .filter(
-                            db.func.lower(UserEmail.email).like(db.func.lower(query))
-                        )
-                        .subquery()
+                cls.query.join(
+                    UserEmail,
+                    db.and_(
+                        UserEmail.user_id == cls.id,
+                        db.func.lower(UserEmail.email) == db.func.lower(query),
                     ),
                 )
+                .filter(cls.status == USER_STATUS.ACTIVE)
                 .options(*cls._defercols)
                 .limit(100)
+                .union(base_users)
                 .all()
-                + users
             )
+        else:
+            # No '@' in the query, so do a regular autocomplete
+            users = base_users.all()
         return users
 
     @classmethod
