@@ -127,7 +127,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
     @requires_roles({'project_concierge', 'project_usher'})
     def view(self):
         if request.method == 'POST':
-            if 'form.id' not in request:
+            if 'form.id' not in request.form:
                 abort(400)
             if request.form['form.id'] == 'csrf_form':
                 csrf_form = forms.Form()
@@ -149,6 +149,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
                 form = ParticipantBadgeForm()
                 if form.validate_on_submit():
                     badge_printed = getbool(form.data.get('badge_printed'))
+                    print('form value', badge_printed)
                     db.session.query(Participant).filter(
                         Participant.id.in_(
                             [participant.id for participant in self.obj.participants]
@@ -167,7 +168,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
             'project': self.obj.project,
             'badge_form': ParticipantBadgeForm(model=Participant),
             'checkin_form': forms.Form(),
-            'csrf_form': csrf_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('edit', methods=['GET', 'POST'])

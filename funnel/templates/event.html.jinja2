@@ -49,7 +49,7 @@
       <ul class="mui-list--inline">
         <li><a href="{{ event.url_for('badges') }}" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
          <li><a href="{{ event.url_for('label_badges') }}" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
-        <li><a href="{{ event.url_for('badges') }}?badges_printed=t" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
+        <li><a href="{{ event.url_for('badges') }}?badge_printed=t" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
