@@ -22,7 +22,6 @@ from coaster.views import (
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
     AccountForm,
-    CommentSearchForm,
     EmailPrimaryForm,
     NewEmailAddressForm,
     NewPhoneForm,
@@ -44,6 +43,7 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
+from ..utils import strip_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
@@ -96,27 +96,30 @@ class AccountView(ClassView):
     @route('siteadmin/comments', endpoint='siteadmin_comments', methods=['GET', 'POST'])
     @requires_login
     @render_with('siteadmin_comments.html.jinja2')
-    def siteadmin_comments(self):
+    @requestargs(('query', strip_null), ('page', int), ('per_page', int))
+    def siteadmin_comments(self, query='', page=None, per_page=100):
         if not (
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
         ):
             return abort(403)
 
-        comments = []
-        comment_search_form = CommentSearchForm()
-
-        if comment_search_form.validate_on_submit():
-            query = comment_search_form.query.data
-            comments = (
-                Comment.query.filter(~Comment.state.REMOVED)
-                .filter(Comment.search_vector.match(for_tsquery(query or '')))
-                .all()
+        comments = Comment.query.filter(~Comment.state.REMOVED).order_by(
+            Comment.created_at.desc()
+        )
+        if query:
+            comments = comments.filter(
+                Comment.search_vector.match(for_tsquery(query or ''))
             )
 
+        pagination = comments.paginate(page=page, per_page=per_page)
+
         return {
-            'comments': comments,
-            'comment_search_form': comment_search_form,
+            'query': query,
+            'comments': pagination.items,
+            'total_comments': pagination.total,
+            'pages': list(range(1, pagination.pages + 1)),  # list of page numbers
+            'current_page': pagination.page,
             'comment_spam_form': Form(),
         }
 
