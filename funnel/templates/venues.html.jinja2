@@ -26,9 +26,7 @@
                   <label for="venue-{{ loop.index }}" class="label-edit" data-cy="{{ venue.title }}">{{ venue.title }} {%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}</label>
                   <span class="mui--pull-right">
                     <a href="{{ venue.url_for('edit') }}" class="mui--text-title">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
-                    {%- if venue != project.primary_venue %}
                       &nbsp;&nbsp;&nbsp;<a href="{{ venue.url_for('delete') }}">{{ faicon(icon='trash-alt', icon_size='subhead', css_class='fa5--link') }}</a>
-                    {% endif %}
                   </span>
                 </li>
               {% else %}
