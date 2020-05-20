@@ -6,12 +6,12 @@
 {% endif %}
 
 <form
-  id="form-comments-delete"
-  action="{{ url_for('siteadmin_comments_delete') }}"
+  id="form-comments-spam"
+  action="{{ url_for('siteadmin_comments_spam') }}"
   method="post"
   class="form-inline"
 >
-  {{ comment_delete_form.hidden_tag() }}
+  {{ comment_spam_form.hidden_tag() }}
   <table class="mui-table mui-table--bordered mui-table--responsive">
     <thead>
       <tr>
@@ -47,7 +47,7 @@
         {#
         <td data-th="Actions">
           {% if current_auth.user.is_user_moderator %}
-          <button id="btn-user-deleteall" class="mui-btn mui-btn--accent">
+          <button id="btn-user-markspamall" class="mui-btn mui-btn--accent">
             Delete all comments by user
           </button>
           {% endif %}
@@ -62,7 +62,7 @@
     </tbody>
   </table>
   <div>
-    {{ rendersubmit([("delete-comments-bulk", "Delete", '')]) }}
+    {{ rendersubmit([("spam-comments-bulk", "Mark spam", '')]) }}
   </div>
 </form>
 {% endblock admincontentblock %}
@@ -73,9 +73,9 @@
     e.preventDefault();
     $(".field-comment-id").attr("checked", this.checked);
   });
-  $("#form-comments-delete").submit(function (e) {
+  $("#form-comments-spam").submit(function (e) {
     var checkedboxes = $(".field-comment-id:checked").length;
-    if (confirm(`Do you want to delete ${checkedboxes} comments?`)) {
+    if (confirm(`Do you want to mark ${checkedboxes} comments as spam?`)) {
       return true;
     } else {
       e.preventDefault();
