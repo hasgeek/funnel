@@ -33,6 +33,7 @@ from ..forms import (
 )
 from ..models import (
     Comment,
+    User,
     UserEmail,
     UserEmailClaim,
     UserExternalId,
@@ -108,8 +109,11 @@ class AccountView(ClassView):
             Comment.created_at.desc()
         )
         if query:
-            comments = comments.filter(
-                Comment.search_vector.match(for_tsquery(query or ''))
+            comments = comments.join(User).filter(
+                db.or_(
+                    Comment.search_vector.match(for_tsquery(query or '')),
+                    User.search_vector.match(for_tsquery(query or '')),
+                )
             )
 
         pagination = comments.paginate(page=page, per_page=per_page)
