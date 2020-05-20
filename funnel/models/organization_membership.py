@@ -4,6 +4,11 @@ from . import db
 from .membership import ImmutableMembershipMixin
 from .user import Organization, User
 
+try:
+    from functools import cached_property
+except ImportError:
+    from werkzeug.utils import cached_property
+
 __all__ = ['OrganizationMembership']
 
 
@@ -42,6 +47,7 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     # Organization roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
 
+    @cached_property
     def offered_roles(self):
         """Roles offered by this membership record"""
         roles = {'admin'}
