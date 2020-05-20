@@ -43,6 +43,7 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
+from ..utils import strip_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
@@ -95,21 +96,13 @@ class AccountView(ClassView):
     @route('siteadmin/comments', endpoint='siteadmin_comments', methods=['GET', 'POST'])
     @requires_login
     @render_with('siteadmin_comments.html.jinja2')
-    def siteadmin_comments(self):
+    @requestargs(('query', strip_null), ('page', int), ('per_page', int))
+    def siteadmin_comments(self, query='', page=None, per_page=20):
         if not (
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
         ):
             return abort(403)
-
-        comments = []
-        query = request.args.get('query', '').strip()
-        result_per_page = 20
-
-        try:
-            current_page = int(request.args.get('page', '1').strip())
-        except ValueError:
-            current_page = 1
 
         comments = Comment.query.filter(~Comment.state.REMOVED).order_by(
             Comment.created_at.desc()
@@ -119,7 +112,7 @@ class AccountView(ClassView):
                 Comment.search_vector.match(for_tsquery(query or ''))
             )
 
-        pagination = comments.paginate(page=current_page, per_page=result_per_page)
+        pagination = comments.paginate(page=page, per_page=per_page)
 
         return {
             'query': query,
