@@ -237,12 +237,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         badges = {}
         if self.commentset.project is not None:
             if 'crew' in self.commentset.project.roles_for(self.user):
-                badges.add('Crew')
+                badges.add(_("Crew"))
         elif self.commentset.proposal is not None:
             if self.commentset.proposal.user == self.user:
-                badges.add('Proposer')
+                badges.add(_("Proposer"))
             elif 'crew' in self.commentset.proposal.project.roles_for(self.user):
-                badges.add('Crew')
+                badges.add(_("Crew"))
         return badges
 
     @state.transition(None, state.DELETED)
