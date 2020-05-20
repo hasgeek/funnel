@@ -1989,13 +1989,18 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-details__box .propose {
   margin: 8px 0 0;
-  padding-top: 15px;
-  padding-bottom: 15px;
 }
 .project-banner .project-details__box .propose .propose__btn {
   background-color: #202d3c;
   color: #fff;
-  margin-bottom: 0;
+  margin-bottom: 8px;
+}
+.project-banner .project-details__box .propose .propose__txt {
+  font-size: 12px;
+}
+.project-banner .project-details__box .propose .propose__txt svg {
+  width: 12px;
+  height: 12px;
 }
 .project-banner .project-details__box .propose .propose__btn--strike {
   text-decoration: line-through;
@@ -2024,6 +2029,13 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__footer .add-calendar span.txt,
   .project-banner .project-banner__footer .share span.txt {
     padding-right: 5px;
+  }
+  .project-banner .project-details__box .propose .propose__txt {
+    font-size: 14px;
+  }
+  .project-banner .project-details__box .propose .propose__txt svg {
+    width: 14px;
+    height: 14px;
   }
   .project-banner .livestream-box .project-banner__footer {
     padding: 0 15px;
@@ -2076,6 +2088,13 @@ html.touch .collapsible__body--disable {
 }
 .project-section__headline {
   margin-bottom: 15px;
+}
+
+.reg-modal .reg-modal__txt {
+  margin-bottom: 16px;
+}
+.reg-modal .reg-modal__btn {
+  margin-top: 32px;
 }
 
 .about {
