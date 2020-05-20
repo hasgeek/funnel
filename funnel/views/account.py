@@ -97,7 +97,7 @@ class AccountView(ClassView):
     @requires_login
     @render_with('siteadmin_comments.html.jinja2')
     @requestargs(('query', strip_null), ('page', int), ('per_page', int))
-    def siteadmin_comments(self, query='', page=None, per_page=20):
+    def siteadmin_comments(self, query='', page=None, per_page=100):
         if not (
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
