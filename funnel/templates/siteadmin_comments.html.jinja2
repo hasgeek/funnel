@@ -1,9 +1,23 @@
 {% extends 'siteadmin_layout.html.jinja2' %}
 
 {% block admincontentblock %}
-{% if comment_search_form %}
-  {{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
-{% endif %}
+<form data-parsley-validate="true" id="comment-search-form" method="GET"
+  action="/account/siteadmin/comments" accept-charset="UTF-8"
+  class="mui-form mui-form--margins hg-form mui-form--inline">
+
+  <input type="hidden" id="comment-search-page" name="page">
+
+  <div class="mui-form__fields" id="field-query">
+    <div class="mui-form__controls">
+      <div class="mui-textfield mui-textfield--float-label">
+        <input autofocus class="field-query " id="comment-search-query"
+          name="query" type="text" value="{{ query }}">
+        <label>Query</label>
+      </div>
+    </div>
+  </div>
+  {{ rendersubmit([('', "Search", '')]) }}
+</form>
 
 <form
   id="form-comments-spam"
@@ -65,6 +79,16 @@
     {{ rendersubmit([("spam-comments-bulk", "Mark spam", '')]) }}
   </div>
 </form>
+
+<div class="mui--text-center">
+  {% for page in pages[:10] %}
+    <a
+      class="btn-pagination-item mui-btn {% if page != current_page %}mui-btn--accent{% endif %}"
+      href="{{ url_for('siteadmin_comments') }}?query={{ query }}&page={{ page }}"
+      >{{ page }}</a>
+  {% endfor %}
+</div>
+
 {% endblock admincontentblock %}
 
 {% block footerscripts %}

@@ -22,7 +22,6 @@ from coaster.views import (
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
     AccountForm,
-    CommentSearchForm,
     EmailPrimaryForm,
     NewEmailAddressForm,
     NewPhoneForm,
@@ -104,19 +103,34 @@ class AccountView(ClassView):
             return abort(403)
 
         comments = []
-        comment_search_form = CommentSearchForm()
+        query = request.args.get('query', '').strip()
+        result_per_page = 20
 
-        if comment_search_form.validate_on_submit():
-            query = comment_search_form.query.data
-            comments = (
-                Comment.query.filter(~Comment.state.REMOVED)
-                .filter(Comment.search_vector.match(for_tsquery(query or '')))
-                .all()
+        try:
+            current_page = int(request.args.get('page', '1').strip())
+        except ValueError:
+            current_page = 1
+
+        comments = Comment.query.filter(~Comment.state.REMOVED).order_by(
+            Comment.created_at.desc()
+        )
+        if query:
+            comments = comments.filter(
+                Comment.search_vector.match(for_tsquery(query or ''))
             )
 
+        # Total search results
+        total_comments = comments.count()
+        # // does floor integer division, we need ceiling
+        total_pages = (total_comments // result_per_page) + 1
+        # index of the first item in current page, for slicing
+        first_item = (current_page - 1) * result_per_page
+
         return {
-            'comments': comments,
-            'comment_search_form': comment_search_form,
+            'query': query,
+            'comments': comments[first_item : first_item + result_per_page],  # NOQA
+            'pages': list(range(1, total_pages + 1)),  # list of page numbers
+            'current_page': current_page,
             'comment_spam_form': Form(),
         }
 
