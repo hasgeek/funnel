@@ -108,12 +108,17 @@
     }
     .propose {
       margin: 8px 0 0;
-      padding-top: 15px;
-      padding-bottom: 15px;
       .propose__btn {
         background-color: #202d3c;
         color: #fff;
-        margin-bottom: 0;
+        margin-bottom: 8px;
+      }
+      .propose__txt {
+        font-size: 12px;
+        svg {
+          width: 12px;
+          height: 12px;
+        }
       }
       .propose__btn--strike {
         text-decoration: line-through;
@@ -145,6 +150,17 @@
       .add-calendar span.txt,
       .share span.txt {
         padding-right: 5px;
+      }
+    }
+    .project-details__box {
+      .propose {
+        .propose__txt {
+          font-size: 14px;
+          svg {
+            width: 14px;
+            height: 14px;
+          }
+        }
       }
     }
     .livestream-box {
@@ -208,6 +224,15 @@
 
 .project-section__headline {
   margin-bottom: 15px;
+}
+
+.reg-modal {
+  .reg-modal__txt {
+    margin-bottom: 16px;
+  }
+  .reg-modal__btn {
+    margin-top: 32px;
+  }
 }
 
 .about {

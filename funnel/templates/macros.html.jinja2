@@ -168,15 +168,27 @@
           </div>
         {% endif %}
         <div class="project-details__box--ticketbox">
-          {% if not project.schedule_state.PAST %}
+          {% if project.features.has_tickets()  %}
             <div class="mui--hidden-xs mui--hidden-sm">
               <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="get-tickets">
-              {%- if project.features.has_tickets() -%}
-                {% trans %}Get tickets{% endtrans %}
-              {%- else %}
-                {% trans %}Attend{% endtrans %}
-              {%- endif %}
-              </a>
+              {% trans %}Get tickets{% endtrans %}</a>
+            </div>
+          {% elif project.features.has_rsvp() %}
+            <h2 class="mui--text-body1 mui--text-light project-section__headline">{% trans %}2 registrations so far. Be the next one to register?{% endtrans %}</h2>
+            <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
+            <hr class="mui-divider">
+            <div class="modal reg-modal" id="register-modal">
+              <!-- Update the modal content depending on the user's registrated status-->
+              <!-- Different forms for register and cancel registration -->
+              <div class="modal__header" data-cy="schedule-subscribe">
+                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times', icon_size='title') }}</a>
+                <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{% trans %}Save me a seat{% endtrans %}</p>
+              </div>
+              <div class="modal__body">
+                <p class="mui--text-subhead mui--text-bold reg-modal__txt">{{ project.title }}</p>
+                <p class="mui--text-body1 reg-modal__txt">{% trans %}Registrations will ensure the project crew keeps you updated of changes and other relevant details via email!{% endtrans %}</p>
+                <div class="mui--text-center reg-modal__btn"><a href="" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">{% trans %}Confirm Registration{% endtrans %}</a></div>
+              </div>
             </div>
           {% elif project.view_for('edit_schedule').is_available() %}
             <a class="mui-btn mui-btn--raised mui-btn--accent  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable rsvp{% endtrans %}</a>
@@ -184,7 +196,7 @@
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {% elif project.view_for('cfp').is_available() -%}
             <div class="propose propose--lessmargin">
