@@ -429,7 +429,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 ),
             )
             .options(*cls._defercols)
-            .limit(100)  # Limit to 100 results
+            .limit(20)
         )
 
         if (
@@ -447,7 +447,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                     db.func.lower(Profile.name).like(db.func.lower(like_query[1:])),
                 )
                 .options(*cls._defercols)
-                .limit(100)
+                .limit(20)
                 .union(
                     # Query 2: @query -> UserExternalId.username
                     cls.query.join(UserExternalId)
@@ -461,14 +461,14 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                         ),
                     )
                     .options(*cls._defercols)
-                    .limit(100),
+                    .limit(20),
                     # Query 3: like_query -> User.fullname
                     cls.query.filter(
                         cls.status == USER_STATUS.ACTIVE,
                         db.func.lower(cls.fullname).like(db.func.lower(like_query)),
                     )
                     .options(*cls._defercols)
-                    .limit(100),
+                    .limit(20),
                 )
                 .all()
             )
@@ -486,7 +486,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 )
                 .filter(cls.status == USER_STATUS.ACTIVE)
                 .options(*cls._defercols)
-                .limit(100)
+                .limit(20)
                 .union(base_users)
                 .all()
             )
