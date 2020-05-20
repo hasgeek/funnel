@@ -148,8 +148,8 @@ class TestUser(TestDatabaseFixture):
         db.session.commit()
         result1 = mr_jones.emails
         assert isinstance(result1, list)
-        set(result1) == {mr_jones_secondary_email, mr_jones_spare_email}
-        mr_jones_secondary_email.primary is True
+        assert set(result1) == {mr_jones_secondary_email, mr_jones_spare_email}
+        assert mr_jones_secondary_email.primary is True
         # scenario 2: when email requested to be delete is not primary
         spare_email = mr_jones_spare_email.email
         mr_jones.del_email(spare_email)
@@ -157,7 +157,7 @@ class TestUser(TestDatabaseFixture):
         result2 = mr_jones.emails
         assert isinstance(result2, list)
         result2 == [mr_jones_secondary_email]
-        mr_jones_secondary_email.primary is True
+        assert mr_jones_secondary_email.primary is True
 
     def test_user_phone(self):
         """
@@ -180,7 +180,7 @@ class TestUser(TestDatabaseFixture):
         db.session.commit()
         assert isinstance(snowball.phone, models.UserPhone)
         assert snowball_phone == snowball.phone
-        snowball.phone.primary is True
+        assert snowball.phone.primary is True
         # scenario 3: when there is no phone on db
         piglet = models.User.get(username='piglet')
         assert piglet.phone == ''
