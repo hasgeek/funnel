@@ -119,18 +119,14 @@ class AccountView(ClassView):
                 Comment.search_vector.match(for_tsquery(query or ''))
             )
 
-        # Total search results
-        total_comments = comments.count()
-        # // does floor integer division, we need ceiling
-        total_pages = (total_comments // result_per_page) + 1
-        # index of the first item in current page, for slicing
-        first_item = (current_page - 1) * result_per_page
+        pagination = comments.paginate(page=current_page, per_page=result_per_page)
 
         return {
             'query': query,
-            'comments': comments[first_item : first_item + result_per_page],  # NOQA
-            'pages': list(range(1, total_pages + 1)),  # list of page numbers
-            'current_page': current_page,
+            'comments': pagination.items,
+            'total_comments': pagination.total,
+            'pages': list(range(1, pagination.pages + 1)),  # list of page numbers
+            'current_page': pagination.page,
             'comment_spam_form': Form(),
         }
 

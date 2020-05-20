@@ -2,7 +2,7 @@
 
 {% block admincontentblock %}
 <form data-parsley-validate="true" id="comment-search-form" method="GET"
-  action="/account/siteadmin/comments" accept-charset="UTF-8"
+  action="{{ url_for('siteadmin_comments') }}" accept-charset="UTF-8"
   class="mui-form mui-form--margins hg-form mui-form--inline">
 
   <input type="hidden" id="comment-search-page" name="page">
@@ -18,6 +18,14 @@
   </div>
   {{ rendersubmit([('', "Search", '')]) }}
 </form>
+
+<p>
+  {%- trans total_comments=total_comments, query=query %}
+    Only {{ total_comments }} comment for "{{ query }}"
+  {% pluralize total_comments %}
+    Total {{ total_comments }} comments for "{{ query }}"
+  {% endtrans -%}
+</p>
 
 <form
   id="form-comments-spam"
