@@ -95,7 +95,7 @@ class TestMembership(object):
         assert 'concierge' not in new_project.roles_for(new_user)
         assert 'usher' in new_project.roles_for(new_user)
         # offered_roles should also return all valid roles
-        assert new_membership4.offered_roles() == {
+        assert new_membership4.offered_roles == {
             'crew',
             'participant',
             'editor',

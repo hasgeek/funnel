@@ -1,9 +1,13 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy.ext.declarative import declared_attr
 
 from . import User, db
 from .membership import ImmutableMembershipMixin
+
+try:
+    from functools import cached_property
+except ImportError:
+    from werkzeug.utils import cached_property
+
 
 __all__ = ['SiteMembership']
 
@@ -54,6 +58,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         )
         return tuple(args)
 
+    @cached_property
     def offered_roles(self):
         """Roles offered by this membership record"""
         roles = {'site_admin'}
@@ -66,33 +71,25 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         return roles
 
 
-User.is_comment_moderator = db.column_property(
-    db.select([SiteMembership.is_comment_moderator])
-    .where(SiteMembership.is_active == True)  # NOQA
-    .where(SiteMembership.user_id == User.id)
-    .correlate_except(SiteMembership)
-)
-
-
-User.is_user_moderator = db.column_property(
-    db.select([SiteMembership.is_user_moderator])
-    .where(SiteMembership.is_active == True)  # NOQA
-    .where(SiteMembership.user_id == User.id)
-    .correlate_except(SiteMembership)
-)
-
-
-User.is_site_editor = db.column_property(
-    db.select([SiteMembership.is_site_editor])
-    .where(SiteMembership.is_active == True)  # NOQA
-    .where(SiteMembership.user_id == User.id)
-    .correlate_except(SiteMembership)
-)
-
-
-User.active_site_memberships = db.relationship(
+User.active_site_membership = db.relationship(
     SiteMembership,
-    lazy='dynamic',
+    lazy='select',
     primaryjoin=db.and_(SiteMembership.user_id == User.id, SiteMembership.is_active),
     viewonly=True,
+    uselist=False,
+)
+
+User.is_comment_moderator = property(
+    lambda self: self.active_site_membership
+    and 'comment_moderator' in self.active_site_membership.offered_roles
+)
+
+User.is_user_moderator = property(
+    lambda self: self.active_site_membership
+    and 'user_moderator' in self.active_site_membership.offered_roles
+)
+
+User.is_site_editor = property(
+    lambda self: self.active_site_membership
+    and 'site_editor' in self.active_site_membership.offered_roles
 )

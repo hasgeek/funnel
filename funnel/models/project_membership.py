@@ -7,6 +7,11 @@ from .membership import ImmutableMembershipMixin
 from .project import Project
 from .user import User
 
+try:
+    from functools import cached_property
+except ImportError:
+    from werkzeug.utils import cached_property
+
 __all__ = ['ProjectCrewMembership', 'project_child_role_map']
 
 # Roles in a project and their remapped names in objects attached to a project
@@ -76,6 +81,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         )
         return tuple(args)
 
+    @cached_property
     def offered_roles(self):
         """Roles offered by this membership record"""
         roles = set()
