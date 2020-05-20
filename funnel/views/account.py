@@ -108,9 +108,11 @@ class AccountView(ClassView):
 
         if comment_search_form.validate_on_submit():
             query = comment_search_form.query.data
-            comments = Comment.query.filter(
-                Comment.search_vector.match(for_tsquery(query or ''))
-            ).all()
+            comments = (
+                Comment.query.filter(~Comment.state.REMOVED)
+                .filter(Comment.search_vector.match(for_tsquery(query or '')))
+                .all()
+            )
 
         return {
             'comments': comments,
@@ -119,12 +121,12 @@ class AccountView(ClassView):
         }
 
     @route(
-        'siteadmin/comments/delete',
-        endpoint='siteadmin_comments_delete',
-        methods=['GET', 'POST'],
+        'siteadmin/comments/markspam',
+        endpoint='siteadmin_comments_spam',
+        methods=['POST'],
     )
     @requires_login
-    def siteadmin_comments_delete(self):
+    def siteadmin_comments_spam(self):
         if not (
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
