@@ -108,42 +108,46 @@ class AccountView(ClassView):
 
         if comment_search_form.validate_on_submit():
             query = comment_search_form.query.data
-            comments = Comment.query.filter(
-                Comment.search_vector.match(for_tsquery(query or ''))
-            ).all()
+            comments = (
+                Comment.query.filter(~Comment.state.REMOVED)
+                .filter(Comment.search_vector.match(for_tsquery(query or '')))
+                .all()
+            )
 
         return {
             'comments': comments,
             'comment_search_form': comment_search_form,
-            'comment_delete_form': Form(),
+            'comment_spam_form': Form(),
         }
 
     @route(
-        'siteadmin/comments/delete',
-        endpoint='siteadmin_comments_delete',
-        methods=['GET', 'POST'],
+        'siteadmin/comments/markspam',
+        endpoint='siteadmin_comments_spam',
+        methods=['POST'],
     )
     @requires_login
-    def siteadmin_comments_delete(self):
+    def siteadmin_comments_spam(self):
         if not (
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
         ):
             return abort(403)
 
-        comment_delete_form = Form()
-        comment_delete_form.form_nonce.data = comment_delete_form.form_nonce.default()
-        if comment_delete_form.validate_on_submit():
-            Comment.query.filter(
+        comment_spam_form = Form()
+        comment_spam_form.form_nonce.data = comment_spam_form.form_nonce.default()
+        if comment_spam_form.validate_on_submit():
+            comments = Comment.query.filter(
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
-            ).delete(synchronize_session=False)
+            )
+            for comment in comments:
+                comment.mark_spam()
             db.session.commit()
             flash(
-                _("Comment(s) successfully deleted"), category='info',
+                _("Comment(s) successfully marked as spam"), category='info',
             )
         else:
             flash(
-                _("There was a problem deleting the comments. Please try again"),
+                _("There was a problem marking the comments as spam. Please try again"),
                 category='error',
             )
 
