@@ -149,7 +149,6 @@ class EventView(EventViewMixin, UrlForView, ModelView):
                 form = ParticipantBadgeForm()
                 if form.validate_on_submit():
                     badge_printed = getbool(form.data.get('badge_printed'))
-                    print('form value', badge_printed)
                     db.session.query(Participant).filter(
                         Participant.id.in_(
                             [participant.id for participant in self.obj.participants]
