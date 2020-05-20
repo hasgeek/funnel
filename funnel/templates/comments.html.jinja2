@@ -21,11 +21,9 @@
               <span class="commenter">[{% trans %}removed{% endtrans %}]</span>
             {%- else -%}
               <span class="commenter"><strong>{{ comment.user.pickername }}</strong></span>
-              {%- if comment.badges %}
-                {% for badge in comment.badges %}
-                  <span class="badge">{{ badge }}</span>
-                {% endfor %}
-              {% endif %}
+              {% for badge in comment.badges %}
+                <span class="badge">{{ badge }}</span>
+              {% endfor %}
               <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
               {%- if comment.edited_at %}
                 <span class="mui--text-caption mui--text-accent">({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})</span>
