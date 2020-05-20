@@ -8,6 +8,11 @@ from coaster.utils import LabeledEnum
 from . import BaseMixin, UuidMixin, db
 from .user import User
 
+try:
+    from functools import cached_property
+except ImportError:
+    from werkzeug.utils import cached_property
+
 
 class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
     INVITE = (0, 'invite', __("Invite"))
@@ -124,6 +129,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
                 ),
             )
 
+    @cached_property
     def offered_roles(self):
         """Roles offered by this membership record"""
         return set()
