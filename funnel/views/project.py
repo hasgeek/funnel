@@ -489,6 +489,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     'error_description': _(
                         "Something went wrong, please reload and try again"
                     ),
+                    'form_nonce': form.form_nonce.data
                 },
                 400,
             )
