@@ -482,7 +482,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 (
                     'Content-Disposition',
                     'attachment;filename="{filename}.csv"'.format(
-                        filename='rsvp-{project}-{state}'.format(
+                        filename='participants-{project}-{state}'.format(
                             project=make_name(self.obj.title), state=state
                         )
                     ),
