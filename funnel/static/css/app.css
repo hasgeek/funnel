@@ -1601,6 +1601,7 @@ html.touch .collapsible__body--disable {
   max-width: 450px;
   transition: 200ms linear;
   -webkit-transition: 200ms linear;
+  height: 100%;
 }
 .card--upcoming .card__image-wrapper {
   position: relative;
