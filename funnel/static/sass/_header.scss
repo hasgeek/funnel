@@ -439,8 +439,8 @@
   order: 1;
   top: 0;
   z-index: 1000;
-  width: calc(100% - 90px);
-  left: 45px;
+  width: calc(100% - 103px);
+  left: 52px;
 
   .grid__col-12 {
     padding-left: 0;
@@ -490,7 +490,8 @@
     z-index: 1000;
     background: #fff;
     min-width: auto;
-    padding: 15px;
+    top: 0;
+    padding: 15px 15px 7px;
     align-self: center;
     box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
 
