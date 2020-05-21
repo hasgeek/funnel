@@ -502,7 +502,7 @@ class Proposal(
         else:
             roles.add('reader')
 
-        if {'project_participant', 'speaker', 'reviewer'}.intersection(roles):
+        if {'project_participant', 'presenter', 'reviewer'}.intersection(roles):
             roles.add('commenter')
 
         return roles
