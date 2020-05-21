@@ -439,6 +439,13 @@
   order: 1;
   top: 0;
   z-index: 1000;
+  width: calc(100% - 90px);
+  left: 45px;
+
+  .grid__col-12 {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .tabs {
@@ -483,8 +490,9 @@
     z-index: 1000;
     background: #fff;
     min-width: auto;
-    padding: 15px 5px 14px;
+    padding: 15px;
     align-self: center;
+    box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
 
     .tabs__item-control__icon {
       vertical-align: middle;
@@ -504,6 +512,13 @@
   }
   .tabs-wrapper--sticky {
     top: 50px;
+    width: 100%;
+    left: 0;
+
+    .grid__col-12 {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
 
     .tabs__item-control {
       display: none;

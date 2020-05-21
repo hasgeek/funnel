@@ -16,6 +16,31 @@
   <link rel="preconnect" crossorigin href="https://images.hasgeek.com/">
   <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
   <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+  <style>
+    .pace {
+        -webkit-pointer-events: none;
+        pointer-events: none;
+
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      .pace-inactive {
+        display: none;
+      }
+
+      .pace .pace-progress {
+        background-image: linear-gradient(#F1A40D 0%, #DF5E0F 49%, #816894 100%);
+        position: fixed;
+        z-index: 2000;
+        top: 0;
+        right: 100%;
+        width: 100%;
+        height: 2px;
+      }
+  </style>
 {%- endblock %}
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
