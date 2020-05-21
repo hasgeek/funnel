@@ -213,10 +213,16 @@ export const Utils = {
     $(`#${formId}`)
       .find('.loading')
       .addClass('mui--hide');
+    Utils.updateFormNonce(errorResponse.responseJSON);
     return errorMsg;
   },
   getActionUrl(formId) {
     return $(`#${formId}`).attr('action');
+  },
+  updateFormNonce(response) {
+    if (response.form_nonce) {
+      $('input[name="form_nonce"]').val(response.form_nonce);
+    }
   },
 };
 
@@ -342,9 +348,7 @@ export const SaveProject = function({ formId, postUrl, config = {} }) {
           }
         }
       });
-
-    // Update form nonce value
-    $('input[name="form_nonce"]').val(response.form_nonce);
+    Utils.updateFormNonce(response);
   };
 
   const onError = function(response) {
@@ -359,7 +363,7 @@ export const SaveProject = function({ formId, postUrl, config = {} }) {
     } else {
       errorMsg = 'Unable to connect. Please reload and try again.';
     }
-
+    Utils.updateFormNonce(response.responseJSON);
     window.toastr.error(errorMsg);
   };
 

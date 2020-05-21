@@ -81,6 +81,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                             'status': 'error',
                             'message': _("Member already exists in the profile"),
                             'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data
                         },
                         400,
                     )
@@ -121,6 +122,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("The new member could not be added"),
                         'errors': membership_form.errors,
+                        'form_nonce': membership_form.form_nonce.data
                     },
                     400,
                 )
@@ -176,6 +178,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     return {
                         'status': 'error',
                         'message': _("You can't edit your own role"),
+                        'form_nonce': membership_form.form_nonce.data
                     }
 
                 previous_membership.replace(
@@ -195,6 +198,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("At lease one role must be chosen"),
                         'errors': membership_form.errors,
+                        'form_nonce': membership_form.form_nonce.data
                     },
                     400,
                 )
@@ -221,6 +225,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     return {
                         'status': 'error',
                         'message': _("You can't revoke your own membership"),
+                        'form_nonce': form.form_nonce.data
                     }
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
@@ -246,7 +251,14 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     ],
                 }
             else:
-                return ({'status': 'error', 'errors': form.errors}, 400)
+                return (
+                    {
+                        'status': 'error',
+                        'errors': form.errors,
+                        'form_nonce': form.form_nonce.data
+                    },
+                    400,
+                )
 
         form_html = render_form(
             form=form,
@@ -307,6 +319,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             'status': 'error',
                             'message': _("Member already exists in the project"),
                             'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data
                         },
                         400,
                     )
@@ -350,6 +363,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("The new member could not be added"),
                         'errors': membership_form.errors,
+                        'form_nonce': membership_form.form_nonce.data
                     },
                     400,
                 )
@@ -478,6 +492,7 @@ class ProjectCrewMembershipView(
                         'status': 'error',
                         'message': _("At lease one role must be chosen"),
                         'errors': membership_form.errors,
+                        'form_nonce': membership_form.form_nonce.data
                     },
                     400,
                 )
