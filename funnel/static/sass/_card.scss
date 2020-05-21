@@ -23,9 +23,10 @@
     display: flex !important;
     max-width: 100%;
     border-radius: 16px;
+    min-height: 292px;
 
     .card__image-wrapper {
-      flex: 0 0 62%;
+      flex: 0 0 58.3%;
       margin: 0;
       padding: 0;
       z-index: 3;
@@ -60,10 +61,7 @@
 
 @media (min-width: 1200px) {
   .card--spotlight {
-    min-height: 450px;
-    .card__image-wrapper {
-      flex: 0 0 70%;
-    }
+    min-height: 356px;
   }
   .card--spotlight--live {
     min-height: auto;
