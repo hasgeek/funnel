@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from flask import flash, g, jsonify, redirect
+from flask import abort, flash, g, jsonify, redirect, request
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form
@@ -126,37 +126,48 @@ class EventView(EventViewMixin, UrlForView, ModelView):
     @render_with('event.html.jinja2')
     @requires_roles({'project_concierge', 'project_usher'})
     def view(self):
-        csrf_form = forms.Form()
-        if csrf_form.validate_on_submit():
-            for ticket_client in self.obj.project.ticket_clients:
-                if ticket_client and ticket_client.name.lower() in [
-                    'explara',
-                    'boxoffice',
-                ]:
-                    import_tickets.queue(ticket_client.id)
-            flash(
-                _(
-                    "Importing tickets from vendors... Refresh the page in about 30 seconds..."
-                ),
-                'info',
-            )
-        form = ParticipantBadgeForm()
-        if form.validate_on_submit():
-            badge_printed = True if getbool(form.data.get('badge_printed')) else False
-            db.session.query(Participant).filter(
-                Participant.id.in_(
-                    [participant.id for participant in self.obj.participants]
-                )
-            ).update({'badge_printed': badge_printed}, False)
-            db.session.commit()
-            return redirect(self.obj.url_for('view'), code=303)
+        if request.method == 'POST':
+            if 'form.id' not in request.form:
+                abort(400)
+            if request.form['form.id'] == 'csrf_form':
+                csrf_form = forms.Form()
+                if csrf_form.validate_on_submit():
+                    for ticket_client in self.obj.project.ticket_clients:
+                        if ticket_client and ticket_client.name.lower() in [
+                            'explara',
+                            'boxoffice',
+                        ]:
+                            import_tickets.queue(ticket_client.id)
+                    flash(
+                        _(
+                            "Importing tickets from vendors... "
+                            "Refresh the page in about 30 seconds..."
+                        ),
+                        'info',
+                    )
+            elif request.form['form.id'] == 'badge_form':
+                form = ParticipantBadgeForm()
+                if form.validate_on_submit():
+                    badge_printed = getbool(form.data.get('badge_printed'))
+                    db.session.query(Participant).filter(
+                        Participant.id.in_(
+                            [participant.id for participant in self.obj.participants]
+                        )
+                    ).update(
+                        {'badge_printed': badge_printed}, synchronize_session=False
+                    )
+                    db.session.commit()
+                    return redirect(self.obj.url_for('view'), code=303)
+            else:
+                # Unknown form
+                abort(400)
         return {
             'profile': self.obj.project.profile,
             'event': self.obj,
             'project': self.obj.project,
             'badge_form': ParticipantBadgeForm(model=Participant),
             'checkin_form': forms.Form(),
-            'csrf_form': csrf_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('edit', methods=['GET', 'POST'])
