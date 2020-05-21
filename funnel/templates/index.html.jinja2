@@ -99,7 +99,7 @@
                 {% endif %}
               </div>
               <div class="card__body">
-                <h3 class="mui--text-headline zero-top-margin"><a class="clickable-card" href="{{ featured_project.url_for() }}">{{ featured_project.title }}</a></h3>
+                <h3 class="card__body__title zero-top-margin"><a class="clickable-card" href="{{ featured_project.url_for() }}">{{ featured_project.title }}</a></h3>
                 <p class="mui--text-title mui--text-bold hg-text">Live</p>
                 {% if current_sessions.sessions|length > 0 %}
                   <p class="mui--text-title mui--text-light">{{ faicon(icon='clock', icon_size='title') }} Session starts at {{ current_sessions.sessions[0].start_at_localized.strftime('%I:%M %p') }}</p>
@@ -144,7 +144,7 @@
                   {% endif %}
                 </div>
                 <div class="card__body">
-                  <h3 class="mui--text-title zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title_inline }}</span>{% if featured_project.tagline %} <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
+                  <h3 class="card__body__title zero-top-margin js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ featured_project.title_inline }}</span>{% if featured_project.tagline %} <span class="mui--text-light">{{ featured_project.tagline }}</span>{% endif %}</h3>
                   {%- if not current_auth.is_anonymous %}
                     {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
                     <div class="card__body__bookmark">{{ saveprojectform(featured_project, project_save_form, save_form_id) }}</div>

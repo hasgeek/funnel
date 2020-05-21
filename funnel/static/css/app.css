@@ -1267,6 +1267,11 @@ html.touch .collapsible__body--disable {
   min-width: 160px;
 }
 
+.card .card__body__title {
+  font-size: 20px;
+  line-height: 28px;
+}
+
 .card--spotlight {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
@@ -1359,7 +1364,6 @@ html.touch .collapsible__body--disable {
 }
 
 .card__image-wrapper {
-  min-height: 180px;
   position: relative;
   background-image: linear-gradient(to bottom, #4d5763, #202d3c);
 }

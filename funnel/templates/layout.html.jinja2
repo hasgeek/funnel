@@ -41,6 +41,12 @@
         height: 4px;
       }
   </style>
+  <script type="text/javascript">
+    window.onbeforeunload = function(){
+        Pace.stop();
+        Pace.start();
+    }
+  </script>
 {%- endblock %}
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
