@@ -1,6 +1,5 @@
-import six
-
 import csv
+import io
 
 from flask import (
     Response,
@@ -15,7 +14,7 @@ from flask import (
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
     UrlForView,
@@ -247,7 +246,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             .order_by(db.desc('created_at'))
             .all()
         )
-        outfile = six.StringIO()
+        outfile = io.StringIO()
         out = csv.writer(outfile)
         out.writerow(proposal_headers + ['status'])
         for proposal in proposals:
@@ -460,6 +459,55 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     def rsvp_list(self):
         return {'project': self.obj, 'statuses': RSVP_STATUS}
 
+    def get_rsvp_state_csv(self, state):
+        outfile = io.StringIO()
+        out = csv.writer(outfile)
+        out.writerow(['fullname', 'email', 'created_at'])
+        for rsvp in self.obj.rsvps_with(state):
+            out.writerow(
+                [
+                    rsvp.user.fullname,
+                    rsvp.user.email,
+                    rsvp.created_at.astimezone(self.obj.timezone)
+                    .replace(second=0, microsecond=0, tzinfo=None)
+                    .isoformat(),  # Strip precision from timestamp
+                ]
+            )
+
+        outfile.seek(0)
+        return Response(
+            outfile.getvalue(),
+            content_type='text/csv',
+            headers=[
+                (
+                    'Content-Disposition',
+                    'attachment;filename="{filename}.csv"'.format(
+                        filename='rsvp-{project}-{state}'.format(
+                            project=make_name(self.obj.title), state=state
+                        )
+                    ),
+                )
+            ],
+        )
+
+    @route('rsvp_list/yes.csv')
+    @requires_login
+    @requires_roles({'concierge'})
+    def rsvp_list_yes_csv(self):
+        """
+        Returns a CSV of given contacts
+        """
+        return self.get_rsvp_state_csv(state=RSVP_STATUS.YES)
+
+    @route('rsvp_list/maybe.csv')
+    @requires_login
+    @requires_roles({'concierge'})
+    def rsvp_list_maybe_csv(self):
+        """
+        Returns a CSV of given contacts
+        """
+        return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
+
     @route('save', methods=['POST'])
     @render_with(json=True)
     @requires_login
@@ -489,7 +537,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     'error_description': _(
                         "Something went wrong, please reload and try again"
                     ),
-                    'form_nonce': form.form_nonce.data
+                    'form_nonce': form.form_nonce.data,
                 },
                 400,
             )
