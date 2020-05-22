@@ -127,6 +127,16 @@ def project_comment_new(obj):
     return obj.current_roles.participant is True
 
 
+@Project.features('registration')
+def project_registration(obj):
+    return obj.rsvp_for(current_auth.user) is None
+
+
+@Project.features('deregistration')
+def project_deregistration(obj):
+    return obj.rsvp_for(current_auth.user) is not None
+
+
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
