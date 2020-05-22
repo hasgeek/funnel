@@ -84,6 +84,7 @@ def project_data(project):
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'calendar_weeks_full': project.calendar_weeks_full,
         'calendar_weeks_compact': project.calendar_weeks_compact,
+        'rsvp_count_going': project.rsvp_count_going(),
     }
 
 

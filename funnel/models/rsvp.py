@@ -126,6 +126,15 @@ def _project_rsvp_counts(self):
     )
 
 
+def _project_rsvp_count_going(self):
+    return (
+        self.rsvps.join(User)
+        .filter(User.status == USER_STATUS.ACTIVE, Rsvp.state.YES)
+        .count()
+    )
+
+
 Project.rsvp_for = _project_rsvp_for
 Project.rsvps_with = _project_rsvps_with
 Project.rsvp_counts = _project_rsvp_counts
+Project.rsvp_count_going = _project_rsvp_count_going
