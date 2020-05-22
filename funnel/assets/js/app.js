@@ -1,4 +1,4 @@
-/* global jstz */
+/* global jstz, Pace */
 
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
@@ -83,3 +83,19 @@ $(() => {
     $.cookie('timezone', jstz.determine().name(), { path: '/' });
   }
 });
+
+window.onbeforeunload = function() {
+  Pace.stop();
+  Pace.start();
+};
+
+if (
+  navigator.userAgent.match(/(iPhone|Android)/) &&
+  !(
+    window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches
+  )
+) {
+  $('.pace').addClass('pace-hide');
+  $('body').addClass('red');
+}

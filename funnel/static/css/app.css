@@ -371,6 +371,36 @@ html.touch .collapsible__body--disable {
   color: #8492a6;
 }
 
+.pace {
+  -webkit-pointer-events: none;
+  pointer-events: none;
+  -webkit-user-select: none;
+  i-moz-user-select: none;
+  user-select: none;
+}
+
+.pace-inactive {
+  display: none;
+}
+
+.pace .pace-progress {
+  background-image: linear-gradient(to right, #82688d, #e05f25, #dda32a);
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  right: 100%;
+  width: 100%;
+  height: 4px;
+}
+
+.pace-hide {
+  display: none !important;
+}
+
+body.red {
+  background-color: red;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
