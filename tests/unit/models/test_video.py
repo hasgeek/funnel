@@ -20,7 +20,7 @@ class TestVideos(object):
             'https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view'
         ) == ('googledrive', '1rwHdWYnF4asdhsnDwLECoqZQy4o')
 
-    def test_youtube_video_delete(self, test_client, test_db, new_proposal):
+    def test_youtube_video_delete(self, test_db, new_proposal):
         assert new_proposal.title == "Test Proposal"
 
         new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -35,7 +35,7 @@ class TestVideos(object):
         assert new_proposal.video_source is None
         assert new_proposal.video_id is None
 
-    def test_youtube(self, test_client, test_db, new_proposal):
+    def test_youtube(self, test_db, new_proposal):
         assert new_proposal.title == "Test Proposal"
 
         new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -77,7 +77,7 @@ class TestVideos(object):
             == f'https://i.ytimg.com/vi/{check_proposal.video_id}/mqdefault.jpg'
         )
 
-    def test_vimeo_video_delete(self, test_client, test_db, new_proposal):
+    def test_vimeo_video_delete(self, test_db, new_proposal):
         assert new_proposal.title == "Test Proposal"
 
         new_proposal.video_url = 'https://vimeo.com/336892869'
@@ -92,7 +92,7 @@ class TestVideos(object):
         assert new_proposal.video_source is None
         assert new_proposal.video_id is None
 
-    def test_vimeo(self, test_client, test_db, new_proposal):
+    def test_vimeo(self, test_db, new_proposal):
         assert new_proposal.title == "Test Proposal"
 
         new_proposal.video_url = 'https://vimeo.com/336892869'

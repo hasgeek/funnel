@@ -6,7 +6,7 @@ from coaster.utils import LabeledEnum
 
 from . import NoIdMixin, db
 from .project import Project
-from .user import User
+from .user import USER_STATUS, User
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
@@ -111,13 +111,16 @@ def _project_rsvp_for(self, user, create=False):
 
 
 def _project_rsvps_with(self, status):
-    return self.rsvps.filter_by(_state=status)
+    return self.rsvps.join(User).filter(
+        User.status == USER_STATUS.ACTIVE, Rsvp._state == status
+    )
 
 
 def _project_rsvp_counts(self):
     return dict(
         db.session.query(Rsvp._state, db.func.count(Rsvp._state))
-        .filter(Rsvp.project == self)
+        .join(User)
+        .filter(User.status == USER_STATUS.ACTIVE, Rsvp.project == self)
         .group_by(Rsvp._state)
         .all()
     )

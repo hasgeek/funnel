@@ -4,7 +4,7 @@ from funnel.models import Label
 
 
 class TestLabels(object):
-    def test_main_label_from_fixture(self, test_client, new_main_label):
+    def test_main_label_from_fixture(self, test_db, new_main_label):
         assert new_main_label.title == "Parent Label A"
         assert new_main_label.has_options
         assert new_main_label.required
@@ -12,7 +12,7 @@ class TestLabels(object):
         assert not new_main_label.archived
         assert len(new_main_label.options) > 0
 
-    def test_child_label_from_fixture(self, test_client, test_db, new_main_label):
+    def test_child_label_from_fixture(self, test_db, new_main_label):
         assert len(new_main_label.options) > 0
         label_a1 = new_main_label.options[0]
         assert label_a1.title == "Label A1"
@@ -25,7 +25,7 @@ class TestLabels(object):
             # it's restricted flag cannot be set
             label_a1.restricted = True
 
-    def test_label_from_fixture(self, test_client, test_db, new_label):
+    def test_label_from_fixture(self, test_db, new_label):
         assert new_label.title == "Label B"
         assert new_label.icon_emoji == "🔟"
         assert new_label.icon == "🔟"
@@ -35,9 +35,7 @@ class TestLabels(object):
             # because Label B is not a parent label, it cannot be required
             new_label.required = True
 
-    def test_proposal_assignment_radio(
-        self, test_client, test_db, new_main_label, new_proposal
-    ):
+    def test_proposal_assignment_radio(self, test_db, new_main_label, new_proposal):
         # Parent labels are always in radio mode
         label_a1 = new_main_label.options[0]
         label_a2 = new_main_label.options[1]
@@ -50,12 +48,12 @@ class TestLabels(object):
         assert label_a1 not in new_proposal.labels
         assert label_a2 in new_proposal.labels
 
-    def test_label_flags(self, new_main_label, new_label):
+    def test_label_flags(self, test_db, new_main_label, new_label):
         restricted_labels = Label.query.filter(Label.restricted.is_(True)).all()
         assert new_main_label in restricted_labels
         assert new_label not in restricted_labels
 
-    def test_label_icon(self, test_client, test_db, new_label):
+    def test_label_icon(self, test_db, new_label):
         # if the label has icon_emoji, that's get set as icon
         assert new_label.icon == new_label.icon_emoji
         new_label.icon_emoji = ""
@@ -63,7 +61,7 @@ class TestLabels(object):
         assert new_label.title == "Label B"
         assert new_label.icon == "LB"
 
-    def test_label_archived(self, test_client, test_db, new_label):
+    def test_label_archived(self, test_db, new_label):
         assert new_label.archived is False
         assert new_label._archived is False
         new_label.archived = True

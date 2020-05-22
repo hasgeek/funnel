@@ -95,7 +95,12 @@ class TestMembership(object):
         assert 'concierge' not in new_project.roles_for(new_user)
         assert 'usher' in new_project.roles_for(new_user)
         # offered_roles should also return all valid roles
-        assert new_membership4.offered_roles() == {'editor', 'usher'}
+        assert new_membership4.offered_roles == {
+            'crew',
+            'participant',
+            'editor',
+            'usher',
+        }
         assert new_membership4.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
 
         # can't replace with an unknown role
@@ -103,13 +108,7 @@ class TestMembership(object):
             new_membership4.replace(actor=new_user_owner, is_foobar=True)
 
     def test_lazy_proxy(
-        self,
-        test_client,
-        test_db,
-        new_user,
-        new_user_owner,
-        new_organization,
-        new_project2,
+        self, test_db, new_user, new_user_owner, new_organization, new_project2
     ):
         assert 'admin' in new_organization.profile.roles_for(new_user_owner)
         assert 'admin' not in new_organization.profile.roles_for(new_user)

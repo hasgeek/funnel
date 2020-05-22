@@ -6,6 +6,11 @@ from . import db
 from .membership import ImmutableMembershipMixin
 from .proposal import Proposal
 
+try:
+    from functools import cached_property
+except ImportError:
+    from werkzeug.utils import cached_property
+
 __all__ = ['ProposalMembership']
 
 
@@ -57,6 +62,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
         )
         return tuple(args)
 
+    @cached_property
     def offered_roles(self):
         """Roles offered by this membership record"""
         roles = set()

@@ -3,6 +3,7 @@
 
 {% macro commenttree(comments, document, project, csrf_form) %}
 {%- for comment in comments %}
+  {% if not comment.state.SPAM or comment.children %}
   <li class="comment">
     <div id="c{{ comment.uuid_b58 }}">
       <div class="comment--content">
@@ -16,14 +17,13 @@
           <div class="comment--header__details">
             {% if comment.state.DELETED -%}
               <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
+            {% elif comment.state.SPAM -%}
+              <span class="commenter">[{% trans %}removed{% endtrans %}]</span>
             {%- else -%}
               <span class="commenter"><strong>{{ comment.user.pickername }}</strong></span>
-              {%- if comment.user == document.user %}
-                <span class="badge">Proposer</span>
-              {% endif %}
-              {%- if 'crew' in project.roles_for(comment.user) %}
-                <span class="badge">Crew</span>
-              {% endif %}
+              {% for badge in comment.badges %}
+                <span class="badge">{{ badge }}</span>
+              {% endfor %}
               <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
               {%- if comment.edited_at %}
                 <span class="mui--text-caption mui--text-accent">({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})</span>
@@ -32,11 +32,11 @@
           </div>
         </div>
         <div class="comment--body">
-          {% if not comment.state.DELETED -%}
+          {% if not comment.state.REMOVED -%}
             {{ comment.message }}
           {%- endif %}
           <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" {% if comment.view_for('edit').is_available() %} data-delete-url="{{ comment.url_for('delete') }}" data-edit-url="{{ comment.url_for('edit') }}" {% endif %} data-json-url="{{ comment.url_for('view_json', _external=true) }}" class="comment--footer">
-            {% if not comment.state.DELETED %}
+            {% if not comment.state.REMOVED %}
               {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Reply]</a>{% endif %}
               {% if comment.current_roles.author %}
                 <a aria-label="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.uuid_b58 }}" data-cy="edit">{% trans %}[Edit]{% endtrans %}</a>
@@ -56,6 +56,7 @@
       </div>
     </div>
   </li>
+  {% endif %}
 {% endfor -%}
 {% endmacro %}
 

@@ -15,9 +15,10 @@
   <div class="grid">
     <div class="grid__col-xs-12">
       <div>
-        <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form mui--pull-right">
+        <form method="POST" id="csrf_form" enctype="multipart/form-data" class="mui-form mui--pull-right">
           <div class="form-group">
             {{ csrf_form.hidden_tag() }}
+            <input type="hidden" name="form.id" value="csrf_form"/>
           </div>
           <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--accent" type="submit">{% trans %}Sync tickets{% endtrans %}</button>
         </form>
@@ -48,10 +49,11 @@
       <ul class="mui-list--inline">
         <li><a href="{{ event.url_for('badges') }}" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
          <li><a href="{{ event.url_for('label_badges') }}" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
-        <li><a href="{{ event.url_for('badges') }}?badges_printed=t" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
+        <li><a href="{{ event.url_for('badges') }}?badge_printed=t" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
+              <input type="hidden" name="form.id" value="badge_form"/>
               {{ renderfield(badge_form.badge_printed, css_class="select2-inline", nolabel=true) }}
             <input id="badge-form-submit"  class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="Update badges"/>
           </form>

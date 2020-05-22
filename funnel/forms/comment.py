@@ -6,7 +6,6 @@ from ..models import Comment
 __all__ = [
     'CommentForm',
     'CommentDeleteForm',
-    'CommentSearchForm',
 ]
 
 
@@ -40,7 +39,3 @@ class CommentDeleteForm(forms.Form):
     comment_id = forms.HiddenField(
         __("Comment"), validators=[forms.validators.DataRequired()]
     )
-
-
-class CommentSearchForm(forms.Form):
-    query = forms.StringField(__("Query"), validators=[forms.validators.DataRequired()])

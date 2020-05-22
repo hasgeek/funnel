@@ -22,7 +22,6 @@ from coaster.views import (
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
     AccountForm,
-    CommentSearchForm,
     EmailPrimaryForm,
     NewEmailAddressForm,
     NewPhoneForm,
@@ -34,6 +33,7 @@ from ..forms import (
 )
 from ..models import (
     Comment,
+    User,
     UserEmail,
     UserEmailClaim,
     UserExternalId,
@@ -44,6 +44,7 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
+from ..utils import strip_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
@@ -96,54 +97,64 @@ class AccountView(ClassView):
     @route('siteadmin/comments', endpoint='siteadmin_comments', methods=['GET', 'POST'])
     @requires_login
     @render_with('siteadmin_comments.html.jinja2')
-    def siteadmin_comments(self):
+    @requestargs(('query', strip_null), ('page', int), ('per_page', int))
+    def siteadmin_comments(self, query='', page=None, per_page=100):
         if not (
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
         ):
             return abort(403)
 
-        comments = []
-        comment_search_form = CommentSearchForm()
+        comments = Comment.query.filter(~Comment.state.REMOVED).order_by(
+            Comment.created_at.desc()
+        )
+        if query:
+            comments = comments.join(User).filter(
+                db.or_(
+                    Comment.search_vector.match(for_tsquery(query or '')),
+                    User.search_vector.match(for_tsquery(query or '')),
+                )
+            )
 
-        if comment_search_form.validate_on_submit():
-            query = comment_search_form.query.data
-            comments = Comment.query.filter(
-                Comment.search_vector.match(for_tsquery(query or ''))
-            ).all()
+        pagination = comments.paginate(page=page, per_page=per_page)
 
         return {
-            'comments': comments,
-            'comment_search_form': comment_search_form,
-            'comment_delete_form': Form(),
+            'query': query,
+            'comments': pagination.items,
+            'total_comments': pagination.total,
+            'pages': list(range(1, pagination.pages + 1)),  # list of page numbers
+            'current_page': pagination.page,
+            'comment_spam_form': Form(),
         }
 
     @route(
-        'siteadmin/comments/delete',
-        endpoint='siteadmin_comments_delete',
-        methods=['GET', 'POST'],
+        'siteadmin/comments/markspam',
+        endpoint='siteadmin_comments_spam',
+        methods=['POST'],
     )
     @requires_login
-    def siteadmin_comments_delete(self):
+    def siteadmin_comments_spam(self):
         if not (
             current_auth.user.is_comment_moderator
             or current_auth.user.is_user_moderator
         ):
             return abort(403)
 
-        comment_delete_form = Form()
-        comment_delete_form.form_nonce.data = comment_delete_form.form_nonce.default()
-        if comment_delete_form.validate_on_submit():
-            Comment.query.filter(
+        comment_spam_form = Form()
+        comment_spam_form.form_nonce.data = comment_spam_form.form_nonce.default()
+        if comment_spam_form.validate_on_submit():
+            comments = Comment.query.filter(
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
-            ).delete(synchronize_session=False)
+            )
+            for comment in comments:
+                comment.mark_spam()
             db.session.commit()
             flash(
-                _("Comment(s) successfully deleted"), category='info',
+                _("Comment(s) successfully marked as spam"), category='info',
             )
         else:
             flash(
-                _("There was a problem deleting the comments. Please try again"),
+                _("There was a problem marking the comments as spam. Please try again"),
                 category='error',
             )
 

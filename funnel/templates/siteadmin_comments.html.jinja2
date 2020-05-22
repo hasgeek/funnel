@@ -1,17 +1,39 @@
 {% extends 'siteadmin_layout.html.jinja2' %}
 
 {% block admincontentblock %}
-{% if comment_search_form %}
-  {{ renderform(comment_search_form, 'comment-search', action=url_for('siteadmin_comments'), submit="Search", style='horiz') }}
-{% endif %}
+<form data-parsley-validate="true" id="comment-search-form" method="GET"
+  action="{{ url_for('siteadmin_comments') }}" accept-charset="UTF-8"
+  class="mui-form mui-form--margins hg-form mui-form--inline">
+
+  <input type="hidden" id="comment-search-page" name="page" value="1">
+
+  <div class="mui-form__fields" id="field-query">
+    <div class="mui-form__controls">
+      <div class="mui-textfield mui-textfield--float-label">
+        <input autofocus class="field-query " id="comment-search-query"
+          name="query" type="text" value="{{ query }}">
+        <label>Query</label>
+      </div>
+    </div>
+  </div>
+  {{ rendersubmit([('', "Search", '')]) }}
+</form>
+
+<p>
+  {%- trans total_comments=total_comments, query=query %}
+    Only {{ total_comments }} comment for "{{ query }}"
+  {% pluralize total_comments %}
+    Total {{ total_comments }} comments for "{{ query }}"
+  {% endtrans -%}
+</p>
 
 <form
-  id="form-comments-delete"
-  action="{{ url_for('siteadmin_comments_delete') }}"
+  id="form-comments-spam"
+  action="{{ url_for('siteadmin_comments_spam') }}"
   method="post"
   class="form-inline"
 >
-  {{ comment_delete_form.hidden_tag() }}
+  {{ comment_spam_form.hidden_tag() }}
   <table class="mui-table mui-table--bordered mui-table--responsive">
     <thead>
       <tr>
@@ -47,7 +69,7 @@
         {#
         <td data-th="Actions">
           {% if current_auth.user.is_user_moderator %}
-          <button id="btn-user-deleteall" class="mui-btn mui-btn--accent">
+          <button id="btn-user-markspamall" class="mui-btn mui-btn--accent">
             Delete all comments by user
           </button>
           {% endif %}
@@ -62,9 +84,19 @@
     </tbody>
   </table>
   <div>
-    {{ rendersubmit([("delete-comments-bulk", "Delete", '')]) }}
+    {{ rendersubmit([("spam-comments-bulk", "Mark spam", '')]) }}
   </div>
 </form>
+
+<div class="mui--text-center">
+  {% for page in pages[:10] %}
+    <a
+      class="btn-pagination-item mui-btn {% if page != current_page %}mui-btn--accent{% endif %}"
+      href="{{ url_for('siteadmin_comments') }}?query={{ query }}&page={{ page }}"
+      >{{ page }}</a>
+  {% endfor %}
+</div>
+
 {% endblock admincontentblock %}
 
 {% block footerscripts %}
@@ -73,9 +105,9 @@
     e.preventDefault();
     $(".field-comment-id").attr("checked", this.checked);
   });
-  $("#form-comments-delete").submit(function (e) {
+  $("#form-comments-spam").submit(function (e) {
     var checkedboxes = $(".field-comment-id:checked").length;
-    if (confirm(`Do you want to delete ${checkedboxes} comments?`)) {
+    if (confirm(`Do you want to mark ${checkedboxes} comments as spam?`)) {
       return true;
     } else {
       e.preventDefault();

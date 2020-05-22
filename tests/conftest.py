@@ -42,8 +42,12 @@ TEST_DATA = {
 # Scope: session
 # These fixtures are run before every test session
 
+# TODO: Replace all `scope='module'` with `scope='session'` when lastuser tests have
+# been migrated to pytest. Currently they do a db.drop_all(), breaking the
+# test_db_structure fixture
 
-@pytest.fixture(scope='session')
+
+@pytest.fixture(scope='module')
 def test_client():
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
@@ -59,162 +63,247 @@ def test_client():
     ctx.pop()
 
 
-@pytest.fixture(scope='session')
-def test_db(test_client):
-    # Create the database and the database table
+@pytest.fixture(scope='module')
+def test_db_structure(test_client):
+    # Create all database tables
     db.create_all()
-
-    yield db  # this is where the testing happens!
-
-    # anything after yield is teardown code
-    db.session.rollback()
-    db.session.remove()
+    yield db
+    # Drop all database tables
     db.drop_all()
 
 
-@pytest.fixture(scope='session')
-def new_user(test_db):
+@pytest.fixture(scope='function')
+def test_db(test_db_structure):
+    yield test_db_structure  # this is where the testing happens!
+    # anything after yield is teardown code
+    test_db_structure.session.rollback()
+    test_db_structure.session.remove()
+
+
+@pytest.fixture(scope='module')
+def create_user(test_db_structure):
     user = User(**TEST_DATA['users']['testuser'])
-    test_db.session.add(user)
-    test_db.session.commit()
+    test_db_structure.session.add(user)
+    test_db_structure.session.commit()
     return user
 
 
-@pytest.fixture(scope='session')
-def new_user_owner(test_db):
+@pytest.fixture(scope='function')
+def new_user(test_db_structure, create_user):
+    user = test_db_structure.session.merge(create_user)
+    return user
+
+
+@pytest.fixture(scope='module')
+def create_user_owner(test_db_structure):
     user = User(**TEST_DATA['users']['test-org-owner'])
-    test_db.session.add(user)
-    test_db.session.commit()
+    test_db_structure.session.add(user)
+    test_db_structure.session.commit()
     return user
 
 
-@pytest.fixture(scope='session')
-def new_user_admin(test_db):
+@pytest.fixture(scope='function')
+def new_user_owner(test_db_structure, create_user_owner):
+    user_owner = test_db_structure.session.merge(create_user_owner)
+    return user_owner
+
+
+@pytest.fixture(scope='module')
+def create_user_admin(test_db_structure):
     user = User(**TEST_DATA['users']['test-org-admin'])
-    test_db.session.add(user)
-    test_db.session.commit()
+    test_db_structure.session.add(user)
+    test_db_structure.session.commit()
     return user
 
 
-@pytest.fixture(scope='session')
-def new_organization(test_db, new_user_owner, new_user_admin):
+@pytest.fixture(scope='function')
+def new_user_admin(test_db_structure, create_user_admin):
+    user_admin = test_db_structure.session.merge(create_user_admin)
+    return user_admin
+
+
+@pytest.fixture(scope='module')
+def create_organization(test_db_structure, create_user_owner, create_user_admin):
+    user_owner = test_db_structure.session.merge(create_user_owner)
+    user_admin = test_db_structure.session.merge(create_user_admin)
     org = Organization(
-        owner=new_user_owner, title="Test org", name='test-org', is_public_profile=True
+        owner=user_owner, title="Test org", name='test-org', is_public_profile=True
     )
-    test_db.session.add(org)
+    test_db_structure.session.add(org)
 
     admin_membership = OrganizationMembership(
-        organization=org, user=new_user_admin, is_owner=False, granted_by=new_user_owner
+        organization=org, user=user_admin, is_owner=False, granted_by=user_owner
     )
-    test_db.session.add(admin_membership)
-    test_db.session.commit()
+    test_db_structure.session.add(admin_membership)
+    test_db_structure.session.commit()
     return org
 
 
-@pytest.fixture(scope='session')
-def new_team(test_db, new_user, new_organization):
-    team = Team(title="Owners", organization=new_organization)
-    test_db.session.add(team)
-    team.users.append(new_user)
-    test_db.session.commit()
+@pytest.fixture(scope='function')
+def new_organization(test_db_structure, create_organization):
+    organization = test_db_structure.session.merge(create_organization)
+    return organization
+
+
+@pytest.fixture(scope='module')
+def create_team(test_db_structure, create_user, create_organization):
+    user = test_db_structure.session.merge(create_user)
+    organization = test_db_structure.session.merge(create_organization)
+    team = Team(title="Owners", organization=organization)
+    test_db_structure.session.add(team)
+    team.users.append(user)
+    test_db_structure.session.commit()
     return team
 
 
-@pytest.fixture(scope='session')
-def new_project(test_db, new_organization, new_user):
+@pytest.fixture(scope='function')
+def new_team(test_db_structure, create_team):
+    team = test_db_structure.session.merge(create_team)
+    return team
+
+
+@pytest.fixture(scope='module')
+def create_project(test_db_structure, create_organization, create_user):
+    user = test_db_structure.session.merge(create_user)
+    organization = test_db_structure.session.merge(create_organization)
     project = Project(
-        profile=new_organization.profile,
-        user=new_user,
+        profile=organization.profile,
+        user=user,
         title="Test Project",
         tagline="Test tagline",
         description="Test description",
         location="Test Location",
     )
-    test_db.session.add(project)
-    test_db.session.commit()
+    test_db_structure.session.add(project)
+    test_db_structure.session.commit()
     return project
 
 
-@pytest.fixture(scope='session')
-def new_project2(test_db, new_organization, new_user_owner):
+@pytest.fixture(scope='function')
+def new_project(test_db_structure, create_project):
+    project = test_db_structure.session.merge(create_project)
+    return project
+
+
+@pytest.fixture(scope='module')
+def create_project2(test_db_structure, create_organization, create_user_owner):
+    user_owner = test_db_structure.session.merge(create_user_owner)
+    organization = test_db_structure.session.merge(create_organization)
     project = Project(
-        profile=new_organization.profile,
-        user=new_user_owner,
+        profile=organization.profile,
+        user=user_owner,
         title="Test Project",
         tagline="Test tagline",
         description="Test description",
         location="Test Location",
     )
-    test_db.session.add(project)
-    test_db.session.commit()
+    test_db_structure.session.add(project)
+    test_db_structure.session.commit()
     return project
 
 
-@pytest.fixture(scope='class')
-def new_main_label(test_db, new_project):
+@pytest.fixture(scope='function')
+def new_project2(test_db_structure, create_project2):
+    project2 = test_db_structure.session.merge(create_project2)
+    return project2
+
+
+@pytest.fixture(scope='module')
+def create_main_label(test_db_structure, create_project):
+    project = test_db_structure.session.merge(create_project)
     main_label_a = Label(
-        title="Parent Label A", project=new_project, description="A test parent label"
+        title="Parent Label A", project=project, description="A test parent label"
     )
-    new_project.labels.append(main_label_a)
-    test_db.session.add(main_label_a)
+    project.labels.append(main_label_a)
+    test_db_structure.session.add(main_label_a)
 
-    label_a1 = Label(title="Label A1", icon_emoji="👍", project=new_project)
-    test_db.session.add(label_a1)
+    label_a1 = Label(title="Label A1", icon_emoji="👍", project=project)
+    test_db_structure.session.add(label_a1)
 
-    label_a2 = Label(title="Label A2", project=new_project)
-    test_db.session.add(label_a2)
+    label_a2 = Label(title="Label A2", project=project)
+    test_db_structure.session.add(label_a2)
 
     main_label_a.options.append(label_a1)
     main_label_a.options.append(label_a2)
     main_label_a.required = True
     main_label_a.restricted = True
-    test_db.session.commit()
+    test_db_structure.session.commit()
 
     return main_label_a
 
 
-@pytest.fixture(scope='class')
-def new_main_label_unrestricted(test_db, new_project):
+@pytest.fixture(scope='function')
+def new_main_label(test_db_structure, create_main_label):
+    main_label = test_db_structure.session.merge(create_main_label)
+    return main_label
+
+
+@pytest.fixture(scope='module')
+def create_main_label_unrestricted(test_db_structure, create_project):
+    project = test_db_structure.session.merge(create_project)
     main_label_b = Label(
-        title="Parent Label B", project=new_project, description="A test parent label"
+        title="Parent Label B", project=project, description="A test parent label"
     )
-    new_project.labels.append(main_label_b)
-    test_db.session.add(main_label_b)
+    project.labels.append(main_label_b)
+    test_db_structure.session.add(main_label_b)
 
-    label_b1 = Label(title="Label B1", icon_emoji="👍", project=new_project)
-    test_db.session.add(label_b1)
+    label_b1 = Label(title="Label B1", icon_emoji="👍", project=project)
+    test_db_structure.session.add(label_b1)
 
-    label_b2 = Label(title="Label B2", project=new_project)
-    test_db.session.add(label_b2)
+    label_b2 = Label(title="Label B2", project=project)
+    test_db_structure.session.add(label_b2)
 
     main_label_b.options.append(label_b1)
     main_label_b.options.append(label_b2)
     main_label_b.required = False
     main_label_b.restricted = False
-    test_db.session.commit()
+    test_db_structure.session.commit()
 
     return main_label_b
 
 
-@pytest.fixture(scope='class')
-def new_label(test_db, new_project):
-    label_b = Label(title="Label B", icon_emoji="🔟", project=new_project)
-    new_project.labels.append(label_b)
-    test_db.session.add(label_b)
-    test_db.session.commit()
+@pytest.fixture(scope='function')
+def new_main_label_unrestricted(test_db_structure, create_main_label_unrestricted):
+    main_label_unrestricted = test_db_structure.session.merge(
+        create_main_label_unrestricted
+    )
+    return main_label_unrestricted
+
+
+@pytest.fixture(scope='module')
+def create_label(test_db_structure, create_project):
+    project = test_db_structure.session.merge(create_project)
+    label_b = Label(title="Label B", icon_emoji="🔟", project=project)
+    project.labels.append(label_b)
+    test_db_structure.session.add(label_b)
+    test_db_structure.session.commit()
     return label_b
 
 
-@pytest.fixture(scope='class')
-def new_proposal(test_db, new_user, new_project):
+@pytest.fixture(scope='function')
+def new_label(test_db_structure, create_label):
+    label = test_db_structure.session.merge(create_label)
+    return label
+
+
+@pytest.fixture(scope='module')
+def create_proposal(test_db_structure, create_user, create_project):
+    user = test_db_structure.session.merge(create_user)
+    project = test_db_structure.session.merge(create_project)
     proposal = Proposal(
-        user=new_user,
-        speaker=new_user,
-        project=new_project,
+        user=user,
+        speaker=user,
+        project=project,
         title="Test Proposal",
         outline="Test proposal description",
         location="Bangalore",
     )
-    test_db.session.add(proposal)
-    test_db.session.commit()
+    test_db_structure.session.add(proposal)
+    test_db_structure.session.commit()
+    return proposal
+
+
+@pytest.fixture(scope='function')
+def new_proposal(test_db_structure, create_proposal):
+    proposal = test_db_structure.session.merge(create_proposal)
     return proposal
