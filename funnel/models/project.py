@@ -250,13 +250,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'cfp_start_at_localized',
                 'cfp_end_at_localized',
             },
-            'call': {
-                'url_for',
-                'current_sessions',
-                'is_saved_by',
-                'schedule_state',
-                'rsvp_count_going',
-            },
+            'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
         },
         'participant': {'granted_via': {'rsvps': 'user', 'participants': 'user'}},
     }
