@@ -502,7 +502,9 @@ class Proposal(
         else:
             roles.add('reader')
 
-        if {'project_participant', 'presenter', 'reviewer'}.intersection(roles):
+        if (
+            {'project_participant', 'presenter', 'reviewer'}.intersection(roles)
+        ) or self.owner == actor:  # remove this check after proposal membership is implemented
             roles.add('commenter')
 
         return roles
