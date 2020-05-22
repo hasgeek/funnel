@@ -463,7 +463,13 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             out.writerow(
                 [
                     rsvp.user.fullname,
-                    rsvp.user.email,
+                    (
+                        rsvp.user.email
+                        if rsvp.user.email
+                        else rsvp.user.emailclaims[0]
+                        if rsvp.user.emailclaims
+                        else ''
+                    ),
                     rsvp.created_at.astimezone(self.obj.timezone)
                     .replace(second=0, microsecond=0, tzinfo=None)
                     .isoformat(),  # Strip precision from timestamp
