@@ -85,6 +85,7 @@ def project_data(project):
         'calendar_weeks_full': project.calendar_weeks_full,
         'calendar_weeks_compact': project.calendar_weeks_compact,
         'registration_header_text': project.registration_header_text,
+        'rsvp_count_going': project.rsvp_count_going(),
     }
 
 
