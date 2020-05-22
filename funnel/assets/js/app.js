@@ -92,7 +92,7 @@ if (
   )
 ) {
   $('.pace').addClass('pace-hide');
-  $window.onbeforeunload = function() {
+  window.onbeforeunload = function() {
     Pace.stop();
   };
 }
