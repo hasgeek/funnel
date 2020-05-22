@@ -82,10 +82,6 @@ def project_data(project):
         'website': project.website.url if project.website is not None else "",
         'json_url': project.url_for('json', _external=True),
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
-        'bg_color': project.bg_color,
-        'explore_url': (
-            project.explore_url.url if project.explore_url is not None else ""
-        ),
         'calendar_weeks_full': project.calendar_weeks_full,
         'calendar_weeks_compact': project.calendar_weeks_compact,
     }
