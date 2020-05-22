@@ -84,11 +84,6 @@ $(() => {
   }
 });
 
-window.onbeforeunload = function() {
-  Pace.stop();
-  Pace.start();
-};
-
 if (
   navigator.userAgent.match(/(iPhone|Android)/) &&
   !(
@@ -97,5 +92,7 @@ if (
   )
 ) {
   $('.pace').addClass('pace-hide');
-  $('body').addClass('red');
+  $window.onbeforeunload = function() {
+    Pace.stop();
+  };
 }
