@@ -397,10 +397,6 @@ html.touch .collapsible__body--disable {
   display: none !important;
 }
 
-body.red {
-  background-color: red;
-}
-
 .hg-app .header--fixed {
   bottom: 0;
 }
