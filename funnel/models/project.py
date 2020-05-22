@@ -252,13 +252,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'cfp_start_at_localized',
                 'cfp_end_at_localized',
             },
-            'call': {
-                'url_for',
-                'current_sessions',
-                'is_saved_by',
-                'schedule_state',
-                'rsvp_count_going',
-            },
+            'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
         },
         'participant': {'granted_via': {'rsvps': 'user', 'participants': 'user'}},
     }
@@ -283,6 +277,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             self.name,
             self.title,
         )
+
+    @property
+    def registration_header_text(self):
+        return __(
+            "{registration_count} registrations so far. Be the next one to register?"
+        ).format(registration_count=self.rsvp_count_going())
 
     @classmethod
     def migrate_profile(cls, old_profile, new_profile):
