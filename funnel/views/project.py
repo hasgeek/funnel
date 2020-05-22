@@ -186,6 +186,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj,
             'current_rsvp': current_rsvp,
+            'empty_form': forms.Form(),
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
@@ -446,6 +447,43 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             flash(transition.data['message'], 'success')
         else:
             flash(_("This response is not valid"), 'error')
+        return redirect(self.obj.url_for(), code=303)
+
+    @route('register', methods=['POST'])
+    @requires_login
+    def register(self):
+        form = forms.Form()
+        if form.validate_on_submit():
+            rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
+            if not rsvp.state.YES:
+                rsvp.rsvp_yes()
+                db.session.commit()
+                flash(
+                    _("You have successfully registered for {self.obj.title}"),
+                    'success',
+                )
+        else:
+            flash(_("There was a problem registering. Please try again"), 'error')
+        return redirect(self.obj.url_for(), code=303)
+
+    @route('deregister', methods=['POST'])
+    @requires_login
+    def deregister(self):
+        form = forms.Form()
+        if form.validate_on_submit():
+            rsvp = Rsvp.get_for(self.obj, current_auth.user)
+            if rsvp is not None and not rsvp.state.NO:
+                rsvp.rsvp_no()
+                db.session.commit()
+                flash(
+                    _("Your registration has been cancelled for {self.obj.title}"),
+                    'success',
+                )
+        else:
+            flash(
+                _("There was a problem cancelling your registration. Please try again"),
+                'error',
+            )
         return redirect(self.obj.url_for(), code=303)
 
     @route('rsvp_list')
