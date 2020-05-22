@@ -29,7 +29,7 @@
     display: flex !important;
     max-width: 100%;
     border-radius: 16px;
-    min-height: 292px;
+    min-height: 290px;
 
     .card__image-wrapper {
       flex: 0 0 58.3%;
@@ -67,7 +67,7 @@
 
 @media (min-width: 1200px) {
   .card--spotlight {
-    min-height: 356px;
+    min-height: 360px;
   }
   .card--spotlight--live {
     min-height: auto;
