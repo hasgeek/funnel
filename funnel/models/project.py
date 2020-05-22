@@ -123,8 +123,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     # Columns for mobile
     bg_image = db.Column(UrlType, nullable=True)
-    bg_color = db.Column(db.Unicode(6), nullable=True)
-    explore_url = db.Column(UrlType, nullable=True)
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
     buy_tickets_url = db.Column(UrlType, nullable=True)
 
