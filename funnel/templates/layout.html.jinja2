@@ -43,8 +43,9 @@
   </style>
   <script type="text/javascript">
     window.onbeforeunload = function(){
-        Pace.stop();
-        Pace.start();
+      console.log('onload');
+      Pace.stop();
+      Pace.start();
     }
   </script>
 {%- endblock %}
