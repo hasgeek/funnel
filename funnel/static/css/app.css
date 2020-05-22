@@ -419,11 +419,12 @@ html.touch .collapsible__body--disable {
 }
 .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form {
   position: fixed;
-  bottom: 50px;
+  bottom: 62px;
   width: 100%;
   left: 0;
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12), 0 1px 2px rgba(158, 158, 158, 0.24);
   display: none;
+  height: 35px;
 }
 .hg-app .header--fixed .header__nav .header__site-title .header__site-title__title .search-form .search-form__field {
   background-color: #eff2f6;
