@@ -3,6 +3,8 @@ from urllib.parse import urljoin
 
 import requests
 
+from baseframe import __
+
 from .. import app, funnelapp, rq
 from ..extapi.boxoffice import Boxoffice
 from ..extapi.explara import ExplaraAPI
@@ -47,7 +49,13 @@ def tag_locations(project_id):
                 params={
                     'q': project.location,
                     'bias': ['IN', 'US'],
-                    'special': ['Anywhere', 'Home', 'Internet', 'Online', 'Remote'],
+                    'special': [
+                        __('Anywhere'),
+                        __('Home'),
+                        __('Internet'),
+                        __('Online'),
+                        __('Remote'),
+                    ],
                 },
             ).json()
 

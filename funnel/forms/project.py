@@ -47,9 +47,18 @@ class ProjectForm(forms.Form):
     )
     location = forms.StringField(
         __("Location"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
+        description=__(
+            '“Online”, “Bangalore”, “Chennai”, “Pune”, etc (without quotes)'
+        ),
+        validators=[
+            forms.validators.DataRequired(
+                __("If this project doesn’t have a fixed location, use “Online”")
+            ),
+            forms.validators.Length(
+                min=3, max=80, message=__("%(max)d characters maximum")
+            ),
+        ],
         filters=[forms.filters.strip()],
-        description=__("Eg. Bangalore, Mumbai, Pune, Online, Anywhere etc"),
     )
     timezone = forms.SelectField(
         __("Timezone"),
@@ -87,6 +96,7 @@ class ProjectForm(forms.Form):
 class ProjectLivestreamForm(forms.Form):
     livestream_urls = forms.TextListField(
         __("Livestream URLs. One per line."),
+        filters=[forms.filters.strip_each()],
         validators=[
             forms.validators.Optional(),
             forms.validators.ForEach(
