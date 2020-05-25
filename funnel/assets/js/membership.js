@@ -76,6 +76,7 @@ const Membership = {
             if (responseData.memberships) {
               this.updateMembersList(responseData.memberships);
               this.onChange();
+              window.toastr.success(responseData.message);
             }
           };
           const onError = response => {
