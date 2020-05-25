@@ -98,6 +98,8 @@ class USER_STATUS(LabeledEnum):  # NOQA: N801
 class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
+
+    __datasets__ = {'related': {'fullname', 'username', 'timezone', 'status', 'avatar'}}
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname

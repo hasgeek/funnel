@@ -48,7 +48,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
         return {
             'profile': self.obj,
             'memberships': [
-                membership.current_access()
+                membership.current_access(datasets=('from_parent', 'related'))
                 for membership in self.obj.organization.active_admin_memberships
             ],
         }
@@ -81,7 +81,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                             'status': 'error',
                             'message': _("Member already exists in the profile"),
                             'errors': membership_form.errors,
-                            'form_nonce': membership_form.form_nonce.data
+                            'form_nonce': membership_form.form_nonce.data,
                         },
                         400,
                     )
@@ -112,7 +112,9 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         'status': 'ok',
                         'message': _("The user has been added as an admin"),
                         'memberships': [
-                            membership.current_access()
+                            membership.current_access(
+                                datasets=('from_parent', 'related')
+                            )
                             for membership in self.obj.organization.active_admin_memberships
                         ],
                     }
@@ -122,7 +124,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("The new member could not be added"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     },
                     400,
                 )
@@ -178,7 +180,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     return {
                         'status': 'error',
                         'message': _("You can't edit your own role"),
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     }
 
                 previous_membership.replace(
@@ -188,7 +190,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 return {
                     'status': 'ok',
                     'memberships': [
-                        membership.current_access()
+                        membership.current_access(datasets=('from_parent', 'related'))
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
@@ -198,7 +200,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("At lease one role must be chosen"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     },
                     400,
                 )
@@ -225,7 +227,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     return {
                         'status': 'error',
                         'message': _("You can't revoke your own membership"),
-                        'form_nonce': form.form_nonce.data
+                        'form_nonce': form.form_nonce.data,
                     }
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
@@ -246,7 +248,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 return {
                     'status': 'ok',
                     'memberships': [
-                        membership.current_access()
+                        membership.current_access(datasets=('from_parent', 'related'))
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
@@ -255,7 +257,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     {
                         'status': 'error',
                         'errors': form.errors,
-                        'form_nonce': form.form_nonce.data
+                        'form_nonce': form.form_nonce.data,
                     },
                     400,
                 )
@@ -293,7 +295,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj,
             'memberships': [
-                membership.current_access()
+                membership.current_access(datasets=('from_parent', 'related'))
                 for membership in self.obj.active_crew_memberships
             ],
             'project_save_form': project_save_form,
@@ -319,7 +321,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             'status': 'error',
                             'message': _("Member already exists in the project"),
                             'errors': membership_form.errors,
-                            'form_nonce': membership_form.form_nonce.data
+                            'form_nonce': membership_form.form_nonce.data,
                         },
                         400,
                     )
@@ -353,7 +355,9 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         'status': 'ok',
                         'message': _("The user has been added as a member"),
                         'memberships': [
-                            membership.current_access()
+                            membership.current_access(
+                                datasets=('from_parent', 'related')
+                            )
                             for membership in self.obj.active_crew_memberships
                         ],
                     }
@@ -363,7 +367,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("The new member could not be added"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     },
                     400,
                 )
@@ -431,7 +435,10 @@ class ProjectCrewMembershipInviteView(
     @render_with('membership_invite_actions.html.jinja2')
     @requires_login
     def invite(self):
-        return {'membership': self.obj.current_access(), 'form': Form()}
+        return {
+            'membership': self.obj.current_access(datasets=('primary', 'related')),
+            'form': Form(),
+        }
 
     @route('action', methods=['POST'])
     @requires_login
@@ -482,7 +489,7 @@ class ProjectCrewMembershipView(
                 return {
                     'status': 'ok',
                     'memberships': [
-                        membership.current_access()
+                        membership.current_access(datasets=('from_parent', 'related'))
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
@@ -492,7 +499,7 @@ class ProjectCrewMembershipView(
                         'status': 'error',
                         'message': _("At lease one role must be chosen"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     },
                     400,
                 )
@@ -534,7 +541,7 @@ class ProjectCrewMembershipView(
                 return {
                     'status': 'ok',
                     'memberships': [
-                        membership.current_access()
+                        membership.current_access(datasets=('from_parent', 'related'))
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
