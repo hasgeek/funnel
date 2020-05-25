@@ -174,7 +174,7 @@
               {% trans %}Get tickets{% endtrans %}</a>
             </div>
           {% elif project.features.has_rsvp() %}
-            {% if not project.rsvp_for(current_auth.user) -%}
+            {% if not project.rsvp_for(current_auth.user) or project.rsvp_for(current_auth.user).state.NO -%}
               <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text }}</p>
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">

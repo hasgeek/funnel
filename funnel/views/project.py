@@ -88,6 +88,9 @@ def project_data(project):
     }
 
 
+# FIXME: update features to check for current RSVP for current user
+
+
 @Project.features('has_rsvp')
 def project_has_rsvp(obj):
     return (
