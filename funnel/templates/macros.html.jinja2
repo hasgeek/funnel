@@ -90,7 +90,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, class='', current_page='project') %}
+{% macro project_header(project, project_save_form, empty_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
       {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
@@ -174,22 +174,42 @@
               {% trans %}Get tickets{% endtrans %}</a>
             </div>
           {% elif project.features.has_rsvp() %}
-            <h2 class="mui--text-body1 mui--text-light project-section__headline">{% trans %}2 registrations so far. Be the next one to register?{% endtrans %}</h2>
-            <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
+            {% if not project.rsvp_for(current_auth.user) -%}
+              <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text }}</p>
+              <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
+              <div class="modal reg-modal" id="register-modal">
+                <div class="modal__header">
+                  <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+                  <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{% trans %}Reserve my seat{% endtrans %}</p>
+                </div>
+                <div class="modal__body">
+                  <p class="mui--text-subhead mui--text-bold reg-modal__txt">{{ project.title }}</p>
+                  <p class="mui--text-body1 reg-modal__txt">{% trans %}Registration will help the organizer to update you with relevant details.{% endtrans %}</p>
+                  <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
+                    {{ empty_form.hidden_tag() }}
+                    <p class="mui--text-center reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="yes">{% trans %}Confirm Registration{% endtrans %}</button></p>
+                  </form>
+                </div>
+              </div>
+            {%- else %}
+              <p class="mui--text-body1 mui--text-light">{{ project.cancel_registration_header_text }}</p>
+              <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Cancel Registeration{% endtrans %}</a>
+              <div class="modal reg-modal" id="register-modal">
+                <div class="modal__header">
+                  <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+                  <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{% trans %}Don't want to attend{% endtrans %}</p>
+                </div>
+                <div class="modal__body">
+                  <p class="mui--text-subhead mui--text-bold reg-modal__txt">{{ project.title }}</p>
+                  <p class="mui--text-body1 reg-modal__txt">{% trans %}Are you sure, you would like to cancel you registration?{% endtrans %}</p>
+                  <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
+                    {{ empty_form.hidden_tag() }}
+                    <p class="mui--text-center reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button></p>
+                  </form>
+                </div>
+              </div>
+            {%- endif %}
             <hr class="mui-divider">
-            <div class="modal reg-modal" id="register-modal">
-              <!-- Update the modal content depending on the user's registrated status-->
-              <!-- Different forms for register and cancel registration -->
-              <div class="modal__header" data-cy="schedule-subscribe">
-                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times', icon_size='title') }}</a>
-                <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{% trans %}Save me a seat{% endtrans %}</p>
-              </div>
-              <div class="modal__body">
-                <p class="mui--text-subhead mui--text-bold reg-modal__txt">{{ project.title }}</p>
-                <p class="mui--text-body1 reg-modal__txt">{% trans %}Registrations will ensure the project crew keeps you updated of changes and other relevant details via email!{% endtrans %}</p>
-                <div class="mui--text-center reg-modal__btn"><a href="" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">{% trans %}Confirm Registration{% endtrans %}</a></div>
-              </div>
-            </div>
           {% elif project.view_for('edit_schedule').is_available() %}
             <a class="mui-btn mui-btn--raised mui-btn--accent  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable rsvp{% endtrans %}</a>
           {%- endif %}

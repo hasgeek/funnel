@@ -215,6 +215,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
+            'empty_form': forms.Form(),
         }
 
     @route('videos')
@@ -226,6 +227,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
+            'empty_form': forms.Form(),
         }
 
     @route('json')
@@ -471,7 +473,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(
-                    _("You have successfully registered for {self.obj.title}"),
+                    _("You have successfully registered for '%s'" % self.obj.title),
                     'success',
                 )
         else:
@@ -488,7 +490,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 rsvp.rsvp_no()
                 db.session.commit()
                 flash(
-                    _("Your registration has been cancelled for {self.obj.title}"),
+                    _("Your registration has been cancelled for '%s'" % self.obj.title),
                     'success',
                 )
         else:
@@ -620,6 +622,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'events': self.obj.events,
             'csrf_form': csrf_form,
+            'empty_form': forms.Form(),
         }
 
     @route('settings', methods=['GET', 'POST'])
@@ -637,6 +640,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
+            'empty_form': forms.Form(),
         }
 
     @route('comments', methods=['GET'])
@@ -660,6 +664,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'comments': comments,
             'commentform': commentform,
             'delcommentform': delcommentform,
+            'empty_form': forms.Form(),
         }
 
 

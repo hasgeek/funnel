@@ -1,6 +1,6 @@
 from flask import abort, g, redirect, render_template, request
 
-from baseframe import _
+from baseframe import _, forms
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import (
@@ -297,6 +297,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                 for membership in self.obj.active_crew_memberships
             ],
             'project_save_form': project_save_form,
+            'empty_form': forms.Form(),
         }
 
     @route('new', methods=['GET', 'POST'])
