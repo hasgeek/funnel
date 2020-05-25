@@ -284,11 +284,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             "{registration_count} registrations so far. Be the next one to register?"
         ).format(registration_count=self.rsvp_count_going())
 
+
     @property
     def cancel_registration_header_text(self):
         return __(
             "You and {registration_count} have registred so far."
         ).format(registration_count=self.rsvp_count_going() - 1)
+
 
     @classmethod
     def migrate_profile(cls, old_profile, new_profile):
