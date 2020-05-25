@@ -415,7 +415,6 @@
 }
 
 .mobile-nav {
-  padding: 15px;
   position: fixed;
   top: 0;
   left: 0;
@@ -423,9 +422,13 @@
   background-color: #fff;
   z-index: 1000;
 
-  .mobile-nav__prev {
-    padding: 15px;
-    margin: -15px -5px -15px -15px;
+  .mobile-nav__icon {
+    display: inline-block;
+    padding: 15px 30px 15px 20px;
+  }
+  .mobile-nav__headline {
+    font-size: 20px;
+    line-height: 1;
   }
 }
 

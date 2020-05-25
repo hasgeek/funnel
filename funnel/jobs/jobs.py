@@ -3,6 +3,8 @@ from urllib.parse import urljoin
 
 import requests
 
+from baseframe import __
+
 from .. import app, funnelapp, rq
 from ..extapi.boxoffice import Boxoffice
 from ..extapi.explara import ExplaraAPI
@@ -43,7 +45,12 @@ def tag_locations(project_id):
                 return
             url = urljoin(app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
             response = requests.get(
-                url, params={'q': project.location, 'bias': ['IN', 'US']}
+                url,
+                params={
+                    'q': project.location,
+                    'bias': ['IN', 'US'],
+                    'special': ['Internet', 'Online', __('Internet'), __('Online')],
+                },
             ).json()
 
             if response.get('status') == 'ok':
