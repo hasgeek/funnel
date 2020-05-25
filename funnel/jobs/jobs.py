@@ -49,13 +49,7 @@ def tag_locations(project_id):
                 params={
                     'q': project.location,
                     'bias': ['IN', 'US'],
-                    'special': [
-                        __('Anywhere'),
-                        __('Home'),
-                        __('Internet'),
-                        __('Online'),
-                        __('Remote'),
-                    ],
+                    'special': ['Internet', 'Online', __('Internet'), __('Online')],
                 },
             ).json()
 
