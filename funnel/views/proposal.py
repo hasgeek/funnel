@@ -119,7 +119,7 @@ def proposal_data_flat(proposal):
 
 @Proposal.features('comment_new')
 def proposal_comment_new(obj):
-    return obj.project.current_roles.participant is True
+    return obj.current_roles.commenter is True
 
 
 # --- Routes ------------------------------------------------------------------
