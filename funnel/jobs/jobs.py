@@ -43,7 +43,12 @@ def tag_locations(project_id):
                 return
             url = urljoin(app.config['HASCORE_SERVER'], '/1/geo/parse_locations')
             response = requests.get(
-                url, params={'q': project.location, 'bias': ['IN', 'US']}
+                url,
+                params={
+                    'q': project.location,
+                    'bias': ['IN', 'US'],
+                    'special': ['Anywhere', 'Home', 'Internet', 'Online', 'Remote'],
+                },
             ).json()
 
             if response.get('status') == 'ok':
