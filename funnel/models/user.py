@@ -239,14 +239,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         else:
             return self.fullname
 
-    @with_roles(read={'all'})
-    @property
-    def initials(self):
-        """
-        Return up to two initials from the user's fullname, for use as avatar stand-in.
-        """
-        return ''.join(word[0] for word in self.fullname.split(maxsplit=1) if word)
-
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)
         useremail = failsafe_add(db.session, useremail, user=self, email=email)
