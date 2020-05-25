@@ -238,8 +238,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'url_json',
                 'website',
                 'bg_image',
-                'bg_color',
-                'explore_url',
                 'tagline',
                 'absolute_url',
                 'location',
