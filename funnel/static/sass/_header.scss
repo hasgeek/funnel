@@ -22,12 +22,13 @@
 
           .search-form {
             position: fixed;
-            bottom: 50px;
+            bottom: 62px;
             width: 100%;
             left: 0;
             box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
               0 1px 2px rgba(158, 158, 158, 0.24);
             display: none;
+            height: 35px;
 
             .search-form__field {
               background-color: #eff2f6;
@@ -439,6 +440,13 @@
   order: 1;
   top: 0;
   z-index: 1000;
+  width: calc(100% - 103px);
+  left: 52px;
+
+  .grid__col-12 {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .tabs {
@@ -483,8 +491,10 @@
     z-index: 1000;
     background: #fff;
     min-width: auto;
-    padding: 15px 5px 14px;
+    top: 0;
+    padding: 15px 15px 6px;
     align-self: center;
+    box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
 
     .tabs__item-control__icon {
       vertical-align: middle;
@@ -504,6 +514,13 @@
   }
   .tabs-wrapper--sticky {
     top: 50px;
+    width: 100%;
+    left: 0;
+
+    .grid__col-12 {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
 
     .tabs__item-control {
       display: none;
