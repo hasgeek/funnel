@@ -27,7 +27,7 @@ __all__ = [
     'TicketTypeForm',
 ]
 
-valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
+double_quote_re = re.compile(r'["“”]')
 
 BOXOFFICE_DETAILS_PLACEHOLDER = {"org": "hasgeek", "item_collection_id": ""}
 
@@ -39,22 +39,26 @@ class ProjectForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
     )
-    location = forms.StringField(
-        __("Location"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
-        filters=[forms.filters.strip()],
-        description=__("Eg. Bangalore, Mumbai, Pune"),
-    )
     tagline = forms.StringField(
         __("Tagline"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         filters=[forms.filters.strip()],
         description=__("One line description of the project"),
     )
-    description = forms.MarkdownField(
-        __("Project description"),
-        validators=[forms.validators.DataRequired()],
-        description=__("Landing page contents"),
+    location = forms.StringField(
+        __("Location"),
+        description=__(
+            '“Online” if this is online-only, else the city or region (without quotes)'
+        ),
+        validators=[
+            forms.validators.DataRequired(
+                __("If this project is online-only, use “Online”")
+            ),
+            forms.validators.Length(
+                min=3, max=80, message=__("%(max)d characters maximum")
+            ),
+        ],
+        filters=[forms.filters.strip()],
     )
     timezone = forms.SelectField(
         __("Timezone"),
@@ -82,11 +86,23 @@ class ProjectForm(forms.Form):
             forms.validators.Length(max=2000),
         ],
     )
+    description = forms.MarkdownField(
+        __("Project description"),
+        validators=[forms.validators.DataRequired()],
+        description=__("Landing page contents"),
+    )
+
+    def validate_location(self, field):
+        if re.search(double_quote_re, field.data) is not None:
+            raise forms.ValidationError(
+                __("Quotes are not necessary in the location name")
+            )
 
 
 class ProjectLivestreamForm(forms.Form):
     livestream_urls = forms.TextListField(
         __("Livestream URLs. One per line."),
+        filters=[forms.filters.strip_each()],
         validators=[
             forms.validators.Optional(),
             forms.validators.ForEach(
