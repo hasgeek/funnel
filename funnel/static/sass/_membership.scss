@@ -1,9 +1,9 @@
 @media (min-width: 768px) {
-  .membership-wrapper {
-    width: 50%;
+  .membership-wrapper--half {
     float: left;
   }
-  .membership-wrapper + .membership-wrapper {
+
+  .membership-wrapper--half + .membership-wrapper--half {
     padding-left: 15px;
   }
 }
@@ -13,24 +13,12 @@
   clear: both;
 }
 
-.membership-wrapper__info {
-  background: white;
-  margin: 10px -15px -15px;
-  padding: 15px;
-  clear: both;
-}
-
-.content-box {
-  padding: 15px;
-  background-color: #f6e2c5;
-  color: #906b37;
-  cursor: pointer;
-  margin-bottom: 15px;
-}
-
-@media (min-width: 768px) {
-  .content-box {
-    cursor: auto;
+.no-member {
+  padding: 30px;
+  .no-member__icon {
+    width: 40px;
+    height: 40px;
+    color: #eff2f6;
   }
 }
 
@@ -46,7 +34,7 @@
   .membership-wrapper__members__list {
     border-bottom: 1px solid #ddd;
     cursor: pointer;
-    padding: 5px 15px 15px;
+    padding: 15px 0;
 
     .membership-wrapper__members__list__roles {
       display: inline-block;
@@ -55,11 +43,15 @@
     }
 
     .membership-wrapper__members__list__roles__role {
-      display: none;
       color: #4a90e2;
+      display: inline-block;
+      margin-right: 16px;
     }
-    .membership-wrapper__members__list__roles__role:first-child {
-      display: block;
+    .membership-wrapper__members__list__roles__role:last-child {
+      margin-right: 0;
+    }
+    .user-box {
+      padding-right: 0;
     }
   }
 
@@ -73,6 +65,10 @@
 
   .membership-wrapper__members__list--nomargin {
     margin: 0 auto;
+  }
+
+  .membership-wrapper__members__list:hover {
+    background: #f9fafc;
   }
 }
 
