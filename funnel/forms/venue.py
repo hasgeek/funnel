@@ -1,4 +1,5 @@
 import gettext
+import re
 
 import pycountry
 
@@ -7,9 +8,10 @@ from baseframe.forms.sqlalchemy import QuerySelectField
 import baseframe.forms as forms
 
 from ..models import Venue, VenueRoom
-from .project import valid_color_re
 
 __all__ = ['VenueForm', 'VenuePrimaryForm', 'VenueRoomForm']
+
+valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 
 @Venue.forms('main')
