@@ -79,7 +79,7 @@ def participant_checkin_data(participant, project, event):
         'checked_in': participant.checked_in,
         'ticket_type_titles': participant.ticket_type_titles,
     }
-    if {'concierge', 'usher'}.intersection(project.current_roles):
+    if not {'concierge', 'usher'}.isdisjoint(project.current_roles):
         data.update(
             {
                 'badge_url': url_for(

@@ -503,11 +503,9 @@ class Proposal(
             roles.add('reader')
 
         # remove the owner check after proposal membership is implemented
-        if self.owner == actor or not {
-            'project_participant',
-            'presenter',
-            'reviewer',
-        }.isdisjoint(roles):
+        if self.owner == actor or roles.has_any(
+            ('project_participant', 'presenter', 'reviewer')
+        ):
             roles.add('commenter')
 
         return roles
