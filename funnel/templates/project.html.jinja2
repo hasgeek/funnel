@@ -72,10 +72,10 @@
         </div>
         <div id="tickets" {% if project.features.has_rsvp() -%}class="rsvp-wrapper"{%- endif %}>
           {% if project.features.has_tickets() -%}
-            <h2 class="mui--text-display1 mui--text-bold mui--text-left project-section__headline">Tickets</h2>
+            <h2 class="mui--text-headline mui--text-left project-section__headline">Tickets</h2>
             <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
           {% else -%}
-            <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
+            <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Attending this event?{% endtrans %}</h2>
             {%- if current_auth.is_authenticated %}
               {% if current_rsvp is not none %}
                 {% trans current_rsvp_title=current_rsvp.state.label.title %}
@@ -103,7 +103,7 @@
       </div>
     {%- endif %}
     <div class="about__details" id="about">
-      <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">
+      <h2 class="mui--text-headline mui--text-left project-section__headline">
         {% trans %}About{% endtrans %}
         {% if project.view_for('edit').is_available() %}
           <a class="mui--text-body1" href="{{ project.url_for('edit') }}" aria-label="edit project details">{% trans %}Edit details{% endtrans %} {{ faicon(icon='edit') }}</a>
@@ -145,7 +145,7 @@
 
       {% if project.featured_sessions  %}
         <div id="talks" class="mui--clearfix">
-          <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Talks{% endtrans %}</h2>
+          <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Talks{% endtrans %}</h2>
           <div class="grid-no-left-padding grid-no-right-padding">
             <ul class="about__details__featured mui--clearfix">
               {% for session in project.featured_sessions %}
@@ -205,7 +205,7 @@
   {% if project.hasjob_embed_url.url -%}
   <div class="grid project-section" id="related-jobs">
     <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left project-section__headline">{% trans %}Related jobs{% endtrans %}</h2>
+      <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Related jobs{% endtrans %}</h2>
       <div class="hasjob-embed" data-href="{{ project.hasjob_embed_url }}" {% if project.hasjob_embed_limit -%}data-jobpost-limit="{{ project.hasjob_embed_limit }}"{%- else %}data-jobpost-limit="8"{%- endif %}></div>
       <script src="{{ config['HASJOB_SERVER']|url_join('embed.js') }}" type="text/javascript"></script>
     </div>
@@ -215,7 +215,7 @@
   {%- if project.primary_venue -%}
   <div class="grid project-section" id="venue">
     <div class="grid__col-xs-12">
-      <h2 class="mui--text-display1 mui--text-left mui--text-bold project-section__headline">
+      <h2 class="mui--text-headline mui--text-left project-section__headline">
         {% trans %}Venue{% endtrans %}
         {% if project.view_for('venues').is_available() %}
           <a class="mui--text-body1" href="{{ project.url_for('venues') }}" aria-label="update venue" data-action="update venue">{% trans %}Update venue{% endtrans %} {{ faicon(icon='edit') }}</a>

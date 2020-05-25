@@ -38,8 +38,7 @@ export const Utils = {
     );
   },
   smoothScroll() {
-    $('a.js-smooth-scroll').on('click', function clickHandler(event) {
-      event.preventDefault();
+    $('a.js-smooth-scroll').on('click', function clickHandler() {
       Utils.animateScrollTo($(this.hash).offset().top);
     });
   },
