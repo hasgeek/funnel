@@ -39,22 +39,17 @@ class ProjectForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
     )
-    location = forms.StringField(
-        __("Location"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
-        filters=[forms.filters.strip()],
-        description=__("Eg. Bangalore, Mumbai, Pune"),
-    )
     tagline = forms.StringField(
         __("Tagline"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
         filters=[forms.filters.strip()],
         description=__("One line description of the project"),
     )
-    description = forms.MarkdownField(
-        __("Project description"),
-        validators=[forms.validators.DataRequired()],
-        description=__("Landing page contents"),
+    location = forms.StringField(
+        __("Location"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=50)],
+        filters=[forms.filters.strip()],
+        description=__("Eg. Bangalore, Mumbai, Pune, Online, Anywhere etc"),
     )
     timezone = forms.SelectField(
         __("Timezone"),
@@ -81,6 +76,11 @@ class ProjectForm(forms.Form):
             ),
             forms.validators.Length(max=2000),
         ],
+    )
+    description = forms.MarkdownField(
+        __("Project description"),
+        validators=[forms.validators.DataRequired()],
+        description=__("Landing page contents"),
     )
 
 
