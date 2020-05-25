@@ -27,7 +27,7 @@ __all__ = [
     'TicketTypeForm',
 ]
 
-valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
+double_quote_re = re.compile(r'["“”]')
 
 BOXOFFICE_DETAILS_PLACEHOLDER = {"org": "hasgeek", "item_collection_id": ""}
 
@@ -93,8 +93,10 @@ class ProjectForm(forms.Form):
     )
 
     def validate_location(self, field):
-        if re.findall(r'["”]+', field.data):
-            raise forms.ValidationError(__("Double quote not allowed in location name"))
+        if re.search(double_quote_re, field.data) is not None:
+            raise forms.ValidationError(
+                __("Quotes are not necessary in the location name")
+            )
 
 
 class ProjectLivestreamForm(forms.Form):
