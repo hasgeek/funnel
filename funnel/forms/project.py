@@ -48,11 +48,11 @@ class ProjectForm(forms.Form):
     location = forms.StringField(
         __("Location"),
         description=__(
-            '“Online”, “Bangalore”, “Chennai”, “Pune”, etc (without quotes)'
+            '“Online” if this is online-only, else the city or region (without quotes)'
         ),
         validators=[
             forms.validators.DataRequired(
-                __("If this project doesn’t have a fixed location, use “Online”")
+                __("If this project is online-only, use “Online”")
             ),
             forms.validators.Length(
                 min=3, max=80, message=__("%(max)d characters maximum")
@@ -91,6 +91,10 @@ class ProjectForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         description=__("Landing page contents"),
     )
+
+    def validate_location(self, field):
+        if re.findall(r'[\'"”]+', field.data):
+            raise forms.ValidationError(__("Double quote not allowed in location name"))
 
 
 class ProjectLivestreamForm(forms.Form):
