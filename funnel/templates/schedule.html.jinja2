@@ -71,7 +71,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" data-action="Back to the {{ project.title }}(schedule page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Schedule{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(schedule page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Schedule{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
