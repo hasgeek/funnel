@@ -882,7 +882,7 @@ html.touch .collapsible__body--disable {
 }
 
 .hg-banner {
-  padding-top: 30px;
+  padding: 30px 0;
 }
 .hg-banner .headline {
   font-size: 32px;
@@ -1278,6 +1278,7 @@ html.touch .collapsible__body--disable {
   padding: 0 10px;
   border: 1px solid rgba(132, 146, 166, 0.3);
   border-radius: 2px;
+  position: relative;
 }
 .search .mui-textfield {
   padding: 0;
@@ -1288,9 +1289,22 @@ html.touch .collapsible__body--disable {
   border-bottom: 0;
 }
 
-@media (min-width: 1200px) {
+.search--icon {
+  padding-left: 30px;
+}
+.search--icon .search-form__icon {
+  position: absolute;
+  top: 10px;
+  left: -20px;
+}
+
+@media (min-width: 768px) {
   .search.search--50 {
     width: 50%;
+  }
+
+  .search.search--small {
+    width: 300px;
   }
 }
 .badge-print-status-btn .mui-form__fields.select2-inline {
@@ -3224,12 +3238,11 @@ body > .proposal-box.ui-draggable {
 }
 
 @media (min-width: 768px) {
-  .membership-wrapper {
-    width: 50%;
+  .membership-wrapper--half {
     float: left;
   }
 
-  .membership-wrapper + .membership-wrapper {
+  .membership-wrapper--half + .membership-wrapper--half {
     padding-left: 15px;
   }
 }
@@ -3238,26 +3251,15 @@ body > .proposal-box.ui-draggable {
   clear: both;
 }
 
-.membership-wrapper__info {
-  background: white;
-  margin: 10px -15px -15px;
-  padding: 15px;
-  clear: both;
+.no-member {
+  padding: 30px;
+}
+.no-member .no-member__icon {
+  width: 40px;
+  height: 40px;
+  color: #eff2f6;
 }
 
-.content-box {
-  padding: 15px;
-  background-color: #f6e2c5;
-  color: #906b37;
-  cursor: pointer;
-  margin-bottom: 15px;
-}
-
-@media (min-width: 768px) {
-  .content-box {
-    cursor: auto;
-  }
-}
 .membership-wrapper__members .membership-wrapper__members__collapsible__header {
   margin: 5px 0 0;
   width: 100%;
@@ -3268,7 +3270,7 @@ body > .proposal-box.ui-draggable {
 .membership-wrapper__members .membership-wrapper__members__list {
   border-bottom: 1px solid #ddd;
   cursor: pointer;
-  padding: 5px 15px 15px;
+  padding: 15px 0;
 }
 .membership-wrapper__members .membership-wrapper__members__list .membership-wrapper__members__list__roles {
   display: inline-block;
@@ -3276,11 +3278,15 @@ body > .proposal-box.ui-draggable {
   float: right;
 }
 .membership-wrapper__members .membership-wrapper__members__list .membership-wrapper__members__list__roles__role {
-  display: none;
   color: #4a90e2;
+  display: inline-block;
+  margin-right: 16px;
 }
-.membership-wrapper__members .membership-wrapper__members__list .membership-wrapper__members__list__roles__role:first-child {
-  display: block;
+.membership-wrapper__members .membership-wrapper__members__list .membership-wrapper__members__list__roles__role:last-child {
+  margin-right: 0;
+}
+.membership-wrapper__members .membership-wrapper__members__list .user-box {
+  padding-right: 0;
 }
 .membership-wrapper__members .membership-wrapper__members__list:last-child {
   border: none;
@@ -3290,6 +3296,9 @@ body > .proposal-box.ui-draggable {
 }
 .membership-wrapper__members .membership-wrapper__members__list--nomargin {
   margin: 0 auto;
+}
+.membership-wrapper__members .membership-wrapper__members__list:hover {
+  background: #f9fafc;
 }
 
 @media (min-width: 1200px) {
