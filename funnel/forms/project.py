@@ -93,7 +93,7 @@ class ProjectForm(forms.Form):
     )
 
     def validate_location(self, field):
-        if re.findall(r'[\'"”]+', field.data):
+        if re.findall(r'["”]+', field.data):
             raise forms.ValidationError(__("Double quote not allowed in location name"))
 
 
