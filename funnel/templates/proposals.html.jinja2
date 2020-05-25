@@ -21,7 +21,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline" data-action="Back to the {{ project.title }}(proposal page)">{{ faicon(icon='long-arrow-left', icon_size='title', css_class='mobile-nav__prev') }}</a> <span class="mui--text-dark mui--text-headline">{% trans %}Proposals{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form,
+  {{ project_header(project, project_save_form, empty_form,
     class='mui--hidden-xs mui--hidden-sm',
     current_page='proposals') }}
 {% endblock %}
