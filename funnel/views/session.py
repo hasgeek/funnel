@@ -23,7 +23,7 @@ from ..models import (
     Session,
     db,
 )
-from ..utils import strip_null
+from ..utils import abort_null
 from .decorators import legacy_redirect
 from .helpers import localize_date, requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
@@ -218,8 +218,8 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('feedback', methods=['POST'])
     @requires_permission('view')
     @requestargs(
-        ('id_type', strip_null),
-        ('userid', strip_null),
+        ('id_type', abort_null),
+        ('userid', abort_null),
         ('content', int),
         ('presentation', int),
         ('min_scale', int),
