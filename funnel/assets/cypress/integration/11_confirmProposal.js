@@ -14,8 +14,8 @@ describe('Confirm proposal', function() {
     cy.location('pathname').should('contain', 'proposals');
     cy.get('#search').type(proposal.title);
     cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
-    cy.get('#label-select').click();
 
+    cy.get('#label-select').click();
     cy.get('#label-dropdown label')
       .contains(labels[2].title)
       .click();
@@ -49,7 +49,9 @@ describe('Confirm proposal', function() {
       .find('.CodeMirror textarea')
       .type(proposal.comment, { force: true });
     cy.get('#comment-form').submit();
-    cy.get('.comment--body').contains(proposal.comment);
-    cy.get('.comment--header').contains(editor.username);
+    cy.wait(1000);
+    var cid = window.location.hash;
+    cy.get(`${cid} .comment--body`).contains(proposal.comment);
+    cy.get(`${cid} .comment--header`).contains(editor.username);
   });
 });

@@ -2673,8 +2673,13 @@ html.touch .collapsible__body--disable {
 .comment .comment--content img {
   max-width: 100%;
 }
+.comment .comment--header button {
+  line-height: 1;
+  position: relative;
+  top: 3px;
+}
 .comment .comment--body {
-  margin: 10px 0 0 25px;
+  margin: 0 0 0 25px;
 }
 .comment .commenter--gravatar {
   border-radius: 50%;
@@ -2687,7 +2692,6 @@ html.touch .collapsible__body--disable {
 }
 .comment .comment--header__details {
   display: inline-block;
-  width: calc(100% - 40px);
   vertical-align: top;
   padding: 5px 0 0 5px;
 }
