@@ -186,7 +186,7 @@ def search_results(squery, stype, page=1, per_page=20):
                 'title_html': escape_quotes(title) if title is not None else None,
                 'url': item.absolute_url,
                 'snippet_html': escape_quotes(snippet),
-                'obj': item.current_access(),
+                'obj': item.current_access(datasets=('primary', 'related')),
             }
             for item, title, snippet in pagination.items
         ],

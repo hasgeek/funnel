@@ -68,15 +68,35 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             draft_projects = self.obj.draft_projects_for(current_auth.user)
 
         return {
-            'profile': self.obj.current_access(),
-            'past_projects': [p.current_access() for p in past_projects],
-            'all_projects': [p.current_access() for p in all_projects],
-            'unscheduled_projects': [p.current_access() for p in unscheduled_projects],
-            'upcoming_projects': [p.current_access() for p in upcoming_projects],
-            'open_cfp_projects': [p.current_access() for p in open_cfp_projects],
-            'draft_projects': [p.current_access() for p in draft_projects],
+            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'past_projects': [
+                p.current_access(datasets=('from_parent', 'related'))
+                for p in past_projects
+            ],
+            'all_projects': [
+                p.current_access(datasets=('from_parent', 'related'))
+                for p in all_projects
+            ],
+            'unscheduled_projects': [
+                p.current_access(datasets=('from_parent', 'related'))
+                for p in unscheduled_projects
+            ],
+            'upcoming_projects': [
+                p.current_access(datasets=('from_parent', 'related'))
+                for p in upcoming_projects
+            ],
+            'open_cfp_projects': [
+                p.current_access(datasets=('from_parent', 'related'))
+                for p in open_cfp_projects
+            ],
+            'draft_projects': [
+                p.current_access(datasets=('from_parent', 'related'))
+                for p in draft_projects
+            ],
             'featured_project': (
-                featured_project.current_access() if featured_project else None
+                featured_project.current_access(datasets=('from_parent', 'related'))
+                if featured_project
+                else None
             ),
             'project_save_form': SavedProjectForm(),
         }

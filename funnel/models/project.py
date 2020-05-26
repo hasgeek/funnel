@@ -188,11 +188,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'
     )
 
-    venues = db.relationship(
-        'Venue',
-        cascade='all',
-        order_by='Venue.seq',
-        collection_class=ordering_list('seq', count_from=1),
+    venues = with_roles(
+        db.relationship(
+            'Venue',
+            cascade='all',
+            order_by='Venue.seq',
+            collection_class=ordering_list('seq', count_from=1),
+        ),
+        read={'all'},
     )
     labels = db.relationship(
         'Label',
@@ -227,10 +230,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id',
+                'urls',
                 'name',
                 'title',
                 'title_inline',
+                'tagline',
                 'datelocation',
                 'timezone',
                 'schedule_start_at',
@@ -238,7 +242,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'url_json',
                 'website',
                 'bg_image',
-                'tagline',
+                'banner_video_url',
                 'absolute_url',
                 'location',
                 'calendar_weeks_full',
@@ -249,10 +253,84 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'schedule_end_at_localized',
                 'cfp_start_at_localized',
                 'cfp_end_at_localized',
+                'hasjob_embed_url',
+                'hasjob_embed_limit',
+                'profile',
+                'features',
             },
-            'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
+            'call': {
+                'url_for',
+                'current_sessions',
+                'is_saved_by',
+                'state',
+                'schedule_state',
+                'cfp_state',
+                'view_for',
+            },
         },
         'participant': {'granted_via': {'rsvps': 'user', 'participants': 'user'}},
+    }
+
+    __datasets__ = {
+        'primary': {
+            'urls',
+            'name',
+            'title',
+            'title_inline',
+            'tagline',
+            'datelocation',
+            'timezone',
+            'schedule_start_at',
+            'schedule_end_at',
+            'url_json',
+            'website',
+            'bg_image',
+            'banner_video_url',
+            'absolute_url',
+            'location',
+            'calendar_weeks_full',
+            'calendar_weeks_compact',
+            'primary_venue',
+            'livestream_urls',
+            'schedule_start_at_localized',
+            'schedule_end_at_localized',
+            'cfp_start_at_localized',
+            'cfp_end_at_localized',
+            'profile',
+        },
+        'from_parent': {
+            'name',
+            'title',
+            'title_inline',
+            'tagline',
+            'datelocation',
+            'timezone',
+            'schedule_start_at',
+            'schedule_end_at',
+            'url_json',
+            'website',
+            'bg_image',
+            'banner_video_url',
+            'absolute_url',
+            'location',
+            'calendar_weeks_full',
+            'calendar_weeks_compact',
+            'primary_venue',
+            'livestream_urls',
+            'schedule_start_at_localized',
+            'schedule_end_at_localized',
+            'cfp_start_at_localized',
+            'cfp_end_at_localized',
+        },
+        'related': {
+            'name',
+            'title',
+            'tagline',
+            'datelocation',
+            'timezone',
+            'absolute_url',
+            'location',
+        },
     }
 
     def __init__(self, **kwargs):
@@ -321,10 +399,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         daterange = ""
         if self.schedule_start_at is not None and self.schedule_end_at is not None:
-            schedule_start_at_date = self.schedule_start_at.astimezone(
-                self.timezone
-            ).date()
-            schedule_end_at_date = self.schedule_end_at.astimezone(self.timezone).date()
+            schedule_start_at_date = self.schedule_start_at_localized.date()
+            schedule_end_at_date = self.schedule_end_at_localized.date()
             daterange_format = "{start_date}–{end_date} {year}"
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
@@ -720,8 +796,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
         return {
-            'sessions': [session.current_access() for session in current_sessions],
-            'rooms': [room.current_access() for room in self.rooms],
+            'sessions': [
+                session.current_access(datasets=('from_parent', 'related'))
+                for session in current_sessions
+            ],
+            'rooms': [
+                room.current_access(datasets=('from_parent', 'related'))
+                for room in self.rooms
+            ],
         }
 
     @property

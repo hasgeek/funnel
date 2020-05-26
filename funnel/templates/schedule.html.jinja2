@@ -26,7 +26,7 @@
       "@context": "http://schema.org",
       "@type": "Event",
       "name": {{ project.title|tojson }},
-      "url": {{ project.url_for(_external=true)|tojson }},
+      "url": {{ project.urls['view']|tojson }},
       "startDate": {{ project.schedule_start_at_localized|tojson }},
       {% if project.primary_venue -%}
       "location": {
@@ -51,7 +51,7 @@
       "endDate": {{ project.schedule_end_at_localized|tojson }},
       "offers": {
         "@type": "Offer",
-        "url": {{ project.url_for(_external=true)|tojson }}
+        "url": {{ project.urls['view']|tojson }}
       }
     }
     </script>
@@ -71,7 +71,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(schedule page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Schedule{% endtrans %}</span>
+      <a href="{{ project.urls['view'] }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(schedule page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Schedule{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, project_save_form,
@@ -84,7 +84,7 @@
     <div class="page-content page-content--mob-nav">
       <div class="grid" id="schedule">
         {% if project.view_for('edit_schedule').is_available() %}
-          <div class="grid__col-xs-12"><div><p class="mui--pull-right zero-bottom-margin"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('edit_schedule') }}">{% trans %}Edit schedule{% endtrans %}</a></p></div></div>
+          <div class="grid__col-xs-12"><div><p class="mui--pull-right zero-bottom-margin"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.urls['edit_schedule'] }}">{% trans %}Edit schedule{% endtrans %}</a></p></div></div>
         {% endif %}
         <div class="grid__col-xs-12 schedule-grid">
           <div class="schedule-table-container" id="project-schedule-table">
@@ -141,9 +141,9 @@
   <script type="text/javascript">
     $(document).ready( function() {
       var scheduleConfig = {
-        fromDate: {{ from_date|tojson }},
-        toDate: {{ to_date|tojson }},
-        timeZone: {{ timezone|tojson }},
+        fromDate: {{ project.schedule_start_at_localized|tojson }},
+        toDate: {{ project.schedule_end_at_localized|tojson }},
+        timeZone: {{ project.timezone|tojson }},
         sessions: {{ sessions|tojson }},
         schedule: {{ schedule|tojson }},
         venues: {{ venues|tojson }},
@@ -161,7 +161,7 @@
 
       var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: {{ project.url_for('save')|tojson }}
+        postUrl: {{ project.urls['save']|tojson }}
       }
 
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);
