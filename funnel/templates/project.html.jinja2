@@ -263,15 +263,12 @@
       });
 
       $('#register-modal').on($.modal.CLOSE, () => {
-        console.log('closed');
-        window.history.go(-1)
-        window.history.replaceState('', '', '')
+        window.history.replaceState('', '', window.location.pathname + window.location.search);
       });
 
       if(window.location.hash == '#register-modal') {
         $('a#register-btn').modal();
       }
-
 
     });
   </script>
