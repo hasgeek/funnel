@@ -485,7 +485,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(
-                    _("You have successfully registered for '%s'" % self.obj.title),
+                    _("You have successfully registered"),
                     'success',
                 )
         else:
@@ -502,7 +502,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 rsvp.rsvp_no()
                 db.session.commit()
                 flash(
-                    _("Your registration has been cancelled for '%s'" % self.obj.title),
+                    _("Your registration has been cancelled"),
                     'success',
                 )
         else:

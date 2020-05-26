@@ -183,14 +183,13 @@
               <div class="modal reg-modal" id="register-modal">
                 <div class="modal__header">
                   <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
-                  <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{% trans %}Reserve my seat{% endtrans %}</p>
+                  <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{{ project.title }}</p>
                 </div>
                 <div class="modal__body">
-                  <p class="mui--text-subhead mui--text-bold reg-modal__txt">{{ project.title }}</p>
-                  <p class="mui--text-body1 reg-modal__txt">{% trans %}Registration will help the organizer to update you with relevant details.{% endtrans %}</p>
+                  <p class="mui--text-body1 reg-modal__txt">{% trans %}This will share your name and email address with the project's crew so they can keep you updated.{% endtrans %}</p>
                   <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
                     {{ empty_form.hidden_tag() }}
-                    <p class="mui--text-center reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="yes">{% trans %}Confirm Registration{% endtrans %}</button></p>
+                    <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="yes">{% trans %}Confirm Registration{% endtrans %}</button></p>
                   </form>
                 </div>
               </div>
@@ -200,14 +199,13 @@
               <div class="modal reg-modal" id="register-modal">
                 <div class="modal__header">
                   <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
-                  <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{% trans %}Don't want to attend{% endtrans %}</p>
+                  <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{{ project.title }}</p>
                 </div>
                 <div class="modal__body">
-                  <p class="mui--text-subhead mui--text-bold reg-modal__txt">{{ project.title }}</p>
-                  <p class="mui--text-body1 reg-modal__txt">{% trans %}Are you sure, you would like to cancel you registration?{% endtrans %}</p>
+                  <p class="mui--text-subhead reg-modal__txt">{% trans %}Can't make it?{% endtrans %}</p>
                   <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
                     {{ empty_form.hidden_tag() }}
-                    <p class="mui--text-center reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button></p>
+                    <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button></p>
                   </form>
                 </div>
               </div>
