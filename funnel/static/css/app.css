@@ -1628,6 +1628,13 @@ html.touch .collapsible__body--disable {
   line-height: 29px;
 }
 
+.card--spotlight .card__calendar--compact .calendar .calendar__weekdays .calendar__weekdays__dates .calendar__weekdays__dates__icon--left {
+  left: -35px;
+}
+.card--spotlight .card__calendar--compact .calendar .calendar__weekdays .calendar__weekdays__dates .calendar__weekdays__dates__icon--right {
+  right: -35px;
+}
+
 .card--upcoming {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
@@ -2673,8 +2680,13 @@ html.touch .collapsible__body--disable {
 .comment .comment--content img {
   max-width: 100%;
 }
+.comment .comment--header button {
+  line-height: 1;
+  position: relative;
+  top: 3px;
+}
 .comment .comment--body {
-  margin: 10px 0 0 25px;
+  margin: 0 0 0 25px;
 }
 .comment .commenter--gravatar {
   border-radius: 50%;
@@ -2687,7 +2699,6 @@ html.touch .collapsible__body--disable {
 }
 .comment .comment--header__details {
   display: inline-block;
-  width: calc(100% - 40px);
   vertical-align: top;
   padding: 5px 0 0 5px;
 }
