@@ -70,7 +70,7 @@
             <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget" data-action="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
         </div>
-        {% if project.features.has_tickets() -%}
+        {% if project.features.tickets() -%}
           <div id="tickets">
             <h2 class="mui--text-display1 mui--text-bold mui--text-left project-section__headline">Tickets</h2>
             <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
@@ -109,7 +109,7 @@
           {%- endfor -%}
         </ul>
       {%- endif %}
-      {% if project.features.has_tickets() -%}
+      {% if project.features.tickets() -%}
         <p><a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for() }}#tickets" data-action="Buy Tickets url" target="_blank">
           {% if project.boxoffice_data and project.boxoffice_data.buy_btn_text -%}
             {{ project.boxoffice_data.buy_btn_text }}
@@ -227,7 +227,7 @@
     $(function() {
       var projectConfig = {};
 
-      {% if project.features.has_tickets() -%}
+      {% if project.features.tickets() -%}
         projectConfig.tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",

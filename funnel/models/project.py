@@ -1,4 +1,4 @@
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict, defaultdict, namedtuple
 from datetime import timedelta
 
 from sqlalchemy.ext.orderinglist import ordering_list
@@ -57,6 +57,9 @@ class CFP_STATE(LabeledEnum):  # NOQA: N801
 class SCHEDULE_STATE(LabeledEnum):  # NOQA: N801
     DRAFT = (0, 'draft', __("Draft"))
     PUBLISHED = (1, 'published', __("Published"))
+
+
+CountWords = namedtuple('CountWords', ['register', 'deregister'])
 
 
 # --- Models ------------------------------------------------------------------
@@ -278,17 +281,67 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def registration_header_text(self):
-        return __(
-            "{registration_count} registrations so far. Be the next one to register?"
-        ).format(registration_count=self.rsvp_count_going())
+        total_text = __("{num} registrations so far. Be the next one to register?")
+        count_messages = {
+            0: CountWords(__("Be the first one to register!"), __("")),
+            1: CountWords(
+                __("One registration so far. Be the next one to register?"),
+                __("You are now registered"),
+            ),
+            2: CountWords(
+                total_text.format(num=__("Two")),
+                __("You and one other are now registered"),
+            ),
+            3: CountWords(
+                total_text.format(num=__("Three")),
+                __("You and two others are now registered"),
+            ),
+            4: CountWords(
+                total_text.format(num=__("Four")),
+                __("You and three others are now registered"),
+            ),
+            5: CountWords(
+                total_text.format(num=__("Five")),
+                __("You and four others are now registered"),
+            ),
+            6: CountWords(
+                total_text.format(num=__("Six")),
+                __("You and five others are now registered"),
+            ),
+            7: CountWords(
+                total_text.format(num=__("Seven")),
+                __("You and six others are now registered"),
+            ),
+            8: CountWords(
+                total_text.format(num=__("Eight")),
+                __("You and seven others are now registered"),
+            ),
+            9: CountWords(
+                total_text.format(num=__("Nine")),
+                __("You and eight others are now registered"),
+            ),
+            10: CountWords(
+                total_text.format(num=__("Ten")),
+                __("You and nine others are now registered"),
+            ),
+        }
 
+        rsvp_count = self.rsvp_count_going()
+        if rsvp_count <= 10:
+            return count_messages[rsvp_count]
+        else:
+            return CountWords(
+                total_text.format(num=rsvp_count),
+                __("You and {rest} others are now registered").format(
+                    rest=rsvp_count - 1
+                ),
+            )
 
     @property
     def cancel_registration_header_text(self):
-        return __(
-            "You and {registration_count} have registred so far."
-        ).format(registration_count=self.rsvp_count_going() - 1)
-
+        return __("You and {registration_count} have registred so far.").format(
+            registration_count=self.rsvp_count_going() - 1
+        )
 
     @classmethod
     def migrate_profile(cls, old_profile, new_profile):
