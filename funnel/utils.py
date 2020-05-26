@@ -22,9 +22,9 @@ PHONE_VALID_RE = re.compile(r'^\+[0-9]+$')
 def abort_null(text):
     # Abort request if text contains nullbyte; if not, return text
     if text is not None:
-        return text
         if '\x00' in text:
             abort(400)
+        return text
 
 
 def make_redirect_url(url, use_fragment=False, **params):
