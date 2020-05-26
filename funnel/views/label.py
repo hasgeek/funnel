@@ -7,7 +7,7 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 from .. import app, funnelapp
 from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
-from ..utils import strip_null
+from ..utils import abort_null
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import ProjectViewMixin
@@ -25,7 +25,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     def labels(self):
         form = forms.Form()
         if form.validate_on_submit():
-            namelist = [strip_null(x) for x in request.values.getlist('name')]
+            namelist = [abort_null(x) for x in request.values.getlist('name')]
             for idx, lname in enumerate(namelist, start=1):
                 lbl = Label.query.filter_by(project=self.obj, name=lname).first()
                 if lbl is not None:
@@ -47,8 +47,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             # and those values are also available at `form.data`.
             # But in case there are options, the option values are in the list
             # in the order they appeared on the create form.
-            titlelist = [strip_null(x) for x in request.values.getlist('title')]
-            emojilist = [strip_null(x) for x in request.values.getlist('icon_emoji')]
+            titlelist = [abort_null(x) for x in request.values.getlist('title')]
+            emojilist = [abort_null(x) for x in request.values.getlist('icon_emoji')]
             # first values of both lists belong to the parent label
             titlelist.pop(0)
             emojilist.pop(0)
@@ -140,9 +140,9 @@ class LabelView(UrlForView, ModelView):
             return redirect(self.obj.project.url_for('labels'), code=303)
 
         if form.validate_on_submit():
-            namelist = [strip_null(x) for x in request.values.getlist('name')]
-            titlelist = [strip_null(x) for x in request.values.getlist('title')]
-            emojilist = [strip_null(x) for x in request.values.getlist('icon_emoji')]
+            namelist = [abort_null(x) for x in request.values.getlist('name')]
+            titlelist = [abort_null(x) for x in request.values.getlist('title')]
+            emojilist = [abort_null(x) for x in request.values.getlist('icon_emoji')]
 
             namelist.pop(0)
             titlelist.pop(0)
