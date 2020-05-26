@@ -84,16 +84,13 @@ def project_data(project):
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'calendar_weeks_full': project.calendar_weeks_full,
         'calendar_weeks_compact': project.calendar_weeks_compact,
-        'registration_header_text': project.registration_header_text,
         'rsvp_count_going': project.rsvp_count_going(),
+        'registration_header_text': project.registration_header_text._asdict(),
     }
 
 
-# FIXME: update features to check for current RSVP for current user
-
-
-@Project.features('has_rsvp')
-def project_has_rsvp(obj):
+@Project.features('rsvp')
+def feature_project_rsvp(obj):
     return (
         obj.schedule_state.PUBLISHED
         and (
@@ -105,8 +102,8 @@ def project_has_rsvp(obj):
     )
 
 
-@Project.features('has_tickets')
-def project_has_tickets(obj):
+@Project.features('tickets')
+def feature_project_tickets(obj):
     return (
         obj.schedule_state.PUBLISHED
         and obj.boxoffice_data is not None
@@ -116,28 +113,40 @@ def project_has_tickets(obj):
     )
 
 
-@Project.features('has_tickets_or_rsvp')
-def project_has_tickets_or_rsvp(obj):
-    return obj.features.has_tickets() or obj.features.has_rsvp()
+@Project.features('tickets_or_rsvp')
+def feature_project_tickets_or_rsvp(obj):
+    return obj.features.tickets() or obj.features.rsvp()
+
+
+@Project.features('rsvp_register')
+def feature_project_register(obj):
+    rsvp = obj.rsvp_for(current_auth.user)
+    return rsvp is None or not rsvp.state.YES
+
+
+@Project.features('rsvp_deregister')
+def feature_project_deregister(obj):
+    rsvp = obj.rsvp_for(current_auth.user)
+    return rsvp is not None and rsvp.state.YES
 
 
 @Project.features('schedule_no_sessions')
-def project_has_no_sessions(obj):
+def feature_project_has_no_sessions(obj):
     return obj.schedule_state.PUBLISHED and not obj.schedule_start_at
 
 
 @Project.features('comment_new')
-def project_comment_new(obj):
+def feature_project_comment_new(obj):
     return obj.current_roles.participant is True
 
 
 @Project.features('registration')
-def project_registration(obj):
+def feature_project_registration(obj):
     return obj.rsvp_for(current_auth.user) is None
 
 
 @Project.features('deregistration')
-def project_deregistration(obj):
+def feature_project_deregistration(obj):
     return obj.rsvp_for(current_auth.user) is not None
 
 

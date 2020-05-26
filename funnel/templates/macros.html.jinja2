@@ -168,14 +168,14 @@
           </div>
         {% endif %}
         <div class="project-details__box--ticketbox">
-          {% if project.features.has_tickets()  %}
+          {% if project.features.tickets()  %}
             <div class="mui--hidden-xs mui--hidden-sm">
               <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary mui--d-block {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" data-action="Get tickets(header)" id="get-tickets">
               {% trans %}Get tickets{% endtrans %}</a>
             </div>
-          {% elif project.features.has_rsvp() %}
-            {% if not project.rsvp_for(current_auth.user) or project.rsvp_for(current_auth.user).state.NO -%}
-              <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text }}</p>
+          {% elif project.features.rsvp() %}
+            {% if project.features.rsvp_register() -%}
+              <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text.register }}</p>
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">
                 <div class="modal__header">
@@ -191,8 +191,8 @@
                   </form>
                 </div>
               </div>
-            {%- else %}
-              <p class="mui--text-body1 mui--text-light">{{ project.cancel_registration_header_text }}</p>
+            {%- elif project.features.rsvp_deregister() %}
+              <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text.deregister }}</p>
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Cancel Registeration{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">
                 <div class="modal__header">
@@ -246,8 +246,8 @@
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-action="About(navbar)" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
-      {% if project.features.has_tickets_or_rsvp() -%}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.features.has_tickets() %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
+      {% if project.features.tickets_or_rsvp() -%}
+        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.features.tickets() %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
       {%- endif %}
       {%- if project.featured_sessions %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
