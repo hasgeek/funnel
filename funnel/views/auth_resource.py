@@ -21,7 +21,7 @@ from ..models import (
     getuser,
 )
 from ..registry import resource_registry
-from ..utils import strip_null
+from ..utils import abort_null
 from .helpers import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
@@ -130,8 +130,8 @@ def api_result(status, _jsonp=False, **params):
 @lastuserapp.route('/api/1/token/verify', methods=['POST'])
 @requires_client_login
 def token_verify():
-    token = strip_null(request.form.get('access_token'))
-    client_resource = strip_null(
+    token = abort_null(request.form.get('access_token'))
+    client_resource = abort_null(
         request.form.get('resource')
     )  # Can only be a single resource
     if not client_resource:
@@ -185,7 +185,7 @@ def token_verify():
 @lastuserapp.route('/api/1/token/get_scope', methods=['POST'])
 @requires_client_login
 def token_get_scope():
-    token = strip_null(request.form.get('access_token'))
+    token = abort_null(request.form.get('access_token'))
     if not token:
         # No token specified by caller
         return resource_error('no_token')
@@ -238,7 +238,7 @@ def user_get_by_userid():
     """
     Returns user or organization with the given userid (Lastuser internal buid)
     """
-    buid = strip_null(request.values.get('userid'))
+    buid = abort_null(request.values.get('userid'))
     if not buid:
         return api_result('error', error='no_userid_provided')
     user = User.get(buid=buid, defercols=True)
@@ -277,7 +277,7 @@ def user_get_by_userid():
 @app.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @lastuserapp.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
-@requestargs(('userid[]', strip_null))
+@requestargs(('userid[]', abort_null))
 def user_get_by_userids(userid):
     """
     Returns users and organizations with the given userids (Lastuser internal userid).
@@ -324,7 +324,7 @@ def user_get_by_userids(userid):
 @app.route('/api/1/user/get', methods=['GET', 'POST'])
 @lastuserapp.route('/api/1/user/get', methods=['GET', 'POST'])
 @requires_user_or_client_login
-@requestargs(('name', strip_null))
+@requestargs(('name', abort_null))
 def user_get(name):
     """
     Returns user with the given username, email address or Twitter id
@@ -353,7 +353,7 @@ def user_get(name):
 @app.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @lastuserapp.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @requires_user_or_client_login
-@requestargs(('name[]', strip_null))
+@requestargs(('name[]', abort_null))
 def user_getall(name):
     """
     Returns users with the given username, email address or Twitter id
@@ -394,7 +394,7 @@ def user_autocomplete():
     """
     Returns users (buid, username, fullname, twitter, github or email) matching the search term.
     """
-    q = strip_null(request.values.get('q', ''))
+    q = abort_null(request.values.get('q', ''))
     if not q:
         return api_result('error', error='no_query_provided')
     # Limit length of query to User.fullname limit
@@ -449,7 +449,7 @@ def user_autocomplete():
 
 @app.route('/api/1/login/beacon.html')
 @lastuserapp.route('/api/1/login/beacon.html')
-@requestargs(('client_id', strip_null), ('login_url', strip_null))
+@requestargs(('client_id', abort_null), ('login_url', abort_null))
 def login_beacon_iframe(client_id, login_url):
     cred = AuthClientCredential.get(client_id)
     auth_client = cred.auth_client if cred else None
@@ -471,7 +471,7 @@ def login_beacon_iframe(client_id, login_url):
 
 @app.route('/api/1/login/beacon.json')
 @lastuserapp.route('/api/1/login/beacon.json')
-@requestargs(('client_id', strip_null))
+@requestargs(('client_id', abort_null))
 def login_beacon_json(client_id):
     cred = AuthClientCredential.get(client_id)
     auth_client = cred.auth_client if cred else None
@@ -514,7 +514,7 @@ def resource_id(authtoken, args, files=None):
 @lastuserapp.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(authtoken, args, files=None):
-    sessionid = strip_null(args['sessionid'])
+    sessionid = abort_null(args['sessionid'])
     session = UserSession.authenticate(buid=sessionid)
     if session and session.user == authtoken.user:
         session.access(auth_client=authtoken.auth_client)
@@ -538,7 +538,7 @@ def resource_avatar_edit(authtoken, args, files=None):
     """
     Set a user's avatar image
     """
-    avatar = strip_null(args['avatar'])
+    avatar = abort_null(args['avatar'])
     parsed = urlparse(avatar)
     if parsed.scheme == 'https' and parsed.netloc:
         # Accept any properly formatted URL.
@@ -592,7 +592,7 @@ def resource_login_providers(authtoken, args, files=None):
     """
     Return user's login providers' data.
     """
-    service = strip_null(args.get('service'))
+    service = abort_null(args.get('service'))
     response = {}
     for extid in authtoken.user.externalids:
         if service is None or extid.service == service:
