@@ -372,6 +372,23 @@
   }
 }
 
+.card--spotlight {
+  .card__calendar--compact {
+    .calendar {
+      .calendar__weekdays {
+        .calendar__weekdays__dates {
+          .calendar__weekdays__dates__icon--left {
+            left: -35px;
+          }
+          .calendar__weekdays__dates__icon--right {
+            right: -35px;
+          }
+        }
+      }
+    }
+  }
+}
+
 .card--upcoming {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
