@@ -326,11 +326,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             ),
         }
 
-    @property
-    def cancel_registration_header_text(self):
-        return __(
-            "You and {registration_count} have registred so far."
-        ).format(registration_count=self.rsvp_count_going() - 1)
         rsvp_count = self.rsvp_count_going()
         if rsvp_count <= 10:
             return count_messages[rsvp_count]
@@ -341,12 +336,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     rest=rsvp_count - 1
                 ),
             )
-
-    @property
-    def cancel_registration_header_text(self):
-        return __("You and {registration_count} have registred so far.").format(
-            registration_count=self.rsvp_count_going() - 1
-        )
 
     @classmethod
     def migrate_profile(cls, old_profile, new_profile):

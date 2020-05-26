@@ -82,11 +82,6 @@
       z-index: 1003;
     }
   }
-  .livestream-box {
-    .project-banner__footer {
-      padding: 0;
-    }
-  }
 
   .project-details__box {
     margin-top: 15px;
@@ -128,6 +123,11 @@
       }
     }
   }
+  .project-details__box--ticketbox {
+    .check-icon {
+      margin-right: 8px;
+    }
+  }
 }
 
 @media (min-width: 768px) {
@@ -164,8 +164,8 @@
       }
     }
     .livestream-box {
-      .project-banner__footer {
-        padding: 0 15px;
+      .project-banner__box {
+        padding: 0;
       }
     }
   }
@@ -188,7 +188,7 @@
       margin-top: -7px;
 
       .card__calendar {
-        margin: 0 0 25px;
+        margin: 0 0 47px;
         padding: 0 0 8px;
       }
       .propose {

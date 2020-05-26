@@ -174,7 +174,10 @@
               {% trans %}Get tickets{% endtrans %}</a>
             </div>
           {% elif project.features.rsvp() %}
-            {% if project.features.rsvp_register() -%}
+            {%- if current_auth.is_anonymous %}
+              <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text.register }}</p>
+              <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block"  href="{{ url_for('login') }}" data-action="Login to register">Login to register</a>
+            {% elif project.features.rsvp_register() -%}
               <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text.register }}</p>
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">
@@ -192,8 +195,8 @@
                 </div>
               </div>
             {%- elif project.features.rsvp_deregister() %}
-              <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text.deregister }}</p>
-              <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Cancel Registeration{% endtrans %}</a>
+              <p class="mui--text-body1 mui--text-light">{{ faicon(icon='check', baseline=false, css_class='mui--align-middle mui--text-success check-icon') }}{{ project.registration_header_text.deregister }}</p>
+              <a class="mui-btn mui-btn--raised mui--d-block" href="#register-modal" id="register-btn">{% trans %}Cancel Registration{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">
                 <div class="modal__header">
                   <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
@@ -209,10 +212,10 @@
                 </div>
               </div>
             {%- endif %}
-            <hr class="mui-divider">
           {% elif project.view_for('edit_schedule').is_available() %}
             <a class="mui-btn mui-btn--raised mui-btn--accent  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable rsvp{% endtrans %}</a>
           {%- endif %}
+          <hr class="mui-divider">
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>

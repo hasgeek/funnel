@@ -1966,9 +1966,6 @@ html.touch .collapsible__body--disable {
   min-width: auto;
   z-index: 1003;
 }
-.project-banner .livestream-box .project-banner__footer {
-  padding: 0;
-}
 .project-banner .project-details__box {
   margin-top: 15px;
   position: relative;
@@ -2008,6 +2005,9 @@ html.touch .collapsible__body--disable {
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
+.project-banner .project-details__box--ticketbox .check-icon {
+  margin-right: 8px;
+}
 
 @media (min-width: 768px) {
   .project-banner .project-banner__box {
@@ -2037,8 +2037,8 @@ html.touch .collapsible__body--disable {
     width: 14px;
     height: 14px;
   }
-  .project-banner .livestream-box .project-banner__footer {
-    padding: 0 15px;
+  .project-banner .livestream-box .project-banner__box {
+    padding: 0;
   }
 }
 @media (min-width: 992px) {
@@ -2056,7 +2056,7 @@ html.touch .collapsible__body--disable {
     margin-top: -7px;
   }
   .project-banner .project-details__box .card__calendar {
-    margin: 0 0 25px;
+    margin: 0 0 47px;
     padding: 0 0 8px;
   }
   .project-banner .project-details__box .propose {
