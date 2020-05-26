@@ -1,0 +1,18 @@
+{% extends 'siteadmin_layout.html.jinja2' %}
+
+{% block admincontentblock %}
+<div class="mui--text-center">
+  <pre>{{ report.comment.message }}</pre>
+  <form action="." method="post">
+    {{ report_form.hidden_tag() }}
+    {% for report_type in report_form.report_type.choices %}
+    <button name="report_type" value="{{ report_type.data['value'] }}" class="mui-btn mui-btn--small mui-btn--raised">{{ report_type.data['title'] }}</button>
+    {% endfor %}
+  </form>
+</div>
+
+{% endblock admincontentblock %}
+
+{% block footerscripts %}
+
+{% endblock %}

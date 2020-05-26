@@ -7,18 +7,19 @@ __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
 
 class MODERATOR_REPORT_TYPE(LabeledEnum):  # NOQA: N801
-    SPAM = (0, 'spam', __("Spam"))
+    OK = (0, 'ok', __("OK"))
+    SPAM = (1, 'spam', __("Spam"))
 
 
 class CommentModeratorReport(UuidMixin, NoIdMixin, db.Model):
     __tablename__ = 'comment_moderator_report'
 
-    user_id = db.Column(
+    reported_by_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=False, primary_key=True
     )
-    user = db.relationship(
+    reported_by = db.relationship(
         User,
-        primaryjoin=user_id == User.id,
+        primaryjoin=reported_by_id == User.id,
         backref=db.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     comment_id = db.Column(

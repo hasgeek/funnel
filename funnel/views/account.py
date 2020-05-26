@@ -23,6 +23,7 @@ from .. import app, funnelapp, lastuserapp
 from ..forms import (
     AccountForm,
     EmailPrimaryForm,
+    ModeratorReportForm,
     NewEmailAddressForm,
     NewPhoneForm,
     PasswordChangeForm,
@@ -31,8 +32,9 @@ from ..forms import (
     VerifyEmailForm,
     VerifyPhoneForm,
 )
-from ..models import (
+from ..models import (  # MODERATOR_REPORT_TYPE,
     Comment,
+    CommentModeratorReport,
     User,
     UserEmail,
     UserEmailClaim,
@@ -159,6 +161,40 @@ class AccountView(ClassView):
             )
 
         return redirect(url_for('siteadmin_comments'))
+
+    @route('siteadmin/review/comments', endpoint='siteadmin_review_comments_random')
+    @requires_login
+    def siteadmin_review_comments_random(self, report=None):
+        if not current_auth.user.is_comment_moderator:
+            return abort(403)
+
+        random_report = CommentModeratorReport.query.one_or_404()
+        if random_report is not None:
+            return redirect(
+                url_for('siteadmin_review_comment', report=random_report.uuid_b58)
+            )
+        else:
+            return redirect(url_for('account'))
+
+    @route('siteadmin/review/comments/<report>', endpoint='siteadmin_review_comment')
+    @render_with('siteadmin_review_comment.html.jinja2')
+    @requires_login
+    def siteadmin_review_comment(self, report=None):
+        if not current_auth.user.is_comment_moderator:
+            return abort(403)
+
+        app.logger.info(report)
+        report = CommentModeratorReport.query.filter_by(uuid_b58=report).one_or_404()
+        report_form = ModeratorReportForm()
+        if report_form.validate_on_submit():
+            app.logger.info('validation pass')
+            # get other reports for same comment
+            existing_reports = report.comment.moderator_reports.filter(
+                ~CommentModeratorReport.id.in_([report.id])
+            )
+            app.logger.info(existing_reports.all())
+
+        return {'report': report, 'report_form': report_form}
 
 
 @route('/account')
