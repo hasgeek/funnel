@@ -112,8 +112,10 @@ def _project_rsvp_for(self, user, create=False):
 
 
 def _project_rsvps_with(self, status):
-    return self.rsvps.join(User).filter(
-        User.status == USER_STATUS.ACTIVE, Rsvp._state == status
+    return (
+        self.rsvps.join(User)
+        .filter(User.status == USER_STATUS.ACTIVE, Rsvp._state == status)
+        .order_by(User.fullname.asc())
     )
 
 
