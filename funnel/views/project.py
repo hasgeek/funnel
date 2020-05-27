@@ -18,6 +18,7 @@ from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
     UrlForView,
+    get_next_url,
     jsonp,
     render_with,
     requires_roles,
@@ -485,12 +486,11 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(
-                    _("You have successfully registered"),
-                    'success',
+                    _("You have successfully registered"), 'success',
                 )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
-        return redirect(self.obj.url_for(), code=303)
+        return redirect(get_next_url(referrer=request.referrer), code=303)
 
     @route('deregister', methods=['POST'])
     @requires_login
@@ -502,15 +502,14 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 rsvp.rsvp_no()
                 db.session.commit()
                 flash(
-                    _("Your registration has been cancelled"),
-                    'success',
+                    _("Your registration has been cancelled"), 'success',
                 )
         else:
             flash(
                 _("There was a problem cancelling your registration. Please try again"),
                 'error',
             )
-        return redirect(self.obj.url_for(), code=303)
+        return redirect(get_next_url(referrer=request.referrer), code=303)
 
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
