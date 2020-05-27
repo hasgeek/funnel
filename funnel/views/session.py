@@ -1,6 +1,6 @@
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, localize_timezone, request_is_xhr
+from baseframe import _, localize_timezone, request_is_xhr, forms
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -176,6 +176,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
             'project_save_form': project_save_form,
+            'empty_form': forms.Form(),
         }
 
     @route('viewsession-popup')
