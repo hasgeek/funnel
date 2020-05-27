@@ -326,7 +326,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             ),
         }
 
-        rsvp_count = self.rsvp_count_going()
+        rsvp_count = self.rsvp_count_going
         if rsvp_count <= 10:
             return count_messages[rsvp_count]
         else:

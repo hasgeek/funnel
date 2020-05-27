@@ -8,6 +8,12 @@ from . import NoIdMixin, db
 from .project import Project
 from .user import USER_STATUS, User
 
+try:
+    from functools import cached_property
+except ImportError:
+    from werkzeug.utils import cached_property
+
+
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
 
@@ -127,14 +133,18 @@ def _project_rsvp_counts(self):
 
 
 def _project_rsvp_count_going(self):
-    return (
-        self.rsvps.join(User)
-        .filter(User.status == USER_STATUS.ACTIVE, Rsvp.state.YES)
-        .count()
-    )
+    return ()
 
 
 Project.rsvp_for = _project_rsvp_for
 Project.rsvps_with = _project_rsvps_with
 Project.rsvp_counts = _project_rsvp_counts
-Project.rsvp_count_going = _project_rsvp_count_going
+
+
+Project.rsvp_count_going = cached_property(
+    lambda self: (
+        self.rsvps.join(User)
+        .filter(User.status == USER_STATUS.ACTIVE, Rsvp.state.YES)
+        .count()
+    )
+)

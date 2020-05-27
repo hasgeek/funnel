@@ -85,7 +85,7 @@ def project_data(project):
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'calendar_weeks_full': project.calendar_weeks_full,
         'calendar_weeks_compact': project.calendar_weeks_compact,
-        'rsvp_count_going': project.rsvp_count_going(),
+        'rsvp_count_going': project.rsvp_count_going,
         'registration_header_text': project.registration_header_text._asdict(),
     }
 
@@ -119,13 +119,13 @@ def feature_project_tickets_or_rsvp(obj):
     return obj.features.tickets() or obj.features.rsvp()
 
 
-@Project.features('rsvp_register')
+@Project.features('rsvp_unregistered')
 def feature_project_register(obj):
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is None or not rsvp.state.YES
 
 
-@Project.features('rsvp_deregister')
+@Project.features('rsvp_registered')
 def feature_project_deregister(obj):
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is not None and rsvp.state.YES
@@ -139,16 +139,6 @@ def feature_project_has_no_sessions(obj):
 @Project.features('comment_new')
 def feature_project_comment_new(obj):
     return obj.current_roles.participant is True
-
-
-@Project.features('registration')
-def feature_project_registration(obj):
-    return obj.rsvp_for(current_auth.user) is None
-
-
-@Project.features('deregistration')
-def feature_project_deregistration(obj):
-    return obj.rsvp_for(current_auth.user) is not None
 
 
 @Profile.views('project_new')
@@ -632,7 +622,6 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'profile': self.obj.profile,
             'project': self.obj,
             'events': self.obj.events,
-            'csrf_form': csrf_form,
             'csrf_form': forms.Form(),
         }
 

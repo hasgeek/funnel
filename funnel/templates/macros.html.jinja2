@@ -177,7 +177,7 @@
             {%- if current_auth.is_anonymous %}
               <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text.register }}</p>
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block"  href="{{ url_for('login') }}" data-action="Login to register">Login to register</a>
-            {% elif project.features.rsvp_register() -%}
+            {% elif project.features.rsvp_unregistered() -%}
               <p class="mui--text-body1 mui--text-light">{{ project.registration_header_text.register }}</p>
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">
@@ -193,7 +193,7 @@
                   </form>
                 </div>
               </div>
-            {%- elif project.features.rsvp_deregister() %}
+            {%- elif project.features.rsvp_registered() %}
               <p class="mui--text-body1 mui--text-light">{{ faicon(icon='check', baseline=false, css_class='mui--align-middle mui--text-success check-icon') }}{{ project.registration_header_text.deregister }}</p>
               <a class="mui-btn mui-btn--raised mui--d-block" href="#register-modal" id="register-btn">{% trans %}Cancel Registration{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">

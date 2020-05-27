@@ -3,12 +3,10 @@ set -e
 export PYTHONIOENCODING="UTF-8"
 export FLASK_ENV="TESTING"
 python -m tests.e2e.frontend_tests_initdb
-python runcypressserver.py &> /dev/null &
-SERVER_PID=$!
-./rq.sh > /dev/null &
-RQ_PID=$!
+nohup python runcypressserver.py > /dev/null 2>&1 & echo $! > /tmp/server.pid
+nohup ./rq.sh > /dev/null 2>&1 & echo $! > /tmp/rq.pid
 cd funnel/assets
 npx cypress run --browser chrome
-kill $SERVER_PID
-kill $RQ_PID
+kill -9 `cat /tmp/rq.pid`
+kill -9 `cat /tmp/server.pid`
 python -m tests.e2e.frontend_tests_dropdb
