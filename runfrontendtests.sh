@@ -3,7 +3,7 @@ set -e
 export PYTHONIOENCODING="UTF-8"
 export FLASK_ENV="TESTING"
 python -m tests.e2e.frontend_tests_initdb
-python runcypressserver.py > /dev/null &
+python runcypressserver.py &> /dev/null &
 SERVER_PID=$!
 ./rq.sh > /dev/null &
 RQ_PID=$!
