@@ -235,10 +235,6 @@
           itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
           itemCollectionTitle: {{ project.title|tojson }}
         };
-      {%- else %}
-        projectConfig.tickets = {
-          rsvp: true
-        };
       {%- endif %}
 
       {%- if project.primary_venue.has_coordinates -%}
