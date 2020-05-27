@@ -132,10 +132,6 @@ def _project_rsvp_counts(self):
     )
 
 
-def _project_rsvp_count_going(self):
-    return ()
-
-
 Project.rsvp_for = _project_rsvp_for
 Project.rsvps_with = _project_rsvps_with
 Project.rsvp_counts = _project_rsvp_counts
