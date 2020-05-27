@@ -24,6 +24,9 @@ const Membership = {
           if (member.is_usher) count += 1;
           return count - 1;
         },
+        getInitials(name) {
+          return Utils.getInitials(name);
+        },
       },
     });
 
@@ -47,6 +50,7 @@ const Membership = {
           showInfo: false,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
           isMobile: false,
+          ready: false,
         };
       },
       methods: {
@@ -147,6 +151,7 @@ const Membership = {
         $('#member-form').on($.modal.CLOSE, () => {
           this.closeForm();
         });
+        this.ready = true;
       },
       created() {
         window.addEventListener('resize', this.onWindowResize);

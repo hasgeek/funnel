@@ -15,12 +15,12 @@
       <div class="grid__col-xs-12">
         {% raw %}
         <div id="manage-membership">
-          <div class="membership-wrapper">
+          <div class="membership-wrapper" v-if="ready">
             <div class="mui--clearfix">
-              <div class="mui--text-center btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
+              <div class="btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
                 <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member" data-cy-btn="add-member"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#plus'"></use></svg> Add new member</p></button>
               </div>
-              <div class="mui--text-center membership-wrapper--half" v-if="members" :class="[isUserProfileAdmin? 'membership-wrapper--right': '']">
+              <div class="membership-wrapper--half" v-if="members">
                 <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
                   <div class="mui-textfield">
                     <input class="field-search mui--text-light" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
@@ -32,7 +32,7 @@
              <hr class="separator">
             <div v-if="members">
               <div class="mui--clearfix membership-wrapper__filter">
-                <p class="mui--text-body1 mui--pull-left">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
+                <p class="mui--text-body1 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
                 <div class="mui--pull-right">
                    <button class="mui-btn mui-btn--nostyle mui--text-body1" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Name</button>
                     <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body1" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Role</button>
@@ -47,8 +47,8 @@
                     </svg>
                   </p>
                   <transition name="slide-fade">
-                    <div v-if="role.showMembers">
-                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" role="button" v-if="member[role.roleKey]">
+                    <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
+                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']" v-if="member[role.roleKey]">
                         <member :member="member"></member>
                       </div>
                     </div>
@@ -56,7 +56,7 @@
                 </div>
               </div>
               <div v-if="view == 'name'" class="membership-wrapper__members">
-                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" role="button">
+                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']">
                   <member :member="member"></member>
                 </div>
               </div>
@@ -88,11 +88,10 @@
 {% raw %}
 <script type="text/x-template" id="member-template">
   <div class="user-box mui--clearfix">
-    <img class="user-gravatar" :src=member.user_avatar :alt=member.user.fullname :aria-label=member.user.fullname v-if="member.user_avatar"/>
-    <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" :alt=member.user.fullname :aria-label=member.user.fullname v-else/>
+    <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials(member.user.fullname) }}</div>
     <div class="mui--d-inlineblock">
-    <h3 class="mui--text-body1 zero-top-margin " data-cy="member">{{ member.user.fullname }}</h3>
-    <h3 v-if="member.user.username" class="mui--text-caption zero-top-margin zero-bottom-margin"><span>@{{ member.user.username }}</span></h3>
+    <h3 class="mui--text-body1 user-box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+    <h3 v-if="member.user.username" class="mui--text-caption user-box__userid"><span>@{{ member.user.username }}</span></h3>
     </div>
     <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
       <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body1" data-cy="role">Owner</li>
