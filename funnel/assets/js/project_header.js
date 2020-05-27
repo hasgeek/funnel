@@ -29,5 +29,15 @@ $(() => {
     if (window.location.hash === '#register-modal') {
       $('a#register-btn').modal();
     }
+
+    window.addEventListener(
+      'hashchange',
+      function() {
+        if (window.location.hash == '') {
+          $.modal.close();
+        }
+      },
+      false
+    );
   };
 });
