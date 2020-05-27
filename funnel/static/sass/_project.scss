@@ -60,18 +60,19 @@
     .bookmark {
       padding: 0 8px 0 0;
       height: 20px;
-      .txt {
+      .txt,
+      .login-txt {
         position: relative;
-        top: -2px;
+        top: -1px;
       }
     }
     .share {
       border-right: none;
     }
-    .bookmark span.txt,
+    .bookmark span.login-txt,
     .add-calendar span.txt,
     .share span.txt {
-      padding-right: 2px;
+      padding-right: 5px;
     }
 
     .mui-btn--nostyle + .mui-btn--nostyle {
@@ -146,9 +147,7 @@
       .bookmark {
         padding: 0 16px 0 0;
       }
-      .bookmark span.txt,
-      .add-calendar span.txt,
-      .share span.txt {
+      .bookmark span.txt {
         padding-right: 5px;
       }
     }

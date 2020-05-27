@@ -502,7 +502,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 rsvp.rsvp_no()
                 db.session.commit()
                 flash(
-                    _("Your registration has been cancelled"), 'success',
+                    _("Your registration has been cancelled"), 'info',
                 )
         else:
             flash(

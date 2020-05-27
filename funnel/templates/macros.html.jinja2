@@ -51,7 +51,7 @@
     {{ form.hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
-        <a class="mui--text-body1"  href="{{ url_for('login') }}" data-action="Login to save project">{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
+        <a class="mui--text-body1"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body1 mui--text-light login-txt">{% trans %}Login <span class="mui--hidden-xs mui--hidden-sm">to save</span>{% endtrans %}</span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
       {%- else %}
         <input type="hidden" name="save" value="">
         <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmark">{% if txt %}<span class="mui--text-body1 mui--text-light txt">{% trans %}Save <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark', baseline=false, css_class='mui--text-light') }}
@@ -247,8 +247,8 @@
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-action="About(navbar)" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
-      {% if project.features.tickets_or_rsvp() -%}
-        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{%- if project.features.tickets() %}{% trans %}Get tickets{% endtrans %}{% else %}{% trans %}Attend{% endtrans %}{% endif %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
+      {% if project.features.tickets() -%}
+        <div class="sub-navbar__item--wrapper" id="ticket-wrapper"><a href='#tickets' class="open-ticket-widget sub-navbar__item sub-navbar__item--primarybg mui--text-subhead mui--text-light mui--hidden-md mui--hidden-lg mui--hidden-xl" data-action="Tickets(navbar)" id="ticket-btn" data-cy-navbar="tickets">{% trans %}Get tickets{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a></div>
       {%- endif %}
       {%- if project.featured_sessions %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#talks" data-action="Talks(navbar)" data-cy-navbar="talks">{% trans %}Talks{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>

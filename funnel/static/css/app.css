@@ -1947,17 +1947,18 @@ html.touch .collapsible__body--disable {
   padding: 0 8px 0 0;
   height: 20px;
 }
-.project-banner .project-banner__footer .bookmark .txt {
+.project-banner .project-banner__footer .bookmark .txt,
+.project-banner .project-banner__footer .bookmark .login-txt {
   position: relative;
-  top: -2px;
+  top: -1px;
 }
 .project-banner .project-banner__footer .share {
   border-right: none;
 }
-.project-banner .project-banner__footer .bookmark span.txt,
+.project-banner .project-banner__footer .bookmark span.login-txt,
 .project-banner .project-banner__footer .add-calendar span.txt,
 .project-banner .project-banner__footer .share span.txt {
-  padding-right: 2px;
+  padding-right: 5px;
 }
 .project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
   margin: 0;
@@ -2025,9 +2026,7 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__footer .bookmark {
     padding: 0 16px 0 0;
   }
-  .project-banner .project-banner__footer .bookmark span.txt,
-  .project-banner .project-banner__footer .add-calendar span.txt,
-  .project-banner .project-banner__footer .share span.txt {
+  .project-banner .project-banner__footer .bookmark span.txt {
     padding-right: 5px;
   }
   .project-banner .project-details__box .propose .propose__txt {
