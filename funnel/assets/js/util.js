@@ -223,6 +223,21 @@ export const Utils = {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
   },
+  getInitials(name) {
+    if (name) {
+      let parts = name.split(' ');
+      let len = parts.length;
+      if (len > 1) {
+        return (
+          (parts[0] ? parts[0][0].toUpperCase() : '') +
+          (parts[len - 1] ? parts[len - 1][0].toUpperCase() : '')
+        );
+      } else if (parts) {
+        return parts[0] ? parts[0][0].toUpperCase() : '';
+      }
+    }
+    return '';
+  },
 };
 
 export const ScrollActiveMenu = {

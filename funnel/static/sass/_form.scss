@@ -253,7 +253,7 @@
 @media (min-width: 768px) {
   .modal-form {
     min-width: 50%;
-    min-height: 450px;
+    min-height: 80%;
     height: auto;
     border-radius: 4px;
   }
@@ -266,6 +266,7 @@
   border: 1px solid rgba(132, 146, 166, 0.3);
   border-radius: 2px;
   position: relative;
+  color: #4d5763;
 
   .mui-textfield {
     padding: 0;
