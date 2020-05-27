@@ -129,7 +129,7 @@
                   </li>
                 {% endif %}
                 {% if project.view_for('rsvp_list').is_available() %}
-                  <a href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{% trans %}View RSVP responses{% endtrans %}</a>
+                  <a href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{% trans %}View participants{% endtrans %}</a>
                 {% endif %}
                 </ul>
               </div>
