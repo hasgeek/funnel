@@ -224,7 +224,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             ),
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
         }
 
     @route('subscribe')

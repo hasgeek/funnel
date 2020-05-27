@@ -90,7 +90,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, empty_form, class='', current_page='project') %}
+{% macro project_header(project, project_save_form, csrf_form, class='', current_page='project') %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
       {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
@@ -188,7 +188,7 @@
                 <div class="modal__body">
                   <p class="mui--text-body1 reg-modal__txt">{% trans %}This will share your name and email address with the project's crew so they can keep you updated.{% endtrans %}</p>
                   <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
-                    {{ empty_form.hidden_tag() }}
+                    {{ csrf_form.hidden_tag() }}
                     <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm Registration{% endtrans %}</button></p>
                   </form>
                 </div>
@@ -204,7 +204,7 @@
                 <div class="modal__body">
                   <p class="mui--text-subhead reg-modal__txt">{% trans %}Can't make it?{% endtrans %}</p>
                   <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
-                    {{ empty_form.hidden_tag() }}
+                    {{ csrf_form.hidden_tag() }}
                     <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button></p>
                   </form>
                 </div>

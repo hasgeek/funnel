@@ -176,7 +176,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
             'project_save_form': project_save_form,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
         }
 
     @route('viewsession-popup')

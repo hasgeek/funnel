@@ -20,7 +20,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline mobile-nav__icon" data-action="Back to the {{ project.title }}(settings page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Settings{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, empty_form,
+  {{ project_header(project, project_save_form, csrf_form,
     class='mui--hidden-xs mui--hidden-sm',
     current_page='settings') }}
 {% endblock %}

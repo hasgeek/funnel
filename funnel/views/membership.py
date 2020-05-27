@@ -297,7 +297,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                 for membership in self.obj.active_crew_memberships
             ],
             'project_save_form': project_save_form,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
         }
 
     @route('new', methods=['GET', 'POST'])

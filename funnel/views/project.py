@@ -211,7 +211,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj,
             'current_rsvp': current_rsvp,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
@@ -228,7 +228,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
         }
 
     @route('videos')
@@ -240,7 +240,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
         }
 
     @route('json')
@@ -633,7 +633,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'events': self.obj.events,
             'csrf_form': csrf_form,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
         }
 
     @route('settings', methods=['GET', 'POST'])
@@ -651,7 +651,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
         }
 
     @route('comments', methods=['GET'])
@@ -675,7 +675,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'comments': comments,
             'commentform': commentform,
             'delcommentform': delcommentform,
-            'empty_form': forms.Form(),
+            'csrf_form': forms.Form(),
         }
 
 
