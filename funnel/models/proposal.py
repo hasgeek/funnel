@@ -209,6 +209,9 @@ class Proposal(
     __roles__ = {
         'all': {
             'read': {
+                'urls',
+                'uuid_b58',
+                'url_name_uuid_b58',
                 'title',
                 'user',
                 'speaker',
@@ -231,6 +234,57 @@ class Proposal(
         },
         'reviewer': {'read': {'email', 'phone'}},
         'project_editor': {'read': {'email', 'phone'}},
+    }
+
+    __datasets__ = {
+        'primary': {
+            'urls',
+            'uuid_b58',
+            'url_name_uuid_b58',
+            'title',
+            'user',
+            'speaker',
+            'speaking',
+            'bio',
+            'abstract',
+            'outline',
+            'requirements',
+            'slides',
+            'video',
+            'links',
+            'location',
+            'latitude',
+            'longitude',
+            'coordinates',
+            'session',
+            'project',
+            'email',
+            'phone',
+        },
+        'without_parent': {
+            'urls',
+            'uuid_b58',
+            'url_name_uuid_b58',
+            'title',
+            'user',
+            'speaker',
+            'speaking',
+            'bio',
+            'abstract',
+            'outline',
+            'requirements',
+            'slides',
+            'video',
+            'links',
+            'location',
+            'latitude',
+            'longitude',
+            'coordinates',
+            'session',
+            'email',
+            'phone',
+        },
+        'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
     }
 
     def __init__(self, **kwargs):
