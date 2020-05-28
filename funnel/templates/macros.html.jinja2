@@ -51,7 +51,7 @@
     {{ form.hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
-        <a class="mui--text-body1"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body1 mui--text-light login-txt">{% trans %}Login <span class="mui--hidden-xs mui--hidden-sm">to save</span>{% endtrans %}</span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
+        <a class="mui--text-body1"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body1 mui--text-light login-txt">{% trans %}Login{% endtrans %} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}to save{% endtrans %}</span></span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
       {%- else %}
         <input type="hidden" name="save" value="">
         <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmark">{% if txt %}<span class="mui--text-body1 mui--text-light txt">{% trans %}Save <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark', baseline=false, css_class='mui--text-light') }}
@@ -186,23 +186,23 @@
                   <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{{ project.title }}</p>
                 </div>
                 <div class="modal__body">
-                  <p class="mui--text-body1 reg-modal__txt">{% trans %}This will share your name and email address with the project's crew so they can keep you updated.{% endtrans %}</p>
+                  <p class="mui--text-body1 reg-modal__txt">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated.{% endtrans %}</p>
                   <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
                     {{ csrf_form.hidden_tag() }}
-                    <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm Registration{% endtrans %}</button></p>
+                    <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm registration{% endtrans %}</button></p>
                   </form>
                 </div>
               </div>
             {%- elif project.features.rsvp_registered() %}
               <p class="mui--text-body1 mui--text-light">{{ faicon(icon='check', baseline=false, css_class='mui--align-middle mui--text-success check-icon') }}{{ project.views.registration_text() }}</p>
-              <a class="mui-btn mui-btn--raised mui--d-block" href="#register-modal" id="register-btn">{% trans %}Cancel Registration{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui--d-block" href="#register-modal" id="register-btn">{% trans %}Cancel registration{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">
                 <div class="modal__header">
                   <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
                   <p class="mui--text-title mui--text-bold secondary-color-txt reg-modal__txt">{{ project.title }}</p>
                 </div>
                 <div class="modal__body">
-                  <p class="mui--text-subhead reg-modal__txt">{% trans %}Can't make it?{% endtrans %}</p>
+                  <p class="mui--text-subhead reg-modal__txt">{% trans %}Can’t make it?{% endtrans %}</p>
                   <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
                     {{ csrf_form.hidden_tag() }}
                     <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button></p>
@@ -220,7 +220,7 @@
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light">{% trans date=project.cfp_end_at_localized|datetime %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {% elif project.view_for('cfp').is_available() -%}
             <div class="propose propose--lessmargin">
