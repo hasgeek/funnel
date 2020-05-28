@@ -3,6 +3,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.utils import cached_property
 
 from baseframe import localize_timezone
+from coaster.sqlalchemy import with_roles
 
 from . import (
     BaseScopedIdNameMixin,
@@ -103,6 +104,41 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         }
     }
 
+    __datasets__ = {
+        'without_parent': {
+            'uuid_b58',
+            'title',
+            'speaker',
+            'user',
+            'featured',
+            'description',
+            'speaker_bio',
+            'start_at',
+            'end_at',
+            'venue_room',
+            'is_break',
+            'banner_image_url',
+            'start_at_localized',
+            'end_at_localized',
+        },
+        'related': {
+            'uuid_b58',
+            'title',
+            'speaker',
+            'user',
+            'featured',
+            'description',
+            'speaker_bio',
+            'start_at',
+            'end_at',
+            'venue_room',
+            'is_break',
+            'banner_image_url',
+            'start_at_localized',
+            'end_at_localized',
+        },
+    }
+
     @hybrid_property
     def user(self):
         if self.proposal:
@@ -159,26 +195,44 @@ add_search_trigger(Session, 'search_vector')
 
 # Project schedule column expressions
 # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
-Project.schedule_start_at = db.column_property(
-    db.select([db.func.min(Session.start_at)])
-    .where(Session.start_at.isnot(None))
-    .where(Session.project_id == Project.id)
-    .correlate_except(Session)
-)
-
-Project.schedule_end_at = db.column_property(
-    db.select([db.func.max(Session.end_at)])
-    .where(Session.end_at.isnot(None))
-    .where(Session.project_id == Project.id)
-    .correlate_except(Session)
-)
-
-Project.sessions_with_video = db.relationship(
-    Session,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        Project.id == Session.project_id,
-        Session.video_id.isnot(None),
-        Session.video_source.isnot(None),
+Project.schedule_start_at = with_roles(
+    db.column_property(
+        db.select([db.func.min(Session.start_at)])
+        .where(Session.start_at.isnot(None))
+        .where(Session.project_id == Project.id)
+        .correlate_except(Session)
     ),
+    read={'all'},
+)
+
+Project.schedule_end_at = with_roles(
+    db.column_property(
+        db.select([db.func.max(Session.end_at)])
+        .where(Session.end_at.isnot(None))
+        .where(Session.project_id == Project.id)
+        .correlate_except(Session)
+    ),
+    read={'all'},
+)
+
+Project.sessions_with_video = with_roles(
+    db.relationship(
+        Session,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            Project.id == Session.project_id,
+            Session.video_id.isnot(None),
+            Session.video_source.isnot(None),
+        ),
+    ),
+    read={'all'},
+)
+
+Project.has_sessions_with_video = with_roles(
+    cached_property(
+        lambda self: self.query.session.query(
+            self.sessions_with_video.exists()
+        ).scalar()
+    ),
+    read={'all'},
 )

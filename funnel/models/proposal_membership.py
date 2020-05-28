@@ -27,6 +27,26 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
     __roles__ = {
         'all': {'read': {'urls', 'user', 'is_reviewer', 'is_presenter', 'proposal'}}
     }
+    __datasets__ = {
+        'primary': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_reviewer',
+            'is_presenter',
+            'user',
+            'proposal',
+        },
+        'without_parent': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_reviewer',
+            'is_presenter',
+            'user',
+        },
+        'related': {'urls', 'uuid_b58', 'offered_roles', 'is_reviewer', 'is_presenter'},
+    }
 
     proposal_id = immutable(
         db.Column(
