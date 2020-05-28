@@ -296,7 +296,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'cfp_end_at_localized',
             'profile',
         },
-        'from_parent': {
+        'without_parent': {
             'name',
             'title',
             'title_inline',
@@ -790,11 +790,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         return {
             'sessions': [
-                session.current_access(datasets=('from_parent', 'related'))
+                session.current_access(datasets=('without_parent', 'related'))
                 for session in current_sessions
             ],
             'rooms': [
-                room.current_access(datasets=('from_parent', 'related'))
+                room.current_access(datasets=('without_parent', 'related'))
                 for room in self.rooms
             ],
         }

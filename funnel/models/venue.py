@@ -60,7 +60,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     }
 
     __datasets__ = {
-        'from_parent': {
+        'without_parent': {
             'name',
             'title',
             'description',
@@ -120,7 +120,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     }
 
     __datasets__ = {
-        'from_parent': {
+        'without_parent': {
             'id'  # TODO: Used in SessionForm.venue_room_id; needs to be .venue_room
             'uuid_b58',
             'name',

@@ -186,7 +186,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'venues': [
-                venue.current_access(datasets=('from_parent', 'related'))
+                venue.current_access(datasets=('without_parent', 'related'))
                 for venue in self.obj.venues
             ],
             'sessions': scheduled_sessions_list,
@@ -213,11 +213,11 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
                 self.obj, with_slots=True, scheduled_sessions=scheduled_sessions_list
             ),
             venues=[
-                venue.current_access(datasets=('from_parent',))
+                venue.current_access(datasets=('without_parent',))
                 for venue in self.obj.venues
             ],
             rooms=[
-                room.current_access(datasets=('from_parent',))
+                room.current_access(datasets=('without_parent',))
                 for room in self.obj.rooms
             ],
         )

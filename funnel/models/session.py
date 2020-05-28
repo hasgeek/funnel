@@ -105,7 +105,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     }
 
     __datasets__ = {
-        'from_parent': {
+        'without_parent': {
             'uuid_b58',
             'title',
             'speaker',

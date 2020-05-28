@@ -48,7 +48,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
         return {
             'profile': self.obj,
             'memberships': [
-                membership.current_access(datasets=('from_parent', 'related'))
+                membership.current_access(datasets=('without_parent', 'related'))
                 for membership in self.obj.organization.active_admin_memberships
             ],
         }
@@ -113,7 +113,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         'message': _("The user has been added as an admin"),
                         'memberships': [
                             membership.current_access(
-                                datasets=('from_parent', 'related')
+                                datasets=('without_parent', 'related')
                             )
                             for membership in self.obj.organization.active_admin_memberships
                         ],
@@ -190,7 +190,9 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 return {
                     'status': 'ok',
                     'memberships': [
-                        membership.current_access(datasets=('from_parent', 'related'))
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
@@ -248,7 +250,9 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 return {
                     'status': 'ok',
                     'memberships': [
-                        membership.current_access(datasets=('from_parent', 'related'))
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
@@ -295,7 +299,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj,
             'memberships': [
-                membership.current_access(datasets=('from_parent', 'related'))
+                membership.current_access(datasets=('without_parent', 'related'))
                 for membership in self.obj.active_crew_memberships
             ],
             'project_save_form': project_save_form,
@@ -356,7 +360,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         'message': _("The user has been added as a member"),
                         'memberships': [
                             membership.current_access(
-                                datasets=('from_parent', 'related')
+                                datasets=('without_parent', 'related')
                             )
                             for membership in self.obj.active_crew_memberships
                         ],
@@ -489,7 +493,9 @@ class ProjectCrewMembershipView(
                 return {
                     'status': 'ok',
                     'memberships': [
-                        membership.current_access(datasets=('from_parent', 'related'))
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
@@ -541,7 +547,9 @@ class ProjectCrewMembershipView(
                 return {
                     'status': 'ok',
                     'memberships': [
-                        membership.current_access(datasets=('from_parent', 'related'))
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }

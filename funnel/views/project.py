@@ -227,11 +227,11 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             **{
                 'project': project_data(self.obj),
                 'venues': [
-                    venue.current_access(datasets=('from_parent',))
+                    venue.current_access(datasets=('without_parent',))
                     for venue in self.obj.venues
                 ],
                 'rooms': [
-                    room.current_access(datasets=('from_parent',))
+                    room.current_access(datasets=('without_parent',))
                     for room in self.obj.rooms
                 ],
                 'proposals': [proposal_data(proposal) for proposal in proposals],

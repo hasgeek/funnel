@@ -50,7 +50,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             'user',
             'project',
         },
-        'from_parent': {
+        'without_parent': {
             'urls',
             'uuid_b58',
             'offered_roles',

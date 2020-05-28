@@ -70,31 +70,31 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
             'past_projects': [
-                p.current_access(datasets=('from_parent', 'related'))
+                p.current_access(datasets=('without_parent', 'related'))
                 for p in past_projects
             ],
             'all_projects': [
-                p.current_access(datasets=('from_parent', 'related'))
+                p.current_access(datasets=('without_parent', 'related'))
                 for p in all_projects
             ],
             'unscheduled_projects': [
-                p.current_access(datasets=('from_parent', 'related'))
+                p.current_access(datasets=('without_parent', 'related'))
                 for p in unscheduled_projects
             ],
             'upcoming_projects': [
-                p.current_access(datasets=('from_parent', 'related'))
+                p.current_access(datasets=('without_parent', 'related'))
                 for p in upcoming_projects
             ],
             'open_cfp_projects': [
-                p.current_access(datasets=('from_parent', 'related'))
+                p.current_access(datasets=('without_parent', 'related'))
                 for p in open_cfp_projects
             ],
             'draft_projects': [
-                p.current_access(datasets=('from_parent', 'related'))
+                p.current_access(datasets=('without_parent', 'related'))
                 for p in draft_projects
             ],
             'featured_project': (
-                featured_project.current_access(datasets=('from_parent', 'related'))
+                featured_project.current_access(datasets=('without_parent', 'related'))
                 if featured_project
                 else None
             ),

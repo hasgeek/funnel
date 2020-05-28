@@ -168,7 +168,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             'sessions': scheduled_sessions_list,
             'timezone': self.obj.project.timezone.zone,
             'venues': [
-                venue.current_access(datasets=('from_parent', 'related'))
+                venue.current_access(datasets=('without_parent', 'related'))
                 for venue in self.obj.project.venues
             ],
             'rooms': {

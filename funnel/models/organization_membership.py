@@ -35,7 +35,7 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
             'user',
             'organization',
         },
-        'from_parent': {'urls', 'uuid_b58', 'offered_roles', 'is_owner', 'user'},
+        'without_parent': {'urls', 'uuid_b58', 'offered_roles', 'is_owner', 'user'},
         'related': {'urls', 'uuid_b58', 'offered_roles', 'is_owner'},
     }
 
