@@ -47,7 +47,7 @@ from ..models import (
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
-from ..utils import mask_email, strip_null
+from ..utils import mask_email, abort_null
 from .email import send_email_verify_link, send_password_reset_link
 from .helpers import (
     app_url_for,
@@ -97,7 +97,7 @@ def login():
     if request.method == 'GET':
         loginmethod = request.cookies.get('login')
 
-    formid = strip_null(request.form.get('form.id'))
+    formid = abort_null(request.form.get('form.id'))
     if request.method == 'POST' and formid == 'passwordlogin':
         try:
             success = loginform.validate()
@@ -222,7 +222,7 @@ def logout_client():
     """
     Client-initiated logout
     """
-    cred = AuthClientCredential.get(strip_null(request.args['client_id']))
+    cred = AuthClientCredential.get(abort_null(request.args['client_id']))
     auth_client = cred.auth_client if cred else None
 
     if (
@@ -326,7 +326,7 @@ def reset():
         message = None
 
     if request.method == 'GET':
-        form.username.data = strip_null(request.args.get('username'))
+        form.username.data = abort_null(request.args.get('username'))
 
     if form.validate_on_submit():
         username = form.username.data

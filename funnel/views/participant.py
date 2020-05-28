@@ -19,7 +19,7 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import ParticipantForm
 from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
-from ..utils import format_twitter_handle, make_qrcode, split_name, strip_null
+from ..utils import format_twitter_handle, make_qrcode, split_name, abort_null
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
 from .helpers import requires_login
@@ -224,7 +224,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
         form = forms.Form()
         if form.validate_on_submit():
             checked_in = getbool(request.form.get('checkin'))
-            participant_ids = [strip_null(x) for x in request.form.getlist('puuid_b58')]
+            participant_ids = [abort_null(x) for x in request.form.getlist('puuid_b58')]
             for participant_id in participant_ids:
                 attendee = Attendee.get(self.obj, participant_id)
                 attendee.checked_in = checked_in
