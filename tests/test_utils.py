@@ -45,5 +45,5 @@ class TestUtils(object):
 
     def test_null_abort_clean(self, test_client):
         with current_app.test_request_context('/'):
-            expected = abort_null('\xFF')
-            assert expected == '\xFF'
+            expected = abort_null('Sample string')
+            assert expected == 'Sample string'
