@@ -372,7 +372,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 return self.title + ':'
         return self.title
 
-    @property
+    @cached_property
     def datelocation(self):
         """
         Returns a date + location string for the event, the format depends on project dates
