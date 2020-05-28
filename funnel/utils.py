@@ -20,7 +20,10 @@ PHONE_VALID_RE = re.compile(r'^\+[0-9]+$')
 
 
 def abort_null(text):
-    # Abort request if text contains nullbyte; if not, return text
+    """
+    Abort request if text contains null characters.
+    Throws HTTP (400) Bad Request if text is tainted, returns text otherwise.
+    """
     if text is not None:
         if '\x00' in text:
             abort(400)
