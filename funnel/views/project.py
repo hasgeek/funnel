@@ -53,7 +53,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .helpers import get_registration_text, requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
@@ -86,7 +86,7 @@ def project_data(project):
         'calendar_weeks_full': project.calendar_weeks_full,
         'calendar_weeks_compact': project.calendar_weeks_compact,
         'rsvp_count_going': project.rsvp_count_going,
-        'registration_header_text': project.registration_header_text._asdict(),
+        'registration_header_text': project.views.registration_text(),
     }
 
 
@@ -139,6 +139,14 @@ def feature_project_has_no_sessions(obj):
 @Project.features('comment_new')
 def feature_project_comment_new(obj):
     return obj.current_roles.participant is True
+
+
+@Project.views('registration_text')
+def project_registration_text(obj):
+    return get_registration_text(
+        count=obj.rsvp_count_going,
+        registered=obj.rsvp_for(current_auth.user) is not None,
+    )
 
 
 @Profile.views('project_new')
