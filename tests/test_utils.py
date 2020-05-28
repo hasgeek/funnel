@@ -1,8 +1,7 @@
 from flask import current_app
+from werkzeug.exceptions import BadRequest
 
 import pytest
-
-from werkzeug.exceptions import BadRequest
 
 from funnel.utils import (
     abort_null,
@@ -39,7 +38,12 @@ class TestUtils(object):
     def test_format_twitter_handle(self):
         assert format_twitter_handle("testusername") == "@testusername"
 
-    def test_null_abort(self, test_client):
+    def test_null_abort_tainted(self, test_client):
         with current_app.test_request_context('/'):
             with pytest.raises(expected_exception=BadRequest):
                 abort_null('\x00')
+
+    def test_null_abort_clean(self, test_client):
+        with current_app.test_request_context('/'):
+            expected = abort_null('\xFF')
+            assert expected == '\xFF'
