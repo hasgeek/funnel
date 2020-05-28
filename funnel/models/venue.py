@@ -39,7 +39,6 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id',
                 'name',
                 'title',
                 'description',
@@ -49,28 +48,37 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
                 'state',
                 'postcode',
                 'country',
-                'project_details',
-                'room_list',
+                'rooms',
                 'seq',
                 'uuid_b58',
                 'latitude',
                 'longitude',
                 'has_coordinates',
+                'project',
             }
         }
     }
 
-    @property
-    def project_details(self):
-        return {
-            'name': self.project.name,
-            'title': self.project.title,
-            'uuid_b58': self.project.uuid_b58,
-        }
-
-    @property
-    def room_list(self):
-        return [room.current_access() for room in self.rooms]
+    __datasets__ = {
+        'without_parent': {
+            'name',
+            'title',
+            'description',
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'postcode',
+            'country',
+            'rooms',
+            'seq',
+            'uuid_b58',
+            'latitude',
+            'longitude',
+            'has_coordinates',
+        },
+        'related': {'name', 'title', 'uuid_b58'},
+    }
 
 
 class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
@@ -98,7 +106,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id',
+                'id',  # TODO: Used in SessionForm.venue_room_id; needs to be .venue_room
                 'name',
                 'title',
                 'description',
@@ -111,13 +119,28 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
         }
     }
 
-    @property
-    def venue_details(self):
-        return {
-            'name': self.venue.name,
-            'title': self.venue.title,
-            'uuid_b58': self.venue.uuid_b58,
-        }
+    __datasets__ = {
+        'without_parent': {
+            'id'  # TODO: Used in SessionForm.venue_room_id; needs to be .venue_room
+            'uuid_b58',
+            'name',
+            'title',
+            'description',
+            'bgcolor',
+            'seq',
+            'scoped_name',
+        },
+        'related': {
+            'id'  # TODO: Used in SessionForm.venue_room_id; needs to be .venue_room
+            'uuid_b58',
+            'name',
+            'title',
+            'description',
+            'bgcolor',
+            'seq',
+            'scoped_name',
+        },
+    }
 
     @property
     def scoped_name(self):

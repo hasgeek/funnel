@@ -28,17 +28,17 @@ from . import BaseMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
 
 __all__ = [
-    'Organization',
-    'AuthPasswordResetRequest',
-    'Team',
     'USER_STATUS',
     'User',
+    'UserOldId',
+    'Organization',
+    'Team',
     'UserEmail',
     'UserEmailClaim',
-    'UserExternalId',
-    'UserOldId',
     'UserPhone',
     'UserPhoneClaim',
+    'AuthPasswordResetRequest',
+    'UserExternalId',
 ]
 
 
@@ -66,6 +66,10 @@ class SharedProfileMixin:
         if name and name == self.name:
             return
         return Profile.validate_name_candidate(name)
+
+    # TODO: This property is temporary while account and org edit forms have a checkbox
+    # for determining profile visibility. Profile visibility should be controlled
+    # through transitions, not as data in a form.
 
     @property
     def is_public_profile(self):
@@ -98,6 +102,8 @@ class USER_STATUS(LabeledEnum):  # NOQA: N801
 class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
+
+    __datasets__ = {'related': {'fullname', 'username', 'timezone', 'status', 'avatar'}}
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
@@ -551,6 +557,8 @@ team_membership = db.Table(
 class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
+
+    __datasets__ = {'related': {'name', 'title', 'pickername'}}
 
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
