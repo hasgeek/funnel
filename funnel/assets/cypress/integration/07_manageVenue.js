@@ -51,7 +51,7 @@ describe('Manage project venue', function() {
         cy.get('#title').type(venue.room.title);
         cy.get('#field-description')
           .find('.CodeMirror textarea')
-          .type(venue.room.description.html, { force: true });
+          .type(venue.room.description, { force: true });
         cy.get('#bgcolor')
           .clear()
           .type(venue.room.bgcolor);
