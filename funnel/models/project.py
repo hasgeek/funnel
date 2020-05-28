@@ -239,7 +239,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'timezone',
                 'schedule_start_at',
                 'schedule_end_at',
-                'url_json',
                 'website',
                 'bg_image',
                 'banner_video_url',
@@ -282,7 +281,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'timezone',
             'schedule_start_at',
             'schedule_end_at',
-            'url_json',
             'website',
             'bg_image',
             'banner_video_url',
@@ -307,7 +305,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'timezone',
             'schedule_start_at',
             'schedule_end_at',
-            'url_json',
             'website',
             'bg_image',
             'banner_video_url',
@@ -589,17 +586,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
-    # Removing Delete feature till we figure out siteadmin feature
+    # TODO: Removing Delete feature till we figure out siteadmin feature
     # @with_roles(call={'editor'})
     # @state.transition(
     #     state.DELETABLE, state.DELETED, title=__("Delete project"),
     #     message=__("The project has been deleted"), type='success')
     # def delete(self):
     #     pass
-
-    @property
-    def url_json(self):
-        return self.url_for('json', _external=True)
 
     @db.validates('name')
     def _validate_name(self, key, value):
