@@ -1,7 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 export PYTHONIOENCODING="UTF-8"
 export FLASK_ENV="TESTING"
+if [ -f secrets.test ]; then
+        source ./secrets.test
+fi
 python -m tests.e2e.frontend_tests_initdb
 python runcypressserver.py &
 SERVER_PID=$!
