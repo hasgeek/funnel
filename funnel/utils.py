@@ -3,7 +3,7 @@ import six
 import re
 import urllib.parse
 
-from flask import current_app, abort
+from flask import abort, current_app
 
 import qrcode
 import qrcode.image.svg
