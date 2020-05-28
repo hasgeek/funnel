@@ -6,8 +6,8 @@ if [ -f secrets.test ]; then
         source ./secrets.test
 fi
 python -m tests.e2e.frontend_tests_initdb
-nohup python runcypressserver.py 2>&1 >/dev/null & echo $! > /tmp/server.pid
-nohup ./rq.sh 2>&1 >/dev/null & echo $! > /tmp/rq.pid
+nohup python runcypressserver.py 2>&1 1>/dev/null & echo $! > /tmp/server.pid
+nohup ./rq.sh 2>&1 1>/dev/null & echo $! > /tmp/rq.pid
 cd funnel/assets
 npx cypress run --browser chrome
 kill -9 `cat /tmp/rq.pid`
