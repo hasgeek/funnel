@@ -19,7 +19,7 @@ from ..models import (
     User,
     db,
 )
-from ..utils import strip_null
+from ..utils import abort_null
 
 # --- Definitions -------------------------------------------------------------
 
@@ -205,10 +205,10 @@ def search_results(squery, stype, page=1, per_page=20):
 class SearchView(ClassView):
     @route('/search')
     @render_with('search.html.jinja2', json=True)
-    @requestargs(('q', strip_null), ('page', int), ('per_page', int))
+    @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20):
         squery = for_tsquery(q or '')
-        stype = strip_null(
+        stype = abort_null(
             request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
         if not squery:

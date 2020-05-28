@@ -3,7 +3,7 @@ import six
 import re
 import urllib.parse
 
-from flask import current_app
+from flask import abort, current_app
 
 import qrcode
 import qrcode.image.svg
@@ -19,10 +19,15 @@ PHONE_VALID_RE = re.compile(r'^\+[0-9]+$')
 # --- Utilities ---------------------------------------------------------------
 
 
-def strip_null(text):
-    # Removes null byte from given text
+def abort_null(text):
+    """
+    Abort request if text contains null characters.
+    Throws HTTP (400) Bad Request if text is tainted, returns text otherwise.
+    """
     if text is not None:
-        return text.replace('\x00', '')
+        if '\x00' in text:
+            abort(400)
+        return text
 
 
 def make_redirect_url(url, use_fragment=False, **params):

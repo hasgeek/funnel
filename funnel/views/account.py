@@ -44,7 +44,7 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
-from ..utils import strip_null
+from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
@@ -97,7 +97,7 @@ class AccountView(ClassView):
     @route('siteadmin/comments', endpoint='siteadmin_comments', methods=['GET', 'POST'])
     @requires_login
     @render_with('siteadmin_comments.html.jinja2')
-    @requestargs(('query', strip_null), ('page', int), ('per_page', int))
+    @requestargs(('query', abort_null), ('page', int), ('per_page', int))
     def siteadmin_comments(self, query='', page=None, per_page=100):
         if not (
             current_auth.user.is_comment_moderator
