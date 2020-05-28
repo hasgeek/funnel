@@ -39,6 +39,35 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             'read': {'urls', 'user', 'is_editor', 'is_concierge', 'is_usher', 'project'}
         }
     }
+    __datasets__ = {
+        'primary': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_editor',
+            'is_concierge',
+            'is_usher',
+            'user',
+            'project',
+        },
+        'without_parent': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_editor',
+            'is_concierge',
+            'is_usher',
+            'user',
+        },
+        'related': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_editor',
+            'is_concierge',
+            'is_usher',
+        },
+    }
 
     project_id = immutable(
         db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)

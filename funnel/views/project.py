@@ -57,7 +57,6 @@ from .helpers import get_registration_text, requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
-from .venue import room_data, venue_data
 
 
 def project_data(project):
@@ -252,8 +251,14 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return jsonp(
             **{
                 'project': project_data(self.obj),
-                'venues': [venue_data(venue) for venue in self.obj.venues],
-                'rooms': [room_data(room) for room in self.obj.rooms],
+                'venues': [
+                    venue.current_access(datasets=('without_parent',))
+                    for venue in self.obj.venues
+                ],
+                'rooms': [
+                    room.current_access(datasets=('without_parent',))
+                    for room in self.obj.rooms
+                ],
                 'proposals': [proposal_data(proposal) for proposal in proposals],
                 'schedule': schedule_data(self.obj),
             }

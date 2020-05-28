@@ -118,7 +118,33 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     )
 
     __roles__ = {
-        'all': {'read': {'id', 'name', 'title', 'description', 'logo_url', 'urls'}}
+        'all': {
+            'read': {
+                'urls',
+                'uuid_b58',
+                'name',
+                'title',
+                'description',
+                'logo_url',
+                'user',
+                'organization',
+            },
+            'call': {'url_for'},
+        }
+    }
+
+    __datasets__ = {
+        'primary': {
+            'urls',
+            'uuid_b58',
+            'name',
+            'title',
+            'description',
+            'logo_url',
+            'user',
+            'organization',
+        },
+        'related': {'urls', 'uuid_b58', 'name', 'title', 'description', 'logo_url'},
     }
 
     def __repr__(self):

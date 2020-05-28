@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 
+from werkzeug.utils import invalidate_cached_property
+
 from coaster.utils import utcnow
 from funnel.models import Project, Session
 
@@ -101,6 +103,11 @@ class TestProject(object):
         assert new_project.schedule_start_at.date() == new_session_a.start_at.date()
         assert new_project.schedule_end_at.date() == new_session_b.end_at.date()
 
+        # Invalidate property cache
+        invalidate_cached_property(new_project, 'datelocation')
+        invalidate_cached_property(new_project, 'schedule_start_at_localized')
+        invalidate_cached_property(new_project, 'schedule_end_at_localized')
+
         # both session dates are in same month, hence the format below.
         assert (
             new_project.datelocation
@@ -127,6 +134,11 @@ class TestProject(object):
             tzinfo=new_project.timezone
         )
         test_db.session.commit()
+
+        # Invalidate property cache
+        invalidate_cached_property(new_project, 'datelocation')
+        invalidate_cached_property(new_project, 'schedule_start_at_localized')
+        invalidate_cached_property(new_project, 'schedule_end_at_localized')
 
         assert (
             new_project.datelocation
@@ -155,6 +167,11 @@ class TestProject(object):
         )
         test_db.session.commit()
 
+        # Invalidate property cache
+        invalidate_cached_property(new_project, 'datelocation')
+        invalidate_cached_property(new_project, 'schedule_start_at_localized')
+        invalidate_cached_property(new_project, 'schedule_end_at_localized')
+
         assert (
             new_project.datelocation
             == "{start_date} {end_month} {year}, {location}".format(
@@ -179,6 +196,11 @@ class TestProject(object):
             tzinfo=new_project.timezone
         )
         test_db.session.commit()
+
+        # Invalidate property cache
+        invalidate_cached_property(new_project, 'datelocation')
+        invalidate_cached_property(new_project, 'schedule_start_at_localized')
+        invalidate_cached_property(new_project, 'schedule_end_at_localized')
 
         assert (
             new_project.datelocation
