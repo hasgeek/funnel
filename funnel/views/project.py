@@ -144,8 +144,7 @@ def feature_project_comment_new(obj):
 @Project.views('registration_text')
 def project_registration_text(obj):
     return get_registration_text(
-        count=obj.rsvp_count_going,
-        registered=obj.rsvp_for(current_auth.user) is not None,
+        count=obj.rsvp_count_going, registered=obj.features.rsvp_registered(),
     )
 
 
