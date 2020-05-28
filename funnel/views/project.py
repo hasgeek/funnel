@@ -1,3 +1,4 @@
+from collections import namedtuple
 import csv
 import io
 
@@ -53,10 +54,66 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .helpers import get_registration_text, requires_login
+from .helpers import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
+
+CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
+
+registration_count_messages = [
+    CountWords(_("Be the first to register!"), None),
+    CountWords(_("One registration so far. Be the second?"), _("You have registered")),
+    CountWords(
+        _("Two registrations so far. Be the third?"),
+        _("You and one other have registered"),
+    ),
+    CountWords(
+        _("Three registrations so far. Be the fourth?"),
+        _("You and two others have registered"),
+    ),
+    CountWords(
+        _("Four registrations so far. Be the next one?"),
+        _("You and three others have registered"),
+    ),
+    CountWords(
+        _("Five registrations so far. Be the next one?"),
+        _("You and four others have registered"),
+    ),
+    CountWords(
+        _("Six registrations so far. Be the next one?"),
+        _("You and five others have registered"),
+    ),
+    CountWords(
+        _("Seven registrations so far. Be the next one?"),
+        _("You and six others have registered"),
+    ),
+    CountWords(
+        _("Eight registrations so far. Be the next one?"),
+        _("You and seven others have registered"),
+    ),
+    CountWords(
+        _("Nine registrations so far. Be the next one?"),
+        _("You and eight others have registered"),
+    ),
+    CountWords(
+        _("Ten registrations so far. Be the next one?"),
+        _("You and nine others have registered"),
+    ),
+]
+
+
+def get_registration_text(count, registered=False):
+    if count <= 10:
+        if registered:
+            return registration_count_messages[count].registered
+        else:
+            return registration_count_messages[count].unregistered
+    else:
+        if registered:
+            return _("You and {num} others have registered").format(num=count - 1)
+        else:
+            return _("{num} registrations so far. Be the next one?").format(num=count)
 
 
 def project_data(project):
@@ -143,7 +200,7 @@ def feature_project_comment_new(obj):
 @Project.views('registration_text')
 def project_registration_text(obj):
     return get_registration_text(
-        count=obj.rsvp_count_going, registered=obj.features.rsvp_registered(),
+        count=obj.rsvp_count_going, registered=obj.features.rsvp_registered()
     )
 
 
@@ -487,9 +544,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             if not rsvp.state.YES:
                 rsvp.rsvp_yes()
                 db.session.commit()
-                flash(
-                    _("You have successfully registered"), 'success',
-                )
+                flash(_("You have successfully registered"), 'success')
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
         return redirect(get_next_url(referrer=request.referrer), code=303)
@@ -503,9 +558,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             if rsvp is not None and not rsvp.state.NO:
                 rsvp.rsvp_no()
                 db.session.commit()
-                flash(
-                    _("Your registration has been cancelled"), 'info',
-                )
+                flash(_("Your registration has been cancelled"), 'info')
         else:
             flash(
                 _("There was a problem cancelling your registration. Please try again"),

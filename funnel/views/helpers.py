@@ -1,4 +1,3 @@
-from collections import namedtuple
 from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import unquote, urljoin, urlparse
@@ -22,7 +21,7 @@ from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
 
-from baseframe import _, __, cache, statsd
+from baseframe import _, cache, statsd
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.gfm import markdown
 from coaster.utils import utcnow
@@ -34,8 +33,6 @@ from ..signals import user_login, user_registered
 from ..utils import abort_null
 
 valid_timezones = set(common_timezones)
-
-CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
 
 
 def app_url_for(
@@ -571,66 +568,3 @@ def validate_rate_limit(
         token,
     )
     cache.set(cache_key, (count, token), timeout=timeout)
-
-
-def get_registration_text(count, registered=False):
-    count_messages = {
-        0: CountWords(__("Be the first one to register!"), __("")),
-        1: CountWords(
-            __("One registration so far. Be the next one to register?"),
-            __("You are now registered"),
-        ),
-        2: CountWords(
-            __("Two registrations so far. Be the next one to register?"),
-            __("You and one other are now registered"),
-        ),
-        3: CountWords(
-            __("Three registrations so far. Be the next one to register?"),
-            __("You and two others are now registered"),
-        ),
-        4: CountWords(
-            __("Four registrations so far. Be the next one to register?"),
-            __("You and three others are now registered"),
-        ),
-        5: CountWords(
-            __("Five registrations so far. Be the next one to register?"),
-            __("You and four others are now registered"),
-        ),
-        6: CountWords(
-            __("Six registrations so far. Be the next one to register?"),
-            __("You and five others are now registered"),
-        ),
-        7: CountWords(
-            __("Seven registrations so far. Be the next one to register?"),
-            __("You and six others are now registered"),
-        ),
-        8: CountWords(
-            __("Eight registrations so far. Be the next one to register?"),
-            __("You and seven others are now registered"),
-        ),
-        9: CountWords(
-            __("Nine registrations so far. Be the next one to register?"),
-            __("You and eight others are now registered"),
-        ),
-        10: CountWords(
-            __("Ten registrations so far. Be the next one to register?"),
-            __("You and nine others are now registered"),
-        ),
-    }
-
-    msg = None
-
-    if count <= 10:
-        msg = count_messages[count]
-    else:
-        msg = CountWords(
-            __("{num} registrations so far. Be the next one to register?").format(
-                num=count
-            ),
-            __("You and {rest} others are now registered").format(rest=count - 1),
-        )
-
-    if registered:
-        return msg.registered
-    else:
-        return msg.unregistered
