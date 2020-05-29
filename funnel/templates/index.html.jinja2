@@ -73,7 +73,7 @@
 
 {% block basecontent %}
   {% with current_sessions = featured_project.current_sessions() if featured_project is not none else none %}
-  {% if featured_project and featured_project.livestream_urls or current_sessions and current_sessions.sessions|length > 0 %}
+  {% if featured_project and current_sessions and current_sessions.sessions|length > 0 %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
