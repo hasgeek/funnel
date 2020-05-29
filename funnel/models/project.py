@@ -775,18 +775,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     def current_sessions(self):
-        now = utcnow().astimezone(self.timezone)
-
-        if self.schedule_start_at is None or self.schedule_start_at > now + timedelta(
-            minutes=30
+        if self.schedule_start_at is None or (
+            self.schedule_start_at > utcnow() + timedelta(minutes=30)
         ):
             return
 
         current_sessions = (
-            self.sessions.join(VenueRoom)
-            .filter(Session.scheduled)
-            .filter(Session.start_at <= now + timedelta(minutes=30))
-            .filter(Session.end_at > now)
+            self.sessions.outerjoin(VenueRoom)
+            .filter(Session.start_at <= db.func.utcnow() + timedelta(minutes=30))
+            .filter(Session.end_at > db.func.utcnow())
             .order_by(Session.start_at.asc(), VenueRoom.seq.asc())
         )
 
