@@ -191,7 +191,7 @@ export const Utils = {
 
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg = 'Internal Server Error. Please reload and try again.';
+        errorMsg = 'An internal server error occurred. Our support team has been notified and will investigate.';
       } else {
         errorMsg = JSON.parse(response.responseText).error_description;
       }
@@ -222,21 +222,6 @@ export const Utils = {
     if (response.form_nonce) {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
-  },
-  getInitials(name) {
-    if (name) {
-      let parts = name.split(' ');
-      let len = parts.length;
-      if (len > 1) {
-        return (
-          (parts[0] ? parts[0][0].toUpperCase() : '') +
-          (parts[len - 1] ? parts[len - 1][0].toUpperCase() : '')
-        );
-      } else if (parts) {
-        return parts[0] ? parts[0][0].toUpperCase() : '';
-      }
-    }
-    return '';
   },
 };
 

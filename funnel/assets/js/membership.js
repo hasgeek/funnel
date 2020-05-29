@@ -24,9 +24,7 @@ const Membership = {
           if (member.is_usher) count += 1;
           return count - 1;
         },
-        getInitials(name) {
-          return Utils.getInitials(name);
-        },
+        getInitials: window.Baseframe.Utils.getInitials
       },
     });
 

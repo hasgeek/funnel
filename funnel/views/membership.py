@@ -189,7 +189,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
                 return {
                     'status': 'ok',
-                    'message': _("The member's roles has been updated"),
+                    'message': _("The member's roles have been updated"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
@@ -250,7 +250,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     )
                 return {
                     'status': 'ok',
-                    'message': _("The member has been removed"),
+                    'message': _("The member have been removed"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
