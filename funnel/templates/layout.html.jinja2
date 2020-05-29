@@ -77,7 +77,7 @@
             <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title }}">{{ project.parent_project.short_title }}</a>
           {%- endif %}
           {{ faicon(icon='chevron-right', icon_size='subhead') }}
-          <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title() }}">{{ project.short_title }}</a>
+          <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title }}">{{ project.short_title }}</a>
         {%- endif %}
       {%- else -%}
         <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
