@@ -189,7 +189,7 @@
                   <p class="mui--text-body1 reg-modal__txt">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated.{% endtrans %}</p>
                   <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
                     {{ csrf_form.hidden_tag() }}
-                    <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm registration{% endtrans %}</button></p>
+                    <div class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm registration{% endtrans %}</button></div>
                   </form>
                 </div>
               </div>
@@ -205,7 +205,7 @@
                   <p class="mui--text-subhead reg-modal__txt">{% trans %}Can’t make it?{% endtrans %}</p>
                   <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
                     {{ csrf_form.hidden_tag() }}
-                    <p class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button></p>
+                    <div class="mui--text-right reg-modal__btn"><button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button></div>
                   </form>
                 </div>
               </div>

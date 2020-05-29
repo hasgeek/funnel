@@ -228,6 +228,7 @@
 .reg-modal {
   .reg-modal__txt {
     margin-bottom: 16px;
+    width: calc(100% - 10px);
   }
   .reg-modal__btn {
     margin-top: 20px;
