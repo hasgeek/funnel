@@ -1,4 +1,5 @@
 from flask import current_app
+from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
@@ -129,3 +130,12 @@ def _project_rsvp_counts(self):
 Project.rsvp_for = _project_rsvp_for
 Project.rsvps_with = _project_rsvps_with
 Project.rsvp_counts = _project_rsvp_counts
+
+
+Project.rsvp_count_going = cached_property(
+    lambda self: (
+        self.rsvps.join(User)
+        .filter(User.status == USER_STATUS.ACTIVE, Rsvp.state.YES)
+        .count()
+    )
+)

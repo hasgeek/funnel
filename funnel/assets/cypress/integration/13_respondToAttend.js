@@ -10,10 +10,10 @@ describe('Responding yes to attend a project', function() {
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('#tickets')
-      .find('button[title="Going"]')
-      .click();
-    cy.get('[data-cy-rsvp="going"]').should('exist');
+    cy.get('#register-btn').click();
+    cy.wait(2000);
+    cy.get('button[data-cy="confirm"]').click();
+    cy.get('.alert--success').should('exist');
     cy.get('button[data-cy="bookmark"]').click();
     cy.wait('@bookmark-project');
     cy.get('button[data-cy="bookmarked"]').should('exist');

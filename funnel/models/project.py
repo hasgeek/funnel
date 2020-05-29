@@ -255,9 +255,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'hasjob_embed_url',
                 'hasjob_embed_limit',
                 'profile',
-                'features',
             },
             'call': {
+                'features',
                 'url_for',
                 'current_sessions',
                 'is_saved_by',
@@ -265,6 +265,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'schedule_state',
                 'cfp_state',
                 'view_for',
+                'views',
             },
         },
         'participant': {'granted_via': {'rsvps': 'user', 'participants': 'user'}},

@@ -1,3 +1,4 @@
+from collections import namedtuple
 import csv
 import io
 
@@ -18,6 +19,7 @@ from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
     UrlForView,
+    get_next_url,
     jsonp,
     render_with,
     requires_roles,
@@ -57,6 +59,62 @@ from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
 
+CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
+
+registration_count_messages = [
+    CountWords(_("Be the first to register!"), None),
+    CountWords(_("One registration so far. Be the second?"), _("You have registered")),
+    CountWords(
+        _("Two registrations so far. Be the third?"),
+        _("You and one other have registered"),
+    ),
+    CountWords(
+        _("Three registrations so far. Be the fourth?"),
+        _("You and two others have registered"),
+    ),
+    CountWords(
+        _("Four registrations so far. Be the next one?"),
+        _("You and three others have registered"),
+    ),
+    CountWords(
+        _("Five registrations so far. Be the next one?"),
+        _("You and four others have registered"),
+    ),
+    CountWords(
+        _("Six registrations so far. Be the next one?"),
+        _("You and five others have registered"),
+    ),
+    CountWords(
+        _("Seven registrations so far. Be the next one?"),
+        _("You and six others have registered"),
+    ),
+    CountWords(
+        _("Eight registrations so far. Be the next one?"),
+        _("You and seven others have registered"),
+    ),
+    CountWords(
+        _("Nine registrations so far. Be the next one?"),
+        _("You and eight others have registered"),
+    ),
+    CountWords(
+        _("Ten registrations so far. Be the next one?"),
+        _("You and nine others have registered"),
+    ),
+]
+
+
+def get_registration_text(count, registered=False):
+    if count <= 10:
+        if registered:
+            return registration_count_messages[count].registered
+        else:
+            return registration_count_messages[count].unregistered
+    else:
+        if registered:
+            return _("You and {num} others have registered").format(num=count - 1)
+        else:
+            return _("{num} registrations so far. Be the next one?").format(num=count)
+
 
 def project_data(project):
     return {
@@ -83,11 +141,13 @@ def project_data(project):
         'bg_image': project.bg_image.url if project.bg_image is not None else "",
         'calendar_weeks_full': project.calendar_weeks_full,
         'calendar_weeks_compact': project.calendar_weeks_compact,
+        'rsvp_count_going': project.rsvp_count_going,
+        'registration_header_text': project.views.registration_text(),
     }
 
 
-@Project.features('has_rsvp')
-def project_has_rsvp(obj):
+@Project.features('rsvp')
+def feature_project_rsvp(obj):
     return (
         obj.schedule_state.PUBLISHED
         and (
@@ -99,8 +159,8 @@ def project_has_rsvp(obj):
     )
 
 
-@Project.features('has_tickets')
-def project_has_tickets(obj):
+@Project.features('tickets')
+def feature_project_tickets(obj):
     return (
         obj.schedule_state.PUBLISHED
         and obj.boxoffice_data is not None
@@ -110,19 +170,38 @@ def project_has_tickets(obj):
     )
 
 
-@Project.features('has_tickets_or_rsvp')
-def project_has_tickets_or_rsvp(obj):
-    return obj.features.has_tickets() or obj.features.has_rsvp()
+@Project.features('tickets_or_rsvp')
+def feature_project_tickets_or_rsvp(obj):
+    return obj.features.tickets() or obj.features.rsvp()
+
+
+@Project.features('rsvp_unregistered')
+def feature_project_register(obj):
+    rsvp = obj.rsvp_for(current_auth.user)
+    return rsvp is None or not rsvp.state.YES
+
+
+@Project.features('rsvp_registered')
+def feature_project_deregister(obj):
+    rsvp = obj.rsvp_for(current_auth.user)
+    return rsvp is not None and rsvp.state.YES
 
 
 @Project.features('schedule_no_sessions')
-def project_has_no_sessions(obj):
+def feature_project_has_no_sessions(obj):
     return obj.schedule_state.PUBLISHED and not obj.schedule_start_at
 
 
 @Project.features('comment_new')
-def project_comment_new(obj):
+def feature_project_comment_new(obj):
     return obj.current_roles.participant is True
+
+
+@Project.views('registration_text')
+def project_registration_text(obj):
+    return get_registration_text(
+        count=obj.rsvp_count_going, registered=obj.features.rsvp_registered()
+    )
 
 
 @Profile.views('project_new')
@@ -185,6 +264,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj,
             'current_rsvp': current_rsvp,
+            'csrf_form': forms.Form(),
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
@@ -201,6 +281,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('videos')
@@ -212,6 +293,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('json')
@@ -453,6 +535,37 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             flash(_("This response is not valid"), 'error')
         return redirect(self.obj.url_for(), code=303)
 
+    @route('register', methods=['POST'])
+    @requires_login
+    def register(self):
+        form = forms.Form()
+        if form.validate_on_submit():
+            rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
+            if not rsvp.state.YES:
+                rsvp.rsvp_yes()
+                db.session.commit()
+                flash(_("You have successfully registered"), 'success')
+        else:
+            flash(_("There was a problem registering. Please try again"), 'error')
+        return redirect(get_next_url(referrer=request.referrer), code=303)
+
+    @route('deregister', methods=['POST'])
+    @requires_login
+    def deregister(self):
+        form = forms.Form()
+        if form.validate_on_submit():
+            rsvp = Rsvp.get_for(self.obj, current_auth.user)
+            if rsvp is not None and not rsvp.state.NO:
+                rsvp.rsvp_no()
+                db.session.commit()
+                flash(_("Your registration has been cancelled"), 'info')
+        else:
+            flash(
+                _("There was a problem cancelling your registration. Please try again"),
+                'error',
+            )
+        return redirect(get_next_url(referrer=request.referrer), code=303)
+
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
     @requires_login
@@ -574,7 +687,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'profile': self.obj.profile,
             'project': self.obj,
             'events': self.obj.events,
-            'csrf_form': csrf_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('settings', methods=['GET', 'POST'])
@@ -592,6 +705,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('comments', methods=['GET'])
@@ -615,6 +729,7 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             'comments': comments,
             'commentform': commentform,
             'delcommentform': delcommentform,
+            'csrf_form': forms.Form(),
         }
 
 
