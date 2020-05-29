@@ -142,7 +142,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         lazy='joined',
         cascade='all',
         single_parent=True,
-        backref=db.backref("project", uselist=False),
+        backref=db.backref('project', uselist=False),
     )
 
     parent_id = db.Column(
@@ -208,17 +208,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     featured_sessions = db.relationship(
         'Session',
-        order_by="Session.start_at.asc()",
+        order_by='Session.start_at.asc()',
         primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)',
     )
     scheduled_sessions = db.relationship(
         'Session',
-        order_by="Session.start_at.asc()",
+        order_by='Session.start_at.asc()',
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)',
     )
     unscheduled_sessions = db.relationship(
         'Session',
-        order_by="Session.start_at.asc()",
+        order_by='Session.start_at.asc()',
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)',
     )
 
@@ -257,6 +257,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'profile',
             },
             'call': {
+                'short_title',
                 'features',
                 'url_for',
                 'current_sessions',
@@ -347,7 +348,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def __repr__(self):
         return '<Project %s/%s "%s">' % (
-            self.profile.name if self.profile else "(none)",
+            self.profile.name if self.profile else '(none)',
             self.name,
             self.title,
         )
@@ -395,27 +396,27 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
         Only ``schedule_start_at`` format changes.
         """
-        daterange = ""
+        daterange = ''
         if self.schedule_start_at is not None and self.schedule_end_at is not None:
             schedule_start_at_date = self.schedule_start_at_localized.date()
             schedule_end_at_date = self.schedule_end_at_localized.date()
-            daterange_format = "{start_date}–{end_date} {year}"
+            daterange_format = '{start_date}–{end_date} {year}'
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
-                strf_date = ""
-                daterange_format = "{end_date} {year}"
+                strf_date = ''
+                daterange_format = '{end_date} {year}'
             elif schedule_start_at_date.year != schedule_end_at_date.year:
                 # if the start date and end dates are in different years,
-                strf_date = "%d %b %Y"
+                strf_date = '%d %b %Y'
             elif schedule_start_at_date.month != schedule_end_at_date.month:
                 # If multi-day event across months
-                strf_date = "%d %b"
+                strf_date = '%d %b'
             elif schedule_start_at_date.month == schedule_end_at_date.month:
                 # If multi-day event in same month
-                strf_date = "%d"
+                strf_date = '%d'
             daterange = daterange_format.format(
                 start_date=schedule_start_at_date.strftime(strf_date),
-                end_date=schedule_end_at_date.strftime("%d %b"),
+                end_date=schedule_end_at_date.strftime('%d %b'),
                 year=schedule_end_at_date.year,
             )
         return ', '.join([_f for _f in [daterange, self.location] if _f])
@@ -461,13 +462,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'HAS_PROPOSALS',
         cfp_state.EXISTS,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
-        label=('has_proposals', __("Has Proposals")),
+        label=('has_proposals', __("Has proposals")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.EXISTS,
         lambda project: db.session.query(project.sessions.exists()).scalar(),
-        label=('has_sessions', __("Has Sessions")),
+        label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
         'PRIVATE_DRAFT',
@@ -708,14 +709,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'day_start_at': (
                         session_dates_dict[date]['day_start_at']
                         .astimezone(self.timezone)
-                        .strftime("%I:%M %p")
+                        .strftime('%I:%M %p')
                         if date in session_dates_dict.keys()
                         else None
                     ),
                     'day_end_at': (
                         session_dates_dict[date]['day_end_at']
                         .astimezone(self.timezone)
-                        .strftime("%I:%M %p %Z")
+                        .strftime('%I:%M %p %Z')
                         if date in session_dates_dict.keys()
                         else None
                     ),
@@ -1003,7 +1004,7 @@ Profile.draft_projects_for = (
 
 
 class ProjectRedirect(TimestampMixin, db.Model):
-    __tablename__ = "project_redirect"
+    __tablename__ = 'project_redirect'
 
     profile_id = db.Column(
         None, db.ForeignKey('profile.id'), nullable=False, primary_key=True
@@ -1023,7 +1024,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
         return '<ProjectRedirect %s/%s: %s>' % (
             self.profile.name,
             self.name,
-            self.project.name if self.project else "(none)",
+            self.project.name if self.project else '(none)',
         )
 
     def redirect_view_args(self):
