@@ -234,6 +234,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'name',
                 'title',
                 'title_inline',
+                'short_title',
                 'tagline',
                 'datelocation',
                 'timezone',
@@ -257,7 +258,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'profile',
             },
             'call': {
-                'short_title',
                 'features',
                 'url_for',
                 'current_sessions',
