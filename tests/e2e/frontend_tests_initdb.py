@@ -17,19 +17,21 @@ def init_models():
 
         profile_owner = User(username='profile-cypress', fullname='profile-cypress')
         profile_owner._set_password('cypress123_st')
-        profile_owner_email = UserEmail(email='profileowner@example.com', user=user)
+        profile_owner_email = UserEmail(
+            email='profileowner@example.com', user=profile_owner
+        )
 
         concierge = User(username='concierge-user', fullname='concierge-user')
         concierge._set_password('cypress341_qwe')
-        concierge_email = UserEmail(email='concierge@example.com', user=user)
+        concierge_email = UserEmail(email='concierge@example.com', user=concierge)
 
         usher = User(username='usher-cypress', fullname='usher-cypress')
         usher._set_password('cypress566_yut')
-        usher_email = UserEmail(email='usher@example.com', user=user)
+        usher_email = UserEmail(email='usher@example.com', user=usher)
 
         editor = User(username='editor-cypress', fullname='editor-cypress')
         editor._set_password('cypress900_ghy')
-        editor_email = UserEmail(email='editor@example.com', user=user)
+        editor_email = UserEmail(email='editor@example.com', user=editor)
 
         db.session.add_all(
             [
