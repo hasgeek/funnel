@@ -105,6 +105,22 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     }
 
     __datasets__ = {
+        'primary': {
+            'uuid_b58',
+            'title',
+            'speaker',
+            'user',
+            'featured',
+            'description',
+            'speaker_bio',
+            'start_at',
+            'end_at',
+            'venue_room',
+            'is_break',
+            'banner_image_url',
+            'start_at_localized',
+            'end_at_localized',
+        },
         'without_parent': {
             'uuid_b58',
             'title',
