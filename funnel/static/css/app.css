@@ -1656,6 +1656,13 @@ html.touch .collapsible__body--disable {
   line-height: 29px;
 }
 
+.card--spotlight .card__calendar--compact .calendar .calendar__weekdays .calendar__weekdays__dates .calendar__weekdays__dates__icon--left {
+  left: -35px;
+}
+.card--spotlight .card__calendar--compact .calendar .calendar__weekdays .calendar__weekdays__dates .calendar__weekdays__dates__icon--right {
+  right: -35px;
+}
+
 .card--upcoming {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
@@ -1968,17 +1975,18 @@ html.touch .collapsible__body--disable {
   padding: 0 8px 0 0;
   height: 20px;
 }
-.project-banner .project-banner__footer .bookmark .txt {
+.project-banner .project-banner__footer .bookmark .txt,
+.project-banner .project-banner__footer .bookmark .login-txt {
   position: relative;
-  top: -2px;
+  top: -1px;
 }
 .project-banner .project-banner__footer .share {
   border-right: none;
 }
-.project-banner .project-banner__footer .bookmark span.txt,
+.project-banner .project-banner__footer .bookmark span.login-txt,
 .project-banner .project-banner__footer .add-calendar span.txt,
 .project-banner .project-banner__footer .share span.txt {
-  padding-right: 2px;
+  padding-right: 5px;
 }
 .project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
   margin: 0;
@@ -1986,9 +1994,6 @@ html.touch .collapsible__body--disable {
 .project-banner .project-banner__footer .mui-dropdown__menu {
   min-width: auto;
   z-index: 1003;
-}
-.project-banner .livestream-box .project-banner__footer {
-  padding: 0;
 }
 .project-banner .project-details__box {
   margin-top: 15px;
@@ -2010,19 +2015,27 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-details__box .propose {
   margin: 8px 0 0;
-  padding-top: 15px;
-  padding-bottom: 15px;
 }
 .project-banner .project-details__box .propose .propose__btn {
   background-color: #202d3c;
   color: #fff;
-  margin-bottom: 0;
+  margin-bottom: 8px;
+}
+.project-banner .project-details__box .propose .propose__txt {
+  font-size: 12px;
+}
+.project-banner .project-details__box .propose .propose__txt svg {
+  width: 12px;
+  height: 12px;
 }
 .project-banner .project-details__box .propose .propose__btn--strike {
   text-decoration: line-through;
 }
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
+}
+.project-banner .project-details__box--ticketbox .check-icon {
+  margin-right: 8px;
 }
 
 @media (min-width: 768px) {
@@ -2041,13 +2054,18 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__footer .bookmark {
     padding: 0 16px 0 0;
   }
-  .project-banner .project-banner__footer .bookmark span.txt,
-  .project-banner .project-banner__footer .add-calendar span.txt,
-  .project-banner .project-banner__footer .share span.txt {
+  .project-banner .project-banner__footer .bookmark span.txt {
     padding-right: 5px;
   }
-  .project-banner .livestream-box .project-banner__footer {
-    padding: 0 15px;
+  .project-banner .project-details__box .propose .propose__txt {
+    font-size: 14px;
+  }
+  .project-banner .project-details__box .propose .propose__txt svg {
+    width: 14px;
+    height: 14px;
+  }
+  .project-banner .livestream-box .project-banner__box {
+    padding: 0;
   }
 }
 @media (min-width: 992px) {
@@ -2065,7 +2083,7 @@ html.touch .collapsible__body--disable {
     margin-top: -7px;
   }
   .project-banner .project-details__box .card__calendar {
-    margin: 0 0 25px;
+    margin: 0 0 47px;
     padding: 0 0 8px;
   }
   .project-banner .project-details__box .propose {
@@ -2097,6 +2115,14 @@ html.touch .collapsible__body--disable {
 }
 .project-section__headline {
   margin-bottom: 15px;
+}
+
+.reg-modal .reg-modal__txt {
+  margin-bottom: 16px;
+  width: calc(100% - 10px);
+}
+.reg-modal .reg-modal__btn {
+  margin-top: 20px;
 }
 
 .about {
@@ -2701,8 +2727,13 @@ html.touch .collapsible__body--disable {
 .comment .comment--content img {
   max-width: 100%;
 }
+.comment .comment--header button {
+  line-height: 1;
+  position: relative;
+  top: 3px;
+}
 .comment .comment--body {
-  margin: 10px 0 0 25px;
+  margin: 0 0 0 25px;
 }
 .comment .commenter--gravatar {
   border-radius: 50%;
@@ -2715,7 +2746,6 @@ html.touch .collapsible__body--disable {
 }
 .comment .comment--header__details {
   display: inline-block;
-  width: calc(100% - 40px);
   vertical-align: top;
   padding: 5px 0 0 5px;
 }

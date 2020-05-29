@@ -73,7 +73,7 @@
                   {{ faicon(icon='angle-up', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable mui--hide') }}
                 </div>
                 <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
-                  {% for room in venue.room_list %}
+                  {% for room in venue.rooms %}
                     <p class="ui-dragable-box" draggable="true">
                       {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
                       <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.uuid_b58}}">

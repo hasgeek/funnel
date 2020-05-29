@@ -56,17 +56,29 @@ class IndexView(ClassView):
         )
 
         return {
-            'all_projects': [p.access_for(roles={'all'}) for p in all_projects],
+            'all_projects': [
+                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in all_projects
+            ],
             'upcoming_projects': [
-                p.access_for(roles={'all'}) for p in upcoming_projects
+                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in upcoming_projects
             ],
             'open_cfp_projects': [
-                p.access_for(roles={'all'}) for p in open_cfp_projects
+                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in open_cfp_projects
             ],
             'featured_project': (
-                featured_project.access_for(roles={'all'}) if featured_project else None
+                featured_project.access_for(
+                    roles={'all'}, datasets=('primary', 'related')
+                )
+                if featured_project
+                else None
             ),
-            'past_projects': [p.access_for(roles={'all'}) for p in past_projects],
+            'past_projects': [
+                p.access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in past_projects
+            ],
             'project_save_form': SavedProjectForm(),
         }
 

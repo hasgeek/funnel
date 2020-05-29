@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from flask import abort, flash, g, jsonify, redirect, request, url_for
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
 from coaster.utils import getbool, uuid_to_base58
 from coaster.views import (
@@ -19,7 +19,7 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import ParticipantForm
 from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
-from ..utils import format_twitter_handle, make_qrcode, split_name, strip_null
+from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
 from .helpers import requires_login
@@ -79,7 +79,7 @@ def participant_checkin_data(participant, project, event):
         'checked_in': participant.checked_in,
         'ticket_type_titles': participant.ticket_type_titles,
     }
-    if {'concierge', 'usher'}.intersection(project.current_roles):
+    if not {'concierge', 'usher'}.isdisjoint(project.current_roles):
         data.update(
             {
                 'badge_url': url_for(
@@ -224,12 +224,12 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
         form = forms.Form()
         if form.validate_on_submit():
             checked_in = getbool(request.form.get('checkin'))
-            participant_ids = [strip_null(x) for x in request.form.getlist('puuid_b58')]
+            participant_ids = [abort_null(x) for x in request.form.getlist('puuid_b58')]
             for participant_id in participant_ids:
                 attendee = Attendee.get(self.obj, participant_id)
                 attendee.checked_in = checked_in
             db.session.commit()
-            if request.is_xhr:
+            if request_is_xhr():
                 return jsonify(
                     status=True, participant_ids=participant_ids, checked_in=checked_in
                 )

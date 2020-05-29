@@ -1,6 +1,6 @@
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, localize_timezone, request_is_xhr
+from baseframe import _, localize_timezone, request_is_xhr, forms
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -23,7 +23,7 @@ from ..models import (
     Session,
     db,
 )
-from ..utils import strip_null
+from ..utils import abort_null
 from .decorators import legacy_redirect
 from .helpers import localize_date, requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
@@ -167,7 +167,10 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
             'active_session': session_data(self.obj, with_modal_url='view_popup'),
             'sessions': scheduled_sessions_list,
             'timezone': self.obj.project.timezone.zone,
-            'venues': [venue.current_access() for venue in self.obj.project.venues],
+            'venues': [
+                venue.current_access(datasets=('without_parent', 'related'))
+                for venue in self.obj.project.venues
+            ],
             'rooms': {
                 room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
                 for room in self.obj.project.rooms
@@ -176,6 +179,7 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
             'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('viewsession-popup')
@@ -218,8 +222,8 @@ class SessionView(SessionViewMixin, UrlForView, ModelView):
     @route('feedback', methods=['POST'])
     @requires_permission('view')
     @requestargs(
-        ('id_type', strip_null),
-        ('userid', strip_null),
+        ('id_type', abort_null),
+        ('userid', abort_null),
         ('content', int),
         ('presentation', int),
         ('min_scale', int),
