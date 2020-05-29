@@ -65,6 +65,18 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                if not membership_form.user.data.email:
+                    # users without verified email cannot be members
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _("User does not have a verified email address"),
+                            'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
+
                 previous_membership = (
                     OrganizationMembership.query.filter(
                         OrganizationMembership.is_active
@@ -315,6 +327,17 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                if not membership_form.user.data.email:
+                    # users without verified email cannot be members
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _("User does not have a verified email address"),
+                            'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
                 previous_membership = (
                     ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
                     .filter_by(project=self.obj, user_id=membership_form.user.data.id)
