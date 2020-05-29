@@ -197,6 +197,17 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         }
     }
 
+    __datasets__ = {
+        'primary': {
+            'user',
+            'message',
+            'created_at',
+            'edited_at',
+            'absolute_url',
+            'title',
+        }
+    }
+
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
