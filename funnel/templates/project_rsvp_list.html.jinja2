@@ -1,10 +1,10 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% block title %}{% trans %}Attendee responses{% endtrans %}{% endblock %}
+{% block title %}{% trans %}View participants{% endtrans %}{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
-  <p class="mui--text-headline">{% trans %}Attendee Responses{% endtrans %}</p>
+  <p class="mui--text-headline">{% trans %}View participants{% endtrans %}</p>
 {% endblock %}
 
 {% block content %}{% with counts=project.rsvp_counts() %}
@@ -24,6 +24,7 @@
             <tr>
               <th>Name</th>
               <th>Email</th>
+              <th>Responded at</th>
             </tr>
           </thead>
           <tbody>
@@ -39,6 +40,7 @@
                     {{ rsvp.user.phone }}
                   {%- endif %}
                 </td>
+                <td data-cy="user">{{rsvp.user.updated_at|datetime}}</td>
               </tr>
             {%- else %}
               <tr><td colspan="2"><em>No users</em></td></tr>
