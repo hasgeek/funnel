@@ -196,7 +196,9 @@
                 <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
               {% endif %}
               {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
-                {{ calendarwidget(project.calendar_weeks_compact) }}
+                <div aria-label="{{ project.datelocation }}">
+                  {{ calendarwidget(project.calendar_weeks_compact) }}
+                </div>
               {% endif %}
               <h3 class="card__body__title js-truncate {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light">{{ project.tagline }}</span></h3>
               <p class="card__body__location">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
@@ -382,7 +384,9 @@
                     <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
                   {% endif %}
                   {% if project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
-                    {{ calendarwidget(project.calendar_weeks_compact) }}
+                    <div aria-label="{{ project.datelocation }}">
+                      {{ calendarwidget(project.calendar_weeks_compact) }}
+                    </div>
                   {% endif %}
                   <h3 class="card__body__title {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %} js-truncate" data-truncate-lines="3"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light">{{ project.tagline }}</span></h3>
                   <p class="card__body__location">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>

@@ -14,9 +14,46 @@
 }
 
 .icon-img {
-  width: 15px;
+  height: 18px;
+  margin-right: 16px;
   vertical-align: text-top;
 }
+
+.icon-img--smaller {
+  margin-right: 8px;
+}
+
+.login,
+.login:hover {
+  color: #FFFFFF;
+  font-size: 16px;
+  text-transform: capitalize;
+  margin-right: 8px;
+  padding: 0 16px 0 8px;
+}
+
+.login-twitter,
+.login-twitter:hover {
+  background-color: #08A0E9;
+}
+.login-google,
+.login-google:hover {
+  color: #757575;
+  background-color: #FFFFFF;
+}
+.login-linkedin,
+.login-linkedin:hover {
+  background-color: #0074B2;
+}
+.login-github,
+.login-github:hover {
+  background-color: #444444;
+}
+
+.mui-btn+.mui-btn {
+  margin-left: 0
+}
+
 
 a.loginbutton.hidden,
 .js a.loginbutton.jshidden,
