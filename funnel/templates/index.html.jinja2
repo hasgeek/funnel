@@ -48,23 +48,25 @@
 
 {% block baseheadline %}
   {%- if profile %}
-    <div class="mui-container">
-      <div class="grid hg-banner mui--bg-accent">
-        <div class="grid__col-12">
-          <a class="profile-details profile-details--center" href="{{ g.profile.url_for() }}">
-            {%- if profile.logo_url.url %}
-              <span class="profile-details__logo-wrapper"><img class="profile-details__logo_wrapper__logo" src="{{ profile.logo_url }}" alt="{{ profile.title }}"/></span>
+    <div class="hg-banner mui--bg-accent">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <a class="profile-details profile-details--center" href="{{ g.profile.url_for() }}">
+              {%- if profile.logo_url.url %}
+                <span class="profile-details__logo-wrapper"><img class="profile-details__logo_wrapper__logo" src="{{ profile.logo_url }}" alt="{{ profile.title }}"/></span>
+              {% endif %}
+              <h2 class="mui--text-display1 mui--text-bold" data-cy="profile-title">{{ profile.title }}</h2>
+            </a>
+            <div class="mui--text-headline">{{ profile.description.html }}</div>
+            {%- if profile.current_roles.admin %}
+            <p>
+              <a class="mui-btn mui-btn--primary mui-btn--raised" data-cy-btn="profile-crew" href="{{ profile.urls['members'] }}">{%- if profile.current_roles.owner %}{% trans %}Manage members{% endtrans %}{% else %}{% trans %}View members{% endtrans %}{% endif %}</a>
+              <a class="mui-btn mui-btn--secondary mui-btn--raised" data-cy-btn="edit-details" href="{{ g.profile.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
+            </p>
             {% endif %}
-            <h2 class="mui--text-display1 mui--text-bold" data-cy="profile-title">{{ profile.title }}</h2>
-          </a>
-          <div class="mui--text-headline">{{ profile.description.html }}</div>
-          {%- if profile.current_roles.admin %}
-          <p>
-            <a class="mui-btn mui-btn--primary mui-btn--raised" data-cy-btn="profile-crew" href="{{ profile.urls['members'] }}">{%- if profile.current_roles.owner %}{% trans %}Manage members{% endtrans %}{% else %}{% trans %}View members{% endtrans %}{% endif %}</a>
-            <a class="mui-btn mui-btn--secondary mui-btn--raised" data-cy-btn="edit-details" href="{{ g.profile.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a>
-          </p>
-          {% endif %}
-          <div class="mui-divider mui-divider--banner"></div>
+            <div class="mui-divider mui-divider--banner"></div>
+          </div>
         </div>
       </div>
     </div>

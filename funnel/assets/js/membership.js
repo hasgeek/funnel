@@ -24,6 +24,7 @@ const Membership = {
           if (member.is_usher) count += 1;
           return count - 1;
         },
+        getInitials: window.Baseframe.Utils.getInitials
       },
     });
 
@@ -47,6 +48,7 @@ const Membership = {
           showInfo: false,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
           isMobile: false,
+          ready: false,
         };
       },
       methods: {
@@ -76,6 +78,7 @@ const Membership = {
             if (responseData.memberships) {
               this.updateMembersList(responseData.memberships);
               this.onChange();
+              window.toastr.success(responseData.message);
             }
           };
           const onError = response => {
@@ -146,6 +149,7 @@ const Membership = {
         $('#member-form').on($.modal.CLOSE, () => {
           this.closeForm();
         });
+        this.ready = true;
       },
       created() {
         window.addEventListener('resize', this.onWindowResize);

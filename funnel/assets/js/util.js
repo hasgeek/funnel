@@ -186,34 +186,34 @@ export const Utils = {
   getElementId(htmlString) {
     return htmlString.match(/id="(.*?)"/)[1];
   },
-  formErrorHandler(formId, errorResponse) {
+  getResponseError(response) {
     let errorMsg = '';
-    // xhr readyState '4' indicates server has received the request & response is ready
-    if (errorResponse.readyState === 4) {
-      if (errorResponse.status === 500) {
-        errorMsg = 'Internal Server Error';
+
+    if (response.readyState === 4) {
+      if (response.status === 500) {
+        errorMsg = 'An internal server error occurred. Our support team has been notified and will investigate.';
       } else {
-        if (errorResponse.responseJSON.errors) {
-          window.Baseframe.Forms.showValidationErrors(
-            formId,
-            errorResponse.responseJSON.errors
-          );
-        }
-        errorMsg = errorResponse.responseJSON.message
-          ? errorResponse.responseJSON.message
-          : 'Error';
+        errorMsg = JSON.parse(response.responseText).error_description;
       }
     } else {
-      errorMsg = 'Unable to connect. Please try again.';
+      errorMsg = 'Unable to connect. Please reload and try again.';
     }
+    return errorMsg;
+  },
+  handleAjaxError(errorResponse) {
+    Utils.updateFormNonce(errorResponse.responseJSON);
+    let errorMsg = Utils.getResponseError(errorResponse);
+    window.toastr.error(errorMsg);
+    return errorMsg;
+  },
+  formErrorHandler(formId, errorResponse) {
     $(`#${formId}`)
       .find('button[type="submit"]')
       .prop('disabled', false);
     $(`#${formId}`)
       .find('.loading')
       .addClass('mui--hide');
-    Utils.updateFormNonce(errorResponse.responseJSON);
-    return errorMsg;
+    return Utils.handleAjaxError(errorResponse);
   },
   getActionUrl(formId) {
     return $(`#${formId}`).attr('action');
@@ -351,19 +351,7 @@ export const SaveProject = function({ formId, postUrl, config = {} }) {
   };
 
   const onError = function(response) {
-    let errorMsg = '';
-
-    if (response.readyState === 4) {
-      if (response.status === 500) {
-        errorMsg = 'Internal Server Error. Please reload and try again.';
-      } else {
-        errorMsg = JSON.parse(response.responseText).error_description;
-      }
-    } else {
-      errorMsg = 'Unable to connect. Please reload and try again.';
-    }
-    Utils.updateFormNonce(response.responseJSON);
-    window.toastr.error(errorMsg);
+    return Utils.handleAjaxError(response);
   };
 
   window.Baseframe.Forms.handleFormSubmit(
