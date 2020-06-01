@@ -20,7 +20,6 @@ Cypress.Commands.add('fill_login_details', (username, password) => {
   cy.server();
   cy.route('POST', '**/login').as('login');
 
-  cy.get('#showmore').click();
   cy.get('.field-username').type(username, { log: false });
   cy.get('.field-password').type(password, { log: false });
   cy.get('.form-actions')
