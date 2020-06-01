@@ -31,7 +31,7 @@
         {{ rendersubmit([(None, "Login", 'btn-primary')], "small") }}
       </form>
     {%- endwith %}{% endfor %}
-    <div id="passwordform" {%- if lastused != 'password' %} class="jshidden"{% endif %}>
+    <div id="passwordform">
       <h2 class="passwordform-heading">
         {% trans %}Or, login with a password{% endtrans %}
       </h2>
@@ -44,17 +44,4 @@
 
 {% block footerscripts %}
   {{ ajaxform('passwordlogin', request, True) }}
-  <script type="text/javascript">
-    $(function() {
-      {% if lastused != 'password' %}$("#passwordform").removeClass('jshidden').hide();{% endif %}
-      $(".mui-btn.optional").hide().removeClass('jshidden');
-      $("#showmore").click(function() {
-        $("#showmore").hide();
-        $(".mui-btn.optional").fadeToggle();
-        $("#passwordform").fadeIn();
-        $("#username").focus();
-        return false;
-      });
-    });
-  </script>
 {% endblock %}
