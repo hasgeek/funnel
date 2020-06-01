@@ -29,7 +29,7 @@ pytz==2020.1
 qrcode==6.1
 requests==2.23.0
 rq==1.4.2
-six==1.14.0
+six==1.15.0
 SQLAlchemy>=0.9
 sqlalchemy_utils==0.36.4
 tweepy==3.8.0
