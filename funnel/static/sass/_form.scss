@@ -253,7 +253,7 @@
 @media (min-width: 768px) {
   .modal-form {
     min-width: 50%;
-    min-height: 450px;
+    min-height: 80%;
     height: auto;
     border-radius: 4px;
   }
@@ -265,6 +265,8 @@
   padding: 0 10px;
   border: 1px solid rgba(132, 146, 166, 0.3);
   border-radius: 2px;
+  position: relative;
+  color: #4d5763;
 
   .mui-textfield {
     padding: 0;
@@ -275,10 +277,21 @@
     border-bottom: 0;
   }
 }
+.search--icon {
+  padding-left: 30px;
+  .search-form__icon {
+    position: absolute;
+    top: 10px;
+    left: -20px;
+  }
+}
 
-@media (min-width: 1200px) {
+@media (min-width: 768px) {
   .search.search--50 {
     width: 50%;
+  }
+  .search.search--small {
+    width: 300px;
   }
 }
 

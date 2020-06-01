@@ -35,7 +35,7 @@
               border: none;
               padding: 15px 30px 15px 35px;
               min-width: calc(100% - 60px);
-              color: #79818b;
+              color: #4d5763;
               font-size: 16px;
               outline: none;
             }
@@ -356,7 +356,7 @@
   }
 
   .sub-navbar {
-    overflow: scroll;
+    overflow: auto;
     display: flex;
     align-items: center;
     margin: 0 auto;
