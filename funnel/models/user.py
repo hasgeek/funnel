@@ -7,7 +7,6 @@ from sqlalchemy.orm import defer
 from sqlalchemy_utils import TimezoneType
 
 from werkzeug.security import check_password_hash
-from werkzeug.utils import cached_property
 
 import bcrypt
 import phonenumbers
@@ -26,6 +25,12 @@ from coaster.utils import (
 
 from . import BaseMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
+
+try:
+    from functools import cached_property
+except ImportError:
+    from werkzeug.utils import cached_property
+
 
 __all__ = [
     'USER_STATUS',
@@ -191,6 +196,16 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @property
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
+
+    @cached_property
+    def verified_contact_count(self):
+        count = 0
+        count += len(self.emails)
+        count += len(self.phones)
+        return count
+
+    def has_verified_contact_info(self):
+        return self.verified_contact_count > 0
 
     def merged_user(self):
         if self.status == USER_STATUS.MERGED:

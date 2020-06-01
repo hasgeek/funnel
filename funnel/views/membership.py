@@ -65,12 +65,14 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
-                if not membership_form.user.data.email:
+                if not membership_form.user.data.has_verified_contact_info():
                     # users without verified email cannot be members
                     return (
                         {
                             'status': 'error',
-                            'message': _("User does not have a verified email address"),
+                            'message': _(
+                                "User does not have any verified contact information"
+                            ),
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
                         },
@@ -327,12 +329,14 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
-                if not membership_form.user.data.email:
-                    # users without verified email cannot be members
+                if not membership_form.user.data.has_verified_contact_info():
+                    # users without verified contact information cannot be members
                     return (
                         {
                             'status': 'error',
-                            'message': _("User does not have a verified email address"),
+                            'message': _(
+                                "User does not have any verified contact information"
+                            ),
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
                         },

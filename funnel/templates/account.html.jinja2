@@ -91,7 +91,7 @@
                   {% if useremail.primary %}
                     <em>{% trans %}(primary){% endtrans %}</em>
                   {% endif %}
-                  {%- if not useremail.primary %}
+                  {%- if current_auth.user.verified_contact_count > 1 %}
                     <a href="{{ url_for('remove_email', md5sum=useremail.md5sum) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                   {%- endif %}
                 </li>
@@ -131,7 +131,7 @@
                     <input id="userphone-{{loop.index}}" name="phone" value="{{userphone}}" type="radio">&nbsp;
                     <label for="userphone-{{loop.index}}">{{ userphone.formatted() }}</label>
                     {% if userphone.primary %} <em>{% trans %}(primary){% endtrans %}</em> {% endif -%}
-                    {%- if not userphone.primary %}
+                    {%- if current_auth.user.verified_contact_count > 1 %}
                       <a href="{{ url_for('remove_phone', number=userphone.phone) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                     {%- endif %}
                   </li>

@@ -463,8 +463,14 @@ def remove_email(md5sum):
         useremail = UserEmailClaim.get_for(user=current_auth.user, md5sum=md5sum)
         if not useremail:
             abort(404)
-    if isinstance(useremail, UserEmail) and useremail.primary:
-        flash(_("You cannot remove your primary email address"), 'danger')
+    if (
+        isinstance(useremail, UserEmail)
+        and current_auth.user.verified_contact_count == 1
+    ):
+        flash(
+            _("You cannot remove your only verified email address or phone number"),
+            'danger',
+        )
         return render_redirect(url_for('account'), code=303)
     if request.method == 'POST':
         # FIXME: Confirm validation success
@@ -572,6 +578,15 @@ def remove_phone(number):
             )
             # Block attempts to delete this number if verification failed.
             # It needs to be deleted in a background sweep.
+            return render_redirect(url_for('account'), code=303)
+        if (
+            isinstance(userphone, UserPhone)
+            and current_auth.user.verified_contact_count == 1
+        ):
+            flash(
+                _("You cannot remove your only verified email address or phone number"),
+                'danger',
+            )
             return render_redirect(url_for('account'), code=303)
 
     if request.method == 'POST':
