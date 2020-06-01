@@ -62,14 +62,14 @@
             <ol class="mui-list--aligned mui-list--border">
               {% for extid in current_auth.user.externalids %}
                 <li>
-                  <img src="{{ url_for('static', filename='img/' + extid.service + '.svg') }}" class="icon-img " alt="{{ extid.service }}" title="{{ extid.service }}"/>&nbsp;{{ extid.username }}&nbsp;<small><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small>
+                  {{ faicon(icon=extid.service, icon_size='body1', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}{{ extid.username }}&nbsp;<small><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
               {% endfor %}
             </ol>
             <p>{% trans %}Add External ID{% endtrans %}</p>
             {% for provider in login_registry %}
-              <a class="mui-btn mui-btn--small mui-btn--primary login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.png') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}"/> {{ login_registry[provider]['title'] }}</a>
+              <a class="mui-btn mui-btn--small mui-btn--raised login login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}"/> {{ login_registry[provider]['title'] }}</a>
             {% endfor %}
           </div>
         </div>

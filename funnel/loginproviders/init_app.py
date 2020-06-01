@@ -9,6 +9,17 @@ from .twitter import TwitterProvider
 
 def init_app(app):
     # Register some login providers
+    if app.config.get('OAUTH_GOOGLE_KEY') and app.config.get('OAUTH_GOOGLE_SECRET'):
+        login_registry['google'] = GoogleProvider(
+            'google',
+            __("Google"),
+            client_id=app.config['OAUTH_GOOGLE_KEY'],
+            secret=app.config['OAUTH_GOOGLE_SECRET'],
+            scope=app.config.get('OAUTH_GOOGLE_SCOPE', ['email', 'profile']),
+            at_login=True,
+            priority=True,
+            icon='google',
+        )
     if app.config.get('OAUTH_TWITTER_KEY') and app.config.get('OAUTH_TWITTER_SECRET'):
         login_registry['twitter'] = TwitterProvider(
             'twitter',
@@ -20,17 +31,6 @@ def init_app(app):
             secret=app.config['OAUTH_TWITTER_SECRET'],
             access_key=app.config.get('OAUTH_TWITTER_ACCESS_KEY'),
             access_secret=app.config.get('OAUTH_TWITTER_ACCESS_SECRET'),
-        )
-    if app.config.get('OAUTH_GOOGLE_KEY') and app.config.get('OAUTH_GOOGLE_SECRET'):
-        login_registry['google'] = GoogleProvider(
-            'google',
-            __("Google"),
-            client_id=app.config['OAUTH_GOOGLE_KEY'],
-            secret=app.config['OAUTH_GOOGLE_SECRET'],
-            scope=app.config.get('OAUTH_GOOGLE_SCOPE', ['email', 'profile']),
-            at_login=True,
-            priority=True,
-            icon='google',
         )
     if app.config.get('OAUTH_LINKEDIN_KEY') and app.config.get('OAUTH_LINKEDIN_SECRET'):
         login_registry['linkedin'] = LinkedInProvider(
