@@ -66,7 +66,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
         if request.method == 'POST':
             if membership_form.validate_on_submit():
                 if not membership_form.user.data.has_verified_contact_info():
-                    # users without verified email cannot be members
+                    # users without verified contact information cannot be members
                     return (
                         {
                             'status': 'error',
