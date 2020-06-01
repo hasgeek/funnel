@@ -1,9 +1,15 @@
-from flask import abort, redirect, render_template, request, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, requires_permission, route
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    get_next_url,
+    requires_permission,
+    route,
+)
 
 from .. import app
 from ..forms import OrganizationForm, TeamForm
@@ -38,6 +44,16 @@ class OrgView(UrlForView, ModelView):
 
     @route('/new', methods=['GET', 'POST'])
     def new(self):
+        if not current_auth.user.has_verified_contact_info():
+            flash(
+                _(
+                    "You need to have at least one verified email address "
+                    "or phone number to create an organization"
+                ),
+                'error',
+            )
+            return redirect(get_next_url(referrer=True), code=303)
+
         form = OrganizationForm()
         if form.validate_on_submit():
             org = Organization(owner=current_auth.user)
