@@ -26,7 +26,7 @@ describe('Adding crew to profile', function() {
     cy.get('button[data-cy-btn="revoke"]').click();
     cy.wait('@delete-form');
     cy.get('button')
-      .contains('Delete')
+      .contains('Remove')
       .click();
     cy.wait('@delete-member');
     cy.get('[data-cy="member"]')
