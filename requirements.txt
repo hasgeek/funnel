@@ -31,6 +31,6 @@ requests==2.23.0
 rq==1.4.2
 six==1.15.0
 SQLAlchemy>=0.9
-sqlalchemy_utils==0.36.4
+sqlalchemy_utils==0.36.6
 tweepy==3.8.0
 user-agents==2.1
