@@ -98,6 +98,11 @@
           {{ alertbox('warning', 'This project will not be listed as it has no sessions in the schedule') }}
         </div>
       {% endif %}
+      {% if project.view_for('view').is_available() and not project.PUBLISHED %}
+      <div class="grid__col-sm-12">
+        {{ alertbox('warning', 'This project is currently not published.') }}
+      </div>
+      {% endif %}
       <div class="grid__col-sm-12">
         <div class="profile-details">
           {%- if project.profile.logo_url.url %}
