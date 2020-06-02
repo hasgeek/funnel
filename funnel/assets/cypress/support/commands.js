@@ -16,6 +16,13 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.fill_login_details(username, password);
 });
 
+Cypress.Commands.add('logout', (route) => {
+  cy.get('#hgnav').find('a[data-cy="account-link"]').click();
+  cy.wait(1000)
+  cy.get('a[data-cy="my-account"]').click();
+  cy.get('a[data-cy="Logout"]').click();
+});
+
 Cypress.Commands.add('fill_login_details', (username, password) => {
   cy.server();
   cy.route('POST', '**/login').as('login');
@@ -29,7 +36,7 @@ Cypress.Commands.add('fill_login_details', (username, password) => {
   cy.wait('@login', { timeout: 20000 });
 });
 
-Cypress.Commands.add('add_member', (username, role) => {
+Cypress.Commands.add('add_member', (username, role, fail=false) => {
   cy.server();
   cy.route('**/new').as('member-form');
   cy.route('POST', '**/new').as('add-member');
@@ -52,12 +59,18 @@ Cypress.Commands.add('add_member', (username, role) => {
     .contains('Add member')
     .click();
   cy.wait('@add-member');
-  var roleString = role[0].toUpperCase() + role.slice(1);
-  cy.get('[data-cy="member"]')
-    .contains(username)
-    .parents('.user-box')
-    .find('[data-cy="role"]')
-    .contains(roleString);
+
+  if (!fail) {
+    var roleString = role[0].toUpperCase() + role.slice(1);
+    cy.get('[data-cy="member"]')
+      .contains(username)
+      .parents('.user-box')
+      .find('[data-cy="role"]')
+      .contains(roleString);
+  } else {
+    cy.get('p.mui--text-danger').should('visible');
+  }
+
 });
 
 Cypress.Commands.add('checkin', participant => {

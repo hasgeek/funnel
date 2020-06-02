@@ -33,6 +33,9 @@ def init_models():
         editor._set_password('cypress900_ghy')
         editor_email = UserEmail(email='editor@example.com', user=editor)
 
+        user2 = User(username='hg-user', fullname='hg-user')
+        user2._set_password('cypress5678y9')
+
         db.session.add_all(
             [
                 user_admin,
@@ -47,6 +50,7 @@ def init_models():
                 usher_email,
                 editor,
                 editor_email,
+                user2
             ]
         )
         db.session.commit()

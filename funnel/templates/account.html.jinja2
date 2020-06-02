@@ -49,7 +49,7 @@
           <div class="card__footer">
             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}" title="Edit">{% trans %}Edit{% endtrans %}</a>
             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('change_password') }}" title="Change password">{% trans %}Change password{% endtrans %}</a>
-             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout">{% trans %}Logout{% endtrans %}</a>
+             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout" data-cy="Logout">{% trans %}Logout{% endtrans %}</a>
           </div>
         </div>
       </div>

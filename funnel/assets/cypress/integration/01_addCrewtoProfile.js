@@ -2,6 +2,7 @@ describe('Adding crew to profile', function() {
   const owner = require('../fixtures/user.json').owner;
   const admin = require('../fixtures/user.json').admin;
   const profile = require('../fixtures/profile.json');
+  const hguser = require('../fixtures/user.json').hguser;
 
   Cypress.on('uncaught:exception', (err, runnable) => {
     return false;
@@ -48,5 +49,8 @@ describe('Adding crew to profile', function() {
       .parents('.user-box')
       .find('[data-cy="role"]')
       .contains('Admin');
+
+    cy.add_member(hguser.username, 'owner', fail=true);
+
   });
 });

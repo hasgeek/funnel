@@ -4,6 +4,7 @@ describe('Adding crew', function() {
   const concierge = require('../fixtures/user.json').concierge;
   const usher = require('../fixtures/user.json').usher;
   const editor = require('../fixtures/user.json').editor;
+  const hguser = require('../fixtures/user.json').hguser;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
@@ -27,5 +28,6 @@ describe('Adding crew', function() {
     cy.add_member(concierge.username, 'concierge');
     cy.add_member(usher.username, 'usher');
     cy.add_member(editor.username, 'editor');
+    cy.add_member(hguser.username, 'usher', fail=true);
   });
 });
