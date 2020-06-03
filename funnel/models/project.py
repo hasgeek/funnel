@@ -200,7 +200,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     labels = db.relationship(
         'Label',
         cascade='all',
-        primaryjoin='and_(Label.project_id == Project.id, Label.main_label_id == None, Label._archived == False)',
+        primaryjoin=(
+            'and_(Label.project_id == Project.id, Label.main_label_id == None,'
+            ' Label._archived == False)'
+        ),
         order_by='Label.seq',
         collection_class=ordering_list('seq', count_from=1),
     )
@@ -499,10 +502,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     cfp_state.add_conditional_state(
         'OPEN',
         cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None
-        and project.cfp_start_at <= utcnow()
-        and (project.cfp_end_at is None or utcnow() < project.cfp_end_at),
+        lambda project: (
+            project.state.PUBLISHED
+            and project.cfp_start_at is not None
+            and project.cfp_start_at <= utcnow()
+            and (project.cfp_end_at is None or utcnow() < project.cfp_end_at)
+        ),
         lambda project: db.and_(
+            project.state.PUBLISHED,
             project.cfp_start_at.isnot(None),
             project.cfp_start_at <= db.func.utcnow(),
             db.or_(project.cfp_end_at.is_(None), db.func.utcnow() < project.cfp_end_at),
