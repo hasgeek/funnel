@@ -122,7 +122,7 @@ class EmailAddress(BaseMixin, db.Model):
         return (
             hashlib.md5(  # NOQA: S303 # skipcq: PTC-W1003 # nosec
                 self.email_lower.encode()
-            )
+            ).hexdigest()
             if self.email_lower
             else None
         )
