@@ -226,7 +226,8 @@ def account_edit(newprofile=False):
             )
             flash(
                 _(
-                    "Your profile has been updated. We sent you an email to confirm your address"
+                    "Your profile has been updated. We sent you an email to confirm"
+                    " your address"
                 ),
                 category='success',
             )
@@ -247,7 +248,8 @@ def account_edit(newprofile=False):
             submit=_("Continue"),
             message=Markup(
                 _(
-                    "Hello, <strong>{fullname}</strong>. Please spare a minute to fill out your profile"
+                    "Hello, <strong>{fullname}</strong>. Please spare a minute to fill"
+                    " out your profile"
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
             ajax=True,
@@ -282,7 +284,8 @@ def confirm_email(md5sum, secret):
                         title=_("Email address already claimed"),
                         message=Markup(
                             _(
-                                "The email address <code>{email}</code> has already been verified by another user"
+                                "The email address <code>{email}</code> has already"
+                                " been verified by another user"
                             ).format(email=escape(claimed_email))
                         ),
                     )
@@ -291,8 +294,8 @@ def confirm_email(md5sum, secret):
                         title=_("Email address already verified"),
                         message=Markup(
                             _(
-                                "Hello <strong>{fullname}</strong>! "
-                                "Your email address <code>{email}</code> has already been verified"
+                                "Hello <strong>{fullname}</strong>! Your email address"
+                                " <code>{email}</code> has already been verified"
                             ).format(
                                 fullname=escape(claimed_user.fullname),
                                 email=escape(claimed_email),
@@ -326,9 +329,9 @@ def confirm_email(md5sum, secret):
             return render_message(
                 title=_("This was not for you"),
                 message=_(
-                    "You’ve opened an email verification link that was meant for another user. "
-                    "If you are managing multiple accounts, please login with the correct account "
-                    "and open the link again"
+                    "You’ve opened an email verification link that was meant for"
+                    " another user. If you are managing multiple accounts, please login"
+                    " with the correct account and open the link again"
                 ),
                 code=403,
             )
@@ -468,7 +471,10 @@ def remove_email(md5sum):
         and current_auth.user.verified_contact_count == 1
     ):
         flash(
-            _("You cannot remove your only verified email address or phone number"),
+            _(
+                "Your account requires at least one verified email address or phone"
+                " number"
+            ),
             'danger',
         )
         return render_redirect(url_for('account'), code=303)
@@ -572,7 +578,8 @@ def remove_phone(number):
         if userphone.verification_expired:
             flash(
                 _(
-                    "This number has been blocked due to too many failed verification attempts"
+                    "This number has been blocked due to too many failed verification"
+                    " attempts"
                 ),
                 'danger',
             )
@@ -584,7 +591,10 @@ def remove_phone(number):
             and current_auth.user.verified_contact_count == 1
         ):
             flash(
-                _("You cannot remove your only verified email address or phone number"),
+                _(
+                    "Your account requires at least one verified email address or phone"
+                    " number"
+                ),
                 'danger',
             )
             return render_redirect(url_for('account'), code=303)
@@ -667,7 +677,8 @@ def remove_extid(extid):
     if not has_pw_hash and num_extids == 1:
         flash(
             _(
-                "You do not have a password set. So you must have at least one external ID enabled."
+                "You do not have a password set. So you must have at least one external"
+                " ID enabled."
             ),
             'danger',
         )

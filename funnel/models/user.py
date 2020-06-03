@@ -7,6 +7,7 @@ from sqlalchemy.orm import defer
 from sqlalchemy_utils import TimezoneType
 
 from werkzeug.security import check_password_hash
+from werkzeug.utils import cached_property
 
 import bcrypt
 import phonenumbers
@@ -25,12 +26,6 @@ from coaster.utils import (
 
 from . import BaseMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
-
-try:
-    from functools import cached_property
-except ImportError:
-    from werkzeug.utils import cached_property
-
 
 __all__ = [
     'USER_STATUS',

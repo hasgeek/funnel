@@ -71,7 +71,10 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         {
                             'status': 'error',
                             'message': _(
-                                "User does not have any verified contact information"
+                                "This user does not have any verified contact"
+                                " information. If you are able to contact them, please"
+                                " ask them to verify their email address or phone"
+                                " number"
                             ),
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
@@ -335,7 +338,10 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         {
                             'status': 'error',
                             'message': _(
-                                "User does not have any verified contact information"
+                                "This user does not have any verified contact"
+                                " information. If you are able to contact them, please"
+                                " ask them to verify their email address or phone"
+                                " number"
                             ),
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
