@@ -1,5 +1,5 @@
-from hashlib import sha256
 from typing import Optional
+import hashlib
 
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -8,7 +8,7 @@ from sqlalchemy.orm.attributes import NEVER_SET, NO_VALUE
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import ImmutableColumnError, immutable
-from coaster.utils import LabeledEnum, md5sum, require_one_of
+from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import email_address_activity
 from . import BaseMixin, db
@@ -58,7 +58,7 @@ def make_email_sha256(email: str) -> str:
     for tables constructed with the same prefix. We depend on this prefix being
     unusual for such tables.
     """
-    return sha256(('mailto:' + email).encode('utf-8')).hexdigest()
+    return hashlib.sha256(('mailto:' + email).encode('utf-8')).hexdigest()
 
 
 class EmailAddress(BaseMixin, db.Model):
@@ -79,9 +79,6 @@ class EmailAddress(BaseMixin, db.Model):
     email = db.Column(db.Unicode(254), nullable=True)
 
     # email_lower is defined below
-
-    #: Column containing MD5 hash of :property:`email_lower`, used via :property:`md5`
-    _md5 = db.Column('md5', db.Column(db.Unicode(32)), nullable=True, index=True)
 
     #: SHA256 hash of :property:`email_lower`. Kept permanently even if email is removed
     sha256 = immutable(db.Column(db.Unicode(64), nullable=False, unique=True))
@@ -111,26 +108,27 @@ class EmailAddress(BaseMixin, db.Model):
             postgresql_ops={'email_lower': 'varchar_pattern_ops'},
         ),
         db.CheckConstraint(
-            db.or_(
-                db.and_(email.is_(None), _md5.is_(None)),
-                db.and_(email.isnot(None), _md5.isnot(None), is_blocked.isnot(True)),
-            ),
-            'email_address_email_md5_is_blocked_check',
+            db.and_(email.isnot(None), is_blocked.isnot(True)),
+            'email_address_email_is_blocked_check',
         ),
         db.CheckConstraint(delivery_state.in_(EMAIL_DELIVERY_STATE.keys())),
     )
 
-    @hybrid_property
-    def md5(self):
+    @cached_property
+    def md5(self) -> Optional[str]:
         """
-        MD5 hash of :attr:`email_lower`.
-
-        For legacy use. Not secure, therefore not expected to be unique.
+        MD5 hash of :attr:`email_lower`, for legacy use only.
         """
-        return self._md5
+        return (
+            hashlib.md5(  # NOQA: S303 # skipcq: PTC-W1003 # nosec
+                self.email_lower.encode()
+            )
+            if self.email_lower
+            else None
+        )
 
     @hybrid_property
-    def email_lower(self):
+    def email_lower(self) -> Optional[str]:
         """
         Lowercase representation of the email address.
 
@@ -144,11 +142,11 @@ class EmailAddress(BaseMixin, db.Model):
         return self.email.lower() if self.email else None
 
     @email_lower.expression
-    def email_lower(self):
+    def email_lower(self):  # TODO: Type hint
         return db.func.lower(self.email)  # SQL lower() can handle email being null
 
     @cached_property
-    def email_canonical(self):
+    def email_canonical(self) -> Optional[str]:
         """
         Email address with the ``+suffix`` portion of the mailbox removed.
 
@@ -168,37 +166,58 @@ class EmailAddress(BaseMixin, db.Model):
         return f'EmailAddress({self.email!r})'
 
     def __init__(self, email: str) -> None:
-        self.email = email  # This also sets md5
+        self.email = email
         self.sha256 = make_email_sha256(self.email_lower)
         self.sha256_canonical = make_email_sha256(self.email_canonical)
 
-    def mark_sent(self):
+    def mark_sent(self) -> None:
         """Record fact of an email message being sent to this address."""
         self.delivery_state = EMAIL_DELIVERY_STATE.NORMAL
         self.delivery_state_at = db.func.utcnow()
         email_address_activity.send(self)
 
-    def mark_active(self):
+    def mark_active(self) -> None:
         """Record fact of recipient activity."""
         self.delivery_state = EMAIL_DELIVERY_STATE.ACTIVE
         self.delivery_state_at = db.func.utcnow()
         email_address_activity.send(self)
 
-    def mark_soft_bounce(self):
+    def mark_soft_bounce(self) -> None:
         """Record fact of a soft bounce to this email address."""
         self.delivery_state = EMAIL_DELIVERY_STATE.SOFT_BOUNCE
         self.delivery_state_at = db.func.utcnow()
         email_address_activity.send(self)
 
-    def mark_hard_bounce(self):
+    def mark_hard_bounce(self) -> None:
         """Record fact of a soft bounce to this email address."""
         self.delivery_state = EMAIL_DELIVERY_STATE.HARD_BOUNCE
         self.delivery_state_at = db.func.utcnow()
         email_address_activity.send(self)
 
-    def mark_forgotten(self):
-        """Forget an email address by blanking out email and md5 columns."""
+    def mark_forgotten(self) -> None:
+        """Forget an email address by blanking out email column."""
         self.email = None
+
+    @classmethod
+    def get(
+        cls,
+        email: Optional[str] = None,
+        sha256: Optional[str] = None,
+        sha256_canonical: Optional[str] = None,
+    ) -> 'Optional(EmailAddress)':
+        """
+        Get an :class:`EmailAddress` instance using any one of the indexed columns.
+
+        The current implementation adds a fixed salt to sha256 columns. The input
+        parameter must be made using the same salt.
+        """
+        require_one_of(email=email, sha256=sha256, sha256_canonical=sha256_canonical)
+        if email:
+            return cls.query.filter_by(email_lower=db.func.lower(email)).one_or_none()
+        elif sha256:
+            return cls.query.filter_by(sha256=sha256).one_or_none()
+        elif sha256_canonical:
+            return cls.query.filter_by(sha256_canonical=sha256_canonical).one_or_none()
 
     @classmethod
     def add(cls, email: str) -> 'EmailAddress':
@@ -219,36 +238,24 @@ class EmailAddress(BaseMixin, db.Model):
         """
         pass  # TODO
 
-    @classmethod
-    def get(
-        cls,
-        email: Optional[str] = None,
-        md5: Optional[str] = None,
-        sha256: Optional[str] = None,
-        sha256_canonical: Optional[str] = None,
-    ) -> 'EmailAddress':
-        """
-        Get an :class:`EmailAddress` instance using any one of the indexed columns.
-
-        The current implementation adds a fixed salt to sha256 columns. The input
-        parameter must be made using the same salt.
-        """
-        require_one_of(
-            email=email, md5=md5, sha256=sha256, sha256_canonical=sha256_canonical
-        )
-        if email:
-            return cls.query.filter_by(email_lower=db.func.lower(email)).one_or_none()
-        elif md5:
-            # Note: This will fail in the unlikely scenario of an MD5 collision
-            return cls.query.filter_by(md5=md5).one_or_none()
-        elif sha256:
-            return cls.query.filter_by(sha256=sha256).one_or_none()
-        elif sha256_canonical:
-            return cls.query.filter_by(sha256_canonical=sha256_canonical).one_or_none()
+    # TODO: validate_for that's like add_for minus the adding, for form validation
 
     # TODO: Blacklisted state marker and transition
     # TODO: user_bound_via = relationship(UserEmail), defined as a backref from there,
     # and user_bound_to as an association_proxy to User model
+
+    @classmethod
+    def validate_for(cls, user: 'User', email: str) -> Optional[str]:
+        """
+        Validate whether the specified email address is available to the specified user.
+
+        Returns None if available or a string describing the concern if not. Possible
+        return values:
+
+        1. 'assigned' indicating it has been assigned to another user
+        1. 'blocked' indicating it h
+        2. 'soft_bounce'
+        """
 
 
 @event.listens_for(EmailAddress.email, 'set')
@@ -274,13 +281,10 @@ def _validate_email(target, value, old_value, initiator):
         raise ImmutableColumnError('EmailAddress', 'email', old_value, value)
 
     # All clear? Now check what we have
-    if value is None:
-        target._md5 = None
-    else:
+    if value is not None:
         hashed = make_email_sha256(value.lower())
         if hashed != target.sha256:
             raise ValueError("Email address does not match existing sha256 hash")
-        target._md5 = md5sum(value.lower())
     # We don't have to set target.email because SQLAlchemy will do that for us
 
 
