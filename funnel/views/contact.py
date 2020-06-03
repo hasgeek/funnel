@@ -14,7 +14,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, funnelapp
 from ..models import ContactExchange, Participant, Project, db
-from ..utils import format_twitter_handle, abort_null
+from ..utils import abort_null, format_twitter_handle
 from .helpers import app_url_for, requires_login
 
 

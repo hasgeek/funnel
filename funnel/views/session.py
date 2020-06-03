@@ -1,6 +1,6 @@
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, localize_timezone, request_is_xhr, forms
+from baseframe import _, forms, localize_timezone, request_is_xhr
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
