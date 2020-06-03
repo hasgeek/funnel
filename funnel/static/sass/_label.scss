@@ -8,14 +8,14 @@
   }
 
   .label-box__icon--right {
-    padding: 0 15px;
+    padding: 0 $mui-grid-padding;
     box-shadow: none;
     border: none;
     cursor: pointer;
   }
 
   .label-box__heading {
-    margin: 15px 10px;
+    margin: $mui-grid-padding 10px;
     display: inline-block;
   }
 
@@ -44,7 +44,7 @@
 }
 
 .label-box--new {
-  margin: 15px auto 35px;
+  margin: $mui-grid-padding auto $mui-grid-padding-double;
   width: 100%;
   max-width: 500px;
 

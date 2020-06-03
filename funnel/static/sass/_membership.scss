@@ -4,7 +4,7 @@
   }
 
   .membership-wrapper--half + .membership-wrapper--half {
-    padding-left: 15px;
+    padding-left: $mui-grid-padding;
   }
 }
 
@@ -19,7 +19,7 @@
 }
 
 .no-member {
-  padding: 30px;
+  padding: $mui-grid-padding-double;
   .no-member__icon {
     width: 40px;
     height: 40px;
@@ -32,7 +32,7 @@
     margin: 5px 0 0;
     width: 100%;
     background: #eff2f7;
-    padding: 15px;
+    padding: $mui-grid-padding;
     cursor: pointer;
   }
   .membership-wrapper__members__collapsible__body {
@@ -42,7 +42,7 @@
   .membership-wrapper__members__list {
     border-bottom: 1px solid #ddd;
     cursor: pointer;
-    padding: 15px 0;
+    padding: $mui-grid-padding 0;
 
     .membership-wrapper__members__list__roles {
       display: inline-block;
@@ -102,7 +102,7 @@
     .membership-wrapper__members__list {
       .membership-wrapper__members__list__roles__role {
         display: inline-block !important;
-        margin-right: 16px;
+        margin-right: $mui-grid-padding;
       }
       .membership-wrapper__members__list__roles__role:last-child,
       .membership-wrapper__members__list__roles__role:nth-last-child(2) {

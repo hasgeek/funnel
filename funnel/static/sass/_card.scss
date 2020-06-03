@@ -47,11 +47,11 @@
 
     .card__body {
       position: relative;
-      padding: 30px 15px;
+      padding: $mui-grid-padding-double $mui-grid-padding;
     }
   }
   .card--spotlight--live {
-    padding: 15px;
+    padding: $mui-grid-padding;
 
     .card__image-wrapper {
       width: 300px;
@@ -60,7 +60,7 @@
 
     .card__body {
       width: 70%;
-      padding: 0 0 0 30px;
+      padding: 0 0 0 $mui-grid-padding-double;
     }
   }
 }
@@ -109,8 +109,8 @@
     position: absolute;
     color: #fff;
     top: 50%;
-    left: 16px;
-    right: 16px;
+    left: $mui-grid-padding;
+    right: $mui-grid-padding;
     text-align: center;
     font-size: 18px;
     transform: translateY(-50%);
@@ -129,7 +129,7 @@
 }
 
 .card__calendar {
-  padding: 15px 0 25px;
+  padding: $mui-grid-padding 0 25px;
 
   .calendar {
     width: 100%;
@@ -182,7 +182,7 @@
           width: calc(100% / 7);
           text-align: center;
           margin: 0;
-          padding: 10px 0 15px;
+          padding: 10px 0 $mui-grid-padding;
           background: #f9fafc;
 
           .calendar__weekdays__dates__date__day {
@@ -359,12 +359,12 @@
         }
         .calendar__weekdays__dates__icon--left {
           position: absolute;
-          left: -30px;
+          left: -$mui-grid-padding-double;
           line-height: 29px;
         }
         .calendar__weekdays__dates__icon--right {
           position: absolute;
-          right: -30px;
+          right: -$mui-grid-padding-double;
           line-height: 29px;
         }
       }
@@ -418,12 +418,12 @@
     }
   }
   .card__body {
-    padding: 0 15px 7.5px;
+    padding: 0 $mui-grid-padding 7.5px;
     position: relative;
 
     .card__body__bookmark {
       position: absolute;
-      right: 15px;
+      right: $mui-grid-padding;
       top: 11px;
       z-index: 4;
     }
@@ -439,7 +439,7 @@
 
     .card__body__title--smaller {
       margin: 0;
-      padding-top: 15px;
+      padding-top: $mui-grid-padding;
       width: calc(100% - 20px);
     }
     .card__body__location {
@@ -465,7 +465,7 @@
 .card--cfp {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 30px;
+  margin-bottom: $mui-grid-padding-double;
   background: transparent;
   max-width: 450px;
   border-radius: 16px 16px 0 16px;
@@ -518,7 +518,7 @@
   }
 
   .card__calendar {
-    padding: 15px 0;
+    padding: $mui-grid-padding 0;
     border-top: 1px solid rgba(132, 146, 166, 0.3);
     margin: 0;
   }
@@ -537,7 +537,7 @@
     .card__body {
       flex: 0 0 calc(100% - 250px);
       width: calc(100% - 250px);
-      padding: 0 0 0 15px;
+      padding: 0 0 0 $mui-grid-padding;
     }
   }
 }
@@ -553,7 +553,7 @@
       width: calc(100% - 270px);
     }
     .card__body--cfp {
-      padding: 0 0 0 15px;
+      padding: 0 0 0 $mui-grid-padding;
     }
     .card__image-wrapper--cfp {
       height: 150px;
