@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """site membership models
 
 Revision ID: 34a95ee0c3a0
