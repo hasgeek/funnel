@@ -55,7 +55,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
         open_cfp_projects = (
-            projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
+            projects.filter(Project.cfp_state.OPEN)
             .order_by(Project.schedule_start_at.asc())
             .all()
         )
