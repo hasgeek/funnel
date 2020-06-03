@@ -2122,9 +2122,6 @@ html.touch .collapsible__body--disable {
   margin-bottom: 16px;
   width: calc(100% - 10px);
 }
-.reg-modal .reg-modal__btn {
-  margin-top: 20px;
-}
 
 .about {
   padding: 0 15px;
@@ -3050,44 +3047,39 @@ html.touch .collapsible__body--disable {
     top: -18px;
   }
 }
-.session-modal {
-  max-width: 98%;
-  width: 98%;
-  vertical-align: top;
-}
-
-.session-modal--nopadding {
+.jquery-modal.blocker.current .session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
 }
-.session-modal--nopadding .modal__header {
+.jquery-modal.blocker.current .session-modal--nopadding .modal__header {
   padding: 15px 15px 5px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
-.session-modal--nopadding .modal__header .modal__header__title {
+.jquery-modal.blocker.current .session-modal--nopadding .modal__header .modal__header__title {
   margin-bottom: 5px;
   font-weight: bold;
 }
-.session-modal--nopadding .modal__header .modal__header__text {
+.jquery-modal.blocker.current .session-modal--nopadding .modal__header .modal__header__text {
   margin: 0 0 5px;
 }
-.session-modal--nopadding .modal__body {
+.jquery-modal.blocker.current .session-modal--nopadding .modal__body {
   padding: 0 15px 15px;
   word-break: break-word;
 }
-.session-modal--nopadding .modal__body .modal__body__separator {
+.jquery-modal.blocker.current .session-modal--nopadding .modal__body .modal__body__separator {
   margin: 30px -15px;
 }
-.session-modal--nopadding .modal__body .modal__body__section {
+.jquery-modal.blocker.current .session-modal--nopadding .modal__body .modal__body__section {
   margin: 30px 0;
 }
-.session-modal--nopadding .modal__body .modal__body__section .modal__body__section__text {
+.jquery-modal.blocker.current .session-modal--nopadding .modal__body .modal__body__section .modal__body__section__text {
   margin: 0 0 5px;
 }
 
 @media (min-width: 1200px) {
-  .session-modal {
+  .jquery-modal.blocker.current .session-modal {
     width: 90%;
+    max-width: 1000px;
     vertical-align: middle;
   }
 }
