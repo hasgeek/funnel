@@ -295,13 +295,7 @@
   }
 }
 
-.session-modal {
-  max-width: 98%;
-  width: 98%;
-  vertical-align: top;
-}
-
-.session-modal--nopadding {
+.jquery-modal.blocker.current .session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
 
@@ -338,8 +332,9 @@
 }
 
 @media (min-width: 1200px) {
-  .session-modal {
+  .jquery-modal.blocker.current .session-modal {
     width: 90%;
+    max-width: 1000px;
     vertical-align: middle;
   }
 }
