@@ -44,7 +44,7 @@ class OrgView(UrlForView, ModelView):
 
     @route('/new', methods=['GET', 'POST'])
     def new(self):
-        if not current_auth.user.has_verified_contact_info():
+        if not current_auth.user.has_verified_contact_info:
             flash(
                 _(
                     "You need to have a verified email address "

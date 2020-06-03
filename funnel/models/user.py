@@ -199,6 +199,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         count += len(self.phones)
         return count
 
+    @property
     def has_verified_contact_info(self):
         return self.verified_contact_count > 0
 
