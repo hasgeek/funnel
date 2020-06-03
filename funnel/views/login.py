@@ -47,7 +47,7 @@ from ..models import (
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
-from ..utils import mask_email, abort_null
+from ..utils import abort_null, mask_email
 from .email import send_email_verify_link, send_password_reset_link
 from .helpers import (
     app_url_for,

@@ -25,7 +25,7 @@
 
 .login,
 .login:hover {
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 16px;
   text-transform: capitalize;
   margin-right: 8px;
@@ -34,26 +34,25 @@
 
 .login-twitter,
 .login-twitter:hover {
-  background-color: #08A0E9;
+  background-color: #08a0e9;
 }
 .login-google,
 .login-google:hover {
   color: #757575;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 .login-linkedin,
 .login-linkedin:hover {
-  background-color: #0074B2;
+  background-color: #0074b2;
 }
 .login-github,
 .login-github:hover {
   background-color: #444444;
 }
 
-.mui-btn+.mui-btn {
-  margin-left: 0
+.mui-btn + .mui-btn {
+  margin-left: 0;
 }
-
 
 a.loginbutton.hidden,
 .js a.loginbutton.jshidden,
