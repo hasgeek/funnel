@@ -551,7 +551,7 @@ def oauth_token():
             return oauth_token_error(
                 'invalid_client', _("No such user")
             )  # XXX: invalid_client doesn't seem right
-        if not user.password_is(password):
+        if not user.password_is(password, upgrade_hash=True):
             return oauth_token_error('invalid_client', _("Password mismatch"))
         # Validations 4.3: verify scope
         try:
