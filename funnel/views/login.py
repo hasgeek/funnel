@@ -137,6 +137,24 @@ def login():
                         render_redirect(url_for('change_password'), code=303),
                         'password',
                     )
+                elif user.password_has_expired():
+                    current_app.logger.info(
+                        "Login successful for %r, but password has expired. "
+                        "Possible redirect URL is '%s' after password change",
+                        user,
+                        session.get('next', ''),
+                    )
+                    flash(
+                        _(
+                            "Your password is a year old. To ensure the safety of "
+                            "your account, please choose a new password"
+                        ),
+                        category='warning',
+                    )
+                    return set_loginmethod_cookie(
+                        render_redirect(url_for('change_password'), code=303),
+                        'password',
+                    )
                 else:
                     current_app.logger.info(
                         "Login successful for %r, possible redirect URL is '%s'",
