@@ -46,7 +46,7 @@ from ..models import (  # MODERATOR_REPORT_TYPE,
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
-from ..utils import strip_null
+from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
@@ -99,7 +99,7 @@ class AccountView(ClassView):
     @route('siteadmin/comments', endpoint='siteadmin_comments', methods=['GET', 'POST'])
     @requires_login
     @render_with('siteadmin_comments.html.jinja2')
-    @requestargs(('query', strip_null), ('page', int), ('per_page', int))
+    @requestargs(('query', abort_null), ('page', int), ('per_page', int))
     def siteadmin_comments(self, query='', page=None, per_page=100):
         if not (
             current_auth.user.is_comment_moderator
@@ -107,7 +107,7 @@ class AccountView(ClassView):
         ):
             return abort(403)
 
-        comments = Comment.query.filter(~Comment.state.REMOVED).order_by(
+        comments = Comment.query.filter(~(Comment.state.REMOVED)).order_by(
             Comment.created_at.desc()
         )
         if query:
@@ -151,9 +151,7 @@ class AccountView(ClassView):
             for comment in comments:
                 comment.mark_spam()
             db.session.commit()
-            flash(
-                _("Comment(s) successfully marked as spam"), category='info',
-            )
+            flash(_("Comment(s) successfully marked as spam"), category='info')
         else:
             flash(
                 _("There was a problem marking the comments as spam. Please try again"),
@@ -262,7 +260,8 @@ def account_edit(newprofile=False):
             )
             flash(
                 _(
-                    "Your profile has been updated. We sent you an email to confirm your address"
+                    "Your profile has been updated. We sent you an email to confirm"
+                    " your address"
                 ),
                 category='success',
             )
@@ -283,7 +282,8 @@ def account_edit(newprofile=False):
             submit=_("Continue"),
             message=Markup(
                 _(
-                    "Hello, <strong>{fullname}</strong>. Please spare a minute to fill out your profile"
+                    "Hello, <strong>{fullname}</strong>. Please spare a minute to fill"
+                    " out your profile"
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
             ajax=True,
@@ -318,7 +318,8 @@ def confirm_email(md5sum, secret):
                         title=_("Email address already claimed"),
                         message=Markup(
                             _(
-                                "The email address <code>{email}</code> has already been verified by another user"
+                                "The email address <code>{email}</code> has already"
+                                " been verified by another user"
                             ).format(email=escape(claimed_email))
                         ),
                     )
@@ -327,8 +328,8 @@ def confirm_email(md5sum, secret):
                         title=_("Email address already verified"),
                         message=Markup(
                             _(
-                                "Hello <strong>{fullname}</strong>! "
-                                "Your email address <code>{email}</code> has already been verified"
+                                "Hello <strong>{fullname}</strong>! Your email address"
+                                " <code>{email}</code> has already been verified"
                             ).format(
                                 fullname=escape(claimed_user.fullname),
                                 email=escape(claimed_email),
@@ -362,9 +363,9 @@ def confirm_email(md5sum, secret):
             return render_message(
                 title=_("This was not for you"),
                 message=_(
-                    "You’ve opened an email verification link that was meant for another user. "
-                    "If you are managing multiple accounts, please login with the correct account "
-                    "and open the link again"
+                    "You’ve opened an email verification link that was meant for"
+                    " another user. If you are managing multiple accounts, please login"
+                    " with the correct account and open the link again"
                 ),
                 code=403,
             )
@@ -499,8 +500,17 @@ def remove_email(md5sum):
         useremail = UserEmailClaim.get_for(user=current_auth.user, md5sum=md5sum)
         if not useremail:
             abort(404)
-    if isinstance(useremail, UserEmail) and useremail.primary:
-        flash(_("You cannot remove your primary email address"), 'danger')
+    if (
+        isinstance(useremail, UserEmail)
+        and current_auth.user.verified_contact_count == 1
+    ):
+        flash(
+            _(
+                "Your account requires at least one verified email address or phone"
+                " number"
+            ),
+            'danger',
+        )
         return render_redirect(url_for('account'), code=303)
     if request.method == 'POST':
         # FIXME: Confirm validation success
@@ -602,12 +612,25 @@ def remove_phone(number):
         if userphone.verification_expired:
             flash(
                 _(
-                    "This number has been blocked due to too many failed verification attempts"
+                    "This number has been blocked due to too many failed verification"
+                    " attempts"
                 ),
                 'danger',
             )
             # Block attempts to delete this number if verification failed.
             # It needs to be deleted in a background sweep.
+            return render_redirect(url_for('account'), code=303)
+        if (
+            isinstance(userphone, UserPhone)
+            and current_auth.user.verified_contact_count == 1
+        ):
+            flash(
+                _(
+                    "Your account requires at least one verified email address or phone"
+                    " number"
+                ),
+                'danger',
+            )
             return render_redirect(url_for('account'), code=303)
 
     if request.method == 'POST':
@@ -688,7 +711,8 @@ def remove_extid(extid):
     if not has_pw_hash and num_extids == 1:
         flash(
             _(
-                "You do not have a password set. So you must have at least one external ID enabled."
+                "You do not have a password set. So you must have at least one external"
+                " ID enabled."
             ),
             'danger',
         )

@@ -1,5 +1,5 @@
 .comment {
-  margin: 15px 0 0;
+  margin: $mui-grid-padding 0 0;
 
   .comment--content {
     display: inline-block;
@@ -9,8 +9,14 @@
     max-width: 100%;
   }
 
+  .comment--header button {
+    line-height: 1;
+    position: relative;
+    top: 3px;
+  }
+
   .comment--body {
-    margin: 10px 0 0 25px;
+    margin: 0 0 0 25px;
   }
 
   .commenter--gravatar {
@@ -24,7 +30,6 @@
   }
   .comment--header__details {
     display: inline-block;
-    width: calc(100% - 40px);
     vertical-align: top;
     padding: 5px 0 0 5px;
     .badge {
@@ -35,7 +40,7 @@
   blockquote {
     border-left: 2px solid #c0ccda;
     margin: 0;
-    padding-left: 15px;
+    padding-left: $mui-grid-padding;
   }
 }
 

@@ -16,7 +16,7 @@ from ..models import (
     getuser,
 )
 from ..registry import resource_registry
-from ..utils import make_redirect_url, strip_null
+from ..utils import abort_null, make_redirect_url
 from .auth_resource import get_userinfo
 from .helpers import requires_client_login, requires_login_no_message
 
@@ -442,17 +442,17 @@ def oauth_token():
     OAuth2 server -- token endpoint (confidential clients only)
     """
     # Always required parameters
-    grant_type = strip_null(request.form.get('grant_type'))
+    grant_type = abort_null(request.form.get('grant_type'))
     auth_client = current_auth.auth_client  # Provided by @requires_client_login
-    scope = strip_null(request.form.get('scope', '')).split(' ')
+    scope = abort_null(request.form.get('scope', '')).split(' ')
     # if grant_type == 'authorization_code' (POST)
-    code = strip_null(request.form.get('code'))
-    redirect_uri = strip_null(request.form.get('redirect_uri'))
+    code = abort_null(request.form.get('code'))
+    redirect_uri = abort_null(request.form.get('redirect_uri'))
     # if grant_type == 'password' (POST)
-    username = strip_null(request.form.get('username'))
-    password = strip_null(request.form.get('password'))
+    username = abort_null(request.form.get('username'))
+    password = abort_null(request.form.get('password'))
     # if grant_type == 'client_credentials'
-    buid = strip_null(
+    buid = abort_null(
         request.form.get('buid') or request.form.get('userid')
     )  # XXX: Deprecated userid parameter
 
@@ -551,7 +551,7 @@ def oauth_token():
             return oauth_token_error(
                 'invalid_client', _("No such user")
             )  # XXX: invalid_client doesn't seem right
-        if not user.password_is(password):
+        if not user.password_is(password, upgrade_hash=True):
             return oauth_token_error('invalid_client', _("Password mismatch"))
         # Validations 4.3: verify scope
         try:

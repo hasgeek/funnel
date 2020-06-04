@@ -29,7 +29,6 @@ describe('Add a new proposal', function() {
     cy.get('#field-bio')
       .find('.CodeMirror textarea')
       .type(proposal.speaker_bio, { force: true });
-    cy.get('#email').type(proposal.email);
     cy.get('#phone').type(proposal.phone);
     cy.get('#location').type(proposal.location);
     cy.get('fieldset')

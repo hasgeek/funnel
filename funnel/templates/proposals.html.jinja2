@@ -21,7 +21,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline mobile-nav__icon" data-action="Back to the {{ project.title }}(proposal page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Proposals{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form,
+  {{ project_header(project, project_save_form, csrf_form,
     class='mui--hidden-xs mui--hidden-sm',
     current_page='proposals') }}
 {% endblock %}
@@ -51,10 +51,10 @@
             </p>
             <ul class="mui-list--inline mui--text-body2 list-item-rgborder zero-bottom-margin">
               {%- if proposal.project != project %}
-                <li>{{ proposal.project.short_title() }}</li>
+                <li>{{ proposal.project.short_title }}</li>
               {% endif %}
               <li>{{ proposal.commentset.count }} comments</li>
-              <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
+              <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</li>
               {% if proposal.video %}
                 <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
                   {{ faicon(icon='video', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}
@@ -105,7 +105,7 @@
           {% if project.cfp_state.OPEN -%}
             <div>
               <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM, YYYY, hh:mm a') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="mui-d--inlineblock">

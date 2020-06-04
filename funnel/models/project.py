@@ -142,7 +142,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         lazy='joined',
         cascade='all',
         single_parent=True,
-        backref=db.backref("project", uselist=False),
+        backref=db.backref('project', uselist=False),
     )
 
     parent_id = db.Column(
@@ -188,11 +188,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'
     )
 
-    venues = db.relationship(
-        'Venue',
-        cascade='all',
-        order_by='Venue.seq',
-        collection_class=ordering_list('seq', count_from=1),
+    venues = with_roles(
+        db.relationship(
+            'Venue',
+            cascade='all',
+            order_by='Venue.seq',
+            collection_class=ordering_list('seq', count_from=1),
+        ),
+        read={'all'},
     )
     labels = db.relationship(
         'Label',
@@ -205,17 +208,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     featured_sessions = db.relationship(
         'Session',
-        order_by="Session.start_at.asc()",
+        order_by='Session.start_at.asc()',
         primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)',
     )
     scheduled_sessions = db.relationship(
         'Session',
-        order_by="Session.start_at.asc()",
+        order_by='Session.start_at.asc()',
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)',
     )
     unscheduled_sessions = db.relationship(
         'Session',
-        order_by="Session.start_at.asc()",
+        order_by='Session.start_at.asc()',
         primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)',
     )
 
@@ -227,18 +230,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id',
+                'urls',
                 'name',
                 'title',
                 'title_inline',
+                'short_title',
+                'tagline',
                 'datelocation',
                 'timezone',
                 'schedule_start_at',
                 'schedule_end_at',
-                'url_json',
                 'website',
                 'bg_image',
-                'tagline',
+                'banner_video_url',
                 'absolute_url',
                 'location',
                 'calendar_weeks_full',
@@ -249,10 +253,83 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'schedule_end_at_localized',
                 'cfp_start_at_localized',
                 'cfp_end_at_localized',
+                'hasjob_embed_url',
+                'hasjob_embed_limit',
+                'profile',
             },
-            'call': {'url_for', 'current_sessions', 'is_saved_by', 'schedule_state'},
+            'call': {
+                'features',
+                'url_for',
+                'current_sessions',
+                'is_saved_by',
+                'state',
+                'schedule_state',
+                'cfp_state',
+                'view_for',
+                'views',
+            },
         },
         'participant': {'granted_via': {'rsvps': 'user', 'participants': 'user'}},
+    }
+
+    __datasets__ = {
+        'primary': {
+            'urls',
+            'name',
+            'title',
+            'title_inline',
+            'tagline',
+            'datelocation',
+            'timezone',
+            'schedule_start_at',
+            'schedule_end_at',
+            'website',
+            'bg_image',
+            'banner_video_url',
+            'absolute_url',
+            'location',
+            'calendar_weeks_full',
+            'calendar_weeks_compact',
+            'primary_venue',
+            'livestream_urls',
+            'schedule_start_at_localized',
+            'schedule_end_at_localized',
+            'cfp_start_at_localized',
+            'cfp_end_at_localized',
+            'profile',
+        },
+        'without_parent': {
+            'name',
+            'title',
+            'title_inline',
+            'tagline',
+            'datelocation',
+            'timezone',
+            'schedule_start_at',
+            'schedule_end_at',
+            'website',
+            'bg_image',
+            'banner_video_url',
+            'absolute_url',
+            'location',
+            'calendar_weeks_full',
+            'calendar_weeks_compact',
+            'primary_venue',
+            'livestream_urls',
+            'schedule_start_at_localized',
+            'schedule_end_at_localized',
+            'cfp_start_at_localized',
+            'cfp_end_at_localized',
+        },
+        'related': {
+            'name',
+            'title',
+            'tagline',
+            'datelocation',
+            'timezone',
+            'absolute_url',
+            'location',
+        },
     }
 
     def __init__(self, **kwargs):
@@ -271,7 +348,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def __repr__(self):
         return '<Project %s/%s "%s">' % (
-            self.profile.name if self.profile else "(none)",
+            self.profile.name if self.profile else '(none)',
             self.name,
             self.title,
         )
@@ -297,7 +374,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 return self.title + ':'
         return self.title
 
-    @property
+    @cached_property
     def datelocation(self):
         """
         Returns a date + location string for the event, the format depends on project dates
@@ -319,29 +396,27 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
         Only ``schedule_start_at`` format changes.
         """
-        daterange = ""
+        daterange = ''
         if self.schedule_start_at is not None and self.schedule_end_at is not None:
-            schedule_start_at_date = self.schedule_start_at.astimezone(
-                self.timezone
-            ).date()
-            schedule_end_at_date = self.schedule_end_at.astimezone(self.timezone).date()
-            daterange_format = "{start_date}–{end_date} {year}"
+            schedule_start_at_date = self.schedule_start_at_localized.date()
+            schedule_end_at_date = self.schedule_end_at_localized.date()
+            daterange_format = '{start_date}–{end_date} {year}'
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
-                strf_date = ""
-                daterange_format = "{end_date} {year}"
+                strf_date = ''
+                daterange_format = '{end_date} {year}'
             elif schedule_start_at_date.year != schedule_end_at_date.year:
                 # if the start date and end dates are in different years,
-                strf_date = "%d %b %Y"
+                strf_date = '%d %b %Y'
             elif schedule_start_at_date.month != schedule_end_at_date.month:
                 # If multi-day event across months
-                strf_date = "%d %b"
+                strf_date = '%d %b'
             elif schedule_start_at_date.month == schedule_end_at_date.month:
                 # If multi-day event in same month
-                strf_date = "%d"
+                strf_date = '%d'
             daterange = daterange_format.format(
                 start_date=schedule_start_at_date.strftime(strf_date),
-                end_date=schedule_end_at_date.strftime("%d %b"),
+                end_date=schedule_end_at_date.strftime('%d %b'),
                 year=schedule_end_at_date.year,
             )
         return ', '.join([_f for _f in [daterange, self.location] if _f])
@@ -387,13 +462,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'HAS_PROPOSALS',
         cfp_state.EXISTS,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
-        label=('has_proposals', __("Has Proposals")),
+        label=('has_proposals', __("Has proposals")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.EXISTS,
         lambda project: db.session.query(project.sessions.exists()).scalar(),
-        label=('has_sessions', __("Has Sessions")),
+        label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
         'PRIVATE_DRAFT',
@@ -513,17 +588,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
-    # Removing Delete feature till we figure out siteadmin feature
+    # TODO: Removing Delete feature till we figure out siteadmin feature
     # @with_roles(call={'editor'})
     # @state.transition(
     #     state.DELETABLE, state.DELETED, title=__("Delete project"),
     #     message=__("The project has been deleted"), type='success')
     # def delete(self):
     #     pass
-
-    @property
-    def url_json(self):
-        return self.url_for('json', _external=True)
 
     @db.validates('name')
     def _validate_name(self, key, value):
@@ -638,14 +709,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'day_start_at': (
                         session_dates_dict[date]['day_start_at']
                         .astimezone(self.timezone)
-                        .strftime("%I:%M %p")
+                        .strftime('%I:%M %p')
                         if date in session_dates_dict.keys()
                         else None
                     ),
                     'day_end_at': (
                         session_dates_dict[date]['day_end_at']
                         .astimezone(self.timezone)
-                        .strftime("%I:%M %p %Z")
+                        .strftime('%I:%M %p %Z')
                         if date in session_dates_dict.keys()
                         else None
                     ),
@@ -704,24 +775,27 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     def current_sessions(self):
-        now = utcnow().astimezone(self.timezone)
-
-        if self.schedule_start_at is None or self.schedule_start_at > now + timedelta(
-            minutes=30
+        if self.schedule_start_at is None or (
+            self.schedule_start_at > utcnow() + timedelta(minutes=30)
         ):
             return
 
         current_sessions = (
-            self.sessions.join(VenueRoom)
-            .filter(Session.scheduled)
-            .filter(Session.start_at <= now + timedelta(minutes=30))
-            .filter(Session.end_at > now)
+            self.sessions.outerjoin(VenueRoom)
+            .filter(Session.start_at <= db.func.utcnow() + timedelta(minutes=30))
+            .filter(Session.end_at > db.func.utcnow())
             .order_by(Session.start_at.asc(), VenueRoom.seq.asc())
         )
 
         return {
-            'sessions': [session.current_access() for session in current_sessions],
-            'rooms': [room.current_access() for room in self.rooms],
+            'sessions': [
+                session.current_access(datasets=('without_parent', 'related'))
+                for session in current_sessions
+            ],
+            'rooms': [
+                room.current_access(datasets=('without_parent', 'related'))
+                for room in self.rooms
+            ],
         }
 
     @property
@@ -927,7 +1001,7 @@ Profile.draft_projects_for = (
 
 
 class ProjectRedirect(TimestampMixin, db.Model):
-    __tablename__ = "project_redirect"
+    __tablename__ = 'project_redirect'
 
     profile_id = db.Column(
         None, db.ForeignKey('profile.id'), nullable=False, primary_key=True
@@ -947,7 +1021,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
         return '<ProjectRedirect %s/%s: %s>' % (
             self.profile.name,
             self.name,
-            self.project.name if self.project else "(none)",
+            self.project.name if self.project else '(none)',
         )
 
     def redirect_view_args(self):

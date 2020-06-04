@@ -296,11 +296,11 @@ const Schedule = {
     this.config.rooms = {};
     if (!this.config.venues.length) {
       // Add default Venue
-      this.config.venues = [{ title: 'Schedule', room_list: [] }];
+      this.config.venues = [{ title: 'Schedule', rooms: [] }];
     }
     this.config.venues.forEach(venue => {
-      if (venue.room_list.length) {
-        venue.room_list.forEach(room => {
+      if (venue.rooms.length) {
+        venue.rooms.forEach(room => {
           this.config.rooms[room.scoped_name] = room;
           this.config.rooms[room.scoped_name].venue_title = venue.title;
         });

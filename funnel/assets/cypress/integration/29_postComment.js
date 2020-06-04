@@ -1,5 +1,6 @@
 describe('Test comments feature', function() {
   const user = require('../fixtures/user.json').user;
+  const hguser = require('../fixtures/user.json').hguser;
   const project = require('../fixtures/project.json');
 
   it('Post comment on project page', function() {
@@ -50,5 +51,17 @@ describe('Test comments feature', function() {
     cy.get('.comment--body')
       .contains(project.comment)
       .should('not.exist');
+    cy.logout();
+
+    cy.login('/', hguser.username, hguser.password);
+    cy.get('.upcoming')
+      .find('.card--upcoming')
+      .contains(project.title)
+      .click({ force: true });
+    cy.location('pathname').should('contain', project.url);
+    cy.get('a[data-cy-navbar="comments"]').click();
+    cy.get('p.mui-panel').contains('You need to be a participant to comment.')
+
+
   });
 });

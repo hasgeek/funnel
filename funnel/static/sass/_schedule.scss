@@ -2,11 +2,11 @@
   padding: 0;
 
   .schedule {
-    margin: 30px 0;
+    margin: $mui-grid-padding*2 0;
 
     .schedule__date {
-      margin-bottom: 30px;
-      padding-left: 15px;
+      margin-bottom: $mui-grid-padding-double;
+      padding-left: $mui-grid-padding;
     }
 
     .schedule__row {
@@ -16,7 +16,7 @@
         .schedule__row__column__content {
           background-color: #fff;
           width: 100%;
-          padding: 5px 15px;
+          padding: 5px $mui-grid-padding;
           border-bottom: 1px solid rgba(132, 146, 166, 0.3);
           word-break: break-word;
 
@@ -35,8 +35,8 @@
 
           .schedule__row__column__content__description {
             clear: both;
-            padding-top: 15px;
-            padding-bottom: 15px;
+            padding-top: $mui-grid-padding;
+            padding-bottom: $mui-grid-padding;
             word-break: break-word;
 
             img {
@@ -159,7 +159,7 @@
 
 @media (min-width: 768px) {
   .schedule-grid {
-    padding: 0 15px;
+    padding: 0 $mui-grid-padding;
 
     .schedule {
       .schedule__date {
@@ -230,7 +230,7 @@
         top: 108px;
 
         .schedule__row__column--header {
-          padding: 15px 10px;
+          padding: $mui-grid-padding 10px;
           outline: 1px solid rgba(132, 146, 166, 0.3);
           border: none !important;
         }
@@ -295,18 +295,12 @@
   }
 }
 
-.session-modal {
-  max-width: 98%;
-  width: 98%;
-  vertical-align: top;
-}
-
-.session-modal--nopadding {
+.jquery-modal.blocker.current .session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
 
   .modal__header {
-    padding: 15px 15px 5px;
+    padding: $mui-grid-padding $mui-grid-padding 5px;
     border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 
     .modal__header__title {
@@ -320,15 +314,15 @@
   }
 
   .modal__body {
-    padding: 0 15px 15px;
+    padding: 0 $mui-grid-padding $mui-grid-padding;
     word-break: break-word;
 
     .modal__body__separator {
-      margin: 30px -15px;
+      margin: $mui-grid-padding-double -$mui-grid-padding;
     }
 
     .modal__body__section {
-      margin: 30px 0;
+      margin: $mui-grid-padding-double 0;
 
       .modal__body__section__text {
         margin: 0 0 5px;
@@ -338,8 +332,9 @@
 }
 
 @media (min-width: 1200px) {
-  .session-modal {
+  .jquery-modal.blocker.current .session-modal {
     width: 90%;
+    max-width: 1000px;
     vertical-align: middle;
   }
 }
@@ -349,7 +344,7 @@
   border: 0;
   border-radius: 4px;
   font-weight: 200;
-  padding: 15px 10px;
+  padding: $mui-grid-padding 10px;
 }
 
 .room__title__subsc-btn {

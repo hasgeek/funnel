@@ -8,7 +8,7 @@ from flask import Response, current_app, json, jsonify, request
 
 from icalendar import Alarm, Calendar, Event
 
-from baseframe import localize_timezone
+from baseframe import forms, localize_timezone
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
@@ -28,7 +28,6 @@ from ..models import Project, Proposal, Session, VenueRoom, db
 from .decorators import legacy_redirect
 from .helpers import localize_date, requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
-from .venue import room_data
 
 
 def session_data(session, with_modal_url=False, with_delete_url=False):
@@ -184,46 +183,19 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
         scheduled_sessions_list = session_list_data(
             self.obj.scheduled_sessions, with_modal_url='view_popup'
         )
-        rooms_list = {
-            room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
-            for room in self.obj.rooms
-        }
         return {
-            'project': self.obj,
-            'from_date': (
-                localize_timezone(
-                    self.obj.schedule_start_at, tz=self.obj.timezone
-                ).isoformat()
-                if self.obj.schedule_start_at
-                else None
-            ),
-            'to_date': (
-                localize_timezone(
-                    self.obj.schedule_end_at, tz=self.obj.timezone
-                ).isoformat()
-                if self.obj.schedule_start_at
-                else None
-            ),
+            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'venues': [
+                venue.current_access(datasets=('without_parent', 'related'))
+                for venue in self.obj.venues
+            ],
             'sessions': scheduled_sessions_list,
-            'timezone': self.obj.timezone.zone,
-            'venues': [venue.current_access() for venue in self.obj.venues],
-            'rooms': (
-                rooms_list
-                if len(rooms_list) > 0
-                else {
-                    self.obj.primary_venue.name: {
-                        'title': self.obj.primary_venue.title,
-                        'bgcolor': "CCCCCC",
-                    }
-                }
-                if self.obj.primary_venue is not None
-                else []
-            ),
             'schedule': schedule_data(
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
             'schedule_transition_form': schedule_transition_form,
             'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('subscribe')
@@ -241,8 +213,14 @@ class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
             schedule=schedule_data(
                 self.obj, with_slots=True, scheduled_sessions=scheduled_sessions_list
             ),
-            venues=[venue.current_access() for venue in self.obj.venues],
-            rooms=[room_data(room) for room in self.obj.rooms],
+            venues=[
+                venue.current_access(datasets=('without_parent',))
+                for venue in self.obj.venues
+            ],
+            rooms=[
+                room.current_access(datasets=('without_parent',))
+                for room in self.obj.rooms
+            ],
         )
 
     @route('ical')

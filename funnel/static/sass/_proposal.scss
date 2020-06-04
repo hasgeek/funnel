@@ -45,7 +45,7 @@
 
 @media (min-width: 768px) {
   .proposal-wrapper {
-    margin: 0 15px;
+    margin: 0 $mui-grid-padding;
   }
   .slider-btn--push-down {
     position: relative;
@@ -60,7 +60,7 @@
 
 @media (min-width: 1300px) {
   .proposal-wrapper {
-    margin-bottom: 15px;
+    margin-bottom: $mui-grid-padding;
   }
 
   .proposal__section__headline {
@@ -69,7 +69,7 @@
 }
 
 .proposal__section {
-  padding: 15px;
+  padding: $mui-grid-padding;
   overflow-wrap: break-word;
 }
 
@@ -79,30 +79,30 @@
 
 .proposal-status-wrapper .grid .columns,
 .proposal__section .grid .columns {
-  padding: 0 30px 0 0;
+  padding: 0 $mui-grid-padding-double 0 0;
 }
 
 @media (min-width: 992px) {
   .proposal__section--left {
     float: left;
-    width: calc(70% - 15px);
-    padding-bottom: 15px;
+    width: calc(70% - #{$mui-grid-padding});
+    padding-bottom: $mui-grid-padding;
   }
 
   .proposal__admin-panel {
     float: right;
-    width: calc(30% - 15px);
-    margin-top: 30px;
-    margin-right: 15px;
+    width: calc(30% - #{$mui-grid-padding});
+    margin-top: $mui-grid-padding-double;
+    margin-right: $mui-grid-padding;
   }
 }
 
 .proposal__section--bleed-y {
-  padding: 15px 0;
+  padding: $mui-grid-padding 0;
 }
 
 .proposal__section--heading {
-  margin-bottom: 15px;
+  margin-bottom: $mui-grid-padding;
 }
 
 .details {
@@ -112,7 +112,7 @@
   }
   .details__box--right,
   .details__box--left {
-    margin-top: 15px;
+    margin-top: $mui-grid-padding;
   }
 }
 
@@ -152,7 +152,7 @@
 
   .details__box__control__link {
     color: #fff;
-    margin-right: 15px;
+    margin-right: $mui-grid-padding;
   }
 
   .details__box__control__link:last-child {
@@ -184,7 +184,7 @@
   .gallery__thumbnail {
     position: relative;
     flex: 0 0 50%;
-    padding: 15px;
+    padding: $mui-grid-padding;
   }
 
   .mui--is-active.gallery__thumbnail {
@@ -237,7 +237,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    padding: 16px 0;
+    padding: $mui-grid-padding 0;
     background: #000;
     overflow: scroll;
     flex-direction: column;
@@ -251,7 +251,7 @@
     }
     .gallery__text {
       display: block;
-      padding: 0 15px;
+      padding: 0 $mui-grid-padding;
     }
   }
 }
@@ -285,7 +285,7 @@
 }
 
 .proposal__admin-panel .btn-group .mui-btn {
-  margin-bottom: 15px;
+  margin-bottom: $mui-grid-padding;
   margin-right: 20px;
 }
 
@@ -314,7 +314,7 @@
   padding: 4px 8px;
   font-size: 12px;
   text-transform: uppercase;
-  color: #79818b;
+  color: #4d5763;
   border: 2px solid #f0f2f5;
   background-color: #f6f8fa;
   border-radius: 2px;

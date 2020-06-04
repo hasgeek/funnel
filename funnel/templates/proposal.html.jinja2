@@ -23,9 +23,9 @@
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
   <p class="mui--text-headline">{{ project.tagline }}</p>
   <p>
-  {% if project.features.has_tickets_or_rsvp() %}
+  {% if project.features.tickets_or_rsvp() %}
     <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">
-      {%- if project.features.has_tickets() -%}
+      {%- if project.features.tickets() -%}
         {% if project.boxoffice_data.buy_btn_text -%}
           {{ project.boxoffice_data.buy_btn_text }}
         {% else %}
@@ -74,7 +74,7 @@
           <strong>{{ proposal.user.pickername }}</strong>
           ({% trans %}proposing{% endtrans %})
         {%- endif %}
-        {% trans %}on{% endtrans %} {{ proposal.datetime.strftime("%A, %e %B %Y") }}
+        {% trans %}on{% endtrans %} {{ proposal.datetime|date }}
         {%- if not proposal.speaker -%}
           <p>
             <em>{% trans %}This is a proposal requesting for someone to speak on this topic.

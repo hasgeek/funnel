@@ -6,10 +6,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import defer
 from sqlalchemy_utils import TimezoneType
 
-from werkzeug.security import check_password_hash
 from werkzeug.utils import cached_property
 
-import bcrypt
+from passlib.hash import argon2, bcrypt
 import phonenumbers
 
 from baseframe import __
@@ -28,17 +27,17 @@ from . import BaseMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
 
 __all__ = [
-    'Organization',
-    'AuthPasswordResetRequest',
-    'Team',
     'USER_STATUS',
     'User',
+    'UserOldId',
+    'Organization',
+    'Team',
     'UserEmail',
     'UserEmailClaim',
-    'UserExternalId',
-    'UserOldId',
     'UserPhone',
     'UserPhoneClaim',
+    'AuthPasswordResetRequest',
+    'UserExternalId',
 ]
 
 
@@ -66,6 +65,10 @@ class SharedProfileMixin:
         if name and name == self.name:
             return
         return Profile.validate_name_candidate(name)
+
+    # TODO: This property is temporary while account and org edit forms have a checkbox
+    # for determining profile visibility. Profile visibility should be controlled
+    # through transitions, not as data in a form.
 
     @property
     def is_public_profile(self):
@@ -98,6 +101,8 @@ class USER_STATUS(LabeledEnum):  # NOQA: N801
 class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
+
+    __datasets__ = {'related': {'fullname', 'username', 'timezone', 'status', 'avatar'}}
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
@@ -107,8 +112,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     )
     #: Alias for the user's fullname
     title = db.synonym('fullname')
-    #: Bcrypt hash of the user's password
-    pw_hash = db.Column(db.String(80), nullable=True)
+    #: Argon2 or Bcrypt hash of the user's password
+    pw_hash = db.Column(db.Unicode(80), nullable=True)
     #: Timestamp for when the user's password last changed
     pw_set_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     #: Expiry date for the password (to prompt user to reset it)
@@ -186,6 +191,17 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
 
+    @cached_property
+    def verified_contact_count(self):
+        count = 0
+        count += len(self.emails)
+        count += len(self.phones)
+        return count
+
+    @property
+    def has_verified_contact_info(self):
+        return self.verified_contact_count > 0
+
     def merged_user(self):
         if self.status == USER_STATUS.MERGED:
             return UserOldId.get(self.uuid).user
@@ -196,9 +212,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if password is None:
             self.pw_hash = None
         else:
-            self.pw_hash = bcrypt.hashpw(
-                password.encode('utf-8'), bcrypt.gensalt()
-            ).decode('ascii')
+            self.pw_hash = argon2.hash(password)
+            # Also see :meth:`password_is` for transparent upgrade
         self.pw_set_at = db.func.utcnow()
         # Expire passwords after one year. TODO: make this configurable
         self.pw_expires_at = self.pw_set_at + timedelta(days=365)
@@ -207,22 +222,28 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     password = property(fset=_set_password)
 
     def password_has_expired(self):
+        """True if password expiry timestamp has passed."""
         return (
             self.pw_hash is not None
             and self.pw_expires_at is not None
             and self.pw_expires_at <= utcnow()
         )
 
-    def password_is(self, password):
+    def password_is(self, password, upgrade_hash=False):
+        """Test if the candidate password matches saved hash."""
         if self.pw_hash is None:
             return False
 
-        if self.pw_hash.startswith('sha1$'):  # XXX: DEPRECATED
-            return check_password_hash(self.pw_hash, password)
-        else:
-            return bcrypt.hashpw(
-                password.encode('utf-8'), self.pw_hash.encode('utf-8')
-            ) == self.pw_hash.encode('utf-8')
+        # Passwords may use the current Argon2 scheme or the older Bcrypt scheme.
+        # Bcrypt passwords are transparently upgraded if requested.
+        if argon2.identify(self.pw_hash):
+            return argon2.verify(password, self.pw_hash)
+        elif bcrypt.identify(self.pw_hash):
+            verified = bcrypt.verify(password, self.pw_hash)
+            if verified and upgrade_hash:
+                self.pw_hash = argon2.hash(password)
+            return verified
+        return False
 
     def __repr__(self):
         return '<User {username} "{fullname}">'.format(
@@ -551,6 +572,8 @@ team_membership = db.Table(
 class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
+
+    __datasets__ = {'related': {'name', 'title', 'pickername'}}
 
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),

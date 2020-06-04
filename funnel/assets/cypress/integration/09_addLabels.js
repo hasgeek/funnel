@@ -104,7 +104,7 @@ describe('Add labels to project', function() {
       .trigger('mousedown', { which: 1, force: true, view: window })
       .trigger('mousemove', {
         pageX: 500,
-        pageY: 620,
+        pageY: 650,
         force: true,
         view: window,
       })

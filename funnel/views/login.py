@@ -47,7 +47,7 @@ from ..models import (
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
-from ..utils import mask_email, strip_null
+from ..utils import abort_null, mask_email
 from .email import send_email_verify_link, send_password_reset_link
 from .helpers import (
     app_url_for,
@@ -97,7 +97,7 @@ def login():
     if request.method == 'GET':
         loginmethod = request.cookies.get('login')
 
-    formid = strip_null(request.form.get('form.id'))
+    formid = abort_null(request.form.get('form.id'))
     if request.method == 'POST' and formid == 'passwordlogin':
         try:
             success = loginform.validate()
@@ -132,6 +132,24 @@ def login():
                             "your account, please choose a stronger password"
                         ),
                         category='danger',
+                    )
+                    return set_loginmethod_cookie(
+                        render_redirect(url_for('change_password'), code=303),
+                        'password',
+                    )
+                elif user.password_has_expired():
+                    current_app.logger.info(
+                        "Login successful for %r, but password has expired. "
+                        "Possible redirect URL is '%s' after password change",
+                        user,
+                        session.get('next', ''),
+                    )
+                    flash(
+                        _(
+                            "Your password is a year old. To ensure the safety of "
+                            "your account, please choose a new password"
+                        ),
+                        category='warning',
                     )
                     return set_loginmethod_cookie(
                         render_redirect(url_for('change_password'), code=303),
@@ -222,7 +240,7 @@ def logout_client():
     """
     Client-initiated logout
     """
-    cred = AuthClientCredential.get(strip_null(request.args['client_id']))
+    cred = AuthClientCredential.get(abort_null(request.args['client_id']))
     auth_client = cred.auth_client if cred else None
 
     if (
@@ -326,7 +344,7 @@ def reset():
         message = None
 
     if request.method == 'GET':
-        form.username.data = strip_null(request.args.get('username'))
+        form.username.data = abort_null(request.args.get('username'))
 
     if form.validate_on_submit():
         username = form.username.data

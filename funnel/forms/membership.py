@@ -41,9 +41,25 @@ class ProjectCrewMembershipForm(forms.Form):
         validators=[forms.validators.DataRequired(_(u"Please select a user"))],
         description=__("Find a user by their name or email address"),
     )
-    is_editor = forms.BooleanField(__("Editor"), default=False)
-    is_concierge = forms.BooleanField(__("Concierge"), default=False)
-    is_usher = forms.BooleanField(__("Usher"), default=False)
+    is_editor = forms.BooleanField(
+        __("Editor"),
+        default=False,
+        description=__(
+            "Can edit project details, proposal guidelines, schedule, labels and venues"
+        ),
+    )
+    is_concierge = forms.BooleanField(
+        __("Concierge"),
+        default=False,
+        description=__("Can manage participants and see contact info"),
+    )
+    is_usher = forms.BooleanField(
+        __("Usher"),
+        default=False,
+        description=__(
+            "Can check-in a participant using their badge at a physical event"
+        ),
+    )
 
     def validate(self, extra_validators=None):
         is_valid = super(ProjectCrewMembershipForm, self).validate(extra_validators)

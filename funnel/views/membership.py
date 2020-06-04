@@ -1,6 +1,6 @@
 from flask import abort, g, redirect, render_template, request
 
-from baseframe import _
+from baseframe import _, forms
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import (
@@ -48,7 +48,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
         return {
             'profile': self.obj,
             'memberships': [
-                membership.current_access()
+                membership.current_access(datasets=('without_parent', 'related'))
                 for membership in self.obj.organization.active_admin_memberships
             ],
         }
@@ -65,6 +65,23 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                if not membership_form.user.data.has_verified_contact_info:
+                    # users without verified contact information cannot be members
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _(
+                                "This user does not have any verified contact"
+                                " information. If you are able to contact them, please"
+                                " ask them to verify their email address or phone"
+                                " number"
+                            ),
+                            'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
+
                 previous_membership = (
                     OrganizationMembership.query.filter(
                         OrganizationMembership.is_active
@@ -81,7 +98,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                             'status': 'error',
                             'message': _("Member already exists in the profile"),
                             'errors': membership_form.errors,
-                            'form_nonce': membership_form.form_nonce.data
+                            'form_nonce': membership_form.form_nonce.data,
                         },
                         400,
                     )
@@ -112,7 +129,9 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         'status': 'ok',
                         'message': _("The user has been added as an admin"),
                         'memberships': [
-                            membership.current_access()
+                            membership.current_access(
+                                datasets=('without_parent', 'related')
+                            )
                             for membership in self.obj.organization.active_admin_memberships
                         ],
                     }
@@ -122,7 +141,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("The new member could not be added"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     },
                     400,
                 )
@@ -178,7 +197,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     return {
                         'status': 'error',
                         'message': _("You can't edit your own role"),
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     }
 
                 previous_membership.replace(
@@ -187,8 +206,11 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
                 return {
                     'status': 'ok',
+                    'message': _("The member's roles have been updated"),
                     'memberships': [
-                        membership.current_access()
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
@@ -198,7 +220,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("At lease one role must be chosen"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     },
                     400,
                 )
@@ -225,7 +247,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     return {
                         'status': 'error',
                         'message': _("You can't revoke your own membership"),
-                        'form_nonce': form.form_nonce.data
+                        'form_nonce': form.form_nonce.data,
                     }
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
@@ -245,8 +267,11 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     )
                 return {
                     'status': 'ok',
+                    'message': _("The member has been removed"),
                     'memberships': [
-                        membership.current_access()
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
@@ -255,20 +280,20 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     {
                         'status': 'error',
                         'errors': form.errors,
-                        'form_nonce': form.form_nonce.data
+                        'form_nonce': form.form_nonce.data,
                     },
                     400,
                 )
 
         form_html = render_form(
             form=form,
-            title=_("Delete member"),
+            title=_("Remove member"),
             message=_(
                 "Are you sure you want to remove {member} from {profile} as an admin?"
             ).format(
                 member=self.obj.user.fullname, profile=self.obj.organization.title
             ),
-            submit=_("Delete"),
+            submit=_("Remove"),
             ajax=False,
             with_chrome=False,
         )
@@ -293,10 +318,11 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
         return {
             'project': self.obj,
             'memberships': [
-                membership.current_access()
+                membership.current_access(datasets=('without_parent', 'related'))
                 for membership in self.obj.active_crew_memberships
             ],
             'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('new', methods=['GET', 'POST'])
@@ -308,6 +334,22 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                if not membership_form.user.data.has_verified_contact_info:
+                    # users without verified contact information cannot be members
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _(
+                                "This user does not have any verified contact"
+                                " information. If you are able to contact them, please"
+                                " ask them to verify their email address or phone"
+                                " number"
+                            ),
+                            'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
                 previous_membership = (
                     ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
                     .filter_by(project=self.obj, user_id=membership_form.user.data.id)
@@ -319,7 +361,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             'status': 'error',
                             'message': _("Member already exists in the project"),
                             'errors': membership_form.errors,
-                            'form_nonce': membership_form.form_nonce.data
+                            'form_nonce': membership_form.form_nonce.data,
                         },
                         400,
                     )
@@ -353,7 +395,9 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         'status': 'ok',
                         'message': _("The user has been added as a member"),
                         'memberships': [
-                            membership.current_access()
+                            membership.current_access(
+                                datasets=('without_parent', 'related')
+                            )
                             for membership in self.obj.active_crew_memberships
                         ],
                     }
@@ -363,7 +407,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                         'status': 'error',
                         'message': _("The new member could not be added"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     },
                     400,
                 )
@@ -431,7 +475,10 @@ class ProjectCrewMembershipInviteView(
     @render_with('membership_invite_actions.html.jinja2')
     @requires_login
     def invite(self):
-        return {'membership': self.obj.current_access(), 'form': Form()}
+        return {
+            'membership': self.obj.current_access(datasets=('primary', 'related')),
+            'form': Form(),
+        }
 
     @route('action', methods=['POST'])
     @requires_login
@@ -481,8 +528,11 @@ class ProjectCrewMembershipView(
                 db.session.commit()
                 return {
                     'status': 'ok',
+                    'message': _("The member's roles have been updated"),
                     'memberships': [
-                        membership.current_access()
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
@@ -492,7 +542,7 @@ class ProjectCrewMembershipView(
                         'status': 'error',
                         'message': _("At lease one role must be chosen"),
                         'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data
+                        'form_nonce': membership_form.form_nonce.data,
                     },
                     400,
                 )
@@ -533,8 +583,11 @@ class ProjectCrewMembershipView(
                     )
                 return {
                     'status': 'ok',
+                    'message': _("The member has been removed"),
                     'memberships': [
-                        membership.current_access()
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
@@ -543,11 +596,11 @@ class ProjectCrewMembershipView(
 
         form_html = render_form(
             form=form,
-            title=_("Delete member"),
+            title=_("Remove member"),
             message=_(
                 "Are you sure you want to remove {member} from the project?"
             ).format(member=self.obj.user.fullname),
-            submit=_("Delete"),
+            submit=_("Remove"),
             ajax=False,
             with_chrome=False,
         )

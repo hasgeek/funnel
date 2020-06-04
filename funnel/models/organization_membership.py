@@ -26,6 +26,18 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     __data_columns__ = ('is_owner',)
 
     __roles__ = {'all': {'read': {'urls', 'user', 'is_owner', 'organization'}}}
+    __datasets__ = {
+        'primary': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_owner',
+            'user',
+            'organization',
+        },
+        'without_parent': {'urls', 'uuid_b58', 'offered_roles', 'is_owner', 'user'},
+        'related': {'urls', 'uuid_b58', 'offered_roles', 'is_owner'},
+    }
 
     #: Organization that this membership is being granted on
     organization_id = immutable(

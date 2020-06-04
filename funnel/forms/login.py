@@ -48,7 +48,7 @@ class LoginForm(forms.Form):
             return
         if not self.user.pw_hash:
             raise LoginPasswordResetException()
-        if not self.user.password_is(field.data):
+        if not self.user.password_is(field.data, upgrade_hash=True):
             if not self.username.errors:
                 raise forms.ValidationError(_("Incorrect password"))
 
