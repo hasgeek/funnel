@@ -65,6 +65,23 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                if not membership_form.user.data.has_verified_contact_info:
+                    # users without verified contact information cannot be members
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _(
+                                "This user does not have any verified contact"
+                                " information. If you are able to contact them, please"
+                                " ask them to verify their email address or phone"
+                                " number"
+                            ),
+                            'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
+
                 previous_membership = (
                     OrganizationMembership.query.filter(
                         OrganizationMembership.is_active
@@ -317,6 +334,22 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                if not membership_form.user.data.has_verified_contact_info:
+                    # users without verified contact information cannot be members
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _(
+                                "This user does not have any verified contact"
+                                " information. If you are able to contact them, please"
+                                " ask them to verify their email address or phone"
+                                " number"
+                            ),
+                            'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
                 previous_membership = (
                     ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
                     .filter_by(project=self.obj, user_id=membership_form.user.data.id)
