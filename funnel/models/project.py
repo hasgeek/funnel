@@ -503,13 +503,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'OPEN',
         cfp_state.PUBLIC,
         lambda project: (
-            project.state.PUBLISHED
+            bool(Project.state.PUBLISHED)
             and project.cfp_start_at is not None
             and project.cfp_start_at <= utcnow()
             and (project.cfp_end_at is None or utcnow() < project.cfp_end_at)
         ),
         lambda project: db.and_(
-            project.state.PUBLISHED,
+            Project.state.PUBLISHED,
             project.cfp_start_at.isnot(None),
             project.cfp_start_at <= db.func.utcnow(),
             db.or_(project.cfp_end_at.is_(None), db.func.utcnow() < project.cfp_end_at),
