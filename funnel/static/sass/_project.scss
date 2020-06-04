@@ -193,7 +193,7 @@
       .propose {
         align-items: baseline;
         margin-left: $mui-grid-padding;
-        width: calc(100% - $mui-grid-padding);
+        width: calc(100% - #{$mui-grid-padding});
       }
       .propose--lessmargin {
         margin: 10px 0 0;
@@ -292,7 +292,7 @@
     .about__participate {
       display: block !important;
       position: relative;
-      width: calc(50% - $mui-grid-padding-double);
+      width: calc(50% - #{$mui-grid-padding-double});
       float: right;
       padding: 0;
       margin-left: $mui-grid-padding-double;
@@ -321,12 +321,12 @@
 @media (min-width: 992px) {
   .about {
     .about__participate {
-      width: calc(40% - $mui-grid-padding-double);
+      width: calc(40% - #{$mui-grid-padding-double});
     }
 
     .about__details__featured {
       .about__details__featured__cards {
-        width: calc(33.3% - $mui-grid-padding-double);
+        width: calc(33.3% - #{$mui-grid-padding-double});
         padding: 0 $mui-grid-padding;
       }
     }
@@ -337,7 +337,7 @@
   .about {
     .about__details__featured {
       .about__details__featured__cards {
-        width: calc(33.3% - $mui-grid-padding-double);
+        width: calc(33.3% - #{$mui-grid-padding-double});
         padding: 0 $mui-grid-padding;
       }
     }
