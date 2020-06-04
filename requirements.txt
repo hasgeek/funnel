@@ -5,6 +5,7 @@ git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 bcrypt==3.1.7
 blinker==1.4
 git+https://github.com/hasgeek/coaster.git#egg=coaster
+eventlet==0.25.2
 Flask==1.1.2
 Flask-Assets==2.0
 git+https://github.com/hasgeek/Flask-FlatPages.git#egg=Flask-FlatPages
@@ -14,11 +15,14 @@ Flask-Migrate==2.5.3
 Flask-OAuth==0.12
 Flask-Redis>=0.3.0
 Flask-RQ2==18.3
+Flask-SocketIO==4.3.0
 Flask-SQLAlchemy==2.4.3
 Flask-WTF==0.14.3
 icalendar==4.0.6
 itsdangerous==1.1.0
 jsmin==2.2.2
+kombu==4.6.8
+librabbitmq==2.0.0
 oauth2client==4.1.3
 passlib==1.7.2
 password-strength==0.0.3.post2

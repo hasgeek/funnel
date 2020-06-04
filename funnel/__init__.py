@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-
 from flask import Flask
 from flask_flatpages import FlatPages
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
+from flask_socketio import SocketIO
 import itsdangerous
 
 from baseframe import Bundle, Version, assets, baseframe
@@ -23,6 +23,7 @@ mail = Mail()
 pages = FlatPages()
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
+socketio = SocketIO()
 
 
 # --- Assets ------------------------------------------------------------------
@@ -126,6 +127,12 @@ baseframe.init_app(
     ext_requires=['pygments', 'toastr', 'baseframe-mui', 'pace'],
     theme='mui',
     asset_modules=('baseframe_private_assets',),
+)
+
+socketio.init_app(
+    app,
+    message_queue=app.config.get('SOCKETIO_MESSAGE_QUEUE', 'redis://'),
+    channel='flask-socketio-%s' % app.config['SITE_ID'],
 )
 
 loginproviders.init_app(app)

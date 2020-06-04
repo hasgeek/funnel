@@ -27,5 +27,6 @@ from . import (
     search,
     session,
     sms,
+    socketio,
     venue,
 )

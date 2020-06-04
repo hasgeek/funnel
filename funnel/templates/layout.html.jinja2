@@ -250,6 +250,21 @@
       });
     }
   </script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      var namespace = '/updates';
+      var socket = io(namespace);
+      socket.on('chatter', function(msg, cb) {
+        console.log(msg);
+        if (cb)
+          cb();
+      });
+      // Define another event here that receives a JSON of object contents and re-renders
+      // the relevant portions of the template
+      window.socket = socket;  // To facilitate console debugging
+    });
+  </script>
   {%- endif -%}
   {% block footerscripts %}{% endblock %}
 {% endblock %}
