@@ -61,8 +61,6 @@ def session_form(project, proposal=None, session=None):
     if not form.venue_room_id.choices:
         del form.venue_room_id
     if request.method == 'GET':
-        if not (session or proposal):
-            form.is_break.data = True
         return render_template(
             'session_form.html.jinja2',
             form=form,
