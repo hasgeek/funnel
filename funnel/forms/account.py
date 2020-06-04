@@ -343,8 +343,11 @@ class VerifyPhoneForm(forms.Form):
 
 class ModeratorReportForm(forms.Form):
     report_type = forms.SelectField(
-        __("Report type"), validators=[forms.validators.DataRequired()]
+        __("Report type"), coerce=int, validators=[forms.validators.DataRequired()]
     )
 
     def set_queries(self):
-        self.report_type.choices = list(MODERATOR_REPORT_TYPE.items())
+        self.report_type.choices = [
+            (idx, report_type.title)
+            for idx, report_type in MODERATOR_REPORT_TYPE.items()
+        ]

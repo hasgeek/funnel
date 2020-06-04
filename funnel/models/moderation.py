@@ -33,3 +33,10 @@ class CommentModeratorReport(UuidMixin, NoIdMixin, db.Model):
     report_type = db.Column(
         db.SmallInteger, nullable=False, default=MODERATOR_REPORT_TYPE.SPAM
     )
+
+    @classmethod
+    def get_one(cls, exclude_by_user=None):
+        reports = cls.query.all()
+        if exclude_by_user is not None:
+            reports = reports.filter(cls.reported_by != exclude_by_user)
+        return reports.first()

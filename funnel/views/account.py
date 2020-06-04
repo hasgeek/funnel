@@ -1,3 +1,5 @@
+from collections import Counter
+
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 from baseframe import _
@@ -32,7 +34,8 @@ from ..forms import (
     VerifyEmailForm,
     VerifyPhoneForm,
 )
-from ..models import (  # MODERATOR_REPORT_TYPE,
+from ..models import (
+    MODERATOR_REPORT_TYPE,
     Comment,
     CommentModeratorReport,
     User,
@@ -166,7 +169,9 @@ class AccountView(ClassView):
         if not current_auth.user.is_comment_moderator:
             return abort(403)
 
-        random_report = CommentModeratorReport.query.one_or_404()
+        random_report = CommentModeratorReport.get_one(
+            exclude_by_user=current_auth.user
+        )
         if random_report is not None:
             return redirect(
                 url_for('siteadmin_review_comment', report=random_report.uuid_b58)
@@ -174,23 +179,67 @@ class AccountView(ClassView):
         else:
             return redirect(url_for('account'))
 
-    @route('siteadmin/review/comments/<report>', endpoint='siteadmin_review_comment')
+    @route(
+        'siteadmin/review/comments/<report>',
+        endpoint='siteadmin_review_comment',
+        methods=['GET', 'POST'],
+    )
     @render_with('siteadmin_review_comment.html.jinja2')
     @requires_login
     def siteadmin_review_comment(self, report=None):
         if not current_auth.user.is_comment_moderator:
             return abort(403)
 
-        app.logger.info(report)
         report = CommentModeratorReport.query.filter_by(uuid_b58=report).one_or_404()
+        if report.reported_by == current_auth.user:
+            flash(_("You cannot review same comment twice"), 'error')
+            return redirect(url_for('siteadmin_review_comments_random'))
         report_form = ModeratorReportForm()
+
+        report_form.form_nonce.data = report_form.form_nonce.default()
+
         if report_form.validate_on_submit():
             app.logger.info('validation pass')
             # get other reports for same comment
             existing_reports = report.comment.moderator_reports.filter(
-                ~CommentModeratorReport.id.in_([report.id])
+                CommentModeratorReport.reported_by != current_auth.user
             )
-            app.logger.info(existing_reports.all())
+
+            if existing_reports.count() > 0:
+                # if there is already a report for this comment
+                report_counter = Counter(
+                    [report.type for report in existing_reports]
+                    + [report_form.report_type.data]
+                )
+                most_common_two = report_counter.most_common(2)
+                # e.g. [(1, 2), (0, 1), (report_type, frequency)]
+                if most_common_two[0][1] > most_common_two[1][1]:
+                    if most_common_two[0][0] == MODERATOR_REPORT_TYPE.SPAM:
+                        report.comment.mark_spam()
+                    elif most_common_two[0][0] == MODERATOR_REPORT_TYPE.OK:
+                        report.comment.mark_not_spam()
+                    CommentModeratorReport.query.filter(comment=report.comment).delete()
+            else:
+                new_report = CommentModeratorReport(
+                    reported_by=current_auth.user,
+                    comment=report.comment,
+                    report_type=report_form.report_type.data,
+                )
+                db.session.add(new_report)
+            db.session.commit()
+
+            # Redirect to a new report
+            random_report = CommentModeratorReport.get_one(
+                exclude_by_user=current_auth.user
+            )
+            if random_report is not None:
+                return redirect(
+                    url_for('siteadmin_review_comment', report=random_report.uuid_b58)
+                )
+            else:
+                return redirect(url_for('account'))
+        else:
+            app.logger.info(report_form.errors)
 
         return {'report': report, 'report_form': report_form}
 
