@@ -54,7 +54,7 @@
                 <li>{{ proposal.project.short_title }}</li>
               {% endif %}
               <li>{{ proposal.commentset.count }} comments</li>
-              <li class="no-border">{{ proposal.datetime.strftime("%a, %e %b") }}</li>
+              <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</li>
               {% if proposal.video %}
                 <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
                   {{ faicon(icon='video', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}
@@ -105,7 +105,7 @@
           {% if project.cfp_state.OPEN -%}
             <div>
               <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized.strftime('%d %B, %I:%M %p') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM, YYYY, hh:mm a') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="mui-d--inlineblock">
