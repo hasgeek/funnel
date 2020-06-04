@@ -199,7 +199,7 @@ class TestUser(TestDatabaseFixture):
         db.session.add(kate)
         db.session.commit()
         result = models.User.get(buid=kate.buid)
-        assert len(result.pw_hash) == 60
+        assert len(result.pw_hash) == 77  # Argon2 hash
         assert result.password_is('12thprecinct') is True
         assert result.pw_expires_at > result.pw_set_at
 
@@ -228,6 +228,26 @@ class TestUser(TestDatabaseFixture):
         dumbeldore_password = 'dissendium'
         dumbeldore.password = dumbeldore_password
         assert dumbeldore.password_is(dumbeldore_password) is True
+
+    def test_password_hash_upgrade(self):
+        """
+        Test for password hash upgrade
+        """
+        # pw_hash contains bcrypt.hash('password')
+        weaksauce = models.User(
+            fullname="Weak Password",
+            pw_hash='$2b$12$q/TiZH08kbgiUk2W0I99sOaW5hKQ1ETgJxoAv8TvV.5WxB3dYQINO',
+        )
+        assert weaksauce.pw_hash.startswith('$2b$')
+        assert not weaksauce.password_is('incorrect')
+        assert weaksauce.pw_hash.startswith('$2b$')
+        assert not weaksauce.password_is('incorrect', upgrade_hash=True)
+        assert weaksauce.pw_hash.startswith('$2b$')
+        assert weaksauce.password_is('password')
+        assert weaksauce.pw_hash.startswith('$2b$')
+        assert weaksauce.password_is('password', upgrade_hash=True)
+        # Transparent upgrade to Argon2 after a successful password validation
+        assert weaksauce.pw_hash.startswith('$argon2id$')
 
     def test_user_is_active(self):
         """

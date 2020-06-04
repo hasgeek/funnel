@@ -1,14 +1,14 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import embed_video_player, video_action_bar %}
 <div class="modal__header mui--bg-accent">
-  <a class="modal__close" href="javascript:void(0);"  data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times',  icon_size='title', baseline=false) }}</a>
+  <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times',  icon_size='title') }}</a>
   <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}
       <p class="mui--text-subhead modal__header__text" data-cy-session="speaker">{{ faicon(icon='microphone-alt') }} {{ session.speaker }}</p>
     {% endif %}
     {% if session.scheduled %}
-      <p class="mui--text-subhead modal__header__text" data-cy-session="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized.strftime('%d %B %Y') }}, {{ session.start_at_localized.strftime('%I:%M %p') }}–{{ session.end_at_localized.strftime('%I:%M %p') }}
+      <p class="mui--text-subhead modal__header__text" data-cy-session="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
       </p>
     {% else %}
       <p class="mui--text-subhead modal__header__text">

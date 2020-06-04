@@ -1,8 +1,8 @@
 .project-banner {
-  margin-top: 15px;
+  margin-top: $mui-grid-padding;
 
   .project-banner__headline {
-    margin-bottom: 16px;
+    margin-bottom: $mui-grid-padding;
   }
   .project-banner__box {
     padding: 0;
@@ -15,7 +15,7 @@
       height: 100%;
     }
     .project-banner__headline {
-      padding: 0 15px;
+      padding: 0 $mui-grid-padding;
     }
     .project-banner__box__add-btn {
       position: absolute;
@@ -30,7 +30,7 @@
   }
 
   .profile-text {
-    margin: 15px 0;
+    margin: $mui-grid-padding 0;
 
     p {
       display: none;
@@ -45,8 +45,8 @@
   .project-banner__footer {
     display: flex;
     align-items: baseline;
-    margin: 15px 0 0;
-    padding: 0 15px;
+    margin: $mui-grid-padding 0 0;
+    padding: 0 $mui-grid-padding;
 
     .bookmark,
     .add-calendar,
@@ -85,12 +85,12 @@
   }
 
   .project-details__box {
-    margin-top: 15px;
+    margin-top: $mui-grid-padding;
     position: relative;
 
     .card__calendar {
-      padding: 0 15px 10px;
-      margin: 0 -15px 25px;
+      padding: 0 $mui-grid-padding 10px;
+      margin: 0 -$mui-grid-padding 25px;
     }
     .project-venue {
       margin: 10px 0;
@@ -134,18 +134,18 @@
 @media (min-width: 768px) {
   .project-banner {
     .project-banner__box {
-      padding: 0 15px;
+      padding: 0 $mui-grid-padding;
     }
     .project-banner__footer {
       padding: 0;
       .bookmark,
       .add-calendar,
       .share {
-        padding: 0 16px;
+        padding: 0 $mui-grid-padding;
         text-decoration: none;
       }
       .bookmark {
-        padding: 0 16px 0 0;
+        padding: 0 $mui-grid-padding 0 0;
       }
       .bookmark span.txt {
         padding-right: 5px;
@@ -173,7 +173,7 @@
 @media (min-width: 992px) {
   .project-banner {
     .project-banner__box {
-      padding: 0 15px;
+      padding: 0 $mui-grid-padding;
     }
     .profile-text {
       margin: 0 0 5px;
@@ -192,8 +192,8 @@
       }
       .propose {
         align-items: baseline;
-        margin-left: 15px;
-        width: calc(100% - 15px);
+        margin-left: $mui-grid-padding;
+        width: calc(100% - $mui-grid-padding);
       }
       .propose--lessmargin {
         margin: 10px 0 0;
@@ -215,28 +215,25 @@
 
 @media (min-width: 992px) and (max-width: 1199px) {
   .project-banner .project-details__box .add-calendar {
-    right: 30px;
+    right: $mui-grid-padding-double;
     top: 3px;
     font-size: 13px;
   }
 }
 
 .project-section__headline {
-  margin-bottom: 15px;
+  margin-bottom: $mui-grid-padding;
 }
 
 .reg-modal {
   .reg-modal__txt {
-    margin-bottom: 16px;
+    margin-bottom: $mui-grid-padding;
     width: calc(100% - 10px);
-  }
-  .reg-modal__btn {
-    margin-top: 20px;
   }
 }
 
 .about {
-  padding: 0 15px;
+  padding: 0 $mui-grid-padding;
   word-break: break-word;
 
   .about__details__description h1,
@@ -261,7 +258,7 @@
     width: 100%;
 
     .about__details__featured__cards {
-      padding: 0 15px;
+      padding: 0 $mui-grid-padding;
     }
   }
 
@@ -279,7 +276,7 @@
     background: #fff;
     left: 0;
     right: 0;
-    padding: 15px;
+    padding: $mui-grid-padding;
     z-index: 100001;
     bottom: 0;
     overflow: auto;
@@ -295,11 +292,11 @@
     .about__participate {
       display: block !important;
       position: relative;
-      width: calc(50% - 30px);
+      width: calc(50% - $mui-grid-padding-double);
       float: right;
       padding: 0;
-      margin-left: 30px;
-      margin-bottom: 15px;
+      margin-left: $mui-grid-padding-double;
+      margin-bottom: $mui-grid-padding;
     }
     .about__details {
       float: none;
@@ -313,7 +310,7 @@
       .about__details__featured__cards {
         display: inline-block;
         width: calc(50% - 32px);
-        padding: 0 15px;
+        padding: 0 $mui-grid-padding;
         vertical-align: top;
         margin: 0 -2px;
       }
@@ -324,13 +321,13 @@
 @media (min-width: 992px) {
   .about {
     .about__participate {
-      width: calc(40% - 30px);
+      width: calc(40% - $mui-grid-padding-double);
     }
 
     .about__details__featured {
       .about__details__featured__cards {
-        width: calc(33.3% - 30px);
-        padding: 0 15px;
+        width: calc(33.3% - $mui-grid-padding-double);
+        padding: 0 $mui-grid-padding;
       }
     }
   }
@@ -340,8 +337,8 @@
   .about {
     .about__details__featured {
       .about__details__featured__cards {
-        width: calc(33.3% - 30px);
-        padding: 0 15px;
+        width: calc(33.3% - $mui-grid-padding-double);
+        padding: 0 $mui-grid-padding;
       }
     }
   }
@@ -372,7 +369,7 @@
   .ticket-price-qty {
     float: left;
     width: 100%;
-    margin-top: 30px;
+    margin-top: $mui-grid-padding-double;
   }
 
   .ticket-description .few-ticket {
@@ -423,8 +420,8 @@
   height: 400px;
   width: 100%;
   z-index: 0;
-  margin-top: 15px;
+  margin-top: $mui-grid-padding;
   position: relative;
   outline: none;
-  margin-bottom: 30px;
+  margin-bottom: $mui-grid-padding-double;
 }
