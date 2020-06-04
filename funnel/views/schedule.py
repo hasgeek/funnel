@@ -8,7 +8,7 @@ from flask import Response, current_app, json, jsonify, request
 
 from icalendar import Alarm, Calendar, Event
 
-from baseframe import localize_timezone, forms
+from baseframe import forms, localize_timezone
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,

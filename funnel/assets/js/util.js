@@ -191,7 +191,8 @@ export const Utils = {
 
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg = 'An internal server error occurred. Our support team has been notified and will investigate.';
+        errorMsg =
+          'An internal server error occurred. Our support team has been notified and will investigate.';
       } else {
         errorMsg = JSON.parse(response.responseText).error_description;
       }

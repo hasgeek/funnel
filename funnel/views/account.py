@@ -105,7 +105,7 @@ class AccountView(ClassView):
         ):
             return abort(403)
 
-        comments = Comment.query.filter(~Comment.state.REMOVED).order_by(
+        comments = Comment.query.filter(~(Comment.state.REMOVED)).order_by(
             Comment.created_at.desc()
         )
         if query:
@@ -149,9 +149,7 @@ class AccountView(ClassView):
             for comment in comments:
                 comment.mark_spam()
             db.session.commit()
-            flash(
-                _("Comment(s) successfully marked as spam"), category='info',
-            )
+            flash(_("Comment(s) successfully marked as spam"), category='info')
         else:
             flash(
                 _("There was a problem marking the comments as spam. Please try again"),

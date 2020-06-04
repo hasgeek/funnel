@@ -16,7 +16,7 @@ from ..models import (
     getuser,
 )
 from ..registry import resource_registry
-from ..utils import make_redirect_url, abort_null
+from ..utils import abort_null, make_redirect_url
 from .auth_resource import get_userinfo
 from .helpers import requires_client_login, requires_login_no_message
 

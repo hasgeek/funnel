@@ -63,7 +63,7 @@
         <dt class="mui--text-subhead">{% trans %}Allow anyone to login?{% endtrans %}</dt>
         <dd class="mui--text-subhead">{{ auth_client.allow_any_login }}</dd>
         <dt class="mui--text-subhead">{% trans %}Registered date{% endtrans %}</dt>
-        <dd class="mui--text-subhead">{{ auth_client.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</dd>
+        <dd class="mui--text-subhead">{{ auth_client.created_at|datetime }} UTC</dd>
         {%- if auth_client.owner_is(current_auth.user) %}
           <dt class="mui--text-subhead">{% trans %}Users{% endtrans %}</dt>
           <dd class="mui--text-subhead">{{ auth_client.authtokens.count() }}</dd>
@@ -89,7 +89,7 @@
                 <dt class="mui--text-subhead">{% trans %}Key{% endtrans %}</dt>
                 <dd class="mui--text-subhead">{{cred.name}}</dd>
                 <dt class="mui--text-subhead">{% trans  %}Created{% endtrans %}</dt>
-                <dd class="mui--text-subhead">{{ cred.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</dd>
+                <dd class="mui--text-subhead">{{ cred.created_at|datetime }} UTC</dd>
                 <dt class="mui--text-subhead">{% trans %}Last used{% endtrans %}</dt>
                 {% if cred.accessed_at %}
                   <dd class="mui--text-subhead">{{ cred.accessed_at|age }}</dd>
