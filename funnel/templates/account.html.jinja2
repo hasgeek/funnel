@@ -69,7 +69,7 @@
             </ol>
             <p>{% trans %}Add External ID{% endtrans %}</p>
             {% for provider in login_registry %}
-              <a class="mui-btn mui-btn--small mui-btn--raised login login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}"/> {{ login_registry[provider]['title'] }}</a>
+              <a class="mui-btn mui-btn--small mui-btn--raised login login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img icon-img--smaller" alt="{{ login_registry[provider]['title'] }}"/> {{ login_registry[provider]['title'] }}</a>
             {% endfor %}
           </div>
         </div>
