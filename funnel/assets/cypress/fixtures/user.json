@@ -22,5 +22,9 @@
   "user": {
     "username": "member-user",
     "password": "cypress341_wer"
+  },
+  "hguser": {
+    "username": "hg-user",
+    "password": "cypress5678y9"
   }
 }

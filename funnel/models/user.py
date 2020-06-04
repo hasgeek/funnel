@@ -191,6 +191,17 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
 
+    @cached_property
+    def verified_contact_count(self):
+        count = 0
+        count += len(self.emails)
+        count += len(self.phones)
+        return count
+
+    @property
+    def has_verified_contact_info(self):
+        return self.verified_contact_count > 0
+
     def merged_user(self):
         if self.status == USER_STATUS.MERGED:
             return UserOldId.get(self.uuid).user
