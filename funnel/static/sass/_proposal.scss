@@ -85,13 +85,13 @@
 @media (min-width: 992px) {
   .proposal__section--left {
     float: left;
-    width: calc(70% - $mui-grid-padding);
+    width: calc(70% - #{$mui-grid-padding});
     padding-bottom: $mui-grid-padding;
   }
 
   .proposal__admin-panel {
     float: right;
-    width: calc(30% - $mui-grid-padding);
+    width: calc(30% - #{$mui-grid-padding});
     margin-top: $mui-grid-padding-double;
     margin-right: $mui-grid-padding;
   }
