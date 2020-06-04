@@ -123,7 +123,7 @@
   background: #fff;
   cursor: pointer;
   position: relative;
-  margin: 10px 15px;
+  margin: 10px $mui-grid-padding;
 
   .drag-icon {
     position: absolute;
@@ -152,7 +152,7 @@
 }
 
 .ui-box-placeholder {
-  margin: 10px 15px;
+  margin: 10px $mui-grid-padding;
   padding: 10px;
   border-radius: 3px;
   border: 1px solid #ddd;
@@ -237,7 +237,7 @@
       position: absolute;
       bottom: 0;
       right: 0;
-      padding: 15px;
+      padding: $mui-grid-padding;
       z-index: 1003;
     }
   }
@@ -278,7 +278,7 @@
   }
 }
 .search--icon {
-  padding-left: 30px;
+  padding-left: $mui-grid-padding-double;
   .search-form__icon {
     position: absolute;
     top: 10px;

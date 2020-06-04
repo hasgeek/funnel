@@ -1,5 +1,5 @@
 .comment {
-  margin: 15px 0 0;
+  margin: $mui-grid-padding 0 0;
 
   .comment--content {
     display: inline-block;
@@ -40,7 +40,7 @@
   blockquote {
     border-left: 2px solid #c0ccda;
     margin: 0;
-    padding-left: 15px;
+    padding-left: $mui-grid-padding;
   }
 }
 
