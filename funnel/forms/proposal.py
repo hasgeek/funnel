@@ -48,6 +48,8 @@ def proposal_label_form(project, proposal):
                     ],
                 ),
             )
+    if not project.labels:
+        return None
 
     form = ProposalLabelForm(
         obj=proposal.formlabels if proposal else None, meta={'csrf': False}
@@ -228,9 +230,15 @@ class ProposalForm(forms.Form):
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def set_queries(self):
-        self.formlabels.form = proposal_label_form(
+        label_form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
         )
+        if label_form:
+            self.formlabels.form = proposal_label_form(
+                project=self.edit_parent, proposal=self.edit_obj
+            )
+        else:
+            del self.formlabels
 
 
 @Proposal.forms('transition')
