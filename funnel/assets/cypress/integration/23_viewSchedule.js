@@ -36,7 +36,7 @@ describe('View schedule of p roject', function() {
     cy.get('#session-modal').should('be.visible');
     tomorrow = Cypress.moment()
       .add(1, 'days')
-      .format('DD MMMM YYYY');
+      .format('MMM D, YYYY');
     cy.get('[data-cy-session="title"]').contains(session.title);
     cy.get('[data-cy-session="speaker"]').contains(session.speaker);
     cy.get('[data-cy-session="time"]').contains(session.time);

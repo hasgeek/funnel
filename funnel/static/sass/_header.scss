@@ -4,7 +4,7 @@
 
     .header__nav {
       height: 50px;
-      padding: 0 15px;
+      padding: 0 $mui-grid-padding;
       justify-content: space-between;
 
       .header__site-title {
@@ -33,7 +33,7 @@
             .search-form__field {
               background-color: #eff2f6;
               border: none;
-              padding: 15px 30px 15px 35px;
+              padding: $mui-grid-padding $mui-grid-padding-double $mui-grid-padding 35px;
               min-width: calc(100% - 60px);
               color: #4d5763;
               font-size: 16px;
@@ -42,7 +42,7 @@
             .search-form__field__icon {
               position: absolute;
               top: 17px;
-              left: 15px;
+              left: $mui-grid-padding;
             }
             .search-form__submit {
               visibility: hidden;
@@ -111,7 +111,7 @@
 
             .header__site-title__logo {
               height: 35px;
-              margin-right: 15px;
+              margin-right: $mui-grid-padding;
               position: relative;
               top: -2px;
             }
@@ -129,7 +129,7 @@
 
               .search-form__field {
                 border-radius: 16px;
-                padding: 8px 10px 8px 30px;
+                padding: 8px 10px 8px $mui-grid-padding-double;
               }
               .search-form__field__icon {
                 top: 9px;
@@ -216,7 +216,7 @@
 
             .search-form {
               .search-form__field {
-                padding: 5px 10px 5px 30px;
+                padding: 5px 10px 5px $mui-grid-padding-double;
                 font-size: 14px;
               }
               .search-form__field__icon {
@@ -301,7 +301,7 @@
 .sub-navbar {
   .sub-navbar__item {
     display: block;
-    padding: 15px;
+    padding: $mui-grid-padding;
     margin: 0;
     text-decoration: none;
     border-bottom: 1px solid rgba(132, 146, 166, 0.3);
@@ -360,13 +360,13 @@
     display: flex;
     align-items: center;
     margin: 0 auto;
-    padding: 0 15px;
+    padding: 0 $mui-grid-padding;
 
     .sub-navbar__item {
       display: inline-block;
       flex-shrink: 0;
-      padding: 15px;
-      margin: 0 15px;
+      padding: $mui-grid-padding;
+      margin: 0 $mui-grid-padding;
       text-decoration: none;
       border-bottom: 2px solid transparent;
       transition: border-color 1.5s ease;
@@ -375,7 +375,7 @@
     }
 
     .sub-navbar__item:first-child {
-      margin: 0 15px 0 0;
+      margin: 0 $mui-grid-padding 0 0;
     }
 
     .sub-navbar__item:first-child {
@@ -404,7 +404,7 @@
   .sub-navbar {
     max-width: 960px;
     margin: auto;
-    padding: 0 15px;
+    padding: 0 $mui-grid-padding;
   }
 }
 
@@ -424,7 +424,7 @@
 
   .mobile-nav__icon {
     display: inline-block;
-    padding: 15px 30px 15px 20px;
+    padding: $mui-grid-padding $mui-grid-padding-double $mui-grid-padding 20px;
   }
   .mobile-nav__headline {
     font-size: 20px;
@@ -459,10 +459,10 @@
   align-items: center;
 
   .tabs__item {
-    padding: 15px;
+    padding: $mui-grid-padding;
     cursor: pointer;
     position: relative;
-    min-width: 130px;
+    min-width: 1$mui-grid-padding-double;
     border: none;
     border-bottom: 2px solid transparent;
     margin: 0;
@@ -495,7 +495,7 @@
     background: #fff;
     min-width: auto;
     top: 0;
-    padding: 15px 15px 6px;
+    padding: $mui-grid-padding $mui-grid-padding 6px;
     align-self: center;
     box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
 
@@ -521,8 +521,8 @@
     left: 0;
 
     .grid__col-12 {
-      padding-left: 15px;
-      padding-right: 15px;
+      padding-left: $mui-grid-padding;
+      padding-right: $mui-grid-padding;
     }
 
     .tabs__item-control {
