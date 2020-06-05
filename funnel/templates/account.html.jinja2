@@ -92,15 +92,15 @@
                     <em>{% trans %}(primary){% endtrans %}</em>
                   {% endif %}
                   {%- if current_auth.user.verified_contact_count > 1 %}
-                    <a href="{{ url_for('remove_email', md5sum=useremail.md5sum) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
+                    <a href="{{ url_for('remove_email', email_hash=useremail.blake2b_b58) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                   {%- endif %}
                 </li>
                 {% endfor %}
                 {% for useremail in current_auth.user.emailclaims %}
                 <li>
                   <input type="radio" disabled="disabled">&nbsp;
-                  {{ useremail }} <em><a href="{{ url_for('verify_email', md5sum=useremail.md5sum) }}">{% trans %}(pending verification){% endtrans %}</a></em>
-                  <a href="{{ url_for('remove_email', md5sum=useremail.md5sum) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
+                  {{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.blake2b_b58) }}">{% trans %}(pending verification){% endtrans %}</a></em>
+                  <a href="{{ url_for('remove_email', email_hash=useremail.blake2b_b58) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
                 {% endfor %}
               </ol>
