@@ -219,7 +219,7 @@ class AuthClientCredential(BaseMixin, db.Model):
     like bcrypt because:
 
     1. Secrets are UUID-based and unique before hashing. Salting is only beneficial when
-       the source values may reused.
+       the source values may be reused.
     2. Unlike user passwords, client secrets are used often, up to many times per
        minute. The hash needs to be fast (MD5 or SHA) and reasonably safe from collision
        attacks (eliminating MD5, SHA0 and SHA1). Blake2 is the fastest available
