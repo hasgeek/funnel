@@ -277,13 +277,13 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @state.transition(None, state.SPAM)
     def mark_spam(self):
         """
-        Mark this comment as spam
+        Mark this comment as spam.
         """
 
     @state.transition(state.SPAM, state.PUBLIC)
     def mark_not_spam(self):
         """
-        Mark this comment as not a spam
+        Mark this comment as not a spam.
         """
 
     def sorted_children(self):
