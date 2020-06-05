@@ -71,7 +71,7 @@ def upgrade():
             .values(
                 md5sum=hashlib.md5(item.email.lower().encode()).hexdigest(),  # nosec
                 blake2b=hashlib.blake2b(
-                    item.email.lower().encode(), digest_size=32
+                    item.email.lower().encode(), digest_size=16
                 ).digest(),
             )
         )
@@ -95,7 +95,7 @@ def upgrade():
             .values(
                 md5sum=hashlib.md5(item.email.lower().encode()).hexdigest(),  # nosec
                 blake2b=hashlib.blake2b(
-                    item.email.lower().encode(), digest_size=32
+                    item.email.lower().encode(), digest_size=16
                 ).digest(),
             )
         )
