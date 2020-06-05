@@ -796,7 +796,7 @@ class UserEmail(BaseMixin, db.Model):
         self._email = email.lower()
         self.md5sum = md5sum(self._email.lower())
         self.blake2b = hashlib.blake2b(
-            self._email.lower().encode(), digest_size=16
+            self._email.lower().encode(), digest_size=32
         ).digest()
         self.domain = email.split('@')[-1]
 
@@ -908,7 +908,7 @@ class UserEmailClaim(BaseMixin, db.Model):
         self._email = email.lower()
         self.md5sum = md5sum(self._email.lower())
         self.blake2b = hashlib.blake2b(
-            self._email.lower().encode(), digest_size=16
+            self._email.lower().encode(), digest_size=32
         ).digest()
         self.domain = email.split('@')[-1]
 
