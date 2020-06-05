@@ -61,10 +61,7 @@ class OrgView(UrlForView, ModelView):
             db.session.add(org)
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
-            if org.profile.state.PUBLIC:
-                return render_redirect(org.profile.url_for('edit'), code=303)
-            else:
-                return render_redirect(org.url_for(), code=303)
+            return render_redirect(org.profile.url_for('edit'), code=303)
         return render_form(
             form=form,
             title=_("Create a new organization"),
