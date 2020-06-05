@@ -14,7 +14,7 @@ class TestName(TestDatabaseFixture):
         assert models.Profile.is_available_name('invalid_name') is False
         # 'piglet' is a name taken in the fixtures
         piglet = models.User.get(username='piglet')
-        assert piglet.profile.state.AUTO
+        assert piglet.profile.state.PUBLIC
         # even though profile is not public, username is still unavailable
         assert models.Profile.is_available_name('piglet') is False
         # any other random usernames are available
