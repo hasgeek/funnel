@@ -194,25 +194,24 @@ class AccountView(ClassView):
         if report.reported_by == current_auth.user:
             flash(_("You cannot review same comment twice"), 'error')
             return redirect(url_for('siteadmin_review_comments_random'))
-        report_form = ModeratorReportForm()
 
+        existing_reports = report.comment.moderator_reports.filter(
+            CommentModeratorReport.reported_by != current_auth.user
+        )
+
+        report_form = ModeratorReportForm()
         report_form.form_nonce.data = report_form.form_nonce.default()
 
         if report_form.validate_on_submit():
             app.logger.info('validation pass')
             # get other reports for same comment
-            existing_reports = report.comment.moderator_reports.filter(
-                CommentModeratorReport.reported_by != current_auth.user
-            )
-
             # existing report count will be greater than 0 because
             # current report exists and it's not by the current user.
-
-            # if there is already a report for this comment
             report_counter = Counter(
                 [report.report_type for report in existing_reports]
                 + [report_form.report_type.data]
             )
+            # if there is already a report for this comment
             most_common_two = report_counter.most_common(2)
             # Possible values of most_common_two -
             # - [(1, 2)] - if both existing and current reports are same or
@@ -252,7 +251,16 @@ class AccountView(ClassView):
         else:
             app.logger.info(report_form.errors)
 
-        return {'report': report, 'report_form': report_form}
+        return {
+            'report': report,
+            'existing_reports': {
+                report.reported_by.pickername: MODERATOR_REPORT_TYPE[
+                    report.report_type
+                ].title
+                for report in existing_reports
+            },
+            'report_form': report_form,
+        }
 
 
 @route('/account')

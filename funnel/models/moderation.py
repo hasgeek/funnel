@@ -39,4 +39,4 @@ class CommentModeratorReport(UuidMixin, NoIdMixin, db.Model):
         reports = cls.query.filter()
         if exclude_reported_by is not None:
             reports = reports.filter(cls.reported_by != exclude_reported_by)
-        return reports.first()
+        return reports.order_by(db.func.random()).first()
