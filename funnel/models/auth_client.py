@@ -226,7 +226,8 @@ class AuthClientCredential(BaseMixin, db.Model):
        candidate meeting this criteria, replacing the previous choice of SHA256. Blake3
        is too new at this time, but is an upgrade candidate.
     3. To allow for a different hash to be used in future, hashes are stored
-       prefixed with the hash name, currently 'blake2b$', and previously 'sha256$'.
+       prefixed with the hash name and digest size, currently 'blake2b$32$'. This code
+       will transparently upgrading from the previous 'sha256$' on successful auth.
     """
 
     __tablename__ = 'auth_client_credential'
@@ -251,16 +252,21 @@ class AuthClientCredential(BaseMixin, db.Model):
     accessed_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     def secret_is(self, candidate, upgrade_hash=False):
-        if self.secret_hash.startswith('blake2b$'):
+        if self.secret_hash.startswith('blake2b$32$'):
             return (
-                self.secret_hash == 'blake2b$' + blake2b(candidate.encode()).hexdigest()
+                self.secret_hash
+                == 'blake2b$32$'
+                + blake2b(candidate.encode(), digest_size=32).hexdigest()
             )
         if self.secret_hash.startswith('sha256$'):
             matches = (
                 self.secret_hash == 'sha256$' + sha256(candidate.encode()).hexdigest()
             )
             if matches and upgrade_hash:
-                self.secret_hash = 'blake2b$' + blake2b(candidate.encode()).hexdigest()
+                self.secret_hash = (
+                    'blake2b$32$'
+                    + blake2b(candidate.encode(), digest_size=32).hexdigest()
+                )
             return matches
         return False
 
@@ -279,7 +285,9 @@ class AuthClientCredential(BaseMixin, db.Model):
         cred = cls(auth_client=auth_client, name=buid())
         db.session.add(cred)
         secret = newsecret()
-        cred.secret_hash = 'blake2b$' + blake2b(secret.encode()).hexdigest()
+        cred.secret_hash = (
+            'blake2b$32$' + blake2b(secret.encode(), digest_size=32).hexdigest()
+        )
         return cred, secret
 
     def permissions(self, user, inherited=None):

@@ -19,7 +19,7 @@ class TestClientCredential(TestDatabaseFixture):
         assert cred.auth_client == auth_client
         assert isinstance(cred, models.AuthClientCredential)
         client_secret = cred.secret_hash
-        assert client_secret.startswith('blake2b$')
+        assert client_secret.startswith('blake2b$32$')
 
     def test_clientcredential_get(self):
         """
@@ -49,7 +49,8 @@ class TestClientCredential(TestDatabaseFixture):
         secret_sha256 = (
             'sha256$45c879362ed45b3f92a7ea3c1e53ecab0dd79c61cb357e6eb0de6d64408ea25c'
         )
-        secret_blake2b = 'blake2b$3fe1e91bef5ded2648549349d72ed0f00a2a237a742b46e129f7b259a3288d7183e94d156f549c2f297485600351ca056da4671d989e0cbb7d4dedd31df2d322'
+
+        secret_blake2b = 'blake2b$32$e7b49edf2b7c3945631d229dae3db30517f75047ce547a97ae27e9b46f69723a'
         cred = models.AuthClientCredential(
             auth_client=self.fixtures.auth_client, secret_hash=secret_sha256
         )
