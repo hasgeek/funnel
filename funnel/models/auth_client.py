@@ -227,7 +227,7 @@ class AuthClientCredential(BaseMixin, db.Model):
        is too new at this time, but is an upgrade candidate.
     3. To allow for a different hash to be used in future, hashes are stored
        prefixed with the hash name and digest size, currently 'blake2b$32$'. This code
-       will transparently upgrading from the previous 'sha256$' on successful auth.
+       will transparently upgrade from the previous 'sha256$' on successful auth.
     """
 
     __tablename__ = 'auth_client_credential'
