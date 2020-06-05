@@ -59,6 +59,7 @@ class OrgView(UrlForView, ModelView):
             org = Organization(owner=current_auth.user)
             form.populate_obj(org)
             db.session.add(org)
+            org.profile.make_public()
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
             return render_redirect(org.profile.url_for('edit'), code=303)

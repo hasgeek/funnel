@@ -76,7 +76,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         db.Integer,
         StateManager.check_constraint('state', PROFILE_STATE),
         nullable=False,
-        default=PROFILE_STATE.PUBLIC,
+        default=PROFILE_STATE.AUTO,
     )
     state = StateManager('_state', PROFILE_STATE, doc="Current state of the profile")
 
