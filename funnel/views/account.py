@@ -170,7 +170,7 @@ class AccountView(ClassView):
             return abort(403)
 
         random_report = CommentModeratorReport.get_one(
-            exclude_by_user=current_auth.user
+            exclude_reported_by=current_auth.user
         )
         if random_report is not None:
             return redirect(
@@ -205,21 +205,32 @@ class AccountView(ClassView):
                 CommentModeratorReport.reported_by != current_auth.user
             )
 
-            if existing_reports.count() > 0:
-                # if there is already a report for this comment
-                report_counter = Counter(
-                    [report.type for report in existing_reports]
-                    + [report_form.report_type.data]
-                )
-                most_common_two = report_counter.most_common(2)
-                # e.g. [(1, 2), (0, 1), (report_type, frequency)]
-                if most_common_two[0][1] > most_common_two[1][1]:
-                    if most_common_two[0][0] == MODERATOR_REPORT_TYPE.SPAM:
-                        report.comment.mark_spam()
-                    elif most_common_two[0][0] == MODERATOR_REPORT_TYPE.OK:
-                        report.comment.mark_not_spam()
-                    CommentModeratorReport.query.filter(comment=report.comment).delete()
+            # existing report count will be greater than 0 because
+            # current report exists and it's not by the current user.
+
+            # if there is already a report for this comment
+            report_counter = Counter(
+                [report.report_type for report in existing_reports]
+                + [report_form.report_type.data]
+            )
+            most_common_two = report_counter.most_common(2)
+            # Possible values of most_common_two -
+            # - [(1, 2)] - if both existing and current reports are same or
+            # - [(1, 2), (0, 1), (report_type, frequency)] - multiple conflicting reports
+            if (
+                len(most_common_two) == 1
+                or most_common_two[0][1] > most_common_two[1][1]
+            ):
+                if most_common_two[0][0] == MODERATOR_REPORT_TYPE.SPAM:
+                    report.comment.mark_spam()
+                elif most_common_two[0][0] == MODERATOR_REPORT_TYPE.OK:
+                    report.comment.mark_not_spam()
+                CommentModeratorReport.query.filter_by(comment=report.comment).delete()
             else:
+                # current report is different from existing report and
+                # no report has majority frequency.
+                # e.g. existing report was spam, current report is not spam,
+                # we'll create the new report and wait for a 3rd report.
                 new_report = CommentModeratorReport(
                     reported_by=current_auth.user,
                     comment=report.comment,
@@ -230,7 +241,7 @@ class AccountView(ClassView):
 
             # Redirect to a new report
             random_report = CommentModeratorReport.get_one(
-                exclude_by_user=current_auth.user
+                exclude_reported_by=current_auth.user
             )
             if random_report is not None:
                 return redirect(

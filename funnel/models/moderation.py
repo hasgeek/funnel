@@ -35,8 +35,8 @@ class CommentModeratorReport(UuidMixin, NoIdMixin, db.Model):
     )
 
     @classmethod
-    def get_one(cls, exclude_by_user=None):
-        reports = cls.query.all()
-        if exclude_by_user is not None:
-            reports = reports.filter(cls.reported_by != exclude_by_user)
+    def get_one(cls, exclude_reported_by=None):
+        reports = cls.query.filter()
+        if exclude_reported_by is not None:
+            reports = reports.filter(cls.reported_by != exclude_reported_by)
         return reports.first()
