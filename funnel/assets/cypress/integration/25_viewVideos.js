@@ -1,9 +1,9 @@
-describe('View project videos page', function() {
+describe('View project videos page', function () {
   const project = require('../fixtures/project.json');
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
 
-  it('View project videos page', function() {
+  it('View project videos page', function () {
     cy.visit('/');
     cy.get('.upcoming')
       .find('.card--upcoming')

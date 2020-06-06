@@ -18,7 +18,7 @@ $(() => {
   Utils.truncate();
   Utils.showTimeOnCalendar();
 
-  const intersectionObserverComponents = function() {
+  const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {
       ScrollActiveMenu.init(
         'page-navbar',
@@ -47,7 +47,7 @@ $(() => {
         'src',
         'https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver'
       );
-      polyfill.onload = function() {
+      polyfill.onload = function () {
         intersectionObserverComponents();
       };
       document.head.appendChild(polyfill);
@@ -92,7 +92,7 @@ if (
   )
 ) {
   $('.pace').addClass('pace-hide');
-  window.onbeforeunload = function() {
+  window.onbeforeunload = function () {
     Pace.stop();
   };
 }

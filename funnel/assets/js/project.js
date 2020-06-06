@@ -84,11 +84,11 @@ const Ticketing = {
   },
 
   initTicketModal() {
-    $('.open-ticket-widget').click(event => {
+    $('.open-ticket-widget').click((event) => {
       event.preventDefault();
       this.openTicketModal();
     });
-    $('#close-ticket-widget').click(event => {
+    $('#close-ticket-widget').click((event) => {
       event.preventDefault();
       this.hideTicketModal();
     });
@@ -195,7 +195,7 @@ const EmbedMap = {
   },
 };
 $(() => {
-  window.HasGeek.ProjectInit = function({ tickets = '', venue = '' }) {
+  window.HasGeek.ProjectInit = function ({ tickets = '', venue = '' }) {
     if (tickets) {
       Ticketing.init(tickets);
     }
