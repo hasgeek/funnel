@@ -248,18 +248,24 @@ class CommentView(UrlForView, ModelView):
         ):
             abort(403)
 
-        report = CommentModeratorReport(reported_by=current_auth.user, comment=self.obj)
-        db.session.add(report)
-        db.session.commit()
+        report = CommentModeratorReport.query.filter_by(
+            reported_by=current_auth.user, comment=self.obj
+        ).one_or_none()
+        if report is None:
+            report = CommentModeratorReport(
+                reported_by=current_auth.user, comment=self.obj
+            )
+            db.session.add(report)
+            db.session.commit()
 
         flash(
             _(
                 "The comment has been reported as spam and "
                 "it'll be taken down after someone reviews the report"
             ),
-            'error',
+            'info',
         )
-        return redirect(self.obj.commentset.url_for(), code=303)
+        return redirect(self.obj.commentset.views.url(), code=303)
 
 
 @route('/comments/<commentset>/<comment>', subdomain='<profile>')
