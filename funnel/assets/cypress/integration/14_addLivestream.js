@@ -1,9 +1,9 @@
-describe('Add livestream', function() {
+describe('Add livestream', function () {
   const editor = require('../fixtures/user.json').editor;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Adding livestream youtube url to project', function() {
+  it('Adding livestream youtube url to project', function () {
     cy.login('/' + profile.title, editor.username, editor.password);
 
     cy.get('[data-cy-project="' + project.title + '"]')
@@ -18,9 +18,7 @@ describe('Add livestream', function() {
     cy.get('#field-livestream_urls')
       .find('textarea')
       .type(project.livestream_url, { force: true });
-    cy.get('button')
-      .contains('Save changes')
-      .click();
+    cy.get('button').contains('Save changes').click();
     cy.location('pathname').should('contain', project.url);
 
     cy.get('#livestream').should('exist');

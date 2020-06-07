@@ -1,8 +1,8 @@
-describe('Verify roles of concierge', function() {
+describe('Verify roles of concierge', function () {
   const concierge = require('../fixtures/user.json').concierge;
   const project = require('../fixtures/project.json');
 
-  it('Access available for concierge in project settings', function() {
+  it('Access available for concierge in project settings', function () {
     cy.login('/', concierge.username, concierge.password);
 
     cy.get('[data-cy-project="' + project.title + '"]')

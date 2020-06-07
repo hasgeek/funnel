@@ -50,7 +50,7 @@ def init_models():
                 usher_email,
                 editor,
                 editor_email,
-                user2
+                user2,
             ]
         )
         db.session.commit()
