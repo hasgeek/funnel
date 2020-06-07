@@ -193,6 +193,7 @@ class AccountView(ClassView):
                 url_for('siteadmin_review_comment', report=random_report.uuid_b58)
             )
         else:
+            flash(_("There is no comment report no review at this moment"), 'error')
             return redirect(url_for('account'))
 
     @route(
