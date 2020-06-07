@@ -43,7 +43,18 @@ def app_url_for(
 
     - Does not support blueprints as this repo does not use them
     - Does not defer to a :exc:`BuildError` handler. Caller is responsible for handling
+    - However, defers to Flask's url_for if the provided app is also the current app
     """
+    # 'app' here is the parameter, not the module-level import
+    if current_app and current_app._get_current_object() is app:
+        return url_for(
+            endpoint,
+            _external=_external,
+            _method=_method,
+            _anchor=_anchor,
+            _scheme=_scheme,
+            **values,
+        )
     url_adapter = app.create_url_adapter(None)
     old_scheme = None
     if _scheme is not None:

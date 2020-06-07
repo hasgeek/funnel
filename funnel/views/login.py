@@ -134,7 +134,7 @@ def login():
                         category='danger',
                     )
                     return set_loginmethod_cookie(
-                        render_redirect(url_for('change_password'), code=303),
+                        render_redirect(app_url_for(app, 'change_password'), code=303),
                         'password',
                     )
                 elif user.password_has_expired():
@@ -152,7 +152,7 @@ def login():
                         category='warning',
                     )
                     return set_loginmethod_cookie(
-                        render_redirect(url_for('change_password'), code=303),
+                        render_redirect(app_url_for(app, 'change_password'), code=303),
                         'password',
                     )
                 else:
