@@ -1,7 +1,7 @@
 """Moderator report model
 
 Revision ID: 954f066e0e4b
-Revises: 073e7961d5df
+Revises: 047ebdac558b
 Create Date: 2020-05-22 00:33:39.113290
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '954f066e0e4b'
-down_revision = '073e7961d5df'
+down_revision = '047ebdac558b'
 branch_labels = None
 depends_on = None
 

@@ -40,3 +40,17 @@ class CommentModeratorReport(UuidMixin, NoIdMixin, db.Model):
         if exclude_reported_by is not None:
             reports = reports.filter(cls.reported_by != exclude_reported_by)
         return reports.order_by(db.func.random()).first()
+
+
+def _report_comment(self, reported_by):
+    report = CommentModeratorReport.query.filter_by(
+        reported_by=reported_by, comment=self
+    ).one_or_none()
+    if report is None:
+        report = CommentModeratorReport(reported_by=reported_by, comment=self)
+        db.session.add(report)
+        db.session.commit()
+    return report
+
+
+Comment.report_spam = _report_comment

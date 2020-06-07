@@ -14,7 +14,7 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import CommentDeleteForm, CommentForm
-from ..models import Comment, CommentModeratorReport, Commentset, Proposal, db
+from ..models import Comment, Commentset, Proposal, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import ProposalViewMixin
@@ -248,16 +248,7 @@ class CommentView(UrlForView, ModelView):
         ):
             abort(403)
 
-        report = CommentModeratorReport.query.filter_by(
-            reported_by=current_auth.user, comment=self.obj
-        ).one_or_none()
-        if report is None:
-            report = CommentModeratorReport(
-                reported_by=current_auth.user, comment=self.obj
-            )
-            db.session.add(report)
-            db.session.commit()
-
+        self.obj.report_spam(reported_by=current_auth.user)
         flash(
             _(
                 "The comment has been reported as spam and "

@@ -168,9 +168,15 @@ class AccountView(ClassView):
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
             for comment in comments:
-                comment.mark_spam()
+                comment.report_spam(reported_by=current_auth.user)
             db.session.commit()
-            flash(_("Comment(s) successfully marked as spam"), category='info')
+            flash(
+                _(
+                    "Comment(s) successfully reported as spam. "
+                    "They will be removed after somebody reviews them"
+                ),
+                category='info',
+            )
         else:
             flash(
                 _("There was a problem marking the comments as spam. Please try again"),
