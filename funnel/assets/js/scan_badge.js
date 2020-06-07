@@ -129,7 +129,7 @@ const badgeScan = {
         const stream = this.get('video').srcObject;
 
         if (typeof stream !== 'undefined') {
-          stream.getTracks().forEach(track => {
+          stream.getTracks().forEach((track) => {
             track.stop();
           });
         }
@@ -154,7 +154,7 @@ const badgeScan = {
           audio: false,
         };
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+          navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             this.set('video', video);
             this.get('video').srcObject = stream;
             this.get('video').play();
@@ -183,7 +183,7 @@ const badgeScan = {
 
       getDeviceCameras(mediaDevices) {
         const count = 0;
-        mediaDevices.forEach(mediaDevice => {
+        mediaDevices.forEach((mediaDevice) => {
           if (mediaDevice.kind === 'videoinput') {
             badgeScanComponent.push('cameras', {
               value: mediaDevice.deviceId,
@@ -201,7 +201,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.HasGeek.BadgeScanInit = function(eventConfig) {
+  window.HasGeek.BadgeScanInit = function (eventConfig) {
     badgeScan.init(eventConfig);
   };
 });

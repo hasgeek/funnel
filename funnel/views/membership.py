@@ -65,6 +65,23 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                if not membership_form.user.data.has_verified_contact_info:
+                    # users without verified contact information cannot be members
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _(
+                                "This user does not have any verified contact"
+                                " information. If you are able to contact them, please"
+                                " ask them to verify their email address or phone"
+                                " number"
+                            ),
+                            'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
+
                 previous_membership = (
                     OrganizationMembership.query.filter(
                         OrganizationMembership.is_active
@@ -189,6 +206,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
                 return {
                     'status': 'ok',
+                    'message': _("The member's roles have been updated"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
@@ -249,6 +267,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     )
                 return {
                     'status': 'ok',
+                    'message': _("The member has been removed"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
@@ -268,13 +287,13 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
         form_html = render_form(
             form=form,
-            title=_("Delete member"),
+            title=_("Remove member"),
             message=_(
                 "Are you sure you want to remove {member} from {profile} as an admin?"
             ).format(
                 member=self.obj.user.fullname, profile=self.obj.organization.title
             ),
-            submit=_("Delete"),
+            submit=_("Remove"),
             ajax=False,
             with_chrome=False,
         )
@@ -315,6 +334,22 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
+                if not membership_form.user.data.has_verified_contact_info:
+                    # users without verified contact information cannot be members
+                    return (
+                        {
+                            'status': 'error',
+                            'message': _(
+                                "This user does not have any verified contact"
+                                " information. If you are able to contact them, please"
+                                " ask them to verify their email address or phone"
+                                " number"
+                            ),
+                            'errors': membership_form.errors,
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
                 previous_membership = (
                     ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
                     .filter_by(project=self.obj, user_id=membership_form.user.data.id)
@@ -493,6 +528,7 @@ class ProjectCrewMembershipView(
                 db.session.commit()
                 return {
                     'status': 'ok',
+                    'message': _("The member's roles have been updated"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
@@ -547,6 +583,7 @@ class ProjectCrewMembershipView(
                     )
                 return {
                     'status': 'ok',
+                    'message': _("The member has been removed"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
@@ -559,11 +596,11 @@ class ProjectCrewMembershipView(
 
         form_html = render_form(
             form=form,
-            title=_("Delete member"),
+            title=_("Remove member"),
             message=_(
                 "Are you sure you want to remove {member} from the project?"
             ).format(member=self.obj.user.fullname),
-            submit=_("Delete"),
+            submit=_("Remove"),
             ajax=False,
             with_chrome=False,
         )

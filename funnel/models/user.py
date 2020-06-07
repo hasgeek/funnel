@@ -1,4 +1,5 @@
 from datetime import timedelta
+import hashlib
 
 from sqlalchemy import or_
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -6,10 +7,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import defer
 from sqlalchemy_utils import TimezoneType
 
-from werkzeug.security import check_password_hash
 from werkzeug.utils import cached_property
 
-import bcrypt
+from passlib.hash import argon2, bcrypt
+import base58
 import phonenumbers
 
 from baseframe import __
@@ -113,8 +114,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     )
     #: Alias for the user's fullname
     title = db.synonym('fullname')
-    #: Bcrypt hash of the user's password
-    pw_hash = db.Column(db.String(80), nullable=True)
+    #: Argon2 or Bcrypt hash of the user's password
+    pw_hash = db.Column(db.Unicode, nullable=True)
     #: Timestamp for when the user's password last changed
     pw_set_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     #: Expiry date for the password (to prompt user to reset it)
@@ -192,6 +193,17 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
 
+    @cached_property
+    def verified_contact_count(self):
+        count = 0
+        count += len(self.emails)
+        count += len(self.phones)
+        return count
+
+    @property
+    def has_verified_contact_info(self):
+        return self.verified_contact_count > 0
+
     def merged_user(self):
         if self.status == USER_STATUS.MERGED:
             return UserOldId.get(self.uuid).user
@@ -202,9 +214,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if password is None:
             self.pw_hash = None
         else:
-            self.pw_hash = bcrypt.hashpw(
-                password.encode('utf-8'), bcrypt.gensalt()
-            ).decode('ascii')
+            self.pw_hash = argon2.hash(password)
+            # Also see :meth:`password_is` for transparent upgrade
         self.pw_set_at = db.func.utcnow()
         # Expire passwords after one year. TODO: make this configurable
         self.pw_expires_at = self.pw_set_at + timedelta(days=365)
@@ -213,22 +224,28 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     password = property(fset=_set_password)
 
     def password_has_expired(self):
+        """True if password expiry timestamp has passed."""
         return (
             self.pw_hash is not None
             and self.pw_expires_at is not None
             and self.pw_expires_at <= utcnow()
         )
 
-    def password_is(self, password):
+    def password_is(self, password, upgrade_hash=False):
+        """Test if the candidate password matches saved hash."""
         if self.pw_hash is None:
             return False
 
-        if self.pw_hash.startswith('sha1$'):  # XXX: DEPRECATED
-            return check_password_hash(self.pw_hash, password)
-        else:
-            return bcrypt.hashpw(
-                password.encode('utf-8'), self.pw_hash.encode('utf-8')
-            ) == self.pw_hash.encode('utf-8')
+        # Passwords may use the current Argon2 scheme or the older Bcrypt scheme.
+        # Bcrypt passwords are transparently upgraded if requested.
+        if argon2.identify(self.pw_hash):
+            return argon2.verify(password, self.pw_hash)
+        elif bcrypt.identify(self.pw_hash):
+            verified = bcrypt.verify(password, self.pw_hash)
+            if verified and upgrade_hash:
+                self.pw_hash = argon2.hash(password)
+            return verified
+        return False
 
     def __repr__(self):
         return '<User {username} "{fullname}">'.format(
@@ -757,7 +774,9 @@ class UserEmail(BaseMixin, db.Model):
         backref=db.backref('emails', cascade='all'),
     )
     _email = db.Column('email', db.Unicode(254), unique=True, nullable=False)
+    #: XXX: md5sum is deprecated
     md5sum = db.Column(db.String(32), unique=True, nullable=False)
+    blake2b = db.Column(db.LargeBinary, unique=True, nullable=False)
     domain = db.Column(db.Unicode(253), nullable=False, index=True)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
@@ -775,7 +794,10 @@ class UserEmail(BaseMixin, db.Model):
     def __init__(self, email, **kwargs):
         super(UserEmail, self).__init__(**kwargs)
         self._email = email.lower()
-        self.md5sum = md5sum(self._email)
+        self.md5sum = md5sum(self._email.lower())
+        self.blake2b = hashlib.blake2b(
+            self._email.lower().encode(), digest_size=16
+        ).digest()
         self.domain = email.split('@')[-1]
 
     # XXX: Are hybrid_property and synonym both required?
@@ -786,6 +808,10 @@ class UserEmail(BaseMixin, db.Model):
 
     #: Make email immutable. There is no setter for email.
     email = db.synonym('_email', descriptor=email)
+
+    @cached_property
+    def blake2b_b58(self):
+        return base58.b58encode(self.blake2b)
 
     def __repr__(self):
         return '<UserEmail {email} of {user}>'.format(
@@ -808,35 +834,42 @@ class UserEmail(BaseMixin, db.Model):
                 self.user.primary_email = None
 
     @classmethod
-    def get(cls, email=None, md5sum=None):
+    def get(cls, email=None, md5sum=None, blake2b=None):
         """
-        Return a UserEmail with matching email or md5sum.
+        Return a UserEmail with matching email, md5sum or blake2b hash.
 
-        :param str email: Email address to lookup
-        :param str md5sum: md5sum of email address to lookup
+        :param str email: Email address to look up
+        :param str md5sum: md5sum of email address to look up
+        :param bytes blake2b: blake2b of email address to look up
         """
-        require_one_of(email=email, md5sum=md5sum)
+        require_one_of(email=email, md5sum=md5sum, blake2b=blake2b)
 
         if email:
             return cls.query.filter(cls.email.in_([email, email.lower()])).one_or_none()
-        else:
+        elif md5sum:
             return cls.query.filter_by(md5sum=md5sum).one_or_none()
+        else:
+            return cls.query.filter_by(blake2b=blake2b).one_or_none()
 
     @classmethod
-    def get_for(cls, user, email=None, md5sum=None):
+    def get_for(cls, user, email=None, md5sum=None, blake2b=None):
         """
         Return a UserEmail with matching md5sum if it belongs to the given user
 
-        :param User user: User to lookup for
-        :param str md5sum: md5sum of email address
+        :param User user: User to look up for
+        :param str email: Email address to look up
+        :param str md5sum: md5sum of email address to look up
+        :param bytes blake2b: blake2b of email address to look up
         """
-        require_one_of(email=email, md5sum=md5sum)
+        require_one_of(email=email, md5sum=md5sum, blake2b=blake2b)
         if email:
             return cls.query.filter(
                 cls.user == user, cls.email.in_([email, email.lower()])
             ).one_or_none()
-        else:
+        elif md5sum:
             return cls.query.filter_by(user=user, md5sum=md5sum).one_or_none()
+        else:
+            return cls.query.filter_by(user=user, blake2b=blake2b).one_or_none()
 
     @classmethod
     def migrate_user(cls, old_user, new_user):
@@ -859,7 +892,9 @@ class UserEmailClaim(BaseMixin, db.Model):
     )
     _email = db.Column('email', db.Unicode(254), nullable=True, index=True)
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
+    #: XXX: md5sum is deprecated
     md5sum = db.Column(db.String(32), nullable=False, index=True)
+    blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
     domain = db.Column(db.Unicode(253), nullable=False, index=True)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
@@ -871,7 +906,10 @@ class UserEmailClaim(BaseMixin, db.Model):
         super(UserEmailClaim, self).__init__(**kwargs)
         self.verification_code = newsecret()
         self._email = email.lower()
-        self.md5sum = md5sum(self._email)
+        self.md5sum = md5sum(self._email.lower())
+        self.blake2b = hashlib.blake2b(
+            self._email.lower().encode(), digest_size=16
+        ).digest()
         self.domain = email.split('@')[-1]
 
     @hybrid_property
@@ -880,6 +918,10 @@ class UserEmailClaim(BaseMixin, db.Model):
 
     #: Make email immutable. There is no setter for email.
     email = db.synonym('_email', descriptor=email)
+
+    @cached_property
+    def blake2b_b58(self):
+        return base58.b58encode(self.blake2b)
 
     def __repr__(self):
         return '<UserEmailClaim {email} of {user}>'.format(
@@ -906,29 +948,38 @@ class UserEmailClaim(BaseMixin, db.Model):
                 db.session.delete(claim)
 
     @classmethod
-    def get_for(cls, user, email=None, md5sum=None):
+    def get_for(cls, user, email=None, md5sum=None, blake2b=None):
         """
         Return a UserEmailClaim with matching email address for the given user.
 
         :param User user: User who claimed this email address
-        :param str email: Email address to lookup
-        :param str md5sum: md5sum of email address to lookup
+        :param str email: Email address to look up
+        :param str md5sum: md5sum of email address to look up
+        :param bytes blake2b: blake2b of email address to look up
         """
-        require_one_of(email=email, md5sum=md5sum)
+        require_one_of(email=email, md5sum=md5sum, blake2b=blake2b)
         if email:
             return (
                 cls.query.filter(UserEmailClaim.email.in_([email, email.lower()]))
                 .filter_by(user=user)
                 .one_or_none()
             )
-        else:
+        elif md5sum:
             return cls.query.filter_by(md5sum=md5sum, user=user).one_or_none()
+        else:
+            return cls.query.filter_by(blake2b=blake2b, user=user).one_or_none()
 
     @classmethod
-    def get_by(cls, md5sum, verification_code):
-        return cls.query.filter_by(
-            md5sum=md5sum, verification_code=verification_code
-        ).one_or_none()
+    def get_by(cls, verification_code, md5sum=None, blake2b=None):
+        require_one_of(md5sum=md5sum, blake2b=blake2b)
+        if md5sum:
+            return cls.query.filter_by(
+                md5sum=md5sum, verification_code=verification_code
+            ).one_or_none()
+        else:
+            return cls.query.filter_by(
+                blake2b=blake2b, verification_code=verification_code
+            ).one_or_none()
 
     @classmethod  # NOQA: A003
     def all(cls, email):  # NOQA: A003

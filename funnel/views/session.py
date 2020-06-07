@@ -1,6 +1,6 @@
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, localize_timezone, request_is_xhr, forms
+from baseframe import _, forms, localize_timezone, request_is_xhr
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -61,8 +61,6 @@ def session_form(project, proposal=None, session=None):
     if not form.venue_room_id.choices:
         del form.venue_room_id
     if request.method == 'GET':
-        if not (session or proposal):
-            form.is_break.data = True
         return render_template(
             'session_form.html.jinja2',
             form=form,

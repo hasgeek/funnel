@@ -74,7 +74,7 @@
           <strong>{{ proposal.user.pickername }}</strong>
           ({% trans %}proposing{% endtrans %})
         {%- endif %}
-        {% trans %}on{% endtrans %} {{ proposal.datetime.strftime("%A, %e %B %Y") }}
+        {% trans %}on{% endtrans %} {{ proposal.datetime|date }}
         {%- if not proposal.speaker -%}
           <p>
             <em>{% trans %}This is a proposal requesting for someone to speak on this topic.

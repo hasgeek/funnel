@@ -60,15 +60,15 @@ workbox.routing.registerRoute(
   'GET'
 );
 
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open('offline')
-      .then(cache => cache.addAll(['/api/1/template/offline']))
+      .then((cache) => cache.addAll(['/api/1/template/offline']))
   );
 });
 
-addEventListener('message', event => {
+addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     skipWaiting();
   }

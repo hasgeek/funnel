@@ -3,10 +3,7 @@ import baseframe.forms as forms
 
 from ..models import Comment
 
-__all__ = [
-    'CommentForm',
-    'CommentDeleteForm',
-]
+__all__ = ['CommentForm', 'CommentDeleteForm']
 
 
 @Comment.forms('main')

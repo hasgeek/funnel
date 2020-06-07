@@ -24,6 +24,7 @@ const Membership = {
           if (member.is_usher) count += 1;
           return count - 1;
         },
+        getInitials: window.Baseframe.Utils.getInitials,
       },
     });
 
@@ -47,6 +48,7 @@ const Membership = {
           showInfo: false,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
           isMobile: false,
+          ready: false,
         };
       },
       methods: {
@@ -71,14 +73,15 @@ const Membership = {
         activateForm() {
           const formId = Utils.getElementId(this.memberForm);
           const url = Utils.getActionUrl(formId);
-          const onSuccess = responseData => {
+          const onSuccess = (responseData) => {
             this.closeForm();
             if (responseData.memberships) {
               this.updateMembersList(responseData.memberships);
               this.onChange();
+              window.toastr.success(responseData.message);
             }
           };
-          const onError = response => {
+          const onError = (response) => {
             this.errorMsg = Utils.formErrorHandler(formId, response);
           };
           window.Baseframe.Forms.handleFormSubmit(
@@ -103,7 +106,7 @@ const Membership = {
         },
         onChange() {
           if (this.search) {
-            this.members.filter(member => {
+            this.members.filter((member) => {
               member.hide =
                 member.user.fullname
                   .toLowerCase()
@@ -146,6 +149,7 @@ const Membership = {
         $('#member-form').on($.modal.CLOSE, () => {
           this.closeForm();
         });
+        this.ready = true;
       },
       created() {
         window.addEventListener('resize', this.onWindowResize);
@@ -155,7 +159,7 @@ const Membership = {
 };
 
 $(() => {
-  window.HasGeek.Membership = function(config) {
+  window.HasGeek.Membership = function (config) {
     Membership.init(config);
   };
 });

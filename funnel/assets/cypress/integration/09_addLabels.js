@@ -1,10 +1,10 @@
-describe('Add labels to project', function() {
+describe('Add labels to project', function () {
   const editor = require('../fixtures/user.json').editor;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
-  it('Add labels', function() {
+  it('Add labels', function () {
     cy.login(
       '/' + profile.title + '/' + project.url,
       editor.username,
@@ -16,8 +16,8 @@ describe('Add labels to project', function() {
     cy.get('a[data-cy="manage-labels"').click();
     cy.location('pathname').should('contain', '/labels');
 
-    cy.fixture('labels').then(labels => {
-      labels.forEach(function(label) {
+    cy.fixture('labels').then((labels) => {
+      labels.forEach(function (label) {
         cy.get('a[data-cy="add-labels"]').click();
         cy.location('pathname').should('contain', '/new');
 
@@ -31,9 +31,7 @@ describe('Add labels to project', function() {
 
         if (label.label1) {
           cy.get('#add-sublabel-form').click();
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(0)
-            .should('be.visible');
+          cy.get('#child-form > .ui-dragable-box').eq(0).should('be.visible');
           cy.get('#child-form > .ui-dragable-box')
             .eq(0)
             .find('#title')
@@ -61,9 +59,7 @@ describe('Add labels to project', function() {
 
         if (label.label2) {
           cy.get('#add-sublabel-form').click();
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(1)
-            .should('be.visible');
+          cy.get('#child-form > .ui-dragable-box').eq(1).should('be.visible');
           cy.get('#child-form > .ui-dragable-box')
             .eq(1)
             .find('#title')
@@ -89,9 +85,7 @@ describe('Add labels to project', function() {
         }
 
         if (label.adminLabel) {
-          cy.get('#field-restricted')
-            .find('label')
-            .click();
+          cy.get('#field-restricted').find('label').click();
         }
         cy.get('button[data-cy-submit="save-label"]').click();
         cy.location('pathname').should('contain', '/labels');
@@ -104,7 +98,7 @@ describe('Add labels to project', function() {
       .trigger('mousedown', { which: 1, force: true, view: window })
       .trigger('mousemove', {
         pageX: 500,
-        pageY: 620,
+        pageY: 650,
         force: true,
         view: window,
       })

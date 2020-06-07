@@ -47,7 +47,7 @@ from ..models import (
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
-from ..utils import mask_email, abort_null
+from ..utils import abort_null, mask_email
 from .email import send_email_verify_link, send_password_reset_link
 from .helpers import (
     app_url_for,
@@ -134,7 +134,25 @@ def login():
                         category='danger',
                     )
                     return set_loginmethod_cookie(
-                        render_redirect(url_for('change_password'), code=303),
+                        render_redirect(app_url_for(app, 'change_password'), code=303),
+                        'password',
+                    )
+                elif user.password_has_expired():
+                    current_app.logger.info(
+                        "Login successful for %r, but password has expired. "
+                        "Possible redirect URL is '%s' after password change",
+                        user,
+                        session.get('next', ''),
+                    )
+                    flash(
+                        _(
+                            "Your password is a year old. To ensure the safety of "
+                            "your account, please choose a new password"
+                        ),
+                        category='warning',
+                    )
+                    return set_loginmethod_cookie(
+                        render_redirect(app_url_for(app, 'change_password'), code=303),
                         'password',
                     )
                 else:

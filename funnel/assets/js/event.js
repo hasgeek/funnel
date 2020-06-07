@@ -12,11 +12,11 @@ const Store = {
   },
 };
 
-const Queue = function(queueName) {
+const Queue = function (queueName) {
   this.queueName = queueName;
 
   // Adds a participantId to queue
-  this.enqueue = function(participantId) {
+  this.enqueue = function (participantId) {
     const participantList = Store.read(this.queueName) || [];
     if (participantList.indexOf(participantId) === -1) {
       participantList.push(participantId);
@@ -27,7 +27,7 @@ const Queue = function(queueName) {
 
   // Reads and returns all items from queue
   // Returns undefined when queue is empty or not defined
-  this.readAll = function() {
+  this.readAll = function () {
     const participantList = Store.read(this.queueName);
     if (participantList && participantList.length) {
       return participantList;
@@ -37,7 +37,7 @@ const Queue = function(queueName) {
 
   // Removes item from queue and returns true
   // Returns undefined when item not present in queue
-  this.dequeue = function(participantId) {
+  this.dequeue = function (participantId) {
     const participantList = Store.read(this.queueName);
     const index = participantList ? participantList.indexOf(participantId) : -1;
     if (index !== -1) {
@@ -51,12 +51,12 @@ const Queue = function(queueName) {
 
   /* updateQueue: If participant in "checkin-queue" has already been checked-in
   then it is removed from checkin queue */
-  this.updateQueue = function(participantsHashMap, ParticipantList) {
+  this.updateQueue = function (participantsHashMap, ParticipantList) {
     const queue = this;
     const participantIDs = queue.readAll();
     const participants = ParticipantList.get('participants');
     if (participantIDs) {
-      participantIDs.forEach(participantID => {
+      participantIDs.forEach((participantID) => {
         if (queue.queueName.indexOf('cancelcheckin-queue') > -1) {
           if (!participantsHashMap[participantID].checked_in) {
             /* Participant's check-in has already been cancelled so remove
@@ -215,11 +215,11 @@ const ParticipantTable = {
       dataType: 'json',
       success(data) {
         if (data.checked_in) {
-          data.participant_ids.forEach(participantId => {
+          data.participant_ids.forEach((participantId) => {
             list.get('checkinQ').dequeue(participantId);
           });
         } else {
-          data.participant_ids.forEach(participantId => {
+          data.participant_ids.forEach((participantId) => {
             list.get('cancelcheckinQ').dequeue(participantId);
           });
         }
@@ -229,7 +229,7 @@ const ParticipantTable = {
 };
 
 $(() => {
-  window.HasGeek.EventInit = function({ checkin = '', search = '' }) {
+  window.HasGeek.EventInit = function ({ checkin = '', search = '' }) {
     if (checkin) {
       ParticipantTable.init(checkin);
     }
@@ -238,7 +238,7 @@ $(() => {
       const tableSearch = new TableSearch(search.tableId);
       const inputId = `#${search.inputId}`;
       const tableRow = `#${search.tableId} tbody tr`;
-      $(inputId).keyup(function() {
+      $(inputId).keyup(function () {
         $(tableRow).addClass('mui--hide');
         const hits = tableSearch.searchRows($(this).val());
         $(hits.join(',')).removeClass('mui--hide');
