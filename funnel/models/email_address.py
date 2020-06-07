@@ -83,7 +83,7 @@ class EmailAddress(BaseMixin, db.Model):
     #: SHA256 hash of :property:`email_lower`. Kept permanently even if email is removed
     sha256 = immutable(db.Column(db.Unicode(64), nullable=False, unique=True))
 
-    #: SHA256 hash of :property:`email_canonical`. Kept permanently for blacklist
+    #: SHA256 hash of :property:`email_canonical`. Kept permanently for blocked email
     #: detection. Indexed but does not use a unique constraint because a+b@tld and
     #: a+c@tld are both a@tld canonically.
     sha256_canonical = immutable(db.Column(db.Unicode(64), nullable=False, index=True))
@@ -150,7 +150,7 @@ class EmailAddress(BaseMixin, db.Model):
         """
         Email address with the ``+suffix`` portion of the mailbox removed.
 
-        This is only used to identify and prevent re-use of blacklisted email addresses
+        This is only used to identify and prevent re-use of blocked email addresses
         using the ``+suffix`` method. Regular use does allow the ``+`` symbol.
 
         The canonical representation is not stored, but its sha256 representation is
@@ -240,7 +240,7 @@ class EmailAddress(BaseMixin, db.Model):
 
     # TODO: validate_for that's like add_for minus the adding, for form validation
 
-    # TODO: Blacklisted state marker and transition
+    # TODO: Blocked state marker and transition
     # TODO: user_bound_via = relationship(UserEmail), defined as a backref from there,
     # and user_bound_to as an association_proxy to User model
 
