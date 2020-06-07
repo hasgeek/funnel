@@ -1,10 +1,10 @@
-describe('Add CFP to project', function() {
+describe('Add CFP to project', function () {
   const editor = require('../fixtures/user.json').editor;
   const cfp = require('../fixtures/cfp.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Add CFP', function() {
+  it('Add CFP', function () {
     cy.login(
       '/' + profile.title + '/' + project.url,
       editor.username,
@@ -21,9 +21,7 @@ describe('Add CFP to project', function() {
       .type(cfp.instructions, { force: true });
     cy.get('button[name="open-now"]').click();
     var today = Cypress.moment().format('YYYY-MM-DD');
-    var cfpEndDay = Cypress.moment(today)
-      .add(60, 'days')
-      .format('YYYY-MM-DD');
+    var cfpEndDay = Cypress.moment(today).add(60, 'days').format('YYYY-MM-DD');
     var time = Cypress.moment().format('HH:mm');
     cy.get('#cfp_end_at-date').type(cfpEndDay);
     cy.get('#cfp_end_at-time').type(time);

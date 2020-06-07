@@ -125,7 +125,7 @@ const Search = {
         }
       },
       handleObserver(entries) {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const nextPage = entry.target.getAttribute('data-next-page');
             if (nextPage) {
@@ -136,7 +136,7 @@ const Search = {
       },
       getCurrentTabIndex() {
         return this.get('tabs').findIndex(
-          tab => tab.type === this.get('activeTab')
+          (tab) => tab.type === this.get('activeTab')
         );
       },
       swipe(action) {
@@ -167,7 +167,7 @@ const Search = {
         this.initTab();
         this.observe(
           'activeTab',
-          function() {
+          function () {
             Utils.showTimeOnCalendar();
           },
           { defer: true }
@@ -178,7 +178,7 @@ const Search = {
 };
 
 $(() => {
-  window.HasGeek.Search = function(config) {
+  window.HasGeek.Search = function (config) {
     Search.init(config);
   };
 });

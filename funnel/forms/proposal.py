@@ -25,6 +25,9 @@ __all__ = [
 def proposal_label_form(project, proposal):
     """Return a label form for the given project and proposal."""
 
+    if not project.labels:
+        return
+
     class ProposalLabelForm(forms.Form):
         pass
 
@@ -228,9 +231,13 @@ class ProposalForm(forms.Form):
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def set_queries(self):
-        self.formlabels.form = proposal_label_form(
+        label_form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
         )
+        if label_form is not None:
+            self.formlabels.form = label_form
+        else:
+            del self.formlabels
 
 
 @Proposal.forms('transition')

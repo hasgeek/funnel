@@ -2,6 +2,8 @@ from collections import Counter
 
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
+import base58
+
 from baseframe import _
 from baseframe.forms import (
     Form,
@@ -53,6 +55,20 @@ from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
+
+
+def md5sum_or_blake2b_b58(text):
+    """
+    Determine if given text is an MD5 sum or BLAKE2b hash (rendered in UUID58).
+
+    Returns a dict that can be passed as kwargs to model loader.
+    """
+    if len(text) == 32:
+        return {'md5sum': text}
+    try:
+        return {'blake2b': base58.b58decode(text.encode())}
+    except ValueError:
+        abort(400)  # Parameter isn't valid Base58
 
 
 @app.route('/api/1/password/policy', methods=['POST'])
@@ -368,11 +384,12 @@ def account_edit(newprofile=False):
 
 
 # FIXME: Don't modify db on GET. Autosubmit via JS and process on POST
-@app.route('/account/confirm/<md5sum>/<secret>')
-@lastuserapp.route('/confirm/<md5sum>/<secret>')
+@app.route('/account/confirm/<email_hash>/<secret>')
+@lastuserapp.route('/confirm/<email_hash>/<secret>')
 @requires_login
-def confirm_email(md5sum, secret):
-    emailclaim = UserEmailClaim.get_by(md5sum=md5sum, verification_code=secret)
+def confirm_email(email_hash, secret):
+    kwargs = md5sum_or_blake2b_b58(email_hash)
+    emailclaim = UserEmailClaim.get_by(verification_code=secret, **kwargs)
     if emailclaim is not None:
         if 'verify' in emailclaim.permissions(current_auth.user):
             existing = UserEmail.get(email=emailclaim.email)
@@ -560,12 +577,13 @@ def make_phone_primary():
     return render_redirect(url_for('account'), code=303)
 
 
-@app.route('/account/email/<md5sum>/remove', methods=['GET', 'POST'])
+@app.route('/account/email/<email_hash>/remove', methods=['GET', 'POST'])
 @requires_login
-def remove_email(md5sum):
-    useremail = UserEmail.get_for(user=current_auth.user, md5sum=md5sum)
+def remove_email(email_hash):
+    kwargs = md5sum_or_blake2b_b58(email_hash)
+    useremail = UserEmail.get_for(user=current_auth.user, **kwargs)
     if not useremail:
-        useremail = UserEmailClaim.get_for(user=current_auth.user, md5sum=md5sum)
+        useremail = UserEmailClaim.get_for(user=current_auth.user, **kwargs)
         if not useremail:
             abort(404)
     if (
@@ -598,15 +616,16 @@ def remove_email(md5sum):
     )
 
 
-@app.route('/account/email/<md5sum>/verify', methods=['GET', 'POST'])
+@app.route('/account/email/<email_hash>/verify', methods=['GET', 'POST'])
 @requires_login
-def verify_email(md5sum):
+def verify_email(email_hash):
     """
     If the user has a pending email verification but has lost the email, allow them to
     send themselves another verification email. This endpoint is only linked to from
     the account page under the list of email addresses pending verification.
     """
-    useremail = UserEmail.get(md5sum=md5sum)
+    kwargs = md5sum_or_blake2b_b58(email_hash)
+    useremail = UserEmail.get(**kwargs)
     if useremail and useremail.user == current_auth.user:
         # If an email address is already verified (this should not happen unless the
         # user followed a stale link), tell them it's done -- but only if the email
@@ -616,7 +635,7 @@ def verify_email(md5sum):
         return render_redirect(url_for('account'), code=303)
 
     # Get the existing email claim that we're resending a verification link for
-    emailclaim = UserEmailClaim.get_for(user=current_auth.user, md5sum=md5sum)
+    emailclaim = UserEmailClaim.get_for(user=current_auth.user, **kwargs)
     if not emailclaim:
         abort(404)
     verify_form = VerifyEmailForm()
@@ -803,6 +822,6 @@ def remove_extid(extid):
 # --- Lastuserapp legacy routes --------------------------------------------------------
 
 # Redirect from old URL in previously sent out verification emails
-@lastuserapp.route('/profile/email/<md5sum>/verify')
-def verify_email_old(md5sum):
-    return redirect(app_url_for(app, 'verify_email', md5sum=md5sum), code=301)
+@lastuserapp.route('/profile/email/<email_hash>/verify')
+def verify_email_old(email_hash):
+    return redirect(app_url_for(app, 'verify_email', email_hash=email_hash), code=301)

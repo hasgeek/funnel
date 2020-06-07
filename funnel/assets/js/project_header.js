@@ -8,13 +8,13 @@ $(() => {
 
     // Adding the embed video player
     if ($('.js-embed-video').length > 0) {
-      $('.js-embed-video').each(function() {
+      $('.js-embed-video').each(function () {
         let videoUrl = $(this).data('video-src');
         Video.embedIframe(this, videoUrl);
       });
     }
 
-    $('a#register-btn').click(function() {
+    $('a#register-btn').click(function () {
       $(this).modal();
     });
 
@@ -32,7 +32,7 @@ $(() => {
 
     window.addEventListener(
       'hashchange',
-      function() {
+      function () {
         if (window.location.hash === '') {
           $.modal.close();
         }

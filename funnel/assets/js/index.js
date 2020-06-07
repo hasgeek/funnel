@@ -1,7 +1,7 @@
 import { SaveProject } from './util';
 
 $(() => {
-  window.HasGeek.HomeInit = function() {
+  window.HasGeek.HomeInit = function () {
     // Expand CFP section
     $('.jquery-show-all').click(function showAll(event) {
       event.preventDefault();
@@ -10,7 +10,7 @@ $(() => {
       $(this).addClass('mui--hide');
     });
 
-    $('.js-save-form').each(function() {
+    $('.js-save-form').each(function () {
       let projectSaveConfig = {
         formId: $(this).attr('id'),
         postUrl: $(this).attr('action'),

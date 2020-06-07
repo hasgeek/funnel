@@ -334,7 +334,9 @@ def _client_login_inner():
             {'WWW-Authenticate': 'Basic realm="Client credentials"'},
         )
     credential = AuthClientCredential.get(name=request.authorization.username)
-    if credential is None or not credential.secret_is(request.authorization.password):
+    if credential is None or not credential.secret_is(
+        request.authorization.password, upgrade_hash=True
+    ):
         return Response(
             'Invalid client credentials',
             401,

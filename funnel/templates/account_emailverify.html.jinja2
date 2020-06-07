@@ -2,7 +2,7 @@
 	<div itemprop="action" itemscope itemtype="http://schema.org/ConfirmAction">
 		<meta itemprop="name" content="Confirm Email Address"/>
 		<div itemprop="handler" itemscope itemtype="http://schema.org/HttpActionHandler">
-			<link itemprop="url" href="{{ url_for('confirm_email', _external=True, md5sum=useremail.md5sum, secret=useremail.verification_code) }}"/>
+			<link itemprop="url" href="{{ url_for('confirm_email', _external=True, email_hash=useremail.blake2b_b58, secret=useremail.verification_code) }}"/>
 		</div>
 	</div>
 	<meta itemprop="description" content="Confirm your email address"/>
@@ -12,5 +12,5 @@
 	</div>
 </div>
 <p>{% trans name=useremail.user.fullname %}Hello {{ name }},{% endtrans %}</p>
-<p><a href="{{ url_for('confirm_email', _external=True, md5sum=useremail.md5sum, secret=useremail.verification_code) }}">{% trans %}Click here to confirm your email address{% endtrans %}</a></p>
+<p><a href="{{ url_for('confirm_email', _external=True, email_hash=useremail.blake2b_b58, secret=useremail.verification_code) }}">{% trans %}Click here to confirm your email address{% endtrans %}</a></p>
 <p>{% trans %}If you did not sign up, you may safely ignore this email.{% endtrans %}</p>

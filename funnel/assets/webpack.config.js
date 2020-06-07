@@ -12,18 +12,18 @@ function ManifestPlugin(options) {
     : 'build/manifest.json';
 }
 
-ManifestPlugin.prototype.apply = function(compiler) {
-  compiler.plugin('done', stats => {
+ManifestPlugin.prototype.apply = function (compiler) {
+  compiler.plugin('done', (stats) => {
     var stats_json = stats.toJson();
     var parsed_stats = {
       assets: stats_json.assetsByChunkName,
     };
     if (stats && stats.hasErrors()) {
-      stats_json.errors.forEach(err => {
+      stats_json.errors.forEach((err) => {
         console.error(err);
       });
     }
-    Object.keys(parsed_stats.assets).forEach(function(key) {
+    Object.keys(parsed_stats.assets).forEach(function (key) {
       if (typeof parsed_stats.assets[key] == 'object') {
         for (var index in parsed_stats.assets[key]) {
           if (

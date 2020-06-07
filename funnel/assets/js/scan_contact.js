@@ -71,7 +71,7 @@ const badgeScan = {
               !badgeScanComponent
                 .get('contacts')
                 .some(
-                  contact =>
+                  (contact) =>
                     contact.fullname === response.contact.fullname &&
                     contact.email === response.contact.email
                 )
@@ -167,7 +167,7 @@ const badgeScan = {
 
           navigator.mediaDevices
             .getUserMedia({ video: { facingMode: 'environment' } })
-            .then(stream => {
+            .then((stream) => {
               this.set('video', video);
               this.get('video').srcObject = stream;
               this.get('video').setAttribute('playsinline', true);
@@ -192,7 +192,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.HasGeek.BadgeScanInit = function(scanConfig) {
+  window.HasGeek.BadgeScanInit = function (scanConfig) {
     badgeScan.init(scanConfig);
   };
 });
