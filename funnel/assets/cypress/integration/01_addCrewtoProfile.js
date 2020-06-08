@@ -1,4 +1,4 @@
-describe('Adding crew to profile', function() {
+describe('Adding crew to profile', function () {
   const owner = require('../fixtures/user.json').owner;
   const admin = require('../fixtures/user.json').admin;
   const profile = require('../fixtures/profile.json');
@@ -8,7 +8,7 @@ describe('Adding crew to profile', function() {
     return false;
   });
 
-  it('Add new member to profile and edit roles', function() {
+  it('Add new member to profile and edit roles', function () {
     cy.server();
     cy.route('**/edit').as('edit-form');
     cy.route('POST', '**/edit').as('edit-member');
@@ -20,29 +20,19 @@ describe('Adding crew to profile', function() {
 
     cy.add_member(admin.username, 'owner');
 
-    cy.get('[data-cy="member"]')
-      .contains(admin.username)
-      .click();
+    cy.get('[data-cy="member"]').contains(admin.username).click();
     cy.wait('@edit-form');
     cy.get('button[data-cy-btn="revoke"]').click();
     cy.wait('@delete-form');
-    cy.get('button')
-      .contains('Remove')
-      .click();
+    cy.get('button').contains('Remove').click();
     cy.wait('@delete-member');
-    cy.get('[data-cy="member"]')
-      .contains(admin.username)
-      .should('not.exist');
+    cy.get('[data-cy="member"]').contains(admin.username).should('not.exist');
 
     cy.add_member(admin.username, 'owner');
-    cy.get('[data-cy="member"]')
-      .contains(admin.username)
-      .click();
+    cy.get('[data-cy="member"]').contains(admin.username).click();
     cy.wait('@edit-form');
     cy.get('#is_owner-0').click();
-    cy.get('button')
-      .contains('Edit membership')
-      .click();
+    cy.get('button').contains('Edit membership').click();
     cy.wait('@edit-member');
     cy.get('[data-cy="member"]')
       .contains(admin.username)
@@ -50,7 +40,6 @@ describe('Adding crew to profile', function() {
       .find('[data-cy="role"]')
       .contains('Admin');
 
-    cy.add_member(hguser.username, 'owner', fail=true);
-
+    cy.add_member(hguser.username, 'owner', (fail = true));
   });
 });

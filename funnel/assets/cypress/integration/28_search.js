@@ -1,35 +1,24 @@
-describe('Test search feature', function() {
+describe('Test search feature', function () {
   const project = require('../fixtures/project.json');
   const proposal = require('../fixtures/proposal.json');
   const session = require('../fixtures/session.json');
 
-  it('Search', function() {
+  it('Search', function () {
     cy.visit('/');
-    cy.get('input[name="q"]')
-      .type('Javascript')
-      .type('{enter}');
-    cy.get('.tab-content__results')
-      .find('.card')
-      .contains(project.title);
+    cy.get('input[name="q"]').type('Javascript').type('{enter}');
+    cy.get('.tab-content__results').find('.card').contains(project.title);
 
     cy.get('input[name="q"]')
       .clear()
       .type('testcypressproject')
       .type('{enter}');
-    cy.get('.tabs__item')
-      .contains('Profiles')
-      .click();
+    cy.get('.tabs__item').contains('Profiles').click();
     cy.get('.tab-content__results')
       .find('.card')
       .contains('testcypressproject');
 
-    cy.get('input[name="q"]')
-      .clear()
-      .type(proposal.title)
-      .type('{enter}');
-    cy.get('.tabs__item')
-      .contains('Proposals')
-      .click();
+    cy.get('input[name="q"]').clear().type(proposal.title).type('{enter}');
+    cy.get('.tabs__item').contains('Proposals').click();
     cy.get('.tab-content__results').contains(proposal.title);
 
     // cy.get('input[name="q"]')
