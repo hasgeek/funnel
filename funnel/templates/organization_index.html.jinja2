@@ -13,6 +13,7 @@
     <tr>
       <th>#</th>
       <th>{% trans %}Title{% endtrans %}</th>
+      <th>{% trans %}Public{% endtrans %}</th>
       <th>{% trans %}Admins{% endtrans %}</th>
     </tr>
   </thead>
@@ -22,6 +23,13 @@
       <tr>
         <td data-th="#"><a href="{{ link }}" title="org.title">{{ loop.index }}</a></td>
         <td data-th="Title"><a href="{{ link }}" title="org.title">{{ org.title }}</a></td>
+        <td data-th="Public">
+          {% if org.profile.state.PUBLIC %}
+            <a target="_blank" href="{{ org.profile.url_for() }}">{% trans %}Yes{% endtrans%}</a> [Make private]
+          {% else %}
+            {% trans %}No{% endtrans %} [Make public]
+          {% endif %}
+        </td>
         <td data-th="Admins"><a href="{{ link }}" title="org.title">
           {%- for user in org.admin_users %}
             {%- if not loop.first %}, {% endif -%}
