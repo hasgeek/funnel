@@ -10,6 +10,7 @@ from coaster.sqlalchemy import (
     BaseScopedIdNameMixin,
     BaseScopedNameMixin,
     CoordinatesMixin,
+    IdMixin,
     JsonDict,
     MarkdownColumn,
     NoIdMixin,
