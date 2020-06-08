@@ -15,14 +15,6 @@ class CommentModeratorReport(IdMixin, UuidMixin, db.Model):
     __tablename__ = 'comment_moderator_report'
     __uuid_primary_key__ = True
 
-    reported_by_id = db.Column(
-        None, db.ForeignKey('user.id'), nullable=False, index=True
-    )
-    reported_by = db.relationship(
-        User,
-        primaryjoin=reported_by_id == User.id,
-        backref=db.backref('moderator_reports', cascade='all', lazy='dynamic'),
-    )
     comment_id = db.Column(
         None, db.ForeignKey('comment.id'), nullable=False, index=True
     )
@@ -31,24 +23,30 @@ class CommentModeratorReport(IdMixin, UuidMixin, db.Model):
         primaryjoin=comment_id == Comment.id,
         backref=db.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
+    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, index=True)
+    user = db.relationship(
+        User,
+        primaryjoin=user_id == User.id,
+        backref=db.backref('moderator_reports', cascade='all', lazy='dynamic'),
+    )
     report_type = db.Column(
         db.SmallInteger, nullable=False, default=MODERATOR_REPORT_TYPE.SPAM
     )
 
     @classmethod
-    def get_one(cls, exclude_reported_by=None):
+    def get_one(cls, exclude_user=None):
         reports = cls.query.filter()
-        if exclude_reported_by is not None:
-            reports = reports.filter(cls.reported_by != exclude_reported_by)
+        if exclude_user is not None:
+            reports = reports.filter(cls.user != exclude_user)
         return reports.order_by(db.func.random()).first()
 
 
-def _report_comment(self, reported_by):
+def _report_comment(self, actor):
     report = CommentModeratorReport.query.filter_by(
-        reported_by=reported_by, comment=self
+        user=actor, comment=self
     ).one_or_none()
     if report is None:
-        report = CommentModeratorReport(reported_by=reported_by, comment=self)
+        report = CommentModeratorReport(user=actor, comment=self)
         db.session.add(report)
         db.session.commit()
     return report

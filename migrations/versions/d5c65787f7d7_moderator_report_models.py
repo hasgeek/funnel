@@ -20,12 +20,12 @@ depends_on = None
 def upgrade():
     op.create_table(
         'comment_moderator_report',
-        sa.Column('reported_by_id', sa.Integer(), nullable=False),
         sa.Column('comment_id', sa.Integer(), nullable=False),
+        sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('report_type', sa.SmallInteger(), nullable=False),
         sa.Column('id', UUIDType(binary=False), nullable=False),
         sa.ForeignKeyConstraint(['comment_id'], ['comment.id'],),
-        sa.ForeignKeyConstraint(['reported_by_id'], ['user.id'],),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id'],),
         sa.PrimaryKeyConstraint('id'),
     )
     op.create_index(
@@ -35,16 +35,16 @@ def upgrade():
         unique=False,
     )
     op.create_index(
-        op.f('ix_comment_moderator_report_reported_by_id'),
+        op.f('ix_comment_moderator_report_user_id'),
         'comment_moderator_report',
-        ['reported_by_id'],
+        ['user_id'],
         unique=False,
     )
 
 
 def downgrade():
     op.drop_index(
-        op.f('ix_comment_moderator_report_reported_by_id'),
+        op.f('ix_comment_moderator_report_user_id'),
         table_name='comment_moderator_report',
     )
     op.drop_index(

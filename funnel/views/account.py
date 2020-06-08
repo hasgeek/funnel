@@ -168,14 +168,10 @@ class AccountView(ClassView):
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
             for comment in comments:
-                comment.report_spam(reported_by=current_auth.user)
+                comment.report_spam(actor=current_auth.user)
             db.session.commit()
             flash(
-                _(
-                    "Comment(s) successfully reported as spam. "
-                    "They will be removed after somebody reviews them"
-                ),
-                category='info',
+                _("Comment(s) successfully reported as spam"), category='info',
             )
         else:
             flash(
@@ -191,9 +187,7 @@ class AccountView(ClassView):
         if not current_auth.user.is_comment_moderator:
             return abort(403)
 
-        random_report = CommentModeratorReport.get_one(
-            exclude_reported_by=current_auth.user
-        )
+        random_report = CommentModeratorReport.get_one(exclude_user=current_auth.user)
         if random_report is not None:
             return redirect(
                 url_for('siteadmin_review_comment', report=random_report.uuid_b58)
@@ -209,17 +203,17 @@ class AccountView(ClassView):
     )
     @render_with('siteadmin_review_comment.html.jinja2')
     @requires_login
-    def siteadmin_review_comment(self, report=None):
+    def siteadmin_review_comment(self, report):
         if not current_auth.user.is_comment_moderator:
             return abort(403)
 
         report = CommentModeratorReport.query.filter_by(uuid_b58=report).one_or_404()
-        if report.reported_by == current_auth.user:
+        if report.user == current_auth.user:
             flash(_("You cannot review same comment twice"), 'error')
             return redirect(url_for('siteadmin_review_comments_random'))
 
         existing_reports = report.comment.moderator_reports.filter(
-            CommentModeratorReport.reported_by != current_auth.user
+            CommentModeratorReport.user != current_auth.user
         )
 
         report_form = ModeratorReportForm()
@@ -254,7 +248,7 @@ class AccountView(ClassView):
                 # e.g. existing report was spam, current report is not spam,
                 # we'll create the new report and wait for a 3rd report.
                 new_report = CommentModeratorReport(
-                    reported_by=current_auth.user,
+                    user=current_auth.user,
                     comment=report.comment,
                     report_type=report_form.report_type.data,
                 )
@@ -263,7 +257,7 @@ class AccountView(ClassView):
 
             # Redirect to a new report
             random_report = CommentModeratorReport.get_one(
-                exclude_reported_by=current_auth.user
+                exclude_user=current_auth.user
             )
             if random_report is not None:
                 return redirect(
@@ -277,9 +271,7 @@ class AccountView(ClassView):
         return {
             'report': report,
             'existing_reports': {
-                report.reported_by.pickername: MODERATOR_REPORT_TYPE[
-                    report.report_type
-                ].title
+                report.user.pickername: MODERATOR_REPORT_TYPE[report.report_type].title
                 for report in existing_reports
             },
             'report_form': report_form,

@@ -248,7 +248,7 @@ class CommentView(UrlForView, ModelView):
         ):
             abort(403)
 
-        self.obj.report_spam(reported_by=current_auth.user)
+        self.obj.report_spam(actor=current_auth.user)
         flash(
             _(
                 "The comment has been reported as spam and "

@@ -13,10 +13,10 @@
     {% endfor %}
   </form>
   <div>
-    <h3>Existing reports</h3>
+    <h3>{% trans %}Existing reports{% endtrans %}</h3>
     <ul class="mui-list--aligned mui-list--unstyled">
-      {% for reported_by, report_type in existing_reports.items() %}
-      <li><strong>{{ reported_by }}</strong>: {{ report_type }}</li>
+      {% for user, report_type in existing_reports.items() %}
+      <li><strong>{{ user }}</strong>: {{ report_type }}</li>
       {% endfor %}
     </ul>
   </div>
