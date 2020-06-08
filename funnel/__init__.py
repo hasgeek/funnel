@@ -248,6 +248,22 @@ app.assets.register(
         filters='cssmin',
     ),
 )
+app.assets.register(
+    'js_footable',
+    Bundle(
+        assets.require('!jquery.js', 'baseframe-footable.js'),
+        output='js/footable.packed.js',
+        filters='uglipyjs',
+    ),
+)
+app.assets.register(
+    'css_footable',
+    Bundle(
+        assets.require('baseframe-footable-mui.css'),
+        output='css/footable.packed.css',
+        filters='cssmin',
+    ),
+)
 
 funnelapp.assets.register(
     'js_fullcalendar',
@@ -362,6 +378,22 @@ funnelapp.assets.register(
     Bundle(
         assets.require('schedule-print.css'),
         output='css/schedule-print.packed.css',
+        filters='cssmin',
+    ),
+)
+funnelapp.assets.register(
+    'js_footable',
+    Bundle(
+        assets.require('!jquery.js', 'baseframe-footable.js'),
+        output='js/footable.packed.js',
+        filters='uglipyjs',
+    ),
+)
+funnelapp.assets.register(
+    'css_footable',
+    Bundle(
+        assets.require('baseframe-footable-mui.css'),
+        output='css/footable.packed.css',
         filters='cssmin',
     ),
 )
