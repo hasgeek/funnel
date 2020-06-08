@@ -2,6 +2,12 @@
 {% set title_suffix = project.title %}
 {% block title %}{% trans %}View participants{% endtrans %}{% endblock %}
 
+{% block pageheaders %}
+  {% assets "css_footable" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
 {% block top_title %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-headline">{% trans %}View participants{% endtrans %}</p>
@@ -16,10 +22,11 @@
         </li>
       {%- endfor %}
     </ul>
+    <hr>
 
     {%- for value, status in statuses.items() %}
       <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ status.name }}" data-cy-status="{{ status.name }}">
-        <table class="mui-table mui-table--bordered">
+        <table class="mui-table mui-table--bordered participants">
           <thead>
             <tr>
               <th>Name</th>
@@ -52,3 +59,10 @@
     </div>
   </div>
 {% endwith %}{% endblock %}
+
+{% block footerscripts %}
+  {% assets "js_footable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  <script src="{{ url_for('static', filename=asset_path('rsvp_list')) }}" type="text/javascript"></script>
+{% endblock %}
