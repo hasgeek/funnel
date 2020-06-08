@@ -24,7 +24,8 @@
 }
 
 .login,
-.login:hover {
+.login:hover,
+.login:active {
   color: #ffffff;
   font-size: 16px;
   text-transform: capitalize;
@@ -33,20 +34,24 @@
 }
 
 .login-twitter,
-.login-twitter:hover {
+.login-twitter:hover,
+.login-twitter:active {
   background-color: #08a0e9;
 }
 .login-google,
-.login-google:hover {
+.login-google:hover,
+.login-google:active  {
   color: #757575;
   background-color: #ffffff;
 }
 .login-linkedin,
-.login-linkedin:hover {
+.login-linkedin:hover,
+.login-linkedin:active {
   background-color: #0074b2;
 }
 .login-github,
-.login-github:hover {
+.login-github:hover,
+.login-github:active {
   background-color: #444444;
 }
 
@@ -68,10 +73,29 @@ a.loginbutton.hidden,
 .mui-list--border li {
   border-bottom: 1px solid rgba(132, 146, 166, 0.2);
   padding: 5px;
+  .item {
+    display: inline-block;
+    vertical-align: top;
+    width: calc(100% - 50px);
+    .subitem {
+      display: block;
+    }
+  }
 }
 
 .mui-list--border li:last-child {
   border-bottom: none;
+}
+
+@media(min-width: 1200px) {
+  .mui-list--border li {
+    .item {
+      .subitem {
+        margin-left: 8px;
+        display: inline-block;
+      }
+    }
+  }
 }
 
 .infobox {
