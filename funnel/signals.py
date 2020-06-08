@@ -52,7 +52,6 @@ user_data_changed = app_signals.signal('user-data-changed')
 org_data_changed = app_signals.signal('org-data-changed')
 team_data_changed = app_signals.signal('team-data-changed')
 session_revoked = app_signals.signal('session-revoked')
-email_address_activity = app_signals.signal('email-address-activity')
 
 
 @sqla_event.listens_for(User, 'after_insert')

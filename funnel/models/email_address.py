@@ -3,20 +3,19 @@ import hashlib
 
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm.attributes import NEVER_SET, NO_VALUE
+from sqlalchemy.orm.attributes import NO_VALUE
 
 from werkzeug.utils import cached_property
 
 from pyisemail import is_email
 import base58
 
-from coaster.sqlalchemy import auto_init_default, immutable, with_roles
+from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
 from coaster.utils import LabeledEnum, require_one_of
 
-from ..signals import email_address_activity
 from . import BaseMixin, db
 
-__all__ = ['EMAIL_DELIVERY_STATE', 'EmailAddress']
+__all__ = ['EMAIL_DELIVERY_STATE', 'EmailAddressBlockedError', 'EmailAddress']
 
 
 class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
@@ -92,6 +91,10 @@ def email_blake2b160_hash(email: str) -> bytes:
     return hashlib.blake2b(email.encode('utf-8'), digest_size=20).digest()
 
 
+class EmailAddressBlockedError(Exception):
+    """Email address is blocked from use"""
+
+
 class EmailAddress(BaseMixin, db.Model):
     """
     Represents an email address as a standalone entity, with associated metadata.
@@ -125,8 +128,17 @@ class EmailAddress(BaseMixin, db.Model):
     )
 
     #: Does this email address work? Records last known delivery state
-    delivery_state = db.Column(
-        db.Integer, nullable=False, default=EMAIL_DELIVERY_STATE.UNKNOWN
+    _delivery_state = db.Column(
+        'delivery_state',
+        db.Integer,
+        StateManager.check_constraint('delivery_state', EMAIL_DELIVERY_STATE),
+        nullable=False,
+        default=EMAIL_DELIVERY_STATE.UNKNOWN,
+    )
+    delivery_state = StateManager(
+        '_delivery_state',
+        EMAIL_DELIVERY_STATE,
+        doc="Last known delivery state of this email address",
     )
     #: Timestamp of last known delivery state
     delivery_state_at = db.Column(
@@ -143,10 +155,12 @@ class EmailAddress(BaseMixin, db.Model):
     __table_args__ = (
         # TODO: Reconsider this. Blocking and forgetting are distinct concerns.
         db.CheckConstraint(
-            db.and_(email.isnot(None), _is_blocked.isnot(True)),
+            db.or_(
+                db.and_(email.isnot(None), _is_blocked.isnot(True)),
+                db.and_(email.is_(None), _is_blocked.is_(True)),
+            ),
             'email_address_email_is_blocked_check',
         ),
-        db.CheckConstraint(delivery_state.in_(EMAIL_DELIVERY_STATE.keys())),
     )
 
     @hybrid_property
@@ -215,33 +229,25 @@ class EmailAddress(BaseMixin, db.Model):
         self.email = email
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
+    @delivery_state.transition(None, delivery_state.NORMAL)
     def mark_sent(self) -> None:
         """Record fact of an email message being sent to this address."""
-        self.delivery_state = EMAIL_DELIVERY_STATE.NORMAL
         self.delivery_state_at = db.func.utcnow()
-        email_address_activity.send(self)
 
+    @delivery_state.transition(None, delivery_state.ACTIVE)
     def mark_active(self) -> None:
         """Record fact of recipient activity."""
-        self.delivery_state = EMAIL_DELIVERY_STATE.ACTIVE
         self.delivery_state_at = db.func.utcnow()
-        email_address_activity.send(self)
 
+    @delivery_state.transition(None, delivery_state.SOFT_BOUNCE)
     def mark_soft_bounce(self) -> None:
         """Record fact of a soft bounce to this email address."""
-        self.delivery_state = EMAIL_DELIVERY_STATE.SOFT_BOUNCE
         self.delivery_state_at = db.func.utcnow()
-        email_address_activity.send(self)
 
+    @delivery_state.transition(None, delivery_state.HARD_BOUNCE)
     def mark_hard_bounce(self) -> None:
         """Record fact of a soft bounce to this email address."""
-        self.delivery_state = EMAIL_DELIVERY_STATE.HARD_BOUNCE
         self.delivery_state_at = db.func.utcnow()
-        email_address_activity.send(self)
-
-    def mark_forgotten(self) -> None:
-        """Forget an email address by blanking out email column."""
-        self.email = None
 
     @classmethod
     def mark_blocked(cls, email: str) -> None:
@@ -256,7 +262,7 @@ class EmailAddress(BaseMixin, db.Model):
             # TODO: Reconsider forgetting. Blocking and forgetting are distinct
             # concerns. This makes a block irreversible as instances will have differing
             # sub-addresses. `mark_blocked_and_forgotten` should be a distinct method
-            obj.mark_forgotten()
+            obj.email = None
             obj._is_blocked = True
 
     @classmethod
@@ -306,11 +312,14 @@ class EmailAddress(BaseMixin, db.Model):
         is syntactically invalid.
         """
         if cls.get_canonical(email, is_blocked=True).notempty():
-            raise ValueError("Email address is blocked")
+            raise EmailAddressBlockedError("Email address is blocked")
         existing = EmailAddress.get(email)
         if existing:
+            existing.email = email
             return existing
-        return EmailAddress(email)
+        new_email = EmailAddress(email)
+        db.session.add(new_email)
+        return new_email
 
     @classmethod
     def add_for(cls, user: 'User', email: str) -> 'EmailAddress':
@@ -320,7 +329,7 @@ class EmailAddress(BaseMixin, db.Model):
         Unlike :meth:`add`, this one requires the email address to not be claimed by
         an existing user via a UserEmail record.
         """
-        pass  # TODO
+        # TODO
 
     # TODO: user_bound_via = relationship(UserEmail), defined as a backref from there,
     # and user_bound_to as an association_proxy to User model
@@ -337,9 +346,10 @@ class EmailAddress(BaseMixin, db.Model):
         1. 'blocked' indicating it h
         2. 'soft_bounce'
         """
+        # TODO
 
 
-auto_init_default(EmailAddress.delivery_state)
+auto_init_default(EmailAddress._delivery_state)
 auto_init_default(EmailAddress.delivery_state_at)
 auto_init_default(EmailAddress._is_blocked)
 
@@ -353,9 +363,6 @@ def _validate_email(target, value, old_value, initiator):
     elif old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return
-    elif old_value is NEVER_SET:
-        # Old value was never set. Allow validation to continue
-        pass
     elif old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
