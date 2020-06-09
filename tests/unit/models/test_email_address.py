@@ -424,6 +424,3 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     # ea1 now has three references, while ea2 has 1
     assert ea1.refcount() == 3
     assert ea2.refcount() == 1
-
-
-# TODO: Test that a forgotten email address can be remembered using `EmailAddress.add`
