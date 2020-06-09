@@ -1,11 +1,11 @@
-describe('Add session to schedule and publish', function() {
+describe('Add session to schedule and publish', function () {
   const editor = require('../fixtures/user.json').editor;
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Update schedule', function() {
+  it('Update schedule', function () {
     cy.server();
     cy.route('**/sessions/new').as('new-session-form');
     cy.route('POST', '**/sessions/new').as('add-new-session');
@@ -20,12 +20,8 @@ describe('Add session to schedule and publish', function() {
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="edit-schedule"').click();
     cy.location('pathname').should('contain', 'schedule');
-    var tomorrow = Cypress.moment()
-      .add(1, 'days')
-      .format('YYYY-MM-DD');
-    cy.get('#select-date')
-      .type(tomorrow)
-      .click();
+    var tomorrow = Cypress.moment().add(1, 'days').format('YYYY-MM-DD');
+    cy.get('#select-date').type(tomorrow).click();
     cy.get('.js-unscheduled').click();
     cy.get('.fc-agenda-axis')
       .contains(session.timecolumn)
@@ -37,9 +33,7 @@ describe('Add session to schedule and publish', function() {
     cy.get('select#venue_room_id').select(session.room, { force: true });
     cy.get('#field-speaker').type(session.speaker);
     cy.get('#field-banner_image_url').type(session.bg);
-    cy.get('#field-is_break')
-      .find('label')
-      .click();
+    cy.get('#field-is_break').find('label').click();
     cy.get('#field-video_url').type(session.video);
     cy.get('#session-save').click();
     cy.wait('@add-new-session');
@@ -55,12 +49,8 @@ describe('Add session to schedule and publish', function() {
     cy.wait('@add-session');
 
     cy.get('[data-cy-tab="settings"]').click();
-    cy.get('[data-cy-collapsible="open"]')
-      .eq(0)
-      .click();
-    cy.get('.sp-dd')
-      .eq(0)
-      .click();
+    cy.get('[data-cy-collapsible="open"]').eq(0).click();
+    cy.get('.sp-dd').eq(0).click();
     cy.get('.sp-palette-container').should('exist');
 
     cy.get('[data-cy="project-page"]').click();
@@ -72,8 +62,6 @@ describe('Add session to schedule and publish', function() {
     cy.get('[data-cy="schedule-state"]').contains('Upcoming');
 
     cy.get('a[data-cy="home-desktop"]').click();
-    cy.get('.upcoming')
-      .find('.card--upcoming')
-      .contains(project.title);
+    cy.get('.upcoming').find('.card--upcoming').contains(project.title);
   });
 });

@@ -2,24 +2,23 @@
 {% set title_suffix = project.title %}
 {% block title %}{% trans %}View participants{% endtrans %}{% endblock %}
 
-{% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
-  <p class="mui--text-headline">{% trans %}View participants{% endtrans %}</p>
+{% block pageheaders %}
+  {% assets "css_footable" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
 {% endblock %}
 
-{% block content %}{% with counts=project.rsvp_counts() %}
-  <div role="tabpanel">
-    <ul class="mui-tabs__bar mui-tabs__bar--justified" role="tablist">
-      {%- for value, status in statuses.items() %}
-        <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-          <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{status.name}}">{{ status.title }} {%- if counts[value] %}&nbsp;&nbsp;<span class="badge mui--text-caption">{{ counts[value] }}</span>{% endif %}</a>
-        </li>
-      {%- endfor %}
-    </ul>
+{% block top_title %}
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <p class="mui--text-headline">
+    {% trans %}Participants{% endtrans %} ({{ going_rsvps.count() }})
+  </p>
+{% endblock %}
 
-    {%- for value, status in statuses.items() %}
-      <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ status.name }}" data-cy-status="{{ status.name }}">
-        <table class="mui-table mui-table--bordered">
+{% block content %}
+  <div role="tabpanel">
+      <div role="tabpanel" class="mui-tabs__pane mui--is-active" id="pane-justified-yes" data-cy-status="yes">
+        <table class="mui-table mui-table--bordered participants">
           <thead>
             <tr>
               <th>Name</th>
@@ -28,7 +27,7 @@
             </tr>
           </thead>
           <tbody>
-            {%- for rsvp in project.rsvps_with(value) %}
+            {%- for rsvp in going_rsvps %}
               <tr>
                 <td data-cy="user">{{rsvp.user.fullname}}</td>
                 <td>
@@ -40,7 +39,7 @@
                     {{ rsvp.user.phone }}
                   {%- endif %}
                 </td>
-                <td data-cy="user">{{rsvp.updated_at|datetime}}</td>
+                <td data-cy="user">{{ rsvp.updated_at|datetime }}</td>
               </tr>
             {%- else %}
               <tr><td colspan="2"><em>No users</em></td></tr>
@@ -48,7 +47,12 @@
           </tbody>
         </table>
       </div>
-    {%- endfor %}
-    </div>
   </div>
-{% endwith %}{% endblock %}
+{% endblock %}
+
+{% block footerscripts %}
+  {% assets "js_footable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+  <script src="{{ url_for('static', filename=asset_path('rsvp_list')) }}" type="text/javascript"></script>
+{% endblock %}

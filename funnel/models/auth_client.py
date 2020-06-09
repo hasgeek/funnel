@@ -1,5 +1,5 @@
 from datetime import timedelta
-from hashlib import sha256
+from hashlib import blake2b, sha256
 import urllib.parse
 
 from sqlalchemy.ext.declarative import declared_attr
@@ -215,19 +215,19 @@ class AuthClientCredential(BaseMixin, db.Model):
     """
     AuthClient key and secret hash.
 
-    We use unsalted SHA256 instead of a salted hash or a more secure hash
+    This uses unsalted Blake2 (64-bit) instead of a salted hash or a more secure hash
     like bcrypt because:
 
-    1. Secrets are UUID-based and guaranteed unique before hashing.
-       Salting is only beneficial when the source values are the same.
-    2. Unlike user passwords, client secrets are used often, up to many times
-       per minute. The hash needs to be fast (MD5 or SHA) and reasonably
-       safe from collision attacks (eliminating MD5, SHA0 and SHA1). SHA256
-       is the fastest available candidate meeting this criteria.
-    3. We are stepping up from an industry standard of plain text client
-       secrets, not stepping down from stronger hashing.
-    4. To allow for a different hash to be used in future, hashes are stored
-       prefixed with 'sha256$'.
+    1. Secrets are UUID-based and unique before hashing. Salting is only beneficial when
+       the source values may be reused.
+    2. Unlike user passwords, client secrets are used often, up to many times per
+       minute. The hash needs to be fast (MD5 or SHA) and reasonably safe from collision
+       attacks (eliminating MD5, SHA0 and SHA1). Blake2 is the fastest available
+       candidate meeting this criteria, replacing the previous choice of SHA256. Blake3
+       is too new at this time, but is an upgrade candidate.
+    3. To allow for a different hash to be used in future, hashes are stored
+       prefixed with the hash name and digest size, currently 'blake2b$32$'. This code
+       will transparently upgrade from the previous 'sha256$' on successful auth.
     """
 
     __tablename__ = 'auth_client_credential'
@@ -246,16 +246,29 @@ class AuthClientCredential(BaseMixin, db.Model):
     name = db.Column(db.String(22), nullable=False, unique=True, default=buid)
     #: User description for this credential
     title = db.Column(db.Unicode(250), nullable=False, default='')
-    #: OAuth client secret, hashed (64 chars hash plus 7 chars id prefix = 71 chars)
-    secret_hash = db.Column(db.String(71), nullable=False)
+    #: OAuth client secret, hashed
+    secret_hash = db.Column(db.Unicode, nullable=False)
     #: When was this credential last used for an API call?
     accessed_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
-    def secret_is(self, candidate):
-        return (
-            self.secret_hash
-            == 'sha256$' + sha256(candidate.encode('utf-8')).hexdigest()
-        )
+    def secret_is(self, candidate, upgrade_hash=False):
+        if self.secret_hash.startswith('blake2b$32$'):
+            return (
+                self.secret_hash
+                == 'blake2b$32$'
+                + blake2b(candidate.encode(), digest_size=32).hexdigest()
+            )
+        if self.secret_hash.startswith('sha256$'):
+            matches = (
+                self.secret_hash == 'sha256$' + sha256(candidate.encode()).hexdigest()
+            )
+            if matches and upgrade_hash:
+                self.secret_hash = (
+                    'blake2b$32$'
+                    + blake2b(candidate.encode(), digest_size=32).hexdigest()
+                )
+            return matches
+        return False
 
     @classmethod
     def get(cls, name):
@@ -272,7 +285,9 @@ class AuthClientCredential(BaseMixin, db.Model):
         cred = cls(auth_client=auth_client, name=buid())
         db.session.add(cred)
         secret = newsecret()
-        cred.secret_hash = 'sha256$' + sha256(secret.encode('utf-8')).hexdigest()
+        cred.secret_hash = (
+            'blake2b$32$' + blake2b(secret.encode(), digest_size=32).hexdigest()
+        )
         return cred, secret
 
     def permissions(self, user, inherited=None):
@@ -471,7 +486,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
                 auth_client=auth_client, user_session=user_session
             ).one_or_none()
 
-    @classmethod
+    @classmethod  # NOQA: A003
     def all(cls, users):  # NOQA: A003
         """
         Return all AuthToken for the specified users.

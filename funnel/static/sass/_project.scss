@@ -63,7 +63,11 @@
       .txt,
       .login-txt {
         position: relative;
-        top: -1px;
+        top: -2px;
+      }
+      .animate-btn--animate {
+        -webkit-animation: none;
+        animation: none;
       }
     }
     .share {
@@ -90,7 +94,9 @@
 
     .card__calendar {
       padding: 0 $mui-grid-padding 10px;
-      margin: 0 -$mui-grid-padding 25px;
+      margin: 0 0 25px;
+      margin-left: -$mui-grid-padding;
+      margin-right: -$mui-grid-padding;
     }
     .project-venue {
       margin: 10px 0;
@@ -193,7 +199,7 @@
       .propose {
         align-items: baseline;
         margin-left: $mui-grid-padding;
-        width: calc(100% - $mui-grid-padding);
+        width: calc(100% - #{$mui-grid-padding});
       }
       .propose--lessmargin {
         margin: 10px 0 0;
@@ -292,7 +298,7 @@
     .about__participate {
       display: block !important;
       position: relative;
-      width: calc(50% - $mui-grid-padding-double);
+      width: calc(50% - #{$mui-grid-padding-double});
       float: right;
       padding: 0;
       margin-left: $mui-grid-padding-double;
@@ -321,12 +327,12 @@
 @media (min-width: 992px) {
   .about {
     .about__participate {
-      width: calc(40% - $mui-grid-padding-double);
+      width: calc(40% - #{$mui-grid-padding-double});
     }
 
     .about__details__featured {
       .about__details__featured__cards {
-        width: calc(33.3% - $mui-grid-padding-double);
+        width: calc(33.3% - #{$mui-grid-padding-double});
         padding: 0 $mui-grid-padding;
       }
     }
@@ -337,7 +343,7 @@
   .about {
     .about__details__featured {
       .about__details__featured__cards {
-        width: calc(33.3% - $mui-grid-padding-double);
+        width: calc(33.3% - #{$mui-grid-padding-double});
         padding: 0 $mui-grid-padding;
       }
     }

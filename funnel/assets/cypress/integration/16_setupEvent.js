@@ -1,10 +1,10 @@
-describe('Setup event for checkin', function() {
+describe('Setup event for checkin', function () {
   const concierge = require('../fixtures/user.json').concierge;
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
-  it('Setup event for checkin', function() {
+  it('Setup event for checkin', function () {
     cy.login('/', concierge.username, concierge.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
@@ -16,14 +16,12 @@ describe('Setup event for checkin', function() {
     cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
 
-    cy.fixture('events').then(events => {
-      events.forEach(function(event) {
+    cy.fixture('events').then((events) => {
+      events.forEach(function (event) {
         cy.get('a[data-cy="new-event"]').click();
         cy.get('#title').type(event.title);
         cy.get('#badge_template').type(event.badge_template);
-        cy.get('button')
-          .contains('Add event')
-          .click();
+        cy.get('button').contains('Add event').click();
       });
     });
   });

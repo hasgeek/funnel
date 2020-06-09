@@ -1,7 +1,7 @@
 import vCardsJS from 'vcards-js';
 
 $(() => {
-  window.HasGeek.downloadVcard = function(
+  window.HasGeek.downloadVcard = function (
     element,
     fullname,
     email,

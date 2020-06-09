@@ -1,11 +1,11 @@
-describe('Add a new proposal', function() {
+describe('Add a new proposal', function () {
   const user = require('../fixtures/user.json').user;
   const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
-  it('Add proposal', function() {
+  it('Add proposal', function () {
     cy.login('/' + profile.title, user.username, user.password);
 
     cy.get('a[data-cy-project="' + project.title + '"]').click();
@@ -14,9 +14,7 @@ describe('Add a new proposal', function() {
     cy.location('pathname').should('contain', 'proposals');
     cy.get('a[data-cy="propose-a-session"]').click();
     cy.location('pathname').should('contain', 'new');
-    cy.get('#speaking label')
-      .eq(0)
-      .click();
+    cy.get('#speaking label').eq(0).click();
     cy.get('#title').type(proposal.title);
     cy.get('#field-abstract')
       .find('.CodeMirror textarea')
@@ -29,32 +27,17 @@ describe('Add a new proposal', function() {
     cy.get('#field-bio')
       .find('.CodeMirror textarea')
       .type(proposal.speaker_bio, { force: true });
-    cy.get('#email').type(proposal.email);
     cy.get('#phone').type(proposal.phone);
     cy.get('#location').type(proposal.location);
-    cy.get('fieldset')
-      .find('.listwidget')
-      .eq(0)
-      .find('input')
-      .eq(0)
-      .click();
-    cy.get('fieldset')
-      .find('.listwidget')
-      .eq(1)
-      .find('input')
-      .eq(0)
-      .click();
-    cy.get('button')
-      .contains('Submit proposal')
-      .click();
+    cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
+    cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
+    cy.get('button').contains('Submit proposal').click();
     cy.location('pathname').should('contain', 'proposals');
 
     cy.get('.proposal__section__headline')
       .should('exist')
       .contains(proposal.title);
-    cy.get('[data-cy="proposal-video"]')
-      .find('iframe')
-      .should('be.visible');
+    cy.get('[data-cy="proposal-video"]').find('iframe').should('be.visible');
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');
     cy.get('[data-cy="edit-proposal-video"]').should('exist');

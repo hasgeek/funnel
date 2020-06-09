@@ -49,7 +49,7 @@
           <div class="card__footer">
             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}" title="Edit">{% trans %}Edit{% endtrans %}</a>
             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('change_password') }}" title="Change password">{% trans %}Change password{% endtrans %}</a>
-             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout">{% trans %}Logout{% endtrans %}</a>
+             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout" data-cy="Logout">{% trans %}Logout{% endtrans %}</a>
           </div>
         </div>
       </div>
@@ -62,14 +62,14 @@
             <ol class="mui-list--aligned mui-list--border">
               {% for extid in current_auth.user.externalids %}
                 <li>
-                  {{ faicon(icon=extid.service, icon_size='body1', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}{{ extid.username }}&nbsp;<small><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small>
+                  {{ faicon(icon=extid.service, icon_size='body1', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }}<small class="subitem"><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small></span>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
               {% endfor %}
             </ol>
             <p>{% trans %}Add External ID{% endtrans %}</p>
             {% for provider in login_registry %}
-              <a class="mui-btn mui-btn--small mui-btn--raised login login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}"/> {{ login_registry[provider]['title'] }}</a>
+              <a class="mui-btn mui-btn--small mui-btn--raised login login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img icon-img--smaller" alt="{{ login_registry[provider]['title'] }}"/> {{ login_registry[provider]['title'] }}</a>
             {% endfor %}
           </div>
         </div>
@@ -91,16 +91,16 @@
                   {% if useremail.primary %}
                     <em>{% trans %}(primary){% endtrans %}</em>
                   {% endif %}
-                  {%- if not useremail.primary %}
-                    <a href="{{ url_for('remove_email', md5sum=useremail.md5sum) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
+                  {%- if current_auth.user.verified_contact_count > 1 %}
+                    <a href="{{ url_for('remove_email', email_hash=useremail.blake2b_b58) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                   {%- endif %}
                 </li>
                 {% endfor %}
                 {% for useremail in current_auth.user.emailclaims %}
                 <li>
                   <input type="radio" disabled="disabled">&nbsp;
-                  {{ useremail }} <em><a href="{{ url_for('verify_email', md5sum=useremail.md5sum) }}">{% trans %}(pending verification){% endtrans %}</a></em>
-                  <a href="{{ url_for('remove_email', md5sum=useremail.md5sum) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
+                  {{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.blake2b_b58) }}">{% trans %}(pending verification){% endtrans %}</a></em>
+                  <a href="{{ url_for('remove_email', email_hash=useremail.blake2b_b58) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
                 {% endfor %}
               </ol>
@@ -131,7 +131,7 @@
                     <input id="userphone-{{loop.index}}" name="phone" value="{{userphone}}" type="radio">&nbsp;
                     <label for="userphone-{{loop.index}}">{{ userphone.formatted() }}</label>
                     {% if userphone.primary %} <em>{% trans %}(primary){% endtrans %}</em> {% endif -%}
-                    {%- if not userphone.primary %}
+                    {%- if current_auth.user.verified_contact_count > 1 %}
                       <a href="{{ url_for('remove_phone', number=userphone.phone) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                     {%- endif %}
                   </li>
