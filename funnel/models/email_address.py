@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 from typing import Iterable, List, Optional
 import hashlib
 
 from sqlalchemy import event, inspect
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.attributes import NO_VALUE
 
@@ -15,7 +19,14 @@ from coaster.utils import LabeledEnum, require_one_of
 
 from . import BaseMixin, db
 
-__all__ = ['EMAIL_DELIVERY_STATE', 'EmailAddressBlockedError', 'EmailAddress']
+__all__ = [
+    'EMAIL_DELIVERY_STATE',
+    'EmailAddressError',
+    'EmailAddressBlockedError',
+    'EmailAddressInUseError',
+    'EmailAddress',
+    'EmailAddressMixin',
+]
 
 
 class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
@@ -91,8 +102,16 @@ def email_blake2b160_hash(email: str) -> bytes:
     return hashlib.blake2b(email.encode('utf-8'), digest_size=20).digest()
 
 
-class EmailAddressBlockedError(Exception):
+class EmailAddressError(Exception):
+    """Base class for EmailAddress exceptions"""
+
+
+class EmailAddressBlockedError(EmailAddressError):
     """Email address is blocked from use"""
+
+
+class EmailAddressInUseError(EmailAddressError):
+    """Email address is in use by another actor"""
 
 
 class EmailAddress(BaseMixin, db.Model):
@@ -108,6 +127,11 @@ class EmailAddress(BaseMixin, db.Model):
     """
 
     __tablename__ = 'email_address'
+
+    #: Backrefs to this model from other models, populated by :class:`EmailAddressMixin`
+    __backrefs__ = set()
+    #: These backrefs claim exclusive use of the email address for their linked actor
+    __exclusive_backrefs__ = set()
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
@@ -156,8 +180,8 @@ class EmailAddress(BaseMixin, db.Model):
         # TODO: Reconsider this. Blocking and forgetting are distinct concerns.
         db.CheckConstraint(
             db.or_(
-                db.and_(email.isnot(None), _is_blocked.isnot(True)),
-                db.and_(email.is_(None), _is_blocked.is_(True)),
+                _is_blocked.isnot(True),
+                db.and_(_is_blocked.is_(True), email.is_(None),),
             ),
             'email_address_email_is_blocked_check',
         ),
@@ -249,6 +273,12 @@ class EmailAddress(BaseMixin, db.Model):
         """Record fact of a soft bounce to this email address."""
         self.delivery_state_at = db.func.utcnow()
 
+    def refcount(self) -> int:
+        """Returns count of references to this EmailAddress instance"""
+        return sum(
+            len(getattr(self, backref_name)) for backref_name in self.__backrefs__
+        )
+
     @classmethod
     def mark_blocked(cls, email: str) -> None:
         """
@@ -271,7 +301,7 @@ class EmailAddress(BaseMixin, db.Model):
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
-    ) -> 'Optional(EmailAddress)':
+    ) -> Optional[EmailAddress]:
         """
         Get an :class:`EmailAddress` instance by email address or its hash.
 
@@ -288,7 +318,7 @@ class EmailAddress(BaseMixin, db.Model):
     @classmethod
     def get_canonical(
         cls, email: str, is_blocked: Optional[bool] = None
-    ) -> 'Iterable(EmailAddress)':
+    ) -> Iterable[EmailAddress]:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
 
@@ -304,16 +334,26 @@ class EmailAddress(BaseMixin, db.Model):
         return query
 
     @classmethod
-    def add(cls, email: str) -> 'EmailAddress':
+    def _get_existing(cls, email: str) -> Optional[EmailAddress]:
+        """Internal method used by :meth:`add` and :meth:`add_for`"""
+        with db.session.no_autoflush:
+            if cls.get_canonical(email, is_blocked=True).notempty():
+                raise EmailAddressBlockedError("Email address is blocked")
+            return EmailAddress.get(email)
+
+    @classmethod
+    def add(cls, email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
         Raises an exception if the address is blocked from use or the email address
         is syntactically invalid.
+
+        This method will not flush the session before querying the database, to avoid
+        flushing unrelated transient objects. Caller is responsible for ensuring edits
+        to other :class:`EmailAddress` instances have been flushed or committed.
         """
-        if cls.get_canonical(email, is_blocked=True).notempty():
-            raise EmailAddressBlockedError("Email address is blocked")
-        existing = EmailAddress.get(email)
+        existing = cls._get_existing(email)
         if existing:
             existing.email = email
             return existing
@@ -322,17 +362,30 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def add_for(cls, user: 'User', email: str) -> 'EmailAddress':
+    def add_for(cls, actor: User, email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
-        Unlike :meth:`add`, this one requires the email address to not be claimed by
-        an existing user via a UserEmail record.
-        """
-        # TODO
+        Unlike :meth:`add`, this one requires the email address to not be in an
+        exclusive relationship with another user.
 
-    # TODO: user_bound_via = relationship(UserEmail), defined as a backref from there,
-    # and user_bound_to as an association_proxy to User model
+        This method will not flush the session before querying the database, to avoid
+        flushing unrelated transient objects. Caller is responsible for ensuring edits
+        to other :class:`EmailAddress` instances have been flushed or committed.
+        """
+        existing = cls._get_existing(email)
+        if existing:
+            for backref_name in EmailAddress.__exclusive_backrefs__:
+                for related_obj in getattr(existing, backref_name):
+                    user = getattr(related_obj, related_obj.__email_for__)
+                    if user is not None and user != actor:
+                        raise EmailAddressInUseError("This email address is in use")
+            # No exclusive lock found? Let it be used then
+            existing.email = email
+            return existing
+        new_email = EmailAddress(email)
+        db.session.add(new_email)
+        return new_email
 
     @classmethod
     def validate_for(cls, user: 'User', email: str) -> Optional[str]:
@@ -347,6 +400,57 @@ class EmailAddress(BaseMixin, db.Model):
         2. 'soft_bounce'
         """
         # TODO
+
+
+class EmailAddressMixin:
+    """Mixin class for models that refer to EmailAddress"""
+
+    #: This class has an optional dependency on EmailAddress
+    __email_optional__ = True
+    #: This class has a unique constraint on the fkey to EmailAddress
+    __email_unique__ = False
+    #: A relationship from this model is for the (single) actor at this attr
+    __email_for__ = None
+    #: If `__email_for__` is specified and this flag is True, the email address is
+    #: considered exclusive to this user and may not be used by any other user
+    __email_is_exclusive__ = False
+
+    @declared_attr
+    def email_address_id(cls):
+        return db.Column(
+            None,
+            db.ForeignKey('email_address.id', ondelete='SET NULL'),
+            nullable=cls.__email_optional__,
+            unique=cls.__email_unique__,
+            index=not cls.__email_unique__,
+        )
+
+    @declared_attr
+    def email_address(cls):
+        backref_name = 'used_in_' + cls.__tablename__
+        EmailAddress.__backrefs__.add(backref_name)
+        if cls.__email_for__ and cls.__email_is_exclusive__:
+            EmailAddress.__exclusive_backrefs__.add(backref_name)
+        return db.relationship(EmailAddress, backref=backref_name)
+
+    @declared_attr
+    def email(cls):
+        if cls.__email_for__:
+
+            def email_get(self):
+                if self.email_address:
+                    return self.email_address.email
+
+            def email_set(self, value):
+                self.email_address = EmailAddress.add_for(
+                    getattr(self, cls.__email_for__), value
+                )
+
+            return property(fget=email_get, fset=email_set)
+        else:
+            return association_proxy(
+                'email_address', 'email', creator=lambda email: EmailAddress.add(email)
+            )
 
 
 auto_init_default(EmailAddress._delivery_state)

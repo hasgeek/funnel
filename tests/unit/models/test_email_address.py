@@ -1,10 +1,15 @@
+from types import SimpleNamespace
+
 from sqlalchemy.exc import IntegrityError
 
 import pytest
 
+from funnel.models import BaseMixin, db
 from funnel.models.email_address import (
     EmailAddress,
     EmailAddressBlockedError,
+    EmailAddressInUseError,
+    EmailAddressMixin,
     canonical_email_representation,
     email_blake2b160_hash,
 )
@@ -227,13 +232,18 @@ def test_email_address_get_canonical(clean_db):
 
 def test_email_address_add(clean_db):
     """Using EmailAddress.add will auto-add to session and return existing instances"""
+    db = clean_db
     ea1 = EmailAddress.add('example@example.com')
+    db.session.flush()
     assert isinstance(ea1, EmailAddress)
     assert ea1.email == 'example@example.com'
 
     ea2 = EmailAddress.add('example+extra@example.com')
+    db.session.flush()
     ea3 = EmailAddress.add('other@example.com')
+    db.session.flush()
     ea4 = EmailAddress.add('Example@example.com')
+    db.session.flush()
 
     assert ea2 is not None
     assert ea3 is not None
@@ -246,14 +256,27 @@ def test_email_address_add(clean_db):
     # Email casing was amended by the call to EmailAddress.add
     assert ea1.email == 'Example@example.com'
 
+    # A forgotten email address will be restored by calling EmailAddress.add
+    ea3.email = None
+    db.session.flush()
+    assert ea3.email is None
+    ea5 = EmailAddress.add('other@example.com')
+    assert ea5 == ea3
+    assert ea5.email == ea3.email == 'other@example.com'
+
 
 def test_email_address_blocked(clean_db):
     """A blocked email address cannot be used via EmailAddress.add"""
+    db = clean_db
     ea1 = EmailAddress.add('example@example.com')
+    db.session.flush()
     ea2 = EmailAddress.add('example+extra@example.com')
+    db.session.flush()
     ea3 = EmailAddress.add('other@example.com')
+    db.session.flush()
 
     EmailAddress.mark_blocked(ea2.email)
+    db.session.flush()
 
     assert ea1.is_blocked is True
     assert ea2.is_blocked is True
@@ -264,7 +287,7 @@ def test_email_address_blocked(clean_db):
 
 
 def test_email_address_delivery_state(clean_db):
-    """An email address can have last known delivery state set on it"""
+    """An email address can have the last known delivery state set on it"""
     db = clean_db
     ea = EmailAddress.add('example@example.com')
     assert ea.delivery_state.UNKNOWN
@@ -280,12 +303,127 @@ def test_email_address_delivery_state(clean_db):
     assert ea.delivery_state.ACTIVE
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
-    # Email address is soft bouncing (typically mailbox full)
+    # Sent email is soft bouncing (typically mailbox full)
     ea.mark_soft_bounce()
     assert ea.delivery_state.SOFT_BOUNCE
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
-    # Email is hard bouncing (typically mailbox invalid)
+    # Sent email is hard bouncing (typically mailbox invalid)
     ea.mark_hard_bounce()
     assert ea.delivery_state.HARD_BOUNCE
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
+
+
+# This fixture must be session scope as it cannot be called twice in the same process.
+# SQLAlchemy models must only be defined once.
+@pytest.fixture(scope='session')
+def email_models():
+    class EmailUser(BaseMixin, db.Model):
+        """Test model representing a user account"""
+
+        __tablename__ = 'emailuser'
+
+    class EmailLink(EmailAddressMixin, BaseMixin, db.Model):
+        """Test model connecting EmailUser to EmailAddress"""
+
+        __tablename__ = 'emaillink'
+        __email_optional__ = False
+        __email_unique__ = True
+        __email_for__ = 'emailuser'
+        __email_is_exclusive__ = True
+
+        emailuser_id = db.Column(db.ForeignKey('emailuser.id'), nullable=False)
+        emailuser = db.relationship(EmailUser)
+
+    class EmailDocument(EmailAddressMixin, BaseMixin, db.Model):
+        """Test model unaffiliated to a user that has an email address attached"""
+
+        __tablename__ = 'emaildoc'
+        __email_optional__ = True
+        __email_unique__ = False
+
+    db.create_all()  # This will only create models not already in the database
+    return SimpleNamespace(**locals())
+
+
+@pytest.fixture(scope='function')
+def clean_mixin_db(email_models, clean_db):
+    """Fixture that removes all test model instances"""
+    yield clean_db
+    clean_db.session.rollback()
+    email_models.EmailDocument.query.delete(synchronize_session=False)
+    email_models.EmailLink.query.delete(synchronize_session=False)
+    email_models.EmailUser.query.delete(synchronize_session=False)
+    clean_db.session.commit()
+
+
+def test_email_address_mixin(email_models, clean_mixin_db):
+    """The EmailAddressMixin class adds safety checks for using an email address"""
+    db = clean_mixin_db
+    models = email_models
+
+    user1 = models.EmailUser()
+    user2 = models.EmailUser()
+
+    doc1 = models.EmailDocument()
+    doc2 = models.EmailDocument()
+
+    db.session.add_all([user1, user2, doc1, doc2])
+    db.session.flush()
+
+    # Mixin-based classes can simply specify an email parameter to link to an
+    # EmailAddress instance
+    link1 = models.EmailLink(emailuser=user1, email='example@example.com')
+    db.session.add(link1)
+    db.session.flush()
+    ea1 = EmailAddress.get('example@example.com')
+    assert link1.email == 'example@example.com'
+    assert link1.email_address == ea1
+
+    # Link an unrelated email address to another user to demonstrate that it works
+    link2 = models.EmailLink(emailuser=user2, email='other@example.com')
+    db.session.add(link2)
+    db.session.flush()
+    ea2 = EmailAddress.get('other@example.com')
+    assert link2.email == 'other@example.com'
+    assert link2.email_address == ea2
+
+    # 'other@example.com' is now exclusive to user2. Attempting it to assign it to
+    # user1 will raise an exception.
+    with pytest.raises(EmailAddressInUseError):
+        models.EmailLink(emailuser=user1, email='Other@example.com')
+
+    db.session.commit()
+
+    # Attempting to assign 'other@example.com' to user2 a second time will cause a
+    # SQL integrity error because EmailLink.__email_unique__ is True.
+    link3 = models.EmailLink(emailuser=user2, email='Other@example.com')
+    db.session.add(link3)
+    with pytest.raises(IntegrityError):
+        db.session.flush()
+
+    del link3
+    db.session.rollback()
+
+    # The EmailDocument model, in contrast, has no requirement of availability to a
+    # specific user, so it won't be blocked here despite being exclusive to user1
+    assert doc1.email is None
+    assert doc2.email is None
+    assert doc1.email_address is None
+    assert doc2.email_address is None
+
+    doc1.email = 'example@example.com'
+    doc2.email = 'example@example.com'
+    db.session.flush()
+
+    assert doc1.email == 'example@example.com'
+    assert doc2.email == 'example@example.com'
+    assert doc1.email_address == ea1
+    assert doc2.email_address == ea1
+
+    # ea1 now has three references, while ea2 has 1
+    assert ea1.refcount() == 3
+    assert ea2.refcount() == 1
+
+
+# TODO: Test that a forgotten email address can be remembered using `EmailAddress.add`
