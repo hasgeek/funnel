@@ -571,7 +571,10 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'concierge'})
     def rsvp_list(self):
-        return {'project': self.obj, 'statuses': RSVP_STATUS}
+        return {
+            'project': self.obj,
+            'going_rsvps': self.obj.rsvps_with(RSVP_STATUS.YES),
+        }
 
     def get_rsvp_state_csv(self, state):
         outfile = io.StringIO()
