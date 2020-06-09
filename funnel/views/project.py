@@ -41,7 +41,7 @@ from ..forms import (
     RsvpTransitionForm,
     SavedProjectForm,
 )
-from ..jobs import import_tickets, tag_locations
+from ..jobs import import_tickets, send_mail_async, tag_locations
 from ..models import (
     RSVP_STATUS,
     Comment,
@@ -545,6 +545,15 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
+                send_mail_async.queue(
+                    sender=None,
+                    to=str(current_auth.user.email),
+                    body=render_template(
+                        'project_registered_email.html.jinja2',
+                        project=self.obj
+                    ),
+                    subject='Registration confirmation for %s' % self.obj.title,
+                )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
         return redirect(get_next_url(referrer=request.referrer), code=303)
