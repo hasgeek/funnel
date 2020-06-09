@@ -1,7 +1,7 @@
 from baseframe import __
 from coaster.utils import LabeledEnum
 
-from . import Comment, IdMixin, User, UuidMixin, db
+from . import BaseMixin, Comment, User, UuidMixin, db
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
@@ -11,7 +11,7 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # NOQA: N801
     SPAM = (1, 'spam', __("Spam"))
 
 
-class CommentModeratorReport(IdMixin, UuidMixin, db.Model):
+class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment_moderator_report'
     __uuid_primary_key__ = True
 
@@ -31,6 +31,9 @@ class CommentModeratorReport(IdMixin, UuidMixin, db.Model):
     )
     report_type = db.Column(
         db.SmallInteger, nullable=False, default=MODERATOR_REPORT_TYPE.SPAM
+    )
+    reported_at = db.Column(
+        db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False,
     )
 
     @classmethod

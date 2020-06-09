@@ -250,11 +250,7 @@ class CommentView(UrlForView, ModelView):
 
         self.obj.report_spam(actor=current_auth.user)
         flash(
-            _(
-                "The comment has been reported as spam and "
-                "it'll be taken down after someone reviews the report"
-            ),
-            'info',
+            _("The comment has been reported as spam"), 'info',
         )
         return redirect(self.obj.commentset.views.url(), code=303)
 

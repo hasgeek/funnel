@@ -1,8 +1,8 @@
 """moderator report models
 
-Revision ID: d5c65787f7d7
+Revision ID: 79719ee38228
 Revises: 047ebdac558b
-Create Date: 2020-06-08 15:30:35.546176
+Create Date: 2020-06-09 15:42:27.791372
 
 """
 
@@ -11,7 +11,7 @@ from sqlalchemy_utils import UUIDType
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = 'd5c65787f7d7'
+revision = '79719ee38228'
 down_revision = '047ebdac558b'
 branch_labels = None
 depends_on = None
@@ -23,7 +23,10 @@ def upgrade():
         sa.Column('comment_id', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('report_type', sa.SmallInteger(), nullable=False),
+        sa.Column('reported_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('id', UUIDType(binary=False), nullable=False),
+        sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(['comment_id'], ['comment.id'],),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'],),
         sa.PrimaryKeyConstraint('id'),

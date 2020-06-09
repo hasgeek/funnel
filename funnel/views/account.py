@@ -220,7 +220,6 @@ class AccountView(ClassView):
         report_form.form_nonce.data = report_form.form_nonce.default()
 
         if report_form.validate_on_submit():
-            app.logger.info('validation pass')
             # get other reports for same comment
             # existing report count will be greater than 0 because
             # current report exists and it's not by the current user.
@@ -266,7 +265,7 @@ class AccountView(ClassView):
             else:
                 return redirect(url_for('account'))
         else:
-            app.logger.info(report_form.errors)
+            app.logger.debug(report_form.errors)
 
         return {
             'report': report,
