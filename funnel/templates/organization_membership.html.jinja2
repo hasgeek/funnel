@@ -32,10 +32,10 @@
              <hr class="separator">
             <div v-if="members">
               <div class="mui--clearfix membership-wrapper__filter">
-                <p class="mui--text-body1 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
+                <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
                 <div class="mui--pull-right">
-                   <button class="mui-btn mui-btn--nostyle mui--text-body1" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Name</button>
-                    <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body1" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Role</button>
+                   <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Name</button>
+                    <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Role</button>
                 </div>
               </div>
               <div v-if="view == 'role'" class="membership-wrapper__members">
@@ -63,7 +63,7 @@
             </div>
             <div class="no-member" v-else>
               <p class="mui--text-center"><svg class="fa5-icon no-member__icon" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#user-friends'"></use></svg></p>
-              <p class="mui--text-body1 mui--text-bold mui--text-center zero-bottom-margin">No members found</p>
+              <p class="mui--text-body2 mui--text-bold mui--text-center zero-bottom-margin">No members found</p>
               <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">Members you add will appear here…</p>
             </div>
             <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
@@ -90,12 +90,12 @@
   <div class="user-box mui--clearfix">
     <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials(member.user.fullname) }}</div>
     <div class="mui--d-inlineblock">
-    <h3 class="mui--text-body1 user-box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+    <h3 class="mui--text-body2 user-box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
     <h3 v-if="member.user.username" class="mui--text-caption user-box__userid"><span>@{{ member.user.username }}</span></h3>
     </div>
     <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
-      <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body1" data-cy="role">Owner</li>
-      <li v-else class="membership-wrapper__members__list__roles__role mui--text-body1" data-cy="role">Admin</li>
+      <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Owner</li>
+      <li v-else class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Admin</li>
     </ul>
   </div>
 </script>

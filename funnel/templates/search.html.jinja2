@@ -24,11 +24,11 @@
               <div class="grid">
                 <div class="grid__col-12">
                   <div class="tabs" id="scrollable-tabs">
-                    <p class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body1 mui--text-light" aria-label="{% trans %}Previous{% endtrans %}" on-click="swipe(-1)"><svg class="fa5-icon fa5-icon--headline test fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-left"></use></svg></p>
+                    <p class="tabs__item tabs__item-control tabs__item-control--prev mui--text-body2 mui--text-light" aria-label="{% trans %}Previous{% endtrans %}" on-click="swipe(-1)"><svg class="fa5-icon fa5-icon--headline test fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-left"></use></svg></p>
                     {{#each tabs}}
-                      <p class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="count-chip mui--text-caption">{{ count }}</span></p>
+                      <p class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="count-chip mui--text-caption">{{ count }}</span></p>
                     {{/each}}
-                    <p class="tabs__item tabs__item-control tabs__item-control--next mui--text-body1 mui--text-light" aria-label="{% trans %}Next{% endtrans %}" on-click="swipe(1)"><svg class="fa5-icon fa5-icon--headline fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
+                    <p class="tabs__item tabs__item-control tabs__item-control--next mui--text-body2 mui--text-light" aria-label="{% trans %}Next{% endtrans %}" on-click="swipe(1)"><svg class="fa5-icon fa5-icon--headline fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
                   </div>
                 </div>
               </div>
@@ -47,7 +47,7 @@
                               <img class="card__image" src="{{ obj.bg_image }}" alt="{{ title }}"/>
                             {{else}}
                               <img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/>
-                              <p class="card__image__tagline mui--text-body1">{{ title }}</p>
+                              <p class="card__image__tagline mui--text-body2">{{ title }}</p>
                             {{/if}}
                           </div>
                           <div class="card__body">
@@ -85,7 +85,7 @@
                               <svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#map-marker-alt"></use></svg> {{ obj.location }}
                             {{/if}}
                             </p>
-                            <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
+                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
                           </div>
                         </a>
                       {{elseif result == 'profile'}}
@@ -95,12 +95,12 @@
                               <img class="card__image" src="{{ obj.logo_url }}" alt="{{ title }}"/>
                             {{else}}
                               <img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/>
-                              <p class="card__image__tagline mui--text-body1">{{{ title_html }}}</p>
+                              <p class="card__image__tagline mui--text-body2">{{{ title_html }}}</p>
                             {{/if}}
                           </div>
                           <div class="card__body">
                             <div class="card__body__title js-truncate card__body__title--smaller" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{{ obj.description.html }}}</span></div>
-                            <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
+                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
                           </div>
                         </a>
                       {{elseif result == 'session'}}
@@ -111,9 +111,9 @@
                             <img class="user-box__gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
                           {{/if}}
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
-                          <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
-                          <p class="mui--text-body1 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start_at) }}–{{ formatTime(obj.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start_at) }}</p>
-                          <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
+                          <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
+                          <p class="mui--text-body2 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start_at) }}–{{ formatTime(obj.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start_at) }}</p>
+                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
                         </div>
                       {{elseif result == 'proposal'}}
                         <div class="user-box">
@@ -123,11 +123,11 @@
                             <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
                           {{/if}}
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
-                          <h3 class="mui--text-body1 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
+                          <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                           {{#if obj.session}}{{#if obj.session.start_at}}
-                            <p class="mui--text-body1 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start_at) }}–{{ formatTime(obj.session.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start_at) }}</p>
+                            <p class="mui--text-body2 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start_at) }}–{{ formatTime(obj.session.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start_at) }}</p>
                           {{/if}}{{/if}}
-                          <p class="mui--text-body1 mui--text-light snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg>{{{ snippet_html }}}</p>
+                          <p class="mui--text-body2 mui--text-light snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg>{{{ snippet_html }}}</p>
                         </div>
                       {{elseif result == 'comment'}}
                         <div class="user-box">
@@ -137,8 +137,8 @@
                             <img class="user-gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
                           {{/if}}
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{ obj.title }}</a></h2>
-                          <p class="mui--text-body1 mui--text-light">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
-                          <p class="mui--text-body1 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
+                          <p class="mui--text-body2 mui--text-light">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
+                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
                         </div>
                       {{/if}}
                     </div>

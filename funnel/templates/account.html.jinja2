@@ -62,7 +62,7 @@
             <ol class="mui-list--aligned mui-list--border">
               {% for extid in current_auth.user.externalids %}
                 <li>
-                  {{ faicon(icon=extid.service, icon_size='body1', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }}<small class="subitem"><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small></span>
+                  {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }}<small class="subitem"><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small></span>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
               {% endfor %}

@@ -18,7 +18,7 @@
               {% set event.next = true %}
             {% endif %}
           {% endif %}
-          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} ">{{ week.month }} {{ week.year }}&nbsp;<span class="calendar__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span></p>
+          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} ">{{ week.month }} {{ week.year }}<span class="calendar__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span></p>
           {% set event.month = week.month  %}
           {% set event.year = week.year  %}
           <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first{% endif %}"  data-month="{{ week.month }}">
@@ -51,12 +51,12 @@
     {{ form.hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
-        <a class="mui--text-body1"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body1 mui--text-light login-txt">{% trans %}Login{% endtrans %} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}to save{% endtrans %}</span></span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
+        <a class="mui--text-body2"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body2 mui--text-light login-txt">{% trans %}Login{% endtrans %} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}to save{% endtrans %}</span></span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
       {%- else %}
         <input type="hidden" name="save" value="">
-        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmark">{% if txt %}<span class="mui--text-body1 mui--text-light txt">{% trans %}Save <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark', baseline=false, css_class='mui--text-light') }}
+        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmark">{% if txt %}<span class="mui--text-body2 mui--text-light txt">{% trans %}Save <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark', icon_size='caption', baseline=false, css_class='mui--text-light') }}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmarked">{% if txt %}<span class="mui--text-body1 mui--text-light txt">{% trans %}Unsave <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark-solid',  baseline=false, css_class='bookmarked') }}</button>
+        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmarked">{% if txt %}<span class="mui--text-body2 mui--text-light txt">{% trans %}Unsave <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark-solid', icon_size='caption', baseline=false, css_class='bookmarked') }}</button>
       {%- endif %}
     </p>
   </form>
@@ -75,10 +75,10 @@
   <div class="project-banner__footer">
     <div class="bookmark">{{ saveprojectform(project, project_save_form, txt=true) }}</div>
     {% if project.schedule_state.PUBLISHED %}
-      <a class="add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar" data-cy="add-to-calendar"><span class="mui--text-body1 mui--text-light txt">{% trans %}Add to calendar{% endtrans %}</span>{{ faicon(icon='calendar-plus', baseline=false, css_class='mui--text-light') }}</a>
+      <a class="add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar" data-cy="add-to-calendar"><span class="mui--text-body2 mui--text-light txt">{% trans %}Add to calendar{% endtrans %}</span>{{ faicon(icon='calendar-plus', baseline=false, css_class='mui--text-light') }}</a>
     {% endif %}
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead share" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><span class="mui--text-body1 mui--text-light txt">{% trans %}Share <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{{ faicon(icon='share-square', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</a>
+      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead share" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><span class="mui--text-body2 mui--text-light txt">{% trans %}Share <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{{ faicon(icon='share-square', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</a>
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
   </div>
@@ -116,7 +116,7 @@
       <div class="grid__col-sm-12 project-banner__headline">
         <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}
           {% if project.view_for('edit_slug').is_available() %}
-            <a class="mui--text-body1" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url" data-action="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
+            <a class="mui--text-body2" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url" data-action="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
           {% endif %}
         </h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
@@ -180,10 +180,10 @@
             </div>
           {% elif project.features.rsvp() %}
             {%- if current_auth.is_anonymous %}
-              <p class="mui--text-body1 mui--text-light">{{ project.views.registration_text() }}</p>
+              <p class="mui--text-body2 mui--text-light">{{ project.views.registration_text() }}</p>
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block"  href="{{ url_for('login') }}" data-action="Login to register">Login to register</a>
             {% elif project.features.rsvp_unregistered() -%}
-              <p class="mui--text-body1 mui--text-light">{{ project.views.registration_text() }}</p>
+              <p class="mui--text-body2 mui--text-light">{{ project.views.registration_text() }}</p>
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">
                 <div class="modal__header">
@@ -191,7 +191,7 @@
                   <p class="mui--text-title mui--text-bold mui--text-dark reg-modal__txt">{{ project.title }}</p>
                 </div>
                 <div class="modal__body">
-                  <p class="mui--text-body1 reg-modal__txt">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
+                  <p class="mui--text-body2 reg-modal__txt">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
                   <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
                     {{ csrf_form.hidden_tag() }}
                     <div class="mui--text-right modal__body__btn">
@@ -201,7 +201,7 @@
                 </div>
               </div>
             {%- elif project.features.rsvp_registered() %}
-              <p class="mui--text-body1 mui--text-light">{{ faicon(icon='check', baseline=false, css_class='mui--align-middle mui--text-success check-icon') }}{{ project.views.registration_text() }}</p>
+              <p class="mui--text-body2 mui--text-light">{{ faicon(icon='check', baseline=false, css_class='mui--align-middle mui--text-success check-icon') }}{{ project.views.registration_text() }}</p>
               <a class="mui-btn mui-btn--raised mui--d-block" href="#register-modal" id="register-btn">{% trans %}Cancel registration{% endtrans %}</a>
               <div class="modal reg-modal" id="register-modal">
                 <div class="modal__header">
@@ -328,10 +328,10 @@
   <div class="tabs" id="jquery-scroll-tabs">
     <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(tab)">{{ faicon(icon='chevron-left', icon_size='headline') }}
     </a>
-    <a {% if active_tab != 'account' %}href="{{ url_for('account') }}"{%- endif %} class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase  {% if active_tab == 'account' %}tabs__item--active{%- endif %}">{% trans %}Account{% endtrans %}</a>
-    <a {% if active_tab != 'saved' %}href="{{ url_for('saved') }}"{%- endif %} class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {% if active_tab == 'saved' %}tabs__item--active{%- endif %}">{% trans %}My saves{% endtrans %}</a>
-    <a {% if active_tab != 'scan' %}href="{{ url_for('scan_contact') }}"{%- endif %} class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {% if active_tab == 'scan' %}tabs__item--active{%- endif %}">{% trans %}Scan badge{% endtrans %}</a>
-    <a {% if active_tab != 'contacts' %}href="{{ url_for('contacts') }}"{%- endif %} class="tabs__item mui--text-body1 mui--text-light mui--text-uppercase {% if active_tab == 'contacts' %}tabs__item--active{%- endif %}">{% trans %}Contacts{% endtrans %}</a>
+    <a {% if active_tab != 'account' %}href="{{ url_for('account') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase  {% if active_tab == 'account' %}tabs__item--active{%- endif %}">{% trans %}Account{% endtrans %}</a>
+    <a {% if active_tab != 'saved' %}href="{{ url_for('saved') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'saved' %}tabs__item--active{%- endif %}">{% trans %}My saves{% endtrans %}</a>
+    <a {% if active_tab != 'scan' %}href="{{ url_for('scan_contact') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'scan' %}tabs__item--active{%- endif %}">{% trans %}Scan badge{% endtrans %}</a>
+    <a {% if active_tab != 'contacts' %}href="{{ url_for('contacts') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'contacts' %}tabs__item--active{%- endif %}">{% trans %}Contacts{% endtrans %}</a>
     <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button" data-action="Next(tab)">{{ faicon(icon='chevron-right', icon_size='headline') }}
     </a>
   </div>
