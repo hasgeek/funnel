@@ -35,7 +35,7 @@ class OrgView(UrlForView, ModelView):
                 abort(404)
             return obj
 
-    @route('')
+    @route('', endpoint='organization_list')
     def index(self):
         return render_template(
             'organization_index.html.jinja2',

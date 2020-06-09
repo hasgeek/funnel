@@ -160,6 +160,32 @@
       <div class="grid__col-xs-12">
         <div class="card">
           <div class="card__header">
+            <h3 class="mui--text-title mui--text-bold">{% trans %}Organizations{% endtrans %}</h3>
+          </div>
+          <div class="card__body">
+            <ul class="mui-list--aligned mui-list--border">
+              {% for org in current_auth.user.organizations_as_owner %}
+              <li>
+                  <form action="{{ org.profile.url_for('transition') }}" method="post">
+                  {{ org.profile.forms.transition().hidden_tag() }}
+                  {% if org.profile.state.PUBLIC %}
+                    <p><a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a> {% trans %}(public){% endtrans %}</p>
+                    <button name="transition" value="make_private" class="mui-btn mui-btn--flat mui-btn--small">{% trans %}Make private{% endtrans %}</button>
+                  {% else %}
+                    <p>{{ org.title }} {% trans %}(private){% endtrans %}</p>
+                    <button name="transition" value="make_public" class="mui-btn mui-btn--primary mui-btn--flat mui-btn--small">{% trans %}Make public{% endtrans %}</button>
+                  {% endif %}
+                </form>
+              </li>
+              {%- endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid__col-xs-12">
+        <div class="card">
+          <div class="card__header">
             <h3 class="mui--text-title mui--text-bold">{% trans %}Login sessions{% endtrans %}</h3>
           </div>
           <div class="card__body">
