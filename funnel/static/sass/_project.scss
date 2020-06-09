@@ -63,7 +63,11 @@
       .txt,
       .login-txt {
         position: relative;
-        top: -1px;
+        top: -2px;
+      }
+      .animate-btn--animate {
+        -webkit-animation: none;
+        animation: none;
       }
     }
     .share {
@@ -90,7 +94,9 @@
 
     .card__calendar {
       padding: 0 $mui-grid-padding 10px;
-      margin: 0 -$mui-grid-padding 25px;
+      margin: 0 0 25px;
+      margin-left: -$mui-grid-padding;
+      margin-right: -$mui-grid-padding;
     }
     .project-venue {
       margin: 10px 0;
