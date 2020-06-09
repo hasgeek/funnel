@@ -1718,6 +1718,10 @@ html.touch .collapsible__body--disable {
   padding-top: 16px;
   width: calc(100% - 20px);
 }
+.card--upcoming .card__body .card__body__subtitle {
+  margin: 8px 0;
+  min-height: 48px;
+}
 .card--upcoming .card__body .card__body__location {
   margin: 8px 0 0;
 }

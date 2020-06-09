@@ -446,6 +446,12 @@
       padding-top: $mui-grid-padding;
       width: calc(100% - 20px);
     }
+
+    .card__body__subtitle {
+      margin: 8px 0;
+      min-height: 48px;
+    }
+
     .card__body__location {
       margin: 8px 0 0;
     }
