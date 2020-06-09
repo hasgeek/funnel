@@ -15,9 +15,10 @@
   .card__body__bookmark {
     float: right;
     position: relative;
-    top: 0;
+    top: 10px;
     height: 0;
     z-index: 4;
+    line-height: 1;
   }
   .card__calendar {
     padding: 0 0 25px;
@@ -151,12 +152,14 @@
         color: #e05f25;
         letter-spacing: 0.5px;
         font-variant: none;
-        line-height: 25px;
+        line-height: 1;
+        position: relative;
+        top: 6px;
       }
     }
 
     .calendar__month-name--unique {
-      display: block;
+      display: flex;
     }
 
     .calendar__month-name:nth-child(n + 2) {
@@ -257,7 +260,7 @@
         .calendar__weekdays__dates__date--showtime:before {
           content: '';
           position: absolute;
-          bottom: 0;
+          bottom: 1px;
           left: 0;
           right: 0;
           margin: auto;
@@ -378,10 +381,10 @@
       .calendar__weekdays {
         .calendar__weekdays__dates {
           .calendar__weekdays__dates__icon--left {
-            left: -35px;
+            left: -34px;
           }
           .calendar__weekdays__dates__icon--right {
-            right: -35px;
+            right: -34px;
           }
         }
       }
@@ -424,8 +427,9 @@
     .card__body__bookmark {
       position: absolute;
       right: $mui-grid-padding;
-      top: 11px;
+      top: 25px;
       z-index: 4;
+      line-height: 1;
     }
     .card__body__bookmark--pushup {
       top: 4px;
