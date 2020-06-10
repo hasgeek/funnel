@@ -25,6 +25,14 @@
 
 .login-page {
   background-color: $mui-bg-color-primary;
+  .login-page__back {
+    position: absolute;
+    right: $mui-grid-padding;
+    top: -$mui-grid-padding;
+  }
+  .cookies-required-alert {
+    margin: $mui-grid-padding 0;
+  }
   .login-page__box {
     background-color: #fff;
     max-width: 400px;
@@ -123,6 +131,10 @@
 @media (min-width: 768px) {
   .login-page {
     background-color: $mui-bg-color-accent;
+    .header,
+    .footer {
+      display: block;
+    }
     .login-page__box {
       padding: 24px;
       border-radius: 16px;

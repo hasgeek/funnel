@@ -3463,6 +3463,14 @@ body > .proposal-box.ui-draggable {
 .login-page {
   background-color: #ffffff;
 }
+.login-page .login-page__back {
+  position: absolute;
+  right: 16px;
+  top: -16px;
+}
+.login-page .cookies-required-alert {
+  margin: 16px 0;
+}
 .login-page .login-page__box {
   background-color: #fff;
   max-width: 400px;
@@ -3548,6 +3556,10 @@ body > .proposal-box.ui-draggable {
 @media (min-width: 768px) {
   .login-page {
     background-color: #f9fafc;
+  }
+  .login-page .header,
+  .login-page .footer {
+    display: block;
   }
   .login-page .login-page__box {
     padding: 24px;

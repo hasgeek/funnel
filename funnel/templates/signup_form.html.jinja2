@@ -5,15 +5,19 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="login-page hg-app">
+    <body class="login-page hg-app no-sticky-header">
   {%- else %}
-    <body class="login-page">
+    <body class="login-page no-sticky-header">
   {%- endif %}
 {% endblock %}
 
 {% block headline %}{% endblock %}
 
 {% block content %}
+  <div class="login-page__back mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+  </div>
+
   <div class="login-page__box">
     <h2 class="mui--text-headline login-page__box__heading mui--text-center">{% trans %}Sign up{% endtrans %}</h2>
     {{ renderform(form, formid='register', submit='Sign up') }}

@@ -7,15 +7,19 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="login-page hg-app">
+    <body class="login-page hg-app no-sticky-header">
   {%- else %}
-    <body class="login-page">
+    <body class="login-page no-sticky-header">
   {%- endif %}
 {% endblock %}
 
 {% block headline %}{% endblock %}
 
 {% block content %}
+  <div class="login-page__back mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+  </div>
+
   <div class="alert alert--error cookies-required-alert alert--dismissable">
     <a class="alert__close" href="javascript:void(0);" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
     <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>

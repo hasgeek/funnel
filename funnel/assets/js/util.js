@@ -3,7 +3,7 @@ export const Utils = {
   // convert array of objects into hashmap
   tohashMap(objectArray, key) {
     const hashMap = {};
-    objectArray.forEach((obj) => {
+    objectArray.forEach(obj => {
       hashMap[obj[key]] = obj;
     });
     return hashMap;
@@ -21,8 +21,12 @@ export const Utils = {
   },
   collapse() {
     $('.collapsible__header').on('click', function collapseContent() {
-      $(this).find('.collapsible__icon').toggleClass('mui--hide');
-      $(this).siblings('.collapsible__body').slideToggle();
+      $(this)
+        .find('.collapsible__icon')
+        .toggleClass('mui--hide');
+      $(this)
+        .siblings('.collapsible__body')
+        .slideToggle();
     });
   },
   animateScrollTo(offsetY) {
@@ -47,7 +51,7 @@ export const Utils = {
         },
         'slow'
       );
-      $('#jquery-scroll-tabs .js-scroll-prev').on('click', (event) => {
+      $('#jquery-scroll-tabs .js-scroll-prev').on('click', event => {
         event.preventDefault();
         const prevTab = $('.tabs__item--active')
           .prev('.tabs__item')
@@ -57,7 +61,7 @@ export const Utils = {
           window.location.href = prevTab;
         }
       });
-      $('#jquery-scroll-tabs .js-scroll-next').on('click', (event) => {
+      $('#jquery-scroll-tabs .js-scroll-next').on('click', event => {
         event.preventDefault();
         const nextTab = $('.tabs__item--active')
           .next('.tabs__item')
@@ -98,14 +102,14 @@ export const Utils = {
     }
   },
   truncate() {
-    $('.js-truncate').each(function () {
+    $('.js-truncate').each(function() {
       let linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
         lines: linesLimit,
       });
     });
 
-    $('.js-truncate-readmore').each(function () {
+    $('.js-truncate-readmore').each(function() {
       let linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
         lines: linesLimit,
@@ -114,8 +118,10 @@ export const Utils = {
       });
     });
 
-    $('.js-read-more').click(function () {
-      $(this).parent('.js-truncate-readmore').trunk8('revert');
+    $('.js-read-more').click(function() {
+      $(this)
+        .parent('.js-truncate-readmore')
+        .trunk8('revert');
     });
   },
   showTimeOnCalendar() {
@@ -131,25 +137,25 @@ export const Utils = {
       .find('.calendar__weekdays__dates__date--showtime:first')
       .addClass('calendar__weekdays__dates__date--display');
 
-    $('body .calendar__weekdays__dates__date--showtime').hover(function () {
+    $('body .calendar__weekdays__dates__date--showtime').hover(function() {
       $(this)
         .parents('.calendar__weekdays')
         .find('.calendar__weekdays__dates__date--showtime')
         .removeClass('calendar__weekdays__dates__date--display');
     });
 
-    $('body .calendar__weekdays__dates__date--showtime').mouseleave(
-      function () {
-        firstActiveWeek
-          .find('.calendar__weekdays__dates__date--showtime:first')
-          .addClass('calendar__weekdays__dates__date--display');
-      }
-    );
+    $('body .calendar__weekdays__dates__date--showtime').mouseleave(function() {
+      firstActiveWeek
+        .find('.calendar__weekdays__dates__date--showtime:first')
+        .addClass('calendar__weekdays__dates__date--display');
+    });
 
     const singleDay = 24 * 60 * 60 * 1000;
 
-    $('body .card__calendar').each(function () {
-      let todayDate = $(this).find('.calendar__counting').data('today');
+    $('body .card__calendar').each(function() {
+      let todayDate = $(this)
+        .find('.calendar__counting')
+        .data('today');
       let nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
@@ -202,8 +208,12 @@ export const Utils = {
     return errorMsg;
   },
   formErrorHandler(formId, errorResponse) {
-    $(`#${formId}`).find('button[type="submit"]').prop('disabled', false);
-    $(`#${formId}`).find('.loading').addClass('mui--hide');
+    $(`#${formId}`)
+      .find('button[type="submit"]')
+      .prop('disabled', false);
+    $(`#${formId}`)
+      .find('.loading')
+      .addClass('mui--hide');
     return Utils.handleAjaxError(errorResponse);
   },
   getActionUrl(formId) {
@@ -214,6 +224,14 @@ export const Utils = {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
   },
+  popupBackHandler() {
+    $('.js-popup-back').on('click', function(event) {
+      if (document.referrer !== '') {
+        event.preventDefault();
+        window.history.back();
+      }
+    });
+  },
 };
 
 export const ScrollActiveMenu = {
@@ -222,7 +240,7 @@ export const ScrollActiveMenu = {
     this.navItemsClassName = navItemsClassName;
     this.activeMenuClassName = activeMenuClassName;
     this.navItems = [...document.querySelectorAll(`.${navItemsClassName}`)];
-    this.headings = this.navItems.map((navItem) => {
+    this.headings = this.navItems.map(navItem => {
       if (navItem.classList.contains('js-samepage')) {
         return document.querySelector(navItem.getAttribute('href'));
       }
@@ -230,7 +248,7 @@ export const ScrollActiveMenu = {
       return false;
     });
     this.handleObserver = this.handleObserver.bind(this);
-    this.headings.forEach((heading) => {
+    this.headings.forEach(heading => {
       if (heading) {
         const threshold =
           heading.offsetHeight / window.innerHeight > 1
@@ -247,8 +265,8 @@ export const ScrollActiveMenu = {
 
     if (document.getElementById('ticket-wrapper')) {
       const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
+        entries => {
+          entries.forEach(entry => {
             if (
               !entry.isIntersecting &&
               entry.intersectionRatio > 0.5 &&
@@ -270,10 +288,10 @@ export const ScrollActiveMenu = {
   },
 
   handleObserver(entries) {
-    entries.forEach((entry) => {
+    entries.forEach(entry => {
       if (entry.isIntersecting) {
         const activeNavItem = this.navItems.find(
-          (navItem) =>
+          navItem =>
             navItem.getAttribute('href') ===
             `#${entry.target.getAttribute('id')}`
         );
@@ -297,11 +315,11 @@ export const ScrollActiveMenu = {
 export const LazyloadImg = {
   init(imgClassName) {
     this.imgItems = [...document.querySelectorAll(`.${imgClassName}`)];
-    this.imgItems.forEach((img) => {
+    this.imgItems.forEach(img => {
       if (img) {
         let observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
+          entries => {
+            entries.forEach(entry => {
               if (entry.isIntersecting) {
                 entry.target.src = entry.target.dataset.src;
                 observer = observer.disconnect();
@@ -318,8 +336,8 @@ export const LazyloadImg = {
     });
   },
 };
-export const SaveProject = function ({ formId, postUrl, config = {} }) {
-  const onSuccess = function (response) {
+export const SaveProject = function({ formId, postUrl, config = {} }) {
+  const onSuccess = function(response) {
     $(`#${formId}`)
       .find('button')
       .prop('disabled', false)
@@ -327,7 +345,7 @@ export const SaveProject = function ({ formId, postUrl, config = {} }) {
 
     $(`#${formId}`)
       .find('button')
-      .each(function () {
+      .each(function() {
         if ($(this).hasClass('animate-btn--show')) {
           $(this).removeClass('animate-btn--show');
         } else {
@@ -341,7 +359,7 @@ export const SaveProject = function ({ formId, postUrl, config = {} }) {
     Utils.updateFormNonce(response);
   };
 
-  const onError = function (response) {
+  const onError = function(response) {
     return Utils.handleAjaxError(response);
   };
 
@@ -401,7 +419,7 @@ export const Video = {
   },
 };
 
-export const TableSearch = function (tableId) {
+export const TableSearch = function(tableId) {
   // a little library that takes a table id
   // and provides a method to search the table's rows for a given query.
   // the row's td must contain the class 'js-searchable' to be considered
@@ -415,29 +433,32 @@ export const TableSearch = function (tableId) {
   this.allMatchedIds = [];
 };
 
-TableSearch.prototype.getRows = function () {
+TableSearch.prototype.getRows = function() {
   const tablerow = `#${this.tableId} tbody tr`;
   return $(tablerow);
 };
 
-TableSearch.prototype.setRowData = function () {
+TableSearch.prototype.setRowData = function() {
   // Builds a list of objects and sets it the object's rowData
   const rowMap = [];
   $.each(this.getRows(), (rowIndex, row) => {
     const rowid = $(row).attr('id');
     rowMap.push({
       rid: `#${rowid}`,
-      text: $(row).find('td.js-searchable').text().toLowerCase(),
+      text: $(row)
+        .find('td.js-searchable')
+        .text()
+        .toLowerCase(),
     });
   });
   this.rowData = rowMap;
 };
 
-TableSearch.prototype.setAllMatchedIds = function (ids) {
+TableSearch.prototype.setAllMatchedIds = function(ids) {
   this.allMatchedIds = ids;
 };
 
-TableSearch.prototype.searchRows = function (q) {
+TableSearch.prototype.searchRows = function(q) {
   // Search the rows of the table for a supplied query.
   // reset data collection on first search or if table has changed
   if (this.rowData.length !== this.getRows().length) {
@@ -467,23 +488,39 @@ export const Comments = {
   init() {
     const newCommentUrl = $('#comment-form').attr('action');
 
-    $('.comment .js-collapse').click(function () {
+    $('.comment .js-collapse').click(function() {
       $(this).addClass('mui--hide');
-      $(this).siblings('.js-uncollapse').removeClass('mui--hide');
-      $(this).parent().siblings('.comment--body').slideUp('fast');
-      $(this).parent().siblings('.comment--children').slideUp('fast');
+      $(this)
+        .siblings('.js-uncollapse')
+        .removeClass('mui--hide');
+      $(this)
+        .parent()
+        .siblings('.comment--body')
+        .slideUp('fast');
+      $(this)
+        .parent()
+        .siblings('.comment--children')
+        .slideUp('fast');
       return false;
     });
 
-    $('.comment .js-uncollapse').click(function () {
+    $('.comment .js-uncollapse').click(function() {
       $(this).addClass('mui--hide');
-      $(this).siblings('.js-collapse').removeClass('mui--hide');
-      $(this).parent().siblings('.comment--body').slideDown('fast');
-      $(this).parent().siblings('.comment--children').slideDown('fast');
+      $(this)
+        .siblings('.js-collapse')
+        .removeClass('mui--hide');
+      $(this)
+        .parent()
+        .siblings('.comment--body')
+        .slideDown('fast');
+      $(this)
+        .parent()
+        .siblings('.comment--children')
+        .slideDown('fast');
       return false;
     });
 
-    $('.comment .js-comment-reply').click(function () {
+    $('.comment .js-comment-reply').click(function() {
       const cfooter = $(this).parent();
       $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
       $('#comment-form  input[name="comment_edit_id"]').val('');
@@ -494,20 +531,24 @@ export const Comments = {
       return false;
     });
 
-    $('#toplevel-comment a, #comment-cancel').click(function () {
+    $('#toplevel-comment a, #comment-cancel').click(function() {
       $('#comment-form').attr('action', newCommentUrl);
       $('#comment-form  input[name="parent_id"]').val('');
       $('#comment-form  input[name="comment_edit_id"]').val('');
       $('#comment-submit').val('Post comment'); // i18n gotcha
       $('#comment-form .message .CodeMirror')[0].CodeMirror.setValue('');
-      $('#toplevel-comment a').parent().after($('#comment-form'));
-      $('#toplevel-comment a').parent().addClass('mui--hide');
+      $('#toplevel-comment a')
+        .parent()
+        .after($('#comment-form'));
+      $('#toplevel-comment a')
+        .parent()
+        .addClass('mui--hide');
       $('#toplevel-comment, #comment-cancel').addClass('mui--hide');
       $('#comment-form textarea').focus();
       return false;
     });
 
-    $('.comment .js-comment-delete').click(function () {
+    $('.comment .js-comment-delete').click(function() {
       const cfooter = $(this).parent();
       $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
       $('#delcomment').attr('action', cfooter.attr('data-delete-url'));
@@ -524,13 +565,15 @@ export const Comments = {
       return false;
     });
 
-    $('.comment .js-comment-edit').click(function () {
+    $('.comment .js-comment-edit').click(function() {
       const cfooter = $(this).parent();
       const cid = cfooter.attr('data-id');
       const editUrl = cfooter.attr('data-json-url');
-      $(cfooter).find('.loading').removeClass('mui--hide');
+      $(cfooter)
+        .find('.loading')
+        .removeClass('mui--hide');
       $('#comment-form').attr('action', cfooter.attr('data-edit-url'));
-      $.getJSON(editUrl, (data) => {
+      $.getJSON(editUrl, data => {
         $('#comment-form .message .CodeMirror')[0].CodeMirror.setValue(
           data.message
         );
@@ -538,7 +581,9 @@ export const Comments = {
       $('#comment-form input[name="parent_id"]').val('');
       $('#comment-form input[name="comment_edit_id"]').val(cid);
       $('#toplevel-comment').removeClass('mui--hide');
-      $(cfooter).find('.loading').addClass('mui--hide');
+      $(cfooter)
+        .find('.loading')
+        .addClass('mui--hide');
       $('#comment-submit').val('Save changes');
       cfooter.after($('#comment-form'));
       $('#comment-form textarea').focus();
