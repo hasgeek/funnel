@@ -221,6 +221,17 @@ Project.schedule_start_at = with_roles(
     read={'all'},
 )
 
+Project.next_session_at = with_roles(
+    db.column_property(
+        db.select([db.func.min(Session.start_at)])
+        .where(Session.start_at.isnot(None))
+        .where(Session.start_at > db.func.utcnow())
+        .where(Session.project_id == Project.id)
+        .correlate_except(Session)
+    ),
+    read={'all'},
+)
+
 Project.schedule_end_at = with_roles(
     db.column_property(
         db.select([db.func.max(Session.end_at)])
