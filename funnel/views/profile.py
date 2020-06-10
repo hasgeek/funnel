@@ -128,6 +128,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('transition', methods=['POST'])
     @requires_login
+    @requires_roles({'owner'})
     def transition(self):
         form = self.obj.forms.transition(obj=self.obj)
         if form.validate_on_submit():
