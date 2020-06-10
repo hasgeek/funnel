@@ -1,0 +1,23 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/forms.html.jinja2" import renderform %}
+
+{% block title %}{% trans %}Sign up{% endtrans %}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="login-page hg-app">
+  {%- else %}
+    <body class="login-page">
+  {%- endif %}
+{% endblock %}
+
+{% block headline %}{% endblock %}
+
+{% block content %}
+  <div class="login-page__box">
+    <h2 class="mui--text-headline login-page__box__heading mui--text-center">{% trans %}Sign up{% endtrans %}</h2>
+    {{ renderform(form, formid='register', submit='Sign up') }}
+    <p class="mui--text-caption">{% trans %}By signing in, you agree to HasGeek’s <a href="/about/policy/terms">Conditions of Use</a> and <a href="/about/policy/privacy" target="_blank">Privacy Policy</a>.{% endtrans %}</p>
+    <p class="mui--text-subhead login-page__box__note">{% trans %}Already have an account?{% endtrans %} <a class="secondary-color-txt mui--text-bold" href="{{ url_for('login') }}">{% trans %}Login{% endtrans %}</a></p>
+  </div>
+{% endblock %}

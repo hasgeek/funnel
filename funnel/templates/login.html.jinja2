@@ -5,41 +5,45 @@
 
 {% block title %}{% trans %}Login{% endtrans %}{% endblock %}
 
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="login-page hg-app">
+  {%- else %}
+    <body class="login-page">
+  {%- endif %}
+{% endblock %}
+
 {% block headline %}{% endblock %}
 
 {% block content %}
-  <div class="alert alert--error cookies-required-alert test alert--dismissable">
+  <div class="alert alert--error cookies-required-alert alert--dismissable">
     <a class="alert__close" href="javascript:void(0);" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
     <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
   </div>
-  <div class="cookies-required mui-form mui-form--margins">
-    <div><h2>
-      {% trans %}Login with your existing account at any of these <small>(pick one)</small>{% endtrans %}
-    </h2></div>
-    <div>
-      <p>
-      {% for provider in login_registry %}
-        <a class="mui-btn mui-btn--small mui-btn--raised login login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=request.args.get('next')) }}" data-action="login using {{ provider }}" aria-label="login using {{ provider }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}" aria-label="hidden"/></i>{{ login_registry[provider]['title'] }}</a>
-      {% endfor %}
-      </p>
-    </div>
-    {%- for service, formdata in service_forms.items() %}{% with form = formdata['form'] %}
-      <form id="form-{{ service }}" method="POST" class="jshidden" accept-charset="UTF-8">
-        <input type="hidden" name="next" value="{{ formdata['next'] }}"/>
-        {% if formdata['error'] %}<div class=error>{{ formdata['error'] }}</div>{% endif %}
-        {{ renderform_inner(form, service) }}
-        {{ rendersubmit([(None, "Login", 'btn-primary')], "small") }}
-      </form>
-    {%- endwith %}{% endfor %}
-    <div id="passwordform">
-      <h2 class="passwordform-heading">
-        {% trans %}Or, login with a password{% endtrans %}
-      </h2>
-      <div class="grid__col-xs-12 grid__col-md-6 grid__col--bleed">
+
+  <div class="login-page__box">
+    <div class="cookies-required">
+      <h2 class="mui--text-headline login-page__box__heading mui--text-center">{% trans %}Login{% endtrans %}</h2>
+      <div>
+        {% for provider in login_registry %}
+          <a class="mui-btn mui-btn--raised login login-{{ provider }} mui--d-block" href="{{ url_for('login_service', service=provider, next=request.args.get('next')) }}" data-action="login using {{ provider }}" aria-label="login using {{ provider }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}" aria-label="hidden"/></i>{{ login_registry[provider]['title'] }}</a>
+        {% endfor %}
+      </div>
+      {%- for service, formdata in service_forms.items() %}{% with form = formdata['form'] %}
+        <form id="form-{{ service }}" method="POST" class="jshidden" accept-charset="UTF-8">
+          <input type="hidden" name="next" value="{{ formdata['next'] }}"/>
+          {% if formdata['error'] %}<div class=error>{{ formdata['error'] }}</div>{% endif %}
+          {{ renderform_inner(form, service) }}
+          {{ rendersubmit([(None, "Login", 'btn-primary')], "small") }}
+        </form>
+      {%- endwith %}{% endfor %}
+      <div id="passwordform">
+        <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center"><span class="login-page__box__title__txt">{% trans %}or use your password instead{% endtrans %}</span></p>
         {{ passwordlogin(loginform, Markup) }}
       </div>
+      <p class="mui--text-subhead login-page__box__note">{% trans %}Don’t have an account?{% endtrans %} <a class="secondary-color-txt mui--text-bold" href="{{ url_for('register') }}" data-cy="signup">{% trans %}Sign up with email{% endtrans %}</a>
     </div>
-  </div>
+   </div>
 {% endblock %}
 
 {% block footerscripts %}

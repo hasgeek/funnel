@@ -23,51 +23,113 @@
   margin-right: 8px;
 }
 
-.login,
-.login:hover,
-.login:active {
-  color: #ffffff;
-  font-size: 16px;
-  text-transform: capitalize;
-  margin-right: 8px;
-  padding: 0 16px 0 8px;
+.login-page {
+  background-color: $mui-bg-color-primary;
+  .login-page__box {
+    background-color: #fff;
+    max-width: 400px;
+    margin: 0 auto;
+
+    .login,
+    .login:hover,
+    .login:active {
+      color: #ffffff;
+      font-size: 16px;
+      text-transform: capitalize;
+      margin-right: 8px;
+      margin-bottom: $mui-grid-padding;
+    }
+
+    .login-twitter,
+    .login-twitter:hover,
+    .login-twitter:active {
+      background-color: #08a0e9;
+    }
+    .login-google,
+    .login-google:hover,
+    .login-google:active  {
+      color: #757575;
+      background-color: #ffffff;
+    }
+    .login-linkedin,
+    .login-linkedin:hover,
+    .login-linkedin:active {
+      background-color: #0074b2;
+    }
+    .login-github,
+    .login-github:hover,
+    .login-github:active {
+      background-color: #444444;
+    }
+
+    .mui-btn + .mui-btn {
+      margin-left: 0;
+    }
+
+    a.loginbutton.hidden,
+    .js a.loginbutton.jshidden,
+    .no-js a.loginbutton.no-jshidden {
+      display: none;
+      visibility: hidden;
+    }
+
+    .login-page__box__heading {
+      margin: 0 0 $mui-grid-padding;
+    }
+
+    .login-page__box__title {
+      margin: 5px 0 $mui-grid-padding;
+      position: relative;
+
+      .login-page__box__title__txt {
+        position: relative;
+        z-index: 2;
+        display: inline-block;
+        background: #fff;
+        padding: 0 8px;
+      }
+    }
+
+    .login-page__box__title:after {
+      z-index: 1;
+      content: '';
+      height: 1px;
+      width: 100%;
+      border-bottom: 1px solid rgba(121, 129, 139, 0.13);
+      position: absolute;
+      left: 0;
+      top: 50%;
+    }
+
+    .mui-btn--primary {
+      width: 100%;
+    }
+
+    .mui-form {
+      margin: 0;
+    }
+
+    #field-recaptcha {
+      height: 0;
+      margin: 0;
+    }
+
+    .login-page__box__note {
+      margin-top: $mui-grid-padding;
+    }
+  }
 }
 
-.login-twitter,
-.login-twitter:hover,
-.login-twitter:active {
-  background-color: #08a0e9;
-}
-.login-google,
-.login-google:hover,
-.login-google:active  {
-  color: #757575;
-  background-color: #ffffff;
-}
-.login-linkedin,
-.login-linkedin:hover,
-.login-linkedin:active {
-  background-color: #0074b2;
-}
-.login-github,
-.login-github:hover,
-.login-github:active {
-  background-color: #444444;
-}
-
-.mui-btn + .mui-btn {
-  margin-left: 0;
-}
-
-a.loginbutton.hidden,
-.js a.loginbutton.jshidden,
-.no-js a.loginbutton.no-jshidden {
-  display: none;
-  visibility: hidden;
-}
-
-.passwordform-heading {
-  margin-top: 40px;
+@media (min-width: 768px) {
+  .login-page {
+    background-color: $mui-bg-color-accent;
+    .login-page__box {
+      padding: 24px;
+      border-radius: 16px;
+      width: 400px;
+      margin: 0 auto 40px;
+    }
+  }
 }
 
 .mui-list--border li {
