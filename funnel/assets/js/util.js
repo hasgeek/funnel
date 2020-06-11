@@ -128,11 +128,10 @@ export const Utils = {
     const singleDay = 24 * 60 * 60 * 1000;
 
     $('body .card__calendar').each(function() {
-      let firstActiveWeek = $(this).find(
-        '.calendar__weekdays__dates--upcoming:first'
-      ).length
-        ? $(this).find('.calendar__weekdays__dates--upcoming:first')
-        : $(this).find('.calendar__weekdays__dates:last');
+      let firstActiveWeek = $(this).find('.calendar__weekdays__dates--upcoming')
+        .length
+        ? $(this).find('.calendar__weekdays__dates--upcoming--first')
+        : $(this).find('.calendar__weekdays__dates--latest');
 
       firstActiveWeek
         .find('.calendar__weekdays__dates__date--showtime:first')

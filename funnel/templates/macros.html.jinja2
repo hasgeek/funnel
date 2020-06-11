@@ -18,10 +18,10 @@
               {% set event.next = true %}
             {% endif %}
           {% endif %}
-          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} {% if loop.index == calendar.weeks|length %}calendar__month-name--latest{% endif %}">{{ week.month }} {{ week.year }}<span class="calendar__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span></p>
+          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first calendar__month-name--latest{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__month-name--latest{% endif %}">{{ week.month }} {{ week.year }}<span class="calendar__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span></p>
           {% set event.month = week.month  %}
           {% set event.year = week.year  %}
-          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first{% endif %} {% if loop.index == calendar.weeks|length %}calendar__weekdays__dates--latest {% endif %}"  data-month="{{ week.month }}">
+          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first calendar__weekdays__dates--latest {% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__weekdays__dates--latest {% endif %}"  data-month="{{ week.month }}">
             {% if event.previous  %}
               <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
                 {{ faicon(icon='chevron-left',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}

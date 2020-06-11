@@ -105,11 +105,7 @@
                         </a>
                       {{elseif result == 'session'}}
                         <div class="user-box">
-                          {{#if obj.user.avatar }}
-                            <img class="user-box__gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
-                          {{else}}
-                            <img class="user-box__gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
-                          {{/if}}
+                          <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials(obj.speaker) }}</div>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                           <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                           <p class="mui--text-body2 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start_at) }}–{{ formatTime(obj.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start_at) }}</p>
@@ -117,11 +113,7 @@
                         </div>
                       {{elseif result == 'proposal'}}
                         <div class="user-box">
-                          {{#if obj.user.avatar }}
-                            <img class="user-box__gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
-                          {{else}}
-                            <img class="user-box__gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
-                          {{/if}}
+                          <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials(obj.speaker.fullname) }}</div>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                           <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                           {{#if obj.session}}{{#if obj.session.start_at}}
@@ -131,11 +123,7 @@
                         </div>
                       {{elseif result == 'comment'}}
                         <div class="user-box">
-                          {{#if obj.user.avatar }}
-                            <img class="user-box__gravatar" src="{{ obj.user.avatar }}" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}"{{/if}} />
-                          {{else}}
-                            <img class="user-box__gravatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" {{#if obj.speaker }} alt="{{ obj.speaker }}" aria-labl="{{ obj.speaker }}" {{/if}} />
-                          {{/if}}
+                          <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials( obj.user.fullname) }}</div>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{ obj.title }}</a></h2>
                           <p class="mui--text-body2 mui--text-light">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
                           <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
