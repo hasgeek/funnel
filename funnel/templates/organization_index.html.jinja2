@@ -13,6 +13,7 @@
     <tr>
       <th>#</th>
       <th>{% trans %}Title{% endtrans %}</th>
+      <th>{% trans %}Visibility{% endtrans %}</th>
       <th>{% trans %}Admins{% endtrans %}</th>
     </tr>
   </thead>
@@ -22,6 +23,18 @@
       <tr>
         <td data-th="#"><a href="{{ link }}" title="org.title">{{ loop.index }}</a></td>
         <td data-th="Title"><a href="{{ link }}" title="org.title">{{ org.title }}</a></td>
+        <td data-th="Visibility">
+          <form action="{{ org.profile.url_for('transition') }}" method="post">
+            {{ org.profile.forms.transition().hidden_tag() }}
+            {% if org.profile.state.PUBLIC %}
+              <a target="_blank" href="{{ org.profile.url_for() }}">{% trans %}Public{% endtrans%}</a>
+              <button name="transition" value="make_private" class="mui-btn mui-btn--raised">{% trans %}Make private{% endtrans %}</button>
+            {% else %}
+              {% trans %}Private{% endtrans %}
+              <button name="transition" value="make_public" class="mui-btn mui-btn--primary mui-btn--raised">{% trans %}Make public{% endtrans %}</button>
+            {% endif %}
+          </form>
+        </td>
         <td data-th="Admins"><a href="{{ link }}" title="org.title">
           {%- for user in org.admin_users %}
             {%- if not loop.first %}, {% endif -%}

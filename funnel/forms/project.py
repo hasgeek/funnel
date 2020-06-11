@@ -55,7 +55,7 @@ class ProjectForm(forms.Form):
                 __("If this project is online-only, use “Online”")
             ),
             forms.validators.Length(
-                min=3, max=80, message=__("%(max)d characters maximum")
+                min=3, max=50, message=__("%(max)d characters maximum")
             ),
         ],
         filters=[forms.filters.strip()],
