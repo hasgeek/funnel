@@ -57,7 +57,7 @@ from .decorators import legacy_redirect
 from .helpers import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
-from .schedule import schedule_data
+from .schedule import schedule_data, schedule_ical
 
 CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
 
@@ -549,10 +549,10 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                     sender=None,
                     to=str(current_auth.user.email),
                     body=render_template(
-                        'project_registered_email.html.jinja2',
-                        project=self.obj
+                        'project_registered_email.html.jinja2', project=self.obj
                     ),
                     subject='Registration confirmation for %s' % self.obj.title,
+                    file=schedule_ical(self.obj),
                 )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
@@ -580,7 +580,10 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'concierge'})
     def rsvp_list(self):
-        return {'project': self.obj, 'statuses': RSVP_STATUS}
+        return {
+            'project': self.obj,
+            'going_rsvps': self.obj.rsvps_with(RSVP_STATUS.YES),
+        }
 
     def get_rsvp_state_csv(self, state):
         outfile = io.StringIO()
