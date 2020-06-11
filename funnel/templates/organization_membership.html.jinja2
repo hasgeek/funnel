@@ -56,7 +56,7 @@
                 </div>
               </div>
               <div v-if="view == 'name'" class="membership-wrapper__members">
-                <div class="membership-wrapper__members__list" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']">
+                <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']">
                   <member :member="member"></member>
                 </div>
               </div>
@@ -87,11 +87,11 @@
 </div>
 {% raw %}
 <script type="text/x-template" id="member-template">
-  <div class="user-box mui--clearfix">
-    <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials(member.user.fullname) }}</div>
+  <div class="user__box mui--clearfix">
+    <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(member.user.fullname) }}</div>
     <div class="mui--d-inlineblock">
-    <h3 class="mui--text-body2 user-box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
-    <h3 v-if="member.user.username" class="mui--text-caption user-box__userid"><span>@{{ member.user.username }}</span></h3>
+    <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+    <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
     </div>
     <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
       <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Owner</li>

@@ -70,16 +70,18 @@
                   </div>
                   <div class="collapsible__body mui-list--aligned">
                     {% for contact in daterow.contacts.all() %}
-                      <div class="user-box">
-                        {{ faicon(icon='user-circle', icon_size='headline', css_class='user-gravatar') }}
-                        <div class="mui--clearfix">
-                          <div class=" mui--pull-left">
-                            <p class="mui--text-subhead zero-bottom-margin">{{ contact.participant.fullname }}</p>
-                            <p class="mui--text-body2">{{ contact.participant.email }}</p>
+                      <div class="user">
+                        <div class="user__box">
+                          <div class="user__box__gravatar user__box__gravatar--initials">{{ contact.participant.fullname|initials }}</div>
+                          <div class="mui--clearfix">
+                            <div class=" mui--pull-left">
+                              <p class="mui--text-subhead zero-bottom-margin">{{ contact.participant.fullname }}</p>
+                              <p class="mui--text-body2">{{ contact.participant.email }}</p>
+                            </div>
+                            <a class="mui--pull-right contact-download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact">
+                              {{ faicon(icon='address-card', icon_size='headline') }}
+                            </a>
                           </div>
-                          <a class="mui--pull-right contact-download-btn" onclick="HasGeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact">
-                            {{ faicon(icon='address-card', icon_size='headline') }}
-                          </a>
                         </div>
                       </div>
                     {%- endfor -%}

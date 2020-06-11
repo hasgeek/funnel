@@ -249,12 +249,12 @@ html.touch .collapsible__body--disable {
   font-size: 12px;
 }
 
-.user-box {
+.user .user__box {
   padding: 8px 8px 8px 50px;
   position: relative;
   word-break: break-word;
 }
-.user-box .user-box__gravatar {
+.user .user__box .user__box__gravatar {
   width: 40px;
   height: 40px;
   display: inline-block;
@@ -263,7 +263,7 @@ html.touch .collapsible__body--disable {
   top: 11px;
   border-radius: 50%;
 }
-.user-box .user-box__gravatar--initials {
+.user .user__box .user__box__gravatar--initials {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -271,11 +271,23 @@ html.touch .collapsible__body--disable {
   color: #fff;
   text-transform: uppercase;
 }
-.user-box .user-box__fullname {
+.user .user__box .user__box__fullname {
   margin: 0px 0 4px;
 }
-.user-box .user-box__userid {
+.user .user__box .user__box__userid {
   margin: 0;
+}
+
+.user:nth-child(even) .user__box__gravatar--initials {
+  background: #e05f26;
+}
+
+.user:nth-child(odd) .user__box__gravatar--initials {
+  background: #82688d;
+}
+
+.user:nth-child(4n) .user__box__gravatar--initials {
+  background: #dda32b;
 }
 
 .read-more {
@@ -3286,15 +3298,6 @@ body > .proposal-box.ui-draggable {
 }
 .membership-wrapper__members .membership-wrapper__members__list:hover {
   background: #f9fafc;
-}
-.membership-wrapper__members .membership-wrapper__members__list:nth-child(even) .user-box__gravatar--initials {
-  background: #e05f26;
-}
-.membership-wrapper__members .membership-wrapper__members__list:nth-child(odd) .user-box__gravatar--initials {
-  background: #82688d;
-}
-.membership-wrapper__members .membership-wrapper__members__list:nth-child(4n) .user-box__gravatar--initials {
-  background: #dda32b;
 }
 
 @media (min-width: 1200px) {

@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block headline -%}
-{%- endblock %}
+{%- endblock %}user
 
 {% block basecontent %}
     <div class="js-lazyload-results">
@@ -39,7 +39,7 @@
               {{#each results:result }}
                 {{#if result == activeTab}}
                   {{#results[result].items}}
-                    <div class="tab-content__results grid__col-sm-12 {{#if result == 'project' || result == 'profile'}} grid__col-sm-6 grid__col-lg-4{{/if}}">
+                    <div class="tab-content__results user grid__col-sm-12 {{#if result == 'project' || result == 'profile'}} grid__col-sm-6 grid__col-lg-4{{/if}}">
                       {{#if result == 'project'}}
                         <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming clickable-card" data-action="View {{ title }}(search project)">
                           <div class="card__image-wrapper">
@@ -104,16 +104,16 @@
                           </div>
                         </a>
                       {{elseif result == 'session'}}
-                        <div class="user-box">
-                          <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials(obj.speaker) }}</div>
+                        <div class="user__box">
+                          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(obj.speaker) }}</div>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                           <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                           <p class="mui--text-body2 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start_at) }}–{{ formatTime(obj.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start_at) }}</p>
                           <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
                         </div>
                       {{elseif result == 'proposal'}}
-                        <div class="user-box">
-                          <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials(obj.speaker.fullname) }}</div>
+                        <div class="user__box">
+                          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(obj.speaker.fullname) }}</div>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                           <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                           {{#if obj.session}}{{#if obj.session.start_at}}
@@ -122,8 +122,8 @@
                           <p class="mui--text-body2 mui--text-light snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg>{{{ snippet_html }}}</p>
                         </div>
                       {{elseif result == 'comment'}}
-                        <div class="user-box">
-                          <div class="user-box__gravatar user-box__gravatar--initials">{{ getInitials( obj.user.fullname) }}</div>
+                        <div class="user__box">
+                          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials( obj.user.fullname) }}</div>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{ obj.title }}</a></h2>
                           <p class="mui--text-body2 mui--text-light">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
                           <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><svg class="fa5-icon search-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#search"></use></svg> {{{ snippet_html }}}</p>
