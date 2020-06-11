@@ -4,6 +4,7 @@ from coaster.utils import nullstr, sorted_timezones
 import baseframe.forms as forms
 
 from ..models import (
+    MODERATOR_REPORT_TYPE,
     Profile,
     User,
     UserEmail,
@@ -21,6 +22,7 @@ __all__ = [
     'PasswordChangeForm',
     'AccountForm',
     'EmailPrimaryForm',
+    'ModeratorReportForm',
     'NewEmailAddressForm',
     'NewPhoneForm',
     'PhonePrimaryForm',
@@ -337,3 +339,15 @@ class VerifyPhoneForm(forms.Form):
         # self.phoneclaim is set by the view before calling form.validate()
         if self.phoneclaim.verification_code != field.data:
             raise forms.ValidationError(_("Verification code does not match"))
+
+
+class ModeratorReportForm(forms.Form):
+    report_type = forms.SelectField(
+        __("Report type"), coerce=int, validators=[forms.validators.DataRequired()]
+    )
+
+    def set_queries(self):
+        self.report_type.choices = [
+            (idx, report_type.title)
+            for idx, report_type in MODERATOR_REPORT_TYPE.items()
+        ]

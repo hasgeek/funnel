@@ -531,6 +531,23 @@ export const Comments = {
       return false;
     });
 
+    $('.comment .js-comment-report').click(function(e) {
+      const commentdiv = $(this).parent();
+      if (window.confirm('Do you want to mark this comments as spam?')) {
+        var reporturl = $(commentdiv).attr('data-report-url');
+        $(`<form action="${reporturl}" method="POST"/>`)
+          .append(
+            $('<input type="hidden" name="csrf_token">').val(
+              $('meta[name="csrf-token"]').attr('content')
+            )
+          )
+          .appendTo($(commentdiv))
+          .submit();
+      } else {
+        e.preventDefault();
+      }
+    });
+
     $('#toplevel-comment a, #comment-cancel').click(function() {
       $('#comment-form').attr('action', newCommentUrl);
       $('#comment-form  input[name="parent_id"]').val('');

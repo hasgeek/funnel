@@ -12,7 +12,6 @@ describe('Profile', function () {
 
     cy.get('#title').type(profile.title);
     cy.get('#name').type(profile.title);
-    cy.get('#is_public_profile').click();
     cy.get('button').contains('Next').click();
     cy.logout();
 
