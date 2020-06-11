@@ -236,7 +236,7 @@
             color: #fff;
             font-weight: 600;
             font-size: 10px;
-            line-height: 14px ;
+            line-height: 14px;
             opacity: 1;
           }
         }
@@ -449,7 +449,6 @@
 
     .card__body__subtitle {
       margin: 8px 0;
-      min-height: 48px;
     }
 
     .card__body__location {
@@ -472,101 +471,15 @@
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
-.card--cfp {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: $mui-grid-padding-double;
-  background: transparent;
-  max-width: 450px;
-  border-radius: 16px 16px 0 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
-
-  .card__image-wrapper,
-  .card__image--default {
-    flex: 0 0 100%;
-    min-height: auto;
-    border-radius: 2px;
-    position: relative;
-    cursor: pointer;
-    overflow: hidden;
-    background-image: none;
-    a {
-      display: block;
-      width: 100%;
-    }
-    .card__image__tagline {
-      font-size: inherit;
-      color: #333;
-    }
-  }
-
-  .card__image-wrapper--cfp {
-    .card__image-wrapper__overlay {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 1;
-      background-image: linear-gradient(
-        to bottom,
-        rgba(67, 89, 111, 0.5),
-        #202d3c
-      );
-    }
-    .card__image-wrapper__text {
-      position: absolute;
-      z-index: 2;
-      color: #fff;
-      bottom: 0;
-    }
-  }
-
-  .card__body {
-    flex: 0 0 100%;
-  }
-
-  .card__calendar {
-    padding: $mui-grid-padding 0;
-    border-top: 1px solid rgba(132, 146, 166, 0.3);
-    margin: 0;
-  }
-}
-
-@media (min-width: 992px) {
-  .card--cfp {
-    box-shadow: none;
-    border-radius: 0;
-    max-width: 100%;
-
-    .card__image-wrapper,
-    .card__image--default {
-      flex: 0 0 250px;
-    }
-    .card__body {
-      flex: 0 0 calc(100% - 250px);
-      width: calc(100% - 250px);
-      padding: 0 0 0 $mui-grid-padding;
-    }
-  }
-}
-
 @media (min-width: 1200px) {
-  .card--cfp {
-    .card__image-wrapper,
-    .card__image--default {
-      flex: 0 0 270px;
-    }
+  .card--upcoming {
     .card__body {
-      flex: 0 0 calc(100% - 270px);
-      width: calc(100% - 270px);
-    }
-    .card__body--cfp {
-      padding: 0 0 0 $mui-grid-padding;
-    }
-    .card__image-wrapper--cfp {
-      height: 150px;
+      .card__body__subtitle {
+        min-height: 48px;
+      }
+      .card__body__location {
+        min-height: 24px;
+      }
     }
   }
 }

@@ -13,7 +13,9 @@
   <div class="card__body">
     <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
     <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
-    <hr class="separator">
-    {% if project.cfp_end_at_localized %}<p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM, YYYY, hh:mm a') %}Submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+    <div>
+      <hr class="separator">
+      {% if project.cfp_end_at_localized %}<p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM, YYYY, hh:mm a') %}Submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+    </div>
   </div>
 </a>

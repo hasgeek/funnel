@@ -87,10 +87,12 @@
                 {% for useremail in current_auth.user.emails %}
                 <li>
                   <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio">&nbsp;
-                  <label for="useremail-{{loop.index}}">{{ useremail }}</label>
-                  {% if useremail.primary %}
-                    <em>{% trans %}(primary){% endtrans %}</em>
-                  {% endif %}
+                  <label for="useremail-{{loop.index}}">
+                    {{ useremail }}
+                    {% if useremail.primary %}
+                      <em>{% trans %}(primary){% endtrans %}</em>
+                    {% endif %}
+                  </label>
                   {%- if current_auth.user.verified_contact_count > 1 %}
                     <a href="{{ url_for('remove_email', email_hash=useremail.blake2b_b58) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                   {%- endif %}

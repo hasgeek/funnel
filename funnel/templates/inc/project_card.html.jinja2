@@ -21,6 +21,6 @@
       </div>
     {% endif %}
     <h3 class="card__body__title mui--text-subhead {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
-    {% if project.primary_venue %}<p class="card__body__location mui--text-light">{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}</p>{% endif %}
+    <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
   </div>
 </a>
