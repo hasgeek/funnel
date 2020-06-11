@@ -192,10 +192,12 @@ def url_join(base, url=''):
     return urljoin(base, url)
 
 
-def send_mail(sender, to, body, subject):
+def send_mail(sender, to, body, subject, file=None):
     msg = Message(sender=sender, subject=subject, recipients=[to])
     msg.body = body
     msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
+    if file is not None:
+        msg.attach(filename='invite.ics', data=file, content_type='text/calendar')
     mail.send(msg)
 
 
