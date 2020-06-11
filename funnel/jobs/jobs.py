@@ -13,9 +13,12 @@ from ..views.helpers import send_mail
 
 
 @rq.job('funnel')
-def send_mail_async(sender, to, body, subject):
+def send_mail_async(sender, to, body, subject, file=None):
     with app.app_context():
-        send_mail(sender, to, body, subject)
+        if file is not None:
+            send_mail(sender, to, body, file, subject)
+        else:
+            send_mail(sender, to, body, subject)
 
 
 @rq.job('funnel')
