@@ -317,7 +317,7 @@ def register():
         db.session.commit()
         flash(_("You are now one of us. Welcome aboard!"), category='success')
         return redirect(get_next_url(session=True), code=303)
-    return render_template('signup_form.html.jinja2', form=form)
+    return render_template('signup_form.html.jinja2', form=form, login_registry=login_registry)
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])

@@ -45,7 +45,7 @@
         <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center"><span class="login-page__box__title__txt">{% trans %}or use your password instead{% endtrans %}</span></p>
         {{ passwordlogin(loginform, Markup) }}
       </div>
-      <p class="mui--text-subhead login-page__box__note">{% trans %}Don’t have an account?{% endtrans %} <a class="secondary-color-txt mui--text-bold" href="{{ url_for('register') }}" data-cy="signup">{% trans %}Sign up with email{% endtrans %}</a>
+      <p class="mui--text-subhead login-page__box__note">{% trans %}Don’t have an account?{% endtrans %} <a href="{{ url_for('register') }}" data-cy="signup">{% trans %}Sign up with email{% endtrans %}</a>
     </div>
    </div>
 {% endblock %}
