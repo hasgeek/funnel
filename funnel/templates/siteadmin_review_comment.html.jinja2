@@ -1,0 +1,31 @@
+{% extends 'siteadmin_layout.html.jinja2' %}
+
+{% block top_title %}
+<h1 class="mui--text-display1"><strong>Review comments</strong></h1>
+{% endblock %}
+
+{% block admincontentblock %}
+<div class="mui--text-center">
+  <form action="{{ url_for('siteadmin_review_comment', report=report.uuid_b58) }}" method="post">
+    {{ report_form.hidden_tag() }}
+    {% for value, title in report_form.report_type.choices %}
+    <button name="report_type" value="{{ value }}" class="mui-btn mui-btn--small mui-btn--accent">{{ title }}</button>
+    {% endfor %}
+  </form>
+  <div>
+    <h3>{% trans %}Existing reports{% endtrans %}</h3>
+    <ul class="mui-list--aligned mui-list--unstyled">
+      {% for user, report_type in existing_reports.items() %}
+      <li><strong>{{ user }}</strong>: {{ report_type }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div style="margin: 20px;">{{ report.comment.message }}</div>
+  <div><a target="_blank" href="{{ report.comment.url_for(_external=True) }}">[Link to comment]</a></div>
+</div>
+
+{% endblock admincontentblock %}
+
+{% block footerscripts %}
+
+{% endblock %}
