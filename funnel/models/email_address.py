@@ -400,8 +400,8 @@ class EmailAddress(BaseMixin, db.Model):
         """
         Validate whether the specified email address is available to the specified user.
 
-        Returns False if the address is in use by another user, True if available
-        without issues, or a string value indicating the concern:
+        Returns False if the address is blocked or in use by another user, True if
+        available without issues, or a string value indicating the concern:
 
         1. 'soft_bounce': Known to be soft bouncing, requiring a warning message
         2. 'hard_bounce': Known to be hard bouncing, usually a validation failure
@@ -410,7 +410,10 @@ class EmailAddress(BaseMixin, db.Model):
         flushing unrelated transient objects. Caller is responsible for ensuring edits
         to other :class:`EmailAddress` instances have been flushed or committed.
         """
-        existing = cls._get_existing(email)
+        try:
+            existing = cls._get_existing(email)
+        except EmailAddressBlockedError:
+            return False
         if not existing:
             if cls.is_valid_email_address(email):
                 return True

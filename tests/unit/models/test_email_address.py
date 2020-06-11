@@ -602,3 +602,11 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert EmailAddress.validate_for(user1, 'example@example.com') == 'hard_bounce'
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+
+    # A blocked address is available to no one
+    db.session.add(EmailAddress('blocked@example.com'))
+    EmailAddress.mark_blocked('blocked@example.com')
+    db.session.flush()
+    assert EmailAddress.validate_for(user1, 'blocked@example.com') is False
+    assert EmailAddress.validate_for(user2, 'blocked@example.com') is False
+    assert EmailAddress.validate_for(anon_user, 'blocked@example.com') is False
