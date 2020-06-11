@@ -21,9 +21,6 @@
 {% endblock %}
 
 {% block headline -%}
-{%- endblock %}
-
-{% block basecontent %}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
       <div class="grid">
@@ -33,7 +30,9 @@
       </div>
     </div>
   </div>
+{%- endblock %}
 
+{% block basecontent %}
   {% raw %}
     <div id="scan-badge-wrapper">
       <script id='scan-badge-template' type='text/ractive'>
