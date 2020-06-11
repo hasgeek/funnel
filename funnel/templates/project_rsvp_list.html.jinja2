@@ -21,9 +21,9 @@
         <table class="mui-table mui-table--bordered participants">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Responded at</th>
+              <th data-sorted="true">Name</th>
+              <th data-sorted="true">Email</th>
+              <th data-sorted="true" data-type="numeric">Responded at</th>
             </tr>
           </thead>
           <tbody>
@@ -39,7 +39,7 @@
                     {{ rsvp.user.phone }}
                   {%- endif %}
                 </td>
-                <td data-cy="user">{{ rsvp.updated_at|datetime }}</td>
+                <td data-cy="user" data-value="{{ rsvp.updated_at.strftime('%s') }}">{{ rsvp.updated_at|datetime }}</td>
               </tr>
             {%- else %}
               <tr><td colspan="2"><em>No users</em></td></tr>
