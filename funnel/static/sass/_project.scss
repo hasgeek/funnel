@@ -97,6 +97,15 @@
       margin: 0 0 25px;
       margin-left: -$mui-grid-padding;
       margin-right: -$mui-grid-padding;
+
+      .calendar {
+        .calendar__month-name--unique {
+          display: flex;
+        }
+        .calendar__weekdays .calendar__weekdays__dates {
+          display: flex;
+        }
+      }
     }
     .project-venue {
       margin: 10px 0;

@@ -18,10 +18,10 @@
               {% set event.next = true %}
             {% endif %}
           {% endif %}
-          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} ">{{ week.month }} {{ week.year }}<span class="calendar__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span></p>
+          <p class="calendar__month-name {% if week.upcoming %}calendar__month-name--upcoming{% endif %} {% if event.first_week == week %}calendar__month-name--upcoming--first{% endif %} {% if week.month != event.month %}calendar__month-name--unique{% endif %} {% if loop.index == calendar.weeks|length %}calendar__month-name--latest{% endif %}">{{ week.month }} {{ week.year }}<span class="calendar__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span></p>
           {% set event.month = week.month  %}
           {% set event.year = week.year  %}
-          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first{% endif %}"  data-month="{{ week.month }}">
+          <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first{% endif %} {% if loop.index == calendar.weeks|length %}calendar__weekdays__dates--latest {% endif %}"  data-month="{{ week.month }}">
             {% if event.previous  %}
               <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
                 {{ faicon(icon='chevron-left',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
@@ -336,3 +336,44 @@
     </a>
   </div>
 {% endmacro %}
+
+{% macro projectcard(project, project_save_form, include_calendar=true, calendarwidget_compact=true) %}
+  <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
+    <div class="card__image-wrapper">
+      {% if project.bg_image.url %}
+        <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+        <noscript>
+          <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
+        </noscript>
+      {% else %}
+        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+        <p class="card__image__tagline mui--text-body2">{{ project.title }}</p>
+      {% endif %}
+    </div>
+    <div class="card__body">
+      {%- if not current_auth.is_anonymous and project_save_form %}
+        {% set save_form_id = "upcoming_" + project.uuid_b58 %}
+        <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+      {% endif %}
+      {%- if include_calendar%}
+        {% if calendarwidget_compact and project.schedule_state.PUBLISHED and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
+          <div aria-label="{{ project.datelocation }}">
+            {{ calendarwidget(project.calendar_weeks_compact) }}
+          </div>
+        {% elif project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+          <div aria-label="{{ project.datelocation }}">
+            {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
+          </div>
+        {% endif %}
+        <h3 class="card__body__title mui--text-subhead {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
+        <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
+      {% else %}
+        <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
+        <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
+        <hr class="separator">
+        {% if project.cfp_end_at_localized %}<p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM, YYYY, hh:mm a') %}Submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+      {% endif %}
+    </div>
+  </a>
+{% endmacro %}
+

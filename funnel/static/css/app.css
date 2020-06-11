@@ -1469,7 +1469,7 @@ html.touch .collapsible__body--disable {
   letter-spacing: 0.43px;
   font-variant: none;
 }
-.card__calendar .calendar .calendar__month-name--unique {
+.card__calendar .calendar .calendar__month-name--unique.calendar__month-name--latest {
   display: flex;
 }
 .card__calendar .calendar .calendar__month-name:nth-child(n + 2) {
@@ -1484,7 +1484,7 @@ html.touch .collapsible__body--disable {
 }
 .card__calendar .calendar .calendar__weekdays .calendar__weekdays__dates {
   width: 100%;
-  display: flex;
+  display: none;
   flex-wrap: wrap;
   padding: 0;
   position: relative;
@@ -1630,6 +1630,9 @@ html.touch .collapsible__body--disable {
 }
 .card__calendar .calendar .calendar__weekdays .calendar__weekdays__dates .calendar__weekdays__dates__icon {
   display: none;
+}
+.card__calendar .calendar .calendar__weekdays .calendar__weekdays__dates--latest {
+  display: flex;
 }
 
 .card__calendar--compact .calendar .calendar__weekdays .calendar__weekdays__dates,
@@ -1938,6 +1941,12 @@ html.touch .collapsible__body--disable {
   margin: 0 0 25px;
   margin-left: -16px;
   margin-right: -16px;
+}
+.project-banner .project-details__box .card__calendar .calendar .calendar__month-name--unique {
+  display: flex;
+}
+.project-banner .project-details__box .card__calendar .calendar .calendar__weekdays .calendar__weekdays__dates {
+  display: flex;
 }
 .project-banner .project-details__box .project-venue {
   margin: 10px 0;

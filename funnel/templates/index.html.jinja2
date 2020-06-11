@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import calendarwidget, saveprojectform %}
+{%- from "macros.html.jinja2" import calendarwidget, saveprojectform, projectcard %}
 
 
 {%- block pageheaders %}
@@ -180,7 +180,7 @@
       <ul class="mui-list--unstyled grid upcoming" role="list">
       {% for project in upcoming_projects %}
         <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-          {% include "inc/project_card.html.jinja2" ignore missing with context %}
+          {{ projectcard(project, project_save_form) }}
         </li>
       {%- endfor -%}
       </ul>
@@ -199,7 +199,7 @@
         <ul class="grid projects" role="list">
           {% for project in open_cfp_projects %}
             <li class="grid__col-xs-12 grid__col-sm-4 grid__col-lg-3 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">
-              {% include "inc/project_cfp_card.html.jinja2" ignore missing with context %}
+              {{ projectcard(project, include_calendar=false) }}
             </li>
           {%- endfor -%}
         </ul>
@@ -242,7 +242,7 @@
           {% if draft_projects %}
             {% for project in draft_projects %}
               <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
-                {% include "inc/project_card.html.jinja2" ignore missing with context %}
+                {{ projectcard(project, project_save_form) }}
               </li>
             {%- endfor -%}
           </ul>
@@ -261,7 +261,7 @@
         <ul class="grid projects" role="list">
             {% for project in unscheduled_projects %}
               <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
-                {% include "inc/project_card.html.jinja2" ignore missing with context %}
+                {{ projectcard(project, project_save_form) }}
               </li>
             {% endfor %}
         {% endif %}
@@ -281,7 +281,7 @@
         <ul class="grid projects" role="list">
           {% for project in all_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {% include "inc/project_card.html.jinja2" ignore missing with context %}
+              {{ projectcard(project, project_save_form) }}
             </li>
           {%- endfor -%}
         </ul>

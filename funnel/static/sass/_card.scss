@@ -152,7 +152,7 @@
       }
     }
 
-    .calendar__month-name--unique {
+    .calendar__month-name--unique.calendar__month-name--latest {
       display: flex;
     }
 
@@ -169,7 +169,7 @@
 
       .calendar__weekdays__dates {
         width: 100%;
-        display: flex;
+        display: none;
         flex-wrap: wrap;
         padding: 0;
         position: relative;
@@ -334,6 +334,10 @@
         .calendar__weekdays__dates__icon {
           display: none;
         }
+      }
+
+      .calendar__weekdays__dates--latest {
+        display: flex;
       }
     }
   }

@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {%- from "macros.html.jinja2" import calendarwidget %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs %}
+{%- from "macros.html.jinja2" import account_tabs, projectcard %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
@@ -31,11 +31,9 @@
     <div class="saved-projects-wrapper">
       <ul class="mui-list--unstyled grid" role="list">
       {% for saved in saved_projects %}
-        {%- with project = saved.project %}
         <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-          {% include "inc/project_card.html.jinja2" ignore missing with context %}
+          {{ projectcard(saved.project, calendarwidget_compact=false) }}
         </li>
-        {%- endwith %}
       {%- endfor -%}
       </ul>
     </div>
