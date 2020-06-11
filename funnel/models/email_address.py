@@ -38,8 +38,8 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
     The 'active' state here is used to distinguish from an abandoned mailbox that
     continues to receive messages, or one that drops them without reporting a bounce.
     For example, email delivery to the spam folder will appear normal but not active.
-    The 'active' state is not a reliable indicator the activity of a recipient, which
-    requires tracking per email message sent.
+    The 'active' state is not a record of the activity of a recipient, as that requires
+    tracking per email message sent and not per email address.
 
     The bounce states require supporting infrastructure to record bounce reports from
     the email server. Active state requires incoming link handlers to report activity.
