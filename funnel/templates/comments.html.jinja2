@@ -35,9 +35,25 @@
           {% if not comment.state.REMOVED -%}
             {{ comment.message }}
           {%- endif %}
-          <div data-id="{{ comment.uuid_b58 }}" data-commentset-id="{{ comment.commentset.uuid_b58 }}" {% if comment.view_for('edit').is_available() %} data-delete-url="{{ comment.url_for('delete') }}" data-edit-url="{{ comment.url_for('edit') }}" {% endif %} data-json-url="{{ comment.url_for('view_json', _external=true) }}" class="comment--footer">
+          <div data-id="{{ comment.uuid_b58 }}"
+            data-commentset-id="{{ comment.commentset.uuid_b58 }}"
+            {% if comment.view_for('edit').is_available() %}
+              data-delete-url="{{ comment.url_for('delete') }}"
+              data-edit-url="{{ comment.url_for('edit') }}"
+            {% endif %}
+            {% if current_auth.user.is_comment_moderator %}
+              data-report-url="{{ comment.url_for('report_spam') }}"
+            {% endif %}
+            data-json-url="{{ comment.url_for('view_json', _external=true) }}"
+            class="comment--footer"
+            >
             {% if not comment.state.REMOVED %}
-              {% if current_auth %}<a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Reply]</a>{% endif %}
+              {% if current_auth %}
+                <a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Reply]</a>
+                {% if current_auth.user.is_comment_moderator %}
+                <a aria-label="{% trans %}Report Spam{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-report" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Report Spam]</a>
+                {% endif %}
+              {% endif %}
               {% if comment.current_roles.author %}
                 <a aria-label="{% trans %}Edit{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-edit" href="#c{{ comment.uuid_b58 }}" data-cy="edit">{% trans %}[Edit]{% endtrans %}</a>
                 <a aria-label="{% trans %}Delete{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-delete" href="#c{{ comment.uuid_b58 }}" data-cy="delete">{% trans %}[Delete]{% endtrans %}</a>
