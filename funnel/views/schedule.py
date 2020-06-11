@@ -124,6 +124,24 @@ def schedule_data(project, with_slots=True, scheduled_sessions=None):
     return schedule
 
 
+def schedule_ical(sched):
+    cal = Calendar()
+    cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
+    cal.add('version', '2.0')
+    cal.add('name', sched.title)
+    cal.add('x-wr-calname', sched.title)
+    cal.add('summary', sched.title)
+    cal.add('description', sched.tagline)
+    cal.add('x-wr-caldesc', sched.tagline)
+    cal.add('timezone-id', sched.timezone.zone)
+    cal.add('x-wr-timezone', sched.timezone.zone)
+    cal.add('refresh-interval;value=duration', 'PT12H')
+    cal.add('x-published-ttl', 'PT12H')
+    for session in sched.scheduled_sessions:
+        cal.add_component(session_ical(session))
+    return cal.to_ical()
+
+
 def session_ical(session):
     # This function is only called with scheduled sessions.
     # If for some reason it is used somewhere else and called with an unscheduled session,
