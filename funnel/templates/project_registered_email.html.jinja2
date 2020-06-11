@@ -1,3 +1,7 @@
+Hi {{ current_auth.user.fullname.split()[0] }},
+
 You have successfully registered for {{ project.title }}.
 
 The event is scheduled to begin at {{ project.schedule_start_at_localized|datetime }}.
+
+Details about the event are available here: {{ project.url_for(_external=True) }}
