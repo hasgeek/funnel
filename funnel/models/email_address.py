@@ -10,6 +10,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm.attributes import NO_VALUE
 
+from flask.signals import Namespace
 from werkzeug.utils import cached_property
 
 from pyisemail import is_email
@@ -18,7 +19,6 @@ import base58
 from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
 from coaster.utils import LabeledEnum, require_one_of
 
-from ..signals import emailaddress_refcount_dropping
 from . import BaseMixin, db
 
 __all__ = [
@@ -28,7 +28,14 @@ __all__ = [
     'EmailAddressInUseError',
     'EmailAddress',
     'EmailAddressMixin',
+    'emailaddress_refcount_dropping',
 ]
+
+namespace = Namespace()
+emailaddress_refcount_dropping = namespace.signal(
+    'emailaddress-refcount-dropping',
+    doc="Signal indicating that an EmailAddress's refcount is about to drop",
+)
 
 
 class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801

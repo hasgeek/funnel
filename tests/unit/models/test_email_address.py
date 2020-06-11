@@ -12,8 +12,8 @@ from funnel.models.email_address import (
     EmailAddressMixin,
     canonical_email_representation,
     email_blake2b160_hash,
+    emailaddress_refcount_dropping,
 )
-from funnel.signals import emailaddress_refcount_dropping
 
 # Fixture used across tests.
 hash_map = {
