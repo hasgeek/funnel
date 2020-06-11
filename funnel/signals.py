@@ -52,6 +52,10 @@ user_data_changed = app_signals.signal('user-data-changed')
 org_data_changed = app_signals.signal('org-data-changed')
 team_data_changed = app_signals.signal('team-data-changed')
 session_revoked = app_signals.signal('session-revoked')
+emailaddress_refcount_dropping = app_signals.signal(
+    'emailaddress-refcount-dropping',
+    doc="Signal indicating that an EmailAddress's refcount is about to drop",
+)
 
 
 @sqla_event.listens_for(User, 'after_insert')

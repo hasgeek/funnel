@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Iterable, List, Optional
+from typing import Any, Iterable, List, Optional, Union
 import hashlib
 
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import mapper
 from sqlalchemy.orm.attributes import NO_VALUE
 
 from werkzeug.utils import cached_property
@@ -17,6 +18,7 @@ import base58
 from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
 from coaster.utils import LabeledEnum, require_one_of
 
+from ..signals import emailaddress_refcount_dropping
 from . import BaseMixin, db
 
 __all__ = [
@@ -74,6 +76,8 @@ def canonical_email_representation(email: str) -> List[str]:
     The canonical representation of an email address is not suitable for emailing. It is
     only usable for comparison, directly or via hashes.
     """
+    if '@' not in email:
+        raise ValueError("Not an email address")
     mailbox, domain = email.lower().split('@', 1)
     if '+' in mailbox:
         mailbox = mailbox[: mailbox.find('+')]
@@ -102,7 +106,7 @@ def email_blake2b160_hash(email: str) -> bytes:
     return hashlib.blake2b(email.encode('utf-8'), digest_size=20).digest()
 
 
-class EmailAddressError(Exception):
+class EmailAddressError(ValueError):
     """Base class for EmailAddress exceptions"""
 
 
@@ -177,7 +181,6 @@ class EmailAddress(BaseMixin, db.Model):
     _is_blocked = db.Column('is_blocked', db.Boolean, nullable=False, default=False)
 
     __table_args__ = (
-        # TODO: Reconsider this. Blocking and forgetting are distinct concerns.
         db.CheckConstraint(
             db.or_(
                 _is_blocked.isnot(True),
@@ -253,6 +256,15 @@ class EmailAddress(BaseMixin, db.Model):
         self.email = email
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
+    def is_available_for(self, actor: Any):
+        """Return True if this EmailAddress is available for the given actor"""
+        for backref_name in self.__exclusive_backrefs__:
+            for related_obj in getattr(self, backref_name):
+                user = getattr(related_obj, related_obj.__email_for__)
+                if user is not None and user != actor:
+                    return False
+        return True
+
     @delivery_state.transition(None, delivery_state.NORMAL)
     def mark_sent(self) -> None:
         """Record fact of an email message being sent to this address."""
@@ -289,9 +301,6 @@ class EmailAddress(BaseMixin, db.Model):
         :attr:`is_blocked` flag.
         """
         for obj in cls.get_canonical(email, is_blocked=False).all():
-            # TODO: Reconsider forgetting. Blocking and forgetting are distinct
-            # concerns. This makes a block irreversible as instances will have differing
-            # sub-addresses. `mark_blocked_and_forgotten` should be a distinct method
             obj.email = None
             obj._is_blocked = True
 
@@ -335,7 +344,9 @@ class EmailAddress(BaseMixin, db.Model):
 
     @classmethod
     def _get_existing(cls, email: str) -> Optional[EmailAddress]:
-        """Internal method used by :meth:`add` and :meth:`add_for`"""
+        """
+        Internal method used by :meth:`add`, :meth:`add_for` and :meth:`validate_for`.
+        """
         with db.session.no_autoflush:
             if cls.get_canonical(email, is_blocked=True).notempty():
                 raise EmailAddressBlockedError("Email address is blocked")
@@ -362,7 +373,7 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def add_for(cls, actor: User, email: str) -> EmailAddress:
+    def add_for(cls, actor: Optional[Any], email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -375,11 +386,8 @@ class EmailAddress(BaseMixin, db.Model):
         """
         existing = cls._get_existing(email)
         if existing:
-            for backref_name in EmailAddress.__exclusive_backrefs__:
-                for related_obj in getattr(existing, backref_name):
-                    user = getattr(related_obj, related_obj.__email_for__)
-                    if user is not None and user != actor:
-                        raise EmailAddressInUseError("This email address is in use")
+            if not existing.is_available_for(actor):
+                raise EmailAddressInUseError("This email address is in use")
             # No exclusive lock found? Let it be used then
             existing.email = email
             return existing
@@ -388,31 +396,54 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def validate_for(cls, user: 'User', email: str) -> Optional[str]:
+    def validate_for(cls, actor: Optional[Any], email: str) -> Union[bool, str]:
         """
         Validate whether the specified email address is available to the specified user.
 
-        Returns None if available or a string describing the concern if not. Possible
-        return values:
+        Returns False if the address is in use by another user, True if available
+        without issues, or a string value indicating the concern:
 
-        1. 'assigned' indicating it has been assigned to another user
-        1. 'blocked' indicating it h
-        2. 'soft_bounce'
+        1. 'soft_bounce': Known to be soft bouncing, requiring a warning message
+        2. 'hard_bounce': Known to be hard bouncing, usually a validation failure
+
+        This method will not flush the session before querying the database, to avoid
+        flushing unrelated transient objects. Caller is responsible for ensuring edits
+        to other :class:`EmailAddress` instances have been flushed or committed.
         """
-        # TODO
+        existing = cls._get_existing(email)
+        if not existing:
+            if cls.is_valid_email_address(email):
+                return True
+        # There's an existing? Is it available for this actor?
+        if not existing.is_available_for(actor):
+            return False
+        if existing.delivery_state.SOFT_BOUNCE:
+            return 'soft_bounce'
+        elif existing.delivery_state.HARD_BOUNCE:
+            return 'hard_bounce'
+        return True
+
+    @staticmethod
+    def is_valid_email_address(email: str) -> bool:
+        """Return True if given email address is syntactically valid."""
+        return is_email(email, check_dns=False, diagnose=False)
 
 
 class EmailAddressMixin:
-    """Mixin class for models that refer to EmailAddress"""
+    """
+    Mixin class for models that refer to EmailAddress.
+
+    Subclasses should set configuration using the four ``__email_*__`` attributes.
+    """
 
     #: This class has an optional dependency on EmailAddress
     __email_optional__ = True
     #: This class has a unique constraint on the fkey to EmailAddress
     __email_unique__ = False
-    #: A relationship from this model is for the (single) actor at this attr
+    #: A relationship from this model is for the (single) owner at this attr
     __email_for__ = None
     #: If `__email_for__` is specified and this flag is True, the email address is
-    #: considered exclusive to this user and may not be used by any other user
+    #: considered exclusive to this owner and may not be used by any other owner
     __email_is_exclusive__ = False
 
     @declared_attr
@@ -489,7 +520,7 @@ def _validate_email(target, value, old_value, initiator):
 
     # Second: If we have a value, does it look like an email address?
     # This does not check if it's a reachable mailbox; merely if it has valid syntax
-    if value and not is_email(value, check_dns=False, diagnose=False):
+    if value and not EmailAddress.is_valid_email_address(value):
         raise ValueError("Value is not an email address")
 
     # All clear? Now update the hash as well
@@ -500,5 +531,32 @@ def _validate_email(target, value, old_value, initiator):
     # We don't have to set target.email because SQLAlchemy will do that for us
 
 
-# --- Tail imports ---------------------------------------------------------------------
-from .user import User  # isort:skip
+def _send_refcount_event_remove(target, value, initiator):
+    emailaddress_refcount_dropping.send(target)
+
+
+def _send_refcount_event_before_delete(mapper, connection, target):
+    if target.email_address:
+        emailaddress_refcount_dropping.send(target.email_address)
+
+
+@event.listens_for(mapper, 'after_configured')
+def _setup_refcount_events():
+    for backref_name in EmailAddress.__backrefs__:
+        attr = getattr(EmailAddress, backref_name)
+        event.listen(attr, 'remove', _send_refcount_event_remove)
+
+
+def _email_address_mixin_set_validator(target, value, old_value, initiator):
+    if value != old_value and target.__email_for__:
+        if value is not None:
+            if value.is_blocked:
+                raise EmailAddressBlockedError("This email address has been blocked")
+            if not value.is_available_for(getattr(target, target.__email_for__)):
+                raise EmailAddressInUseError("This email address it not available")
+
+
+@event.listens_for(EmailAddressMixin, 'mapper_configured', propagate=True)
+def _email_address_mixin_configure_events(mapper_, cls):
+    event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
+    event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

@@ -13,6 +13,7 @@ from funnel.models.email_address import (
     canonical_email_representation,
     email_blake2b160_hash,
 )
+from funnel.signals import emailaddress_refcount_dropping
 
 # Fixture used across tests.
 hash_map = {
@@ -21,6 +22,18 @@ hash_map = {
     'example@gmail.com': b"\tC*\xd2\x9a\xcb\xdfR\xcb\xbf=>2D'(\xa8V\x13\xa7",
     'example@googlemail.com': b'x\xd6#Ue\xa8-_\xeclJ+o8\xfe\x1f\xa1\x0b:9',
 }
+
+
+@pytest.fixture(scope='function')
+def refcount_data():
+    refcount_signal_fired = set()
+
+    def refcount_signal_receiver(sender):
+        refcount_signal_fired.add(sender)
+
+    emailaddress_refcount_dropping.connect(refcount_signal_receiver)
+    yield refcount_signal_fired
+    emailaddress_refcount_dropping.disconnect(refcount_signal_receiver)
 
 
 def test_email_hash_stability():
@@ -58,6 +71,10 @@ def test_canonical_email_representation():
         'example@gmail.com',
         'exam.pl.e@googlemail.com',
     ]
+    with pytest.raises(ValueError):
+        cemail('')
+    with pytest.raises(ValueError):
+        cemail('invalid')
 
 
 def test_email_address_init():
@@ -326,7 +343,6 @@ def email_models():
     class EmailLink(EmailAddressMixin, BaseMixin, db.Model):
         """Test model connecting EmailUser to EmailAddress"""
 
-        __tablename__ = 'emaillink'
         __email_optional__ = False
         __email_unique__ = True
         __email_for__ = 'emailuser'
@@ -338,9 +354,13 @@ def email_models():
     class EmailDocument(EmailAddressMixin, BaseMixin, db.Model):
         """Test model unaffiliated to a user that has an email address attached"""
 
-        __tablename__ = 'emaildoc'
-        __email_optional__ = True
-        __email_unique__ = False
+    class EmailLinkedDocument(EmailAddressMixin, BaseMixin, db.Model):
+        """Test model that accepts an optional user and an optional email"""
+
+        __email_for__ = 'emailuser'
+
+        emailuser_id = db.Column(db.ForeignKey('emailuser.id'), nullable=True)
+        emailuser = db.relationship(EmailUser)
 
     db.create_all()  # This will only create models not already in the database
     return SimpleNamespace(**locals())
@@ -362,14 +382,18 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     db = clean_mixin_db
     models = email_models
 
+    blocked_email = EmailAddress('blocked@example.com')
+
     user1 = models.EmailUser()
     user2 = models.EmailUser()
 
     doc1 = models.EmailDocument()
     doc2 = models.EmailDocument()
 
-    db.session.add_all([user1, user2, doc1, doc2])
+    db.session.add_all([user1, user2, doc1, doc2, blocked_email])
     db.session.flush()
+
+    EmailAddress.mark_blocked('blocked@example.com')
 
     # Mixin-based classes can simply specify an email parameter to link to an
     # EmailAddress instance
@@ -388,12 +412,27 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     assert link2.email == 'other@example.com'
     assert link2.email_address == ea2
 
+    db.session.commit()
+
     # 'other@example.com' is now exclusive to user2. Attempting it to assign it to
-    # user1 will raise an exception.
+    # user1 will raise an exception, even if the case is changed.
     with pytest.raises(EmailAddressInUseError):
         models.EmailLink(emailuser=user1, email='Other@example.com')
 
-    db.session.commit()
+    # This safety catch works even if the email_address column is used:
+    with pytest.raises(EmailAddressInUseError):
+        models.EmailLink(emailuser=user1, email_address=ea2)
+
+    db.session.rollback()
+
+    # Blocked addresses cannot be used either
+    with pytest.raises(EmailAddressBlockedError):
+        models.EmailLink(emailuser=user1, email='blocked@example.com')
+
+    with pytest.raises(EmailAddressBlockedError):
+        models.EmailLink(emailuser=user1, email_address=blocked_email)
+
+    db.session.rollback()
 
     # Attempting to assign 'other@example.com' to user2 a second time will cause a
     # SQL integrity error because EmailLink.__email_unique__ is True.
@@ -424,3 +463,142 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     # ea1 now has three references, while ea2 has 1
     assert ea1.refcount() == 3
     assert ea2.refcount() == 1
+
+    # EmailLinkedDocument takes the complexity up a notch
+
+    # A document linked to a user can use any email linked to that user
+    ldoc1 = models.EmailLinkedDocument(emailuser=user1, email='example@example.com')
+    db.session.add(ldoc1)
+    db.session.flush()
+    assert ldoc1.emailuser == user1
+    assert ldoc1.email_address == ea1
+
+    # But another user can't use this email address
+    with pytest.raises(EmailAddressInUseError):
+        models.EmailLinkedDocument(emailuser=user2, email='example@example.com')
+
+    # This restriction also applies when user is not specified. Here, this email is
+    # claimed by user2 above
+    with pytest.raises(EmailAddressInUseError):
+        models.EmailLinkedDocument(emailuser=None, email='other@example.com')
+
+    # But it works with an unaffiliated email address
+    ldoc2 = models.EmailLinkedDocument(email='yetanother@example.com')
+    db.session.add(ldoc2)
+    db.session.flush()
+    assert ldoc2.emailuser is None
+    assert ldoc2.email == 'yetanother@example.com'
+
+    ldoc3 = models.EmailLinkedDocument(emailuser=user2, email='onemore@example.com')
+    db.session.add(ldoc3)
+    db.session.flush()
+    assert ldoc3.emailuser is user2
+    assert ldoc3.email == 'onemore@example.com'
+
+
+def test_email_address_refcount_drop(email_models, clean_mixin_db, refcount_data):
+    """Test that EmailAddress.refcount drop events are fired"""
+    db = clean_mixin_db
+    models = email_models
+
+    # The refcount changing signal handler will have received events for every email
+    # address in this test. A request teardown processor can use this to determine
+    # which email addresses need to be forgotten (preferably in a background job)
+
+    # We have an empty set at the start of this test
+    assert isinstance(refcount_data, set)
+    assert refcount_data == set()
+
+    ea = EmailAddress.add('example@example.com')
+    assert refcount_data == set()
+
+    user = models.EmailUser()
+    doc = models.EmailDocument()
+    link = models.EmailLink(emailuser=user, email_address=ea)
+    db.session.add_all([ea, user, doc, link])
+    db.session.flush()
+
+    assert refcount_data == set()
+
+    doc.email_address = ea
+    db.session.flush()
+    assert refcount_data == set()
+    assert ea.refcount() == 2
+
+    doc.email_address = None
+    db.session.flush()
+    assert refcount_data == {ea}
+    assert ea.refcount() == 1
+
+    refcount_data.remove(ea)
+    assert refcount_data == set()
+    db.session.delete(link)
+    db.session.flush()
+    assert refcount_data == {ea}
+
+    # XXX: Actual refcount is now 0, but refcount() will return 1 because the deleted
+    # `link` is gone from the db, but still available in the relationship in `detached`
+    # state. None of SQLAlchemy's cascades work to remove it from the relationship, so
+    # we will only have an accurate count after reloading the object. Here we test for
+    # the incorrect count so that if SQLAlchemy changes behaviour in the future, this
+    # test will fail and alert us to it.
+
+    assert ea.refcount() == 1
+
+
+def test_email_address_validate_for(email_models, clean_mixin_db):
+    """EmailAddress.validate_for can be used to determine availability"""
+    db = clean_mixin_db
+    models = email_models
+
+    user1 = models.EmailUser()
+    user2 = models.EmailUser()
+    anon_user = None
+    db.session.add_all([user1, user2])
+    db.session.flush()
+
+    # A new email address is available to all
+    assert EmailAddress.validate_for(user1, 'example@example.com') is True
+    assert EmailAddress.validate_for(user2, 'example@example.com') is True
+    assert EmailAddress.validate_for(anon_user, 'example@example.com') is True
+
+    # Once it's assigned to a user, availability changes
+    link = models.EmailLink(emailuser=user1, email='example@example.com')
+    db.session.add(link)
+    db.session.flush()
+
+    assert EmailAddress.validate_for(user1, 'example@example.com') is True
+    assert EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+
+    # When delivery state changes, validate_for's result changes too
+    ea = link.email_address
+    assert ea.delivery_state.UNKNOWN
+
+    ea.mark_sent()
+    db.session.flush()
+    assert ea.delivery_state.NORMAL
+    assert EmailAddress.validate_for(user1, 'example@example.com') is True
+    assert EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+
+    ea.mark_active()
+    db.session.flush()
+    assert ea.delivery_state.ACTIVE
+    assert EmailAddress.validate_for(user1, 'example@example.com') is True
+    assert EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+
+    ea.mark_soft_bounce()
+    db.session.flush()
+    assert ea.delivery_state.SOFT_BOUNCE
+    assert EmailAddress.validate_for(user1, 'example@example.com') == 'soft_bounce'
+    assert EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+
+    ea.mark_hard_bounce()
+    db.session.flush()
+    assert ea.delivery_state.HARD_BOUNCE
+    assert EmailAddress.validate_for(user1, 'example@example.com') == 'hard_bounce'
+    assert EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
