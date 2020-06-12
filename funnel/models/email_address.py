@@ -312,6 +312,28 @@ class EmailAddress(BaseMixin, db.Model):
             obj._is_blocked = True
 
     @classmethod
+    def get_filter(
+        cls,
+        email: Optional[str] = None,
+        blake2b160: Optional[bytes] = None,
+        email_hash: Optional[str] = None,
+    ):
+        """
+        Get an filter condition for retriving an EmailAddress.
+
+        Accepts an email address or a blake2b160 hash in either bytes or base58 form.
+        Internally converts all lookups to a bytes-based hash lookup. Returns an
+        expression suitable for use as a query filter.
+        """
+        require_one_of(email=email, blake2b160=blake2b160, email_hash=email_hash)
+        if email:
+            blake2b160 = email_blake2b160_hash(email.lower())
+        elif email_hash:
+            blake2b160 = base58.b58decode(email_hash)
+
+        return cls.blake2b160 == blake2b160
+
+    @classmethod
     def get(
         cls,
         email: Optional[str] = None,
@@ -323,13 +345,9 @@ class EmailAddress(BaseMixin, db.Model):
 
         Internally converts an email-based lookup into a hash-based lookup.
         """
-        require_one_of(email=email, blake2b160=blake2b160, email_hash=email_hash)
-        if email:
-            blake2b160 = email_blake2b160_hash(email.lower())
-        elif email_hash:
-            blake2b160 = base58.b58decode(email_hash)
-
-        return cls.query.filter_by(blake2b160=blake2b160).one_or_none()
+        return cls.query.filter(
+            cls.get_filter(email, blake2b160, email_hash)
+        ).one_or_none()
 
     @classmethod
     def get_canonical(
@@ -354,10 +372,9 @@ class EmailAddress(BaseMixin, db.Model):
         """
         Internal method used by :meth:`add`, :meth:`add_for` and :meth:`validate_for`.
         """
-        with db.session.no_autoflush:
-            if cls.get_canonical(email, is_blocked=True).notempty():
-                raise EmailAddressBlockedError("Email address is blocked")
-            return EmailAddress.get(email)
+        if cls.get_canonical(email, is_blocked=True).notempty():
+            raise EmailAddressBlockedError("Email address is blocked")
+        return EmailAddress.get(email)
 
     @classmethod
     def add(cls, email: str) -> EmailAddress:
@@ -366,10 +383,6 @@ class EmailAddress(BaseMixin, db.Model):
 
         Raises an exception if the address is blocked from use or the email address
         is syntactically invalid.
-
-        This method will not flush the session before querying the database, to avoid
-        flushing unrelated transient objects. Caller is responsible for ensuring edits
-        to other :class:`EmailAddress` instances have been flushed or committed.
         """
         existing = cls._get_existing(email)
         if existing:
@@ -386,10 +399,6 @@ class EmailAddress(BaseMixin, db.Model):
 
         Unlike :meth:`add`, this one requires the email address to not be in an
         exclusive relationship with another user.
-
-        This method will not flush the session before querying the database, to avoid
-        flushing unrelated transient objects. Caller is responsible for ensuring edits
-        to other :class:`EmailAddress` instances have been flushed or committed.
         """
         existing = cls._get_existing(email)
         if existing:
@@ -412,10 +421,6 @@ class EmailAddress(BaseMixin, db.Model):
 
         1. 'soft_bounce': Known to be soft bouncing, requiring a warning message
         2. 'hard_bounce': Known to be hard bouncing, usually a validation failure
-
-        This method will not flush the session before querying the database, to avoid
-        flushing unrelated transient objects. Caller is responsible for ensuring edits
-        to other :class:`EmailAddress` instances have been flushed or committed.
         """
         try:
             existing = cls._get_existing(email)
@@ -479,6 +484,15 @@ class EmailAddressMixin:
         if cls.__email_for__:
 
             def email_get(self):
+                """
+                Shorthand for ``self.email_address.email``.
+
+                Setting a value does the equivalent of::
+
+                    self.email_address = EmailAddress.add_for(user, email)
+
+                Where the user is found from the attribute named in `cls.__email_for__`.
+                """
                 if self.email_address:
                     return self.email_address.email
 
@@ -487,6 +501,7 @@ class EmailAddressMixin:
                     getattr(self, cls.__email_for__), value
                 )
 
+            # Can't use association_proxy as creator function will not receive 'self'
             return property(fget=email_get, fset=email_set)
         else:
             return association_proxy(

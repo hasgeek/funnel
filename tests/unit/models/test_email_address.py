@@ -249,18 +249,13 @@ def test_email_address_get_canonical(clean_db):
 
 def test_email_address_add(clean_db):
     """Using EmailAddress.add will auto-add to session and return existing instances"""
-    db = clean_db
     ea1 = EmailAddress.add('example@example.com')
-    db.session.flush()
     assert isinstance(ea1, EmailAddress)
     assert ea1.email == 'example@example.com'
 
     ea2 = EmailAddress.add('example+extra@example.com')
-    db.session.flush()
     ea3 = EmailAddress.add('other@example.com')
-    db.session.flush()
     ea4 = EmailAddress.add('Example@example.com')
-    db.session.flush()
 
     assert ea2 is not None
     assert ea3 is not None
@@ -275,7 +270,6 @@ def test_email_address_add(clean_db):
 
     # A forgotten email address will be restored by calling EmailAddress.add
     ea3.email = None
-    db.session.flush()
     assert ea3.email is None
     ea5 = EmailAddress.add('other@example.com')
     assert ea5 == ea3
@@ -284,16 +278,11 @@ def test_email_address_add(clean_db):
 
 def test_email_address_blocked(clean_db):
     """A blocked email address cannot be used via EmailAddress.add"""
-    db = clean_db
     ea1 = EmailAddress.add('example@example.com')
-    db.session.flush()
     ea2 = EmailAddress.add('example+extra@example.com')
-    db.session.flush()
     ea3 = EmailAddress.add('other@example.com')
-    db.session.flush()
 
     EmailAddress.mark_blocked(ea2.email)
-    db.session.flush()
 
     assert ea1.is_blocked is True
     assert ea2.is_blocked is True
@@ -391,7 +380,6 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     doc2 = models.EmailDocument()
 
     db.session.add_all([user1, user2, doc1, doc2, blocked_email])
-    db.session.flush()
 
     EmailAddress.mark_blocked('blocked@example.com')
 
@@ -399,7 +387,6 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     # EmailAddress instance
     link1 = models.EmailLink(emailuser=user1, email='example@example.com')
     db.session.add(link1)
-    db.session.flush()
     ea1 = EmailAddress.get('example@example.com')
     assert link1.email == 'example@example.com'
     assert link1.email_address == ea1
@@ -407,7 +394,6 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     # Link an unrelated email address to another user to demonstrate that it works
     link2 = models.EmailLink(emailuser=user2, email='other@example.com')
     db.session.add(link2)
-    db.session.flush()
     ea2 = EmailAddress.get('other@example.com')
     assert link2.email == 'other@example.com'
     assert link2.email_address == ea2
@@ -453,7 +439,6 @@ def test_email_address_mixin(email_models, clean_mixin_db):
 
     doc1.email = 'example@example.com'
     doc2.email = 'example@example.com'
-    db.session.flush()
 
     assert doc1.email == 'example@example.com'
     assert doc2.email == 'example@example.com'
@@ -469,7 +454,6 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     # A document linked to a user can use any email linked to that user
     ldoc1 = models.EmailLinkedDocument(emailuser=user1, email='example@example.com')
     db.session.add(ldoc1)
-    db.session.flush()
     assert ldoc1.emailuser == user1
     assert ldoc1.email_address == ea1
 
@@ -485,13 +469,11 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     # But it works with an unaffiliated email address
     ldoc2 = models.EmailLinkedDocument(email='yetanother@example.com')
     db.session.add(ldoc2)
-    db.session.flush()
     assert ldoc2.emailuser is None
     assert ldoc2.email == 'yetanother@example.com'
 
     ldoc3 = models.EmailLinkedDocument(emailuser=user2, email='onemore@example.com')
     db.session.add(ldoc3)
-    db.session.flush()
     assert ldoc3.emailuser is user2
     assert ldoc3.email == 'onemore@example.com'
 
@@ -516,34 +498,24 @@ def test_email_address_refcount_drop(email_models, clean_mixin_db, refcount_data
     doc = models.EmailDocument()
     link = models.EmailLink(emailuser=user, email_address=ea)
     db.session.add_all([ea, user, doc, link])
-    db.session.flush()
 
     assert refcount_data == set()
 
     doc.email_address = ea
-    db.session.flush()
     assert refcount_data == set()
     assert ea.refcount() == 2
 
     doc.email_address = None
-    db.session.flush()
     assert refcount_data == {ea}
     assert ea.refcount() == 1
 
     refcount_data.remove(ea)
     assert refcount_data == set()
+    db.session.commit()  # Persist before deleting
     db.session.delete(link)
-    db.session.flush()
+    db.session.commit()
     assert refcount_data == {ea}
-
-    # XXX: Actual refcount is now 0, but refcount() will return 1 because the deleted
-    # `link` is gone from the db, but still available in the relationship in `detached`
-    # state. None of SQLAlchemy's cascades work to remove it from the relationship, so
-    # we will only have an accurate count after reloading the object. Here we test for
-    # the incorrect count so that if SQLAlchemy changes behaviour in the future, this
-    # test will fail and alert us to it.
-
-    assert ea.refcount() == 1
+    assert ea.refcount() == 0
 
 
 def test_email_address_validate_for(email_models, clean_mixin_db):
@@ -555,7 +527,6 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     user2 = models.EmailUser()
     anon_user = None
     db.session.add_all([user1, user2])
-    db.session.flush()
 
     # A new email address is available to all
     assert EmailAddress.validate_for(user1, 'example@example.com') is True
@@ -565,7 +536,6 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     # Once it's assigned to a user, availability changes
     link = models.EmailLink(emailuser=user1, email='example@example.com')
     db.session.add(link)
-    db.session.flush()
 
     assert EmailAddress.validate_for(user1, 'example@example.com') is True
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
@@ -576,28 +546,24 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert ea.delivery_state.UNKNOWN
 
     ea.mark_sent()
-    db.session.flush()
     assert ea.delivery_state.NORMAL
     assert EmailAddress.validate_for(user1, 'example@example.com') is True
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
     ea.mark_active()
-    db.session.flush()
     assert ea.delivery_state.ACTIVE
     assert EmailAddress.validate_for(user1, 'example@example.com') is True
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
     ea.mark_soft_bounce()
-    db.session.flush()
     assert ea.delivery_state.SOFT_BOUNCE
     assert EmailAddress.validate_for(user1, 'example@example.com') == 'soft_bounce'
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
     ea.mark_hard_bounce()
-    db.session.flush()
     assert ea.delivery_state.HARD_BOUNCE
     assert EmailAddress.validate_for(user1, 'example@example.com') == 'hard_bounce'
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
@@ -606,7 +572,6 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     # A blocked address is available to no one
     db.session.add(EmailAddress('blocked@example.com'))
     EmailAddress.mark_blocked('blocked@example.com')
-    db.session.flush()
     assert EmailAddress.validate_for(user1, 'blocked@example.com') is False
     assert EmailAddress.validate_for(user2, 'blocked@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'blocked@example.com') is False
