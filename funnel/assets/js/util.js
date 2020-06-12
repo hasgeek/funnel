@@ -125,34 +125,35 @@ export const Utils = {
     });
   },
   showTimeOnCalendar() {
-    let firstActiveWeek = $('body .calendar__weekdays').find(
-      '.calendar__weekdays__dates--upcoming:first'
-    ).length
-      ? $('body .calendar__weekdays').find(
-          '.calendar__weekdays__dates--upcoming:first'
-        )
-      : $('body .calendar__weekdays').find('.calendar__weekdays__dates:first');
-
-    firstActiveWeek
-      .find('.calendar__weekdays__dates__date--showtime:first')
-      .addClass('calendar__weekdays__dates__date--display');
-
-    $('body .calendar__weekdays__dates__date--showtime').hover(function() {
-      $(this)
-        .parents('.calendar__weekdays')
-        .find('.calendar__weekdays__dates__date--showtime')
-        .removeClass('calendar__weekdays__dates__date--display');
-    });
-
-    $('body .calendar__weekdays__dates__date--showtime').mouseleave(function() {
-      firstActiveWeek
-        .find('.calendar__weekdays__dates__date--showtime:first')
-        .addClass('calendar__weekdays__dates__date--display');
-    });
-
     const singleDay = 24 * 60 * 60 * 1000;
 
     $('body .card__calendar').each(function() {
+      let firstActiveWeek = $(this).find('.calendar__weekdays__dates--upcoming')
+        .length
+        ? $(this).find('.calendar__weekdays__dates--upcoming--first')
+        : $(this).find('.calendar__weekdays__dates--latest');
+
+      firstActiveWeek
+        .find('.calendar__weekdays__dates__date--showtime:first')
+        .addClass('calendar__weekdays__dates__date--display');
+
+      $(this)
+        .find('.calendar__weekdays__dates__date--showtime')
+        .hover(function() {
+          $(this)
+            .parents('.calendar__weekdays')
+            .find('.calendar__weekdays__dates__date--showtime')
+            .removeClass('calendar__weekdays__dates__date--display');
+        });
+
+      $(this)
+        .find('.calendar__weekdays__dates__date--showtime')
+        .mouseleave(function() {
+          firstActiveWeek
+            .find('.calendar__weekdays__dates__date--showtime:first')
+            .addClass('calendar__weekdays__dates__date--display');
+        });
+
       let todayDate = $(this)
         .find('.calendar__counting')
         .data('today');

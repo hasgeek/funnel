@@ -39,7 +39,7 @@
                     {{ rsvp.user.phone }}
                   {%- endif %}
                 </td>
-                <td data-cy="user" data-value="{{ rsvp.updated_at.strftime('%s') }}">{{ rsvp.updated_at|datetime }}</td>
+                <td data-cy="user" data-value="{{ rsvp.updated_at|timestamp }}">{{ rsvp.updated_at|datetime }}</td>
               </tr>
             {%- else %}
               <tr><td colspan="2"><em>No users</em></td></tr>

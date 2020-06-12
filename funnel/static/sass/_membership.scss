@@ -77,24 +77,6 @@
   .membership-wrapper__members__list:hover {
     background: #f9fafc;
   }
-
-  .membership-wrapper__members__list:nth-child(even) {
-    .user-box__gravatar--initials {
-      background: #e05f26;
-    }
-  }
-
-  .membership-wrapper__members__list:nth-child(odd) {
-    .user-box__gravatar--initials {
-      background: #82688d;
-    }
-  }
-
-  .membership-wrapper__members__list:nth-child(4n) {
-    .user-box__gravatar--initials {
-      background: #dda32b;
-    }
-  }
 }
 
 @media (min-width: 1200px) {
