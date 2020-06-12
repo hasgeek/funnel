@@ -102,6 +102,9 @@
         .calendar__month-name--unique {
           display: flex;
         }
+        .calendar__month-name:nth-child(n + 2) {
+          padding-top: 25px;
+        }
         .calendar__weekdays .calendar__weekdays__dates {
           display: flex;
         }

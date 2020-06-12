@@ -225,6 +225,14 @@ export const Utils = {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
   },
+  popupBackHandler() {
+    $('.js-popup-back').on('click', function(event) {
+      if (document.referrer !== '') {
+        event.preventDefault();
+        window.history.back();
+      }
+    });
+  },
 };
 
 export const ScrollActiveMenu = {

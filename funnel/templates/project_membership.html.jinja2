@@ -9,9 +9,9 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app modal-form-page">
+    <body class="mui--bg-primary hg-app modal-form-page no-sticky-header">
   {%- else %}
-    <body class="mui--bg-primary">
+    <body class="mui--bg-primary no-sticky-header">
   {%- endif %}
 {% endblock %}
 
