@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {%- from "macros.html.jinja2" import calendarwidget %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs %}
+{%- from "macros.html.jinja2" import account_tabs, projectcard %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
@@ -31,26 +31,7 @@
       <ul class="mui-list--unstyled grid" role="list">
       {% for saved in saved_projects %}
         <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-          <a class="card card--upcoming clickable-card" href="{{ saved.project.url_for() }}" aria-label="{{ saved.project.title }}" data-action="View {{ saved.project.title }}(My save)">
-            <div class="card__image-wrapper">
-              {% if saved.project.bg_image.url %}
-                <img class="card__image js-lazyload-img" data-src="{{ saved.project.bg_image }}" alt="{{ saved.project.title }}"/>
-                <noscript>
-                  <img class="card__image" src="{{ saved.project.bg_image }}" alt="{{ saved.project.title }}"/>
-                </noscript>
-              {% else %}
-                <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ saved.project.title }}"/>
-                <p class="card__image__tagline mui--text-body1">{{ saved.project.title }}</p>
-              {% endif %}
-            </div>
-            <div class="card__body">
-              {% if saved.project.schedule_state.PUBLISHED and saved.project.calendar_weeks_compact.weeks and saved.project.calendar_weeks_compact.weeks|length > 0 %}
-                {{ calendarwidget(saved.project.calendar_weeks_compact) }}
-              {% endif %}
-              <div class="card__body__title js-truncate {% if not (saved.project.schedule_state.PUBLISHED and saved.project.calendar_weeks_compact.weeks) %} card__body__title--smaller {% endif %}" data-truncate-lines="3"><span class="mui--text-bold">{{ saved.project.title }}</span> <span class="mui--text-light">{{ saved.project.tagline }}</span></div>
-              {% if saved.project.primary_venue %}<p class="card__body__location">{{ faicon(icon='map-marker-alt', icon_size='caption') }} {% if saved.project.primary_venue.city %}{{ saved.project.primary_venue.city }}{% else %}{{ saved.project.primary_venue.title }}{% endif %}</p>{% endif %}
-            </div>
-          </a>
+          {{ projectcard(saved.project, calendarwidget_compact=false) }}
         </li>
       {%- endfor -%}
       </ul>
