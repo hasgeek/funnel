@@ -38,49 +38,6 @@
     max-width: 400px;
     margin: 0 auto;
 
-    .login,
-    .login:hover,
-    .login:active {
-      color: #ffffff;
-      font-size: 16px;
-      text-transform: capitalize;
-      margin-right: 8px;
-      margin-bottom: $mui-grid-padding;
-    }
-
-    .login-twitter,
-    .login-twitter:hover,
-    .login-twitter:active {
-      background-color: #08a0e9;
-    }
-    .login-google,
-    .login-google:hover,
-    .login-google:active  {
-      color: #757575;
-      background-color: #ffffff;
-    }
-    .login-linkedin,
-    .login-linkedin:hover,
-    .login-linkedin:active {
-      background-color: #0074b2;
-    }
-    .login-github,
-    .login-github:hover,
-    .login-github:active {
-      background-color: #444444;
-    }
-
-    .mui-btn + .mui-btn {
-      margin-left: 0;
-    }
-
-    a.loginbutton.hidden,
-    .js a.loginbutton.jshidden,
-    .no-js a.loginbutton.no-jshidden {
-      display: none;
-      visibility: hidden;
-    }
-
     .login-page__box__heading {
       margin: 0 0 $mui-grid-padding;
     }
@@ -144,6 +101,57 @@
   }
 }
 
+.login,
+.login:hover,
+.login:active {
+  color: #ffffff;
+  font-size: 16px;
+  text-transform: capitalize;
+}
+
+.login {
+  margin: 0;
+  margin-right: 8px;
+  margin-bottom: $mui-grid-padding;
+}
+
+.login--smaller {
+  margin-bottom: $mui-grid-padding/2;
+}
+
+.login-twitter,
+.login-twitter:hover,
+.login-twitter:active {
+  background-color: #08a0e9;
+}
+.login-google,
+.login-google:hover,
+.login-google:active {
+  color: #757575;
+  background-color: #ffffff;
+}
+.login-linkedin,
+.login-linkedin:hover,
+.login-linkedin:active {
+  background-color: #0074b2;
+}
+.login-github,
+.login-github:hover,
+.login-github:active {
+  background-color: #444444;
+}
+
+.mui-btn + .mui-btn {
+  margin-left: 0;
+}
+
+a.loginbutton.hidden,
+.js a.loginbutton.jshidden,
+.no-js a.loginbutton.no-jshidden {
+  display: none;
+  visibility: hidden;
+}
+
 .mui-list--border li {
   border-bottom: 1px solid rgba(132, 146, 166, 0.2);
   padding: 5px;
@@ -161,7 +169,7 @@
   border-bottom: none;
 }
 
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
   .mui-list--border li {
     .item {
       .subitem {
