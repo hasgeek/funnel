@@ -76,6 +76,9 @@ class RegisterForm(forms.RecaptchaForm):
 
     fullname = forms.StringField(
         __("Full name"),
+        description=__(
+            "This account is for you as an individual. We’ll make one for your organization later"
+        ),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
     )
     email = forms.EmailField(
