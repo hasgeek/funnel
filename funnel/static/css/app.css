@@ -1502,9 +1502,6 @@ html.touch .collapsible__body--disable {
 .card__calendar .calendar .calendar__month-name--unique.calendar__month-name--latest {
   display: flex;
 }
-.card__calendar .calendar .calendar__month-name:nth-child(n + 2) {
-  padding-top: 25px;
-}
 .card__calendar .calendar .calendar__weekdays {
   display: flex;
   width: 100%;
@@ -1974,6 +1971,9 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-details__box .card__calendar .calendar .calendar__month-name--unique {
   display: flex;
+}
+.project-banner .project-details__box .card__calendar .calendar .calendar__month-name:nth-child(n + 2) {
+  padding-top: 25px;
 }
 .project-banner .project-details__box .card__calendar .calendar .calendar__weekdays .calendar__weekdays__dates {
   display: flex;
