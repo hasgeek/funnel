@@ -40,7 +40,7 @@
                 <div class="video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
               </a>
               <p class="mui--text-subhead video__txt" data-cy="title">{%- if session.proposal %}{{ session.proposal.title }}{% else %}{{ session.title }}{%- endif %}</p>
-              {%- if session.speaker %}<p class="mui--text-body1 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
+              {%- if session.speaker %}<p class="mui--text-body2 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
               <div class="mui--text-caption mui--text-light">
                   {%- if session.video.duration %}<span class="js-video-duration" data-duration="{{ session.video.duration }}"></span>{%- endif %}
                   {%- if session.video.uploaded_at %}<span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span>{%- endif %}
