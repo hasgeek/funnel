@@ -3413,45 +3413,6 @@ body > .proposal-box.ui-draggable {
   max-width: 400px;
   margin: 0 auto;
 }
-.login-page .login-page__box .login,
-.login-page .login-page__box .login:hover,
-.login-page .login-page__box .login:active {
-  color: #ffffff;
-  font-size: 16px;
-  text-transform: capitalize;
-  margin-right: 8px;
-  margin-bottom: 16px;
-}
-.login-page .login-page__box .login-twitter,
-.login-page .login-page__box .login-twitter:hover,
-.login-page .login-page__box .login-twitter:active {
-  background-color: #08a0e9;
-}
-.login-page .login-page__box .login-google,
-.login-page .login-page__box .login-google:hover,
-.login-page .login-page__box .login-google:active {
-  color: #757575;
-  background-color: #ffffff;
-}
-.login-page .login-page__box .login-linkedin,
-.login-page .login-page__box .login-linkedin:hover,
-.login-page .login-page__box .login-linkedin:active {
-  background-color: #0074b2;
-}
-.login-page .login-page__box .login-github,
-.login-page .login-page__box .login-github:hover,
-.login-page .login-page__box .login-github:active {
-  background-color: #444444;
-}
-.login-page .login-page__box .mui-btn + .mui-btn {
-  margin-left: 0;
-}
-.login-page .login-page__box a.loginbutton.hidden,
-.login-page .login-page__box .js a.loginbutton.jshidden,
-.login-page .login-page__box .no-js a.loginbutton.no-jshidden {
-  display: none;
-  visibility: hidden;
-}
 .login-page .login-page__box .login-page__box__heading {
   margin: 0 0 16px;
 }
@@ -3505,6 +3466,60 @@ body > .proposal-box.ui-draggable {
     margin: 0 auto 40px;
   }
 }
+.login,
+.login:hover,
+.login:active {
+  color: #ffffff;
+  font-size: 16px;
+  text-transform: capitalize;
+}
+
+.login {
+  margin: 0;
+  margin-right: 8px;
+  margin-bottom: 16px;
+}
+
+.login--smaller {
+  margin-bottom: 8px;
+}
+
+.login-twitter,
+.login-twitter:hover,
+.login-twitter:active {
+  background-color: #08a0e9;
+}
+
+.login-google,
+.login-google:hover,
+.login-google:active {
+  color: #757575;
+  background-color: #ffffff;
+}
+
+.login-linkedin,
+.login-linkedin:hover,
+.login-linkedin:active {
+  background-color: #0074b2;
+}
+
+.login-github,
+.login-github:hover,
+.login-github:active {
+  background-color: #444444;
+}
+
+.mui-btn + .mui-btn {
+  margin-left: 0;
+}
+
+a.loginbutton.hidden,
+.js a.loginbutton.jshidden,
+.no-js a.loginbutton.no-jshidden {
+  display: none;
+  visibility: hidden;
+}
+
 .mui-list--border li {
   border-bottom: 1px solid rgba(132, 146, 166, 0.2);
   padding: 5px;
