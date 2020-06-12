@@ -1,4 +1,4 @@
-from coaster.utils import md5sum
+from funnel.models.email_address import email_blake2b160_hash
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -10,15 +10,8 @@ class TestUserEmail(TestDatabaseFixture):
         Test for verifying creation of UserEmail object
         """
         oakley = self.fixtures.oakley
-        email_domain = 'batdog.ca'
-        oakley_new_email = models.user.UserEmail(
-            email='oakley@' + email_domain, user=oakley
-        )
+        oakley_new_email = models.user.UserEmail(user=oakley, email='oakley@batdog.ca')
         self.assertIsInstance(oakley_new_email, models.user.UserEmail)
-        self.assertTrue(hasattr(oakley_new_email, '_email'))
-        self.assertTrue(hasattr(oakley_new_email, 'md5sum'))
-        self.assertTrue(hasattr(oakley_new_email, 'domain'))
-        self.assertEqual(oakley_new_email.domain, email_domain)
 
     def test_useremail_get(self):
         """
@@ -26,8 +19,8 @@ class TestUserEmail(TestDatabaseFixture):
         """
         crusoe = self.fixtures.crusoe
         email = crusoe.email.email
-        email_md5 = md5sum(email)
-        # scenario 1: when both email and md5sum are not passed
+        blake2b160 = email_blake2b160_hash(email)
+        # scenario 1: when no parameters are passed
         with self.assertRaises(TypeError):
             models.UserEmail.get()
 
@@ -36,20 +29,17 @@ class TestUserEmail(TestDatabaseFixture):
         self.assertIsInstance(get_by_email, models.UserEmail)
         self.assertEqual(get_by_email.user, crusoe)
 
-        # scenario 3: when md5sum is passed
-        get_by_md5sum = models.UserEmail.get(md5sum=email_md5)
-        self.assertIsInstance(get_by_md5sum, models.UserEmail)
-        self.assertEqual(get_by_md5sum.user, crusoe)
+        # scenario 3: when blake2b160 is passed
+        get_by_hash = models.UserEmail.get(blake2b160=blake2b160)
+        self.assertIsInstance(get_by_hash, models.UserEmail)
+        self.assertEqual(get_by_hash.user, crusoe)
 
-    def test_useremail_unicode(self):
+    def test_useremail_str(self):
         """
         Test for verifying email is returned in unicode format
         """
         crusoe = self.fixtures.crusoe
-        email = crusoe.email.email
-        result = str(models.UserEmail(email=email))
-        self.assertIsInstance(result, str)
-        assert email in result
+        assert crusoe.email.email == str(crusoe.email)
 
     def test_useremail_email(self):
         """
@@ -57,7 +47,7 @@ class TestUserEmail(TestDatabaseFixture):
         """
         oakley = self.fixtures.oakley
         email = 'oakley@batdogs.ca'
-        oakley_new_email = models.UserEmail(email=email, user=oakley)
+        oakley_new_email = models.UserEmail(user=oakley, email=email)
         result = oakley_new_email.email
         self.assertIsInstance(result, str)
         self.assertEqual(email, result)
