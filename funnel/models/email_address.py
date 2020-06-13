@@ -147,6 +147,9 @@ class EmailAddress(BaseMixin, db.Model):
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
     email = db.Column(db.Unicode, nullable=True)
+    #: The domain of the email, stored for quick lookup of related addresses
+    #: Read-only, accessible via the :property:`domain` property
+    _domain = db.Column('domain', db.Unicode, nullable=True, index=True)
 
     # email_lower is defined below
 
@@ -188,12 +191,25 @@ class EmailAddress(BaseMixin, db.Model):
     _is_blocked = db.Column('is_blocked', db.Boolean, nullable=False, default=False)
 
     __table_args__ = (
+        # If ``is_blocked == True``, email and domain must be None
         db.CheckConstraint(
             db.or_(
                 _is_blocked.isnot(True),
-                db.and_(_is_blocked.is_(True), email.is_(None),),
+                db.and_(_is_blocked.is_(True), email.is_(None), _domain.is_(None)),
             ),
             'email_address_email_is_blocked_check',
+        ),
+        # email and domain must both be None, or confirm ``email.endswith(domain)``.
+        # _ and % must be escaped as they are wildcards to the LIKE/ILIKE operator
+        db.CheckConstraint(
+            db.or_(
+                db.and_(email.is_(None), _domain.is_(None)),
+                email.ilike(
+                    '%'
+                    + db.func.replace(db.func.replace(_domain, '_', r'\_'), '%', r'\%')
+                ),
+            ),
+            'email_address_email_domain_check',
         ),
     )
 
@@ -206,7 +222,7 @@ class EmailAddress(BaseMixin, db.Model):
         """
         return self._is_blocked
 
-    @property
+    @hybrid_property
     def domain(self) -> Optional[str]:
         """The domain of the email, stored for quick lookup of related addresses."""
         return self._domain
@@ -445,8 +461,13 @@ class EmailAddress(BaseMixin, db.Model):
 
     @staticmethod
     def is_valid_email_address(email: str) -> bool:
-        """Return True if given email address is syntactically valid."""
-        return is_email(email, check_dns=False, diagnose=False)
+        """
+        Return True if given email address is syntactically valid.
+
+        This implementation will refuse to accept unusual elements such as quoted
+        strings, as they are unlikely to appear in real-world use.
+         """
+        return is_email(email, check_dns=False, diagnose=True).diagnosis_type == 'VALID'
 
 
 class EmailAddressMixin:
@@ -553,12 +574,15 @@ def _validate_email(target, value, old_value, initiator):
     if value and not EmailAddress.is_valid_email_address(value):
         raise ValueError("Value is not an email address")
 
-    # All clear? Now update the hash as well
+    # All clear? Now check against the hash
     if value is not None:
         hashed = email_blake2b160_hash(value.lower())
         if hashed != target.blake2b160:
             raise ValueError("Email address does not match existing blake2b160 hash")
-    # We don't have to set target.email because SQLAlchemy will do that for us
+        target._domain = value.lower().split('@', 1)[1]
+    else:
+        target._domain = None
+    # We don't have to set target.email because SQLAlchemy will do that for us.
 
 
 def _send_refcount_event_remove(target, value, initiator):

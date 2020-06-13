@@ -84,6 +84,7 @@ def test_email_address_init():
     ea1 = EmailAddress('example@example.com')
     assert ea1.email == 'example@example.com'
     assert ea1.email_lower == 'example@example.com'
+    assert ea1.domain == 'example.com'
     assert ea1.blake2b160 == hash_map['example@example.com']
     assert ea1.email_canonical == 'example@example.com'
     assert ea1.blake2b160_canonical == hash_map['example@example.com']
@@ -93,19 +94,21 @@ def test_email_address_init():
     assert ea1.email_hash == '2EGz72jxcsYjvXxF7r5rqfAgikor'
 
     # Case is preserved but disregarded for hashes
-    ea2 = EmailAddress('Example@example.com')
-    assert ea2.email == 'Example@example.com'
+    ea2 = EmailAddress('Example@Example.com')
+    assert ea2.email == 'Example@Example.com'
     assert ea2.email_lower == 'example@example.com'
+    assert ea2.domain == 'example.com'
     assert ea2.blake2b160 == hash_map['example@example.com']
     assert ea1.email_canonical == 'example@example.com'
     assert ea2.blake2b160_canonical == hash_map['example@example.com']
-    assert str(ea2) == 'Example@example.com'
-    assert repr(ea2) == "EmailAddress('Example@example.com')"
+    assert str(ea2) == 'Example@Example.com'
+    assert repr(ea2) == "EmailAddress('Example@Example.com')"
 
     # Canonical representation's hash can be distinct from regular hash
     ea3 = EmailAddress('Example+Extra@example.com')
     assert ea3.email == 'Example+Extra@example.com'
     assert ea3.email_lower == 'example+extra@example.com'
+    assert ea3.domain == 'example.com'
     assert ea3.blake2b160 == hash_map['example+extra@example.com']
     assert ea1.email_canonical == 'example@example.com'
     assert ea3.blake2b160_canonical == hash_map['example@example.com']
@@ -130,26 +133,31 @@ def test_email_address_mutability():
     """EmailAddress can be mutated to change casing or delete the address only"""
     ea = EmailAddress('example@example.com')
     assert ea.email == 'example@example.com'
+    assert ea.domain == 'example.com'
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # Case changes allowed, hash remains the same
     ea.email = 'Example@Example.com'
     assert ea.email == 'Example@Example.com'
+    assert ea.domain == 'example.com'
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # Setting it to existing value is allowed
     ea.email = 'Example@Example.com'
     assert ea.email == 'Example@Example.com'
+    assert ea.domain == 'example.com'
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # Nulling allowed, hash remains intact
     ea.email = None
     assert ea.email is None
+    assert ea.domain is None
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # Restoring allowed (case insensitive)
     ea.email = 'exAmple@exAmple.com'
     assert ea.email == 'exAmple@exAmple.com'
+    assert ea.domain == 'example.com'
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # But changing to another email address is not allowed
@@ -160,6 +168,10 @@ def test_email_address_mutability():
     ea.email = None
     with pytest.raises(ValueError):
         ea.email = 'other@example.com'
+
+    # Changing the domain is also not allowed
+    with pytest.raises(AttributeError):
+        ea.domain = 'gmail.com'
 
 
 def test_email_address_md5():

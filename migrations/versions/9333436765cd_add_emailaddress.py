@@ -23,11 +23,17 @@ def upgrade():
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('email', sa.Unicode(), nullable=True),
+        sa.Column('domain', sa.Unicode(), nullable=True),
         sa.Column('blake2b160', sa.LargeBinary(), nullable=False),
         sa.Column('blake2b160_canonical', sa.LargeBinary(), nullable=False),
         sa.Column('delivery_state', sa.Integer(), nullable=False),
         sa.Column('delivery_state_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('is_blocked', sa.Boolean(), nullable=False),
+        sa.CheckConstraint(
+            "email IS NULL AND domain IS NULL OR email ILIKE '%%' ||"
+            " replace(replace(domain, '_', '\\_'), '%%', '\\%%')",
+            name='email_address_email_domain_check',
+        ),
         sa.CheckConstraint(
             'is_blocked IS NOT true OR is_blocked IS true AND email IS NULL',
             name='email_address_email_is_blocked_check',
@@ -41,9 +47,13 @@ def upgrade():
         ['blake2b160_canonical'],
         unique=False,
     )
+    op.create_index(
+        op.f('ix_email_address_domain'), 'email_address', ['domain'], unique=False
+    )
 
 
 def downgrade():
+    op.drop_index(op.f('ix_email_address_domain'), table_name='email_address')
     op.drop_index(
         op.f('ix_email_address_blake2b160_canonical'), table_name='email_address'
     )
