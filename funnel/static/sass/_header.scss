@@ -15,6 +15,7 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
+          height: 50px;
 
           .header__site-title__logo {
             height: 35px;
@@ -22,13 +23,13 @@
 
           .search-form {
             position: fixed;
-            bottom: 62px;
+            bottom: 50px;
             width: 100%;
             left: 0;
             box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
               0 1px 2px rgba(158, 158, 158, 0.24);
             display: none;
-            height: 35px;
+            height: 50px;
 
             .search-form__field {
               background-color: #eff2f6;
@@ -127,6 +128,7 @@
               display: flex;
               width: 300px;
               box-shadow: none;
+              height: 35px;
 
               .search-form__field {
                 border-radius: 16px;
@@ -193,10 +195,19 @@
             .header__nav-links .header__nav-links__icon {
               vertical-align: text-top;
             }
+            .header__nav-links .header__nav-links__text {
+              font-size: 14px;
+              position: relative;
+              top: 5px;
+            }
 
             .search-form {
               bottom: 35px;
             }
+          }
+          a.header__button {
+            height: 24px;
+            line-height: 24px;
           }
         }
       }
@@ -216,6 +227,7 @@
             }
 
             .search-form {
+              height: 26px;
               .search-form__field {
                 padding: 5px 10px 5px $mui-grid-padding-double;
                 font-size: 14px;
@@ -225,6 +237,10 @@
                 left: 8px;
               }
             }
+          }
+          a.header__button {
+            height: 24px;
+            line-height: 24px;
           }
         }
       }

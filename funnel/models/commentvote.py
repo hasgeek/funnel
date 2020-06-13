@@ -280,6 +280,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         Mark this comment as spam.
         """
 
+    @state.transition(state.SPAM, state.PUBLIC)
+    def mark_not_spam(self):
+        """
+        Mark this comment as not a spam.
+        """
+
     def sorted_children(self):
         return sorted(self.children, key=lambda child: child.voteset.count)
 

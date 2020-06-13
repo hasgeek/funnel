@@ -208,18 +208,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             else_='',
         )
 
-    # TODO: Remove this form helper and make views for explicitly toggling visibility
-    @property
-    def is_public_profile(self):
-        return bool(self.state.PUBLIC)
-
-    @is_public_profile.setter
-    def is_public_profile(self, value):
-        if not value and self.state.PUBLIC:
-            self.make_private()
-        elif value and not self.state.PUBLIC:
-            self.make_public()
-
     def roles_for(self, actor, anchors=()):
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)
