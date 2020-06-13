@@ -269,7 +269,7 @@ class EmailAddress(BaseMixin, db.Model):
 
     def __str__(self) -> str:
         """Cast email address into a string."""
-        return str(self.email or '')
+        return self.email or ''
 
     def __repr__(self) -> str:
         """Debugging representation of the email address."""
