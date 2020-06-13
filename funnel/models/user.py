@@ -275,6 +275,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if primary:
             self.primary_email = useremail
         return useremail
+        # FIXME: This should remove competing instances of UserEmailClaim
 
     def del_email(self, email):
         useremail = UserEmail.get_for(user=self, email=email)

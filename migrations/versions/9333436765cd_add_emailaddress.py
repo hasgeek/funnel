@@ -1,7 +1,7 @@
 """Add EmailAddress
 
 Revision ID: 9333436765cd
-Revises: 047ebdac558b
+Revises: 79719ee38228
 Create Date: 2020-06-11 07:31:23.089071
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '9333436765cd'
-down_revision = '047ebdac558b'
+down_revision = '79719ee38228'
 branch_labels = None
 depends_on = None
 
