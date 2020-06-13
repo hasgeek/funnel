@@ -310,13 +310,13 @@ def test_email_address_delivery_state(clean_db):
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
     # Sent email is soft bouncing (typically mailbox full)
-    ea.mark_soft_bounce()
-    assert ea.delivery_state.SOFT_BOUNCE
+    ea.mark_soft_fail()
+    assert ea.delivery_state.SOFT_FAIL
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
     # Sent email is hard bouncing (typically mailbox invalid)
-    ea.mark_hard_bounce()
-    assert ea.delivery_state.HARD_BOUNCE
+    ea.mark_hard_fail()
+    assert ea.delivery_state.HARD_FAIL
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
 
@@ -557,15 +557,15 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
-    ea.mark_soft_bounce()
-    assert ea.delivery_state.SOFT_BOUNCE
-    assert EmailAddress.validate_for(user1, 'example@example.com') == 'soft_bounce'
+    ea.mark_soft_fail()
+    assert ea.delivery_state.SOFT_FAIL
+    assert EmailAddress.validate_for(user1, 'example@example.com') == 'soft_fail'
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
-    ea.mark_hard_bounce()
-    assert ea.delivery_state.HARD_BOUNCE
-    assert EmailAddress.validate_for(user1, 'example@example.com') == 'hard_bounce'
+    ea.mark_hard_fail()
+    assert ea.delivery_state.HARD_FAIL
+    assert EmailAddress.validate_for(user1, 'example@example.com') == 'hard_fail'
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
 

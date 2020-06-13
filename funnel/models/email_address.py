@@ -48,15 +48,15 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
     The 'active' state is not a record of the activity of a recipient, as that requires
     tracking per email message sent and not per email address.
 
-    The bounce states require supporting infrastructure to record bounce reports from
+    The fail states require supporting infrastructure to record bounce reports from
     the email server. Active state requires incoming link handlers to report activity.
     """
 
     UNKNOWN = (0, 'unknown')  # Never mailed
     NORMAL = (1, 'normal')  # Mail sent, nothing further known
     ACTIVE = (2, 'active')  # Recipient is interacting with received messages
-    SOFT_BOUNCE = (3, 'soft_bounce')  # Soft bounce reported
-    HARD_BOUNCE = (4, 'hard_bounce')  # Hard bounce reported
+    SOFT_FAIL = (3, 'soft_fail')  # Soft fail reported
+    HARD_FAIL = (4, 'hard_fail')  # Hard fail reported
 
 
 def canonical_email_representation(email: str) -> List[str]:
@@ -198,13 +198,18 @@ class EmailAddress(BaseMixin, db.Model):
     )
 
     @hybrid_property
-    def is_blocked(self):
+    def is_blocked(self) -> bool:
         """"
         Read-only flag indicating this email address is blocked from use. To set this
         flag, call :classmethod:`mark_blocked` using the email address. The flag will be
         simultaneously set on all matching instances.
         """
         return self._is_blocked
+
+    @property
+    def domain(self) -> Optional[str]:
+        """The domain of the email, stored for quick lookup of related addresses."""
+        return self._domain
 
     # This should not use `cached_property` as email is partially mutable
     @property
@@ -282,14 +287,14 @@ class EmailAddress(BaseMixin, db.Model):
         """Record fact of recipient activity."""
         self.delivery_state_at = db.func.utcnow()
 
-    @delivery_state.transition(None, delivery_state.SOFT_BOUNCE)
-    def mark_soft_bounce(self) -> None:
-        """Record fact of a soft bounce to this email address."""
+    @delivery_state.transition(None, delivery_state.SOFT_FAIL)
+    def mark_soft_fail(self) -> None:
+        """Record fact of a soft fail to this email address."""
         self.delivery_state_at = db.func.utcnow()
 
-    @delivery_state.transition(None, delivery_state.HARD_BOUNCE)
-    def mark_hard_bounce(self) -> None:
-        """Record fact of a soft bounce to this email address."""
+    @delivery_state.transition(None, delivery_state.HARD_FAIL)
+    def mark_hard_fail(self) -> None:
+        """Record fact of a hard fail to this email address."""
         self.delivery_state_at = db.func.utcnow()
 
     def refcount(self) -> int:
@@ -419,8 +424,8 @@ class EmailAddress(BaseMixin, db.Model):
         Returns False if the address is blocked or in use by another user, True if
         available without issues, or a string value indicating the concern:
 
-        1. 'soft_bounce': Known to be soft bouncing, requiring a warning message
-        2. 'hard_bounce': Known to be hard bouncing, usually a validation failure
+        1. 'soft_fail': Known to be soft bouncing, requiring a warning message
+        2. 'hard_fail': Known to be hard bouncing, usually a validation failure
         """
         try:
             existing = cls._get_existing(email)
@@ -432,10 +437,10 @@ class EmailAddress(BaseMixin, db.Model):
         # There's an existing? Is it available for this actor?
         if not existing.is_available_for(actor):
             return False
-        if existing.delivery_state.SOFT_BOUNCE:
-            return 'soft_bounce'
-        elif existing.delivery_state.HARD_BOUNCE:
-            return 'hard_bounce'
+        if existing.delivery_state.SOFT_FAIL:
+            return 'soft_fail'
+        elif existing.delivery_state.HARD_FAIL:
+            return 'hard_fail'
         return True
 
     @staticmethod
