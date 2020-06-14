@@ -13,7 +13,6 @@ from flask import (
     session,
     url_for,
 )
-from flask_mail import Message
 from werkzeug.urls import url_quote
 import itsdangerous
 
@@ -23,12 +22,18 @@ from pytz import utc
 
 from baseframe import _, cache, statsd
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
-from coaster.gfm import markdown
 from coaster.utils import utcnow
 from coaster.views import get_current_url
 
-from .. import app, funnelapp, lastuserapp, mail
-from ..models import AuthClientCredential, User, UserSession, db
+from .. import app, funnelapp, lastuserapp
+from ..jobs import forget_email
+from ..models import (
+    AuthClientCredential,
+    User,
+    UserSession,
+    db,
+    emailaddress_refcount_dropping,
+)
 from ..signals import user_login, user_registered
 from ..utils import abort_null
 
@@ -190,13 +195,6 @@ def localize_date(date, from_tz=utc, to_tz=utc):
 @funnelapp.template_filter('url_join')
 def url_join(base, url=''):
     return urljoin(base, url)
-
-
-def send_mail(sender, to, body, subject):
-    msg = Message(sender=sender, subject=subject, recipients=[to])
-    msg.body = body
-    msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
-    mail.send(msg)
 
 
 def mask_email(email):
@@ -581,3 +579,31 @@ def validate_rate_limit(
         token,
     )
     cache.set(cache_key, (count, token), timeout=timeout)
+
+
+# If an email address had a reference count drop during the request, make a note of
+# its email_hash, and at the end of the request, queue a background job. The job will
+# call .refcount() and if it still has zero references, it will be marked as forgotten
+# by having the email column set to None.
+
+# It is possible for an email address to have its refcount drop and rise again within
+# the request, so it's imperative to wait until the end of the request before attempting
+# to forget it. Ideally, this job should wait even longer, for several minutes or even
+# up to a day.
+
+
+@emailaddress_refcount_dropping.connect
+def forget_email_in_request_teardown(sender):
+    if not hasattr(g, 'forget_email_hashes'):
+        g.forget_email_hashes = set()
+    g.forget_email_hashes.add(sender.email_hash)
+
+
+@app.after_request
+@funnelapp.after_request
+@lastuserapp.after_request
+def forget_email_in_background_job(response):
+    if hasattr(g, 'forget_email_hashes'):
+        for email_hash in g.forget_email_hashes:
+            forget_email.queue(email_hash)
+    return response

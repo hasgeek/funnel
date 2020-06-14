@@ -4,7 +4,6 @@ from typing import Any, Iterable, List, Optional, Union
 import hashlib
 
 from sqlalchemy import event, inspect
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import mapper
@@ -507,32 +506,40 @@ class EmailAddressMixin:
 
     @declared_attr
     def email(cls):
+        def email_get(self):
+            """
+            Shorthand for ``self.email_address.email``.
+
+            Setting a value does the equivalent of one of these, depending on whether
+            the object requires the email address to be available to its owner::
+
+                self.email_address = EmailAddress.add(email)
+                self.email_address = EmailAddress.add_for(user, email)
+
+            Where the user is found from the attribute named in `cls.__email_for__`.
+            """
+            if self.email_address:
+                return self.email_address.email
+
         if cls.__email_for__:
 
-            def email_get(self):
-                """
-                Shorthand for ``self.email_address.email``.
+            def email_set(self, value):
+                if value is not None:
+                    self.email_address = EmailAddress.add_for(
+                        getattr(self, cls.__email_for__), value
+                    )
+                else:
+                    self.email_address = None
 
-                Setting a value does the equivalent of::
-
-                    self.email_address = EmailAddress.add_for(user, email)
-
-                Where the user is found from the attribute named in `cls.__email_for__`.
-                """
-                if self.email_address:
-                    return self.email_address.email
+        else:
 
             def email_set(self, value):
-                self.email_address = EmailAddress.add_for(
-                    getattr(self, cls.__email_for__), value
-                )
+                if value is not None:
+                    self.email_address = EmailAddress.add(value)
+                else:
+                    self.email_address = None
 
-            # Can't use association_proxy as creator function will not receive 'self'
-            return property(fget=email_get, fset=email_set)
-        else:
-            return association_proxy(
-                'email_address', 'email', creator=lambda email: EmailAddress.add(email)
-            )
+        return property(fget=email_get, fset=email_set)
 
 
 auto_init_default(EmailAddress._delivery_state)

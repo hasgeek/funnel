@@ -426,8 +426,8 @@ def confirm_email(email_hash, secret):
                 type=emailclaim.type,
                 private=emailclaim.private,
             )
-            db.session.delete(emailclaim)
-            UserEmailClaim.all(useremail.email).delete(synchronize_session=False)
+            for emailclaim in UserEmailClaim.all(useremail.email):
+                db.session.delete(emailclaim)
             db.session.commit()
             user_data_changed.send(current_auth.user, changes=['email'])
             return render_message(

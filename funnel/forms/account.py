@@ -226,7 +226,6 @@ class NewEmailAddressForm(forms.RecaptchaForm):
 
     # TODO: Move to function and place before ValidEmail()
     def validate_email(self, field):
-        field.data = field.data.lower()  # Convert to lowercase
         existing = UserEmail.get(email=field.data)
         if existing is not None:
             if existing.user == current_auth.user:

@@ -461,6 +461,16 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     assert ea1.refcount() == 3
     assert ea2.refcount() == 1
 
+    # Setting the email property on EmailDocument will mutate
+    # EmailDocument.email_address and not EmailDocument.email_address.email
+    assert ea1.email == 'example@example.com'
+    doc1.email = None
+    assert ea1.email == 'example@example.com'
+    assert doc1.email_address is None
+    doc2.email = 'other@example.com'
+    assert ea1.email == 'example@example.com'
+    assert doc2.email_address == ea2
+
     # EmailLinkedDocument takes the complexity up a notch
 
     # A document linked to a user can use any email linked to that user

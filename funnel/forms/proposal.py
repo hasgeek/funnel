@@ -205,11 +205,7 @@ class ProposalForm(forms.Form):
     )
     email = forms.EmailField(
         __("Your email address"),
-        validators=[
-            forms.validators.DataRequired(),
-            forms.validators.Length(max=80),
-            forms.validators.ValidEmail(),
-        ],
+        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
         description=__(
             "An email address we can contact you at. " "Not displayed anywhere"
         ),

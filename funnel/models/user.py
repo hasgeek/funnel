@@ -13,7 +13,7 @@ from passlib.hash import argon2, bcrypt
 import base58
 import phonenumbers
 
-from baseframe import __
+from baseframe import __, statsd
 from coaster.sqlalchemy import (
     add_primary_relationship,
     auto_init_default,
@@ -274,6 +274,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         )
         if primary:
             self.primary_email = useremail
+        statsd.incr('email_address.added')
         return useremail
         # FIXME: This should remove competing instances of UserEmailClaim
 
@@ -287,6 +288,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 .order_by(UserEmail.created_at.desc())
                 .first()
             )
+        statsd.incr('email_address.removed')
         db.session.delete(useremail)
 
     @with_roles(read={'owner'})
@@ -929,7 +931,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
                 db.session.delete(claim)
 
     @classmethod
-    def get_for(cls, user, email=None, blake2b160=None, blake2b=None):
+    def get_for(cls, user, email=None, blake2b160=None, blake2b=None, email_hash=None):
         """
         Return a UserEmailClaim with matching email address for the given user.
 
@@ -937,15 +939,20 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         :param str email: Email address to look up
         :param bytes blake2b160: 160-bit blake2b of email address to look up
         :param bytes blake2b: 128-bit blake2b of email address to look up (deprecated)
+        :param str email_hash: Base58 rendering of 160-bit blake2b hash
         """
-        require_one_of(email=email, blake2b160=blake2b160, blake2b=blake2b)
+        require_one_of(
+            email=email, blake2b160=blake2b160, email_hash=email_hash, blake2b=blake2b
+        )
         if blake2b:
             return cls.query.filter_by(blake2b=blake2b, user=user).one_or_none()
         return (
             cls.query.join(EmailAddress)
             .filter(
                 cls.user == user,
-                EmailAddress.get_filter(email=email, blake2b160=blake2b160),
+                EmailAddress.get_filter(
+                    email=email, blake2b160=blake2b160, email_hash=email_hash
+                ),
             )
             .one_or_none()
         )
