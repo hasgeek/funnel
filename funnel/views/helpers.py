@@ -594,9 +594,10 @@ def validate_rate_limit(
 
 @emailaddress_refcount_dropping.connect
 def forget_email_in_request_teardown(sender):
-    if not hasattr(g, 'forget_email_hashes'):
-        g.forget_email_hashes = set()
-    g.forget_email_hashes.add(sender.email_hash)
+    if g:  # Only do this if we have an app context
+        if not hasattr(g, 'forget_email_hashes'):
+            g.forget_email_hashes = set()
+        g.forget_email_hashes.add(sender.email_hash)
 
 
 @app.after_request

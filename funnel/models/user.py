@@ -13,7 +13,7 @@ from passlib.hash import argon2, bcrypt
 import base58
 import phonenumbers
 
-from baseframe import __, statsd
+from baseframe import __
 from coaster.sqlalchemy import (
     add_primary_relationship,
     auto_init_default,
@@ -274,7 +274,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         )
         if primary:
             self.primary_email = useremail
-        statsd.incr('email_address.added')
         return useremail
         # FIXME: This should remove competing instances of UserEmailClaim
 
@@ -288,7 +287,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 .order_by(UserEmail.created_at.desc())
                 .first()
             )
-        statsd.incr('email_address.removed')
         db.session.delete(useremail)
 
     @with_roles(read={'owner'})
