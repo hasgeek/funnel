@@ -51,7 +51,7 @@
               {% if current_auth %}
                 <a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Reply]</a>
                 {% if current_auth.user %}
-                <a aria-label="{% trans %}Report Spam{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-report" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Report Spam]</a>
+                <a aria-label="{% trans %}Report Spam{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-report" href="#c{{ comment.uuid_b58 }}" data-cy="report-spam">[Report Spam]</a>
                 {% endif %}
               {% endif %}
               {% if comment.current_roles.author %}
