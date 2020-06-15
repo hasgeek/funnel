@@ -3,8 +3,6 @@ describe('Verify roles of editor', function() {
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Access available for editor in project settings', function () {
-    // Failing now - project in draft state is not visible to editor
   it('Access available for editor in project settings', function() {
     cy.login('/' + profile.title, editor.username, editor.password);
     cy.get('[data-cy-title="' + project.title + '"]')
