@@ -14,7 +14,7 @@ describe('Adding crew', function() {
 
   it('Add crew to project', function() {
     cy.login('/' + profile.title, admin.username, admin.password);
-    cy.get('[data-cy-project="' + project.title + '"]')
+    cy.get('[data-cy-title="' + project.title + '"]')
       .first()
       .click();
     cy.location('pathname').should('contain', project.url);

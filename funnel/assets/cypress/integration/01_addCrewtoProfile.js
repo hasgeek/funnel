@@ -14,11 +14,13 @@ describe('Adding crew to profile', function() {
     cy.route('POST', '**/edit').as('edit-member');
     cy.route('GET', '**/delete').as('delete-form');
     cy.route('POST', '**/delete').as('delete-member');
+    cy.route('**/new').as('member-form');
+    cy.route('POST', '**/new').as('add-member');
 
     cy.login('/' + profile.title, owner.username, owner.password);
     cy.get('a[data-cy-btn="profile-crew"]').click();
 
-    cy.add_member(admin.username, 'owner');
+    cy.add_profile_member(admin.username, 'is_owner-1', 'owner');
 
     cy.get('[data-cy="member"]')
       .contains(admin.username)
@@ -34,7 +36,7 @@ describe('Adding crew to profile', function() {
       .contains(admin.username)
       .should('not.exist');
 
-    cy.add_member(admin.username, 'owner');
+    cy.add_profile_member(admin.username, 'is_owner-1', 'owner');
     cy.get('[data-cy="member"]')
       .contains(admin.username)
       .click();
