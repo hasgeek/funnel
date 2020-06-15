@@ -96,7 +96,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     return (
                         {
                             'status': 'error',
-                            'error_description': _("Member already exists in the profile"),
+                            'error_description': _('This person is already a member'),
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
                         },
@@ -196,7 +196,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 if previous_membership.user == current_auth.user:
                     return {
                         'status': 'error',
-                        'error_description': _("You can't edit your own role"),
+                        'error_description': _("You can‘t edit your own role"),
                         'form_nonce': membership_form.form_nonce.data,
                     }
 
@@ -206,7 +206,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
                 return {
                     'status': 'ok',
-                    'message': _("The member's roles have been updated"),
+                    'message': _("The member‘s roles have been updated"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
@@ -218,7 +218,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 return (
                     {
                         'status': 'error',
-                        'error_description': _("At lease one role must be chosen"),
+                        'error_description': _("Please pick one or more roles"),
                         'errors': membership_form.errors,
                         'form_nonce': membership_form.form_nonce.data,
                     },
@@ -246,7 +246,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 if previous_membership.user == current_auth.user:
                     return {
                         'status': 'error',
-                        'error_description': _("You can't revoke your own membership"),
+                        'error_description': _("You can‘t revoke your own membership"),
                         'form_nonce': form.form_nonce.data,
                     }
                 if previous_membership.is_active:
@@ -359,7 +359,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                     return (
                         {
                             'status': 'error',
-                            'error_description': _("Member already exists in the project"),
+                            'error_description': _("This person is already a member"),
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
                         },
@@ -540,7 +540,7 @@ class ProjectCrewMembershipView(
                 return (
                     {
                         'status': 'error',
-                        'error_description': _("At lease one role must be chosen"),
+                        'error_description': _("Please pick one or more roles"),
                         'errors': membership_form.errors,
                         'form_nonce': membership_form.form_nonce.data,
                     },
