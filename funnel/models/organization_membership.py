@@ -162,6 +162,6 @@ User.organizations_as_owner = DynamicAssociationProxy(
     'active_organization_owner_memberships', 'organization'
 )
 
-User.organizations_as_owner = DynamicAssociationProxy(
+User.organizations_as_admin = DynamicAssociationProxy(
     'active_organization_admin_memberships', 'organization'
 )
