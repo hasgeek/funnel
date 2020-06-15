@@ -213,7 +213,7 @@
   {% endif %}
 
   {%- if profile %}
-    {%- if profile.current_roles.admin or profile.current_roles.editor or profile.current_roles.concierge %}
+    {%- if profile.current_roles.admin or profile.current_roles.owner %}
       <div class="projects-wrapper">
         <div class="mui-container">
           <div class="grid">
