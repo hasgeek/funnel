@@ -239,6 +239,22 @@ class CommentView(UrlForView, ModelView):
         flash(message, 'info')
         return redirect(self.obj.url_for(), code=303)
 
+    @route('report_spam', methods=['POST'])
+    @requires_login
+    def report_spam(self):
+        csrf_form = forms.Form()
+        if csrf_form.validate_on_submit():
+            self.obj.report_spam(actor=current_auth.user)
+            flash(
+                _("The comment has been reported as spam"), 'info',
+            )
+        else:
+            flash(
+                _("There was an issue reporting this comment. Please try again"),
+                'error',
+            )
+        return redirect(self.obj.commentset.views.url(), code=303)
+
 
 @route('/comments/<commentset>/<comment>', subdomain='<profile>')
 class FunnelCommentView(CommentView):

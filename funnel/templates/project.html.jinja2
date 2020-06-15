@@ -73,7 +73,7 @@
         {% if project.features.tickets() -%}
           <div id="tickets">
             <h2 class="mui--text-headline mui--text-left project-section__headline">Tickets</h2>
-            <div id="boxoffice-widget"><p class="mui--text-body1">Loading...</p></div>
+            <div id="boxoffice-widget"><p class="mui--text-body2">Loading...</p></div>
           </div>
         {%- endif %}
       </div>
@@ -82,7 +82,7 @@
       <h2 class="mui--text-headline mui--text-left project-section__headline">
         {% trans %}About{% endtrans %}
         {% if project.view_for('edit').is_available() %}
-          <a class="mui--text-body1" href="{{ project.url_for('edit') }}" aria-label="edit project details">{% trans %}Edit details{% endtrans %} {{ faicon(icon='edit') }}</a>
+          <a class="mui--text-body2" href="{{ project.url_for('edit') }}" aria-label="edit project details">{% trans %}Edit details{% endtrans %} {{ faicon(icon='edit') }}</a>
         {% endif %}
       </h2>
       <div class="about__details__description">{{ project.description }}</div>
@@ -154,7 +154,7 @@
                         {% else %}
                           <div class="card__body">
                         {% endif %}
-                          <div class="mui--text-body1 mui--text-light js-truncate" data-truncate-lines="2">{{ session.description|striptags }}</div>
+                          <div class="mui--text-body2 mui--text-light js-truncate" data-truncate-lines="2">{{ session.description|striptags }}</div>
                         {% if session.proposal %}</a>{% else %}</div>{% endif %}
                       {% endif %}
                     </div>
@@ -185,10 +185,10 @@
       <h2 class="mui--text-headline mui--text-left project-section__headline">
         {% trans %}Venue{% endtrans %}
         {% if project.view_for('venues').is_available() %}
-          <a class="mui--text-body1" href="{{ project.url_for('venues') }}" aria-label="update venue" data-action="update venue">{% trans %}Update venue{% endtrans %} {{ faicon(icon='edit') }}</a>
+          <a class="mui--text-body2" href="{{ project.url_for('venues') }}" aria-label="update venue" data-action="update venue">{% trans %}Update venue{% endtrans %} {{ faicon(icon='edit') }}</a>
         {% endif %}
       </h2>
-      <div class="mui--text-body1">
+      <div class="mui--text-body2">
         <p class="zero-bottom-margin">{{ project.primary_venue.title }}</p>
         <p class="zero-bottom-margin">{{ project.primary_venue.address1 }}</p>
         <p class="zero-bottom-margin">{{ project.primary_venue.address2 }}</p>

@@ -105,7 +105,7 @@
           {% if project.cfp_state.OPEN -%}
             <div>
               <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body1 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM, YYYY, hh:mm a') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM, YYYY, hh:mm a') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="mui-d--inlineblock">

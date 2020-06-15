@@ -112,11 +112,11 @@
                         <p class="schedule__row__column schedule__row__column--time" :style="{minWidth: timeSlotWidth + 'px'}" v-else-if="(view === 'calendar')"></p>
                       <div class="schedule__row__column" :id="(view === 'agenda') ? 't' + key : ''" :class="['schedule__row__column--' + rowWidth, room.talk ? 'schedule__row__column--talks' : '', room.talk ? roomkey : '', room.talk && activeTab == roomkey ? 'js-active': '']" @click="showSessionModal(room.talk)"  :style="(getColumnWidth('content') > 0) ? {width: 'calc(100% - ' + getColumnWidth('content') + 'px)'} : {width: '100%'}" v-for="(room, roomkey, roomindex) in session.rooms">
                         <div class="schedule__row__column__content" :class="[view === 'calendar' ? 'schedule__row__column__content--calendar schedule__row__column__content--overflow' : '']" :style="(view == 'calendar') ? {height: getColumnHeight(room.talk.duration, rowHeight) + 'px'} : ''" :id="room.talk.url_name_uuid_b58" v-if="room.talk">
-                          <p class="mui--text-body1 schedule__row__column__content__title__duration">{{ getTimeStr(room.talk.startTime) }}–{{ getTimeStr(room.talk.endTime) }}</p>
+                          <p class="mui--text-body2 schedule__row__column__content__title__duration">{{ getTimeStr(room.talk.startTime) }}–{{ getTimeStr(room.talk.endTime) }}</p>
                             <div class="schedule__row__column__content__title">
                               <p class="mui--text-subhead schedule__row__column__content__title__heading" v-if="room.talk.title">{{ room.talk.title }}</p>
                               <p class="mui--text-caption mui--text-light schedule__row__column__content__title__speaker" v-if="room.talk.speaker">{{ room.talk.speaker }}</p>
-                              <div class="schedule__row__column__content__description mui--text-body1" v-html="removeImg(room.talk.description.html)" v-if="view == 'calendar' && room.talk.description.html"></div>
+                              <div class="schedule__row__column__content__description mui--text-body2" v-html="removeImg(room.talk.description.html)" v-if="view == 'calendar' && room.talk.description.html"></div>
                             </div>
                         </div>
 

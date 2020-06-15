@@ -1,11 +1,11 @@
-describe('Verify roles of usher', function () {
+describe('Verify roles of usher', function() {
   const usher = require('../fixtures/user.json').usher;
   const project = require('../fixtures/project.json');
 
-  it('Access available for usher in project settings', function () {
+  it('Access available for usher in project settings', function() {
     cy.login('/', usher.username, usher.password);
 
-    cy.get('[data-cy-project="' + project.title + '"]')
+    cy.get('[data-cy-title="' + project.title + '"]')
       .first()
       .click();
     cy.location('pathname').should('contain', project.url);
