@@ -243,15 +243,16 @@ class CommentView(UrlForView, ModelView):
     @requires_login
     def report_spam(self):
         csrf_form = forms.Form()
-        if not (
-            current_auth.user.is_comment_moderator and csrf_form.validate_on_submit()
-        ):
-            abort(403)
-
-        self.obj.report_spam(actor=current_auth.user)
-        flash(
-            _("The comment has been reported as spam"), 'info',
-        )
+        if csrf_form.validate_on_submit():
+            self.obj.report_spam(actor=current_auth.user)
+            flash(
+                _("The comment has been reported as spam"), 'info',
+            )
+        else:
+            flash(
+                _("There was an issue reporting this comment. Please try again"),
+                'error',
+            )
         return redirect(self.obj.commentset.views.url(), code=303)
 
 
