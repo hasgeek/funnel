@@ -57,9 +57,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             .limit(1)
             .first()
         )
-        unscheduled_projects = projects.filter(
-            Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS
-        ).all()
         if featured_project in upcoming_projects:
             upcoming_projects.remove(featured_project)
         open_cfp_projects = (
@@ -72,8 +69,12 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         # Else, only show the drafts they have a crew role in
         if self.obj.current_roles.admin:
             draft_projects = self.obj.draft_projects
+            unscheduled_projects = self.obj.projects.filter(
+                Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS
+            ).all()
         else:
             draft_projects = self.obj.draft_projects_for(current_auth.user)
+            unscheduled_projects = self.obj.unscheduled_projects_for(current_auth.user)
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),

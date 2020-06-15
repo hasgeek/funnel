@@ -1,4 +1,4 @@
-describe('Adding crew', function () {
+describe('Adding crew', function() {
   const owner = require('../fixtures/user.json').owner;
   const admin = require('../fixtures/user.json').admin;
   const concierge = require('../fixtures/user.json').concierge;
@@ -12,16 +12,16 @@ describe('Adding crew', function () {
     return false;
   });
 
-  it('Add crew to project', function () {
+  it('Add crew to project', function() {
     cy.login('/' + profile.title, admin.username, admin.password);
-    cy.get('[data-cy-project="' + project.title + '"]')
+    cy.get('[data-cy-title="' + project.title + '"]')
       .first()
       .click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="crew"]').click();
     cy.get('[data-cy="member"]')
       .contains(admin.username)
-      .parents('.user-box')
+      .parents('.user__box')
       .find('[data-cy="role"]')
       .contains('Editor');
 
