@@ -1,18 +1,18 @@
-describe('View participant badge', function () {
+describe('View participant badge', function() {
   const usher = require('../fixtures/user.json').usher;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
-  it('View participant badge', function () {
+  it('View participant badge', function() {
     cy.server();
     cy.route('POST', '**/participants/checkin?*').as('checkin');
     cy.route('**/participants/json').as('participant-list');
 
     cy.login('/', usher.username, usher.password);
 
-    cy.get('[data-cy-project="' + project.title + '"]')
+    cy.get('[data-cy-title="' + project.title + '"]')
       .first()
       .click();
     cy.location('pathname').should('contain', project.url);

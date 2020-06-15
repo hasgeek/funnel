@@ -1,17 +1,17 @@
-describe('View and update print status of badge', function () {
+describe('View and update print status of badge', function() {
   const admin = require('../fixtures/user.json').admin;
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
-  it('View badges to be printed', function () {
+  it('View badges to be printed', function() {
     cy.server();
     cy.route('POST', '**/participants/checkin?*').as('checkin');
     cy.route('**/participants/json').as('participant-list');
 
     cy.login('/testcypressproject', admin.username, admin.password);
 
-    cy.get('[data-cy-project="' + project.title + '"]')
+    cy.get('[data-cy-title="' + project.title + '"]')
       .first()
       .click();
     cy.location('pathname').should('contain', project.url);

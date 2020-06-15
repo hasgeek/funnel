@@ -255,33 +255,53 @@ html.touch .collapsible__body--disable {
   font-size: 12px;
 }
 
-.user-box {
-  padding: 8px 8px 8px 50px;
-  position: relative;
-  word-break: break-word;
+.user {
+  .user__box {
+    padding: 8px 8px 8px 50px;
+    position: relative;
+    word-break: break-word;
 
-  .user-box__gravatar {
-    width: 40px;
-    height: 40px;
-    display: inline-block;
-    position: absolute;
-    left: 0;
-    top: 11px;
-    border-radius: 50%;
+    .user__box__gravatar {
+      width: 40px;
+      height: 40px;
+      display: inline-block;
+      position: absolute;
+      left: 0;
+      top: 11px;
+      border-radius: 50%;
+    }
+    .user__box__gravatar--initials {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #e05f25;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    .user__box__fullname {
+      margin: 0px 0 4px;
+    }
+    .user__box__userid {
+      margin: 0;
+    }
   }
-  .user-box__gravatar--initials {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #e05f25;
-    color: #fff;
-    text-transform: uppercase;
+}
+
+.user:nth-child(even) {
+  .user__box__gravatar--initials {
+    background: #e05f26;
   }
-  .user-box__fullname {
-    margin: 0px 0 4px;
+}
+
+.user:nth-child(odd) {
+  .user__box__gravatar--initials {
+    background: #82688d;
   }
-  .user-box__userid {
-    margin: 0;
+}
+
+.user:nth-child(4n) {
+  .user__box__gravatar--initials {
+    background: #dda32b;
   }
 }
 
