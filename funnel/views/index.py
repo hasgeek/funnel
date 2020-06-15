@@ -26,7 +26,7 @@ class IndexView(ClassView):
                 Project.state.PUBLISHED,
                 db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
             )
-            .order_by(Project.schedule_start_at.asc())
+            .order_by(Project.next_session_at.asc())
             .all()
         )
         upcoming_projects = all_projects[:3]
@@ -37,7 +37,7 @@ class IndexView(ClassView):
                 db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
                 Project.featured.is_(True),
             )
-            .order_by(Project.schedule_start_at.asc())
+            .order_by(Project.next_session_at.asc())
             .limit(1)
             .first()
         )
@@ -46,7 +46,7 @@ class IndexView(ClassView):
             upcoming_projects.append(all_projects.pop(0))
         open_cfp_projects = (
             projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
-            .order_by(Project.schedule_start_at.asc())
+            .order_by(Project.next_session_at.asc())
             .all()
         )
         past_projects = (

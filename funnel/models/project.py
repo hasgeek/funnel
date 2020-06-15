@@ -999,6 +999,24 @@ Profile.draft_projects_for = (
     else ()
 )
 
+Profile.unscheduled_projects_for = (
+    lambda self, user: (
+        membership.project
+        for membership in user.projects_as_crew_active_memberships.join(
+            Project, Profile
+        ).filter(
+            # Project is attached to this profile
+            Project.profile_id == self.id,
+            # Project is not a sub-project (TODO: Deprecated, remove this)
+            Project.parent_id.is_(None),
+            # Project is in draft state OR has a draft call for proposals
+            db.or_(Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS),
+        )
+    )
+    if user
+    else ()
+)
+
 
 class ProjectRedirect(TimestampMixin, db.Model):
     __tablename__ = 'project_redirect'
