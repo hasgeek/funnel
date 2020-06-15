@@ -12,7 +12,6 @@ describe('Verify attendee list', function() {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="see-responses"]').click();
     cy.location('pathname').should('contain', 'rsvp_list');
-    cy.get('[data-cy-status="yes"]').click();
     cy.get('[data-cy="user"]').should('contain', user.username);
   });
 });

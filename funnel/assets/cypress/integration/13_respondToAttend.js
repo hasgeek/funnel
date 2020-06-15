@@ -8,7 +8,10 @@ describe('Responding yes to attend a project', function() {
 
     cy.login('/testcypressproject', user.username, user.password);
 
-    cy.get('a[data-cy-title="' + project.title + '"]').click();
+    cy.get('.upcoming')
+      .find('.card--upcoming')
+      .contains(project.title)
+      .click({ force: true });
     cy.location('pathname').should('contain', project.url);
     cy.get('#register-btn').click();
     cy.wait(2000);
