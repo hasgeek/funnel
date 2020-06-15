@@ -126,9 +126,7 @@ def new_user_admin(test_db_structure, create_user_admin):
 def create_organization(test_db_structure, create_user_owner, create_user_admin):
     user_owner = test_db_structure.session.merge(create_user_owner)
     user_admin = test_db_structure.session.merge(create_user_admin)
-    org = Organization(
-        owner=user_owner, title="Test org", name='test-org', is_public_profile=True
-    )
+    org = Organization(owner=user_owner, title="Test org", name='test-org')
     test_db_structure.session.add(org)
 
     admin_membership = OrganizationMembership(

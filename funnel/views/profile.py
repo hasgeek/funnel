@@ -3,12 +3,20 @@ from flask import flash, redirect
 from baseframe import _
 from baseframe.forms import render_form
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
+from coaster.views import (
+    ModelView,
+    UrlForView,
+    get_next_url,
+    render_with,
+    requires_roles,
+    route,
+)
 
 from .. import app, funnelapp
 from ..forms import ProfileForm, SavedProjectForm
 from ..models import Profile, Project, db
 from .decorators import legacy_redirect
+from .helpers import requires_login
 from .mixins import ProfileViewMixin
 
 
@@ -117,6 +125,22 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             cancel_url=self.obj.url_for(),
             ajax=False,
         )
+
+    @route('transition', methods=['POST'])
+    @requires_login
+    @requires_roles({'owner'})
+    def transition(self):
+        form = self.obj.forms.transition(obj=self.obj)
+        if form.validate_on_submit():
+            transition_name = form.transition.data
+            getattr(self.obj, transition_name)()
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+        else:
+            flash(
+                _("There was a problem saving your changes. Please try again"), 'error'
+            )
+        return redirect(get_next_url(referrer=True), code=303)
 
 
 @route('/', subdomain='<profile>')

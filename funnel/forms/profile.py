@@ -6,7 +6,7 @@ import baseframe.forms as forms
 from ..models import Profile
 from .organization import OrganizationForm
 
-__all__ = ['ProfileForm']
+__all__ = ['ProfileForm', 'ProfileTransitionForm']
 
 
 @Profile.forms('main')
@@ -38,3 +38,13 @@ class ProfileForm(OrganizationForm):
             forms.validators.Length(max=2000),
         ],
     )
+
+
+@Profile.forms('transition')
+class ProfileTransitionForm(forms.Form):
+    transition = forms.SelectField(
+        __("Project status"), validators=[forms.validators.DataRequired()]
+    )
+
+    def set_queries(self):
+        self.transition.choices = list(self.edit_obj.state.transitions().items())

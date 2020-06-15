@@ -109,7 +109,7 @@
               {%- elif 'edit_proposal' in proposal.permissions(current_auth.user) %}
                 <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
                   <div class="details__box__video details__box__video--novideo embed-video-wrapper">
-                    <p class="details__box__video__banner mui--bg-warning mui--text-body1">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
+                    <p class="details__box__video__banner mui--bg-warning mui--text-body2">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
                     <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
                   </div>
                 </div>

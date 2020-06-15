@@ -14,9 +14,6 @@
 {% endblock %}
 
 {% block headline -%}
-{%- endblock %}
-
-{% block basecontent %}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
       <div class="grid">
@@ -26,7 +23,9 @@
       </div>
     </div>
   </div>
+{%- endblock %}
 
+{% block basecontent %}
   <div class="mui-container tab-content">
     <div class="grid">
       <div class="grid__col-xs-12 grid__col-sm-6">
@@ -47,8 +46,8 @@
           </div>
           <div class="mui-divider"></div>
           <div class="card__footer">
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}" title="Edit">{% trans %}Edit{% endtrans %}</a>
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('change_password') }}" title="Change password">{% trans %}Change password{% endtrans %}</a>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}"  data-cy="edit">{% trans %}Edit{% endtrans %}</a>
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('change_password') }}" data-cy="change-password">{% trans %}Change password{% endtrans %}</a>
              <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout" data-cy="Logout">{% trans %}Logout{% endtrans %}</a>
           </div>
         </div>
@@ -62,14 +61,14 @@
             <ol class="mui-list--aligned mui-list--border">
               {% for extid in current_auth.user.externalids %}
                 <li>
-                  {{ faicon(icon=extid.service, icon_size='body1', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }}<small class="subitem"><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small></span>
+                  {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }}<small class="subitem"><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small></span>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
               {% endfor %}
             </ol>
             <p>{% trans %}Add External ID{% endtrans %}</p>
             {% for provider in login_registry %}
-              <a class="mui-btn mui-btn--small mui-btn--raised login login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img icon-img--smaller" alt="{{ login_registry[provider]['title'] }}"/> {{ login_registry[provider]['title'] }}</a>
+              <a class="mui-btn mui-btn--small mui-btn--raised login login--smaller login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img icon-img--smaller" alt="{{ login_registry[provider]['title'] }}"/>{{ login_registry[provider]['title'] }}</a>
             {% endfor %}
           </div>
         </div>
@@ -87,10 +86,12 @@
                 {% for useremail in current_auth.user.emails %}
                 <li>
                   <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio">&nbsp;
-                  <label for="useremail-{{loop.index}}">{{ useremail }}</label>
-                  {% if useremail.primary %}
-                    <em>{% trans %}(primary){% endtrans %}</em>
-                  {% endif %}
+                  <label for="useremail-{{loop.index}}">
+                    {{ useremail }}
+                    {% if useremail.primary %}
+                      <em>{% trans %}(primary){% endtrans %}</em>
+                    {% endif %}
+                  </label>
                   {%- if current_auth.user.verified_contact_count > 1 %}
                     <a href="{{ url_for('remove_email', email_hash=useremail.blake2b_b58) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                   {%- endif %}
@@ -154,6 +155,32 @@
               <span class="loading mui--hide"></span>
             </div>
           </form>
+        </div>
+      </div>
+
+      <div class="grid__col-xs-12">
+        <div class="card">
+          <div class="card__header">
+            <h3 class="mui--text-title mui--text-bold">{% trans %}Organizations{% endtrans %}</h3>
+          </div>
+          <div class="card__body">
+            <ol class="mui-list--aligned mui-list--border">
+              {% for org in current_auth.user.organizations_as_owner %}
+              <li>
+                  <form action="{{ org.profile.url_for('transition') }}" method="post">
+                  {{ org.profile.forms.transition().hidden_tag() }}
+                  {% if org.profile.state.PUBLIC %}
+                    <p class="mui--d-inlineblock right-padding"><a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a> {% trans %}(public){% endtrans %}</p>
+                    <button name="transition" value="make_private" class="mui-btn mui-btn--default mui-btn--raised mui-btn--small">{% trans %}Make private{% endtrans %}</button>
+                  {% else %}
+                    <p class="mui--d-inlineblock right-padding">{{ org.title }} {% trans %}(private){% endtrans %}</p>
+                    <button name="transition" value="make_public" class="mui-btn mui-btn--accent mui-btn--raised mui-btn--small">{% trans %}Make public{% endtrans %}</button>
+                  {% endif %}
+                </form>
+              </li>
+              {%- endfor %}
+            </ol>
+          </div>
         </div>
       </div>
 

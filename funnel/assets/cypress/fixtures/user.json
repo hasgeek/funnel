@@ -26,5 +26,12 @@
   "hguser": {
     "username": "hg-user",
     "password": "cypress5678y9"
+  },
+  "newuser": {
+    "fullname": "New User1234adsawesd",
+    "username": "new-user1223werwasd",
+    "password": "sdfj11243mnsdams123213",
+    "email": "newuser1234sdswewsd23@example.com",
+    "newpassword": "bnhh56io89"
   }
 }

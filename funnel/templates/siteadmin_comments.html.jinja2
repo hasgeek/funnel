@@ -84,7 +84,7 @@
     </tbody>
   </table>
   <div>
-    {{ rendersubmit([("spam-comments-bulk", "Mark spam", '')]) }}
+    {{ rendersubmit([("spam-comments-bulk", "Report spam", '')]) }}
   </div>
 </form>
 
@@ -107,7 +107,7 @@
   });
   $("#form-comments-spam").submit(function (e) {
     var checkedboxes = $(".field-comment-id:checked").length;
-    if (confirm(`Do you want to mark ${checkedboxes} comments as spam?`)) {
+    if (confirm(`Do you want to report ${checkedboxes} comments as spam?`)) {
       return true;
     } else {
       e.preventDefault();
