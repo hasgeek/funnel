@@ -269,10 +269,6 @@ class AccountView(ClassView):
 
         return {
             'report': report,
-            'existing_reports': {
-                report.user.pickername: MODERATOR_REPORT_TYPE[report.report_type].title
-                for report in existing_reports
-            },
             'report_form': report_form,
         }
 

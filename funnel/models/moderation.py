@@ -7,7 +7,7 @@ __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
 
 class MODERATOR_REPORT_TYPE(LabeledEnum):  # NOQA: N801
-    OK = (0, 'ok', __("OK"))
+    OK = (0, 'ok', __("Not spam"))
     SPAM = (1, 'spam', __("Spam"))
 
 

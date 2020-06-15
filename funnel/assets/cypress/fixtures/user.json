@@ -28,10 +28,10 @@
     "password": "cypress5678y9"
   },
   "newuser": {
-    "fullname": "New User1234adsawesd",
-    "username": "new-user1223werwasd",
-    "password": "sdfj11243mnsdams123213",
-    "email": "newuser1234sdswewsd23@example.com",
+    "fullname": "New User",
+    "username": "new-user",
+    "password": "sdfj11_mnsdams123213",
+    "email": "newuser@example.com",
     "newpassword": "bnhh56io89"
   }
 }

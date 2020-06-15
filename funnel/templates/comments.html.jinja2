@@ -41,7 +41,7 @@
               data-delete-url="{{ comment.url_for('delete') }}"
               data-edit-url="{{ comment.url_for('edit') }}"
             {% endif %}
-            {% if current_auth.user.is_comment_moderator %}
+            {% if current_auth.user %}
               data-report-url="{{ comment.url_for('report_spam') }}"
             {% endif %}
             data-json-url="{{ comment.url_for('view_json', _external=true) }}"
@@ -50,8 +50,8 @@
             {% if not comment.state.REMOVED %}
               {% if current_auth %}
                 <a aria-label="{% trans %}Reply{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-reply" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Reply]</a>
-                {% if current_auth.user.is_comment_moderator %}
-                <a aria-label="{% trans %}Report Spam{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-report" href="#c{{ comment.uuid_b58 }}" data-cy="reply">[Report Spam]</a>
+                {% if current_auth.user %}
+                <a aria-label="{% trans %}Report Spam{% endtrans %}" class="mui--text-menu mui--text-accent js-comment-report" href="#c{{ comment.uuid_b58 }}" data-cy="report-spam">[Report Spam]</a>
                 {% endif %}
               {% endif %}
               {% if comment.current_roles.author %}
