@@ -107,6 +107,7 @@ class Proposal(
     db.Model,
 ):
     __tablename__ = 'proposal'
+    __email_for__ = 'owner'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = with_roles(

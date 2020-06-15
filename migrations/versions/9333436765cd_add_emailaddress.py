@@ -30,10 +30,12 @@ def upgrade():
         sa.Column('delivery_state_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('is_blocked', sa.Boolean(), nullable=False),
         sa.CheckConstraint(
-            "email IS NULL AND domain IS NULL OR email ILIKE '%%' ||"
-            " replace(replace(domain, '_', '\\_'), '%%', '\\%%')",
+            "email IS NULL AND domain IS NULL OR"
+            " (email SIMILAR TO '(xn--|%.xn--)%') OR"
+            " email ILIKE '%' || replace(replace(domain, '_', '\\_'), '%', '\\%')",
             name='email_address_email_domain_check',
         ),
+        sa.CheckConstraint('domain = lower(domain)', name='email_address_domain_check'),
         sa.CheckConstraint(
             'is_blocked IS NOT true OR is_blocked IS true AND email IS NULL',
             name='email_address_email_is_blocked_check',

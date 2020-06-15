@@ -14,6 +14,7 @@ from sqlalchemy.sql import column, table
 import sqlalchemy as sa
 
 from progressbar import ProgressBar
+import idna
 import progressbar.widgets
 
 # revision identifiers, used by Alembic.
@@ -100,7 +101,8 @@ def get_progressbar(label, maxval):
 def canonical_email_representation(email):
     if '@' not in email:
         raise ValueError("Not an email address")
-    mailbox, domain = email.lower().split('@', 1)
+    mailbox, domain = email.split('@', 1)
+    mailbox = mailbox.lower()
     if '+' in mailbox:
         mailbox = mailbox[: mailbox.find('+')]
 
@@ -120,19 +122,36 @@ def canonical_email_representation(email):
     return representations
 
 
+def email_normalized(email):
+    mailbox, domain = email.split('@', 1)
+    mailbox = mailbox.lower()
+    domain = idna.encode(domain, uts46=True).decode()
+    return '{}@{}'.format(mailbox, domain)
+
+
 def email_blake2b160_hash(email):
-    return hashlib.blake2b(email.lower().encode('utf-8'), digest_size=20).digest()
+    return hashlib.blake2b(
+        email_normalized(email).encode('utf-8'), digest_size=20
+    ).digest()
 
 
 def email_blake2b128_hash(email):
+    # This does not perform IDNA encoding as the original code that used 128-bit hashes
+    # did not process IDNA encoding either
     return hashlib.blake2b(email.lower().encode('utf-8'), digest_size=16).digest()
 
 
 def email_md5sum(email):
+    # This does not perform IDNA encoding as the original code that used 128-bit hashes
+    # did not process IDNA encoding either
     return hashlib.md5(email.lower().encode('utf-8')).hexdigest()  # nosec
 
 
 def email_domain(email):
+    return idna.encode(email.split('@', 1)[1], uts46=True).decode()
+
+
+def email_domain_naive(email):
     return email.lower().split('@', 1)[1]
 
 

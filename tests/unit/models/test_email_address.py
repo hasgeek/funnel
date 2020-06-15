@@ -12,6 +12,7 @@ from funnel.models.email_address import (
     EmailAddressMixin,
     canonical_email_representation,
     email_blake2b160_hash,
+    email_normalized,
     emailaddress_refcount_dropping,
 )
 
@@ -21,6 +22,7 @@ hash_map = {
     'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
     'example@gmail.com': b"\tC*\xd2\x9a\xcb\xdfR\xcb\xbf=>2D'(\xa8V\x13\xa7",
     'example@googlemail.com': b'x\xd6#Ue\xa8-_\xeclJ+o8\xfe\x1f\xa1\x0b:9',
+    'eg@räksmörgås.org': b'g\xc4B`\x9ej\x05\xf8\xa6\x9b\\"l\x0c$\xd4\xa8\xe42j',
 }
 
 
@@ -36,13 +38,29 @@ def refcount_data():
     emailaddress_refcount_dropping.disconnect(refcount_signal_receiver)
 
 
+def test_email_normalized():
+    """Normalized email addresses are lowercase, with IDN encoded into punycode"""
+    assert email_normalized('example@example.com') == 'example@example.com'
+    assert email_normalized('Example@Example.com') == 'example@example.com'
+    assert email_normalized('Example+Extra@Example.com') == 'example+extra@example.com'
+    # The following two examples are from
+    # https://www.w3.org/2003/Talks/0425-duerst-idniri/slide12-0.html
+    assert email_normalized('eg@räksmörgås.org') == 'eg@xn--rksmrgs-5wao1o.org'
+    assert (
+        email_normalized('ABC@納豆.w3.mag.keio.ac.jp')
+        == 'abc@xn--99zt52a.w3.mag.keio.ac.jp'
+    )
+
+
 def test_email_hash_stability():
     """Safety test to ensure email_blakeb160_hash doesn't change spec"""
     ehash = email_blake2b160_hash
     assert ehash('example@example.com') == hash_map['example@example.com']
-    assert ehash('EXAMPLE@EXAMPLE.COM') != hash_map['example@example.com']
+    # email_hash explicitly uses the normalized form (but not the canonical form)
+    assert ehash('EXAMPLE@EXAMPLE.COM') == hash_map['example@example.com']
     assert ehash('example@gmail.com') == hash_map['example@gmail.com']
     assert ehash('example@googlemail.com') == hash_map['example@googlemail.com']
+    assert ehash('eg@räksmörgås.org') == hash_map['eg@räksmörgås.org']
 
 
 def test_canonical_email_representation():
@@ -83,7 +101,7 @@ def test_email_address_init():
     # Ordinary use constructor passes without incident
     ea1 = EmailAddress('example@example.com')
     assert ea1.email == 'example@example.com'
-    assert ea1.email_lower == 'example@example.com'
+    assert ea1.email_normalized == 'example@example.com'
     assert ea1.domain == 'example.com'
     assert ea1.blake2b160 == hash_map['example@example.com']
     assert ea1.email_canonical == 'example@example.com'
@@ -96,7 +114,7 @@ def test_email_address_init():
     # Case is preserved but disregarded for hashes
     ea2 = EmailAddress('Example@Example.com')
     assert ea2.email == 'Example@Example.com'
-    assert ea2.email_lower == 'example@example.com'
+    assert ea2.email_normalized == 'example@example.com'
     assert ea2.domain == 'example.com'
     assert ea2.blake2b160 == hash_map['example@example.com']
     assert ea1.email_canonical == 'example@example.com'
@@ -107,13 +125,20 @@ def test_email_address_init():
     # Canonical representation's hash can be distinct from regular hash
     ea3 = EmailAddress('Example+Extra@example.com')
     assert ea3.email == 'Example+Extra@example.com'
-    assert ea3.email_lower == 'example+extra@example.com'
+    assert ea3.email_normalized == 'example+extra@example.com'
     assert ea3.domain == 'example.com'
     assert ea3.blake2b160 == hash_map['example+extra@example.com']
     assert ea1.email_canonical == 'example@example.com'
     assert ea3.blake2b160_canonical == hash_map['example@example.com']
     assert str(ea3) == 'Example+Extra@example.com'
     assert repr(ea3) == "EmailAddress('Example+Extra@example.com')"
+
+    # FIXME: There is no test for an IDN email address because the underlying pyIsEmail
+    # validator does not support them. While we can encode the domain to punycode
+    # before sending to pyIsEmail, this is insufficient as RFC6530 explicitly requires
+    # support for non-ASCII characters in the mailbox portion. Support for IDN emails
+    # therefore remains unavailable until pyIsEmail is updated, or another validator
+    # is used.
 
 
 def test_email_address_init_error():
@@ -127,6 +152,9 @@ def test_email_address_init_error():
     with pytest.raises(ValueError):
         # Must be syntactically valid
         EmailAddress('invalid')
+    with pytest.raises(ValueError):
+        # Must be syntactically valid (caught elsewhere internally)
+        EmailAddress('@invalid')
 
 
 def test_email_address_mutability():
@@ -172,6 +200,10 @@ def test_email_address_mutability():
     # Changing the domain is also not allowed
     with pytest.raises(AttributeError):
         ea.domain = 'gmail.com'
+
+    # Setting to an invalid value is not allowed
+    with pytest.raises(ValueError):
+        ea.email = ''
 
 
 def test_email_address_md5():
@@ -498,6 +530,15 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     db.session.add(ldoc3)
     assert ldoc3.emailuser is user2
     assert ldoc3.email == 'onemore@example.com'
+
+    # Setting the email to None on the document removes the link to the EmailAddress,
+    # but does not blank out the EmailAddress
+
+    assert ldoc1.email_address == ea1
+    assert ea1.email == 'example@example.com'
+    ldoc1.email = None
+    assert ldoc1.email_address is None
+    assert ea1.email == 'example@example.com'
 
 
 def test_email_address_refcount_drop(email_models, clean_mixin_db, refcount_data):

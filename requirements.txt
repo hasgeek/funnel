@@ -18,6 +18,7 @@ Flask-RQ2==18.3
 Flask-SQLAlchemy==2.4.3
 Flask-WTF==0.14.3
 icalendar==4.0.6
+idna==2.9
 itsdangerous==1.1.0
 jsmin==2.2.2
 oauth2client==4.1.3

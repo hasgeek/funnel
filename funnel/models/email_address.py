@@ -14,6 +14,7 @@ from werkzeug.utils import cached_property
 
 from pyisemail import is_email
 import base58
+import idna
 
 from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
 from coaster.utils import LabeledEnum, require_one_of
@@ -84,9 +85,11 @@ def canonical_email_representation(email: str) -> List[str]:
     """
     if '@' not in email:
         raise ValueError("Not an email address")
-    mailbox, domain = email.lower().split('@', 1)
+    mailbox, domain = email.split('@', 1)
+    mailbox = mailbox.lower()
     if '+' in mailbox:
         mailbox = mailbox[: mailbox.find('+')]
+    domain = idna.encode(domain, uts46=True).decode()
 
     representations = [f'{mailbox}@{domain}']
 
@@ -104,12 +107,27 @@ def canonical_email_representation(email: str) -> List[str]:
     return representations
 
 
+def email_normalized(email: str) -> str:
+    """
+    Return a normalized representation of the email address, for unique hashing.
+
+    Casts the address into lowercase and encodes IDN domains into punycode. The
+    resulting address remains valid for sending email, but the original should be used
+    as the mailbox portion is technically case-sensitive, even if unlikely in practice.
+    """
+    mailbox, domain = email.split('@', 1)
+    mailbox = mailbox.lower()
+    domain = idna.encode(domain, uts46=True).decode()
+    return '{}@{}'.format(mailbox, domain)
+
+
 def email_blake2b160_hash(email: str) -> bytes:
     """
     Returns an BLAKE2b hash of the given email address using digest size 20 (160 bits).
-    Caller is responsible for lowercasing if necessary.
     """
-    return hashlib.blake2b(email.encode('utf-8'), digest_size=20).digest()
+    return hashlib.blake2b(
+        email_normalized(email).encode('utf-8'), digest_size=20
+    ).digest()
 
 
 class EmailAddressError(ValueError):
@@ -140,7 +158,8 @@ class EmailAddress(BaseMixin, db.Model):
 
     #: Backrefs to this model from other models, populated by :class:`EmailAddressMixin`
     __backrefs__ = set()
-    #: These backrefs claim exclusive use of the email address for their linked actor
+    #: These backrefs claim exclusive use of the email address for their linked actor.
+    #: See :class:`EmailAddressMixin` for implementation detail
     __exclusive_backrefs__ = set()
 
     #: The email address, centrepiece of this model. Case preserving.
@@ -150,9 +169,9 @@ class EmailAddress(BaseMixin, db.Model):
     #: Read-only, accessible via the :property:`domain` property
     _domain = db.Column('domain', db.Unicode, nullable=True, index=True)
 
-    # email_lower is defined below
+    # email_normalized is defined below
 
-    #: BLAKE2b 160-bit hash of :property:`email_lower`. Kept permanently even if email
+    #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if email
     #: is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the
     #: name, we're only storing 20 bytes
     blake2b160 = immutable(db.Column(db.LargeBinary, nullable=False, unique=True))
@@ -186,11 +205,17 @@ class EmailAddress(BaseMixin, db.Model):
     #: null. Blocks apply to the canonical address (without the +sub-address variation),
     #: so a test for whether an address is blocked should use blake2b160_canonical to
     #: load the record. Other records with the same canonical hash _may_ exist without
-    #: setting the flag due to a lack of database-side enforcement.
+    #: setting the flag due to a lack of database-side enforcement
     _is_blocked = db.Column('is_blocked', db.Boolean, nullable=False, default=False)
 
     __table_args__ = (
-        # If ``is_blocked == True``, email and domain must be None
+        # `domain` must be lowercase always. Note that Python `.lower()` is not
+        # guaranteed to produce identical output to SQL `lower()` with non-ASCII
+        # characters. It is only safe to use here because domain names are always ASCII
+        db.CheckConstraint(
+            _domain == db.func.lower(_domain), 'email_address_domain_check'
+        ),
+        # If `is_blocked` is True, `email` and `domain` must be None
         db.CheckConstraint(
             db.or_(
                 _is_blocked.isnot(True),
@@ -198,11 +223,17 @@ class EmailAddress(BaseMixin, db.Model):
             ),
             'email_address_email_is_blocked_check',
         ),
-        # email and domain must both be None, or confirm ``email.endswith(domain)``.
-        # _ and % must be escaped as they are wildcards to the LIKE/ILIKE operator
+        # `email` and `domain` must be None, or `email.endswith(domain)` must be True.
+        # However, the endswith constraint is relaxed with IDN domains, as there is no
+        # easy way to do an IDN match in Postgres without an extension.
+        # `_` and `%` must be escaped as they are wildcards to the LIKE/ILIKE operator
         db.CheckConstraint(
             db.or_(
+                # email and domain must both be non-null, or
                 db.and_(email.is_(None), _domain.is_(None)),
+                # domain must be an IDN, or
+                email.op('SIMILAR TO')('(xn--|%.xn--)%'),
+                # domain is ASCII (typical case) and must be the suffix of email
                 email.ilike(
                     '%'
                     + db.func.replace(db.func.replace(_domain, '_', r'\_'), '%', r'\%')
@@ -228,11 +259,11 @@ class EmailAddress(BaseMixin, db.Model):
 
     # This should not use `cached_property` as email is partially mutable
     @property
-    def email_lower(self) -> Optional[str]:
+    def email_normalized(self) -> Optional[str]:
         """
-        Lowercase representation of the email address.
+        Normalized representation of the email address, for hashing.
         """
-        return self.email.lower() if self.email else None
+        return email_normalized(self.email) if self.email else None
 
     # This should not use `cached_property` as email is partially mutable
     @property
@@ -257,12 +288,12 @@ class EmailAddress(BaseMixin, db.Model):
 
     @with_roles(call={'all'})
     def md5(self) -> Optional[str]:
-        """MD5 hash of :property:`email_lower`, for legacy use only."""
+        """MD5 hash of :property:`email_normalized`, for legacy use only."""
         return (
             hashlib.md5(  # NOQA: S303 # skipcq: PTC-W1003 # nosec
-                self.email_lower.encode('utf-8')
+                self.email_normalized.encode('utf-8')
             ).hexdigest()
-            if self.email_lower
+            if self.email_normalized
             else None
         )
 
@@ -279,7 +310,7 @@ class EmailAddress(BaseMixin, db.Model):
             raise ValueError("A string email address is required")
         # Set the hash first so the email column validator passes. Both hash columns
         # are immutable once set, so there are no content validators for them.
-        self.blake2b160 = email_blake2b160_hash(email.lower())
+        self.blake2b160 = email_blake2b160_hash(email)
         self.email = email
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
@@ -347,7 +378,7 @@ class EmailAddress(BaseMixin, db.Model):
         """
         require_one_of(email=email, blake2b160=blake2b160, email_hash=email_hash)
         if email:
-            blake2b160 = email_blake2b160_hash(email.lower())
+            blake2b160 = email_blake2b160_hash(email)
         elif email_hash:
             blake2b160 = base58.b58decode(email_hash)
 
@@ -380,7 +411,7 @@ class EmailAddress(BaseMixin, db.Model):
         """
         hashes = [
             email_blake2b160_hash(result)
-            for result in canonical_email_representation(email.lower())
+            for result in canonical_email_representation(email)
         ]
         query = cls.query.filter(cls.blake2b160_canonical.in_(hashes))
         if is_blocked is not None:
@@ -583,10 +614,10 @@ def _validate_email(target, value, old_value, initiator):
 
     # All clear? Now check against the hash
     if value is not None:
-        hashed = email_blake2b160_hash(value.lower())
+        hashed = email_blake2b160_hash(value)
         if hashed != target.blake2b160:
             raise ValueError("Email address does not match existing blake2b160 hash")
-        target._domain = value.lower().split('@', 1)[1]
+        target._domain = idna.encode(value.split('@', 1)[1], uts46=True).decode()
     else:
         target._domain = None
     # We don't have to set target.email because SQLAlchemy will do that for us.
