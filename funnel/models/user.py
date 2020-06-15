@@ -14,10 +14,14 @@ import base58
 import phonenumbers
 
 from baseframe import __
-from coaster.sqlalchemy import add_primary_relationship, failsafe_add, with_roles
+from coaster.sqlalchemy import (
+    add_primary_relationship,
+    auto_init_default,
+    failsafe_add,
+    with_roles,
+)
 from coaster.utils import (
     LabeledEnum,
-    md5sum,
     newpin,
     newsecret,
     require_one_of,
@@ -26,6 +30,7 @@ from coaster.utils import (
 )
 
 from . import BaseMixin, TSVectorType, UuidMixin, db
+from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import add_search_trigger
 
 __all__ = [
@@ -264,18 +269,25 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)
-        useremail = failsafe_add(db.session, useremail, user=self, email=email)
+        useremail = failsafe_add(
+            db.session, useremail, user=self, email_address=useremail.email_address
+        )
         if primary:
             self.primary_email = useremail
         return useremail
+        # FIXME: This should remove competing instances of UserEmailClaim
 
     def del_email(self, email):
-        useremail = UserEmail.query.filter_by(user=self, email=email).first()
-        if useremail:
-            db.session.delete(useremail)
+        useremail = UserEmail.get_for(user=self, email=email)
         if self.primary_email in (useremail, None):
-            db.session.flush()
-            self.primary_email = UserEmail.query.filter_by(user=self).first()
+            self.primary_email = (
+                UserEmail.query.filter(
+                    UserEmail.user == self, UserEmail.id != useremail.id
+                )
+                .order_by(UserEmail.created_at.desc())
+                .first()
+            )
+        db.session.delete(useremail)
 
     @with_roles(read={'owner'})
     @cached_property
@@ -492,14 +504,13 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             # Use `query` instead of `like_query` because it's not a LIKE query.
             # Combine results with regular user search
             users = (
-                cls.query.join(
-                    UserEmail,
-                    db.and_(
-                        UserEmail.user_id == cls.id,
-                        db.func.lower(UserEmail.email) == db.func.lower(query),
-                    ),
+                cls.query.join(UserEmail, EmailAddress)
+                .filter(
+                    UserEmail.user_id == cls.id,
+                    UserEmail.email_address_id == EmailAddress.id,
+                    EmailAddress.get_filter(email=query),
+                    cls.status == USER_STATUS.ACTIVE,
                 )
-                .filter(cls.status == USER_STATUS.ACTIVE)
                 .options(*cls._defercols)
                 .limit(20)
                 .union(base_users)
@@ -765,53 +776,28 @@ class Team(UuidMixin, BaseMixin, db.Model):
 # -- User email/phone and misc
 
 
-class UserEmail(BaseMixin, db.Model):
+class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     __tablename__ = 'user_email'
+    __email_optional__ = False
+    __email_unique__ = True
+    __email_for__ = 'user'
+    __email_is_exclusive__ = True
+
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
         backref=db.backref('emails', cascade='all'),
     )
-    _email = db.Column('email', db.Unicode(254), unique=True, nullable=False)
-    #: XXX: md5sum is deprecated
-    md5sum = db.Column(db.String(32), unique=True, nullable=False)
-    blake2b = db.Column(db.LargeBinary, unique=True, nullable=False)
-    domain = db.Column(db.Unicode(253), nullable=False, index=True)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
 
-    __table_args__ = (
-        db.Index(
-            'ix_user_email_email_lower',
-            db.func.lower(_email).label('email_lower'),
-            unique=True,
-            postgresql_ops={'email_lower': 'varchar_pattern_ops'},
-        ),
-    )
-
-    def __init__(self, email, **kwargs):
-        super(UserEmail, self).__init__(**kwargs)
-        self._email = email.lower()
-        self.md5sum = md5sum(self._email.lower())
-        self.blake2b = hashlib.blake2b(
-            self._email.lower().encode(), digest_size=16
-        ).digest()
-        self.domain = email.split('@')[-1]
-
-    # XXX: Are hybrid_property and synonym both required?
-    # Shouldn't one suffice?
-    @hybrid_property
-    def email(self):
-        return self._email
-
-    #: Make email immutable. There is no setter for email.
-    email = db.synonym('_email', descriptor=email)
-
-    @cached_property
-    def blake2b_b58(self):
-        return base58.b58encode(self.blake2b)
+    def __init__(self, user, **kwargs):
+        email = kwargs.pop('email', None)
+        if email:
+            kwargs['email_address'] = EmailAddress.add_for(user, email)
+        super().__init__(user=user, **kwargs)
 
     def __repr__(self):
         return '<UserEmail {email} of {user}>'.format(
@@ -834,42 +820,44 @@ class UserEmail(BaseMixin, db.Model):
                 self.user.primary_email = None
 
     @classmethod
-    def get(cls, email=None, md5sum=None, blake2b=None):
+    def get(cls, email=None, blake2b160=None, email_hash=None):
         """
-        Return a UserEmail with matching email, md5sum or blake2b hash.
+        Return a UserEmail with matching email or blake2b160 hash.
 
         :param str email: Email address to look up
-        :param str md5sum: md5sum of email address to look up
-        :param bytes blake2b: blake2b of email address to look up
+        :param bytes blake2b160: blake2b of email address to look up
+        :param str email_hash: blake2b hash rendered in Base58
         """
-        require_one_of(email=email, md5sum=md5sum, blake2b=blake2b)
-
-        if email:
-            return cls.query.filter(cls.email.in_([email, email.lower()])).one_or_none()
-        elif md5sum:
-            return cls.query.filter_by(md5sum=md5sum).one_or_none()
-        else:
-            return cls.query.filter_by(blake2b=blake2b).one_or_none()
+        return (
+            cls.query.join(EmailAddress)
+            .filter(
+                EmailAddress.get_filter(
+                    email=email, blake2b160=blake2b160, email_hash=email_hash
+                )
+            )
+            .one_or_none()
+        )
 
     @classmethod
-    def get_for(cls, user, email=None, md5sum=None, blake2b=None):
+    def get_for(cls, user, email=None, blake2b160=None, email_hash=None):
         """
-        Return a UserEmail with matching md5sum if it belongs to the given user
+        Return a UserEmail with matching email or hash if it belongs to the given user
 
         :param User user: User to look up for
         :param str email: Email address to look up
-        :param str md5sum: md5sum of email address to look up
-        :param bytes blake2b: blake2b of email address to look up
+        :param bytes blake2b160: 160-bit blake2b of email address
+        :param str email_hash: blake2b hash rendered in Base58
         """
-        require_one_of(email=email, md5sum=md5sum, blake2b=blake2b)
-        if email:
-            return cls.query.filter(
-                cls.user == user, cls.email.in_([email, email.lower()])
-            ).one_or_none()
-        elif md5sum:
-            return cls.query.filter_by(user=user, md5sum=md5sum).one_or_none()
-        else:
-            return cls.query.filter_by(user=user, blake2b=blake2b).one_or_none()
+        return (
+            cls.query.join(EmailAddress)
+            .filter(
+                cls.user == user,
+                EmailAddress.get_filter(
+                    email=email, blake2b160=blake2b160, email_hash=email_hash
+                ),
+            )
+            .one_or_none()
+        )
 
     @classmethod
     def migrate_user(cls, old_user, new_user):
@@ -882,42 +870,35 @@ class UserEmail(BaseMixin, db.Model):
         return [cls.__table__.name, user_email_primary_table.name]
 
 
-class UserEmailClaim(BaseMixin, db.Model):
+class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     __tablename__ = 'user_email_claim'
+    __email_optional__ = False
+    __email_unique__ = False
+    __email_for__ = 'user'
+    __email_is_exclusive__ = False
+
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
         backref=db.backref('emailclaims', cascade='all'),
     )
-    _email = db.Column('email', db.Unicode(254), nullable=True, index=True)
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
-    #: XXX: md5sum is deprecated
-    md5sum = db.Column(db.String(32), nullable=False, index=True)
     blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
-    domain = db.Column(db.Unicode(253), nullable=False, index=True)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
 
-    __table_args__ = (db.UniqueConstraint('user_id', 'email'),)
+    __table_args__ = (db.UniqueConstraint('user_id', 'email_address_id'),)
 
-    def __init__(self, email, **kwargs):
-        super(UserEmailClaim, self).__init__(**kwargs)
-        self.verification_code = newsecret()
-        self._email = email.lower()
-        self.md5sum = md5sum(self._email.lower())
+    def __init__(self, user, **kwargs):
+        email = kwargs.pop('email', None)
+        if email:
+            kwargs['email_address'] = EmailAddress.add_for(user, email)
+        super().__init__(user=user, **kwargs)
         self.blake2b = hashlib.blake2b(
-            self._email.lower().encode(), digest_size=16
+            self.email.lower().encode(), digest_size=16
         ).digest()
-        self.domain = email.split('@')[-1]
-
-    @hybrid_property
-    def email(self):
-        return self._email
-
-    #: Make email immutable. There is no setter for email.
-    email = db.synonym('_email', descriptor=email)
 
     @cached_property
     def blake2b_b58(self):
@@ -948,38 +929,47 @@ class UserEmailClaim(BaseMixin, db.Model):
                 db.session.delete(claim)
 
     @classmethod
-    def get_for(cls, user, email=None, md5sum=None, blake2b=None):
+    def get_for(cls, user, email=None, blake2b160=None, blake2b=None, email_hash=None):
         """
         Return a UserEmailClaim with matching email address for the given user.
 
         :param User user: User who claimed this email address
         :param str email: Email address to look up
-        :param str md5sum: md5sum of email address to look up
-        :param bytes blake2b: blake2b of email address to look up
+        :param bytes blake2b160: 160-bit blake2b of email address to look up
+        :param bytes blake2b: 128-bit blake2b of email address to look up (deprecated)
+        :param str email_hash: Base58 rendering of 160-bit blake2b hash
         """
-        require_one_of(email=email, md5sum=md5sum, blake2b=blake2b)
-        if email:
-            return (
-                cls.query.filter(UserEmailClaim.email.in_([email, email.lower()]))
-                .filter_by(user=user)
-                .one_or_none()
-            )
-        elif md5sum:
-            return cls.query.filter_by(md5sum=md5sum, user=user).one_or_none()
-        else:
+        require_one_of(
+            email=email, blake2b160=blake2b160, email_hash=email_hash, blake2b=blake2b
+        )
+        if blake2b:
             return cls.query.filter_by(blake2b=blake2b, user=user).one_or_none()
+        return (
+            cls.query.join(EmailAddress)
+            .filter(
+                cls.user == user,
+                EmailAddress.get_filter(
+                    email=email, blake2b160=blake2b160, email_hash=email_hash
+                ),
+            )
+            .one_or_none()
+        )
 
     @classmethod
-    def get_by(cls, verification_code, md5sum=None, blake2b=None):
-        require_one_of(md5sum=md5sum, blake2b=blake2b)
-        if md5sum:
-            return cls.query.filter_by(
-                md5sum=md5sum, verification_code=verification_code
-            ).one_or_none()
-        else:
+    def get_by(cls, verification_code, blake2b=None, blake2b160=None, email_hash=None):
+        require_one_of(blake2b=blake2b, blake2b160=blake2b160, email_hash=email_hash)
+        if blake2b:
             return cls.query.filter_by(
                 blake2b=blake2b, verification_code=verification_code
             ).one_or_none()
+        return (
+            cls.query.join(EmailAddress)
+            .filter(
+                cls.verification_code == verification_code,
+                EmailAddress.get_filter(blake2b160=blake2b160, email_hash=email_hash),
+            )
+            .one_or_none()
+        )
 
     @classmethod  # NOQA: A003
     def all(cls, email):  # NOQA: A003
@@ -988,7 +978,10 @@ class UserEmailClaim(BaseMixin, db.Model):
 
         :param str email: Email address to lookup
         """
-        return cls.query.filter(UserEmailClaim.email.in_([email, email.lower()]))
+        return cls.query.join(EmailAddress).filter(EmailAddress.get_filter(email=email))
+
+
+auto_init_default(UserEmailClaim.verification_code)
 
 
 class UserPhone(BaseMixin, db.Model):

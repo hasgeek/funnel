@@ -410,23 +410,19 @@ class TestUser(TestDatabaseFixture):
         mr_whymper = models.User(username='whymper')
         whymper_email = 'whmmm@animalfarm.co.uk'
         whymper_result = mr_whymper.add_email(whymper_email, primary=True)
+        db.session.flush()
         assert whymper_result.email == whymper_email
         # # scenario 2: when primary flag is True but user has existing primary email
         crusoe = models.User.get(username='crusoe')
         crusoe_new_email = 'crusoe@batdog.ca'
         crusoe_result = crusoe.add_email(email=crusoe_new_email, primary=True)
+        db.session.flush()
         assert crusoe_result.email == crusoe_new_email
         # # scenario 3: when primary flag is True but user has existing email same as one passed
         crusoe_existing_email = 'crusoe@keepballin.ca'
         crusoe_result = crusoe.add_email(crusoe_existing_email, primary=True)
+        db.session.flush()
         assert crusoe_result.email == crusoe_existing_email
-        # scenario 4: when requested to adds an email with domain belonging to a team, add user to team
-        gustav = models.User(username='gustav')
-        gustav_email = 'g@keepballin.ca'
-        gustav_result = gustav.add_email(gustav_email)
-        db.session.add(gustav)
-        db.session.commit()
-        assert gustav_result.email == gustav_email
 
     def test_make_email_primary(self):
         """
