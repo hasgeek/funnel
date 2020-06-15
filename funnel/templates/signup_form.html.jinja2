@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import renderform %}
+{% from "baseframe/forms.html.jinja2" import renderform, widgetscripts %}
 
 {% block title %}{% trans %}Sign up{% endtrans %}{% endblock %}
 
@@ -26,8 +26,12 @@
       {% endfor %}
     </div>
     <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center"><span class="login-page__box__title__txt">{% trans %}or use your email instead{% endtrans %}</span></p>
-    {{ renderform(form, formid='register', submit='Sign up') }}
+    {{ renderform(form, formid='register', ref_id='register-form', submit='Sign up') }}
     <p class="mui--text-caption">{% trans %}By signing in, you agree to HasGeek’s <a href="/about/policy/terms">terms of service</a> and <a href="/about/policy/privacy" target="_blank">privacy policy</a>.{% endtrans %}</p>
     <p class="mui--text-subhead login-page__box__note">{% trans %}Already have an account?{% endtrans %} <a href="{{ url_for('login') }}">{% trans %}Login{% endtrans %}</a></p>
   </div>
+{% endblock %}
+
+{% block footerscripts %}
+{{ widgetscripts(form, ref_id='register-form') }}
 {% endblock %}
