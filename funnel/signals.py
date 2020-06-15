@@ -12,45 +12,46 @@ from .models import (
     UserPhoneClaim,
 )
 
-lastuser_signals = Namespace()
+model_signals = Namespace()
+app_signals = Namespace()
 
-model_user_new = lastuser_signals.signal('model-user-new')
-model_user_edited = lastuser_signals.signal('model-user-edited')
-model_user_deleted = lastuser_signals.signal('model-user-deleted')
+model_user_new = model_signals.signal('model-user-new')
+model_user_edited = model_signals.signal('model-user-edited')
+model_user_deleted = model_signals.signal('model-user-deleted')
 
-model_org_new = lastuser_signals.signal('model-org-new')
-model_org_edited = lastuser_signals.signal('model-org-edited')
-model_org_deleted = lastuser_signals.signal('model-org-deleted')
+model_org_new = model_signals.signal('model-org-new')
+model_org_edited = model_signals.signal('model-org-edited')
+model_org_deleted = model_signals.signal('model-org-deleted')
 
-model_team_new = lastuser_signals.signal('model-team-new')
-model_team_edited = lastuser_signals.signal('model-team-edited')
-model_team_deleted = lastuser_signals.signal('model-team-deleted')
+model_team_new = model_signals.signal('model-team-new')
+model_team_edited = model_signals.signal('model-team-edited')
+model_team_deleted = model_signals.signal('model-team-deleted')
 
-model_useremail_new = lastuser_signals.signal('model-useremail-new')
-model_useremail_edited = lastuser_signals.signal('model-useremail-edited')
-model_useremail_deleted = lastuser_signals.signal('model-useremail-deleted')
+model_useremail_new = model_signals.signal('model-useremail-new')
+model_useremail_edited = model_signals.signal('model-useremail-edited')
+model_useremail_deleted = model_signals.signal('model-useremail-deleted')
 
-model_useremailclaim_new = lastuser_signals.signal('model-useremail-new')
-model_useremailclaim_edited = lastuser_signals.signal('model-useremail-edited')
-model_useremailclaim_deleted = lastuser_signals.signal('model-useremail-deleted')
+model_useremailclaim_new = model_signals.signal('model-useremail-new')
+model_useremailclaim_edited = model_signals.signal('model-useremail-edited')
+model_useremailclaim_deleted = model_signals.signal('model-useremail-deleted')
 
-model_userphone_new = lastuser_signals.signal('model-useremail-new')
-model_userphone_edited = lastuser_signals.signal('model-useremail-edited')
-model_userphone_deleted = lastuser_signals.signal('model-useremail-deleted')
+model_userphone_new = model_signals.signal('model-useremail-new')
+model_userphone_edited = model_signals.signal('model-useremail-edited')
+model_userphone_deleted = model_signals.signal('model-useremail-deleted')
 
-model_userphoneclaim_new = lastuser_signals.signal('model-useremail-new')
-model_userphoneclaim_edited = lastuser_signals.signal('model-useremail-edited')
-model_userphoneclaim_deleted = lastuser_signals.signal('model-useremail-deleted')
+model_userphoneclaim_new = model_signals.signal('model-useremail-new')
+model_userphoneclaim_edited = model_signals.signal('model-useremail-edited')
+model_userphoneclaim_deleted = model_signals.signal('model-useremail-deleted')
 
-resource_access_granted = lastuser_signals.signal('resource-access-granted')
+resource_access_granted = model_signals.signal('resource-access-granted')
 
 # Higher level signals
-user_login = lastuser_signals.signal('user-login')
-user_registered = lastuser_signals.signal('user-registered')
-user_data_changed = lastuser_signals.signal('user-data-changed')
-org_data_changed = lastuser_signals.signal('org-data-changed')
-team_data_changed = lastuser_signals.signal('team-data-changed')
-session_revoked = lastuser_signals.signal('session-revoked')
+user_login = app_signals.signal('user-login')
+user_registered = app_signals.signal('user-registered')
+user_data_changed = app_signals.signal('user-data-changed')
+org_data_changed = app_signals.signal('org-data-changed')
+team_data_changed = app_signals.signal('team-data-changed')
+session_revoked = app_signals.signal('session-revoked')
 
 
 @sqla_event.listens_for(User, 'after_insert')

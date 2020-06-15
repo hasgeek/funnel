@@ -5,7 +5,7 @@ from bleach import linkify
 from baseframe import _
 from baseframe.forms import Form, render_delete_sqla, render_form
 from coaster.auth import current_auth
-from coaster.utils import make_name, utcnow
+from coaster.utils import make_name
 from coaster.views import (
     ModelView,
     UrlChangeCheck,
@@ -143,9 +143,10 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
 
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
-            form.populate_obj(proposal)
-            proposal.name = make_name(proposal.title)
             db.session.add(proposal)
+            with db.session.no_autoflush:
+                form.populate_obj(proposal)
+            proposal.name = make_name(proposal.title)
             proposal.voteset.vote(
                 current_auth.user
             )  # Vote up your own proposal by default
@@ -249,9 +250,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.user != current_auth.user:
             del form.speaking
         if form.validate_on_submit():
-            form.populate_obj(self.obj)
+            with db.session.no_autoflush:
+                form.populate_obj(self.obj)
             self.obj.name = make_name(self.obj.title)
-            self.obj.edited_at = utcnow()
+            self.obj.edited_at = db.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
