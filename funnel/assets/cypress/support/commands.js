@@ -16,8 +16,10 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.fill_login_details(username, password);
 });
 
-Cypress.Commands.add('logout', (route) => {
-  cy.get('#hgnav').find('a[data-cy="account-link"]').click();
+Cypress.Commands.add('logout', route => {
+  cy.get('#hgnav')
+    .find('a[data-cy="account-link"]')
+    .click();
   cy.wait(1000);
   cy.get('a[data-cy="my-account"]').click();
   cy.get('a[data-cy="Logout"]').click();
@@ -29,7 +31,9 @@ Cypress.Commands.add('fill_login_details', (username, password) => {
 
   cy.get('.field-username').type(username, { log: false });
   cy.get('.field-password').type(password, { log: false });
-  cy.get('.form-actions').find('button').click();
+  cy.get('.form-actions')
+    .find('button')
+    .click();
   cy.wait('@login', { timeout: 20000 });
 });
 
@@ -47,17 +51,21 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
   cy.get('.select2-results__option--highlighted', { timeout: 20000 }).should(
     'be.visible'
   );
-  cy.get('.select2-results__option').contains(username).click();
+  cy.get('.select2-results__option')
+    .contains(username)
+    .click();
   cy.get('.select2-results__options', { timeout: 10000 }).should('not.visible');
   cy.get(`#is_${role}`).click();
-  cy.get('button').contains('Add member').click();
+  cy.get('button')
+    .contains('Add member')
+    .click();
   cy.wait('@add-member');
 
   if (!fail) {
     var roleString = role[0].toUpperCase() + role.slice(1);
     cy.get('[data-cy="member"]')
       .contains(username)
-      .parents('.user-box')
+      .parents('.user__box')
       .find('[data-cy="role"]')
       .contains(roleString);
   } else {
@@ -65,7 +73,7 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
   }
 });
 
-Cypress.Commands.add('checkin', (participant) => {
+Cypress.Commands.add('checkin', participant => {
   cy.server();
   cy.route('POST', '**/participants/checkin').as('checkin');
   cy.route('**/participants/json').as('participant-list');
@@ -78,7 +86,7 @@ Cypress.Commands.add('checkin', (participant) => {
   cy.wait('@checkin', { timeout: 15000 });
   cy.wait('@participant-list', { timeout: 20000 });
   cy.wait('@participant-list', { timeout: 20000 });
-  cy.wait('@participant-list', { timeout: 20000 }).then((xhr) => {
+  cy.wait('@participant-list', { timeout: 20000 }).then(xhr => {
     cy.get('button[data-cy="cancel-checkin"]').should('exist');
   });
 });
