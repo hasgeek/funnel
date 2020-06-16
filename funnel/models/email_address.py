@@ -378,6 +378,8 @@ class EmailAddress(BaseMixin, db.Model):
         """
         require_one_of(email=email, blake2b160=blake2b160, email_hash=email_hash)
         if email:
+            if not cls.is_valid_email_address(email):
+                return
             blake2b160 = email_blake2b160_hash(email)
         elif email_hash:
             blake2b160 = base58.b58decode(email_hash)
@@ -423,6 +425,8 @@ class EmailAddress(BaseMixin, db.Model):
         """
         Internal method used by :meth:`add`, :meth:`add_for` and :meth:`validate_for`.
         """
+        if not cls.is_valid_email_address(email):
+            return
         if cls.get_canonical(email, is_blocked=True).notempty():
             raise EmailAddressBlockedError("Email address is blocked")
         return EmailAddress.get(email)
@@ -496,8 +500,13 @@ class EmailAddress(BaseMixin, db.Model):
 
         This implementation will refuse to accept unusual elements such as quoted
         strings, as they are unlikely to appear in real-world use.
-         """
-        return is_email(email, check_dns=False, diagnose=True).diagnosis_type == 'VALID'
+        """
+        if email:
+            return (
+                is_email(email, check_dns=False, diagnose=True).diagnosis_type
+                == 'VALID'
+            )
+        return False
 
 
 class EmailAddressMixin:
