@@ -3002,6 +3002,7 @@ html.touch .collapsible__body--disable {
   width: auto;
 }
 .calendar-wrapper .datepicker-wrapper input {
+  min-width: 120px;
   width: auto;
   margin: 0;
   font-size: 16px;
@@ -3011,16 +3012,6 @@ html.touch .collapsible__body--disable {
   margin-left: 5px;
 }
 
-@media (min-device-width: 768px) {
-  .calendar-wrapper {
-    position: relative;
-  }
-  .calendar-wrapper .datepicker-wrapper {
-    position: absolute;
-    width: 100%;
-    top: -18px;
-  }
-}
 .jquery-modal.blocker.current .session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
@@ -3074,10 +3065,6 @@ html.touch .collapsible__body--disable {
 /* Calendar session */
 .calendar-wrapper .fc-header-title {
   display: none;
-}
-
-.calendar-wrapper__heading {
-  margin-top: 70px;
 }
 
 .fc-event .fc-event-custom {
@@ -3476,11 +3463,11 @@ body > .proposal-box.ui-draggable {
 
 .login {
   margin: 0;
-  margin-right: 8px;
   margin-bottom: 16px;
 }
 
 .login--smaller {
+  margin-right: 8px;
   margin-bottom: 8px;
 }
 
