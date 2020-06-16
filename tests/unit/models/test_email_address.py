@@ -278,6 +278,10 @@ def test_email_address_get(clean_db):
     get4 = EmailAddress.get(email_hash='2EGz72jxcsYjvXxF7r5rqfAgikor')
     assert get4 == ea1
 
+    # Will return nothing if given garbage input, or a non-existent email address
+    assert EmailAddress.get('invalid') is None
+    assert EmailAddress.get('unknown@example.com') is None
+
 
 def test_email_address_get_canonical(clean_db):
     """EmailAddress.get_canonical returns all matching records"""
@@ -318,6 +322,13 @@ def test_email_address_add(clean_db):
     ea5 = EmailAddress.add('other@example.com')
     assert ea5 == ea3
     assert ea5.email == ea3.email == 'other@example.com'
+
+    # Adding an invalid email address will raise an error
+    with pytest.raises(ValueError):
+        EmailAddress.add('invalid')
+
+    with pytest.raises(ValueError):
+        EmailAddress.add(None)
 
 
 def test_email_address_blocked(clean_db):
