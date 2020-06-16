@@ -433,7 +433,7 @@ def confirm_email(email_hash, secret):
                         "Hello <strong>{fullname}</strong>! "
                         "Your email address <code>{email}</code> has now been verified"
                     ).format(
-                        fullname=escape(emailclaim.user.fullname),
+                        fullname=escape(useremail.user.fullname),
                         email=escape(useremail.email),
                     )
                 ),
