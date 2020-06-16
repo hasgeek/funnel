@@ -18,7 +18,16 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import ParticipantForm
-from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
+from ..models import (
+    Attendee,
+    Event,
+    Participant,
+    Profile,
+    Project,
+    SyncTicket,
+    UserEmail,
+    db,
+)
 from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
@@ -128,7 +137,11 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
         form = ParticipantForm(parent=self.obj)
         if form.validate_on_submit():
             participant = Participant(project=self.obj)
-            form.populate_obj(participant)
+            useremail = UserEmail.get(email=form.email.data)
+            if useremail:
+                participant.user = useremail.user
+            with db.session.no_autoflush:
+                form.populate_obj(participant)
             try:
                 db.session.add(participant)
                 db.session.commit()

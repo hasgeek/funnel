@@ -18,7 +18,7 @@ class ParticipantForm(forms.Form):
     )
     email = forms.EmailField(
         __("Email"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
         filters=[forms.filters.strip()],
     )
     phone = forms.StringField(

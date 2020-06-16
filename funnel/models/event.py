@@ -2,6 +2,7 @@ import base64
 import os
 
 from . import BaseMixin, BaseScopedNameMixin, UuidMixin, db, with_roles
+from .email_address import EmailAddress, EmailAddressMixin
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import User
@@ -122,20 +123,17 @@ class TicketType(ScopedNameTitleMixin, db.Model):
     )
 
 
-class Participant(UuidMixin, BaseMixin, db.Model):
+class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
 
     __tablename__ = 'participant'
+    __email_optional__ = False
+    __email_for__ = 'user'
 
     fullname = with_roles(
         db.Column(db.Unicode(80), nullable=False),
-        read={'concierge', 'subject', 'scanner'},
-    )
-    #: Unvalidated email address
-    email = with_roles(
-        db.Column(db.Unicode(254), nullable=False),
         read={'concierge', 'subject', 'scanner'},
     )
     #: Unvalidated phone number
@@ -182,7 +180,13 @@ class Participant(UuidMixin, BaseMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'email'),)
+    # Since 'email' comes from the mixin, it's not available to be annotated using
+    # `with_roles`. Instead, we have to specify the roles that can access it in here:
+    __roles__ = {
+        'concierge': {'read': {'email'}},
+        'subject': {'read': {'email'}},
+        'scanner': {'read': {'email'}},
+    }
 
     def roles_for(self, actor, anchors=()):
         roles = super(Participant, self).roles_for(actor, anchors)
@@ -201,8 +205,11 @@ class Participant(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def get(cls, current_project, current_email):
+        # FIXME: This is now broken because the migration to EmailAddressMixin uncovered
+        # many dupes that used case changes in email address to represent distinct
+        # participant records. This call will fail for those records due to one_or_none.
         return cls.query.filter_by(
-            project=current_project, email=current_email
+            project=current_project, email_address=EmailAddress.get(current_email)
         ).one_or_none()
 
     @classmethod
