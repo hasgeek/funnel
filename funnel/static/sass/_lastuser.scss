@@ -111,11 +111,11 @@
 
 .login {
   margin: 0;
-  margin-right: 8px;
   margin-bottom: $mui-grid-padding;
 }
 
 .login--smaller {
+  margin-right: $mui-grid-padding/2;
   margin-bottom: $mui-grid-padding/2;
 }
 

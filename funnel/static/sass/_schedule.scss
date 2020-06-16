@@ -271,6 +271,7 @@
     }
 
     input {
+      min-width: 120px;
       width: auto;
       margin: 0;
       font-size: 16px;
@@ -279,18 +280,6 @@
     .datepicker-wrapper__tz {
       padding-top: 18px;
       margin-left: 5px;
-    }
-  }
-}
-
-@media (min-device-width: 768px) {
-  .calendar-wrapper {
-    position: relative;
-
-    .datepicker-wrapper {
-      position: absolute;
-      width: 100%;
-      top: -18px;
     }
   }
 }
@@ -356,9 +345,6 @@
 /* Calendar session */
 .calendar-wrapper .fc-header-title {
   display: none;
-}
-.calendar-wrapper__heading {
-  margin-top: 70px;
 }
 .fc-event .fc-event-custom {
   position: absolute;
