@@ -9,7 +9,12 @@ from ..models import EmailAddress
 
 class EmailAddressAvailable:
     """
-    Validator for email address being available to the current user
+    Validator for email address being available to the current user.
+
+    This validator should always be used in conjunction with the ValidEmail validator,
+    which should be used first. ValidEmail will check DNS records and inform the user
+    if the email is malformed or the domain does not have appropriate records, while
+    this one will only indicate if the email address is available for the user to claim.
     """
 
     def __call__(self, form, field):
