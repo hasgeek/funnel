@@ -3,13 +3,13 @@ from urllib.parse import urljoin
 
 import requests
 
-from baseframe import __
+from baseframe import __, statsd
 
 from .. import app, funnelapp, rq
 from ..extapi.boxoffice import Boxoffice
 from ..extapi.explara import ExplaraAPI
-from ..models import Project, ProjectLocation, TicketClient, db
-from ..views.helpers import send_mail
+from ..models import EmailAddress, Project, ProjectLocation, TicketClient, db
+from ..utils import send_mail
 
 
 @rq.job('funnel')
@@ -105,3 +105,14 @@ def tag_locations(project_id):
 @rq.job('funnel')
 def send_auth_client_notice(url, params=None, data=None, method='POST'):
     requests.request(method, url, params=params, data=data)
+
+
+@rq.job('funnel')
+def forget_email(email_hash):
+    with app.app_context():
+        email_address = EmailAddress.get(email_hash=email_hash)
+        if email_address.refcount() == 0:
+            app.logger.info("Forgetting email address with hash %s", email_hash)
+            email_address.email = None
+            db.session.commit()
+            statsd.incr('email_address.forgotten')

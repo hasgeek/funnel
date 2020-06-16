@@ -1,14 +1,17 @@
-describe('Responding yes to attend a project', function () {
+describe('Responding yes to attend a project', function() {
   const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
 
-  it('Respond to attend a project', function () {
+  it('Respond to attend a project', function() {
     cy.server();
     cy.route('POST', '**/save').as('bookmark-project');
 
     cy.login('/testcypressproject', user.username, user.password);
 
-    cy.get('a[data-cy-project="' + project.title + '"]').click();
+    cy.get('.upcoming')
+      .find('.card--upcoming')
+      .contains(project.title)
+      .click({ force: true });
     cy.location('pathname').should('contain', project.url);
     cy.get('#register-btn').click();
     cy.wait(2000);

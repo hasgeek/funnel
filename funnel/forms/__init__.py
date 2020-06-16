@@ -3,6 +3,7 @@
 from .account import *
 from .auth_client import *
 from .comment import *
+from .helpers import *
 from .label import *
 from .login import *
 from .membership import *

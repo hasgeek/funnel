@@ -19,6 +19,7 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
+from .email_address import EmailAddressMixin
 from .helpers import add_search_trigger
 from .project import Project
 from .project_membership import project_child_role_map
@@ -98,9 +99,15 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 
 
 class Proposal(
-    UuidMixin, BaseScopedIdNameMixin, CoordinatesMixin, VideoMixin, db.Model
+    UuidMixin,
+    EmailAddressMixin,
+    BaseScopedIdNameMixin,
+    CoordinatesMixin,
+    VideoMixin,
+    db.Model,
 ):
     __tablename__ = 'proposal'
+    __email_for__ = 'owner'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = with_roles(
@@ -120,7 +127,6 @@ class Proposal(
         backref=db.backref('speaker_at', cascade='all'),
     )
 
-    email = db.Column(db.Unicode(80), nullable=True)
     phone = db.Column(db.Unicode(80), nullable=True)
     bio = MarkdownColumn('bio', nullable=True)
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)

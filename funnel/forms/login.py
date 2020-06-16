@@ -104,7 +104,6 @@ class RegisterForm(forms.RecaptchaForm):
     )
 
     def validate_email(self, field):
-        field.data = field.data.lower()  # Convert to lowercase
         existing = UserEmail.get(email=field.data)
         if existing is not None:
             raise forms.ValidationError(
