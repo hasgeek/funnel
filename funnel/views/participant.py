@@ -196,6 +196,11 @@ class ParticipantView(UrlForView, ModelView):
     def edit(self):
         form = ParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
+            useremail = UserEmail.get(email=form.email.data)
+            if useremail:
+                self.obj.user = useremail.user
+            else:
+                self.obj.user = None  # Remove from existing user, if any
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_(u"Your changes have been saved"), 'info')
