@@ -18,16 +18,7 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import ParticipantForm
-from ..models import (
-    Attendee,
-    Event,
-    Participant,
-    Profile,
-    Project,
-    SyncTicket,
-    UserEmail,
-    db,
-)
+from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
 from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
 from ..views.helpers import mask_email
 from .decorators import legacy_redirect
@@ -137,9 +128,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
         form = ParticipantForm(parent=self.obj)
         if form.validate_on_submit():
             participant = Participant(project=self.obj)
-            useremail = UserEmail.get(email=form.email.data)
-            if useremail:
-                participant.user = useremail.user
+            participant.user = form.user
             with db.session.no_autoflush:
                 form.populate_obj(participant)
             try:
@@ -196,11 +185,7 @@ class ParticipantView(UrlForView, ModelView):
     def edit(self):
         form = ParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
-            useremail = UserEmail.get(email=form.email.data)
-            if useremail:
-                self.obj.user = useremail.user
-            else:
-                self.obj.user = None  # Remove from existing user, if any
+            self.obj.user = form.user
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_(u"Your changes have been saved"), 'info')

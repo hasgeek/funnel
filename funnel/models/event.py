@@ -5,7 +5,7 @@ from . import BaseMixin, BaseScopedNameMixin, UuidMixin, db, with_roles
 from .email_address import EmailAddress, EmailAddressMixin
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User
+from .user import User, UserEmail
 
 __all__ = [
     'Attendee',
@@ -215,10 +215,19 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     @classmethod
     def upsert(cls, current_project, current_email, **fields):
         participant = cls.get(current_project, current_email)
+        useremail = UserEmail.get(current_email)
+        if useremail:
+            user = useremail.user
+        else:
+            user = None
         if participant:
+            participant.user = user
             participant._set_fields(fields)
         else:
-            participant = cls(project=current_project, email=current_email, **fields)
+            with db.session.no_autoflush:
+                participant = cls(
+                    project=current_project, user=user, email=current_email, **fields
+                )
             db.session.add(participant)
         return participant
 
@@ -253,9 +262,9 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             .from_statement(
                 db.text(
                     '''
-                    SELECT distinct(participant.uuid), participant.fullname, participant.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
+                    SELECT distinct(participant.uuid), participant.fullname, email_address.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
                     (SELECT string_agg(title, ',') FROM sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.participant_id = participant.id) AS ticket_type_titles
-                    FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
+                    FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id INNER JOIN email_address ON email_address.id = participant.email_address_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
                     WHERE attendee.event_id = :event_id
                     ORDER BY participant.fullname
                     '''
