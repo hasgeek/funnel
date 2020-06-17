@@ -209,6 +209,9 @@ def login():
                 service_forms=service_forms,
                 Markup=Markup,
                 login_registry=login_registry,
+                formid='passwordlogin',
+                ref_id='form-passwordlogin',
+                title=_("Login"),
             ),
             200,
             iframe_block,
@@ -317,7 +320,7 @@ def register():
         db.session.commit()
         flash(_("You are now one of us. Welcome aboard!"), category='success')
         return redirect(get_next_url(session=True), code=303)
-    return render_template('signup_form.html.jinja2', form=form, login_registry=login_registry)
+    return render_template('signup_form.html.jinja2', form=form, login_registry=login_registry, title=_("Register account"),  formid='registeraccount', ref_id='form-registeraccount')
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])
@@ -407,6 +410,7 @@ def reset():
         message=message,
         submit=_("Send reset code"),
         ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -464,6 +468,7 @@ def reset_email(user, kwargs):
             ).format(fullname=escape(user.fullname))
         ),
         ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -698,6 +703,9 @@ def account_merge():
         user=current_auth.user,
         other_user=other_user,
         login_registry=login_registry,
+        formid='mergeaccounts',
+        ref_id='form-mergeaccounts',
+        title=_("Merge accounts"),
     )
 
 

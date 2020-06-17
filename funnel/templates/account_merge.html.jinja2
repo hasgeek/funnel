@@ -1,6 +1,4 @@
-{% extends "layout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import renderfield, renderform_inner, rendersubmit, ajaxform %}
-{% from "baseframe/components.html.jinja2" import faicon %}
+{% extends "account_formlayout.html.jinja2" %}
 
 {% block title %}{% trans %}Merge accounts{% endtrans %}{% endblock %}
 
@@ -29,11 +27,7 @@
   </ul>
 {% endmacro %}
 
-{% block contentwrapper %}
-  <div class="alert alert--error cookies-required-alert alert--dismissable">
-    <a class="alert__close" href="javascript:void(0);" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
-    <p class="alert__text">{% trans %}Cookies are required to perform this operation. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
-  </div>
+{% block loginboxcontent %}
   <p class="cookies-required">{% trans %}You appear to have two accounts. Would you like to merge them?{% endtrans %}</p>
   <div class="cookies-required grid">
     <div class="grid__col-xs-12 grid__col-sm-4">
@@ -45,7 +39,7 @@
       <div class="mui--text-subhead">{{ accountinfo(other_user) }}</div>
     </div>
   </div>
-  <form class="cookies-required mui-form mui-form--margins" id="merge-accounts" method="POST" accept-charset="UTF-8">
+  <form class="cookies-required mui-form mui-form--margins" id="form-mergeaccounts" method="POST" accept-charset="UTF-8">
     <input type="hidden" name="form.id" value="authorize"/>
     {{ form.hidden_tag() }}
     {% if form.csrf_token.errors %}

@@ -3395,10 +3395,14 @@ body > .proposal-box.ui-draggable {
 .login-page .cookies-required-alert {
   margin: 16px 0;
 }
+.login-page .form-message {
+  margin-top: 16px;
+  text-align: center;
+}
 .login-page .login-page__box {
   background-color: #fff;
   max-width: 400px;
-  margin: 0 auto;
+  margin: 16px auto;
 }
 .login-page .login-page__box .login-page__box__heading {
   margin: 0 0 16px;

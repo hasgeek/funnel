@@ -33,10 +33,14 @@
   .cookies-required-alert {
     margin: $mui-grid-padding 0;
   }
+  .form-message {
+    margin-top: $mui-grid-padding;
+    text-align: center;
+  }
   .login-page__box {
     background-color: #fff;
     max-width: 400px;
-    margin: 0 auto;
+    margin: $mui-grid-padding auto;
 
     .login-page__box__heading {
       margin: 0 0 $mui-grid-padding;

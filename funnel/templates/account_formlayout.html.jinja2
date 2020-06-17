@@ -1,0 +1,65 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/mui/forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="login-page hg-app no-sticky-header">
+  {%- else %}
+    <body class="login-page no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block headline %}{% endblock %}
+
+{% block content %}
+  <div class="login-page__back mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+  </div>
+  {%- if message %}
+    <p class="form-message">{{ message }}</p>
+  {%- endif %}
+
+  <div class="alert alert--error cookies-required-alert alert--dismissable">
+    <a class="alert__close" href="javascript:void(0);" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+    <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
+  </div>
+
+  <div class="login-page__box">
+    {% block loginboxcontent %}
+      {% block beforeformcontent %}
+      {% endblock %}
+      {% block form %}
+        <h2 class="mui--text-headline login-page__box__heading mui--text-center">{{ title }}</h2>
+        {{ ref_id }}
+        {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
+      {% endblock %}
+      {% block afterformcontent %}
+      {% endblock %}
+    {% endblock %}
+  </div>
+{% endblock %}
+
+{% block layoutscripts %}
+  {{ widget_ext_scripts(form) }}
+  <script type="text/javascript">
+    $(function() {
+      {{ widgetscripts(form, script=false, ref_id=ref_id) }}
+    });
+  </script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    // In a separate script block in case the autosize plugin isn't present
+    $(function() {
+      $('#{{ ref_id }}').parsley().subscribe('parsley:field:validated', function(){
+        if ($('#{{ ref_id }}').parsley().isValid())
+          $('#{{ ref_id }}').addClass('parsley-valid').removeClass('parsley-invalid');
+        else
+          $('#{{ ref_id }}').addClass('parsley-invalid').removeClass('parsley-valid');
+      });
+    })
+  </script>
+  {{ ajaxform(ref_id=ref_id, request=request, force=ajax) }}
+  {% block footerscripts %}{% endblock %}
+{% endblock %}

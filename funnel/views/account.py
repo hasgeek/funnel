@@ -1,6 +1,6 @@
 from collections import Counter
 
-from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
+from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for, render_template
 
 import base58
 
@@ -365,6 +365,7 @@ def account_edit(newprofile=False):
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
             ajax=True,
+            template='account_formlayout.html.jinja2',
         )
     else:
         return render_form(
@@ -373,7 +374,7 @@ def account_edit(newprofile=False):
             formid='account_edit',
             submit=_("Save changes"),
             ajax=True,
-            cancel_url=url_for('account') if not newprofile else None,
+            template='account_formlayout.html.jinja2',
         )
 
 
@@ -488,14 +489,7 @@ def change_password():
         return render_redirect(
             get_next_url(session=True, default=url_for('account')), code=303
         )
-    return render_form(
-        form=form,
-        title=_("Change password"),
-        formid='changepassword',
-        submit=_("Change password"),
-        cancel_url=url_for('account'),
-        ajax=True,
-    )
+    return render_template('change_password.html.jinja2', form=form, title=_("Change password"), formid='changepassword', ref_id='form-changepassword')
 
 
 @app.route('/account/email/new', methods=['GET', 'POST'])
@@ -522,6 +516,7 @@ def add_email():
         formid='email_add',
         submit=_("Add email"),
         ajax=True,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -647,7 +642,7 @@ def verify_email(email_hash):
         ),
         formid="email_verify",
         submit=_("Send"),
-        cancel_url=url_for('account'),
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -679,6 +674,7 @@ def add_phone():
         formid='phone_add',
         submit=_("Verify phone"),
         ajax=True,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -774,6 +770,7 @@ def verify_phone(phoneclaim):
         formid='phone_verify',
         submit=_("Verify"),
         ajax=True,
+        template='account_formlayout.html.jinja2',
     )
 
 
