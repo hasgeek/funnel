@@ -130,6 +130,14 @@ def upgrade():
     op.add_column(
         'participant', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
+    op.create_foreign_key(
+        'participant_email_address_id_fkey',
+        'participant',
+        'email_address',
+        ['email_address_id'],
+        ['id'],
+        ondelete='SET NULL',
+    )
 
     count = conn.scalar(sa.select([sa.func.count('*')]).select_from(participant))
     progress = get_progressbar("Participants", count)
@@ -144,59 +152,71 @@ def upgrade():
             ]
         ).order_by(participant.c.id)
     )
+    dupe_counter = {}  # (project_id, blake2b160): counter
     for counter, item in enumerate(items):
         email = item.email.strip()
         if not is_email(email, check_dns=False, diagnose=False):
             email = 'invalid@example.org'
-        if email:
+
+        blake2b160 = email_blake2b160_hash(email)
+
+        dc_key = (item.project_id, blake2b160)
+        dc_count = dupe_counter.get(dc_key, 0)
+        dupe_counter[dc_key] = dc_count + 1
+        # If we've seen this pairing of project_id and hash already, add a counter
+        if dc_count > 0:
+            mailbox, domain = email.split('@', 1)
+            email = f'{mailbox}+{dc_count}@{domain}'  # Will start counter at +1
             blake2b160 = email_blake2b160_hash(email)
-            existing = conn.execute(
-                sa.select([email_address.c.id, email_address.c.created_at])
-                .where(email_address.c.blake2b160 == blake2b160)
-                .limit(1)
-            ).fetchone()
-            if existing:
-                ea_id = existing.id
-                if existing.created_at > item.created_at:
-                    conn.execute(
-                        email_address.update()
-                        .where(email_address.c.id == existing.id)
-                        .values(created_at=item.created_at)
-                    )
-                # Get matching user via user_email if present
-                user_id = conn.scalar(
-                    sa.select([user.c.id]).where(
-                        sa.and_(
-                            email_address.c.id == ea_id,
-                            user_email.c.email_address_id == email_address.c.id,
-                            user.c.id == user_email.c.user_id,
-                        )
+
+        existing = conn.execute(
+            sa.select([email_address.c.id, email_address.c.created_at])
+            .where(email_address.c.blake2b160 == blake2b160)
+            .limit(1)
+        ).fetchone()
+        if existing:
+            ea_id = existing.id
+            if existing.created_at > item.created_at:
+                conn.execute(
+                    email_address.update()
+                    .where(email_address.c.id == existing.id)
+                    .values(created_at=item.created_at)
+                )
+            # Get linked user via user_email if present
+            user_id = conn.scalar(
+                sa.select([user.c.id]).where(
+                    sa.and_(
+                        email_address.c.id == ea_id,
+                        user_email.c.email_address_id == email_address.c.id,
+                        user.c.id == user_email.c.user_id,
                     )
                 )
-            else:
-                ea_id = conn.scalar(
-                    email_address.insert()
-                    .values(
-                        created_at=item.created_at,
-                        updated_at=item.created_at,
-                        email=email,
-                        domain=email_domain(email),
-                        blake2b160=blake2b160,
-                        blake2b160_canonical=email_blake2b160_hash(
-                            canonical_email_representation(email)[0]
-                        ),
-                        delivery_state=0,
-                        delivery_state_at=item.created_at,
-                        is_blocked=False,
-                    )
-                    .returning(email_address.c.id)
-                )
-                user_id = None
-            conn.execute(
-                participant.update()
-                .where(participant.c.id == item.id)
-                .values(email_address_id=ea_id, user_id=user_id)
             )
+        else:
+            ea_id = conn.scalar(
+                email_address.insert()
+                .values(
+                    created_at=item.created_at,
+                    updated_at=item.created_at,
+                    email=email,
+                    domain=email_domain(email),
+                    blake2b160=blake2b160,
+                    blake2b160_canonical=email_blake2b160_hash(
+                        canonical_email_representation(email)[0]
+                    ),
+                    delivery_state=0,
+                    delivery_state_at=item.created_at,
+                    is_blocked=False,
+                )
+                .returning(email_address.c.id)
+            )
+            # New email address, so there won't be a linked user_email record
+            user_id = None
+        conn.execute(
+            participant.update()
+            .where(participant.c.id == item.id)
+            .values(email_address_id=ea_id, user_id=user_id)
+        )
         progress.update(counter)
     progress.finish()
 
@@ -208,16 +228,13 @@ def upgrade():
         ['email_address_id'],
         unique=False,
     )
+    op.create_unique_constraint(
+        'participant_project_id_email_address_id_key',
+        'participant',
+        ['project_id', 'email_address_id'],
+    )
     op.drop_constraint(
         'participant_project_id_email_key', 'participant', type_='unique'
-    )
-    op.create_foreign_key(
-        'participant_email_address_id_fkey',
-        'participant',
-        'email_address',
-        ['email_address_id'],
-        ['id'],
-        ondelete='SET NULL',
     )
     op.drop_column('participant', 'email')
 
@@ -247,6 +264,9 @@ def downgrade():
     progress.finish()
 
     op.alter_column('participant', 'email', nullable=False)
+    op.create_unique_constraint(
+        'participant_project_id_email_key', 'participant', ['project_id', 'email']
+    )
     op.drop_constraint(
         'participant_email_address_id_fkey', 'participant', type_='foreignkey'
     )

@@ -180,6 +180,8 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
 
+    __table_args__ = (db.UniqueConstraint('project_id', 'email_address_id'),)
+
     # Since 'email' comes from the mixin, it's not available to be annotated using
     # `with_roles`. Instead, we have to specify the roles that can access it in here:
     __roles__ = {
@@ -205,9 +207,6 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def get(cls, current_project, current_email):
-        # FIXME: This is now broken because the migration to EmailAddressMixin uncovered
-        # many dupes that used case changes in email address to represent distinct
-        # participant records. This call will fail for those records due to one_or_none.
         return cls.query.filter_by(
             project=current_project, email_address=EmailAddress.get(current_email)
         ).one_or_none()
