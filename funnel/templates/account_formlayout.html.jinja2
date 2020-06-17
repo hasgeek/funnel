@@ -32,7 +32,6 @@
       {% endblock %}
       {% block form %}
         <h2 class="mui--text-headline login-page__box__heading mui--text-center">{{ title }}</h2>
-        {{ ref_id }}
         {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
       {% endblock %}
       {% block afterformcontent %}
