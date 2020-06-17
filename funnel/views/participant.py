@@ -128,7 +128,9 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
         form = ParticipantForm(parent=self.obj)
         if form.validate_on_submit():
             participant = Participant(project=self.obj)
-            form.populate_obj(participant)
+            participant.user = form.user
+            with db.session.no_autoflush:
+                form.populate_obj(participant)
             try:
                 db.session.add(participant)
                 db.session.commit()
@@ -183,6 +185,7 @@ class ParticipantView(UrlForView, ModelView):
     def edit(self):
         form = ParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
+            self.obj.user = form.user
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_(u"Your changes have been saved"), 'info')

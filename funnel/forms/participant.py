@@ -4,13 +4,15 @@ from wtforms.widgets import CheckboxInput, ListWidget
 from baseframe import __
 import baseframe.forms as forms
 
-from ..models import Participant
+from ..models import Participant, UserEmail, db
 
 __all__ = ['ParticipantBadgeForm', 'ParticipantForm']
 
 
 @Participant.forms('main')
 class ParticipantForm(forms.Form):
+    __returns__ = ('user',)
+
     fullname = forms.StringField(
         __("Fullname"),
         validators=[forms.validators.DataRequired()],
@@ -18,7 +20,7 @@ class ParticipantForm(forms.Form):
     )
     email = forms.EmailField(
         __("Email"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
         filters=[forms.filters.strip()],
     )
     phone = forms.StringField(
@@ -58,6 +60,16 @@ class ParticipantForm(forms.Form):
     def set_queries(self):
         if self.edit_parent is not None:
             self.events.query = self.edit_parent.events
+
+    def validate(self):
+        result = super().validate()
+        with db.session.no_autoflush:
+            useremail = UserEmail.get(email=self.email.data)
+            if useremail:
+                self.user = useremail.user
+            else:
+                self.user = None
+        return result
 
 
 @Participant.forms('badge')

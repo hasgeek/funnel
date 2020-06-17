@@ -2,9 +2,10 @@ import base64
 import os
 
 from . import BaseMixin, BaseScopedNameMixin, UuidMixin, db, with_roles
+from .email_address import EmailAddress, EmailAddressMixin
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User
+from .user import User, UserEmail
 
 __all__ = [
     'Attendee',
@@ -122,20 +123,17 @@ class TicketType(ScopedNameTitleMixin, db.Model):
     )
 
 
-class Participant(UuidMixin, BaseMixin, db.Model):
+class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
 
     __tablename__ = 'participant'
+    __email_optional__ = False
+    __email_for__ = 'user'
 
     fullname = with_roles(
         db.Column(db.Unicode(80), nullable=False),
-        read={'concierge', 'subject', 'scanner'},
-    )
-    #: Unvalidated email address
-    email = with_roles(
-        db.Column(db.Unicode(254), nullable=False),
         read={'concierge', 'subject', 'scanner'},
     )
     #: Unvalidated phone number
@@ -182,7 +180,15 @@ class Participant(UuidMixin, BaseMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'email'),)
+    __table_args__ = (db.UniqueConstraint('project_id', 'email_address_id'),)
+
+    # Since 'email' comes from the mixin, it's not available to be annotated using
+    # `with_roles`. Instead, we have to specify the roles that can access it in here:
+    __roles__ = {
+        'concierge': {'read': {'email'}},
+        'subject': {'read': {'email'}},
+        'scanner': {'read': {'email'}},
+    }
 
     def roles_for(self, actor, anchors=()):
         roles = super(Participant, self).roles_for(actor, anchors)
@@ -202,16 +208,25 @@ class Participant(UuidMixin, BaseMixin, db.Model):
     @classmethod
     def get(cls, current_project, current_email):
         return cls.query.filter_by(
-            project=current_project, email=current_email
+            project=current_project, email_address=EmailAddress.get(current_email)
         ).one_or_none()
 
     @classmethod
     def upsert(cls, current_project, current_email, **fields):
         participant = cls.get(current_project, current_email)
+        useremail = UserEmail.get(current_email)
+        if useremail:
+            user = useremail.user
+        else:
+            user = None
         if participant:
+            participant.user = user
             participant._set_fields(fields)
         else:
-            participant = cls(project=current_project, email=current_email, **fields)
+            with db.session.no_autoflush:
+                participant = cls(
+                    project=current_project, user=user, email=current_email, **fields
+                )
             db.session.add(participant)
         return participant
 
@@ -246,9 +261,9 @@ class Participant(UuidMixin, BaseMixin, db.Model):
             .from_statement(
                 db.text(
                     '''
-                    SELECT distinct(participant.uuid), participant.fullname, participant.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
+                    SELECT distinct(participant.uuid), participant.fullname, email_address.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
                     (SELECT string_agg(title, ',') FROM sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.participant_id = participant.id) AS ticket_type_titles
-                    FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
+                    FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id INNER JOIN email_address ON email_address.id = participant.email_address_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
                     WHERE attendee.event_id = :event_id
                     ORDER BY participant.fullname
                     '''

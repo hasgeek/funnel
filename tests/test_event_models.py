@@ -3,6 +3,7 @@ import unittest
 from coaster.utils import uuid_b58
 from funnel import app
 from funnel.models import (
+    EmailAddress,
     Event,
     Organization,
     Participant,
@@ -101,13 +102,16 @@ class TestEventModels(unittest.TestCase):
         # test bookings
         self.ticket_client.import_from_list(ticket_list)
         p1 = Participant.query.filter_by(
-            email='participant1@gmail.com', project=self.project
+            email_address=EmailAddress.get('participant1@gmail.com'),
+            project=self.project,
         ).one_or_none()
         p2 = Participant.query.filter_by(
-            email='participant2@gmail.com', project=self.project
+            email_address=EmailAddress.get('participant2@gmail.com'),
+            project=self.project,
         ).one_or_none()
         p3 = Participant.query.filter_by(
-            email='participant3@gmail.com', project=self.project
+            email_address=EmailAddress.get('participant3@gmail.com'),
+            project=self.project,
         ).one_or_none()
         self.assertEqual(SyncTicket.query.count(), 3)
         self.assertEqual(Participant.query.count(), 3)
@@ -124,7 +128,8 @@ class TestEventModels(unittest.TestCase):
         # test_transfers
         self.ticket_client.import_from_list(ticket_list3)
         p4 = Participant.query.filter_by(
-            email='participant4@gmail.com', project=self.project
+            email_address=EmailAddress.get('participant4@gmail.com'),
+            project=self.project,
         ).one_or_none()
         self.assertEqual(len(p1.events), 2)
         self.assertEqual(len(p2.events), 0)
