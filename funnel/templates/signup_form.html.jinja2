@@ -8,6 +8,14 @@
   </div>
   <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center"><span class="login-page__box__title__txt">{% trans %}or use your email instead{% endtrans %}</span></p>
 {% endblock %}
+
+{% block form %}
+  <form data-parsley-validate="true" id="{{ ref_id }}" method="POST" class="mui-form mui-form--margins password-form" accept-charset="UTF-8">
+    {{ renderform_inner(form, formid) }}
+    {{ rendersubmit([(none, "Sign up", 'mui-btn--primary mui--hide js-change-password')]) }}
+  </form>
+{% endblock %}
+
 {% block afterformcontent %}
   <p class="mui--text-caption">{% trans %}By signing in, you agree to HasGeek’s <a href="/about/policy/terms">terms of service</a> and <a href="/about/policy/privacy" target="_blank">privacy policy</a>.{% endtrans %}</p>
   <p class="mui--text-subhead login-page__box__note">{% trans %}Already have an account?{% endtrans %} <a href="{{ url_for('login') }}">{% trans %}Login{% endtrans %}</a></p>

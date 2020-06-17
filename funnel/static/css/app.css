@@ -1550,23 +1550,20 @@ a.loginbutton.hidden,
   min-width: 160px;
 }
 
-#form-registeraccount #field-password .progress,
-#form-changepassword #field-password .progress {
+.password-form #field-password .progress {
   visibility: hidden;
   display: block;
 }
 
-#form-registeraccount #field-password .mui-textfield--password .password-toggle,
-#form-changepassword #field-password .mui-textfield--password .password-toggle {
+.password-form #field-password .mui-textfield--password .password-toggle {
   bottom: 13px;
 }
 
-#form-registeraccount #field-password .progress.progress--show,
-#form-changepassword #field-password .progress.progress--show {
+.password-form #field-password .progress.progress--show {
   visibility: visible;
 }
 
-.password-valid.parsley-valid .js-change-password {
+.password-form.password-valid.parsley-valid .js-change-password {
   display: block !important;
 }
 

@@ -60,5 +60,63 @@
     })
   </script>
   {{ ajaxform(ref_id=ref_id, request=request, force=ajax) }}
+  <script type="text/javascript">
+    $(function() {
+      var typingTimer;
+      var typingWaitInterval = 100;
+      var waitingForResponse = false;
+      var ajaxTimeout = 15000;
+
+      $('.password-form input[type="password"]#password').on('change', function(e) {
+        checkPasswordStrength(this);
+      });
+
+      $('.password-form input[type="password"]#password').on('keydown', function(e) {
+        var field = this;
+        if(typingTimer) clearTimeout(typingTimer);
+        typingTimer = setTimeout(function() {
+          checkPasswordStrength(field);
+        }, typingWaitInterval);
+      });
+
+      function checkPasswordStrength(field) {
+        if($(field).val()) {
+          $.ajax({
+            type: 'POST',
+            url: '/api/1/password/policy',
+            dataType: 'json',
+            data: { 'candidate': $(field).val()},
+            timeout: ajaxTimeout,
+            success: function (remoteData) {
+              $(field).parent().find('.progress').addClass('progress--show');
+              var widthPercentage = remoteData.result.strength*100 + '%';
+              $(field).parent().find('.progress__bar').css('width', widthPercentage);
+              if(remoteData.result.is_weak) {
+                $(field).parent().find('.progress__txt').text('Weak');
+                $(field).parent().find('.progress__bar').removeClass('progress__bar--success').removeClass('progress__bar--warning').addClass('progress__bar--danger');
+                $('#{{ ref_id }}').removeClass('password-valid');
+              } else {
+                if(remoteData.result.strength > 0.7) {
+                  $(field).parent().find('.progress__txt').text('Good');
+                  $(field).parent().find('.progress__bar').removeClass('progress__bar--danger').removeClass('progress__bar--warning').addClass('progress__bar--success');
+                  $('#{{ ref_id }}').addClass('password-valid');
+                } else {
+                  $(field).parent().find('.progress__txt').text('Medium');
+                  $(field).parent().find('.progress__bar').removeClass('progress__bar--danger').removeClass('progress__bar--success').addClass('progress__bar--warning');
+                }
+              }
+            },
+          });
+        }
+      }
+
+      $('.password-form').parsley().subscribe('parsley:field:validated', function(){
+        if ($('.password-form').parsley().isValid() && $('.password-form').hasClass('password-valid'))
+          $('.password-form').find('button.js-change-password').removeClass('mui--hide');
+        else
+          $('.password-form').find('button.js-change-password').addClass('mui--hide');
+      });
+    });
+  </script>
   {% block footerscripts %}{% endblock %}
 {% endblock %}
