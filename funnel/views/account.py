@@ -489,7 +489,13 @@ def change_password():
         return render_redirect(
             get_next_url(session=True, default=url_for('account')), code=303
         )
-    return render_template('change_password.html.jinja2', form=form, title=_("Change password"), formid='changepassword', ref_id='form-changepassword')
+    return render_template(
+        'change_password.html.jinja2',
+        form=form,
+        title=_("Change password"),
+        formid='changepassword',
+        ref_id='password-form'
+    )
 
 
 @app.route('/account/email/new', methods=['GET', 'POST'])

@@ -1550,20 +1550,20 @@ a.loginbutton.hidden,
   min-width: 160px;
 }
 
-.password-form #field-password .progress {
+#password-form #field-password .progress {
   visibility: hidden;
   display: block;
 }
 
-.password-form #field-password .mui-textfield--password .password-toggle {
+#password-form #field-password .mui-textfield--password .password-toggle {
   bottom: 13px;
 }
 
-.password-form #field-password .progress.progress--show {
+#password-form #field-password .progress.progress--show {
   visibility: visible;
 }
 
-.password-form.password-valid.parsley-valid .js-change-password {
+#password-form.password-valid.parsley-valid .js-change-password {
   display: block !important;
 }
 

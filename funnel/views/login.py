@@ -210,7 +210,7 @@ def login():
                 Markup=Markup,
                 login_registry=login_registry,
                 formid='passwordlogin',
-                ref_id='form-passwordlogin',
+                ref_id='password-form',
                 title=_("Login"),
             ),
             200,
@@ -320,7 +320,14 @@ def register():
         db.session.commit()
         flash(_("You are now one of us. Welcome aboard!"), category='success')
         return redirect(get_next_url(session=True), code=303)
-    return render_template('signup_form.html.jinja2', form=form, login_registry=login_registry, title=_("Register account"),  formid='registeraccount', ref_id='form-registeraccount')
+    return render_template(
+        'signup_form.html.jinja2',
+        form=form,
+        login_registry=login_registry,
+        title=_("Register account"),
+        formid='registeraccount',
+        ref_id='password-form'
+    )
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])
@@ -468,6 +475,7 @@ def reset_email(user, kwargs):
             ).format(fullname=escape(user.fullname))
         ),
         ajax=False,
+        ref_id='password-form',
         template='account_formlayout.html.jinja2',
     )
 
