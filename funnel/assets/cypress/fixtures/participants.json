@@ -1,7 +1,7 @@
 [
   {
     "fullname": "Alpha Bravo",
-    "email": "alpha@test.com",
+    "email": "alpha@mailinator.com",
     "phone": "9102345679",
     "company": "Tango",
     "twitter": "alpha_bravo",
@@ -9,7 +9,7 @@
   },
   {
     "fullname": "Charlie Delta",
-    "email": "bravo@test.com",
+    "email": "bravo@mailinator.com",
     "phone": "9102345679",
     "company": "Sierra",
     "twitter": "bravo123",
@@ -17,7 +17,7 @@
   },
   {
     "fullname": "Echo Foxtrot",
-    "email": "charlie@test.com",
+    "email": "charlie@mailinator.com",
     "phone": "9102345679",
     "company": "Zulu",
     "twitter": "delta",
