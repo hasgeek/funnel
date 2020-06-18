@@ -44,7 +44,7 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
 
     The 'active' state here is used to distinguish from an abandoned mailbox that
     continues to receive messages, or one that drops them without reporting a bounce.
-    For example, email delivery to the spam folder will appear normal but not active.
+    For example, email delivery to the spam folder will appear sent but not active.
     The 'active' state is not a record of the activity of a recipient, as that requires
     tracking per email message sent and not per email address.
 
@@ -53,10 +53,12 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
     """
 
     UNKNOWN = (0, 'unknown')  # Never mailed
-    NORMAL = (1, 'normal')  # Mail sent, nothing further known
+    SENT = (1, 'sent')  # Mail sent, nothing further known
     ACTIVE = (2, 'active')  # Recipient is interacting with received messages
     SOFT_FAIL = (3, 'soft_fail')  # Soft fail reported
     HARD_FAIL = (4, 'hard_fail')  # Hard fail reported
+
+    NOT_ACTIVE = {UNKNOWN, SENT, SOFT_FAIL, HARD_FAIL}
 
 
 def canonical_email_representation(email: str) -> List[str]:
@@ -341,7 +343,8 @@ class EmailAddress(BaseMixin, db.Model):
                     return False
         return True
 
-    @delivery_state.transition(None, delivery_state.NORMAL)
+    # Do not allow transition from ACTIVE to NORMAL; only from other states
+    @delivery_state.transition(delivery_state.NOT_ACTIVE, delivery_state.SENT)
     def mark_sent(self) -> None:
         """Record fact of an email message being sent to this address."""
         self.delivery_state_at = db.func.utcnow()

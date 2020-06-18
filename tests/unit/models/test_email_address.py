@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
+from coaster.sqlalchemy import StateTransitionError
 from funnel.models import BaseMixin, db
 from funnel.models.email_address import (
     EmailAddress,
@@ -356,13 +357,24 @@ def test_email_address_delivery_state(clean_db):
     # Calling a transition will change state and set timestamp to update on commit
     ea.mark_sent()
     # An email was sent. Nothing more is known
-    assert ea.delivery_state.NORMAL
+    assert ea.delivery_state.SENT
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
+
+    # mark_sent() can be called each time an email is sent
+    ea.mark_sent()
 
     # Recipient is known to be interacting with email (viewing or opening links)
     ea.mark_active()
     assert ea.delivery_state.ACTIVE
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
+
+    # Active state cannot be downgraded to normal state
+    with pytest.raises(StateTransitionError):
+        ea.mark_sent()
+
+    # The proper protocol is to call mark_sent() only when it's available:
+    if ea.mark_sent.is_available:
+        ea.mark_sent()
 
     # Sent email is soft bouncing (typically mailbox full)
     ea.mark_soft_fail()
@@ -620,7 +632,7 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert ea.delivery_state.UNKNOWN
 
     ea.mark_sent()
-    assert ea.delivery_state.NORMAL
+    assert ea.delivery_state.SENT
     assert EmailAddress.validate_for(user1, 'example@example.com') is True
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False

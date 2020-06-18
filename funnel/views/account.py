@@ -385,6 +385,7 @@ def confirm_email(email_hash, secret):
     kwargs = blake2b_b58(email_hash)
     emailclaim = UserEmailClaim.get_by(verification_code=secret, **kwargs)
     if emailclaim is not None:
+        emailclaim.email_address.mark_active()
         if 'verify' in emailclaim.permissions(current_auth.user):
             existing = UserEmail.get(email=emailclaim.email)
             if existing is not None:
