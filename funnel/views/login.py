@@ -330,7 +330,7 @@ def register():
         login_registry=login_registry,
         title=_("Register account"),
         formid='registeraccount',
-        ref_id='form-password-change'
+        ref_id='form-password-change',
     )
 
 
