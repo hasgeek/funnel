@@ -489,12 +489,13 @@ def change_password():
         return render_redirect(
             get_next_url(session=True, default=url_for('account')), code=303
         )
-    return render_template(
-        'change_password.html.jinja2',
+    return render_form(
         form=form,
         title=_("Change password"),
-        formid='changepassword',
-        ref_id='password-form'
+        formid='password-change',
+        submit=_("Change password"),
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -521,7 +522,7 @@ def add_email():
         title=_("Add an email address"),
         formid='email_add',
         submit=_("Add email"),
-        ajax=True,
+        ajax=False,
         template='account_formlayout.html.jinja2',
     )
 
@@ -674,6 +675,7 @@ def add_phone():
         except ValueError as e:
             db.session.rollback()
             form.phone.errors.append(str(e))
+    print('error', form)
     return render_form(
         form=form,
         title=_("Add a phone number"),

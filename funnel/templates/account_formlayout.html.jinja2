@@ -49,7 +49,6 @@
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
   <script type="text/javascript">
-    // In a separate script block in case the autosize plugin isn't present
     $(function() {
       $('#{{ ref_id }}').parsley().subscribe('parsley:field:validated', function(){
         if ($('#{{ ref_id }}').parsley().isValid())
@@ -67,11 +66,11 @@
       var waitingForResponse = false;
       var ajaxTimeout = 15000;
 
-      $('.password-form input[type="password"]#password').on('change', function(e) {
+      $('#form-password-change input[type="password"]#password').on('change', function(e) {
         checkPasswordStrength(this);
       });
 
-      $('.password-form input[type="password"]#password').on('keydown', function(e) {
+      $('#form-password-change input[type="password"]#password').on('keydown', function(e) {
         var field = this;
         if(typingTimer) clearTimeout(typingTimer);
         typingTimer = setTimeout(function() {
@@ -110,12 +109,20 @@
         }
       }
 
-      if($('.password-form').length) {
-        $('.password-form').parsley().subscribe('parsley:field:validated', function(){
-          if ($('.password-form').parsley().isValid() && $('.password-form').hasClass('password-valid'))
-            $('.password-form').find('button.js-change-password').removeClass('mui--hide');
-          else
-            $('.password-form').find('button.js-change-password').addClass('mui--hide');
+      if($('#form-password-change').length) {
+
+        $('#form-password-change').find('button[type="submit"]').attr('disabled', true);
+        $('#form-password-change input[type="password"]#confirm_password').on('keydown', function(e) {
+          $(this).parsley().validate();
+        });
+
+        $('#form-password-change').parsley().subscribe('parsley:field:validated', function(){
+          if ($('#form-password-change').parsley().isValid() && $('#form-password-change').hasClass('password-valid')) {
+            $('#form-password-change').find('button[type="submit"]').attr('disabled', false);
+          }
+          else {
+            $('#form-password-change').find('button[type="submit"]').attr('disabled', true);
+          }
         });
       }
     });

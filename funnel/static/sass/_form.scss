@@ -299,20 +299,17 @@
   min-width: 160px;
 }
 
-#password-form #field-password .progress {
+#form-password-change #field-password .progress {
   visibility: hidden;
   display: block;
 }
 
-#password-form #field-password .mui-textfield--password {
+#form-password-change #field-password .mui-textfield--password {
   .password-toggle {
     bottom: 13px;
   }
 }
 
-#password-form #field-password .progress.progress--show {
+#form-password-change #field-password .progress.progress--show {
   visibility: visible;
-}
-#password-form.password-valid.parsley-valid .js-change-password {
-  display: block !important;
 }

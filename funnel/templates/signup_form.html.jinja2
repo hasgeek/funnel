@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block form %}
-  <form data-parsley-validate="true" id="{{ ref_id }}" method="POST" class="mui-form mui-form--margins password-form" accept-charset="UTF-8">
+  <form data-parsley-validate="true" data-parsley-trigger="keyup" id="{{ ref_id }}" method="POST" class="mui-form mui-form--margins" accept-charset="UTF-8">
     {{ renderform_inner(form, formid) }}
-    {{ rendersubmit([(none, "Sign up", 'mui-btn--primary mui--hide js-change-password')]) }}
+    {{ rendersubmit([(none, "Sign up", 'mui-btn--primary')]) }}
   </form>
 {% endblock %}
 
