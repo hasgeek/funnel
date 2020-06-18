@@ -110,12 +110,14 @@
         }
       }
 
-      $('.password-form').parsley().subscribe('parsley:field:validated', function(){
-        if ($('.password-form').parsley().isValid() && $('.password-form').hasClass('password-valid'))
-          $('.password-form').find('button.js-change-password').removeClass('mui--hide');
-        else
-          $('.password-form').find('button.js-change-password').addClass('mui--hide');
-      });
+      if($('.password-form').length) {
+        $('.password-form').parsley().subscribe('parsley:field:validated', function(){
+          if ($('.password-form').parsley().isValid() && $('.password-form').hasClass('password-valid'))
+            $('.password-form').find('button.js-change-password').removeClass('mui--hide');
+          else
+            $('.password-form').find('button.js-change-password').addClass('mui--hide');
+        });
+      }
     });
   </script>
   {% block footerscripts %}{% endblock %}

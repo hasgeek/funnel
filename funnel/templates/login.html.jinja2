@@ -25,3 +25,7 @@
 {% block afterformcontent %}
   <p class="mui--text-subhead login-page__box__note">{% trans %}Don’t have an account?{% endtrans %} <a href="{{ url_for('register') }}" data-cy="signup">{% trans %}Sign up with email{% endtrans %}</a>
 {% endblock %}
+
+{% block footerscripts %}
+  {{ ajaxform('form-passwordlogin', request, True) }}
+{% endblock %}
