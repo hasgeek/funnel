@@ -111,14 +111,14 @@ def email_normalized(email: str) -> str:
     """
     Return a normalized representation of the email address, for unique hashing.
 
-    Casts the address into lowercase and encodes IDN domains into punycode. The
+    Casts the mailbox portion into lowercase and encodes IDN domains into punycode. The
     resulting address remains valid for sending email, but the original should be used
     as the mailbox portion is technically case-sensitive, even if unlikely in practice.
     """
     mailbox, domain = email.split('@', 1)
     mailbox = mailbox.lower()
     domain = idna.encode(domain, uts46=True).decode()
-    return '{}@{}'.format(mailbox, domain)
+    return f'{mailbox}@{domain}'
 
 
 def email_blake2b160_hash(email: str) -> bytes:
@@ -139,26 +139,44 @@ class EmailAddressBlockedError(EmailAddressError):
 
 
 class EmailAddressInUseError(EmailAddressError):
-    """Email address is in use by another actor"""
+    """Email address is in use by another owner"""
 
 
 class EmailAddress(BaseMixin, db.Model):
     """
     Represents an email address as a standalone entity, with associated metadata.
 
-    Also supports the notion of a forgotten email address, holding a placeholder for it
-    using a hash of the email address, to prevent accidental rememberance by replay.
-    Use cases include unsubscription, where we don't want to store the email address,
-    while also being able to identify that it was unsubscribed.
+    Prior to this model, email addresses were regarded as properties of other models.
+    Specifically: Proposal.email, Participant.email, User.emails and User.emailclaims,
+    the latter two lists populated using the UserEmail and UserEmailClaim join model.
+    This subordination made it difficult to track ownership of an email address or its
+    reachability (active, bouncing, etc). Having EmailAddress as a standalone model
+    (with incoming foreign keys) provides some sanity:
 
-    New email addresses must be added using the :meth:`add` classmethod.
+    1. Email addresses are stored with a hash, and always looked up using the hash. This
+       allows the address to be forgotten while preserving the record for app metadata.
+    2. A forgotten address's record can be restored given the correct email address.
+    3. Addresses can be automatically forgotten when they are no longer referenced. This
+       ability is implemented using the :attr:`emailaddress_refcount_dropping` signal
+       and supporting code in ``views/helpers.py`` and ``jobs/jobs.py``.
+    4. If there is abuse, an email address can be comprehensively blocked using its
+       canonical representation, which prevents the address from being used even via
+       its ``+sub-address`` variations.
+    5. Via :class:`EmailAddressMixin`, the UserEmail model can establish ownership of
+       an email address on behalf of a user, placing an automatic block on its use by
+       other users. This mechanism is not limited to users. A future OrgEmail link can
+       establish ownership on behalf of an organization.
+    6. Upcoming: column-level encryption of the email column, securing SQL dumps.
+
+    New email addresses must be added using the :meth:`add` or :meth:`add_for`
+    classmethods, depending on whether the email address is linked to an owner or not.
     """
 
     __tablename__ = 'email_address'
 
     #: Backrefs to this model from other models, populated by :class:`EmailAddressMixin`
     __backrefs__ = set()
-    #: These backrefs claim exclusive use of the email address for their linked actor.
+    #: These backrefs claim exclusive use of the email address for their linked owner.
     #: See :class:`EmailAddressMixin` for implementation detail
     __exclusive_backrefs__ = set()
 
@@ -314,12 +332,12 @@ class EmailAddress(BaseMixin, db.Model):
         self.email = email
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
-    def is_available_for(self, actor: Any):
-        """Return True if this EmailAddress is available for the given actor"""
+    def is_available_for(self, owner: Any):
+        """Return True if this EmailAddress is available for the given owner"""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
                 user = getattr(related_obj, related_obj.__email_for__)
-                if user is not None and user != actor:
+                if user is not None and user != owner:
                     return False
         return True
 
@@ -448,7 +466,7 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def add_for(cls, actor: Optional[Any], email: str) -> EmailAddress:
+    def add_for(cls, owner: Optional[Any], email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -457,7 +475,7 @@ class EmailAddress(BaseMixin, db.Model):
         """
         existing = cls._get_existing(email)
         if existing:
-            if not existing.is_available_for(actor):
+            if not existing.is_available_for(owner):
                 raise EmailAddressInUseError("This email address is in use")
             # No exclusive lock found? Let it be used then
             existing.email = email
@@ -467,7 +485,7 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def validate_for(cls, actor: Optional[Any], email: str) -> Union[bool, str]:
+    def validate_for(cls, owner: Optional[Any], email: str) -> Union[bool, str]:
         """
         Validate whether the specified email address is available to the specified user.
 
@@ -484,8 +502,8 @@ class EmailAddress(BaseMixin, db.Model):
         if not existing:
             if cls.is_valid_email_address(email):
                 return True
-        # There's an existing? Is it available for this actor?
-        if not existing.is_available_for(actor):
+        # There's an existing? Is it available for this owner?
+        if not existing.is_available_for(owner):
             return False
         if existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
