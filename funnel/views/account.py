@@ -1,6 +1,6 @@
 from collections import Counter
 
-from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for, render_template
+from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 import base58
 
@@ -31,6 +31,7 @@ from ..forms import (
     NewEmailAddressForm,
     NewPhoneForm,
     PasswordChangeForm,
+    PasswordPolicyForm,
     PasswordResetForm,
     PhonePrimaryForm,
     VerifyEmailForm,
@@ -73,18 +74,31 @@ def blake2b_b58(text):
 
 @app.route('/api/1/password/policy', methods=['POST'])
 @render_with(json=True)
-@requestargs('candidate')
-def password_policy_check(candidate):
-    tested_password = password_policy.password(candidate)
-    failed_tests = tested_password.test()
-    return {
-        'status': 'ok',
-        'result': {
-            'strength': float(tested_password.strength()),
-            'is_weak': bool(failed_tests),
-            'failed_tests': [repr(t) for t in failed_tests],
-        },
-    }
+def password_policy_check():
+    policy_form = PasswordPolicyForm()
+    policy_form.form_nonce.data = policy_form.form_nonce.default()
+
+    if policy_form.validate_on_submit():
+        tested_password = password_policy.password(policy_form.candidate.data)
+        failed_tests = tested_password.test()
+        return {
+            'status': 'ok',
+            'result': {
+                'strength': float(tested_password.strength()),
+                'is_weak': bool(failed_tests),
+                'failed_tests': [repr(t) for t in failed_tests],
+            },
+        }
+    else:
+        return (
+            {
+                'status': 'error',
+                'error_code': 'policy_form_error',
+                'error_description': _("Something went wrong. Please try again"),
+                'error_details': policy_form.errors,
+            },
+            400,
+        )
 
 
 @route('/account')
@@ -675,7 +689,7 @@ def add_phone():
         except ValueError as e:
             db.session.rollback()
             form.phone.errors.append(str(e))
-    print('error', form)
+
     return render_form(
         form=form,
         title=_("Add a phone number"),

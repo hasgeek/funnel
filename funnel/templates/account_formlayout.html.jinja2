@@ -62,7 +62,7 @@
   <script type="text/javascript">
     $(function() {
       var typingTimer;
-      var typingWaitInterval = 100;
+      var typingWaitInterval = 1000;
       var waitingForResponse = false;
       var ajaxTimeout = 15000;
 
@@ -79,30 +79,39 @@
       });
 
       function checkPasswordStrength(field) {
+        // FIXME: This function is getting called multiple times for same candidate
         if($(field).val()) {
           $.ajax({
             type: 'POST',
             url: '/api/1/password/policy',
             dataType: 'json',
-            data: { 'candidate': $(field).val()},
+            data: {
+              'candidate': $(field).val(),
+              'csrf_token': $("meta[name='csrf-token']").attr('content')
+            },
             timeout: ajaxTimeout,
             success: function (remoteData) {
-              $(field).parent().find('.progress').addClass('progress--show');
-              var widthPercentage = remoteData.result.strength*100 + '%';
-              $(field).parent().find('.progress__bar').css('width', widthPercentage);
-              if(remoteData.result.is_weak) {
-                $(field).parent().find('.progress__txt').text('Weak');
-                $(field).parent().find('.progress__bar').removeClass('progress__bar--success').removeClass('progress__bar--warning').addClass('progress__bar--danger');
-                $('#{{ ref_id }}').removeClass('password-valid');
-              } else {
-                if(remoteData.result.strength > 0.7) {
-                  $(field).parent().find('.progress__txt').text('Good');
-                  $(field).parent().find('.progress__bar').removeClass('progress__bar--danger').removeClass('progress__bar--warning').addClass('progress__bar--success');
-                  $('#{{ ref_id }}').addClass('password-valid');
+              if (remoteData.result !== undefined) {
+                $(field).parent().find('.progress').addClass('progress--show');
+                var widthPercentage = remoteData.result.strength*100 + '%';
+                $(field).parent().find('.progress__bar').css('width', widthPercentage);
+                if(remoteData.result.is_weak) {
+                  $(field).parent().find('.progress__txt').text('Weak');
+                  $(field).parent().find('.progress__bar').removeClass('progress__bar--success').removeClass('progress__bar--warning').addClass('progress__bar--danger');
+                  $('#{{ ref_id }}').removeClass('password-valid');
                 } else {
-                  $(field).parent().find('.progress__txt').text('Medium');
-                  $(field).parent().find('.progress__bar').removeClass('progress__bar--danger').removeClass('progress__bar--success').addClass('progress__bar--warning');
+                  if(remoteData.result.strength > 0.7) {
+                    $(field).parent().find('.progress__txt').text('Good');
+                    $(field).parent().find('.progress__bar').removeClass('progress__bar--danger').removeClass('progress__bar--warning').addClass('progress__bar--success');
+                    $('#{{ ref_id }}').addClass('password-valid');
+                  } else {
+                    $(field).parent().find('.progress__txt').text('Medium');
+                    $(field).parent().find('.progress__bar').removeClass('progress__bar--danger').removeClass('progress__bar--success').addClass('progress__bar--warning');
+                  }
                 }
+              } else {
+                // FIXME: CSRF error, show a dialog maybe?
+                console.log(remoteData);
               }
             },
           });
