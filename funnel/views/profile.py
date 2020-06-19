@@ -13,7 +13,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import ProfileForm, SavedProjectForm
+from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm, SavedProjectForm
 from ..models import Profile, Project, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
@@ -126,6 +126,30 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             cancel_url=self.obj.url_for(),
             ajax=False,
         )
+
+    @route('edit_logo', methods=['POST'])
+    @requires_roles({'admin'})
+    def edit_logo_url(self):
+        form = ProfileLogoForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+        else:
+            flash(_("Something went wrong. Please try again"), 'error')
+        return redirect(self.obj.url_for(), code=303)
+
+    @route('edit_banner_image', methods=['POST'])
+    @requires_roles({'admin'})
+    def edit_banner_image_url(self):
+        form = ProfileBannerForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+        else:
+            flash(_("Something went wrong. Please try again"), 'error')
+        return redirect(self.obj.url_for(), code=303)
 
     @route('transition', methods=['POST'])
     @requires_login

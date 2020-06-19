@@ -6,7 +6,12 @@ import baseframe.forms as forms
 from ..models import Profile
 from .organization import OrganizationForm
 
-__all__ = ['ProfileForm', 'ProfileTransitionForm']
+__all__ = [
+    'ProfileForm',
+    'ProfileLogoForm',
+    'ProfileBannerForm',
+    'ProfileTransitionForm',
+]
 
 
 @Profile.forms('main')
