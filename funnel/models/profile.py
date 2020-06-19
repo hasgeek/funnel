@@ -129,6 +129,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'logo_url',
                 'user',
                 'organization',
+                'banner_image_url',
             },
             'call': {'url_for'},
         }

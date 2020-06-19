@@ -48,18 +48,23 @@
 
 {% block baseheadline %}
   <div class="profile mui--bg-accent">
+    {%- if profile.banner_image_url.url %}
+      <div class="profile__background">
+        <img class="profile__background__image" src="{{ profile.banner_image_url.url }}" alt="{{ profile.title }}"/>
+      </div>
+    {% endif %}
     <div class="mui-container profile__banner">
       <div class="grid">
         <div class="grid__col-12">
           <div class="profile__banner__box">
-            {%- if profile.banner_image_url %}
-              <img class="profile__banner__box__img" src="{{ profile.banner_image_url }}" alt="{{ profile.title }}"/>
+            {%- if profile.banner_image_url.url %}
+              <img class="profile__banner__box__img" src="{{ profile.banner_image_url.url }}" alt="{{ profile.title }}"/>
             {% else %}
               <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ profile.title }}"/>
             {% endif %}
           </div>
           {%- if profile.current_roles.admin %}
-            <a href="" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload" title="{% trans %}Add cover photo url{% endtrans %}" aria-label="{% trans %}Add cover photo url{% endtrans %}">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">Add cover photo url</span></a>
+            <a href="{{ g.profile.url_for('edit_banner_image_url') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload" title="{% trans %}Add cover photo url{% endtrans %}" aria-label="{% trans %}Add cover photo url{% endtrans %}">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">Add cover photo url</span></a>
           {% endif %}
           <div class="profile__logo">
             {%- if profile.logo_url.url %}
@@ -68,7 +73,7 @@
               <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class='profile__logo__icon') }}</span>
             {% endif %}
             {%- if profile.current_roles.admin %}
-              <span class="profile__logo__upload">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</span>
+              <a href="{{ g.profile.url_for('edit_logo_url') }}" class="profile__logo__upload mui--text-dark">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</a>
             {% endif %}
             <div class="mui--hidden-xs mui--hidden-sm profile__logo__details">
               <h2 class="mui--text-headline mui--text-bold zero-bottom-margin" data-cy="profile-title">{{ profile.title }}</h2>

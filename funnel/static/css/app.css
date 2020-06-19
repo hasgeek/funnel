@@ -1065,6 +1065,9 @@ html.touch .collapsible__body--disable {
 .profile {
   margin-bottom: 60px;
 }
+.profile .profile__background {
+  display: none;
+}
 .profile .profile__banner {
   position: relative;
 }
@@ -1151,18 +1154,31 @@ html.touch .collapsible__body--disable {
 }
 
 @media (min-width: 768px) {
+  .profile {
+    position: relative;
+  }
+  .profile .profile__background {
+    display: block;
+    position: absolute;
+    z-index: 3;
+    width: 100%;
+    overflow: hidden;
+    height: 100%;
+    left: 0;
+  }
+  .profile .profile__background .profile__background__image {
+    width: 100%;
+    filter: blur(200px);
+    -webkit-filter: blur(200px);
+  }
+  .profile .profile__banner {
+    z-index: 4;
+  }
   .profile .profile__banner .grid__col-12 {
     padding: 0 16px;
   }
   .profile .profile__banner .profile__banner__box {
-    padding-bottom: 0;
-  }
-  .profile .profile__banner .profile__banner__box .profile__banner__box__img {
-    position: static;
-    height: auto;
-  }
-  .profile .profile__banner .profile__banner__box .profile__banner__box__img--default {
-    max-height: 350px;
+    padding-bottom: 37.5%;
   }
   .profile .profile__banner .profile__banner__upload {
     border-radius: 0;
@@ -1182,6 +1198,7 @@ html.touch .collapsible__body--disable {
     position: absolute;
     left: 136px;
     bottom: 0px;
+    min-width: 450px;
   }
 
   .profile-details {

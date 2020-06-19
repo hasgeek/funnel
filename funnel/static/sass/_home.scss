@@ -185,6 +185,9 @@
 
 .profile {
   margin-bottom: 60px;
+  .profile__background {
+    display: none;
+  }
   .profile__banner {
     position: relative;
     .grid__col-12 {
@@ -275,19 +278,28 @@
 
 @media (min-width: 768px) {
   .profile {
+    position: relative;
+    .profile__background {
+      display: block;
+      position: absolute;
+      z-index: 3;
+      width: 100%;
+      overflow: hidden;
+      height: 100%;
+      left: 0;
+      .profile__background__image {
+        width: 100%;
+        filter: blur(200px);
+        -webkit-filter: blur(200px);
+      }
+    }
     .profile__banner {
+      z-index: 4;
       .grid__col-12 {
         padding: 0 $mui-grid-padding;
       }
       .profile__banner__box {
-        padding-bottom: 0;
-        .profile__banner__box__img {
-          position: static;
-          height: auto;
-        }
-        .profile__banner__box__img--default {
-          max-height: 350px;
-        }
+        padding-bottom: 37.5%;
       }
       .profile__banner__upload {
         border-radius: 0;
@@ -307,6 +319,7 @@
           position: absolute;
           left: 136px;
           bottom: 0px;
+          min-width: 450px;
         }
       }
     }

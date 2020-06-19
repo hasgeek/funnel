@@ -127,7 +127,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             ajax=False,
         )
 
-    @route('edit_logo', methods=['POST'])
+    @route('edit_logo', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_logo_url(self):
         form = ProfileLogoForm(obj=self.obj)
@@ -135,11 +135,16 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-        else:
-            flash(_("Something went wrong. Please try again"), 'error')
-        return redirect(self.obj.url_for(), code=303)
+            return redirect(self.obj.url_for(), code=303)
+        return render_form(
+            form=form,
+            title=_("Edit profile logo"),
+            submit=_("Save logo"),
+            cancel_url=self.obj.url_for(),
+            ajax=False,
+        )
 
-    @route('edit_banner_image', methods=['POST'])
+    @route('edit_banner_image', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self):
         form = ProfileBannerForm(obj=self.obj)
@@ -147,9 +152,14 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-        else:
-            flash(_("Something went wrong. Please try again"), 'error')
-        return redirect(self.obj.url_for(), code=303)
+            return redirect(self.obj.url_for(), code=303)
+        return render_form(
+            form=form,
+            title=_("Edit profile banner image"),
+            submit=_("Save banner"),
+            cancel_url=self.obj.url_for(),
+            ajax=False,
+        )
 
     @route('transition', methods=['POST'])
     @requires_login
