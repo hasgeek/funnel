@@ -26,7 +26,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('index.html.jinja2', json=True)
+    @render_with('profile.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
     def view(self):
         # `order_by(None)` clears any existing order defined in relationship.

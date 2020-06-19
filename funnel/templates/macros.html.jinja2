@@ -104,17 +104,17 @@
       </div>
       {% endif %}
       <div class="grid__col-sm-12">
-        <div class="profile-details">
+        <div class="project-banner__profile-details">
           {%- if project.profile.logo_url.url %}
-            <a href="{{ project.profile.url_for() }}" class="profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
-              <img class="profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+            <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
+              <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
             </a>
           {% endif %}
-          <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
+          <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
         </div>
       </div>
       <div class="grid__col-sm-12 project-banner__headline">
-        <h1 class="mui--text-display1 mui--text-bold">{{ project.title }}
+        <h1 class="mui--text-display1 mui--text-bold zero-top-margin zero-bottom-margin">{{ project.title }}
           {% if project.view_for('edit_slug').is_available() %}
             <a class="mui--text-body2" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url" data-action="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
           {% endif %}
