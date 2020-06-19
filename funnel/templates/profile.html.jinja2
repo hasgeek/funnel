@@ -91,7 +91,7 @@
           <h2 class="mui--text-headline mui--text-bold zero-bottom-margin" data-cy="profile-title">{{ profile.title }}</h2>
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
-        <div class="mui--text-body2">{{ profile.description.html }}</div>
+        <div>{{ profile.description.html }}</div>
         {%- if profile.current_roles.admin %}
           <p>
             <a class="mui-btn mui-btn--primary mui-btn--raised" data-cy-btn="profile-crew" href="{{ profile.urls['members'] }}">{%- if profile.current_roles.owner %}{% trans %}Manage members{% endtrans %}{% else %}{% trans %}View members{% endtrans %}{% endif %}</a>
