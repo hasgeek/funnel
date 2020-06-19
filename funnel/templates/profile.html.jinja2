@@ -51,7 +51,13 @@
     <div class="mui-container profile__banner">
       <div class="grid">
         <div class="grid__col-12">
-          <img class="profile__banner__img" src="https://images.hasgeek.com/embed/file/10acd7709d8e45b598ea107ff29a985e"  alt="{{ profile.title }}"/>
+          <div class="profile__banner__box">
+            {%- if profile.banner_image_url %}
+              <img class="profile__banner__box__img" src="{{ profile.banner_image_url }}" alt="{{ profile.title }}"/>
+            {% else %}
+              <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ profile.title }}"/>
+            {% endif %}
+          </div>
           {%- if profile.current_roles.admin %}
             <a href="" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload" title="{% trans %}Add cover photo url{% endtrans %}" aria-label="{% trans %}Add cover photo url{% endtrans %}">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">Add cover photo url</span></a>
           {% endif %}
@@ -59,7 +65,7 @@
             {%- if profile.logo_url.url %}
               <img class="profile__logo__img" src="{{ profile.logo_url }}" alt="{{ profile.title }}"/>
             {% else %}
-              {{ faicon(icon='user', css_class='profile__logo__icon') }}
+              <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class='profile__logo__icon') }}</span>
             {% endif %}
             {%- if profile.current_roles.admin %}
               <span class="profile__logo__upload">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</span>
@@ -98,7 +104,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headlinee">{% trans %}Drafts{% endtrans %}</h2>
+            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Drafts{% endtrans %}</h2>
           </div>
         </div>
         <ul class="grid projects" role="list">
@@ -151,7 +157,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-          <h2 class="mui--text-headline mui--text-bold project-headlinee">{% trans %}Unscheduled projects{% endtrans %} <span class="chip chip--new mui--text-caption mui--align-middle">{% trans %}New{% endtrans %}</span></h2>
+          <h2 class="mui--text-headline mui--text-bold project-headliney">{% trans %}Unscheduled projects{% endtrans %} <span class="chip chip--new mui--text-caption mui--align-middle">{% trans %}New{% endtrans %}</span></h2>
         </div>
         <ul class="grid projects" role="list">
           {% for project in unscheduled_projects %}

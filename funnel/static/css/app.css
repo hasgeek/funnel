@@ -1071,8 +1071,15 @@ html.touch .collapsible__body--disable {
 .profile .profile__banner .grid__col-12 {
   padding: 0;
 }
-.profile .profile__banner .profile__banner__img {
+.profile .profile__banner .profile__banner__box {
+  position: relative;
+  padding-bottom: 75%;
+}
+.profile .profile__banner .profile__banner__box .profile__banner__box__img {
+  position: absolute;
+  object-fit: cover;
   width: 100%;
+  height: 100%;
 }
 .profile .profile__banner .profile__banner__upload {
   position: absolute;
@@ -1106,10 +1113,28 @@ html.touch .collapsible__body--disable {
   padding: 16px;
   border-radius: 50%;
 }
+.profile .profile__banner .profile__logo .profile__logo__nologo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  background-color: #eff2f6;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+}
+.profile .profile__banner .profile__logo .profile__logo__nologo .profile__logo__icon {
+  width: 90px;
+  height: 90px;
+  color: #fff;
+  position: relative;
+  top: 39px;
+  left: 14px;
+}
 .profile .profile__banner .profile__logo .profile__logo__upload {
   position: absolute;
   z-index: 103;
-  bottom: 8px;
+  bottom: 16px;
   right: -4px;
   width: 32px;
   height: 32px;
@@ -1128,6 +1153,16 @@ html.touch .collapsible__body--disable {
 @media (min-width: 768px) {
   .profile .profile__banner .grid__col-12 {
     padding: 0 16px;
+  }
+  .profile .profile__banner .profile__banner__box {
+    padding-bottom: 0;
+  }
+  .profile .profile__banner .profile__banner__box .profile__banner__box__img {
+    position: static;
+    height: auto;
+  }
+  .profile .profile__banner .profile__banner__box .profile__banner__box__img--default {
+    max-height: 350px;
   }
   .profile .profile__banner .profile__banner__upload {
     border-radius: 0;
