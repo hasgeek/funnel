@@ -4,7 +4,7 @@ import re
 import urllib.parse
 
 from flask import abort, current_app
-from flask_mail import Message
+from flask_mailman import Message
 
 import qrcode
 import qrcode.image.svg

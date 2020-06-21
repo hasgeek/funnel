@@ -1,5 +1,5 @@
 from flask import render_template
-from flask_mail import Message
+from flask_mailman import Message
 
 from html2text import html2text
 

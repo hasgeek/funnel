@@ -150,13 +150,13 @@ class EmailAddress(BaseMixin, db.Model):
 
     Prior to this model, email addresses were regarded as properties of other models.
     Specifically: Proposal.email, Participant.email, User.emails and User.emailclaims,
-    the latter two lists populated using the UserEmail and UserEmailClaim join model.
+    the latter two lists populated using the UserEmail and UserEmailClaim join models.
     This subordination made it difficult to track ownership of an email address or its
     reachability (active, bouncing, etc). Having EmailAddress as a standalone model
     (with incoming foreign keys) provides some sanity:
 
     1. Email addresses are stored with a hash, and always looked up using the hash. This
-       allows the address to be forgotten while preserving the record for app metadata.
+       allows the address to be forgotten while preserving the record for metadata.
     2. A forgotten address's record can be restored given the correct email address.
     3. Addresses can be automatically forgotten when they are no longer referenced. This
        ability is implemented using the :attr:`emailaddress_refcount_dropping` signal
