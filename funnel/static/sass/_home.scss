@@ -229,11 +229,15 @@
       background-color: #fff;
       z-index: 100;
       border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       .profile__logo__img {
-        width: 100%;
+        width: calc(100% - #{2 * $mui-grid-padding});
+        height: calc(100% - #{2 * $mui-grid-padding});
+        object-fit: contain;
         padding: $mui-grid-padding;
-        border-radius: 50%;
       }
       .profile__logo__nologo {
         position: absolute;
