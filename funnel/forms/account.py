@@ -17,6 +17,7 @@ from ..models import (
 from ..utils import strip_phone, valid_phone
 
 __all__ = [
+    'PasswordPolicyForm',
     'PasswordResetRequestForm',
     'PasswordResetForm',
     'PasswordChangeForm',
@@ -49,6 +50,12 @@ def password_strength_validator(form, field):
             "This password is too simple. Add complexity by making it longer and using "
             "a mix of upper and lower case letters, numbers and symbols"
         )
+    )
+
+
+class PasswordPolicyForm(forms.Form):
+    candidate = forms.StringField(
+        __("Password"), validators=[forms.validators.DataRequired()]
     )
 
 
