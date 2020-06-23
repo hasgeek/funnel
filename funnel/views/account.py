@@ -1,6 +1,6 @@
 from collections import Counter
 
-from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for, render_template
+from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 import base58
 
@@ -675,7 +675,6 @@ def add_phone():
         except ValueError as e:
             db.session.rollback()
             form.phone.errors.append(str(e))
-    print('error', form)
     return render_form(
         form=form,
         title=_("Add a phone number"),

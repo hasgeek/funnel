@@ -197,7 +197,6 @@ def login():
             render_template(
                 'loginform.html.jinja2',
                 loginform=loginform,
-                Markup=Markup,
                 ref_id='form-passwordlogin',
             ),
             200,
@@ -210,7 +209,6 @@ def login():
                 loginform=loginform,
                 lastused=loginmethod,
                 service_forms=service_forms,
-                Markup=Markup,
                 login_registry=login_registry,
                 formid='passwordlogin',
                 ref_id='form-passwordlogin',
@@ -330,7 +328,7 @@ def register():
         login_registry=login_registry,
         title=_("Register account"),
         formid='registeraccount',
-        ref_id='form-password-change'
+        ref_id='form-password-change',
     )
 
 
