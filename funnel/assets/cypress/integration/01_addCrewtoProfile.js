@@ -29,10 +29,8 @@ describe('Adding crew to profile', function () {
     cy.get('button').contains('Remove').click();
     cy.wait('@delete-member');
     cy.get('[data-cy="member"]').contains(admin.username).should('not.exist');
-    cy.wait(4000);
 
     cy.add_profile_member(admin.username, 'is_owner-1', 'owner');
-    cy.wait(4000);
 
     cy.get('[data-cy="member"]').contains(admin.username).click();
     cy.wait('@edit-form');
