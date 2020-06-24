@@ -185,10 +185,7 @@ class VideoMixin:
                     vimeo_video = requests.get(
                         f'https://vimeo.com/api/v2/video/{self.video_id}.json'
                     )
-                    if vimeo_video.status_code == 404:
-                        # Video doesn't exist on Vimeo anymore
-                        self._source_video_exists = False
-                    else:
+                    if vimeo_video.status_code == 200:
                         vimeo_video = vimeo_video.json()[0]
 
                         data['duration'] = vimeo_video['duration']
@@ -197,6 +194,9 @@ class VideoMixin:
                             vimeo_video['upload_date'], delimiter=' '
                         ).replace(tzinfo=UTC)
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
+                    else:
+                        # Video doesn't exist on Vimeo anymore
+                        self._source_video_exists = False
                 self._video_cache = data  # using _video_cache setter to set cache
         return data
 
