@@ -7,6 +7,7 @@ from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
     UrlForView,
+    render_with,
     requires_permission,
     requires_roles,
     route,
@@ -91,12 +92,16 @@ class CommentsetView(UrlForView, ModelView):
         # `profile` remains for funnelapp even though it's not used.
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
+    @route('json', methods=['GET'])
+    @render_with(json=True)
+    def view_json(self):
+        return {'comments': [comment.current_access() for comment in self.obj.comments]}
+
     @route('new', methods=['POST'])
     @requires_login
+    @render_with(json=True)
     @requires_roles({'parent_participant'})
     def new_comment(self):
-        # TODO: Make this endpoint support AJAX.
-
         if self.obj.parent is None:
             return redirect('/')
 
@@ -117,14 +122,23 @@ class CommentsetView(UrlForView, ModelView):
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
             db.session.commit()
-            flash(_("Your comment has been posted"), 'info')
-            return redirect(comment.url_for(), code=303)
+            return {
+                'status': 'ok',
+                'message': _("Your comment has been posted"),
+                'comments': [comment.current_access() for comment in self.obj.comments],
+            }
         else:
-            for error in commentform.get_verbose_errors():
-                flash(error, category='error')
-        # Redirect despite this being the same page because HTTP 303 is required
-        # to not break the browser Back button.
-        return redirect(self.obj.views.url(), code=303)
+            return (
+                {
+                    'status': 'error',
+                    'error_code': 'comment_post_error',
+                    'error_description': _(
+                        "There was an issue posting the comment. Please try again"
+                    ),
+                    'error_details': commentform.errors,
+                },
+                400,
+            )
 
 
 @route('/comments/<commentset>', subdomain='<profile>')
@@ -161,26 +175,35 @@ class CommentView(UrlForView, ModelView):
 
     @route('edit', methods=['POST'])
     @requires_login
+    @render_with(json=True)
     @requires_roles({'author'})
     def edit(self):
         commentform = CommentForm(model=Comment)
         if commentform.validate_on_submit():
-            if self.obj.current_roles.author:
-                self.obj.message = commentform.message.data
-                self.obj.edited_at = db.func.utcnow()
-                flash(_("Your comment has been edited"), 'info')
-            else:
-                flash(_("You can only edit your own comments"), 'info')
+            self.obj.message = commentform.message.data
+            self.obj.edited_at = db.func.utcnow()
             db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("Your comment has been edited"),
+                'comment': self.obj.current_access(),
+            }
         else:
-            for error in commentform.get_verbose_errors():
-                flash(error, category='error')
-        # Redirect despite this being the same page because HTTP 303 is required
-        # to not break the browser Back button.
-        return redirect(self.obj.url_for(), code=303)
+            return (
+                {
+                    'status': 'error',
+                    'error_code': 'comment_edit_error',
+                    'error_description': _(
+                        "There was an issue editing the comment. Please try again"
+                    ),
+                    'error_details': commentform.errors,
+                },
+                400,
+            )
 
     @route('delete', methods=['POST'])
     @requires_login
+    @render_with(json=True)
     @requires_roles({'author'})
     def delete(self):
         commentset = self.obj.commentset
@@ -189,10 +212,19 @@ class CommentView(UrlForView, ModelView):
             self.obj.delete()
             commentset.count = Commentset.count - 1
             db.session.commit()
-            flash(_("Your comment was deleted"), 'info')
+            return {'status': 'ok', 'message': _("Your comment has been deleted")}
         else:
-            flash(_("Your comment could not be deleted"), 'danger')
-        return redirect(commentset.views.url(), code=303)
+            return (
+                {
+                    'status': 'error',
+                    'error_code': 'comment_delete_error',
+                    'error_description': _(
+                        "There was an issue deleting the comment. Please try again"
+                    ),
+                    'error_details': delcommentform.errors,
+                },
+                400,
+            )
 
     @route('voteup', methods=['POST'])
     @requires_login
