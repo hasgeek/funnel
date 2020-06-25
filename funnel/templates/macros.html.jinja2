@@ -377,7 +377,7 @@
   </a>
 {% endmacro %}
 
-{% macro featured_section(featured_project) %}
+{% macro featured_section(featured_project, project_save_form) %}
   {% if featured_project %}
     {% with current_sessions = featured_project.current_sessions() if
     featured_project is not none else none %}
@@ -536,7 +536,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro upcoming_section(upcoming_projects) %}
+{% macro upcoming_section(upcoming_projects, project_save_form) %}
   {% if upcoming_projects|length > 0 %}
     <div class="projects-wrapper">
       <div class="mui-container">
@@ -559,7 +559,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro open_cfp_section(open_cfp_projects) %}
+{% macro open_cfp_section(open_cfp_projects, project_save_form) %}
   {% if open_cfp_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
@@ -598,7 +598,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro all_projects_section(all_projects) %}
+{% macro all_projects_section(all_projects, project_save_form) %}
   {% if all_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
