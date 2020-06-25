@@ -66,7 +66,7 @@
                   </p>
                   <transition name="slide-fade">
                     <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
-                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']" v-if="member[role.roleKey]">
+                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']" v-if="member[role.roleKey]">
                         <member :member="member"></member>
                       </div>
                     </div>

@@ -1359,7 +1359,7 @@ html.touch .collapsible__body--disable {
   .profile .profile__banner .profile__logo .profile__logo__details {
     position: absolute;
     left: 136px;
-    bottom: 0px;
+    bottom: -8px;
     min-width: 450px;
   }
 

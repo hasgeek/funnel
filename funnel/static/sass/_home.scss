@@ -322,7 +322,7 @@
         .profile__logo__details {
           position: absolute;
           left: 136px;
-          bottom: 0px;
+          bottom: -$mui-grid-padding/2;
           min-width: 450px;
         }
       }
