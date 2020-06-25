@@ -1,12 +1,16 @@
-from flask import current_app
-
 from baseframe import _, __
 import baseframe.forms as forms
 
 from ..models import Profile
+from .helpers import image_url_validator
 from .organization import OrganizationForm
 
-__all__ = ['ProfileForm', 'ProfileTransitionForm']
+__all__ = [
+    'ProfileForm',
+    'ProfileLogoForm',
+    'ProfileBannerForm',
+    'ProfileTransitionForm',
+]
 
 
 @Profile.forms('main')
@@ -27,15 +31,8 @@ class ProfileForm(OrganizationForm):
         description=__("Profile logo"),
         validators=[
             forms.validators.Optional(),
-            forms.validators.ValidUrl(
-                allowed_schemes=lambda: current_app.config.get(
-                    'IMAGE_URL_SCHEMES', ('https',)
-                ),
-                allowed_domains=lambda: current_app.config.get('IMAGE_URL_DOMAINS'),
-                message_schemes=__("A https:// URL is required"),
-                message_domains=__("Images must be hosted at images.hasgeek.com"),
-            ),
             forms.validators.Length(max=2000),
+            image_url_validator(),
         ],
     )
 
@@ -48,3 +45,29 @@ class ProfileTransitionForm(forms.Form):
 
     def set_queries(self):
         self.transition.choices = list(self.edit_obj.state.transitions().items())
+
+
+@Profile.forms('logo')
+class ProfileLogoForm(forms.Form):
+    logo_url = forms.URLField(
+        __("Logo image URL"),
+        description=__("URL for profile logo image"),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.Length(max=2000),
+            image_url_validator(),
+        ],
+    )
+
+
+@Profile.forms('banner_image')
+class ProfileBannerForm(forms.Form):
+    banner_image_url = forms.URLField(
+        __("Banner image URL"),
+        description=__("URL for profile banner image"),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.Length(max=2000),
+            image_url_validator(),
+        ],
+    )

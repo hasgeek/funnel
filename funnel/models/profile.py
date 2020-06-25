@@ -82,6 +82,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     description = MarkdownColumn('description', default='', nullable=False)
     logo_url = db.Column(UrlType, nullable=True)
+    banner_image_url = db.Column(UrlType, nullable=True)
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 
@@ -128,6 +129,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'logo_url',
                 'user',
                 'organization',
+                'banner_image_url',
             },
             'call': {'url_for'},
         }
