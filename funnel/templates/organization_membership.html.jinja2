@@ -1,4 +1,7 @@
-{% extends "index.html.jinja2" %}
+{% extends "layout.html.jinja2" %}
+{% block title %}{{ profile.title }}{% endblock %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import profile_header %}
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
@@ -6,6 +9,12 @@
   {%- else %}
     <body class="mui--bg-primary">
   {%- endif %}
+{% endblock %}
+
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  {{ profile_header(profile) }}
 {% endblock %}
 
 {% block basecontent %}
@@ -48,7 +57,7 @@
                   </p>
                   <transition name="slide-fade">
                     <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
-                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']" v-if="member[role.roleKey]">
+                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']" v-if="member[role.roleKey]">
                         <member :member="member"></member>
                       </div>
                     </div>
