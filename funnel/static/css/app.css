@@ -1148,31 +1148,6 @@ html.touch .collapsible__body--disable {
   color: #f0a40c;
 }
 
-.profile-details {
-  display: flex;
-  align-items: center;
-}
-.profile-details .profile-details__logo-wrapper {
-  display: inline-block;
-  height: 30px;
-  margin-right: 10px;
-}
-.profile-details
-  .profile-details__logo-wrapper
-  .profile-details__logo_wrapper__logo {
-  height: 100%;
-}
-
-.profile-details--center {
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-@media (min-width: 992px) {
-  .profile-details .profile-details__logo-wrapper {
-    height: 50px;
-  }
-}
 .project-headline {
   margin-bottom: 40px;
   position: relative;
@@ -1235,6 +1210,161 @@ html.touch .collapsible__body--disable {
   .spotlight-schedule-card {
     height: 531px;
     overflow: scroll;
+  }
+}
+.profile {
+  margin-bottom: 60px;
+}
+.profile .profile__background {
+  display: none;
+}
+.profile .profile__banner {
+  position: relative;
+}
+.profile .profile__banner .grid__col-12 {
+  padding: 0;
+}
+.profile .profile__banner .profile__banner__box {
+  position: relative;
+  padding-bottom: 75%;
+}
+.profile .profile__banner .profile__banner__box .profile__banner__box__img {
+  position: absolute;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+.profile .profile__banner .profile__banner__upload {
+  position: absolute;
+  z-index: 103;
+  bottom: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  background-color: #f9fafc;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin: auto;
+  padding: 0;
+}
+.profile .profile__banner .profile__banner__upload .profile__banner__icon {
+  top: 0;
+}
+.profile .profile__banner .profile__logo {
+  position: absolute;
+  bottom: -60px;
+  left: 10px;
+  width: 120px;
+  height: 120px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
+  background-color: #fff;
+  z-index: 100;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile .profile__banner .profile__logo .profile__logo__img {
+  width: calc(100% - 32px);
+  height: calc(100% - 32px);
+  object-fit: contain;
+  padding: 16px;
+}
+.profile .profile__banner .profile__logo .profile__logo__nologo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  background-color: #eff2f6;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+}
+.profile
+  .profile__banner
+  .profile__logo
+  .profile__logo__nologo
+  .profile__logo__icon {
+  width: 90px;
+  height: 90px;
+  color: #fff;
+  position: relative;
+  top: 39px;
+  left: 14px;
+}
+.profile .profile__banner .profile__logo .profile__logo__upload {
+  position: absolute;
+  z-index: 103;
+  bottom: 16px;
+  right: -4px;
+  width: 32px;
+  height: 32px;
+  background-color: #f9fafc;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin: auto;
+}
+.profile
+  .profile__banner
+  .profile__logo
+  .profile__logo__upload
+  .profile__logo__upload__icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@media (min-width: 768px) {
+  .profile {
+    position: relative;
+  }
+  .profile .profile__background {
+    display: block;
+    position: absolute;
+    z-index: 3;
+    width: 100%;
+    overflow: hidden;
+    height: 100%;
+    left: 0;
+  }
+  .profile .profile__background .profile__background__image {
+    width: 100%;
+    filter: blur(200px);
+    -webkit-filter: blur(200px);
+  }
+  .profile .profile__banner {
+    z-index: 4;
+  }
+  .profile .profile__banner .grid__col-12 {
+    padding: 0 16px;
+  }
+  .profile .profile__banner .profile__banner__box {
+    padding-bottom: 37.5%;
+  }
+  .profile .profile__banner .profile__banner__upload {
+    border-radius: 0;
+    width: auto;
+    height: auto;
+    padding: 0 26px;
+    right: 32px;
+  }
+  .profile .profile__banner .profile__banner__upload .profile__banner__icon {
+    top: 2px;
+  }
+  .profile .profile__banner .profile__logo {
+    left: 16px;
+    bottom: -72px;
+  }
+  .profile .profile__banner .profile__logo .profile__logo__details {
+    position: absolute;
+    left: 136px;
+    bottom: -8px;
+    min-width: 450px;
+  }
+
+  .profile-details {
+    padding-top: 32px;
   }
 }
 .cfp-action-btn {
@@ -2178,6 +2308,34 @@ html.touch .collapsible__body--disable {
 }
 .project-banner {
   margin-top: 16px;
+}
+.project-banner .project-banner__profile-details {
+  display: flex;
+  align-items: center;
+}
+.project-banner
+  .project-banner__profile-details
+  .project-banner__profile-details__logo-wrapper {
+  display: inline-block;
+  height: 30px;
+  margin-right: 10px;
+}
+.project-banner
+  .project-banner__profile-details
+  .project-banner__profile-details__logo-wrapper
+  .project-banner__profile-details__logo_wrapper__logo {
+  height: 100%;
+}
+.project-banner .project-banner__profile-details--center {
+  justify-content: center;
+  margin-bottom: 16px;
+}
+@media (min-width: 992px) {
+  .project-banner
+    .project-banner__profile-details
+    .project-banner__profile-details__logo-wrapper {
+    height: 50px;
+  }
 }
 .project-banner .project-banner__headline {
   margin-bottom: 16px;
