@@ -92,11 +92,6 @@ class CommentsetView(UrlForView, ModelView):
         # `profile` remains for funnelapp even though it's not used.
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
-    @route('json', methods=['GET'])
-    @render_with(json=True)
-    def view_json(self):
-        return {'comments': [comment.current_access() for comment in self.obj.comments]}
-
     @route('new', methods=['POST'])
     @requires_login
     @render_with(json=True)

@@ -12,7 +12,7 @@ from flask import (
     request,
 )
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
@@ -712,10 +712,9 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2')
+    @render_with('project_comments.html.jinja2', json=True)
     @requires_roles({'reader'})
     def comments(self):
-        project_save_form = SavedProjectForm()
         comments = (
             Comment.query.join(Voteset)
             .filter(
@@ -724,16 +723,20 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
             .order_by(Voteset.count, Comment.created_at.asc())
             .all()
         )
-        commentform = CommentForm(model=Comment)
-        delcommentform = CommentDeleteForm()
-        return {
-            'project': self.obj,
-            'project_save_form': project_save_form,
-            'comments': comments,
-            'commentform': commentform,
-            'delcommentform': delcommentform,
-            'csrf_form': forms.Form(),
-        }
+        if request_is_xhr():
+            return {'comments': [comment.current_access() for comment in comments]}
+        else:
+            project_save_form = SavedProjectForm()
+            commentform = CommentForm(model=Comment)
+            delcommentform = CommentDeleteForm()
+            return {
+                'project': self.obj,
+                'project_save_form': project_save_form,
+                'comments': [comment.current_access() for comment in comments],
+                'commentform': commentform,
+                'delcommentform': delcommentform,
+                'csrf_form': forms.Form(),
+            }
 
 
 @route('/<project>/', subdomain='<profile>')

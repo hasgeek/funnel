@@ -2,7 +2,7 @@ from flask import Markup, abort, escape, flash, redirect, request
 
 from bleach import linkify
 
-from baseframe import _
+from baseframe import _, request_is_xhr
 from baseframe.forms import Form, render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
@@ -226,7 +226,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return {
             'project': self.obj.project,
             'proposal': self.obj,
-            'comments': comments,
+            'comments': [comment.current_access() for comment in comments],
             'commentform': commentform,
             'delcommentform': delcommentform,
             'links': links,
@@ -241,6 +241,22 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_permission('view')
     def json(self):
         return jsonp(proposal_data(self.obj))
+
+    @route('comments', methods=['GET'])
+    @render_with(json=True)
+    @requires_roles({'reader'})
+    def comments(self):
+        if request_is_xhr():
+            comments = sorted(
+                Comment.query.filter_by(commentset=self.obj.commentset, parent=None)
+                .order_by('created_at')
+                .all(),
+                key=lambda c: c.voteset.count,
+                reverse=True,
+            )
+            return {'comments': [comment.current_access() for comment in comments]}
+        else:
+            return redirect(self.obj.commentset.views.url(), code=303)
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
