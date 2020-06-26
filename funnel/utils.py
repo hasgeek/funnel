@@ -4,16 +4,12 @@ import re
 import urllib.parse
 
 from flask import abort, current_app
-from flask_mailman import Message
 
 import qrcode
 import qrcode.image.svg
 import requests
 
 from baseframe import cache
-from coaster.gfm import markdown
-
-from . import mail
 
 # --- Constants ---------------------------------------------------------------
 
@@ -21,13 +17,6 @@ PHONE_STRIP_RE = re.compile(r'[\t .()\[\]-]+')
 PHONE_VALID_RE = re.compile(r'^\+[0-9]+$')
 
 # --- Utilities ---------------------------------------------------------------
-
-
-def send_mail(sender, to, body, subject):
-    msg = Message(sender=sender, subject=subject, recipients=[to])
-    msg.body = body
-    msg.html = markdown(msg.body)  # FIXME: This does not include HTML head/body tags
-    mail.send(msg)
 
 
 def abort_null(text):

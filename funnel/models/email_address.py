@@ -343,8 +343,7 @@ class EmailAddress(BaseMixin, db.Model):
                     return False
         return True
 
-    # Do not allow transition from ACTIVE to NORMAL; only from other states
-    @delivery_state.transition(delivery_state.NOT_ACTIVE, delivery_state.SENT)
+    @delivery_state.transition(None, delivery_state.SENT)
     def mark_sent(self) -> None:
         """Record fact of an email message being sent to this address."""
         self.delivery_state_at = db.func.utcnow()

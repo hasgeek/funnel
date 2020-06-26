@@ -4,7 +4,6 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-from coaster.sqlalchemy import StateTransitionError
 from funnel.models import BaseMixin, db
 from funnel.models.email_address import (
     EmailAddress,
@@ -368,20 +367,17 @@ def test_email_address_delivery_state(clean_db):
     assert ea.delivery_state.ACTIVE
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
-    # Active state cannot be downgraded to normal state
-    with pytest.raises(StateTransitionError):
-        ea.mark_sent()
+    # This can be "downgraded" to SENT, as we only record the latest status
+    ea.mark_sent()
+    assert ea.delivery_state.SENT
+    assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
-    # The proper protocol is to call mark_sent() only when it's available:
-    if ea.mark_sent.is_available:
-        ea.mark_sent()
-
-    # Sent email is soft bouncing (typically mailbox full)
+    # Email address is soft bouncing (typically mailbox full)
     ea.mark_soft_fail()
     assert ea.delivery_state.SOFT_FAIL
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
-    # Sent email is hard bouncing (typically mailbox invalid)
+    # Email address is hard bouncing (typically mailbox invalid)
     ea.mark_hard_fail()
     assert ea.delivery_state.HARD_FAIL
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
