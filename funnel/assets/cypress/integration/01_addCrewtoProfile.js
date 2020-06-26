@@ -31,6 +31,7 @@ describe('Adding crew to profile', function () {
     cy.get('[data-cy="member"]').contains(admin.username).should('not.exist');
 
     cy.add_profile_member(admin.username, 'is_owner-1', 'owner');
+
     cy.get('[data-cy="member"]').contains(admin.username).click();
     cy.wait('@edit-form');
     cy.get('#is_owner-0').click();
