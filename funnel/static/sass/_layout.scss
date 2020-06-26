@@ -535,6 +535,11 @@ html.touch .collapsible__body--disable {
 @media (min-width: 768px) {
   .login-page {
     background-color: $mui-bg-color-accent;
+    .login-page__back {
+      top: 10px;
+      width: 400px;
+      margin: 0 auto 40px;
+    }
     .header,
     .footer {
       display: block;

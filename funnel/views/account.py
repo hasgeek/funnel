@@ -379,7 +379,7 @@ def account_edit(newprofile=False):
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
             ajax=True,
-            template='account_formlayout.html.jinja2',
+            layout_template='account_formlayout.html.jinja2',
         )
     else:
         return render_form(
@@ -388,7 +388,7 @@ def account_edit(newprofile=False):
             formid='account_edit',
             submit=_("Save changes"),
             ajax=True,
-            template='account_formlayout.html.jinja2',
+            layout_template='account_formlayout.html.jinja2',
         )
 
 
@@ -509,7 +509,7 @@ def change_password():
         formid='password-change',
         submit=_("Change password"),
         ajax=False,
-        template='account_formlayout.html.jinja2',
+        layout_template='account_formlayout.html.jinja2',
     )
 
 
@@ -537,7 +537,7 @@ def add_email():
         formid='email_add',
         submit=_("Add email"),
         ajax=False,
-        template='account_formlayout.html.jinja2',
+        layout_template='account_formlayout.html.jinja2',
     )
 
 
@@ -663,7 +663,7 @@ def verify_email(email_hash):
         ),
         formid="email_verify",
         submit=_("Send"),
-        template='account_formlayout.html.jinja2',
+        layout_template='account_formlayout.html.jinja2',
     )
 
 
@@ -695,7 +695,7 @@ def add_phone():
         formid='phone_add',
         submit=_("Verify phone"),
         ajax=True,
-        template='account_formlayout.html.jinja2',
+        layout_template='account_formlayout.html.jinja2',
     )
 
 
@@ -791,7 +791,7 @@ def verify_phone(phoneclaim):
         formid='phone_verify',
         submit=_("Verify"),
         ajax=True,
-        template='account_formlayout.html.jinja2',
+        layout_template='account_formlayout.html.jinja2',
     )
 
 

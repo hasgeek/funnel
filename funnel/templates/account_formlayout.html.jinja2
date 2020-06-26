@@ -14,7 +14,7 @@
 {% block headline %}{% endblock %}
 
 {% block content %}
-  <div class="login-page__back mui--hidden-md mui--hidden-lg mui--hidden-xl">
+  <div class="login-page__back">
     <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
   </div>
   {%- if message %}
@@ -27,7 +27,7 @@
   </div>
 
   <div class="login-page__box">
-    {% block loginboxcontent %}
+    {% block focuscontent %}
       {% block beforeformcontent %}
       {% endblock %}
       {% block form %}

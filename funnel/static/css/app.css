@@ -498,6 +498,11 @@ html.touch .collapsible__body--disable {
   .login-page {
     background-color: #f9fafc;
   }
+  .login-page .login-page__back {
+    top: 10px;
+    width: 400px;
+    margin: 0 auto 40px;
+  }
   .login-page .header,
   .login-page .footer {
     display: block;
