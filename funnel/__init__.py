@@ -116,7 +116,14 @@ baseframe.init_app(
 baseframe.init_app(
     funnelapp,
     requires=['funnel'],
-    ext_requires=['pygments', 'toastr', 'baseframe-mui', 'pace'],
+    ext_requires=[
+        'pygments',
+        'toastr',
+        'baseframe-mui',
+        'jquery.cookie',
+        'timezone',
+        'pace',
+    ],
     theme='mui',
     asset_modules=('baseframe_private_assets',),
 )
