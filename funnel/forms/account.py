@@ -53,9 +53,11 @@ def password_strength_validator(form, field):
     )
 
 
+@User.forms('password_policy')
 class PasswordPolicyForm(forms.Form):
     candidate = forms.StringField(
-        __("Password"), validators=[forms.validators.DataRequired()]
+        __("Password"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
     )
 
 
