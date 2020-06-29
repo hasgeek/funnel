@@ -378,7 +378,7 @@ def account_edit(newprofile=False):
                     " out your profile"
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
-            ajax=True,
+            ajax=False,
             layout_template='account_formlayout.html.jinja2',
         )
     else:
@@ -387,7 +387,7 @@ def account_edit(newprofile=False):
             title=_("Edit profile"),
             formid='account_edit',
             submit=_("Save changes"),
-            ajax=True,
+            ajax=False,
             layout_template='account_formlayout.html.jinja2',
         )
 
@@ -694,7 +694,7 @@ def add_phone():
         title=_("Add a phone number"),
         formid='phone_add',
         submit=_("Verify phone"),
-        ajax=True,
+        ajax=False,
         layout_template='account_formlayout.html.jinja2',
     )
 
@@ -790,7 +790,7 @@ def verify_phone(phoneclaim):
         title=_("Verify phone number"),
         formid='phone_verify',
         submit=_("Verify"),
-        ajax=True,
+        ajax=False,
         layout_template='account_formlayout.html.jinja2',
     )
 
