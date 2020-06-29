@@ -193,6 +193,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'user',
                 'title',
                 'message',
+                'parent_id',
             }
         }
     }

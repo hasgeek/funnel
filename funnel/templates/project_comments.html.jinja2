@@ -41,12 +41,52 @@
           <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Comments{% endtrans %}</h2>
         </div>
         <div class="grid__col-xs-12">
-          {% if comments %}
-            <ul class="mui-list--unstyled">
-              {{ commenttree(comments, project.commentset, project, csrf_form) }}
-            </ul>
-          {% endif %}
-          {{ commentformtemplate(project, commentform, delcommentform, current_auth) }}
+          {% raw %}
+            <div id="comments-wrapper">
+              <ul class="mui-list--unstyled" v-for="comment in comments">
+                <comment :comment="comment" :isuserparticipant="isuserparticipant"></comment>
+              </ul>
+            </div>
+          {% endraw %}
+          {% raw %}
+            <script type="text/x-template" id="comment-template">
+              <li class="comment">
+                <div id="c{{ comment.uuid_b58 }}">
+                  <div class="comment--content">
+                    <div class="comment--header">
+                      <button class="mui-btn mui-btn--nostyle" aria-label="Hide comment" aria-expanded="true" v-if="!hide" @click="collapse(true)">
+                        <svg class="fa5-icon fa5-icon--subhead test fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-up'"></use></svg>
+                      </button>
+                      <button class="mui-btn mui-btn--nostyle" aria-expanded="false" aria-label="Collapse comment" v-else @click="collapse(false)">
+                        <svg class="fa5-icon fa5-icon--subhead test fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-down'"></use></svg>
+                      </button>
+                      <div class="comment--header__details">
+                        <span class="commenter" v-if="comment.state && comment.state.DELETED">[deleted]</span>
+                        <span class="commenter" v-if="comment.state && comment.state.SPAM">[removed]</span>
+                        <span class="commenter" v-if="!comment.state">{{ comment.user.pickername }}</span>
+                        <span class="badge" v-for="badge in comment.badges">{{ badge }}</span>
+                        <span class="mui--text-caption mui--text-accent">{{ comment.created_at }}</span>
+                        <span class="mui--text-caption mui--text-accent" v-if="comment.edited_at">(edited {{ comment.edited_at }})</span>
+                      </div>
+                    </div>
+                    <transition name="slide">
+                      <div class="comment--body" v-if="!hide">
+                        <div v-if="!comment.state">{{ comment.message.text }}</div>
+                        <div data-id="{{ comment.uuid_b58 }}">
+                          <a class="mui--text-menu mui--text-accent" data-cy="reply" v-if="isuserparticipant">[Reply]</a>
+                          <a class="mui--text-menu mui--text-accent" data-cy="report-spam" v-if="isuserparticipant">[Report Spam]</a>
+                          <a class="mui--text-menu mui--text-accent" data-cy="edit" v-if="comment.current_roles && comment.current_roles.author">[Edit]</a>
+                          <a class="mui--text-menu mui--text-accent" data-cy="delete" v-if="comment.current_roles && comment.current_roles.author">[Delete]</a>
+                          <a class="mui--text-menu mui--text-accent comment--permalink">[Link]</a>
+                          <a class="mui--text-menu mui--text-accent comment--parent" v-if="comment.parent">[Parent]</a>
+                        </div>
+                      </div>
+                    </transition>
+                  </div>
+                </div>
+              </li>
+            </script>
+          {% endraw %}
         </div>
       </div>
     </div>
@@ -61,8 +101,8 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename=asset_path('project_comments')) }}" type="text/javascript"></script>
-  {{ widgetscripts(commentform, script=true, ref_id='comment-form') }}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-script2@2.1.0/dist/vue-script2.min.js" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var saveProjectConfig = {
@@ -71,7 +111,147 @@
       }
 
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);
-      window.HasGeek.ProjectCommentsInit();
+
+      var commentsConfig = {
+        newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
+        comments: {{ comments|tojson }},
+        divElem: "#comments-wrapper",
+        commentTemplate: '#comment-template',
+        isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
+        isuserparticipant: {% if current_auth.user and project.features.comment_new() -%}true{% else %}false{% endif %}
+      };
+
+      const Comments = {
+        init({
+          newCommentUrl,
+          comments = '',
+          divElem,
+          commentTemplate,
+          isUserProfileAdmin,
+          isuserloggedin,
+          isuserparticipant
+        }) {
+          Vue.config.debug = true
+          Vue.use(('vue-script2'))
+
+          const commentUI = Vue.component('comment', {
+            template: commentTemplate,
+            props: ['comment',  'isuserparticipant'],
+            data() {
+              return {
+                svgIconUrl: window.HasGeek.config.svgIconUrl,
+                hide: false,
+              };
+            },
+            methods: {
+              getInitials: window.Baseframe.Utils.getInitials,
+              collapse(action) {
+                this.hide = action;
+              },
+            }
+          });
+
+          /* eslint-disable no-new */
+          new Vue({
+            el: divElem,
+            components: {
+              commentUI,
+            },
+            data() {
+              return {
+                newCommentUrl,
+                comments: comments.length > 0 ? comments : '',
+                isuserloggedin,
+                isuserparticipant,
+                commentForm: '',
+                activeComment: '',
+                errorMsg: '',
+                view: 'name',
+                search: '',
+                showInfo: false,
+                isMobile: false,
+                ready: false,
+                svgIconUrl: window.HasGeek.config.svgIconUrl,
+              };
+            },
+            methods: {
+              fetchForm(event, url, comment = '') {
+                event.preventDefault();
+                if (this.isuserparticipant) {
+                  this.activeComment = comment;
+                  const app = this;
+                  $.ajax({
+                    type: 'GET',
+                    url,
+                    timeout: window.HasGeek.config.ajaxTimeout,
+                    dataType: 'json',
+                    success(data) {
+                      const vueFormHtml = data.form;
+                      app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+                      $('#comment-form').modal('show');
+                    },
+                  });
+                }
+              },
+              activateForm() {
+                const formId = Utils.getElementId(this.commentForm);
+                const url = Utils.getActionUrl(formId);
+                const onSuccess = responseData => {
+                  this.closeForm();
+                  if (responseData.comments) {
+                    this.updateCommentsList(responseData.comments);
+                    this.onChange();
+                    window.toastr.success(responseData.message);
+                  }
+                };
+                const onError = response => {
+                  this.errorMsg = Utils.formErrorHandler(formId, response);
+                };
+                window.Baseframe.Forms.handleFormSubmit(
+                  formId,
+                  url,
+                  onSuccess,
+                  onError,
+                  {}
+                );
+              },
+              updateCommentsList(commentsList) {
+                this.comments = commentsList.length > 0 ? commentsList : '';
+              },
+              closeForm(event = '') {
+                if (event) event.preventDefault();
+                $.modal.close();
+                this.errorMsg = '';
+              },
+            },
+            computed: {
+              Form() {
+                const template = this.commentForm ? this.commentForm : '<div></div>';
+                const isFormTemplate = this.commentForm ? true : '';
+                return {
+                  template,
+                  mounted() {
+                    if (isFormTemplate) {
+                      this.$parent.activateForm();
+                    }
+                  },
+                };
+              },
+              deleteURL() {
+                return this.activeComment.urls.delete;
+              },
+            },
+            mounted() {
+            },
+            created() {
+              console.log('vue is created', comments);
+            },
+          });
+        }
+      }
+
+    Comments.init(commentsConfig);
+
     });
   </script>
 {% endblock %}
