@@ -1,0 +1,12 @@
+{% extends "email_layout.html.jinja2" %}
+{% block content -%}
+
+  <p>{% trans profile_title=profile.title, granted_by=granted_by.pickername %}
+    <b>{{ granted_by }}</b> has added you to <b>{{ profile_title }}</b> as a crew member.
+  {% endtrans %}</p>
+
+  <p>
+  	<a class="btn" href="{{ organization_membership_link }}">{% trans %}See more details{% endtrans %}</a>
+  </p>
+
+{%- endblock %}
