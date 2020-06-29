@@ -14,9 +14,6 @@
 {% block headline %}{% endblock %}
 
 {% block content %}
-  <div class="login-page__back">
-    <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
-  </div>
   {%- if message %}
     <p class="form-message">{{ message }}</p>
   {%- endif %}
@@ -27,6 +24,9 @@
   </div>
 
   <div class="login-page__box">
+    <div class="login-page__back">
+      <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+    </div>
     {% block focuscontent %}
       {% block beforeformcontent %}
       {% endblock %}

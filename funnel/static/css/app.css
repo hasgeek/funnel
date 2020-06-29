@@ -499,19 +499,23 @@ html.touch .collapsible__body--disable {
     background-color: #f9fafc;
   }
   .login-page .login-page__back {
-    top: 10px;
-    width: 400px;
-    margin: 0 auto 40px;
+    top: 0;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    text-align: right;
+    padding: 8px;
   }
   .login-page .header,
   .login-page .footer {
     display: block;
   }
   .login-page .login-page__box {
-    padding: 24px;
+    position: relative;
+    padding: 40px 32px 32px;
     border-radius: 16px;
     width: 400px;
-    margin: 0 auto 40px;
+    margin: 0 auto 32px;
   }
 }
 .login,

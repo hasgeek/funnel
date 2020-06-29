@@ -536,19 +536,24 @@ html.touch .collapsible__body--disable {
   .login-page {
     background-color: $mui-bg-color-accent;
     .login-page__back {
-      top: 10px;
-      width: 400px;
-      margin: 0 auto 40px;
+      top: 0;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+      text-align: right;
+      padding: $mui-grid-padding/2;
     }
     .header,
     .footer {
       display: block;
     }
     .login-page__box {
-      padding: 24px;
+      position: relative;
+      padding: ($mui-grid-padding * 2 + $mui-grid-padding/2) $mui-grid-padding *
+        2 $mui-grid-padding * 2;
       border-radius: 16px;
       width: 400px;
-      margin: 0 auto 40px;
+      margin: 0 auto $mui-grid-padding * 2;
     }
   }
 }
