@@ -427,6 +427,8 @@ def reset():
 @lastuserapp.route('/reset/<buid>/<secret>', methods=['GET', 'POST'])
 @load_model(User, {'buid': 'buid'}, 'user', kwargs=True)
 def reset_email(user, kwargs):
+    # TODO: Replace with a signed TTL-ed secret that includes userid and email_hash
+    # No need for a database model or buid+secret in the parameters
     resetreq = AuthPasswordResetRequest.get(user, kwargs['secret'])
     if not resetreq:
         return render_message(

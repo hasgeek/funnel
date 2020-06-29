@@ -9,7 +9,6 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 
 from .. import app, funnelapp
 from ..forms import EventForm, ParticipantBadgeForm, TicketClientForm, TicketTypeForm
-from ..jobs import import_tickets
 from ..models import (
     Event,
     Participant,
@@ -22,6 +21,7 @@ from ..models import (
 )
 from .decorators import legacy_redirect
 from .helpers import requires_login
+from .jobs import import_tickets
 from .mixins import EventViewMixin, ProjectViewMixin
 
 
