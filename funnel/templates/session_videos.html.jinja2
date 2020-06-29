@@ -32,7 +32,7 @@
         <div class="grid__col-xs-12">
           <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Videos{% endtrans %}</h2>
         </div>
-        {% for session in project.sessions_with_video %}
+        {% for session in sessions_with_video %}
           <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
             <div class="video">
               <a class="video__thumbnail {%- if not session.video.thumbnail %} video__thumnail--novideo{%- endif %}" href="{{ session.url_for() }}"  data-action="view session video">

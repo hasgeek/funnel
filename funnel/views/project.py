@@ -289,7 +289,11 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
     def session_videos(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         project_save_form = SavedProjectForm()
+        sessions_with_video = self.obj.sessions_with_video.options(
+            db.joinedload('proposal')
+        )
         return {
+            'sessions_with_video': sessions_with_video,
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
             'project_save_form': project_save_form,
