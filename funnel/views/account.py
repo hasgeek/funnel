@@ -385,6 +385,7 @@ def confirm_email(email_hash, secret):
     kwargs = blake2b_b58(email_hash)
     emailclaim = UserEmailClaim.get_by(verification_code=secret, **kwargs)
     if emailclaim is not None:
+        emailclaim.email_address.mark_active()
         if 'verify' in emailclaim.permissions(current_auth.user):
             existing = UserEmail.get(email=emailclaim.email)
             if existing is not None:
@@ -511,8 +512,8 @@ def add_email():
                 user=current_auth.user, email=form.email.data, type=form.type.data
             )
             db.session.add(useremail)
-            db.session.commit()
         send_email_verify_link(useremail)
+        db.session.commit()
         flash(_("We sent you an email to confirm your address"), 'success')
         user_data_changed.send(current_auth.user, changes=['email-claim'])
         return render_redirect(url_for('account'), code=303)
@@ -635,6 +636,7 @@ def verify_email(email_hash):
     verify_form = VerifyEmailForm()
     if verify_form.validate_on_submit():
         send_email_verify_link(emailclaim)
+        db.session.commit()
         flash(_("The verification email has been sent to this address"), 'success')
         return render_redirect(url_for('account'), code=303)
     return render_form(

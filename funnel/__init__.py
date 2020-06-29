@@ -3,7 +3,7 @@
 
 from flask import Flask
 from flask_flatpages import FlatPages
-from flask_mail import Mail
+from flask_mailman import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
@@ -73,6 +73,8 @@ lastuserapp.cookie_serializer = itsdangerous.JSONWebSignatureSerializer(
 app.login_serializer = itsdangerous.URLSafeTimedSerializer(
     app.config.get('LASTUSER_SECRET_KEY') or app.config['SECRET_KEY']
 )
+
+app.email_serializer = itsdangerous.URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`

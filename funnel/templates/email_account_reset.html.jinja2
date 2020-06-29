@@ -1,0 +1,12 @@
+{% extends "email_layout.html.jinja2" %}
+{% block content -%}
+
+  <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p>
+
+  <p>{% trans %}You &ndash; or someone claiming to be you &ndash; asked for your password to be reset.{% endtrans %}</p>
+
+  <p><a class="btn" href="{{ url }}">{% trans %}Reset your password{% endtrans %}</a></p>
+
+  <p>{% trans %}If you did not ask for this, you may safely ignore this email.{% endtrans %}</p>
+
+{%- endblock %}

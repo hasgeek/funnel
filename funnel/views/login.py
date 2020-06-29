@@ -317,7 +317,9 @@ def register():
         db.session.commit()
         flash(_("You are now one of us. Welcome aboard!"), category='success')
         return redirect(get_next_url(session=True), code=303)
-    return render_template('signup_form.html.jinja2', form=form, login_registry=login_registry)
+    return render_template(
+        'signup_form.html.jinja2', form=form, login_registry=login_registry
+    )
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])
@@ -414,6 +416,8 @@ def reset():
 @lastuserapp.route('/reset/<buid>/<secret>', methods=['GET', 'POST'])
 @load_model(User, {'buid': 'buid'}, 'user', kwargs=True)
 def reset_email(user, kwargs):
+    # TODO: Replace with a signed TTL-ed secret that includes userid and email_hash
+    # No need for a database model or buid+secret in the parameters
     resetreq = AuthPasswordResetRequest.get(user, kwargs['secret'])
     if not resetreq:
         return render_message(

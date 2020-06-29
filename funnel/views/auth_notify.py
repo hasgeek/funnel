@@ -1,4 +1,3 @@
-from ..jobs import send_auth_client_notice
 from ..models import AuthToken
 from ..signals import (
     org_data_changed,
@@ -6,6 +5,7 @@ from ..signals import (
     team_data_changed,
     user_data_changed,
 )
+from .jobs import send_auth_client_notice
 
 user_changes_to_notify = {
     'merge',
