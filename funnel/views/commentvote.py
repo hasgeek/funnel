@@ -181,7 +181,11 @@ class CommentView(UrlForView, ModelView):
             return {
                 'status': 'ok',
                 'message': _("Your comment has been edited"),
+                # FIXME: remove one of the below depending on what works in JS
                 'comment': self.obj.current_access(),
+                'comments': [
+                    comment.current_access() for comment in self.obj.commentset.comments
+                ],
             }
         else:
             return (

@@ -194,7 +194,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'title',
                 'message',
                 'parent_id',
-            }
+                'children_comments',
+            },
+            'call': {'state', 'commentset', 'view_for', 'url_for'},
         }
     }
 
@@ -228,6 +230,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
+
+    @property
+    def children_comments(self):
+        return [child.current_access() for child in self.children]
 
     @property
     def absolute_url(self):
