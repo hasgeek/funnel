@@ -22,7 +22,7 @@ def init_models():
         )
 
         concierge = User(username='concierge-user', fullname='concierge-user')
-        concierge._set_password('concierge-user341_qQE')
+        concierge._set_password('concierge-user34_qQE')
         concierge_email = UserEmail(email='concierge@example.com', user=concierge)
 
         usher = User(username='usher-cypress', fullname='usher-cypress')
@@ -30,7 +30,7 @@ def init_models():
         usher_email = UserEmail(email='usher@example.com', user=usher)
 
         editor = User(username='editor-cypress', fullname='editor-cypress')
-        editor._set_password('editor-cypress900_GHy')
+        editor._set_password('editor-cypress9_GH')
         editor_email = UserEmail(email='editor@example.com', user=editor)
 
         user2 = User(username='hg-user', fullname='hg-user')
