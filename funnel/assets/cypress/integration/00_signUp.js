@@ -6,8 +6,8 @@ describe('Creating a new user account', function () {
       .get('#hgnav')
       .find('.header__button')
       .click();
-    cy.wait(5000);
     cy.get('a[data-cy="signup"]').click();
+    cy.location('pathname').should('contain', '/register');
     cy.get('#fullname').type(newuser.fullname);
     cy.get('#email').type(newuser.email);
     cy.get('#password').type(newuser.password);

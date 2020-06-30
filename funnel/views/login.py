@@ -419,7 +419,7 @@ def reset():
         message=message,
         submit=_("Send reset code"),
         ajax=False,
-        layout_template='account_formlayout.html.jinja2',
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -480,7 +480,7 @@ def reset_email(user, kwargs):
             ).format(fullname=escape(user.fullname))
         ),
         ajax=False,
-        layout_template='account_formlayout.html.jinja2',
+        template='account_formlayout.html.jinja2',
     )
 
 
