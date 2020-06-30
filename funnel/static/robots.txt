@@ -2,5 +2,5 @@
 # www.google.com/support/webmasters/bin/answer.py?hl=en&answer=156449
 
 User-agent: *
-Disallow: /account/
-Disallow: /login/
+Disallow: /account
+Disallow: /login
