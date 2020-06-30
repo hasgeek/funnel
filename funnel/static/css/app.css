@@ -423,6 +423,22 @@ html.touch .collapsible__body--disable {
   display: none !important;
 }
 
+.mui-btn--raised.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin: auto;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.mui-btn--raised.icon-btn .fa5-icon {
+  width: 16px;
+  height: 16px;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -2340,6 +2356,10 @@ html.touch .collapsible__body--disable {
 .project-banner .project-banner__headline {
   margin-bottom: 16px;
 }
+.project-banner .livestream-box {
+  margin: 0;
+  padding: 0;
+}
 .project-banner .project-banner__box {
   padding: 0;
   position: relative;
@@ -2355,13 +2375,12 @@ html.touch .collapsible__body--disable {
 }
 .project-banner .project-banner__box .project-banner__box__add-btn {
   position: absolute;
-  top: 20px;
-  right: 33px;
+  top: 8px;
+  right: 16px;
   z-index: 3;
 }
-.project-banner .project-banner__box .livestream-box {
-  margin: 0;
-  padding: 0;
+.project-banner .project-banner__box .project-banner__box__add-btn--second {
+  right: 60px;
 }
 .project-banner .profile-text {
   margin: 16px 0;
@@ -2487,6 +2506,12 @@ html.touch .collapsible__body--disable {
   .project-banner .project-banner__box {
     padding: 0 16px;
   }
+  .project-banner .project-banner__box .project-banner__box__add-btn {
+    right: 32px;
+  }
+  .project-banner .project-banner__box .project-banner__box__add-btn--second {
+    right: 60px;
+  }
   .project-banner .project-banner__footer {
     padding: 0;
   }
@@ -2509,8 +2534,19 @@ html.touch .collapsible__body--disable {
     width: 14px;
     height: 14px;
   }
+  .project-banner .livestream-box {
+    padding: 0 16px;
+  }
   .project-banner .livestream-box .project-banner__box {
     padding: 0;
+  }
+  .project-banner
+    .livestream-box
+    .project-banner__box
+    .project-banner__box__add-btn {
+    right: 16px;
+    bottom: 16px;
+    top: auto;
   }
 }
 @media (min-width: 992px) {

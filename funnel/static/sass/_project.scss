@@ -32,6 +32,10 @@
   .project-banner__headline {
     margin-bottom: $mui-grid-padding;
   }
+  .livestream-box {
+    margin: 0;
+    padding: 0;
+  }
   .project-banner__box {
     padding: 0;
     position: relative;
@@ -47,13 +51,12 @@
     }
     .project-banner__box__add-btn {
       position: absolute;
-      top: 20px;
-      right: 33px;
+      top: $mui-grid-padding/2;
+      right: $mui-grid-padding;
       z-index: 3;
     }
-    .livestream-box {
-      margin: 0;
-      padding: 0;
+    .project-banner__box__add-btn--second {
+      right: 60px;
     }
   }
 
@@ -181,6 +184,12 @@
   .project-banner {
     .project-banner__box {
       padding: 0 $mui-grid-padding;
+      .project-banner__box__add-btn {
+        right: $mui-grid-padding * 2;
+      }
+      .project-banner__box__add-btn--second {
+        right: 60px;
+      }
     }
     .project-banner__footer {
       padding: 0;
@@ -209,8 +218,14 @@
       }
     }
     .livestream-box {
+      padding: 0 $mui-grid-padding;
       .project-banner__box {
         padding: 0;
+        .project-banner__box__add-btn {
+          right: $mui-grid-padding;
+          bottom: $mui-grid-padding;
+          top: auto;
+        }
       }
     }
   }

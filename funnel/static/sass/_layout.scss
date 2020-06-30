@@ -455,3 +455,19 @@ html.touch .collapsible__body--disable {
 .pace-hide {
   display: none !important;
 }
+
+.mui-btn--raised.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin: auto;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .fa5-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
