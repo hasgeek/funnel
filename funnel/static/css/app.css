@@ -1811,7 +1811,7 @@ a.loginbutton.hidden,
 }
 
 @media (min-width: 768px) {
-  .modal-form {
+  .jquery-modal.blocker.current .modal.modal-form {
     min-width: 50%;
     min-height: 80%;
     height: auto;
