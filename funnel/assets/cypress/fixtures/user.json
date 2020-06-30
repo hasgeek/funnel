@@ -1,36 +1,36 @@
 {
   "owner": {
     "username": "profile-cypress",
-    "password": "cypress123_st"
+    "password": "profile-cypress123_St"
   },
   "admin": {
     "username": "admin-user",
-    "password": "cypress129_ftz"
+    "password": "admin-user129_Ftz"
   },
   "concierge": {
     "username": "concierge-user",
-    "password": "cypress341_qwe"
+    "password": "concierge-user341_qQE"
   },
   "usher": {
     "username": "usher-cypress",
-    "password": "cypress566_yut"
+    "password": "usher-cypress566_YUt"
   },
   "editor": {
     "username": "editor-cypress",
-    "password": "cypress900_ghy"
+    "password": "editor-cypress900_GHy"
   },
   "user": {
     "username": "member-user",
-    "password": "cypress341_wer"
+    "password": "member-user341_Wer"
   },
   "hguser": {
     "username": "hg-user",
-    "password": "cypress5678y9"
+    "password": "hg-user567_HE"
   },
   "newuser": {
     "fullname": "New User",
     "username": "new-user",
-    "password": "sdfj11_mnsdams123213",
+    "password": "new-user11_EveryOne",
     "email": "newuser@mailinator.com",
     "newpassword": "newuser123_Sep1988"
   }
