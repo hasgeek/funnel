@@ -94,7 +94,9 @@ def password_policy_check():
             {
                 'status': 'error',
                 'error_code': 'policy_form_error',
-                'error_description': _("Something went wrong. Please try again"),
+                'error_description': _(
+                    "Something went wrong. Please reload and try again"
+                ),
                 'error_details': policy_form.errors,
             },
             400,
