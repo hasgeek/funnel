@@ -482,6 +482,7 @@ html.touch .collapsible__body--disable {
   }
   .login-page__box {
     background-color: #fff;
+    width: 100%;
     max-width: 400px;
     margin: $mui-grid-padding auto;
 
@@ -552,7 +553,6 @@ html.touch .collapsible__body--disable {
       padding: ($mui-grid-padding * 2 + $mui-grid-padding/2) $mui-grid-padding *
         2 $mui-grid-padding * 2;
       border-radius: 16px;
-      width: 400px;
       margin: 0 auto $mui-grid-padding * 2;
     }
   }

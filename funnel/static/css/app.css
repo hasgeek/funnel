@@ -450,6 +450,7 @@ html.touch .collapsible__body--disable {
 }
 .login-page .login-page__box {
   background-color: #fff;
+  width: 100%;
   max-width: 400px;
   margin: 16px auto;
 }
@@ -514,7 +515,6 @@ html.touch .collapsible__body--disable {
     position: relative;
     padding: 40px 32px 32px;
     border-radius: 16px;
-    width: 400px;
     margin: 0 auto 32px;
   }
 }
