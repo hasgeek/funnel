@@ -2,7 +2,16 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, MarkdownColumn, Profile, Project, User, UuidMixin, db
+from . import (
+    BaseMixin,
+    MarkdownColumn,
+    Profile,
+    Project,
+    TimestampMixin,
+    User,
+    UuidMixin,
+    db,
+)
 
 __all__ = ['Blogpost']
 
@@ -13,9 +22,21 @@ class BLOGPOST_STATE(LabeledEnum):  # NOQA: N801
     DELETED = (2, 'deleted', __("Deleted"))
 
 
-class Blogpost(UuidMixin, BaseMixin, db.Model):
+class VISIBILITY_CHOICES(LabeledEnum):  # NOQA: N801
+    PUBLIC = (0, 'public', __("Public"))
+    PARTICIPANTS = (1, 'participants', __("Participants only"))
+    CREW = (2, 'crew_only', __("Crew only"))
+
+
+class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     __tablename__ = 'blogpost'
-    __uuid_primary_key__ = True
+
+    visibility = db.Column(
+        db.Integer,
+        StateManager.check_constraint('record_type', VISIBILITY_CHOICES),
+        default=VISIBILITY_CHOICES.PUBLIC,
+        nullable=False,
+    )
 
     _state = db.Column(
         'state',
@@ -37,26 +58,40 @@ class Blogpost(UuidMixin, BaseMixin, db.Model):
     )
 
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=True, index=True)
-    profile = db.relationship(
-        Profile,
-        primaryjoin=profile_id == Profile.id,
-        backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
+    profile = with_roles(
+        db.relationship(
+            Profile,
+            primaryjoin=profile_id == Profile.id,
+            backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
+        ),
+        grants_via={None: {'admin': 'profile_admin'}},
     )
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=True, index=True)
-    project = db.relationship(
-        Project,
-        primaryjoin=project_id == Project.id,
-        backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
+    project = with_roles(
+        db.relationship(
+            Project,
+            primaryjoin=project_id == Project.id,
+            backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
+        ),
+        grants_via={None: {'editor': 'project_editor'}},
     )
 
-    message = MarkdownColumn('message', nullable=False)
+    body = MarkdownColumn('message', nullable=False)
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
     pinned = db.Column(db.Boolean, default=False, nullable=False)
 
-    published_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True,)
+    published_by_id = db.Column(
+        None, db.ForeignKey('user.id'), nullable=True, index=True
+    )
+    published_by = db.relationship(User, primaryjoin=published_by_id == User.id)
+    published_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+
+    deleted_by_id = db.Column(None, db.ForeignKey('user.id'), nullable=True, index=True)
+    deleted_by = db.relationship(User, primaryjoin=deleted_by_id == User.id)
+    deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     __table_args__ = (
         # FIXME: Should we check for user_id as well? That would allow users to
@@ -74,17 +109,18 @@ class Blogpost(UuidMixin, BaseMixin, db.Model):
             title=self.title, uuid_b58=self.uuid_b58
         )
 
-    @with_roles(call={'author'})
+    @with_roles(call={'author', 'profile_admin', 'project_editor'})
     @state.transition(
         state.DRAFT,
         state.PUBLISHED,
         title=__("Publish blogpost"),
         message=__("Blogpost has been published"),
     )
-    def publish(self):
+    def publish(self, actor):
+        self.published_by = actor
         self.published_at = db.func.utcnow()
 
-    @with_roles(call={'author'})
+    @with_roles(call={'author', 'profile_admin', 'project_editor'})
     @state.transition(
         state.PUBLISHED,
         state.DRAFT,
@@ -92,19 +128,21 @@ class Blogpost(UuidMixin, BaseMixin, db.Model):
         message=__("Blogpost is now a draft"),
     )
     def undo_publish(self):
+        self.published_by = None
         self.published_at = None
 
-    @with_roles(call={'author'})
+    @with_roles(call={'author', 'profile_admin', 'project_editor'})
     @state.transition(
         None,
         state.DELETED,
         title=__("Delete blogpost"),
         message=__("Blogpost has been deleted"),
     )
-    def delete(self):
-        pass
+    def delete(self, actor):
+        self.deleted_by = actor
+        self.deleted_at = db.func.utcnow()
 
-    @with_roles(call={'author'})
+    @with_roles(call={'author', 'profile_admin', 'project_editor'})
     @state.transition(
         state.DELETED,
         state.DRAFT,
@@ -112,4 +150,5 @@ class Blogpost(UuidMixin, BaseMixin, db.Model):
         message=__("Blogpost is now a draft"),
     )
     def undo_delete(self):
-        pass
+        self.deleted_by = None
+        self.deleted_at = None
