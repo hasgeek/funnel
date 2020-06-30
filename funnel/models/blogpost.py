@@ -4,14 +4,18 @@ from coaster.utils import LabeledEnum
 
 from . import (
     BaseMixin,
+    Commentset,
     MarkdownColumn,
     Profile,
     Project,
     TimestampMixin,
+    TSVectorType,
     User,
     UuidMixin,
+    Voteset,
     db,
 )
+from .commentvote import SET_TYPE
 
 __all__ = ['Blogpost']
 
@@ -93,6 +97,35 @@ class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     deleted_by = db.relationship(User, primaryjoin=deleted_by_id == User.id)
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
+    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
+    voteset = db.relationship(Voteset, uselist=False)
+
+    commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
+    commentset = db.relationship(
+        Commentset,
+        uselist=False,
+        lazy='joined',
+        cascade='all',
+        single_parent=True,
+        backref=db.backref('blogpost', uselist=False),
+    )
+
+    search_vector = db.deferred(
+        db.Column(
+            TSVectorType(
+                'name',
+                'title',
+                'body_text',
+                weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
+                regconfig='english',
+                hltext=lambda: db.func.concat_ws(
+                    ' / ', Blogpost.title, Blogpost.body_html,
+                ),
+            ),
+            nullable=False,
+        )
+    )
+
     __table_args__ = (
         # FIXME: Should we check for user_id as well? That would allow users to
         # post blog posts in future in their own profile
@@ -103,6 +136,37 @@ class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
             name='blogpost_owner_check',
         ),
     )
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'body',
+                'created_at',
+                'edited_at',
+                'name',
+                'title',
+                'user',
+                'visibility',
+            }
+        }
+    }
+
+    __datasets__ = {
+        'primary': {
+            'body',
+            'created_at',
+            'edited_at',
+            'name',
+            'title',
+            'user',
+            'visibility',
+        }
+    }
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.voteset = Voteset(settype=SET_TYPE.BLOGPOST)
+        self.commentset = Commentset(settype=SET_TYPE.BLOGPOST)
 
     def __repr__(self):
         return '<Blogpost "{title}" {uuid_b58}'.format(
