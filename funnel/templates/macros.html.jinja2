@@ -593,6 +593,8 @@
                   <td data-th="Location">
                     {% if project.primary_venue %}
                       <p class="mui--text-subhead zero-bottom-margin">{{ project.primary_venue.city }}</p>
+                    {% elif project.location %}
+                      <p class="mui--text-subhead zero-bottom-margin">{{ project.location }}</p>
                     {% endif %}
                   </td>
                 </tr>
