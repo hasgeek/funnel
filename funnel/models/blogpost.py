@@ -97,6 +97,8 @@ class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     deleted_by = db.relationship(User, primaryjoin=deleted_by_id == User.id)
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
+    edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False)
 
@@ -181,8 +183,11 @@ class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
         message=__("Blogpost has been published"),
     )
     def publish(self, actor):
-        self.published_by = actor
-        self.published_at = db.func.utcnow()
+        if self.published_at is None:
+            self.published_by = actor
+            self.published_at = db.func.utcnow()
+        else:
+            self.edited_at = db.func.utcnow()
 
     @with_roles(call={'author', 'profile_admin', 'project_editor'})
     @state.transition(
