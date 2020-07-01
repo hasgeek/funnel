@@ -34,7 +34,7 @@ def init_models():
         editor_email = UserEmail(email='editor@example.com', user=editor)
 
         user2 = User(username='hg-user', fullname='hg-user')
-        user2._set_password('hg-user567_HE')
+        user2._set_password('hg-user5_HE')
 
         db.session.add_all(
             [
