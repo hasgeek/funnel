@@ -80,6 +80,9 @@
                           <a class="mui--text-menu mui--text-accent comment--permalink">[Link]</a>
                           <a class="mui--text-menu mui--text-accent comment--parent" v-if="comment.parent">[Parent]</a>
                         </div>
+                        <ul class="mui-list--aligned mui-list--unstyled comment--children" v-for="child_comment in comment.children_comments">
+                          <comment :comment="child_comment" :isuserparticipant="isuserparticipant"></comment>
+                        </ul>
                       </div>
                     </transition>
                   </div>
