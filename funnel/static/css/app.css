@@ -423,7 +423,7 @@ html.touch .collapsible__body--disable {
   display: none !important;
 }
 
-head .icon-img {
+.icon-img {
   height: 18px;
   margin-right: 16px;
   vertical-align: text-top;
