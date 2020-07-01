@@ -166,7 +166,6 @@
             {%- elif project.bg_image.url %}
               {{ banner_edit_btn(project) }}
               <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}" data-cy="bg_image"/>
-              }
             {%- else %}
               {{ banner_edit_btn(project) }}
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
