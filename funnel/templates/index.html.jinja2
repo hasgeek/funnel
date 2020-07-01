@@ -54,14 +54,69 @@
   {{ upcoming_section(upcoming_projects, project_save_form) }}
   {{ open_cfp_section(open_cfp_projects, project_save_form) }}
   {{ all_projects_section(all_projects, project_save_form) }}
-  {{ past_projects_section(past_projects) }}
+  {{ past_projects_section() }}
 {% endblock %}
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       window.HasGeek.HomeInit();
+
+      new Vue({
+        el: '#past-project-table',
+        data() {
+          return {
+            length: '4',
+            pastprojects: '',
+            next_page: 1,
+            loadmore: true,
+          }
+        },
+        methods: {
+          fetchResult(page = 1) {
+            const app = this;
+            $.ajax({
+              type: 'GET',
+              url: '/json',
+              timeout: window.HasGeek.config.ajaxTimeout,
+              dataType: 'json',
+              success(data) {
+                app.pastprojects = data.past_projects;
+                app.length = data.past_projects.length;
+                app.next_page = 0;
+                app.loadmore = data.loadmore;
+              },
+            });
+          },
+          lazyoad() {
+            const lazyLoader = document.querySelector('.js-lazy-loader');
+            if (lazyLoader) {
+              this.handleObserver = this.handleObserver.bind(this);
+
+              const observer = new IntersectionObserver(this.handleObserver, {
+                rootMargin: '0px',
+                threshold: 0,
+              });
+              observer.observe(lazyLoader);
+            }
+          },
+          handleObserver(entries) {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                const nextPage = entry.target.getAttribute('data-next-page');
+                if (nextPage) {
+                  this.fetchResult(nextPage);
+                }
+              }
+            });
+          },
+        },
+        mounted() {
+          this.lazyoad();
+        },
+      });
     });
   </script>
 {% endblock %}

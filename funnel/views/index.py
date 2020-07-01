@@ -2,6 +2,7 @@ import os.path
 
 from flask import Response, g, jsonify, redirect, render_template
 
+from baseframe.filters import date_filter
 from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, route
 
@@ -49,11 +50,6 @@ class IndexView(ClassView):
             .order_by(Project.next_session_at.asc())
             .all()
         )
-        past_projects = (
-            projects.filter(Project.state.PUBLISHED, Project.schedule_state.PAST)
-            .order_by(Project.schedule_start_at.desc())
-            .all()
-        )
 
         return {
             'all_projects': [
@@ -75,10 +71,6 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'past_projects': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
-                for p in past_projects
-            ],
             'project_save_form': SavedProjectForm(),
         }
 
@@ -110,11 +102,33 @@ def whoami():
 @app.route('/json')
 def all_projects_json():
     g.profile = None
-    projects = Project.fetch_sorted(legacy=False).all()
-    return jsonp(
-        projects=list(map(project_data, projects)),
-        spaces=list(map(project_data, projects)),
-    )  # FIXME: Remove when the native app switches over
+    # projects = Project.fetch_sorted(legacy=False).all()
+    # return jsonp(
+    #     projects=list(map(project_data, projects)),
+    #     spaces=list(map(project_data, projects)),
+    # )  # FIXME: Remove when the native app switches over
+    projects = Project.all_unsorted(legacy=False)
+    past_projects = (
+        projects.filter(Project.state.PUBLISHED, Project.schedule_state.PAST)
+        .order_by(Project.schedule_start_at.desc())
+        .all()
+    )
+    return {
+        'status': 'ok',
+        'next_page': 2,
+        'loadmore': True,
+        'past_projects': [
+            {
+                'title': p.title,
+                'datetime': date_filter(
+                    p.schedule_start_at_localized, format='dd MMM yyyy'
+                ),
+                'venue': p.primary_venue.city if p.primary_venue else p.location,
+                'url': p.url_for(),
+            }
+            for p in past_projects
+        ],
+    }
 
 
 @funnelapp.route('/json')

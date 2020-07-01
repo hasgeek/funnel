@@ -631,70 +631,57 @@
   {% endif %}
 {% endmacro %}
 
-{% macro past_projects_section(past_projects) %}
-  {% if past_projects %}
-    <div class="projects-wrapper">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">
-              {% trans %}Past projects{% endtrans %}
-            </h2>
-            <p class="mui--text-body2">{{ past_projects|length }} projects</p>
-          </div>
-        </div>
-        <div class="grid projects">
-          <div class="grid__col-12 mui-table--responsive-wrapper">
-            <table
-              class="mui-table mui-table--bordered mui-table--responsive past-events-table"
-            >
-              <thead class="mui--bg-primary-light">
-                <tr>
-                  <th class="mui--text-subhead mui--text-capitalize">
-                    {% trans %}Date{% endtrans %}
-                  </th>
-                  <th class="mui--text-subhead mui--text-capitalize">
-                    {% trans %}Event name{% endtrans %}
-                  </th>
-                  <th class="mui--text-subhead mui--text-capitalize">
-                    {% trans %}Location{% endtrans %}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for project in past_projects %}
-                <tr>
-                  <td data-th="Date">
-                    <p class="mui--text-subhead zero-bottom-margin">
-                      {{ project.schedule_start_at_localized|date(format='dd MMM
-                      yyyy') }}
-                    </p>
-                  </td>
-                  <td data-th="Event name">
-                    <p class="mui--text-subhead zero-bottom-margin">
-                      <a
-                        href="{{ project.url_for() }}"
-                        data-action="past-event(index page list)"
-                        >{{ project.title }}</a
-                      >
-                    </p>
-                  </td>
-                  <td data-th="Location">
-                    {% if project.primary_venue %}
-                    <p class="mui--text-subhead zero-bottom-margin">
-                      {{ project.primary_venue.city }}
-                    </p>
-                    {% endif %}
-                  </td>
-                </tr>
-                {%- endfor -%}
-              </tbody>
-            </table>
-          </div>
+{% macro past_projects_section() %}
+  <div class="projects-wrapper">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <h2 class="mui--text-headline mui--text-bold project-headline">
+            {% trans %}Past projects{% endtrans %}
+          </h2>
         </div>
       </div>
+      {% raw %}
+        <div id="past-project-table">
+          <div class="grid projects">
+            <div class="grid__col-12 mui-table--responsive-wrapper">
+              <p class="mui--text-body2">{{ length }} projects</p>
+              <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
+                <thead class="mui--bg-primary-light">
+                  <tr>
+                    <th class="mui--text-subhead mui--text-capitalize">Date</th>
+                    <th class="mui--text-subhead mui--text-capitalize">Event name</th>
+                    <th class="mui--text-subhead mui--text-capitalize">Location</th>
+                  </tr>
+                </thead>
+                <tbody v-for="project in pastprojects">
+                  <tr>
+                    <td data-th="Date">
+                      <p class="mui--text-subhead zero-bottom-margin">
+                        {{ project.datetime }}
+                      </p>
+                    </td>
+                    <td data-th="Event name">
+                      <p class="mui--text-subhead zero-bottom-margin">
+                        <a :href="project.url" data-action="past-event(index page list)">{{ project.title }}</a
+                        >
+                      </p>
+                    </td>
+                    <td data-th="Location">
+                      <p class="mui--text-subhead zero-bottom-margin">
+                        {{ project.venue }}
+                      </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="js-lazy-loader loading" data-next-page="{{ next_page }}" v-if="loadmore"></p>
+            </div>
+          </div>
+        </div>
+      {% endraw %}
     </div>
-  {% endif %}
+  </div>
 {% endmacro %}
 
 {% macro profile_header(profile) %}
