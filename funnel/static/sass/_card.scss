@@ -602,3 +602,18 @@
     }
   }
 }
+
+.card--limited {
+  min-width: 200px;
+}
+
+@media (min-width: 768px) {
+  .card--limited {
+    min-width: 300px;
+  }
+}
+
+.card .card__body--lgtext {
+  font-size: inherit;
+  line-height: inherit;
+}

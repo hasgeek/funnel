@@ -3,9 +3,9 @@ describe('Creating a new user account', function () {
 
   it('Signup', function () {
     cy.visit('/', { failOnStatusCode: false })
-    .get('#hgnav')
-    .find('.header__button')
-    .click();
+      .get('#hgnav')
+      .find('.header__button')
+      .click();
     cy.get('a[data-cy="signup"]').click();
     cy.location('pathname').should('contain', '/register');
     cy.get('#fullname').type(newuser.fullname);
@@ -28,6 +28,5 @@ describe('Creating a new user account', function () {
     cy.get('a[data-cy="Logout"]').click();
 
     cy.login('/', newuser.username, newuser.newpassword);
-
   });
 });

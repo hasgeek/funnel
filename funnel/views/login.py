@@ -195,7 +195,9 @@ def login():
     if request_is_xhr() and formid == 'passwordlogin':
         return (
             render_template(
-                'loginform.html.jinja2', loginform=loginform, Markup=Markup
+                'loginform.html.jinja2',
+                loginform=loginform,
+                ref_id='form-passwordlogin',
             ),
             200,
             iframe_block,
@@ -207,8 +209,10 @@ def login():
                 loginform=loginform,
                 lastused=loginmethod,
                 service_forms=service_forms,
-                Markup=Markup,
                 login_registry=login_registry,
+                formid='passwordlogin',
+                ref_id='form-passwordlogin',
+                title=_("Login"),
             ),
             200,
             iframe_block,
@@ -317,8 +321,14 @@ def register():
         db.session.commit()
         flash(_("You are now one of us. Welcome aboard!"), category='success')
         return redirect(get_next_url(session=True), code=303)
+    # Form with id 'form-password-change' will have password strength meter on UI
     return render_template(
-        'signup_form.html.jinja2', form=form, login_registry=login_registry
+        'signup_form.html.jinja2',
+        form=form,
+        login_registry=login_registry,
+        title=_("Register account"),
+        formid='registeraccount',
+        ref_id='form-password-change',
     )
 
 
@@ -409,6 +419,7 @@ def reset():
         message=message,
         submit=_("Send reset code"),
         ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -457,10 +468,11 @@ def reset_email(user, kwargs):
                 ).format(loginurl=escape(url_for('login')))
             ),
         )
+    # Form with id 'form-password-change' will have password strength meter on UI
     return render_form(
         form=form,
         title=_("Reset password"),
-        formid='reset',
+        formid='password-change',
         submit=_("Reset password"),
         message=Markup(
             _(
@@ -468,6 +480,7 @@ def reset_email(user, kwargs):
             ).format(fullname=escape(user.fullname))
         ),
         ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -702,6 +715,9 @@ def account_merge():
         user=current_auth.user,
         other_user=other_user,
         login_registry=login_registry,
+        formid='mergeaccounts',
+        ref_id='form-mergeaccounts',
+        title=_("Merge accounts"),
     )
 
 
