@@ -423,7 +423,7 @@ html.touch .collapsible__body--disable {
   display: none !important;
 }
 
-.icon-img {
+head .icon-img {
   height: 18px;
   margin-right: 16px;
   vertical-align: text-top;
@@ -629,6 +629,23 @@ a.loginbutton.hidden,
     clear: both;
   }
 }
+.mui-btn--raised.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin: auto;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9fafc;
+}
+.mui-btn--raised.icon-btn .fa5-icon {
+  width: 16px;
+  height: 16px;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -2584,6 +2601,17 @@ a.loginbutton.hidden,
 .project-banner .project-banner__headline {
   margin-bottom: 16px;
 }
+.project-banner .livestream-box {
+  margin: 0;
+  padding: 0;
+}
+.project-banner
+  .livestream-box
+  .project-banner__box
+  .project-banner__box__add-btn {
+  right: 16px;
+  bottom: 16px;
+}
 .project-banner .project-banner__box {
   padding: 0;
   position: relative;
@@ -2599,13 +2627,13 @@ a.loginbutton.hidden,
 }
 .project-banner .project-banner__box .project-banner__box__add-btn {
   position: absolute;
-  top: 20px;
-  right: 33px;
+  bottom: 56px;
+  right: 16px;
   z-index: 3;
 }
-.project-banner .project-banner__box .livestream-box {
-  margin: 0;
-  padding: 0;
+.project-banner .project-banner__box .project-banner__box__add-btn--second {
+  right: 60px;
+  bottom: 16px;
 }
 .project-banner .profile-text {
   margin: 16px 0;
@@ -2731,6 +2759,12 @@ a.loginbutton.hidden,
   .project-banner .project-banner__box {
     padding: 0 16px;
   }
+  .project-banner .project-banner__box .project-banner__box__add-btn {
+    right: 32px;
+  }
+  .project-banner .project-banner__box .project-banner__box__add-btn--second {
+    right: 60px;
+  }
   .project-banner .project-banner__footer {
     padding: 0;
   }
@@ -2752,6 +2786,9 @@ a.loginbutton.hidden,
   .project-banner .project-details__box .propose .propose__txt svg {
     width: 14px;
     height: 14px;
+  }
+  .project-banner .livestream-box {
+    padding: 0 16px;
   }
   .project-banner .livestream-box .project-banner__box {
     padding: 0;

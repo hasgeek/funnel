@@ -86,7 +86,13 @@
 
 {% macro livestream_edit_btn(project) %}
   {% if project.view_for('edit_livestream').is_available() %}
-    <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--primary mui-btn--raised project-banner__box__add-btn">{% trans %}Update livestream URLs{% endtrans %}</a>
+    <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn" aria-label="{% trans %}Update livestream URLs{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a>
+  {% endif %}
+{% endmacro %}
+
+{% macro banner_edit_btn(project) %}
+  {% if project.view_for('edit').is_available() %}
+    <a href="{{ project.url_for('edit') }}#field-bg_image" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn project-banner__box__add-btn--second" aria-label="{% trans %}Update banner image{% endtrans %}">{{ faicon(icon='camera', baseline=false) }}</a>
   {% endif %}
 {% endmacro %}
 
@@ -158,8 +164,10 @@
                 </p>
               </div>
             {%- elif project.bg_image.url %}
+              {{ banner_edit_btn(project) }}
               <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}" data-cy="bg_image"/>
             {%- else %}
+              {{ banner_edit_btn(project) }}
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
             {% endif %}
           </div>

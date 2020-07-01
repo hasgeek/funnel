@@ -456,7 +456,7 @@ html.touch .collapsible__body--disable {
   display: none !important;
 }
 
-.icon-img {
+head .icon-img {
   height: 18px;
   margin-right: 16px;
   vertical-align: text-top;
@@ -673,5 +673,22 @@ a.loginbutton.hidden,
       display: table;
       clear: both;
     }
+  }
+}
+
+.mui-btn--raised.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin: auto;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9fafc;
+  .fa5-icon {
+    width: 16px;
+    height: 16px;
   }
 }
