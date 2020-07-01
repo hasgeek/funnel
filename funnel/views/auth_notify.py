@@ -1,4 +1,3 @@
-from ..jobs import send_auth_client_notice
 from ..models import AuthToken
 from ..signals import (
     org_data_changed,
@@ -6,6 +5,7 @@ from ..signals import (
     team_data_changed,
     user_data_changed,
 )
+from .jobs import send_auth_client_notice
 
 user_changes_to_notify = {
     'merge',
@@ -24,7 +24,7 @@ user_changes_to_notify = {
 @session_revoked.connect
 def notify_session_revoked(session):
     for auth_client in session.auth_clients:
-        if auth_client.notification_uri:
+        if auth_client.trusted and auth_client.notification_uri:
             send_auth_client_notice.queue(
                 auth_client.notification_uri,
                 data={
@@ -47,7 +47,11 @@ def notify_user_data_changed(user, changes):
     if user_changes_to_notify & set(changes):
         # We have changes that apps need to hear about
         for token in user.authtokens:
-            if token.is_valid() and token.auth_client.notification_uri:
+            if (
+                token.auth_client.trusted
+                and token.is_valid()
+                and token.auth_client.notification_uri
+            ):
                 tokenscope = token.effective_scope
                 notify_changes = []
                 for change in changes:
@@ -98,11 +102,12 @@ def notify_org_data_changed(org, user, changes, team=None):
     client_users = {}
     for token in AuthToken.all(users=org.admin_users):
         if (
-            {'*', 'organizations', 'organizations/*'}.intersection(
+            token.auth_client.trusted
+            and token.is_valid()
+            and {'*', 'organizations', 'organizations/*'}.intersection(
                 token.effective_scope
             )
             and token.auth_client.notification_uri
-            and token.is_valid()
         ):
             client_users.setdefault(token.auth_client, []).append(token.user)
     # Now we have a list of clients to notify and a list of users to notify them with

@@ -3,7 +3,7 @@
 
 from flask import Flask
 from flask_flatpages import FlatPages
-from flask_mail import Mail
+from flask_mailman import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
@@ -74,6 +74,8 @@ app.login_serializer = itsdangerous.URLSafeTimedSerializer(
     app.config.get('LASTUSER_SECRET_KEY') or app.config['SECRET_KEY']
 )
 
+app.email_serializer = itsdangerous.URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`
 app.login_manager = views.helpers.LoginManager()
@@ -116,7 +118,14 @@ baseframe.init_app(
 baseframe.init_app(
     funnelapp,
     requires=['funnel'],
-    ext_requires=['pygments', 'toastr', 'baseframe-mui', 'pace'],
+    ext_requires=[
+        'pygments',
+        'toastr',
+        'baseframe-mui',
+        'jquery.cookie',
+        'timezone',
+        'pace',
+    ],
     theme='mui',
     asset_modules=('baseframe_private_assets',),
 )

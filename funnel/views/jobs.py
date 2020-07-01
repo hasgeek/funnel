@@ -9,13 +9,6 @@ from .. import app, funnelapp, rq
 from ..extapi.boxoffice import Boxoffice
 from ..extapi.explara import ExplaraAPI
 from ..models import EmailAddress, Project, ProjectLocation, TicketClient, db
-from ..utils import send_mail
-
-
-@rq.job('funnel')
-def send_mail_async(sender, to, body, subject):
-    with app.app_context():
-        send_mail(sender, to, body, subject)
 
 
 @rq.job('funnel')

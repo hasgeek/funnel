@@ -13,7 +13,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import ProfileForm, SavedProjectForm
+from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm, SavedProjectForm
 from ..models import Profile, Project, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
@@ -26,7 +26,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('index.html.jinja2', json=True)
+    @render_with('profile.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
     def view(self):
         # `order_by(None)` clears any existing order defined in relationship.
@@ -123,6 +123,40 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
             form=form,
             title=_("Edit profile details"),
             submit=_("Save changes"),
+            cancel_url=self.obj.url_for(),
+            ajax=False,
+        )
+
+    @route('edit_logo', methods=['GET', 'POST'])
+    @requires_roles({'admin'})
+    def edit_logo_url(self):
+        form = ProfileLogoForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            return redirect(self.obj.url_for(), code=303)
+        return render_form(
+            form=form,
+            title=_("Edit profile logo"),
+            submit=_("Save logo"),
+            cancel_url=self.obj.url_for(),
+            ajax=False,
+        )
+
+    @route('edit_banner_image', methods=['GET', 'POST'])
+    @requires_roles({'admin'})
+    def edit_banner_image_url(self):
+        form = ProfileBannerForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            return redirect(self.obj.url_for(), code=303)
+        return render_form(
+            form=form,
+            title=_("Edit profile banner image"),
+            submit=_("Save banner"),
             cancel_url=self.obj.url_for(),
             ajax=False,
         )

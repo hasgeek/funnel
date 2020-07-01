@@ -1,0 +1,26 @@
+<html>
+  <head>
+    {% block stylesheet -%}
+      <style type="text/css">
+        .btn, a.btn:link, a.btn:visited {
+          background-color: #428bca;
+          border-radius: 3px;
+          border: 1px solid #357ebd;
+          color: white;
+          margin-bottom: 5px;
+          padding: 6px 12px;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+      </style>
+    {%- endblock %}
+  </head>
+  <body>
+    {%- block jsonld %}{%- if jsonld %}
+      <script type="application/ld+json">
+        {{ jsonld|tojson }}
+      </script>
+    {%- endif %}{%- endblock %}
+    {% block content %}{% endblock %}
+  </body>
+</html>

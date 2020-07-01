@@ -26,7 +26,6 @@ from coaster.utils import utcnow
 from coaster.views import get_current_url
 
 from .. import app, funnelapp, lastuserapp
-from ..jobs import forget_email
 from ..models import (
     AuthClientCredential,
     User,
@@ -36,6 +35,7 @@ from ..models import (
 )
 from ..signals import user_login, user_registered
 from ..utils import abort_null
+from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
 

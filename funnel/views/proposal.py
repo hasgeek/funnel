@@ -160,7 +160,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             submit=_("Submit proposal"),
             message=Markup(
                 _(
-                    'This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'
+                    'This form uses <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
                 )
             ),
         )
@@ -279,7 +279,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             submit=_("Update proposal"),
             message=Markup(
                 _(
-                    'This form uses <a target="_blank" href="http://daringfireball.net/projects/markdown/">Markdown</a> for formatting.'
+                    'This form uses <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
                 )
             ),
         )

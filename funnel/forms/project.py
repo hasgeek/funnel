@@ -1,6 +1,5 @@
 import re
 
-from flask import current_app
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.widgets import CheckboxInput, ListWidget
 
@@ -10,6 +9,7 @@ from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
 from ..models import Event, Project, Rsvp, SavedProject, TicketClient
+from .helpers import image_url_validator
 
 __all__ = [
     'CfpForm',
@@ -75,15 +75,8 @@ class ProjectForm(forms.Form):
         ),
         validators=[
             forms.validators.Optional(),
-            forms.validators.ValidUrl(
-                allowed_schemes=lambda: current_app.config.get(
-                    'IMAGE_URL_SCHEMES', ('https',)
-                ),
-                allowed_domains=lambda: current_app.config.get('IMAGE_URL_DOMAINS'),
-                message_schemes=__("A https:// URL is required"),
-                message_domains=__("Images must be hosted at images.hasgeek.com"),
-            ),
             forms.validators.Length(max=2000),
+            image_url_validator(),
         ],
     )
     description = forms.MarkdownField(

@@ -1,6 +1,6 @@
-from flask import flash
+from flask import current_app, flash
 
-from baseframe import _
+from baseframe import _, __
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
@@ -52,3 +52,12 @@ class EmailAddressAvailable:
                     " in error, please email us at support@hasgeek.com"
                 )
             )
+
+
+def image_url_validator():
+    return forms.validators.ValidUrl(
+        allowed_schemes=lambda: current_app.config.get('IMAGE_URL_SCHEMES', ('https',)),
+        allowed_domains=lambda: current_app.config.get('IMAGE_URL_DOMAINS'),
+        message_schemes=__("A https:// URL is required"),
+        message_domains=__("Images must be hosted at images.hasgeek.com"),
+    )
