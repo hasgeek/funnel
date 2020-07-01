@@ -374,7 +374,7 @@
           </div>
         {% endif %}
         <h3 class="card__body__title mui--text-subhead {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
-        <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% endif %}</p>
+        <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ project.location }}{% endif %}</p>
       {% else %}
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
         <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
@@ -514,24 +514,32 @@
                   >
                     {{ featured_project.tagline }}
                   </p>
-                  {% endif %} {%- if not current_auth.is_anonymous %} {% set
-                  save_form_id = "featured_" + featured_project.uuid_b58 %}
-                  <div class="card__body__bookmark">
-                    {{ saveprojectform(featured_project, project_save_form,
-                    save_form_id) }}
-                  </div>
-                  {% endif %} {% if featured_project.calendar_weeks_compact.weeks
+                  {% endif %}
+                  {%- if not current_auth.is_anonymous %}
+                    {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
+                    <div class="card__body__bookmark">
+                      {{ saveprojectform(featured_project, project_save_form,
+                      save_form_id) }}
+                    </div>
+                  {% endif %}
+                  {% if featured_project.calendar_weeks_compact.weeks
                   and featured_project.calendar_weeks_compact.weeks|length > 0 %}
-                  <div aria-label="{{ featured_project.datelocation }}">
-                    {{ calendarwidget(featured_project.calendar_weeks_compact) }}
-                  </div>
-                  {% endif %} {% if featured_project.primary_venue %}
-                  <p class="card__body__location mui--text-light">
-                    {{ faicon(icon='map-marker-alt', icon_size='caption',
-                    baseline=false) }} {{ featured_project.primary_venue.title }}{%
-                    if featured_project.primary_venue.city %}, {{
-                    featured_project.primary_venue.city }}{% endif %}
-                  </p>
+                    <div aria-label="{{ featured_project.datelocation }}">
+                      {{ calendarwidget(featured_project.calendar_weeks_compact) }}
+                    </div>
+                  {% endif %}
+                  {% if featured_project.primary_venue %}
+                    <p class="card__body__location mui--text-light">
+                      {{ faicon(icon='map-marker-alt', icon_size='caption',
+                      baseline=false) }} {{ featured_project.primary_venue.title }}{%
+                      if featured_project.primary_venue.city %}, {{
+                      featured_project.primary_venue.city }}{% endif %}
+                    </p>
+                  {% elif featured_project.location %}
+                    <p class="card__body__location mui--text-light">
+                      {{ faicon(icon='map-marker-alt', icon_size='caption',
+                      baseline=false) }} {{ featured_project.location }}
+                    </p>
                   {% endif %}
                 </div>
               </a>
