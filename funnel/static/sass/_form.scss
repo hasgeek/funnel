@@ -298,3 +298,26 @@
 .badge-print-status-btn .mui-form__fields.select2-inline {
   min-width: 160px;
 }
+
+#form-password-change #field-password .progress {
+  visibility: hidden;
+  display: block;
+}
+
+#form-password-change #field-password .mui-textfield--password {
+  .password-toggle {
+    bottom: 13px;
+  }
+}
+
+#form-password-change #field-password .progress.progress--show {
+  visibility: visible;
+}
+
+.mui-form .mui-form__fields.password-field {
+  margin-bottom: 0;
+}
+
+.password-field-sidetext {
+  margin: 0 0 20px;
+}

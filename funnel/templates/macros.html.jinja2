@@ -401,7 +401,7 @@
               current_sessions.sessions|length > 0 %} {% trans %}Livestream{%
               endtrans %} {% elif featured_project.livestream_urls and
               current_sessions.sessions|length > 0 %} {% trans %}Livestream and
-              Schedule{% endtrans %} {% endif %}
+              schedule{% endtrans %} {% endif %}
             </h2>
           </div>
           <div class="grid__col-xs-12">
@@ -437,8 +437,7 @@
                 </p>
                 {% if current_sessions.sessions|length > 0 %}
                 <p class="mui--text-subhead mui--text-light">
-                  {{ faicon(icon='clock') }} Session starts at {{
-                  current_sessions.sessions[0].start_at_localized|time }}
+                  {{ faicon(icon='clock') }} {% trans session=current_sessions.sessions[0].start_at_localized|time %}Session starts at {{ session }}{% endtrans %}
                 </p>
                 {% endif %}
                 <div>
