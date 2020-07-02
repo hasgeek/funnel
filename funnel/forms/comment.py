@@ -33,6 +33,4 @@ class CommentForm(forms.RecaptchaForm):
 
 @Comment.forms('delete')
 class CommentDeleteForm(forms.Form):
-    comment_id = forms.HiddenField(
-        __("Comment"), validators=[forms.validators.DataRequired()]
-    )
+    pass

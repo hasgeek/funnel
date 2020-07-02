@@ -3,6 +3,7 @@ from collections import namedtuple
 from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, forms, request_is_xhr
+from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -92,7 +93,7 @@ class CommentsetView(UrlForView, ModelView):
         # `profile` remains for funnelapp even though it's not used.
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
-    @route('new', methods=['POST'])
+    @route('new', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
     @requires_roles({'parent_participant'})
@@ -134,6 +135,14 @@ class CommentsetView(UrlForView, ModelView):
                 },
                 400,
             )
+        commentform_html = render_form(
+            form=commentform,
+            title='',
+            submit=_("Post comment"),
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': commentform_html}
 
 
 @route('/comments/<commentset>', subdomain='<profile>')
@@ -168,7 +177,7 @@ class CommentView(UrlForView, ModelView):
     def view_json(self):
         return jsonify(status=True, message=self.obj.message.text)
 
-    @route('edit', methods=['POST'])
+    @route('edit', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
     @requires_roles({'author'})
@@ -200,14 +209,24 @@ class CommentView(UrlForView, ModelView):
                 400,
             )
 
-    @route('delete', methods=['POST'])
+        commentform_html = render_form(
+            form=commentform,
+            title='',
+            submit=_("Edit comment"),
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': commentform_html}
+
+    @route('delete', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
     @requires_roles({'author'})
     def delete(self):
-        commentset = self.obj.commentset
-        delcommentform = CommentDeleteForm(comment_id=self.obj.id)
+        delcommentform = CommentDeleteForm()
+
         if delcommentform.validate_on_submit():
+            commentset = self.obj.commentset
             self.obj.delete()
             commentset.count = Commentset.count - 1
             db.session.commit()
@@ -224,6 +243,15 @@ class CommentView(UrlForView, ModelView):
                 },
                 400,
             )
+
+        delcommentform_html = render_form(
+            form=delcommentform,
+            title='',
+            submit=_("Delete comment"),
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': delcommentform_html}
 
     @route('voteup', methods=['POST'])
     @requires_login
