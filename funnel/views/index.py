@@ -102,6 +102,7 @@ def whoami():
 @app.route('/past.json')
 @requestargs(('page', int), ('per_page', int))
 def past_projects_json(page=1, per_page=10):
+    g.profile = None
     projects = Project.all_unsorted(legacy=False)
     past_projects = projects.filter(
         Project.state.PUBLISHED, Project.schedule_state.PAST
