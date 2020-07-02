@@ -195,6 +195,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'message',
                 'parent_id',
                 'children_comments',
+                'urls',
             },
             'call': {'state', 'commentset', 'view_for', 'url_for'},
         }

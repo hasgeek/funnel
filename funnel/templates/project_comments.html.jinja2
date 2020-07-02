@@ -46,6 +46,8 @@
               <ul class="mui-list--unstyled" v-for="comment in comments">
                 <comment :comment="comment" :isuserparticipant="isuserparticipant"></comment>
               </ul>
+              <component :is="Form"></component>
+              <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newCommentUrl)" aria-label="Add new member" data-cy-btn="add-member">Post comment</button>
             </div>
           {% endraw %}
           {% raw %}
@@ -73,10 +75,10 @@
                       <div class="comment--body" v-if="!hide">
                         <div v-if="!comment.state">{{ comment.message.text }}</div>
                         <div data-id="{{ comment.uuid_b58 }}">
-                          <a class="mui--text-menu mui--text-accent" data-cy="reply" v-if="isuserparticipant">[Reply]</a>
-                          <a class="mui--text-menu mui--text-accent" data-cy="report-spam" v-if="isuserparticipant">[Report Spam]</a>
-                          <a class="mui--text-menu mui--text-accent" data-cy="edit" v-if="comment.current_roles && comment.current_roles.author">[Edit]</a>
-                          <a class="mui--text-menu mui--text-accent" data-cy="delete" v-if="comment.current_roles && comment.current_roles.author">[Delete]</a>
+                          <a class="mui--text-menu mui--text-accent" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply, comment)">[Reply]</a>
+                          <a class="mui--text-menu mui--text-accent" data-cy="report-spam" v-if="isuserparticipant" >[Report Spam]</a>
+                          <a class="mui--text-menu mui--text-accent" data-cy="edit" v-if="comment.current_roles && comment.current_roles.author" @click="fetchForm($event, comment.urls.edit, comment)">[Edit]</a>
+                          <a class="mui--text-menu mui--text-accent" data-cy="delete" v-if="comment.current_roles && comment.current_roles.author"  @click="fetchForm($event, comment.urls.delete, comment)">[Delete]</a>
                           <a class="mui--text-menu mui--text-accent comment--permalink">[Link]</a>
                           <a class="mui--text-menu mui--text-accent comment--parent" v-if="comment.parent">[Parent]</a>
                         </div>
@@ -124,6 +126,50 @@
         isuserparticipant: {% if current_auth.user and project.features.comment_new() -%}true{% else %}false{% endif %}
       };
 
+      Utils = {
+        getElementId(htmlString) {
+          return htmlString.match(/id="(.*?)"/)[1];
+        },
+        getActionUrl(formId) {
+          return $(`#${formId}`).attr('action');
+        },
+        updateFormNonce(response) {
+          if (response.form_nonce) {
+            $('input[name="form_nonce"]').val(response.form_nonce);
+          }
+        },
+        getResponseError(response) {
+          let errorMsg = '';
+
+          if (response.readyState === 4) {
+            if (response.status === 500) {
+              errorMsg =
+                'An internal server error occurred. Our support team has been notified and will investigate.';
+            } else {
+              errorMsg = JSON.parse(response.responseText).error_description;
+            }
+          } else {
+            errorMsg = 'Unable to connect. Please reload and try again.';
+          }
+          return errorMsg;
+        },
+        handleAjaxError(errorResponse) {
+          Utils.updateFormNonce(errorResponse.responseJSON);
+          let errorMsg = Utils.getResponseError(errorResponse);
+          window.toastr.error(errorMsg);
+          return errorMsg;
+        },
+        formErrorHandler(formId, errorResponse) {
+          $(`#${formId}`)
+            .find('button[type="submit"]')
+            .prop('disabled', false);
+          $(`#${formId}`)
+            .find('.loading')
+            .addClass('mui--hide');
+          return Utils.handleAjaxError(errorResponse);
+        }
+      }
+
       const Comments = {
         init({
           newCommentUrl,
@@ -134,8 +180,9 @@
           isuserloggedin,
           isuserparticipant
         }) {
+
           Vue.config.debug = true
-          Vue.use(('vue-script2'))
+          Vue.use(VueScript2)
 
           const commentUI = Vue.component('comment', {
             template: commentTemplate,
@@ -151,6 +198,9 @@
               collapse(action) {
                 this.hide = action;
               },
+              fetchForm(event, url, comment = '') {
+                this.$parent.fetchForm(event, url, comment)
+              }
             }
           });
 
@@ -179,6 +229,7 @@
             },
             methods: {
               fetchForm(event, url, comment = '') {
+                console.log('fetchForm', url, comment)
                 event.preventDefault();
                 if (this.isuserparticipant) {
                   this.activeComment = comment;
@@ -189,9 +240,9 @@
                     timeout: window.HasGeek.config.ajaxTimeout,
                     dataType: 'json',
                     success(data) {
+                      console.log('data', data)
                       const vueFormHtml = data.form;
-                      app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
-                      $('#comment-form').modal('show');
+                      app.commentForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
                     },
                   });
                 }

@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from flask import abort, flash, jsonify, redirect
+from flask import abort, flash, jsonify, redirect, request
 
 from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
@@ -102,39 +102,42 @@ class CommentsetView(UrlForView, ModelView):
             return redirect('/')
 
         commentform = CommentForm(model=Comment)
-        if commentform.validate_on_submit():
-            comment = Comment(
-                user=current_auth.user,
-                commentset=self.obj,
-                message=commentform.message.data,
-            )
-            if commentform.parent_id.data:
-                parent_comment = Comment.query.filter_by(
-                    uuid_b58=commentform.parent_id.data
-                ).first_or_404()
-                if parent_comment and self.obj == parent_comment.commentset:
-                    comment.parent = parent_comment
-            self.obj.count = Commentset.count + 1
-            comment.voteset.vote(current_auth.user)  # Vote for your own comment
-            db.session.add(comment)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("Your comment has been posted"),
-                'comments': [comment.current_access() for comment in self.obj.comments],
-            }
-        else:
-            return (
-                {
-                    'status': 'error',
-                    'error_code': 'comment_post_error',
-                    'error_description': _(
-                        "There was an issue posting the comment. Please try again"
-                    ),
-                    'error_details': commentform.errors,
-                },
-                400,
-            )
+        if request.method == 'POST':
+            if commentform.validate_on_submit():
+                comment = Comment(
+                    user=current_auth.user,
+                    commentset=self.obj,
+                    message=commentform.message.data,
+                )
+                if commentform.parent_id.data:
+                    parent_comment = Comment.query.filter_by(
+                        uuid_b58=commentform.parent_id.data
+                    ).first_or_404()
+                    if parent_comment and self.obj == parent_comment.commentset:
+                        comment.parent = parent_comment
+                self.obj.count = Commentset.count + 1
+                comment.voteset.vote(current_auth.user)  # Vote for your own comment
+                db.session.add(comment)
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("Your comment has been posted"),
+                    'comments': [
+                        comment.current_access() for comment in self.obj.comments
+                    ],
+                }
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'error_code': 'comment_post_error',
+                        'error_description': _(
+                            "There was an issue posting the comment. Please try again"
+                        ),
+                        'error_details': commentform.errors,
+                    },
+                    400,
+                )
         commentform_html = render_form(
             form=commentform,
             title='',
