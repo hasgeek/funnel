@@ -139,7 +139,7 @@
   <script type="text/javascript">
     $(function() {
       var homeConfig = {
-        past_projects_json_url: "{{ url_for('past_projects_json') }}"
+        past_projects_json_url: "{{ profile.url_for('past_projects_json') }}"
       }
       window.HasGeek.HomeInit(homeConfig);
     });

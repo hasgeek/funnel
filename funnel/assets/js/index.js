@@ -30,7 +30,6 @@ $(() => {
       },
       methods: {
         fetchResult() {
-          console.log('fetchResult for', pastProjectsApp.next_page);
           if (!pastProjectsApp.waitingForResponse) {
             pastProjectsApp.waitingForResponse = true;
             $.ajax({
