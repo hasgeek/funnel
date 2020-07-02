@@ -79,13 +79,16 @@
             const app = this;
             $.ajax({
               type: 'GET',
-              url: '/json',
+              url: "{{ url_for('past_projects_json') }}",
+              data: {
+                'page': app.next_page
+              },
               timeout: window.HasGeek.config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 app.pastprojects = data.past_projects;
                 app.length = data.past_projects.length;
-                app.next_page = 0;
+                app.next_page = data.next_page;
                 app.loadmore = data.loadmore;
               },
             });

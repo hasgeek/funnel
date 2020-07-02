@@ -4,7 +4,7 @@ from flask import Response, g, jsonify, redirect, render_template
 
 from baseframe.filters import date_filter
 from coaster.auth import current_auth
-from coaster.views import ClassView, jsonp, load_model, render_with, route
+from coaster.views import ClassView, jsonp, load_model, render_with, requestargs, route
 
 from .. import app, funnelapp, lastuserapp, pages
 from ..forms import SavedProjectForm
@@ -99,23 +99,18 @@ def whoami():
         return jsonify(message="Hmm, so who _are_ you?", code=401)
 
 
-@app.route('/json')
-def all_projects_json():
-    g.profile = None
-    # projects = Project.fetch_sorted(legacy=False).all()
-    # return jsonp(
-    #     projects=list(map(project_data, projects)),
-    #     spaces=list(map(project_data, projects)),
-    # )  # FIXME: Remove when the native app switches over
+@app.route('/past.json')
+@requestargs(('page', int), ('per_page', int))
+def past_projects_json(page=1, per_page=10):
     projects = Project.all_unsorted(legacy=False)
-    past_projects = (
-        projects.filter(Project.state.PUBLISHED, Project.schedule_state.PAST)
-        .order_by(Project.schedule_start_at.desc())
-        .all()
-    )
+    past_projects = projects.filter(
+        Project.state.PUBLISHED, Project.schedule_state.PAST
+    ).order_by(Project.schedule_start_at.desc())
+    pagination = past_projects.paginate(page=page, per_page=per_page)
     return {
         'status': 'ok',
-        'next_page': 2,
+        'next_page': pagination.page + 1 if pagination.page < pagination.pages else '',
+        'total_pages': pagination.pages,
         'loadmore': True,
         'past_projects': [
             {
@@ -126,7 +121,7 @@ def all_projects_json():
                 'venue': p.primary_venue.city if p.primary_venue else p.location,
                 'url': p.url_for(),
             }
-            for p in past_projects
+            for p in pagination.items
         ],
     }
 
