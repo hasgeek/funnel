@@ -59,67 +59,12 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      window.HasGeek.HomeInit();
-
-      new Vue({
-        el: '#past-project-table',
-        data() {
-          return {
-            length: '4',
-            pastprojects: '',
-            next_page: 1,
-            loadmore: true,
-          }
-        },
-        methods: {
-          fetchResult(page = 1) {
-            const app = this;
-            $.ajax({
-              type: 'GET',
-              url: "{{ url_for('past_projects_json') }}",
-              data: {
-                'page': app.next_page
-              },
-              timeout: window.HasGeek.config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
-                app.pastprojects = data.past_projects;
-                app.length = data.past_projects.length;
-                app.next_page = data.next_page;
-                app.loadmore = data.loadmore;
-              },
-            });
-          },
-          lazyoad() {
-            const lazyLoader = document.querySelector('.js-lazy-loader');
-            if (lazyLoader) {
-              this.handleObserver = this.handleObserver.bind(this);
-
-              const observer = new IntersectionObserver(this.handleObserver, {
-                rootMargin: '0px',
-                threshold: 0,
-              });
-              observer.observe(lazyLoader);
-            }
-          },
-          handleObserver(entries) {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                const nextPage = entry.target.getAttribute('data-next-page');
-                if (nextPage) {
-                  this.fetchResult(nextPage);
-                }
-              }
-            });
-          },
-        },
-        mounted() {
-          this.lazyoad();
-        },
-      });
+      var homeConfig = {
+        past_projects_json_url: "{{ url_for('past_projects_json') }}"
+      }
+      window.HasGeek.HomeInit(homeConfig);
     });
   </script>
 {% endblock %}

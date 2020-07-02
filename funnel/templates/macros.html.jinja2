@@ -645,7 +645,6 @@
         <div id="past-project-table">
           <div class="grid projects">
             <div class="grid__col-12 mui-table--responsive-wrapper">
-              <p class="mui--text-body2">{{ length }} projects</p>
               <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
                 <thead class="mui--bg-primary-light">
                   <tr>
@@ -675,7 +674,7 @@
                   </tr>
                 </tbody>
               </table>
-              <p class="js-lazy-loader loading" data-next-page="{{ next_page }}" v-if="loadmore"></p>
+              <p class="js-lazy-loader loading" data-next-page="{{ next_page }}" v-if="next_page"></p>
             </div>
           </div>
         </div>

@@ -32,11 +32,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         # `order_by(None)` clears any existing order defined in relationship.
         # We're using it because we want to define our own order here.
         projects = self.obj.listed_projects.order_by(None)
-        past_projects = (
-            projects.filter(Project.state.PUBLISHED, Project.schedule_state.PAST)
-            .order_by(Project.schedule_start_at.desc())
-            .all()
-        )
         all_projects = (
             projects.filter(
                 Project.state.PUBLISHED,
@@ -78,10 +73,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
-            'past_projects': [
-                p.current_access(datasets=('without_parent', 'related'))
-                for p in past_projects
-            ],
             'all_projects': [
                 p.current_access(datasets=('without_parent', 'related'))
                 for p in all_projects

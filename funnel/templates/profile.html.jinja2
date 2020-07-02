@@ -138,7 +138,10 @@
   <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      window.HasGeek.HomeInit();
+      var homeConfig = {
+        past_projects_json_url: "{{ url_for('past_projects_json') }}"
+      }
+      window.HasGeek.HomeInit(homeConfig);
     });
   </script>
 {% endblock %}
