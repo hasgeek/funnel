@@ -55,8 +55,8 @@ class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     user = with_roles(
         db.relationship(
             User,
-            primaryjoin=user_id == User.id,
             backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
+            foreign_keys=[user_id],
         ),
         grants={'author'},
     )
@@ -64,9 +64,7 @@ class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=True, index=True)
     profile = with_roles(
         db.relationship(
-            Profile,
-            primaryjoin=profile_id == Profile.id,
-            backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
+            Profile, backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
         ),
         grants_via={None: {'admin': 'profile_admin'}},
     )
@@ -74,9 +72,7 @@ class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=True, index=True)
     project = with_roles(
         db.relationship(
-            Project,
-            primaryjoin=project_id == Project.id,
-            backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
+            Project, backref=db.backref('blogposts', cascade='all', lazy='dynamic'),
         ),
         grants_via={None: {'editor': 'project_editor'}},
     )
@@ -90,11 +86,19 @@ class Blogpost(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     published_by_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=True, index=True
     )
-    published_by = db.relationship(User, primaryjoin=published_by_id == User.id)
+    published_by = db.relationship(
+        User,
+        backref=db.backref('published_blogposts', lazy='dynamic'),
+        foreign_keys=[published_by_id],
+    )
     published_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     deleted_by_id = db.Column(None, db.ForeignKey('user.id'), nullable=True, index=True)
-    deleted_by = db.relationship(User, primaryjoin=deleted_by_id == User.id)
+    deleted_by = db.relationship(
+        User,
+        backref=db.backref('deleted_blogposts', lazy='dynamic'),
+        foreign_keys=[deleted_by_id],
+    )
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
