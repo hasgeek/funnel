@@ -1,4 +1,4 @@
-"""blogpost model
+"""post model
 
 Revision ID: a1ab7bd78649
 Revises: b6d0edac3e20
@@ -21,7 +21,7 @@ depends_on = None
 
 def upgrade():
     op.create_table(
-        'blogpost',
+        'post',
         sa.Column('visibility', sa.Integer(), nullable=False),
         sa.Column('state', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
@@ -44,7 +44,7 @@ def upgrade():
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.CheckConstraint(
             'CASE WHEN (profile_id IS NOT NULL) THEN 1 ELSE 0 END + CASE WHEN (project_id IS NOT NULL) THEN 1 ELSE 0 END = 1',
-            name='blogpost_owner_check',
+            name='post_owner_check',
         ),
         sa.ForeignKeyConstraint(['commentset_id'], ['commentset.id'],),
         sa.ForeignKeyConstraint(['deleted_by_id'], ['user.id'],),
@@ -57,35 +57,28 @@ def upgrade():
         sa.UniqueConstraint('uuid'),
     )
     op.create_index(
-        op.f('ix_blogpost_deleted_by_id'), 'blogpost', ['deleted_by_id'], unique=False
+        op.f('ix_post_deleted_by_id'), 'post', ['deleted_by_id'], unique=False
     )
+    op.create_index(op.f('ix_post_profile_id'), 'post', ['profile_id'], unique=False)
+    op.create_index(op.f('ix_post_project_id'), 'post', ['project_id'], unique=False)
     op.create_index(
-        op.f('ix_blogpost_profile_id'), 'blogpost', ['profile_id'], unique=False
+        op.f('ix_post_published_by_id'), 'post', ['published_by_id'], unique=False,
     )
-    op.create_index(
-        op.f('ix_blogpost_project_id'), 'blogpost', ['project_id'], unique=False
-    )
-    op.create_index(
-        op.f('ix_blogpost_published_by_id'),
-        'blogpost',
-        ['published_by_id'],
-        unique=False,
-    )
-    op.create_index(op.f('ix_blogpost_user_id'), 'blogpost', ['user_id'], unique=False)
+    op.create_index(op.f('ix_post_user_id'), 'post', ['user_id'], unique=False)
 
     op.execute(
         sa.DDL(
             dedent(
                 '''
-        CREATE FUNCTION blogpost_search_vector_update() RETURNS trigger AS $$
+        CREATE FUNCTION post_search_vector_update() RETURNS trigger AS $$
         BEGIN
             NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.body_text, '')), 'B');
             RETURN NEW;
         END
         $$ LANGUAGE plpgsql;
 
-        CREATE TRIGGER blogpost_search_vector_trigger BEFORE INSERT OR UPDATE ON blogpost
-        FOR EACH ROW EXECUTE PROCEDURE blogpost_search_vector_update();
+        CREATE TRIGGER post_search_vector_trigger BEFORE INSERT OR UPDATE ON post
+        FOR EACH ROW EXECUTE PROCEDURE post_search_vector_update();
                 '''
             )
         )
@@ -97,15 +90,15 @@ def downgrade():
         sa.DDL(
             dedent(
                 '''
-        DROP TRIGGER blogpost_search_vector_trigger ON blogpost;
-        DROP FUNCTION blogpost_search_vector_update();
+        DROP TRIGGER post_search_vector_trigger ON post;
+        DROP FUNCTION post_search_vector_update();
         '''
             )
         )
     )
-    op.drop_index(op.f('ix_blogpost_user_id'), table_name='blogpost')
-    op.drop_index(op.f('ix_blogpost_published_by_id'), table_name='blogpost')
-    op.drop_index(op.f('ix_blogpost_project_id'), table_name='blogpost')
-    op.drop_index(op.f('ix_blogpost_profile_id'), table_name='blogpost')
-    op.drop_index(op.f('ix_blogpost_deleted_by_id'), table_name='blogpost')
-    op.drop_table('blogpost')
+    op.drop_index(op.f('ix_post_user_id'), table_name='post')
+    op.drop_index(op.f('ix_post_published_by_id'), table_name='post')
+    op.drop_index(op.f('ix_post_project_id'), table_name='post')
+    op.drop_index(op.f('ix_post_profile_id'), table_name='post')
+    op.drop_index(op.f('ix_post_deleted_by_id'), table_name='post')
+    op.drop_table('post')
