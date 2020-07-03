@@ -245,3 +245,16 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     )
     def make_restricted(self):
         pass
+
+    def roles_for(self, actor=None, anchors=()):
+        roles = super().roles_for(actor, anchors)
+        if self.visibility_state.RESTRICTED:
+            if self.project is not None and (
+                'participant' in self.project.roles_for(actor)
+            ):
+                roles.add('reader')
+            elif self.profile is not None and 'admin' in self.profile.roles_for(actor):
+                roles.add('reader')
+        else:
+            roles.add('reader')
+        return roles
