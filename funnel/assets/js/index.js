@@ -23,6 +23,8 @@ $(() => {
       el: '#past-project-table',
       data() {
         return {
+          title: '',
+          headings: [],
           pastprojects: [],
           next_page: 1,
           waitingForResponse: false,
@@ -41,6 +43,8 @@ $(() => {
               timeout: window.HasGeek.config.ajaxTimeout,
               dataType: 'json',
               success(data) {
+                pastProjectsApp.title = data.title;
+                pastProjectsApp.headings = data.headings;
                 pastProjectsApp.pastprojects.push(...data.past_projects);
                 pastProjectsApp.next_page = data.next_page;
                 pastProjectsApp.waitingForResponse = false;

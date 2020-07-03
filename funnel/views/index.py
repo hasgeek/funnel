@@ -111,6 +111,8 @@ def past_projects_json(page=1, per_page=10):
     return {
         'status': 'ok',
         'next_page': pagination.page + 1 if pagination.page < pagination.pages else '',
+        'title': 'Past projects',
+        'headings': ['Date', 'Event name', 'Location'],
         'total_pages': pagination.pages,
         'past_projects': [
             {

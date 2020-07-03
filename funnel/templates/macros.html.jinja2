@@ -632,55 +632,47 @@
 {% endmacro %}
 
 {% macro past_projects_section() %}
-  <div class="projects-wrapper">
-    <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          <h2 class="mui--text-headline mui--text-bold project-headline">
-            {% trans %}Past projects{% endtrans %}
-          </h2>
-        </div>
-      </div>
-      {% raw %}
-        <div id="past-project-table">
-          <div class="grid projects">
-            <div class="grid__col-12 mui-table--responsive-wrapper">
-              <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
-                <thead class="mui--bg-primary-light">
-                  <tr>
-                    <th class="mui--text-subhead mui--text-capitalize">Date</th>
-                    <th class="mui--text-subhead mui--text-capitalize">Event name</th>
-                    <th class="mui--text-subhead mui--text-capitalize">Location</th>
-                  </tr>
-                </thead>
-                <tbody v-for="project in pastprojects">
-                  <tr>
-                    <td data-th="Date">
-                      <p class="mui--text-subhead zero-bottom-margin">
-                        {{ project.datetime }}
-                      </p>
-                    </td>
-                    <td data-th="Event name">
-                      <p class="mui--text-subhead zero-bottom-margin">
-                        <a :href="project.url" data-action="past-event(index page list)">{{ project.title }}</a
-                        >
-                      </p>
-                    </td>
-                    <td data-th="Location">
-                      <p class="mui--text-subhead zero-bottom-margin">
-                        {{ project.venue }}
-                      </p>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <p class="js-lazy-loader loading" data-next-page="{{ next_page }}" v-if="next_page"></p>
-            </div>
+  {% raw %}
+    <div class="projects-wrapper" id="past-project-table">
+      <div class="mui-container">
+        <div class="grid projects">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline mui--text-bold project-headline">{{ title }}</h2>
+          </div>
+          <div class="grid__col-12 mui-table--responsive-wrapper">
+            <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
+              <thead class="mui--bg-primary-light">
+                <tr>
+                  <th class="mui--text-subhead mui--text-capitalize" v-for='heading in headings'>{{ heading }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="project in pastprojects">
+                  <td data-th="Date">
+                    <p class="mui--text-subhead zero-bottom-margin">
+                      {{ project.datetime }}
+                    </p>
+                  </td>
+                  <td data-th="Event name">
+                    <p class="mui--text-subhead zero-bottom-margin">
+                      <a :href="project.url" data-action="past-event(index page list)">{{ project.title }}</a
+                      >
+                    </p>
+                  </td>
+                  <td data-th="Location">
+                    <p class="mui--text-subhead zero-bottom-margin">
+                      {{ project.venue }}
+                    </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="js-lazy-loader loading" data-next-page="{{ next_page }}" v-if="next_page"></p>
           </div>
         </div>
-      {% endraw %}
+      </div>
     </div>
-  </div>
+  {% endraw %}
 {% endmacro %}
 
 {% macro profile_header(profile) %}
