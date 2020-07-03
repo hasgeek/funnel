@@ -356,20 +356,28 @@ def test_email_address_delivery_state(clean_db):
     # Calling a transition will change state and set timestamp to update on commit
     ea.mark_sent()
     # An email was sent. Nothing more is known
-    assert ea.delivery_state.NORMAL
+    assert ea.delivery_state.SENT
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
+
+    # mark_sent() can be called each time an email is sent
+    ea.mark_sent()
 
     # Recipient is known to be interacting with email (viewing or opening links)
     ea.mark_active()
     assert ea.delivery_state.ACTIVE
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
-    # Sent email is soft bouncing (typically mailbox full)
+    # This can be "downgraded" to SENT, as we only record the latest status
+    ea.mark_sent()
+    assert ea.delivery_state.SENT
+    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+
+    # Email address is soft bouncing (typically mailbox full)
     ea.mark_soft_fail()
     assert ea.delivery_state.SOFT_FAIL
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
 
-    # Sent email is hard bouncing (typically mailbox invalid)
+    # Email address is hard bouncing (typically mailbox invalid)
     ea.mark_hard_fail()
     assert ea.delivery_state.HARD_FAIL
     assert str(ea.delivery_state_at) == str(db.func.utcnow())
@@ -620,7 +628,7 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert ea.delivery_state.UNKNOWN
 
     ea.mark_sent()
-    assert ea.delivery_state.NORMAL
+    assert ea.delivery_state.SENT
     assert EmailAddress.validate_for(user1, 'example@example.com') is True
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False

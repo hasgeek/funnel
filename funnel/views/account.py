@@ -31,6 +31,7 @@ from ..forms import (
     NewEmailAddressForm,
     NewPhoneForm,
     PasswordChangeForm,
+    PasswordPolicyForm,
     PasswordResetForm,
     PhonePrimaryForm,
     VerifyEmailForm,
@@ -73,18 +74,30 @@ def blake2b_b58(text):
 
 @app.route('/api/1/password/policy', methods=['POST'])
 @render_with(json=True)
-@requestargs('candidate')
-def password_policy_check(candidate):
-    tested_password = password_policy.password(candidate)
-    failed_tests = tested_password.test()
-    return {
-        'status': 'ok',
-        'result': {
-            'strength': float(tested_password.strength()),
-            'is_weak': bool(failed_tests),
-            'failed_tests': [repr(t) for t in failed_tests],
+def password_policy_check():
+    policy_form = PasswordPolicyForm()
+    policy_form.form_nonce.data = policy_form.form_nonce.default()
+
+    if policy_form.validate_on_submit():
+        tested_password = password_policy.password(policy_form.candidate.data)
+        failed_tests = tested_password.test()
+        return {
+            'status': 'ok',
+            'result': {
+                'strength': float(tested_password.strength()),
+                'is_weak': bool(failed_tests),
+                'failed_tests': [repr(t) for t in failed_tests],
+            },
+        }
+    return (
+        {
+            'status': 'error',
+            'error_code': 'policy_form_error',
+            'error_description': _("Something went wrong. Please reload and try again"),
+            'error_details': policy_form.errors,
         },
-    }
+        400,
+    )
 
 
 @route('/account')
@@ -364,7 +377,8 @@ def account_edit(newprofile=False):
                     " out your profile"
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
-            ajax=True,
+            ajax=False,
+            template='account_formlayout.html.jinja2',
         )
     else:
         return render_form(
@@ -372,8 +386,8 @@ def account_edit(newprofile=False):
             title=_("Edit profile"),
             formid='account_edit',
             submit=_("Save changes"),
-            ajax=True,
-            cancel_url=url_for('account') if not newprofile else None,
+            ajax=False,
+            template='account_formlayout.html.jinja2',
         )
 
 
@@ -385,6 +399,7 @@ def confirm_email(email_hash, secret):
     kwargs = blake2b_b58(email_hash)
     emailclaim = UserEmailClaim.get_by(verification_code=secret, **kwargs)
     if emailclaim is not None:
+        emailclaim.email_address.mark_active()
         if 'verify' in emailclaim.permissions(current_auth.user):
             existing = UserEmail.get(email=emailclaim.email)
             if existing is not None:
@@ -491,10 +506,10 @@ def change_password():
     return render_form(
         form=form,
         title=_("Change password"),
-        formid='changepassword',
+        formid='password-change',
         submit=_("Change password"),
-        cancel_url=url_for('account'),
-        ajax=True,
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -511,8 +526,8 @@ def add_email():
                 user=current_auth.user, email=form.email.data, type=form.type.data
             )
             db.session.add(useremail)
-            db.session.commit()
         send_email_verify_link(useremail)
+        db.session.commit()
         flash(_("We sent you an email to confirm your address"), 'success')
         user_data_changed.send(current_auth.user, changes=['email-claim'])
         return render_redirect(url_for('account'), code=303)
@@ -521,7 +536,8 @@ def add_email():
         title=_("Add an email address"),
         formid='email_add',
         submit=_("Add email"),
-        ajax=True,
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -635,6 +651,7 @@ def verify_email(email_hash):
     verify_form = VerifyEmailForm()
     if verify_form.validate_on_submit():
         send_email_verify_link(emailclaim)
+        db.session.commit()
         flash(_("The verification email has been sent to this address"), 'success')
         return render_redirect(url_for('account'), code=303)
     return render_form(
@@ -647,7 +664,7 @@ def verify_email(email_hash):
         ),
         formid="email_verify",
         submit=_("Send"),
-        cancel_url=url_for('account'),
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -678,7 +695,8 @@ def add_phone():
         title=_("Add a phone number"),
         formid='phone_add',
         submit=_("Verify phone"),
-        ajax=True,
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -773,7 +791,8 @@ def verify_phone(phoneclaim):
         title=_("Verify phone number"),
         formid='phone_verify',
         submit=_("Verify"),
-        ajax=True,
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 

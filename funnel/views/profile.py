@@ -1,6 +1,7 @@
 from flask import flash, redirect
 
 from baseframe import _
+from baseframe.filters import date_filter
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import (
@@ -8,6 +9,7 @@ from coaster.views import (
     UrlForView,
     get_next_url,
     render_with,
+    requestargs,
     requires_roles,
     route,
 )
@@ -32,11 +34,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         # `order_by(None)` clears any existing order defined in relationship.
         # We're using it because we want to define our own order here.
         projects = self.obj.listed_projects.order_by(None)
-        past_projects = (
-            projects.filter(Project.state.PUBLISHED, Project.schedule_state.PAST)
-            .order_by(Project.schedule_start_at.desc())
-            .all()
-        )
         all_projects = (
             projects.filter(
                 Project.state.PUBLISHED,
@@ -78,10 +75,6 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
-            'past_projects': [
-                p.current_access(datasets=('without_parent', 'related'))
-                for p in past_projects
-            ],
             'all_projects': [
                 p.current_access(datasets=('without_parent', 'related'))
                 for p in all_projects
@@ -108,6 +101,35 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
                 else None
             ),
             'project_save_form': SavedProjectForm(),
+        }
+
+    @route('past.json')
+    @requestargs(('page', int), ('per_page', int))
+    def past_projects_json(self, page=1, per_page=10):
+        projects = self.obj.listed_projects.order_by(None)
+        past_projects = projects.filter(
+            Project.state.PUBLISHED, Project.schedule_state.PAST
+        ).order_by(Project.schedule_start_at.desc())
+        pagination = past_projects.paginate(page=page, per_page=per_page)
+        return {
+            'status': 'ok',
+            'title': 'Past projects',
+            'headings': ['Date', 'Project', 'Location'],
+            'next_page': (
+                pagination.page + 1 if pagination.page < pagination.pages else ''
+            ),
+            'total_pages': pagination.pages,
+            'past_projects': [
+                {
+                    'title': p.title,
+                    'datetime': date_filter(
+                        p.schedule_start_at_localized, format='dd MMM yyyy'
+                    ),
+                    'venue': p.primary_venue.city if p.primary_venue else p.location,
+                    'url': p.url_for(),
+                }
+                for p in pagination.items
+            ],
         }
 
     @route('edit', methods=['GET', 'POST'])

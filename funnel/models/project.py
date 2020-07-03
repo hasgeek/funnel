@@ -269,8 +269,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'views',
             },
         },
-        'participant': {'granted_via': {'rsvps': 'user', 'participants': 'user'}},
+        'participant': {'granted_via': {'rsvps': 'user'}},
     }
+    # FIXME: Removed temporarily because Project.participants can have multiple records
+    # for the same user. Requires resolution in either coaster.sqlalchemy.roles or in
+    # the data model here in Funnel:
+    # __roles__['participant']['granted_via]['participants'] = 'user'
 
     __datasets__ = {
         'primary': {
@@ -917,7 +921,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         Return currently active events, not sorted.
         """
-        projects = cls.query.filter(cls.state.PUBLISHED)
+        projects = cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
         if legacy is not None:
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
         return projects
@@ -1085,5 +1089,5 @@ class ProjectLocation(TimestampMixin, db.Model):
 
 # Tail imports
 from .session import Session  # isort:skip
-from .venue import VenueRoom  # isort:skip
+from .venue import Venue, VenueRoom  # isort:skip
 from .project_membership import ProjectCrewMembership  # isort:skip

@@ -19,7 +19,6 @@ from ..forms import (
     ProjectCrewMembershipInviteForm,
     SavedProjectForm,
 )
-from ..jobs import send_mail_async
 from ..models import (
     Organization,
     OrganizationMembership,
@@ -29,6 +28,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
+from .email import send_email
 from .helpers import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
@@ -108,23 +108,21 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     )
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
-                    db.session.commit()
-
-                    send_mail_async.queue(
-                        sender=None,
-                        to=str(new_membership.user.email),
-                        body=render_template(
-                            'organization_membership_add_email.md.jinja2',
+                    send_email(
+                        subject=_("You have been added to {} as a admin").format(
+                            self.obj.title
+                        ),
+                        to=[new_membership.user],
+                        content=render_template(
+                            'email_organization_membership_add_notification.html.jinja2',
                             granted_by=new_membership.granted_by,
                             profile=self.obj,
                             organization_membership_link=self.obj.url_for(
                                 'members', _external=True
                             ),
                         ),
-                        subject=_("You have been added to {} as a admin").format(
-                            self.obj.title
-                        ),
                     )
+                    db.session.commit()
                     return {
                         'status': 'ok',
                         'message': _("The user has been added as an admin"),
@@ -251,20 +249,18 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     }
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
-                    db.session.commit()
-
-                    send_mail_async.queue(
-                        sender=None,
-                        to=str(previous_membership.user.email),
-                        body=render_template(
-                            'organization_membership_revoke_notification_email.md.jinja2',
-                            revoked_by=current_auth.user,
-                            profile=self.obj.organization.profile,
-                        ),
+                    send_email(
                         subject=_("You have been removed from {} as a member").format(
                             self.obj.organization.title
                         ),
+                        to=[previous_membership.user],
+                        content=render_template(
+                            'email_organization_membership_revoke_notification.html.jinja2',
+                            revoked_by=current_auth.user,
+                            profile=self.obj.organization.profile,
+                        ),
                     )
+                    db.session.commit()
                 return {
                     'status': 'ok',
                     'message': _("The member has been removed"),
@@ -371,14 +367,14 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                     )
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
-                    db.session.commit()
-
                     # TODO: Once invite is introduced, send invite email here
-                    send_mail_async.queue(
-                        sender=None,
-                        to=str(new_membership.user.email),
-                        body=render_template(
-                            'project_membership_add_email.md.jinja2',
+                    send_email(
+                        subject=_("You have been added to {} as a member").format(
+                            self.obj.title
+                        ),
+                        to=[new_membership.user],
+                        content=render_template(
+                            'email_project_membership_add_notification.html.jinja2',
                             # 'project_membership_add_invite_email.md.jinja2',
                             granted_by=new_membership.granted_by,
                             project=self.obj,
@@ -387,10 +383,8 @@ class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
                             )
                             # link=new_membership.url_for('invite', _external=True),
                         ),
-                        subject=_("You have been added to {} as a member").format(
-                            self.obj.title
-                        ),
                     )
+                    db.session.commit()
                     return {
                         'status': 'ok',
                         'message': _("The user has been added as a member"),
@@ -567,20 +561,18 @@ class ProjectCrewMembershipView(
                 previous_membership = self.obj
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
-                    db.session.commit()
-
-                    send_mail_async.queue(
-                        sender=None,
-                        to=str(previous_membership.user.email),
-                        body=render_template(
-                            'project_membership_revoke_notification_email.md.jinja2',
-                            revoked_by=current_auth.user,
-                            project=self.obj.project,
-                        ),
+                    send_email(
                         subject=_("You have been removed from {} as a member").format(
                             self.obj.project.title
                         ),
+                        to=[previous_membership.user],
+                        content=render_template(
+                            'email_project_membership_revoke_notification.html.jinja2',
+                            revoked_by=current_auth.user,
+                            project=self.obj.project,
+                        ),
                     )
+                    db.session.commit()
                 return {
                     'status': 'ok',
                     'message': _("The member has been removed"),

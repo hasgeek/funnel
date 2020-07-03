@@ -1,55 +1,31 @@
-{% extends "layout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import renderfield, renderform_inner, rendersubmit, ajaxform %}
+{% extends "account_formlayout.html.jinja2" %}
 {% from "password_login_form.html.jinja2" import passwordlogin %}
-{% from "baseframe/components.html.jinja2" import faicon %}
 
-{% block title %}{% trans %}Login{% endtrans %}{% endblock %}
-
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="login-page hg-app no-sticky-header">
-  {%- else %}
-    <body class="login-page no-sticky-header">
-  {%- endif %}
+{% block beforeformcontent %}
+  <div>
+    {% for provider in login_registry %}
+      <a class="mui-btn mui-btn--raised login login-{{ provider }} mui--d-block" href="{{ url_for('login_service', service=provider, next=request.args.get('next')) }}" data-action="login using {{ provider }}" aria-label="login using {{ provider }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}" aria-label="hidden"/></i>{{ login_registry[provider]['title'] }}</a>
+    {% endfor %}
+  </div>
+  {%- for service, formdata in service_forms.items() %}{% with form = formdata['form'] %}
+    <form id="form-{{ service }}" method="POST" class="jshidden" accept-charset="UTF-8">
+      <input type="hidden" name="next" value="{{ formdata['next'] }}"/>
+      {% if formdata['error'] %}<div class=error>{{ formdata['error'] }}</div>{% endif %}
+      {{ renderform_inner(form, service) }}
+      {{ rendersubmit([(None, "Login", 'btn-primary')], "small") }}
+    </form>
+  {%- endwith %}{% endfor %}
 {% endblock %}
-
-{% block headline %}{% endblock %}
-
-{% block content %}
-  <div class="login-page__back mui--hidden-md mui--hidden-lg mui--hidden-xl">
-    <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+{% block form %}
+  <div id="passwordform">
+    <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center"><span class="login-page__box__title__txt">{% trans %}or use your password instead{% endtrans %}</span></p>
+    {{ passwordlogin(loginform, ref_id) }}
   </div>
-
-  <div class="alert alert--error cookies-required-alert alert--dismissable">
-    <a class="alert__close" href="javascript:void(0);" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
-    <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
-  </div>
-
-  <div class="login-page__box">
-    <div class="cookies-required">
-      <h2 class="mui--text-headline login-page__box__heading mui--text-center">{% trans %}Login{% endtrans %}</h2>
-      <div>
-        {% for provider in login_registry %}
-          <a class="mui-btn mui-btn--raised login login-{{ provider }} mui--d-block" href="{{ url_for('login_service', service=provider, next=request.args.get('next')) }}" data-action="login using {{ provider }}" aria-label="login using {{ provider }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}" aria-label="hidden"/></i>{{ login_registry[provider]['title'] }}</a>
-        {% endfor %}
-      </div>
-      {%- for service, formdata in service_forms.items() %}{% with form = formdata['form'] %}
-        <form id="form-{{ service }}" method="POST" class="jshidden" accept-charset="UTF-8">
-          <input type="hidden" name="next" value="{{ formdata['next'] }}"/>
-          {% if formdata['error'] %}<div class=error>{{ formdata['error'] }}</div>{% endif %}
-          {{ renderform_inner(form, service) }}
-          {{ rendersubmit([(None, "Login", 'btn-primary')], "small") }}
-        </form>
-      {%- endwith %}{% endfor %}
-      <div id="passwordform">
-        <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center"><span class="login-page__box__title__txt">{% trans %}or use your password instead{% endtrans %}</span></p>
-        {{ passwordlogin(loginform, Markup) }}
-      </div>
-      <p class="mui--text-subhead login-page__box__note">{% trans %}Don’t have an account?{% endtrans %} <a href="{{ url_for('register') }}" data-cy="signup">{% trans %}Sign up with email{% endtrans %}</a>
-    </div>
-   </div>
+{% endblock %}
+{% block afterformcontent %}
+  <p class="mui--text-subhead login-page__box__note">{% trans %}Don’t have an account?{% endtrans %} <a href="{{ url_for('register') }}" data-cy="signup">{% trans %}Sign up with email{% endtrans %}</a></p>
 {% endblock %}
 
 {% block footerscripts %}
-  {{ ajaxform('passwordlogin', request, True) }}
+  {{ ajaxform(ref_id, request, True) }}
 {% endblock %}

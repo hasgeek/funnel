@@ -2,8 +2,9 @@ import os.path
 
 from flask import Response, g, jsonify, redirect, render_template
 
+from baseframe.filters import date_filter
 from coaster.auth import current_auth
-from coaster.views import ClassView, jsonp, load_model, render_with, route
+from coaster.views import ClassView, jsonp, load_model, render_with, requestargs, route
 
 from .. import app, funnelapp, lastuserapp, pages
 from ..forms import SavedProjectForm
@@ -49,11 +50,6 @@ class IndexView(ClassView):
             .order_by(Project.next_session_at.asc())
             .all()
         )
-        past_projects = (
-            projects.filter(Project.state.PUBLISHED, Project.schedule_state.PAST)
-            .order_by(Project.schedule_start_at.desc())
-            .all()
-        )
 
         return {
             'all_projects': [
@@ -75,10 +71,6 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'past_projects': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
-                for p in past_projects
-            ],
             'project_save_form': SavedProjectForm(),
         }
 
@@ -107,14 +99,33 @@ def whoami():
         return jsonify(message="Hmm, so who _are_ you?", code=401)
 
 
-@app.route('/json')
-def all_projects_json():
+@app.route('/past.json')
+@requestargs(('page', int), ('per_page', int))
+def past_projects_json(page=1, per_page=10):
     g.profile = None
-    projects = Project.fetch_sorted(legacy=False).all()
-    return jsonp(
-        projects=list(map(project_data, projects)),
-        spaces=list(map(project_data, projects)),
-    )  # FIXME: Remove when the native app switches over
+    projects = Project.all_unsorted(legacy=False)
+    past_projects = projects.filter(
+        Project.state.PUBLISHED, Project.schedule_state.PAST
+    ).order_by(Project.schedule_start_at.desc())
+    pagination = past_projects.paginate(page=page, per_page=per_page)
+    return {
+        'status': 'ok',
+        'title': 'Past projects',
+        'headings': ['Date', 'Project', 'Location'],
+        'next_page': pagination.page + 1 if pagination.page < pagination.pages else '',
+        'total_pages': pagination.pages,
+        'past_projects': [
+            {
+                'title': p.title,
+                'datetime': date_filter(
+                    p.schedule_start_at_localized, format='dd MMM yyyy'
+                ),
+                'venue': p.primary_venue.city if p.primary_venue else p.location,
+                'url': p.url_for(),
+            }
+            for p in pagination.items
+        ],
+    }
 
 
 @funnelapp.route('/json')

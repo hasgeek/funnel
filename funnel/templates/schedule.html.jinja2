@@ -26,8 +26,10 @@
       "@context": "http://schema.org",
       "@type": "Event",
       "name": {{ project.title|tojson }},
-      "url": {{ project.urls['view']|tojson }},
+      "url": {{ project.url_for(_external=true)|tojson }},
       "startDate": {{ project.schedule_start_at_localized|tojson }},
+      "endDate": {{ project.schedule_end_at_localized|tojson }},
+      "eventStatus": "https://schema.org/EventScheduled",
       {% if project.primary_venue -%}
       "location": {
         "@type": "Place",
@@ -41,6 +43,13 @@
           "addressCountry": {{ project.primary_venue.country|tojson }}
         }
       },
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      {%- else %}
+      "location": {
+        "@type": "VirtualLocation",
+        "url": {{ project.url_for(_external=true)|tojson }}
+      },
+      "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
       {%- endif -%}
       {%- if project.bg_image.url %}
       "image": [
@@ -48,10 +57,10 @@
        ],
       {% endif -%}
       "description": {{ project.tagline|tojson }},
-      "endDate": {{ project.schedule_end_at_localized|tojson }},
-      "offers": {
-        "@type": "Offer",
-        "url": {{ project.urls['view']|tojson }}
+      "organizer": {
+        "@type": "Organization",
+        "name": {{ project.profile.title|tojson }},
+        "url": {{ project.profile.url_for(_external=true)|tojson }}
       }
     }
     </script>
