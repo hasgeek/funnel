@@ -921,7 +921,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         Return currently active events, not sorted.
         """
-        projects = cls.query.join(Venue).filter(cls.state.PUBLISHED)
+        projects = cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
         if legacy is not None:
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
         return projects

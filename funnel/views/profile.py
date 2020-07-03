@@ -114,7 +114,7 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
         return {
             'status': 'ok',
             'title': 'Past projects',
-            'headings': ['Date', 'Event name', 'Location'],
+            'headings': ['Date', 'Profile', 'Location'],
             'next_page': (
                 pagination.page + 1 if pagination.page < pagination.pages else ''
             ),
