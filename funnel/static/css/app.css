@@ -1590,6 +1590,10 @@ a.loginbutton.hidden,
     padding-top: 32px;
   }
 }
+.past-events-table .past-events-table__title {
+  min-width: 60%;
+}
+
 .cfp-action-btn {
   padding: 10px 0;
   cursor: pointer;
