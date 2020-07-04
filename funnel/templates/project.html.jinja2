@@ -251,10 +251,25 @@
         postUrl: {{ project.url_for('save')|tojson }}
       };
 
-
       window.HasGeek.ProjectHeaderInit(saveProjectConfig);
       window.HasGeek.ProjectInit(projectConfig);
 
+      $('#btn-project-featured').on('click', function (e) {
+        if (window.confirm('Do you want to update this project\'s featured status?')) {
+          e.preventDefault();
+          var toggle_featured_url = $(this).attr('href');
+          $(`<form action="${toggle_featured_url}" method="POST"/>`)
+            .append(
+              $('<input type="hidden" name="csrf_token">').val(
+                $('meta[name="csrf-token"]').attr('content')
+              )
+            )
+            .appendTo($(this).parent())
+            .submit();
+        } else {
+          e.preventDefault();
+        }
+      })
     });
   </script>
 {% endblock %}

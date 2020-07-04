@@ -260,6 +260,15 @@
           {% elif project.view_for('venues').is_available() %}
             <a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui--d-block mui-btn--accent">{% trans %}Add venue{% endtrans %}</a>
           {%- endif %}
+          {% if current_auth.user.is_site_editor %}
+          <a href="{{ project.url_for('toggle_featured') }}" id="btn-project-featured" class="mui-btn mui-btn--raised mui--d-block mui-btn--accent">
+            {% if project.featured %}
+              {% trans %}Remove featured{% endtrans %}
+            {% else %}
+              {% trans %}Make featured{% endtrans %}
+            {% endif %}
+          </a>
+          {% endif %}
         </div>
       </div>
     </div>
