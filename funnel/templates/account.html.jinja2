@@ -85,12 +85,7 @@
               <ol class="mui-list--aligned mui-list--border">
                 {% for useremail in current_auth.user.emails %}
                 <li>
-                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio">&nbsp;
-                  <label for="useremail-{{loop.index}}">
-                    {{ useremail }}
-                    {% if useremail.primary %}
-                      <em>{% trans %}(primary){% endtrans %}</em>
-                    {% endif %}
+                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="form-inline-input"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %}<em>{% trans %}(primary){% endtrans %}</em>{% endif %}
                   </label>
                   {%- if current_auth.user.verified_contact_count > 1 %}
                     <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
@@ -99,8 +94,7 @@
                 {% endfor %}
                 {% for useremail in current_auth.user.emailclaims %}
                 <li>
-                  <input type="radio" disabled="disabled">&nbsp;
-                  {{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.email_address.email_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em>
+                  <input type="radio" disabled="disabled" class="form-inline-input"><span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.email_address.email_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
                   <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
                 {% endfor %}
