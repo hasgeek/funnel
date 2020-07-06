@@ -167,16 +167,12 @@
             <ol class="mui-list--aligned mui-list--border">
               {% for org in current_auth.user.organizations_as_owner %}
               <li>
-                  <form action="{{ org.profile.url_for('transition') }}" method="post">
-                  {{ org.profile.forms.transition().hidden_tag() }}
-                  {% if org.profile.state.PUBLIC %}
-                    <p class="mui--d-inlineblock right-padding"><a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a> {% trans %}(public){% endtrans %}</p>
-                    <button name="transition" value="make_private" class="mui-btn mui-btn--default mui-btn--raised mui-btn--small">{% trans %}Make private{% endtrans %}</button>
-                  {% else %}
-                    <p class="mui--d-inlineblock right-padding">{{ org.title }} {% trans %}(private){% endtrans %}</p>
-                    <button name="transition" value="make_public" class="mui-btn mui-btn--accent mui-btn--raised mui-btn--small">{% trans %}Make public{% endtrans %}</button>
+                <p class="mui--text-body2 separator">
+                  <a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a>
+                  {% if not org.profile.state.PUBLIC %}
+                    <span class="mui--pull-right">{{ faicon(icon='lock-alt') }} {% trans %}Private{% endtrans %}</span>
                   {% endif %}
-                </form>
+                </p>
               </li>
               {%- endfor %}
             </ol>
