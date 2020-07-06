@@ -176,6 +176,30 @@ def opensearch():
     return render_template('opensearch.xml.jinja2')
 
 
+@app.route('/sitemap.xml')
+def sitemap():
+    sitemapxml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    )
+    projects = []
+    for project in Project.query.all():
+        projects.append(project.id)
+        sitemapxml += (
+            '  <url>\n'
+            '    <loc>{url}</loc>\n'
+            '    <lastmod>{updated_at}</lastmod>\n'
+            '    <changefreq>monthly</changefreq>\n'
+            '  </url>\n'.format(
+                url=project.url_for(_external=True),
+                updated_at=project.updated_at.isoformat(),
+            )
+        )
+
+    sitemapxml += '</urlset>'
+    return Response(sitemapxml, content_type='text/xml; charset=utf-8')
+
+
 # --- Lastuser legacy routes -----------------------------------------------------------
 
 
