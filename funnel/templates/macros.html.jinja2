@@ -598,7 +598,18 @@
   {% endraw %}
 {% endmacro %}
 
-{% macro profile_header(profile) %}
+{% macro profile_admin_buttons(profile) %}
+  <div class="mui-dropdown mui--d-inlineblock">
+    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+      <li><a href="{{ profile.urls['members'] }}">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>
+      <li><a href="{{ profile.url_for('edit') }}">{% trans %}Edit this profile{% endtrans %}</a></li>
+    </ul>
+  </div>
+{% endmacro %}
+
+{% macro profile_header(profile, class='', current_page='profile') %}
+  <div class="{% if class %}{{ class }}{% endif %}">
   <div class="profile mui--bg-accent">
     {%- if profile.banner_image_url.url %}
       <div class="profile__background">
@@ -632,6 +643,14 @@
               <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
             </div>
           </div>
+          {%- if profile.current_roles.admin %}
+            <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
+              <a class="mui-btn mui-btn--primary mui-btn--raised" data-cy-btn="edit-details" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui--hidden-md" data-cy-btn="profile-crew" href="{{ profile.urls['members'] }}">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a>
+              <a class="mui-btn mui-btn--raised mui--hidden-md" data-cy-btn="edit-details" href="{{ profile.url_for('edit') }}">{% trans %}Edit this profile{% endtrans %}</a>
+              <div class="mui--d-inlineblock mui--hidden-lg mui--hidden-xl">{{ profile_admin_buttons(profile) }}</div>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -644,7 +663,20 @@
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
         <div>{{ profile.description.html }}</div>
+        {%- if profile.current_roles.admin %}
+          <div class="mui--visible-xs-block mui--visible-sm-block">
+            <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" data-cy-btn="edit-details" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></p>
+            {{ profile_admin_buttons(profile) }}
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
+  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
+    <nav class="sub-navbar mui-container" id="page-navbar">
+      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}All projects{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+    </nav>
+  </div>
+</div>
 {% endmacro %}

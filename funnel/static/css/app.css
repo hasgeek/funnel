@@ -1538,6 +1538,19 @@ a.loginbutton.hidden,
   transform: translate(-50%, -50%);
 }
 
+.profile-dropdown-btn {
+  background-color: #eff2f6;
+  padding: 6px 16px;
+  text-align: center;
+  margin-left: 8px;
+}
+
+.profile-dropdown-btn:hover,
+.profile-dropdown-btn:focus,
+.profile-dropdown-btn:active {
+  background-color: #eff2f6;
+}
+
 @media (min-width: 768px) {
   .profile {
     position: relative;
@@ -1570,7 +1583,7 @@ a.loginbutton.hidden,
     width: auto;
     height: auto;
     padding: 0 26px;
-    right: 32px;
+    right: 16px;
   }
   .profile .profile__banner .profile__banner__upload .profile__banner__icon {
     top: 2px;
@@ -1584,6 +1597,12 @@ a.loginbutton.hidden,
     left: 136px;
     bottom: -8px;
     min-width: 450px;
+  }
+  .profile .profile__banner .profile__banner__btns {
+    position: absolute;
+    bottom: -58px;
+    z-index: 1000;
+    right: 16px;
   }
 
   .profile-details {
