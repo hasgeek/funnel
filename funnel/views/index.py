@@ -185,22 +185,23 @@ def sitemap():
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     )
     profiles = []
-    for profile in Profile.query.all():
-        if profile.state.PUBLIC:
-            profiles.append(profile.id)
-            sitemapxml += (
-                '  <url>\n'
-                '    <loc>{url}</loc>\n'
-                '    <lastmod>{updated_at}</lastmod>\n'
-                '    <changefreq>monthly</changefreq>\n'
-                '  </url>\n'.format(
-                    url=profile.url_for(_external=True),
-                    updated_at=profile.updated_at.isoformat(),
-                )
+    for profile in Profile.query.filter(
+        Profile.state.PUBLIC.is_(True), Profile.legacy.is_(False)
+    ):
+        profiles.append(profile.id)
+        sitemapxml += (
+            '  <url>\n'
+            '    <loc>{url}</loc>\n'
+            '    <lastmod>{updated_at}</lastmod>\n'
+            '    <changefreq>monthly</changefreq>\n'
+            '  </url>\n'.format(
+                url=profile.url_for(_external=True),
+                updated_at=profile.updated_at.isoformat(),
             )
+        )
     projects = []
-    for project in Project.query.all():
-        if project.state.PUBLISHED:
+    for project in Project.query.filter(Project.state.PUBLISHED.is_(True)):
+        if project.profile.state.PUBLIC:
             projects.append(project.id)
             sitemapxml += (
                 '  <url>\n'
@@ -213,8 +214,10 @@ def sitemap():
                 )
             )
     proposals = []
-    for proposal in Proposal.query.all():
-        if not proposal.state.DELETED:
+    for proposal in Proposal.query.filter(
+        Proposal.state.DELETED.is_(False), Proposal.state.DRAFT.is_(False)
+    ):
+        if proposal.project.state.PUBLISHED:
             proposals.append(proposal.id)
             sitemapxml += (
                 '  <url>\n'
