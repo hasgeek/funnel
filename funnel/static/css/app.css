@@ -1417,11 +1417,11 @@ a.loginbutton.hidden,
   bottom: -16px;
   width: 64px;
   left: 0;
-  border-bottom: 3px solid #dda32a;
+  border-bottom: 3px solid #f06a5e;
 }
 
 .project-headline--secondary:after {
-  border-bottom: 3px solid #f06a5e;
+  border-bottom: 3px solid #0f73ed;
 }
 
 @media (min-width: 1200px) {
@@ -2488,11 +2488,11 @@ a.loginbutton.hidden,
 }
 .card--new .card__image-wrapper {
   background-image: none;
-  background-color: #82698d;
+  background-color: #f06a5e;
 }
 .card--new .card__image-wrapper .card__image-wrapper__icon-wrapper {
   color: #fff;
-  border: 2px dotted #a890af;
+  border: 2px dotted #f06a5e;
   width: 100px;
   height: 100px;
   margin: 0 auto;

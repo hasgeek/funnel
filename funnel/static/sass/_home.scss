@@ -125,11 +125,11 @@
   bottom: -16px;
   width: 64px;
   left: 0;
-  border-bottom: 3px solid #dda32a;
+  border-bottom: 3px solid $mui-accent-color;
 }
 
 .project-headline--secondary:after {
-  border-bottom: 3px solid $mui-accent-color;
+  border-bottom: 3px solid $mui-primary-color;
 }
 
 @media (min-width: 1200px) {

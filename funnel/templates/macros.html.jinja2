@@ -353,7 +353,7 @@
           <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
         </noscript>
       {% else %}
-        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+        <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
         <p class="card__image__tagline mui--text-body2">{{ project.title }}</p>
       {% endif %}
     </div>
@@ -409,7 +409,7 @@
                 {% if featured_project.bg_image.url %}
                   <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
                 {% else %}
-                  <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
+                  <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                   <p class="card__image__tagline">{{ featured_project.title }}</p>
                 {% endif %}
               </div>
@@ -455,7 +455,7 @@
                   {% if featured_project.bg_image.url %}
                     <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
                   {% else %}
-                    <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
+                    <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                     <p class="card__image__tagline">{{ featured_project.title }}</p>
                   {% endif %}
                 </div>
@@ -612,7 +612,7 @@
             {%- if profile.banner_image_url.url %}
               <img class="profile__banner__box__img" src="{{ profile.banner_image_url }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
             {% else %}
-              <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ profile.title }}"/>
+              <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ profile.title }}"/>
             {% endif %}
           </div>
           {%- if profile.current_roles.admin %}

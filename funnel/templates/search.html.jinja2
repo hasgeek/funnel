@@ -155,7 +155,7 @@
       var searchConfig = {
         counts: {{ counts|tojson }},
         results: {{results|default("")|tojson}},
-        defaultImage: "{{url_for('static', filename='img/card-background.png')}}",
+        defaultImage: "{{url_for('static', filename='img/default-banner.png')}}",
       };
 
       HasGeek.Search(searchConfig);

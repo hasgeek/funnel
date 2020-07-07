@@ -488,11 +488,11 @@
 .card--new {
   .card__image-wrapper {
     background-image: none;
-    background-color: #82698d;
+    background-color: $mui-accent-color;
 
     .card__image-wrapper__icon-wrapper {
       color: #fff;
-      border: 2px dotted #a890af;
+      border: 2px dotted $mui-accent-color;
       width: 100px;
       height: 100px;
       margin: 0 auto;
