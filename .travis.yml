@@ -7,7 +7,10 @@ services:
   - redis-server
   - postgresql
 before_install:
-  - sudo apt-get -y install postgresql-hll
+  - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+  - echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" | sudo tee -a /etc/apt/sources.list
+  - sudo apt-get -qq update
+  - sudo apt-get -y install postgresql-9.6-hll
 install:
   - pip install -U pip wheel
   - pip install git+https://github.com/hasgeek/flask-babelhg.git
