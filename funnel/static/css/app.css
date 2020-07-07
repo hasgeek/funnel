@@ -674,7 +674,7 @@ a.loginbutton.hidden,
   .header__site-title
   .header__site-title__title
   .header__site-title__logo {
-  height: 30px;
+  height: 24px;
 }
 .hg-app
   .header--fixed
@@ -825,8 +825,10 @@ a.loginbutton.hidden,
     .header__site-title
     .header__site-title__title
     .header__site-title__logo {
-    height: 35px;
+    height: 28px;
     margin-right: 16px;
+    position: relative;
+    top: -2px;
   }
   .hg-app
     .header--fixed

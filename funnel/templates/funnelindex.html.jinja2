@@ -4,6 +4,35 @@
 
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{% trans %}Talkfunnel hosts proposal submissions and reviews for events.{% endtrans %}{% endif %}{% endblock %}
 
+{% block header -%}
+  {% macro site_title() %}
+    {%- if config['LEGACY'] -%}
+      {%- if g.profile -%}
+        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}" data-action="Home">
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
+        </a>
+        {{ faicon(icon='chevron-right', icon_size='subhead') }}
+        <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
+        {%- if project %}
+          {%- if project.parent_project %}
+            {{ faicon(icon='chevron-right', icon_size='subhead') }}
+            <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title }}">{{ project.parent_project.short_title }}</a>
+          {%- endif %}
+          {{ faicon(icon='chevron-right', icon_size='subhead') }}
+          <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title }}">{{ project.short_title }}</a>
+        {%- endif %}
+      {%- else -%}
+        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
+          {{ config['SITE_TITLE'] }}
+        </a>
+      {%- endif %}
+    {%- endif %}
+  {% endmacro %}
+
+  {{ hgtopnav(site_title=site_title()) }}
+{%- endblock %}
+
 {% block contenthead %}
   {%- if not g.profile %}
     <div class="funnel-banner">

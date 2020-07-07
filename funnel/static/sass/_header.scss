@@ -18,7 +18,7 @@
           height: 50px;
 
           .header__site-title__logo {
-            height: 30px;
+            height: 24px;
           }
 
           .search-form {
@@ -122,8 +122,10 @@
             overflow: visible;
 
             .header__site-title__logo {
-              height: 35px;
-              margin-right: $mui-grid-padding;
+              height: 28px;
+              margin-right: 16px;
+              position: relative;
+              top: -2px;
             }
 
             .header__nav-links--search {
