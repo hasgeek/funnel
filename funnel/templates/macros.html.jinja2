@@ -646,9 +646,7 @@
           {%- if profile.current_roles.admin %}
             <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
               <a class="mui-btn mui-btn--primary mui-btn--raised" data-cy-btn="edit-details" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
-              <a class="mui-btn mui-btn--raised mui--hidden-md" data-cy-btn="profile-crew" href="{{ profile.urls['members'] }}">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a>
-              <a class="mui-btn mui-btn--raised mui--hidden-md" data-cy-btn="edit-details" href="{{ profile.url_for('edit') }}">{% trans %}Edit this profile{% endtrans %}</a>
-              <div class="mui--d-inlineblock mui--hidden-lg mui--hidden-xl">{{ profile_admin_buttons(profile) }}</div>
+              <div class="mui--d-inlineblock">{{ profile_admin_buttons(profile) }}</div>
             </div>
           {% endif %}
         </div>
