@@ -53,9 +53,9 @@
           position: -webkit-sticky;
           position: sticky;
           top: 165px;
-          color: #e05f26;
+          color: $mui-accent-color-lighter-txt;
           z-index: 4;
-          background-color: #f9fafc;
+          background-color: $mui-accent-color-lighter;
           float: right;
           padding: 5px;
           border-radius: 3px;
@@ -114,7 +114,7 @@
       }
 
       .schedule__row__column--header.js-tab-active {
-        border-bottom: 2px solid #856a91;
+        border-bottom: 2px solid $mui-bg-color-accent;
       }
 
       .schedule__row__column--time {

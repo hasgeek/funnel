@@ -45,7 +45,7 @@
 }
 
 .secondary-color-txt {
-  color: #82688d;
+  color: $mui-accent-color;
 }
 
 .list-item-rgborder li {
@@ -274,7 +274,7 @@ html.touch .collapsible__body--disable {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #e05f25;
+      background-color: $mui-primary-color;
       color: #fff;
       text-transform: uppercase;
     }
@@ -289,19 +289,19 @@ html.touch .collapsible__body--disable {
 
 .user:nth-child(even) {
   .user__box__gravatar--initials {
-    background: #e05f26;
+    background: $mui-primary-color;
   }
 }
 
 .user:nth-child(odd) {
   .user__box__gravatar--initials {
-    background: #82688d;
+    background: $mui-accent-color;
   }
 }
 
 .user:nth-child(4n) {
   .user__box__gravatar--initials {
-    background: #dda32b;
+    background: #f2a59e;
   }
 }
 
@@ -316,7 +316,7 @@ html.touch .collapsible__body--disable {
   text-transform: inherit;
 
   .bookmarked {
-    fill: #e05f26;
+    fill: $mui-accent-color;
   }
 }
 
@@ -443,7 +443,12 @@ html.touch .collapsible__body--disable {
 }
 
 .pace .pace-progress {
-  background-image: linear-gradient(to right, #82688d, #e05f25, #dda32a);
+  background-image: linear-gradient(
+    to right,
+    $mui-accent-color,
+    #e05f25,
+    #dda32a
+  );
   position: fixed;
   z-index: 2000;
   top: 0;

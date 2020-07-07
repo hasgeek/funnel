@@ -23,7 +23,7 @@
   .no-member__icon {
     width: 40px;
     height: 40px;
-    color: #eff2f6;
+    color: $mui-bg-color-primary-dark;
   }
 }
 
@@ -31,7 +31,7 @@
   .membership-wrapper__members__collapsible__header {
     margin: 5px 0 0;
     width: 100%;
-    background: #eff2f7;
+    background: $mui-bg-color-primary-dark;
     padding: $mui-grid-padding;
     cursor: pointer;
   }

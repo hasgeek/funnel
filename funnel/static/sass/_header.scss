@@ -18,7 +18,7 @@
           height: 50px;
 
           .header__site-title__logo {
-            height: 35px;
+            height: 30px;
           }
 
           .search-form {
@@ -32,7 +32,7 @@
             height: 50px;
 
             .search-form__field {
-              background-color: #eff2f6;
+              background-color: $mui-bg-color-primary-dark;
               border: none;
               padding: $mui-grid-padding $mui-grid-padding-double
                 $mui-grid-padding 35px;
@@ -57,10 +57,20 @@
           .header__nav-links {
             .header__nav-links__text {
               font-size: 12px;
+              color: $mui-text-light;
             }
             .header__nav-links__icon {
               width: 24px;
               height: 24px;
+            }
+            .mui-caret {
+              color: $mui-text-light;
+            }
+          }
+          .header__nav-links--active {
+            .header__nav-links__text,
+            .mui-caret {
+              color: $mui-primary-color;
             }
           }
         }
@@ -114,8 +124,6 @@
             .header__site-title__logo {
               height: 35px;
               margin-right: $mui-grid-padding;
-              position: relative;
-              top: -2px;
             }
 
             .header__nav-links--search {
@@ -142,18 +150,20 @@
 
             .header__nav-links {
               .header__nav-links__icon {
-                width: 20px;
-                height: 20px;
-                vertical-align: bottom;
+                width: 22px;
+                height: 22px;
               }
               .header__nav-links__text {
                 display: inline-block;
                 margin-left: 8px;
-                font-size: 18px;
+                font-size: 20px;
               }
             }
             .header__nav-links__dropdown {
               margin-top: 13px;
+              > li > a {
+                color: $mui-text-light;
+              }
             }
           }
         }
@@ -406,7 +416,7 @@
     .sub-navbar__item:hover,
     .sub-navbar__item:active,
     .sub-navbar__item--active {
-      border-bottom: 2px solid #856a91;
+      border-bottom: 2px solid $mui-primary-color;
     }
   }
 }
@@ -499,11 +509,11 @@
   }
 
   .tabs__item--active {
-    border-bottom: 2px solid #856a91;
+    border-bottom: 2px solid $mui-accent-color;
   }
 
   button.tabs__item--active {
-    background: #f2f2f2;
+    background: $mui-bg-color-primary;
   }
 
   .tabs__item-control {

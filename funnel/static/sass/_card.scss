@@ -147,7 +147,7 @@
         font-style: italic;
         font-size: 12px;
         line-height: 24px;
-        color: #e05f25;
+        color: $mui-accent-color;
         letter-spacing: 0.43px;
         font-variant: none;
       }
@@ -210,12 +210,12 @@
 
         .calendar__weekdays__dates__date--today {
           .calendar__weekdays__dates__date__day {
-            color: #82688d;
+            color: $mui-accent-color;
             font-weight: 600;
             opacity: 1;
           }
           .calendar__weekdays__dates__date__name {
-            color: #82688d;
+            color: $mui-accent-color;
             font-weight: 600;
             opacity: 1;
           }
@@ -252,7 +252,7 @@
           margin: auto;
           z-index: 1;
           box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.22);
-          background: #82688d;
+          background: $mui-accent-color;
         }
 
         .calendar__weekdays__dates__date--showtime:before {
@@ -264,7 +264,7 @@
           margin: auto;
           border-left: 7px solid transparent;
           border-right: 7px solid transparent;
-          border-top: 7px solid #82688d;
+          border-top: 7px solid $mui-accent-color;
           width: 7px;
           opacity: 0;
           z-index: 3;
@@ -278,8 +278,8 @@
           position: absolute;
           bottom: -18px;
           border-radius: 2px;
-          background-color: #f6e2c5;
-          color: #906b37;
+          background-color: $mui-accent-color-lighter;
+          color: #656565;
           left: 50%;
           transform: translateX(-50%);
           -webkit-transform: translateX(-50%);
@@ -457,7 +457,7 @@
     }
     .card__body__divider {
       height: 4px;
-      background-color: #eff2f6;
+      background-color: $mui-bg-color-primary-dark;
       width: 24px;
       margin: 12px 0;
     }

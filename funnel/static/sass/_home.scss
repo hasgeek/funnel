@@ -129,7 +129,7 @@
 }
 
 .project-headline--secondary:after {
-  border-bottom: 3px solid #82688d;
+  border-bottom: 3px solid $mui-accent-color;
 }
 
 @media (min-width: 1200px) {
@@ -244,7 +244,7 @@
         top: 0;
         left: 0;
         overflow: hidden;
-        background-color: #eff2f6;
+        background-color: $mui-bg-color-primary-dark;
         width: 120px;
         height: 120px;
         border-radius: 50%;
