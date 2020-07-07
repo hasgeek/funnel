@@ -6,6 +6,8 @@ addons:
 services:
   - redis-server
   - postgresql
+before_install:
+  - sudo apt-get -y install postgresql-hll
 install:
   - pip install -U pip wheel
   - pip install git+https://github.com/hasgeek/flask-babelhg.git
@@ -16,6 +18,7 @@ install:
 before_script:
   - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
   - psql -c 'create database funnel_testing;' -U postgres
+  - ./manage.py dbconfig | sudo -u postgres psql funnel_testing
   - python -c "import six; print('Six:', six.__version__)"
 script:
   - ./runtests.sh
