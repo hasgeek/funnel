@@ -2,13 +2,14 @@ import os.path
 
 from flask import Response, g, jsonify, redirect, render_template
 
+from baseframe import cache
 from baseframe.filters import date_filter
 from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, requestargs, route
 
 from .. import app, funnelapp, lastuserapp, pages
 from ..forms import SavedProjectForm
-from ..models import Project, Proposal, db
+from ..models import Profile, Project, Proposal, db
 from .helpers import app_url_for
 from .project import project_data
 
@@ -177,24 +178,54 @@ def opensearch():
 
 
 @app.route('/sitemap.xml')
+@cache.cached(timeout=7200)
 def sitemap():
     sitemapxml = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     )
+    profiles = []
+    for profile in Profile.query.all():
+        if profile.state.PUBLIC:
+            profiles.append(profile.id)
+            sitemapxml += (
+                '  <url>\n'
+                '    <loc>{url}</loc>\n'
+                '    <lastmod>{updated_at}</lastmod>\n'
+                '    <changefreq>monthly</changefreq>\n'
+                '  </url>\n'.format(
+                    url=profile.url_for(_external=True),
+                    updated_at=profile.updated_at.isoformat(),
+                )
+            )
     projects = []
     for project in Project.query.all():
-        projects.append(project.id)
-        sitemapxml += (
-            '  <url>\n'
-            '    <loc>{url}</loc>\n'
-            '    <lastmod>{updated_at}</lastmod>\n'
-            '    <changefreq>monthly</changefreq>\n'
-            '  </url>\n'.format(
-                url=project.url_for(_external=True),
-                updated_at=project.updated_at.isoformat(),
+        if project.state.PUBLISHED:
+            projects.append(project.id)
+            sitemapxml += (
+                '  <url>\n'
+                '    <loc>{url}</loc>\n'
+                '    <lastmod>{updated_at}</lastmod>\n'
+                '    <changefreq>monthly</changefreq>\n'
+                '  </url>\n'.format(
+                    url=project.url_for(_external=True),
+                    updated_at=project.updated_at.isoformat(),
+                )
             )
-        )
+    proposals = []
+    for proposal in Proposal.query.all():
+        if not proposal.state.DELETED:
+            proposals.append(proposal.id)
+            sitemapxml += (
+                '  <url>\n'
+                '    <loc>{url}</loc>\n'
+                '    <lastmod>{updated_at}</lastmod>\n'
+                '    <changefreq>monthly</changefreq>\n'
+                '  </url>\n'.format(
+                    url=proposal.url_for(_external=True),
+                    updated_at=proposal.updated_at.isoformat(),
+                )
+            )
 
     sitemapxml += '</urlset>'
     return Response(sitemapxml, content_type='text/xml; charset=utf-8')
