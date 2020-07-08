@@ -121,6 +121,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
+                'features',
                 'urls',
                 'uuid_b58',
                 'name',
@@ -130,6 +131,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'user',
                 'organization',
                 'banner_image_url',
+                'forms',
             },
             'call': {'url_for'},
         }

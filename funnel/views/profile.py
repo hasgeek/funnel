@@ -24,7 +24,7 @@ from .mixins import ProfileViewMixin
 
 @Profile.features('new_project')
 def feature_profile_new_project(obj):
-    return obj.state.PUBLIC is True
+    return bool(obj.state.PUBLIC)
 
 
 @Profile.views('main')
