@@ -140,8 +140,8 @@
           {%- for stream in project.livestream_urls %}
             <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
               <div class="project-banner__box">
+                {{ livestream_edit_btn(project) }}
                 <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
-                  {{ livestream_edit_btn(project) }}
                   <p class="video_txt">
                     {{ faicon(icon='video', icon_size='display1') }}<br>
                     <a href="{{ stream }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
@@ -154,8 +154,8 @@
         </div>
       {% else %}
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
+          {{ livestream_edit_btn(project) }}
           <div class="embed-video-wrapper">
-            {{ livestream_edit_btn(project) }}
             {% if project.banner_video_url.url %}
               <div class="embed-video-wrapper js-embed-video" data-video-src="{{ project.banner_video_url }}">
                 <p class="video_txt">
