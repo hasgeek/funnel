@@ -62,12 +62,14 @@
             .header__nav-links__icon {
               width: 24px;
               height: 24px;
+              color: $mui-text-light;
             }
             .mui-caret {
               color: $mui-text-light;
             }
           }
           .header__nav-links--active {
+            .header__nav-links__icon,
             .header__nav-links__text,
             .mui-caret {
               color: $mui-primary-color;

@@ -753,6 +753,7 @@ a.loginbutton.hidden,
   .header__nav-links__icon {
   width: 24px;
   height: 24px;
+  color: #4d5763;
 }
 .hg-app
   .header--fixed
@@ -763,6 +764,13 @@ a.loginbutton.hidden,
   .mui-caret {
   color: #4d5763;
 }
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__nav-links--active
+  .header__nav-links__icon,
 .hg-app
   .header--fixed
   .header__nav
@@ -1367,7 +1375,6 @@ a.loginbutton.hidden,
 }
 .funnel-banner .banner__headline {
   color: #816894;
-  font-weight: 700;
   font-size: 32px;
   line-height: 40px;
   padding: 0 16px;
@@ -2247,7 +2254,7 @@ a.loginbutton.hidden,
   bottom: -18px;
   border-radius: 2px;
   background-color: #f2deda;
-  color: #656565;
+  color: #1b3a44;
   left: 50%;
   transform: translateX(-50%);
   -webkit-transform: translateX(-50%);
@@ -3664,9 +3671,9 @@ a.loginbutton.hidden,
   position: -webkit-sticky;
   position: sticky;
   top: 165px;
-  color: #656565;
+  color: #1b3a44;
   z-index: 4;
-  background-color: #f2deda;
+  background-color: #1b3a44;
   float: right;
   padding: 5px;
   border-radius: 3px;
