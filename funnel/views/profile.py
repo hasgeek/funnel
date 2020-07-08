@@ -22,6 +22,11 @@ from .helpers import requires_login
 from .mixins import ProfileViewMixin
 
 
+@Profile.features('new_project')
+def feature_profile_new_project(obj):
+    return obj.state.PUBLIC is True
+
+
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlForView, ModelView):
