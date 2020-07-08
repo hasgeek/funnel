@@ -103,7 +103,7 @@
 
   .card__image__tagline {
     position: absolute;
-    color: #fff;
+    color: $mui-text-dark;
     top: 50%;
     left: $mui-grid-padding;
     right: $mui-grid-padding;
@@ -416,7 +416,7 @@
       height: 100%;
     }
     .card__image__tagline {
-      color: #fff;
+      color: $mui-text-dark;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -491,7 +491,7 @@
     background-color: $mui-accent-color;
 
     .card__image-wrapper__icon-wrapper {
-      color: #fff;
+      color: $mui-accent-color;
       border: 2px dotted $mui-accent-color;
       width: 100px;
       height: 100px;

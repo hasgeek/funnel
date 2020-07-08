@@ -2044,7 +2044,7 @@ a.loginbutton.hidden,
 }
 .card__image-wrapper .card__image__tagline {
   position: absolute;
-  color: #fff;
+  color: #1f2d3d;
   top: 50%;
   left: 16px;
   right: 16px;
@@ -2436,7 +2436,7 @@ a.loginbutton.hidden,
   height: 100%;
 }
 .card--upcoming .card__image-wrapper .card__image__tagline {
-  color: #fff;
+  color: #1f2d3d;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2498,7 +2498,7 @@ a.loginbutton.hidden,
   background-color: #f06a5e;
 }
 .card--new .card__image-wrapper .card__image-wrapper__icon-wrapper {
-  color: #fff;
+  color: #f06a5e;
   border: 2px dotted #f06a5e;
   width: 100px;
   height: 100px;
