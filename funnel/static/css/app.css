@@ -2661,7 +2661,7 @@ a.loginbutton.hidden,
 }
 .project-banner .project-banner__box .project-banner__box__add-btn {
   position: absolute;
-  bottom: 56px;
+  bottom: 16px;
   right: 16px;
   z-index: 3;
 }
@@ -2794,7 +2794,7 @@ a.loginbutton.hidden,
     padding: 0 16px;
   }
   .project-banner .project-banner__box .project-banner__box__add-btn {
-    right: 32px;
+    right: 16px;
   }
   .project-banner .project-banner__box .project-banner__box__add-btn--second {
     right: 60px;

@@ -154,8 +154,8 @@
         </div>
       {% else %}
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
-          {{ livestream_edit_btn(project) }}
           <div class="embed-video-wrapper">
+            {{ livestream_edit_btn(project) }}
             {% if project.banner_video_url.url %}
               <div class="embed-video-wrapper js-embed-video" data-video-src="{{ project.banner_video_url }}">
                 <p class="video_txt">
