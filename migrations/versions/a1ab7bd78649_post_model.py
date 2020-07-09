@@ -22,8 +22,8 @@ depends_on = None
 def upgrade():
     op.create_table(
         'post',
-        sa.Column('visibility', sa.Integer(), nullable=False),
-        sa.Column('state', sa.Integer(), nullable=False),
+        sa.Column('visibility', sa.SmallInteger(), nullable=False),
+        sa.Column('state', sa.SmallInteger(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('profile_id', sa.Integer(), nullable=True),
         sa.Column('project_id', sa.Integer(), nullable=True),
