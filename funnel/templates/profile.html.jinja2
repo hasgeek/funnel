@@ -130,7 +130,7 @@
   {{ upcoming_section(upcoming_projects, project_save_form) }}
   {{ open_cfp_section(open_cfp_projects, project_save_form) }}
   {{ all_projects_section(all_projects, project_save_form) }}
-  {{ past_projects_section(past_projects) }}
+  {{ past_projects_section() }}
 
 {% endblock %}
 
@@ -138,7 +138,10 @@
   <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      window.HasGeek.HomeInit();
+      var homeConfig = {
+        past_projects_json_url: "{{ profile.url_for('past_projects_json') }}"
+      }
+      window.HasGeek.HomeInit(homeConfig);
     });
   </script>
 {% endblock %}

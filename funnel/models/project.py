@@ -921,7 +921,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         Return currently active events, not sorted.
         """
-        projects = cls.query.filter(cls.state.PUBLISHED)
+        projects = cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
         if legacy is not None:
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
         return projects
@@ -1089,5 +1089,5 @@ class ProjectLocation(TimestampMixin, db.Model):
 
 # Tail imports
 from .session import Session  # isort:skip
-from .venue import VenueRoom  # isort:skip
+from .venue import Venue, VenueRoom  # isort:skip
 from .project_membership import ProjectCrewMembership  # isort:skip

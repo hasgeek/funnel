@@ -332,3 +332,9 @@
     padding-top: 2 * $mui-grid-padding;
   }
 }
+
+.past-events-table {
+  .past-events-table__title {
+    min-width: 60%;
+  }
+}

@@ -7,14 +7,16 @@ from dateutil.relativedelta import relativedelta
 import pytz
 import requests
 
-from coaster.manage import Manager, init_manager
+from coaster.manage import Manager, init_manager, manager
 from coaster.utils import midnight_to_utc, utcnow
 from funnel import app, funnelapp, lastuserapp, models
 
+# --- Data sources ---------------------------------------------------------------------
+
 DataSource = namedtuple('DataSource', ['basequery', 'datecolumn'])
 data_sources = {
-    # `user_sessions` and `returning_users` (added below) are lookup keys,
-    # while the others are titles
+    # `user_sessions`, `app_user_sessions` and `returning_users` (added below) are
+    # lookup keys, while the others are titles
     'user_sessions': DataSource(
         models.UserSession.query.distinct(models.UserSession.user_id),
         models.UserSession.accessed_at,
@@ -41,6 +43,24 @@ data_sources = {
         models.SavedSession.query, models.SavedSession.saved_at
     ),
 }
+
+
+# --- Commands -------------------------------------------------------------------------
+
+
+@manager.command
+def dbconfig():
+    """Show required database configuration"""
+    print(  # NOQA: T001
+        '''
+-- Pipe this into psql as a super user. Example:
+-- ./manage.py dbconfig | sudo -u postgres psql funnel
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS hll;
+'''
+    )
 
 
 periodic = Manager(usage="Periodic tasks from cron (with recommended intervals)")
