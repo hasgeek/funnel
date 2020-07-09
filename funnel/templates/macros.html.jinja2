@@ -665,7 +665,7 @@
             {% if profile.features.new_project()  %}
               <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
               <div class="mui--d-inlineblock">{{ profile_admin_buttons(profile) }}</div>
-            {% else %}
+            {% elif profile.features.make_public() %}
               <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
               <div class="modal" id="make-public-modal">
                 <div class="modal__header">
@@ -702,7 +702,7 @@
           {% if profile.features.new_project()  %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></p>
             {{ profile_admin_buttons(profile) }}
-          {% else %}
+          {% elif profile.features.make_public() %}
             <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
           {% endif %}
         </div>
