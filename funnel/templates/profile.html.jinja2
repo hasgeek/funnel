@@ -54,7 +54,7 @@
           </div>
         </div>
         <ul class="grid projects" role="list">
-          {%- if profile.current_roles.admin and profile.features.new_project() %}
+          {%- if profile.features.new_project() %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
               <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-action="Add new project">
                 <div class="card__image-wrapper">

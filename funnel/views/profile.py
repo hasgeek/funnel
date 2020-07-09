@@ -24,7 +24,7 @@ from .mixins import ProfileViewMixin
 
 @Profile.features('new_project')
 def feature_profile_new_project(obj):
-    return bool(obj.state.PUBLIC)
+    return obj.current_roles.admin and bool(obj.state.PUBLIC)
 
 
 @Profile.views('main')
