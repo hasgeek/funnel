@@ -47,7 +47,9 @@
                 <comment :comment="comment" :isuserparticipant="isuserparticipant"></comment>
               </ul>
               <component :is="Form"></component>
-              <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newCommentUrl)" aria-label="Add new member" data-cy-btn="add-member">Post comment</button>
+              <p class="mui-panel mui--bg-accent" v-if="!isuserparticipant">You need to be a participant to comment.</p>
+              <a class="link" @click="fetchForm($event, newCommentUrl)" aria-label="Add new member" data-cy-btn="add-member" v-if="isuserparticipant && !commentForm">Post comment</a>
+              <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">Login to leave a comment</a>
             </div>
           {% endraw %}
           {% raw %}
@@ -75,12 +77,12 @@
                       <div class="comment--body" v-if="!hide">
                         <div v-if="!comment.state">{{ comment.message.text }}</div>
                         <div data-id="{{ comment.uuid_b58 }}">
-                          <a class="mui--text-menu mui--text-accent" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply, comment)">[Reply]</a>
-                          <a class="mui--text-menu mui--text-accent" data-cy="report-spam" v-if="isuserparticipant" >[Report Spam]</a>
-                          <a class="mui--text-menu mui--text-accent" data-cy="edit" v-if="comment.current_roles && comment.current_roles.author" @click="fetchForm($event, comment.urls.edit, comment)">[Edit]</a>
-                          <a class="mui--text-menu mui--text-accent" data-cy="delete" v-if="comment.current_roles && comment.current_roles.author"  @click="fetchForm($event, comment.urls.delete, comment)">[Delete]</a>
-                          <a class="mui--text-menu mui--text-accent comment--permalink">[Link]</a>
-                          <a class="mui--text-menu mui--text-accent comment--parent" v-if="comment.parent">[Parent]</a>
+                          <a class="mui--text-menu mui--text-accent link" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, newCommentUrl, 'reply', comment.uuid_b58)">[Reply]</a>
+                          <a class="mui--text-menu mui--text-accent link" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)">[Report Spam]</a>
+                          <a class="mui--text-menu mui--text-accent link" data-cy="edit" v-if="comment.current_roles && comment.current_roles.author" @click="fetchForm($event, comment.urls.edit)" v-if="comment.urls.edit">[Edit]</a>
+                          <a class="mui--text-menu mui--text-accent link" data-cy="delete" v-if="comment.current_roles && comment.current_roles.author"  @click="fetchForm($event, comment.urls.delete, comment)">[Delete]</a>
+                          <a class="mui--text-menu mui--text-accent comment--permalink" :href="'#c' + comment.uuid_b58">[Link]</a>
+                          <a class="mui--text-menu mui--text-accent comment--parent" v-if="comment.parent" :href="'#c' + comment.parent.uuid_b58">[Parent]</a>
                         </div>
                         <ul class="mui-list--aligned mui-list--unstyled comment--children" v-for="child_comment in comment.children_comments">
                           <comment :comment="child_comment" :isuserparticipant="isuserparticipant"></comment>
@@ -106,8 +108,7 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" type="text/javascript"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue-script2@2.1.0/dist/vue-script2.min.js" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('comments')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var saveProjectConfig = {
@@ -123,189 +124,11 @@
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-        isuserparticipant: {% if current_auth.user and project.features.comment_new() -%}true{% else %}false{% endif %}
+        isuserparticipant: {% if current_auth.user and project.features.comment_new() -%}true{% else %}false{% endif %},
+        loginUrl: "{{ url_for('login') }}",
       };
 
-      Utils = {
-        getElementId(htmlString) {
-          return htmlString.match(/id="(.*?)"/)[1];
-        },
-        getActionUrl(formId) {
-          return $(`#${formId}`).attr('action');
-        },
-        updateFormNonce(response) {
-          if (response.form_nonce) {
-            $('input[name="form_nonce"]').val(response.form_nonce);
-          }
-        },
-        getResponseError(response) {
-          let errorMsg = '';
-
-          if (response.readyState === 4) {
-            if (response.status === 500) {
-              errorMsg =
-                'An internal server error occurred. Our support team has been notified and will investigate.';
-            } else {
-              errorMsg = JSON.parse(response.responseText).error_description;
-            }
-          } else {
-            errorMsg = 'Unable to connect. Please reload and try again.';
-          }
-          return errorMsg;
-        },
-        handleAjaxError(errorResponse) {
-          Utils.updateFormNonce(errorResponse.responseJSON);
-          let errorMsg = Utils.getResponseError(errorResponse);
-          window.toastr.error(errorMsg);
-          return errorMsg;
-        },
-        formErrorHandler(formId, errorResponse) {
-          $(`#${formId}`)
-            .find('button[type="submit"]')
-            .prop('disabled', false);
-          $(`#${formId}`)
-            .find('.loading')
-            .addClass('mui--hide');
-          return Utils.handleAjaxError(errorResponse);
-        }
-      }
-
-      const Comments = {
-        init({
-          newCommentUrl,
-          comments = '',
-          divElem,
-          commentTemplate,
-          isUserProfileAdmin,
-          isuserloggedin,
-          isuserparticipant
-        }) {
-
-          Vue.config.debug = true
-          Vue.use(VueScript2)
-
-          const commentUI = Vue.component('comment', {
-            template: commentTemplate,
-            props: ['comment',  'isuserparticipant'],
-            data() {
-              return {
-                svgIconUrl: window.HasGeek.config.svgIconUrl,
-                hide: false,
-              };
-            },
-            methods: {
-              getInitials: window.Baseframe.Utils.getInitials,
-              collapse(action) {
-                this.hide = action;
-              },
-              fetchForm(event, url, comment = '') {
-                this.$parent.fetchForm(event, url, comment)
-              }
-            }
-          });
-
-          /* eslint-disable no-new */
-          new Vue({
-            el: divElem,
-            components: {
-              commentUI,
-            },
-            data() {
-              return {
-                newCommentUrl,
-                comments: comments.length > 0 ? comments : '',
-                isuserloggedin,
-                isuserparticipant,
-                commentForm: '',
-                activeComment: '',
-                errorMsg: '',
-                view: 'name',
-                search: '',
-                showInfo: false,
-                isMobile: false,
-                ready: false,
-                svgIconUrl: window.HasGeek.config.svgIconUrl,
-              };
-            },
-            methods: {
-              fetchForm(event, url, comment = '') {
-                console.log('fetchForm', url, comment)
-                event.preventDefault();
-                if (this.isuserparticipant) {
-                  this.activeComment = comment;
-                  const app = this;
-                  $.ajax({
-                    type: 'GET',
-                    url,
-                    timeout: window.HasGeek.config.ajaxTimeout,
-                    dataType: 'json',
-                    success(data) {
-                      console.log('data', data)
-                      const vueFormHtml = data.form;
-                      app.commentForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
-                    },
-                  });
-                }
-              },
-              activateForm() {
-                const formId = Utils.getElementId(this.commentForm);
-                const url = Utils.getActionUrl(formId);
-                const onSuccess = responseData => {
-                  this.closeForm();
-                  if (responseData.comments) {
-                    this.updateCommentsList(responseData.comments);
-                    this.onChange();
-                    window.toastr.success(responseData.message);
-                  }
-                };
-                const onError = response => {
-                  this.errorMsg = Utils.formErrorHandler(formId, response);
-                };
-                window.Baseframe.Forms.handleFormSubmit(
-                  formId,
-                  url,
-                  onSuccess,
-                  onError,
-                  {}
-                );
-              },
-              updateCommentsList(commentsList) {
-                this.comments = commentsList.length > 0 ? commentsList : '';
-              },
-              closeForm(event = '') {
-                if (event) event.preventDefault();
-                $.modal.close();
-                this.errorMsg = '';
-              },
-            },
-            computed: {
-              Form() {
-                const template = this.commentForm ? this.commentForm : '<div></div>';
-                const isFormTemplate = this.commentForm ? true : '';
-                return {
-                  template,
-                  mounted() {
-                    if (isFormTemplate) {
-                      this.$parent.activateForm();
-                    }
-                  },
-                };
-              },
-              deleteURL() {
-                return this.activeComment.urls.delete;
-              },
-            },
-            mounted() {
-            },
-            created() {
-              console.log('vue is created', comments);
-            },
-          });
-        }
-      }
-
-    Comments.init(commentsConfig);
-
+      HasGeek.Comments(commentsConfig);
     });
   </script>
 {% endblock %}

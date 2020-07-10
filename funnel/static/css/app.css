@@ -290,7 +290,8 @@ html.touch .collapsible__body--disable {
   background: #dda32b;
 }
 
-.read-more {
+.read-more,
+.link {
   cursor: pointer;
 }
 

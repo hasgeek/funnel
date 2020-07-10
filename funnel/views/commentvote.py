@@ -185,32 +185,34 @@ class CommentView(UrlForView, ModelView):
     @render_with(json=True)
     @requires_roles({'author'})
     def edit(self):
-        commentform = CommentForm(model=Comment)
-        if commentform.validate_on_submit():
-            self.obj.message = commentform.message.data
-            self.obj.edited_at = db.func.utcnow()
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("Your comment has been edited"),
-                # FIXME: remove one of the below depending on what works in JS
-                'comment': self.obj.current_access(),
-                'comments': [
-                    comment.current_access() for comment in self.obj.commentset.comments
-                ],
-            }
-        else:
-            return (
-                {
-                    'status': 'error',
-                    'error_code': 'comment_edit_error',
-                    'error_description': _(
-                        "There was an issue editing the comment. Please try again"
-                    ),
-                    'error_details': commentform.errors,
-                },
-                400,
-            )
+        commentform = CommentForm(obj=self.obj)
+        if request.method == 'POST':
+            if commentform.validate_on_submit():
+                self.obj.message = commentform.message.data
+                self.obj.edited_at = db.func.utcnow()
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("Your comment has been edited"),
+                    # FIXME: remove one of the below depending on what works in JS
+                    'comment': self.obj.current_access(),
+                    'comments': [
+                        comment.current_access()
+                        for comment in self.obj.commentset.comments
+                    ],
+                }
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'error_code': 'comment_edit_error',
+                        'error_description': _(
+                            "There was an issue editing the comment. Please try again"
+                        ),
+                        'error_details': commentform.errors,
+                    },
+                    400,
+                )
 
         commentform_html = render_form(
             form=commentform,
