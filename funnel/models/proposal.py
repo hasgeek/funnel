@@ -196,6 +196,7 @@ class Proposal(
                 hltext=lambda: db.func.concat_ws(
                     visual_field_delimiter,
                     Proposal.title,
+                    User.fullname,
                     Proposal.abstract_html,
                     Proposal.outline_html,
                     Proposal.requirements_html,

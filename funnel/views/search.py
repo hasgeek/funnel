@@ -225,7 +225,7 @@ search_types = OrderedDict(
                 False,
                 False,
                 lambda q: Comment.query.join(User).filter(
-                    Comment.search_vector.match(q)
+                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q))
                 ),
                 None,  # TODO
                 None,  # TODO
@@ -394,7 +394,8 @@ def search_results(squery, stype, page=1, per_page=20, profile=None, project=Non
             {
                 'title': item.title if st.has_title else None,
                 'title_html': escape_quotes(title) if title is not None else None,
-                'url': item.absolute_url
+                # FIXME: Comments can fail to have a URL
+                'url': (item.absolute_url or '')
                 + '#:~:text='
                 + clean_matched_text(matched_text),
                 'snippet_html': escape_quotes(snippet),

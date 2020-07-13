@@ -5,7 +5,7 @@ from coaster.sqlalchemy import StateManager, cached
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
-from .helpers import add_search_trigger
+from .helpers import add_search_trigger, visual_field_delimiter
 from .user import User
 
 __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
@@ -214,7 +214,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'message_text',
                 weights={'message_text': 'A'},
                 regconfig='english',
-                hltext=lambda: Comment.message_html,
+                hltext=lambda: db.func.concat_ws(
+                    visual_field_delimiter, User.fullname, Comment.message_html
+                ),
             ),
             nullable=False,
         )
