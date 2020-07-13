@@ -180,42 +180,44 @@ class CommentView(UrlForView, ModelView):
     def view_json(self):
         return jsonify(status=True, message=self.obj.message.text)
 
-    @route('reply')
+    @route('reply', methods=['GET', 'POST'])
     @requires_roles({'reader'})
     def reply(self):
         commentform = CommentForm()
 
-        if commentform.validate_on_submit():
-            comment = Comment(
-                parent=self.obj,
-                user=current_auth.user,
-                commentset=self.obj.commentset,
-                message=commentform.message.data,
-            )
+        if request.method == 'POST':
+            if commentform.validate_on_submit():
+                comment = Comment(
+                    parent=self.obj,
+                    user=current_auth.user,
+                    commentset=self.obj.commentset,
+                    message=commentform.message.data,
+                )
 
-            self.obj.commentset.count = Commentset.count + 1
-            comment.voteset.vote(current_auth.user)  # Vote for your own comment
-            db.session.add(comment)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("Your reply has been posted"),
-                'comments': [
-                    comment.current_access() for comment in self.obj.commentset.comments
-                ],
-            }
-        else:
-            return (
-                {
-                    'status': 'error',
-                    'error_code': 'comment_post_error',
-                    'error_description': _(
-                        "There was an issue posting the comment. Please try again"
-                    ),
-                    'error_details': commentform.errors,
-                },
-                400,
-            )
+                self.obj.commentset.count = Commentset.count + 1
+                comment.voteset.vote(current_auth.user)  # Vote for your own comment
+                db.session.add(comment)
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("Your reply has been posted"),
+                    'comments': [
+                        comment.current_access()
+                        for comment in self.obj.commentset.comments
+                    ],
+                }
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'error_code': 'comment_post_error',
+                        'error_description': _(
+                            "There was an issue posting the comment. Please try again"
+                        ),
+                        'error_details': commentform.errors,
+                    },
+                    400,
+                )
 
         commentform_html = render_form(
             form=commentform,
@@ -240,8 +242,6 @@ class CommentView(UrlForView, ModelView):
                 return {
                     'status': 'ok',
                     'message': _("Your comment has been edited"),
-                    # FIXME: remove one of the below depending on what works in JS
-                    'comment': self.obj.current_access(),
                     'comments': [
                         comment.current_access()
                         for comment in self.obj.commentset.comments
@@ -281,7 +281,14 @@ class CommentView(UrlForView, ModelView):
                 self.obj.delete()
                 commentset.count = Commentset.count - 1
                 db.session.commit()
-                return {'status': 'ok', 'message': _("Your comment has been deleted")}
+                return {
+                    'status': 'ok',
+                    'message': _("Your comment has been deleted"),
+                    'comments': [
+                        comment.current_access()
+                        for comment in self.obj.commentset.comments
+                    ],
+                }
             else:
                 return (
                     {
@@ -349,21 +356,45 @@ class CommentView(UrlForView, ModelView):
         flash(message, 'info')
         return redirect(self.obj.url_for(), code=303)
 
-    @route('report_spam', methods=['POST'])
+    @route('report_spam', methods=['GET', 'POST'])
     @requires_login
     def report_spam(self):
         csrf_form = forms.Form()
-        if csrf_form.validate_on_submit():
-            self.obj.report_spam(actor=current_auth.user)
-            flash(
-                _("The comment has been reported as spam"), 'info',
-            )
-        else:
-            flash(
-                _("There was an issue reporting this comment. Please try again"),
-                'error',
-            )
-        return redirect(self.obj.commentset.views.url(), code=303)
+        if request.method == 'POST':
+            if csrf_form.validate_on_submit():
+                self.obj.report_spam(actor=current_auth.user)
+                return {
+                    'status': 'ok',
+                    'message': _("The comment has been reported as spam"),
+                    'comments': [
+                        comment.current_access()
+                        for comment in self.obj.commentset.comments
+                    ],
+                }
+            else:
+                flash(
+                    _("There was an issue reporting this comment. Please try again"),
+                    'error',
+                )
+                return (
+                    {
+                        'status': 'error',
+                        'error_code': 'report_spam_error',
+                        'error_description': _(
+                            "There was an issue reporting this comment. Please try again"
+                        ),
+                        'error_details': csrf_form.errors,
+                    },
+                    400,
+                )
+        reportspamform_html = render_form(
+            form=csrf_form,
+            title='Do you want to mark this comment as spam?',
+            submit=_("Confirm"),
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': reportspamform_html}
 
 
 @route('/comments/<commentset>/<comment>', subdomain='<profile>')

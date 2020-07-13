@@ -11,6 +11,7 @@ const Comments = {
     isuserloggedin,
     isuserparticipant,
     loginUrl,
+    headerHeight,
   }) {
     Vue.config.devtools = true;
     Vue.use(VS2);
@@ -31,14 +32,21 @@ const Comments = {
         collapse(action) {
           this.hide = action;
         },
-        fetchForm(event, url) {
-          this.$parent.fetchForm(event, url, this);
+        fetchForm(event, url, comment) {
+          if (comment) {
+            this.$parent.fetchForm(event, url, comment);
+          } else {
+            this.$parent.fetchForm(event, url, this);
+          }
         },
         updateCommentsList(commentsList) {
           this.$parent.updateCommentsList(commentsList);
         },
-        activateForm() {
-          this.$parent.activateForm(this);
+        activateForm(comment) {
+          this.$parent.activateForm(comment);
+        },
+        refreshCommentsTimer() {
+          this.$parent.refreshCommentsTimer();
         },
         closeForm(event) {
           event.preventDefault();
@@ -55,7 +63,7 @@ const Comments = {
             template,
             mounted() {
               if (isFormTemplate) {
-                this.$parent.activateForm();
+                this.$parent.activateForm(this.$parent);
               }
             },
           };
@@ -76,16 +84,15 @@ const Comments = {
           isuserparticipant,
           commentForm: '',
           errorMsg: '',
-          ready: false,
           loginUrl,
           refreshInterval: 30000,
           refreshTimer: '',
+          headerHeight,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
         };
       },
       methods: {
         fetchForm(event, url, comment = '') {
-          console.log('fetchForm', url, comment);
           event.preventDefault();
           if (this.isuserparticipant) {
             $.ajax({
@@ -98,7 +105,6 @@ const Comments = {
                 console.log('data', data);
                 const vueFormHtml = data.form;
                 if (comment) {
-                  console.log('comment', comment);
                   comment.commentForm = vueFormHtml.replace(
                     /\bscript\b/g,
                     'script2'
@@ -114,7 +120,6 @@ const Comments = {
           }
         },
         activateForm(parentApp) {
-          console.log('activateForm parentApp', parentApp);
           const formId = Utils.getElementId(parentApp.commentForm);
           const url = Utils.getActionUrl(formId);
           const onSuccess = (responseData) => {
@@ -186,6 +191,13 @@ const Comments = {
       },
       mounted() {
         this.refreshCommentsTimer();
+        if (window.location.hash) {
+          Utils.animateScrollTo(
+            document
+              .getElementById(window.location.hash)
+              .getBoundingClientRect().top - this.headerHeight
+          );
+        }
       },
     });
   },
