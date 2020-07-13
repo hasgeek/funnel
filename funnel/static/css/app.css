@@ -646,6 +646,17 @@ a.loginbutton.hidden,
   height: 16px;
 }
 
+.form-inline-input {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.form-inline-label {
+  display: inline-block;
+  width: 70%;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -1530,10 +1541,10 @@ a.loginbutton.hidden,
   justify-content: center;
 }
 .profile .profile__banner .profile__logo .profile__logo__img {
-  width: calc(100% - 32px);
-  height: calc(100% - 32px);
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  padding: 16px;
+  border-radius: 50%;
 }
 .profile .profile__banner .profile__logo .profile__logo__nologo {
   position: absolute;
@@ -1580,6 +1591,19 @@ a.loginbutton.hidden,
   transform: translate(-50%, -50%);
 }
 
+.profile-dropdown-btn {
+  background-color: #f2f6f9;
+  padding: 6px 16px;
+  text-align: center;
+  margin-left: 8px;
+}
+
+.profile-dropdown-btn:hover,
+.profile-dropdown-btn:focus,
+.profile-dropdown-btn:active {
+  background-color: #f2f6f9;
+}
+
 @media (min-width: 768px) {
   .profile {
     position: relative;
@@ -1618,7 +1642,7 @@ a.loginbutton.hidden,
     top: 2px;
   }
   .profile .profile__banner .profile__logo {
-    left: 16px;
+    left: 32px;
     bottom: -72px;
   }
   .profile .profile__banner .profile__logo .profile__logo__details {
@@ -1627,9 +1651,15 @@ a.loginbutton.hidden,
     bottom: -8px;
     min-width: 450px;
   }
+  .profile .profile__banner .profile__banner__btns {
+    position: absolute;
+    bottom: -58px;
+    z-index: 1000;
+    right: 32px;
+  }
 
   .profile-details {
-    padding-top: 32px;
+    padding: 32px 16px 0;
   }
 }
 .past-events-table .past-events-table__title {
@@ -2673,7 +2703,7 @@ a.loginbutton.hidden,
 }
 .project-banner .project-banner__box .project-banner__box__add-btn {
   position: absolute;
-  bottom: 56px;
+  bottom: 16px;
   right: 16px;
   z-index: 3;
 }
@@ -2801,7 +2831,7 @@ a.loginbutton.hidden,
     padding: 0 16px;
   }
   .project-banner .project-banner__box .project-banner__box__add-btn {
-    right: 32px;
+    right: 16px;
   }
   .project-banner .project-banner__box .project-banner__box__add-btn--second {
     right: 60px;

@@ -697,3 +697,13 @@ a.loginbutton.hidden,
     height: 16px;
   }
 }
+
+.form-inline-input {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.form-inline-label {
+  display: inline-block;
+  width: 70%;
+}

@@ -6,7 +6,9 @@ describe('Profile admin roles', function () {
   it('Check roles of profile admins', function () {
     cy.login('/' + profile.title, admin.username, admin.password);
 
-    cy.get('a[data-cy-btn="edit-details"]').click();
+    cy.get('a[data-cy="admin-dropdown"]:visible').click();
+    cy.wait(1000);
+    cy.get('a[data-cy-btn="edit-details"]:visible').click();
     cy.get('#field-description')
       .find('.CodeMirror textarea')
       .type(profile.description, { force: true });
@@ -17,7 +19,9 @@ describe('Profile admin roles', function () {
     cy.get('button').contains('Save banner').click();
     cy.get('img[data-cy="profile-banner-img"]').should('be.visible');
 
-    cy.get('a[data-cy-btn="profile-crew"]').click();
+    cy.get('a[data-cy="admin-dropdown"]:visible').click();
+    cy.wait(1000);
+    cy.get('a[data-cy-btn="profile-crew"]:visible').click();
     cy.get('button[data-cy-btn="add-member"]').should('not.exist');
     cy.get('[data-cy="member"]').contains(admin.username).click();
     cy.get('#member-form', { timeout: 10000 }).should('not.be.visible');
