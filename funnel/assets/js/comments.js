@@ -44,6 +44,7 @@ const Comments = {
           event.preventDefault();
           this.commentForm = '';
           this.errorMsg = '';
+          this.$parent.refreshCommentsTimer();
         },
       },
       computed: {
@@ -75,12 +76,10 @@ const Comments = {
           isuserparticipant,
           commentForm: '',
           errorMsg: '',
-          view: 'name',
-          search: '',
-          showInfo: false,
-          isMobile: false,
           ready: false,
           loginUrl,
+          refreshInterval: 30000,
+          refreshTimer: '',
           svgIconUrl: window.HasGeek.config.svgIconUrl,
         };
       },
@@ -95,6 +94,7 @@ const Comments = {
               timeout: window.HasGeek.config.ajaxTimeout,
               dataType: 'json',
               success(data) {
+                app.pauseRefreshComments();
                 console.log('data', data);
                 const vueFormHtml = data.form;
                 if (comment) {
@@ -124,6 +124,7 @@ const Comments = {
               parentApp.updateCommentsList(responseData.comments);
               window.toastr.success(responseData.message);
             }
+            app.refreshCommentsTimer();
           };
           const onError = (response) => {
             parentApp.errorMsg = Utils.formErrorHandler(formId, response);
@@ -139,10 +140,34 @@ const Comments = {
         updateCommentsList(commentsList) {
           this.comments = commentsList.length > 0 ? commentsList : '';
         },
+        fetchCommentsList() {
+          console.log('fetchCommentsList');
+          $.ajax({
+            type: 'GET',
+            timeout: window.HasGeek.config.ajaxTimeout,
+            dataType: 'json',
+            success(data) {
+              console.log('fetchCommentsList data', data);
+              app.updateCommentsList(data.comments);
+            },
+          });
+        },
         closeForm(event) {
           event.preventDefault();
           this.commentForm = '';
           this.errorMsg = '';
+          this.refreshCommentsTimer();
+        },
+        pauseRefreshComments() {
+          console.log('clear timer');
+          clearTimeout(this.refreshTimer);
+        },
+        refreshCommentsTimer() {
+          console.log('started timer');
+          this.refreshTimer = window.setInterval(
+            this.fetchCommentsList,
+            this.refreshInterval
+          );
         },
       },
       computed: {
@@ -159,8 +184,9 @@ const Comments = {
           };
         },
       },
-      mounted() {},
-      created() {},
+      mounted() {
+        this.refreshCommentsTimer();
+      },
     });
   },
 };

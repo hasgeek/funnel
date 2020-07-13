@@ -3,6 +3,7 @@
 
   .comment--content {
     display: inline-block;
+    width: 100%;
   }
 
   .comment--content img {
@@ -32,7 +33,7 @@
     display: inline-block;
     vertical-align: top;
     padding: 5px 0 0 5px;
-    width: calc(100% - 20px);
+    width: calc(100% - 25px);
     .badge {
       margin-left: 2px;
       margin-right: 2px;

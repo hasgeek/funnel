@@ -3461,6 +3461,7 @@ a.loginbutton.hidden,
 }
 .comment .comment--content {
   display: inline-block;
+  width: 100%;
 }
 .comment .comment--content img {
   max-width: 100%;
@@ -3486,7 +3487,7 @@ a.loginbutton.hidden,
   display: inline-block;
   vertical-align: top;
   padding: 5px 0 0 5px;
-  width: calc(100% - 20px);
+  width: calc(100% - 25px);
 }
 .comment .comment--header__details .badge {
   margin-left: 2px;
