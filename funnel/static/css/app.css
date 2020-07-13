@@ -497,7 +497,7 @@ html.touch .collapsible__body--disable {
 
 @media (min-width: 768px) {
   .login-page {
-    background-color: #f9fafc;
+    background-color: #f2f6f9;
   }
   .login-page .login-page__back {
     top: 0;
@@ -1094,7 +1094,7 @@ a.loginbutton.hidden,
   transition: border-color 1.5s ease;
   min-width: 0;
   min-height: 0;
-  background-color: #f9fafc;
+  background-color: #f2f6f9;
 }
 .sub-navbar .sub-navbar__item--wrapper {
   height: 56px;
@@ -1506,7 +1506,7 @@ a.loginbutton.hidden,
   right: 16px;
   width: 32px;
   height: 32px;
-  background-color: #f9fafc;
+  background-color: #f2f6f9;
   border-radius: 50%;
   vertical-align: middle;
   margin: auto;
@@ -1564,7 +1564,7 @@ a.loginbutton.hidden,
   right: -4px;
   width: 32px;
   height: 32px;
-  background-color: #f9fafc;
+  background-color: #f2f6f9;
   border-radius: 50%;
   vertical-align: middle;
   margin: auto;
@@ -3671,9 +3671,9 @@ a.loginbutton.hidden,
   position: -webkit-sticky;
   position: sticky;
   top: 165px;
+  background-color: #f2deda;
   color: #1b3a44;
   z-index: 4;
-  background-color: #1b3a44;
   float: right;
   padding: 5px;
   border-radius: 3px;
@@ -3726,7 +3726,7 @@ a.loginbutton.hidden,
   .schedule
   .schedule__row--sticky
   .schedule__row__column--header.js-tab-active {
-  border-bottom: 2px solid #f9fafc;
+  border-bottom: 2px solid #f2f6f9;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--time {
   display: none;
@@ -3844,7 +3844,7 @@ a.loginbutton.hidden,
     display: block;
     padding: 2px 0 0;
     text-align: center;
-    color: #f0a40c;
+    color: #f06a5e;
     text-decoration: none;
     line-height: 1;
     margin: 0;

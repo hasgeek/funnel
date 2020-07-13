@@ -53,9 +53,9 @@
           position: -webkit-sticky;
           position: sticky;
           top: 165px;
+          background-color: $mui-accent-color-lighter;
           color: $mui-text-accent-lighter;
           z-index: 4;
-          background-color: $mui-text-accent-lighter;
           float: right;
           padding: 5px;
           border-radius: 3px;
@@ -215,7 +215,7 @@
           display: block;
           padding: 2px 0 0;
           text-align: center;
-          color: #f0a40c;
+          color: $mui-accent-color;
           text-decoration: none;
           line-height: 1;
           margin: 0;
