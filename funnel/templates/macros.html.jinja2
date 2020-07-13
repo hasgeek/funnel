@@ -154,8 +154,8 @@
         </div>
       {% else %}
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
-          {{ livestream_edit_btn(project) }}
           <div class="embed-video-wrapper">
+            {{ livestream_edit_btn(project) }}
             {% if project.banner_video_url.url %}
               <div class="embed-video-wrapper js-embed-video" data-video-src="{{ project.banner_video_url }}">
                 <p class="video_txt">
@@ -598,7 +598,36 @@
   {% endraw %}
 {% endmacro %}
 
-{% macro profile_header(profile) %}
+{% macro profile_admin_buttons(profile) %}
+  <div class="mui-dropdown mui--d-inlineblock">
+    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="admin-dropdown">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+      <li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>
+      <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>
+      <li><a href="#make-private-modal" rel="modal:open">{% trans %}Make profile private{% endtrans %}</a></li>
+    </ul>
+  </div>
+  <div class="modal" id="make-private-modal">
+    <div class="modal__header">
+      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+      <p class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Make this profile private?{% endtrans %}</p>
+    </div>
+    <div class="modal__body">
+      <ul class="mui-list--aligned mui--text-body2">
+        <li>{% trans %}Will not be visible to anyone other than you{% endtrans %}</li>
+        <li>{% trans %}Cannot host projects{% endtrans %}</li>
+        <li>{% trans %}Any existing projects will become inaccessible until the profile is public again{% endtrans %}</li>
+      </ul>
+      <form action="{{ profile.url_for('transition') }}" method="post">
+        {{ profile.forms.transition().hidden_tag() }}
+        <button name="transition" value="make_private" class="mui-btn mui-btn--accent mui--pull-right mui-btn--flat">{% trans %}Make private{% endtrans %}</button>
+      </form>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro profile_header(profile, class='', current_page='profile') %}
+  <div class="{% if class %}{{ class }}{% endif %}">
   <div class="profile mui--bg-accent">
     {%- if profile.banner_image_url.url %}
       <div class="profile__background">
@@ -632,6 +661,31 @@
               <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
             </div>
           </div>
+          <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
+            {% if profile.features.new_project()  %}
+              <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
+              <div class="mui--d-inlineblock">{{ profile_admin_buttons(profile) }}</div>
+            {% elif profile.features.make_public() %}
+              <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
+              <div class="modal" id="make-public-modal">
+                <div class="modal__header">
+                  <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+                  <p class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Make this profile public?{% endtrans %}</p>
+                </div>
+                <div class="modal__body">
+                  <ul class="mui-list--aligned mui--text-body2">
+                    <li>{% trans %}Will be visible to anyone visiting the page{% endtrans %}</li>
+                    <li>{% trans %}Will be listed in search results{% endtrans %}</li>
+                    <li>{% trans %}Can host projects{% endtrans %}</li>
+                  </ul>
+                  <form action="{{ profile.url_for('transition') }}" method="post">
+                    {{ profile.forms.transition().hidden_tag() }}
+                    <button name="transition" value="make_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">{% trans %}Make public{% endtrans %}</button>
+                  </form>
+                </div>
+              </div>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
@@ -644,7 +698,22 @@
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
         <div>{{ profile.description.html }}</div>
+        <div class="mui--visible-xs-block mui--visible-sm-block">
+          {% if profile.features.new_project()  %}
+            <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></p>
+            {{ profile_admin_buttons(profile) }}
+          {% elif profile.features.make_public() %}
+            <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
+  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
+    <nav class="sub-navbar mui-container" id="page-navbar">
+      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}All projects{% endtrans %}</a>
+      {%- if profile.current_roles.admin %}<a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>{% endif %}
+    </nav>
+  </div>
+</div>
 {% endmacro %}

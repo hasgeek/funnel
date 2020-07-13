@@ -14,10 +14,17 @@
 {% block contenthead %}{% endblock %}
 
 {% block baseheadline %}
-  {{ profile_header(profile) }}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{profile.url_for() }}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ profile.title }}(schedule page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Admins{% endtrans %}</span>
+    </div>
+  </div>
+  {{ profile_header(profile, class='mui--hidden-xs mui--hidden-sm', current_page='admins') }}
 {% endblock %}
 
 {% block basecontent %}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
 <div class="projects-wrapper">
   <div class="mui-container">
     <div class="grid" id="membership">

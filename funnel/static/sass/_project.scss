@@ -57,7 +57,7 @@
     }
     .project-banner__box__add-btn {
       position: absolute;
-      bottom: 56px;
+      bottom: $mui-grid-padding;
       right: $mui-grid-padding;
       z-index: 3;
     }
@@ -192,7 +192,7 @@
     .project-banner__box {
       padding: 0 $mui-grid-padding;
       .project-banner__box__add-btn {
-        right: $mui-grid-padding * 2;
+        right: $mui-grid-padding;
       }
       .project-banner__box__add-btn--second {
         right: 60px;
