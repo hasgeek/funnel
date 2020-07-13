@@ -200,7 +200,9 @@ class CommentView(UrlForView, ModelView):
             return {
                 'status': 'ok',
                 'message': _("Your reply has been posted"),
-                'comments': [comment.current_access() for comment in self.obj.comments],
+                'comments': [
+                    comment.current_access() for comment in self.obj.commentset.comments
+                ],
             }
         else:
             return (
