@@ -46,7 +46,11 @@
               <ul class="mui-list--unstyled" v-for="comment in comments">
                 <comment :comment="comment" :isuserparticipant="isuserparticipant"></comment>
               </ul>
-              <component :is="Form"></component>
+              <div class="comments-form">
+                <component :is="Form"></component>
+                <button class="mui-btn mui-btn--raised mui-btn--accent comments-form__cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
+                <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+              </div>
               <p class="mui-panel mui--bg-accent" v-if="!isuserparticipant">You need to be a participant to comment.</p>
               <a class="link" @click="fetchForm($event, newCommentUrl)" aria-label="Add new member" data-cy-btn="add-member" v-if="isuserparticipant && !commentForm">Post comment</a>
               <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">Login to leave a comment</a>
@@ -78,11 +82,16 @@
                         <div v-if="!comment.state">{{ comment.message.text }}</div>
                         <div data-id="{{ comment.uuid_b58 }}">
                           <a class="mui--text-menu mui--text-accent link" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, newCommentUrl, 'reply', comment.uuid_b58)">[Reply]</a>
-                          <a class="mui--text-menu mui--text-accent link" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)">[Report Spam]</a>
-                          <a class="mui--text-menu mui--text-accent link" data-cy="edit" v-if="comment.current_roles && comment.current_roles.author" @click="fetchForm($event, comment.urls.edit)" v-if="comment.urls.edit">[Edit]</a>
-                          <a class="mui--text-menu mui--text-accent link" data-cy="delete" v-if="comment.current_roles && comment.current_roles.author"  @click="fetchForm($event, comment.urls.delete, comment)">[Delete]</a>
+                          <a class="mui--text-menu mui--text-accent link" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam, comment)">[Report Spam]</a>
+                          <a class="mui--text-menu mui--text-accent link" data-cy="edit" v-if="comment.urls.edit" @click="fetchForm($event, comment.urls.edit, comment)" v-if="comment.urls.edit">[Edit]</a>
+                          <a class="mui--text-menu mui--text-accent link" data-cy="delete" v-if="comment.urls.delete"  @click="fetchForm($event, comment.urls.delete, comment)">[Delete]</a>
                           <a class="mui--text-menu mui--text-accent comment--permalink" :href="'#c' + comment.uuid_b58">[Link]</a>
                           <a class="mui--text-menu mui--text-accent comment--parent" v-if="comment.parent" :href="'#c' + comment.parent.uuid_b58">[Parent]</a>
+                        </div>
+                        <div class="comments-form">
+                          <component :is="Form"></component>
+                          <button class="mui-btn mui-btn--raised mui-btn--accent comments-form__cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
+                          <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
                         </div>
                         <ul class="mui-list--aligned mui-list--unstyled comment--children" v-for="child_comment in comment.children_comments">
                           <comment :comment="child_comment" :isuserparticipant="isuserparticipant"></comment>

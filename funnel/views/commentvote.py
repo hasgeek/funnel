@@ -229,30 +229,30 @@ class CommentView(UrlForView, ModelView):
     @requires_roles({'author'})
     def delete(self):
         delcommentform = CommentDeleteForm()
-
-        if delcommentform.validate_on_submit():
-            commentset = self.obj.commentset
-            self.obj.delete()
-            commentset.count = Commentset.count - 1
-            db.session.commit()
-            return {'status': 'ok', 'message': _("Your comment has been deleted")}
-        else:
-            return (
-                {
-                    'status': 'error',
-                    'error_code': 'comment_delete_error',
-                    'error_description': _(
-                        "There was an issue deleting the comment. Please try again"
-                    ),
-                    'error_details': delcommentform.errors,
-                },
-                400,
-            )
+        if request.method == 'POST':
+            if delcommentform.validate_on_submit():
+                commentset = self.obj.commentset
+                self.obj.delete()
+                commentset.count = Commentset.count - 1
+                db.session.commit()
+                return {'status': 'ok', 'message': _("Your comment has been deleted")}
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'error_code': 'comment_delete_error',
+                        'error_description': _(
+                            "There was an issue deleting the comment. Please try again"
+                        ),
+                        'error_details': delcommentform.errors,
+                    },
+                    400,
+                )
 
         delcommentform_html = render_form(
             form=delcommentform,
-            title='',
-            submit=_("Delete comment"),
+            title='Delete this comment?',
+            submit=_("Delete"),
             ajax=False,
             with_chrome=False,
         )

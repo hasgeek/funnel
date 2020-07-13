@@ -3486,6 +3486,7 @@ a.loginbutton.hidden,
   display: inline-block;
   vertical-align: top;
   padding: 5px 0 0 5px;
+  width: calc(100% - 20px);
 }
 .comment .comment--header__details .badge {
   margin-left: 2px;
@@ -3497,6 +3498,12 @@ a.loginbutton.hidden,
   padding-left: 16px;
 }
 
+.comments-form {
+  position: relative;
+}
+.comments-form .mui-form--margins {
+  margin: 0;
+}
 .comments-form .CodeMirror {
   border: 1px solid #c0ccda;
   min-height: 60px;
@@ -3509,6 +3516,18 @@ a.loginbutton.hidden,
 }
 .comments-form .recaptcha-field {
   height: 0;
+}
+.comments-form .mui-form.form-actions {
+  display: inline-block;
+  float: left;
+  margin-right: 10px;
+}
+.comments-form .comments-form__cancelbtn {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0;
+  position: relative;
+  top: 7px;
 }
 
 .slide-enter-active {

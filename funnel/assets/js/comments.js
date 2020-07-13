@@ -12,7 +12,7 @@ const Comments = {
     isuserparticipant,
     loginUrl,
   }) {
-    Vue.config.debug = true;
+    Vue.config.devtools = true;
     Vue.use(VS2);
 
     const commentUI = Vue.component('comment', {
@@ -20,6 +20,8 @@ const Comments = {
       props: ['comment', 'isuserparticipant'],
       data() {
         return {
+          commentForm: '',
+          errorMsg: '',
           svgIconUrl: window.HasGeek.config.svgIconUrl,
           hide: false,
         };
@@ -29,79 +31,19 @@ const Comments = {
         collapse(action) {
           this.hide = action;
         },
-        fetchForm(event, url, comment = '') {
-          this.$parent.fetchForm(event, url, comment);
-        },
-      },
-    });
-
-    const app = new Vue({
-      el: divElem,
-      components: {
-        commentUI,
-      },
-      data() {
-        return {
-          newCommentUrl,
-          comments: comments.length > 0 ? comments : '',
-          isuserloggedin,
-          isuserparticipant,
-          commentForm: '',
-          activeComment: '',
-          errorMsg: '',
-          view: 'name',
-          search: '',
-          showInfo: false,
-          isMobile: false,
-          ready: false,
-          loginUrl,
-          svgIconUrl: window.HasGeek.config.svgIconUrl,
-        };
-      },
-      methods: {
-        fetchForm(event, url, comment = '') {
-          console.log('fetchForm', url, comment);
-          event.preventDefault();
-          if (this.isuserparticipant) {
-            app.activeComment = comment;
-            $.ajax({
-              type: 'GET',
-              url,
-              timeout: window.HasGeek.config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
-                console.log('data', data);
-                const vueFormHtml = data.form;
-                app.commentForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
-              },
-            });
-          }
-        },
-        activateForm() {
-          const formId = Utils.getElementId(app.commentForm);
-          const url = Utils.getActionUrl(formId);
-          const onSuccess = (responseData) => {
-            app.commentForm = '';
-            app.errorMsg = '';
-            if (responseData.comments) {
-              app.updateCommentsList(responseData.comments);
-              app.onChange();
-              window.toastr.success(responseData.message);
-            }
-          };
-          const onError = (response) => {
-            app.errorMsg = Utils.formErrorHandler(formId, response);
-          };
-          window.Baseframe.Forms.handleFormSubmit(
-            formId,
-            url,
-            onSuccess,
-            onError,
-            {}
-          );
+        fetchForm(event, url) {
+          this.$parent.fetchForm(event, url, this);
         },
         updateCommentsList(commentsList) {
-          app.comments = commentsList.length > 0 ? commentsList : '';
+          this.$parent.updateCommentsList(commentsList);
+        },
+        activateForm() {
+          this.$parent.activateForm(this);
+        },
+        closeForm(event) {
+          event.preventDefault();
+          this.commentForm = '';
+          this.errorMsg = '';
         },
       },
       computed: {
@@ -118,10 +60,107 @@ const Comments = {
           };
         },
       },
-      mounted() {},
-      created() {
-        console.log('vue is created', comments);
+    });
+
+    const app = new Vue({
+      el: divElem,
+      components: {
+        commentUI,
       },
+      data() {
+        return {
+          newCommentUrl,
+          comments: comments.length > 0 ? comments : '',
+          isuserloggedin,
+          isuserparticipant,
+          commentForm: '',
+          errorMsg: '',
+          view: 'name',
+          search: '',
+          showInfo: false,
+          isMobile: false,
+          ready: false,
+          loginUrl,
+          svgIconUrl: window.HasGeek.config.svgIconUrl,
+        };
+      },
+      methods: {
+        fetchForm(event, url, comment = '') {
+          console.log('fetchForm', url, comment);
+          event.preventDefault();
+          if (this.isuserparticipant) {
+            $.ajax({
+              type: 'GET',
+              url,
+              timeout: window.HasGeek.config.ajaxTimeout,
+              dataType: 'json',
+              success(data) {
+                console.log('data', data);
+                const vueFormHtml = data.form;
+                if (comment) {
+                  console.log('comment', comment);
+                  comment.commentForm = vueFormHtml.replace(
+                    /\bscript\b/g,
+                    'script2'
+                  );
+                } else {
+                  app.commentForm = vueFormHtml.replace(
+                    /\bscript\b/g,
+                    'script2'
+                  );
+                }
+              },
+            });
+          }
+        },
+        activateForm(parentApp) {
+          console.log('activateForm parentApp', parentApp);
+          const formId = Utils.getElementId(parentApp.commentForm);
+          const url = Utils.getActionUrl(formId);
+          const onSuccess = (responseData) => {
+            parentApp.commentForm = '';
+            parentApp.errorMsg = '';
+            if (responseData.comments) {
+              parentApp.updateCommentsList(responseData.comments);
+              window.toastr.success(responseData.message);
+            }
+          };
+          const onError = (response) => {
+            parentApp.errorMsg = Utils.formErrorHandler(formId, response);
+          };
+          window.Baseframe.Forms.handleFormSubmit(
+            formId,
+            url,
+            onSuccess,
+            onError,
+            {}
+          );
+        },
+        updateCommentsList(commentsList) {
+          this.comments = commentsList.length > 0 ? commentsList : '';
+        },
+        closeForm(event) {
+          event.preventDefault();
+          this.commentForm = '';
+          this.errorMsg = '';
+        },
+      },
+      computed: {
+        Form() {
+          const template = this.commentForm ? this.commentForm : '<div></div>';
+          const isFormTemplate = this.commentForm ? true : '';
+          return {
+            template,
+            mounted() {
+              if (isFormTemplate) {
+                this.$parent.activateForm(this.$parent);
+              }
+            },
+          };
+        },
+      },
+      mounted() {},
+      created() {},
     });
   },
 };

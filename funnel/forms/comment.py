@@ -7,7 +7,7 @@ __all__ = ['CommentForm', 'CommentDeleteForm']
 
 
 @Comment.forms('main')
-class CommentForm(forms.RecaptchaForm):
+class CommentForm(forms.Form):
     parent_id = forms.HiddenField(__("Parent"), default="", id="comment_parent_id")
     comment_edit_id = forms.HiddenField(__("Edit"), default="", id="comment_edit_id")
     message = forms.MarkdownField(
