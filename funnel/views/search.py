@@ -163,8 +163,13 @@ search_types = OrderedDict(
                 lambda q: Session.query.join(Proposal)
                 .join(User, Proposal.speaker)
                 .filter(Session.search_vector.match(q)),
-                None,  # TODO
-                None,  # TODO
+                lambda q, profile: Session.query.join(Proposal)
+                .join(User, Proposal.speaker)
+                .join(Project, Session.project)
+                .filter(Session.search_vector.match(q), Project.profile == profile),
+                lambda q, project: Session.query.join(Proposal)
+                .join(User, Proposal.speaker)
+                .filter(Session.search_vector.match(q), Session.project == project),
             ),
         ),
         (
@@ -174,11 +179,42 @@ search_types = OrderedDict(
                 Proposal,
                 True,
                 False,
-                lambda q: Proposal.query.join(User, Proposal.speaker).filter(
-                    Proposal.search_vector.match(q)
+                lambda q: Proposal.query.outerjoin(User, Proposal.speaker).filter(
+                    db.or_(
+                        Proposal.search_vector.match(q),
+                        User.query.filter(
+                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        )
+                        .exists()
+                        .correlate(Proposal),
+                    ),
                 ),
-                None,  # TODO
-                None,  # TODO
+                lambda q, profile: Proposal.query.outerjoin(User, Proposal.speaker)
+                .join(Project, Proposal.project)
+                .filter(
+                    Project.profile == profile,
+                    db.or_(
+                        Proposal.search_vector.match(q),
+                        User.query.filter(
+                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        )
+                        .exists()
+                        .correlate(Proposal),
+                    ),
+                ),
+                lambda q, project: Proposal.query.outerjoin(
+                    User, Proposal.speaker
+                ).filter(
+                    Proposal.project == project,
+                    db.or_(
+                        Proposal.search_vector.match(q),
+                        User.query.filter(
+                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        )
+                        .exists()
+                        .correlate(Proposal),
+                    ),
+                ),
             ),
         ),
         (
