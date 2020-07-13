@@ -131,7 +131,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'organization',
                 'banner_image_url',
             },
-            'call': {'url_for'},
+            'call': {'url_for', 'features', 'forms'},
         }
     }
 

@@ -85,12 +85,7 @@
               <ol class="mui-list--aligned mui-list--border">
                 {% for useremail in current_auth.user.emails %}
                 <li>
-                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio">&nbsp;
-                  <label for="useremail-{{loop.index}}">
-                    {{ useremail }}
-                    {% if useremail.primary %}
-                      <em>{% trans %}(primary){% endtrans %}</em>
-                    {% endif %}
+                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="form-inline-input"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %}<em>{% trans %}(primary){% endtrans %}</em>{% endif %}
                   </label>
                   {%- if current_auth.user.verified_contact_count > 1 %}
                     <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
@@ -99,8 +94,7 @@
                 {% endfor %}
                 {% for useremail in current_auth.user.emailclaims %}
                 <li>
-                  <input type="radio" disabled="disabled">&nbsp;
-                  {{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.email_address.email_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em>
+                  <input type="radio" disabled="disabled" class="form-inline-input"><span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.email_address.email_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
                   <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
                 {% endfor %}
@@ -167,16 +161,12 @@
             <ol class="mui-list--aligned mui-list--border">
               {% for org in current_auth.user.organizations_as_owner %}
               <li>
-                  <form action="{{ org.profile.url_for('transition') }}" method="post">
-                  {{ org.profile.forms.transition().hidden_tag() }}
-                  {% if org.profile.state.PUBLIC %}
-                    <p class="mui--d-inlineblock right-padding"><a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a> {% trans %}(public){% endtrans %}</p>
-                    <button name="transition" value="make_private" class="mui-btn mui-btn--default mui-btn--raised mui-btn--small">{% trans %}Make private{% endtrans %}</button>
-                  {% else %}
-                    <p class="mui--d-inlineblock right-padding">{{ org.title }} {% trans %}(private){% endtrans %}</p>
-                    <button name="transition" value="make_public" class="mui-btn mui-btn--accent mui-btn--raised mui-btn--small">{% trans %}Make public{% endtrans %}</button>
+                <p class="mui--text-body2 separator">
+                  <a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a>
+                  {% if not org.profile.state.PUBLIC %}
+                    <span class="mui--pull-right">{{ faicon(icon='lock-alt') }} {% trans %}Private{% endtrans %}</span>
                   {% endif %}
-                </form>
+                </p>
               </li>
               {%- endfor %}
             </ol>
