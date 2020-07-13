@@ -20,7 +20,7 @@ from . import (
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .email_address import EmailAddressMixin
-from .helpers import add_search_trigger
+from .helpers import add_search_trigger, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import User
@@ -194,7 +194,7 @@ class Proposal(
                 },
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
-                    ' / ',
+                    visual_field_delimiter,
                     Proposal.title,
                     Proposal.abstract_html,
                     Proposal.outline_html,

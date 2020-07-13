@@ -27,7 +27,7 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
-from .helpers import RESERVED_NAMES, add_search_trigger
+from .helpers import RESERVED_NAMES, add_search_trigger, visual_field_delimiter
 from .profile import Profile
 from .user import User
 
@@ -173,7 +173,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 },
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
-                    ' / ',
+                    visual_field_delimiter,
                     Project.title,
                     Project.location,
                     Project.description_html,
