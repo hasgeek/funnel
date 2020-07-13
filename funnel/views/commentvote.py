@@ -180,6 +180,50 @@ class CommentView(UrlForView, ModelView):
     def view_json(self):
         return jsonify(status=True, message=self.obj.message.text)
 
+    @route('reply')
+    @requires_roles({'reader'})
+    def reply(self):
+        commentform = CommentForm()
+
+        if commentform.validate_on_submit():
+            comment = Comment(
+                parent=self.obj,
+                user=current_auth.user,
+                commentset=self.obj.commentset,
+                message=commentform.message.data,
+            )
+
+            self.obj.commentset.count = Commentset.count + 1
+            comment.voteset.vote(current_auth.user)  # Vote for your own comment
+            db.session.add(comment)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("Your reply has been posted"),
+                'comments': [comment.current_access() for comment in self.obj.comments],
+            }
+        else:
+            return (
+                {
+                    'status': 'error',
+                    'error_code': 'comment_post_error',
+                    'error_description': _(
+                        "There was an issue posting the comment. Please try again"
+                    ),
+                    'error_details': commentform.errors,
+                },
+                400,
+            )
+
+        commentform_html = render_form(
+            form=commentform,
+            title='',
+            submit=_("Post comment"),
+            ajax=False,
+            with_chrome=False,
+        )
+        return {'form': commentform_html}
+
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
