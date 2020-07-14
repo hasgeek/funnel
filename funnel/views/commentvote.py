@@ -102,42 +102,27 @@ class CommentsetView(UrlForView, ModelView):
             return redirect('/')
 
         commentform = CommentForm(model=Comment)
-        if request.method == 'POST':
-            if commentform.validate_on_submit():
-                comment = Comment(
-                    user=current_auth.user,
-                    commentset=self.obj,
-                    message=commentform.message.data,
-                )
-                if commentform.parent_id.data:
-                    parent_comment = Comment.query.filter_by(
-                        uuid_b58=commentform.parent_id.data
-                    ).first_or_404()
-                    if parent_comment and self.obj == parent_comment.commentset:
-                        comment.parent = parent_comment
-                self.obj.count = Commentset.count + 1
-                comment.voteset.vote(current_auth.user)  # Vote for your own comment
-                db.session.add(comment)
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'message': _("Your comment has been posted"),
-                    'comments': [
-                        comment.current_access() for comment in self.obj.comments
-                    ],
-                }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_code': 'comment_post_error',
-                        'error_description': _(
-                            "There was an issue posting the comment. Please try again"
-                        ),
-                        'error_details': commentform.errors,
-                    },
-                    400,
-                )
+        if commentform.validate_on_submit():
+            comment = Comment(
+                user=current_auth.user,
+                commentset=self.obj,
+                message=commentform.message.data,
+            )
+            if commentform.parent_id.data:
+                parent_comment = Comment.query.filter_by(
+                    uuid_b58=commentform.parent_id.data
+                ).first_or_404()
+                if parent_comment and self.obj == parent_comment.commentset:
+                    comment.parent = parent_comment
+            self.obj.count = Commentset.count + 1
+            comment.voteset.vote(current_auth.user)  # Vote for your own comment
+            db.session.add(comment)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("Your comment has been posted"),
+                'comments': [comment.current_access() for comment in self.obj.comments],
+            }
         commentform_html = render_form(
             form=commentform,
             title='',
@@ -185,39 +170,25 @@ class CommentView(UrlForView, ModelView):
     def reply(self):
         commentform = CommentForm()
 
-        if request.method == 'POST':
-            if commentform.validate_on_submit():
-                comment = Comment(
-                    parent=self.obj,
-                    user=current_auth.user,
-                    commentset=self.obj.commentset,
-                    message=commentform.message.data,
-                )
+        if commentform.validate_on_submit():
+            comment = Comment(
+                parent=self.obj,
+                user=current_auth.user,
+                commentset=self.obj.commentset,
+                message=commentform.message.data,
+            )
 
-                self.obj.commentset.count = Commentset.count + 1
-                comment.voteset.vote(current_auth.user)  # Vote for your own comment
-                db.session.add(comment)
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'message': _("Your reply has been posted"),
-                    'comments': [
-                        comment.current_access()
-                        for comment in self.obj.commentset.comments
-                    ],
-                }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_code': 'comment_post_error',
-                        'error_description': _(
-                            "There was an issue posting the comment. Please try again"
-                        ),
-                        'error_details': commentform.errors,
-                    },
-                    400,
-                )
+            self.obj.commentset.count = Commentset.count + 1
+            comment.voteset.vote(current_auth.user)  # Vote for your own comment
+            db.session.add(comment)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("Your reply has been posted"),
+                'comments': [
+                    comment.current_access() for comment in self.obj.commentset.comments
+                ],
+            }
 
         commentform_html = render_form(
             form=commentform,
@@ -234,32 +205,17 @@ class CommentView(UrlForView, ModelView):
     @requires_roles({'author'})
     def edit(self):
         commentform = CommentForm(obj=self.obj)
-        if request.method == 'POST':
-            if commentform.validate_on_submit():
-                self.obj.message = commentform.message.data
-                self.obj.edited_at = db.func.utcnow()
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'message': _("Your comment has been edited"),
-                    'comments': [
-                        comment.current_access()
-                        for comment in self.obj.commentset.comments
-                    ],
-                }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_code': 'comment_edit_error',
-                        'error_description': _(
-                            "There was an issue editing the comment. Please try again"
-                        ),
-                        'error_details': commentform.errors,
-                    },
-                    400,
-                )
-
+        if commentform.validate_on_submit():
+            self.obj.message = commentform.message.data
+            self.obj.edited_at = db.func.utcnow()
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("Your comment has been edited"),
+                'comments': [
+                    comment.current_access() for comment in self.obj.commentset.comments
+                ],
+            }
         commentform_html = render_form(
             form=commentform,
             title='',
@@ -275,32 +231,19 @@ class CommentView(UrlForView, ModelView):
     @requires_roles({'author'})
     def delete(self):
         delcommentform = CommentDeleteForm()
-        if request.method == 'POST':
-            if delcommentform.validate_on_submit():
-                commentset = self.obj.commentset
-                self.obj.delete()
-                commentset.count = Commentset.count - 1
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'message': _("Your comment has been deleted"),
-                    'comments': [
-                        comment.current_access()
-                        for comment in self.obj.commentset.comments
-                    ],
-                }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_code': 'comment_delete_error',
-                        'error_description': _(
-                            "There was an issue deleting the comment. Please try again"
-                        ),
-                        'error_details': delcommentform.errors,
-                    },
-                    400,
-                )
+
+        if delcommentform.validate_on_submit():
+            commentset = self.obj.commentset
+            self.obj.delete()
+            commentset.count = Commentset.count - 1
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("Your comment has been deleted"),
+                'comments': [
+                    comment.current_access() for comment in self.obj.commentset.comments
+                ],
+            }
 
         delcommentform_html = render_form(
             form=delcommentform,
