@@ -121,7 +121,9 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'ok',
                 'message': _("Your comment has been posted"),
-                'comments': [comment.current_access() for comment in self.obj.comments],
+                'comments': [
+                    comment.current_access() for comment in self.obj.parent_comments
+                ],
             }
         commentform_html = render_form(
             form=commentform,
