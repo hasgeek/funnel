@@ -88,7 +88,7 @@ RESERVED_NAMES = {
 # Strong passwords require a strength of at least 0.66 as per the password_strength
 # project documentation, but this is hard to achieve with memorised passwords. We use a
 # lower bar to start with, to learn from user behaviour and change as necessary.
-password_policy = PasswordPolicy.from_names(length=8, strength=(0.66, 20))
+password_policy = PasswordPolicy.from_names(length=8, strength=(0.4, 20))
 
 
 def pgquote(identifier):
