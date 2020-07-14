@@ -5,7 +5,7 @@ from coaster.sqlalchemy import StateManager, cached
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
-from .helpers import add_search_trigger, visual_field_delimiter
+from .helpers import add_search_trigger
 from .user import User
 
 __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
@@ -214,9 +214,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'message_text',
                 weights={'message_text': 'A'},
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
-                    visual_field_delimiter, User.fullname, Comment.message_html
-                ),
+                hltext=lambda: Comment.message_html,
             ),
             nullable=False,
         )
@@ -234,13 +232,15 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def absolute_url(self):
         if self.commentset.proposal:
             return self.commentset.proposal.absolute_url + '#c' + self.uuid_b58
+        elif self.commentset.project:
+            return self.commentset.project.url_for('comments') + '#c' + self.uuid_b58
 
     @property
     def title(self):
-        obj = self.commentset.proposal
+        obj = self.commentset.proposal or self.commentset.project
         if obj:
             return _("{user} commented on {obj}").format(
-                user=self.user.pickername, obj=self.commentset.proposal.title
+                user=self.user.pickername, obj=obj.title
             )
         else:
             return _("{user} commented").format(user=self.user.pickername)

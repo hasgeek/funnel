@@ -75,8 +75,8 @@ search_types = OrderedDict(
                 Project,
                 True,  # has a title column
                 True,  # has order_by in the queries here; don't bother to order again
-                lambda q: Project.query.join(Profile)
-                .filter(
+                # Site search:
+                lambda q: Project.query.join(Profile).filter(
                     Profile.state.PUBLIC,
                     Project.state.PUBLISHED,
                     db.or_(
@@ -97,6 +97,8 @@ search_types = OrderedDict(
                         ).exists(),
                     ),
                 )
+                # TODO: Replace `schedule_start_at` with a new `nearest_session_at`
+                # Also add a CHECK constraint on session.start_at/end_at to enforce 24 hour max duration
                 .order_by(
                     # Order by:
                     # 1. Projects with schedule (start_at is None == False),
@@ -111,6 +113,7 @@ search_types = OrderedDict(
                     # Third, order by relevance of search results
                     db.desc(db.func.ts_rank_cd(Project.search_vector, q)),
                 ),
+                # Profile search:
                 lambda q, profile: Project.query.join(Profile)
                 .filter(
                     Project.profile == profile,
@@ -126,7 +129,8 @@ search_types = OrderedDict(
                     ),
                     db.desc(db.func.ts_rank_cd(Project.search_vector, q)),
                 ),
-                None,  # No project search inside projects
+                # No project search inside projects:
+                None,
             ),
         ),
         (
@@ -149,8 +153,10 @@ search_types = OrderedDict(
                         ).exists(),
                     ),
                 ),
-                None,  # No profile search inside profiles
-                None,  # No profile search inside projects
+                # No profile search inside profiles:
+                None,
+                # No profile search inside projects:
+                None,
             ),
         ),
         (
@@ -160,16 +166,35 @@ search_types = OrderedDict(
                 Session,
                 True,
                 False,
-                lambda q: Session.query.join(Proposal)
-                .join(User, Proposal.speaker)
-                .filter(Session.search_vector.match(q)),
-                lambda q, profile: Session.query.join(Proposal)
-                .join(User, Proposal.speaker)
-                .join(Project, Session.project)
-                .filter(Session.search_vector.match(q), Project.profile == profile),
-                lambda q, project: Session.query.join(Proposal)
-                .join(User, Proposal.speaker)
-                .filter(Session.search_vector.match(q), Session.project == project),
+                # Site search:
+                lambda q: Session.query.join(Project, Session.project)
+                .join(Profile, Project.profile)
+                .outerjoin(Proposal, Session.proposal)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Profile.state.PUBLIC,
+                    Project.state.PUBLISHED,
+                    Session.scheduled,
+                    Session.search_vector.match(q),
+                ),
+                # Profile search:
+                lambda q, profile: Session.query.join(Project, Session.project)
+                .outerjoin(Proposal, Session.proposal)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Project.state.PUBLISHED,
+                    Project.profile == profile,
+                    Session.scheduled,
+                    Session.search_vector.match(q),
+                ),
+                # Project search:
+                lambda q, project: Session.query.outerjoin(Proposal)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Session.project == project,
+                    Session.scheduled,
+                    Session.search_vector.match(q),
+                ),
             ),
         ),
         (
@@ -179,20 +204,16 @@ search_types = OrderedDict(
                 Proposal,
                 True,
                 False,
-                lambda q: Proposal.query.outerjoin(User, Proposal.speaker).filter(
-                    db.or_(
-                        Proposal.search_vector.match(q),
-                        User.query.filter(
-                            Proposal.speaker_id == User.id, User.search_vector.match(q)
-                        )
-                        .exists()
-                        .correlate(Proposal),
-                    ),
-                ),
-                lambda q, profile: Proposal.query.outerjoin(User, Proposal.speaker)
-                .join(Project, Proposal.project)
+                # Site search:
+                lambda q: Proposal.query.join(Project, Proposal.project)
+                .join(Profile, Project.profile)
+                .outerjoin(User, Proposal.speaker)
                 .filter(
-                    Project.profile == profile,
+                    Profile.state.PUBLIC,
+                    Project.state.PUBLISHED,
+                    # TODO: Filter condition for Proposal being visible.
+                    # Dependent on proposal editorial workflow states being completely
+                    # transferred into labels, reserving proposal state for submission.
                     db.or_(
                         Proposal.search_vector.match(q),
                         User.query.filter(
@@ -202,10 +223,28 @@ search_types = OrderedDict(
                         .correlate(Proposal),
                     ),
                 ),
+                # Profile search
+                lambda q, profile: Proposal.query.join(Project, Proposal.project)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Project.state.PUBLISHED,
+                    Project.profile == profile,
+                    # TODO: Filter condition for Proposal being visible
+                    db.or_(
+                        Proposal.search_vector.match(q),
+                        User.query.filter(
+                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        )
+                        .exists()
+                        .correlate(Proposal),
+                    ),
+                ),
+                # Project search:
                 lambda q, project: Proposal.query.outerjoin(
                     User, Proposal.speaker
                 ).filter(
                     Proposal.project == project,
+                    # TODO: Filter condition for Proposal being visible
                     db.or_(
                         Proposal.search_vector.match(q),
                         User.query.filter(
@@ -222,13 +261,93 @@ search_types = OrderedDict(
             SearchModel(
                 __("Comments"),
                 Comment,
-                False,
-                False,
-                lambda q: Comment.query.join(User).filter(
-                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q))
+                False,  # Comments don't have titles
+                True,  # Queries return ordered results
+                # Site search:
+                lambda q: Comment.query.join(User, Comment.user)
+                .join(Project, Project.commentset_id == Comment.commentset_id)
+                .join(Profile, Project.profile_id == Profile.id)
+                .filter(
+                    Profile.state.PUBLIC,
+                    Project.state.PUBLISHED,
+                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q)),
+                )
+                .order_by(
+                    db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                    db.desc(Comment.created_at),
+                )
+                .union_all(
+                    Comment.query.join(User)
+                    .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
+                    .join(Project, Proposal.project_id == Project.id)
+                    .join(Profile, Project.profile_id == Profile.id)
+                    .filter(
+                        Profile.state.PUBLIC,
+                        Project.state.PUBLISHED,
+                        db.or_(
+                            Comment.search_vector.match(q), User.search_vector.match(q)
+                        ),
+                    )
+                    .order_by(
+                        db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                        db.desc(Comment.created_at),
+                    ),
+                    # Add query on Post model here
                 ),
-                None,  # TODO
-                None,  # TODO
+                # Profile search:
+                lambda q, profile: Comment.query.join(User, Comment.user)
+                .join(Project, Project.commentset_id == Comment.commentset_id)
+                .filter(
+                    Project.profile == profile,
+                    Project.state.PUBLISHED,
+                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q)),
+                )
+                .order_by(
+                    db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                    db.desc(Comment.created_at),
+                )
+                .union_all(
+                    Comment.query.join(User)
+                    .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
+                    .join(Project, Proposal.project_id == Project.id)
+                    .filter(
+                        Project.profile == profile,
+                        Project.state.PUBLISHED,
+                        db.or_(
+                            Comment.search_vector.match(q), User.search_vector.match(q)
+                        ),
+                    )
+                    .order_by(
+                        db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                        db.desc(Comment.created_at),
+                    ),
+                    # Add query on Post model here
+                ),
+                # Project search:
+                lambda q, project: Comment.query.join(User, Comment.user)
+                .join(Project, project.commentset_id == Comment.commentset_id)
+                .filter(
+                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q))
+                )
+                .order_by(
+                    db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                    db.desc(Comment.created_at),
+                )
+                .union_all(
+                    Comment.query.join(User)
+                    .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
+                    .join(Project, Proposal.project_id == project.id)
+                    .filter(
+                        db.or_(
+                            Comment.search_vector.match(q), User.search_vector.match(q)
+                        )
+                    )
+                    .order_by(
+                        db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                        db.desc(Comment.created_at),
+                    ),
+                    # Add query on Post model here
+                ),
             ),
         ),
     ]
@@ -380,7 +499,7 @@ def search_results(squery, stype, page=1, per_page=20, profile=None, project=Non
         regconfig,
         hltext,
         db.func.to_tsquery(squery),
-        'MaxFragments=0, StartSel="", StopSel=""',
+        'MaxFragments=0, MaxWords=100, StartSel="", StopSel=""',
         type_=db.UnicodeText,
     )
 
@@ -395,7 +514,7 @@ def search_results(squery, stype, page=1, per_page=20, profile=None, project=Non
                 'title': item.title if st.has_title else None,
                 'title_html': escape_quotes(title) if title is not None else None,
                 # FIXME: Comments can fail to have a URL
-                'url': (item.absolute_url or '')
+                'url': item.absolute_url
                 + '#:~:text='
                 + clean_matched_text(matched_text),
                 'snippet_html': escape_quotes(snippet),
