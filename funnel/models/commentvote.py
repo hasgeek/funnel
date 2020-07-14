@@ -326,3 +326,13 @@ def comment_url(obj):
     if commentset_url is not None:
         url = commentset_url + '#c' + obj.uuid_b58
     return url
+
+
+Commentset.parent_comments = db.relationship(
+    Comment,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        Comment.commentset_id == Commentset.id, Comment.parent_id.is_(None),
+    ),
+    viewonly=True,
+)

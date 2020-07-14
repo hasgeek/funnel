@@ -186,7 +186,8 @@ class CommentView(UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("Your reply has been posted"),
                 'comments': [
-                    comment.current_access() for comment in self.obj.commentset.comments
+                    comment.current_access()
+                    for comment in self.obj.commentset.parent_comments
                 ],
             }
 
@@ -213,7 +214,8 @@ class CommentView(UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("Your comment has been edited"),
                 'comments': [
-                    comment.current_access() for comment in self.obj.commentset.comments
+                    comment.current_access()
+                    for comment in self.obj.commentset.parent_comments
                 ],
             }
         commentform_html = render_form(
@@ -241,7 +243,8 @@ class CommentView(UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("Your comment has been deleted"),
                 'comments': [
-                    comment.current_access() for comment in self.obj.commentset.comments
+                    comment.current_access()
+                    for comment in self.obj.commentset.parent_comments
                 ],
             }
 
@@ -311,7 +314,7 @@ class CommentView(UrlForView, ModelView):
                     'message': _("The comment has been reported as spam"),
                     'comments': [
                         comment.current_access()
-                        for comment in self.obj.commentset.comments
+                        for comment in self.obj.commentset.parent_comments
                     ],
                 }
             else:
