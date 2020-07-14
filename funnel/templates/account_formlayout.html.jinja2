@@ -103,8 +103,12 @@
                   $(field).parent().find('.progress__txt').text('Weak');
                   $(field).parent().find('.progress__bar').removeClass('progress__bar--success').removeClass('progress__bar--warning').addClass('progress__bar--danger');
                   $('#{{ ref_id }}').removeClass('password-valid');
+                  $(field).parent().find('.password-strength-icon').removeClass('password-strength-icon--show');
+                  $(field).parent().find('.js-password-weak').addClass('password-strength-icon--show');
                 } else {
                   $('#{{ ref_id }}').addClass('password-valid');
+                  $(field).parent().find('.password-strength-icon').removeClass('password-strength-icon--show');
+                  $(field).parent().find('.js-password-good').addClass('password-strength-icon--show');
                   if(remoteData.result.strength > 0.66) {
                     $(field).parent().find('.progress__txt').text('Good');
                     $(field).parent().find('.progress__bar').removeClass('progress__bar--danger').removeClass('progress__bar--warning').addClass('progress__bar--success');
