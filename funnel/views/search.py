@@ -14,6 +14,7 @@ from coaster.views import (
     UrlForView,
     render_with,
     requestargs,
+    requires_roles,
     route,
 )
 
@@ -513,7 +514,6 @@ def search_results(squery, stype, page=1, per_page=20, profile=None, project=Non
             {
                 'title': item.title if st.has_title else None,
                 'title_html': escape_quotes(title) if title is not None else None,
-                # FIXME: Comments can fail to have a URL
                 'url': item.absolute_url
                 + '#:~:text='
                 + clean_matched_text(matched_text),
@@ -566,6 +566,7 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('search')
     @render_with('search.html.jinja2', json=True)
+    @requires_roles({'reader', 'admin'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20):
         squery = get_squery(q)
@@ -607,6 +608,7 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('search')
     @render_with('search.html.jinja2', json=True)
+    @requires_roles({'reader', 'crew', 'participant'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20):
         squery = get_squery(q)
