@@ -62,7 +62,8 @@ class SharedProfileMixin:
         return True
 
     def validate_name_candidate(self, name):
-        if name and name.lower() == self.name.lower():
+        if name and self.name and name.lower() == self.name.lower():
+            # Same name, or only a case change. No validation required
             return
         return Profile.validate_name_candidate(name)
 
