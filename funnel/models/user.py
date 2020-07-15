@@ -20,18 +20,11 @@ from coaster.sqlalchemy import (
     failsafe_add,
     with_roles,
 )
-from coaster.utils import (
-    LabeledEnum,
-    newpin,
-    newsecret,
-    require_one_of,
-    utcnow,
-    valid_username,
-)
+from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
 from . import BaseMixin, TSVectorType, UuidMixin, db
 from .email_address import EmailAddress, EmailAddressMixin
-from .helpers import add_search_trigger
+from .helpers import add_search_trigger, valid_username
 
 __all__ = [
     'USER_STATUS',
@@ -69,7 +62,7 @@ class SharedProfileMixin:
         return True
 
     def validate_name_candidate(self, name):
-        if name and name == self.name:
+        if name and name.lower() == self.name.lower():
             return
         return Profile.validate_name_candidate(name)
 
@@ -375,7 +368,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             buid = userid
 
         if username is not None:
-            query = cls.query.join(Profile).filter(Profile.name == username)
+            query = cls.query.join(Profile).filter(
+                db.func.lower(Profile.name) == db.func.lower(username)
+            )
         else:
             query = cls.query.filter_by(buid=buid)
         if defercols:
@@ -403,12 +398,21 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             buids = userids
         if buids and usernames:
             query = cls.query.join(Profile).filter(
-                or_(cls.buid.in_(buids), Profile.name.in_(usernames))
+                or_(
+                    cls.buid.in_(buids),
+                    db.func.lower(Profile.name).in_(
+                        [username.lower() for username in usernames]
+                    ),
+                )
             )
         elif buids:
             query = cls.query.filter(cls.buid.in_(buids))
         elif usernames:
-            query = cls.query.join(Profile).filter(Profile.name.in_(usernames))
+            query = cls.query.join(Profile).filter(
+                db.func.lower(Profile.name).in_(
+                    [username.lower() for username in usernames]
+                )
+            )
         else:
             raise Exception
 
@@ -690,7 +694,9 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         require_one_of(name=name, buid=buid)
 
         if name is not None:
-            query = cls.query.join(Profile).filter(Profile.name == name)
+            query = cls.query.join(Profile).filter(
+                db.func.lower(Profile.name) == db.func.lower(name)
+            )
         else:
             query = cls.query.filter_by(buid=buid)
         if defercols:
@@ -706,7 +712,9 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 query = query.options(*cls._defercols)
             orgs.extend(query.all())
         if names:
-            query = cls.query.join(Profile).filter(Profile.name.in_(names))
+            query = cls.query.join(Profile).filter(
+                db.func.lower(Profile.name).in_([name.lower() for name in names])
+            )
             if defercols:
                 query = query.options(*cls._defercols)
             orgs.extend(query.all())
