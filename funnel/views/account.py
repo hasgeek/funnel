@@ -80,21 +80,23 @@ def password_policy_check():
 
     if policy_form.validate_on_submit():
         tested_password = password_policy.password(policy_form.candidate.data)
-        strength = tested_password.strength()
         failed_tests = tested_password.test()
+        strength = tested_password.strength()
+        is_weak = False
+        for t in failed_tests:
+            if isinstance(t, password_policy.all_tests()['strength']):
+                strength_threshold, _weak_bits = t.args
+                if strength < strength_threshold:
+                    is_weak = True
+                break
         return {
             'status': 'ok',
             'result': {
                 'strength': strength,
-                'is_weak': bool(failed_tests),
+                'is_weak': is_weak,
                 'strength_verbose': (
-                    _("Weak password")
-                    if strength < 0.33
-                    else _("Medium strength password")
-                    if strength < 0.66
-                    else _("Strong password")
+                    _("Weak password") if is_weak else _("Strong password")
                 ),
-                'failed_tests': [repr(t) for t in failed_tests],
             },
         }
     return (
