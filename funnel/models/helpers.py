@@ -85,10 +85,6 @@ RESERVED_NAMES = {
     'www',
 }
 
-# Strong passwords require a strength of at least 3 as per the zxcvbn
-# project documentation, but this is hard to achieve with memorised passwords. We use a
-# lower bar of 2 to start with, to learn from user behaviour and change as necessary.
-
 
 class PasswordPolicy:
     def __init__(self, min_length, min_score):
@@ -109,6 +105,8 @@ class PasswordPolicy:
         }
 
 
+# Strong passwords require a strength of at least 3 as per the zxcvbn
+# project documentation.
 password_policy = PasswordPolicy(min_length=8, min_score=3)
 
 
