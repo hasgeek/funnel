@@ -99,7 +99,8 @@ search_types = OrderedDict(
                     ),
                 )
                 # TODO: Replace `schedule_start_at` with a new `nearest_session_at`
-                # Also add a CHECK constraint on session.start_at/end_at to enforce 24 hour max duration
+                # Also add a CHECK constraint on session.start_at/end_at to enforce 24
+                # hour max duration.
                 .order_by(
                     # Order by:
                     # 1. Projects with schedule (start_at is None == False),
@@ -547,12 +548,11 @@ class SearchView(ClassView):
             return redirect(url_for('index'))
         if stype is None or stype not in search_types:
             return {'type': None, 'counts': search_counts(squery)}
-        else:
-            return {
-                'type': stype,
-                'counts': search_counts(squery),
-                'results': search_results(squery, stype, page=page, per_page=per_page),
-            }
+        return {
+            'type': stype,
+            'counts': search_counts(squery),
+            'results': search_results(squery, stype, page=page, per_page=per_page),
+        }
 
 
 SearchView.init_app(app)
@@ -581,15 +581,14 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
             or search_types[stype].profile_query_filter is None
         ):
             return {'type': None, 'counts': search_counts(squery, profile=self.obj)}
-        else:
-            return {
-                'profile': self.obj.current_access(),
-                'type': stype,
-                'counts': search_counts(squery, profile=self.obj),
-                'results': search_results(
-                    squery, stype, page=page, per_page=per_page, profile=self.obj,
-                ),
-            }
+        return {
+            'profile': self.obj.current_access(),
+            'type': stype,
+            'counts': search_counts(squery, profile=self.obj),
+            'results': search_results(
+                squery, stype, page=page, per_page=per_page, profile=self.obj,
+            ),
+        }
 
 
 @route('/', subdomain='<profile>')
@@ -623,15 +622,14 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
             or search_types[stype].project_query_filter is None
         ):
             return {'type': None, 'counts': search_counts(squery, project=self.obj)}
-        else:
-            return {
-                'project': self.obj.current_access(),
-                'type': stype,
-                'counts': search_counts(squery, project=self.obj),
-                'results': search_results(
-                    squery, stype, page=page, per_page=per_page, project=self.obj,
-                ),
-            }
+        return {
+            'project': self.obj.current_access(),
+            'type': stype,
+            'counts': search_counts(squery, project=self.obj),
+            'results': search_results(
+                squery, stype, page=page, per_page=per_page, project=self.obj,
+            ),
+        }
 
 
 @route('/<project>/', subdomain='<profile>')
