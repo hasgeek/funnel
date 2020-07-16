@@ -10,6 +10,9 @@ from password_strength import PasswordPolicy
 
 __all__ = [
     'RESERVED_NAMES',
+    'password_policy',
+    'add_search_trigger',
+    'visual_field_delimiter',
     'add_search_trigger',
     'password_policy',
     'valid_name',
@@ -101,6 +104,8 @@ _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 # project documentation, but this is hard to achieve with memorised passwords. We use a
 # lower bar to start with, to learn from user behaviour and change as necessary.
 password_policy = PasswordPolicy.from_names(length=8, strength=(0.66, 20))
+
+visual_field_delimiter = ' ¦ '
 
 
 def valid_username(candidate):
