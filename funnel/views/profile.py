@@ -6,6 +6,7 @@ from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
+    UrlChangeCheck,
     UrlForView,
     get_next_url,
     render_with,
@@ -34,7 +35,7 @@ def feature_profile_make_public(obj):
 
 @Profile.views('main')
 @route('/<profile>')
-class ProfileView(ProfileViewMixin, UrlForView, ModelView):
+class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')

@@ -31,7 +31,8 @@ class TestUser(TestDatabaseFixture):
         crusoe = models.User.get(username='crusoe')
         # scenario 1: not a valid username
         number_one = models.User(username='number1', fullname='Number One')
-        assert number_one.is_valid_name('Number1') is False
+        assert number_one.is_valid_name('Number1') is True  # Mixed case is now allowed
+        assert number_one.is_valid_name('Number_1') is False  # Underscores are not
         # scenario 2: a valid username but not the username of instance passed
         assert crusoe.is_valid_name("oakley") is False
         # scenario 3: a existing username
