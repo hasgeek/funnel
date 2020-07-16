@@ -13,7 +13,7 @@ from pytz import utc
 
 from baseframe import __, get_locale, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum, buid, utcnow, valid_username
+from coaster.utils import LabeledEnum, buid, utcnow
 
 from ..utils import geonameid_from_location
 from . import (
@@ -27,7 +27,12 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
-from .helpers import RESERVED_NAMES, add_search_trigger, visual_field_delimiter
+from .helpers import (
+    RESERVED_NAMES,
+    add_search_trigger,
+    valid_name,
+    visual_field_delimiter,
+)
 from .profile import Profile
 from .user import User
 
@@ -603,7 +608,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @db.validates('name')
     def _validate_name(self, key, value):
         value = value.strip() if value is not None else None
-        if not value or not valid_username(value):
+        if not value or not valid_name(value):
             raise ValueError(value)
 
         if value != self.name and self.name is not None and self.profile is not None:

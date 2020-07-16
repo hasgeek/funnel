@@ -1,4 +1,5 @@
 from textwrap import dedent
+import re
 
 from sqlalchemy import DDL, event
 from sqlalchemy.dialects.postgresql.base import (
@@ -12,6 +13,10 @@ __all__ = [
     'password_policy',
     'add_search_trigger',
     'visual_field_delimiter',
+    'add_search_trigger',
+    'password_policy',
+    'valid_name',
+    'valid_username',
 ]
 
 
@@ -90,12 +95,31 @@ RESERVED_NAMES = {
     'www',
 }
 
+# re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.
+# https://docs.python.org/3/library/re.html#re.I
+_username_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.I | re.A)
+_name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
+
 # Strong passwords require a strength of at least 0.66 as per the password_strength
 # project documentation, but this is hard to achieve with memorised passwords. We use a
 # lower bar to start with, to learn from user behaviour and change as necessary.
 password_policy = PasswordPolicy.from_names(length=8, strength=(0.66, 20))
 
 visual_field_delimiter = ' ¦ '
+
+
+def valid_username(candidate):
+    """
+    Check if a username is valid. Letters, numbers and non-terminal hyphens only.
+    """
+    return not _username_valid_re.search(candidate) is None
+
+
+def valid_name(candidate):
+    """
+    Check if a name is valid. Lowercase letters, numbers and non-terminal hyphens only.
+    """
+    return not _name_valid_re.search(candidate) is None
 
 
 def pgquote(identifier):

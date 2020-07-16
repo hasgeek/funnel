@@ -168,7 +168,7 @@ class ParticipantView(UrlForView, ModelView):
         participant = (
             self.model.query.join(Project, Profile)
             .filter(
-                Profile.name == profile,
+                db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
                 Participant.uuid_b58 == participant,
             )
@@ -311,14 +311,18 @@ class EventParticipantCheckinView(ClassView):
         # event = (
         #     Event.query.join(Project, Profile)
         #     .filter(
-        #         Profile.name == profile, Project.name == project, Event.name == event
+        #         db.func.lower(Profile.name) == db.func.lower(profile),
+        #         Project.name == project,
+        #         Event.name == event,
         #     )
         #     .first_or_404()
         # )
         # participant = (
         #     Participant.query.join(Project, Profile)
         #     .filter(
-        #         Profile.name == profile, Project.name == project, Participant.puk == puk
+        #         db.func.lower(Profile.name) == db.func.lower(profile),
+        #         Project.name == project,
+        #         Participant.puk == puk,
         #     )
         #     .first_or_404()
         # )
