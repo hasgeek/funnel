@@ -111,7 +111,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             success=_(
                 "You have deleted organization ‘{title}’ and all its associated teams"
             ).format(title=self.obj.title),
-            next=url_for('OrgView_index'),
+            next=url_for('account'),
         )
 
     @route('<organization>/teams')
