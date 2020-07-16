@@ -36,8 +36,17 @@ timezones = sorted_timezones()
 
 
 def password_strength_validator(form, field):
+    user_inputs = []
+    if hasattr(form, 'fullname'):
+        user_inputs.append(form.fullname.data)
+    if hasattr(form, 'username'):
+        user_inputs.append(form.username.data)
+    if hasattr(form, 'email'):
+        user_inputs.append(form.email.data)
     # Test the candidate password
-    tested_password = password_policy.test_password(field.data)
+    tested_password = password_policy.test_password(
+        field.data, user_inputs=user_inputs if user_inputs else None
+    )
     # Stick password strength into the form for logging in the view and possibly
     # rendering into UI
     form.password_strength = float(tested_password['score'])
