@@ -68,10 +68,7 @@ class OrganizationForm(forms.Form):
                         ).format(account=url_for('account'))
                     )
                 )
-            else:
-                raise forms.ValidationError(
-                    _("This name has been taken by another user")
-                )
+            raise forms.ValidationError(_("This name has been taken by another user"))
         if reason == 'org':
             raise forms.ValidationError(
                 _("This name has been taken by another organization")
