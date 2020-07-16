@@ -116,6 +116,8 @@ class TestOrganization(TestDatabaseFixture):
         with self.assertRaises(ValueError):
             insurgent.name = '35453496*%&^$%^'
         with self.assertRaises(ValueError):
-            insurgent.name = 'Insurgent'
+            insurgent.name = '-Insurgent'
         insurgent.name = 'insurgent'
         self.assertEqual(insurgent.name, 'insurgent')
+        insurgent.name = 'Insurgent'
+        self.assertEqual(insurgent.name, 'Insurgent')

@@ -171,7 +171,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
             .filter(
                 OrganizationMembership.uuid_b58 == membership,
                 OrganizationMembership.organization_id == Profile.organization_id,
-                Profile.name == profile,
+                db.func.lower(Profile.name) == db.func.lower(profile),
             )
             .first_or_404()
         )
@@ -304,7 +304,7 @@ OrganizationMembershipView.init_app(app)
 
 @Project.views('crew')
 @route('/<profile>/<project>/crew')
-class ProjectMembershipView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET', 'POST'])
@@ -438,7 +438,7 @@ class ProjectCrewMembershipMixin(object):
         obj = (
             self.model.query.join(Project, Profile)
             .filter(
-                Profile.name == profile,
+                db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
                 ProjectCrewMembership.uuid_b58 == membership,
             )
