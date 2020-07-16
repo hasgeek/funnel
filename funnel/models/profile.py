@@ -5,7 +5,12 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
-from .helpers import RESERVED_NAMES, add_search_trigger, valid_username
+from .helpers import (
+    RESERVED_NAMES,
+    add_search_trigger,
+    valid_username,
+    visual_field_delimiter,
+)
 from .user import Organization, User
 from .utils import do_migrate_instances
 
@@ -94,7 +99,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 weights={'name': 'A', 'description_text': 'B'},
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
-                    ' / ', Profile.title, Profile.description_html
+                    visual_field_delimiter, Profile.title, Profile.description_html
                 ),
             ),
             nullable=False,
