@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 
-from password_strength import PasswordPolicy
+from zxcvbn import zxcvbn
 
 __all__ = ['RESERVED_NAMES', 'password_policy', 'add_search_trigger']
 
@@ -85,10 +85,31 @@ RESERVED_NAMES = {
     'www',
 }
 
-# Strong passwords require a strength of at least 0.66 as per the password_strength
+# Strong passwords require a strength of at least 3 as per the zxcvbn
 # project documentation, but this is hard to achieve with memorised passwords. We use a
-# lower bar to start with, to learn from user behaviour and change as necessary.
-password_policy = PasswordPolicy.from_names(length=8, strength=(0.4, 20))
+# lower bar of 2 to start with, to learn from user behaviour and change as necessary.
+
+
+class PasswordPolicy:
+    def __init__(self, min_length, min_score):
+        self.min_length = min_length
+        self.min_score = min_score
+
+    def test_password(self, password, user_inputs=None):
+        result = zxcvbn(password, user_inputs)
+        return {
+            'is_weak': (
+                len(password) < self.min_length
+                or result['score'] < self.min_score
+                or bool(result['feedback']['warning'])
+            ),
+            'score': result['score'],
+            'warning': result['feedback']['warning'],
+            'suggestions': result['feedback']['suggestions'],
+        }
+
+
+password_policy = PasswordPolicy(min_length=8, min_score=3)
 
 
 def pgquote(identifier):
