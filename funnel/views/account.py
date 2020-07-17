@@ -79,14 +79,41 @@ def password_policy_check():
     policy_form.form_nonce.data = policy_form.form_nonce.default()
 
     if policy_form.validate_on_submit():
-        tested_password = password_policy.password(policy_form.candidate.data)
-        failed_tests = tested_password.test()
+        user_inputs = []
+
+        if current_auth.user:
+            if current_auth.user.fullname:
+                user_inputs.append(current_auth.user.fullname)
+
+            for useremail in current_auth.user.emails:
+                user_inputs.append(str(useremail))
+            for emailclaim in current_auth.user.emailclaims:
+                user_inputs.append(str(emailclaim))
+
+            for userphone in current_auth.user.phones:
+                user_inputs.append(str(userphone))
+            for phoneclaim in current_auth.user.phoneclaims:
+                user_inputs.append(str(phoneclaim))
+
+        tested_password = password_policy.test_password(
+            policy_form.candidate.data,
+            user_inputs=user_inputs if user_inputs else None,
+        )
         return {
             'status': 'ok',
             'result': {
-                'strength': float(tested_password.strength()),
-                'is_weak': bool(failed_tests),
-                'failed_tests': [repr(t) for t in failed_tests],
+                # zxcvbn scores are 0-4, frond-end expects strength value from 0.0-1.0.
+                # Keeping the backend score to backend will let us switch strength
+                # calculations later on.
+                'strength': tested_password['score'] / 4.0,
+                'is_weak': tested_password['is_weak'],
+                'strength_verbose': (
+                    _("Weak password")
+                    if tested_password['is_weak']
+                    else _("Strong password")
+                ),
+                'warning': tested_password['warning'],
+                'suggestions': tested_password['suggestions'],
             },
         }
     return (
