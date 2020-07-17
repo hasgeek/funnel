@@ -232,7 +232,7 @@ class TicketTypeView(UrlForView, ModelView):
         ticket_type = (
             self.model.query.join(Project, Profile)
             .filter(
-                Profile.name == profile,
+                db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
                 TicketType.name == name,
             )
@@ -315,7 +315,7 @@ class TicketClientView(UrlForView, ModelView):
         ticket_client = (
             self.model.query.join(Project, Profile)
             .filter(
-                Profile.name == profile,
+                db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
                 TicketClient.id == client_id,
             )

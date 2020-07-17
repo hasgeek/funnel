@@ -5,6 +5,7 @@ from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
+    UrlChangeCheck,
     UrlForView,
     get_next_url,
     requires_permission,
@@ -22,7 +23,7 @@ from .helpers import requires_login
 
 @Organization.views('main')
 @route('/organizations')
-class OrgView(UrlForView, ModelView):
+class OrgView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Organization
     # Map <organization> in URL to attribute `name`, for `url_for` automation
@@ -110,7 +111,7 @@ class OrgView(UrlForView, ModelView):
             success=_(
                 "You have deleted organization ‘{title}’ and all its associated teams"
             ).format(title=self.obj.title),
-            next=url_for('OrgView_index'),
+            next=url_for('account'),
         )
 
     @route('<organization>/teams')
@@ -140,7 +141,7 @@ OrgView.init_app(app)
 
 @Team.views('main')
 @route('/organizations/<organization>/teams/<team>')
-class TeamView(UrlForView, ModelView):
+class TeamView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Team
     route_model_map = {  # Map <name> and <buid> in URLs to model attributes, for `url_for` automation

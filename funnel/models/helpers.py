@@ -1,4 +1,5 @@
 from textwrap import dedent
+import re
 
 from sqlalchemy import DDL, event
 from sqlalchemy.dialects.postgresql.base import (
@@ -7,7 +8,16 @@ from sqlalchemy.dialects.postgresql.base import (
 
 from zxcvbn import zxcvbn
 
-__all__ = ['RESERVED_NAMES', 'password_policy', 'add_search_trigger']
+__all__ = [
+    'RESERVED_NAMES',
+    'password_policy',
+    'add_search_trigger',
+    'visual_field_delimiter',
+    'add_search_trigger',
+    'password_policy',
+    'valid_name',
+    'valid_username',
+]
 
 
 RESERVED_NAMES = {
@@ -108,6 +118,28 @@ class PasswordPolicy:
 # Strong passwords require a strength of at least 3 as per the zxcvbn
 # project documentation.
 password_policy = PasswordPolicy(min_length=8, min_score=3)
+
+# re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.
+# https://docs.python.org/3/library/re.html#re.I
+_username_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.I | re.A)
+_name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
+
+
+visual_field_delimiter = ' ¦ '
+
+
+def valid_username(candidate):
+    """
+    Check if a username is valid. Letters, numbers and non-terminal hyphens only.
+    """
+    return not _username_valid_re.search(candidate) is None
+
+
+def valid_name(candidate):
+    """
+    Check if a name is valid. Lowercase letters, numbers and non-terminal hyphens only.
+    """
+    return not _name_valid_re.search(candidate) is None
 
 
 def pgquote(identifier):
