@@ -562,13 +562,13 @@
       <div class="mui-container">
         <div class="grid projects">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{{ title }}</h2>
+            <h2 class="mui--text-headline mui--text-bold project-headline" v-if="pastprojects.length">{{ title }}</h2>
           </div>
           <div class="grid__col-12 mui-table--responsive-wrapper">
             <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
               <thead class="mui--bg-primary-light">
                 <tr>
-                  <th class="mui--text-subhead mui--text-capitalize" v-for='heading in headings'>{{ heading }}</th>
+                  <th class="mui--text-subhead mui--text-capitalize" v-for="heading in headings" v-if="pastprojects.length">{{ heading }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -599,9 +599,9 @@
   <div class="mui-dropdown mui--d-inlineblock">
     <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="admin-dropdown">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
     <ul class="mui-dropdown__menu mui-dropdown__menu--right">
-      <li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>
+      {%- if profile.organization %}<li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>{% endif %}
       <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>
-      <li><a href="#make-private-modal" rel="modal:open">{% trans %}Make profile private{% endtrans %}</a></li>
+      {%- if profile.features.new_project() %}<li><a href="#make-private-modal" rel="modal:open">{% trans %}Make profile private{% endtrans %}</a></li>{% endif %}
     </ul>
   </div>
   <div class="modal" id="make-private-modal">
@@ -661,9 +661,8 @@
           <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
             {% if profile.features.new_project()  %}
               <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
-              <div class="mui--d-inlineblock">{{ profile_admin_buttons(profile) }}</div>
             {% elif profile.features.make_public() %}
-              <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
+              <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
               <div class="modal" id="make-public-modal">
                 <div class="modal__header">
                   <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
@@ -682,6 +681,9 @@
                 </div>
               </div>
             {% endif %}
+            {%- if profile.current_roles.admin %}
+              <div class="mui--d-inlineblock">{{ profile_admin_buttons(profile) }}</div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -697,10 +699,12 @@
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
           {% if profile.features.new_project()  %}
-            <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></p>
-            {{ profile_admin_buttons(profile) }}
+            <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
           {% elif profile.features.make_public() %}
-            <a class="mui-btn mui-btn--raised mui-btn--primary  mui--d-block" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
+            <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
+          {% endif %}
+          {%- if profile.current_roles.admin %}
+            {{ profile_admin_buttons(profile) }}</p>
           {% endif %}
         </div>
       </div>
@@ -708,8 +712,10 @@
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}All projects{% endtrans %}</a>
-      {%- if profile.current_roles.admin %}<a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>{% endif %}
+      {% if profile.features.new_project()  %}
+        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}All projects{% endtrans %}</a>
+      {% endif %}
+      {%- if profile.current_roles.admin and profile.organization %}<a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>{% endif %}
     </nav>
   </div>
 </div>
