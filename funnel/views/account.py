@@ -82,7 +82,7 @@ def password_policy_check():
         tested_password = password_policy.test_password(
             policy_form.candidate.data,
             user_inputs=(
-                [current_auth.user.fullname, current_auth.user.email]
+                [current_auth.user.fullname, str(current_auth.user.email)]
                 if current_auth.user
                 else None
             ),
