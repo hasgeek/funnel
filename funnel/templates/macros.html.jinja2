@@ -334,13 +334,10 @@
 
 {% macro account_tabs(active_tab='account') %}
   <div class="tabs" id="jquery-scroll-tabs">
-    <a class="tabs__item tabs__item-control tabs__item-control--prev mui--text-light js-scroll-prev" aria-label="{% trans %}Previous{% endtrans %}" href="javascript:void(0)"  data-target="prev tab" role="button"  data-action="Previous(tab)">{{ faicon(icon='chevron-left', icon_size='headline') }}</a>
     <a {% if active_tab != 'account' %}href="{{ url_for('account') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase  {% if active_tab == 'account' %}tabs__item--active{%- endif %}">{% trans %}Account{% endtrans %}</a>
     <a {% if active_tab != 'saved' %}href="{{ url_for('saved') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'saved' %}tabs__item--active{%- endif %}">{% trans %}My saves{% endtrans %}</a>
     <a {% if active_tab != 'scan' %}href="{{ url_for('scan_contact') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'scan' %}tabs__item--active{%- endif %}">{% trans %}Scan badge{% endtrans %}</a>
     <a {% if active_tab != 'contacts' %}href="{{ url_for('contacts') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'contacts' %}tabs__item--active{%- endif %}">{% trans %}Contacts{% endtrans %}</a>
-    <a class="tabs__item tabs__item-control tabs__item-control--next mui--text-light js-scroll-next" aria-label="{% trans %}Next{% endtrans %}" href="javascript:void(0)"  data-target="next tab" role="button" data-action="Next(tab)">{{ faicon(icon='chevron-right', icon_size='headline') }}
-    </a>
   </div>
 {% endmacro %}
 

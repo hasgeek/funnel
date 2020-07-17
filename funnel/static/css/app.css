@@ -886,12 +886,23 @@ a.loginbutton.hidden,
     .header__site-title__title
     .header__nav-links__dropdown {
     margin-top: 13px;
+    right: 0;
+    left: auto;
   }
   .hg-app .content-wrapper {
     padding-top: 50px;
   }
 }
 @media (min-width: 1200px) {
+  .hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
+    .header__nav-links__dropdown {
+    right: auto;
+    left: 0;
+  }
   .hg-app
     .header--fixed
     .header__nav
@@ -1101,7 +1112,7 @@ a.loginbutton.hidden,
     position: sticky;
     top: 50px;
     order: 1;
-    z-index: 1000;
+    z-index: 2;
   }
 
   .sub-navbar {
@@ -1182,8 +1193,8 @@ a.loginbutton.hidden,
   order: 1;
   top: 0;
   z-index: 1000;
-  width: calc(100% - 103px);
-  left: 52px;
+  width: 100%;
+  left: 0;
 }
 .tabs-wrapper--sticky .grid__col-12 {
   padding-left: 0;
@@ -1193,7 +1204,7 @@ a.loginbutton.hidden,
 .tabs {
   display: flex;
   width: 100%;
-  overflow: scroll;
+  overflow: auto;
   align-items: center;
 }
 .tabs .tabs__item {
@@ -1278,6 +1289,14 @@ a.loginbutton.hidden,
 
 .mui-btn--strike:hover {
   text-decoration: line-through;
+}
+
+.page-with-banner .alert-wrapper {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  left: 0;
+  right: 0;
 }
 
 .projects-wrapper {
