@@ -79,13 +79,25 @@ def password_policy_check():
     policy_form.form_nonce.data = policy_form.form_nonce.default()
 
     if policy_form.validate_on_submit():
+        user_inputs = []
+
+        if current_auth.user:
+            if current_auth.user.fullname:
+                user_inputs.append(current_auth.user.fullname)
+
+            for useremail in current_auth.user.emails:
+                user_inputs.append(str(useremail))
+            for emailclaim in current_auth.user.emailclaims:
+                user_inputs.append(str(emailclaim))
+
+            for userphone in current_auth.user.phones:
+                user_inputs.append(str(userphone))
+            for phoneclaim in current_auth.user.phoneclaims:
+                user_inputs.append(str(phoneclaim))
+
         tested_password = password_policy.test_password(
             policy_form.candidate.data,
-            user_inputs=(
-                [current_auth.user.fullname, str(current_auth.user.email)]
-                if current_auth.user
-                else None
-            ),
+            user_inputs=user_inputs if user_inputs else None,
         )
         return {
             'status': 'ok',
