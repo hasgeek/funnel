@@ -147,6 +147,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'admin'})
     def edit(self):
         form = ProfileForm(obj=self.obj, model=Profile)
+        if self.obj.user:
+            form.make_for_user()
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()

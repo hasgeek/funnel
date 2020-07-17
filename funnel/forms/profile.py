@@ -36,6 +36,17 @@ class ProfileForm(OrganizationForm):
         ],
     )
 
+    def make_for_user(self):
+        self.title.label.text = __("Your name")
+        self.title.description = __(
+            "Your full name, in the form others can recognise you by"
+        )
+        self.name.description = __(
+            "A short name for mentioning you with @username, and the URL to your profile page."
+            " Single word containing letters, numbers and dashes only. Pick something"
+            " permanent: changing it will break existing links from around the web"
+        )
+
 
 @Profile.forms('transition')
 class ProfileTransitionForm(forms.Form):
