@@ -72,6 +72,22 @@ def blake2b_b58(text):
         abort(400)  # Parameter isn't valid Base58
 
 
+@User.views()
+def emails_sorted(obj):
+    """Sorted list of email addresses, for account page UI"""
+    primary = obj.primary_email
+    items = sorted(obj.emails, key=lambda i: (i != primary, i.email))
+    return items
+
+
+@User.views()
+def phones_sorted(obj):
+    """Sorted list of email addresses, for account page UI"""
+    primary = obj.primary_phone
+    items = sorted(obj.phones, key=lambda i: (i != primary, i.phone))
+    return items
+
+
 @app.route('/api/1/password/policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check():
