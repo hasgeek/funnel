@@ -194,9 +194,9 @@
                     From {{ ipaddr }} since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
                 {%- endtrans %}
                 {%- if user_session == current_auth.session %}
-                  {% trans %}(current){% endtrans %}
+                  <span title="{% trans %}Current{% endtrans %}" class="mui--pull-right">{{ faicon(icon='check', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</span>
                 {%- else %}
-                  <a href="{{ url_for('logout_session', user_session=user_session.buid) }}" title="logout">{% trans %}(logout){% endtrans %}</a>
+                  <a href="{{ url_for('logout_session', user_session=user_session.buid) }}" title="{% trans %}Logout{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 {%- endif -%}
                 </li>
               {%- endwith %}
