@@ -27,6 +27,7 @@ from .. import app, funnelapp, lastuserapp
 from ..forms import (
     AccountForm,
     EmailPrimaryForm,
+    LogoutForm,
     ModeratorReportForm,
     NewEmailAddressForm,
     NewPhoneForm,
@@ -151,6 +152,7 @@ class AccountView(ClassView):
     @requires_login
     @render_with('account.html.jinja2')
     def account(self):
+        logout_form = LogoutForm(user=current_auth.user)
         primary_email_form = EmailPrimaryForm()
         primary_phone_form = PhonePrimaryForm()
         service_forms = {}
@@ -159,6 +161,7 @@ class AccountView(ClassView):
                 service_forms[service] = provider.get_form()
         return {
             'user': current_auth.user.current_access(),
+            'logout_form': logout_form,
             'primary_email_form': primary_email_form,
             'primary_phone_form': primary_phone_form,
             'service_forms': service_forms,

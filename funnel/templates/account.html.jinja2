@@ -45,11 +45,14 @@
             </p>
           </div>
           <div class="mui-divider"></div>
-          <div class="card__footer">
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
-            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('change_password') }}" data-cy="change-password">{% trans %}Change password{% endtrans %}</a>
-             <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('logout') }}" title="Logout" data-cy="Logout">{% trans %}Logout{% endtrans %}</a>
-          </div>
+          <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
+            {{ logout_form.hidden_tag() }}
+            <div class="card__footer">
+              <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
+              <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('change_password') }}" data-cy="change-password">{% trans %}Change password{% endtrans %}</a>
+              <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" data-cy="Logout">{% trans %}Logout{% endtrans %}</button>
+            </div>
+          </form>
         </div>
       </div>
       <div class="grid__col-xs-12 grid__col-sm-6">
@@ -179,30 +182,33 @@
           <div class="card__header">
             <h3 class="mui--text-title mui--text-bold">{% trans %}Login sessions{% endtrans %}</h3>
           </div>
-          <div class="card__body">
-            <ul class="mui-list--aligned mui-list--unstyled mui--text-subhead mui-list--border">
-              {%- for user_session in current_auth.user.active_sessions %}
-              {%- with ua=user_session.user_agent_details() %}
-                <li>
-                  {%- trans
-                      ipaddr=user_session.ipaddr,
-                      user_agent=user_session.user_agent,
-                      since=user_session.created_at|age,
-                      browser=ua['browser'],
-                      os_device=ua['os_device'],
-                      last_active=user_session.accessed_at|age -%}
-                    From {{ ipaddr }} since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
-                {%- endtrans %}
-                {%- if user_session == current_auth.session %}
-                  <span title="{% trans %}Current{% endtrans %}" class="mui--pull-right">{{ faicon(icon='check', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</span>
-                {%- else %}
-                  <a href="{{ url_for('logout_session', user_session=user_session.buid) }}" title="{% trans %}Logout{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
-                {%- endif -%}
-                </li>
-              {%- endwith %}
-              {%- endfor %}
-            </ul>
-          </div>
+          <form action="{{ url_for('account_logout') }}" method="POST" id="logout-session-form">
+            {{ logout_form.hidden_tag() }}
+            <div class="card__body">
+              <ul class="mui-list--aligned mui-list--unstyled mui--text-subhead mui-list--border">
+                {%- for user_session in current_auth.user.active_sessions %}
+                {%- with ua=user_session.user_agent_details() %}
+                  <li>
+                    {%- trans
+                        ipaddr=user_session.ipaddr,
+                        user_agent=user_session.user_agent,
+                        since=user_session.created_at|age,
+                        browser=ua['browser'],
+                        os_device=ua['os_device'],
+                        last_active=user_session.accessed_at|age -%}
+                      From {{ ipaddr }} since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
+                  {%- endtrans %}
+                  {%- if user_session == current_auth.session %}
+                    <span title="{% trans %}Current{% endtrans %}" class="mui--pull-right">{{ faicon(icon='check', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</span>
+                  {%- else %}
+                    <button type="submit" name="sessionid" value="{{ user_session.buid }}" title="{% trans %}Logout{% endtrans %}" class="mui--pull-right mui-btn--small mui-btn mui-btn--flat">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</button>
+                  {%- endif -%}
+                  </li>
+                {%- endwith %}
+                {%- endfor %}
+              </ul>
+            </div>
+          </form>
         </div>
       </div>
     </div>
