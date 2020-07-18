@@ -3,6 +3,7 @@ from collections import Counter
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 import base58
+import geoip2.errors
 
 from baseframe import _
 from baseframe.forms import (
@@ -48,6 +49,7 @@ from ..models import (
     UserExternalId,
     UserPhone,
     UserPhoneClaim,
+    UserSession,
     db,
     password_policy,
 )
@@ -87,6 +89,31 @@ def phones_sorted(obj):
     primary = obj.primary_phone
     items = sorted(obj.phones, key=lambda i: (i != primary, i.phone))
     return items
+
+
+@UserSession.views('location')
+def user_session_location(obj):
+    if not app.geoip_city or not app.geoip_asn:
+        return _("unknown location")
+    try:
+        city_lookup = app.geoip_city.city(obj.ipaddr)
+        asn_lookup = app.geoip_asn.asn(obj.ipaddr)
+    except geoip2.errors.GeoIP2Error:
+        return _("unknown location")
+
+    # ASN is not ISP, but GeoLite2 only has an ASN database. The ISP db is commercial.
+    return (
+        ((city_lookup.city.name + ", ") if city_lookup.city.name else '')
+        + (
+            (city_lookup.subdivisions.most_specific.iso_code + ", ")
+            if city_lookup.subdivisions.most_specific.iso_code
+            else ''
+        )
+        + ((city_lookup.country.name + "; ") if city_lookup.country.name else '')
+        + (asn_lookup.autonomous_system_organization or _("unknown ISP"))
+        + " – "
+        + _("estimated")
+    )
 
 
 @app.route('/api/1/password/policy', methods=['POST'])
