@@ -240,6 +240,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'title',
                 'title_inline',
                 'short_title',
+                'title_suffix',
                 'tagline',
                 'datelocation',
                 'timezone',
@@ -382,6 +383,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
                 return self.title + ':'
         return self.title
+
+    @property
+    def title_suffix(self):
+        """Return the profile's title if the project's title doesn't derive from it."""
+        if not self.title.startswith(self.parent.title):
+            return self.profile.title
+        return ''
 
     @cached_property
     def datelocation(self):
