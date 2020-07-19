@@ -116,6 +116,12 @@ def user_session_location(obj):
     )
 
 
+@UserSession.views('login_service')
+def user_session_login_service(obj):
+    if obj.login_service in login_registry:
+        return login_registry[obj.login_service].title
+
+
 @app.route('/api/1/password/policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check():
@@ -566,7 +572,7 @@ def change_password():
         for user_session in user.active_sessions.all():
             user_session.revoke()
         # 3. Create a new session and continue without disrupting user experience
-        login_internal(user)
+        login_internal(user, login_service='password')
         db.session.commit()
         flash(_("Your new password has been saved"), category='success')
         # If the user was sent here from login because of a weak password, the next

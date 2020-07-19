@@ -447,14 +447,14 @@ def requires_client_id_or_user_or_client_login(f):
     return decorated_function
 
 
-def login_internal(user, user_session=None):
+def login_internal(user, user_session=None, login_service=None):
     """
     Login a user and create a session. If the login is from funnelapp, reuse the
     existing session.
     """
     add_auth_attribute('user', user)
     if not user_session or user_session.user != user:
-        user_session = UserSession(user=user)
+        user_session = UserSession(user=user, login_service=login_service)
     user_session.access()
     add_auth_attribute('session', user_session)
     current_auth.cookie['sessionid'] = user_session.buid

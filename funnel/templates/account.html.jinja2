@@ -187,18 +187,31 @@
             <div class="card__body">
               <ul class="mui-list--aligned mui-list--unstyled mui--text-subhead mui-list--border">
                 {%- for user_session in current_auth.user.active_sessions %}
-                {%- with ua=user_session.user_agent_details() %}
+                {%- with ua=user_session.user_agent_details(), login_service=user_session.views.login_service() %}
                   <li>
-                    {%- trans
-                        ipaddr=user_session.ipaddr,
-                        location=user_session.views.location(),
-                        user_agent=user_session.user_agent,
-                        since=user_session.created_at|age,
-                        browser=ua['browser'],
-                        os_device=ua['os_device'],
-                        last_active=user_session.accessed_at|age -%}
-                      From {{ ipaddr }} ({{ location }}) since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
-                  {%- endtrans %}
+                    {%- if login_service %}
+                      {%- trans
+                          ipaddr=user_session.ipaddr,
+                          location=user_session.views.location(),
+                          user_agent=user_session.user_agent,
+                          since=user_session.created_at|age,
+                          browser=ua['browser'],
+                          os_device=ua['os_device'],
+                          last_active=user_session.accessed_at|age -%}
+                        From {{ ipaddr }} ({{ location }}) via {{ login_service }} since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
+                      {%- endtrans %}
+                    {%- else %}
+                      {%- trans
+                          ipaddr=user_session.ipaddr,
+                          location=user_session.views.location(),
+                          user_agent=user_session.user_agent,
+                          since=user_session.created_at|age,
+                          browser=ua['browser'],
+                          os_device=ua['os_device'],
+                          last_active=user_session.accessed_at|age -%}
+                        From {{ ipaddr }} ({{ location }}) since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
+                      {%- endtrans %}
+                    {%- endif %}
                   {%- if user_session == current_auth.session %}
                     <span title="{% trans %}Current{% endtrans %}" class="mui--pull-right">{{ faicon(icon='check', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</span>
                   {%- else %}

@@ -118,7 +118,7 @@ def login():
             )
             if success:
                 user = loginform.user
-                login_internal(user)
+                login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
                     current_app.logger.info(
@@ -325,7 +325,7 @@ def register():
         useremail = UserEmailClaim(user=user, email=form.email.data)
         db.session.add(useremail)
         send_email_verify_link(useremail)
-        login_internal(user)
+        login_internal(user, login_service='password')
         db.session.commit()
         flash(_("You are now one of us. Welcome aboard!"), category='success')
         return redirect(get_next_url(session=True), code=303)
@@ -664,7 +664,7 @@ def login_service_postcallback(service, userdata):
         user.fullname = userdata['fullname']
 
     if not current_auth:  # If a user isn't already logged in, login now.
-        login_internal(user)
+        login_internal(user, login_service=service)
         flash(
             _("You have logged in via {service}").format(
                 service=login_registry[service].title
@@ -705,7 +705,12 @@ def account_merge():
         if 'merge' in request.form:
             new_user = merge_users(current_auth.user, other_user)
             if new_user:
-                login_internal(new_user)
+                login_internal(
+                    new_user,
+                    login_service=current_auth.session.login_service
+                    if current_auth.session
+                    else None,
+                )
                 flash(_("Your accounts have been merged"), 'success')
                 session.pop('merge_buid', None)
                 db.session.commit()
