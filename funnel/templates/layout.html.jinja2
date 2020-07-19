@@ -2,15 +2,14 @@
 {% from "baseframe/components.html.jinja2" import hgtopnav, faicon %}
 
 {%- block titletags %}
-  <title>{% block titleblock %}{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}{%- endblock %}</title>
+  <title>{% block titleblock %}{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif title_suffix == '' %}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}{%- endblock %}</title>
   <meta name="DC.title" content="{{ self.titleblock()|e }}" />
   <meta property="og:title" content="{{ self.titleblock()|e }}" />
   <meta property="og:type" content="website" />
   <meta name="twitter:title" content="{{ self.titleblock()|e }}" />
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="{% block twitter_card %}summary{% endblock %}" />
   <meta name="twitter:site" content="@hasgeek" />
-  <meta property="twitter:description" content="{{ self.description() }}" />
-  <link rel="preconnect" crossorigin href="https://fonts.googleapis.com/">
+  <meta name="twitter:description" content="{{ self.description() }}" />
   <link rel="preconnect" crossorigin href="https://ajax.googleapis.com/">
   <link rel="preconnect" crossorigin href="https://imgee.s3.amazonaws.com/">
   <link rel="preconnect" crossorigin href="https://images.hasgeek.com/">
@@ -43,8 +42,6 @@
     <meta name="twitter:image" content="{{ url_for('static', filename='img/funnel-banner.png', _external=true) }}">
   {% endif -%}
 {%- endblock %}
-
-
 
 {%- block layoutheaders %}
   {%- if not config['LEGACY'] -%}
