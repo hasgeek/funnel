@@ -447,7 +447,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # and doesn't use an index in PostgreSQL. There's a functional index for lower()
         # defined above in __table_args__ that also applies to LIKE lower(val) queries.
 
-        if like_query == '%':
+        if like_query == '%' or like_query == '@%':
             return []
 
         # base_users is used in two of the three possible queries below
