@@ -244,13 +244,22 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super().roles_for(actor, anchors)
+        project_roles = (
+            self.project.roles_for(actor) if self.project is not None else set()
+        )
+        profile_roles = (
+            self.profile.roles_for(actor) if self.profile is not None else set()
+        )
+
         if self.visibility_state.RESTRICTED:
-            if self.project is not None and (
-                'participant' in self.project.roles_for(actor)
-            ):
-                roles.add('reader')
-            elif self.profile is not None and 'admin' in self.profile.roles_for(actor):
+            if 'participant' in project_roles or 'admin' in profile_roles:
                 roles.add('reader')
         else:
             roles.add('reader')
+
+        if 'editor' in project_roles:
+            roles.add('editor')
+        if 'admin' in profile_roles:
+            roles.add('admin')
+
         return roles
