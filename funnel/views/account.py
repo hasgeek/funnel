@@ -31,6 +31,7 @@ from ..forms import (
     NewEmailAddressForm,
     NewPhoneForm,
     PasswordChangeForm,
+    PasswordPolicyForm,
     PasswordResetForm,
     PhonePrimaryForm,
     VerifyEmailForm,
@@ -73,18 +74,57 @@ def blake2b_b58(text):
 
 @app.route('/api/1/password/policy', methods=['POST'])
 @render_with(json=True)
-@requestargs('candidate')
-def password_policy_check(candidate):
-    tested_password = password_policy.password(candidate)
-    failed_tests = tested_password.test()
-    return {
-        'status': 'ok',
-        'result': {
-            'strength': float(tested_password.strength()),
-            'is_weak': bool(failed_tests),
-            'failed_tests': [repr(t) for t in failed_tests],
+def password_policy_check():
+    policy_form = PasswordPolicyForm()
+    policy_form.form_nonce.data = policy_form.form_nonce.default()
+
+    if policy_form.validate_on_submit():
+        user_inputs = []
+
+        if current_auth.user:
+            if current_auth.user.fullname:
+                user_inputs.append(current_auth.user.fullname)
+
+            for useremail in current_auth.user.emails:
+                user_inputs.append(str(useremail))
+            for emailclaim in current_auth.user.emailclaims:
+                user_inputs.append(str(emailclaim))
+
+            for userphone in current_auth.user.phones:
+                user_inputs.append(str(userphone))
+            for phoneclaim in current_auth.user.phoneclaims:
+                user_inputs.append(str(phoneclaim))
+
+        tested_password = password_policy.test_password(
+            policy_form.candidate.data,
+            user_inputs=user_inputs if user_inputs else None,
+        )
+        return {
+            'status': 'ok',
+            'result': {
+                # zxcvbn scores are 0-4, frond-end expects strength value from 0.0-1.0.
+                # Keeping the backend score to backend will let us switch strength
+                # calculations later on.
+                'strength': tested_password['score'] / 4.0,
+                'is_weak': tested_password['is_weak'],
+                'strength_verbose': (
+                    _("Weak password")
+                    if tested_password['is_weak']
+                    else _("Strong password")
+                ),
+                'warning': tested_password['warning'],
+                'suggestions': tested_password['suggestions'],
+            },
+        }
+    return (
+        {
+            'status': 'error',
+            'error_code': 'policy_form_error',
+            'error_description': _("Something went wrong. Please reload and try again"),
+            'error_details': policy_form.errors,
         },
-    }
+        400,
+    )
 
 
 @route('/account')
@@ -364,7 +404,8 @@ def account_edit(newprofile=False):
                     " out your profile"
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
-            ajax=True,
+            ajax=False,
+            template='account_formlayout.html.jinja2',
         )
     else:
         return render_form(
@@ -372,8 +413,8 @@ def account_edit(newprofile=False):
             title=_("Edit profile"),
             formid='account_edit',
             submit=_("Save changes"),
-            ajax=True,
-            cancel_url=url_for('account') if not newprofile else None,
+            ajax=False,
+            template='account_formlayout.html.jinja2',
         )
 
 
@@ -492,10 +533,10 @@ def change_password():
     return render_form(
         form=form,
         title=_("Change password"),
-        formid='changepassword',
+        formid='password-change',
         submit=_("Change password"),
-        cancel_url=url_for('account'),
-        ajax=True,
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -522,7 +563,8 @@ def add_email():
         title=_("Add an email address"),
         formid='email_add',
         submit=_("Add email"),
-        ajax=True,
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -649,7 +691,7 @@ def verify_email(email_hash):
         ),
         formid="email_verify",
         submit=_("Send"),
-        cancel_url=url_for('account'),
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -680,7 +722,8 @@ def add_phone():
         title=_("Add a phone number"),
         formid='phone_add',
         submit=_("Verify phone"),
-        ajax=True,
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 
@@ -775,7 +818,8 @@ def verify_phone(phoneclaim):
         title=_("Verify phone number"),
         formid='phone_verify',
         submit=_("Verify"),
-        ajax=True,
+        ajax=False,
+        template='account_formlayout.html.jinja2',
     )
 
 

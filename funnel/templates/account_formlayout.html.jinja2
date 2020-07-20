@@ -1,0 +1,158 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/mui/forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="login-page hg-app no-sticky-header">
+  {%- else %}
+    <body class="login-page no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block headline %}{% endblock %}
+
+{% block content %}
+  {%- if message %}
+    <p class="form-message">{{ message }}</p>
+  {%- endif %}
+
+  <div class="alert alert--error cookies-required-alert alert--dismissable">
+    <a class="alert__close" href="javascript:void(0);" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+    <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
+  </div>
+
+  <div class="login-page__box">
+    <div class="login-page__back">
+      <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+    </div>
+    {% block focuscontent %}
+      {% block beforeformcontent %}
+      {% endblock %}
+      {% block form %}
+        <h2 class="mui--text-headline login-page__box__heading mui--text-center">{{ title }}</h2>
+        {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
+      {% endblock %}
+      {% block afterformcontent %}
+      {% endblock %}
+    {% endblock %}
+  </div>
+{% endblock %}
+
+{% block layoutscripts %}
+  {{ widget_ext_scripts(form) }}
+  <script type="text/javascript">
+    $(function() {
+      {{ widgetscripts(form, script=false, ref_id=ref_id) }}
+    });
+  </script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      $('#{{ ref_id }}').parsley().subscribe('parsley:field:validated', function(){
+        if ($('#{{ ref_id }}').parsley().isValid())
+          $('#{{ ref_id }}').addClass('parsley-valid').removeClass('parsley-invalid');
+        else
+          $('#{{ ref_id }}').addClass('parsley-invalid').removeClass('parsley-valid');
+      });
+    })
+  </script>
+  {{ ajaxform(ref_id=ref_id, request=request, force=ajax) }}
+  <script type="text/javascript">
+    $(function() {
+      var typingTimer;
+      var typingWaitInterval = 100;
+      var waitingForResponse = false;
+      var ajaxTimeout = 15000;
+
+      $('#form-password-change input[type="password"]#password').on('change', function(e) {
+        checkPasswordStrength(this);
+      });
+
+      $('#form-password-change input[type="password"]#password').on('keydown', function(e) {
+        var field = this;
+        if(typingTimer) clearTimeout(typingTimer);
+        typingTimer = setTimeout(function() {
+          checkPasswordStrength(field);
+        }, typingWaitInterval);
+      });
+
+      function checkPasswordStrength(field) {
+        // FIXME: This function is getting called multiple times for same candidate
+        if(!waitingForResponse && $(field).val()) {
+          $.ajax({
+            type: 'POST',
+            url: '/api/1/password/policy',
+            dataType: 'json',
+            data: {
+              'candidate': $(field).val(),
+              'csrf_token': $("meta[name='csrf-token']").attr('content')
+            },
+            timeout: ajaxTimeout,
+            beforeSend: function() {
+              waitingForResponse = true;
+            },
+            success: function (remoteData) {
+              waitingForResponse = false;
+              if (remoteData.status == 'ok') {
+                $(field).parent().find('.progress').addClass('progress--show');
+                var widthPercentage = remoteData.result.strength*100 + '%';
+                $(field).parent().find('.progress__bar').css('width', widthPercentage);
+                $(field).parent().find('.progress__txt').text(remoteData.result.strength_verbose);
+                if (remoteData.result.is_weak) {
+                  $(field).parent().find('.progress__bar').removeClass('progress__bar--success').addClass('progress__bar--danger');
+                  $('#{{ ref_id }}').removeClass('password-valid');
+                  $(field).parent().find('.password-strength-icon').removeClass('password-strength-icon--show');
+                  $(field).parent().find('.js-password-weak').addClass('password-strength-icon--show');
+                } else {
+                  $('#{{ ref_id }}').addClass('password-valid');
+                  $(field).parent().find('.password-strength-icon').removeClass('password-strength-icon--show');
+                  $(field).parent().find('.js-password-good').addClass('password-strength-icon--show');
+                  $(field).parent().find('.progress__bar').removeClass('progress__bar--danger').addClass('progress__bar--success');
+                }
+              }
+            },
+            error: function (response) {
+              waitingForResponse = false;
+              var errorMsg = '';
+              if (response.readyState === 4) {
+                if (response.status === 500) {
+                  errorMsg ='Internal Server Error. Please reload and try again.';
+                } else {
+                  // There is a version mismatch, notify user to reload the page.
+                  waitingForResponse = true;
+                  errorMsg = JSON.parse(response.responseText).error_description;
+                }
+              } else {
+                errorMsg = 'Unable to connect. Please reload and try again.';
+              }
+              window.toastr.error(errorMsg);
+            }
+          });
+        }
+        else if(!$(field).val()) {
+          $(field).parent().find('.progress').removeClass('progress--show');
+        }
+      }
+
+      if($('#form-password-change').length) {
+
+        $('#form-password-change').find('button[type="submit"]').attr('disabled', true);
+        $('#form-password-change input[type="password"]#confirm_password').on('keydown', function(e) {
+          $(this).parsley().validate();
+        });
+
+        $('#form-password-change').parsley().subscribe('parsley:field:validated', function(){
+          if ($('#form-password-change').parsley().isValid() && $('#form-password-change').hasClass('password-valid')) {
+            $('#form-password-change').find('button[type="submit"]').attr('disabled', false);
+          }
+          else {
+            $('#form-password-change').find('button[type="submit"]').attr('disabled', true);
+          }
+        });
+      }
+    });
+  </script>
+  {% block footerscripts %}{% endblock %}
+{% endblock %}

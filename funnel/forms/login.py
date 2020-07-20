@@ -66,8 +66,8 @@ class LoginForm(forms.Form):
         # LoginPasswordWeakException after the test. The calling code in views/login.py
         # supports both outcomes.
 
-        # password_policy.test returns [] if no issues were found
-        self.weak_password = bool(password_policy.test(field.data))
+        # password_policy.test_password(<password>)['is_weak'] returns True/False
+        self.weak_password = password_policy.test_password(field.data)['is_weak']
 
 
 @User.forms('register')
