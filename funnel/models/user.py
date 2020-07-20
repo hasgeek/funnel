@@ -552,9 +552,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     #: New user account
     user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('oldids', cascade='all'),
+        User, foreign_keys=[user_id], backref=db.backref('oldids', cascade='all'),
     )
 
     def __repr__(self):
@@ -733,9 +731,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
     #: Organization
     organization_id = db.Column(None, db.ForeignKey('organization.id'), nullable=False)
     organization = db.relationship(
-        Organization,
-        primaryjoin=organization_id == Organization.id,
-        backref=db.backref('teams', order_by=title, cascade='all'),
+        Organization, backref=db.backref('teams', order_by=title, cascade='all'),
     )
     users = db.relationship(
         User, secondary=team_membership, lazy='dynamic', backref='teams'
@@ -793,11 +789,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     __email_is_exclusive__ = True
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('emails', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('emails', cascade='all'),)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
@@ -887,11 +879,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     __email_is_exclusive__ = False
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('emailclaims', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'),)
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
     blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
 
@@ -996,11 +984,7 @@ auto_init_default(UserEmailClaim.verification_code)
 class UserPhone(BaseMixin, db.Model):
     __tablename__ = 'user_phone'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('phones', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('phones', cascade='all'))
     _phone = db.Column('phone', db.UnicodeText, unique=True, nullable=False)
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
 
@@ -1078,11 +1062,7 @@ class UserPhone(BaseMixin, db.Model):
 class UserPhoneClaim(BaseMixin, db.Model):
     __tablename__ = 'user_phone_claim'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('phoneclaims', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'),)
     _phone = db.Column('phone', db.UnicodeText, nullable=False, index=True)
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
     verification_code = db.Column(db.Unicode(4), nullable=False, default=newpin)
@@ -1192,11 +1172,7 @@ class UserExternalId(BaseMixin, db.Model):
     __tablename__ = 'user_externalid'
     __at_username_services__ = []
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('externalids', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('externalids', cascade='all'),)
     service = db.Column(db.UnicodeText, nullable=False)
     userid = db.Column(db.UnicodeText, nullable=False)  # Unique id (or obsolete OpenID)
     username = db.Column(db.UnicodeText, nullable=True)  # LinkedIn returns full URLs

@@ -31,6 +31,14 @@
   margin: 10px 0;
 }
 
+.flex-wrapper {
+  display: flex;
+}
+
+.flex-wrapper--baseline {
+  align-items: baseline;
+}
+
 .image-wrapper img {
   max-width: 100%;
   display: block;

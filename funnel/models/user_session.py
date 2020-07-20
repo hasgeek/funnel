@@ -59,6 +59,8 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
     ipaddr = db.Column(db.String(45), nullable=False)
     user_agent = db.Column(db.UnicodeText, nullable=False)
+    #: The login service that was used to make this session
+    login_service = db.Column(db.Unicode, nullable=True)
 
     accessed_at = db.Column(db.TIMESTAMP(timezone=True), nullable=False)
     revoked_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
