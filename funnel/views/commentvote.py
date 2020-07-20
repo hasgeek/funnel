@@ -121,9 +121,7 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'ok',
                 'message': _("Your comment has been posted"),
-                'comments': [
-                    comment.current_access() for comment in self.obj.parent_comments
-                ],
+                'comments': self.obj.views.json_comments(),
             }
         commentform_html = render_form(
             form=commentform,
@@ -187,10 +185,7 @@ class CommentView(UrlForView, ModelView):
             return {
                 'status': 'ok',
                 'message': _("Your reply has been posted"),
-                'comments': [
-                    comment.current_access()
-                    for comment in self.obj.commentset.parent_comments
-                ],
+                'comments': self.obj.commentset.views.json_comments(),
             }
 
         commentform_html = render_form(
@@ -215,10 +210,7 @@ class CommentView(UrlForView, ModelView):
             return {
                 'status': 'ok',
                 'message': _("Your comment has been edited"),
-                'comments': [
-                    comment.current_access()
-                    for comment in self.obj.commentset.parent_comments
-                ],
+                'comments': self.obj.commentset.views.json_comments(),
             }
         commentform_html = render_form(
             form=commentform,
@@ -244,10 +236,7 @@ class CommentView(UrlForView, ModelView):
             return {
                 'status': 'ok',
                 'message': _("Your comment has been deleted"),
-                'comments': [
-                    comment.current_access()
-                    for comment in self.obj.commentset.parent_comments
-                ],
+                'comments': self.obj.commentset.views.json_comments(),
             }
 
         delcommentform_html = render_form(
@@ -314,10 +303,7 @@ class CommentView(UrlForView, ModelView):
                 return {
                     'status': 'ok',
                     'message': _("The comment has been reported as spam"),
-                    'comments': [
-                        comment.current_access()
-                        for comment in self.obj.commentset.parent_comments
-                    ],
+                    'comments': self.obj.commentset.views.json_comments(),
                 }
             else:
                 flash(

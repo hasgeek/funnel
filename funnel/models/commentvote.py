@@ -1,3 +1,5 @@
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from flask import current_app
 
 from baseframe import _, __
@@ -192,8 +194,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'created_at',
                 'edited_at',
                 'user',
+                'user_pickername',
                 'title',
                 'message',
+                'message_body',
                 'parent_id',
                 'children_comments',
                 'urls',
@@ -211,7 +215,20 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             'edited_at',
             'absolute_url',
             'title',
-        }
+        },
+        'json': {
+            'user_pickername',
+            'message_body',
+            'created_at',
+            'edited_at',
+            'absolute_url',
+            'title',
+            'message',
+            'user',
+            'children_comments',
+            'urls',
+            'badges',
+        },
     }
 
     search_vector = db.deferred(
@@ -236,7 +253,27 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @property
     def children_comments(self):
-        return [child.current_access() for child in self.children]
+        return [child.current_access() for child in self.children if child.state.PUBLIC]
+
+    @hybrid_property
+    def user_pickername(self):
+        return (
+            '[deleted]'
+            if self.state.DELETED
+            else '[removed]'
+            if self.state.SPAM
+            else self.user.pickername
+        )
+
+    @hybrid_property
+    def message_body(self):
+        return (
+            '[deleted]'
+            if self.state.DELETED
+            else '[removed]'
+            if self.state.SPAM
+            else self.message.text
+        )
 
     @property
     def absolute_url(self):
@@ -250,10 +287,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         obj = self.commentset.proposal or self.commentset.project
         if obj:
             return _("{user} commented on {obj}").format(
-                user=self.user.pickername, obj=obj.title
+                user=self.user_pickername, obj=obj.title
             )
         else:
-            return _("{user} commented").format(user=self.user.pickername)
+            return _("{user} commented").format(user=self.user_pickername)
 
     @property
     def badges(self):
@@ -330,6 +367,15 @@ def comment_url(obj):
     if commentset_url is not None:
         url = commentset_url + '#c' + obj.uuid_b58
     return url
+
+
+@Commentset.views('json_comments')
+def commentset_json(obj):
+    return [
+        comment.current_access(datasets=('json',))
+        for comment in obj.parent_comments
+        if comment.state.PUBLIC or comment.children is not None
+    ]
 
 
 Commentset.parent_comments = db.relationship(
