@@ -177,7 +177,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             template='img_upload_formlayout.html.jinja2',
         )
 
-    @route('edit_banner_image', methods=['GET', 'POST'])
+    @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self):
         form = ProfileBannerForm(obj=self.obj)
