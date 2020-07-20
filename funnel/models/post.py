@@ -67,13 +67,13 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=True, index=True)
     profile = with_roles(
         db.relationship(Profile, backref=db.backref('posts', lazy='dynamic'),),
-        grants_via={None: {'admin': 'profile_admin'}},
+        grants_via={None: {'admin': 'editor'}},
     )
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=True, index=True)
     project = with_roles(
         db.relationship(Project, backref=db.backref('posts', lazy='dynamic'),),
-        grants_via={None: {'editor': 'project_editor'}},
+        grants_via={None: {'editor': 'editor'}},
     )
 
     body = MarkdownColumn('body', nullable=False)
@@ -173,7 +173,7 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
         label=('unpublished', __("Unpublished")),
     )
 
-    @with_roles(call={'creator', 'profile_admin', 'project_editor'})
+    @with_roles(call={'editor'})
     @state.transition(
         state.DRAFT,
         state.PUBLISHED,
@@ -185,7 +185,7 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
         if self.published_at is None:
             self.published_at = db.func.utcnow()
 
-    @with_roles(call={'creator', 'profile_admin', 'project_editor'})
+    @with_roles(call={'editor'})
     @state.transition(
         state.PUBLISHED,
         state.DRAFT,
@@ -195,7 +195,7 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     def undo_publish(self):
         pass
 
-    @with_roles(call={'creator', 'profile_admin', 'project_editor'})
+    @with_roles(call={'creator', 'editor'})
     @state.transition(
         None,
         state.DELETED,
@@ -211,7 +211,7 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
             self.deleted_by = actor
             self.deleted_at = db.func.utcnow()
 
-    @with_roles(call={'creator', 'profile_admin', 'project_editor'})
+    @with_roles(call={'editor'})
     @state.transition(
         state.DELETED,
         state.DRAFT,
@@ -222,7 +222,7 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
         self.deleted_by = None
         self.deleted_at = None
 
-    @with_roles(call={'creator', 'profile_admin', 'project_editor'})
+    @with_roles(call={'editor'})
     @visibility_state.transition(
         visibility_state.RESTRICTED,
         visibility_state.PUBLIC,
@@ -232,7 +232,7 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     def make_public(self):
         pass
 
-    @with_roles(call={'creator', 'profile_admin', 'project_editor'})
+    @with_roles(call={'editor'})
     @visibility_state.transition(
         visibility_state.PUBLIC,
         visibility_state.RESTRICTED,
