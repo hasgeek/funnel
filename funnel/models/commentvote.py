@@ -31,6 +31,7 @@ class SET_TYPE:  # NOQA: N801
     PROJECT = 0
     PROPOSAL = 2
     COMMENT = 3
+    POST = 4
 
 
 # --- Models ------------------------------------------------------------------
