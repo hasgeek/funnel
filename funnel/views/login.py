@@ -21,13 +21,14 @@ from baseframe.forms import render_form, render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
 from coaster.utils import getbool, utcnow
-from coaster.views import get_next_url, load_model, requestargs
+from coaster.views import get_next_url, load_model, render_with, requestargs
 
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
     LoginForm,
     LoginPasswordResetException,
     LoginPasswordWeakException,
+    LogoutForm,
     PasswordResetForm,
     PasswordResetRequestForm,
     RegisterForm,
@@ -117,7 +118,7 @@ def login():
             )
             if success:
                 user = loginform.user
-                login_internal(user)
+                login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
                     current_app.logger.info(
@@ -222,6 +223,7 @@ def login():
 logout_errormsg = __("Are you trying to logout? Please try again to confirm")
 
 
+# TODO: Remove this method after funnelapp changes to POST-based logout
 def logout_user():
     """
     User-initiated logout
@@ -230,7 +232,6 @@ def logout_user():
         urllib.parse.urlsplit(request.referrer).netloc
         != urllib.parse.urlsplit(request.url).netloc
     ):
-        # TODO: present a logout form
         flash(logout_errormsg, 'danger')
         return redirect(url_for('index'))
     else:
@@ -255,14 +256,14 @@ def logout_client():
         # No referrer or such client, or request didn't come from the client website.
         # Possible CSRF. Don't logout and don't send them back
         flash(logout_errormsg, 'danger')
-        return redirect(url_for('index'))
+        return redirect(url_for('account'))
 
     # If there is a next destination, is it in the same domain as the client?
     if 'next' in request.args:
         if not auth_client.host_matches(request.args['next']):
-            # Host doesn't match. Assume CSRF and redirect to index without logout
+            # Host doesn't match. Assume CSRF and redirect to account without logout
             flash(logout_errormsg, 'danger')
-            return redirect(url_for('index'))
+            return redirect(url_for('account'))
     # All good. Log them out and send them back
     logout_internal()
     db.session.commit()
@@ -277,32 +278,39 @@ def logout():
     if 'client_id' in request.args:
         return logout_client()
     else:
-        # If this is not a logout request from a client, check if all is good.
-        return logout_user()
+        # Don't allow GET-based logouts
+        if current_auth.user:
+            flash(_("To logout, use the logout button"), 'info')
+            return redirect(url_for('account'), code=303)
+        else:
+            return redirect(url_for('index'), code=303)
 
 
-@app.route('/logout/<user_session>')
-@lastuserapp.route('/logout/<user_session>')
+@app.route('/account/logout', methods=['POST'])
+@lastuserapp.route('/account/logout', methods=['POST'])
 @requires_login
-@load_model(UserSession, {'buid': 'user_session'}, 'user_session')
-def logout_session(user_session):
-    if (
-        not request.referrer
-        or (
-            urllib.parse.urlsplit(request.referrer).netloc
-            != urllib.parse.urlsplit(request.url).netloc
-        )
-        or (user_session.user != current_auth.user)
-    ):
-        flash(
-            current_app.config.get('LOGOUT_UNAUTHORIZED_MESSAGE') or logout_errormsg,
-            'danger',
-        )
-        return redirect(url_for('index'))
+@render_with(json=True)
+def account_logout():
+    form = LogoutForm(user=current_auth.user)
+    if form.validate():
+        if form.user_session:
+            form.user_session.revoke()
+            db.session.commit()
+            if request_is_xhr():
+                return {'status': 'ok'}
+            return redirect(url_for('account'), code=303)
 
-    user_session.revoke()
-    db.session.commit()
-    return redirect(get_next_url(referrer=True), code=303)
+        logout_internal()
+        db.session.commit()
+        flash(_("You are now logged out"), category='info')
+        return redirect(get_next_url(), code=303)
+
+    if request_is_xhr():
+        return {'status': 'error', 'errors': list(form.errors.values())}
+
+    for error in form.errors.values():
+        flash(error, 'error')
+    return redirect(url_for('account'), code=303)
 
 
 @app.route('/account/register', methods=['GET', 'POST'])
@@ -317,7 +325,7 @@ def register():
         useremail = UserEmailClaim(user=user, email=form.email.data)
         db.session.add(useremail)
         send_email_verify_link(useremail)
-        login_internal(user)
+        login_internal(user, login_service='password')
         db.session.commit()
         flash(_("You are now one of us. Welcome aboard!"), category='success')
         return redirect(get_next_url(session=True), code=303)
@@ -656,7 +664,7 @@ def login_service_postcallback(service, userdata):
         user.fullname = userdata['fullname']
 
     if not current_auth:  # If a user isn't already logged in, login now.
-        login_internal(user)
+        login_internal(user, login_service=service)
         flash(
             _("You have logged in via {service}").format(
                 service=login_registry[service].title
@@ -697,7 +705,12 @@ def account_merge():
         if 'merge' in request.form:
             new_user = merge_users(current_auth.user, other_user)
             if new_user:
-                login_internal(new_user)
+                login_internal(
+                    new_user,
+                    login_service=current_auth.session.login_service
+                    if current_auth.session
+                    else None,
+                )
                 flash(_("Your accounts have been merged"), 'success')
                 session.pop('merge_buid', None)
                 db.session.commit()
@@ -831,4 +844,6 @@ def funnelapp_logout():
     # Revoke session and redirect to homepage. Don't bother to ask `app` to logout
     # as well since the session is revoked. `app` will notice and drop cookies on
     # the next request there
+
+    # TODO: Change logout to a POST-based mechanism, as in the main app
     return logout_user()

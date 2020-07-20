@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os.path
 
 from flask import Flask
 from flask_flatpages import FlatPages
@@ -8,6 +9,8 @@ from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 import itsdangerous
+
+import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe
 import coaster.app
@@ -139,6 +142,26 @@ baseframe.init_app(
 
 loginproviders.init_app(app)
 loginproviders.init_app(lastuserapp)
+
+# Load GeoIP2 databases
+app.geoip_city = None
+app.geoip_asn = None
+if 'GEOIP_DB_CITY' in app.config:
+    if not os.path.exists(app.config['GEOIP_DB_CITY']):
+        app.logger.warning(
+            "GeoIP city database missing at %s", app.config['GEOIP_DB_CITY']
+        )
+    else:
+        app.geoip_city = geoip2.database.Reader(app.config['GEOIP_DB_CITY'])
+
+if 'GEOIP_DB_ASN' in app.config:
+    if not os.path.exists(app.config['GEOIP_DB_ASN']):
+        app.logger.warning(
+            "GeoIP ASN database missing at %s", app.config['GEOIP_DB_ASN']
+        )
+    else:
+        app.geoip_asn = geoip2.database.Reader(app.config['GEOIP_DB_ASN'])
+
 
 # Register JS and CSS assets on both apps
 app.assets.register(
