@@ -16,6 +16,7 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE
+from .helpers import visual_field_delimiter
 
 __all__ = ['Post']
 
@@ -123,7 +124,9 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
                 'body_text',
                 weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(' / ', Post.title, Post.body_html,),
+                hltext=lambda: db.func.concat_ws(
+                    visual_field_delimiter, Post.title, Post.body_html
+                ),
             ),
             nullable=False,
         )
@@ -139,8 +142,10 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
     )
 
     __roles__ = {
-        'all': {'read': {'name', 'title'}},
-        'reader': {'read': {'body', 'created_at', 'edited_at', 'user', 'visibility'}},
+        'all': {
+            'read': {'name', 'title', 'created_at', 'edited_at', 'user', 'visibility'}
+        },
+        'reader': {'read': {'body'}},
     }
 
     __datasets__ = {
@@ -256,10 +261,5 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
                 roles.add('reader')
         else:
             roles.add('reader')
-
-        if 'editor' in project_roles:
-            roles.add('editor')
-        if 'admin' in profile_roles:
-            roles.add('admin')
 
         return roles
