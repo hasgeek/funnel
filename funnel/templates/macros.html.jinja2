@@ -91,8 +91,9 @@
 {% endmacro %}
 
 {% macro banner_edit_btn(project) %}
-  {% if project.view_for('edit').is_available() %}
-    <a href="{{ project.url_for('edit') }}#field-bg_image" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn project-banner__box__add-btn--second" aria-label="{% trans %}Update banner image{% endtrans %}">{{ faicon(icon='camera', baseline=false) }}</a>
+  {% if project.view_for('edit_banner').is_available() %}
+    <a href="{{ project.url_for('edit_banner') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn project-banner__box__add-btn--second" aria-label="{% trans %}Update banner image{% endtrans %}" rel="modal:open" data-hash="edit_banner">{{ faicon(icon='camera', baseline=false) }}</a>
+
   {% endif %}
 {% endmacro %}
 
@@ -654,7 +655,7 @@
               <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class='profile__logo__icon') }}</span>
             {% endif %}
             {%- if profile.current_roles.admin %}
-              <a href="{{ profile.url_for('edit_logo_url') }}" class="profile__logo__upload mui--text-dark">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</a>
+              <a href="{{ profile.url_for('edit_logo_url') }}" class="profile__logo__upload mui--text-dark" rel="modal:open">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</a>
             {% endif %}
             <div class="mui--hidden-xs mui--hidden-sm profile__logo__details">
               <h2 class="mui--text-headline mui--text-dark mui--text-bold zero-bottom-margin"><a class="mui--text-dark" data-cy="profile-title" href="{{ profile.url_for() }}">{{ profile.title }}</a></h2>

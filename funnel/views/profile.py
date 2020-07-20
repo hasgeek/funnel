@@ -171,10 +171,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return redirect(self.obj.url_for(), code=303)
         return render_form(
             form=form,
-            title=_("Edit profile logo"),
+            title=_(""),
             submit=_("Save logo"),
-            cancel_url=self.obj.url_for(),
-            ajax=False,
+            ajax=True,
+            template='img_upload_formlayout.html.jinja2',
         )
 
     @route('edit_banner_image', methods=['GET', 'POST'])
@@ -188,10 +188,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return redirect(self.obj.url_for(), code=303)
         return render_form(
             form=form,
-            title=_("Edit profile banner image"),
+            title=_(""),
             submit=_("Save banner"),
-            cancel_url=self.obj.url_for(),
-            ajax=False,
+            ajax=True,
+            template='img_upload_formlayout.html.jinja2',
         )
 
     @route('transition', methods=['POST'])

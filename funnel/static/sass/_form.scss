@@ -315,3 +315,15 @@
 .password-field-sidetext {
   margin: 0 0 20px;
 }
+
+.modal__body--form {
+  .mui-tabs__bar {
+    margin-bottom: 45px;
+  }
+  .mui-btn--primary {
+    width: 100%;
+  }
+  .mui-form {
+    margin-bottom: 0;
+  }
+}
