@@ -521,6 +521,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 .union(base_users)
                 .all()
             )
+        elif query == '@':
+            return []
         else:
             # No '@' in the query, so do a regular autocomplete
             users = base_users.all()
