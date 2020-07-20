@@ -2,10 +2,15 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
-from coaster.utils import LabeledEnum, valid_username
+from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
-from .helpers import RESERVED_NAMES, add_search_trigger
+from .helpers import (
+    RESERVED_NAMES,
+    add_search_trigger,
+    valid_username,
+    visual_field_delimiter,
+)
 from .user import Organization, User
 from .utils import do_migrate_instances
 
@@ -94,7 +99,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 weights={'name': 'A', 'description_text': 'B'},
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
-                    ' / ', Profile.title, Profile.description_html
+                    visual_field_delimiter, Profile.title, Profile.description_html
                 ),
             ),
             nullable=False,
@@ -131,7 +136,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'organization',
                 'banner_image_url',
             },
-            'call': {'url_for'},
+            'call': {'url_for', 'features', 'forms'},
         }
     }
 
@@ -240,7 +245,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         """
         if not name:
             return 'blank'
-        elif name in RESERVED_NAMES:
+        elif name.lower() in cls.reserved_names:
             return 'reserved'
         elif not valid_username(name):
             return 'invalid'
@@ -269,7 +274,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     @db.validates('name')
     def validate_name(self, key, value):
-        if value in RESERVED_NAMES or not valid_username(value):
+        if value.lower() in self.reserved_names or not valid_username(value):
             raise ValueError("Invalid account name: " + value)
         # We don't check for existence in the db since this validator only
         # checks for valid syntax. To confirm the name is actually available,

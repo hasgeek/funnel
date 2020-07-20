@@ -25,7 +25,9 @@ class OrganizationForm(forms.Form):
         __("Username"),
         description=__(
             "A short name for your organization’s profile page. "
-            "Single word containing letters, numbers and dashes only"
+            "Single word containing letters, numbers and dashes only. "
+            "Pick something permanent: changing it will break existing links from "
+            "around the web"
         ),
         validators=[
             forms.validators.DataRequired(),
@@ -36,42 +38,43 @@ class OrganizationForm(forms.Form):
     )
 
     def validate_name(self, field):
-        if self.edit_obj and field.data and field.data == self.edit_obj.name:
-            # Don't validate if name is unchanged
-            return
-
         reason = Profile.validate_name_candidate(field.data)
         if not reason:
             return  # name is available
         if reason == 'invalid':
             raise forms.ValidationError(
                 _(
-                    "Names can only have alphabets, numbers and dashes (except at the ends)"
+                    "Names can only have letters, numbers and dashes (except at the "
+                    "ends)"
                 )
             )
-        elif reason == 'reserved':
+        if reason == 'reserved':
             raise forms.ValidationError(_("This name is reserved"))
-        elif reason == 'user':
-            if field.data == current_auth.user.username:
+        if self.edit_obj and field.data.lower() == self.edit_obj.name.lower():
+            # Name is not reserved or invalid under current rules. It's also not changed
+            # from existing name, or has only changed case. This is a validation pass.
+            return
+        if reason == 'user':
+            if (
+                current_auth.user.username
+                and field.data.lower() == current_auth.user.username.lower()
+            ):
                 raise forms.ValidationError(
                     Markup(
                         _(
                             "This is <em>your</em> current username. "
-                            'You must change it first from <a href="{account}">your account</a> '
-                            "before you can assign it to an organization"
+                            'You must change it first from <a href="{account}">your '
+                            "account</a> before you can assign it to an organization"
                         ).format(account=url_for('account'))
                     )
                 )
-            else:
-                raise forms.ValidationError(
-                    _("This name has been taken by another user")
-                )
-        elif reason == 'org':
+            raise forms.ValidationError(_("This name has been taken by another user"))
+        if reason == 'org':
             raise forms.ValidationError(
                 _("This name has been taken by another organization")
             )
-        else:
-            raise forms.ValidationError(_("This name is not available"))
+        # We're not supposed to get an unknown reason. Flag error to developers.
+        raise ValueError(f"Unknown profile name validation failure reason: {reason}")
 
 
 @Team.forms('main')
