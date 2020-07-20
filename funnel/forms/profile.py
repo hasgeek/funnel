@@ -24,7 +24,7 @@ class ProfileForm(OrganizationForm):
                 _("Please write a message for the landing page")
             )
         ],
-        description=__("This welcome message will be shown on the landing page."),
+        description=__("This welcome message will be shown on the landing page"),
     )
     logo_url = forms.URLField(
         __("Profile icon URL"),
@@ -47,9 +47,9 @@ class ProfileForm(OrganizationForm):
             " Pick something permanent: changing it will break existing links from"
             " around the web"
         )
-        self.description.label.text = __("Bio")
+        self.description.label.text = __("About you")
         self.description.description = __(
-            "This message will be shown on the profile page."
+            "This message will be shown on the profile page"
         )
 
 

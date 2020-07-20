@@ -33,6 +33,11 @@ def feature_profile_make_public(obj):
     return obj.current_roles.admin and not bool(obj.state.PUBLIC)
 
 
+@Profile.features('make_private')
+def feature_profile_make_private(obj):
+    return obj.current_roles.admin and bool(obj.state.PUBLIC)
+
+
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
