@@ -162,7 +162,7 @@
           </div>
           <div class="card__body">
             <ol class="mui-list--aligned mui-list--border">
-              {% for org in current_auth.user.organizations_as_owner %}
+              {% for org in current_auth.user.organizations_as_admin %}
               <li>
                 <p class="mui--text-body2 separator">
                   <a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a>
