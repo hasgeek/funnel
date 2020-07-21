@@ -296,7 +296,7 @@ const Schedule = {
     this.config.rooms = {};
     if (!this.config.venues.length) {
       // Add default Venue
-      this.config.venues = [{ title: 'Schedule', rooms: [] }];
+      this.config.venues = [{ title: 'Schedule', name: 'Schedule', rooms: [] }];
     }
     this.config.venues.forEach((venue) => {
       if (venue.rooms.length) {
@@ -325,6 +325,8 @@ const Schedule = {
     },
     getEventDate(eventDate) {
       const options = {
+        year: 'numeric',
+        month: 'long',
         day: 'numeric',
         timeZone: this.timeZone,
       };
