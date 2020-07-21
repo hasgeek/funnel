@@ -251,6 +251,8 @@ const Schedule = {
         this.config.slotInterval
       );
       if (this.config.schedule[session.eventDay]) {
+        console.log('session.eventDay', session.eventDay);
+        console.log('session.startTime', session.startTime);
         this.config.schedule[session.eventDay].sessions[
           session.startTime
         ].showLabel = true;
@@ -296,7 +298,7 @@ const Schedule = {
     this.config.rooms = {};
     if (!this.config.venues.length) {
       // Add default Venue
-      this.config.venues = [{ title: 'Schedule', rooms: [] }];
+      this.config.venues = [{ title: 'Schedule', name: 'Schedule', rooms: [] }];
     }
     this.config.venues.forEach((venue) => {
       if (venue.rooms.length) {
@@ -308,6 +310,8 @@ const Schedule = {
         self.addDefaultRoom(venue);
       }
     });
+    console.log(this.config.venues);
+    console.log(this.config.rooms);
 
     this.Utils.setTimeZone(this.config.timeZone);
 
