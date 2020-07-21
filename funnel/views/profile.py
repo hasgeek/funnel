@@ -33,6 +33,11 @@ def feature_profile_make_public(obj):
     return obj.current_roles.admin and not bool(obj.state.PUBLIC)
 
 
+@Profile.features('make_private')
+def feature_profile_make_private(obj):
+    return obj.current_roles.admin and bool(obj.state.PUBLIC)
+
+
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
@@ -147,6 +152,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'admin'})
     def edit(self):
         form = ProfileForm(obj=self.obj, model=Profile)
+        if self.obj.user:
+            form.make_for_user()
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
