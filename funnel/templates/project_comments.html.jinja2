@@ -73,8 +73,8 @@
                         <span class="commenter" v-if="comment.state && comment.state.SPAM">[removed]</span>
                         <span class="commenter" v-if="!comment.state">{{ comment.user_pickername }}</span>
                         <span class="badge" v-for="badge in comment.badges">{{ badge }}</span>
-                        <span class="mui--text-caption mui--text-accent">{{ comment.created_at }}</span>
-                        <span class="mui--text-caption mui--text-accent" v-if="comment.edited_at">(edited {{ comment.edited_at }})</span>
+                        <span class="mui--text-caption mui--text-accent">{{ comment.created_at_age }}</span>
+                        <span class="mui--text-caption mui--text-accent" v-if="comment.edited_at">(edited {{ comment.edited_at_age }})</span>
                       </div>
                     </div>
                     <transition name="slide">

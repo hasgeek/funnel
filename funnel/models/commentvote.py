@@ -3,6 +3,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask import current_app
 
 from baseframe import _, __
+from baseframe.filters import age
 from coaster.sqlalchemy import StateManager, cached
 from coaster.utils import LabeledEnum
 
@@ -192,7 +193,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             'read': {
                 'absolute_url',
                 'created_at',
+                'created_at_age',
                 'edited_at',
+                'edited_at_age',
                 'user',
                 'user_pickername',
                 'title',
@@ -220,7 +223,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             'user_pickername',
             'message_body',
             'created_at',
+            'created_at_age',
             'edited_at',
+            'edited_at_age',
             'absolute_url',
             'title',
             'message',
@@ -274,6 +279,14 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             if self.state.SPAM
             else self.message.text
         )
+
+    @hybrid_property
+    def created_at_age(self):
+        return age(self.created_at)
+
+    @hybrid_property
+    def edited_at_age(self):
+        return age(self.edited_at) if self.edited_at is not None else None
 
     @property
     def absolute_url(self):
