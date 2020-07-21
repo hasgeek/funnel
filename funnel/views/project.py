@@ -18,6 +18,7 @@ from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
+    UrlChangeCheck,
     UrlForView,
     get_next_url,
     jsonp,
@@ -249,7 +250,9 @@ FunnelProfileProjectView.init_app(funnelapp)
 
 @Project.views('main')
 @route('/<profile>/<project>/')
-class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
+class ProjectView(
+    ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
+):
     __decorators__ = [legacy_redirect]
 
     @route('')

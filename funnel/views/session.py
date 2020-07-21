@@ -5,6 +5,7 @@ from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
     ModelView,
+    UrlChangeCheck,
     UrlForView,
     render_with,
     requestargs,
@@ -115,7 +116,7 @@ def session_form(project, proposal=None, session=None):
 
 @Project.views('session_new')
 @route('/<profile>/<project>/sessions')
-class ProjectSessionView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('new', methods=['GET', 'POST'])
@@ -136,7 +137,7 @@ FunnelProjectSessionView.init_app(funnelapp)
 
 @Session.views('main')
 @route('/<profile>/<project>/schedule/<session>')
-class SessionView(SessionViewMixin, UrlForView, ModelView):
+class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
