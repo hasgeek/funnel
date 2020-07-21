@@ -7,11 +7,16 @@
 
     .project-banner__profile-details__logo-wrapper {
       display: inline-block;
-      height: 30px;
+      height: 36px;
+      width: 36px;
+      border-radius: 50%;
+      overflow: hidden;
       margin-right: 10px;
 
       .project-banner__profile-details__logo_wrapper__logo {
         height: 100%;
+        width: 100%;
+        object-fit: cover;
       }
     }
   }
@@ -19,14 +24,6 @@
   .project-banner__profile-details--center {
     justify-content: center;
     margin-bottom: $mui-grid-padding;
-  }
-
-  @media (min-width: 992px) {
-    .project-banner__profile-details {
-      .project-banner__profile-details__logo-wrapper {
-        height: 50px;
-      }
-    }
   }
 
   .project-banner__headline {
@@ -138,13 +135,20 @@
 
       .calendar {
         .calendar__month-name--unique {
-          display: flex;
-        }
-        .calendar__month-name:nth-child(n + 2) {
-          padding-top: 25px;
+          display: none;
         }
         .calendar__weekdays .calendar__weekdays__dates {
+          display: none;
+          padding-bottom: 17px;
+        }
+
+        .calendar__weekdays .calendar__month-name--latest,
+        .calendar__weekdays .calendar__weekdays__dates--latest {
           display: flex;
+        }
+
+        .calendar__weekdays .calendar__weekdays__dates:last-child {
+          padding-bottom: 0;
         }
       }
     }

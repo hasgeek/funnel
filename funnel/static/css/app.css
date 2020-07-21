@@ -419,7 +419,7 @@ html.touch .collapsible__body--disable {
 }
 
 .pace .pace-progress {
-  background-image: linear-gradient(to right, #f06a5e, #e05f25, #dda32a);
+  background: #0f73ed;
   position: fixed;
   z-index: 2000;
   top: 0;
@@ -506,7 +506,7 @@ html.touch .collapsible__body--disable {
 
 @media (min-width: 768px) {
   .login-page {
-    background-color: #f2f6f9;
+    background-color: #f9fafc;
   }
   .login-page .login-page__back {
     top: 0;
@@ -1133,7 +1133,7 @@ a.loginbutton.hidden,
   transition: border-color 1.5s ease;
   min-width: 0;
   min-height: 0;
-  background-color: #f2f6f9;
+  background-color: #f9fafc;
 }
 .sub-navbar .sub-navbar__item--wrapper {
   height: 56px;
@@ -1553,7 +1553,7 @@ a.loginbutton.hidden,
   right: 16px;
   width: 32px;
   height: 32px;
-  background-color: #f2f6f9;
+  background-color: #f9fafc;
   border-radius: 50%;
   vertical-align: middle;
   margin: auto;
@@ -1611,7 +1611,7 @@ a.loginbutton.hidden,
   right: -4px;
   width: 32px;
   height: 32px;
-  background-color: #f2f6f9;
+  background-color: #f9fafc;
   border-radius: 50%;
   vertical-align: middle;
   margin: auto;
@@ -2155,7 +2155,6 @@ a.loginbutton.hidden,
   width: 100%;
   text-align: left;
   font-weight: 600;
-  padding: 0 0 5px;
   background-color: #fff;
   margin: 0;
   display: none;
@@ -2197,7 +2196,7 @@ a.loginbutton.hidden,
   width: calc(100% / 7);
   text-align: center;
   margin: 0;
-  padding: 10px 0;
+  padding: 3px 0;
   background: #f9fafc;
 }
 .card__calendar
@@ -2236,13 +2235,6 @@ a.loginbutton.hidden,
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date--active {
-  padding: 5px 0;
-}
-.card__calendar
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates
   .calendar__weekdays__dates__date--today
   .calendar__weekdays__dates__date__day {
   color: #f06a5e;
@@ -2264,11 +2256,17 @@ a.loginbutton.hidden,
   .calendar__weekdays
   .calendar__weekdays__dates
   .calendar__weekdays__dates__date--active
-  .calendar__weekdays__dates__date__day {
+  .calendar__weekdays__dates__date__day,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date--active
+  .calendar__weekdays__dates__date__name {
   color: #fff;
   font-weight: 600;
-  font-size: 16px;
-  line-height: 21px;
+  font-size: 14px;
+  line-height: 17px;
   opacity: 1;
 }
 .card__calendar
@@ -2280,7 +2278,7 @@ a.loginbutton.hidden,
   color: #fff;
   font-weight: 600;
   font-size: 10px;
-  line-height: 14px;
+  line-height: 10px;
   opacity: 1;
 }
 .card__calendar
@@ -2290,9 +2288,9 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates__date--active:after {
   content: '';
   font-weight: bold;
-  border-radius: 4px;
-  width: 35px;
-  height: 44px;
+  border-radius: 8px;
+  width: 30px;
+  height: 36px;
   text-align: center;
   position: absolute;
   top: 0px;
@@ -2307,37 +2305,15 @@ a.loginbutton.hidden,
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date--showtime:before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-top: 7px solid #f06a5e;
-  width: 7px;
-  opacity: 0;
-  z-index: 3;
-  transition: opacity 0.1s;
-  -webkit-transition: opacity 0.1s;
-}
-.card__calendar
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates
   .calendar__weekdays__dates__time {
   display: block;
   opacity: 0;
   position: absolute;
   bottom: -18px;
-  border-radius: 2px;
+  border-radius: 4px;
   background-color: #f2deda;
   color: #1b3a44;
-  left: 50%;
-  transform: translateX(-50%);
-  -webkit-transform: translateX(-50%);
+  left: 40px;
   margin: auto;
   padding: 1px 0;
   width: 157px;
@@ -2351,13 +2327,13 @@ a.loginbutton.hidden,
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date--showtime:hover::before,
+  .calendar__weekdays__dates__date--showtime:hover::after,
 .card__calendar
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::before {
-  opacity: 1;
+  .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after {
+  border-radius: 8px 8px 0 8px;
 }
 .card__calendar
   .calendar
@@ -2377,18 +2353,50 @@ a.loginbutton.hidden,
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date:nth-child(1)
-  .calendar__weekdays__dates__time,
+  .calendar__weekdays__dates__date:nth-child(5).calendar__weekdays__dates__date--showtime:hover::after,
 .card__calendar
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date:nth-child(2)
-  .calendar__weekdays__dates__time {
-  left: 0;
-  transform: translateX(0);
-  -webkit-transform: translateX(0);
+  .calendar__weekdays__dates__date:nth-child(5).calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(6).calendar__weekdays__dates__date--showtime:hover::after,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(6).calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(7).calendar__weekdays__dates__date--showtime:hover::after,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(7).calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(8).calendar__weekdays__dates__date--showtime:hover::after,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(8).calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after {
+  border-radius: 8px 8px 8px 0;
 }
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(5)
+  .calendar__weekdays__dates__time,
 .card__calendar
   .calendar
   .calendar__weekdays
@@ -2400,11 +2408,15 @@ a.loginbutton.hidden,
   .calendar__weekdays
   .calendar__weekdays__dates
   .calendar__weekdays__dates__date:nth-child(7)
+  .calendar__weekdays__dates__time,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date:nth-child(8)
   .calendar__weekdays__dates__time {
   left: unset;
-  right: 0;
-  transform: translateX(0);
-  -webkit-transform: translateX(0);
+  right: 40px;
 }
 .card__calendar
   .calendar
@@ -2434,6 +2446,9 @@ a.loginbutton.hidden,
 .card__calendar--compact .calendar .calendar__weekdays .calendar__month-name {
   display: none;
   padding-top: 0;
+}
+.card__calendar--compact .calendar .calendar__weekdays .calendar__month-name {
+  padding-bottom: 5px;
 }
 .card__calendar--compact
   .calendar
@@ -2465,7 +2480,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates__icon--left {
   position: absolute;
   left: -32px;
-  line-height: 29px;
+  line-height: 30px;
 }
 .card__calendar--compact
   .calendar
@@ -2474,7 +2489,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates__icon--right {
   position: absolute;
   right: -32px;
-  line-height: 29px;
+  line-height: 30px;
 }
 
 .card--spotlight
@@ -2704,7 +2719,10 @@ a.loginbutton.hidden,
   .project-banner__profile-details
   .project-banner__profile-details__logo-wrapper {
   display: inline-block;
-  height: 30px;
+  height: 36px;
+  width: 36px;
+  border-radius: 50%;
+  overflow: hidden;
   margin-right: 10px;
 }
 .project-banner
@@ -2712,17 +2730,12 @@ a.loginbutton.hidden,
   .project-banner__profile-details__logo-wrapper
   .project-banner__profile-details__logo_wrapper__logo {
   height: 100%;
+  width: 100%;
+  object-fit: cover;
 }
 .project-banner .project-banner__profile-details--center {
   justify-content: center;
   margin-bottom: 16px;
-}
-@media (min-width: 992px) {
-  .project-banner
-    .project-banner__profile-details
-    .project-banner__profile-details__logo-wrapper {
-    height: 50px;
-  }
 }
 .project-banner .project-banner__headline {
   margin-bottom: 16px;
@@ -2829,14 +2842,7 @@ a.loginbutton.hidden,
   .card__calendar
   .calendar
   .calendar__month-name--unique {
-  display: flex;
-}
-.project-banner
-  .project-details__box
-  .card__calendar
-  .calendar
-  .calendar__month-name:nth-child(n + 2) {
-  padding-top: 25px;
+  display: none;
 }
 .project-banner
   .project-details__box
@@ -2844,7 +2850,30 @@ a.loginbutton.hidden,
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates {
+  display: none;
+  padding-bottom: 17px;
+}
+.project-banner
+  .project-details__box
+  .card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__month-name--latest,
+.project-banner
+  .project-details__box
+  .card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates--latest {
   display: flex;
+}
+.project-banner
+  .project-details__box
+  .card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates:last-child {
+  padding-bottom: 0;
 }
 .project-banner .project-details__box .project-venue {
   margin: 10px 0;
@@ -3806,7 +3835,7 @@ a.loginbutton.hidden,
   .schedule
   .schedule__row--sticky
   .schedule__row__column--header.js-tab-active {
-  border-bottom: 2px solid #f2f6f9;
+  border-bottom: 2px solid #f9fafc;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--time {
   display: none;

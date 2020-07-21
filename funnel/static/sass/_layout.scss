@@ -452,12 +452,7 @@ html.touch .collapsible__body--disable {
 }
 
 .pace .pace-progress {
-  background-image: linear-gradient(
-    to right,
-    $mui-accent-color,
-    #e05f25,
-    #dda32a
-  );
+  background: $mui-primary-color;
   position: fixed;
   z-index: 2000;
   top: 0;

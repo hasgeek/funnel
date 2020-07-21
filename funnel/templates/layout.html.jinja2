@@ -106,7 +106,6 @@
           <ul class="mui-dropdown__menu header__nav-links__dropdown">
             {% if current_auth.user.profile %}<li><a href="{{ current_auth.user.profile.url_for() }}" class="mui--text-subhead" data-cy="my-profile">{{ current_auth.user.fullname }}</a></li>{%- endif %}
             <li><a href="{{ url_for('account') }}" class="mui--text-subhead" data-cy="my-account">Account</a></li>
-            <li><a href="{{ url_for('account') }}" class="mui--text-subhead mui--text-light" data-cy="my-account">Account</a></li>
             <li><a href="{{ url_for('saved') }}" class="mui--text-subhead">My saves</a></li>
             <li><a href="{{ url_for('scan_contact') }}" class="mui--text-subhead">Scan badge</a></li>
             <li><a href="{{ url_for('contacts') }}" class="mui--text-subhead">Contacts</a></li>

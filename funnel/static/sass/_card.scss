@@ -137,7 +137,6 @@
       width: 100%;
       text-align: left;
       font-weight: 600;
-      padding: 0 0 5px;
       background-color: #fff;
       margin: 0;
       display: none;
@@ -176,7 +175,7 @@
           width: calc(100% / 7);
           text-align: center;
           margin: 0;
-          padding: 10px 0;
+          padding: 3px 0;
           background: #f9fafc;
 
           .calendar__weekdays__dates__date__day {
@@ -204,10 +203,6 @@
           }
         }
 
-        .calendar__weekdays__dates__date--active {
-          padding: 5px 0;
-        }
-
         .calendar__weekdays__dates__date--today {
           .calendar__weekdays__dates__date__day {
             color: $mui-accent-color;
@@ -222,18 +217,19 @@
         }
 
         .calendar__weekdays__dates__date--active {
-          .calendar__weekdays__dates__date__day {
+          .calendar__weekdays__dates__date__day,
+          .calendar__weekdays__dates__date__name {
             color: #fff;
             font-weight: 600;
-            font-size: 16px;
-            line-height: 21px;
+            font-size: 14px;
+            line-height: 17px;
             opacity: 1;
           }
           .calendar__weekdays__dates__date__name {
             color: #fff;
             font-weight: 600;
             font-size: 10px;
-            line-height: 14px;
+            line-height: 10px;
             opacity: 1;
           }
         }
@@ -241,9 +237,9 @@
         .calendar__weekdays__dates__date--active:after {
           content: '';
           font-weight: bold;
-          border-radius: 4px;
-          width: 35px;
-          height: 44px;
+          border-radius: 8px;
+          width: 30px;
+          height: 36px;
           text-align: center;
           position: absolute;
           top: 0px;
@@ -255,34 +251,15 @@
           background: $mui-accent-color;
         }
 
-        .calendar__weekdays__dates__date--showtime:before {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          margin: auto;
-          border-left: 7px solid transparent;
-          border-right: 7px solid transparent;
-          border-top: 7px solid $mui-accent-color;
-          width: 7px;
-          opacity: 0;
-          z-index: 3;
-          transition: opacity 0.1s;
-          -webkit-transition: opacity 0.1s;
-        }
-
         .calendar__weekdays__dates__time {
           display: block;
           opacity: 0;
           position: absolute;
           bottom: -18px;
-          border-radius: 2px;
+          border-radius: 4px;
           background-color: $mui-accent-color-lighter;
           color: $mui-text-accent-lighter;
-          left: 50%;
-          transform: translateX(-50%);
-          -webkit-transform: translateX(-50%);
+          left: 40px;
           margin: auto;
           padding: 1px 0;
           width: 157px;
@@ -293,9 +270,9 @@
           -webkit-transition: opacity 0.1s;
         }
 
-        .calendar__weekdays__dates__date--showtime:hover::before,
-        .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::before {
-          opacity: 1;
+        .calendar__weekdays__dates__date--showtime:hover::after,
+        .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after {
+          border-radius: 8px 8px 0 8px;
         }
 
         .calendar__weekdays__dates__date--showtime:hover
@@ -305,23 +282,27 @@
           opacity: 1;
         }
 
-        .calendar__weekdays__dates__date:nth-child(1)
-          .calendar__weekdays__dates__time,
-        .calendar__weekdays__dates__date:nth-child(2)
-          .calendar__weekdays__dates__time {
-          left: 0;
-          transform: translateX(0);
-          -webkit-transform: translateX(0);
+        .calendar__weekdays__dates__date:nth-child(5).calendar__weekdays__dates__date--showtime:hover::after,
+        .calendar__weekdays__dates__date:nth-child(5).calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after,
+        .calendar__weekdays__dates__date:nth-child(6).calendar__weekdays__dates__date--showtime:hover::after,
+        .calendar__weekdays__dates__date:nth-child(6).calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after,
+        .calendar__weekdays__dates__date:nth-child(7).calendar__weekdays__dates__date--showtime:hover::after,
+        .calendar__weekdays__dates__date:nth-child(7).calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after,
+        .calendar__weekdays__dates__date:nth-child(8).calendar__weekdays__dates__date--showtime:hover::after,
+        .calendar__weekdays__dates__date:nth-child(8).calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after {
+          border-radius: 8px 8px 8px 0;
         }
 
+        .calendar__weekdays__dates__date:nth-child(5)
+          .calendar__weekdays__dates__time,
         .calendar__weekdays__dates__date:nth-child(6)
           .calendar__weekdays__dates__time,
         .calendar__weekdays__dates__date:nth-child(7)
+          .calendar__weekdays__dates__time,
+        .calendar__weekdays__dates__date:nth-child(8)
           .calendar__weekdays__dates__time {
           left: unset;
-          right: 0;
-          transform: translateX(0);
-          -webkit-transform: translateX(0);
+          right: 40px;
         }
 
         .calendar__weekdays__dates__date--year {
@@ -348,6 +329,9 @@
         display: none;
         padding-top: 0;
       }
+      .calendar__month-name {
+        padding-bottom: 5px;
+      }
       .calendar__weekdays__dates--upcoming--first,
       .calendar__month-name--upcoming--first {
         display: flex;
@@ -365,12 +349,12 @@
         .calendar__weekdays__dates__icon--left {
           position: absolute;
           left: -$mui-grid-padding-double;
-          line-height: 29px;
+          line-height: 30px;
         }
         .calendar__weekdays__dates__icon--right {
           position: absolute;
           right: -$mui-grid-padding-double;
-          line-height: 29px;
+          line-height: 30px;
         }
       }
     }
