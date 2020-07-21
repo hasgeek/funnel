@@ -110,13 +110,18 @@ class ProjectNameForm(forms.Form):
         __("Custom URL"),
         description=__(
             "Customize the URL of your project. "
-            "Use letters, numbers and dashes only. "
+            "Use lowercase letters, numbers and dashes only. "
             "Including a date is recommended"
         ),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=Project.__name_length__),
-            forms.validators.ValidName(),
+            forms.validators.ValidName(
+                __(
+                    "This URL contains unsupported characters. It can contain "
+                    "lowercase letters, numbers and hyphens only."
+                )
+            ),
             AvailableName(),
         ],
         prefix="https://hasgeek.com/<profile>/",

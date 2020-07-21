@@ -31,6 +31,14 @@
   margin: 10px 0;
 }
 
+.flex-wrapper {
+  display: flex;
+}
+
+.flex-wrapper--baseline {
+  align-items: baseline;
+}
+
 .image-wrapper img {
   max-width: 100%;
   display: block;
@@ -373,6 +381,7 @@ html.touch .collapsible__body--disable {
   width: 100%;
   height: 0;
   padding-bottom: 56%;
+  min-height: 50px;
 }
 .embed-video-wrapper .video_txt {
   text-align: center;
@@ -647,6 +656,17 @@ a.loginbutton.hidden,
   height: 16px;
 }
 
+.form-inline-input {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.form-inline-label {
+  display: inline-block;
+  width: 70%;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -734,6 +754,14 @@ a.loginbutton.hidden,
   .header__site-title__title
   .search-form--show {
   display: inline-block;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__nav-links {
+  text-decoration: none !important;
 }
 .hg-app
   .header--fixed
@@ -875,12 +903,23 @@ a.loginbutton.hidden,
     .header__site-title__title
     .header__nav-links__dropdown {
     margin-top: 13px;
+    right: 0;
+    left: auto;
   }
   .hg-app .content-wrapper {
     padding-top: 50px;
   }
 }
 @media (min-width: 1200px) {
+  .hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
+    .header__nav-links__dropdown {
+    right: auto;
+    left: 0;
+  }
   .hg-app
     .header--fixed
     .header__nav
@@ -1090,7 +1129,7 @@ a.loginbutton.hidden,
     position: sticky;
     top: 50px;
     order: 1;
-    z-index: 1000;
+    z-index: 2;
   }
 
   .sub-navbar {
@@ -1171,8 +1210,8 @@ a.loginbutton.hidden,
   order: 1;
   top: 0;
   z-index: 1000;
-  width: calc(100% - 103px);
-  left: 52px;
+  width: 100%;
+  left: 0;
 }
 .tabs-wrapper--sticky .grid__col-12 {
   padding-left: 0;
@@ -1182,7 +1221,7 @@ a.loginbutton.hidden,
 .tabs {
   display: flex;
   width: 100%;
-  overflow: scroll;
+  overflow: auto;
   align-items: center;
 }
 .tabs .tabs__item {
@@ -1267,6 +1306,14 @@ a.loginbutton.hidden,
 
 .mui-btn--strike:hover {
   text-decoration: line-through;
+}
+
+.page-with-banner .alert-wrapper {
+  position: absolute;
+  top: 0;
+  z-index: 12;
+  left: 0;
+  right: 0;
 }
 
 .projects-wrapper {
@@ -1489,10 +1536,10 @@ a.loginbutton.hidden,
   justify-content: center;
 }
 .profile .profile__banner .profile__logo .profile__logo__img {
-  width: calc(100% - 32px);
-  height: calc(100% - 32px);
-  object-fit: contain;
-  padding: 16px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 .profile .profile__banner .profile__logo .profile__logo__nologo {
   position: absolute;
@@ -1539,6 +1586,19 @@ a.loginbutton.hidden,
   transform: translate(-50%, -50%);
 }
 
+.profile-dropdown-btn {
+  background-color: #eff2f6;
+  padding: 6px 16px;
+  text-align: center;
+  margin-left: 8px;
+}
+
+.profile-dropdown-btn:hover,
+.profile-dropdown-btn:focus,
+.profile-dropdown-btn:active {
+  background-color: #eff2f6;
+}
+
 @media (min-width: 768px) {
   .profile {
     position: relative;
@@ -1577,7 +1637,7 @@ a.loginbutton.hidden,
     top: 2px;
   }
   .profile .profile__banner .profile__logo {
-    left: 16px;
+    left: 32px;
     bottom: -72px;
   }
   .profile .profile__banner .profile__logo .profile__logo__details {
@@ -1586,9 +1646,15 @@ a.loginbutton.hidden,
     bottom: -8px;
     min-width: 450px;
   }
+  .profile .profile__banner .profile__banner__btns {
+    position: absolute;
+    bottom: -58px;
+    z-index: 1000;
+    right: 32px;
+  }
 
   .profile-details {
-    padding-top: 32px;
+    padding: 32px 16px 0;
   }
 }
 .past-events-table .past-events-table__title {
@@ -1883,13 +1949,6 @@ a.loginbutton.hidden,
 #form-password-change #field-password .progress {
   visibility: hidden;
   display: block;
-}
-
-#form-password-change
-  #field-password
-  .mui-textfield--password
-  .password-toggle {
-  bottom: 13px;
 }
 
 #form-password-change #field-password .progress.progress--show {
@@ -2632,7 +2691,7 @@ a.loginbutton.hidden,
 }
 .project-banner .project-banner__box .project-banner__box__add-btn {
   position: absolute;
-  bottom: 56px;
+  bottom: 16px;
   right: 16px;
   z-index: 3;
 }
@@ -2765,7 +2824,7 @@ a.loginbutton.hidden,
     padding: 0 16px;
   }
   .project-banner .project-banner__box .project-banner__box__add-btn {
-    right: 32px;
+    right: 16px;
   }
   .project-banner .project-banner__box .project-banner__box__add-btn--second {
     right: 60px;

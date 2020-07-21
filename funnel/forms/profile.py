@@ -24,17 +24,33 @@ class ProfileForm(OrganizationForm):
                 _("Please write a message for the landing page")
             )
         ],
-        description=__("This welcome message will be shown on the landing page."),
+        description=__("This welcome message will be shown on the landing page"),
     )
     logo_url = forms.URLField(
-        __("Logo URL"),
-        description=__("Profile logo"),
+        __("Profile icon URL"),
+        description=__("Profile icon"),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
     )
+
+    def make_for_user(self):
+        self.title.label.text = __("Your name")
+        self.title.description = __(
+            "Your full name, in the form others can recognise you by"
+        )
+        self.name.description = __(
+            "A short name for mentioning you with @username, and the URL to your"
+            " profile page. Single word containing letters, numbers and dashes only."
+            " Pick something permanent: changing it will break existing links from"
+            " around the web"
+        )
+        self.description.label.text = __("About you")
+        self.description.description = __(
+            "This message will be shown on the profile page"
+        )
 
 
 @Profile.forms('transition')

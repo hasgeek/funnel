@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 from flask import Markup
 
 from baseframe import _, __
-from coaster.utils import domain_namespace_match, getbool, valid_username
+from coaster.utils import domain_namespace_match, getbool
 import baseframe.forms as forms
 
 from ..models import (
@@ -11,6 +11,7 @@ from ..models import (
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
+    valid_name,
 )
 
 __all__ = [
@@ -192,7 +193,7 @@ class AuthClientCredentialForm(forms.Form):
 def permission_validator(form, field):
     permlist = field.data.split()
     for perm in permlist:
-        if not valid_username(perm):
+        if not valid_name(perm):
             raise forms.ValidationError(
                 _("Permission ‘{perm}’ is malformed").format(perm=perm)
             )

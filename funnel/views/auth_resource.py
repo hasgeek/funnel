@@ -65,7 +65,17 @@ def get_userinfo(user, auth_client, scope=[], user_session=None, get_permissions
                     'title': org.title,
                 }
                 for org in user.organizations_as_owner
-            ]
+            ],
+            'admin': [
+                {
+                    'userid': org.buid,
+                    'buid': org.buid,
+                    'uuid': org.uuid,
+                    'name': org.name,
+                    'title': org.title,
+                }
+                for org in user.organizations_as_admin
+            ],
         }
 
     if get_permissions:

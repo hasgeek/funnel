@@ -3,7 +3,7 @@ from flask import Markup, escape, url_for
 from baseframe import _, __
 import baseframe.forms as forms
 
-from ..models import User, UserEmail, getuser
+from ..models import User, UserEmail, UserSession, getuser
 from .account import password_policy, password_strength_validator
 
 __all__ = [
@@ -11,6 +11,7 @@ __all__ = [
     'LoginPasswordWeakException',
     'LoginForm',
     'RegisterForm',
+    'LogoutForm',
 ]
 
 
@@ -66,8 +67,8 @@ class LoginForm(forms.Form):
         # LoginPasswordWeakException after the test. The calling code in views/login.py
         # supports both outcomes.
 
-        # password_policy.test returns [] if no issues were found
-        self.weak_password = bool(password_policy.test(field.data))
+        # password_policy.test_password(<password>)['is_weak'] returns True/False
+        self.weak_password = password_policy.test_password(field.data)['is_weak']
 
 
 @User.forms('register')
@@ -114,3 +115,23 @@ class RegisterForm(forms.RecaptchaForm):
                     ).format(loginurl=escape(url_for('login')))
                 )
             )
+
+
+@User.forms('logout')
+class LogoutForm(forms.Form):
+    __expects__ = ('user',)
+    __returns__ = ('user_session',)
+
+    # Not HiddenField, because that gets rendered with hidden_tag, and not SubmitField
+    # because that derives from BooleanField and will cast the value to a boolean
+    sessionid = forms.StringField(
+        __("Session id"), validators=[forms.validators.Optional()]
+    )
+
+    def validate_sessionid(self, field):
+        user_session = UserSession.get(buid=field.data)
+        if not user_session or user_session.user != self.user:
+            raise forms.ValidationError(
+                _("That does not appear to be a valid login session")
+            )
+        self.user_session = user_session

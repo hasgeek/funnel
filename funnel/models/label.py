@@ -5,7 +5,7 @@ from sqlalchemy.sql import case, exists
 from coaster.sqlalchemy import with_roles
 
 from . import BaseScopedNameMixin, TSVectorType, db
-from .helpers import add_search_trigger
+from .helpers import add_search_trigger, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
@@ -99,7 +99,9 @@ class Label(BaseScopedNameMixin, db.Model):
                 'description',
                 weights={'name': 'A', 'title': 'A', 'description': 'B'},
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(' / ', Label.title, Label.description),
+                hltext=lambda: db.func.concat_ws(
+                    visual_field_delimiter, Label.title, Label.description
+                ),
             ),
             nullable=False,
         )
