@@ -72,7 +72,8 @@ class ProjectForm(forms.Form):
         __("Banner image URL"),
         description=(
             "Banner image for project cards on the homepage. "
-            "Resolution should be 1200x675 px. Image size should be around 50KB."
+            "Images should be of 16:9 aspect ratio. "
+            " Under or ~100kb file size hosted at images.hasgeek.com"
         ),
         validators=[
             forms.validators.Optional(),
@@ -132,9 +133,11 @@ class ProjectNameForm(forms.Form):
 
 class ProjectBannerForm(forms.Form):
     bg_image = forms.URLField(
-        __("Banner image URL from Imgee"),
+        __("Banner image URL"),
         description=__(
-            "Images should be of 16:9 aspect ratio. " " Under or ~100kb file size"
+            "Banner image for project cards on the homepage. "
+            "Images should be of 16:9 aspect ratio. "
+            " Under or ~100kb file size hosted at images.hasgeek.com"
         ),
         validators=[
             forms.validators.Optional(),
