@@ -34,7 +34,7 @@ class SessionForm(forms.Form):
         description=__(
             "Banner image for session card. "
             "Images should be of 16:9 aspect ratio. "
-            " Under or ~50kb file size"
+            " Under or ~50kb file size hosted at images.hasgeek.com"
         ),
         validators=[
             forms.validators.Optional(),

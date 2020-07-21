@@ -50,10 +50,10 @@ class ProfileTransitionForm(forms.Form):
 @Profile.forms('logo')
 class ProfileLogoForm(forms.Form):
     logo_url = forms.URLField(
-        __("Logo image URL from Imgee"),
+        __("Logo image URL"),
         description=__(
             "Images should be of 1:1 aspect ratio (square). "
-            " Under or ~30kb file size"
+            " Under or ~30kb file size hosted at images.hasgeek.com"
         ),
         validators=[
             forms.validators.Optional(),
@@ -66,9 +66,10 @@ class ProfileLogoForm(forms.Form):
 @Profile.forms('banner_image')
 class ProfileBannerForm(forms.Form):
     banner_image_url = forms.URLField(
-        __("Banner image URL from Imgee"),
+        __("Banner image URL"),
         description=__(
-            "Images should be of 8:3 aspect ratio. " " Under or ~100kb file size"
+            "Images should be of 8:3 aspect ratio. "
+            " Under or ~100kb file size hosted at images.hasgeek.com"
         ),
         validators=[
             forms.validators.Optional(),
