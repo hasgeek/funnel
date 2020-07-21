@@ -273,7 +273,7 @@ class TestUser(TestDatabaseFixture):
         # result1 = models.User.autocomplete(u'*')
         # self.assertEqual(result1 or lena)
         # scenario 2: when query passed
-        queries = ["[oa]", "Pig", "crusoe@keepballin.ca"]
+        queries = ["[oa]", "Pig", "crusoe@keepballin.ca", "[]cruso"]
         result2 = []
         for each in queries:
             result2.append(models.User.autocomplete(each))
@@ -287,6 +287,12 @@ class TestUser(TestDatabaseFixture):
         assert query_for_piglet == [piglet]
         query_for_crusoe = models.User.autocomplete(queries[2])
         assert query_for_crusoe == [crusoe]
+        query_at_character = models.User.autocomplete('@[')
+        assert query_at_character == []  # Test for empty searches
+        query_square_brackets = models.User.autocomplete('[[]]')
+        assert query_square_brackets == []
+        query_for_crusoe_with_square_brackets = models.User.autocomplete(queries[3])
+        assert query_for_crusoe_with_square_brackets == [crusoe]
 
     def test_user_merged_user(self):
         """
