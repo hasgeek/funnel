@@ -1,12 +1,22 @@
 from collections import OrderedDict, namedtuple
+from html import unescape as html_unescape
+from urllib.parse import quote as urlquote
+import re
 
 import sqlalchemy.sql.expression as expression
 
 from flask import Markup, redirect, request, url_for
 
 from baseframe import __
-from coaster.utils import for_tsquery
-from coaster.views import ClassView, render_with, requestargs, route
+from coaster.views import (
+    ClassView,
+    ModelView,
+    UrlForView,
+    render_with,
+    requestargs,
+    requires_roles,
+    route,
+)
 
 from .. import app, funnelapp
 from ..models import (
@@ -18,8 +28,11 @@ from ..models import (
     Session,
     User,
     db,
+    visual_field_delimiter,
 )
 from ..utils import abort_null
+from .decorators import legacy_redirect
+from .mixins import ProfileViewMixin, ProjectViewMixin
 
 # --- Definitions -------------------------------------------------------------
 
@@ -28,9 +41,30 @@ pg_startsel = '<b>'
 pg_stopsel = '</b>'
 pg_delimiter = ' … '
 
-# TODO: extend SearchModel to include profile_query_filter and project_query_filter
-# for scoped search
-SearchModel = namedtuple('SearchModel', ['label', 'model', 'has_title', 'query_filter'])
+# For highlighted text, we need a single line from the page. The highlight must discard
+# anything after a line break. Since `hltext` can combine multiple fields using '¦' as
+# a field separator, we include that character as a breakpoint. The broken bar character
+# was picked due to its historic use as a separator, while having no such modern use.
+match_text_breakpoint_re = re.compile('[¦\r\n].*')
+
+# The list of whitespace characters in HTML varies slightly from regex's "\s":
+# Regex considers Vertical Tab (\x0B) as whitespace while HTML does not. Since VT is
+# an extremely unlikely character in our data, we don't bother to make a more accurate
+# regex here.
+html_whitespace_re = re.compile(r'\s+', re.ASCII)
+
+SearchModel = namedtuple(
+    'SearchModel',
+    [
+        'label',
+        'model',
+        'has_title',
+        'has_order',
+        'all_query_filter',
+        'profile_query_filter',
+        'project_query_filter',
+    ],
+)
 
 # The order here is preserved into the tabs shown in UI
 search_types = OrderedDict(
@@ -40,8 +74,65 @@ search_types = OrderedDict(
             SearchModel(
                 __("Projects"),
                 Project,
-                True,
-                lambda q: Project.all_unsorted().filter(Project.search_vector.match(q)),
+                True,  # has a title column
+                True,  # has order_by in the queries here; don't bother to order again
+                # Site search:
+                lambda q: Project.query.join(Profile).filter(
+                    Profile.state.PUBLIC,
+                    Project.state.PUBLISHED,
+                    db.or_(
+                        # Search conditions:
+                        # 1. Project has search terms
+                        Project.search_vector.match(q),
+                        # 2. Project's profile (for org) has a match in the org title
+                        Organization.query.filter(
+                            Project.profile_id == Profile.id,
+                            Profile.organization_id == Organization.id,
+                            Organization.search_vector.match(q),
+                        ).exists(),
+                        # 3. Project's profile (for user) has a match in the user's name
+                        User.query.filter(
+                            Project.profile_id == Profile.id,
+                            Profile.user_id == User.id,
+                            User.search_vector.match(q),
+                        ).exists(),
+                    ),
+                )
+                # TODO: Replace `schedule_start_at` with a new `nearest_session_at`
+                # Also add a CHECK constraint on session.start_at/end_at to enforce 24
+                # hour max duration.
+                .order_by(
+                    # Order by:
+                    # 1. Projects with schedule (start_at is None == False),
+                    # 2. Projects without schedule (start_at is None == True)
+                    Project.schedule_start_at.is_(None),
+                    # Second, order by distance from present
+                    db.func.abs(
+                        db.func.extract(
+                            'epoch', db.func.utcnow() - Project.schedule_start_at
+                        )
+                    ),
+                    # Third, order by relevance of search results
+                    db.desc(db.func.ts_rank_cd(Project.search_vector, q)),
+                ),
+                # Profile search:
+                lambda q, profile: Project.query.join(Profile)
+                .filter(
+                    Project.profile == profile,
+                    Project.state.PUBLISHED,
+                    Project.search_vector.match(q),
+                )
+                .order_by(
+                    Project.schedule_start_at.is_(None),
+                    db.func.abs(
+                        db.func.extract(
+                            'epoch', db.func.utcnow() - Project.schedule_start_at
+                        )
+                    ),
+                    db.desc(db.func.ts_rank_cd(Project.search_vector, q)),
+                ),
+                # No project search inside projects:
+                None,
             ),
         ),
         (
@@ -50,6 +141,7 @@ search_types = OrderedDict(
                 __("Profiles"),
                 Profile,
                 True,
+                False,
                 lambda q: Profile.query.filter(
                     Profile.state.PUBLIC,
                     db.or_(
@@ -63,6 +155,10 @@ search_types = OrderedDict(
                         ).exists(),
                     ),
                 ),
+                # No profile search inside profiles:
+                None,
+                # No profile search inside projects:
+                None,
             ),
         ),
         (
@@ -71,9 +167,36 @@ search_types = OrderedDict(
                 __("Sessions"),
                 Session,
                 True,
-                lambda q: Session.query.join(Proposal)
-                .join(User, Proposal.speaker)
-                .filter(Session.search_vector.match(q)),
+                False,
+                # Site search:
+                lambda q: Session.query.join(Project, Session.project)
+                .join(Profile, Project.profile)
+                .outerjoin(Proposal, Session.proposal)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Profile.state.PUBLIC,
+                    Project.state.PUBLISHED,
+                    Session.scheduled,
+                    Session.search_vector.match(q),
+                ),
+                # Profile search:
+                lambda q, profile: Session.query.join(Project, Session.project)
+                .outerjoin(Proposal, Session.proposal)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Project.state.PUBLISHED,
+                    Project.profile == profile,
+                    Session.scheduled,
+                    Session.search_vector.match(q),
+                ),
+                # Project search:
+                lambda q, project: Session.query.outerjoin(Proposal)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Session.project == project,
+                    Session.scheduled,
+                    Session.search_vector.match(q),
+                ),
             ),
         ),
         (
@@ -82,8 +205,56 @@ search_types = OrderedDict(
                 __("Proposals"),
                 Proposal,
                 True,
-                lambda q: Proposal.query.join(User, Proposal.speaker).filter(
-                    Proposal.search_vector.match(q)
+                False,
+                # Site search:
+                lambda q: Proposal.query.join(Project, Proposal.project)
+                .join(Profile, Project.profile)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Profile.state.PUBLIC,
+                    Project.state.PUBLISHED,
+                    # TODO: Filter condition for Proposal being visible.
+                    # Dependent on proposal editorial workflow states being completely
+                    # transferred into labels, reserving proposal state for submission.
+                    db.or_(
+                        Proposal.search_vector.match(q),
+                        User.query.filter(
+                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        )
+                        .exists()
+                        .correlate(Proposal),
+                    ),
+                ),
+                # Profile search
+                lambda q, profile: Proposal.query.join(Project, Proposal.project)
+                .outerjoin(User, Proposal.speaker)
+                .filter(
+                    Project.state.PUBLISHED,
+                    Project.profile == profile,
+                    # TODO: Filter condition for Proposal being visible
+                    db.or_(
+                        Proposal.search_vector.match(q),
+                        User.query.filter(
+                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        )
+                        .exists()
+                        .correlate(Proposal),
+                    ),
+                ),
+                # Project search:
+                lambda q, project: Proposal.query.outerjoin(
+                    User, Proposal.speaker
+                ).filter(
+                    Proposal.project == project,
+                    # TODO: Filter condition for Proposal being visible
+                    db.or_(
+                        Proposal.search_vector.match(q),
+                        User.query.filter(
+                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        )
+                        .exists()
+                        .correlate(Proposal),
+                    ),
                 ),
             ),
         ),
@@ -92,9 +263,92 @@ search_types = OrderedDict(
             SearchModel(
                 __("Comments"),
                 Comment,
-                False,
-                lambda q: Comment.query.join(User).filter(
-                    Comment.search_vector.match(q)
+                False,  # Comments don't have titles
+                True,  # Queries return ordered results
+                # Site search:
+                lambda q: Comment.query.join(User, Comment.user)
+                .join(Project, Project.commentset_id == Comment.commentset_id)
+                .join(Profile, Project.profile_id == Profile.id)
+                .filter(
+                    Profile.state.PUBLIC,
+                    Project.state.PUBLISHED,
+                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q)),
+                )
+                .order_by(
+                    db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                    db.desc(Comment.created_at),
+                )
+                .union_all(
+                    Comment.query.join(User)
+                    .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
+                    .join(Project, Proposal.project_id == Project.id)
+                    .join(Profile, Project.profile_id == Profile.id)
+                    .filter(
+                        Profile.state.PUBLIC,
+                        Project.state.PUBLISHED,
+                        db.or_(
+                            Comment.search_vector.match(q), User.search_vector.match(q)
+                        ),
+                    )
+                    .order_by(
+                        db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                        db.desc(Comment.created_at),
+                    ),
+                    # Add query on Post model here
+                ),
+                # Profile search:
+                lambda q, profile: Comment.query.join(User, Comment.user)
+                .join(Project, Project.commentset_id == Comment.commentset_id)
+                .filter(
+                    Project.profile == profile,
+                    Project.state.PUBLISHED,
+                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q)),
+                )
+                .order_by(
+                    db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                    db.desc(Comment.created_at),
+                )
+                .union_all(
+                    Comment.query.join(User)
+                    .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
+                    .join(Project, Proposal.project_id == Project.id)
+                    .filter(
+                        Project.profile == profile,
+                        Project.state.PUBLISHED,
+                        db.or_(
+                            Comment.search_vector.match(q), User.search_vector.match(q)
+                        ),
+                    )
+                    .order_by(
+                        db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                        db.desc(Comment.created_at),
+                    ),
+                    # Add query on Post model here
+                ),
+                # Project search:
+                lambda q, project: Comment.query.join(User, Comment.user)
+                .join(Project, project.commentset_id == Comment.commentset_id)
+                .filter(
+                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q))
+                )
+                .order_by(
+                    db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                    db.desc(Comment.created_at),
+                )
+                .union_all(
+                    Comment.query.join(User)
+                    .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
+                    .join(Project, Proposal.project_id == project.id)
+                    .filter(
+                        db.or_(
+                            Comment.search_vector.match(q), User.search_vector.match(q)
+                        )
+                    )
+                    .order_by(
+                        db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
+                        db.desc(Comment.created_at),
+                    ),
+                    # Add query on Post model here
                 ),
             ),
         ),
@@ -106,39 +360,107 @@ search_types = OrderedDict(
 
 
 def escape_quotes(text):
-    """PostgreSQL strips tags for us, but to be completely safe we need to escape quotes"""
+    """
+    Escape quotes in text returned by PostgreSQL's ``ts_headline``.
+
+    PostgreSQL strips HTML tags for us, but we also need to escape quotes to safely
+    use the text in HTML tag attributes. Typical use is for ARIA labels.
+    """
     return Markup(text.replace('"', '&quot;').replace("'", '&#39;'))
+
+
+def get_squery(text):
+    """
+    Parse a web search query into a PostgreSQL ``tsquery``.
+
+    This returns a text result instead of a SQL expression because SQLAlchemy's
+    ``search_vector.match`` will render another ``to_tsquery`` call.
+
+    This function requires ``websearch_to_tsquery`` from PostgreSQL >= 12.
+    """
+    return db.session.query(db.func.websearch_to_tsquery(text or '')).scalar()
+
+
+def clean_matched_text(text):
+    return urlquote(
+        html_unescape(
+            html_whitespace_re.sub(' ', match_text_breakpoint_re.sub('', text)).strip()
+        )
+    )
 
 
 # --- Search functions --------------------------------------------------------
 
 # @cache.memoize(timeout=300)
-def search_counts(squery):
+def search_counts(squery, profile=None, project=None):
     """Return counts of search results"""
+    if project:
+        return [
+            {
+                'type': k,
+                'label': v.label,
+                'count': v.project_query_filter(squery, project)
+                .options(db.load_only(v.model.id))
+                .count(),
+            }
+            for k, v in search_types.items()
+            if v.project_query_filter is not None
+        ]
+    if profile:
+        return [
+            {
+                'type': k,
+                'label': v.label,
+                'count': v.profile_query_filter(squery, profile)
+                .options(db.load_only(v.model.id))
+                .count(),
+            }
+            for k, v in search_types.items()
+            if v.profile_query_filter is not None
+        ]
+    # Not scoped to profile or project:
     return [
         {
             'type': k,
             'label': v.label,
-            'count': v.query_filter(squery).options(db.load_only(v.model.id)).count(),
+            'count': v.all_query_filter(squery)
+            .options(db.load_only(v.model.id))
+            .count(),
         }
         for k, v in search_types.items()
     ]
 
 
 # @cache.memoize(timeout=300)
-def search_results(squery, stype, page=1, per_page=20):
+def search_results(squery, stype, page=1, per_page=20, profile=None, project=None):
     """Return search results"""
     # Pick up model data for the given type string
     st = search_types[stype]
     regconfig = st.model.search_vector.type.options.get('regconfig', 'english')
 
     # Construct a basic query, sorted by matching column priority followed by date.
-    # TODO: Pick the right query factory depending on requested scoping.
     # TODO: Pick a better date column than "created_at".
-    query = st.query_filter(squery).order_by(
-        db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)),
-        st.model.created_at.desc(),
-    )
+    if project:
+        query = st.project_query_filter(squery, project)
+        if not st.has_order:
+            query = query.order_by(
+                db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)),
+                st.model.created_at.desc(),
+            )
+    elif profile:
+        query = st.profile_query_filter(squery, profile)
+        if not st.has_order:
+            query = query.order_by(
+                db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)),
+                st.model.created_at.desc(),
+            )
+    else:
+        query = st.all_query_filter(squery)
+        if not st.has_order:
+            query = query.order_by(
+                db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)),
+                st.model.created_at.desc(),
+            )
 
     # Show rich summary by including the item's title with search terms highlighted
     # (only if the item has a title)
@@ -158,7 +480,8 @@ def search_results(squery, stype, page=1, per_page=20):
         hltext = st.model.search_vector.type.options['hltext']()
     else:
         hltext = db.func.concat_ws(
-            ' / ', *(getattr(st.model, c) for c in st.model.search_vector.type.columns)
+            visual_field_delimiter,
+            *(getattr(st.model, c) for c in st.model.search_vector.type.columns),
         )
 
     # Also show a snippet of the item's text with search terms highlighted
@@ -174,8 +497,16 @@ def search_results(squery, stype, page=1, per_page=20):
         type_=db.UnicodeText,
     )
 
+    matched_text_column = db.func.ts_headline(
+        regconfig,
+        hltext,
+        db.func.to_tsquery(squery),
+        'MaxFragments=0, MaxWords=100, StartSel="", StopSel=""',
+        type_=db.UnicodeText,
+    )
+
     # Add the two additional columns to the query and paginate results
-    query = query.add_columns(title_column, snippet_column)
+    query = query.add_columns(title_column, snippet_column, matched_text_column)
     pagination = query.paginate(page=page, per_page=per_page, max_per_page=100)
 
     # Return a page of results
@@ -184,11 +515,13 @@ def search_results(squery, stype, page=1, per_page=20):
             {
                 'title': item.title if st.has_title else None,
                 'title_html': escape_quotes(title) if title is not None else None,
-                'url': item.absolute_url,
+                'url': item.absolute_url
+                + '#:~:text='
+                + clean_matched_text(matched_text),
                 'snippet_html': escape_quotes(snippet),
                 'obj': item.current_access(datasets=('primary', 'related')),
             }
-            for item, title, snippet in pagination.items
+            for item, title, snippet, matched_text in pagination.items
         ],
         'has_next': pagination.has_next,
         'has_prev': pagination.has_prev,
@@ -209,7 +542,7 @@ class SearchView(ClassView):
     @render_with('search.html.jinja2', json=True)
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20):
-        squery = for_tsquery(q or '')
+        squery = get_squery(q)
         stype = abort_null(
             request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
@@ -217,13 +550,94 @@ class SearchView(ClassView):
             return redirect(url_for('index'))
         if stype is None or stype not in search_types:
             return {'type': None, 'counts': search_counts(squery)}
-        else:
-            return {
-                'type': stype,
-                'counts': search_counts(squery),
-                'results': search_results(squery, stype, page=page, per_page=per_page),
-            }
+        return {
+            'type': stype,
+            'counts': search_counts(squery),
+            'results': search_results(squery, stype, page=page, per_page=per_page),
+        }
 
 
 SearchView.init_app(app)
 SearchView.init_app(funnelapp)
+
+
+@Profile.views('search')
+@route('/<profile>')
+class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
+    @route('search')
+    @render_with('search.html.jinja2', json=True)
+    @requires_roles({'reader', 'admin'})
+    @requestargs(('q', abort_null), ('page', int), ('per_page', int))
+    def search(self, q=None, page=1, per_page=20):
+        squery = get_squery(q)
+        stype = abort_null(
+            request.args.get('type')
+        )  # Can't use requestargs as it doesn't support name changes
+        if not squery:
+            return redirect(url_for('index'))
+        if (
+            stype is None
+            or stype not in search_types
+            or search_types[stype].profile_query_filter is None
+        ):
+            return {'type': None, 'counts': search_counts(squery, profile=self.obj)}
+        return {
+            'profile': self.obj.current_access(),
+            'type': stype,
+            'counts': search_counts(squery, profile=self.obj),
+            'results': search_results(
+                squery, stype, page=page, per_page=per_page, profile=self.obj,
+            ),
+        }
+
+
+@route('/', subdomain='<profile>')
+class FunnelProfileSearchView(ProfileSearchView):
+    pass
+
+
+ProfileSearchView.init_app(app)
+FunnelProfileSearchView.init_app(funnelapp)
+
+
+@Project.views('search')
+@route('/<profile>/<project>/')
+class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
+    __decorators__ = [legacy_redirect]
+
+    @route('search')
+    @render_with('search.html.jinja2', json=True)
+    @requires_roles({'reader', 'crew', 'participant'})
+    @requestargs(('q', abort_null), ('page', int), ('per_page', int))
+    def search(self, q=None, page=1, per_page=20):
+        squery = get_squery(q)
+        stype = abort_null(
+            request.args.get('type')
+        )  # Can't use requestargs as it doesn't support name changes
+        if not squery:
+            return redirect(url_for('index'))
+        if (
+            stype is None
+            or stype not in search_types
+            or search_types[stype].project_query_filter is None
+        ):
+            return {'type': None, 'counts': search_counts(squery, project=self.obj)}
+        return {
+            'project': self.obj.current_access(),
+            'type': stype,
+            'counts': search_counts(squery, project=self.obj),
+            'results': search_results(
+                squery, stype, page=page, per_page=per_page, project=self.obj,
+            ),
+        }
+
+
+@route('/<project>/', subdomain='<profile>')
+class FunnelProjectSearchView(ProjectSearchView):
+    pass
+
+
+ProjectSearchView.init_app(app)
+FunnelProjectSearchView.init_app(app)

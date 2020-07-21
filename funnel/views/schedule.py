@@ -12,6 +12,7 @@ from baseframe import forms, localize_timezone
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
+    UrlChangeCheck,
     UrlForView,
     cors,
     jsonp,
@@ -171,7 +172,7 @@ def session_ical(session):
 
 @Project.views('schedule')
 @route('/<profile>/<project>/schedule')
-class ProjectScheduleView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')

@@ -57,6 +57,7 @@ def dbconfig():
 -- ./manage.py dbconfig | sudo -u postgres psql funnel
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS hll;
 '''

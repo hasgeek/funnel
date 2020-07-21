@@ -51,3 +51,4 @@ from .project_membership import *  # isort:skip
 from .proposal_membership import *  # isort:skip
 from .site_membership import *  # isort:skip
 from .moderation import *  # isort:skip
+from .post import *  # isort:skip

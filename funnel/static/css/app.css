@@ -31,6 +31,14 @@
   margin: 10px 0;
 }
 
+.flex-wrapper {
+  display: flex;
+}
+
+.flex-wrapper--baseline {
+  align-items: baseline;
+}
+
 .image-wrapper img {
   max-width: 100%;
   display: block;
@@ -372,6 +380,7 @@ html.touch .collapsible__body--disable {
   width: 100%;
   height: 0;
   padding-bottom: 56%;
+  min-height: 50px;
 }
 .embed-video-wrapper .video_txt {
   text-align: center;
@@ -750,6 +759,14 @@ a.loginbutton.hidden,
   .header__nav
   .header__site-title
   .header__site-title__title
+  .header__nav-links {
+  text-decoration: none !important;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
   .header__nav-links
   .header__nav-links__text {
   font-size: 12px;
@@ -918,6 +935,8 @@ a.loginbutton.hidden,
     .header__site-title__title
     .header__nav-links__dropdown {
     margin-top: 13px;
+    right: 0;
+    left: auto;
   }
   .hg-app
     .header--fixed
@@ -934,6 +953,15 @@ a.loginbutton.hidden,
   }
 }
 @media (min-width: 1200px) {
+  .hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
+    .header__nav-links__dropdown {
+    right: auto;
+    left: 0;
+  }
   .hg-app
     .header--fixed
     .header__nav
@@ -1143,7 +1171,7 @@ a.loginbutton.hidden,
     position: sticky;
     top: 50px;
     order: 1;
-    z-index: 1000;
+    z-index: 2;
   }
 
   .sub-navbar {
@@ -1224,8 +1252,8 @@ a.loginbutton.hidden,
   order: 1;
   top: 0;
   z-index: 1000;
-  width: calc(100% - 103px);
-  left: 52px;
+  width: 100%;
+  left: 0;
 }
 .tabs-wrapper--sticky .grid__col-12 {
   padding-left: 0;
@@ -1235,7 +1263,7 @@ a.loginbutton.hidden,
 .tabs {
   display: flex;
   width: 100%;
-  overflow: scroll;
+  overflow: auto;
   align-items: center;
 }
 .tabs .tabs__item {
@@ -1320,6 +1348,14 @@ a.loginbutton.hidden,
 
 .mui-btn--strike:hover {
   text-decoration: line-through;
+}
+
+.page-with-banner .alert-wrapper {
+  position: absolute;
+  top: 0;
+  z-index: 12;
+  left: 0;
+  right: 0;
 }
 
 .projects-wrapper {
@@ -1543,7 +1579,7 @@ a.loginbutton.hidden,
 .profile .profile__banner .profile__logo .profile__logo__img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   border-radius: 50%;
 }
 .profile .profile__banner .profile__logo .profile__logo__nologo {
@@ -1954,13 +1990,6 @@ a.loginbutton.hidden,
 #form-password-change #field-password .progress {
   visibility: hidden;
   display: block;
-}
-
-#form-password-change
-  #field-password
-  .mui-textfield--password
-  .password-toggle {
-  bottom: 13px;
 }
 
 #form-password-change #field-password .progress.progress--show {

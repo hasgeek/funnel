@@ -55,6 +55,7 @@
           }
 
           .header__nav-links {
+            text-decoration: none !important;
             .header__nav-links__text {
               font-size: 12px;
               color: $mui-text-light;
@@ -165,6 +166,8 @@
             }
             .header__nav-links__dropdown {
               margin-top: 13px;
+              right: 0;
+              left: auto;
               > li > a {
                 color: $mui-text-light;
               }
@@ -186,6 +189,10 @@
       .header__nav {
         .header__site-title {
           .header__site-title__title {
+            .header__nav-links__dropdown {
+              right: auto;
+              left: 0;
+            }
             .search-form {
               width: 400px;
             }
@@ -383,7 +390,7 @@
     position: sticky;
     top: 50px;
     order: 1;
-    z-index: 1000;
+    z-index: 2;
   }
 
   .sub-navbar {
@@ -474,8 +481,8 @@
   order: 1;
   top: 0;
   z-index: 1000;
-  width: calc(100% - 103px);
-  left: 52px;
+  width: 100%;
+  left: 0;
 
   .grid__col-12 {
     padding-left: 0;
@@ -486,7 +493,7 @@
 .tabs {
   display: flex;
   width: 100%;
-  overflow: scroll;
+  overflow: auto;
   align-items: center;
 
   .tabs__item {
@@ -580,4 +587,14 @@
 }
 .mui-btn--strike:hover {
   text-decoration: line-through;
+}
+
+.page-with-banner {
+  .alert-wrapper {
+    position: absolute;
+    top: 0;
+    z-index: 12;
+    left: 0;
+    right: 0;
+  }
 }

@@ -31,6 +31,7 @@ class SET_TYPE:  # NOQA: N801
     PROJECT = 0
     PROPOSAL = 2
     COMMENT = 3
+    POST = 4
 
 
 # --- Models ------------------------------------------------------------------
@@ -232,13 +233,15 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def absolute_url(self):
         if self.commentset.proposal:
             return self.commentset.proposal.absolute_url + '#c' + self.uuid_b58
+        elif self.commentset.project:
+            return self.commentset.project.url_for('comments') + '#c' + self.uuid_b58
 
     @property
     def title(self):
-        obj = self.commentset.proposal
+        obj = self.commentset.proposal or self.commentset.project
         if obj:
             return _("{user} commented on {obj}").format(
-                user=self.user.pickername, obj=self.commentset.proposal.title
+                user=self.user.pickername, obj=obj.title
             )
         else:
             return _("{user} commented").format(user=self.user.pickername)
