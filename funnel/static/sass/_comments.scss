@@ -55,6 +55,9 @@
     border: 1px solid #c0ccda;
     min-height: 60px;
   }
+  .CodeMirror ~ .CodeMirror {
+    display: none;
+  }
   .CodeMirror-focused {
     border: 1px solid #4a90e2;
   }

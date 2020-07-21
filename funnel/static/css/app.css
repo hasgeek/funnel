@@ -3568,6 +3568,9 @@ a.loginbutton.hidden,
   border: 1px solid #c0ccda;
   min-height: 60px;
 }
+.comments-form .CodeMirror ~ .CodeMirror {
+  display: none;
+}
 .comments-form .CodeMirror-focused {
   border: 1px solid #4a90e2;
 }
