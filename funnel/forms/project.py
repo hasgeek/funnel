@@ -21,6 +21,7 @@ __all__ = [
     'ProjectNameForm',
     'ProjectScheduleTransitionForm',
     'ProjectTransitionForm',
+    'ProjectBannerForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
     'TicketClientForm',
@@ -126,6 +127,20 @@ class ProjectNameForm(forms.Form):
         ],
         prefix="https://hasgeek.com/<profile>/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    )
+
+
+class ProjectBannerForm(forms.Form):
+    bg_image = forms.URLField(
+        __("Banner image URL from Imgee"),
+        description=__(
+            "Images should be of 16:9 aspect ratio. " " Under or ~100kb file size"
+        ),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.Length(max=2000),
+            image_url_validator(),
+        ],
     )
 
 

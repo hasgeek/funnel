@@ -32,6 +32,7 @@ from ..forms import (
     CfpForm,
     CommentDeleteForm,
     CommentForm,
+    ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectForm,
@@ -438,6 +439,24 @@ class ProjectView(
                         submit=_("Save changes"),
                         autosave=True,
                     )
+
+    @route('edit_banner', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def edit_banner(self):
+        form = ProjectBannerForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            return redirect(self.obj.url_for())
+        return render_form(
+            form=form,
+            title=_(""),
+            submit=_("Save banner"),
+            ajax=True,
+            template='img_upload_formlayout.html.jinja2',
+        )
 
     @route('cfp', methods=['GET', 'POST'])
     @requires_login
