@@ -325,6 +325,8 @@ const Schedule = {
     },
     getEventDate(eventDate) {
       const options = {
+        year: 'numeric',
+        month: 'long',
         day: 'numeric',
         timeZone: this.timeZone,
       };
