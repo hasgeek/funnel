@@ -100,6 +100,7 @@
             <span class="mui-caret"></span>
           </a>
           <ul class="mui-dropdown__menu header__nav-links__dropdown">
+            {% if current_auth.user.profile %}<li><a href="{{ current_auth.user.profile.url_for() }}" class="mui--text-subhead" data-cy="my-profile">{{ current_auth.user.fullname }}</a></li>{%- endif %}
             <li><a href="{{ url_for('account') }}" class="mui--text-subhead" data-cy="my-account">Account</a></li>
             <li><a href="{{ url_for('saved') }}" class="mui--text-subhead">My saves</a></li>
             <li><a href="{{ url_for('scan_contact') }}" class="mui--text-subhead">Scan badge</a></li>
@@ -154,7 +155,7 @@
 
 {%- block basecontentbox %}
   {%- block messages %}
-    <div class="mui-container">
+    <div class="mui-container alert-wrapper">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
