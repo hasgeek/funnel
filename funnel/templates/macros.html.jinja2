@@ -101,17 +101,17 @@
     <div class="grid">
       {% if current_auth.user.is_site_editor and project.featured %}
         <div class="grid__col-sm-12">
-          {{ alertbox('success', 'This is a featured project') }}
+          {{ alertbox('success', gettext('This is now a featured project')) }}
         </div>
       {% endif %}
       {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
         <div class="grid__col-sm-12">
-          {{ alertbox('warning', 'This project will not be listed as it has no sessions in the schedule') }}
+          {{ alertbox('warning', gettext('This project will not be listed as it has no sessions in the schedule')) }}
         </div>
       {% endif %}
       {% if project.view_for('view').is_available() and project.state.DRAFT %}
       <div class="grid__col-sm-12">
-        {{ alertbox('warning', 'This project is currently not published') }}
+        {{ alertbox('warning', gettext('This project is currently not published')) }}
       </div>
       {% endif %}
       <div class="grid__col-sm-12">
