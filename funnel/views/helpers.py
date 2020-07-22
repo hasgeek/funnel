@@ -26,14 +26,8 @@ from coaster.utils import utcnow
 from coaster.views import get_current_url
 
 from .. import app, funnelapp, lastuserapp
-from ..models import (
-    AuthClientCredential,
-    User,
-    UserSession,
-    db,
-    emailaddress_refcount_dropping,
-)
-from ..signals import user_login, user_registered
+from ..models import AuthClientCredential, User, UserSession, db
+from ..signals import emailaddress_refcount_dropping, user_login, user_registered
 from ..utils import abort_null
 from .jobs import forget_email
 
