@@ -275,12 +275,12 @@ class TestUser(TestDatabaseFixture):
         # result1 = models.User.autocomplete(u'*')
         # self.assertEqual(result1 or lena)
         # scenario 2: when query passed
-        assert models.User.autocomplete("[oa]") == [oakley]
-        assert models.User.autocomplete("Pig") == [piglet]
-        assert models.User.autocomplete("crusoe@keepballin.ca") == [crusoe]
+        assert models.User.autocomplete('[oa]') == [oakley]
+        assert models.User.autocomplete('Pig') == [piglet]
+        assert models.User.autocomplete('crusoe@keepballin.ca') == [crusoe]
+        assert models.User.autocomplete('[]cruso') == [crusoe]
         assert models.User.autocomplete('@[') == []  # Test for empty searches
         assert models.User.autocomplete('[[]]') == []
-        assert models.User.autocomplete("[]cruso") == [crusoe]
 
     def test_user_merged_user(self):
         """
