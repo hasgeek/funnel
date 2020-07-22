@@ -20,7 +20,7 @@ Cypress.Commands.add('logout', (route) => {
   cy.get('#hgnav').find('a[data-cy="account-link"]').click();
   cy.wait(1000);
   cy.get('a[data-cy="my-account"]').click();
-  cy.get('a[data-cy="Logout"]').click();
+  cy.get('button[data-cy="Logout"]').click();
 });
 
 Cypress.Commands.add('fill_login_details', (username, password) => {

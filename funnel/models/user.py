@@ -20,18 +20,11 @@ from coaster.sqlalchemy import (
     failsafe_add,
     with_roles,
 )
-from coaster.utils import (
-    LabeledEnum,
-    newpin,
-    newsecret,
-    require_one_of,
-    utcnow,
-    valid_username,
-)
+from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
 from . import BaseMixin, TSVectorType, UuidMixin, db
 from .email_address import EmailAddress, EmailAddressMixin
-from .helpers import add_search_trigger
+from .helpers import add_search_trigger, valid_username
 
 __all__ = [
     'USER_STATUS',
@@ -69,7 +62,8 @@ class SharedProfileMixin:
         return True
 
     def validate_name_candidate(self, name):
-        if name and name == self.name:
+        if name and self.name and name.lower() == self.name.lower():
+            # Same name, or only a case change. No validation required
             return
         return Profile.validate_name_candidate(name)
 
@@ -375,7 +369,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             buid = userid
 
         if username is not None:
-            query = cls.query.join(Profile).filter(Profile.name == username)
+            query = cls.query.join(Profile).filter(
+                db.func.lower(Profile.name) == db.func.lower(username)
+            )
         else:
             query = cls.query.filter_by(buid=buid)
         if defercols:
@@ -403,12 +399,21 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             buids = userids
         if buids and usernames:
             query = cls.query.join(Profile).filter(
-                or_(cls.buid.in_(buids), Profile.name.in_(usernames))
+                or_(
+                    cls.buid.in_(buids),
+                    db.func.lower(Profile.name).in_(
+                        [username.lower() for username in usernames]
+                    ),
+                )
             )
         elif buids:
             query = cls.query.filter(cls.buid.in_(buids))
         elif usernames:
-            query = cls.query.join(Profile).filter(Profile.name.in_(usernames))
+            query = cls.query.join(Profile).filter(
+                db.func.lower(Profile.name).in_(
+                    [username.lower() for username in usernames]
+                )
+            )
         else:
             raise Exception
 
@@ -442,7 +447,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # and doesn't use an index in PostgreSQL. There's a functional index for lower()
         # defined above in __table_args__ that also applies to LIKE lower(val) queries.
 
-        if like_query == '%':
+        if like_query in ('%', '@%'):
             return []
 
         # base_users is used in two of the three possible queries below
@@ -547,9 +552,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     #: New user account
     user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('oldids', cascade='all'),
+        User, foreign_keys=[user_id], backref=db.backref('oldids', cascade='all'),
     )
 
     def __repr__(self):
@@ -690,7 +693,9 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         require_one_of(name=name, buid=buid)
 
         if name is not None:
-            query = cls.query.join(Profile).filter(Profile.name == name)
+            query = cls.query.join(Profile).filter(
+                db.func.lower(Profile.name) == db.func.lower(name)
+            )
         else:
             query = cls.query.filter_by(buid=buid)
         if defercols:
@@ -706,7 +711,9 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 query = query.options(*cls._defercols)
             orgs.extend(query.all())
         if names:
-            query = cls.query.join(Profile).filter(Profile.name.in_(names))
+            query = cls.query.join(Profile).filter(
+                db.func.lower(Profile.name).in_([name.lower() for name in names])
+            )
             if defercols:
                 query = query.options(*cls._defercols)
             orgs.extend(query.all())
@@ -724,9 +731,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
     #: Organization
     organization_id = db.Column(None, db.ForeignKey('organization.id'), nullable=False)
     organization = db.relationship(
-        Organization,
-        primaryjoin=organization_id == Organization.id,
-        backref=db.backref('teams', order_by=title, cascade='all'),
+        Organization, backref=db.backref('teams', order_by=title, cascade='all'),
     )
     users = db.relationship(
         User, secondary=team_membership, lazy='dynamic', backref='teams'
@@ -784,11 +789,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     __email_is_exclusive__ = True
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('emails', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('emails', cascade='all'),)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
@@ -878,11 +879,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     __email_is_exclusive__ = False
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('emailclaims', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'),)
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
     blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
 
@@ -987,11 +984,7 @@ auto_init_default(UserEmailClaim.verification_code)
 class UserPhone(BaseMixin, db.Model):
     __tablename__ = 'user_phone'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('phones', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('phones', cascade='all'))
     _phone = db.Column('phone', db.UnicodeText, unique=True, nullable=False)
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
 
@@ -1069,11 +1062,7 @@ class UserPhone(BaseMixin, db.Model):
 class UserPhoneClaim(BaseMixin, db.Model):
     __tablename__ = 'user_phone_claim'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('phoneclaims', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'),)
     _phone = db.Column('phone', db.UnicodeText, nullable=False, index=True)
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
     verification_code = db.Column(db.Unicode(4), nullable=False, default=newpin)
@@ -1183,11 +1172,7 @@ class UserExternalId(BaseMixin, db.Model):
     __tablename__ = 'user_externalid'
     __at_username_services__ = []
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('externalids', cascade='all'),
-    )
+    user = db.relationship(User, backref=db.backref('externalids', cascade='all'),)
     service = db.Column(db.UnicodeText, nullable=False)
     userid = db.Column(db.UnicodeText, nullable=False)  # Unique id (or obsolete OpenID)
     username = db.Column(db.UnicodeText, nullable=True)  # LinkedIn returns full URLs

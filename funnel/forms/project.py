@@ -21,6 +21,7 @@ __all__ = [
     'ProjectNameForm',
     'ProjectScheduleTransitionForm',
     'ProjectTransitionForm',
+    'ProjectBannerForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
     'TicketClientForm',
@@ -70,8 +71,8 @@ class ProjectForm(forms.Form):
     bg_image = forms.URLField(
         __("Banner image URL"),
         description=(
-            "Banner image for project cards on the homepage. "
-            "Resolution should be 1200x675 px. Image size should be around 50KB."
+            "From images.hasgeek.com, with 16:9 aspect ratio."
+            " Should be < 100 kB in size"
         ),
         validators=[
             forms.validators.Optional(),
@@ -110,17 +111,37 @@ class ProjectNameForm(forms.Form):
         __("Custom URL"),
         description=__(
             "Customize the URL of your project. "
-            "Use letters, numbers and dashes only. "
+            "Use lowercase letters, numbers and dashes only. "
             "Including a date is recommended"
         ),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=Project.__name_length__),
-            forms.validators.ValidName(),
+            forms.validators.ValidName(
+                __(
+                    "This URL contains unsupported characters. It can contain "
+                    "lowercase letters, numbers and hyphens only."
+                )
+            ),
             AvailableName(),
         ],
         prefix="https://hasgeek.com/<profile>/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    )
+
+
+class ProjectBannerForm(forms.Form):
+    bg_image = forms.URLField(
+        __("Banner image URL"),
+        description=__(
+            "From images.hasgeek.com, with 16:9 aspect ratio."
+            " Should be < 100 kB in size"
+        ),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.Length(max=2000),
+            image_url_validator(),
+        ],
     )
 
 

@@ -29,10 +29,13 @@ class TestName(TestDatabaseFixture):
         assert models.Profile.validate_name_candidate('invalid_name') == 'invalid'
         assert models.Profile.validate_name_candidate('0123456789' * 7) == 'long'
         assert models.Profile.validate_name_candidate('0123456789' * 6) is None
+        assert models.Profile.validate_name_candidate('ValidName') is None
         assert models.Profile.validate_name_candidate('test-reserved') is None
         db.session.add(models.Profile(name='test-reserved', reserved=True))
         db.session.commit()
         assert models.Profile.validate_name_candidate('test-reserved') == 'reserved'
+        assert models.Profile.validate_name_candidate('Test-Reserved') == 'reserved'
+        assert models.Profile.validate_name_candidate('TestReserved') is None
         assert models.Profile.validate_name_candidate('piglet') == 'user'
         assert models.Profile.validate_name_candidate('batdog') == 'org'
 
@@ -44,12 +47,21 @@ class TestName(TestDatabaseFixture):
         db.session.add(reserved_name)
         db.session.commit()
         # Profile.get() no longer works for non-public profiles
-        retrieved_name = models.Profile.query.filter_by(name='reserved-name').first()
+        retrieved_name = models.Profile.query.filter(
+            db.func.lower(models.Profile.name) == db.func.lower('reserved-name')
+        ).first()
         assert retrieved_name is reserved_name
         assert reserved_name.user is None
         assert reserved_name.user_id is None
         assert reserved_name.organization is None
         assert reserved_name.organization_id is None
+
+        reserved_name.name = 'Reserved-Name'
+        db.session.commit()
+        retrieved_name = models.Profile.query.filter(
+            db.func.lower(models.Profile.name) == db.func.lower('Reserved-Name')
+        ).first()
+        assert retrieved_name is reserved_name
 
     def test_unassigned_name(self):
         """

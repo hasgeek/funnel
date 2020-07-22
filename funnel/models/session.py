@@ -13,7 +13,7 @@ from . import (
     UuidMixin,
     db,
 )
-from .helpers import add_search_trigger
+from .helpers import add_search_trigger, visual_field_delimiter
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
@@ -62,7 +62,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                 },
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
-                    ' / ',
+                    visual_field_delimiter,
                     Session.title,
                     Session.speaker,
                     Session.description_html,

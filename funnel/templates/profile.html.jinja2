@@ -34,7 +34,7 @@
 {%- endblock %}
 
 {% block bodytag %}
-  <body class="mui--bg-accent hg-app">
+  <body class="mui--bg-primary hg-app page-with-banner">
 {% endblock %}
 
 {% block contenthead %}
@@ -42,20 +42,10 @@
 
 {% block baseheadline %}
   {{ profile_header(profile) }}
-  {%- if profile.current_roles.admin %}
-    <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          <p class="btn-group"><a class="mui-btn mui-btn--primary mui-btn--raised" data-cy-btn="profile-crew" href="{{ profile.urls['members'] }}">{%- if profile.current_roles.owner %}{% trans %}Manage members{% endtrans %}{% else %}{% trans %}View members{% endtrans %}{% endif %}</a>
-          <a class="mui-btn mui-btn--secondary mui-btn--raised" data-cy-btn="edit-details" href="{{ g.profile.url_for('edit') }}">{% trans %}Edit details{% endtrans %}</a></p>
-        </div>
-      </div>
-    </div>
-  {% endif %}
 {% endblock %}
 
 {% block basecontent %}
-  {%- if profile.current_roles.admin or profile.current_roles.owner %}
+  {%- if profile.features.new_project() %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
@@ -64,24 +54,22 @@
           </div>
         </div>
         <ul class="grid projects" role="list">
-          {%- if profile.current_roles.admin %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              <a class="card card--upcoming card--new clickable-card" href="{{ g.profile.url_for('new_project')}}" aria-label="{% trans %}Create new project{% endtrans %}" data-cy="new-project" data-action="Add new project">
-                <div class="card__image-wrapper">
-                  <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
-                  <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
-                </div>
-                <div class="card__body">
-                  <h4 class="mui--text-headline mui--text-bold">{% trans %}Start a project{% endtrans %}</h4>
-                  <p class="mui--text-subhead mui--text-light zero-top-margin"">{% trans %}Write, collaborate and get feedback.{% endtrans %}</p>
-                </div>
-                <div class="mui-divider"></div>
-                <div class="card__footer">
-                  <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}Start project{% endtrans %}</p>
-                </div>
-              </a>
-            </li>
-          {% endif %}
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-action="Add new project">
+              <div class="card__image-wrapper">
+                <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="new"/>
+                <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
+              </div>
+              <div class="card__body">
+                <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
+                <p class="mui--text-subhead mui--text-light zero-top-margin"">{% trans %}Write, collaborate and get feedback.{% endtrans %}</p>
+              </div>
+              <div class="mui-divider"></div>
+              <div class="card__footer">
+                <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}New project{% endtrans %}</p>
+              </div>
+            </a>
+          </li>
   {% elif draft_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">

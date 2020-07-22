@@ -116,7 +116,10 @@ class LabelView(UrlForView, ModelView):
     def loader(self, profile, project, label):
         proj = (
             Project.query.join(Profile)
-            .filter(Profile.name == profile, Project.name == project)
+            .filter(
+                db.func.lower(Profile.name) == db.func.lower(profile),
+                Project.name == project,
+            )
             .first_or_404()
         )
         label = self.model.query.filter_by(project=proj, name=label).first_or_404()

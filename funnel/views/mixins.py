@@ -30,13 +30,19 @@ class ProjectViewMixin(object):
     def loader(self, profile, project, session=None):
         proj = (
             self.model.query.join(Profile)
-            .filter(Project.name == project, Profile.name == profile)
+            .filter(
+                Project.name == project,
+                db.func.lower(Profile.name) == db.func.lower(profile),
+            )
             .first()
         )
         if proj is None:
             projredir = (
                 ProjectRedirect.query.join(Profile)
-                .filter(ProjectRedirect.name == project, Profile.name == profile)
+                .filter(
+                    ProjectRedirect.name == project,
+                    db.func.lower(Profile.name) == db.func.lower(profile),
+                )
                 .first_or_404()
             )
             return projredir
@@ -105,7 +111,7 @@ class ProposalViewMixin(object):
             proposal = (
                 self.model.query.join(Project, Profile)
                 .filter(
-                    Profile.name == profile,
+                    db.func.lower(Profile.name) == db.func.lower(profile),
                     Project.name == project,
                     Proposal.url_name == url_id_name,
                 )
@@ -116,7 +122,7 @@ class ProposalViewMixin(object):
                     redirect = (
                         ProposalRedirect.query.join(Project, Profile)
                         .filter(
-                            Profile.name == profile,
+                            db.func.lower(Profile.name) == db.func.lower(profile),
                             Project.name == project,
                             ProposalRedirect.url_name == url_id_name,
                         )
@@ -152,7 +158,7 @@ class SessionViewMixin(object):
         session = (
             self.model.query.join(Project, Profile)
             .filter(
-                Profile.name == profile,
+                db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
                 Session.url_name_uuid_b58 == session,
             )
@@ -181,7 +187,9 @@ class VenueViewMixin(object):
         venue = (
             self.model.query.join(Project, Profile)
             .filter(
-                Profile.name == profile, Project.name == project, Venue.name == venue
+                db.func.lower(Profile.name) == db.func.lower(profile),
+                Project.name == project,
+                Venue.name == venue,
             )
             .first_or_404()
         )
@@ -202,7 +210,7 @@ class VenueRoomViewMixin(object):
         room = (
             self.model.query.join(Venue, Project, Profile)
             .filter(
-                Profile.name == profile,
+                db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
                 Venue.name == venue,
                 VenueRoom.name == room,
@@ -225,7 +233,9 @@ class EventViewMixin(object):
         event = (
             self.model.query.join(Project, Profile)
             .filter(
-                Profile.name == profile, Project.name == project, Event.name == name
+                db.func.lower(Profile.name) == db.func.lower(profile),
+                Project.name == project,
+                Event.name == name,
             )
             .one_or_404()
         )

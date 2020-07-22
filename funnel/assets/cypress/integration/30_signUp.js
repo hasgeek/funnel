@@ -25,7 +25,7 @@ describe('Creating a new user account', function () {
     cy.get('#password').type(newuser.newpassword);
     cy.get('#confirm_password').type(newuser.newpassword);
     cy.get('button').contains('Change password').click();
-    cy.get('a[data-cy="Logout"]').click();
+    cy.get('button[data-cy="Logout"]').click();
 
     cy.login('/', newuser.username, newuser.newpassword);
   });

@@ -13,11 +13,12 @@ from flask import (
 )
 
 from baseframe import _, forms
-from baseframe.forms import render_form
+from baseframe.forms import render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
+    UrlChangeCheck,
     UrlForView,
     get_next_url,
     jsonp,
@@ -31,6 +32,7 @@ from ..forms import (
     CfpForm,
     CommentDeleteForm,
     CommentForm,
+    ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectForm,
@@ -249,7 +251,9 @@ FunnelProfileProjectView.init_app(funnelapp)
 
 @Project.views('main')
 @route('/<profile>/<project>/')
-class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
+class ProjectView(
+    ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
+):
     __decorators__ = [legacy_redirect]
 
     @route('')
@@ -435,6 +439,29 @@ class ProjectView(ProjectViewMixin, DraftViewMixin, UrlForView, ModelView):
                         submit=_("Save changes"),
                         autosave=True,
                     )
+
+    @route('edit_banner', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def edit_banner(self):
+        form = ProjectBannerForm(obj=self.obj)
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                form.populate_obj(self.obj)
+                db.session.commit()
+                flash(_("Your changes have been saved"), 'info')
+                return render_redirect(self.obj.url_for(), code=303)
+            else:
+                return render_form(
+                    form=form, title=_(""), submit=_("Save banner"), ajax=True,
+                )
+        return render_form(
+            form=form,
+            title=_(""),
+            submit=_("Save banner"),
+            ajax=True,
+            template='img_upload_formlayout.html.jinja2',
+        )
 
     @route('cfp', methods=['GET', 'POST'])
     @requires_login

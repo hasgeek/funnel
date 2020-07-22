@@ -31,7 +31,8 @@ class TestUser(TestDatabaseFixture):
         crusoe = models.User.get(username='crusoe')
         # scenario 1: not a valid username
         number_one = models.User(username='number1', fullname='Number One')
-        assert number_one.is_valid_name('Number1') is False
+        assert number_one.is_valid_name('Number1') is True  # Mixed case is now allowed
+        assert number_one.is_valid_name('Number_1') is False  # Underscores are not
         # scenario 2: a valid username but not the username of instance passed
         assert crusoe.is_valid_name("oakley") is False
         # scenario 3: a existing username
@@ -262,7 +263,9 @@ class TestUser(TestDatabaseFixture):
 
     def test_user_autocomplete(self):
         """
-        Test for User's autocomplete method
+        Test for User's autocomplete method: queries valid users defined
+        in fixtures, as well as input that should not return a response.
+
         """
         crusoe = models.User.get(username='crusoe')
         oakley = models.User.get(username='oakley')
@@ -272,20 +275,12 @@ class TestUser(TestDatabaseFixture):
         # result1 = models.User.autocomplete(u'*')
         # self.assertEqual(result1 or lena)
         # scenario 2: when query passed
-        queries = ["[oa]", "Pig", "crusoe@keepballin.ca"]
-        result2 = []
-        for each in queries:
-            result2.append(models.User.autocomplete(each))
-        for result in result2:
-            assert isinstance(result, list)
-            for each in result:
-                assert isinstance(each, models.User)
-        query_for_oakley = models.User.autocomplete(queries[0])
-        assert query_for_oakley == [oakley]
-        query_for_piglet = models.User.autocomplete(queries[1])
-        assert query_for_piglet == [piglet]
-        query_for_crusoe = models.User.autocomplete(queries[2])
-        assert query_for_crusoe == [crusoe]
+        assert models.User.autocomplete('[oa]') == [oakley]
+        assert models.User.autocomplete('Pig') == [piglet]
+        assert models.User.autocomplete('crusoe@keepballin.ca') == [crusoe]
+        assert models.User.autocomplete('[]cruso') == [crusoe]
+        assert models.User.autocomplete('@[') == []  # Test for empty searches
+        assert models.User.autocomplete('[[]]') == []
 
     def test_user_merged_user(self):
         """

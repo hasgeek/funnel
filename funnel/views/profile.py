@@ -1,11 +1,12 @@
-from flask import flash, redirect
+from flask import flash, redirect, request
 
 from baseframe import _
 from baseframe.filters import date_filter
-from baseframe.forms import render_form
+from baseframe.forms import render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
+    UrlChangeCheck,
     UrlForView,
     get_next_url,
     render_with,
@@ -22,9 +23,24 @@ from .helpers import requires_login
 from .mixins import ProfileViewMixin
 
 
+@Profile.features('new_project')
+def feature_profile_new_project(obj):
+    return obj.current_roles.admin and bool(obj.state.PUBLIC)
+
+
+@Profile.features('make_public')
+def feature_profile_make_public(obj):
+    return obj.current_roles.admin and not bool(obj.state.PUBLIC)
+
+
+@Profile.features('make_private')
+def feature_profile_make_private(obj):
+    return obj.current_roles.admin and bool(obj.state.PUBLIC)
+
+
 @Profile.views('main')
 @route('/<profile>')
-class ProfileView(ProfileViewMixin, UrlForView, ModelView):
+class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
@@ -136,6 +152,8 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     @requires_roles({'admin'})
     def edit(self):
         form = ProfileForm(obj=self.obj, model=Profile)
+        if self.obj.user:
+            form.make_for_user()
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -153,34 +171,44 @@ class ProfileView(ProfileViewMixin, UrlForView, ModelView):
     @requires_roles({'admin'})
     def edit_logo_url(self):
         form = ProfileLogoForm(obj=self.obj)
-        if form.validate_on_submit():
-            form.populate_obj(self.obj)
-            db.session.commit()
-            flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                form.populate_obj(self.obj)
+                db.session.commit()
+                flash(_("Your changes have been saved"), 'info')
+                return render_redirect(self.obj.url_for(), code=303)
+            else:
+                return render_form(
+                    form=form, title=_(""), submit=_("Save logo"), ajax=True,
+                )
         return render_form(
             form=form,
-            title=_("Edit profile logo"),
+            title=_(""),
             submit=_("Save logo"),
-            cancel_url=self.obj.url_for(),
-            ajax=False,
+            ajax=True,
+            template='img_upload_formlayout.html.jinja2',
         )
 
-    @route('edit_banner_image', methods=['GET', 'POST'])
+    @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self):
         form = ProfileBannerForm(obj=self.obj)
-        if form.validate_on_submit():
-            form.populate_obj(self.obj)
-            db.session.commit()
-            flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                form.populate_obj(self.obj)
+                db.session.commit()
+                flash(_("Your changes have been saved"), 'info')
+                return render_redirect(self.obj.url_for(), code=303)
+            else:
+                return render_form(
+                    form=form, title=_(""), submit=_("Save banner"), ajax=True,
+                )
         return render_form(
             form=form,
-            title=_("Edit profile banner image"),
+            title=_(""),
             submit=_("Save banner"),
-            cancel_url=self.obj.url_for(),
-            ajax=False,
+            ajax=True,
+            template='img_upload_formlayout.html.jinja2',
         )
 
     @route('transition', methods=['POST'])
