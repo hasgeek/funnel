@@ -1,8 +1,8 @@
-from flask import flash, redirect
+from flask import flash, redirect, request
 
 from baseframe import _
 from baseframe.filters import date_filter
-from baseframe.forms import render_form
+from baseframe.forms import render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -171,11 +171,16 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'admin'})
     def edit_logo_url(self):
         form = ProfileLogoForm(obj=self.obj)
-        if form.validate_on_submit():
-            form.populate_obj(self.obj)
-            db.session.commit()
-            flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                form.populate_obj(self.obj)
+                db.session.commit()
+                flash(_("Your changes have been saved"), 'info')
+                return render_redirect(self.obj.url_for(), code=303)
+            else:
+                return render_form(
+                    form=form, title=_(""), submit=_("Save logo"), ajax=True,
+                )
         return render_form(
             form=form,
             title=_(""),
@@ -188,11 +193,16 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'admin'})
     def edit_banner_image_url(self):
         form = ProfileBannerForm(obj=self.obj)
-        if form.validate_on_submit():
-            form.populate_obj(self.obj)
-            db.session.commit()
-            flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                form.populate_obj(self.obj)
+                db.session.commit()
+                flash(_("Your changes have been saved"), 'info')
+                return render_redirect(self.obj.url_for(), code=303)
+            else:
+                return render_form(
+                    form=form, title=_(""), submit=_("Save banner"), ajax=True,
+                )
         return render_form(
             form=form,
             title=_(""),

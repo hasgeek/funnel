@@ -25,9 +25,7 @@
         </div>
       {% endblock %}
     </div>
-    {%- if with_chrome -%}
-      {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
-    {%- endif -%}
+    {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
   {% endblock %}
 
   {{ widget_ext_scripts(form) }}
