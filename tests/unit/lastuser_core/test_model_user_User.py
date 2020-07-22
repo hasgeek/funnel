@@ -275,20 +275,12 @@ class TestUser(TestDatabaseFixture):
         # result1 = models.User.autocomplete(u'*')
         # self.assertEqual(result1 or lena)
         # scenario 2: when query passed
-        queries = ["[oa]", "Pig", "crusoe@keepballin.ca", "[]cruso"]
-        result2 = []
-        for each in queries:
-            result2.append(models.User.autocomplete(each))
-        for result in result2:
-            assert isinstance(result, list)
-            for each in result:
-                assert isinstance(each, models.User)
-        assert models.User.autocomplete(queries[0]) == [oakley]
-        assert models.User.autocomplete(queries[1]) == [piglet]
-        assert models.User.autocomplete(queries[2]) == [crusoe]
+        assert models.User.autocomplete("[oa]") == [oakley]
+        assert models.User.autocomplete("Pig") == [piglet]
+        assert models.User.autocomplete("crusoe@keepballin.ca") == [crusoe]
         assert models.User.autocomplete('@[') == []  # Test for empty searches
         assert models.User.autocomplete('[[]]') == []
-        assert models.User.autocomplete(queries[3]) == [crusoe]
+        assert models.User.autocomplete("[]cruso") == [crusoe]
 
     def test_user_merged_user(self):
         """
