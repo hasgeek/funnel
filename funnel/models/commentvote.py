@@ -201,7 +201,6 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'title',
                 'message',
                 'message_body',
-                'parent_id',
                 'children_comments',
                 'urls',
                 'badges',
