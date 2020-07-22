@@ -50,7 +50,6 @@ from ..models import (
     Proposal,
     Rsvp,
     SavedProject,
-    Voteset,
     db,
 )
 from .decorators import legacy_redirect
@@ -718,16 +717,9 @@ class ProjectView(
     @render_with('project_comments.html.jinja2', json=True)
     @requires_roles({'reader'})
     def comments(self):
-        comments = (
-            Comment.query.join(Voteset)
-            .filter(
-                Comment.commentset == self.obj.commentset, Comment.parent_id.is_(None)
-            )
-            .order_by(Voteset.count, Comment.created_at.asc())
-            .all()
-        )
+        comments = self.obj.commentset.views.json_comments()
         if request_is_xhr():
-            return {'comments': [comment.current_access() for comment in comments]}
+            return {'comments': comments}
         else:
             project_save_form = SavedProjectForm()
             commentform = CommentForm(model=Comment)
@@ -735,7 +727,7 @@ class ProjectView(
             return {
                 'project': self.obj,
                 'project_save_form': project_save_form,
-                'comments': [comment.current_access() for comment in comments],
+                'comments': comments,
                 'commentform': commentform,
                 'delcommentform': delcommentform,
                 'csrf_form': forms.Form(),

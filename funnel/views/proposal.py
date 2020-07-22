@@ -196,13 +196,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('proposal.html.jinja2')
     @requires_permission('view')
     def view(self):
-        comments = sorted(
-            Comment.query.filter_by(commentset=self.obj.commentset, parent=None)
-            .order_by('created_at')
-            .all(),
-            key=lambda c: c.voteset.count,
-            reverse=True,
-        )
         commentform = CommentForm(model=Comment)
         delcommentform = CommentDeleteForm()
 
@@ -226,7 +219,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return {
             'project': self.obj.project,
             'proposal': self.obj,
-            'comments': [comment.current_access() for comment in comments],
+            'comments': self.obj.commentset.views.json_comments(),
             'commentform': commentform,
             'delcommentform': delcommentform,
             'links': links,
@@ -247,14 +240,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'reader'})
     def comments(self):
         if request_is_xhr():
-            comments = sorted(
-                Comment.query.filter_by(commentset=self.obj.commentset, parent=None)
-                .order_by('created_at')
-                .all(),
-                key=lambda c: c.voteset.count,
-                reverse=True,
-            )
-            return {'comments': [comment.current_access() for comment in comments]}
+            return {'comments': self.obj.commentset.views.json_comments()}
         else:
             return redirect(self.obj.commentset.views.url(), code=303)
 

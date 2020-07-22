@@ -384,9 +384,12 @@ def comment_url(obj):
 
 @Commentset.views('json_comments')
 def commentset_json(obj):
+    parent_comments = obj.parent_comments.join(Voteset).order_by(
+        Voteset.count, Comment.created_at.asc()
+    )
     return [
         comment.current_access(datasets=('json',))
-        for comment in obj.parent_comments
+        for comment in parent_comments
         if comment.state.PUBLIC or comment.children is not None
     ]
 
