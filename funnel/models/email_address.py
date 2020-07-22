@@ -358,9 +358,13 @@ class EmailAddress(BaseMixin, db.Model):
 
     def refcount(self) -> int:
         """Returns count of references to this EmailAddress instance"""
-        # TODO: Property in EmailAddressMixin that returns true if the reference is active
+        # obj.email_address_reference_is_active is a bool, but int(bool) is 0 or 1
         return sum(
-            len(getattr(self, backref_name)) for backref_name in self.__backrefs__
+            sum(
+                obj.email_address_reference_is_active
+                for obj in getattr(self, backref_name)
+            )
+            for backref_name in self.__backrefs__
         )
 
     @classmethod
@@ -527,7 +531,9 @@ class EmailAddressMixin:
     """
     Mixin class for models that refer to EmailAddress.
 
-    Subclasses should set configuration using the four ``__email_*__`` attributes.
+    Subclasses should set configuration using the four ``__email_*__`` attributes and
+    should optionally override :meth:`email_address_reference_is_active` if the model
+    implements archived rows, such as in memberships.
     """
 
     #: This class has an optional dependency on EmailAddress
@@ -594,6 +600,11 @@ class EmailAddressMixin:
                     self.email_address = None
 
         return property(fget=email_get, fset=email_set)
+
+    @property
+    def email_address_reference_is_active(self):
+        """Subclasses should replace this if they hold inactive references"""
+        return True
 
 
 auto_init_default(EmailAddress._delivery_state)
