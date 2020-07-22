@@ -1,8 +1,0 @@
-{% extends "email_layout.html.jinja2" %}
-{% block content -%}
-
-  <p>{% trans project_title=project.title, revoked_by=revoked_by.pickername %}
-    You have been removed as a crew member from <b>{{ project_title }}</b> by <b>{{ revoked_by }}</b>.
-  {% endtrans %}</p>
-
-{%- endblock %}

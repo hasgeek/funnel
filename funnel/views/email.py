@@ -8,7 +8,7 @@ from premailer import transform
 
 from baseframe import _
 
-from .. import mail
+from .. import mail, signals
 from ..models import EmailAddress, User
 
 
@@ -101,3 +101,93 @@ def send_password_reset_link(email, user, secret):
         jsonld=jsonld,
     )
     send_email(subject, [(user.fullname, email)], content)
+
+
+@signals.organization_admin_membership_added.connect
+def send_email_for_organization_admin_membership_added(
+    sender, organization, membership, actor, user
+):
+    send_email(
+        subject=_("You have been added to {organization} as an admin").format(
+            organization=organization.title
+        ),
+        to=[user],
+        content=render_template(
+            'email_organization_admin_membership_add_notification.html.jinja2',
+            actor=actor,
+            organization=organization,
+            membership=membership,
+        ),
+    )
+
+
+@signals.organization_admin_membership_revoked.connect
+def send_email_for_organization_admin_membership_revoked(
+    sender, organization, membership, actor, user
+):
+    send_email(
+        subject=_("You have been removed from {organization} as an admin").format(
+            organization=organization.title
+        ),
+        to=[user],
+        content=render_template(
+            'email_organization_admin_membership_revoke_notification.html.jinja2',
+            actor=actor,
+            organization=organization,
+            membership=membership,
+        ),
+    )
+
+
+@signals.project_crew_membership_added.connect
+def send_email_for_project_crew_membership_added(
+    sender, project, membership, actor, user
+):
+    send_email(
+        subject=_("You have been added to {project} as a crew member").format(
+            project=project.title
+        ),
+        to=[user],
+        content=render_template(
+            'email_project_crew_membership_add_notification.html.jinja2',
+            actor=actor,
+            project=project,
+            membership=membership,
+        ),
+    )
+
+
+@signals.project_crew_membership_invited.connect
+def send_email_for_project_crew_membership_invited(
+    sender, project, membership, actor, user
+):
+    send_email(
+        subject=_("You have been invited to {project} as a crew member").format(
+            project=project.title
+        ),
+        to=[user],
+        content=render_template(
+            'email_project_crew_membership_invite_notification.html.jinja2',
+            actor=actor,
+            project=project,
+            membership=membership,
+        ),
+    )
+
+
+@signals.project_crew_membership_revoked.connect
+def send_email_for_project_crew_membership_revoked(
+    sender, project, membership, actor, user
+):
+    send_email(
+        subject=_("You have been removed from {project} as a crew member").format(
+            project=project.title
+        ),
+        to=[user],
+        content=render_template(
+            'email_project_crew_membership_revoke_notification.html.jinja2',
+            actor=actor,
+            project=project,
+            membership=membership,
+        ),
+    )
