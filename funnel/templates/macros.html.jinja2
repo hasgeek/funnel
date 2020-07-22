@@ -97,13 +97,49 @@
 {% endmacro %}
 
 {% macro project_header(project, project_save_form, csrf_form, class='', current_page='project') %}
+  {% if current_auth.user.is_site_editor %}
+    <div class="site-admin">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-sm-12">
+            <a href="#featured-form-modal" rel="modal:open" class="mui--text-light mui--text-subhead"></a>
+            <div class="mui-checkbox">
+              <label class="mui--text-light mui--text-subhead">
+                <input type="checkbox" {% if project.featured %}checked{% endif %} onclick="$('#featured-form-modal').modal()">
+                {% trans %}Spotlight project on home page{% endtrans %}
+              </label>
+            </div>
+            <div class="modal" id="featured-form-modal">
+              <div class="modal__header">
+                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+                <p class="mui--text-title mui--text-bold mui--text-dark">
+                  {% if project.featured %}
+                    {% trans %}Do you want to change this project's state to unfeatured?{% endtrans %}
+                  {% else %}
+                    {% trans %}Do you want to update this project's state to featured?{% endtrans %}
+                  {% endif %}
+                </p>
+              </div>
+              <div class="modal__body">
+                <form action="{{ project.url_for('toggle_featured') }}" method="post">
+                  {{ csrf_form.hidden_tag() }}
+                  <button name="transition" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">
+                    {% if project.featured %}
+                      {% trans %}Remove featured{% endtrans %}
+                    {% else %}
+                      {% trans %}Make featured{% endtrans %}
+                    {% endif %}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
-      {% if current_auth.user.is_site_editor and project.featured %}
-        <div class="grid__col-sm-12">
-          {{ alertbox('success', 'This is a featured project') }}
-        </div>
-      {% endif %}
       {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
         <div class="grid__col-sm-12">
           {{ alertbox('warning', 'This project will not be listed as it has no sessions in the schedule') }}
@@ -131,41 +167,6 @@
           {% endif %}
         </h1>
         <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
-        {% if current_auth.user.is_site_editor %}
-          <div>
-            <a class="mui-btn mui-btn--raised mui-btn--primary" href="#featured-form-modal" rel="modal:open">
-              {% if project.featured %}
-                {% trans %}Remove featured{% endtrans %}
-              {% else %}
-                {% trans %}Make project featured{% endtrans %}
-              {% endif %}
-            </a>
-            <div class="modal" id="featured-form-modal">
-              <div class="modal__header">
-                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
-                <p class="mui--text-title mui--text-bold mui--text-dark">
-                  {% if project.featured %}
-                    {% trans %}Do you want to change this project's state to unfeatured?{% endtrans %}
-                  {% else %}
-                    {% trans %}Do you want to update this project's state to featured?{% endtrans %}
-                  {% endif %}
-                </p>
-              </div>
-              <div class="modal__body">
-                <form action="{{ project.url_for('toggle_featured') }}" method="post">
-                  {{ csrf_form.hidden_tag() }}
-                  <button name="transition" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">
-                    {% if project.featured %}
-                      {% trans %}Remove featured{% endtrans %}
-                    {% else %}
-                      {% trans %}Make featured{% endtrans %}
-                    {% endif %}
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        {% endif %}
       </div>
       {% if project.livestream_urls %}
         <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream-box" id="livestream">

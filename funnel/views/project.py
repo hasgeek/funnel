@@ -770,6 +770,8 @@ class ProjectView(
         if featured_form.validate_on_submit():
             self.obj.featured = not self.obj.featured
             db.session.commit()
+            if self.obj.featured:
+                flash(_("Your project is now a spotlight on homepage"), 'info')
         return redirect(get_next_url(referrer=True), 303)
 
 
