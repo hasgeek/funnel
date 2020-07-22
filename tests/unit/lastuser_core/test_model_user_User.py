@@ -263,7 +263,9 @@ class TestUser(TestDatabaseFixture):
 
     def test_user_autocomplete(self):
         """
-        Test for User's autocomplete method
+        Test for User's autocomplete method: queries valid users defined
+        in fixtures, as well as input that should not return a response.
+
         """
         crusoe = models.User.get(username='crusoe')
         oakley = models.User.get(username='oakley')
@@ -281,18 +283,12 @@ class TestUser(TestDatabaseFixture):
             assert isinstance(result, list)
             for each in result:
                 assert isinstance(each, models.User)
-        query_for_oakley = models.User.autocomplete(queries[0])
-        assert query_for_oakley == [oakley]
-        query_for_piglet = models.User.autocomplete(queries[1])
-        assert query_for_piglet == [piglet]
-        query_for_crusoe = models.User.autocomplete(queries[2])
-        assert query_for_crusoe == [crusoe]
-        query_at_character = models.User.autocomplete('@[')
-        assert query_at_character == []  # Test for empty searches
-        query_square_brackets = models.User.autocomplete('[[]]')
-        assert query_square_brackets == []
-        query_for_crusoe_with_square_brackets = models.User.autocomplete(queries[3])
-        assert query_for_crusoe_with_square_brackets == [crusoe]
+        assert models.User.autocomplete(queries[0]) == [oakley]
+        assert models.User.autocomplete(queries[1]) == [piglet]
+        assert models.User.autocomplete(queries[2]) == [crusoe]
+        assert models.User.autocomplete('@[') == []  # Test for empty searches
+        assert models.User.autocomplete('[[]]') == []
+        assert models.User.autocomplete(queries[3]) == [crusoe]
 
     def test_user_merged_user(self):
         """
