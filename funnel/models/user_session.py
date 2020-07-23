@@ -2,9 +2,7 @@ from datetime import timedelta
 
 from flask import request
 
-import user_agents
-
-from baseframe import _, statsd
+from baseframe import statsd
 from coaster.utils import buid as make_buid
 from coaster.utils import utcnow
 
@@ -112,24 +110,6 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
         statsd.set('users.active_sessions', self.id, rate=1)
         statsd.set('users.active_users', self.user.id, rate=1)
-
-    def user_agent_details(self):
-        ua = user_agents.parse(self.user_agent)
-        return {
-            'browser': (ua.browser.family + ' ' + ua.browser.version_string)
-            if ua.browser.family
-            else _("Unknown browser"),
-            'os_device': (
-                str(ua.device.brand or '') + ' ' + str(ua.device.model or '') + ' '
-                if ua.device.family != 'Other'
-                else ''
-            )
-            + ' ('
-            + str(ua.os.family)
-            + ' '
-            + str(ua.os.version_string)
-            + ')',
-        }
 
     @property
     def has_sudo(self):

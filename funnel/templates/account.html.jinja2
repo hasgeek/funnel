@@ -77,6 +77,7 @@
         </div>
       </div>
 
+      {% with has_multiple_verified_contacts=(current_auth.user.verified_contact_count > 1) -%}
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
@@ -90,7 +91,7 @@
                 <li>
                   <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="form-inline-input"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %} <span title="{% trans %}Primary{% endtrans %}" class="check-mark mui--align-middle">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span> {%- endif -%}
                   </label>
-                  {%- if current_auth.user.verified_contact_count > 1 %}
+                  {%- if has_multiple_verified_contacts %}
                     <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                   {%- endif %}
                 </li>
@@ -128,8 +129,8 @@
                   <li>
                     <input id="userphone-{{loop.index}}" name="phone" value="{{userphone}}" type="radio">&nbsp;
                     <label for="userphone-{{loop.index}}">{{ userphone.formatted() }}</label>
-                    {% if userphone.primary %} <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</span> {%- endif -%}
-                    {%- if current_auth.user.verified_contact_count > 1 %}
+                    {% if userphone.primary %} <span title="{% trans %}Primary{% endtrans %}" class="check-mark mui--align-middle">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span> {%- endif -%}
+                    {%- if has_multiple_verified_contacts %}
                       <a href="{{ url_for('remove_phone', number=userphone.phone) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                     {%- endif %}
                   </li>
@@ -154,6 +155,7 @@
           </form>
         </div>
       </div>
+      {%- endwith %}
 
       <div class="grid__col-xs-12">
         <div class="card">
@@ -187,36 +189,25 @@
             <div class="card__body">
               <ul class="mui-list--aligned mui-list--unstyled grid-no-left-padding mui-list--border">
                 {%- for user_session in current_auth.user.active_sessions %}
-                {%- with ua=user_session.user_agent_details(), login_service=user_session.views.login_service() %}
+                {%- with
+                    ua=user_session.views.user_agent_details(),
+                    login_service=user_session.views.login_service(),
+                    location=user_session.views.location(),
+                    user_agent=user_session.user_agent,
+                    since=user_session.created_at|age,
+                    last_active=user_session.accessed_at|age
+                    %}
                   <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
                     <div>
-                    {%- if login_service %}
-                      {%- trans
-                          ipaddr=user_session.ipaddr,
-                          location=user_session.views.location(),
-                          user_agent=user_session.user_agent,
-                          since=user_session.created_at|age,
-                          browser=ua['browser'],
-                          os_device=ua['os_device'],
-                          last_active=user_session.accessed_at|age -%}
-                        <p title="{{ user_agent }}" class="login-session__heading">{{ os_device }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ browser }}</p>
-                        <p class="login-session__body mui--text-light">Since {{ since }} via {{ login_service }} – last active {{ last_active }}</p>
-                        <p class="login-session__body mui--text-light">{{ location }} – estimated from {{ ipaddr }}</p>
-                      {%- endtrans %}
-                    {%- else %}
-                      {%- trans
-                          ipaddr=user_session.ipaddr,
-                          location=user_session.views.location(),
-                          user_agent=user_session.user_agent,
-                          since=user_session.created_at|age,
-                          browser=ua['browser'],
-                          os_device=ua['os_device'],
-                          last_active=user_session.accessed_at|age -%}
-                        <p title="{{ user_agent }}" class="login-session__heading">{{ os_device }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ browser }}</p>
-                        <p class="login-session__body mui--text-light">Since {{ since }} – last active {{ last_active }}</p>
-                        <p class="login-session__body mui--text-light">{{ location }} – estimated from {{ ipaddr }}</p>
-                      {%- endtrans %}
-                    {%- endif %}
+                      <p title="{{ user_agent }}" class="login-session__heading">{{ ua['browser'] }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ ua['os_device'] }}</p>
+                      <p class="login-session__body mui--text-light">
+                        {%- if login_service %}
+                          {%- trans %}Since {{ since }} via {{ login_service }} – last active {{ last_active }}{% endtrans %}
+                        {%- else %}
+                          {%- trans %}Since {{ since }} – last active {{ last_active }}{% endtrans %}
+                        {%- endif -%}
+                      </p>
+                      <p class="login-session__body mui--text-light">{% trans ipaddr=user_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}</p>
                     </div>
                     <div>
                       {%- if user_session == current_auth.session %}
