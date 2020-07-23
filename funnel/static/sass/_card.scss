@@ -601,3 +601,17 @@
   font-size: inherit;
   line-height: inherit;
 }
+
+.card__footer--smallerbtn {
+  .mui-btn--small.mui-btn--flat {
+    padding: 0 6px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .card__footer--smallerbtn {
+    .mui-btn--small.mui-btn--flat {
+      padding: 0 16px;
+    }
+  }
+}

@@ -1,16 +1,4 @@
-from sqlalchemy import event as sqla_event
-
 from flask.signals import Namespace
-
-from .models import (
-    Organization,
-    Team,
-    User,
-    UserEmail,
-    UserEmailClaim,
-    UserPhone,
-    UserPhoneClaim,
-)
 
 model_signals = Namespace()
 app_signals = Namespace()
@@ -45,6 +33,11 @@ model_userphoneclaim_deleted = model_signals.signal('model-useremail-deleted')
 
 resource_access_granted = model_signals.signal('resource-access-granted')
 
+emailaddress_refcount_dropping = model_signals.signal(
+    'emailaddress-refcount-dropping',
+    doc="Signal indicating that an EmailAddress's refcount is about to drop",
+)
+
 # Higher level signals
 user_login = app_signals.signal('user-login')
 user_registered = app_signals.signal('user-registered')
@@ -53,107 +46,13 @@ org_data_changed = app_signals.signal('org-data-changed')
 team_data_changed = app_signals.signal('team-data-changed')
 session_revoked = app_signals.signal('session-revoked')
 
-
-@sqla_event.listens_for(User, 'after_insert')
-def _user_new(mapper, connection, target):
-    model_user_new.send(target)
-
-
-@sqla_event.listens_for(User, 'after_update')
-def _user_edited(mapper, connection, target):
-    model_user_edited.send(target)
-
-
-@sqla_event.listens_for(User, 'after_delete')
-def _user_deleted(mapper, connection, target):
-    model_user_deleted.send(target)
-
-
-@sqla_event.listens_for(Organization, 'after_insert')
-def _org_new(mapper, connection, target):
-    model_org_new.send(target)
-
-
-@sqla_event.listens_for(Organization, 'after_update')
-def _org_edited(mapper, connection, target):
-    model_org_edited.send(target)
-
-
-@sqla_event.listens_for(Organization, 'after_delete')
-def _org_deleted(mapper, connection, target):
-    model_org_deleted.send(target)
-
-
-@sqla_event.listens_for(Team, 'after_insert')
-def _team_new(mapper, connection, target):
-    model_team_new.send(target)
-
-
-@sqla_event.listens_for(Team, 'after_update')
-def _team_edited(mapper, connection, target):
-    model_team_edited.send(target)
-
-
-@sqla_event.listens_for(Team, 'after_delete')
-def _team_deleted(mapper, connection, target):
-    model_team_deleted.send(target)
-
-
-@sqla_event.listens_for(UserEmail, 'after_insert')
-def _useremail_new(mapper, connection, target):
-    model_useremail_new.send(target)
-
-
-@sqla_event.listens_for(UserEmail, 'after_update')
-def _useremail_edited(mapper, connection, target):
-    model_useremail_edited.send(target)
-
-
-@sqla_event.listens_for(UserEmail, 'after_delete')
-def _useremail_deleted(mapper, connection, target):
-    model_useremail_deleted.send(target)
-
-
-@sqla_event.listens_for(UserEmailClaim, 'after_insert')
-def _useremailclaim_new(mapper, connection, target):
-    model_useremailclaim_new.send(target)
-
-
-@sqla_event.listens_for(UserEmailClaim, 'after_update')
-def _useremailclaim_edited(mapper, connection, target):
-    model_useremailclaim_edited.send(target)
-
-
-@sqla_event.listens_for(UserEmailClaim, 'after_delete')
-def _useremailclaim_deleted(mapper, connection, target):
-    model_useremailclaim_deleted.send(target)
-
-
-@sqla_event.listens_for(UserPhone, 'after_insert')
-def _userphone_new(mapper, connection, target):
-    model_userphone_new.send(target)
-
-
-@sqla_event.listens_for(UserPhone, 'after_update')
-def _userphone_edited(mapper, connection, target):
-    model_userphone_edited.send(target)
-
-
-@sqla_event.listens_for(UserPhone, 'after_delete')
-def _userphone_deleted(mapper, connection, target):
-    model_userphone_deleted.send(target)
-
-
-@sqla_event.listens_for(UserPhoneClaim, 'after_insert')
-def _userphoneclaim_new(mapper, connection, target):
-    model_userphoneclaim_new.send(target)
-
-
-@sqla_event.listens_for(UserPhoneClaim, 'after_update')
-def _userphoneclaim_edited(mapper, connection, target):
-    model_userphoneclaim_edited.send(target)
-
-
-@sqla_event.listens_for(UserPhoneClaim, 'after_delete')
-def _userphoneclaim_deleted(mapper, connection, target):
-    model_userphoneclaim_deleted.send(target)
+# Membership signals
+organization_admin_membership_added = app_signals.signal(
+    'organization_admin_membership_added'
+)
+organization_admin_membership_revoked = app_signals.signal(
+    'organization_admin_membership_revoked'
+)
+project_crew_membership_added = app_signals.signal('project_crew_membership_added')
+project_crew_membership_invited = app_signals.signal('project_crew_membership_invited')
+project_crew_membership_revoked = app_signals.signal('project_crew_membership_revoked')

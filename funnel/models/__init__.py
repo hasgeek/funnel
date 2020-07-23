@@ -27,6 +27,7 @@ TimestampMixin.__with_timezone__ = True
 
 from .helpers import *  # isort:skip
 from .user import *  # isort:skip
+from .user_signals import *  # isort:skip
 from .user_session import *  # isort:skip
 from .email_address import *  # isort:skip
 from .auth_client import *  # isort:skip

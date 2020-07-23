@@ -1,10 +1,8 @@
 from datetime import timedelta
 import hashlib
 
-from sqlalchemy import or_
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import defer
 from sqlalchemy_utils import TimezoneType
 
 from werkzeug.utils import cached_property
@@ -153,12 +151,12 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     )
 
     _defercols = [
-        defer('created_at'),
-        defer('updated_at'),
-        defer('pw_hash'),
-        defer('pw_set_at'),
-        defer('pw_expires_at'),
-        defer('timezone'),
+        db.defer('created_at'),
+        db.defer('updated_at'),
+        db.defer('pw_hash'),
+        db.defer('pw_set_at'),
+        db.defer('pw_expires_at'),
+        db.defer('timezone'),
     ]
 
     def __init__(self, password=None, **kwargs):
@@ -399,7 +397,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             buids = userids
         if buids and usernames:
             query = cls.query.join(Profile).filter(
-                or_(
+                db.or_(
                     cls.buid.in_(buids),
                     db.func.lower(Profile.name).in_(
                         [username.lower() for username in usernames]
@@ -447,7 +445,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # and doesn't use an index in PostgreSQL. There's a functional index for lower()
         # defined above in __table_args__ that also applies to LIKE lower(val) queries.
 
-        if like_query == '%':
+        if like_query in ('%', '@%'):
             return []
 
         # base_users is used in two of the three possible queries below
@@ -455,7 +453,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             cls.query.join(Profile)
             .filter(
                 cls.status == USER_STATUS.ACTIVE,
-                or_(
+                db.or_(
                     db.func.lower(cls.fullname).like(db.func.lower(like_query)),
                     db.func.lower(Profile.name).like(db.func.lower(like_query)),
                 ),
@@ -614,7 +612,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         ),
     )
 
-    _defercols = [defer('created_at'), defer('updated_at')]
+    _defercols = [db.defer('created_at'), db.defer('updated_at')]
 
     def __init__(self, owner, *args, **kwargs):
         super(Organization, self).__init__(*args, **kwargs)
