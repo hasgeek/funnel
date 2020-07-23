@@ -21,14 +21,17 @@ class ProfileForm(OrganizationForm):
         __("Welcome message"),
         validators=[
             forms.validators.DataRequired(
-                _("Please write a message for the landing page")
+                _("Please write a message for the profile page")
             )
         ],
-        description=__("This welcome message will be shown on the landing page"),
+        description=__("This message will be shown on the profile page"),
     )
     logo_url = forms.URLField(
-        __("Profile icon URL"),
-        description=__("Profile icon"),
+        __("Profile image URL"),
+        description=__(
+            "From images.hasgeek.com, with 1:1 aspect ratio."
+            " Should be < 30 kB in size"
+        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -66,8 +69,11 @@ class ProfileTransitionForm(forms.Form):
 @Profile.forms('logo')
 class ProfileLogoForm(forms.Form):
     logo_url = forms.URLField(
-        __("Logo image URL"),
-        description=__("URL for profile logo image"),
+        __("Profile image URL"),
+        description=__(
+            "From images.hasgeek.com, with 1:1 aspect ratio."
+            " Should be < 30 kB in size"
+        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -80,7 +86,10 @@ class ProfileLogoForm(forms.Form):
 class ProfileBannerForm(forms.Form):
     banner_image_url = forms.URLField(
         __("Banner image URL"),
-        description=__("URL for profile banner image"),
+        description=__(
+            "From images.hasgeek.com, with 8:3 aspect ratio."
+            " Should be < 100 kB in size"
+        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),

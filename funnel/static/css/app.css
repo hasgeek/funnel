@@ -1963,6 +1963,27 @@ a.loginbutton.hidden,
   margin: 0 0 20px;
 }
 
+@media (max-width: 767px) {
+  .modal__inner {
+    position: fixed;
+    background: #fff;
+    top: 0;
+    left: 0;
+    height: 100%;
+    padding: 16px;
+    right: 0;
+  }
+}
+.modal__body--form .mui-tabs__bar {
+  margin-bottom: 45px;
+}
+.modal__body--form .mui-btn--primary {
+  width: 100%;
+}
+.modal__body--form .mui-form {
+  margin-bottom: 0;
+}
+
 .card--spotlight {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;

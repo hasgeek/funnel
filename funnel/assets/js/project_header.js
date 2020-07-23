@@ -18,26 +18,8 @@ $(() => {
       $(this).modal();
     });
 
-    $('#register-modal').on($.modal.CLOSE, () => {
-      window.history.replaceState(
-        '',
-        '',
-        window.location.pathname + window.location.search
-      );
-    });
-
     if (window.location.hash === '#register-modal') {
       $('a#register-btn').modal();
     }
-
-    window.addEventListener(
-      'hashchange',
-      function () {
-        if (window.location.hash === '') {
-          $.modal.close();
-        }
-      },
-      false
-    );
   };
 });
