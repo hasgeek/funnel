@@ -663,33 +663,8 @@ a.loginbutton.hidden,
   height: 16px;
 }
 
-.form-inline-input {
-  display: inline-block;
-  margin-right: 10px;
-  vertical-align: middle;
-}
-
-.form-inline-label {
-  display: inline-block;
-  width: 70%;
-}
-
 .interpunct {
   padding: 0 8px;
-}
-
-.check-mark {
-  background: #53b783;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  color: #fff;
-  display: inline-block;
-}
-.check-mark .fa5-icon {
-  position: relative;
-  top: -3px;
-  right: -2px;
 }
 
 .hg-app .header--fixed {
@@ -2007,6 +1982,17 @@ a.loginbutton.hidden,
 }
 .modal__body--form .mui-form {
   margin-bottom: 0;
+}
+
+.form-inline-input {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.form-inline-label {
+  display: inline-block;
+  width: 70%;
 }
 
 .card--spotlight {
@@ -4356,6 +4342,49 @@ body > .proposal-box.ui-draggable {
 .modal-form--edit .mui-select:focus > label,
 .modal-form--edit .mui-select > select:focus ~ label {
   color: rgba(0, 0, 0, 0.54);
+}
+
+ul .login-session {
+  padding: 15px 0;
+}
+ul .login-session .login-session__heading {
+  font-size: 14px;
+  line-height: 24px;
+  margin: 0;
+}
+ul .login-session .login-session__body {
+  font-size: 12px;
+  line-height: 24px;
+  margin: 0;
+}
+ul .login-session .mui-btn--nostyle {
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  ul .login-session .login-session__heading {
+    font-size: 16px;
+    line-height: 24px;
+    margin: 0;
+  }
+  ul .login-session .login-session__body {
+    font-size: 14px;
+    line-height: 24px;
+    margin: 0;
+  }
+}
+.check-mark {
+  background: #53b783;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-block;
+}
+.check-mark .fa5-icon {
+  position: relative;
+  top: -3px;
+  right: -2px;
 }
 
 .footer {

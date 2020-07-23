@@ -710,30 +710,6 @@ a.loginbutton.hidden,
   }
 }
 
-.form-inline-input {
-  display: inline-block;
-  margin-right: 10px;
-  vertical-align: middle;
-}
-.form-inline-label {
-  display: inline-block;
-  width: 70%;
-}
-
 .interpunct {
   padding: 0 8px;
-}
-
-.check-mark {
-  background: $mui-success-color;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  color: #fff;
-  display: inline-block;
-  .fa5-icon {
-    position: relative;
-    top: -3px;
-    right: -2px;
-  }
 }
