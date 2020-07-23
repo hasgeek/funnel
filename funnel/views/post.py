@@ -52,6 +52,7 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             post = Post(user=current_auth.user, project=self.obj)
             post_form.populate_obj(post)
             post.name = make_name(post.title)
+            post.publish(actor=current_auth.user)
             if post_form.restricted.data:
                 post.make_restricted()
             db.session.add(post)
