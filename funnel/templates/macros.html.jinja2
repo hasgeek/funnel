@@ -161,7 +161,7 @@
         </div>
       </div>
       <div class="grid__col-sm-12 project-banner__headline">
-        <h1 class="mui--text-headline mui--text-bold zero-top-margin zero-bottom-margin">{{ project.title }}
+        <h1 class="mui--text-headline mui--text-bold zero-top-margin project-banner__headline__title">{{ project.title }}
           {% if project.view_for('edit_slug').is_available() %}
             <a class="mui--text-body2" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url" data-action="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
           {% endif %}

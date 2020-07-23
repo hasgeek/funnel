@@ -2755,6 +2755,7 @@ a.loginbutton.hidden,
 .project-banner .project-banner__profile-details {
   display: flex;
   align-items: center;
+  margin-bottom: 4px;
 }
 .project-banner
   .project-banner__profile-details
@@ -2780,6 +2781,9 @@ a.loginbutton.hidden,
 }
 .project-banner .project-banner__headline {
   margin-bottom: 16px;
+}
+.project-banner .project-banner__headline .project-banner__headline__title {
+  margin-bottom: 6px;
 }
 .project-banner .livestream-box {
   margin: 0;
