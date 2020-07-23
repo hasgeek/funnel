@@ -119,18 +119,16 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
             'browser': (ua.browser.family + ' ' + ua.browser.version_string)
             if ua.browser.family
             else _("Unknown browser"),
-            'os_device': ua.os.family
-            + ' '
-            + ua.os.version_string
-            + (
-                ' ('
-                + str(ua.device.brand or '')
-                + ' '
-                + str(ua.device.model or '')
-                + ')'
+            'os_device': (
+                str(ua.device.brand or '') + ' ' + str(ua.device.model or '') + ' '
                 if ua.device.family != 'Other'
                 else ''
-            ),
+            )
+            + ' ('
+            + str(ua.os.family)
+            + ' '
+            + str(ua.os.version_string)
+            + ')',
         }
 
     @property
