@@ -1,9 +1,12 @@
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from baseframe import __
+from baseframe.filters import age
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
-    BaseMixin,
+    BaseScopedIdNameMixin,
     Commentset,
     MarkdownColumn,
     Profile,
@@ -32,7 +35,7 @@ class VISIBILITY_STATE(LabeledEnum):  # NOQA: N801
     RESTRICTED = (1, 'restricted', __("Restricted"))
 
 
-class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
+class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     __tablename__ = 'post'
 
     _visibility_state = db.Column(
@@ -81,7 +84,7 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
-    pinned = db.Column(db.Boolean, default=False, nullable=False)
+    is_pinned = db.Column(db.Boolean, default=False, nullable=False)
 
     published_by_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=True, index=True
@@ -143,20 +146,35 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {'name', 'title', 'created_at', 'edited_at', 'user', 'visibility'}
+            'read': {
+                'name',
+                'title',
+                'user',
+                'published_at',
+                'published_at_age',
+                'edited_at',
+                'edited_at_age',
+                'deleted_at',
+                'deleted_at_age',
+                'visibility_state',
+                'state',
+            }
         },
         'reader': {'read': {'body'}},
     }
 
     __datasets__ = {
         'primary': {
-            'body',
-            'created_at',
-            'edited_at',
             'name',
             'title',
+            'body_text',
+            'published_at',
+            'published_at_age',
+            'edited_at',
+            'edited_at_age',
             'user',
-            'visibility',
+            'visibility_state',
+            'state',
         }
     }
 
@@ -166,9 +184,35 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
         self.commentset = Commentset(settype=SET_TYPE.POST)
 
     def __repr__(self):
-        return '<Post "{title}" {uuid_b58}'.format(
+        return '<Post "{title}" {uuid_b58}>'.format(
             title=self.title, uuid_b58=self.uuid_b58
         )
+
+    @hybrid_property
+    def parent(self):
+        return self.project if self.project is not None else self.profile
+
+    @parent.setter
+    def parent(self, value):
+        if not isinstance(value, (Project, Profile)):
+            raise ValueError("Only a project or a profile can be parent of a post")
+
+        if self.project is not None:
+            self.project = value
+        else:
+            self.profile = value
+
+    @hybrid_property
+    def published_at_age(self):
+        return age(self.created_at)
+
+    @hybrid_property
+    def edited_at_age(self):
+        return age(self.edited_at) if self.edited_at is not None else None
+
+    @hybrid_property
+    def deleted_at_age(self):
+        return age(self.deleted_at) if self.deleted_at is not None else None
 
     state.add_conditional_state(
         'UNPUBLISHED',

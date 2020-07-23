@@ -20,6 +20,7 @@ from . import (
     mixins,
     organization,
     participant,
+    post,
     profile,
     project,
     proposal,

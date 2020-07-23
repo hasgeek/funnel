@@ -205,6 +205,11 @@ def project_registration_text(obj):
     )
 
 
+@Project.views('json_posts')
+def project_json_posts(obj):
+    return [post.current_access() for post in obj.posts]
+
+
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):

@@ -9,6 +9,7 @@ from .login import *
 from .membership import *
 from .organization import *
 from .participant import *
+from .post import *
 from .profile import *
 from .project import *
 from .proposal import *

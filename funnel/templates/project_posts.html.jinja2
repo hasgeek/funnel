@@ -1,0 +1,52 @@
+{% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
+{% from "baseframe/forms.html.jinja2" import renderfield, widgetscripts %}
+{%- from "macros.html.jinja2" import project_header %}
+{% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
+
+{%- block pageheaders %}
+  {% assets "css_codemirrormarkdown" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Comments{% endtrans %}</span>
+    </div>
+  </div>
+{% endblock %}
+
+{% block basecontent %}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
+      <div class="grid project-section" id="comments">
+        <div class="grid__col-xs-12">
+          <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Updates{% endtrans %}</h2>
+        </div>
+        <div class="grid__col-xs-12">
+          {{ post_form|safe }}
+          {% if posts %}
+            <ul class="mui-list--unstyled">
+              {% for post in posts %}
+              <li>{{ post.body.text }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
