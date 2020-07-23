@@ -762,6 +762,18 @@ class ProjectView(
             'csrf_form': forms.Form(),
         }
 
+    @route('toggle_featured', methods=['POST'])
+    def toggle_featured(self):
+        if not current_auth.user.is_site_editor:
+            return abort(403)
+        featured_form = forms.Form()
+        if featured_form.validate_on_submit():
+            self.obj.featured = not self.obj.featured
+            db.session.commit()
+            if self.obj.featured:
+                flash(_("Your project is now a spotlight on homepage"), 'info')
+        return redirect(get_next_url(referrer=True), 303)
+
 
 @route('/<project>/', subdomain='<profile>')
 class FunnelProjectView(ProjectView):
