@@ -185,10 +185,10 @@
           <form action="{{ url_for('account_logout') }}" method="POST" id="logout-session-form">
             {{ logout_form.hidden_tag() }}
             <div class="card__body">
-              <ul class="mui-list--aligned mui-list--unstyled grid-no-left-padding mui-list--border mui-list--border--padding">
+              <ul class="mui-list--aligned mui-list--unstyled grid-no-left-padding mui-list--border">
                 {%- for user_session in current_auth.user.active_sessions %}
                 {%- with ua=user_session.user_agent_details(), login_service=user_session.views.login_service() %}
-                  <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
+                  <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
                     <div>
                     {%- if login_service %}
                       {%- trans
@@ -199,9 +199,8 @@
                           browser=ua['browser'],
                           os_device=ua['os_device'],
                           last_active=user_session.accessed_at|age -%}
-                        <p title="{{ user_agent }}" class="mui--text-subhead zero-bottom-margin">{{ os_device }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&middot;</span>{{ browser }}</p>
-                        <p class="mui--text-body2 mui--text-light zero-bottom-margin">Since {{ since }} - last active {{ last_active }}</p>
-                        <p class="mui--text-body2 mui--text-light">{{ location }};{{ login_service }} – estimated from {{ ipaddr }}</p>
+                        <p title="{{ user_agent }}" class="login-session__heading">{{ os_device }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ browser }}</p>
+                        <p class="login-session__body mui--text-light">Since {{ since }} – last active {{ last_active }}</p>
                       {%- endtrans %}
                     {%- else %}
                       {%- trans
@@ -212,14 +211,15 @@
                           browser=ua['browser'],
                           os_device=ua['os_device'],
                           last_active=user_session.accessed_at|age -%}
-                        <p title="{{ user_agent }}" class="mui--text-subhead zero-bottom-margin">{{ os_device }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&middot;</span>{{ browser }}</p>
-                        <p class="mui--text-body2 mui--text-light zero-bottom-margin">Since {{ since }} - last active {{ last_active }}</p>
+                        <p title="{{ user_agent }}" class="login-session__heading">{{ os_device }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ browser }}</p>
+                        <p class="login-session__body mui--text-light">Since {{ since }} – last active {{ last_active }}</p>
+                        <p class="login-session__body mui--text-light">{{ location }}; {{ login_service }} – estimated from {{ ipaddr }}</p>
                       {%- endtrans %}
                     {%- endif %}
                     </div>
                     <div>
                       {%- if user_session == current_auth.session %}
-                        <span title="{% trans %}Current{% endtrans %}" class="check-mark">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span>
+                        <span title="{% trans %}Current{% endtrans %}" class="check-mark mui--align-bottom">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span>
                       {%- else %}
                         <button type="submit" name="sessionid" value="{{ user_session.buid }}" title="{% trans %}Logout{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle mui--text-hyperlink') }}</button>
                       {%- endif -%}
