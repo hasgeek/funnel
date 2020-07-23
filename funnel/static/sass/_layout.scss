@@ -39,6 +39,10 @@
   align-items: baseline;
 }
 
+.flex-wrapper--space-between {
+  justify-content: space-between;
+}
+
 .image-wrapper img {
   max-width: 100%;
   display: block;
@@ -195,6 +199,10 @@ html.touch .collapsible__body--disable {
 
 .mui-list--border li:last-child {
   border-bottom: none;
+}
+
+.mui-list--border--padding li {
+  padding: 15px 0;
 }
 
 @media screen and (max-width: 1024px) {
@@ -702,12 +710,6 @@ a.loginbutton.hidden,
   }
 }
 
-.form-inline-input {
-  display: inline-block;
-  margin-right: 10px;
-  vertical-align: middle;
-}
-.form-inline-label {
-  display: inline-block;
-  width: 70%;
+.interpunct {
+  padding: 0 8px;
 }

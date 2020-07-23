@@ -39,6 +39,10 @@
   align-items: baseline;
 }
 
+.flex-wrapper--space-between {
+  justify-content: space-between;
+}
+
 .image-wrapper img {
   max-width: 100%;
   display: block;
@@ -193,6 +197,10 @@ html.touch .collapsible__body--disable {
 
 .mui-list--border li:last-child {
   border-bottom: none;
+}
+
+.mui-list--border--padding li {
+  padding: 15px 0;
 }
 
 @media screen and (max-width: 1024px) {
@@ -655,15 +663,8 @@ a.loginbutton.hidden,
   height: 16px;
 }
 
-.form-inline-input {
-  display: inline-block;
-  margin-right: 10px;
-  vertical-align: middle;
-}
-
-.form-inline-label {
-  display: inline-block;
-  width: 70%;
+.interpunct {
+  padding: 0 8px;
 }
 
 .hg-app .header--fixed {
@@ -1983,6 +1984,17 @@ a.loginbutton.hidden,
   margin-bottom: 0;
 }
 
+.form-inline-input {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.form-inline-label {
+  display: inline-block;
+  width: 70%;
+}
+
 .card--spotlight {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
@@ -2651,6 +2663,15 @@ a.loginbutton.hidden,
   line-height: inherit;
 }
 
+.card__footer--smallerbtn .mui-btn--small.mui-btn--flat {
+  padding: 0 6px;
+}
+
+@media (min-width: 1200px) {
+  .card__footer--smallerbtn .mui-btn--small.mui-btn--flat {
+    padding: 0 16px;
+  }
+}
 .site-admin {
   margin-bottom: 32px;
   padding: 8px 0;
@@ -4321,6 +4342,49 @@ body > .proposal-box.ui-draggable {
 .modal-form--edit .mui-select:focus > label,
 .modal-form--edit .mui-select > select:focus ~ label {
   color: rgba(0, 0, 0, 0.54);
+}
+
+ul .login-session {
+  padding: 15px 0;
+}
+ul .login-session .login-session__heading {
+  font-size: 14px;
+  line-height: 24px;
+  margin: 0;
+}
+ul .login-session .login-session__body {
+  font-size: 12px;
+  line-height: 24px;
+  margin: 0;
+}
+ul .login-session .mui-btn--nostyle {
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  ul .login-session .login-session__heading {
+    font-size: 16px;
+    line-height: 24px;
+    margin: 0;
+  }
+  ul .login-session .login-session__body {
+    font-size: 14px;
+    line-height: 24px;
+    margin: 0;
+  }
+}
+.check-mark {
+  background: #53b783;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-block;
+}
+.check-mark .fa5-icon {
+  position: relative;
+  top: -3px;
+  right: -2px;
 }
 
 .footer {
