@@ -201,6 +201,7 @@
                           last_active=user_session.accessed_at|age -%}
                         <p title="{{ user_agent }}" class="login-session__heading">{{ os_device }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ browser }}</p>
                         <p class="login-session__body mui--text-light">Since {{ since }} – last active {{ last_active }}</p>
+                        <p class="login-session__body mui--text-light">{{ location }}; {{ login_service }} – estimated from {{ ipaddr }}</p>
                       {%- endtrans %}
                     {%- else %}
                       {%- trans
@@ -213,7 +214,6 @@
                           last_active=user_session.accessed_at|age -%}
                         <p title="{{ user_agent }}" class="login-session__heading">{{ os_device }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ browser }}</p>
                         <p class="login-session__body mui--text-light">Since {{ since }} – last active {{ last_active }}</p>
-                        <p class="login-session__body mui--text-light">{{ location }}; {{ login_service }} – estimated from {{ ipaddr }}</p>
                       {%- endtrans %}
                     {%- endif %}
                     </div>
