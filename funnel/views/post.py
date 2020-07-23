@@ -1,4 +1,4 @@
-from flask import g, redirect
+from flask import flash, g, redirect
 
 from baseframe import _, forms
 from coaster.auth import current_auth
@@ -52,12 +52,11 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             post = Post(user=current_auth.user, project=self.obj)
             post_form.populate_obj(post)
             post.name = make_name(post.title)
-            post.publish(actor=current_auth.user)
             if post_form.restricted.data:
                 post.make_restricted()
             db.session.add(post)
             db.session.commit()
-            return redirect(self.obj.url_for('posts'))
+            return redirect(post.url_for('preview_draft'))
 
         post_form_html = forms.render_form(
             form=post_form,
@@ -105,6 +104,35 @@ class ProjectPostDetailsView(UrlForView, ModelView):
     @requires_roles({'reader'})
     def view(self):
         return {'post': self.obj.current_access()}
+
+    @route('preview', methods=['GET'])
+    @render_with(json=True)
+    @requires_roles({'editor'})
+    def preview_draft(self):
+        if not self.obj.state.DRAFT:
+            return redirect(self.obj.url_for())
+        return {'post': self.obj.current_access()}
+
+    @route('publish', methods=['POST'])
+    @render_with(json=True)
+    @requires_roles({'editor'})
+    def publish_draft(self):
+        if not self.obj.state.DRAFT:
+            return redirect(self.obj.url_for())
+        form = forms.Form()
+        if form.validate_on_submit():
+            self.obj.publish(actor=current_auth.user)
+            db.session.commit()
+            flash(_("The update has been published"), 'success')
+            return redirect(self.obj.url_for())
+        else:
+            flash(
+                _(
+                    "There was an error publishing this update. Please refresh and try again"
+                ),
+                'error',
+            )
+            return redirect(self.obj.url_for('preview_draft'))
 
 
 ProjectPostDetailsView.init_app(app)
