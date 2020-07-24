@@ -1,0 +1,52 @@
+.post {
+  margin: $mui-grid-padding 0 0;
+
+  .post__header {
+    margin-bottom: $mui-grid-padding;
+  }
+
+  .post__date {
+    margin-bottom: 10px;
+  }
+
+  .post__content {
+    display: inline-block;
+    width: 100%;
+  }
+
+  .post__content img {
+    max-width: 100%;
+  }
+}
+
+.post-form {
+  position: relative;
+  .mui-form--margins {
+    margin: 0;
+  }
+  .CodeMirror {
+    border: 1px solid #c0ccda;
+    min-height: 60px;
+  }
+  .CodeMirror ~ .CodeMirror {
+    display: none;
+  }
+  .CodeMirror-focused {
+    border: 1px solid #4a90e2;
+  }
+  .mui-form__fields {
+    margin-bottom: 0;
+  }
+  .mui-form.form-actions {
+    display: inline-block;
+    float: left;
+    margin-right: 10px;
+  }
+  .post-form__cancelbtn {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0;
+    position: relative;
+    top: 7px;
+  }
+}

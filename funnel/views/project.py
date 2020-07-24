@@ -13,7 +13,7 @@ from flask import (
 )
 
 from baseframe import _, forms
-from baseframe.forms import render_form, render_redirect
+from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
@@ -460,7 +460,7 @@ class ProjectView(
                 form.populate_obj(self.obj)
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
-                return render_redirect(self.obj.url_for(), code=303)
+                return redirect(self.obj.url_for(), code=303)
             else:
                 return render_form(
                     form=form, title=_(""), submit=_("Save banner"), ajax=True,

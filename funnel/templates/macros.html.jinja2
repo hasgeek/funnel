@@ -1490,8 +1490,8 @@
 {% macro posts_template() %}
   {% raw %}
     <div id="posts-wrapper">
-      <ul class="mui-list--unstyled" v-for="post in posts">
-        <post :post="post"></post>
+      <ul class="mui-list--unstyled">
+        <post :post="post" v-for="post in posts"></post>
       </ul>
       <div class="post-form">
         <component :is="Form"></component>
@@ -1501,8 +1501,18 @@
       <a class="link" @click="fetchForm($event, newPostUrl)" aria-label="Add new update" data-cy-btn="add-post" v-if="isEditor && !postForm">Post update</a>
     </div>
     <script type="text/x-template" id="post-template">
-      <li class="post">
-
+      <li class="post user">
+        <div class="user__box mui--clearfix post__header">
+          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(post.user.fullname) }}</div>
+          <div class="mui--d-inlineblock">
+            <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ post.user.fullname }}</h3>
+            <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
+          </div>
+        </div>
+        <p class="mui--text-light mui--text-caption post__date">{{ post.published_at_age }}</span>
+        <p class="mui--text-subhead mui--text-bold">{{ post.title }}</p>
+        <div class="post__content mui--text-light" v-html="post.body.html"></div>
+        <hr>
       </li>
     </script>
   {% endraw %}

@@ -54,7 +54,11 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
                 post.make_restricted()
             db.session.add(post)
             db.session.commit()
-            return forms.render_redirect(post.url_for(), code=303)
+            return {
+                'status': 'ok',
+                'message': _("The member‘s roles have been updated"),
+                'new_post_url': post.url_for(),
+            }
 
         post_form_html = forms.render_form(
             form=post_form,

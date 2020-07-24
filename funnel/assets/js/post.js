@@ -110,13 +110,7 @@ const Posts = {
           const formId = Utils.getElementId(parentApp.postForm);
           const url = Utils.getActionUrl(formId);
           const onSuccess = (responseData) => {
-            parentApp.postForm = '';
-            parentApp.errorMsg = '';
-            if (responseData.posts) {
-              parentApp.updatepostsList(responseData.posts);
-              window.toastr.success(responseData.message);
-            }
-            app.refreshpostsTimer();
+            window.location.href = responseData.new_post_url;
           };
           const onError = (response) => {
             parentApp.errorMsg = Utils.formErrorHandler(formId, response);

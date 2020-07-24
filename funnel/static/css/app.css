@@ -4388,6 +4388,55 @@ ul .login-session .mui-btn--nostyle {
   right: -2px;
 }
 
+.post {
+  margin: 16px 0 0;
+}
+.post .post__header {
+  margin-bottom: 16px;
+}
+.post .post__date {
+  margin-bottom: 10px;
+}
+.post .post__content {
+  display: inline-block;
+  width: 100%;
+}
+.post .post__content img {
+  max-width: 100%;
+}
+
+.post-form {
+  position: relative;
+}
+.post-form .mui-form--margins {
+  margin: 0;
+}
+.post-form .CodeMirror {
+  border: 1px solid #c0ccda;
+  min-height: 60px;
+}
+.post-form .CodeMirror ~ .CodeMirror {
+  display: none;
+}
+.post-form .CodeMirror-focused {
+  border: 1px solid #4a90e2;
+}
+.post-form .mui-form__fields {
+  margin-bottom: 0;
+}
+.post-form .mui-form.form-actions {
+  display: inline-block;
+  float: left;
+  margin-right: 10px;
+}
+.post-form .post-form__cancelbtn {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0;
+  position: relative;
+  top: 7px;
+}
+
 .footer {
   padding-bottom: 50px;
   margin-top: 0;
