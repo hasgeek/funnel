@@ -3,7 +3,7 @@ from collections import namedtuple
 from flask import abort, flash, jsonify, redirect, request
 
 from baseframe import _, forms, request_is_xhr
-from baseframe.forms import render_form
+from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -15,7 +15,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import CommentDeleteForm, CommentForm
+from ..forms import CommentForm
 from ..models import Comment, Commentset, Proposal, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
@@ -221,7 +221,7 @@ class CommentView(UrlForView, ModelView):
     @render_with(json=True)
     @requires_roles({'author'})
     def delete(self):
-        delcommentform = CommentDeleteForm()
+        delcommentform = Form()
 
         if delcommentform.validate_on_submit():
             commentset = self.obj.commentset

@@ -262,9 +262,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @hybrid_property
     def user_pickername(self):
         return (
-            '[deleted]'
+            _('[deleted]')
             if self.state.DELETED
-            else '[removed]'
+            else _('[removed]')
             if self.state.SPAM
             else self.user.pickername
         )
@@ -272,9 +272,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @hybrid_property
     def message_body(self):
         return (
-            '[deleted]'
+            _('[deleted]')
             if self.state.DELETED
-            else '[removed]'
+            else _('[removed]')
             if self.state.SPAM
             else self.message.text
         )

@@ -30,7 +30,6 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import (
     CfpForm,
-    CommentDeleteForm,
     CommentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
@@ -747,13 +746,12 @@ class ProjectView(
         else:
             project_save_form = SavedProjectForm()
             commentform = CommentForm(model=Comment)
-            delcommentform = CommentDeleteForm()
             return {
                 'project': self.obj,
                 'project_save_form': project_save_form,
                 'comments': comments,
                 'commentform': commentform,
-                'delcommentform': delcommentform,
+                'delcommentform': forms.Form(),
                 'csrf_form': forms.Form(),
             }
 

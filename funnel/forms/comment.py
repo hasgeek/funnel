@@ -3,7 +3,7 @@ import baseframe.forms as forms
 
 from ..models import Comment
 
-__all__ = ['CommentForm', 'CommentDeleteForm']
+__all__ = ['CommentForm']
 
 
 @Comment.forms('main')
@@ -13,8 +13,3 @@ class CommentForm(forms.Form):
         id="comment_message",
         validators=[forms.validators.DataRequired()],
     )
-
-
-@Comment.forms('delete')
-class CommentDeleteForm(forms.Form):
-    pass
