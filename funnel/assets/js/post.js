@@ -71,7 +71,7 @@ const Posts = {
       data() {
         return {
           newPostUrl,
-          posts: posts.length > 0 ? posts : '',
+          posts: posts.published.length > 0 ? posts.published : '',
           isuserloggedin,
           isEditor,
           postForm: '',
@@ -106,7 +106,15 @@ const Posts = {
           const formId = Utils.getElementId(parentApp.postForm);
           const url = Utils.getActionUrl(formId);
           const onSuccess = (responseData) => {
-            window.location.href = responseData.new_post_url;
+            if (
+              responseData.status !== undefined &&
+              responseData.status == 'ok'
+            ) {
+              window.location.href = responseData.post_url;
+            } else {
+              // replace the form with responseData.form
+              console.log(responseData);
+            }
           };
           const onError = (response) => {
             parentApp.errorMsg = Utils.formErrorHandler(formId, response);

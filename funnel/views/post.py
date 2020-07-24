@@ -21,7 +21,6 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('', methods=['GET'])
     @render_with('project_posts.html.jinja2', json=True)
-    @requires_login
     @requires_roles({'reader'})
     def posts(self):
         project_save_form = SavedProjectForm()
@@ -52,7 +51,7 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             return {
                 'status': 'ok',
                 'message': _("The member‘s roles have been updated"),
-                'new_post_url': post.url_for(),
+                'post_url': post.url_for(),
             }
 
         post_form_html = forms.render_form(
@@ -149,7 +148,7 @@ class ProjectPostDetailsView(UrlForView, ModelView):
             if self.obj.state.DRAFT:
                 return redirect(self.obj.url_for())
             else:
-                return redirect(self.obj.project.url_for('updates'))
+                return redirect(self.obj.project.url_for('posts'))
 
         return render_form(
             form=post_form,

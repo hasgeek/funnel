@@ -317,3 +317,19 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             roles.add('reader')
 
         return roles
+
+
+Project.published_posts = db.relationship(
+    Post,
+    lazy='dynamic',
+    primaryjoin=db.and_(Post.project_id == Project.id, Post.state.PUBLISHED),
+    viewonly=True,
+)
+
+
+Project.draft_posts = db.relationship(
+    Post,
+    lazy='dynamic',
+    primaryjoin=db.and_(Post.project_id == Project.id, Post.state.DRAFT),
+    viewonly=True,
+)

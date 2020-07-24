@@ -56,7 +56,7 @@
       }
 
       var postConfig = {
-        posts: [{{ post|tojson }}],
+        posts: {'published': [{{ post|tojson }}]},
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
