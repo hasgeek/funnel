@@ -1,4 +1,5 @@
 from flask import flash, g, redirect
+from flask.globals import request
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -45,19 +46,30 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
         post_form = PostForm()
         post_form.form_nonce.data = post_form.form_nonce.default()
 
-        if post_form.validate_on_submit():
-            post = Post(user=current_auth.user, project=self.obj)
-            post_form.populate_obj(post)
-            post.name = make_name(post.title)
-            if post_form.restricted.data:
-                post.make_restricted()
-            db.session.add(post)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("The member‘s roles have been updated"),
-                'post_url': post.url_for(),
-            }
+        if request.method == 'POST':
+            if post_form.validate_on_submit():
+                post = Post(user=current_auth.user, project=self.obj)
+                post_form.populate_obj(post)
+                post.name = make_name(post.title)
+                if post_form.restricted.data:
+                    post.make_restricted()
+                db.session.add(post)
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("The member‘s roles have been updated"),
+                    'post_url': post.url_for(),
+                }
+            else:
+                post_form_html = forms.render_form(
+                    form=post_form,
+                    formid='post_form',
+                    title=_(""),
+                    submit=_("Post"),
+                    ajax=True,
+                    with_chrome=False,
+                )
+                return {'status': 'error', 'form': post_form_html}
 
         post_form_html = forms.render_form(
             form=post_form,
