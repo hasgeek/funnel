@@ -1,8 +1,0 @@
-{% extends "email_layout.html.jinja2" %}
-{% block content -%}
-
-  <p>{% trans profile_title=profile.title, revoked_by=revoked_by.pickername %}
-    You have been removed as an admin from <b>{{ profile_title }}</b> by <b>{{ revoked_by }}</b>.
-  {% endtrans %}</p>
-
-{%- endblock %}

@@ -13,7 +13,7 @@ from flask import (
 )
 
 from baseframe import _, forms
-from baseframe.forms import render_form
+from baseframe.forms import render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
@@ -32,6 +32,7 @@ from ..forms import (
     CfpForm,
     CommentDeleteForm,
     CommentForm,
+    ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
     ProjectForm,
@@ -449,6 +450,29 @@ class ProjectView(
                         autosave=True,
                     )
 
+    @route('edit_banner', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def edit_banner(self):
+        form = ProjectBannerForm(obj=self.obj)
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                form.populate_obj(self.obj)
+                db.session.commit()
+                flash(_("Your changes have been saved"), 'info')
+                return render_redirect(self.obj.url_for(), code=303)
+            else:
+                return render_form(
+                    form=form, title=_(""), submit=_("Save banner"), ajax=True,
+                )
+        return render_form(
+            form=form,
+            title=_(""),
+            submit=_("Save banner"),
+            ajax=True,
+            template='img_upload_formlayout.html.jinja2',
+        )
+
     @route('cfp', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
@@ -747,6 +771,18 @@ class ProjectView(
             'delcommentform': delcommentform,
             'csrf_form': forms.Form(),
         }
+
+    @route('toggle_featured', methods=['POST'])
+    def toggle_featured(self):
+        if not current_auth.user.is_site_editor:
+            return abort(403)
+        featured_form = forms.Form()
+        if featured_form.validate_on_submit():
+            self.obj.featured = not self.obj.featured
+            db.session.commit()
+            if self.obj.featured:
+                flash(_("Your project is now a spotlight on homepage"), 'info')
+        return redirect(get_next_url(referrer=True), 303)
 
 
 @route('/<project>/', subdomain='<profile>')

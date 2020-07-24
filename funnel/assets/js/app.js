@@ -18,6 +18,7 @@ $(() => {
   Utils.truncate();
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
+  Utils.handleModalForm();
 
   const intersectionObserverComponents = function() {
     if (document.querySelector('#page-navbar')) {
