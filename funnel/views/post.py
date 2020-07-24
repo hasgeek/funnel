@@ -14,6 +14,11 @@ from .helpers import requires_login
 from .project import ProjectViewMixin
 
 
+@Project.features('drafts')
+def project_drafts(obj):
+    return obj.current_roles.editor
+
+
 @Project.views('updates')
 @route('/<profile>/<project>/updates')
 class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
