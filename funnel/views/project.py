@@ -198,6 +198,11 @@ def feature_project_comment_new(obj):
     return obj.current_roles.participant is True
 
 
+@Project.features('post_new')
+def feature_project_post_new(obj):
+    return obj.current_roles.editor is True
+
+
 @Project.views('registration_text')
 def project_registration_text(obj):
     return get_registration_text(

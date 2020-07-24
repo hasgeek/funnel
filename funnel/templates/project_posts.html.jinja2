@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, widgetscripts %}
-{%- from "macros.html.jinja2" import project_header %}
+{%- from "macros.html.jinja2" import project_header, posts_template %}
 {% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
@@ -24,9 +24,12 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Comments{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Updates{% endtrans %}</span>
     </div>
   </div>
+  {{ project_header(project, project_save_form, csrf_form,
+    class='mui--hidden-xs mui--hidden-sm',
+    current_page='posts') }}
 {% endblock %}
 
 {% block basecontent %}
@@ -37,16 +40,49 @@
           <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Updates{% endtrans %}</h2>
         </div>
         <div class="grid__col-xs-12">
-          {{ post_form|safe }}
-          {% if posts %}
-            <ul class="mui-list--unstyled">
-              {% for post in posts %}
-              <li>{{ post.body.text }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+         {{ posts_template() }}
         </div>
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block pagescripts %}
+  {% assets "js_codemirrormarkdown" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('post')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var saveProjectConfig = {
+        formId: 'save-form',
+        postUrl: {{ project.url_for('save')|tojson }}
+      }
+
+      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
+
+      var headerHeight;
+      if($(window).width() < window.HasGeek.config.mobileBreakpoint) {
+        headerHeight = $('.mobile-nav').height();
+      } else {
+        headerHeight = $('header').height() + $('nav').height();
+      }
+
+      var postConfig = {
+        newPostUrl: "{{ new_post }}",
+        divElem: "#posts-wrapper",
+        postTemplate: '#post-template',
+        isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
+        isEditor: {% if current_auth.user and project.features.post_new() -%}true{% else %}false{% endif %},
+        loginUrl: "{{ url_for('login') }}",
+        headerHeight: headerHeight,
+      };
+
+      window.HasGeek.PostsInit(postConfig);
+    });
+  </script>
 {% endblock %}

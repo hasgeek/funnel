@@ -1,20 +1,20 @@
 from flask import flash, g, redirect
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app
-from ..forms import PostForm
+from ..forms import PostForm, SavedProjectForm
 from ..models import Post, Profile, Project, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
 from .project import ProjectViewMixin
 
 
-@Project.views('posts')
-@route('/<profile>/<project>/posts')
+@Project.views('updates')
+@route('/<profile>/<project>/updates')
 class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
@@ -23,25 +23,22 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'reader'})
     def posts(self):
-        post_form = PostForm()
+        project_save_form = SavedProjectForm()
 
-        post_form_html = forms.render_form(
-            form=post_form,
-            action=self.obj.url_for('new_post'),
-            formid='post_form',
-            title=_("Post update"),
-            submit=_("Post"),
-            ajax=True,
-            with_chrome=False,
-        )
+        if request_is_xhr():
+            return {
+                'posts': self.obj.views.json_posts(),
+            }
 
+        project_save_form = SavedProjectForm()
         return {
             'project': self.obj.current_access(),
-            'post_form': post_form_html,
-            'posts': self.obj.views.json_posts(),
+            'new_post': self.obj.url_for('new_post'),
+            'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
-    @route('new', methods=['POST'])
+    @route('new', methods=['GET', 'POST'])
     @render_with(json=True)
     @requires_login
     @requires_roles({'editor'})
@@ -52,11 +49,12 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             post = Post(user=current_auth.user, project=self.obj)
             post_form.populate_obj(post)
             post.name = make_name(post.title)
+            post.publish(actor=current_auth.user)
             if post_form.restricted.data:
                 post.make_restricted()
             db.session.add(post)
             db.session.commit()
-            return redirect(post.url_for('preview_draft'))
+            return forms.render_redirect(post.url_for())
 
         post_form_html = forms.render_form(
             form=post_form,
@@ -67,8 +65,8 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             with_chrome=False,
         )
         return {
-            'status': 'error',
-            'post_form': post_form_html,
+            'posts': self.obj.views.json_posts(),
+            'form': post_form_html,
         }
 
 
@@ -76,23 +74,23 @@ ProjectPostView.init_app(app)
 
 
 @Post.views('main')
-@route('/<profile>/<project>/posts/<uuid_b58>')
+@route('/<profile>/<project>/posts/<url_name_uuid_b58>')
 class ProjectPostDetailsView(UrlForView, ModelView):
     __decorators__ = [requires_login, legacy_redirect]
     model = Post
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'uuid_b58': 'uuid_b58',
+        'url_name_uuid_b58': 'url_name_uuid_b58',
     }
 
-    def loader(self, profile, project, uuid_b58):
+    def loader(self, profile, project, url_name_uuid_b58):
         post = (
             self.model.query.join(Profile, Project)
             .filter(
                 Profile.name == profile,
                 Project.name == project,
-                Post.uuid_b58 == uuid_b58,
+                Post.url_name_uuid_b58 == url_name_uuid_b58,
             )
             .first_or_404()
         )
@@ -100,21 +98,12 @@ class ProjectPostDetailsView(UrlForView, ModelView):
         return post
 
     @route('', methods=['GET'])
-    @render_with(json=True)
+    @render_with('project_post.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
         return {'post': self.obj.current_access()}
 
-    @route('preview', methods=['GET'])
-    @render_with(json=True)
-    @requires_roles({'editor'})
-    def preview_draft(self):
-        if not self.obj.state.DRAFT:
-            return redirect(self.obj.url_for())
-        return {'post': self.obj.current_access()}
-
     @route('publish', methods=['POST'])
-    @render_with(json=True)
     @requires_roles({'editor'})
     def publish_draft(self):
         if not self.obj.state.DRAFT:
@@ -124,15 +113,15 @@ class ProjectPostDetailsView(UrlForView, ModelView):
             self.obj.publish(actor=current_auth.user)
             db.session.commit()
             flash(_("The update has been published"), 'success')
-            return redirect(self.obj.url_for())
         else:
             flash(
                 _(
-                    "There was an error publishing this update. Please refresh and try again"
+                    "There was an error publishing this update. "
+                    "Please refresh and try again"
                 ),
                 'error',
             )
-            return redirect(self.obj.url_for('preview_draft'))
+        return redirect(self.obj.project.url_for('posts'))
 
 
 ProjectPostDetailsView.init_app(app)
