@@ -126,6 +126,9 @@ class ProjectPostDetailsView(UrlForView, ModelView):
     @render_with('project_post_details.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
+        if self.obj.state.DRAFT and not self.obj.current_roles.editor:
+            return redirect(self.obj.project.url_for('posts'))
+
         return {
             'post': self.obj.current_access(),
             'publish_form': forms.Form(),
