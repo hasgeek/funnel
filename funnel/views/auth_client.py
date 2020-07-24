@@ -29,7 +29,7 @@ from ..models import (
     User,
     db,
 )
-from .helpers import requires_login
+from .login_session import requires_login
 
 # --- Routes: client apps -----------------------------------------------------
 

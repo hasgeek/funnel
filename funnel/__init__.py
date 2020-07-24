@@ -81,7 +81,7 @@ app.email_serializer = itsdangerous.URLSafeTimedSerializer(app.config['SECRET_KE
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`
-app.login_manager = views.helpers.LoginManager()
+app.login_manager = views.login_session.LoginManager()
 funnelapp.login_manager = lastuserapp.login_manager = app.login_manager
 
 db.init_app(app)

@@ -27,7 +27,8 @@ from .. import app, funnelapp
 from ..forms import ProjectScheduleTransitionForm, SavedProjectForm
 from ..models import Project, Proposal, Session, VenueRoom, db
 from .decorators import legacy_redirect
-from .helpers import localize_date, requires_login
+from .helpers import localize_date
+from .login_session import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 
 
