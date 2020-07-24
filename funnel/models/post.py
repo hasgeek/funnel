@@ -156,10 +156,10 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 'edited_at_age',
                 'deleted_at',
                 'deleted_at_age',
-                'visibility_state',
-                'state',
+                'visibility_label',
+                'state_label',
             },
-            'call': {'features'},
+            'call': {'features', 'visibility_state', 'state'},
         },
         'reader': {'read': {'body'}},
     }
@@ -174,8 +174,8 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'edited_at',
             'edited_at_age',
             'user',
-            'visibility_state',
-            'state',
+            'visibility_label',
+            'state_label',
         }
     }
 
@@ -214,6 +214,14 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     @hybrid_property
     def deleted_at_age(self):
         return age(self.deleted_at) if self.deleted_at is not None else None
+
+    @hybrid_property
+    def visibility_label(self):
+        return self.visibility_state.label.title
+
+    @hybrid_property
+    def state_label(self):
+        return self.state.label.title
 
     state.add_conditional_state(
         'UNPUBLISHED',
