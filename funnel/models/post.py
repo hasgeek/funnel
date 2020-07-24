@@ -158,7 +158,8 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 'deleted_at_age',
                 'visibility_state',
                 'state',
-            }
+            },
+            'call': {'features'},
         },
         'reader': {'read': {'body'}},
     }

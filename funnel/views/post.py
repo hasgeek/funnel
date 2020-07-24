@@ -44,17 +44,17 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
     @requires_roles({'editor'})
     def new_post(self):
         post_form = PostForm()
+        post_form.form_nonce.data = post_form.form_nonce.default()
 
         if post_form.validate_on_submit():
             post = Post(user=current_auth.user, project=self.obj)
             post_form.populate_obj(post)
             post.name = make_name(post.title)
-            post.publish(actor=current_auth.user)
             if post_form.restricted.data:
                 post.make_restricted()
             db.session.add(post)
             db.session.commit()
-            return forms.render_redirect(post.url_for())
+            return forms.render_redirect(post.url_for(), code=303)
 
         post_form_html = forms.render_form(
             form=post_form,
@@ -73,8 +73,13 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
 ProjectPostView.init_app(app)
 
 
+@Post.features('publish')
+def post_publishable(obj):
+    return obj.state.DRAFT and 'editor' in obj.roles_for(current_auth.user)
+
+
 @Post.views('main')
-@route('/<profile>/<project>/posts/<url_name_uuid_b58>')
+@route('/<profile>/<project>/updates/<url_name_uuid_b58>')
 class ProjectPostDetailsView(UrlForView, ModelView):
     __decorators__ = [requires_login, legacy_redirect]
     model = Post
@@ -85,20 +90,25 @@ class ProjectPostDetailsView(UrlForView, ModelView):
     }
 
     def loader(self, profile, project, url_name_uuid_b58):
-        post = (
-            self.model.query.join(Profile, Project)
-            .filter(
-                Profile.name == profile,
-                Project.name == project,
-                Post.url_name_uuid_b58 == url_name_uuid_b58,
-            )
-            .first_or_404()
+        project = (
+            Project.query.join(Profile)
+            .filter(Profile.name == profile, Project.name == project)
+            .one_or_404()
         )
+
+        post = (
+            self.model.query.join(Project)
+            .filter(
+                Project.id == project.id, Post.url_name_uuid_b58 == url_name_uuid_b58,
+            )
+            .one_or_404()
+        )
+
         g.profile = post.project.profile
         return post
 
     @route('', methods=['GET'])
-    @render_with('project_post.html.jinja2')
+    @render_with('project_post_details.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
         return {'post': self.obj.current_access()}
@@ -122,6 +132,26 @@ class ProjectPostDetailsView(UrlForView, ModelView):
                 'error',
             )
         return redirect(self.obj.project.url_for('posts'))
+
+    @route('edit', methods=['GET', 'POST'])
+    @render_with(json=True)
+    @requires_roles({'editor'})
+    def edit(self):
+        post_form = PostForm(obj=self.obj)
+        if post_form.validate_on_submit():
+            post_form.populate_obj(self.obj)
+            db.session.commit()
+            return {'status': 'ok', 'post': self.obj.current_access()}
+
+        post_form_html = forms.render_form(
+            form=post_form,
+            formid='post_form',
+            title=_("Edit update"),
+            submit=_("Save"),
+            ajax=True,
+            with_chrome=False,
+        )
+        return {'status': 'error', 'form': post_form_html}
 
 
 ProjectPostDetailsView.init_app(app)
