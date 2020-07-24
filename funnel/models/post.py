@@ -160,7 +160,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 'state_label',
                 'urls',
             },
-            'call': {'features', 'visibility_state', 'state'},
+            'call': {'features', 'visibility_state', 'state', 'url_for'},
         },
         'reader': {'read': {'body'}},
     }

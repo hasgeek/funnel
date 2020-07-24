@@ -72,6 +72,7 @@
 
       var postConfig = {
         newPostUrl: "{{ new_post }}",
+        posts: {{ posts|tojson }},
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},

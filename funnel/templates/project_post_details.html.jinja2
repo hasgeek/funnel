@@ -1,8 +1,71 @@
 {% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
+{% from "baseframe/forms.html.jinja2" import renderform %}
+{%- from "macros.html.jinja2" import project_header, posts_template %}
+{% block title %}{{post.title}}{% endblock %}
+{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
+
+{%- block pageheaders %}
+  {% assets "css_codemirrormarkdown" -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets -%}
+{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
 
 {% block basecontent %}
-  {% if post.features.publish() %}
-    Show publish button
-  {% endif %}
-  {{ post.body.html|safe }}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav">
+      <div class="grid project-section" id="comments">
+        <div class="grid__col-xs-12">
+          <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Post{% endtrans %}</h2>
+        </div>
+        <div class="grid__col-xs-12">
+         {{ posts_template() }}
+         {% if post.features.publish() %}
+          {{ renderform(form=publish_form, submit="Publish post", action=post.url_for('publish_draft')) }}
+         {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagescripts %}
+  {% assets "js_codemirrormarkdown" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('post')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+
+      var headerHeight;
+      if($(window).width() < window.HasGeek.config.mobileBreakpoint) {
+        headerHeight = $('.mobile-nav').height();
+      } else {
+        headerHeight = $('header').height() + $('nav').height();
+      }
+
+      var postConfig = {
+        posts: [{{ post|tojson }}],
+        divElem: "#posts-wrapper",
+        postTemplate: '#post-template',
+        isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
+        isEditor: {% if current_auth.user -%}true{% else %}false{% endif %},
+        loginUrl: "{{ url_for('login') }}",
+        headerHeight: headerHeight,
+      };
+
+      window.HasGeek.PostsInit(postConfig);
+    });
+  </script>
 {% endblock %}

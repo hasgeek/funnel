@@ -4407,6 +4407,8 @@ ul .login-session .mui-btn--nostyle {
 
 .post-form {
   position: relative;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 .post-form .mui-form--margins {
   margin: 0;
@@ -4428,15 +4430,30 @@ ul .login-session .mui-btn--nostyle {
   display: inline-block;
   float: left;
   margin-right: 10px;
+  margin-top: 10px;
 }
 .post-form .post-form__cancelbtn {
   display: inline-block;
   vertical-align: top;
   margin: 0;
   position: relative;
-  top: 7px;
+  top: 16px;
 }
 
+@media (min-width: 768px) {
+  .post {
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    background-color: #fff;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .post-form {
+    border-bottom: none;
+    padding-bottom: 32px;
+  }
+}
 .footer {
   padding-bottom: 50px;
   margin-top: 0;

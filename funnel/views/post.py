@@ -1,6 +1,7 @@
 from flask import flash, g, redirect
 
-from baseframe import _, forms, request_is_xhr
+from baseframe import _, forms
+from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
@@ -24,25 +25,8 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
     @requires_roles({'reader'})
     def posts(self):
         project_save_form = SavedProjectForm()
-
-        if request_is_xhr():
-            data = {
-                'posts': self.obj.views.json_posts(),
-            }
-            if self.obj.current_roles.editor:
-                post_form = PostForm()
-                data['form'] = forms.render_form(
-                    form=post_form,
-                    formid='post_form',
-                    title=_("Post update"),
-                    submit=_("Post"),
-                    ajax=True,
-                    with_chrome=False,
-                )
-            return data
-
-        project_save_form = SavedProjectForm()
         return {
+            'posts': self.obj.views.json_posts(),
             'project': self.obj.current_access(),
             'new_post': self.obj.url_for('new_post'),
             'project_save_form': project_save_form,
@@ -74,7 +58,7 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
         post_form_html = forms.render_form(
             form=post_form,
             formid='post_form',
-            title=_("Post update"),
+            title=_(""),
             submit=_("Post"),
             ajax=True,
             with_chrome=False,
@@ -126,7 +110,11 @@ class ProjectPostDetailsView(UrlForView, ModelView):
     @render_with('project_post_details.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
-        return {'post': self.obj.current_access(), 'publish_form': forms.Form()}
+        return {
+            'post': self.obj.current_access(),
+            'publish_form': forms.Form(),
+            'project': self.obj.project.current_access(),
+        }
 
     @route('publish', methods=['POST'])
     @requires_roles({'editor'})
@@ -163,15 +151,12 @@ class ProjectPostDetailsView(UrlForView, ModelView):
             else:
                 return redirect(self.obj.project.url_for('updates'))
 
-        post_form_html = forms.render_form(
+        return render_form(
             form=post_form,
-            formid='post_form',
             title=_("Edit update"),
             submit=_("Save"),
-            ajax=True,
-            with_chrome=False,
+            cancel_url=self.obj.url_for(),
         )
-        return {'post': self.obj.current_access(), 'form': post_form_html}
 
 
 ProjectPostDetailsView.init_app(app)

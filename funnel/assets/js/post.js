@@ -24,7 +24,6 @@ const Posts = {
           postForm: '',
           errorMsg: '',
           svgIconUrl: window.HasGeek.config.svgIconUrl,
-          hide: false,
         };
       },
       methods: {
@@ -38,9 +37,6 @@ const Posts = {
           } else {
             this.$parent.fetchForm(event, url, this);
           }
-        },
-        updatepostsList(postsList) {
-          this.$parent.updatepostsList(postsList);
         },
         activateForm(post) {
           this.$parent.activateForm(post);
@@ -123,19 +119,6 @@ const Posts = {
             {}
           );
         },
-        updatepostsList(postsList) {
-          this.posts = postsList.length > 0 ? postsList : '';
-        },
-        fetchpostsList() {
-          $.ajax({
-            type: 'GET',
-            timeout: window.HasGeek.config.ajaxTimeout,
-            dataType: 'json',
-            success(data) {
-              app.updatepostsList(data.posts);
-            },
-          });
-        },
         closeForm(event) {
           event.preventDefault();
           this.postForm = '';
@@ -157,7 +140,6 @@ const Posts = {
         },
       },
       mounted() {
-        this.fetchpostsList();
         if (window.location.hash) {
           Utils.animateScrollTo(
             document
