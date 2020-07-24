@@ -26,9 +26,20 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
         project_save_form = SavedProjectForm()
 
         if request_is_xhr():
-            return {
+            data = {
                 'posts': self.obj.views.json_posts(),
             }
+            if self.obj.current_roles.editor:
+                post_form = PostForm()
+                data['form'] = forms.render_form(
+                    form=post_form,
+                    formid='post_form',
+                    title=_("Post update"),
+                    submit=_("Post"),
+                    ajax=True,
+                    with_chrome=False,
+                )
+            return data
 
         project_save_form = SavedProjectForm()
         return {
@@ -115,7 +126,7 @@ class ProjectPostDetailsView(UrlForView, ModelView):
     @render_with('project_post_details.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
-        return {'post': self.obj.current_access()}
+        return {'post': self.obj.current_access(), 'publish_form': forms.Form()}
 
     @route('publish', methods=['POST'])
     @requires_roles({'editor'})
@@ -142,10 +153,15 @@ class ProjectPostDetailsView(UrlForView, ModelView):
     @requires_roles({'editor'})
     def edit(self):
         post_form = PostForm(obj=self.obj)
+
         if post_form.validate_on_submit():
             post_form.populate_obj(self.obj)
             db.session.commit()
-            return {'status': 'ok', 'post': self.obj.current_access()}
+            flash(_("The update has been edited"), 'success')
+            if self.obj.state.DRAFT:
+                return redirect(self.obj.url_for())
+            else:
+                return redirect(self.obj.project.url_for('updates'))
 
         post_form_html = forms.render_form(
             form=post_form,
@@ -155,7 +171,7 @@ class ProjectPostDetailsView(UrlForView, ModelView):
             ajax=True,
             with_chrome=False,
         )
-        return {'status': 'error', 'form': post_form_html}
+        return {'post': self.obj.current_access(), 'form': post_form_html}
 
 
 ProjectPostDetailsView.init_app(app)
