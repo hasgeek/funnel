@@ -1,12 +1,12 @@
-from flask import g, redirect
+from flask import g
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app
-from ..forms import PostForm
+from ..forms import PostForm, SavedProjectForm
 from ..models import Post, Profile, Project, db
 from .decorators import legacy_redirect
 from .helpers import requires_login
@@ -23,25 +23,21 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'reader'})
     def posts(self):
-        post_form = PostForm()
+        project_save_form = SavedProjectForm()
 
-        post_form_html = forms.render_form(
-            form=post_form,
-            action=self.obj.url_for('new_post'),
-            formid='post_form',
-            title=_("Post update"),
-            submit=_("Post"),
-            ajax=True,
-            with_chrome=False,
-        )
-
+        if request_is_xhr():
+            return {
+                'posts': self.obj.views.json_posts(),
+            }
+        project_save_form = SavedProjectForm()
         return {
             'project': self.obj.current_access(),
-            'post_form': post_form_html,
-            'posts': self.obj.views.json_posts(),
+            'new_post': self.obj.url_for('new_post'),
+            'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
-    @route('new', methods=['POST'])
+    @route('new', methods=['GET', 'POST'])
     @render_with(json=True)
     @requires_login
     @requires_roles({'editor'})
@@ -52,12 +48,16 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             post = Post(user=current_auth.user, project=self.obj)
             post_form.populate_obj(post)
             post.name = make_name(post.title)
-            post.publish(actor=current_auth.user)
+            # post.publish(actor=current_auth.user)
             if post_form.restricted.data:
                 post.make_restricted()
             db.session.add(post)
             db.session.commit()
-            return redirect(self.obj.url_for('posts'))
+            return {
+                'status': 'ok',
+                'message': _("Your update has been posted"),
+                'posts': self.obj.views.json_posts(),
+            }
 
         post_form_html = forms.render_form(
             form=post_form,
@@ -68,8 +68,7 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             with_chrome=False,
         )
         return {
-            'status': 'error',
-            'post_form': post_form_html,
+            'form': post_form_html,
         }
 
 
