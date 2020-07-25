@@ -16,6 +16,16 @@ const Posts = {
     Vue.config.devtools = true;
     Vue.use(VS2);
 
+    Vue.filter('truncate', function (content, length) {
+      if (!content) return '';
+      let value = content.toString();
+      if (value.length > length) {
+        return value.substring(0, length) + '...';
+      } else {
+        return value;
+      }
+    });
+
     const postUI = Vue.component('post', {
       template: postTemplate,
       props: ['post'],
@@ -23,14 +33,13 @@ const Posts = {
         return {
           postForm: '',
           errorMsg: '',
+          truncated: true,
+          setReadMore: false,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
         };
       },
       methods: {
         getInitials: window.Baseframe.Utils.getInitials,
-        collapse(action) {
-          this.hide = action;
-        },
         fetchForm(event, url, post) {
           if (post) {
             this.$parent.fetchForm(event, url, post);
@@ -46,6 +55,22 @@ const Posts = {
           this.postForm = '';
           this.errorMsg = '';
         },
+        truncate(content, length) {
+          if (!content) return '';
+          let value = content.toString();
+          if (value.length > length) {
+            this.setReadMore = true;
+            let txt = `${value.substring(0, length)} ...`;
+            return txt;
+          } else {
+            return value;
+          }
+        },
+        readMore(event, action) {
+          event.preventDefault();
+          this.setReadMore = action;
+          this.truncated = action;
+        },
       },
       computed: {
         Form() {
@@ -60,6 +85,9 @@ const Posts = {
             },
           };
         },
+        mounted() {
+          console.log('mounted');
+        },
       },
     });
 
@@ -71,7 +99,7 @@ const Posts = {
       data() {
         return {
           newPostUrl,
-          posts: posts.published.length > 0 ? posts.published : '',
+          posts: posts.length > 0 ? posts : '',
           isuserloggedin,
           isEditor,
           postForm: '',
@@ -106,15 +134,7 @@ const Posts = {
           const formId = Utils.getElementId(parentApp.postForm);
           const url = Utils.getActionUrl(formId);
           const onSuccess = (responseData) => {
-            if (
-              responseData.status !== undefined &&
-              responseData.status == 'ok'
-            ) {
-              window.location.href = responseData.post_url;
-            } else {
-              // replace the form with responseData.form
-              console.log(responseData);
-            }
+            window.location.href = responseData.post_url;
           };
           const onError = (response) => {
             parentApp.errorMsg = Utils.formErrorHandler(formId, response);

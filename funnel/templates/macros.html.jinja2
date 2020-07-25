@@ -777,18 +777,30 @@
       </ul>
     </div>
     <script type="text/x-template" id="post-template">
-      <li class="post user">
+      <li class="post user" :id="'#update-' + post.uuid_b58">
         <div class="user__box mui--clearfix post__header">
           <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(post.user.fullname) }}</div>
           <div class="mui--d-inlineblock">
             <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ post.user.fullname }}</h3>
             <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
           </div>
-          <a class="mui--pull-right" v-if="post.urls.edit" :href="post.urls.edit"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#edit'"></use></svg> Edit</a>
+          <div class="mui-dropdown mui--pull-right">
+            <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#ellipsis-v'"></use></svg></a>
+            <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
+              <li><a v-if="post.urls.edit" :href="post.urls.edit">Edit</a></li>
+              <li><a v-if="post.urls.delete" :href="post.urls.delete">Delete</a></li>
+            </ul>
+          </div>
         </div>
         <p class="mui--text-light mui--text-caption post__date">{{ post.published_at_age }}</span>
         <p class="mui--text-subhead mui--text-bold">{{ post.title }}</p>
-        <div class="post__content mui--text-light" v-html="post.body.html"></div>
+        <div class="post__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(post.body.html, 250)"></div>
+        <div class="post__content mui--text-light fullcontent" v-else v-html="post.body.html"></div>
+        <p class="mui--text-body2">
+          <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" aria-label="read more"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-down'"></use></svg> Read more</a></p>
+          <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="hide"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-up'"></use></svg> Hide</a>
+        </p>
+        <a class="mui--text-menu mui--text-hyperlink" :href="'#update-' + post.uuid_b58">[Link]</a>
         <hr class="mui--visible-xs-block mui--visible-sm-block">
       </li>
     </script>

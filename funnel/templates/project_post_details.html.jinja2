@@ -21,7 +21,7 @@
 
 {% block basecontent %}
   <div class="mui-container">
-    <div class="page-content page-content--mob-nav">
+    <div class="page-content">
       <div class="grid project-section" id="comments">
         <div class="grid__col-xs-12">
           <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Post{% endtrans %}</h2>
@@ -56,7 +56,7 @@
       }
 
       var postConfig = {
-        posts: {'published': [{{ post|tojson }}]},
+        posts: [ {{ post|tojson }} ],
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
