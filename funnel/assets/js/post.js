@@ -5,6 +5,8 @@ import { Utils } from './util';
 const Posts = {
   init({
     newPostUrl,
+    draft = '',
+    pinned = '',
     posts = '',
     divElem,
     postTemplate,
@@ -28,7 +30,7 @@ const Posts = {
 
     const postUI = Vue.component('post', {
       template: postTemplate,
-      props: ['post'],
+      props: ['post', 'iseditor'],
       data() {
         return {
           postForm: '',
@@ -85,9 +87,6 @@ const Posts = {
             },
           };
         },
-        mounted() {
-          console.log('mounted');
-        },
       },
     });
 
@@ -99,6 +98,8 @@ const Posts = {
       data() {
         return {
           newPostUrl,
+          draft: draft.length > 0 ? draft : '',
+          pinned: pinned.length > 0 ? pinned : '',
           posts: posts.length > 0 ? posts : '',
           isuserloggedin,
           isEditor,
@@ -119,7 +120,6 @@ const Posts = {
               timeout: window.HasGeek.config.ajaxTimeout,
               dataType: 'json',
               success(data) {
-                console.log('data', data);
                 const vueFormHtml = data.form;
                 if (post) {
                   post.postForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
@@ -150,7 +150,14 @@ const Posts = {
         closeForm(event) {
           event.preventDefault();
           this.postForm = '';
-          this.errorMsg = 'Posts';
+          this.errorMsg = '';
+        },
+        scrollToUpdate(elem) {
+          Utils.animateScrollTo(
+            document.getElementById(elem).getBoundingClientRect().top +
+              window.scrollY -
+              app.headerHeight
+          );
         },
       },
       computed: {
@@ -168,6 +175,9 @@ const Posts = {
         },
       },
       mounted() {
+        this.headerHeight =
+          this.headerHeight +
+          document.getElementsByClassName('pinned')[0].offsetHeight;
         if (window.location.hash) {
           Utils.animateScrollTo(
             document

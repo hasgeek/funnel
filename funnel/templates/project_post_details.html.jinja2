@@ -20,18 +20,13 @@
 {% endblock %}
 
 {% block basecontent %}
+  {{ posts_template() }}
   <div class="mui-container">
-    <div class="page-content">
-      <div class="grid project-section" id="comments">
-        <div class="grid__col-xs-12">
-          <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Post{% endtrans %}</h2>
-        </div>
-        <div class="grid__col-xs-12">
-         {{ posts_template() }}
-         {% if post.features.publish() %}
-          {{ renderform(form=publish_form, submit="Publish post", action=post.url_for('publish_draft')) }}
-         {% endif %}
-        </div>
+    <div class="grid project-section">
+      <div class="grid__col-xs-12 publish-form">
+       {% if post.features.publish() %}
+        {{ renderform(form=publish_form, submit="Publish post", action=post.url_for('publish_draft')) }}
+       {% endif %}
       </div>
     </div>
   </div>

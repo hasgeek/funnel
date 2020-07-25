@@ -210,6 +210,9 @@ class ProjectPostDetailsView(UrlForView, ModelView):
         return render_form(
             form=delete_form,
             title=_("Delete update"),
+            message=_("Do you really wish to delete this post ‘{title}’? ").format(
+                title=self.obj.title
+            ),
             submit=_("Delete"),
             cancel_url=self.obj.url_for(),
         )

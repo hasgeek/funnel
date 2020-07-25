@@ -31,29 +31,8 @@
 {% endblock %}
 
 {% block basecontent %}
-  <div class="mui-container">
-    <div class="page-content page-content--mob-nav">
-      <div class="grid project-section" id="comments">
-        {% if project.features.drafts() %}
-        <div class="grid__col-xs-12">
-          <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Drafts{% endtrans %}</h2>
-        </div>
-        <div class="grid__col-xs-12">
-          <ul>
-          {% for draft in posts['draft'] %}
-          <li><a href="{{ draft.url_for() }}">{{ draft.title }}</a></li>
-          {% endfor %}
-          </ul>
-        </div>
-        {% endif %}
-        <div class="grid__col-xs-12">
-          <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Updates{% endtrans %}</h2>
-        </div>
-        <div class="grid__col-xs-12">
-         {{ posts_template() }}
-        </div>
-      </div>
-    </div>
+  <div id="updates">
+    {{ posts_template() }}
   </div>
 {% endblock %}
 
@@ -84,6 +63,8 @@
 
       var postConfig = {
         newPostUrl: "{{ new_post }}",
+        draft: {{ posts.draft|tojson }},
+        pinned: {{ posts.pinned|tojson }},
         posts: {{ posts.published|tojson }},
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
