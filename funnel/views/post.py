@@ -20,6 +20,24 @@ def project_drafts(obj):
     return obj.current_roles.editor
 
 
+@Project.views('json_posts')
+def project_json_posts(obj):
+    pinned_posts = [post.current_access() for post in obj.pinned_posts]
+    return {
+        'pinned': pinned_posts,
+        'published': [
+            post.current_access()
+            for post in obj.published_posts
+            if post not in pinned_posts
+        ],
+        'draft': (
+            [post.current_access() for post in obj.draft_posts]
+            if obj.current_roles.editor
+            else []
+        ),
+    }
+
+
 @Project.views('updates')
 @route('/<profile>/<project>/updates')
 class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
