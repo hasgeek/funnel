@@ -29,7 +29,7 @@ from ..forms import (
 )
 from ..models import Comment, Project, Proposal, db
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .login_session import requires_login
 from .mixins import ProjectViewMixin, ProposalViewMixin
 
 proposal_headers = [

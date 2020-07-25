@@ -58,7 +58,8 @@ from ..registry import login_registry
 from ..signals import user_data_changed
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, login_internal, logout_internal, requires_login
+from .helpers import app_url_for
+from .login_session import login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
 
 
