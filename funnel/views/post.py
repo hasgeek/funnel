@@ -1,4 +1,4 @@
-from flask import flash, g, redirect
+from flask import abort, flash, g, redirect
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -23,7 +23,7 @@ def project_drafts(obj):
 def project_json_posts(obj):
     published_posts = []
     for post in obj.published_posts:
-        if post.visibilisty_state.PUBLIC:
+        if post.visibility_state.PUBLIC:
             published_posts.append(post)
         else:
             # Restricted posts
@@ -69,9 +69,10 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             post = Post(user=current_auth.user, project=self.obj)
             post_form.populate_obj(post)
             post.name = make_name(post.title)
+            db.session.add(post)
+            db.session.commit()
             if post_form.restricted.data:
                 post.make_restricted()
-            db.session.add(post)
             db.session.commit()
             return redirect(post.url_for(), code=303)
 
@@ -116,6 +117,11 @@ class ProjectPostDetailsView(UrlForView, ModelView):
             )
             .one_or_404()
         )
+
+        if post.visibility_state.RESTRICTED and not (
+            project.current_roles.participant or project.current_roles.crew
+        ):
+            abort(403)
 
         g.profile = post.project.profile
         return post
