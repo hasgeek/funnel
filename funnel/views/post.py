@@ -22,14 +22,10 @@ def project_drafts(obj):
 
 @Project.views('json_posts')
 def project_json_posts(obj):
-    pinned_posts = [post.current_access() for post in obj.pinned_posts]
+    published_posts = obj.published_posts
     return {
-        'pinned': pinned_posts,
-        'published': [
-            post.current_access()
-            for post in obj.published_posts
-            if post not in pinned_posts
-        ],
+        'pinned': [post.current_access() for post in published_posts if post.is_pinned],
+        'published': [post.current_access() for post in published_posts],
         'draft': (
             [post.current_access() for post in obj.draft_posts]
             if obj.current_roles.editor
