@@ -333,3 +333,12 @@ Project.draft_posts = db.relationship(
     primaryjoin=db.and_(Post.project_id == Project.id, Post.state.DRAFT),
     viewonly=True,
 )
+
+Project.pinned_posts = db.relationship(
+    Post,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        Post.project_id == Project.id, Post.state.PUBLISHED, Post.is_pinned.is_(True)
+    ),
+    viewonly=True,
+)
