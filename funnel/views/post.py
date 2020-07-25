@@ -177,5 +177,24 @@ class ProjectPostDetailsView(UrlForView, ModelView):
             cancel_url=self.obj.url_for(),
         )
 
+    @route('delete', methods=['GET', 'POST'])
+    @render_with(json=True)
+    @requires_roles({'editor'})
+    def delete(self):
+        delete_form = forms.Form()
+
+        if delete_form.validate_on_submit():
+            self.obj.delete(actor=current_auth.user)
+            db.session.commit()
+            flash(_("The update has been deleted"), 'success')
+            return redirect(self.obj.project.url_for('posts'))
+
+        return render_form(
+            form=delete_form,
+            title=_("Delete update"),
+            submit=_("Delete"),
+            cancel_url=self.obj.url_for(),
+        )
+
 
 ProjectPostDetailsView.init_app(app)
