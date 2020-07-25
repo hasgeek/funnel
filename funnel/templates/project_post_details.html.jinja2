@@ -14,9 +14,17 @@
   {%- endif %}
 {% endblock %}
 
-{% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" class="mui--text-dark">{{ project.title }}</a></h1>
-  <p class="mui--text-subhead"><a href="{{ project.url_for('posts') }}">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to updates{% endtrans %}</a></p>
+{% block contenthead %}{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.urls['view'] }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(schedule page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Update{% endtrans %}</span>
+    </div>
+  </div>
+  {{ project_header(project, project_save_form, csrf_form,
+    class='mui--hidden-xs mui--hidden-sm',
+    current_page='') }}
 {% endblock %}
 
 {% block basecontent %}

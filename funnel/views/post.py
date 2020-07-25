@@ -87,7 +87,7 @@ def post_publishable(obj):
 @Post.views('main')
 @route('/<profile>/<project>/updates/<url_name_uuid_b58>')
 class ProjectPostDetailsView(UrlForView, ModelView):
-    __decorators__ = [requires_login, legacy_redirect]
+    __decorators__ = [legacy_redirect]
     model = Post
     route_model_map = {
         'profile': 'project.profile.name',
@@ -117,13 +117,14 @@ class ProjectPostDetailsView(UrlForView, ModelView):
     @render_with('project_post_details.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
-        if self.obj.state.DRAFT and not self.obj.current_roles.editor:
-            return redirect(self.obj.project.url_for('posts'))
+        project_save_form = SavedProjectForm()
 
         return {
             'post': self.obj.current_access(),
             'publish_form': forms.Form(),
             'project': self.obj.project.current_access(),
+            'project_save_form': project_save_form,
+            'csrf_form': forms.Form(),
         }
 
     @route('publish', methods=['POST'])
