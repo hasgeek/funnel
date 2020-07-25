@@ -273,6 +273,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'cfp_state',
                 'view_for',
                 'views',
+                'pinned_posts',
             },
         },
         'participant': {'granted_via': {'rsvps': 'user'}},

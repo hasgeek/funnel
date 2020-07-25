@@ -271,7 +271,7 @@ class ProjectView(
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
             'current_rsvp': current_rsvp,
             'csrf_form': forms.Form(),
             'rsvp_form': rsvp_form,
