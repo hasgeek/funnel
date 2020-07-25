@@ -203,6 +203,10 @@ export const Utils = {
   formErrorHandler(formId, errorResponse) {
     $(`#${formId}`).find('button[type="submit"]').prop('disabled', false);
     $(`#${formId}`).find('.loading').addClass('mui--hide');
+    window.Baseframe.Forms.showValidationErrors(
+      formId,
+      errorResponse.responseJSON.errors
+    );
     return Utils.handleAjaxError(errorResponse);
   },
   getActionUrl(formId) {

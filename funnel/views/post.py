@@ -89,7 +89,8 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
                         'error_description': _(
                             "There was an issue posting that update"
                         ),
-                        'form': post_form_html,
+                        'errors': post_form.errors,
+                        'form_nonce': post_form.form_nonce.data,
                     },
                     400,
                 )
