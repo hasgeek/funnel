@@ -139,6 +139,19 @@ def send_email_for_organization_admin_membership_revoked(
     )
 
 
+@signals.project_email_dispatched.connect
+def send_email_for_project_registration(sender, project, user):
+    send_email(
+        subject=_("You have successfully registered for {project}.").format(
+            project=project.title
+        ),
+        to=[user],
+        content=render_template(
+            'email_project_registration.html.jinja2', project=project,
+        ),
+    )
+
+
 @signals.project_crew_membership_added.connect
 def send_email_for_project_crew_membership_added(
     sender, project, membership, actor, user
