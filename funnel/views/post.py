@@ -21,7 +21,14 @@ def project_drafts(obj):
 
 @Project.views('json_posts')
 def project_json_posts(obj):
-    published_posts = obj.published_posts
+    published_posts = []
+    for post in obj.published_posts:
+        if post.visibilisty_state.PUBLIC:
+            published_posts.append(post)
+        else:
+            # Restricted posts
+            if obj.current_roles.participant or obj.current_roles.crew:
+                published_posts.append(post)
     return {
         'pinned': [post.current_access() for post in published_posts if post.is_pinned],
         'published': [post.current_access() for post in published_posts],
