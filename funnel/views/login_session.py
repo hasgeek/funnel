@@ -22,10 +22,8 @@ from ..utils import abort_null
 from .helpers import app_url_for, autoset_timezone, get_scheme_netloc
 
 
-class LoginManager(object):
-    """
-    Compatibility login manager that resembles Flask-Lastuser
-    """
+class LoginManager:
+    """Compatibility login manager that resembles Flask-Lastuser."""
 
     # Flag for Baseframe to avoid attempting API calls
     is_master_data_source = True
@@ -34,19 +32,16 @@ class LoginManager(object):
     def autocomplete_endpoint(self):
         if current_app != app:
             return app_url_for(app, 'user_autocomplete')
-        else:
-            result = url_for('user_autocomplete')
-        return result
+        return url_for('user_autocomplete')
 
     @property
     def getuser_endpoint(self):
         if current_app != app:
             return app_url_for(app, 'user_get_by_userids')
-        else:
-            result = url_for('user_get_by_userids')
-        return result
+        return url_for('user_get_by_userids')
 
-    def _load_user(self):
+    @staticmethod
+    def _load_user():
         """
         If there's a buid in the session, retrieve the user object and add
         to the request namespace object g.
@@ -173,10 +168,8 @@ def clear_old_session(response):
 @app.after_request
 @funnelapp.after_request
 @lastuserapp.after_request
-def lastuser_cookie(response):
-    """
-    Save lastuser login cookie and hasuser JS-readable flag cookie.
-    """
+def set_lastuser_cookie(response):
+    """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if request_has_auth() and hasattr(current_auth, 'cookie'):
         expires = utcnow() + timedelta(days=365)
         response.set_cookie(
@@ -220,9 +213,7 @@ def lastuser_cookie(response):
 @funnelapp.after_request
 @lastuserapp.after_request
 def update_user_session_timestamp(response):
-    """
-    Mark a user session as accessed at the end of every request.
-    """
+    """Mark a user session as accessed at the end of every request."""
     if request_has_auth() and current_auth.session:
         # Setup a callback to update the session after the request has returned a
         # response to the user-agent. There will be no request or app context in this
@@ -249,9 +240,7 @@ def update_user_session_timestamp(response):
 
 
 def requires_login(f):
-    """
-    Decorator to require a login for the given view.
-    """
+    """Decorator to require a login for the given view."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -305,20 +294,18 @@ def _client_login_inner():
         credential.accessed_at = db.func.utcnow()
         db.session.commit()
     add_auth_attribute('auth_client', credential.auth_client, actor=True)
+    return None
 
 
 def requires_client_login(f):
-    """
-    Decorator to require a client login via HTTP Basic Authorization.
-    """
+    """Decorator to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
-        else:
-            return result
+        return result
 
     return decorated_function
 
@@ -338,8 +325,7 @@ def requires_user_or_client_login(f):
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
-        else:
-            return result
+        return result
 
     return decorated_function
 
@@ -386,8 +372,7 @@ def requires_client_id_or_user_or_client_login(f):
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
-        else:
-            return result
+        return result
 
     return decorated_function
 
