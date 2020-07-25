@@ -55,6 +55,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
+from .email import send_email_for_project_registration
 from .helpers import requires_login
 from .jobs import import_tickets, tag_locations
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -572,6 +573,9 @@ class ProjectView(
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
+                send_email_for_project_registration(
+                    sender=None, project=self.obj, user=str(current_auth.user.email)
+                )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
         return redirect(get_next_url(referrer=request.referrer), code=303)
