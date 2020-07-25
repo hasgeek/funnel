@@ -4400,14 +4400,17 @@ ul .login-session .mui-btn--nostyle {
   text-decoration: none !important;
   display: inline-block;
   width: 100%;
-  padding: 8px;
+  padding: 8px 0;
   border-bottom: solid 1px rgba(121, 129, 139, 0.16);
 }
 .pinned .pinned__post__heading {
-  margin-bottom: 8px;
+  margin-bottom: 0;
+  padding: 0 16px;
+  display: none;
 }
 .pinned .pinned__post__body {
   margin-bottom: 0;
+  padding: 0 16px;
 }
 .pinned .pinned__post__body .pinned__post__body__text {
   padding-left: 5px;
@@ -4418,6 +4421,10 @@ ul .login-session .mui-btn--nostyle {
 }
 .pinned .pinned__post__body .pinned__post__body__text > img {
   display: none;
+}
+
+.pinned li:first-child .pinned__post__heading {
+  display: block;
 }
 
 .pinned a:hover,

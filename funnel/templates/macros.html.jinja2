@@ -337,6 +337,16 @@
       {%- endif %}
     </nav>
   </div>
+  {%- if project.pinned_posts -%}
+  <ul class="mui-list--unstyled pinned">
+    <li>
+      <a href="{{ project.url_for('posts') }}#update-{{project.pinned_posts[0].uuid_b58}}" class="pinned__post">
+        <p class="pinned__post__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">Pinned update</span></p>
+        <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ project.pinned_posts[0].title }}</span> <span class="mui--text-subhead mui--text-light pinned__post__body__text js-truncate" data-truncate-lines="1">{{ project.pinned_posts[0].body.text }}</span></p>
+      </a>
+    </li>
+  </ul>
+  {%- endif %}
 {% endmacro %}
 
 {% macro embed_video_player(video) %}
@@ -770,7 +780,7 @@
         <li v-for="post in pinned">
           <a :href="'#update-' + post.uuid_b58" @click="scrollToUpdate(`#update-${post.uuid_b58}`)" class="pinned__post">
             <p class="pinned__post__heading mui-container"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg> <span class="mui--text-subhead">Pinned update</span></p>
-            <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ post.title }}</span> <span class="mui--text-subhead mui--text-light pinned__post__body__text" :inner-html.prop="post.body.html| truncate(100)"></span></p>
+            <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ post.title }}</span> <span class="mui--text-subhead mui--text-light pinned__post__body__text js-truncate" v-html="post.body.text" data-truncate-lines="1"></span></p>
           </a>
         </li>
       </ul>

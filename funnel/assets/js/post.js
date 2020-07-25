@@ -185,6 +185,7 @@ const Posts = {
               .getBoundingClientRect().top - this.headerHeight
           );
         }
+        Utils.truncate();
       },
     });
   },
