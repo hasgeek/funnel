@@ -1,0 +1,12 @@
+{% extends "email_layout.html.jinja2" %}
+{% block content -%}
+
+<p>Hi {{ current_auth.user.fullname }},</p>
+
+<p>You have successfully registered for <b>{{ project.title }}</b></p>
+
+<p>The project is scheduled to begin at {{ project.schedule_start_at_localized|datetime }}</p>
+
+<p>Details about the project are available here: {{ project.url_for(_external=True) }}</p>
+
+{%- endblock %}
