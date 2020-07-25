@@ -337,7 +337,7 @@
       {%- endif %}
     </nav>
   </div>
-  {%- if project.pinned_posts -%}
+  {%- if project.pinned_posts.count() > 0 -%}
   <ul class="mui-list--unstyled pinned">
     <li>
       <a href="{{ project.url_for('posts') }}#update-{{project.pinned_posts[0].uuid_b58}}" class="pinned__post">
