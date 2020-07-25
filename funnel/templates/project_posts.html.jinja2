@@ -5,12 +5,6 @@
 {% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
-{%- block pageheaders %}
-  {% assets "css_codemirrormarkdown" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
-{% endblock %}
-
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
     <body class="mui--bg-primary hg-app no-sticky-header">
@@ -31,15 +25,25 @@
 {% endblock %}
 
 {% block basecontent %}
-  <div id="updates">
-    {{ posts_template() }}
+  <div class="mui-container">
+    <div class="page-content page-content--mob-nav" id="updates">
+      <div class="grid" id="updates">
+        <div class="grid__col-xs-12">
+          {% if current_auth.user and project.features.post_new() -%}
+            <a class="post-form" href="{{ project.url_for('new_post') }}" aria-label="Add new update" data-cy-btn="add-post">
+            <div class="user">
+              <div class="user__box">
+                <div class="user__box__gravatar user__box__gravatar--initials">{{ current_auth.user.fullname|initials }}</div>
+                <input type="text" placeholder="Post a new upate here..." />
+              </div>
+            </div>
+          </a>
+          {%- endif %}
+          {{ posts_template() }}
+        </div>
+      </div>
+    </div>
   </div>
-{% endblock %}
-
-{% block pagescripts %}
-  {% assets "js_codemirrormarkdown" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
 {% endblock %}
 
 {% block footerscripts %}
@@ -62,15 +66,12 @@
       }
 
       var postConfig = {
-        newPostUrl: "{{ new_post }}",
         draft: {{ posts.draft|tojson }},
         pinned: {{ posts.pinned|tojson }},
         posts: {{ posts.published|tojson }},
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
-        isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
         isEditor: {% if current_auth.user and project.features.post_new() -%}true{% else %}false{% endif %},
-        loginUrl: "{{ url_for('login') }}",
         headerHeight: headerHeight,
       };
 

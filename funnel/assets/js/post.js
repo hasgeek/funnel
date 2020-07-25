@@ -4,15 +4,12 @@ import { Utils } from './util';
 
 const Posts = {
   init({
-    newPostUrl,
     draft = '',
     pinned = '',
     posts = '',
     divElem,
     postTemplate,
-    isuserloggedin,
     isEditor,
-    loginUrl,
     headerHeight,
   }) {
     Vue.config.devtools = true;
@@ -33,8 +30,6 @@ const Posts = {
       props: ['post', 'iseditor'],
       data() {
         return {
-          postForm: '',
-          errorMsg: '',
           truncated: true,
           setReadMore: false,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
@@ -42,21 +37,6 @@ const Posts = {
       },
       methods: {
         getInitials: window.Baseframe.Utils.getInitials,
-        fetchForm(event, url, post) {
-          if (post) {
-            this.$parent.fetchForm(event, url, post);
-          } else {
-            this.$parent.fetchForm(event, url, this);
-          }
-        },
-        activateForm(post) {
-          this.$parent.activateForm(post);
-        },
-        closeForm(event) {
-          event.preventDefault();
-          this.postForm = '';
-          this.errorMsg = '';
-        },
         truncate(content, length) {
           if (!content) return '';
           let value = content.toString();
@@ -74,110 +54,22 @@ const Posts = {
           this.truncated = action;
         },
       },
-      computed: {
-        Form() {
-          const template = this.postForm ? this.postForm : '<div></div>';
-          const isFormTemplate = this.postForm ? true : '';
-          return {
-            template,
-            mounted() {
-              if (isFormTemplate) {
-                this.$parent.activateForm(this.$parent);
-              }
-            },
-          };
-        },
-      },
     });
 
     const app = new Vue({
-      el: divElem,
       components: {
         postUI,
       },
       data() {
         return {
-          newPostUrl,
           draft: draft.length > 0 ? draft : '',
           pinned: pinned.length > 0 ? pinned : '',
           posts: posts.length > 0 ? posts : '',
-          isuserloggedin,
           isEditor,
-          postForm: '',
-          errorMsg: '',
-          loginUrl,
           headerHeight,
-          svgIconUrl: window.HasGeek.config.svgIconUrl,
         };
       },
-      methods: {
-        fetchForm(event, url, post = '') {
-          event.preventDefault();
-          if (this.isEditor) {
-            $.ajax({
-              type: 'GET',
-              url,
-              timeout: window.HasGeek.config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
-                const vueFormHtml = data.form;
-                if (post) {
-                  post.postForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
-                } else {
-                  app.postForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
-                }
-              },
-            });
-          }
-        },
-        activateForm(parentApp) {
-          const formId = Utils.getElementId(parentApp.postForm);
-          const url = Utils.getActionUrl(formId);
-          const onSuccess = (responseData) => {
-            window.location.href = responseData.post_url;
-          };
-          const onError = (response) => {
-            parentApp.errorMsg = Utils.formErrorHandler(formId, response);
-          };
-          window.Baseframe.Forms.handleFormSubmit(
-            formId,
-            url,
-            onSuccess,
-            onError,
-            {}
-          );
-        },
-        closeForm(event) {
-          event.preventDefault();
-          this.postForm = '';
-          this.errorMsg = '';
-        },
-        scrollToUpdate(elem) {
-          Utils.animateScrollTo(
-            document.getElementById(elem).getBoundingClientRect().top +
-              window.scrollY -
-              app.headerHeight
-          );
-        },
-      },
-      computed: {
-        Form() {
-          const template = this.postForm ? this.postForm : '<div></div>';
-          const isFormTemplate = this.postForm ? true : '';
-          return {
-            template,
-            mounted() {
-              if (isFormTemplate) {
-                this.$parent.activateForm(this.$parent);
-              }
-            },
-          };
-        },
-      },
       mounted() {
-        this.headerHeight =
-          this.headerHeight +
-          document.getElementsByClassName('pinned')[0].offsetHeight;
         if (window.location.hash) {
           Utils.animateScrollTo(
             document
@@ -188,6 +80,8 @@ const Posts = {
         Utils.truncate();
       },
     });
+
+    app.$mount(divElem);
   },
 };
 

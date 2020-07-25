@@ -1,15 +1,10 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import project_header, posts_template %}
 {% block title %}{{post.title}}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
-
-{%- block pageheaders %}
-  {% assets "css_codemirrormarkdown" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
-{% endblock %}
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
@@ -19,48 +14,48 @@
   {%- endif %}
 {% endblock %}
 
+{% block top_title %}
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" class="mui--text-dark">{{ project.title }}</a></h1>
+  <p class="mui--text-subhead"><a href="{{ project.url_for('posts') }}">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to updates{% endtrans %}</a></p>
+{% endblock %}
+
 {% block basecontent %}
-  {{ posts_template() }}
   <div class="mui-container">
     <div class="grid project-section">
-      <div class="grid__col-xs-12 publish-form">
-       {% if post.features.publish() %}
-        {{ renderform(form=publish_form, submit="Publish post", action=post.url_for('publish_draft')) }}
-       {% endif %}
+      <div class="grid__col-xs-12">
+        <div class="post user" id="'#update-' + post.uuid_b58">
+          <div class="user__box mui--clearfix post__header">
+            <div class="user__box__gravatar user__box__gravatar--initials">{{ post.user.fullname|initials }}</div>
+            <div class="mui--d-inlineblock">
+              <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ post.user.fullname }}</h3>
+              <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
+            </div>
+            {% if current_auth.user and project.features.post_new() -%}
+              <div class="mui-dropdown mui--pull-right">
+                <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown">{{ faicon(icon='ellipsis-v',  icon_size='subhead') }}</a>
+                <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
+                  <li><a href="{{ post.url_for('edit') }}">Edit</a></li>
+                  <li><a href="{{ post.url_for('delete')}}">Delete</a></li>
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+          <p class="mui--text-light mui--text-caption post__date">{{ post.published_at_age }}</span>
+          <p class="mui--text-title mui--text-bold">{{ post.title }}</p>
+          <div class="post__content mui--text-light fullcontent">{{ post.body.html }}</div>
+          {% if post.features.publish() %}
+            <div class="publish-form">
+              {{ renderform(form=publish_form, submit="Publish post", action=post.url_for('publish_draft')) }}
+            </div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
 {% endblock %}
 
 {% block pagescripts %}
-  {% assets "js_codemirrormarkdown" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('post')) }}" type="text/javascript"></script>
-  <script type="text/javascript">
-    $(function() {
-
-      var headerHeight;
-      if($(window).width() < window.HasGeek.config.mobileBreakpoint) {
-        headerHeight = $('.mobile-nav').height();
-      } else {
-        headerHeight = $('header').height() + $('nav').height();
-      }
-
-      var postConfig = {
-        posts: [ {{ post|tojson }} ],
-        divElem: "#posts-wrapper",
-        postTemplate: '#post-template',
-        isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-        isEditor: {% if current_auth.user -%}true{% else %}false{% endif %},
-        loginUrl: "{{ url_for('login') }}",
-        headerHeight: headerHeight,
-      };
-
-      window.HasGeek.PostsInit(postConfig);
-    });
-  </script>
 {% endblock %}

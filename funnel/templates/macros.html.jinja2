@@ -776,35 +776,13 @@
 {% macro posts_template() %}
   {% raw %}
     <div id="posts-wrapper">
-      <ul class="mui-list--unstyled pinned" v-if="pinned">
-        <li v-for="post in pinned">
-          <a :href="'#update-' + post.uuid_b58" @click="scrollToUpdate(`#update-${post.uuid_b58}`)" class="pinned__post">
-            <p class="pinned__post__heading mui-container"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg> <span class="mui--text-subhead">Pinned update</span></p>
-            <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ post.title }}</span> <span class="mui--text-subhead mui--text-light pinned__post__body__text js-truncate" v-html="post.body.text" data-truncate-lines="1"></span></p>
-          </a>
-        </li>
+      <h2 class="mui--text-headline mui--text-left" v-if="draft">Draft</h2>
+      <ul v-if="draft" class="draft-posts">
+        <li v-for="post in draft"><a :href="post.urls.view">{{ post.title }}</a></li>
       </ul>
-      <div class="mui-container">
-        <div class="page-content page-content--mob-nav" id="updates">
-          <div class="grid" id="updates">
-            <div class="grid__col-xs-12">
-              <h2 class="mui--text-headline mui--text-left" v-if="draft">Draft</h2>
-              <ul v-if="draft">
-                <li v-for="post in draft"><a :href="post.urls.view">{{ post.title }}</a></li>
-              </ul>
-              <div class="post-form post" v-if="postForm">
-                <component :is="Form"></component>
-                <button class="mui-btn mui-btn--raised mui-btn--accent post-form__cancelbtn" @click="closeForm($event)" v-if="postForm">Cancel</button>
-                <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
-              </div>
-              <a class="mui-btn mui-btn--raised mui-btn--primary" @click="fetchForm($event, newPostUrl)" aria-label="Add new update" data-cy-btn="add-post" v-if="isEditor && !postForm && newPostUrl">Post update</a>
-              <ul class="mui-list--unstyled" v-if="posts">
-                <post :post="post" :iseditor="isEditor" v-for="post in posts"></post>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ul class="mui-list--unstyled" v-if="posts">
+        <post :post="post" :iseditor="isEditor" v-for="post in posts"></post>
+      </ul>
     </div>
 
     <script type="text/x-template" id="post-template">

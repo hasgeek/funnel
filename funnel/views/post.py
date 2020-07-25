@@ -1,5 +1,4 @@
 from flask import flash, g, redirect
-from flask.globals import request
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -53,60 +52,28 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
         }
 
     @route('new', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'editor'})
     def new_post(self):
         post_form = PostForm()
         post_form.form_nonce.data = post_form.form_nonce.default()
 
-        if request.method == 'POST':
-            if post_form.validate_on_submit():
-                post = Post(user=current_auth.user, project=self.obj)
-                post_form.populate_obj(post)
-                post.name = make_name(post.title)
-                if post_form.restricted.data:
-                    post.make_restricted()
-                db.session.add(post)
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'message': _("The member‘s roles have been updated"),
-                    'post_url': post.url_for(),
-                }
-            else:
-                post_form_html = forms.render_form(
-                    form=post_form,
-                    formid='post_form',
-                    title=_(""),
-                    submit=_("Post"),
-                    ajax=True,
-                    with_chrome=False,
-                )
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _(
-                            "There was an issue posting that update"
-                        ),
-                        'errors': post_form.errors,
-                        'form_nonce': post_form.form_nonce.data,
-                    },
-                    400,
-                )
+        if post_form.validate_on_submit():
+            post = Post(user=current_auth.user, project=self.obj)
+            post_form.populate_obj(post)
+            post.name = make_name(post.title)
+            if post_form.restricted.data:
+                post.make_restricted()
+            db.session.add(post)
+            db.session.commit()
+            return redirect(post.url_for(), code=303)
 
-        post_form_html = forms.render_form(
+        return render_form(
             form=post_form,
-            formid='post_form',
-            title=_(""),
+            title=_("Post a update"),
             submit=_("Post"),
-            ajax=True,
-            with_chrome=False,
+            cancel_url=self.obj.url_for(),
         )
-        return {
-            'posts': self.obj.views.json_posts(),
-            'form': post_form_html,
-        }
 
 
 ProjectPostView.init_app(app)

@@ -4432,6 +4432,10 @@ ul .login-session .mui-btn--nostyle {
   text-decoration: none !important;
 }
 
+.draft-posts {
+  margin-bottom: 32px;
+}
+
 .post {
   margin: 16px 0 0;
 }
@@ -4450,43 +4454,24 @@ ul .login-session .mui-btn--nostyle {
 }
 
 .post-form {
-  position: relative;
-  padding-bottom: 32px;
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  border-radius: 16px;
+  background-color: #f9fafc;
+  padding: 24px;
+  margin-bottom: 32px;
 }
-.post-form .mui-form--margins {
-  margin: 0;
+.post-form .user__box__gravatar--initials {
+  background-color: #e05f25 !important;
 }
-.post-form .CodeMirror {
-  border: 1px solid #c0ccda;
-  min-height: 60px;
-}
-.post-form .CodeMirror ~ .CodeMirror {
-  display: none;
-}
-.post-form .CodeMirror-focused {
-  border: 1px solid #4a90e2;
-}
-.post-form .mui-form__fields {
-  margin-bottom: 0;
-}
-.post-form .mui-form.form-actions {
-  display: inline-block;
-  float: left;
-  margin-right: 10px;
-  margin-top: 10px;
-}
-.post-form .post-form__cancelbtn {
-  display: inline-block;
-  vertical-align: top;
-  margin: 0;
-  position: relative;
-  top: 16px;
+.post-form input {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 2px;
+  border: solid 1px rgba(77, 87, 99, 0.13);
+  background-color: #ffffff;
 }
 
-.publish-form {
-  position: relative;
-  top: -40px;
+.publish-form form {
+  margin: 0;
 }
 
 @media (min-width: 768px) {
@@ -4501,10 +4486,6 @@ ul .login-session .mui-btn--nostyle {
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: #ffffff;
-  }
-
-  .post-form {
-    padding-bottom: 32px;
   }
 }
 .footer {

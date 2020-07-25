@@ -46,6 +46,10 @@
   text-decoration: none !important;
 }
 
+.draft-posts {
+  margin-bottom: $mui-grid-padding-double;
+}
+
 .post {
   margin: $mui-grid-padding 0 0;
 
@@ -68,44 +72,26 @@
 }
 
 .post-form {
-  position: relative;
-  padding-bottom: $mui-grid-padding-double;
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-
-  .mui-form--margins {
-    margin: 0;
+  border-radius: 16px;
+  background-color: #f9fafc;
+  padding: 24px;
+  margin-bottom: $mui-grid-padding-double;
+  .user__box__gravatar--initials {
+    background-color: #e05f25 !important;
   }
-  .CodeMirror {
-    border: 1px solid #c0ccda;
-    min-height: 60px;
-  }
-  .CodeMirror ~ .CodeMirror {
-    display: none;
-  }
-  .CodeMirror-focused {
-    border: 1px solid #4a90e2;
-  }
-  .mui-form__fields {
-    margin-bottom: 0;
-  }
-  .mui-form.form-actions {
-    display: inline-block;
-    float: left;
-    margin-right: 10px;
-    margin-top: 10px;
-  }
-  .post-form__cancelbtn {
-    display: inline-block;
-    vertical-align: top;
-    margin: 0;
-    position: relative;
-    top: 16px;
+  input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 2px;
+    border: solid 1px rgba(77, 87, 99, 0.13);
+    background-color: #ffffff;
   }
 }
 
 .publish-form {
-  position: relative;
-  top: -40px;
+  form {
+    margin: 0;
+  }
 }
 
 @media (min-width: 768px) {
@@ -119,9 +105,5 @@
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: $mui-bg-color-primary;
-  }
-
-  .post-form {
-    padding-bottom: $mui-grid-padding-double;
   }
 }
