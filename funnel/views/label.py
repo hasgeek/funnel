@@ -9,7 +9,7 @@ from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
 from ..utils import abort_null
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .login_session import requires_login
 from .mixins import ProjectViewMixin
 
 

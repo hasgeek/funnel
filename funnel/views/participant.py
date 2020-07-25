@@ -20,9 +20,9 @@ from .. import app, funnelapp
 from ..forms import ParticipantForm
 from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
 from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
-from ..views.helpers import mask_email
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .helpers import mask_email
+from .login_session import requires_login
 from .mixins import EventViewMixin, ProjectViewMixin
 
 EventParticipant = namedtuple('EventParticipant', ['event', 'participant'])
