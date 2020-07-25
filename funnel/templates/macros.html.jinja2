@@ -793,7 +793,7 @@
             <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ post.user.fullname }}</h3>
             <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
           </div>
-          <div class="mui-dropdown mui--pull-right">
+          <div class="mui-dropdown mui--pull-right" v-if="iseditor">
             <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#ellipsis-v'"></use></svg></a>
             <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
               <li><a v-if="post.urls.edit" :href="post.urls.edit">Edit</a></li>
