@@ -15,6 +15,9 @@ env:
 services:
   - redis-server
   - postgresql
+before_install:
+  - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
+  - sudo service postgresql restart
 install:
   - pip install -U pip wheel
   - pip install git+https://github.com/hasgeek/flask-babelhg.git
