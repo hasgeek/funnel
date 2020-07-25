@@ -83,7 +83,16 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
                     ajax=True,
                     with_chrome=False,
                 )
-                return {'status': 'error', 'form': post_form_html}
+                return (
+                    {
+                        'status': 'error',
+                        'error_description': _(
+                            "There was an issue posting that update"
+                        ),
+                        'form': post_form_html,
+                    },
+                    400,
+                )
 
         post_form_html = forms.render_form(
             form=post_form,
