@@ -335,6 +335,7 @@ Project.published_posts = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(Post.project_id == Project.id, Post.state.PUBLISHED),
     viewonly=True,
+    order_by=Post.published_at.desc(),
 )
 
 
@@ -343,6 +344,7 @@ Project.draft_posts = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(Post.project_id == Project.id, Post.state.DRAFT),
     viewonly=True,
+    order_by=Post.published_at.desc(),
 )
 
 Project.pinned_posts = db.relationship(
@@ -352,4 +354,5 @@ Project.pinned_posts = db.relationship(
         Post.project_id == Project.id, Post.state.PUBLISHED, Post.is_pinned.is_(True)
     ),
     viewonly=True,
+    order_by=Post.published_at.desc(),
 )

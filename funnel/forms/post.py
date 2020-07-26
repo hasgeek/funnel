@@ -14,17 +14,13 @@ class PostForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     body = forms.MarkdownField(
-        __("Post body"),
+        __("Content"),
         validators=[forms.validators.DataRequired()],
-        description=__("Post content"),
+        description=__("Markdown formatting is supported"),
     )
     is_pinned = forms.BooleanField(
-        __("Make this update pinned"),
-        default=False,
-        description=__("If checked, update will be pinned to the top"),
+        __("Pin this update above other updates"), default=False,
     )
     restricted = forms.BooleanField(
-        __("Make this update visible only to participants"),
-        default=False,
-        description=__("If checked, update will be visible only to participants"),
+        __("Limit visibility to participants only"), default=False,
     )

@@ -78,8 +78,8 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
 
         return render_form(
             form=post_form,
-            title=_("Post a update"),
-            submit=_("Post"),
+            title=_("Post an update"),
+            submit=_("Save & preview"),
             cancel_url=self.obj.url_for(),
         )
 
