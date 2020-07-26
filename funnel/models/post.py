@@ -152,6 +152,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'read': {
                 'name',
                 'title',
+                'number',
                 'user',
                 'published_at',
                 'published_at_age',
@@ -172,6 +173,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         'primary': {
             'name',
             'title',
+            'number',
             'body_text',
             'published_at',
             'published_at_age',
