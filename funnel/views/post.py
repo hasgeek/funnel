@@ -10,7 +10,7 @@ from .. import app
 from ..forms import PostForm, SavedProjectForm
 from ..models import Post, Profile, Project, db
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .login_session import requires_login
 from .project import ProjectViewMixin
 
 
