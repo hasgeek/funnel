@@ -239,10 +239,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @state.transition(
-        state.DRAFT,
-        state.PUBLISHED,
-        title=__("Publish post"),
-        message=__("Post has been published"),
+        state.DRAFT, state.PUBLISHED,
     )
     def publish(self, actor):
         self.published_by = actor
@@ -259,20 +256,14 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @state.transition(
-        state.PUBLISHED,
-        state.DRAFT,
-        title=__("Undo publish"),
-        message=__("Post is now a draft"),
+        state.PUBLISHED, state.DRAFT,
     )
     def undo_publish(self):
         pass
 
     @with_roles(call={'creator', 'editor'})
     @state.transition(
-        None,
-        state.DELETED,
-        title=__("Delete post"),
-        message=__("Post has been deleted"),
+        None, state.DELETED,
     )
     def delete(self, actor):
         if self.state.DRAFT and self.published_at is not None:
@@ -285,10 +276,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @state.transition(
-        state.DELETED,
-        state.DRAFT,
-        title=__("Undo delete"),
-        message=__("Post is now a draft"),
+        state.DELETED, state.DRAFT,
     )
     def undo_delete(self):
         self.deleted_by = None
@@ -296,20 +284,14 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @visibility_state.transition(
-        visibility_state.RESTRICTED,
-        visibility_state.PUBLIC,
-        title=__("Make post public"),
-        message=__("Post is now public"),
+        visibility_state.RESTRICTED, visibility_state.PUBLIC,
     )
     def make_public(self):
         pass
 
     @with_roles(call={'editor'})
     @visibility_state.transition(
-        visibility_state.PUBLIC,
-        visibility_state.RESTRICTED,
-        title=__("Make post restricted"),
-        message=__("Post is now restricted"),
+        visibility_state.PUBLIC, visibility_state.RESTRICTED,
     )
     def make_restricted(self):
         pass
