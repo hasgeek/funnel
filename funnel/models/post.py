@@ -335,7 +335,7 @@ Project.published_posts = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(Post.project_id == Project.id, Post.state.PUBLISHED),
     viewonly=True,
-    order_by=Post.published_at.desc(),
+    order_by=(Post.is_pinned.desc(), Post.published_at.desc()),
 )
 
 
