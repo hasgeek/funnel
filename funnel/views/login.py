@@ -50,15 +50,14 @@ from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
 from ..utils import abort_null, mask_email
 from .email import send_email_verify_link, send_password_reset_link
-from .helpers import (
-    app_url_for,
+from .helpers import app_url_for, validate_rate_limit
+from .login_session import (
     login_internal,
     logout_internal,
     register_internal,
     requires_login,
     requires_login_no_message,
     set_loginmethod_cookie,
-    validate_rate_limit,
 )
 
 

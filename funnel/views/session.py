@@ -26,7 +26,8 @@ from ..models import (
 )
 from ..utils import abort_null
 from .decorators import legacy_redirect
-from .helpers import localize_date, requires_login
+from .helpers import localize_date
+from .login_session import requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
 from .schedule import schedule_data, session_data, session_list_data
 

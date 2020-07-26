@@ -55,8 +55,8 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .helpers import requires_login
 from .jobs import import_tickets, tag_locations
+from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
