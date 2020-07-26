@@ -82,6 +82,9 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     body = MarkdownColumn('body', nullable=False)
 
+    #: Update number, for Project updates, assigned when the post is published
+    number = db.Column(db.Integer, nullable=True, default=None)
+
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
     is_pinned = db.Column(db.Boolean, default=False, nullable=False)
@@ -243,6 +246,14 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         self.published_by = actor
         if self.published_at is None:
             self.published_at = db.func.utcnow()
+        if self.number is None:
+            self.number = db.select(
+                [db.func.coalesce(db.func.max(Post.number), 0) + 1]
+            ).where(
+                (Post.project == self.project)
+                if self.project is not None
+                else (Post.profile == self.profile)
+            )
 
     @with_roles(call={'editor'})
     @state.transition(
@@ -262,8 +273,8 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         message=__("Post has been deleted"),
     )
     def delete(self, actor):
-        if self.state.DRAFT:
-            # If it's a draft post, hard delete it
+        if self.state.DRAFT and self.published_at is not None:
+            # If it was never published, hard delete it
             db.session.delete(self)
         else:
             # If not, then soft delete
