@@ -10,6 +10,7 @@ from baseframe import _
 
 from .. import mail, signals
 from ..models import EmailAddress, User
+from .schedule import schedule_ical
 
 
 def jsonld_view_action(description, url, title):
@@ -39,7 +40,7 @@ def jsonld_confirm_action(description, url, title):
     }
 
 
-def send_email(subject, to, content):
+def send_email(subject, to, content, attachment=[]):
     """Helper function to send an email"""
     # Parse recipients and convert as needed
     to = [
@@ -57,7 +58,8 @@ def send_email(subject, to, content):
     msg = EmailMultiAlternatives(
         subject=subject, to=to, body=body, alternatives=[(html, 'text/html')]
     )
-
+    if attachment != []:
+        msg.attach(content=attachment, filename='invite.ics', mimetype='text/calendar')
     # If an EmailAddress is blocked, this line will throw an exception
     emails = [EmailAddress.add(email) for name, email in getaddresses(msg.recipients())]
     # TODO: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
@@ -142,10 +144,11 @@ def send_email_for_organization_admin_membership_revoked(
 @signals.user_registered_for_project.connect
 def send_email_for_project_registration(sender, project, user):
     send_email(
-        subject=_("You have successfully registered for {project}.").format(
+        subject=_("Registration confirmation for {project}").format(
             project=project.title
         ),
         to=[user],
+        attachment=schedule_ical(project),
         content=render_template(
             'email_project_registration.html.jinja2', project=project,
         ),
