@@ -34,8 +34,8 @@ from ..forms import (
     NewEmailAddressForm,
     NewPhoneForm,
     PasswordChangeForm,
+    PasswordCreateForm,
     PasswordPolicyForm,
-    PasswordResetForm,
     PhonePrimaryForm,
     VerifyEmailForm,
     VerifyPhoneForm,
@@ -576,9 +576,7 @@ def confirm_email(email_hash, secret):
 @requires_login
 def change_password():
     if not current_auth.user.pw_hash:
-        form = PasswordResetForm()
-        form.edit_user = current_auth.user
-        del form.username
+        form = PasswordCreateForm()
     else:
         form = PasswordChangeForm()
         form.edit_user = current_auth.user

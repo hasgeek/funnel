@@ -17,6 +17,7 @@ from ..models import (
 from ..utils import strip_phone, valid_phone
 
 __all__ = [
+    'PasswordCreateForm',
     'PasswordPolicyForm',
     'PasswordResetRequestForm',
     'PasswordResetForm',
@@ -37,11 +38,11 @@ timezones = sorted_timezones()
 
 def password_strength_validator(form, field):
     user_inputs = []
-    if hasattr(form, 'fullname'):
+    if hasattr(form, 'fullname') and form.fullname is not None:
         user_inputs.append(form.fullname.data)
-    if hasattr(form, 'username'):
+    if hasattr(form, 'username') and form.username is not None:
         user_inputs.append(form.username.data)
-    if hasattr(form, 'email'):
+    if hasattr(form, 'email') and form.email is not None:
         user_inputs.append(form.email.data)
     # Test the candidate password
     tested_password = password_policy.test_password(
@@ -89,16 +90,10 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
         self.user = user
 
 
-@User.forms('password_reset')
-class PasswordResetForm(forms.RecaptchaForm):
+@User.forms('password_create')
+class PasswordCreateForm(forms.Form):
     __returns__ = ('password_strength',)
 
-    username = forms.StringField(
-        __("Username or Email"),
-        validators=[forms.validators.DataRequired()],
-        description=__("Please reconfirm your username or email address"),
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
-    )
     password = forms.PasswordField(
         __("New password"),
         validators=[
@@ -114,6 +109,18 @@ class PasswordResetForm(forms.RecaptchaForm):
             forms.validators.Length(min=8, max=40),
             forms.validators.EqualTo('password'),
         ],
+    )
+
+
+@User.forms('password_reset')
+class PasswordResetForm(PasswordCreateForm, forms.RecaptchaForm):
+    __returns__ = ('password_strength',)
+
+    username = forms.StringField(
+        __("Username or Email"),
+        validators=[forms.validators.DataRequired()],
+        description=__("Please reconfirm your username or email address"),
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
     def validate_username(self, field):
