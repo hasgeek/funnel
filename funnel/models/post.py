@@ -204,10 +204,12 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         if not isinstance(value, (Project, Profile)):
             raise ValueError("Only a project or a profile can be parent of a post")
 
-        if self.project is not None:
+        if isinstance(value, Project):
             self.project = value
+            self.profile = None
         else:
             self.profile = value
+            self.project = None
 
     @hybrid_property
     def published_at_age(self):
