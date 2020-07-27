@@ -36,35 +36,39 @@ __all__ = [
 timezones = sorted_timezones()
 
 
-def password_strength_validator(form, field):
-    user_inputs = []
-    if hasattr(form, 'fullname') and form.fullname is not None:
-        user_inputs.append(form.fullname.data)
-    if hasattr(form, 'username') and form.username is not None:
-        user_inputs.append(form.username.data)
-    if hasattr(form, 'email') and form.email is not None:
-        user_inputs.append(form.email.data)
-    # Test the candidate password
-    tested_password = password_policy.test_password(
-        field.data, user_inputs=user_inputs if user_inputs else None
-    )
-    # Stick password strength into the form for logging in the view and possibly
-    # rendering into UI
-    form.password_strength = float(tested_password['score'])
-    # No test failures? All good then
-    if not tested_password['is_weak']:
-        return
-    # Tell the user to make up a better password
-    raise forms.validators.StopValidation(
-        tested_password['warning']
-        if tested_password['warning']
-        else ' '.join(tested_password['suggestions'])
-        if tested_password['suggestions']
-        else _(
-            "This password is too simple. Add complexity by making it longer and using "
-            "a mix of upper and lower case letters, numbers and symbols"
+class PasswordStrengthValidator:
+    def __init__(self, user_input_fields=[], message=None) -> None:
+        self.user_input_fields = user_input_fields
+        if not message:
+            message = _(
+                "This password is too simple. Add complexity by making it longer and using "
+                "a mix of upper and lower case letters, numbers and symbols"
+            )
+        self.message = message
+
+    def __call__(self, form, field):
+        user_inputs = []
+        for field_name in self.user_input_fields:
+            if hasattr(form, field_name) and getattr(form, field_name) is not None:
+                user_inputs.append(getattr(form, field_name).data)
+
+        tested_password = password_policy.test_password(
+            field.data, user_inputs=user_inputs if user_inputs else None
         )
-    )
+        # Stick password strength into the form for logging in the view and possibly
+        # rendering into UI
+        form.password_strength = float(tested_password['score'])
+        # No test failures? All good then
+        if not tested_password['is_weak']:
+            return
+        # Tell the user to make up a better password
+        raise forms.validators.StopValidation(
+            tested_password['warning']
+            if tested_password['warning']
+            else ' '.join(tested_password['suggestions'])
+            if tested_password['suggestions']
+            else self.message
+        )
 
 
 @User.forms('password_policy')
@@ -99,7 +103,7 @@ class PasswordCreateForm(forms.Form):
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(min=8, max=40),
-            password_strength_validator,
+            PasswordStrengthValidator(),
         ],
     )
     confirm_password = forms.PasswordField(
@@ -113,7 +117,7 @@ class PasswordCreateForm(forms.Form):
 
 
 @User.forms('password_reset')
-class PasswordResetForm(PasswordCreateForm, forms.RecaptchaForm):
+class PasswordResetForm(forms.RecaptchaForm):
     __returns__ = ('password_strength',)
 
     username = forms.StringField(
@@ -121,6 +125,23 @@ class PasswordResetForm(PasswordCreateForm, forms.RecaptchaForm):
         validators=[forms.validators.DataRequired()],
         description=__("Please reconfirm your username or email address"),
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    )
+
+    password = forms.PasswordField(
+        __("New password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            PasswordStrengthValidator(user_input_fields=['username']),
+        ],
+    )
+    confirm_password = forms.PasswordField(
+        __("Confirm password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            forms.validators.EqualTo('password'),
+        ],
     )
 
     def validate_username(self, field):
@@ -147,7 +168,7 @@ class PasswordChangeForm(forms.Form):
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(min=8, max=40),
-            password_strength_validator,
+            PasswordStrengthValidator(user_input_fields=['old_password']),
         ],
     )
     confirm_password = forms.PasswordField(
