@@ -139,7 +139,7 @@ def send_email_for_organization_admin_membership_revoked(
     )
 
 
-@signals.project_email_dispatched.connect
+@signals.user_registered_for_project.connect
 def send_email_for_project_registration(sender, project, user):
     send_email(
         subject=_("You have successfully registered for {project}.").format(
