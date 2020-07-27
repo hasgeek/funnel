@@ -37,7 +37,7 @@ timezones = sorted_timezones()
 
 
 class PasswordStrengthValidator:
-    def __init__(self, user_input_fields=[], message=None) -> None:
+    def __init__(self, user_input_fields=(), message=None) -> None:
         self.user_input_fields = user_input_fields
         if not message:
             message = _(
@@ -49,8 +49,21 @@ class PasswordStrengthValidator:
     def __call__(self, form, field):
         user_inputs = []
         for field_name in self.user_input_fields:
-            if hasattr(form, field_name) and getattr(form, field_name) is not None:
-                user_inputs.append(getattr(form, field_name).data)
+            user_inputs.append(getattr(form, field_name).data)
+
+        if hasattr(form, 'edit_user') and form.edit_user is not None:
+            if form.edit_user.fullname:
+                user_inputs.append(form.edit_user.fullname)
+
+            for useremail in form.edit_user.emails:
+                user_inputs.append(str(useremail))
+            for emailclaim in form.edit_user.emailclaims:
+                user_inputs.append(str(emailclaim))
+
+            for userphone in form.edit_user.phones:
+                user_inputs.append(str(userphone))
+            for phoneclaim in form.edit_user.phoneclaims:
+                user_inputs.append(str(phoneclaim))
 
         tested_password = password_policy.test_password(
             field.data, user_inputs=user_inputs if user_inputs else None
@@ -65,7 +78,7 @@ class PasswordStrengthValidator:
         raise forms.validators.StopValidation(
             tested_password['warning']
             if tested_password['warning']
-            else ' '.join(tested_password['suggestions'])
+            else '\n'.join(tested_password['suggestions'])
             if tested_password['suggestions']
             else self.message
         )
@@ -97,6 +110,7 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
 @User.forms('password_create')
 class PasswordCreateForm(forms.Form):
     __returns__ = ('password_strength',)
+    __expects__ = ('edit_user',)
 
     password = forms.PasswordField(
         __("New password"),
@@ -158,6 +172,7 @@ class PasswordResetForm(forms.RecaptchaForm):
 @User.forms('password_change')
 class PasswordChangeForm(forms.Form):
     __returns__ = ('password_strength',)
+    __expects__ = ('edit_user',)
 
     old_password = forms.PasswordField(
         __("Current password"),
