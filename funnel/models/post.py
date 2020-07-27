@@ -1,7 +1,6 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from baseframe import __
-from baseframe.filters import age
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
@@ -155,11 +154,8 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 'number',
                 'user',
                 'published_at',
-                'published_at_age',
                 'edited_at',
-                'edited_at_age',
                 'deleted_at',
-                'deleted_at_age',
                 'visibility_label',
                 'state_label',
                 'urls',
@@ -176,9 +172,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'number',
             'body_text',
             'published_at',
-            'published_at_age',
             'edited_at',
-            'edited_at_age',
             'user',
             'visibility_label',
             'state_label',
@@ -208,18 +202,6 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             self.project = value
         else:
             self.profile = value
-
-    @hybrid_property
-    def published_at_age(self):
-        return age(self.created_at)
-
-    @hybrid_property
-    def edited_at_age(self):
-        return age(self.edited_at) if self.edited_at is not None else None
-
-    @hybrid_property
-    def deleted_at_age(self):
-        return age(self.deleted_at) if self.deleted_at is not None else None
 
     @hybrid_property
     def visibility_label(self):

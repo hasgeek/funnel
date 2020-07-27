@@ -1,11 +1,11 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
+import * as timeago from 'timeago.js';
 import { Utils } from './util';
 
 const Posts = {
   init({
     draft = '',
-    pinned = '',
     posts = '',
     divElem,
     postTemplate,
@@ -15,16 +15,6 @@ const Posts = {
     Vue.config.devtools = true;
     Vue.use(VS2);
 
-    Vue.filter('truncate', function (content, length) {
-      if (!content) return '';
-      let value = content.toString();
-      if (value.length > length) {
-        return value.substring(0, length) + '...';
-      } else {
-        return value;
-      }
-    });
-
     const postUI = Vue.component('post', {
       template: postTemplate,
       props: ['post', 'iseditor'],
@@ -33,6 +23,7 @@ const Posts = {
           truncated: true,
           setReadMore: false,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
+          now: new Date(),
         };
       },
       methods: {
@@ -54,6 +45,23 @@ const Posts = {
           this.truncated = action;
         },
       },
+      computed: {
+        age() {
+          console.log(
+            'age',
+            this.post.published_at,
+            timeago.format(this.post.published_at)
+          );
+          return this.now && this.post.published_at
+            ? timeago.format(this.post.published_at)
+            : '';
+        },
+      },
+      mounted() {
+        window.setInterval(() => {
+          this.now = new Date();
+        }, 20000);
+      },
     });
 
     const app = new Vue({
@@ -63,7 +71,6 @@ const Posts = {
       data() {
         return {
           draft: draft.length > 0 ? draft : '',
-          pinned: pinned.length > 0 ? pinned : '',
           posts: posts.length > 0 ? posts : '',
           isEditor,
           headerHeight,

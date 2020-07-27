@@ -96,7 +96,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, csrf_form, class='', current_page='project') %}
+{% macro project_header(project, project_save_form, csrf_form, class='', current_page='project', pinned=True) %}
   {% if current_auth.user.is_site_editor %}
     <div class="site-admin">
       <div class="mui-container">
@@ -337,7 +337,7 @@
       {%- endif %}
     </nav>
   </div>
-  {%- if project.pinned_posts|length > 0 -%}
+  {%- if project.pinned_posts|length > 0 and pinned -%}
   <ul class="mui-list--unstyled pinned">
     <li>
       <a href="{{ project.url_for('posts') }}#update-{{project.pinned_posts[0].uuid_b58}}" class="pinned__post">
@@ -773,6 +773,30 @@
 </div>
 {% endmacro %}
 
+
+{% macro project_mini_header(project) %}
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
+  <p class="mui--text-headline">{{ project.tagline }}</p>
+  <p>
+  {% if project.features.tickets_or_rsvp() %}
+    <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">
+      {%- if project.features.tickets() -%}
+        {% if project.boxoffice_data.buy_btn_text -%}
+          {{ project.boxoffice_data.buy_btn_text }}
+        {% else %}
+          {% trans %}Tickets{% endtrans %}
+        {% endif %}
+      {%- else -%}
+        {% trans %}Attend{% endtrans %}
+      {%- endif %}
+    </a>
+  {% endif %}
+  {% if project.cfp_state.OPEN -%}
+    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" data-action="Propose a session(header)">{{ faicon(icon='microphone-alt') }} {% trans %}Submit a session proposal{% endtrans %}</a>
+  {% endif %}
+  </p>
+{% endmacro %}
+
 {% macro posts_template() %}
   {% raw %}
     <div id="posts-wrapper">
@@ -801,8 +825,8 @@
             </ul>
           </div>
         </div>
-        <p class="mui--text-light mui--text-caption post__date">{{ post.published_at_age }}</span>
-        <p class="mui--text-subhead mui--text-bold">{{ post.title }}</p>
+        <p class="mui--text-light mui--text-body2 post__date" v-if="post.number"><span class="mui--text-uppercase">Update #</span>{{ post.number }}<span class="interpunct" aria-hidden="true" v-if="age">&#8226; {{ age }}<span v-if="post.visibility_label == 'Private'">&#8226; <svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></span></p>
+        <p class="mui--text-title mui--text-bold">{{ post.title }}</p>
         <div class="post__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(post.body.html, 250)"></div>
         <div class="post__content mui--text-light fullcontent" v-else v-html="post.body.html"></div>
         <p class="mui--text-body2">

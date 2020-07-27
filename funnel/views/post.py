@@ -46,7 +46,7 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET'])
-    @render_with('project_posts.html.jinja2', json=True)
+    @render_with('project_updates.html.jinja2', json=True)
     @requires_roles({'reader'})
     def posts(self):
         project_save_form = SavedProjectForm()
@@ -127,17 +127,14 @@ class ProjectPostDetailsView(UrlForView, ModelView):
         return post
 
     @route('', methods=['GET'])
-    @render_with('project_post_details.html.jinja2')
+    @render_with('project_update_details.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
-        project_save_form = SavedProjectForm()
 
         return {
             'post': self.obj.current_access(),
             'publish_form': forms.Form(),
             'project': self.obj.project.current_access(),
-            'project_save_form': project_save_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('publish', methods=['POST'])

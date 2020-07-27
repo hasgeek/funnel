@@ -21,7 +21,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Updates{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='posts') }}
+  {{ project_header(project, project_save_form, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='posts', pinned=False) }}
 {% endblock %}
 
 {% block basecontent %}
@@ -67,7 +67,6 @@
 
       var postConfig = {
         draft: {{ posts.draft|tojson }},
-        pinned: {{ posts.pinned|tojson }},
         posts: {{ posts.published|tojson }},
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
