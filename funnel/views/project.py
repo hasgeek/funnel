@@ -574,7 +574,8 @@ class ProjectView(
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
                 user_registered_for_project.send(
-                    project=self.obj, user=current_auth.user
+                    self.obj,
+                    user=current_auth.user
                 )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
