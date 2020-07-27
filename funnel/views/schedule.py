@@ -125,6 +125,24 @@ def schedule_data(project, with_slots=True, scheduled_sessions=None):
     return schedule
 
 
+def schedule_ical(project):
+    cal = Calendar()
+    cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
+    cal.add('version', '2.0')
+    cal.add('name', project.title)
+    cal.add('x-wr-calname', project.title)
+    cal.add('summary', project.title)
+    cal.add('description', project.tagline)
+    cal.add('x-wr-caldesc', project.tagline)
+    cal.add('timezone-id', project.timezone.zone)
+    cal.add('x-wr-timezone', project.timezone.zone)
+    cal.add('refresh-interval;value=duration', 'PT12H')
+    cal.add('x-published-ttl', 'PT12H')
+    for session in project.scheduled_sessions:
+        cal.add_component(session_ical(session))
+    return cal.to_ical()
+
+
 def session_ical(session):
     # This function is only called with scheduled sessions.
     # If for some reason it is used somewhere else and called with an unscheduled session,
@@ -226,7 +244,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
 
     @route('ical')
     @requires_roles({'reader'})
-    def schedule_ical(self):
+    def schedule_ical_download(self):
         cal = Calendar()
         cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
         cal.add('version', '2.0')
