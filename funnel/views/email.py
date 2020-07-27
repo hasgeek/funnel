@@ -40,7 +40,7 @@ def jsonld_confirm_action(description, url, title):
     }
 
 
-def send_email(subject, to, content, attachments=None):
+def send_email(subject, to, content, attachments=None:
     """Helper function to send an email"""
     # Parse recipients and convert as needed
     to = [
@@ -59,8 +59,7 @@ def send_email(subject, to, content, attachments=None):
         subject=subject, to=to, body=body, alternatives=[(html, 'text/html')]
     )
     if attachments:
-        for attachment in attachments:
-            msg.attach(content=attachments, filename='invite.ics', mimetype='text/calendar')
+        msg.attach(content=attachments, filename='invite.ics', mimetype='text/calendar')
     # If an EmailAddress is blocked, this line will throw an exception
     emails = [EmailAddress.add(email) for name, email in getaddresses(msg.recipients())]
     # TODO: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
