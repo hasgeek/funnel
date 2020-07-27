@@ -245,23 +245,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @route('ical')
     @requires_roles({'reader'})
     def schedule_ical_download(self):
-        cal = Calendar()
-        cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
-        cal.add('version', '2.0')
-        cal.add('name', self.obj.title)
-        cal.add('x-wr-calname', self.obj.title)
-        cal.add('summary', self.obj.title)
-        cal.add('description', self.obj.tagline)
-        cal.add('x-wr-caldesc', self.obj.tagline)
-        cal.add('timezone-id', self.obj.timezone.zone)
-        cal.add('x-wr-timezone', self.obj.timezone.zone)
-        cal.add('refresh-interval;value=duration', 'PT12H')
-        cal.add('x-published-ttl', 'PT12H')
-        for session in self.obj.scheduled_sessions:
-            cal.add_component(session_ical(session))
         return Response(
-            cal.to_ical(),
-            mimetype='text/calendar',
+            schedule_ical(self.obj),
             headers={
                 'Content-Disposition': f'attachment;filename='
                 f'"{self.obj.profile.name}-{self.obj.name}.ics"'
