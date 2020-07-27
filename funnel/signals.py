@@ -45,7 +45,7 @@ user_data_changed = app_signals.signal('user-data-changed')
 org_data_changed = app_signals.signal('org-data-changed')
 team_data_changed = app_signals.signal('team-data-changed')
 session_revoked = app_signals.signal('session-revoked')
-project_email_dispatched = app_signals.signal('project_email_dispatched')
+user_registered_for_project = app_signals.signal('user_registered_for_project')
 
 # Membership signals
 organization_admin_membership_added = app_signals.signal(
