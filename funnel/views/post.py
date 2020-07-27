@@ -7,7 +7,7 @@ from coaster.utils import make_name
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app
-from ..forms import PostForm, SavedProjectForm
+from ..forms import ProjectPostForm, SavedProjectForm
 from ..models import Post, Profile, Project, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
@@ -62,7 +62,7 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'editor'})
     def new_post(self):
-        post_form = PostForm()
+        post_form = ProjectPostForm()
         post_form.form_nonce.data = post_form.form_nonce.default()
 
         if post_form.validate_on_submit():
@@ -164,7 +164,7 @@ class ProjectPostDetailsView(UrlForView, ModelView):
     @render_with(json=True)
     @requires_roles({'editor'})
     def edit(self):
-        post_form = PostForm(obj=self.obj)
+        post_form = ProjectPostForm(obj=self.obj)
 
         if post_form.validate_on_submit():
             post_form.populate_obj(self.obj)

@@ -3,11 +3,11 @@ import baseframe.forms as forms
 
 from ..models import Post
 
-__all__ = ['PostForm']
+__all__ = ['ProjectPostForm']
 
 
-@Post.forms('main')
-class PostForm(forms.Form):
+@Post.forms('project_main')
+class ProjectPostForm(forms.Form):
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
