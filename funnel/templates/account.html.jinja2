@@ -47,7 +47,7 @@
           <div class="mui-divider"></div>
           <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
             {{ logout_form.hidden_tag() }}
-            <div class="card__footer">
+            <div class="card__footer card__footer--smallerbtn">
               <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
               <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('change_password') }}" data-cy="change-password">{% trans %}Change password{% endtrans %}</a>
               <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" data-cy="Logout">{% trans %}Logout{% endtrans %}</button>
@@ -77,6 +77,7 @@
         </div>
       </div>
 
+      {% with has_multiple_verified_contacts=(current_auth.user.verified_contact_count > 1) -%}
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
@@ -88,9 +89,9 @@
               <ol class="mui-list--aligned mui-list--border">
                 {% for useremail in current_auth.user.views.emails_sorted() %}
                 <li>
-                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="form-inline-input"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %} <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</span> {%- endif -%}
+                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="form-inline-input"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %} <span title="{% trans %}Primary{% endtrans %}" class="check-mark mui--align-middle">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span> {%- endif -%}
                   </label>
-                  {%- if current_auth.user.verified_contact_count > 1 %}
+                  {%- if has_multiple_verified_contacts %}
                     <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                   {%- endif %}
                 </li>
@@ -104,7 +105,7 @@
               </ol>
             </div>
             <div class="mui-divider"></div>
-            <div class="card__footer">
+            <div class="card__footer card__footer--smallerbtn">
               {% if current_auth.user.emails %}
                 <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" type="submit" title="Set as primary email">{% trans %}Set as primary{% endtrans %}</button>
               {% endif %}
@@ -128,8 +129,8 @@
                   <li>
                     <input id="userphone-{{loop.index}}" name="phone" value="{{userphone}}" type="radio">&nbsp;
                     <label for="userphone-{{loop.index}}">{{ userphone.formatted() }}</label>
-                    {% if userphone.primary %} <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</span> {%- endif -%}
-                    {%- if current_auth.user.verified_contact_count > 1 %}
+                    {% if userphone.primary %} <span title="{% trans %}Primary{% endtrans %}" class="check-mark mui--align-middle">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span> {%- endif -%}
+                    {%- if has_multiple_verified_contacts %}
                       <a href="{{ url_for('remove_phone', number=userphone.phone) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                     {%- endif %}
                   </li>
@@ -146,7 +147,7 @@
               </ol>
             </div>
             <div class="mui-divider"></div>
-            <div class="card__footer">
+            <div class="card__footer card__footer--smallerbtn">
               {% if current_auth.user.phones %}<button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" type="submit">{% trans %}Set as primary{% endtrans %}</button>{% endif %}
               <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('add_phone') }}">{% trans %}Add a mobile number{% endtrans %}</a>
               <span class="loading mui--hide"></span>
@@ -154,6 +155,7 @@
           </form>
         </div>
       </div>
+      {%- endwith %}
 
       <div class="grid__col-xs-12">
         <div class="card">
@@ -185,40 +187,35 @@
           <form action="{{ url_for('account_logout') }}" method="POST" id="logout-session-form">
             {{ logout_form.hidden_tag() }}
             <div class="card__body">
-              <ul class="mui-list--aligned mui-list--unstyled grid-no-left-padding mui--text-subhead mui-list--border">
+              <ul class="mui-list--aligned mui-list--unstyled grid-no-left-padding mui-list--border">
                 {%- for user_session in current_auth.user.active_sessions %}
-                {%- with ua=user_session.user_agent_details(), login_service=user_session.views.login_service() %}
-                  <li class="flex-wrapper flex-wrapper--baseline">
-                    <span>
-                    {%- if login_service %}
-                      {%- trans
-                          ipaddr=user_session.ipaddr,
-                          location=user_session.views.location(),
-                          user_agent=user_session.user_agent,
-                          since=user_session.created_at|age,
-                          browser=ua['browser'],
-                          os_device=ua['os_device'],
-                          last_active=user_session.accessed_at|age -%}
-                        From {{ ipaddr }} ({{ location }}) via {{ login_service }} since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
-                      {%- endtrans %}
-                    {%- else %}
-                      {%- trans
-                          ipaddr=user_session.ipaddr,
-                          location=user_session.views.location(),
-                          user_agent=user_session.user_agent,
-                          since=user_session.created_at|age,
-                          browser=ua['browser'],
-                          os_device=ua['os_device'],
-                          last_active=user_session.accessed_at|age -%}
-                        From {{ ipaddr }} ({{ location }}) since {{ since }} with <span title="{{ user_agent }}">{{ browser }} on {{ os_device }}</span>, last active {{ last_active }}
-                      {%- endtrans %}
-                    {%- endif %}
-                    </span>
-                  {%- if user_session == current_auth.session %}
-                    <span title="{% trans %}Current{% endtrans %}">{{ faicon(icon='check', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</span>
-                  {%- else %}
-                    <button type="submit" name="sessionid" value="{{ user_session.buid }}" title="{% trans %}Logout{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat" mui-btn--nostyle>{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</button>
-                  {%- endif -%}
+                {%- with
+                    ua=user_session.views.user_agent_details(),
+                    login_service=user_session.views.login_service(),
+                    location=user_session.views.location(),
+                    user_agent=user_session.user_agent,
+                    since=user_session.created_at|age,
+                    last_active=user_session.accessed_at|age
+                    %}
+                  <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
+                    <div>
+                      <p title="{{ user_agent }}" class="login-session__heading">{{ ua['browser'] }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ ua['os_device'] }}</p>
+                      <p class="login-session__body mui--text-light">
+                        {%- if login_service %}
+                          {%- trans %}Since {{ since }} via {{ login_service }} – last active {{ last_active }}{% endtrans %}
+                        {%- else %}
+                          {%- trans %}Since {{ since }} – last active {{ last_active }}{% endtrans %}
+                        {%- endif -%}
+                      </p>
+                      <p class="login-session__body mui--text-light">{% trans ipaddr=user_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}</p>
+                    </div>
+                    <div>
+                      {%- if user_session == current_auth.session %}
+                        <span title="{% trans %}Current{% endtrans %}" class="check-mark mui--align-bottom">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span>
+                      {%- else %}
+                        <button type="submit" name="sessionid" value="{{ user_session.buid }}" title="{% trans %}Logout{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle mui--text-hyperlink') }}</button>
+                      {%- endif -%}
+                    </div>
                   </li>
                 {%- endwith %}
                 {%- endfor %}

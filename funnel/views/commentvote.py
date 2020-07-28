@@ -18,7 +18,7 @@ from .. import app, funnelapp
 from ..forms import CommentForm
 from ..models import Comment, Commentset, Proposal, db
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .login_session import requires_login
 from .mixins import ProposalViewMixin
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])

@@ -11,15 +11,6 @@ class TestUser(TestDatabaseFixture):
         result = models.UserSession()
         assert isinstance(result, models.UserSession)
 
-    def test_usersession_ua(self):
-        """Test to verify user_agent property of UserSession instance"""
-        ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36'
-        another_user_session = models.UserSession(user_agent=ua)
-        parsed_ua = another_user_session.user_agent_details()
-        assert isinstance(parsed_ua, dict)
-        assert parsed_ua['browser'] == 'Chrome 49.0.2623'
-        assert parsed_ua['os_device'] == 'Mac OS X 10.11.3 (Apple Mac)'
-
     def test_usersession_has_sudo(self):
         """Test to set sudo and test if UserSession instance has_sudo """
         crusoe = self.fixtures.crusoe

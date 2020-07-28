@@ -53,8 +53,8 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .helpers import requires_login
 from .jobs import import_tickets, tag_locations
+from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
@@ -754,6 +754,18 @@ class ProjectView(
                 'delcommentform': forms.Form(),
                 'csrf_form': forms.Form(),
             }
+
+    @route('toggle_featured', methods=['POST'])
+    def toggle_featured(self):
+        if not current_auth.user.is_site_editor:
+            return abort(403)
+        featured_form = forms.Form()
+        if featured_form.validate_on_submit():
+            self.obj.featured = not self.obj.featured
+            db.session.commit()
+            if self.obj.featured:
+                flash(_("Your project is now a spotlight on homepage"), 'info')
+        return redirect(get_next_url(referrer=True), 303)
 
 
 @route('/<project>/', subdomain='<profile>')

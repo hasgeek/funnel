@@ -1,4 +1,4 @@
-from flask import abort, g, redirect, render_template, request
+from flask import abort, g, redirect, request
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
@@ -12,7 +12,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app, funnelapp, signals
 from ..forms import (
     OrganizationMembershipForm,
     ProjectCrewMembershipForm,
@@ -28,8 +28,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .email import send_email
-from .helpers import requires_login
+from .login_session import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 
@@ -108,19 +107,12 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     )
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
-                    send_email(
-                        subject=_("You have been added to {} as a admin").format(
-                            self.obj.title
-                        ),
-                        to=[new_membership.user],
-                        content=render_template(
-                            'email_organization_membership_add_notification.html.jinja2',
-                            granted_by=new_membership.granted_by,
-                            profile=self.obj,
-                            organization_membership_link=self.obj.url_for(
-                                'members', _external=True
-                            ),
-                        ),
+                    signals.organization_admin_membership_added.send(
+                        self.obj,
+                        organization=self.obj.organization,
+                        membership=new_membership,
+                        actor=current_auth.user,
+                        user=new_membership.user,
                     )
                     db.session.commit()
                     return {
@@ -249,16 +241,12 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     }
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
-                    send_email(
-                        subject=_("You have been removed from {} as a member").format(
-                            self.obj.organization.title
-                        ),
-                        to=[previous_membership.user],
-                        content=render_template(
-                            'email_organization_membership_revoke_notification.html.jinja2',
-                            revoked_by=current_auth.user,
-                            profile=self.obj.organization.profile,
-                        ),
+                    signals.organization_admin_membership_revoked.send(
+                        self.obj,
+                        organization=self.obj.organization,
+                        membership=previous_membership,
+                        actor=current_auth.user,
+                        user=previous_membership.user,
                     )
                     db.session.commit()
                 return {
@@ -363,26 +351,17 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                     )
                 else:
                     new_membership = ProjectCrewMembership(
-                        parent_id=self.obj.id, granted_by=current_auth.user
+                        project=self.obj, granted_by=current_auth.user
                     )
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
                     # TODO: Once invite is introduced, send invite email here
-                    send_email(
-                        subject=_("You have been added to {} as a member").format(
-                            self.obj.title
-                        ),
-                        to=[new_membership.user],
-                        content=render_template(
-                            'email_project_membership_add_notification.html.jinja2',
-                            # 'project_membership_add_invite_email.md.jinja2',
-                            granted_by=new_membership.granted_by,
-                            project=self.obj,
-                            project_membership_link=self.obj.url_for(
-                                'crew', _external=True
-                            )
-                            # link=new_membership.url_for('invite', _external=True),
-                        ),
+                    signals.project_crew_membership_added.send(
+                        self.obj,
+                        project=self.obj,
+                        membership=new_membership,
+                        actor=current_auth.user,
+                        user=new_membership.user,
                     )
                     db.session.commit()
                     return {
@@ -561,16 +540,12 @@ class ProjectCrewMembershipView(
                 previous_membership = self.obj
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
-                    send_email(
-                        subject=_("You have been removed from {} as a member").format(
-                            self.obj.project.title
-                        ),
-                        to=[previous_membership.user],
-                        content=render_template(
-                            'email_project_membership_revoke_notification.html.jinja2',
-                            revoked_by=current_auth.user,
-                            project=self.obj.project,
-                        ),
+                    signals.project_crew_membership_revoked.send(
+                        self.obj.project,
+                        project=self.obj.project,
+                        membership=previous_membership,
+                        actor=current_auth.user,
+                        user=previous_membership.user,
                     )
                     db.session.commit()
                 return {

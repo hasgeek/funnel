@@ -1,10 +1,5 @@
 from datetime import timedelta
 
-from flask import request
-
-import user_agents
-
-from baseframe import _, statsd
 from coaster.utils import buid as make_buid
 from coaster.utils import utcnow
 
@@ -75,63 +70,6 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         return f'<UserSession {self.buid}>'
-
-    def access(self, auth_client=None):
-        """
-        Mark a session as currently active.
-
-        :param auth_client: For API calls from clients, save the client instead of IP
-            address and User-Agent
-        """
-        # `accessed_at` will be different from the automatic `updated_at` in one
-        # crucial context: when the session was revoked from a different session.
-        # `accessed_at` won't be updated at that time.
-        self.accessed_at = db.func.utcnow()
-        with db.session.no_autoflush:
-            if auth_client:
-                if (
-                    auth_client not in self.auth_clients
-                ):  # self.auth_clients is defined via Client.user_sessions
-                    self.auth_clients.append(auth_client)
-                else:
-                    # If we've seen this client in this session before, only update the
-                    # timestamp
-                    db.session.execute(
-                        auth_client_user_session.update()
-                        .where(auth_client_user_session.c.user_session_id == self.id)
-                        .where(
-                            auth_client_user_session.c.auth_client_id == auth_client.id
-                        )
-                        .values(accessed_at=db.func.utcnow())
-                    )
-            else:
-                self.ipaddr = request.remote_addr or ''
-                self.user_agent = str(request.user_agent.string[:250]) or ''
-
-        # Use integer id instead of uuid_b58 here because statsd documentation is
-        # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
-        statsd.set('users.active_sessions', self.id, rate=1)
-        statsd.set('users.active_users', self.user.id, rate=1)
-
-    def user_agent_details(self):
-        ua = user_agents.parse(self.user_agent)
-        return {
-            'browser': (ua.browser.family + ' ' + ua.browser.version_string)
-            if ua.browser.family
-            else _("Unknown browser"),
-            'os_device': ua.os.family
-            + ' '
-            + ua.os.version_string
-            + (
-                ' ('
-                + str(ua.device.brand or '')
-                + ' '
-                + str(ua.device.model or '')
-                + ')'
-                if ua.device.family != 'Other'
-                else ''
-            ),
-        }
 
     @property
     def has_sudo(self):

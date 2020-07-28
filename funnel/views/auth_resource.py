@@ -22,11 +22,11 @@ from ..models import (
 )
 from ..registry import resource_registry
 from ..utils import abort_null
-from .helpers import (
+from .helpers import validate_rate_limit
+from .login_session import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
     requires_user_or_client_login,
-    validate_rate_limit,
 )
 
 
@@ -527,7 +527,7 @@ def session_verify(authtoken, args, files=None):
     sessionid = abort_null(args['sessionid'])
     session = UserSession.authenticate(buid=sessionid)
     if session and session.user == authtoken.user:
-        session.access(auth_client=authtoken.auth_client)
+        session.views.mark_accessed(auth_client=authtoken.auth_client)
         db.session.commit()
         return {
             'active': True,
