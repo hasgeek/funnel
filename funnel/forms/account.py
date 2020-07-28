@@ -183,7 +183,7 @@ class PasswordChangeForm(forms.Form):
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(min=8, max=40),
-            PasswordStrengthValidator(user_input_fields=['old_password']),
+            PasswordStrengthValidator(),
         ],
     )
     confirm_password = forms.PasswordField(
