@@ -264,6 +264,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'hasjob_embed_url',
                 'hasjob_embed_limit',
                 'profile',
+                'featured',
                 'featured_sessions',
             },
             'call': {
@@ -311,6 +312,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'schedule_end_at_localized',
             'cfp_start_at_localized',
             'cfp_end_at_localized',
+            'featured',
             'profile',
         },
         'without_parent': {
@@ -335,6 +337,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'schedule_end_at_localized',
             'cfp_start_at_localized',
             'cfp_end_at_localized',
+            'featured',
         },
         'related': {
             'name',
