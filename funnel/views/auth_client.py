@@ -34,20 +34,16 @@ from .login_session import requires_login
 # --- Routes: client apps -----------------------------------------------------
 
 
-@app.route('/account/apps')
+@app.route('/apps')
 @requires_login
 def client_list():
-    if current_auth.is_authenticated:
-        return render_template(
-            'auth_client_index.html.jinja2',
-            auth_clients=AuthClient.all_for(current_auth.user),
-        )
-    else:
-        # TODO: Show better UI for non-logged in users
-        return render_template('client_list.html.jinja2', clients=[])
+    return render_template(
+        'auth_client_index.html.jinja2',
+        auth_clients=AuthClient.all_for(current_auth.user),
+    )
 
 
-@app.route('/account/apps/all')
+@app.route('/apps/all')
 def client_list_all():
     return render_template(
         'auth_client_index.html.jinja2', auth_clients=AuthClient.all_for(None)
@@ -65,7 +61,7 @@ def available_client_owners():
     return choices
 
 
-@route('/account/apps/new', methods=['GET', 'POST'])
+@route('/apps/new', methods=['GET', 'POST'])
 class AuthClientCreateView(ClassView):
     @route('', endpoint='authclient_new')
     @requires_login
@@ -99,7 +95,7 @@ AuthClientCreateView.init_app(app)
 
 
 @AuthClient.views('main')
-@route('/account/apps/<app>')
+@route('/apps/<app>')
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
     route_model_map = {'app': 'buid'}
@@ -283,7 +279,7 @@ AuthClientView.init_app(app)
 
 
 @AuthClientCredential.views('main')
-@route('/account/apps/<app>/cred/<name>')
+@route('/apps/<app>/cred/<name>')
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
     route_model_map = {'app': 'auth_client.buid', 'name': 'name'}
@@ -319,7 +315,7 @@ AuthClientCredentialView.init_app(app)
 
 
 @AuthClientUserPermissions.views('main')
-@route('/account/apps/<app>/perms/u/<user>')
+@route('/apps/<app>/perms/u/<user>')
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
     route_model_map = {'app': 'auth_client.buid', 'user': 'user.buid'}
@@ -393,7 +389,7 @@ AuthClientUserPermissionsView.init_app(app)
 
 
 @AuthClientTeamPermissions.views('main')
-@route('/account/apps/<app>/perms/t/<team>')
+@route('/apps/<app>/perms/t/<team>')
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
     route_model_map = {'app': 'auth_client.buid', 'team': 'team.buid'}
