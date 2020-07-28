@@ -1,3 +1,4 @@
+from collections import namedtuple
 from email.utils import formataddr, getaddresses
 
 from flask import current_app, render_template, request, url_for
@@ -59,7 +60,12 @@ def send_email(subject, to, content, attachments=None, filename=None, mimetype=N
         subject=subject, to=to, body=body, alternatives=[(html, 'text/html')]
     )
     if attachments:
-        msg.attach(content=attachments, filename=filename, mimetype=mimetype)
+        for attachment in attachments:
+            msg.attach(
+                content=attachment.file,
+                filename=attachment.filename,
+                mimetype=attachment.mimetype,
+            )
     # If an EmailAddress is blocked, this line will throw an exception
     emails = [EmailAddress.add(email) for name, email in getaddresses(msg.recipients())]
     # TODO: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
@@ -143,14 +149,19 @@ def send_email_for_organization_admin_membership_revoked(
 
 @signals.user_registered_for_project.connect
 def send_email_for_project_registration(sender, project, user):
+    EmailAttachment = namedtuple('EmailAttachment', ['file', 'filename', 'mimetype'])
     send_email(
         subject=_("Registration confirmation for {project}").format(
             project=project.title
         ),
         to=[user],
-        attachments=schedule_ical(project),
-        filename='%s.ics' % project.name,
-        mimetype='text/calendar',
+        attachments=[
+            EmailAttachment(
+                file=schedule_ical(project),
+                filename='%s.ics' % project.name,
+                mimetype='text/calendar',
+            )
+        ],
         content=render_template(
             'email_project_registration.html.jinja2', project=project,
         ),
