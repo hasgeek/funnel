@@ -264,6 +264,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'hasjob_embed_url',
                 'hasjob_embed_limit',
                 'profile',
+                'featured_sessions',
             },
             'call': {
                 'features',
@@ -276,6 +277,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'view_for',
                 'views',
                 'boxoffice_data',
+                'featured_sessions',
             },
         },
         'participant': {'granted_via': {'rsvps': 'user'}},

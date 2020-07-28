@@ -2620,6 +2620,7 @@ a.loginbutton.hidden,
   overflow: hidden;
   max-width: 60px;
   max-height: 60px;
+  display: flex;
 }
 .session-card
   .session-card__header
