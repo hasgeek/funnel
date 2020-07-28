@@ -157,11 +157,15 @@ class ProjectPostView(UrlChangeCheck, UrlForView, ModelView):
 
         return render_form(
             form=delete_form,
-            title=_("Delete update?"),
-            message=_("Deletion is permanent and cannot be undone")
+            title=_("Confirm delete"),
+            message=_(
+                "Delete this draft update? This operation is permanent and cannot be"
+                " undone."
+            )
             if self.obj.state.UNPUBLISHED
             else _(
-                "This update’s number (#{number}) will be skipped for the next update"
+                "Delete this update? This update’s number (#{number}) will be skipped"
+                " for the next update."
             ).format(number=self.obj.number),
             submit=_("Delete"),
             cancel_url=self.obj.url_for('project_view'),

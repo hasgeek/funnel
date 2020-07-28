@@ -141,8 +141,8 @@ class AuthClientView(UrlForView, ModelView):
                 )
                 flash(
                     _(
-                        "This application’s owner has changed, so all previously assigned permissions "
-                        "have been revoked"
+                        "This application’s owner has changed, so all previously"
+                        " assigned permissions have been revoked"
                     ),
                     'warning',
                 )
@@ -168,7 +168,11 @@ class AuthClientView(UrlForView, ModelView):
             self.obj,
             db,
             title=_("Confirm delete"),
-            message=_("Delete application ‘{title}’? ").format(title=self.obj.title),
+            message=_(
+                "Delete application ‘{title}’? This will also delete all associated"
+                " content including access tokens issued on behalf of users. This"
+                " operation is permanent and cannot be undone."
+            ).format(title=self.obj.title),
             success=_(
                 "You have deleted application ‘{title}’ and all its associated resources and permission assignments"
             ).format(title=self.obj.title),

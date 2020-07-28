@@ -558,7 +558,7 @@ def confirm_email(email_hash, secret):
                 message=_(
                     "You’ve opened an email verification link that was meant for"
                     " another user. If you are managing multiple accounts, please login"
-                    " with the correct account and open the link again"
+                    " with the correct account and open the link again."
                 ),
                 code=403,
             )
@@ -566,7 +566,7 @@ def confirm_email(email_hash, secret):
         return render_message(
             title=_("Expired confirmation link"),
             message=_(
-                "The confirmation link you clicked on is either invalid or has expired"
+                "The confirmation link you clicked on is either invalid or has expired."
             ),
             code=404,
         )
@@ -757,7 +757,7 @@ def verify_email(email_hash):
         form=verify_form,
         title=_("Resend the verification email?"),
         message=_(
-            "We will resend the verification email to '{email}'".format(
+            "We will resend the verification email to {email}.".format(
                 email=emailclaim.email
             )
         ),

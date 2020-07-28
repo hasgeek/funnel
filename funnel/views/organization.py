@@ -107,9 +107,13 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             self.obj,
             db,
             title=_("Confirm delete"),
-            message=_("Delete organization ‘{title}’? ").format(title=self.obj.title),
+            message=_(
+                "Delete organization ‘{title}’? This will delete everything including"
+                " projects, proposals and videos. This operation is permanent and"
+                " cannot be undone."
+            ).format(title=self.obj.title),
             success=_(
-                "You have deleted organization ‘{title}’ and all its associated teams"
+                "You have deleted organization ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
             next=url_for('account'),
         )
