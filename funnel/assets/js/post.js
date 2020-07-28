@@ -12,7 +12,6 @@ const Posts = {
     isEditor,
     headerHeight,
   }) {
-    Vue.config.devtools = true;
     Vue.use(VS2);
 
     const postUI = Vue.component('post', {
