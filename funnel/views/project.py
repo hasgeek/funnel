@@ -12,7 +12,7 @@ from flask import (
     request,
 )
 
-from baseframe import _, forms
+from baseframe import _, forms, get_locale
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
@@ -574,8 +574,7 @@ class ProjectView(
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
                 user_registered_for_project.send(
-                    self.obj,
-                    user=current_auth.user
+                    project=self.obj, user=current_auth.user, locale=get_locale()
                 )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
