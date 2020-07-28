@@ -275,6 +275,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'cfp_state',
                 'view_for',
                 'views',
+                'boxoffice_data',
             },
         },
         'participant': {'granted_via': {'rsvps': 'user'}},
