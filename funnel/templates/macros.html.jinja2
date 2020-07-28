@@ -342,7 +342,7 @@
     <li>
       <a href="{{ pinned_post.urls['project_view'] }}" class="pinned__post">
         <p class="pinned__post__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">Pinned update</span></p>
-        <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_post.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__post__body__text">{%- if pinned_post.body %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_post.body.text }}</span>{% else %}<em>This update is for participants only</em>{%- endif %}</span></p>
+        <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_post.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__post__body__text">{%- if not pinned_post.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_post.body.text }}</span>{% else %}<em>This update is for participants only</em>{%- endif %}</span></p>
       </a>
     </li>
   </ul>
@@ -841,7 +841,7 @@
             <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
           </div>
         </div>
-        <div v-if="post.body">
+        <div v-if="!post.is_currently_restricted">
           <div class="post__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(post.body.html, 250)"></div>
           <div class="post__content mui--text-light fullcontent" v-else v-html="post.body.html"></div>
           <p class="mui--text-body2">

@@ -159,6 +159,8 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 'visibility_label',
                 'state_label',
                 'is_pinned',
+                'is_restricted',
+                'is_currently_restricted',
                 'urls',
             },
             'call': {'features', 'visibility_state', 'state', 'url_for'},
@@ -177,6 +179,9 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'published_at',
             'edited_at',
             'user',
+            'is_pinned',
+            'is_restricted',
+            'is_currently_restricted',
             'visibility_label',
             'state_label',
         },
@@ -291,6 +296,21 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
     def make_restricted(self):
         pass
+
+    @property
+    def is_restricted(self):
+        return bool(self.visibility_state.RESTRICTED)
+
+    @is_restricted.setter
+    def is_restricted(self, value):
+        if value and self.visibility_state.PUBLIC:
+            self.make_restricted()
+        elif not value and self.visibility_state.RESTRICTED:
+            self.make_public()
+
+    @property
+    def is_currently_restricted(self):
+        return self.is_restricted and not self.current_roles.reader
 
     def roles_for(self, actor=None, anchors=()):
         roles = super().roles_for(actor, anchors)
