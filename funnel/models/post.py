@@ -171,13 +171,16 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'name',
             'title',
             'number',
+            'body',
             'body_text',
+            'body_html',
             'published_at',
             'edited_at',
             'user',
             'visibility_label',
             'state_label',
-        }
+        },
+        'related': {'name', 'title'},
     }
 
     def __init__(self, **kwargs):
