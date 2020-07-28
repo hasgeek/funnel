@@ -18,7 +18,7 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE
-from .helpers import visual_field_delimiter
+from .helpers import add_search_trigger, visual_field_delimiter
 
 __all__ = ['Post']
 
@@ -306,6 +306,8 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
         return roles
 
+
+add_search_trigger(Post, 'search_vector')
 
 Project.published_posts = with_roles(
     property(
