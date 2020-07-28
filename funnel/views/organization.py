@@ -103,7 +103,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(team)
             db.session.commit()
             team_data_changed.send(team, changes=['new'], user=current_auth.user)
-            return render_redirect(self.obj.url_for('view'), code=303)
+            return render_redirect(self.obj.url_for('teams'), code=303)
         return render_form(
             form=form, title=_("Create new team"), formid='new_team', submit=_("Create")
         )
@@ -136,7 +136,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             team_data_changed.send(self.obj, changes=['edit'], user=current_auth.user)
-            return render_redirect(self.obj.organization.url_for(), code=303)
+            return render_redirect(self.obj.organization.url_for('teams'), code=303)
         return render_form(
             form=form,
             title=_("Edit team: {title}").format(title=self.obj.title),
