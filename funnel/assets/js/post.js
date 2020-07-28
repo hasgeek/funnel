@@ -46,11 +46,6 @@ const Posts = {
       },
       computed: {
         age() {
-          console.log(
-            'age',
-            this.post.published_at,
-            timeago.format(this.post.published_at)
-          );
           return this.now && this.post.published_at
             ? timeago.format(this.post.published_at)
             : '';
