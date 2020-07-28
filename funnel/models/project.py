@@ -244,6 +244,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'tagline',
                 'datelocation',
                 'timezone',
+                'description',
+                'instructions',
                 'schedule_start_at',
                 'schedule_end_at',
                 'website',
