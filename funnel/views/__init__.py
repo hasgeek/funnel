@@ -28,5 +28,6 @@ from . import (
     search,
     session,
     sms,
+    update,
     venue,
 )
