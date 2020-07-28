@@ -1,4 +1,4 @@
-from flask import abort, flash, render_template, request, url_for
+from flask import Markup, abort, flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
@@ -174,7 +174,8 @@ class AuthClientView(UrlForView, ModelView):
                 " operation is permanent and cannot be undone."
             ).format(title=self.obj.title),
             success=_(
-                "You have deleted application ‘{title}’ and all its associated resources and permission assignments"
+                "You have deleted application ‘{title}’ and all its associated"
+                " resources and permission assignments"
             ).format(title=self.obj.title),
             next=url_for('client_list'),
         )
@@ -263,6 +264,14 @@ class AuthClientView(UrlForView, ModelView):
         return render_form(
             form=form,
             title=_("Assign permissions"),
+            message=Markup(
+                _(
+                    'Add and edit teams from <a href="{url}">your organization’s teams'
+                    ' page</a>.'
+                ).format(url=self.obj.organization.url_for('teams'))
+            )
+            if self.obj.organization
+            else None,
             formid='perm_assign',
             submit=_("Assign permissions"),
         )

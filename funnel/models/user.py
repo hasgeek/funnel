@@ -728,12 +728,18 @@ class Team(UuidMixin, BaseMixin, db.Model):
     title = db.Column(db.Unicode(__title_length__), nullable=False)
     #: Organization
     organization_id = db.Column(None, db.ForeignKey('organization.id'), nullable=False)
-    organization = db.relationship(
-        Organization, backref=db.backref('teams', order_by=title, cascade='all'),
+    organization = with_roles(
+        db.relationship(
+            Organization, backref=db.backref('teams', order_by=title, cascade='all'),
+        ),
+        grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
-    users = db.relationship(
-        User, secondary=team_membership, lazy='dynamic', backref='teams'
-    )  # No cascades here! Cascades will delete users
+    users = with_roles(
+        db.relationship(
+            User, secondary=team_membership, lazy='dynamic', backref='teams'
+        ),
+        grants={'subject'},
+    )
 
     def __repr__(self):
         return '<Team {team} of {organization}>'.format(
