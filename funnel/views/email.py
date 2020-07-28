@@ -148,7 +148,7 @@ def send_email_for_organization_admin_membership_revoked(
 
 
 @signals.user_registered_for_project.connect
-def send_email_for_project_registration(sender, project, user):
+def send_email_for_project_registration(sender, project, user, locale=None):
     EmailAttachment = namedtuple('EmailAttachment', ['file', 'filename', 'mimetype'])
     send_email(
         subject=_("Registration confirmation for {project}").format(
