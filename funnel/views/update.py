@@ -1,4 +1,4 @@
-from flask import flash, g, redirect
+from flask import flash, g, redirect, request
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -134,9 +134,16 @@ class ProjectPostView(UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'editor'})
     def project_edit(self):
         post_form = ProjectPostForm(obj=self.obj)
-
+        if request.method == 'GET':
+            post_form.restricted.data = bool(self.obj.visibility_state.RESTRICTED)
         if post_form.validate_on_submit():
             post_form.populate_obj(self.obj)
+            if post_form.restricted.data:
+                if not self.obj.visibility_state.RESTRICTED:
+                    self.obj.make_restricted()
+            else:
+                if not self.obj.visibility_state.PUBLIC:
+                    self.obj.make_public()
             db.session.commit()
             flash(_("The update has been edited"), 'success')
             return redirect(self.obj.url_for('project_view'), code=303)
