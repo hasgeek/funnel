@@ -158,6 +158,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 'deleted_at',
                 'visibility_label',
                 'state_label',
+                'is_pinned',
                 'urls',
             },
             'call': {'features', 'visibility_state', 'state', 'url_for'},

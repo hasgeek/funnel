@@ -19,6 +19,14 @@
   padding-right: 16px;
 }
 
+.top-padding {
+  padding-top: 16px;
+}
+
+.bottom-padding {
+  padding-bottom: 16px;
+}
+
 .grid-no-left-padding {
   margin-left: -16px;
 }
@@ -666,6 +674,10 @@ a.loginbutton.hidden,
 
 .interpunct {
   padding: 0 8px;
+}
+
+[v-cloak] {
+  display: none;
 }
 
 .hg-app .header--fixed {
@@ -4485,7 +4497,6 @@ ul .login-session .mui-btn--nostyle {
     margin-bottom: 16px;
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
-    background-color: #ffffff;
   }
 }
 .footer {

@@ -67,7 +67,7 @@
 
       var postConfig = {
         draft: {% if project.draft_posts -%} {{ project.draft_posts|tojson }} {%- else -%} [] {%- endif %},
-        posts: {{ project.published_posts|tojson }},
+        posts: {% if project.published_posts -%} {{ project.published_posts|tojson }} {%- else -%} [] {%- endif %},
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
         isEditor: {% if project.features.post_update() -%}true{% else %}false{% endif %},

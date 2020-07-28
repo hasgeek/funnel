@@ -50,7 +50,7 @@
 
       var postConfig = {
         draft: [],
-        posts: [{{ post|tojson }}],
+        posts: {% if post -%}[{{ post|tojson }}]{%- else -%} [] {%- endif %},
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
         isEditor: {% if project.features.post_update() -%}true{% else %}false{% endif %},

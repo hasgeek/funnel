@@ -19,6 +19,14 @@
   padding-right: $mui-grid-padding;
 }
 
+.top-padding {
+  padding-top: $mui-grid-padding;
+}
+
+.bottom-padding {
+  padding-bottom: $mui-grid-padding;
+}
+
 .grid-no-left-padding {
   margin-left: -$mui-grid-padding;
 }
@@ -713,4 +721,9 @@ a.loginbutton.hidden,
 
 .interpunct {
   padding: 0 8px;
+}
+
+// To hide vue template before Vue app is mounted
+[v-cloak] {
+  display: none;
 }

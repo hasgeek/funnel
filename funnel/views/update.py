@@ -60,7 +60,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
             form=post_form,
             title=_("Post an update"),
             submit=_("Save & preview"),
-            cancel_url=self.obj.url_for('project_view'),
+            cancel_url=self.obj.url_for('updates'),
         )
 
 
