@@ -21,7 +21,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Updates{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='posts', pinned=False) }}
+  {{ project_header(project, project_save_form, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='updates', pinned=false) }}
 {% endblock %}
 
 {% block basecontent %}
@@ -29,8 +29,8 @@
     <div class="page-content page-content--mob-nav" id="updates">
       <div class="grid" id="updates">
         <div class="grid__col-xs-12">
-          {% if current_auth.user and project.features.post_new() -%}
-            <a class="post-form" href="{{ project.url_for('new_post') }}" aria-label="Add new update" data-cy-btn="add-post">
+          {% if project.features.post_update() -%}
+            <a class="post-form" href="{{ project.url_for('new_update') }}" aria-label="Add new update" data-cy-btn="add-post">
             <div class="user">
               <div class="user__box">
                 <div class="user__box__gravatar user__box__gravatar--initials">{{ current_auth.user.fullname|initials }}</div>
@@ -66,11 +66,11 @@
       }
 
       var postConfig = {
-        draft: {{ posts.draft|tojson }},
-        posts: {{ posts.published|tojson }},
+        draft: {% if project.draft_posts -%} {{ project.draft_posts|tojson }} {%- else -%} [] {%- endif %},
+        posts: {{ project.published_posts|tojson }},
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
-        isEditor: {% if current_auth.user and project.features.post_new() -%}true{% else %}false{% endif %},
+        isEditor: {% if project.features.post_update() -%}true{% else %}false{% endif %},
         headerHeight: headerHeight,
       };
 

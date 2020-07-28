@@ -1,12 +1,19 @@
-from flask import abort, flash, g, redirect
+from flask import flash, g, redirect
 
 from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
-from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
+from coaster.views import (
+    ModelView,
+    UrlChangeCheck,
+    UrlForView,
+    render_with,
+    requires_roles,
+    route,
+)
 
-from .. import app
+from .. import app, funnelapp
 from ..forms import ProjectPostForm, SavedProjectForm
 from ..models import Post, Profile, Project, db
 from .decorators import legacy_redirect
@@ -14,46 +21,19 @@ from .login_session import requires_login
 from .project import ProjectViewMixin
 
 
-@Project.features('drafts')
-def project_drafts(obj):
-    return obj.current_roles.editor
-
-
-@Project.views('json_posts')
-def project_json_posts(obj):
-    published_posts = []
-    for post in obj.published_posts:
-        if post.visibility_state.PUBLIC:
-            published_posts.append(post)
-        else:
-            # Restricted posts
-            if obj.current_roles.participant or obj.current_roles.crew:
-                published_posts.append(post)
-    return {
-        'pinned': [post.current_access() for post in published_posts if post.is_pinned],
-        'published': [post.current_access() for post in published_posts],
-        'draft': (
-            [post.current_access() for post in obj.draft_posts]
-            if obj.current_roles.editor
-            else []
-        ),
-    }
-
-
 @Project.views('updates')
 @route('/<profile>/<project>/updates')
-class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET'])
     @render_with('project_updates.html.jinja2', json=True)
     @requires_roles({'reader'})
-    def posts(self):
+    def updates(self):
         project_save_form = SavedProjectForm()
         return {
-            'posts': self.obj.views.json_posts(),
             'project': self.obj.current_access(),
-            'new_post': self.obj.url_for('new_post'),
+            'new_update': self.obj.url_for('new_update'),
             'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
@@ -61,7 +41,7 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
-    def new_post(self):
+    def new_update(self):
         post_form = ProjectPostForm()
         post_form.form_nonce.data = post_form.form_nonce.default()
 
@@ -74,17 +54,23 @@ class ProjectPostView(ProjectViewMixin, UrlForView, ModelView):
             if post_form.restricted.data:
                 post.make_restricted()
             db.session.commit()
-            return redirect(post.url_for(), code=303)
+            return redirect(post.url_for('project_view'), code=303)
 
         return render_form(
             form=post_form,
             title=_("Post an update"),
             submit=_("Save & preview"),
-            cancel_url=self.obj.url_for(),
+            cancel_url=self.obj.url_for('project_view'),
         )
 
 
-ProjectPostView.init_app(app)
+@route('/<project>/updates', subdomain='<profile>')
+class FunnelProjectUpdatesView(ProjectUpdatesView):
+    pass
+
+
+ProjectUpdatesView.init_app(app)
+FunnelProjectUpdatesView.init_app(funnelapp)
 
 
 @Post.features('publish')
@@ -92,45 +78,31 @@ def post_publishable(obj):
     return obj.state.DRAFT and 'editor' in obj.roles_for(current_auth.user)
 
 
-@Post.views('main')
-@route('/<profile>/<project>/updates/<url_name_uuid_b58>')
-class ProjectPostDetailsView(UrlForView, ModelView):
+@Post.views('project')
+@route('/<profile>/<project>/updates/<post>')
+class ProjectPostView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
     model = Post
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'url_name_uuid_b58': 'url_name_uuid_b58',
+        'post': 'url_name_uuid_b58',
     }
 
-    def loader(self, profile, project, url_name_uuid_b58):
-        project = (
-            Project.query.join(Profile)
-            .filter(Profile.name == profile, Project.name == project)
-            .one_or_404()
-        )
-
+    def loader(self, profile, project, post):
         post = (
             self.model.query.join(Project)
-            .filter(
-                Project.id == project.id, Post.url_name_uuid_b58 == url_name_uuid_b58,
-            )
+            .join(Profile, Project.profile_id == Profile.id)
+            .filter(Post.url_name_uuid_b58 == post)
             .one_or_404()
         )
-
-        if post.visibility_state.RESTRICTED and not (
-            project.current_roles.participant or project.current_roles.crew
-        ):
-            abort(403)
 
         g.profile = post.project.profile
         return post
 
     @route('', methods=['GET'])
     @render_with('project_update_details.html.jinja2')
-    @requires_roles({'reader'})
-    def view(self):
-
+    def project_view(self):
         return {
             'post': self.obj.current_access(),
             'publish_form': forms.Form(),
@@ -139,9 +111,9 @@ class ProjectPostDetailsView(UrlForView, ModelView):
 
     @route('publish', methods=['POST'])
     @requires_roles({'editor'})
-    def publish_draft(self):
+    def project_publish(self):
         if not self.obj.state.DRAFT:
-            return redirect(self.obj.url_for())
+            return redirect(self.obj.url_for('project_view'))
         form = forms.Form()
         if form.validate_on_submit():
             self.obj.publish(actor=current_auth.user)
@@ -155,51 +127,56 @@ class ProjectPostDetailsView(UrlForView, ModelView):
                 ),
                 'error',
             )
-        return redirect(self.obj.project.url_for('posts'))
+        return redirect(self.obj.project.url_for('updates'))
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
     @requires_roles({'editor'})
-    def edit(self):
+    def project_edit(self):
         post_form = ProjectPostForm(obj=self.obj)
 
         if post_form.validate_on_submit():
             post_form.populate_obj(self.obj)
             db.session.commit()
             flash(_("The update has been edited"), 'success')
-            if self.obj.state.DRAFT:
-                return redirect(self.obj.url_for())
-            else:
-                return redirect(self.obj.project.url_for('posts'))
+            return redirect(self.obj.url_for('project_view'), code=303)
 
         return render_form(
             form=post_form,
             title=_("Edit update"),
             submit=_("Save"),
-            cancel_url=self.obj.url_for(),
+            cancel_url=self.obj.url_for('project_view'),
         )
 
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
     @requires_roles({'editor'})
-    def delete(self):
+    def project_delete(self):
         delete_form = forms.Form()
 
         if delete_form.validate_on_submit():
             self.obj.delete(actor=current_auth.user)
             db.session.commit()
             flash(_("The update has been deleted"), 'success')
-            return redirect(self.obj.project.url_for('posts'))
+            return redirect(self.obj.project.url_for('updates'))
 
         return render_form(
             form=delete_form,
-            title=_("Delete update"),
-            message=_("Do you really wish to delete this post ‘{title}’? ").format(
-                title=self.obj.title
-            ),
+            title=_("Delete update?"),
+            message=_("Deletion is permanent and cannot be undone")
+            if self.obj.state.UNPUBLISHED
+            else _(
+                "This update’s number (#{number}) will be skipped for the next update"
+            ).format(number=self.obj.number),
             submit=_("Delete"),
-            cancel_url=self.obj.url_for(),
+            cancel_url=self.obj.url_for('project_view'),
         )
 
 
-ProjectPostDetailsView.init_app(app)
+@route('/<project>/updates/<post>', subdomain='<profile>')
+class FunnelProjectPostView(ProjectPostView):
+    pass
+
+
+ProjectPostView.init_app(app)
+FunnelProjectPostView.init_app(funnelapp)

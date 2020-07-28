@@ -196,12 +196,12 @@ def feature_project_has_no_sessions(obj):
 
 @Project.features('comment_new')
 def feature_project_comment_new(obj):
-    return obj.current_roles.participant is True
+    return obj.current_roles.participant
 
 
-@Project.features('post_new')
-def feature_project_post_new(obj):
-    return obj.current_roles.editor is True
+@Project.features('post_update')
+def feature_project_post_update(obj):
+    return obj.current_roles.editor
 
 
 @Project.views('registration_text')

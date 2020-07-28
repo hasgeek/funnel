@@ -25,7 +25,7 @@
         {{ posts_template() }}
         {% if post.features.publish() %}
           <div class="publish-form">
-            {{ renderform(form=publish_form, submit="Publish post", action=post.url_for('publish_draft')) }}
+            {{ renderform(form=publish_form, submit="Publish update", action=post.url_for('project_publish')) }}
           </div>
         {% endif %}
         </div>
@@ -53,7 +53,7 @@
         posts: [{{ post|tojson }}],
         divElem: "#posts-wrapper",
         postTemplate: '#post-template',
-        isEditor: {% if current_auth.user and project.features.post_new() -%}true{% else %}false{% endif %},
+        isEditor: {% if project.features.post_update() -%}true{% else %}false{% endif %},
         headerHeight: headerHeight,
       };
 

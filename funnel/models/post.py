@@ -216,9 +216,17 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     state.add_conditional_state(
         'UNPUBLISHED',
         state.DRAFT,
+        lambda post: post.published_at is None,
+        lambda post: post.published_at.is_(None),
+        label=('unpublished', __("Unpublished")),
+    )
+
+    state.add_conditional_state(
+        'WITHDRAWN',
+        state.DRAFT,
         lambda post: post.published_at is not None,
         lambda post: post.published_at.isnot(None),
-        label=('unpublished', __("Unpublished")),
+        label=('withdrawn', __("Withdrawn")),
     )
 
     @with_roles(call={'editor'})
@@ -250,7 +258,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         None, state.DELETED,
     )
     def delete(self, actor):
-        if self.state.DRAFT and self.published_at is not None:
+        if self.state.UNPUBLISHED:
             # If it was never published, hard delete it
             db.session.delete(self)
         else:
@@ -298,29 +306,29 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         return roles
 
 
-Project.published_posts = db.relationship(
-    Post,
-    lazy='dynamic',
-    primaryjoin=db.and_(Post.project_id == Project.id, Post.state.PUBLISHED),
-    viewonly=True,
-    order_by=(Post.is_pinned.desc(), Post.published_at.desc()),
-)
-
-
-Project.draft_posts = db.relationship(
-    Post,
-    lazy='dynamic',
-    primaryjoin=db.and_(Post.project_id == Project.id, Post.state.DRAFT),
-    viewonly=True,
-    order_by=Post.published_at.desc(),
-)
-
-Project.pinned_posts = db.relationship(
-    Post,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        Post.project_id == Project.id, Post.state.PUBLISHED, Post.is_pinned.is_(True)
+Project.published_posts = with_roles(
+    property(
+        lambda self: self.posts.filter(Post.state.PUBLISHED).order_by(
+            Post.is_pinned.desc(), Post.published_at.desc()
+        )
     ),
-    viewonly=True,
-    order_by=Post.published_at.desc(),
+    read={'all'},
+)
+
+
+Project.draft_posts = with_roles(
+    property(
+        lambda self: self.posts.filter(Post.state.DRAFT).order_by(Post.created_at)
+    ),
+    read={'editor'},
+)
+
+
+Project.pinned_post = with_roles(
+    property(
+        lambda self: self.posts.filter(Post.state.PUBLISHED, Post.is_pinned.is_(True))
+        .order_by(Post.published_at.desc())
+        .first()
+    ),
+    read={'all'},
 )
