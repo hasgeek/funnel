@@ -83,20 +83,16 @@
         </div>
         {% if project.features.tickets() -%}
           <div id="tickets">
-            <h2 class="mui--text-headline mui--text-left project-section__headline">Tickets</h2>
             <div id="boxoffice-widget"><p class="mui--text-body2">Loading...</p></div>
           </div>
         {%- endif %}
       </div>
     {%- endif %}
     <div class="about__details" id="about">
-      <h2 class="mui--text-headline mui--text-left project-section__headline">
-        {% trans %}About{% endtrans %}
-        {% if project.view_for('edit').is_available() %}
-          <a class="mui--text-body2" href="{{ project.url_for('edit') }}" aria-label="edit project details">{% trans %}Edit details{% endtrans %} {{ faicon(icon='edit') }}</a>
-        {% endif %}
-      </h2>
       <div class="about__details__description">{{ project.description }}</div>
+      {% if project.view_for('edit').is_available() %}
+        <p><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.url_for('edit') }}" aria-label="edit project details">{{ faicon(icon='edit') }} {% trans %}Edit details{% endtrans %}</a></p>
+      {% endif %}
       {%- if project.subprojects %}
         <hr class="mui-divider">
         <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Related events{% endtrans %}</h2>
@@ -216,7 +212,7 @@
   {% elif project.view_for('venues').is_available() %}
     <div class="grid project-section">
       <div class="grid__col-xs-12">
-        <p><a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui-btn--accent">{% trans %}Add venue{% endtrans %}</a></p>
+        <p><a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui-btn--dark">{% trans %}Add venue{% endtrans %}</a></p>
       </div>
     </div>
   {%- endif %}

@@ -40,6 +40,9 @@
           </a>
           {%- endif %}
           {{ posts_template() }}
+          {% if not project.published_posts -%}
+            <p class="mui-panel mui--bg-accent">{% trans %}This project has not posted any updates yet.{% endtrans %}</p>
+          {%- endif %}
         </div>
       </div>
     </div>
