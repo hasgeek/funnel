@@ -342,7 +342,7 @@
     <li>
       <a href="{{ pinned_post.urls['project_view'] }}" class="pinned__post">
         <p class="pinned__post__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">Pinned update</span></p>
-        <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_post.title }}</span> <span class="mui--text-subhead mui--text-light pinned__post__body__text js-truncate" data-truncate-lines="1">{{ pinned_post.body.text }}</span></p>
+        <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_post.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__post__body__text">{%- if pinned_post.body %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_post.body.text }}</span>{% else %}<em>This update is for participants only</em>{%- endif %}</span></p>
       </a>
     </li>
   </ul>
@@ -815,7 +815,12 @@
       <li class="post user mui--bg-accent" :id="'#update-' + post.uuid_b58">
         <div class="mui--clearfix">
           <div class="mui--pull-left">
-            <p class="mui--text-light mui--text-body2 post__date" v-if="post.number"><a class="mui--text-uppercase mui--text-light" :href="post.urls.project_view">Update #{{ post.number }}</a><span class="interpunct" aria-hidden="true">&#8226; <a class="mui--text-light" v-if="age" :href="post.urls.project_view">{{ age }}</a></span><span v-if="post.visibility_label == 'Restricted'"> &#8226; <svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></span><span v-if="post.is_pinned">&#8226; <svg class="fa5-icon fa5-icon--body2 mui--align-middle" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg></span></p>
+            <p class="mui--text-light mui--text-body2 post__date" v-if="post.number">
+              <a class="mui--text-uppercase mui--text-light" :href="post.urls.project_view">Update #{{ post.number }}</a>
+              <span v-if="age"><span class="interpunct" aria-hidden="true">&#8226;</span><a class="mui--text-light" :href="post.urls.project_view">{{ age }}</a></span>
+              <span v-if="post.visibility_label == 'Restricted'"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></span>
+              <span v-if="post.is_pinned"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 mui--align-middle" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg></span>
+            </p>
           </div>
           <div class="mui--pull-right">
             <a class="mui--text-menu mui--text-hyperlink right-padding" :href="post.urls.project_view" aria-label="Share this post" v-if="post.visibility_label == 'Public' || iseditor"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#share-square'"></use></svg></a>
@@ -844,7 +849,7 @@
             <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="hide"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-up'"></use></svg> Hide</a>
           </p>
         </div>
-        <div v-if="!post.body && post.visibility_label == 'Restricted'">
+        <div v-else>
           <p class="mui--text-body2 mui--text-light mui--text-center top-padding zero-bottom-margin"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg> <em>This update is for participants only</em></p>
         </div>
         <hr class="mui--visible-xs-block mui--visible-sm-block">
