@@ -20,11 +20,22 @@
         </div>
         <div class="card__body">
           <ol class="mui-list--aligned mui--text-subhead">
-            {% for user in team.users %}
+            {%- for user in team.users %}
               <li>{{ user.pickername }}</li>
-            {% endfor %}
+            {%- endfor %}
           </ol>
         </div>
+        {%- if team.client_permissions %}
+          <div class="mui-divider"></div>
+          <div class="card__body">
+            <h4><strong>Linked apps</strong></h4>
+            <ul class="mui-list--aligned mui--text-subhead">
+              {%- for perm_assign in team.client_permissions %}
+                <li><a href="{{ perm_assign.auth_client.urls['view'] }}">{{ perm_assign.auth_client.title }}</a></li>
+              {%- endfor %}
+            </ul>
+          </div>
+        {%- endif %}
         <div class="mui-divider"></div>
         <div class="card__footer">
           <a href="{{ team.url_for('edit') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Edit{% endtrans %}</a>

@@ -612,6 +612,8 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         ),
     )
 
+    __roles__ = {'all': {'call': {'views', 'features', 'forms'}}}
+
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 
     def __init__(self, owner, *args, **kwargs):
@@ -660,6 +662,16 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             return '{title} (@{name})'.format(title=self.title, name=self.name)
         else:
             return self.title
+
+    def people(self):
+        """Return a list of users from across the public teams they are in."""
+        return (
+            User.query.join(team_membership)
+            .join(Team)
+            .filter(Team.organization == self, Team.is_public.is_(True))
+            .options(db.joinedload(User.teams))
+            .order_by(User.fullname)
+        )
 
     def permissions(self, user, inherited=None):
         perms = super().permissions(user, inherited)
@@ -740,6 +752,8 @@ class Team(UuidMixin, BaseMixin, db.Model):
         ),
         grants={'subject'},
     )
+
+    is_public = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
         return '<Team {team} of {organization}>'.format(

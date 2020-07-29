@@ -21,6 +21,23 @@ from .login_session import requires_login
 # --- Routes: Organizations ---------------------------------------------------
 
 
+@Organization.views('people_and_teams')
+def people_and_teams(obj):
+    # This depends on user.teams not using lazy='dynamic'. When that changes, we will
+    # need a different approach to match users to teams. Comparison is by id rather
+    # than by object because teams are loaded separately in the two queries, and
+    # SQLAlchemy's session management doesn't merge the instances.
+    teams = [team for team in obj.teams if team.is_public]
+    result = [
+        (
+            user,
+            [team for team in teams if team.id in (uteam.id for uteam in user.teams)],
+        )
+        for user in obj.people()
+    ]
+    return result
+
+
 @Organization.views('main')
 @route('/<organization>')
 class OrgView(UrlChangeCheck, UrlForView, ModelView):
@@ -90,7 +107,6 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @route('teams')
     @requires_roles({'admin'})
     def teams(self):
-        # TODO: Teams should show which apps they grant permissions on
         return render_template('organization_teams.html.jinja2', org=self.obj)
 
     @route('teams/new', methods=['GET', 'POST'])
