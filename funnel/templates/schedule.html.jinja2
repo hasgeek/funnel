@@ -93,7 +93,7 @@
     <div class="page-content page-content--mob-nav">
       <div class="grid" id="schedule">
         {% if project.view_for('edit_schedule').is_available() %}
-          <div class="grid__col-xs-12"><div><p class="mui--pull-right zero-bottom-margin"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.urls['edit_schedule'] }}">{% trans %}Edit schedule{% endtrans %}</a></p></div></div>
+          <div class="grid__col-xs-12"><div><p class="mui--pull-right zero-bottom-margin"><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.urls['edit_schedule'] }}">{% trans %}Edit schedule{% endtrans %}</a></p></div></div>
         {% endif %}
         <div class="grid__col-xs-12 schedule-grid">
           <div class="schedule-table-container" id="project-schedule-table">

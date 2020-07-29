@@ -244,6 +244,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'tagline',
                 'datelocation',
                 'timezone',
+                'description',
+                'instructions',
                 'schedule_start_at',
                 'schedule_end_at',
                 'website',
@@ -262,6 +264,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'hasjob_embed_url',
                 'hasjob_embed_limit',
                 'profile',
+                'featured',
+                'featured_sessions',
             },
             'call': {
                 'features',
@@ -273,6 +277,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'cfp_state',
                 'view_for',
                 'views',
+                'boxoffice_data',
+                'featured_sessions',
             },
         },
         'participant': {'granted_via': {'rsvps': 'user'}},
@@ -306,6 +312,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'schedule_end_at_localized',
             'cfp_start_at_localized',
             'cfp_end_at_localized',
+            'featured',
             'profile',
         },
         'without_parent': {
@@ -330,6 +337,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'schedule_end_at_localized',
             'cfp_start_at_localized',
             'cfp_end_at_localized',
+            'featured',
         },
         'related': {
             'name',
