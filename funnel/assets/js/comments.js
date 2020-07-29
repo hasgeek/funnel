@@ -1,19 +1,19 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
+import * as timeago from 'timeago.js';
 import { Utils } from './util';
 
 const Comments = {
   init({
     newCommentUrl,
-    comments = '',
     divElem,
     commentTemplate,
     isuserloggedin,
     isuserparticipant,
+    user,
     loginUrl,
     headerHeight,
   }) {
-    Vue.config.devtools = true;
     Vue.use(VS2);
 
     const commentUI = Vue.component('comment', {
@@ -25,6 +25,7 @@ const Comments = {
           errorMsg: '',
           svgIconUrl: window.HasGeek.config.svgIconUrl,
           hide: false,
+          now: new Date(),
         };
       },
       methods: {
@@ -68,6 +69,21 @@ const Comments = {
             },
           };
         },
+        created_at_age() {
+          return this.now && this.comment.created_at
+            ? timeago.format(this.comment.created_at)
+            : '';
+        },
+        edited_at_age() {
+          return this.now && this.comment.edited_at
+            ? timeago.format(this.comment.edited_at)
+            : '';
+        },
+      },
+      mounted() {
+        window.setInterval(() => {
+          this.now = new Date();
+        }, 20000);
       },
     });
 
@@ -79,13 +95,14 @@ const Comments = {
       data() {
         return {
           newCommentUrl,
-          comments: comments.length > 0 ? comments : '',
+          comments: [],
           isuserloggedin,
           isuserparticipant,
+          user,
           commentForm: '',
           errorMsg: '',
           loginUrl,
-          refreshInterval: 30000,
+          refreshInterval: window.HasGeek.config.refreshInterval,
           refreshTimer: '',
           headerHeight,
           svgIconUrl: window.HasGeek.config.svgIconUrl,
@@ -102,7 +119,6 @@ const Comments = {
               dataType: 'json',
               success(data) {
                 app.pauseRefreshComments();
-                console.log('data', data);
                 const vueFormHtml = data.form;
                 if (comment) {
                   comment.commentForm = vueFormHtml.replace(
@@ -146,13 +162,13 @@ const Comments = {
           this.comments = commentsList.length > 0 ? commentsList : '';
         },
         fetchCommentsList() {
-          console.log('fetchCommentsList');
+          console.log('fetching');
           $.ajax({
             type: 'GET',
             timeout: window.HasGeek.config.ajaxTimeout,
             dataType: 'json',
             success(data) {
-              console.log('fetchCommentsList data', data);
+              console.log('data', data);
               app.updateCommentsList(data.comments);
             },
           });
@@ -164,16 +180,15 @@ const Comments = {
           this.refreshCommentsTimer();
         },
         pauseRefreshComments() {
-          console.log('clear timer');
           clearTimeout(this.refreshTimer);
         },
         refreshCommentsTimer() {
-          console.log('started timer');
           this.refreshTimer = window.setInterval(
             this.fetchCommentsList,
             this.refreshInterval
           );
         },
+        getInitials: window.Baseframe.Utils.getInitials,
       },
       computed: {
         Form() {
@@ -190,6 +205,7 @@ const Comments = {
         },
       },
       mounted() {
+        this.fetchCommentsList();
         this.refreshCommentsTimer();
         if (window.location.hash) {
           Utils.animateScrollTo(

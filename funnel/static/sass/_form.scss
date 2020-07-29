@@ -349,3 +349,57 @@
   display: inline-block;
   width: 70%;
 }
+
+.ajax-form {
+  position: relative;
+  clear: both;
+
+  .mui-form--margins {
+    margin: 0;
+  }
+  .CodeMirror {
+    border: 1px solid #c0ccda;
+    min-height: 60px;
+  }
+  .CodeMirror ~ .CodeMirror {
+    display: none;
+  }
+  .CodeMirror-focused {
+    border: 1px solid #4a90e2;
+  }
+  .mui-form__fields {
+    margin-bottom: 0;
+  }
+  .mui-form.form-actions {
+    display: inline-block;
+    float: left;
+    margin-right: 10px;
+  }
+  .ajax-form__cancelbtn {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0;
+    position: relative;
+    top: 7px;
+  }
+}
+
+.post-form-block {
+  border-radius: 16px;
+  background-color: #f9fafc;
+  padding: 24px;
+  margin-bottom: $mui-grid-padding-double;
+  margin: 16px 0 32px;
+  display: block;
+
+  .user__box__gravatar--initials {
+    background-color: #e05f25 !important;
+  }
+  input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 2px;
+    border: solid 1px rgba(77, 87, 99, 0.13);
+    background-color: #ffffff;
+  }
+}

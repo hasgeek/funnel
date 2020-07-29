@@ -30,14 +30,14 @@
       <div class="grid" id="updates">
         <div class="grid__col-xs-12">
           {% if project.features.post_update() -%}
-            <a class="post-form" href="{{ project.url_for('new_update') }}" aria-label="Add new update" data-cy-btn="add-post">
-            <div class="user">
-              <div class="user__box">
-                <div class="user__box__gravatar user__box__gravatar--initials">{{ current_auth.user.fullname|initials }}</div>
-                <input type="text" placeholder="Post an update…" />
+            <a class=".post-form-block" href="{{ project.url_for('new_update') }}" aria-label="Add new update" data-cy-btn="add-post">
+              <div class="user">
+                <div class="user__box">
+                  <div class="user__box__gravatar user__box__gravatar--initials">{{ current_auth.user.fullname|initials }}</div>
+                  <input type="text" placeholder="Post an update…" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
           {%- endif %}
           {{ posts_template() }}
           {% if not project.published_posts -%}

@@ -72,13 +72,16 @@
         headerHeight = $('header').height() + $('nav').height();
       }
 
+      {{ user }}
+
       var commentsConfig = {
         newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
-        comments: {{ comments|tojson }},
+        comments: [],
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
         isuserparticipant: {% if current_auth.user and project.features.comment_new() -%}true{% else %}false{% endif %},
+        user: {% if current_auth.user -%}{{ current_auth.user.fullname|tojson }}{% else %}''{% endif %},
         loginUrl: "{{ url_for('login') }}",
         headerHeight: headerHeight,
       };
