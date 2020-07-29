@@ -759,7 +759,7 @@
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
       {% if profile.features.new_project()  %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}All projects{% endtrans %}</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
       {% endif %}
       {%- if profile.current_roles.admin and profile.organization %}<a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>{% endif %}
     </nav>

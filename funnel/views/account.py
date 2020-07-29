@@ -34,8 +34,8 @@ from ..forms import (
     NewEmailAddressForm,
     NewPhoneForm,
     PasswordChangeForm,
+    PasswordCreateForm,
     PasswordPolicyForm,
-    PasswordResetForm,
     PhonePrimaryForm,
     VerifyEmailForm,
     VerifyPhoneForm,
@@ -558,7 +558,7 @@ def confirm_email(email_hash, secret):
                 message=_(
                     "You’ve opened an email verification link that was meant for"
                     " another user. If you are managing multiple accounts, please login"
-                    " with the correct account and open the link again"
+                    " with the correct account and open the link again."
                 ),
                 code=403,
             )
@@ -566,7 +566,7 @@ def confirm_email(email_hash, secret):
         return render_message(
             title=_("Expired confirmation link"),
             message=_(
-                "The confirmation link you clicked on is either invalid or has expired"
+                "The confirmation link you clicked on is either invalid or has expired."
             ),
             code=404,
         )
@@ -576,12 +576,9 @@ def confirm_email(email_hash, secret):
 @requires_login
 def change_password():
     if not current_auth.user.pw_hash:
-        form = PasswordResetForm()
-        form.edit_user = current_auth.user
-        del form.username
+        form = PasswordCreateForm(edit_user=current_auth.user)
     else:
-        form = PasswordChangeForm()
-        form.edit_user = current_auth.user
+        form = PasswordChangeForm(edit_user=current_auth.user)
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
         user = current_auth.user
@@ -757,7 +754,7 @@ def verify_email(email_hash):
         form=verify_form,
         title=_("Resend the verification email?"),
         message=_(
-            "We will resend the verification email to '{email}'".format(
+            "We will resend the verification email to {email}.".format(
                 email=emailclaim.email
             )
         ),

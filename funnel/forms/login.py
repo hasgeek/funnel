@@ -4,7 +4,7 @@ from baseframe import _, __
 import baseframe.forms as forms
 
 from ..models import User, UserEmail, UserSession, getuser
-from .account import password_policy, password_strength_validator
+from .account import PasswordStrengthValidator, password_policy
 
 __all__ = [
     'LoginPasswordResetException',
@@ -73,7 +73,7 @@ class LoginForm(forms.Form):
 
 @User.forms('register')
 class RegisterForm(forms.RecaptchaForm):
-    __returns__ = ('password_strength',)  # Set by password_strength_validator
+    __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
 
     fullname = forms.StringField(
         __("Full name"),
@@ -92,7 +92,7 @@ class RegisterForm(forms.RecaptchaForm):
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(min=8, max=40),
-            password_strength_validator,
+            PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
         ],
     )
     confirm_password = forms.PasswordField(
