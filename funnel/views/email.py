@@ -4,10 +4,9 @@ from email.utils import formataddr, getaddresses
 from flask import current_app, render_template, request, url_for
 from flask_mailman import EmailMultiAlternatives
 
+from flask_babelhg import force_locale, get_locale
 from html2text import html2text
 from premailer import transform
-
-from flask_babelhg import get_locale, force_locale
 
 from baseframe import _
 
@@ -16,6 +15,7 @@ from ..models import EmailAddress, Project, User
 from .schedule import schedule_ical
 
 EmailAttachment = namedtuple('EmailAttachment', ['content', 'filename', 'mimetype'])
+
 
 def jsonld_view_action(description, url, title):
     return {
