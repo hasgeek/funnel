@@ -37,14 +37,14 @@ timezones = sorted_timezones()
 
 
 class PasswordStrengthValidator:
+    default_message = _(
+        "This password is too simple. Add complexity by making it longer and using "
+        "a mix of upper and lower case letters, numbers and symbols"
+    )
+
     def __init__(self, user_input_fields=(), message=None) -> None:
         self.user_input_fields = user_input_fields
-        if not message:
-            message = _(
-                "This password is too simple. Add complexity by making it longer and using "
-                "a mix of upper and lower case letters, numbers and symbols"
-            )
-        self.message = message
+        self.message = message or self.default_message
 
     def __call__(self, form, field):
         user_inputs = []
