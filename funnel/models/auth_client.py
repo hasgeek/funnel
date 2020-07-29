@@ -160,7 +160,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
         )
 
     def permissions(self, user, inherited=None):
-        perms = super(AuthClient, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         perms.add('view')
         if user and self.owner_is(user):
             perms.add('edit')
@@ -291,7 +291,7 @@ class AuthClientCredential(BaseMixin, db.Model):
         return cred, secret
 
     def permissions(self, user, inherited=None):
-        perms = super(AuthClientCredential, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         if user and self.auth_client.owner_is(user):
             perms.add('view')
             perms.add('delete')
@@ -392,7 +392,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     user = db.synonym('_user', descriptor=user)
 
     def __init__(self, **kwargs):
-        super(AuthToken, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.token = buid()
         if self._user:
             self.refresh_token = buid()
@@ -579,7 +579,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
         return cls.query.filter_by(auth_client=auth_client)
 
     def permissions(self, user, inherited=None):
-        perms = super(AuthClientUserPermissions, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         perms.update(self.auth_client.permissions(user, inherited))
         return perms
 
@@ -637,6 +637,6 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
         return cls.query.filter_by(auth_client=auth_client)
 
     def permissions(self, user, inherited=None):
-        perms = super(AuthClientUserPermissions, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         perms.update(self.auth_client.permissions(user, inherited))
         return perms
