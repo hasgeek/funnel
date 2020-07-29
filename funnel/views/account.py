@@ -4,6 +4,7 @@ from flask import Markup, abort, current_app, escape, flash, redirect, request, 
 
 import base58
 import geoip2.errors
+import user_agents
 
 from baseframe import _
 from baseframe.forms import (
@@ -57,7 +58,8 @@ from ..registry import login_registry
 from ..signals import user_data_changed
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, login_internal, logout_internal, requires_login
+from .helpers import app_url_for
+from .login_session import login_internal, logout_internal, requires_login
 from .sms import send_phone_verify_code
 
 
@@ -91,15 +93,35 @@ def phones_sorted(obj):
     return items
 
 
+@UserSession.views('user_agent_details')
+def user_agent_details(obj):
+    ua = user_agents.parse(obj.user_agent)
+    return {
+        'browser': (ua.browser.family + ' ' + ua.browser.version_string)
+        if ua.browser.family
+        else _("Unknown browser"),
+        'os_device': (
+            (_("PC") + ' ')
+            if ua.is_pc
+            else str(ua.device.brand or '') + ' ' + str(ua.device.model or '') + ' '
+        )
+        + ' ('
+        + str(ua.os.family)
+        + ' '
+        + str(ua.os.version_string)
+        + ')',
+    }
+
+
 @UserSession.views('location')
 def user_session_location(obj):
     if not app.geoip_city or not app.geoip_asn:
-        return _("unknown location")
+        return _("Unknown location")
     try:
         city_lookup = app.geoip_city.city(obj.ipaddr)
         asn_lookup = app.geoip_asn.asn(obj.ipaddr)
     except geoip2.errors.GeoIP2Error:
-        return _("unknown location")
+        return _("Unknown location")
 
     # ASN is not ISP, but GeoLite2 only has an ASN database. The ISP db is commercial.
     return (
@@ -110,9 +132,7 @@ def user_session_location(obj):
             else ''
         )
         + ((city_lookup.country.name + "; ") if city_lookup.country.name else '')
-        + (asn_lookup.autonomous_system_organization or _("unknown ISP"))
-        + " – "
-        + _("estimated")
+        + (asn_lookup.autonomous_system_organization or _("Unknown ISP"))
     )
 
 

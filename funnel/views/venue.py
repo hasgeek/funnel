@@ -8,7 +8,7 @@ from .. import app, funnelapp
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
 from ..models import Project, Venue, VenueRoom, db
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .login_session import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
 
 RESERVED_VENUE = ['new']

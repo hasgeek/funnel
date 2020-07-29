@@ -16,6 +16,7 @@ from . import (
     index,
     label,
     login,
+    login_session,
     membership,
     mixins,
     organization,
@@ -27,5 +28,6 @@ from . import (
     search,
     session,
     sms,
+    update,
     venue,
 )

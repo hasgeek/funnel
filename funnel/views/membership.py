@@ -28,7 +28,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .login_session import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 

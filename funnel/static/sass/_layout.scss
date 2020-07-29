@@ -19,6 +19,14 @@
   padding-right: $mui-grid-padding;
 }
 
+.top-padding {
+  padding-top: $mui-grid-padding;
+}
+
+.bottom-padding {
+  padding-bottom: $mui-grid-padding;
+}
+
 .grid-no-left-padding {
   margin-left: -$mui-grid-padding;
 }
@@ -201,6 +209,10 @@ html.touch .collapsible__body--disable {
   border-bottom: none;
 }
 
+.mui-list--border--padding li {
+  padding: 15px 0;
+}
+
 @media screen and (max-width: 1024px) {
   .fb_iframe_widget {
     overflow-y: scroll;
@@ -317,7 +329,8 @@ html.touch .collapsible__body--disable {
   }
 }
 
-.read-more {
+.read-more,
+.link {
   cursor: pointer;
 }
 
@@ -708,4 +721,9 @@ a.loginbutton.hidden,
 
 .interpunct {
   padding: 0 8px;
+}
+
+// To hide vue template before Vue app is mounted
+[v-cloak] {
+  display: none;
 }
