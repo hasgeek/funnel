@@ -14,7 +14,7 @@
 
       .schedule__row__column {
         .schedule__row__column__content {
-          background-color: #fff;
+          background-color: $mui-bg-color-primary;
           width: 100%;
           padding: 5px $mui-grid-padding;
           border-bottom: 1px solid rgba(132, 146, 166, 0.3);
@@ -29,7 +29,7 @@
             }
 
             .schedule__row__column__content__title__heading:hover {
-              color: #4a90e2;
+              color: $mui-primary-color;
             }
           }
 
@@ -105,7 +105,7 @@
         margin: 0;
         align-items: center;
         justify-content: center;
-        background-color: #fff;
+        background-color: $mui-bg-color-primary;
         background-image: none !important;
         border-bottom: 2px solid rgba(132, 146, 166, 0.3);
         min-height: 50px;
@@ -211,7 +211,7 @@
           background-image: none;
           border-bottom: 0;
           margin: 0;
-          background-color: #fff;
+          background-color: $mui-bg-color-primary;
           display: block;
           padding: 2px 0 0;
           text-align: center;
@@ -357,7 +357,7 @@
 .fc-event:hover .fc-event-custom {
   display: block;
   padding: 1px 5px;
-  background: #fff;
+  background: $mui-bg-color-primary;
   background: rgba(255, 255, 255, 0.6);
   border-top-left-radius: 3px;
 }
@@ -377,10 +377,10 @@
 body > .proposal-box.ui-draggable {
   margin: 10px 0;
   padding: 2px 4px;
-  background: #fff;
-  color: #333;
+  background: $mui-bg-color-primary;
+  color: $mui-text-dark;
   border-radius: 3px;
-  border: 1px solid #333;
+  border: 1px solid $mui-divider-color;
   font-size: 0.85em;
   cursor: pointer;
 }

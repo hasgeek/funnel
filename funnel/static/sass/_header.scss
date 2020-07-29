@@ -37,7 +37,7 @@
               padding: $mui-grid-padding $mui-grid-padding-double
                 $mui-grid-padding 35px;
               min-width: calc(100% - 60px);
-              color: #4d5763;
+              color: $mui-text-light;
               font-size: 16px;
               outline: none;
             }
@@ -373,8 +373,8 @@
   }
 
   .sub-navbar__item--primarybg {
-    background-color: #e05f26;
-    color: #fff;
+    background-color: $mui-accent-color;
+    color: $mui-text-white;
   }
 }
 
@@ -457,7 +457,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #fff;
+  background-color: $mui-bg-color-primary;
   z-index: 1000;
 
   .mobile-nav__icon {
@@ -471,7 +471,7 @@
 }
 
 .tabs-wrapper {
-  background: #fff;
+  background: $mui-bg-color-primary;
   box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
   width: 100%;
 }
@@ -530,7 +530,7 @@
   .tabs__item-control {
     position: fixed;
     z-index: 1000;
-    background: #fff;
+    background: $mui-bg-color-primary;
     min-width: auto;
     top: 0;
     padding: $mui-grid-padding $mui-grid-padding 6px;

@@ -258,7 +258,7 @@
       margin-top: -7px;
 
       .card__calendar {
-        margin: 0 0 47px;
+        margin: 0 0 85px;
         padding: 0 0 8px;
       }
       .propose {
@@ -344,7 +344,7 @@
   .about__participate--modal {
     position: fixed;
     top: 0;
-    background: #fff;
+    background: $mui-bg-color-primary;
     left: 0;
     right: 0;
     padding: $mui-grid-padding;

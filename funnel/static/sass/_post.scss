@@ -3,7 +3,7 @@
   top: 56px;
   box-shadow: crimson;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.17);
-  background-color: #ffffff;
+  background: $mui-bg-color-primary;
   z-index: 2;
 
   .pinned__post {
@@ -73,18 +73,18 @@
 
 .post-form {
   border-radius: 16px;
-  background-color: #f9fafc;
+  background-color: $mui-bg-color-accent;
   padding: 24px;
   margin-bottom: $mui-grid-padding-double;
   .user__box__gravatar--initials {
-    background-color: #e05f25 !important;
+    background-color: $mui-accent-color !important;
   }
   input {
     width: 100%;
     padding: 10px 16px;
     border-radius: 2px;
     border: solid 1px rgba(77, 87, 99, 0.13);
-    background-color: #ffffff;
+    background: $mui-bg-color-primary;
   }
 }
 

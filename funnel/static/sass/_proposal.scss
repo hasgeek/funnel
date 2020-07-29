@@ -145,13 +145,13 @@
 }
 
 .details__box__control {
-  background: #000;
+  background: $mui-text-dark;
   padding: 10px;
-  color: #fff;
+  color: $mui-text-white;
   text-align: right;
 
   .details__box__control__link {
-    color: #fff;
+    color: $mui-text-white;
     margin-right: $mui-grid-padding;
   }
 
@@ -160,7 +160,7 @@
   }
 
   .mui-dropdown__menu {
-    background-color: #000;
+    background-color: $mui-text-dark;
   }
 }
 
@@ -192,7 +192,7 @@
   }
 
   .gallery__thumbnail__play-icon {
-    color: #fff;
+    color: $mui-text-white;
     text-align: center;
     font-size: 32px;
     position: absolute;
@@ -214,7 +214,7 @@
     align-self: stretch;
     display: flex;
     align-items: center;
-    color: #fff;
+    color: $mui-text-white;
     background: rgba(91, 94, 92, 0.5);
 
     .gallery-control__icon {
@@ -277,7 +277,7 @@
   font-size: 16px;
   line-height: 24px;
   top: -33px;
-  color: #1f2d3d;
+  color: $mui-text-dark;
 }
 
 .proposal__admin-panel .mui-select {
@@ -314,9 +314,9 @@
   padding: 4px 8px;
   font-size: 12px;
   text-transform: uppercase;
-  color: #4d5763;
-  border: 2px solid #f0f2f5;
-  background-color: #f6f8fa;
+  color: $mui-text-light;
+  border: 2px solid rgba(132, 146, 166, 0.3);
+  background-color: $mui-bg-color-accent;
   border-radius: 2px;
   display: inline-block;
   margin: 0 4px 4px 0;
@@ -399,7 +399,7 @@
       overflow: auto;
       margin: 0;
       position: relative;
-      color: #1f2d3d;
+      color: $mui-text-dark;
       padding-left: 20px;
     }
 
@@ -426,8 +426,8 @@
     .mui-form__label:after {
       height: 4px;
       width: 8px;
-      border-left: 1.4px solid #fff;
-      border-bottom: 1.2px solid #fff;
+      border-left: 1.4px solid $mui-text-white;
+      border-bottom: 1.2px solid $mui-text-white;
       transform: rotate(-61deg);
       -webkit-transform: rotate(-61deg);
       left: 2px;
@@ -439,7 +439,7 @@
     }
 
     .mui-form__label.checked:before {
-      background: #3a99fc;
+      background: $mui-primary-color;
       border: none;
     }
     .mui-form__label.checked:after {
