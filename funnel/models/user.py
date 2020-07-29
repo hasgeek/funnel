@@ -670,7 +670,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             .join(Team)
             .filter(Team.organization == self, Team.is_public.is_(True))
             .options(db.joinedload(User.teams))
-            .order_by(User.fullname)
+            .order_by(db.func.lower(User.fullname))
         )
 
     def permissions(self, user, inherited=None):
@@ -742,7 +742,8 @@ class Team(UuidMixin, BaseMixin, db.Model):
     organization_id = db.Column(None, db.ForeignKey('organization.id'), nullable=False)
     organization = with_roles(
         db.relationship(
-            Organization, backref=db.backref('teams', order_by=title, cascade='all'),
+            Organization,
+            backref=db.backref('teams', order_by=db.func.lower(title), cascade='all'),
         ),
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
