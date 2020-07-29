@@ -4,7 +4,7 @@ from time import mktime
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from flask import Response, current_app, json, jsonify, request
+from flask import Response, current_app, json, jsonify
 
 from icalendar import Alarm, Calendar, Event
 
@@ -152,7 +152,10 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
-    event.add('uid', f'session/{session.uuid_b58}@{request.host}')
+    event.add(
+        'uid',
+        f'session/{session.uuid_b58}@{current_app.config["DEFAULT_DOMAIN"]}',  # NOQA
+    )
     event.add('dtstart', session.start_at_localized)
     event.add('dtend', session.end_at_localized)
     event.add('dtstamp', utcnow())
