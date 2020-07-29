@@ -8,7 +8,7 @@ from coaster.views import (
     UrlChangeCheck,
     UrlForView,
     get_next_url,
-    requires_permission,
+    requires_roles,
     route,
 )
 
@@ -21,8 +21,25 @@ from .login_session import requires_login
 # --- Routes: Organizations ---------------------------------------------------
 
 
+@Organization.views('people_and_teams')
+def people_and_teams(obj):
+    # This depends on user.teams not using lazy='dynamic'. When that changes, we will
+    # need a different approach to match users to teams. Comparison is by id rather
+    # than by object because teams are loaded separately in the two queries, and
+    # SQLAlchemy's session management doesn't merge the instances.
+    teams = [team for team in obj.teams if team.is_public]
+    result = [
+        (
+            user,
+            [team for team in teams if team.id in (uteam.id for uteam in user.teams)],
+        )
+        for user in obj.people()
+    ]
+    return result
+
+
 @Organization.views('main')
-@route('/organizations')
+@route('/<organization>')
 class OrgView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Organization
@@ -36,13 +53,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                 abort(404)
             return obj
 
-    @route('', endpoint='organization_list')
-    def index(self):
-        return render_template(
-            'organization_index.html.jinja2',
-            organizations=current_auth.user.organizations_as_owner,
-        )
-
+    # The /new root URL is intentional
     @route('/new', methods=['GET', 'POST'])
     def new(self):
         if not current_auth.user.has_verified_contact_info:
@@ -72,33 +83,8 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             ajax=False,
         )
 
-    # TODO: Deprecated, redirect user to /<profile> instead once teams are removed
-    @route('<organization>')
-    @requires_permission('view')
-    def view(self):
-        return render_template('organization.html.jinja2', org=self.obj)
-
-    # TODO: Deprecated, use `/<profile>/edit` instead
-    @route('<organization>/edit', methods=['GET', 'POST'])
-    @requires_permission('edit')
-    def edit(self):
-        form = OrganizationForm(obj=self.obj)
-        if form.validate_on_submit():
-            form.populate_obj(self.obj)
-            db.session.commit()
-            org_data_changed.send(self.obj, changes=['edit'], user=current_auth.user)
-            return render_redirect(self.obj.url_for('view'), code=303)
-        return render_form(
-            form=form,
-            title=_("Edit organization"),
-            formid='org_edit',
-            submit=_("Save"),
-            ajax=False,
-        )
-
-    # The /root URL is intentional as profiles don't have a delete endpoint
-    @route('/<organization>/delete', methods=['GET', 'POST'])
-    @requires_permission('delete')
+    @route('delete', methods=['GET', 'POST'])
+    @requires_roles({'owner'})
     def delete(self):
         if request.method == 'POST':
             # FIXME: Find a better way to do this
@@ -107,21 +93,24 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             self.obj,
             db,
             title=_("Confirm delete"),
-            message=_("Delete organization ‘{title}’? ").format(title=self.obj.title),
+            message=_(
+                "Delete organization ‘{title}’? This will delete everything including"
+                " projects, proposals and videos. This operation is permanent and"
+                " cannot be undone."
+            ).format(title=self.obj.title),
             success=_(
-                "You have deleted organization ‘{title}’ and all its associated teams"
+                "You have deleted organization ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
             next=url_for('account'),
         )
 
-    @route('<organization>/teams')
-    @requires_permission('view-teams')
+    @route('teams')
+    @requires_roles({'admin'})
     def teams(self):
-        # There's no separate teams page at the moment
-        return redirect(self.obj.url_for('view'))
+        return render_template('organization_teams.html.jinja2', org=self.obj)
 
-    @route('<organization>/teams/new', methods=['GET', 'POST'])
-    @requires_permission('new-team')
+    @route('teams/new', methods=['GET', 'POST'])
+    @requires_roles({'admin'})
     def new_team(self):
         form = TeamForm()
         if form.validate_on_submit():
@@ -130,7 +119,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(team)
             db.session.commit()
             team_data_changed.send(team, changes=['new'], user=current_auth.user)
-            return render_redirect(self.obj.url_for('view'), code=303)
+            return render_redirect(self.obj.url_for('teams'), code=303)
         return render_form(
             form=form, title=_("Create new team"), formid='new_team', submit=_("Create")
         )
@@ -140,7 +129,7 @@ OrgView.init_app(app)
 
 
 @Team.views('main')
-@route('/organizations/<organization>/teams/<team>')
+@route('/<organization>/teams/<team>')
 class TeamView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Team
@@ -156,24 +145,25 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
         return obj
 
     @route('', methods=['GET', 'POST'])
-    @requires_permission('edit')
+    @requires_roles({'admin'})
     def edit(self):
         form = TeamForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             team_data_changed.send(self.obj, changes=['edit'], user=current_auth.user)
-            return render_redirect(self.obj.organization.url_for(), code=303)
+            return render_redirect(self.obj.organization.url_for('teams'), code=303)
         return render_form(
             form=form,
             title=_("Edit team: {title}").format(title=self.obj.title),
             formid='team_edit',
             submit=_("Save"),
+            cancel_url=self.obj.organization.url_for('teams'),
             ajax=False,
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_permission('delete')
+    @requires_roles({'admin'})
     def delete(self):
         if request.method == 'POST':
             team_data_changed.send(self.obj, changes=['delete'], user=current_auth.user)
@@ -185,7 +175,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             success=_(
                 "You have deleted team ‘{team}’ from organization ‘{org}’"
             ).format(team=self.obj.title, org=self.obj.organization.title),
-            next=self.obj.organization.url_for(),
+            next=self.obj.organization.url_for('teams'),
         )
 
 
