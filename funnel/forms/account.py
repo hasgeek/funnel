@@ -17,6 +17,7 @@ from ..models import (
 from ..utils import strip_phone, valid_phone
 
 __all__ = [
+    'PasswordCreateForm',
     'PasswordPolicyForm',
     'PasswordResetRequestForm',
     'PasswordResetForm',
@@ -35,35 +36,52 @@ __all__ = [
 timezones = sorted_timezones()
 
 
-def password_strength_validator(form, field):
-    user_inputs = []
-    if hasattr(form, 'fullname'):
-        user_inputs.append(form.fullname.data)
-    if hasattr(form, 'username'):
-        user_inputs.append(form.username.data)
-    if hasattr(form, 'email'):
-        user_inputs.append(form.email.data)
-    # Test the candidate password
-    tested_password = password_policy.test_password(
-        field.data, user_inputs=user_inputs if user_inputs else None
+class PasswordStrengthValidator:
+    default_message = _(
+        "This password is too simple. Add complexity by making it longer and using "
+        "a mix of upper and lower case letters, numbers and symbols"
     )
-    # Stick password strength into the form for logging in the view and possibly
-    # rendering into UI
-    form.password_strength = float(tested_password['score'])
-    # No test failures? All good then
-    if not tested_password['is_weak']:
-        return
-    # Tell the user to make up a better password
-    raise forms.validators.StopValidation(
-        tested_password['warning']
-        if tested_password['warning']
-        else ' '.join(tested_password['suggestions'])
-        if tested_password['suggestions']
-        else _(
-            "This password is too simple. Add complexity by making it longer and using "
-            "a mix of upper and lower case letters, numbers and symbols"
+
+    def __init__(self, user_input_fields=(), message=None) -> None:
+        self.user_input_fields = user_input_fields
+        self.message = message or self.default_message
+
+    def __call__(self, form, field):
+        user_inputs = []
+        for field_name in self.user_input_fields:
+            user_inputs.append(getattr(form, field_name).data)
+
+        if hasattr(form, 'edit_user') and form.edit_user is not None:
+            if form.edit_user.fullname:
+                user_inputs.append(form.edit_user.fullname)
+
+            for useremail in form.edit_user.emails:
+                user_inputs.append(str(useremail))
+            for emailclaim in form.edit_user.emailclaims:
+                user_inputs.append(str(emailclaim))
+
+            for userphone in form.edit_user.phones:
+                user_inputs.append(str(userphone))
+            for phoneclaim in form.edit_user.phoneclaims:
+                user_inputs.append(str(phoneclaim))
+
+        tested_password = password_policy.test_password(
+            field.data, user_inputs=user_inputs if user_inputs else None
         )
-    )
+        # Stick password strength into the form for logging in the view and possibly
+        # rendering into UI
+        form.password_strength = float(tested_password['score'])
+        # No test failures? All good then
+        if not tested_password['is_weak']:
+            return
+        # Tell the user to make up a better password
+        raise forms.validators.StopValidation(
+            tested_password['warning']
+            if tested_password['warning']
+            else '\n'.join(tested_password['suggestions'])
+            if tested_password['suggestions']
+            else self.message
+        )
 
 
 @User.forms('password_policy')
@@ -89,6 +107,29 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
         self.user = user
 
 
+@User.forms('password_create')
+class PasswordCreateForm(forms.Form):
+    __returns__ = ('password_strength',)
+    __expects__ = ('edit_user',)
+
+    password = forms.PasswordField(
+        __("New password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            PasswordStrengthValidator(),
+        ],
+    )
+    confirm_password = forms.PasswordField(
+        __("Confirm password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            forms.validators.EqualTo('password'),
+        ],
+    )
+
+
 @User.forms('password_reset')
 class PasswordResetForm(forms.RecaptchaForm):
     __returns__ = ('password_strength',)
@@ -99,12 +140,13 @@ class PasswordResetForm(forms.RecaptchaForm):
         description=__("Please reconfirm your username or email address"),
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
+
     password = forms.PasswordField(
         __("New password"),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(min=8, max=40),
-            password_strength_validator,
+            PasswordStrengthValidator(user_input_fields=['username']),
         ],
     )
     confirm_password = forms.PasswordField(
@@ -130,6 +172,7 @@ class PasswordResetForm(forms.RecaptchaForm):
 @User.forms('password_change')
 class PasswordChangeForm(forms.Form):
     __returns__ = ('password_strength',)
+    __expects__ = ('edit_user',)
 
     old_password = forms.PasswordField(
         __("Current password"),
@@ -140,7 +183,7 @@ class PasswordChangeForm(forms.Form):
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(min=8, max=40),
-            password_strength_validator,
+            PasswordStrengthValidator(),
         ],
     )
     confirm_password = forms.PasswordField(
