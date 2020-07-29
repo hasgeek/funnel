@@ -7,10 +7,10 @@ from flask_mailman import EmailMultiAlternatives
 from html2text import html2text
 from premailer import transform
 
-from baseframe import _
+from baseframe import _, get_locale
 
-from .. import mail, signals
-from ..models import EmailAddress, User
+from .. import app, mail, rq, signals
+from ..models import EmailAddress, Project, User
 from .schedule import schedule_ical
 
 
@@ -55,7 +55,7 @@ def send_email(subject, to, content, attachments=None, filename=None, mimetype=N
         for recipient in to
     ]
     body = html2text(content)
-    html = transform(content, base_url=request.url_root)
+    html = transform(content, base_url=app.config['DEFAULT_DOMAIN'])
     msg = EmailMultiAlternatives(
         subject=subject, to=to, body=body, alternatives=[(html, 'text/html')]
     )
@@ -148,24 +148,34 @@ def send_email_for_organization_admin_membership_revoked(
 
 
 @signals.user_registered_for_project.connect
-def send_email_for_project_registration(sender, project, user, locale=None):
-    EmailAttachment = namedtuple('EmailAttachment', ['file', 'filename', 'mimetype'])
-    send_email(
-        subject=_("Registration confirmation for {project}").format(
-            project=project.title
-        ),
-        to=[user],
-        attachments=[
-            EmailAttachment(
-                file=schedule_ical(project),
-                filename='%s.ics' % project.name,
-                mimetype='text/calendar',
-            )
-        ],
-        content=render_template(
-            'email_project_registration.html.jinja2', project=project,
-        ),
+def send_email_for_project_registration(project, user, locale=None):
+    background_project_email.queue(
+        project_id=project.id, user_id=user.id, locale=get_locale()
     )
+
+
+@rq.job('funnel')
+def background_project_email(project_id, user_id, locale=None):
+    EmailAttachment = namedtuple('EmailAttachment', ['file', 'filename', 'mimetype'])
+    project = Project.query.get(project_id)
+    user = User.query.get(user_id)
+    with app.app_context():
+        send_email(
+            subject=_("Registration confirmation for {project}").format(
+                project=project.title
+            ),
+            to=[user],
+            attachments=[
+                EmailAttachment(
+                    file=schedule_ical(project),
+                    filename='%s.ics' % project.name,
+                    mimetype='text/calendar',
+                )
+            ],
+            content=render_template(
+                'email_project_registration.html.jinja2', user=user, project=project,
+            ),
+        )
 
 
 @signals.project_crew_membership_added.connect
