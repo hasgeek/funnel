@@ -1,12 +1,12 @@
 {% extends "email_layout.html.jinja2" %}
 {% block content -%}
 
-<p>{% trans %}Hi{% endtrans %} {{ user.fullname }},</p>
+<p>{% trans user=user.fullname %}Hi {{ user }},{% endtrans %}</p>
 
-<p>{% trans %}Your registration has been recorded successfully for{% endtrans %} <b>{{ project.title }}</b>.</p>
+<p>{% trans project=project.title %}You have successfully registered for <b>{{ project }}</b>.{% endtrans %}</p>
 
-<p>{% trans %}The next session in the schedule will begin at{% endtrans %} {{ project.next_session_at|datetime }}</p>
+<p>{% trans next_session=project.next_session_at|datetime %}The next session in the schedule will begin at {{ nextsession }}{% endtrans %}</p>
 
-<p>{% trans %}More details about the project are available at this link{% endtrans %}: {{ project.url_for(_external=True) }}</p>
+<p>{% trans project_url=project.url_for(_external=True) %}More details about the project are available at this link: {{ project_url }}{% endtrans %}</p>
 
 {%- endblock %}
