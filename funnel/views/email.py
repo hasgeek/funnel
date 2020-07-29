@@ -7,12 +7,15 @@ from flask_mailman import EmailMultiAlternatives
 from html2text import html2text
 from premailer import transform
 
-from baseframe import _, get_locale
+from flask_babelhg import get_locale, force_locale
+
+from baseframe import _
 
 from .. import app, mail, rq, signals
 from ..models import EmailAddress, Project, User
 from .schedule import schedule_ical
 
+EmailAttachment = namedtuple('EmailAttachment', ['content', 'filename', 'mimetype'])
 
 def jsonld_view_action(description, url, title):
     return {
@@ -41,7 +44,7 @@ def jsonld_confirm_action(description, url, title):
     }
 
 
-def send_email(subject, to, content, attachments=None, filename=None, mimetype=None):
+def send_email(subject, to, content, attachments=None):
     """Helper function to send an email"""
     # Parse recipients and convert as needed
     to = [
@@ -55,14 +58,14 @@ def send_email(subject, to, content, attachments=None, filename=None, mimetype=N
         for recipient in to
     ]
     body = html2text(content)
-    html = transform(content, base_url=app.config['DEFAULT_DOMAIN'])
+    html = transform(content, base_url=f'https://{app.config["DEFAULT_DOMAIN"]}/')
     msg = EmailMultiAlternatives(
         subject=subject, to=to, body=body, alternatives=[(html, 'text/html')]
     )
     if attachments:
         for attachment in attachments:
             msg.attach(
-                content=attachment.file,
+                content=attachment.content,
                 filename=attachment.filename,
                 mimetype=attachment.mimetype,
             )
@@ -148,18 +151,17 @@ def send_email_for_organization_admin_membership_revoked(
 
 
 @signals.user_registered_for_project.connect
-def send_email_for_project_registration(project, user, locale=None):
+def send_email_for_project_registration(project, user):
     background_project_email.queue(
         project_id=project.id, user_id=user.id, locale=get_locale()
     )
 
 
 @rq.job('funnel')
-def background_project_email(project_id, user_id, locale=None):
-    EmailAttachment = namedtuple('EmailAttachment', ['file', 'filename', 'mimetype'])
-    project = Project.query.get(project_id)
-    user = User.query.get(user_id)
-    with app.app_context():
+def background_project_email(project_id, user_id, locale):
+    with app.app_context(), force_locale(locale):
+        project = Project.query.get(project_id)
+        user = User.query.get(user_id)
         send_email(
             subject=_("Registration confirmation for {project}").format(
                 project=project.title
@@ -167,7 +169,7 @@ def background_project_email(project_id, user_id, locale=None):
             to=[user],
             attachments=[
                 EmailAttachment(
-                    file=schedule_ical(project),
+                    content=schedule_ical(project),
                     filename='%s.ics' % project.name,
                     mimetype='text/calendar',
                 )
