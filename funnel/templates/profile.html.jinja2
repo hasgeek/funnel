@@ -45,6 +45,38 @@
 {% endblock %}
 
 {% block basecontent %}
+
+  {%- if profile.organization %}
+    {%- with people = profile.organization.views.people_and_teams() %}
+      {%- if people %}
+        <div class="mui-container">
+          <div class="page-content page-content--mob-nav">
+            <div class="mui-container">
+              <div class="grid">
+                <div class="grid__col-xs-12">
+                  <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}People{% endtrans %}</h2>
+                  <div class="membership-wrapper__members">
+                    {%- for user, teams in people %}
+                      <div class="membership-wrapper__members__list user">
+                        <div class="user__box mui--clearfix">
+                          <div class="user__box__gravatar user__box__gravatar--initials">{{ user.fullname|initials }}</div>
+                          <div class="mui--d-inlineblock">
+                            <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
+                            <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>
+                          </div>
+                        </div>
+                      </div>
+                    {%- endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {%- endif %}
+    {%- endwith %}
+  {%- endif %}
+
   {%- if profile.features.new_project() %}
     <div class="projects-wrapper">
       <div class="mui-container">
