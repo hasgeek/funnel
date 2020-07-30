@@ -1,3 +1,7 @@
+#root_footer {
+  height: 0;
+}
+
 .hg-app {
   .header--fixed {
     bottom: 0;
@@ -60,7 +64,7 @@
               background-color: $mui-bg-color-primary-dark;
               border: none;
               padding: $mui-grid-padding $mui-grid-padding-double
-                $mui-grid-padding 35px;
+                $mui-grid-padding 42px;
               min-width: calc(100% - 60px);
               color: $mui-text-light;
               font-size: 16px;
@@ -69,7 +73,7 @@
             .search-form__field__icon {
               position: absolute;
               top: 17px;
-              left: $mui-grid-padding;
+              left: 22px;
             }
             .search-form__submit {
               visibility: hidden;
@@ -84,6 +88,7 @@
             .header__nav-links__text {
               font-size: 12px;
               color: $mui-text-light;
+              font-weight: 600;
             }
             .header__nav-links__icon {
               width: 24px;
@@ -115,6 +120,7 @@
   }
   .content-wrapper {
     padding-top: 0;
+    padding-bottom: 50px;
   }
 }
 
@@ -231,6 +237,7 @@
                 display: inline-block;
                 margin-left: 8px;
                 font-size: 20px;
+                font-weight: 400;
               }
             }
             .header__nav-links__dropdown {
@@ -248,6 +255,7 @@
 
     .content-wrapper {
       padding-top: 50px;
+      padding-bottom: 0;
     }
   }
 }

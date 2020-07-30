@@ -1,7 +1,3 @@
-#root_footer {
-  height: 0;
-}
-
 .zero-bottom-margin {
   margin-bottom: 0 !important;
 }
@@ -714,6 +710,10 @@ a.loginbutton.hidden,
     padding-right: 50px;
   }
 }
+#root_footer {
+  height: 0;
+}
+
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -811,7 +811,7 @@ a.loginbutton.hidden,
   .search-form__field {
   background-color: #eff2f6;
   border: none;
-  padding: 16px 32px 16px 35px;
+  padding: 16px 32px 16px 42px;
   min-width: calc(100% - 60px);
   color: #4d5763;
   font-size: 16px;
@@ -826,7 +826,7 @@ a.loginbutton.hidden,
   .search-form__field__icon {
   position: absolute;
   top: 17px;
-  left: 16px;
+  left: 22px;
 }
 .hg-app
   .header--fixed
@@ -862,6 +862,7 @@ a.loginbutton.hidden,
   .header__nav-links__text {
   font-size: 12px;
   color: #4d5763;
+  font-weight: 600;
 }
 .hg-app
   .header--fixed
@@ -915,6 +916,7 @@ a.loginbutton.hidden,
 }
 .hg-app .content-wrapper {
   padding-top: 0;
+  padding-bottom: 50px;
 }
 
 @media (max-width: 767px) {
@@ -1072,6 +1074,7 @@ a.loginbutton.hidden,
     display: inline-block;
     margin-left: 8px;
     font-size: 20px;
+    font-weight: 400;
   }
   .hg-app
     .header--fixed
@@ -1095,6 +1098,7 @@ a.loginbutton.hidden,
   }
   .hg-app .content-wrapper {
     padding-top: 50px;
+    padding-bottom: 0;
   }
 }
 @media (min-width: 1200px) {
@@ -3249,7 +3253,7 @@ a.loginbutton.hidden,
 }
 
 .pinned--about-page {
-  top: 20px;
+  top: 0;
   display: block;
 }
 
