@@ -5,7 +5,7 @@
 
 <p>{% trans project=project.title %}You have successfully registered for <b>{{ project }}</b>.{% endtrans %}</p>
 
-<p>{% trans next_session=project.next_session_at|datetime %}The next session in the schedule will begin at {{ nextsession }}{% endtrans %}</p>
+<p>{% trans next_session=project.next_session_at|datetime %}The next session in the schedule will begin at {{ next_session }}{% endtrans %}</p>
 
 <p>{% trans project_url=project.url_for(_external=True) %}More details about the project are available at this link: {{ project_url }}{% endtrans %}</p>
 
