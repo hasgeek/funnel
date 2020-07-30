@@ -114,7 +114,7 @@
 }
 
 .page-content--mob-nav {
-  padding-top: 48px;
+  padding-top: 80px;
 }
 
 .nounderline {
@@ -742,7 +742,7 @@ a.loginbutton.hidden,
   width: 100%;
   left: 0;
   top: 0;
-  padding: 3px 16px;
+  padding: 10px 16px;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.33;
@@ -752,6 +752,7 @@ a.loginbutton.hidden,
   position: relative;
   background-color: #e1eefd;
   text-decoration: none;
+  display: none;
 }
 .hg-app
   .header--fixed
@@ -908,7 +909,7 @@ a.loginbutton.hidden,
   margin: 6px 0;
 }
 .hg-app .content-wrapper {
-  padding-top: 32px;
+  padding-top: 0;
 }
 
 @media (max-width: 767px) {
@@ -918,6 +919,18 @@ a.loginbutton.hidden,
 
   .hg-app.no-sticky-header .footer {
     display: none;
+  }
+
+  .homepage.hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
+    .logo-about {
+    display: block;
+  }
+  .homepage.hg-app .content-wrapper {
+    padding-top: 16px;
   }
 }
 @media (min-width: 768px) {
@@ -978,7 +991,7 @@ a.loginbutton.hidden,
     border-top: 5px solid #e1eefd;
     border-bottom: 5px solid transparent;
     left: -4px;
-    top: 14px;
+    top: 12px;
     transform: rotate(45deg);
   }
   .hg-app
@@ -1086,6 +1099,14 @@ a.loginbutton.hidden,
     .header__site-title__title
     .logo-about {
     font-size: 12px;
+  }
+  .hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
+    .logo-about:after {
+    top: 14px;
   }
   .hg-app
     .header--fixed

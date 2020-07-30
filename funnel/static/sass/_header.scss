@@ -23,7 +23,7 @@
             width: 100%;
             left: 0;
             top: 0;
-            padding: 3px 16px;
+            padding: 10px 16px;
             font-size: 12px;
             font-weight: 600;
             line-height: 1.33;
@@ -33,6 +33,7 @@
             position: relative;
             background-color: #e1eefd;
             text-decoration: none;
+            display: none;
           }
 
           .logo-about:hover,
@@ -113,7 +114,7 @@
     }
   }
   .content-wrapper {
-    padding-top: 32px;
+    padding-top: 0;
   }
 }
 
@@ -126,6 +127,22 @@
   .hg-app.no-sticky-header {
     .footer {
       display: none;
+    }
+  }
+  .homepage.hg-app {
+    .header--fixed {
+      .header__nav {
+        .header__site-title {
+          .header__site-title__title {
+            .logo-about {
+              display: block;
+            }
+          }
+        }
+      }
+    }
+    .content-wrapper {
+      padding-top: 16px;
     }
   }
 }
@@ -171,7 +188,7 @@
               border-top: 5px solid #e1eefd;
               border-bottom: 5px solid transparent;
               left: -4px;
-              top: 14px;
+              top: 12px;
               transform: rotate(45deg);
             }
 
@@ -242,6 +259,9 @@
           .header__site-title__title {
             .logo-about {
               font-size: 12px;
+            }
+            .logo-about:after {
+              top: 14px;
             }
             .header__nav-links__dropdown {
               right: auto;
