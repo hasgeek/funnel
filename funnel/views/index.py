@@ -145,7 +145,7 @@ def proposal_redirect(proposal):
     return redirect(proposal.url_for())
 
 
-@app.route('/about/')
+@app.route('/about')
 def about():
     return render_template('about.html.jinja2')
 
