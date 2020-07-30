@@ -13,7 +13,7 @@ from flask import (
 )
 
 from baseframe import _, forms
-from baseframe.forms import render_form, render_redirect
+from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
@@ -56,8 +56,8 @@ from ..models import (
 )
 from ..signals import user_cancelled_project_registration, user_registered_for_project
 from .decorators import legacy_redirect
-from .helpers import requires_login
 from .jobs import import_tickets, tag_locations
+from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
@@ -197,7 +197,12 @@ def feature_project_has_no_sessions(obj):
 
 @Project.features('comment_new')
 def feature_project_comment_new(obj):
-    return obj.current_roles.participant is True
+    return obj.current_roles.participant
+
+
+@Project.features('post_update')
+def feature_project_post_update(obj):
+    return obj.current_roles.editor
 
 
 @Project.views('registration_text')
@@ -267,7 +272,7 @@ class ProjectView(
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
             'current_rsvp': current_rsvp,
             'csrf_form': forms.Form(),
             'rsvp_form': rsvp_form,
@@ -451,7 +456,7 @@ class ProjectView(
                 form.populate_obj(self.obj)
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
-                return render_redirect(self.obj.url_for(), code=303)
+                return redirect(self.obj.url_for(), code=303)
             else:
                 return render_form(
                     form=form, title=_(""), submit=_("Save banner"), ajax=True,
@@ -775,8 +780,6 @@ class ProjectView(
         if featured_form.validate_on_submit():
             self.obj.featured = not self.obj.featured
             db.session.commit()
-            if self.obj.featured:
-                flash(_("Your project is now a spotlight on homepage"), 'info')
         return redirect(get_next_url(referrer=True), 303)
 
 

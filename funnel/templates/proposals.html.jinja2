@@ -88,7 +88,7 @@
             <div class="about__details__description">
               {% if project.view_for('cfp').is_available() -%}
                 <p class="mui--pull-right">
-                  <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--accent">
+                  <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">
                     {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
                       {% trans %}Open proposal submissions{% endtrans %}
                     {%- else %}
@@ -100,7 +100,7 @@
               {{ project.instructions }}
             </div>
           {%- elif project.view_for('cfp').is_available() %}
-            <p><a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--accent">{% trans %}Add proposal guidelines and timing{% endtrans %}</a></p>
+            <p><a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">{% trans %}Add proposal guidelines and timing{% endtrans %}</a></p>
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
             <div>

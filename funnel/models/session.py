@@ -99,6 +99,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                 'banner_image_url',
                 'start_at_localized',
                 'end_at_localized',
+                'scheduled',
             },
             'call': {'url_for'},
         }

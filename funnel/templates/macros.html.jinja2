@@ -96,7 +96,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, csrf_form, class='', current_page='project') %}
+{% macro project_header(project, project_save_form, csrf_form, class='', current_page='project', pinned=true) %}
   {% if current_auth.user.is_site_editor %}
     <div class="site-admin">
       <div class="mui-container">
@@ -105,24 +105,18 @@
             <a href="#featured-form-modal" rel="modal:open" class="mui--text-light mui--text-subhead"></a>
             <div class="mui-checkbox">
               <label class="mui--text-light mui--text-subhead">
-                <input type="checkbox" {% if project.featured %}checked{% endif %} onclick="$('#featured-form-modal').modal()">
+                <input type="checkbox" {% if project.featured %}checked{% endif %} onclick="event.preventDefault(); $('#featured-form-modal').modal()">
                 {% trans %}Featured project{% endtrans %}
               </label>
             </div>
             <div class="modal" id="featured-form-modal">
               <div class="modal__header">
                 <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
-                <p class="mui--text-title mui--text-bold mui--text-dark">
-                  {% if project.featured %}
-                    {% trans %}Do you want to change this project's state to unfeatured?{% endtrans %}
-                  {% else %}
-                    {% trans %}Do you want to update this project's state to featured?{% endtrans %}
-                  {% endif %}
-                </p>
               </div>
               <div class="modal__body">
                 <form action="{{ project.url_for('toggle_featured') }}" method="post">
                   {{ csrf_form.hidden_tag() }}
+                  <span class="mui--text-title mui--text-bold mui--text-dark">Confirmation</span>
                   <button name="transition" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">
                     {% if project.featured %}
                       {% trans %}Remove featured{% endtrans %}
@@ -272,7 +266,7 @@
               <a href="{{ project.url_for('rsvp_list') }}" class="mui--d-block mui--text-center" data-cy="see-responses">{% trans %}View participants{% endtrans %}</a>
             {% endif %}
           {% elif project.view_for('edit_schedule').is_available() %}
-            <a class="mui-btn mui-btn--raised mui-btn--accent  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable rsvp{% endtrans %}</a>
+            <a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable rsvp{% endtrans %}</a>
           {%- endif %}
           <hr class="mui-divider">
           {% if project.cfp_state.OPEN -%}
@@ -299,7 +293,7 @@
           {%- if project.primary_venue %}
             <p class="project-venue"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(header)" data-action="Venue(header)">{{ faicon(icon='map-marker-alt') }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
           {% elif project.view_for('venues').is_available() %}
-            <a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui--d-block mui-btn--accent">{% trans %}Add venue{% endtrans %}</a>
+            <a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui--d-block mui-btn--dark">{% trans %}Add venue{% endtrans %}</a>
           {%- endif %}
         </div>
       </div>
@@ -320,6 +314,7 @@
       {%- if project.primary_venue -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-action="Venue(navbar)" data-cy-navbar="venue">{% trans %}Venue{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'updates' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'updates' -%}{{ project.url_for('updates') }}{%- endif %}" data-action="Updates(navbar)" data-cy-navbar="updates">{% trans %}Updates{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'comments' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'comments' -%}{{ project.url_for('comments') }}{%- endif %}" data-action="comments(navbar)" data-cy-navbar="comments">{% trans %}Comments{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- if project.has_sessions_with_video %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'videos' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'videos' -%}{{ project.url_for('session_videos') }}{%- endif %}" data-action="Video(navbar)" data-cy-navbar="video">{% trans %}Video{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
@@ -336,6 +331,16 @@
       {%- endif %}
     </nav>
   </div>
+  {% with pinned_post = project.pinned_post %}{%- if pinned_post and pinned %}
+  <ul class="mui-list--unstyled pinned">
+    <li>
+      <a href="{{ pinned_post.urls['project_view'] }}" class="pinned__post">
+        <p class="pinned__post__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">Pinned update</span></p>
+        <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_post.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__post__body__text">{%- if not pinned_post.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_post.body.text }}</span>{% else %}<em>This update is for participants only</em>{%- endif %}</span></p>
+      </a>
+    </li>
+  </ul>
+  {%- endif %}{%- endwith %}
 {% endmacro %}
 
 {% macro embed_video_player(video) %}
@@ -754,10 +759,95 @@
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
       {% if profile.features.new_project()  %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}All projects{% endtrans %}</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
       {% endif %}
       {%- if profile.current_roles.admin and profile.organization %}<a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>{% endif %}
     </nav>
   </div>
 </div>
+{% endmacro %}
+
+
+{% macro project_mini_header(project) %}
+  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
+  <p class="mui--text-headline">{{ project.tagline }}</p>
+  <p>
+  {% if project.features.tickets_or_rsvp() %}
+    <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">
+      {%- if project.features.tickets() -%}
+        {% if project.boxoffice_data.buy_btn_text -%}
+          {{ project.boxoffice_data.buy_btn_text }}
+        {% else %}
+          {% trans %}Tickets{% endtrans %}
+        {% endif %}
+      {%- else -%}
+        {% trans %}Attend{% endtrans %}
+      {%- endif %}
+    </a>
+  {% endif %}
+  {% if project.cfp_state.OPEN -%}
+    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}" data-action="Propose a session(header)">{{ faicon(icon='microphone-alt') }} {% trans %}Submit a session proposal{% endtrans %}</a>
+  {% endif %}
+  </p>
+{% endmacro %}
+
+{% macro posts_template() %}
+  {% raw %}
+    <div id="posts-wrapper" v-cloak>
+      <div v-if="isEditor">
+        <h2 class="mui--text-headline mui--text-left" v-if="draft">Draft</h2>
+        <ul v-if="draft" class="draft-posts">
+          <li v-for="post in draft"><a :href="post.urls.project_view">{{ post.title }}</a></li>
+        </ul>
+      </div>
+      <ul class="mui-list--unstyled" v-if="posts.length > 0">
+        <post :post="post" :iseditor="isEditor" v-for="post in posts"></post>
+      </ul>
+    </div>
+
+    <script type="text/x-template" id="post-template">
+      <li class="post user mui--bg-accent" :id="'#update-' + post.uuid_b58">
+        <div class="mui--clearfix">
+          <div class="mui--pull-left">
+            <p class="mui--text-light mui--text-body2 post__date" v-if="post.number">
+              <a class="mui--text-uppercase mui--text-light" :href="post.urls.project_view">Update #{{ post.number }}</a>
+              <span v-if="age"><span class="interpunct" aria-hidden="true">&#8226;</span><a class="mui--text-light" :href="post.urls.project_view">{{ age }}</a></span>
+              <span v-if="post.visibility_label == 'Restricted'"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></span>
+              <span v-if="post.is_pinned"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 mui--align-middle" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg></span>
+            </p>
+          </div>
+          <div class="mui--pull-right">
+            <a class="mui--text-menu mui--text-hyperlink right-padding" :href="post.urls.project_view" aria-label="Share this post" v-if="post.visibility_label == 'Public' || iseditor"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#share-square'"></use></svg></a>
+            <div class="mui-dropdown" v-if="iseditor">
+              <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#ellipsis-v'"></use></svg></a>
+              <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
+                <li><a v-if="post.urls.project_edit" :href="post.urls.project_edit">Edit</a></li>
+                <li><a v-if="post.urls.project_delete" :href="post.urls.project_delete">Delete</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="post.urls.project_view">{{ post.title }}</a></p>
+        <div class="user__box mui--clearfix post__header">
+          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(post.user.fullname) }}</div>
+          <div class="mui--d-inlineblock">
+            <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ post.user.fullname }}</h3>
+            <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
+          </div>
+        </div>
+        <div v-if="!post.is_currently_restricted">
+          <div class="post__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(post.body.html, 250)"></div>
+          <div class="post__content mui--text-light fullcontent" v-else v-html="post.body.html"></div>
+          <p class="mui--text-body2">
+            <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" aria-label="read more"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-down'"></use></svg> Read more</a></p>
+            <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="hide"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-up'"></use></svg> Hide</a>
+          </p>
+        </div>
+        <div v-else>
+          <p class="mui--text-body2 mui--text-light mui--text-center top-padding zero-bottom-margin"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg> <em>This update is for participants only</em></p>
+        </div>
+        <hr class="mui--visible-xs-block mui--visible-sm-block">
+      </li>
+    </script>
+  {% endraw %}
 {% endmacro %}

@@ -29,7 +29,7 @@ from ..forms import (
 )
 from ..models import Comment, Project, Proposal, db
 from .decorators import legacy_redirect
-from .helpers import requires_login
+from .login_session import requires_login
 from .mixins import ProjectViewMixin, ProposalViewMixin
 
 proposal_headers = [
@@ -277,9 +277,8 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db,
             title=_("Confirm delete"),
             message=_(
-                "Do you really wish to delete your proposal ‘{title}’? "
-                "This will remove all votes and comments as well. This operation "
-                "is permanent and cannot be undone."
+                "Delete your proposal ‘{title}’? This will remove all votes and"
+                " comments as well. This operation is permanent and cannot be undone."
             ).format(title=self.obj.title),
             success=_("Your proposal has been deleted"),
             next=self.obj.project.url_for(),

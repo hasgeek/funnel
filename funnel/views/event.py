@@ -20,8 +20,8 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .helpers import requires_login
 from .jobs import import_tickets
+from .login_session import requires_login
 from .mixins import EventViewMixin, ProjectViewMixin
 
 
@@ -189,8 +189,8 @@ class EventView(EventViewMixin, UrlForView, ModelView):
             db,
             title=_("Confirm delete"),
             message=_(
-                "Do you really wish to delete your event ‘{title}’? "
-                "This operation is permanent and cannot be undone."
+                "Delete event ‘{title}’? This operation is permanent and cannot be"
+                " undone."
             ).format(title=self.obj.title),
             success=_("This event has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -282,8 +282,8 @@ class TicketTypeView(UrlForView, ModelView):
             db,
             title=_("Confirm delete"),
             message=_(
-                "Do you really wish to delete the ticket type ‘{title}’? "
-                "This operation is permanent and cannot be undone."
+                "Delete ticket type ‘{title}’? This operation is permanent and cannot"
+                " be undone."
             ).format(title=self.obj.title),
             success=_("This ticket type has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -348,8 +348,8 @@ class TicketClientView(UrlForView, ModelView):
             db,
             title=_("Confirm delete"),
             message=_(
-                "Do you really wish to delete the ticket client ‘{title}’? "
-                "This operation is permanent and cannot be undone."
+                "Delete ticket client ‘{title}’? This operation is permanent and cannot"
+                " be undone."
             ).format(title=self.obj.name),
             success=_("This event has been deleted"),
             next=self.obj.project.url_for('admin'),

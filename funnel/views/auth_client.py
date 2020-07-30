@@ -1,4 +1,4 @@
-from flask import abort, flash, render_template, request, url_for
+from flask import Markup, abort, flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
@@ -29,25 +29,21 @@ from ..models import (
     User,
     db,
 )
-from .helpers import requires_login
+from .login_session import requires_login
 
 # --- Routes: client apps -----------------------------------------------------
 
 
-@app.route('/account/apps')
+@app.route('/apps')
 @requires_login
 def client_list():
-    if current_auth.is_authenticated:
-        return render_template(
-            'auth_client_index.html.jinja2',
-            auth_clients=AuthClient.all_for(current_auth.user),
-        )
-    else:
-        # TODO: Show better UI for non-logged in users
-        return render_template('client_list.html.jinja2', clients=[])
+    return render_template(
+        'auth_client_index.html.jinja2',
+        auth_clients=AuthClient.all_for(current_auth.user),
+    )
 
 
-@app.route('/account/apps/all')
+@app.route('/apps/all')
 def client_list_all():
     return render_template(
         'auth_client_index.html.jinja2', auth_clients=AuthClient.all_for(None)
@@ -65,7 +61,7 @@ def available_client_owners():
     return choices
 
 
-@route('/account/apps/new', methods=['GET', 'POST'])
+@route('/apps/new', methods=['GET', 'POST'])
 class AuthClientCreateView(ClassView):
     @route('', endpoint='authclient_new')
     @requires_login
@@ -99,7 +95,7 @@ AuthClientCreateView.init_app(app)
 
 
 @AuthClient.views('main')
-@route('/account/apps/<app>')
+@route('/apps/<app>')
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
     route_model_map = {'app': 'buid'}
@@ -141,8 +137,8 @@ class AuthClientView(UrlForView, ModelView):
                 )
                 flash(
                     _(
-                        "This application’s owner has changed, so all previously assigned permissions "
-                        "have been revoked"
+                        "This application’s owner has changed, so all previously"
+                        " assigned permissions have been revoked"
                     ),
                     'warning',
                 )
@@ -168,9 +164,14 @@ class AuthClientView(UrlForView, ModelView):
             self.obj,
             db,
             title=_("Confirm delete"),
-            message=_("Delete application ‘{title}’? ").format(title=self.obj.title),
+            message=_(
+                "Delete application ‘{title}’? This will also delete all associated"
+                " content including access tokens issued on behalf of users. This"
+                " operation is permanent and cannot be undone."
+            ).format(title=self.obj.title),
             success=_(
-                "You have deleted application ‘{title}’ and all its associated resources and permission assignments"
+                "You have deleted application ‘{title}’ and all its associated"
+                " resources and permission assignments"
             ).format(title=self.obj.title),
             next=url_for('client_list'),
         )
@@ -259,6 +260,14 @@ class AuthClientView(UrlForView, ModelView):
         return render_form(
             form=form,
             title=_("Assign permissions"),
+            message=Markup(
+                _(
+                    'Add and edit teams from <a href="{url}">your organization’s teams'
+                    ' page</a>.'
+                ).format(url=self.obj.organization.url_for('teams'))
+            )
+            if self.obj.organization
+            else None,
             formid='perm_assign',
             submit=_("Assign permissions"),
         )
@@ -270,7 +279,7 @@ AuthClientView.init_app(app)
 
 
 @AuthClientCredential.views('main')
-@route('/account/apps/<app>/cred/<name>')
+@route('/apps/<app>/cred/<name>')
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
     route_model_map = {'app': 'auth_client.buid', 'name': 'name'}
@@ -306,7 +315,7 @@ AuthClientCredentialView.init_app(app)
 
 
 @AuthClientUserPermissions.views('main')
-@route('/account/apps/<app>/perms/u/<user>')
+@route('/apps/<app>/perms/u/<user>')
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
     route_model_map = {'app': 'auth_client.buid', 'user': 'user.buid'}
@@ -380,7 +389,7 @@ AuthClientUserPermissionsView.init_app(app)
 
 
 @AuthClientTeamPermissions.views('main')
-@route('/account/apps/<app>/perms/t/<team>')
+@route('/apps/<app>/perms/t/<team>')
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
     route_model_map = {'app': 'auth_client.buid', 'team': 'team.buid'}

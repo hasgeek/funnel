@@ -91,3 +91,10 @@ class TeamForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         description=__("Lookup a user by their username or email address"),
     )
+    is_public = forms.BooleanField(
+        __("Make this team public"),
+        description=__(
+            "Team members will be listed on the organization’s profile page"
+        ),
+        default=True,
+    )

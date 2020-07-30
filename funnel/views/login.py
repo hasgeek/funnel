@@ -50,15 +50,14 @@ from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
 from ..utils import abort_null, mask_email
 from .email import send_email_verify_link, send_password_reset_link
-from .helpers import (
-    app_url_for,
+from .helpers import app_url_for, validate_rate_limit
+from .login_session import (
     login_internal,
     logout_internal,
     register_internal,
     requires_login,
     requires_login_no_message,
     set_loginmethod_cookie,
-    validate_rate_limit,
 )
 
 
@@ -348,8 +347,8 @@ def reset():
     form = PasswordResetRequestForm()
     if getbool(request.args.get('expired')):
         message = _(
-            "Your password has expired. Please enter your username "
-            "or email address to request a reset code and set a new password"
+            "Your password has expired. Please enter your username or email address to"
+            " request a reset code and set a new password."
         )
     else:
         message = None
@@ -378,11 +377,10 @@ def reset():
                     title=_("Cannot reset password"),
                     message=Markup(
                         _(
-                            """
-                    We do not have an email address for your account. However, your
-                    account is linked to <strong>{service}</strong> with the id
-                    <strong>{username}</strong>. You can use that to login.
-                    """
+                            "We do not have an email address for your account. However,"
+                            " your account is linked to <strong>{service}</strong> with"
+                            " the id <strong>{username}</strong>. You can use that to"
+                            " login."
                         ).format(
                             service=login_registry[extid.service].title,
                             username=extid.username or extid.userid,
@@ -394,11 +392,9 @@ def reset():
                     title=_("Cannot reset password"),
                     message=Markup(
                         _(
-                            """
-                    We do not have an email address for your account and therefore
-                    cannot email you a reset link. Please contact
-                    <a href="mailto:{email}">{email}</a> for assistance.
-                    """
+                            'We do not have an email address for your account and'
+                            ' therefore cannot email you a reset link. Please contact'
+                            ' <a href="mailto:{email}">{email}</a> for assistance.'
                         ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
                     ),
                 )
@@ -411,15 +407,11 @@ def reset():
         return render_message(
             title=_("Reset password"),
             message=_(
-                """
-            We sent a link to reset your password to your email address: {masked_email}.
-            Please check your email. If it doesn’t arrive in a few minutes,
-            it may have landed in your spam or junk folder.
-            The reset link is valid for 24 hours.
-            """.format(
-                    masked_email=mask_email(email)
-                )
-            ),
+                "We sent a link to reset your password to your email address:"
+                " {masked_email}. Please check your email. If it doesn’t arrive in a"
+                " few minutes, it may have landed in your spam or junk folder. The"
+                " reset link is valid for 24 hours."
+            ).format(masked_email=mask_email(email)),
         )
     return render_form(
         form=form,
@@ -441,7 +433,7 @@ def reset_email(user, kwargs):
     if not resetreq:
         return render_message(
             title=_("Invalid reset link"),
-            message=_("The reset link you clicked on is invalid"),
+            message=_("The reset link you clicked on is invalid."),
         )
     if resetreq.created_at < utcnow() - timedelta(days=1):
         # Reset code has expired (> 24 hours). Delete it
@@ -449,7 +441,7 @@ def reset_email(user, kwargs):
         db.session.commit()
         return render_message(
             title=_("Expired reset link"),
-            message=_("The reset link you clicked on has expired"),
+            message=_("The reset link you clicked on has expired."),
         )
 
     # Logout *after* validating the reset request to prevent DoS attacks on the user

@@ -1,9 +1,11 @@
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
-    BaseMixin,
+    BaseScopedIdNameMixin,
     Commentset,
     MarkdownColumn,
     Profile,
@@ -16,7 +18,7 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE
-from .helpers import visual_field_delimiter
+from .helpers import add_search_trigger, visual_field_delimiter
 
 __all__ = ['Post']
 
@@ -32,7 +34,7 @@ class VISIBILITY_STATE(LabeledEnum):  # NOQA: N801
     RESTRICTED = (1, 'restricted', __("Restricted"))
 
 
-class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
+class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     __tablename__ = 'post'
 
     _visibility_state = db.Column(
@@ -79,9 +81,12 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
 
     body = MarkdownColumn('body', nullable=False)
 
+    #: Update number, for Project updates, assigned when the post is published
+    number = db.Column(db.Integer, nullable=True, default=None)
+
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
-    pinned = db.Column(db.Boolean, default=False, nullable=False)
+    is_pinned = db.Column(db.Boolean, default=False, nullable=False)
 
     published_by_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=True, index=True
@@ -143,21 +148,44 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {'name', 'title', 'created_at', 'edited_at', 'user', 'visibility'}
+            'read': {
+                'name',
+                'title',
+                'number',
+                'user',
+                'published_at',
+                'edited_at',
+                'deleted_at',
+                'visibility_label',
+                'state_label',
+                'is_pinned',
+                'is_restricted',
+                'is_currently_restricted',
+                'urls',
+            },
+            'call': {'features', 'visibility_state', 'state', 'url_for'},
         },
         'reader': {'read': {'body'}},
     }
 
     __datasets__ = {
         'primary': {
-            'body',
-            'created_at',
-            'edited_at',
             'name',
             'title',
+            'number',
+            'body',
+            'body_text',
+            'body_html',
+            'published_at',
+            'edited_at',
             'user',
-            'visibility',
-        }
+            'is_pinned',
+            'is_restricted',
+            'is_currently_restricted',
+            'visibility_label',
+            'state_label',
+        },
+        'related': {'name', 'title'},
     }
 
     def __init__(self, **kwargs):
@@ -166,50 +194,81 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
         self.commentset = Commentset(settype=SET_TYPE.POST)
 
     def __repr__(self):
-        return '<Post "{title}" {uuid_b58}'.format(
+        return '<Post "{title}" {uuid_b58}>'.format(
             title=self.title, uuid_b58=self.uuid_b58
         )
+
+    @hybrid_property
+    def parent(self):
+        return self.project if self.project is not None else self.profile
+
+    @parent.setter
+    def parent(self, value):
+        if not isinstance(value, (Project, Profile)):
+            raise ValueError("Only a project or a profile can be parent of a post")
+
+        if isinstance(value, Project):
+            self.project = value
+            self.profile = None
+        else:
+            self.profile = value
+            self.project = None
+
+    @hybrid_property
+    def visibility_label(self):
+        return self.visibility_state.label.title
+
+    @hybrid_property
+    def state_label(self):
+        return self.state.label.title
 
     state.add_conditional_state(
         'UNPUBLISHED',
         state.DRAFT,
+        lambda post: post.published_at is None,
+        lambda post: post.published_at.is_(None),
+        label=('unpublished', __("Unpublished")),
+    )
+
+    state.add_conditional_state(
+        'WITHDRAWN',
+        state.DRAFT,
         lambda post: post.published_at is not None,
         lambda post: post.published_at.isnot(None),
-        label=('unpublished', __("Unpublished")),
+        label=('withdrawn', __("Withdrawn")),
     )
 
     @with_roles(call={'editor'})
     @state.transition(
-        state.DRAFT,
-        state.PUBLISHED,
-        title=__("Publish post"),
-        message=__("Post has been published"),
+        state.DRAFT, state.PUBLISHED,
     )
     def publish(self, actor):
         self.published_by = actor
         if self.published_at is None:
             self.published_at = db.func.utcnow()
+        if self.number is None:
+            self.number = db.select(
+                [db.func.coalesce(db.func.max(Post.number), 0) + 1]
+            ).where(
+                (Post.project == self.project)
+                if self.project is not None
+                else (Post.profile == self.profile)
+            )
 
     @with_roles(call={'editor'})
     @state.transition(
-        state.PUBLISHED,
-        state.DRAFT,
-        title=__("Undo publish"),
-        message=__("Post is now a draft"),
+        state.PUBLISHED, state.DRAFT,
     )
     def undo_publish(self):
         pass
 
     @with_roles(call={'creator', 'editor'})
     @state.transition(
-        None,
-        state.DELETED,
-        title=__("Delete post"),
-        message=__("Post has been deleted"),
+        None, state.DELETED,
     )
     def delete(self, actor):
-        if self.state.DRAFT:
-            # If it's a draft post, hard delete it
+        if self.state.UNPUBLISHED:
+            # If it was never published, hard delete it
             db.session.delete(self)
         else:
             # If not, then soft delete
@@ -218,10 +277,7 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @state.transition(
-        state.DELETED,
-        state.DRAFT,
-        title=__("Undo delete"),
-        message=__("Post is now a draft"),
+        state.DELETED, state.DRAFT,
     )
     def undo_delete(self):
         self.deleted_by = None
@@ -229,23 +285,32 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @visibility_state.transition(
-        visibility_state.RESTRICTED,
-        visibility_state.PUBLIC,
-        title=__("Make post public"),
-        message=__("Post is now public"),
+        visibility_state.RESTRICTED, visibility_state.PUBLIC,
     )
     def make_public(self):
         pass
 
     @with_roles(call={'editor'})
     @visibility_state.transition(
-        visibility_state.PUBLIC,
-        visibility_state.RESTRICTED,
-        title=__("Make post restricted"),
-        message=__("Post is now restricted"),
+        visibility_state.PUBLIC, visibility_state.RESTRICTED,
     )
     def make_restricted(self):
         pass
+
+    @property
+    def is_restricted(self):
+        return bool(self.visibility_state.RESTRICTED)
+
+    @is_restricted.setter
+    def is_restricted(self, value):
+        if value and self.visibility_state.PUBLIC:
+            self.make_restricted()
+        elif not value and self.visibility_state.RESTRICTED:
+            self.make_public()
+
+    @property
+    def is_currently_restricted(self):
+        return self.is_restricted and not self.current_roles.reader
 
     def roles_for(self, actor=None, anchors=()):
         roles = super().roles_for(actor, anchors)
@@ -263,3 +328,33 @@ class Post(UuidMixin, BaseMixin, TimestampMixin, db.Model):
             roles.add('reader')
 
         return roles
+
+
+add_search_trigger(Post, 'search_vector')
+
+Project.published_posts = with_roles(
+    property(
+        lambda self: self.posts.filter(Post.state.PUBLISHED).order_by(
+            Post.is_pinned.desc(), Post.published_at.desc()
+        )
+    ),
+    read={'all'},
+)
+
+
+Project.draft_posts = with_roles(
+    property(
+        lambda self: self.posts.filter(Post.state.DRAFT).order_by(Post.created_at)
+    ),
+    read={'editor'},
+)
+
+
+Project.pinned_post = with_roles(
+    property(
+        lambda self: self.posts.filter(Post.state.PUBLISHED, Post.is_pinned.is_(True))
+        .order_by(Post.published_at.desc())
+        .first()
+    ),
+    read={'all'},
+)
