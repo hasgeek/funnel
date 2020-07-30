@@ -578,7 +578,7 @@ class ProjectView(
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
-                user_registered_for_project.send(self.obj, user=current_auth.user)
+                user_registered_for_project.send(rsvp, project=self.obj, user=current_auth.user)
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
         return redirect(get_next_url(referrer=request.referrer), code=303)
@@ -594,7 +594,7 @@ class ProjectView(
                 db.session.commit()
                 flash(_("Your registration has been cancelled"), 'info')
                 user_cancelled_project_registration.send(
-                    self.obj, user=current_auth.user
+                    rsvp, project=self.obj, user=current_auth.user
                 )
         else:
             flash(
