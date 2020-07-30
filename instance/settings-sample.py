@@ -8,6 +8,8 @@ TYPEKIT_CODE = ''
 GA_CODE = ''
 #: Database backend
 SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
+# Default domain name
+DEFAULT_DOMAIN = 'hasgeek.com'
 #: Secret key
 SECRET_KEY = 'make this something random'
 #: Timezone
