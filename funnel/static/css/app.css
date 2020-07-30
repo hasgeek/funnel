@@ -729,7 +729,7 @@ a.loginbutton.hidden,
 
   .about-top-content {
     max-width: 675px;
-    margin: 0 0 75px 60px;
+    margin: 0 0 75px;
   }
 
   .flex-content {
@@ -2417,7 +2417,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__date {
   position: relative;
-  width: calc(100% / 7);
+  width: calc(100% / 7.01);
   text-align: center;
   margin: 0;
   padding: 3px 0;
