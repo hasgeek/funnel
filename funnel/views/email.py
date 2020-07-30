@@ -152,13 +152,20 @@ def send_email_for_organization_admin_membership_revoked(
 
 @signals.user_registered_for_project.connect
 def send_email_for_project_registration(project, user):
-    background_project_email.queue(
+    background_project_registration_email.queue(
+        project_id=project.id, user_id=user.id, locale=get_locale()
+    )
+
+
+@signals.user_cancelled_project_registration.connect
+def send_email_for_project_deregistration(project, user):
+    background_project_deregister_email.queue(
         project_id=project.id, user_id=user.id, locale=get_locale()
     )
 
 
 @rq.job('funnel')
-def background_project_email(project_id, user_id, locale):
+def background_project_registration_email(project_id, user_id, locale):
     with app.app_context(), force_locale(locale):
         project = Project.query.get(project_id)
         user = User.query.get(user_id)
@@ -176,6 +183,22 @@ def background_project_email(project_id, user_id, locale):
             ],
             content=render_template(
                 'email_project_registration.html.jinja2', user=user, project=project,
+            ),
+        )
+
+
+@rq.job('funnel')
+def background_project_deregister_email(project_id, user_id, locale):
+    with app.app_context(), force_locale(locale):
+        project = Project.query.get(project_id)
+        user = User.query.get(user_id)
+        send_email(
+            subject=_("Registration cancelled for {project}").format(
+                project=project.title
+            ),
+            to=[user],
+            content=render_template(
+                'email_project_deregister.html.jinja2', user=user, project=project,
             ),
         )
 
