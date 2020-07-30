@@ -159,17 +159,15 @@ def send_email_for_project_registration(project, user):
 
 @signals.user_cancelled_project_registration.connect
 def send_email_for_project_deregistration(project, user):
-    locale = get_locale()
-    with force_locale(locale):
-        send_email(
-            subject=_("Registration cancelled for {project}").format(
-                project=project.title
-            ),
-            to=[user],
-            content=render_template(
-                'email_project_deregister.html.jinja2', user=user, project=project,
-            ),
-        )
+    send_email(
+        subject=_("Registration cancelled for {project}").format(
+            project=project.title
+        ),
+        to=[user],
+        content=render_template(
+            'email_project_deregister.html.jinja2', user=user, project=project,
+        ),
+    )
 
 
 @rq.job('funnel')
