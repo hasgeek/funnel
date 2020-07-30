@@ -1,5 +1,5 @@
 $(() => {
-  window.HasGeek.SessionVideoInit = function () {
+  window.Hasgeek.SessionVideoInit = function () {
     $('.js-video-duration').each(function () {
       let durationInSeconds = $(this).data('duration');
       let date = new Date(null);

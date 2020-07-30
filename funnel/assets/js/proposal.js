@@ -92,7 +92,7 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.HasGeek.ProposalInit = function ({
+  window.Hasgeek.ProposalInit = function ({
     videoWrapper = '',
     videoUrl = '',
   }) {

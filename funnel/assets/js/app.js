@@ -3,8 +3,8 @@
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
-  window.HasGeek = {};
-  window.HasGeek.config = {
+  window.Hasgeek = {};
+  window.Hasgeek.config = {
     mobileBreakpoint: 768, // this breakpoint switches to desktop UI
     ajaxTimeout: 30000,
     retryInterval: 10000,

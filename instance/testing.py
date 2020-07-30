@@ -2,7 +2,7 @@ from os import environ
 
 TESTING = True
 SECRET_KEY = 'testkey'
-SITE_TITLE = 'HasGeek'
+SITE_TITLE = 'Hasgeek'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3002'
 STATIC_SUBDOMAIN = 'static'

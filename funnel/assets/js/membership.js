@@ -46,7 +46,7 @@ const Membership = {
           view: 'name',
           search: '',
           showInfo: false,
-          svgIconUrl: window.HasGeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.config.svgIconUrl,
           isMobile: false,
           ready: false,
         };
@@ -60,7 +60,7 @@ const Membership = {
             $.ajax({
               type: 'GET',
               url,
-              timeout: window.HasGeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 const vueFormHtml = data.form;
@@ -125,7 +125,7 @@ const Membership = {
         },
         onWindowResize() {
           this.isMobile =
-            $(window).width() < window.HasGeek.config.mobileBreakpoint;
+            $(window).width() < window.Hasgeek.config.mobileBreakpoint;
         },
       },
       computed: {
@@ -159,7 +159,7 @@ const Membership = {
 };
 
 $(() => {
-  window.HasGeek.Membership = function (config) {
+  window.Hasgeek.Membership = function (config) {
     Membership.init(config);
   };
 });

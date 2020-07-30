@@ -16,7 +16,7 @@ const badgeScan = {
         showModal: false,
         errorMsg: '',
         contacts: [],
-        svgIconUrl: window.HasGeek.config.svgIconUrl,
+        svgIconUrl: window.Hasgeek.config.svgIconUrl,
       },
 
       closeModal(event) {
@@ -57,7 +57,7 @@ const badgeScan = {
           type: 'POST',
           url: getContactApiUrl,
           data: formValues,
-          timeout: window.HasGeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.config.ajaxTimeout,
           dataType: 'json',
 
           success(response) {
@@ -192,7 +192,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.HasGeek.BadgeScanInit = function (scanConfig) {
+  window.Hasgeek.BadgeScanInit = function (scanConfig) {
     badgeScan.init(scanConfig);
   };
 });

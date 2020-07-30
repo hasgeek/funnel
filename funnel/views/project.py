@@ -363,7 +363,7 @@ class ProjectView(
     def edit_slug(self):
         form = ProjectNameForm(obj=self.obj)
         # Profile URLs:
-        # HasGeek: https://hasgeek.com/rootconf (no /)
+        # Hasgeek: https://hasgeek.com/rootconf (no /)
         # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
         form.name.prefix = self.obj.profile.url_for(_external=True)
         if not form.name.prefix.endswith('/'):

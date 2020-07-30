@@ -1,7 +1,7 @@
 import { Comments } from './util';
 
 $(() => {
-  window.HasGeek.ProjectCommentsInit = function (pageUrl) {
+  window.Hasgeek.ProjectCommentsInit = function (pageUrl) {
     Comments.init(pageUrl);
   };
 });
