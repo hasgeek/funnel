@@ -332,7 +332,7 @@
     </nav>
   </div>
   {% with pinned_post = project.pinned_post %}{%- if pinned_post and pinned %}
-  <ul class="mui-list--unstyled pinned">
+  <ul class="mui-list--unstyled pinned  {% if current_page == 'project' %}pinned--about-page{%- endif %}">
     <li>
       <a href="{{ pinned_post.urls['project_view'] }}" class="pinned__post">
         <p class="pinned__post__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">Pinned update</span></p>
