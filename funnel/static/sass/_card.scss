@@ -220,7 +220,7 @@
           font-weight: bold;
           border-radius: 8px;
           width: 30px;
-          height: 36px;
+          height: 34px;
           text-align: center;
           position: absolute;
           top: 0px;
@@ -255,7 +255,7 @@
           font-weight: bold;
           border-radius: 8px;
           width: 30px;
-          height: 36px;
+          height: 34px;
           text-align: center;
           position: absolute;
           top: 0px;
@@ -275,7 +275,7 @@
           border-radius: 4px;
           background-color: $mui-accent-color-lighter;
           color: $mui-text-accent-lighter;
-          left: -42px;
+          left: 50%;
           margin: auto;
           padding: 1px 0;
           width: 160px;
@@ -284,10 +284,12 @@
           z-index: 3;
           transition: opacity 0.1s;
           -webkit-transition: opacity 0.1s;
+          transform: translate(-50%, 0);
         }
 
         .calendar__weekdays__dates__date--showtime:hover::after,
         .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after {
+          height: 36px;
           border-radius: 8px 8px 0 0;
         }
 
@@ -301,13 +303,12 @@
         .calendar__weekdays__dates__date:nth-child(1)
           .calendar__weekdays__dates__time {
           left: 0;
+          transform: translate(0, 0);
         }
 
-        .calendar__weekdays__dates__date:nth-child(6)
-          .calendar__weekdays__dates__time,
-        .calendar__weekdays__dates__date:nth-child(7)
-          .calendar__weekdays__dates__time {
+        .calendar__weekdays__dates__date--7 .calendar__weekdays__dates__time {
           left: unset;
+          transform: translate(0, 0);
           right: 0;
         }
 

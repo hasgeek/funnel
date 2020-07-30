@@ -1,3 +1,7 @@
+#root_footer {
+  height: 0;
+}
+
 .zero-bottom-margin {
   margin-bottom: 0 !important;
 }
@@ -726,4 +730,17 @@ a.loginbutton.hidden,
 // To hide vue template before Vue app is mounted
 [v-cloak] {
   display: none;
+}
+
+@media (min-width: 768px) {
+  .flex-content {
+    display: flex;
+
+    .fifty-width {
+      width: 50%;
+    }
+    img {
+      width: 50%;
+    }
+  }
 }

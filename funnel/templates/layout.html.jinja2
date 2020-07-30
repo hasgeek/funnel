@@ -188,22 +188,7 @@
   {% endblock %}
 {% endblock %}
 
-{% block footer %}
-  {%- if not config['LEGACY'] -%}
-    <div class="mui-container">
-      <div class="grid mui--text-body2">
-        <div class="grid__col-sm-12 mui--text-center">
-          <p>
-            {% trans %}&copy; 2010-20 HasGeek and contributors{% endtrans %} &middot;
-            <a href="/about/">{% trans %}About us and site policies{% endtrans %}</a>
-          </p>
-        </div>
-        </div>
-      </div>
-    </div>
-  {%- else -%}
-    <span class="no-print">{% trans %}&copy; 2010-20 HasGeek and contributors{% endtrans %}</span>
-  {%- endif -%}
+{% block basefooter %}
 {% endblock %}
 
 {% block jquery -%}

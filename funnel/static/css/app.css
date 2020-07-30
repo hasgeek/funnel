@@ -1,3 +1,7 @@
+#root_footer {
+  height: 0;
+}
+
 .zero-bottom-margin {
   margin-bottom: 0 !important;
 }
@@ -680,6 +684,17 @@ a.loginbutton.hidden,
   display: none;
 }
 
+@media (min-width: 768px) {
+  .flex-content {
+    display: flex;
+  }
+  .flex-content .fifty-width {
+    width: 50%;
+  }
+  .flex-content img {
+    width: 50%;
+  }
+}
 .hg-app .header--fixed {
   bottom: 0;
 }
@@ -1238,6 +1253,24 @@ a.loginbutton.hidden,
     max-width: 1170px;
   }
 }
+.sub-navbar-container--footer {
+  margin-top: 70px;
+  margin-bottom: 50px;
+}
+
+@media (min-width: 768px) {
+  .sub-navbar-container--footer {
+    margin-top: 150px;
+    margin-bottom: 0;
+  }
+  .sub-navbar-container--footer .sub-navbar {
+    margin-bottom: 0;
+    justify-content: space-between;
+  }
+  .sub-navbar-container--footer .sub-navbar .sub-navbar__item {
+    margin: 0;
+  }
+}
 .mobile-nav {
   position: fixed;
   top: 0;
@@ -1665,6 +1698,40 @@ a.loginbutton.hidden,
 
   .profile-details {
     padding: 32px 16px 0;
+  }
+}
+.profile--hg {
+  margin-bottom: 16px;
+}
+.profile--hg .profile__banner .profile__banner__box {
+  padding-bottom: 50%;
+}
+.profile--hg .profile__banner .profile__banner__box:after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  background-color: #0f73ed;
+  width: 100%;
+  display: block;
+  height: 100%;
+  opacity: 0.7;
+}
+.profile--hg .profile__banner .profile__banner__box__heading {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  margin: auto;
+  left: 0;
+  right: 0;
+  color: #ffffff;
+  z-index: 3;
+}
+
+@media (min-width: 768px) {
+  .profile--hg .profile__banner .profile__banner__box {
+    padding-bottom: 25%;
   }
 }
 .past-events-table .past-events-table__title {
@@ -2239,7 +2306,7 @@ a.loginbutton.hidden,
   font-weight: bold;
   border-radius: 8px;
   width: 30px;
-  height: 36px;
+  height: 34px;
   text-align: center;
   position: absolute;
   top: 0px;
@@ -2289,7 +2356,7 @@ a.loginbutton.hidden,
   font-weight: bold;
   border-radius: 8px;
   width: 30px;
-  height: 36px;
+  height: 34px;
   text-align: center;
   position: absolute;
   top: 0px;
@@ -2312,7 +2379,7 @@ a.loginbutton.hidden,
   border-radius: 4px;
   background-color: #f2deda;
   color: #1b3a44;
-  left: -42px;
+  left: 50%;
   margin: auto;
   padding: 1px 0;
   width: 160px;
@@ -2321,6 +2388,7 @@ a.loginbutton.hidden,
   z-index: 3;
   transition: opacity 0.1s;
   -webkit-transition: opacity 0.1s;
+  transform: translate(-50%, 0);
 }
 .card__calendar
   .calendar
@@ -2332,6 +2400,7 @@ a.loginbutton.hidden,
   .calendar__weekdays
   .calendar__weekdays__dates
   .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after {
+  height: 36px;
   border-radius: 8px 8px 0 0;
 }
 .card__calendar
@@ -2355,20 +2424,16 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates__date:nth-child(1)
   .calendar__weekdays__dates__time {
   left: 0;
+  transform: translate(0, 0);
 }
 .card__calendar
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date:nth-child(6)
-  .calendar__weekdays__dates__time,
-.card__calendar
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates
-  .calendar__weekdays__dates__date:nth-child(7)
+  .calendar__weekdays__dates__date--7
   .calendar__weekdays__dates__time {
   left: unset;
+  transform: translate(0, 0);
   right: 0;
 }
 .card__calendar

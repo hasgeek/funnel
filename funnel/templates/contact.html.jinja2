@@ -1,0 +1,41 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block contenthead %}
+<div class="profile profile--hg">
+<div class="profile__banner">
+  <div class="profile__banner__box">
+    <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}"/>
+  </div>
+  <div class="mui-container profile__banner__box__heading">
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        <h1 class="mui--text-display1"><strong>{{ self.title() }}</strong></h1>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
+
+{% block contentwrapper -%}
+  <div class="grid">
+    <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8 grid__col-lg-9">
+      {{ page.html | safe }}
+    </div>
+  </div>
+{%- endblock %}
+
+{% block basefooter %}
+  <div class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
+    <nav class="sub-navbar mui-container" id="page-navbar">
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="/about/">{% trans %}About HasGeek{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold" href="/hasgeek">{% trans %}Team &amp; careers{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="/about/contact">{% trans %}Contact{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'policy/terms' %}sub-navbar__item--active{%- endif %}" href="/about/policy/terms">{% trans %}Site policies{% endtrans %}</a>
+    </nav>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+{% endblock %}

@@ -302,6 +302,49 @@
   }
 }
 
+.profile--hg {
+  margin-bottom: $mui-grid-padding;
+
+  .profile__banner {
+    .profile__banner__box {
+      padding-bottom: 50%;
+    }
+
+    .profile__banner__box:after {
+      content: '';
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      background-color: $mui-primary-color;
+      width: 100%;
+      display: block;
+      height: 100%;
+      opacity: 0.7;
+    }
+    .profile__banner__box__heading {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      margin: auto;
+      left: 0;
+      right: 0;
+      color: $mui-text-white;
+      z-index: 3;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .profile--hg {
+    .profile__banner {
+      .profile__banner__box {
+        padding-bottom: 25%;
+      }
+    }
+  }
+}
+
 .past-events-table {
   .past-events-table__title {
     min-width: 60%;

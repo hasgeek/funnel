@@ -51,13 +51,13 @@
                           <div class="card__body">
                             {{#if obj.calendar_weeks_compact.weeks && obj.calendar_weeks_compact.weeks.length > 0 }}
                               <div aria-label="{{ project.datelocation }}">
-                                <div class="card__calendar" aria-hidden="true">
+                                <div class="card__calendar card__calendar--compact card__calendar--compact" aria-hidden="true">
                                   <div class="calendar">
-                                    <p class="calendar__month-name">{{ obj.calendar_weeks_compact.weeks[0].month }} {{ obj.calendar_weeks_compact.weeks[0].year }}&nbsp;<span class="calendar__counting"></span></p>
+                                    {{#obj.calendar_weeks_compact.weeks}}{{# { week: . } }}
+                                      <p class="calendar__month-name {{#if week.upcoming && @index < 2}}calendar__month-name--upcoming calendar__month-name--upcoming--first calendar__month-name--latest calendar__month-name--unique{{/if}}">{{ week.month }} {{ week.year }}&nbsp;<span class="calendar__counting"></span></p>
 
-                                    <div class="calendar__weekdays mui--bg-accent {{#if obj.calendar_weeks_compact.weeks.length > 1 }} calendar__weekdays--rows {{/if}}">
-                                      {{#obj.calendar_weeks_compact.weeks}}{{# { week: . } }}
-                                        <div class="calendar__weekdays__dates">
+                                      <div class="calendar__weekdays mui--bg-accent {{#if obj.calendar_weeks_compact.weeks.length > 1 }} calendar__weekdays--rows {{/if}}">
+                                        <div class="calendar__weekdays__dates {{#if week.upcoming &&  @index <  2 }}calendar__weekdays__dates--upcoming calendar__weekdays__dates--upcoming--first{{/if}}">
                                           {{#each week.dates: date}}
                                             <p class="calendar__weekdays__dates__date {{#if week.dates[date].count > 0 }}calendar__weekdays__dates__date--active mui--text-dark {{elseif week.dates[date].isoformat == obj.calendar_weeks_compact.today }} calendar__weekdays__dates__date--today {{else}} mui--text-accent{{/if}} {{#if week.dates[date].day_start_at }} calendar__weekdays__dates__date--showtime{{/if}}" {{#if week.dates[date].count > 0 }} data-event-date="{{ week.dates[date].isoformat }}"{{/if}}>
                                               <span class="calendar__weekdays__dates__date__day">{{ week.dates[date].day }}</span>
@@ -68,11 +68,11 @@
                                             </p>
                                           {{/each}}
                                           {{#if obj.calendar_weeks_compact.weeks.length > 1 }}
-                                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
+                                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#chevron-right"></use></svg></p>
                                           {{/if}}
                                         </div>
-                                      {{/}}{{/week}}
-                                    </div>
+                                      </div>
+                                    {{/}}{{/week}}
                                   </div>
                                 </div>
                               </div>
