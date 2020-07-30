@@ -7,7 +7,7 @@
     bottom: 0;
 
     .header__nav {
-      height: 50px;
+      height: 56px;
       padding: 0 $mui-grid-padding;
       justify-content: space-between;
 
@@ -19,7 +19,7 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
-          height: 50px;
+          height: 56px;
           position: relative;
 
           .logo-about {
@@ -48,11 +48,12 @@
 
           .header__site-title__logo {
             height: 24px;
+            margin-bottom: 0 auto 2px;
           }
 
           .search-form {
             position: fixed;
-            bottom: 50px;
+            bottom: 56px;
             width: 100%;
             left: 0;
             box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
@@ -94,6 +95,7 @@
               width: 24px;
               height: 24px;
               color: $mui-text-light;
+              margin: 0 auto 4px;
             }
             .mui-caret {
               color: $mui-text-light;
@@ -232,6 +234,7 @@
               .header__nav-links__icon {
                 width: 22px;
                 height: 22px;
+                margin: 0;
               }
               .header__nav-links__text {
                 display: inline-block;

@@ -718,7 +718,7 @@ a.loginbutton.hidden,
   bottom: 0;
 }
 .hg-app .header--fixed .header__nav {
-  height: 50px;
+  height: 56px;
   padding: 0 16px;
   justify-content: space-between;
 }
@@ -734,7 +734,7 @@ a.loginbutton.hidden,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 50px;
+  height: 56px;
   position: relative;
 }
 .hg-app
@@ -786,6 +786,7 @@ a.loginbutton.hidden,
   .header__site-title__title
   .header__site-title__logo {
   height: 24px;
+  margin-bottom: 0 auto 2px;
 }
 .hg-app
   .header--fixed
@@ -794,7 +795,7 @@ a.loginbutton.hidden,
   .header__site-title__title
   .search-form {
   position: fixed;
-  bottom: 50px;
+  bottom: 56px;
   width: 100%;
   left: 0;
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
@@ -874,6 +875,7 @@ a.loginbutton.hidden,
   width: 24px;
   height: 24px;
   color: #4d5763;
+  margin: 0 auto 4px;
 }
 .hg-app
   .header--fixed
@@ -1063,6 +1065,7 @@ a.loginbutton.hidden,
     .header__nav-links__icon {
     width: 22px;
     height: 22px;
+    margin: 0;
   }
   .hg-app
     .header--fixed
@@ -2490,7 +2493,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates__date--active:after {
   content: '';
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 4px;
   width: 30px;
   height: 34px;
   text-align: center;
@@ -2537,7 +2540,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after {
   height: 36px;
-  border-radius: 8px 8px 0 0;
+  border-radius: 4px 4px 0 0;
 }
 .card__calendar
   .calendar
@@ -3307,7 +3310,7 @@ a.loginbutton.hidden,
 }
 .about .about__participate--modal {
   position: fixed;
-  top: 0;
+  top: 56px;
   background: #ffffff;
   left: 0;
   right: 0;
