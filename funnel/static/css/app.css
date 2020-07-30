@@ -2795,7 +2795,7 @@ a.loginbutton.hidden,
 .card--new .card__image-wrapper:after {
   content: '';
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   top: 0;
   left: 0;
   background-color: #0f73ed;
