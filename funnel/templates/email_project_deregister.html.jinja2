@@ -5,5 +5,5 @@
 
 <p>{% trans project=project.title %}You have deregistered for <b>{{ project }}</b>.{% endtrans %}</p>
 
-<p>{% trans project_url=project.url_for(_external=True) %}In case this was an accident, or if you wish to register again, you can do so through this link: {{ project_url }}{% endtrans %}</p>
+<p>{% trans project_url=project.url_for(_external=true) %}In case this was an accident, or if you wish to register again, you can do so through this link: {{ project_url }}{% endtrans %}</p>
 {%- endblock %}
