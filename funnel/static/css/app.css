@@ -971,6 +971,7 @@ a.loginbutton.hidden,
     padding: 2px 10px;
     border-radius: 4px;
     width: auto;
+    display: block;
   }
   .hg-app
     .header--fixed
