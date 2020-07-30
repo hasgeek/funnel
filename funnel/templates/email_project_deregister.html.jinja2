@@ -3,7 +3,7 @@
 
 <p>{% trans user=user.fullname %}Hi {{ user }},{% endtrans %}</p>
 
-<p>{% trans project=project.title %}You have deregistered for <b>{{ project }}</b>. In case this was an accident, or if you wish to register again, you can do so here:{% endtrans %}</p>
+<p>{% trans project=project.title %}You have deregistered for <b>{{ project }}</b>. In case this was accidental, you can register again.{% endtrans %}</p>
 
 <p><a class="btn" href="{{ project.url_for(_external=true) }}">{% trans %}Project page{% endtrans %}</a></p>
 
