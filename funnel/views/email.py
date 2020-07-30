@@ -151,14 +151,14 @@ def send_email_for_organization_admin_membership_revoked(
 
 
 @signals.user_registered_for_project.connect
-def send_email_for_project_registration(project, user):
+def send_email_for_project_registration(rsvp, project, user):
     background_project_registration_email.queue(
         project_id=project.id, user_id=user.id, locale=get_locale()
     )
 
 
 @signals.user_cancelled_project_registration.connect
-def send_email_for_project_deregistration(project, user):
+def send_email_for_project_deregistration(rsvp, project, user):
     send_email(
         subject=_("Registration cancelled for {project}").format(
             project=project.title
