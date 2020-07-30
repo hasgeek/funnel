@@ -608,6 +608,16 @@ a.loginbutton.hidden,
   }
   .login-page--artwork .login-page-wrapper .login-page-artwork {
     width: calc(100% - 350px);
+    padding-left: 50px;
+    display: block;
+  }
+}
+@media (min-width: 1200px) {
+  .login-page--artwork .login-page-wrapper {
+    display: flex;
+  }
+  .login-page--artwork .login-page-wrapper .login-page-artwork {
+    width: calc(100% - 350px);
     padding-left: 100px;
     display: block;
   }
@@ -694,7 +704,34 @@ a.loginbutton.hidden,
   display: none;
 }
 
+.about-top-content,
+.about-content {
+  font-size: 16px;
+  line-height: 21px;
+}
+
+.about-heading {
+  font-size: 24px;
+  line-height: 32px;
+}
+
 @media (min-width: 768px) {
+  .about-top-content,
+  .about-content {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .about-heading {
+    font-size: 32px;
+    line-height: 43px;
+  }
+
+  .about-top-content {
+    max-width: 675px;
+    margin: 0 0 75px 160px;
+  }
+
   .flex-content {
     display: flex;
     margin-bottom: 48px;
@@ -1405,6 +1442,7 @@ a.loginbutton.hidden,
   .sub-navbar-container--footer .sub-navbar {
     margin-bottom: 0;
     justify-content: space-between;
+    min-width: 100%;
   }
   .sub-navbar-container--footer .sub-navbar .sub-navbar__item {
     margin: 0;
