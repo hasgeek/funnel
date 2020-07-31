@@ -4,21 +4,21 @@ These are the terms under which you, the User, may use this Service.
 
 ## Definitions and legal references
 
-The terms “**HasGeek Learning Private Limited**”, “**HasGeek**”, “**us**”, “**we**” and “**our**” refer to the owner of the Service whose registered office is at #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560 078, Karnataka, India. Our registration number is U74900KA2015PTC083923 and we are incorporated under the Companies Act 2013 of India.
+The terms “**Hasgeek Learning Private Limited**”, “**Hasgeek**”, “**us**”, “**we**” and “**our**” refer to the owner of the Service whose registered office is at #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560 078, Karnataka, India. Our registration number is U74900KA2015PTC083923 and we are incorporated under the Companies Act 2013 of India.
 
 Definition of other terms used in this document:
 
--   “**Application**”, “**App**”, “**Service**”, “**Website**”, “**Event**” or “**Product**”: Any application, service, website, event or product provided by HasGeek
+-   “**Application**”, “**App**”, “**Service**”, “**Website**”, “**Event**” or “**Product**”: Any application, service, website, event or product provided by Hasgeek
 -   “**User**”: The individual using this Service
--   “**Account**”: A collection of User-provided information held by HasGeek on behalf of the User
+-   “**Account**”: A collection of User-provided information held by Hasgeek on behalf of the User
 
 ## Acceptance of terms of service and breach
 
-If the User continues to browse and use this Service, they are agreeing to comply with and be bound by the following terms and conditions of use, which together with our [privacy policy](privacy) and [community guidelines](community) govern HasGeek’s relationship with the User in relation to our Service, except to the extent they are overriden by special terms that we announce with respect to the respective Service.
+If the User continues to browse and use this Service, they are agreeing to comply with and be bound by the following terms and conditions of use, which together with our [privacy policy](privacy) and [community guidelines](community) govern Hasgeek’s relationship with the User in relation to our Service, except to the extent they are overriden by special terms that we announce with respect to the respective Service.
 
-If the User violates these terms, HasGeek may discontinue providing the User with one or more Services and/or refuse to provide the User with access to all HasGeek Services. In addition, we reserve the right to recover any amounts due and owed by the User to HasGeek and to take any necessary legal action including but not limited to a referral to the appropriate legal institution or other authorities for initiating criminal or civil proceedings against the User.
+If the User violates these terms, Hasgeek may discontinue providing the User with one or more Services and/or refuse to provide the User with access to all Hasgeek Services. In addition, we reserve the right to recover any amounts due and owed by the User to Hasgeek and to take any necessary legal action including but not limited to a referral to the appropriate legal institution or other authorities for initiating criminal or civil proceedings against the User.
 
-The User shall defend and indemnify HasGeek, its owners (and directors as applicable), licensees, affiliates, subsidiaries, group companies (as applicable) and their respective officers, directors, agents, and employees, from any claim or demand, or actions including reasonable attorneys’ fees, made by any third party or penalty imposed due to or arising out of the User’s breach of this Terms of Use, [privacy policy](privacy), [community guidelines](community) and other policies, or the User’s violation of any law, rules or regulations or the rights of a third party.
+The User shall defend and indemnify Hasgeek, its owners (and directors as applicable), licensees, affiliates, subsidiaries, group companies (as applicable) and their respective officers, directors, agents, and employees, from any claim or demand, or actions including reasonable attorneys’ fees, made by any third party or penalty imposed due to or arising out of the User’s breach of this Terms of Use, [privacy policy](privacy), [community guidelines](community) and other policies, or the User’s violation of any law, rules or regulations or the rights of a third party.
 
 This policy is effective from January 1, 2016.
 
@@ -58,21 +58,21 @@ The User expressly agrees that the use of, or inability to use, the Service is a
 
 ## Disclaimer
 
-The information contained in this Service is for general information purposes only. The information is provided by HasGeek and by users of this Service. While we endeavour to keep the information up to date and correct, we make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability or availability with respect to the Service or the information, products, services, or related graphics contained on the Service for any purpose. Any reliance you place on such information is therefore strictly at your own risk.
+The information contained in this Service is for general information purposes only. The information is provided by Hasgeek and by users of this Service. While we endeavour to keep the information up to date and correct, we make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability or availability with respect to the Service or the information, products, services, or related graphics contained on the Service for any purpose. Any reliance you place on such information is therefore strictly at your own risk.
 
-In no event will HasGeek be liable for any damages, including without limitation direct or indirect, special, incidental, or consequential damages, losses or expenses arising in connection with this Service or use thereof or inability to use by any party, or in connection with any failure of performance, error, omission, interruption, defect, delay in operation or transmission, computer virus or line or system failure, even if HasGeek, or representatives thereof, are advised of the possibility of such damages, losses or expenses.
+In no event will Hasgeek be liable for any damages, including without limitation direct or indirect, special, incidental, or consequential damages, losses or expenses arising in connection with this Service or use thereof or inability to use by any party, or in connection with any failure of performance, error, omission, interruption, defect, delay in operation or transmission, computer virus or line or system failure, even if Hasgeek, or representatives thereof, are advised of the possibility of such damages, losses or expenses.
 
-Through this Service you are able to link to other websites and apps which are not under the control of HasGeek. We have no control over the nature, content and availability of those websites and apps. The inclusion of any links does not necessarily imply a recommendation or endorse the views expressed within them.
+Through this Service you are able to link to other websites and apps which are not under the control of Hasgeek. We have no control over the nature, content and availability of those websites and apps. The inclusion of any links does not necessarily imply a recommendation or endorse the views expressed within them.
 
 ## Branding and APIs
 
 This Service contains material which is owned by or licensed to us. This material includes, but is not limited to, the design, layout, look, appearance and graphics. Reproduction is prohibited other than in accordance with the copyright notice, which forms part of these terms and conditions.
 
-HasGeek makes available APIs or interfaces that expose content and functionality from HasGeek’s Services to third party developers. If an API is likely to expose non-public information contributed by the User, we will obtain the User’s consent before enabling it. We will have rules governing the use of the API by such developers/companies/third party websites, but we cannot be held responsible for their use of the API in a manner that is inappropriate or violates an applicable law.
+Hasgeek makes available APIs or interfaces that expose content and functionality from Hasgeek’s Services to third party developers. If an API is likely to expose non-public information contributed by the User, we will obtain the User’s consent before enabling it. We will have rules governing the use of the API by such developers/companies/third party websites, but we cannot be held responsible for their use of the API in a manner that is inappropriate or violates an applicable law.
 
 ## Content and scope
 
-HasGeek reserves the right, but has no obligation, to monitor the materials posted on its Services. HasGeek shall have the right to remove or edit any content that in its sole discretion violates, or is alleged to violate, any applicable law or either the spirit or letter of these Terms of Service or [community guidelines](community). Notwithstanding this right of HasGeek, THE USER SHALL REMAIN SOLELY RESPONSIBLE FOR THE CONTENT OF THE MATERIALS THAT IS POSTED ON THE HASGEEK SERVICES WHETHER SUCH CONTENT IS ACCESSIBLE AND/OR VISIBLE PUBLICLY OR OTHERWISE.
+Hasgeek reserves the right, but has no obligation, to monitor the materials posted on its Services. Hasgeek shall have the right to remove or edit any content that in its sole discretion violates, or is alleged to violate, any applicable law or either the spirit or letter of these Terms of Service or [community guidelines](community). Notwithstanding this right of Hasgeek, THE USER SHALL REMAIN SOLELY RESPONSIBLE FOR THE CONTENT OF THE MATERIALS THAT IS POSTED ON THE HASGEEK SERVICES WHETHER SUCH CONTENT IS ACCESSIBLE AND/OR VISIBLE PUBLICLY OR OTHERWISE.
 
 All trademarks reproduced in this Service which are not the property of, or licensed to, the operator are acknowledged on the Service wherever we have been made aware of a trademark claim. We respond seriously to copyright infringements by removing the said content and de-activating the account responsible. For a full list of our rules regarding content, please refer to our [community guidelines](community).
 
@@ -88,7 +88,7 @@ Through the User’s use of our Services or attendance at our events, with or wi
 
 We charge for certain Services and provide other Services without charge. But whether we do charge or not is a commercial decision and we believe it is important that we reserve the right to change pricing and related policies if we feel the need to do so. We will alert the User when we are about to effect such changes that affect them.
 
-HasGeek may provide more than one payment method as a convenience to the User. This may include online payment gateways operated by other companies. The operation of these payment transactions occurs outside our control and we only receive a confirmation of payment from the payment gateway provider. There are a number of reasons why the User’s payment transaction may fail and we may not be able to provide a suitable explanation for that failure. We are incorporated as an Indian entity and only accept payments in Indian currency.
+Hasgeek may provide more than one payment method as a convenience to the User. This may include online payment gateways operated by other companies. The operation of these payment transactions occurs outside our control and we only receive a confirmation of payment from the payment gateway provider. There are a number of reasons why the User’s payment transaction may fail and we may not be able to provide a suitable explanation for that failure. We are incorporated as an Indian entity and only accept payments in Indian currency.
 
 ## Fulfilment
 
@@ -100,9 +100,9 @@ The terms of service specific to listing a job are listed under the [Hasjob term
 
 **Events**
 
-HasGeek organizes events e.g. conferences, workshops, hackathons and meetups for the community, and incurs expenses for venue, food, stationery & printing, audio & video facilities as well as other rental or purchased equipment. HasGeek reserves entry to select events only to valid ticket holders. A ticket is valid only for the persons named on the ticket issued by us.
+Hasgeek organizes events e.g. conferences, workshops, hackathons and meetups for the community, and incurs expenses for venue, food, stationery & printing, audio & video facilities as well as other rental or purchased equipment. Hasgeek reserves entry to select events only to valid ticket holders. A ticket is valid only for the persons named on the ticket issued by us.
 
-Pricing for each event will be publicly available for a specified period before the event. Apart from making tickets available online, HasGeek may also hold a portion of the venue capacity for onsite ticket purchases. Tickets will be available for purchase until there is capacity at the venue, as defined by its safety guidelines or as set by HasGeek, whichever is lower.
+Pricing for each event will be publicly available for a specified period before the event. Apart from making tickets available online, Hasgeek may also hold a portion of the venue capacity for onsite ticket purchases. Tickets will be available for purchase until there is capacity at the venue, as defined by its safety guidelines or as set by Hasgeek, whichever is lower.
 
 Fulfilment for an event happens on the conclusion of the event associated with a validly purchased/issued ticket. That means that ‘technically’ the service has been provided once the event ends, even though we may provide the User with additional materials after the event.
 

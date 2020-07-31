@@ -3,8 +3,8 @@
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
-  window.HasGeek = {};
-  window.HasGeek.config = {
+  window.Hasgeek = {};
+  window.Hasgeek.config = {
     mobileBreakpoint: 768, // this breakpoint switches to desktop UI
     ajaxTimeout: 30000,
     retryInterval: 10000,
@@ -20,7 +20,7 @@ $(() => {
   Utils.popupBackHandler();
   Utils.handleModalForm();
 
-  const intersectionObserverComponents = function() {
+  const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {
       ScrollActiveMenu.init(
         'page-navbar',
@@ -49,7 +49,7 @@ $(() => {
         'src',
         'https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver'
       );
-      polyfill.onload = function() {
+      polyfill.onload = function () {
         intersectionObserverComponents();
       };
       document.head.appendChild(polyfill);
@@ -94,7 +94,7 @@ if (
   )
 ) {
   $('.pace').addClass('pace-hide');
-  window.onbeforeunload = function() {
+  window.onbeforeunload = function () {
     Pace.stop();
   };
 }

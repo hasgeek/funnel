@@ -21,7 +21,7 @@ const badgeScan = {
         facingMode: true,
         cameras: [],
         selectedCamera: '',
-        svgIconUrl: window.HasGeek.config.svgIconUrl,
+        svgIconUrl: window.Hasgeek.config.svgIconUrl,
       },
 
       closeModal(event) {
@@ -44,7 +44,7 @@ const badgeScan = {
           type: 'POST',
           url,
           data: formValues,
-          timeout: window.HasGeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.config.ajaxTimeout,
           dataType: 'json',
 
           success(response) {
@@ -65,7 +65,7 @@ const badgeScan = {
           complete() {
             window.setTimeout(() => {
               badgeScanComponent.closeModal();
-            }, window.HasGeek.config.closeModalTimeout);
+            }, window.Hasgeek.config.closeModalTimeout);
           },
         });
       },
@@ -201,7 +201,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.HasGeek.BadgeScanInit = function (eventConfig) {
+  window.Hasgeek.BadgeScanInit = function (eventConfig) {
     badgeScan.init(eventConfig);
   };
 });

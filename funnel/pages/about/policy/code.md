@@ -1,6 +1,6 @@
 title: Code of conduct
 
-This code of conduct applies across online forums, conferences and other events hosted by HasGeek.
+This code of conduct applies across online forums, conferences and other events hosted by Hasgeek.
 
 We are here as a community to deliberate on the topics of the forum.
 
@@ -17,6 +17,6 @@ We strongly condemn any kind of harassment of any fellow participant. This inclu
 4. Inappropriate physical contact and invasion of private space.
 5. Deliberate intimidation, unwelcome gestures and stalking.
 
-Please report in confidence by sending an SMS to +91 7676 33 2020. SMSes are received by HasGeek staff who can address this quickly.
+Please report in confidence by sending an SMS to +91 7676 33 2020. SMSes are received by Hasgeek staff who can address this quickly.
 
 Violators, regardless of their standing, may be expelled from the forum, without a refund (where payment was applicable), and reported to the authorities.

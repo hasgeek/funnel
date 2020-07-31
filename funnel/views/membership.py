@@ -39,7 +39,6 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('', methods=['GET', 'POST'])
     @render_with('organization_membership.html.jinja2')
-    @requires_roles({'admin'})
     def members(self):
         if not self.obj.organization:
             # User profiles don't have memberships

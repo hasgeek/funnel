@@ -145,12 +145,25 @@ def proposal_redirect(proposal):
     return redirect(proposal.url_for())
 
 
-@app.route('/about/', defaults={'path': 'index'})
-@app.route('/about/policy/', defaults={'path': 'policy/index'})
-@app.route('/about/<path:path>')
-def about(path):
+@app.route('/about')
+def about():
+    return render_template('about.html.jinja2')
+
+
+@app.route('/about/contact', defaults={'path': 'contact'})
+def contact(path):
     return render_template(
-        'about.html.jinja2', page=pages.get_or_404(os.path.join('about', path))
+        'contact.html.jinja2',
+        path=path,
+        page=pages.get_or_404(os.path.join('about', path)),
+    )
+
+
+@app.route('/about/policy', defaults={'path': 'policy/index'})
+@app.route('/about/<path:path>')
+def policy(path):
+    return render_template(
+        'policy.html.jinja2', page=pages.get_or_404(os.path.join('about', path))
     )
 
 

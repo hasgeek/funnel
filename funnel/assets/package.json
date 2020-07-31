@@ -1,13 +1,13 @@
 {
   "name": "hasgeek",
   "version": "1.0.0",
-  "description": "HasGeek creates discussion spaces for geeks",
+  "description": "Hasgeek is a community space for geeks",
   "main": "app.js",
   "scripts": {
     "dev": "webpack --mode development --progress --watch",
     "build": "webpack --mode production"
   },
-  "author": "HasGeek team",
+  "author": "Hasgeek team",
   "license": "AGPLv3",
   "devDependencies": {
     "@babel/core": "^7.2.2",

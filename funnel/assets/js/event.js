@@ -109,7 +109,7 @@ const ParticipantTable = {
         cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
         isConcierge,
         isUsher,
-        svgIconUrl: window.HasGeek.config.svgIconUrl,
+        svgIconUrl: window.Hasgeek.config.svgIconUrl,
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');
         },
@@ -146,7 +146,7 @@ const ParticipantTable = {
         $.ajax({
           type: 'GET',
           url: participantlistUrl,
-          timeout: window.HasGeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.config.ajaxTimeout,
           dataType: 'json',
           success(data) {
             count.set({
@@ -211,7 +211,7 @@ const ParticipantTable = {
       type: 'POST',
       url: list.get('checkinUrl'),
       data: formValues,
-      timeout: window.HasGeek.config.ajaxTimeout,
+      timeout: window.Hasgeek.config.ajaxTimeout,
       dataType: 'json',
       success(data) {
         if (data.checked_in) {
@@ -229,7 +229,7 @@ const ParticipantTable = {
 };
 
 $(() => {
-  window.HasGeek.EventInit = function ({ checkin = '', search = '' }) {
+  window.Hasgeek.EventInit = function ({ checkin = '', search = '' }) {
     if (checkin) {
       ParticipantTable.init(checkin);
     }

@@ -28,7 +28,7 @@
               </p>
             {% endif %}
             {% for date in week.dates %}
-              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
+              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} calendar__weekdays__dates__date--{{ loop.index }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
                 <span class="calendar__weekdays__dates__date__name">{{ calendar.days[loop.index-1] }}</span>
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} – {{ date.day_end_at }}</span>{% endif %}
@@ -64,7 +64,7 @@
 
 {% macro share_dropdown(url, title) %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
-    <li><a class="details__box__control__link mui--text-title" target="_blank" href="//twitter.com/share?url={{ url }}&amp;via=HasGeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="HasGeek" data-text="{{ title }}" data-action="Tweet video">Twitter</a></li>
+    <li><a class="details__box__control__link mui--text-title" target="_blank" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-action="Tweet video">Twitter</a></li>
     <li><a class="details__box__control__link mui--text-title" target="_blank" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-action="Share video on facebook">Facebook</a></li>
     <li><a class="details__box__control__link mui--text-title" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-action="Email video">Email</a></li>
     <li><a class="details__box__control__link mui--text-title" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-action="Share about {{ title }} on linkedin">Linkedin</a></li>
@@ -155,12 +155,12 @@
         </div>
       </div>
       <div class="grid__col-sm-12 project-banner__headline">
-        <h1 class="mui--text-display1 mui--text-bold zero-top-margin zero-bottom-margin">{{ project.title }}
+        <h1 class="mui--text-headline mui--text-bold zero-top-margin project-banner__headline__title">{{ project.title }}
           {% if project.view_for('edit_slug').is_available() %}
             <a class="mui--text-body2" href="{{ project.url_for('edit_slug') }}" aria-label="edit project url" data-action="edit project url">{% trans %}Edit url{% endtrans %} {{ faicon(icon='edit') }}</a>
           {% endif %}
         </h1>
-        <p class="mui--text-headline mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
+        <p class="mui--text-title mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
       {% if project.livestream_urls %}
         <div role="tabpanel" class="grid__col-sm-12 grid__col-md-8 livestream-box" id="livestream">
@@ -271,7 +271,7 @@
           <hr class="mui-divider">
           {% if project.cfp_state.OPEN -%}
             <div class="propose propose--lessmargin">
-              <a class="mui-btn mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
+              <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)" data-cy="propose-a-session">{% trans %}Submit a session proposal{% endtrans %}</a>
               {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light">{% trans date=project.cfp_end_at_localized|datetime %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {% elif project.view_for('cfp').is_available() -%}
@@ -286,7 +286,7 @@
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="propose propose--lessmargin">
-              <a class="mui-btn mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
+              <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Submit a session proposal" data-action="Propose a session(closed)">{% trans %}Submit a session proposal{% endtrans %}</a>
               <p class="mui--text-light mui--text-caption mui--text-center zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
             </div>
           {%- endif %}
@@ -332,7 +332,7 @@
     </nav>
   </div>
   {% with pinned_post = project.pinned_post %}{%- if pinned_post and pinned %}
-  <ul class="mui-list--unstyled pinned">
+  <ul class="mui-list--unstyled pinned  {% if current_page == 'project' %}pinned--about-page{%- endif %}">
     <li>
       <a href="{{ pinned_post.urls['project_view'] }}" class="pinned__post">
         <p class="pinned__post__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">Pinned update</span></p>
@@ -389,14 +389,14 @@
 
 {% macro projectcard(project, project_save_form, include_calendar=true, calendarwidget_compact=true) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
-    <div class="card__image-wrapper">
+    <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
         <img class="card__image js-lazyload-img" data-src="{{ project.bg_image }}" alt="{{ project.title }}"/>
         <noscript>
           <img class="card__image" src="{{ project.bg_image }}" alt="{{ project.title }}"/>
         </noscript>
       {% else %}
-        <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ project.title }}"/>
+        <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
         <p class="card__image__tagline mui--text-body2">{{ project.title }}</p>
       {% endif %}
     </div>
@@ -452,7 +452,7 @@
                 {% if featured_project.bg_image.url %}
                   <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
                 {% else %}
-                  <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
+                  <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                   <p class="card__image__tagline">{{ featured_project.title }}</p>
                 {% endif %}
               </div>
@@ -498,7 +498,7 @@
                   {% if featured_project.bg_image.url %}
                     <img class="card__image" src="{{ featured_project.bg_image }}" alt="{{ featured_project.title }}"/>
                   {% else %}
-                    <img class="card__image" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ featured_project.title }}"/>
+                    <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                     <p class="card__image__tagline">{{ featured_project.title }}</p>
                   {% endif %}
                 </div>
@@ -604,7 +604,7 @@
 
 {% macro past_projects_section() %}
   {% raw %}
-    <div class="projects-wrapper" id="past-project-table">
+    <div class="projects-wrapper" id="past-project-table" v-cloak>
       <div class="mui-container">
         <div class="grid projects">
           <div class="grid__col-12">
@@ -612,7 +612,7 @@
           </div>
           <div class="grid__col-12 mui-table--responsive-wrapper">
             <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
-              <thead class="mui--bg-primary-light">
+              <thead class="mui--bg-primary-dark">
                 <tr>
                   <th class="mui--text-subhead mui--text-capitalize" v-for="heading in headings" v-if="pastprojects.length">{{ heading }}</th>
                 </tr>
@@ -684,7 +684,7 @@
             {%- if profile.banner_image_url.url %}
               <img class="profile__banner__box__img" src="{{ profile.banner_image_url }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
             {% else %}
-              <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/card-background.png') }}" alt="{{ profile.title }}"/>
+              <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ profile.title }}"/>
             {% endif %}
           </div>
           {%- if profile.current_roles.admin %}
@@ -758,10 +758,8 @@
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      {% if profile.features.new_project()  %}
-        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
-      {% endif %}
-      {%- if profile.current_roles.admin and profile.organization %}<a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>{% endif %}
+      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
     </nav>
   </div>
 </div>
@@ -850,4 +848,15 @@
       </li>
     </script>
   {% endraw %}
+{% endmacro %}
+
+{% macro page_footer() %}
+  <div class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
+    <nav class="sub-navbar mui-container" id="page-navbar">
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="/about">{% trans %}About Hasgeek{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="/hasgeek">{% trans %}Team &amp; careers{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="/about/contact">{% trans %}Contact{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'policy/terms' %}sub-navbar__item--active{%- endif %}" href="/about/policy/terms">{% trans %}Site policies{% endtrans %}</a>
+    </nav>
+  </div>
 {% endmacro %}

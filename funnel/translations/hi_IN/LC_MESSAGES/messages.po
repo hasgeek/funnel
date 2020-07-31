@@ -803,7 +803,7 @@ msgid "About"
 msgstr "हमारे बारे में"
 
 #: funnel/templates/about.html.jinja2:18
-msgid "About HasGeek"
+msgid "About Hasgeek"
 msgstr "हैसगीक के बारें में"
 
 #: funnel/templates/about.html.jinja2:19
@@ -847,15 +847,15 @@ msgid "Code of conduct"
 msgstr "आचार संहिता"
 
 #: funnel/templates/about.html.jinja2:52
-msgid " Copyright &copy; 2010-18 HasGeek.  All rights reserved."
-msgstr "कॉपीराइट &copy; 2010-18 HasGeek । सभी अधिकार सुरक्षित।"
+msgid " Copyright &copy; 2010-18 Hasgeek.  All rights reserved."
+msgstr "कॉपीराइट &copy; 2010-18 Hasgeek । सभी अधिकार सुरक्षित।"
 
 #: funnel/templates/about.html.jinja2:60
 msgid "Follow @hasgeek"
 msgstr "@hasgeek को फॉलो करें"
 
 #: funnel/templates/about.html.jinja2:62
-msgid "Like HasGeek's page on Facebook"
+msgid "Like Hasgeek's page on Facebook"
 msgstr "हैसगीक को फेसबुक पर लाइक करें"
 
 #: funnel/templates/autherror.html.jinja2:2

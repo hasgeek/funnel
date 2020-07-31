@@ -346,7 +346,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @requires_permission('view')
     def schedule_room_ical(self):
         cal = Calendar()
-        cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN"),
+        cal.add('prodid', "-//Hasgeek//NONSGML Funnel//EN"),
         cal.add('version', "2.0")
         cal.add(
             'name',
