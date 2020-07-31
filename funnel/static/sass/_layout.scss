@@ -768,11 +768,24 @@ a.loginbutton.hidden,
 .about-content {
   font-size: 16px;
   line-height: 21px;
+  margin: 0;
 }
 
 .about-heading {
   font-size: 24px;
   line-height: 32px;
+  margin: 32px 0;
+}
+
+.flex-content {
+  img {
+    margin: 0 auto;
+  }
+
+  .fifty-width:first-child,
+  img:first-child {
+    margin-bottom: 32px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -782,14 +795,15 @@ a.loginbutton.hidden,
     line-height: 32px;
   }
 
-  .about-heading {
+  .project-headline.about-heading {
     font-size: 32px;
     line-height: 43px;
+    margin: 0 0 48px;
   }
 
   .about-top-content {
     max-width: 675px;
-    margin: 0 0 75px;
+    margin: 16px 0 48px;
   }
 
   .flex-content {
@@ -805,6 +819,7 @@ a.loginbutton.hidden,
     .fifty-width:first-child,
     img:first-child {
       padding-right: 50px;
+      margin-bottom: 0;
     }
   }
 }

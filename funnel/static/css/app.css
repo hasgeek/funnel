@@ -708,11 +708,21 @@ a.loginbutton.hidden,
 .about-content {
   font-size: 16px;
   line-height: 21px;
+  margin: 0;
 }
 
 .about-heading {
   font-size: 24px;
   line-height: 32px;
+  margin: 32px 0;
+}
+
+.flex-content img {
+  margin: 0 auto;
+}
+.flex-content .fifty-width:first-child,
+.flex-content img:first-child {
+  margin-bottom: 32px;
 }
 
 @media (min-width: 768px) {
@@ -722,14 +732,15 @@ a.loginbutton.hidden,
     line-height: 32px;
   }
 
-  .about-heading {
+  .project-headline.about-heading {
     font-size: 32px;
     line-height: 43px;
+    margin: 0 0 48px;
   }
 
   .about-top-content {
     max-width: 675px;
-    margin: 0 0 75px;
+    margin: 16px 0 48px;
   }
 
   .flex-content {
@@ -745,6 +756,7 @@ a.loginbutton.hidden,
   .flex-content .fifty-width:first-child,
   .flex-content img:first-child {
     padding-right: 50px;
+    margin-bottom: 0;
   }
 }
 #root_footer {
@@ -1430,13 +1442,12 @@ a.loginbutton.hidden,
   }
 }
 .sub-navbar-container--footer {
-  margin-top: 70px;
-  margin-bottom: 50px;
+  margin-top: 32px;
+  margin-bottom: 56px;
 }
 
 @media (min-width: 768px) {
   .sub-navbar-container--footer {
-    margin-top: 150px;
     margin-bottom: 0;
   }
   .sub-navbar-container--footer .sub-navbar {
@@ -1446,6 +1457,7 @@ a.loginbutton.hidden,
   }
   .sub-navbar-container--footer .sub-navbar .sub-navbar__item {
     margin: 0;
+    color: #1b3a44;
   }
 }
 .mobile-nav {
@@ -1878,7 +1890,7 @@ a.loginbutton.hidden,
   }
 }
 .profile--hg {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 .profile--hg .profile__banner .profile__banner__box {
   padding-bottom: 50%;
