@@ -55,7 +55,7 @@
           top: 165px;
           background-color: $mui-accent-color-lighter;
           color: $mui-text-accent-lighter;
-          z-index: 4;
+          z-index: 3;
           float: right;
           padding: 5px;
           border-radius: 3px;
@@ -94,7 +94,7 @@
       position: -webkit-sticky;
       top: 62px;
       order: 1;
-      z-index: 999;
+      z-index: 4;
       border: none;
       display: flex;
       box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
@@ -227,7 +227,7 @@
       }
       .schedule__row--sticky {
         overflow: visible;
-        top: 108px;
+        top: 110px;
 
         .schedule__row__column--header {
           padding: $mui-grid-padding 10px;
