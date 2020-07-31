@@ -51,7 +51,7 @@
     }
 
     .membership-wrapper__members__list__roles__role {
-      color: $mui-accent-color;
+      color: $mui-primary-color;
       display: none;
     }
     .membership-wrapper__members__list__roles__role:first-child {
@@ -68,6 +68,11 @@
 
   .membership-wrapper__members__list--viewonly {
     cursor: default;
+
+    .membership-wrapper__members__list__roles__role {
+      color: $mui-text-dark;
+      display: none;
+    }
   }
 
   .membership-wrapper__members__list--nomargin {

@@ -157,7 +157,7 @@
 .collapsible__header {
   margin: 10px 0;
   width: 100%;
-  background: #eff2f6;
+  background: #f1f1f1;
   padding: 20px;
   cursor: pointer;
 }
@@ -181,7 +181,7 @@
   margin: 0;
   margin-right: 1px;
   padding: 10px;
-  background: #eff2f6;
+  background: #f1f1f1;
   max-height: 44px;
 }
 
@@ -745,18 +745,20 @@ a.loginbutton.hidden,
 
   .flex-content {
     display: flex;
+    justify-content: space-between;
     margin-bottom: 48px;
   }
   .flex-content .fifty-width {
-    width: 50%;
-  }
-  .flex-content img {
-    width: 50%;
+    width: 40%;
   }
   .flex-content .fifty-width:first-child,
   .flex-content img:first-child {
-    padding-right: 50px;
-    margin-bottom: 0;
+    margin: 0;
+  }
+}
+@media (min-width: 1200px) {
+  .flex-content .fifty-width {
+    width: 50%;
   }
 }
 #root_footer {
@@ -859,7 +861,7 @@ a.loginbutton.hidden,
   .header__site-title__title
   .search-form
   .search-form__field {
-  background-color: #eff2f6;
+  background-color: #f1f1f1;
   border: none;
   padding: 16px 32px 16px 42px;
   min-width: calc(100% - 60px);
@@ -1778,7 +1780,7 @@ a.loginbutton.hidden,
   top: 0;
   left: 0;
   overflow: hidden;
-  background-color: #eff2f6;
+  background-color: #f1f1f1;
   width: 120px;
   height: 120px;
   border-radius: 50%;
@@ -1819,7 +1821,7 @@ a.loginbutton.hidden,
 }
 
 .profile-dropdown-btn {
-  background-color: #eff2f6;
+  background-color: #f1f1f1;
   padding: 6px 16px;
   text-align: center;
   margin-left: 8px;
@@ -1828,7 +1830,7 @@ a.loginbutton.hidden,
 .profile-dropdown-btn:hover,
 .profile-dropdown-btn:focus,
 .profile-dropdown-btn:active {
-  background-color: #eff2f6;
+  background-color: #f1f1f1;
 }
 
 @media (min-width: 768px) {
@@ -2104,7 +2106,7 @@ a.loginbutton.hidden,
 }
 
 .seq-input--bg {
-  background: #eff2f6;
+  background: #f1f1f1;
 }
 
 .seq-input:focus,
@@ -2730,7 +2732,7 @@ a.loginbutton.hidden,
   padding-bottom: 56.2%;
   z-index: 3;
   overflow: hidden;
-  border-radius: 0 0 0 16px;
+  border-radius: 0 0 0 20px;
 }
 .card--upcoming .card__image-wrapper .card__image {
   position: absolute;
@@ -2775,7 +2777,7 @@ a.loginbutton.hidden,
 }
 .card--upcoming .card__body .card__body__divider {
   height: 4px;
-  background-color: #eff2f6;
+  background-color: #f1f1f1;
   width: 24px;
   margin: 12px 0;
 }
@@ -2916,7 +2918,7 @@ a.loginbutton.hidden,
   margin: 0 0 0 10px;
 }
 .session-card .session-card__header--bck {
-  background: #eff2f6;
+  background: #f1f1f1;
 }
 
 .contact-card {
@@ -4604,13 +4606,13 @@ body > .proposal-box.ui-draggable {
 .no-member .no-member__icon {
   width: 40px;
   height: 40px;
-  color: #eff2f6;
+  color: #f1f1f1;
 }
 
 .membership-wrapper__members .membership-wrapper__members__collapsible__header {
   margin: 5px 0 0;
   width: 100%;
-  background: #eff2f6;
+  background: #f1f1f1;
   padding: 16px;
   cursor: pointer;
 }
@@ -4632,7 +4634,7 @@ body > .proposal-box.ui-draggable {
 .membership-wrapper__members
   .membership-wrapper__members__list
   .membership-wrapper__members__list__roles__role {
-  color: #f06a5e;
+  color: #0f73ed;
   display: none;
 }
 .membership-wrapper__members
@@ -4648,6 +4650,12 @@ body > .proposal-box.ui-draggable {
 }
 .membership-wrapper__members .membership-wrapper__members__list--viewonly {
   cursor: default;
+}
+.membership-wrapper__members
+  .membership-wrapper__members__list--viewonly
+  .membership-wrapper__members__list__roles__role {
+  color: #1f2d3d;
+  display: none;
 }
 .membership-wrapper__members .membership-wrapper__members__list--nomargin {
   margin: 0 auto;

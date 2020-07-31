@@ -808,18 +808,23 @@ a.loginbutton.hidden,
 
   .flex-content {
     display: flex;
+    justify-content: space-between;
     margin-bottom: 48px;
 
     .fifty-width {
-      width: 50%;
-    }
-    img {
-      width: 50%;
+      width: 40%;
     }
     .fifty-width:first-child,
     img:first-child {
-      padding-right: 50px;
-      margin-bottom: 0;
+      margin: 0;
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .flex-content {
+    .fifty-width {
+      width: 50%;
     }
   }
 }

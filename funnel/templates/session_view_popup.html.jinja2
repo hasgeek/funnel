@@ -25,7 +25,7 @@
   {% if session.video and session.video.url %}
     <div class="details">
       <div class="details__box details__box--left">
-        <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="session-video">
+        <div class="details__box__video mui--bg-primary-dark embed-video-wrapper" data-cy="session-video">
           {{ embed_video_player(session.video) }}
         </div>
         <div class="details__box__control">
@@ -36,7 +36,7 @@
   {% else %}
     <div class="details">
       <div class="details__box details__box--left">
-        <div class="details__box__video mui--bg-primary-light embed-video-wrapper">
+        <div class="details__box__video mui--bg-primary-dark embed-video-wrapper">
           <div class="video_txt">
             <p>{{ faicon(icon='video-slash', icon_size='display1') }}</p>
             <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
