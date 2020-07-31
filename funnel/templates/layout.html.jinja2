@@ -27,31 +27,33 @@
   {%- elif project and project.profile and project.profile.logo_url.url %}
     <link rel="image_src" href="{{ project.profile.logo_url }}" />
     <meta property="og:image" content="{{ project.profile.logo_url }}" />
-    <meta name="twitter:image" content="{{ project.profile.logo_url }}">
+    <meta name="twitter:image" content="{{ project.profile.logo_url }}" />
   {%- elif profile and profile.logo_url.url %}
     <link rel="image_src" href="{{ profile.logo_url }}" />
     <meta property="og:image" content="{{ profile.logo_url }}" />
-    <meta name="twitter:image" content="{{ profile.logo_url }}">
+    <meta name="twitter:image" content="{{ profile.logo_url }}" />
   {%- elif not config['LEGACY'] %}
     <link rel="image_src" href="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
     <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
-    <meta name="twitter:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
   {%- else  %}
     <link rel="image_src" href="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
     <meta property="og:image" content="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
-    <meta name="twitter:image" content="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
   {% endif -%}
 {%- endblock %}
 
 {%- block layoutheaders %}
-  {%- if not config['LEGACY'] -%}
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#e3e1e1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="#e3e1e1">
-  <meta name="apple-mobile-web-app-title" content="js">
-  <link rel="icon" sizes="192x192" href="{{ url_for('static', filename='img/android-chrome-192x192.png', v=2, _external=true) }}">
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png', v=2, _external=true) }}">
+  {%- if not config['LEGACY'] %}
+  <link rel="manifest" href="/manifest.webmanifest" />
+  /* Repeat manifest in upper case for filters */
+  <LINK REL="MANIFEST" HREF="/manifest.webmanifest" />
+  <meta name="theme-color" content="#e3e1e1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="#e3e1e1" />
+  <meta name="apple-mobile-web-app-title" content="js" />
+  <link rel="icon" sizes="192x192" href="{{ url_for('static', filename='img/android-chrome-192x192.png', v=2, _external=true) }}" />
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png', v=2, _external=true) }}" />
   {%- endif -%}
   {% block pageheaders %}{% endblock %}
 {%- endblock %}
