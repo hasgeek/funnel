@@ -604,7 +604,7 @@
 
 {% macro past_projects_section() %}
   {% raw %}
-    <div class="projects-wrapper" id="past-project-table">
+    <div class="projects-wrapper" id="past-project-table" v-cloak>
       <div class="mui-container">
         <div class="grid projects">
           <div class="grid__col-12">
@@ -850,4 +850,15 @@
       </li>
     </script>
   {% endraw %}
+{% endmacro %}
+
+{% macro page_footer() %}
+  <div class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
+    <nav class="sub-navbar mui-container" id="page-navbar">
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="/about">{% trans %}About Hasgeek{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold" href="/hasgeek">{% trans %}Team &amp; careers{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="/about/contact">{% trans %}Contact{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'policy/terms' %}sub-navbar__item--active{%- endif %}" href="/about/policy/terms">{% trans %}Site policies{% endtrans %}</a>
+    </nav>
+  </div>
 {% endmacro %}

@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ page.title }}{% endblock %}
+{%- from "macros.html.jinja2" import page_footer %}
 
 {% block contenthead %}
 <div class="profile profile--hg">
@@ -27,14 +28,7 @@
 {%- endblock %}
 
 {% block basefooter %}
-  <div class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
-    <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="/about">{% trans %}About Hasgeek{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold" href="/hasgeek">{% trans %}Team &amp; careers{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="/about/contact">{% trans %}Contact{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--text-bold {% if path == 'policy/terms' %}sub-navbar__item--active{%- endif %}" href="/about/policy/terms">{% trans %}Site policies{% endtrans %}</a>
-    </nav>
-  </div>
+  {{ page_footer() }}
 {% endblock %}
 
 {% block footerscripts %}

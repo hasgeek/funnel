@@ -823,7 +823,7 @@ a.loginbutton.hidden,
   .header__site-title__title
   .header__site-title__logo {
   height: 24px;
-  margin-bottom: 0 auto 2px;
+  margin: 0 auto 3px;
 }
 .hg-app
   .header--fixed
