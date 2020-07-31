@@ -1,14 +1,15 @@
 from os import environ
 
 TESTING = True
-SECRET_KEY = 'testkey'
+SECRET_KEY = 'testkey'  # nosec
 SITE_TITLE = 'Hasgeek'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3002'
+DEFAULT_DOMAIN = 'funnel.travis.local'
 STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
 LASTUSER_USE_SESSIONS = False
-UPLOAD_FOLDER = '/tmp'
+UPLOAD_FOLDER = '/tmp'  # nosec
 TIMEZONE = 'Asia/Kolkata'
 RQ_LOW_URL = 'redis://localhost:6379/0'
 ASSET_BASE_PATH = "build"
@@ -73,3 +74,5 @@ SMS_EXOTEL_FROM = environ.get('SMS_EXOTEL_FROM')
 SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
 SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
 SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
+
+# nosec
