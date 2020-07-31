@@ -4,7 +4,7 @@ from time import mktime
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from flask import Response, current_app, json, jsonify, request
+from flask import Response, current_app, json, jsonify
 
 from icalendar import Alarm, Calendar, Event
 
@@ -126,6 +126,24 @@ def schedule_data(project, with_slots=True, scheduled_sessions=None):
     return schedule
 
 
+def schedule_ical(project):
+    cal = Calendar()
+    cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
+    cal.add('version', '2.0')
+    cal.add('name', project.title)
+    cal.add('x-wr-calname', project.title)
+    cal.add('summary', project.title)
+    cal.add('description', project.tagline)
+    cal.add('x-wr-caldesc', project.tagline)
+    cal.add('timezone-id', project.timezone.zone)
+    cal.add('x-wr-timezone', project.timezone.zone)
+    cal.add('refresh-interval;value=duration', 'PT12H')
+    cal.add('x-published-ttl', 'PT12H')
+    for session in project.scheduled_sessions:
+        cal.add_component(session_ical(session))
+    return cal.to_ical()
+
+
 def session_ical(session):
     # This function is only called with scheduled sessions.
     # If for some reason it is used somewhere else and called with an unscheduled session,
@@ -135,7 +153,10 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
-    event.add('uid', f'session/{session.uuid_b58}@{request.host}')
+    event.add(
+        'uid',
+        f'session/{session.uuid_b58}@{current_app.config["DEFAULT_DOMAIN"]}',  # NOQA
+    )
     event.add('dtstart', session.start_at_localized)
     event.add('dtend', session.end_at_localized)
     event.add('dtstamp', utcnow())
@@ -227,24 +248,9 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
 
     @route('ical')
     @requires_roles({'reader'})
-    def schedule_ical(self):
-        cal = Calendar()
-        cal.add('prodid', "-//Hasgeek//NONSGML Funnel//EN")
-        cal.add('version', '2.0')
-        cal.add('name', self.obj.title)
-        cal.add('x-wr-calname', self.obj.title)
-        cal.add('summary', self.obj.title)
-        cal.add('description', self.obj.tagline)
-        cal.add('x-wr-caldesc', self.obj.tagline)
-        cal.add('timezone-id', self.obj.timezone.zone)
-        cal.add('x-wr-timezone', self.obj.timezone.zone)
-        cal.add('refresh-interval;value=duration', 'PT12H')
-        cal.add('x-published-ttl', 'PT12H')
-        for session in self.obj.scheduled_sessions:
-            cal.add_component(session_ical(session))
+    def schedule_ical_download(self):
         return Response(
-            cal.to_ical(),
-            mimetype='text/calendar',
+            schedule_ical(self.obj),
             headers={
                 'Content-Disposition': f'attachment;filename='
                 f'"{self.obj.profile.name}-{self.obj.name}.ics"'
