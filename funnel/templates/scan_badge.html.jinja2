@@ -53,7 +53,7 @@
             {{elseif attendeeFound}}
               <h4>Hello {{attendeeName}},</h4>
               <p>Thank you for choosing to participate in {{ projectTitle }} and for being a part of this growing community.</p>
-              <p>HasGeek</p>
+              <p>Hasgeek</p>
             {{else}}
               <h4>Attendee details not found</h4>
             {{/if}}
@@ -80,7 +80,7 @@
         projectTitle:  {{ project.title|tojson }},
         eventTitle: {{ event.title|tojson }},
       };
-      window.HasGeek.BadgeScanInit(eventConfig);
+      window.Hasgeek.BadgeScanInit(eventConfig);
 
     });
   </script>

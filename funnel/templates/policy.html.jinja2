@@ -1,0 +1,42 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{{ page.title }}{% endblock %}
+{%- from "macros.html.jinja2" import page_footer %}
+
+{% block top_title %}
+  <h1 class="mui--text-display1"><strong>{{ self.title() }}</strong></h1>
+{% endblock %}
+
+{% block contentwrapper -%}
+  <div class="grid">
+    <div class="grid__col-xs-12 grid__col-sm-5 grid__col-md-4 grid__col-lg-3">
+      <div class="sticky-admin-panel">
+        <div class="card">
+          <div class="card__header">
+            <h3 class="mui--text-title">{% trans %}Site Policies{% endtrans %}</h3>
+          </div>
+          <div class="card__body">
+            <ul class="mui-list--aligned mui-list--unstyled">
+              <li><p><a href="/about/policy/terms">{% trans %}Terms of service{% endtrans %}</a></p></li>
+              <li><p><a href="/about/policy/adtos">{% trans %}Sponsorship &amp; advertising{% endtrans %}</a></p></li>
+              <li><p><a href="/about/policy/privacy">{% trans %}Privacy policy{% endtrans %}</a></p></li>
+              <li><p><a href="/about/policy/refunds">{% trans %}Cancellation &amp; refund policy{% endtrans %}</a></p></li>
+              <li><p><a href="/about/policy/community">{% trans %}Community guidelines{% endtrans %}</a></p></li>
+              <li><p><a href="/about/policy/code">{% trans %}Code of conduct{% endtrans %}</a></p></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8 grid__col-lg-9">
+      {{ page.html | safe }}
+    </div>
+  </div>
+{%- endblock %}
+
+{% block basefooter %}
+  {{ page_footer() }}
+{% endblock %}
+
+{% block footerscripts %}
+{% endblock %}

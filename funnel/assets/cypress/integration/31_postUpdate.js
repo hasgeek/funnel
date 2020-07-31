@@ -28,7 +28,7 @@ describe('Test updates feature', function () {
     cy.get('#field-body')
       .find('.CodeMirror textarea')
       .type(project.restricted_post_body, { force: true });
-    cy.get('#restricted').click();
+    cy.get('#is_restricted').click();
     cy.get('button').contains('Save').click();
     cy.get('button').contains('Publish').click();
     cy.logout();

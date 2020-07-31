@@ -1,6 +1,6 @@
 title: Cancellation, return and refund policy
 
-At HasGeek we believe in offering value in exchange for value. These are our cancellation, return and refund policies with regards to our various services.
+At Hasgeek we believe in offering value in exchange for value. These are our cancellation, return and refund policies with regards to our various services.
 
 Refunds, where eligible, are typically issued via the same instrument that was used to make the payment (so the refund will go to your card or bank for an online payment). However, we are sometimes unable to do this and may offer you a cheque, bank transfer, cash, or credit coupon, at our discretion.
 

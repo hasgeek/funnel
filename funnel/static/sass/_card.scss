@@ -75,7 +75,7 @@
 
 .clickable-card,
 .card-wrapper {
-  color: #1f2d3d;
+  color: $mui-text-dark;
   display: block;
   cursor: pointer;
   text-decoration: none;
@@ -87,7 +87,7 @@
 .card-wrapper:focus,
 .card-wrapper:hover,
 .card-wrapper:active {
-  color: #1f2d3d;
+  color: $mui-text-dark;
   outline: none;
   text-decoration: none;
 }
@@ -99,14 +99,14 @@
 
 .card__image-wrapper {
   position: relative;
-  background-image: linear-gradient(to bottom, #4d5763, #202d3c);
 
   .card__image__tagline {
     position: absolute;
-    color: #fff;
+    color: $mui-text-dark;
     top: 50%;
     left: $mui-grid-padding;
     right: $mui-grid-padding;
+    z-index: 3;
     text-align: center;
     font-size: 18px;
     transform: translateY(-50%);
@@ -137,8 +137,7 @@
       width: 100%;
       text-align: left;
       font-weight: 600;
-      padding: 0 0 5px;
-      background-color: #fff;
+      background-color: $mui-bg-color-primary;
       margin: 0;
       display: none;
 
@@ -147,7 +146,7 @@
         font-style: italic;
         font-size: 12px;
         line-height: 24px;
-        color: #e05f25;
+        color: $mui-accent-color;
         letter-spacing: 0.43px;
         font-variant: none;
       }
@@ -173,17 +172,16 @@
 
         .calendar__weekdays__dates__date {
           position: relative;
-          width: calc(100% / 7);
+          width: calc(100% / 7.01);
           text-align: center;
           margin: 0;
-          padding: 10px 0;
-          background: #f9fafc;
+          padding: 3px 0;
 
           .calendar__weekdays__dates__date__day {
             position: relative;
             z-index: 2;
             display: block;
-            color: #4d5763;
+            color: $mui-text-light;
             font-weight: 600;
             font-size: 12px;
             line-height: 16px;
@@ -195,7 +193,7 @@
             text-align: center;
             position: relative;
             z-index: 2;
-            color: #4d5763;
+            color: $mui-text-light;
             font-variant: all-small-caps;
             font-size: 10px;
             line-height: 14px;
@@ -204,36 +202,50 @@
           }
         }
 
-        .calendar__weekdays__dates__date--active {
-          padding: 5px 0;
-        }
-
         .calendar__weekdays__dates__date--today {
           .calendar__weekdays__dates__date__day {
-            color: #82688d;
+            color: $mui-accent-color;
             font-weight: 600;
             opacity: 1;
           }
           .calendar__weekdays__dates__date__name {
-            color: #82688d;
+            color: $mui-accent-color;
             font-weight: 600;
             opacity: 1;
           }
         }
 
+        .calendar__weekdays__dates__date--today:after {
+          content: '';
+          font-weight: bold;
+          border-radius: 8px;
+          width: 30px;
+          height: 34px;
+          text-align: center;
+          position: absolute;
+          top: 0px;
+          left: 0;
+          right: 0;
+          margin: auto;
+          z-index: 1;
+          border: 1px solid $mui-accent-color;
+          border-radius: 4px;
+        }
+
         .calendar__weekdays__dates__date--active {
-          .calendar__weekdays__dates__date__day {
-            color: #fff;
+          .calendar__weekdays__dates__date__day,
+          .calendar__weekdays__dates__date__name {
+            color: $mui-text-white;
             font-weight: 600;
-            font-size: 16px;
-            line-height: 21px;
+            font-size: 14px;
+            line-height: 17px;
             opacity: 1;
           }
           .calendar__weekdays__dates__date__name {
-            color: #fff;
+            color: $mui-text-white;
             font-weight: 600;
             font-size: 10px;
-            line-height: 14px;
+            line-height: 10px;
             opacity: 1;
           }
         }
@@ -242,8 +254,8 @@
           content: '';
           font-weight: bold;
           border-radius: 4px;
-          width: 35px;
-          height: 44px;
+          width: 30px;
+          height: 34px;
           text-align: center;
           position: absolute;
           top: 0px;
@@ -252,24 +264,7 @@
           margin: auto;
           z-index: 1;
           box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.22);
-          background: #82688d;
-        }
-
-        .calendar__weekdays__dates__date--showtime:before {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          margin: auto;
-          border-left: 7px solid transparent;
-          border-right: 7px solid transparent;
-          border-top: 7px solid #82688d;
-          width: 7px;
-          opacity: 0;
-          z-index: 3;
-          transition: opacity 0.1s;
-          -webkit-transition: opacity 0.1s;
+          background: $mui-accent-color;
         }
 
         .calendar__weekdays__dates__time {
@@ -277,25 +272,25 @@
           opacity: 0;
           position: absolute;
           bottom: -18px;
-          border-radius: 2px;
-          background-color: #f6e2c5;
-          color: #906b37;
+          border-radius: 4px;
+          background-color: $mui-accent-color-lighter;
+          color: $mui-text-accent-lighter;
           left: 50%;
-          transform: translateX(-50%);
-          -webkit-transform: translateX(-50%);
           margin: auto;
           padding: 1px 0;
-          width: 157px;
+          width: 160px;
           font-size: 12px;
           line-height: 16px;
           z-index: 3;
           transition: opacity 0.1s;
           -webkit-transition: opacity 0.1s;
+          transform: translate(-50%, 0);
         }
 
-        .calendar__weekdays__dates__date--showtime:hover::before,
-        .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::before {
-          opacity: 1;
+        .calendar__weekdays__dates__date--showtime:hover::after,
+        .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display::after {
+          height: 36px;
+          border-radius: 4px 4px 0 0;
         }
 
         .calendar__weekdays__dates__date--showtime:hover
@@ -306,22 +301,15 @@
         }
 
         .calendar__weekdays__dates__date:nth-child(1)
-          .calendar__weekdays__dates__time,
-        .calendar__weekdays__dates__date:nth-child(2)
           .calendar__weekdays__dates__time {
           left: 0;
-          transform: translateX(0);
-          -webkit-transform: translateX(0);
+          transform: translate(0, 0);
         }
 
-        .calendar__weekdays__dates__date:nth-child(6)
-          .calendar__weekdays__dates__time,
-        .calendar__weekdays__dates__date:nth-child(7)
-          .calendar__weekdays__dates__time {
+        .calendar__weekdays__dates__date--7 .calendar__weekdays__dates__time {
           left: unset;
+          transform: translate(0, 0);
           right: 0;
-          transform: translateX(0);
-          -webkit-transform: translateX(0);
         }
 
         .calendar__weekdays__dates__date--year {
@@ -348,6 +336,9 @@
         display: none;
         padding-top: 0;
       }
+      .calendar__month-name {
+        padding-bottom: 5px;
+      }
       .calendar__weekdays__dates--upcoming--first,
       .calendar__month-name--upcoming--first {
         display: flex;
@@ -356,21 +347,21 @@
         .calendar__weekdays__dates__icon {
           position: absolute;
           line-height: 29px;
-          background: #fff;
+          background: $mui-bg-color-primary;
           display: block;
           z-index: -1;
           bottom: 0;
-          background: #f9fafc;
+          background: $mui-bg-color-accent;
         }
         .calendar__weekdays__dates__icon--left {
           position: absolute;
           left: -$mui-grid-padding-double;
-          line-height: 29px;
+          line-height: 30px;
         }
         .calendar__weekdays__dates__icon--right {
           position: absolute;
           right: -$mui-grid-padding-double;
-          line-height: 29px;
+          line-height: 30px;
         }
       }
     }
@@ -406,8 +397,9 @@
   .card__image-wrapper {
     position: relative;
     padding-bottom: 56.2%;
-    background-image: linear-gradient(to bottom, #4d5763, #202d3c);
     z-index: 3;
+    overflow: hidden;
+    border-radius: 0 0 0 20px;
 
     .card__image {
       position: absolute;
@@ -416,7 +408,7 @@
       height: 100%;
     }
     .card__image__tagline {
-      color: #fff;
+      color: $mui-text-dark;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -467,6 +459,38 @@
   }
 }
 
+.card__image-wrapper--default:after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  background-color: $mui-primary-color;
+  width: 100%;
+  display: block;
+  height: 100%;
+  opacity: 0.7;
+  border-radius: 0 0 0 20px;
+}
+
+.projects li:nth-child(even) {
+  .card__image-wrapper--default:after {
+    background: $mui-accent-color;
+  }
+}
+
+.projects li:nth-child(odd) {
+  .card__image-wrapper--default:after {
+    background: $mui-primary-color;
+  }
+}
+
+.projects li:nth-child(4n) {
+  .card__image-wrapper--default:after {
+    background-color: rgba(136, 156, 239, 0.63);
+  }
+}
+
 .card--spotlight:hover,
 .card--upcoming:hover {
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
@@ -487,12 +511,15 @@
 
 .card--new {
   .card__image-wrapper {
+    position: relative;
     background-image: none;
-    background-color: #82698d;
+
+    .card__image {
+      z-index: 3;
+    }
 
     .card__image-wrapper__icon-wrapper {
-      color: #fff;
-      border: 2px dotted #a890af;
+      color: $mui-text-dark;
       width: 100px;
       height: 100px;
       margin: 0 auto;
@@ -500,6 +527,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      z-index: 4;
       .card__image-wrapper__icon-wrapper__icon {
         position: absolute;
         top: 50%;
@@ -507,6 +535,18 @@
         transform: translate(-50%, -50%);
       }
     }
+  }
+  .card__image-wrapper:after {
+    content: '';
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    background-color: $mui-primary-color;
+    width: 100%;
+    display: block;
+    height: 100%;
+    opacity: 0.7;
   }
 
   .card__body--minheight {
@@ -570,7 +610,7 @@
     }
   }
   .session-card__header--bck {
-    background: #eff2f7;
+    background: $mui-bg-color-primary-dark;
   }
 }
 

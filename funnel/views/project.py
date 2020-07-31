@@ -364,7 +364,7 @@ class ProjectView(
     def edit_slug(self):
         form = ProjectNameForm(obj=self.obj)
         # Profile URLs:
-        # HasGeek: https://hasgeek.com/rootconf (no /)
+        # Hasgeek: https://hasgeek.com/rootconf (no /)
         # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
         form.name.prefix = self.obj.profile.url_for(_external=True)
         if not form.name.prefix.endswith('/'):
@@ -578,7 +578,9 @@ class ProjectView(
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
-                user_registered_for_project.send(rsvp, project=self.obj, user=current_auth.user)
+                user_registered_for_project.send(
+                    rsvp, project=self.obj, user=current_auth.user
+                )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
         return redirect(get_next_url(referrer=request.referrer), code=303)

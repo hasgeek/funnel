@@ -1,71 +1,49 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ page.title }}{% endblock %}
+{% block title %}{% trans %}About Hasgeek{% endtrans %}{% endblock %}
+{%- from "macros.html.jinja2" import page_footer %}
 
-{% block top_title %}
-  <h1 class="mui--text-display1"><strong>{{ self.title() }}</strong></h1>
+{% block contenthead %}
+<div class="profile profile--hg">
+<div class="profile__banner">
+  <div class="profile__banner__box">
+    <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}"/>
+  </div>
+  <div class="mui-container profile__banner__box__heading">
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        <h1 class="mui--text-display1"><strong>{% trans %}About Hasgeek{% endtrans %}</strong></h1>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
 {% endblock %}
 
 {% block contentwrapper -%}
   <div class="grid">
-    <div class="grid__col-xs-12 grid__col-sm-5 grid__col-md-4 grid__col-lg-3">
-      <div class="sticky-admin-panel">
-        <div class="card">
-          <div class="card__header">
-            <h3 class="mui--text-title">{% trans %}About{% endtrans %}</h3>
-          </div>
-          <div class="card__body">
-            <ul class="mui-list--aligned mui-list--unstyled">
-              <li><p><a href="/about/">{% trans %}About HasGeek{% endtrans %}</a></p></li>
-              <li><p><a href="/about/team">{% trans %}Team &amp; careers{% endtrans %}</a></p></li>
-              <li><p><a href="/about/media">{% trans %}Media resources{% endtrans %}</a></p></li>
-              <li><p><a href="/about/contact">{% trans %}Contact{% endtrans %}</a></p></li>
-              <li><p><a href="/about/status">{% trans %}Services status{% endtrans %}</a></p></li>
-            </ul>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card__header">
-            <h3 class="mui--text-title">{% trans %}Site Policies{% endtrans %}</h3>
-          </div>
-          <div class="card__body">
-            <ul class="mui-list--aligned mui-list--unstyled">
-              <li><p><a href="/about/policy/terms">{% trans %}Terms of service{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/adtos">{% trans %}Sponsorship &amp; advertising{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/privacy">{% trans %}Privacy policy{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/refunds">{% trans %}Cancellation &amp; refund policy{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/community">{% trans %}Community guidelines{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/code">{% trans %}Code of conduct{% endtrans %}</a></p></li>
-            </ul>
-          </div>
-        </div>
+    <div class="grid__col-xs-12">
+      <p class="about-top-content">{% trans %}It’s 2020, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.{% endtrans %}</p>
+      <h2 class="about-heading mui--text-bold project-headline">{% trans %}Find your peers{% endtrans %}</h2>
+      <div class="flex-content image-wrapper">
+        <p class="about-content fifty-width">{% trans %}Ideas need voices. Voices need a place to interact with other voices. Find peers around you who recognize your value. Create projects that spark a conversation.{% endtrans %}</p>
+        <img src="{{  url_for('static', filename='img/peers.svg') }}" height="270" />
       </div>
-    </div>
-
-    <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8 grid__col-lg-9">
-      {{ page.html | safe }}
+      <h2 class="about-heading mui--text-bold project-headline">{% trans %}Discover your community{% endtrans %}</h2>
+      <div class="flex-content image-wrapper">
+        <img src="{{  url_for('static', filename='img/community.svg') }}" height="300" />
+        <p class="about-content fifty-width">{% trans %}Conversations build community. Bring the conversations to your community by collaborating with others who share your passion.{% endtrans %}</p>
+      </div>
+      <h2 class="about-heading mui--text-bold project-headline">{% trans %}Sustain the conversations{% endtrans %}</h2>
+      <div class="flex-content image-wrapper">
+        <p class="about-content fifty-width">{% trans %}Subscribe to your favourite communities and make sure you never miss a conversation or an opportunity to collaborate.{% endtrans %}</p>
+        <img src="{{  url_for('static', filename='img/conversation.svg') }}" height="240" />
+      </div>
     </div>
   </div>
 {%- endblock %}
 
-{% block footer %}
-  <div class="mui-container">
-    <div class="grid mui--text-body2 mui--text-left">
-      <div class="grid__col-sm-6 grid__col-md-6">
-        <p>{% if 'FOOTER_MESSAGE' in config %}{{ config['FOOTER_MESSAGE'] }}{% else %}{% trans %} Copyright &copy; 2010-20 HasGeek and contributors.{% endtrans %}{% endif %}</p>
-        <p>
-          #2699, 19th Main, 5th Cross, Indiranagar HAL 2nd Stage, Bangalore - 560008, <a href="mailto:info@hasgeek.com">info@hasgeek.com</a>, <a href="tel:+917676332020">+91 7676 33 2020</a>
-        </p>
-      </div>
-      <div class="grid__col-sm-6 grid__col-md-6">
-        <div>
-          <p id="footer-twitter">
-            <a href="https://twitter.com/hasgeek" target="_blank">{% trans %}Follow @hasgeek{% endtrans %}</a>
-          </p>
-          <a href="https://www.facebook.com/HasGeek" target="_blank">{% trans %}Like HasGeek's page on Facebook{% endtrans %}</a>
-        </div>
-      </div>
-    </div>
-  </div>
+{% block basefooter %}
+  {{ page_footer() }}
 {% endblock %}
 
 {% block footerscripts %}

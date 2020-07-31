@@ -28,9 +28,9 @@ const Ticketing = {
     $.get({
       url,
       crossDomain: true,
-      timeout: window.HasGeek.config.ajaxTimeout,
+      timeout: window.Hasgeek.config.ajaxTimeout,
       retries: 5,
-      retryInterval: window.HasGeek.config.retryInterval,
+      retryInterval: window.Hasgeek.config.retryInterval,
 
       success(data) {
         const boxofficeScript = document.createElement('script');
@@ -94,7 +94,7 @@ const Ticketing = {
     });
 
     if (window.location.hash.indexOf('#tickets') > -1) {
-      if ($(window).width() < window.HasGeek.config.mobileBreakpoint) {
+      if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
         this.openTicketModal();
       } else {
         Utils.animateScrollTo($('#tickets').offset().top);
@@ -103,7 +103,7 @@ const Ticketing = {
 
     $(window).resize(() => {
       if (
-        $(window).width() >= window.HasGeek.config.mobileBreakpoint &&
+        $(window).width() >= window.Hasgeek.config.mobileBreakpoint &&
         $('.about__participate').hasClass('about__participate--modal')
       ) {
         this.hideTicketModal();
@@ -111,13 +111,13 @@ const Ticketing = {
     });
     $(window).on('popstate', () => {
       if (
-        $(window).width() < window.HasGeek.config.mobileBreakpoint &&
+        $(window).width() < window.Hasgeek.config.mobileBreakpoint &&
         $('.about__participate').hasClass('about__participate--modal')
       ) {
         this.hideTicketModal();
       } else if (
         window.history.state &&
-        $(window).width() < window.HasGeek.config.mobileBreakpoint
+        $(window).width() < window.Hasgeek.config.mobileBreakpoint
       ) {
         this.openTicketModal();
       }
@@ -195,7 +195,7 @@ const EmbedMap = {
   },
 };
 $(() => {
-  window.HasGeek.ProjectInit = function ({ tickets = '', venue = '' }) {
+  window.Hasgeek.ProjectInit = function ({ tickets = '', venue = '' }) {
     if (tickets) {
       Ticketing.init(tickets);
     }

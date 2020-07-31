@@ -536,6 +536,8 @@ def search_results(squery, stype, page=1, per_page=20, profile=None, project=Non
 
 # --- Views -------------------------------------------------------------------
 class SearchView(ClassView):
+    current_section = 'search'
+
     @route('/search')
     @render_with('search.html.jinja2', json=True)
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))

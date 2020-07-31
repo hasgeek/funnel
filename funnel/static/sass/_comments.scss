@@ -38,7 +38,7 @@
     }
   }
   blockquote {
-    border-left: 2px solid #c0ccda;
+    border-left: 2px solid $mui-text-accent;
     margin: 0;
     padding-left: $mui-grid-padding;
   }
@@ -46,11 +46,11 @@
 
 .comments-form {
   .CodeMirror {
-    border: 1px solid #c0ccda;
+    border: 1px solid $mui-text-accent;
     min-height: 60px;
   }
   .CodeMirror-focused {
-    border: 1px solid #4a90e2;
+    border: 1px solid $mui-text-hyperlink;
   }
   .mui-form__fields {
     margin-bottom: 0;

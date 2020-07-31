@@ -31,7 +31,7 @@
   .membership-wrapper__members__collapsible__header {
     margin: 5px 0 0;
     width: 100%;
-    background: #eff2f7;
+    background: $mui-bg-color-primary-dark;
     padding: $mui-grid-padding;
     cursor: pointer;
   }
@@ -40,7 +40,7 @@
   }
 
   .membership-wrapper__members__list {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid $mui-divider-color;
     cursor: pointer;
     padding: $mui-grid-padding 0;
 
@@ -51,7 +51,7 @@
     }
 
     .membership-wrapper__members__list__roles__role {
-      color: #4a90e2;
+      color: $mui-primary-color;
       display: none;
     }
     .membership-wrapper__members__list__roles__role:first-child {
@@ -68,6 +68,11 @@
 
   .membership-wrapper__members__list--viewonly {
     cursor: default;
+
+    .membership-wrapper__members__list__roles__role {
+      color: $mui-text-dark;
+      display: none;
+    }
   }
 
   .membership-wrapper__members__list--nomargin {
@@ -75,7 +80,7 @@
   }
 
   .membership-wrapper__members__list:hover {
-    background: #f9fafc;
+    background: $mui-bg-color-accent;
   }
 }
 

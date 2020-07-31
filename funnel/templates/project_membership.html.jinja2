@@ -131,7 +131,7 @@
         formId: 'save-form',
         postUrl: "{{ project.url_for('save') }}"
       }
-      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
+      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
       var membershipConfig = {
         newMemberUrl: "{{ project.url_for('new_member') }}",
         members: {{ memberships|tojson }},
@@ -156,7 +156,7 @@
         memberTemplate: '#member-template',
         isUserProfileAdmin: {%- if project.profile.current_roles.admin %} true {% else %} false {%- endif %},
       };
-      HasGeek.Membership(membershipConfig);
+      Hasgeek.Membership(membershipConfig);
     });
   </script>
 {% endblock %}

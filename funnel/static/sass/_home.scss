@@ -19,13 +19,6 @@
   padding-top: $mui-grid-padding;
 }
 
-.chip--new {
-  background-color: #f6e2c5;
-  padding: 5px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
 .hg-banner {
   padding: $mui-grid-padding-double 0;
 
@@ -36,7 +29,7 @@
 
   .mui-divider--banner {
     height: 4px;
-    background-color: #dda32a;
+    background-color: $mui-text-accent;
     width: 20%;
     margin: $mui-grid-padding 0 0;
   }
@@ -67,7 +60,6 @@
 
   .banner__headline {
     color: #816894;
-    font-weight: 700;
     font-size: 32px;
     line-height: 40px;
     padding: 0 $mui-grid-padding;
@@ -125,11 +117,11 @@
   bottom: -16px;
   width: 64px;
   left: 0;
-  border-bottom: 3px solid #dda32a;
+  border-bottom: 3px solid $mui-accent-color;
 }
 
 .project-headline--secondary:after {
-  border-bottom: 3px solid #82688d;
+  border-bottom: 3px solid $mui-primary-color;
 }
 
 @media (min-width: 1200px) {
@@ -138,48 +130,6 @@
     .grid__col-12 {
       padding: 0;
     }
-  }
-}
-
-.spotlight-schedule-card {
-  .tabs-wrapper--sticky {
-    top: 0;
-  }
-
-  .current-schedule__session {
-    padding: $mui-grid-padding $mui-grid-padding 0;
-    height: 100%;
-    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-
-    .current-schedule__session__duration {
-      position: -webkit-sticky;
-      position: sticky;
-      top: 40px;
-      color: #e05f26;
-      z-index: 4;
-      background-color: #f9fafc;
-      float: right;
-      padding: 10px;
-      border-radius: 3px;
-      line-height: 1;
-      overflow-y: auto;
-    }
-  }
-  .current-schedule__session:last-child {
-    border-bottom: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .spotlight-schedule-card {
-    height: auto !important;
-  }
-}
-
-@media (min-width: 768px) {
-  .spotlight-schedule-card {
-    height: 531px;
-    overflow: scroll;
   }
 }
 
@@ -226,7 +176,7 @@
       width: 120px;
       height: 120px;
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
-      background-color: #fff;
+      background-color: $mui-bg-color-primary;
       z-index: 100;
       border-radius: 50%;
       display: flex;
@@ -251,7 +201,7 @@
         .profile__logo__icon {
           width: 90px;
           height: 90px;
-          color: #fff;
+          color: $mui-text-white;
           position: relative;
           top: 39px;
           left: 14px;
@@ -349,6 +299,49 @@
   }
   .profile-details {
     padding: 2 * $mui-grid-padding $mui-grid-padding 0;
+  }
+}
+
+.profile--hg {
+  margin-bottom: 0;
+
+  .profile__banner {
+    .profile__banner__box {
+      padding-bottom: 50%;
+    }
+
+    .profile__banner__box:after {
+      content: '';
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      background-color: $mui-primary-color;
+      width: 100%;
+      display: block;
+      height: 100%;
+      opacity: 0.7;
+    }
+    .profile__banner__box__heading {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      margin: auto;
+      left: 0;
+      right: 0;
+      color: $mui-text-white;
+      z-index: 3;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .profile--hg {
+    .profile__banner {
+      .profile__banner__box {
+        padding-bottom: 25%;
+      }
+    }
   }
 }
 

@@ -40,7 +40,7 @@
 {%- endblock %}
 
 {% block bodytag %}
-  <body class="mui--bg-accent hg-app">
+  <body class="homepage mui--bg-accent hg-app">
 {% endblock %}
 
 {% block contenthead %}
@@ -64,7 +64,7 @@
       var homeConfig = {
         past_projects_json_url: "{{ url_for('past_projects_json') }}"
       }
-      window.HasGeek.HomeInit(homeConfig);
+      window.Hasgeek.HomeInit(homeConfig);
     });
   </script>
 {% endblock %}

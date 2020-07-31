@@ -2,7 +2,7 @@ import { SaveProject } from './util';
 import Vue from 'vue/dist/vue.min';
 
 $(() => {
-  window.HasGeek.HomeInit = function (config) {
+  window.Hasgeek.HomeInit = function (config) {
     // Expand CFP section
     $('.jquery-show-all').click(function showAll(event) {
       event.preventDefault();
@@ -40,7 +40,7 @@ $(() => {
               data: {
                 page: pastProjectsApp.next_page,
               },
-              timeout: window.HasGeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 pastProjectsApp.title = data.title;

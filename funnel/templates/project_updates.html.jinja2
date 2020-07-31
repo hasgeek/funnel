@@ -59,10 +59,10 @@
         postUrl: {{ project.url_for('save')|tojson }}
       }
 
-      window.HasGeek.ProjectHeaderInit(saveProjectConfig);
+      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
 
       var headerHeight;
-      if($(window).width() < window.HasGeek.config.mobileBreakpoint) {
+      if($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
         headerHeight = $('.mobile-nav').height();
       } else {
         headerHeight = $('header').height() + $('nav').height();
@@ -77,7 +77,7 @@
         headerHeight: headerHeight,
       };
 
-      window.HasGeek.PostsInit(postConfig);
+      window.Hasgeek.PostsInit(postConfig);
     });
   </script>
 {% endblock %}
