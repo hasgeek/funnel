@@ -605,8 +605,7 @@ def funnelapp_login(cookietest=False):
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
         if request.query_string:
             return redirect(request.url + '&cookietest=1')
-        else:
-            return redirect(request.url + '?cookietest=1')
+        return redirect(request.url + '?cookietest=1')
     else:
         if 'login_nonce' not in session:
             # No support for cookies. Abort login

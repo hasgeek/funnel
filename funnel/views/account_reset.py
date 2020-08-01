@@ -84,17 +84,17 @@ def reset():
                         )
                     ),
                 )
-            else:
-                return render_message(
-                    title=_("Cannot reset password"),
-                    message=Markup(
-                        _(
-                            'Your account does not have an email address. Please'
-                            ' contact <a href="mailto:{email}">{email}</a> for'
-                            ' assistance.'
-                        ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
-                    ),
-                )
+
+            return render_message(
+                title=_("Cannot reset password"),
+                message=Markup(
+                    _(
+                        'Your account does not have an email address. Please'
+                        ' contact <a href="mailto:{email}">{email}</a> for'
+                        ' assistance.'
+                    ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
+                ),
+            )
 
         # Allow only two reset attempts per hour to discourage abuse
         validate_rate_limit('email_reset', user.uuid_b58, 2, 3600)
@@ -137,8 +137,7 @@ def reset_email(token, cookietest=False):
         # and reload the page
         if request.query_string:
             return redirect(request.url + '&cookietest=1')
-        else:
-            return redirect(request.url + '?cookietest=1')
+        return redirect(request.url + '?cookietest=1')
     if 'reset_token' not in session:
         # Browser is refusing to set cookies on 302 redirects. Set it again and use
         # the less secure meta-refresh redirect (browser extensions can read the URL)
@@ -188,13 +187,13 @@ def reset_email_do():
             # No token. GET request. Either user landed here by accident, or browser
             # reloaded this page from history. Send back to to the reset request page
             return redirect(url_for('reset'), code=303)
-        else:
-            # Reset token was expired from session, likely because they didn't submit
-            # the form in time. We no longer know what user this is for. Inform the user
-            return render_message(
-                title=_("Please try again"),
-                message=_("This page timed out. Please open the reset link again."),
-            )
+
+        # Reset token was expired from session, likely because they didn't submit
+        # the form in time. We no longer know what user this is for. Inform the user
+        return render_message(
+            title=_("Please try again"),
+            message=_("This page timed out. Please open the reset link again."),
+        )
 
     # 2. There's a token in the session. Is it valid?
     try:
