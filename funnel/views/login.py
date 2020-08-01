@@ -606,13 +606,13 @@ def funnelapp_login(cookietest=False):
         if request.query_string:
             return redirect(request.url + '&cookietest=1')
         return redirect(request.url + '?cookietest=1')
-    else:
-        if 'login_nonce' not in session:
-            # No support for cookies. Abort login
-            return render_message(
-                title=_("Cookies required"),
-                message=_("Please enable cookies in your browser."),
-            )
+
+    if 'login_nonce' not in session:
+        # No support for cookies. Abort login
+        return render_message(
+            title=_("Cookies required"),
+            message=_("Please enable cookies in your browser."),
+        )
     # 2. Nonce has been set. Create a request code
     request_code = app.login_serializer.dumps({'nonce': session['login_nonce']})
     # 3. Redirect user

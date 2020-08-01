@@ -146,8 +146,7 @@ def reset_email(token, cookietest=False):
         return render_template(
             'meta_refresh.html.jinja2', url=url_for('reset_email_do')
         )
-    else:
-        return redirect(url_for('reset_email_do'))
+    return redirect(url_for('reset_email_do'))
 
 
 @app.before_request
