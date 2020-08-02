@@ -77,6 +77,7 @@ app.login_serializer = itsdangerous.URLSafeTimedSerializer(
     app.config.get('LASTUSER_SECRET_KEY') or app.config['SECRET_KEY']
 )
 
+# Signed tokens in email with TTL
 app.email_serializer = itsdangerous.URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is

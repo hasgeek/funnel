@@ -1,12 +1,9 @@
-from datetime import timedelta
 import urllib.parse
 import uuid
 
 from flask import (
-    Markup,
     abort,
     current_app,
-    escape,
     flash,
     redirect,
     render_template,
@@ -17,11 +14,11 @@ from flask import (
 import itsdangerous
 
 from baseframe import _, __, forms, request_is_xhr
-from baseframe.forms import render_form, render_message, render_redirect
+from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool, utcnow
-from coaster.views import get_next_url, load_model, render_with, requestargs
+from coaster.utils import getbool
+from coaster.views import get_next_url, render_with, requestargs
 
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
@@ -29,13 +26,10 @@ from ..forms import (
     LoginPasswordResetException,
     LoginPasswordWeakException,
     LogoutForm,
-    PasswordResetForm,
-    PasswordResetRequestForm,
     RegisterForm,
 )
 from ..models import (
     AuthClientCredential,
-    AuthPasswordResetRequest,
     Profile,
     User,
     UserEmail,
@@ -48,8 +42,8 @@ from ..models import (
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
 from ..signals import user_data_changed
-from ..utils import abort_null, mask_email
-from .email import send_email_verify_link, send_password_reset_link
+from ..utils import abort_null
+from .email import send_email_verify_link
 from .helpers import app_url_for, validate_rate_limit
 from .login_session import (
     login_internal,
@@ -339,151 +333,6 @@ def register():
     )
 
 
-@app.route('/account/reset', methods=['GET', 'POST'])
-@lastuserapp.route('/reset', methods=['GET', 'POST'])
-def reset():
-    # User wants to reset password
-    # Ask for username or email, verify it, and send a reset code
-    form = PasswordResetRequestForm()
-    if getbool(request.args.get('expired')):
-        message = _(
-            "Your password has expired. Please enter your username or email address to"
-            " request a reset code and set a new password."
-        )
-    else:
-        message = None
-
-    if request.method == 'GET':
-        form.username.data = abort_null(request.args.get('username'))
-
-    if form.validate_on_submit():
-        username = form.username.data
-        user = form.user
-        if '@' in username and not username.startswith('@'):
-            # They provided an email address. Send reset email to that address
-            email = username
-        else:
-            # Send to their existing address
-            # User.email is a UserEmail object
-            email = str(user.email)
-        if not email and user.emailclaims:
-            email = user.emailclaims[0].email
-        if not email:
-            # They don't have an email address. Maybe they logged in via Twitter
-            # and set a local username and password, but no email. Could happen.
-            if len(user.externalids) > 0:
-                extid = user.externalids[0]
-                return render_message(
-                    title=_("Cannot reset password"),
-                    message=Markup(
-                        _(
-                            "We do not have an email address for your account. However,"
-                            " your account is linked to <strong>{service}</strong> with"
-                            " the id <strong>{username}</strong>. You can use that to"
-                            " login."
-                        ).format(
-                            service=login_registry[extid.service].title,
-                            username=extid.username or extid.userid,
-                        )
-                    ),
-                )
-            else:
-                return render_message(
-                    title=_("Cannot reset password"),
-                    message=Markup(
-                        _(
-                            'We do not have an email address for your account and'
-                            ' therefore cannot email you a reset link. Please contact'
-                            ' <a href="mailto:{email}">{email}</a> for assistance.'
-                        ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
-                    ),
-                )
-        # Allow only two reset attempts per hour to discourage abuse
-        validate_rate_limit('email_reset', user.uuid_b58, 2, 3600)
-        resetreq = AuthPasswordResetRequest(user=user)
-        db.session.add(resetreq)
-        send_password_reset_link(email=email, user=user, secret=resetreq.reset_code)
-        db.session.commit()
-        return render_message(
-            title=_("Reset password"),
-            message=_(
-                "We sent a link to reset your password to your email address:"
-                " {masked_email}. Please check your email. If it doesn’t arrive in a"
-                " few minutes, it may have landed in your spam or junk folder. The"
-                " reset link is valid for 24 hours."
-            ).format(masked_email=mask_email(email)),
-        )
-    return render_form(
-        form=form,
-        title=_("Reset password"),
-        message=message,
-        submit=_("Send reset code"),
-        ajax=False,
-        template='account_formlayout.html.jinja2',
-    )
-
-
-@app.route('/account/reset/<buid>/<secret>', methods=['GET', 'POST'])
-@lastuserapp.route('/reset/<buid>/<secret>', methods=['GET', 'POST'])
-@load_model(User, {'buid': 'buid'}, 'user', kwargs=True)
-def reset_email(user, kwargs):
-    # TODO: Replace with a signed TTL-ed secret that includes userid and email_hash
-    # No need for a database model or buid+secret in the parameters
-    resetreq = AuthPasswordResetRequest.get(user, kwargs['secret'])
-    if not resetreq:
-        return render_message(
-            title=_("Invalid reset link"),
-            message=_("The reset link you clicked on is invalid."),
-        )
-    if resetreq.created_at < utcnow() - timedelta(days=1):
-        # Reset code has expired (> 24 hours). Delete it
-        db.session.delete(resetreq)
-        db.session.commit()
-        return render_message(
-            title=_("Expired reset link"),
-            message=_("The reset link you clicked on has expired."),
-        )
-
-    # Logout *after* validating the reset request to prevent DoS attacks on the user
-    logout_internal()
-    db.session.commit()
-    # Reset code is valid. Now ask user to choose a new password
-    form = PasswordResetForm()
-    form.edit_user = user
-    if form.validate_on_submit():
-        current_app.logger.info("Password strength %f", form.password_strength)
-        user.password = form.password.data
-        db.session.delete(resetreq)
-        # Invalidate all of the user's active sessions
-        for user_session in user.active_sessions.all():
-            user_session.revoke()
-        db.session.commit()
-        return render_message(
-            title=_("Password reset complete"),
-            message=Markup(
-                _(
-                    "Your password has been reset. "
-                    "You may now <a href=\"{loginurl}\">login</a> "
-                    "with your new password."
-                ).format(loginurl=escape(url_for('login')))
-            ),
-        )
-    # Form with id 'form-password-change' will have password strength meter on UI
-    return render_form(
-        form=form,
-        title=_("Reset password"),
-        formid='password-change',
-        submit=_("Reset password"),
-        message=Markup(
-            _(
-                "Hello, <strong>{fullname}</strong>. You may now choose a new password."
-            ).format(fullname=escape(user.fullname))
-        ),
-        ajax=False,
-        template='account_formlayout.html.jinja2',
-    )
-
-
 @app.route('/login/<service>', methods=['GET', 'POST'])
 @lastuserapp.route('/login/<service>', methods=['GET', 'POST'])
 def login_service(service):
@@ -754,16 +603,16 @@ def funnelapp_login(cookietest=False):
     session['login_nonce'] = str(uuid.uuid4())
     if not cookietest:
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
-        url_parts = urllib.parse.urlsplit(request.url)
-        if url_parts.query:
+        if request.query_string:
             return redirect(request.url + '&cookietest=1')
-        else:
-            return redirect(request.url + '?cookietest=1')
-    else:
-        if 'login_nonce' not in session:
-            # No support for cookies. Abort login
-            flash(_("Please enable cookies in your browser"), 'error')
-            return redirect(url_for('index'))
+        return redirect(request.url + '?cookietest=1')
+
+    if 'login_nonce' not in session:
+        # No support for cookies. Abort login
+        return render_message(
+            title=_("Cookies required"),
+            message=_("Please enable cookies in your browser."),
+        )
     # 2. Nonce has been set. Create a request code
     request_code = app.login_serializer.dumps({'nonce': session['login_nonce']})
     # 3. Redirect user

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pytz import UTC
+from pytz import utc
 
 from funnel.models import Proposal
 from funnel.models.video import parse_video_url
@@ -55,7 +55,7 @@ class TestVideos(object):
         assert check_video['url'] == check_proposal.video_url
         assert check_video['duration'] == 213
         assert check_video['uploaded_at'] == datetime(
-            2009, 10, 25, 6, 57, 33, tzinfo=UTC
+            2009, 10, 25, 6, 57, 33, tzinfo=utc
         )
         assert (
             check_video['thumbnail']
@@ -70,7 +70,7 @@ class TestVideos(object):
         assert check_cached['url'] == check_proposal.video_url
         assert check_cached['duration'] == 213
         assert check_cached['uploaded_at'] == datetime(
-            2009, 10, 25, 6, 57, 33, tzinfo=UTC
+            2009, 10, 25, 6, 57, 33, tzinfo=utc
         )
         assert (
             check_cached['thumbnail']
@@ -112,7 +112,7 @@ class TestVideos(object):
         assert check_video['url'] == check_proposal.video_url
         assert check_video['duration'] == 212
         assert check_video['uploaded_at'] == datetime(
-            2019, 5, 17, 15, 48, 2, tzinfo=UTC
+            2019, 5, 17, 15, 48, 2, tzinfo=utc
         )
         assert (
             check_video['thumbnail']
@@ -127,7 +127,7 @@ class TestVideos(object):
         assert check_cached['url'] == check_proposal.video_url
         assert check_cached['duration'] == 212
         assert check_cached['uploaded_at'] == datetime(
-            2019, 5, 17, 15, 48, 2, tzinfo=UTC
+            2019, 5, 17, 15, 48, 2, tzinfo=utc
         )
         assert (
             check_cached['thumbnail']

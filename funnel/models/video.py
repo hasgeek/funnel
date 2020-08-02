@@ -1,6 +1,6 @@
 import urllib.parse
 
-from pytz import UTC
+from pytz import utc
 import requests
 
 from coaster.utils import parse_duration, parse_isoformat
@@ -189,10 +189,10 @@ class VideoMixin:
                         vimeo_video = vimeo_video.json()[0]
 
                         data['duration'] = vimeo_video['duration']
-                        # Vimeo returns naive datetime, we will add UTC timezone to it
+                        # Vimeo returns naive datetime, we will add utc timezone to it
                         data['uploaded_at'] = parse_isoformat(
                             vimeo_video['upload_date'], delimiter=' '
-                        ).replace(tzinfo=UTC)
+                        ).replace(tzinfo=utc)
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
                     else:
                         # Video doesn't exist on Vimeo anymore
