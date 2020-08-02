@@ -1,14 +1,34 @@
 from datetime import timedelta
 
-from coaster.utils import buid as make_buid
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
 from . import BaseMixin, UuidMixin, db
 from .user import User
 
-__all__ = ['UserSession', 'auth_client_user_session']
+__all__ = [
+    'UserSession',
+    'UserSessionInvalid',
+    'UserSessionExpired',
+    'UserSessionRevoked',
+    'auth_client_user_session',
+    'user_session_validity_period',
+]
 
+
+class UserSessionInvalid(Exception):
+    pass
+
+
+class UserSessionExpired(UserSessionInvalid):
+    pass
+
+
+class UserSessionRevoked(UserSessionInvalid):
+    pass
+
+
+user_session_validity_period = timedelta(days=365)
 
 #: When a user logs into an client app, the user's session is logged against
 #: the client app in this table
@@ -63,11 +83,6 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
 
-    def __init__(self, **kwargs):
-        super(UserSession, self).__init__(**kwargs)
-        if not self.buid:
-            self.buid = make_buid()
-
     def __repr__(self):
         return f'<UserSession {self.buid}>'
 
@@ -88,15 +103,25 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         return cls.query.filter_by(buid=buid).one_or_none()
 
     @classmethod
-    def authenticate(cls, buid):
-        return cls.query.filter(
-            # Session key must match.
-            cls.buid == buid,
-            # Sessions are valid for one year...
-            cls.accessed_at > db.func.utcnow() - timedelta(days=365),
-            # ...unless explicitly revoked (or user logged out)
-            cls.revoked_at.is_(None),
-        ).one_or_none()
+    def authenticate(cls, buid, silent=False):
+        if silent:
+            return cls.query.filter(
+                # Session key must match.
+                cls.buid == buid,
+                # Sessions are valid for one year...
+                cls.accessed_at > db.func.utcnow() - user_session_validity_period,
+                # ...unless explicitly revoked (or user logged out)
+                cls.revoked_at.is_(None),
+            ).one_or_none()
+
+        # Not silent? Raise exceptions on expired and revoked sessions
+        user_session = cls.query.filter(cls.buid == buid).one_or_none()
+        if user_session:
+            if user_session.accessed_at <= utcnow() - user_session_validity_period:
+                raise UserSessionExpired(user_session)
+            if user_session.revoked_at is not None:
+                raise UserSessionRevoked(user_session)
+        return user_session
 
 
 User.active_sessions = db.relationship(
@@ -104,7 +129,7 @@ User.active_sessions = db.relationship(
     lazy='dynamic',
     primaryjoin=db.and_(
         UserSession.user_id == User.id,
-        UserSession.accessed_at > db.func.utcnow() - timedelta(days=365),  # See ^
+        UserSession.accessed_at > db.func.utcnow() - user_session_validity_period,
         UserSession.revoked_at.is_(None),
     ),
     order_by=UserSession.accessed_at.desc(),

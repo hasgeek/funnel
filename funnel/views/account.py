@@ -386,7 +386,7 @@ class AccountView(ClassView):
 
 
 @route('/account')
-class FunnelAccountView(ClassView):
+class OtherAppAccountView(ClassView):
     @route('', endpoint='account')
     @requires_login
     def account(self):
@@ -394,7 +394,8 @@ class FunnelAccountView(ClassView):
 
 
 AccountView.init_app(app)
-FunnelAccountView.init_app(funnelapp)
+OtherAppAccountView.init_app(funnelapp)
+OtherAppAccountView.init_app(lastuserapp)
 
 
 @app.route(
