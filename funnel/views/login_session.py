@@ -14,12 +14,20 @@ from ..models import (
     AuthClientCredential,
     User,
     UserSession,
+    UserSessionExpired,
+    UserSessionRevoked,
     auth_client_user_session,
     db,
+    user_session_validity_period,
 )
 from ..signals import user_login, user_registered
 from ..utils import abort_null
 from .helpers import app_url_for, autoset_timezone, get_scheme_netloc
+
+# Constant value, needed for cookie max_age
+user_session_validity_period_total_seconds = int(
+    user_session_validity_period.total_seconds()
+)
 
 
 class LoginManager:
@@ -73,14 +81,45 @@ class LoginManager:
         # We are dependent on `add_auth_attribute` not making a copy of the dict
 
         if 'sessionid' in lastuser_cookie:
-            add_auth_attribute(
-                'session', UserSession.authenticate(buid=lastuser_cookie['sessionid'])
-            )
-            if current_auth.session:
-                add_auth_attribute('user', current_auth.session.user)
-            else:
-                # Invalid session. Logout the user
-                current_app.logger.info("Got an invalid/expired session; logging out")
+            try:
+                add_auth_attribute(
+                    'session',
+                    UserSession.authenticate(
+                        buid=lastuser_cookie['sessionid'], silent=False
+                    ),
+                )
+                if current_auth.session:
+                    add_auth_attribute('user', current_auth.session.user)
+                else:
+                    # Invalid session. This is not supposed to happen unless there's an
+                    # error that is (a) setting an invalid session id, or (b) deleting
+                    # the session object instead of revoking it.
+                    current_app.logger.error(
+                        "Got an unknown user session %s; logging out",
+                        lastuser_cookie['sessionid'],
+                    )
+                    logout_internal()
+            except UserSessionExpired:
+                flash(
+                    _(
+                        "Looks like you haven’t been here in a while."
+                        " Please login again"
+                    ),
+                    'info',
+                )
+                current_app.logger.info("Got an expired user session; logging out")
+                add_auth_attribute('session', None)
+                logout_internal()
+            except UserSessionRevoked:
+                flash(
+                    _(
+                        "Your login session was revoked from another device."
+                        " Please login again"
+                    ),
+                    'info',
+                )
+                current_app.logger.info("Got a revoked user session; logging out")
+                add_auth_attribute('session', None)
                 logout_internal()
 
         # Transition users with 'userid' to 'sessionid'
@@ -424,8 +463,10 @@ def set_loginmethod_cookie(response, value):
     response.set_cookie(
         'login',
         value,
-        max_age=31557600,  # Keep this cookie for a year
-        expires=utcnow() + timedelta(days=365),  # Expire one year from now
+        # Keep this cookie for a year
+        max_age=user_session_validity_period_total_seconds,
+        # Expire one year from now
+        expires=utcnow() + user_session_validity_period,
         secure=current_app.config['SESSION_COOKIE_SECURE'],
         httponly=True,
         samesite='Strict',

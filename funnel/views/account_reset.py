@@ -13,6 +13,7 @@ from flask import (
 )
 import itsdangerous
 
+from flask_babelhg import ngettext
 from pytz import utc
 
 from baseframe import _
@@ -261,17 +262,24 @@ def reset_email_do():
         session.pop('reset_token', None)
         session.pop('reset_token_at', None)
         # Invalidate all of the user's active sessions
-        for user_session in user.active_sessions.all():
+        counter = None
+        for counter, user_session in enumerate(user.active_sessions.all()):
             user_session.revoke()
         db.session.commit()
         return render_message(
             title=_("Password reset complete"),
-            message=Markup(
-                _(
-                    'Your password has been changed. '
-                    'You may now <a href="{loginurl}">login</a> '
-                    'with your new password.'
-                ).format(loginurl=escape(url_for('login')))
+            message=_(
+                "Your password has been changed. You may now login with your new"
+                " password."
+            )
+            if counter is None
+            else ngettext(
+                "Your password has been changed. As a precaution, you have been logged"
+                " out of one other device. You may now login with your new password.",
+                "Your password has been changed. As a precaution, you have been logged"
+                " out of %(num)d other devices. You may now login with your new"
+                " password.",
+                counter + 1,
             ),
         )
     # Form with id 'form-password-change' will have password strength meter on UI
