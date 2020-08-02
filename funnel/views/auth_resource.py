@@ -525,7 +525,7 @@ def resource_id(authtoken, args, files=None):
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(authtoken, args, files=None):
     sessionid = abort_null(args['sessionid'])
-    session = UserSession.authenticate(buid=sessionid)
+    session = UserSession.authenticate(buid=sessionid, silent=True)
     if session and session.user == authtoken.user:
         session.views.mark_accessed(auth_client=authtoken.auth_client)
         db.session.commit()
