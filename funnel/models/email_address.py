@@ -454,12 +454,14 @@ class EmailAddress(BaseMixin, db.Model):
         """
         Create a new :class:`EmailAddress` after validation.
 
-        Raises an exception if the address is blocked from use or the email address
+        Raises an exception if the address is blocked from use, or the email address
         is syntactically invalid.
         """
         existing = cls._get_existing(email)
         if existing:
-            existing.email = email
+            # Restore the email column if it's not present. Do not modify it otherwise
+            if not existing.email:
+                existing.email = email
             return existing
         new_email = EmailAddress(email)
         db.session.add(new_email)
