@@ -34,7 +34,6 @@ __all__ = [
     'UserEmailClaim',
     'UserPhone',
     'UserPhoneClaim',
-    'AuthPasswordResetRequest',
     'UserExternalId',
 ]
 
@@ -1170,21 +1169,6 @@ class UserPhoneClaim(BaseMixin, db.Model):
                 cls.verification_expired,
             )
         ).delete(synchronize_session=False)
-
-
-class AuthPasswordResetRequest(BaseMixin, db.Model):
-    __tablename__ = 'auth_password_reset_request'
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, index=True)
-    user = db.relationship(User)
-    reset_code = db.Column(db.String(44), nullable=False, default=newsecret)
-
-    def __init__(self, **kwargs):
-        super(AuthPasswordResetRequest, self).__init__(**kwargs)
-        self.reset_code = newsecret()
-
-    @classmethod
-    def get(cls, user, reset_code):
-        return cls.query.filter_by(user=user, reset_code=reset_code).first()
 
 
 class UserExternalId(BaseMixin, db.Model):

@@ -2,6 +2,7 @@
 
 from . import (
     account,
+    account_reset,
     auth_client,
     auth_dashboard,
     auth_notify,

@@ -100,10 +100,10 @@ def send_email_verify_link(useremail):
     send_email(subject, [(useremail.user.fullname, useremail.email)], content)
 
 
-def send_password_reset_link(email, user, secret):
+def send_password_reset_link(email, user, token):
     """Mail a password reset link to the user"""
     subject = _("Reset your password")
-    url = url_for('reset_email', _external=True, buid=user.buid, secret=secret)
+    url = url_for('reset_email', _external=True, token=token)
     jsonld = jsonld_view_action(subject, url, _("Reset password"))
     content = render_template(
         'email_account_reset.html.jinja2',
@@ -160,9 +160,7 @@ def send_email_for_project_registration(rsvp, project, user):
 @signals.user_cancelled_project_registration.connect
 def send_email_for_project_deregistration(rsvp, project, user):
     send_email(
-        subject=_("Registration cancelled for {project}").format(
-            project=project.title
-        ),
+        subject=_("Registration cancelled for {project}").format(project=project.title),
         to=[user],
         content=render_template(
             'email_project_deregister.html.jinja2', user=user, project=project,
