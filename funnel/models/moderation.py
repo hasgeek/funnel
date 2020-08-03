@@ -40,7 +40,11 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
     def get_one(cls, exclude_user=None):
         reports = cls.query.filter()
         if exclude_user is not None:
-            reports = reports.filter(cls.user != exclude_user)
+            existing_reports = (
+                db.session.query(cls.id).filter_by(user_id=exclude_user.id).distinct()
+            )
+            reports = reports.filter(~cls.id.in_(existing_reports))
+
         return reports.order_by(db.func.random()).first()
 
 
