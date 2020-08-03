@@ -320,12 +320,12 @@ class AccountView(ClassView):
             return abort(403)
 
         report = CommentModeratorReport.query.filter_by(uuid_b58=report).one_or_404()
-        if report.user == current_auth.user:
-            flash(_("You cannot review same comment twice"), 'error')
-            return redirect(url_for('siteadmin_review_comments_random'))
 
+        all_user_reports = db.session.query(CommentModeratorReport.id).filter_by(
+            user_id=current_auth.user.id
+        )
         existing_reports = report.comment.moderator_reports.filter(
-            CommentModeratorReport.user != current_auth.user
+            ~CommentModeratorReport.id.in_(all_user_reports)
         )
 
         report_form = ModeratorReportForm()
