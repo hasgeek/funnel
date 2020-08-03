@@ -140,16 +140,6 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         return roles
 
 
-@Commentset.views('url')
-def parent_comments_url(obj):
-    url = None  # project or proposal object
-    if obj.project is not None:
-        url = obj.project.url_for('comments', _external=True)
-    elif obj.proposal is not None:
-        url = obj.proposal.url_for(_external=True)
-    return url
-
-
 class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
 
@@ -370,17 +360,17 @@ def comment_url(obj):
 
 @Commentset.views('json_comments')
 def commentset_json(obj):
-    parent_comments = obj.parent_comments.join(Voteset).order_by(
+    toplevel_comments = obj.toplevel_comments.join(Voteset).order_by(
         Voteset.count, Comment.created_at.asc()
     )
     return [
         comment.current_access(datasets=('json',))
-        for comment in parent_comments
+        for comment in toplevel_comments
         if comment.state.PUBLIC or comment.children is not None
     ]
 
 
-Commentset.parent_comments = db.relationship(
+Commentset.toplevel_comments = db.relationship(
     Comment,
     lazy='dynamic',
     primaryjoin=db.and_(

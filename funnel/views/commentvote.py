@@ -84,6 +84,16 @@ ProposalVoteView.init_app(app)
 FunnelProposalVoteView.init_app(funnelapp)
 
 
+@Commentset.views('url')
+def parent_comments_url(obj):
+    url = None  # project or proposal object
+    if obj.project is not None:
+        url = obj.project.url_for('comments', _external=True)
+    elif obj.proposal is not None:
+        url = obj.proposal.url_for(_external=True)
+    return url
+
+
 @route('/comments/<commentset>')
 class CommentsetView(UrlForView, ModelView):
     model = Commentset
@@ -179,7 +189,7 @@ class CommentView(UrlForView, ModelView):
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("Your reply has been posted"),
+                'message': _("Your comment has been posted"),
                 'comments': self.obj.commentset.views.json_comments(),
             }
 
