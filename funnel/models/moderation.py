@@ -40,8 +40,8 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
     def get_one(cls, exclude_user=None):
         reports = cls.query.filter()
         if exclude_user is not None:
-            existing_reports = (
-                db.session.query(cls.id).filter_by(user_id=exclude_user.id).distinct()
+            existing_reports = db.session.query(cls.id).filter_by(
+                user_id=exclude_user.id
             )
             reports = reports.filter(~cls.id.in_(existing_reports))
 
