@@ -306,10 +306,10 @@
     if(proposalConfig.videoWrapper) {
       proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-video-src');
     }
-    Hasgeek.ProposalInit(proposalConfig);
+    window.Hasgeek.ProposalInit(proposalConfig);
 
     var headerHeight;
-    if($(window).width() < window.HasGeek.config.mobileBreakpoint) {
+    if($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
       headerHeight = $('.mobile-nav').height();
     } else {
       headerHeight = $('header').height() + $('nav').height();
@@ -326,7 +326,7 @@
       headerHeight: headerHeight,
     };
 
-    HasGeek.Comments(commentsConfig);
+    window.Hasgeek.Comments(commentsConfig);
 
   });
 </script>

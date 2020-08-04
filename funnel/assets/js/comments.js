@@ -23,7 +23,7 @@ const Comments = {
         return {
           commentForm: '',
           errorMsg: '',
-          svgIconUrl: window.HasGeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.config.svgIconUrl,
           hide: false,
           now: new Date(),
         };
@@ -102,10 +102,10 @@ const Comments = {
           commentForm: '',
           errorMsg: '',
           loginUrl,
-          refreshInterval: window.HasGeek.config.refreshInterval,
+          refreshInterval: window.Hasgeek.config.refreshInterval,
           refreshTimer: '',
           headerHeight,
-          svgIconUrl: window.HasGeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.config.svgIconUrl,
         };
       },
       methods: {
@@ -115,7 +115,7 @@ const Comments = {
             $.ajax({
               type: 'GET',
               url,
-              timeout: window.HasGeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 app.pauseRefreshComments();
@@ -165,7 +165,7 @@ const Comments = {
           console.log('fetching');
           $.ajax({
             type: 'GET',
-            timeout: window.HasGeek.config.ajaxTimeout,
+            timeout: window.Hasgeek.config.ajaxTimeout,
             dataType: 'json',
             success(data) {
               console.log('data', data);
@@ -220,7 +220,7 @@ const Comments = {
 };
 
 $(() => {
-  window.HasGeek.Comments = function (config) {
+  window.Hasgeek.Comments = function (config) {
     Comments.init(config);
   };
 });
