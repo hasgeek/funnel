@@ -321,12 +321,19 @@ class AccountView(ClassView):
 
         report = CommentModeratorReport.query.filter_by(uuid_b58=report).one_or_404()
 
-        all_user_reports = db.session.query(CommentModeratorReport.id).filter_by(
-            user_id=current_auth.user.id
-        )
-        existing_reports = report.comment.moderator_reports.filter(
-            ~CommentModeratorReport.id.in_(all_user_reports)
-        )
+        if report.user == current_auth.user:
+            flash(_("You cannot review your own report"), 'error')
+            return redirect(url_for('siteadmin_review_comments_random'))
+
+        # get all existing reports for the same comment
+        existing_reports = CommentModeratorReport.get_all(
+            exclude_user=current_auth.user
+        ).filter_by(comment_id=report.comment_id)
+
+        if report not in existing_reports:
+            # current report should be in the existing unreviewed reports
+            flash(_("You cannot review same comment twice"), 'error')
+            return redirect(url_for('siteadmin_review_comments_random'))
 
         report_form = ModeratorReportForm()
         report_form.form_nonce.data = report_form.form_nonce.default()
@@ -351,7 +358,8 @@ class AccountView(ClassView):
                 if most_common_two[0][0] == MODERATOR_REPORT_TYPE.SPAM:
                     report.comment.mark_spam()
                 elif most_common_two[0][0] == MODERATOR_REPORT_TYPE.OK:
-                    report.comment.mark_not_spam()
+                    if report.comment.state.SPAM:
+                        report.comment.mark_not_spam()
                 CommentModeratorReport.query.filter_by(comment=report.comment).delete()
             else:
                 # current report is different from existing report and
@@ -367,15 +375,7 @@ class AccountView(ClassView):
             db.session.commit()
 
             # Redirect to a new report
-            random_report = CommentModeratorReport.get_one(
-                exclude_user=current_auth.user
-            )
-            if random_report is not None:
-                return redirect(
-                    url_for('siteadmin_review_comment', report=random_report.uuid_b58)
-                )
-            else:
-                return redirect(url_for('account'))
+            return redirect(url_for('siteadmin_review_comments_random'))
         else:
             app.logger.debug(report_form.errors)
 

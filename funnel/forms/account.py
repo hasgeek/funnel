@@ -407,7 +407,7 @@ class VerifyPhoneForm(forms.Form):
 
 class ModeratorReportForm(forms.Form):
     report_type = forms.SelectField(
-        __("Report type"), coerce=int, validators=[forms.validators.DataRequired()]
+        __("Report type"), coerce=int, validators=[forms.validators.InputRequired()]
     )
 
     def set_queries(self):

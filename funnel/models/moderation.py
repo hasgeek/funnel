@@ -38,14 +38,28 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def get_one(cls, exclude_user=None):
+        reports = cls.get_all(exclude_user)
+        return reports.order_by(db.func.random()).first()
+
+    @classmethod
+    def get_all(cls, exclude_user=None):
+        """
+        Get all reports.
+
+        If ``exclude_user`` is provided, exclude all reports for
+        the comments that the given user has reviewed/reported.
+        """
         reports = cls.query.filter()
         if exclude_user is not None:
-            existing_reports = db.session.query(cls.id).filter_by(
-                user_id=exclude_user.id
+            # get all comment ids that the given user has already reviewed/reported
+            existing_reported_comments = (
+                db.session.query(cls.comment_id)
+                .filter_by(user_id=exclude_user.id)
+                .distinct()
             )
-            reports = reports.filter(~cls.id.in_(existing_reports))
-
-        return reports.order_by(db.func.random()).first()
+            # exclude reports for those comments
+            reports = reports.filter(~cls.comment_id.in_(existing_reported_comments))
+        return reports
 
 
 def _report_comment(self, actor):
