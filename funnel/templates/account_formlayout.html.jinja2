@@ -23,19 +23,23 @@
     <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
   </div>
 
-  <div class="login-page__box">
-    <div class="login-page__back">
-      <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+  <div class="login-page-wrapper">
+    <div class="login-page__box">
+      <div class="login-page__back">
+        <a class="js-popup-back" href="{{ url_for('index') }}" aria-label="close">{{ faicon(icon='times', icon_size='title') }}</a>
+      </div>
+      {% block focuscontent %}
+        {% block beforeformcontent %}
+        {% endblock %}
+        {% block form %}
+          <h2 class="mui--text-headline login-page__box__heading mui--text-center">{{ title }}</h2>
+          {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
+        {% endblock %}
+        {% block afterformcontent %}
+        {% endblock %}
+      {% endblock %}
     </div>
-    {% block focuscontent %}
-      {% block beforeformcontent %}
-      {% endblock %}
-      {% block form %}
-        <h2 class="mui--text-headline login-page__box__heading mui--text-center">{{ title }}</h2>
-        {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
-      {% endblock %}
-      {% block afterformcontent %}
-      {% endblock %}
+    {% block afterloginbox %}
     {% endblock %}
   </div>
 {% endblock %}

@@ -1,5 +1,5 @@
 #: The title of this site
-SITE_TITLE = 'HasGeek Funnel'
+SITE_TITLE = 'Hasgeek Funnel'
 #: Support contact email
 SITE_SUPPORT_EMAIL = 'test@example.com'
 #: TypeKit code for fonts
@@ -43,7 +43,7 @@ CACHE_TYPE = 'redis'
 RQ_REDIS_URL = 'redis://localhost:6379/0'
 RQ_SCHEDULER_INTERVAL = 1
 DEBUG = True
-SMS_VERIFICATION_TEMPLATE = "Hello from HasGeek. Your verification code is {code}."
+SMS_VERIFICATION_TEMPLATE = "Hello from Hasgeek. Your verification code is {code}."
 
 #: Twitter integration
 OAUTH_TWITTER_KEY = ''

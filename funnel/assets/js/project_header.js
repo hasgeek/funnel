@@ -1,7 +1,7 @@
 import { SaveProject, Video } from './util';
 
 $(() => {
-  window.HasGeek.ProjectHeaderInit = function init(saveProjectConfig = '') {
+  window.Hasgeek.ProjectHeaderInit = function init(saveProjectConfig = '') {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
     }

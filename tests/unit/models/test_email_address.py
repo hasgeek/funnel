@@ -313,15 +313,16 @@ def test_email_address_add(clean_db):
     assert ea3 != ea1
     assert ea4 == ea1
 
-    # Email casing was amended by the call to EmailAddress.add
-    assert ea1.email == 'Example@example.com'
+    # Email casing will not be amended by the call to EmailAddress.add
+    assert ea1.email == 'example@example.com'
 
     # A forgotten email address will be restored by calling EmailAddress.add
+    # Since it was forgotten, email casing will also be amended (we don't have a choice)
     ea3.email = None
     assert ea3.email is None
-    ea5 = EmailAddress.add('other@example.com')
+    ea5 = EmailAddress.add('Other@example.com')
     assert ea5 == ea3
-    assert ea5.email == ea3.email == 'other@example.com'
+    assert ea5.email == ea3.email == 'Other@example.com'
 
     # Adding an invalid email address will raise an error
     with pytest.raises(ValueError):

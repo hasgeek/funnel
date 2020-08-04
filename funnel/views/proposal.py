@@ -280,9 +280,8 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db,
             title=_("Confirm delete"),
             message=_(
-                "Do you really wish to delete your proposal ‘{title}’? "
-                "This will remove all votes and comments as well. This operation "
-                "is permanent and cannot be undone."
+                "Delete your proposal ‘{title}’? This will remove all votes and"
+                " comments as well. This operation is permanent and cannot be undone."
             ).format(title=self.obj.title),
             success=_("Your proposal has been deleted"),
             next=self.obj.project.url_for(),

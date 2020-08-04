@@ -68,7 +68,7 @@
             {% with seq = 1 %}
               {% if proposal.session and proposal.session.video and proposal.session.video.url %}
                 <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
-                  <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="session-video">
+                  <div class="details__box__video mui--bg-primary-dark embed-video-wrapper" data-cy="session-video">
                     {{ embed_video_player(proposal.session.video) }}
                   </div>
                   <div class="details__box__control">
@@ -79,7 +79,7 @@
               {%- endif -%}
               {% if proposal.video %}
                 <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
-                  <div class="details__box__video mui--bg-primary-light embed-video-wrapper" data-cy="proposal-video">
+                  <div class="details__box__video mui--bg-primary-dark embed-video-wrapper" data-cy="proposal-video">
                     {{ embed_video_player(proposal.video) }}
                   </div>
                   <div class="details__box__control">
@@ -306,7 +306,7 @@
     if(proposalConfig.videoWrapper) {
       proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-video-src');
     }
-    HasGeek.ProposalInit(proposalConfig);
+    Hasgeek.ProposalInit(proposalConfig);
 
     var headerHeight;
     if($(window).width() < window.HasGeek.config.mobileBreakpoint) {

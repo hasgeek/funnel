@@ -3,7 +3,7 @@
   cursor: pointer;
   margin-right: 10px;
   border: none;
-  color: #4a90e2;
+  color: $mui-text-hyperlink;
   background: none;
 }
 
@@ -12,7 +12,7 @@
   border: none;
   outline: none;
   box-shadow: none;
-  color: #4a90e2;
+  color: $mui-text-hyperlink;
 }
 
 .inline-form {
@@ -119,8 +119,8 @@
 .ui-dragable-box {
   padding: 25px 10px 10px 20px;
   border-radius: 3px;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid $mui-text-accent;
+  background: $mui-bg-color-primary;
   cursor: pointer;
   position: relative;
   margin: 10px $mui-grid-padding;
@@ -155,8 +155,8 @@
   margin: 10px $mui-grid-padding;
   padding: 10px;
   border-radius: 3px;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid $mui-text-accent;
+  background: $mui-bg-color-primary;
   height: 55px;
 }
 
@@ -174,11 +174,11 @@
   top: 5px;
   font-size: 14px;
   line-height: 1;
-  color: #8492a6;
+  color: $mui-text-dark;
 }
 
 .seq-input--bg {
-  background: #eff2f7;
+  background: $mui-bg-color-primary-dark;
 }
 
 .seq-input:focus,
@@ -266,7 +266,7 @@
   border: 1px solid rgba(132, 146, 166, 0.3);
   border-radius: 2px;
   position: relative;
-  color: #4d5763;
+  color: $mui-text-light;
 
   .mui-textfield {
     padding: 0;
@@ -319,7 +319,7 @@
 @media (max-width: 767px) {
   .modal__inner {
     position: fixed;
-    background: #fff;
+    background: $mui-bg-color-primary;
     top: 0;
     left: 0;
     height: 100%;

@@ -72,8 +72,6 @@
         headerHeight = $('header').height() + $('nav').height();
       }
 
-      {{ user }}
-
       var commentsConfig = {
         newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
         comments: [],
@@ -86,7 +84,7 @@
         headerHeight: headerHeight,
       };
 
-      HasGeek.Comments(commentsConfig);
+      window.HasGeek.Comments(commentsConfig);
     });
   </script>
 {% endblock %}

@@ -1,3 +1,7 @@
+from datetime import timedelta
+
+import pytest
+
 from coaster.utils import buid, utcnow
 from funnel import db
 import funnel.models as models
@@ -69,17 +73,38 @@ class TestUser(TestDatabaseFixture):
     def test_usersession_authenticate(self):
         """Test to verify authenticate method on UserSession"""
         chandler = models.User(username='chandler', fullname='Chandler Bing')
-        chandler_buid = buid()
         chandler_session = models.UserSession(
             user=chandler,
             ipaddr='192.168.1.4',
-            buid=chandler_buid,
             user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36',
             accessed_at=utcnow(),
         )
         db.session.add(chandler)
         db.session.add(chandler_session)
         db.session.commit()
-        result = models.UserSession.authenticate(chandler_buid)
+        result = models.UserSession.authenticate(chandler_session.buid)
         assert isinstance(result, models.UserSession)
         assert result == chandler_session
+
+        # Now manipulate the session to make it invalid
+        # 1. More than a year since last access, so it's expired
+        chandler_session.accessed_at = utcnow() - timedelta(days=1000)
+        db.session.commit()
+        # By default, expired sessions raise an exception
+        with pytest.raises(models.UserSessionExpired):
+            models.UserSession.authenticate(chandler_session.buid)
+        # However, silent mode simply returns None
+        assert (
+            models.UserSession.authenticate(chandler_session.buid, silent=True) is None
+        )
+
+        # 2. Revoked session (taking priority over expiry)
+        chandler_session.accessed_at = utcnow()
+        chandler_session.revoked_at = utcnow()
+        db.session.commit()
+        with pytest.raises(models.UserSessionRevoked):
+            models.UserSession.authenticate(chandler_session.buid)
+        # Again, silent mode simply returns None
+        assert (
+            models.UserSession.authenticate(chandler_session.buid, silent=True) is None
+        )

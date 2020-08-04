@@ -1,4 +1,4 @@
-SITE_TITLE = 'HasGeek Funnel'
+SITE_TITLE = 'Hasgeek Talkfunnel'
 SERVER_NAME = 'talkfunnel.com'
 #: Lastuser client id
 LASTUSER_CLIENT_ID = ''

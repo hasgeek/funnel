@@ -21,11 +21,6 @@
         margin-right: $mui-grid-padding/2;
       }
     }
-    blockquote {
-      border-left: 2px solid #c0ccda;
-      margin: 0;
-      padding-left: $mui-grid-padding;
-    }
   }
 
   .comment__body {
@@ -33,6 +28,12 @@
 
     img {
       max-width: 100%;
+    }
+
+    blockquote {
+      border-left: 2px solid $mui-text-accent;
+      margin: 0;
+      padding-left: $mui-grid-padding;
     }
   }
 }

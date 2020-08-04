@@ -1,4 +1,4 @@
-SITE_TITLE = 'HasGeek App'
+SITE_TITLE = 'Hasgeek App'
 #: Lastuser client id
 LASTUSER_CLIENT_ID = ''
 #: Lastuser client secret

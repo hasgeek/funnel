@@ -2,7 +2,7 @@ title: Privacy policy
 
 Please see our [terms of service](terms) policy for important definitions used here.
 
-This document sets out how HasGeek uses and protects any information that the User may give HasGeek when they use this website. HasGeek is committed to ensuring that the User’s privacy is protected.
+This document sets out how Hasgeek uses and protects any information that the User may give Hasgeek when they use this website. Hasgeek is committed to ensuring that the User’s privacy is protected.
 
 ## Consent to data and acceptance of this policy
 
@@ -10,7 +10,7 @@ By agreeing to our [terms of service](terms), you are also agreeing to this priv
 
 ## Policy revisions
 
-HasGeek reserves the right to make changes to this privacy policy any time by updating this page. Users should check this page from time to time to ensure that they are happy with any changes. If a User objects to any change to the Policy, the User must cease using this Service and can request the Data Controller to deactivate the User's Account.
+Hasgeek reserves the right to make changes to this privacy policy any time by updating this page. Users should check this page from time to time to ensure that they are happy with any changes. If a User objects to any change to the Policy, the User must cease using this Service and can request the Data Controller to deactivate the User's Account.
 
 This policy is effective from January 1, 2016.
 
@@ -64,7 +64,7 @@ We collect and store information from our Users for the following purposes inclu
 -   To contact the User with regards to the services they have availed of
 -   To contact you for promotional offers or market research purposes, with the User’s consent
 -   To syndicate User’s publicly available data
--   To syndicate User’s pesonally identifiable information with HasGeek and it’s partners
+-   To syndicate User’s pesonally identifiable information with Hasgeek and it’s partners
 
 ### Disclosure
 
@@ -115,7 +115,7 @@ The User may opt out of Google Analytics by visiting the [Google Analytics opt-o
 
 ## Content and scope of website
 
-Our website may contain links to other websites of interest. However, once the User have used these links to leave our site, the User should note that we do not have any control over that other website. Therefore, we cannot be responsible for the protection and privacy of any information which User provides whilst visiting such sites, and such sites and the User are no longer governed by this privacy statement or HasGeek’s [terms of service](terms). The User should exercise caution and look at the privacy statement applicable to the website in question.
+Our website may contain links to other websites of interest. However, once the User have used these links to leave our site, the User should note that we do not have any control over that other website. Therefore, we cannot be responsible for the protection and privacy of any information which User provides whilst visiting such sites, and such sites and the User are no longer governed by this privacy statement or Hasgeek’s [terms of service](terms). The User should exercise caution and look at the privacy statement applicable to the website in question.
 
 ## Support
 

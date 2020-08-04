@@ -61,11 +61,11 @@
 }
 
 .primary-color-txt {
-  color: #e05f26;
+  color: $mui-primary-color;
 }
 
 .secondary-color-txt {
-  color: #82688d;
+  color: $mui-accent-color;
 }
 
 .list-item-rgborder li {
@@ -125,13 +125,13 @@
 
 .badge {
   position: relative;
-  color: #fff;
+  color: $mui-text-white;
   min-width: $mui-grid-padding;
   line-height: $mui-grid-padding;
   min-height: $mui-grid-padding;
   text-align: center;
   display: inline-block;
-  background-color: #856a91;
+  background-color: $mui-accent-color;
   border-radius: 3px;
   padding: 2px;
   font-size: 12px;
@@ -159,7 +159,7 @@
 .collapsible__header {
   margin: 10px 0;
   width: 100%;
-  background: #eff2f7;
+  background: $mui-bg-color-primary-dark;
   padding: 20px;
   cursor: pointer;
 }
@@ -183,7 +183,7 @@
   margin: 0;
   margin-right: 1px;
   padding: 10px;
-  background: #eff2f7;
+  background: $mui-bg-color-primary-dark;
   max-height: 44px;
 }
 
@@ -273,7 +273,7 @@ html.touch .collapsible__body--disable {
 }
 
 .count-chip {
-  color: #e05f25;
+  color: $mui-accent-color;
   position: relative;
   top: -12px;
   font-size: 12px;
@@ -299,8 +299,8 @@ html.touch .collapsible__body--disable {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #e05f25;
-      color: #fff;
+      background-color: $mui-primary-color;
+      color: $mui-text-white;
       text-transform: uppercase;
     }
     .user__box__fullname {
@@ -314,19 +314,20 @@ html.touch .collapsible__body--disable {
 
 .user:nth-child(even) {
   .user__box__gravatar--initials {
-    background: #e05f26;
+    background: $mui-primary-color;
   }
 }
 
 .user:nth-child(odd) {
   .user__box__gravatar--initials {
-    background: #82688d;
+    background: $mui-accent-color;
   }
 }
 
 .user:nth-child(4n) {
   .user__box__gravatar--initials {
-    background: #dda32b;
+    background: $mui-accent-color-lighter;
+    color: $mui-text-dark;
   }
 }
 
@@ -342,7 +343,7 @@ html.touch .collapsible__body--disable {
   text-transform: inherit;
 
   .bookmarked {
-    fill: #e05f26;
+    fill: $mui-accent-color;
   }
 }
 
@@ -451,7 +452,6 @@ html.touch .collapsible__body--disable {
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 32px;
-    color: #8492a6;
   }
 }
 
@@ -470,7 +470,7 @@ html.touch .collapsible__body--disable {
 }
 
 .pace .pace-progress {
-  background-image: linear-gradient(to right, #82688d, #e05f25, #dda32a);
+  background: $mui-primary-color;
   position: fixed;
   z-index: 2000;
   top: 0;
@@ -508,7 +508,7 @@ html.touch .collapsible__body--disable {
     text-align: center;
   }
   .login-page__box {
-    background-color: #fff;
+    background-color: $mui-bg-color-primary;
     width: 100%;
     max-width: 400px;
     margin: $mui-grid-padding auto;
@@ -525,7 +525,7 @@ html.touch .collapsible__body--disable {
         position: relative;
         z-index: 2;
         display: inline-block;
-        background: #fff;
+        background: $mui-bg-color-primary;
         padding: 0 8px;
       }
     }
@@ -588,7 +588,7 @@ html.touch .collapsible__body--disable {
 .login,
 .login:hover,
 .login:active {
-  color: #ffffff;
+  color: $mui-text-white;
   font-size: 16px;
   text-transform: capitalize;
 }
@@ -612,7 +612,7 @@ html.touch .collapsible__body--disable {
 .login-google:hover,
 .login-google:active {
   color: #757575;
-  background-color: #ffffff;
+  background: $mui-bg-color-primary;
 }
 .login-linkedin,
 .login-linkedin:hover,
@@ -634,6 +634,42 @@ a.loginbutton.hidden,
 .no-js a.loginbutton.no-jshidden {
   display: none;
   visibility: hidden;
+}
+
+.login-page--artwork {
+  .login-page-wrapper {
+    .login-page-artwork {
+      display: none;
+    }
+  }
+}
+
+@media (min-width: 992px) {
+  .login-page--artwork {
+    .login-page-wrapper {
+      display: flex;
+
+      .login-page-artwork {
+        width: calc(100% - 350px);
+        padding-left: 50px;
+        display: block;
+      }
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .login-page--artwork {
+    .login-page-wrapper {
+      display: flex;
+
+      .login-page-artwork {
+        width: calc(100% - 350px);
+        padding-left: 100px;
+        display: block;
+      }
+    }
+  }
 }
 
 .mui-list--border li {
@@ -692,7 +728,7 @@ a.loginbutton.hidden,
       clear: none;
       margin: 0;
       margin-left: 11.25em;
-      border-left: 1px solid #d7d7d7;
+      border-left: 1px solid $mui-divider-color;
       padding: 4px 0 0 0.75em;
     }
     dd:after {
@@ -727,4 +763,69 @@ a.loginbutton.hidden,
 // To hide vue template before Vue app is mounted
 [v-cloak] {
   display: none;
+}
+
+.about-top-content,
+.about-content {
+  font-size: 16px;
+  line-height: 21px;
+  margin: 0;
+}
+
+.about-heading {
+  font-size: 24px;
+  line-height: 32px;
+  margin: 32px 0;
+}
+
+.flex-content {
+  img {
+    margin: 0 auto;
+  }
+
+  .fifty-width:first-child,
+  img:first-child {
+    margin-bottom: 32px;
+  }
+}
+
+@media (min-width: 768px) {
+  .about-top-content,
+  .about-content {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .project-headline.about-heading {
+    font-size: 32px;
+    line-height: 43px;
+    margin: 0 0 48px;
+  }
+
+  .about-top-content {
+    max-width: 675px;
+    margin: 16px 0 48px;
+  }
+
+  .flex-content {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 48px;
+
+    .fifty-width {
+      width: 40%;
+    }
+    .fifty-width:first-child,
+    img:first-child {
+      margin: 0;
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .flex-content {
+    .fifty-width {
+      width: 50%;
+    }
+  }
 }

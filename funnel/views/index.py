@@ -1,7 +1,8 @@
 import os.path
 
-from flask import Response, g, jsonify, redirect, render_template
+from flask import g, jsonify, redirect, render_template, url_for
 
+from baseframe import _
 from baseframe.filters import date_filter
 from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, requestargs, route
@@ -145,12 +146,25 @@ def proposal_redirect(proposal):
     return redirect(proposal.url_for())
 
 
-@app.route('/about/', defaults={'path': 'index'})
-@app.route('/about/policy/', defaults={'path': 'policy/index'})
-@app.route('/about/<path:path>')
-def about(path):
+@app.route('/about')
+def about():
+    return render_template('about.html.jinja2')
+
+
+@app.route('/about/contact', defaults={'path': 'contact'})
+def contact(path):
     return render_template(
-        'about.html.jinja2', page=pages.get_or_404(os.path.join('about', path))
+        'contact.html.jinja2',
+        path=path,
+        page=pages.get_or_404(os.path.join('about', path)),
+    )
+
+
+@app.route('/about/policy', defaults={'path': 'policy/index'})
+@app.route('/about/<path:path>')
+def policy(path):
+    return render_template(
+        'policy.html.jinja2', page=pages.get_or_404(os.path.join('about', path))
     )
 
 
@@ -159,15 +173,44 @@ def offline():
     return render_template('offline.html.jinja2')
 
 
-@app.route('/service-worker.js', methods=['GET'])
+@app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
 
 
-@app.route('/manifest.json', methods=['GET'])
+@app.route('/manifest.json')
+@app.route('/manifest.webmanifest')
 def manifest():
-    return Response(
-        render_template('manifest.json.jinja2'), mimetype='application/json'
+    return jsonify(
+        {
+            "name": app.config['SITE_TITLE'],
+            "short_name": app.config['SITE_TITLE'],
+            "description": _("Discussion spaces for geeks"),
+            "scope": "/",
+            "theme_color": "#e3e1e1",
+            "background_color": "#ffffff",
+            "display": "standalone",
+            "orientation": "portrait",
+            "start_url": "/?utm_source=WebApp",
+            "icons": [
+                {
+                    "src": url_for(
+                        'static', filename='img/android-chrome-192x192.png', v=2
+                    ),
+                    "sizes": "192x192",
+                    "type": "image/png",
+                    "purpose": "any",
+                },
+                {
+                    "src": url_for(
+                        'static', filename='img/android-chrome-512x512.png', v=2
+                    ),
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any",
+                },
+            ],
+        }
     )
 
 

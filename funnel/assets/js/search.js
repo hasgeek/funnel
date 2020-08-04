@@ -14,7 +14,7 @@ const Search = {
         pagePath: window.location.pathname,
         queryString: '',
         defaultImage: config.defaultImage,
-        svgIconUrl: window.HasGeek.config.svgIconUrl,
+        svgIconUrl: window.Hasgeek.config.svgIconUrl,
         formatTime(date) {
           const d = new Date(date);
           return d.toLocaleTimeString('default', {
@@ -60,7 +60,7 @@ const Search = {
         $.ajax({
           type: 'GET',
           url: `${url}&page=${page}`,
-          timeout: window.HasGeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.config.ajaxTimeout,
           dataType: 'json',
           success(data) {
             widget.activateTab(searchType, data.results, url, page);
@@ -126,7 +126,7 @@ const Search = {
         }
       },
       handleObserver(entries) {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const nextPage = entry.target.getAttribute('data-next-page');
             if (nextPage) {
@@ -137,7 +137,7 @@ const Search = {
       },
       getCurrentTabIndex() {
         return this.get('tabs').findIndex(
-          tab => tab.type === this.get('activeTab')
+          (tab) => tab.type === this.get('activeTab')
         );
       },
       swipe(action) {
@@ -168,7 +168,7 @@ const Search = {
         this.initTab();
         this.observe(
           'activeTab',
-          function() {
+          function () {
             Utils.showTimeOnCalendar();
           },
           { defer: true }
@@ -179,7 +179,7 @@ const Search = {
 };
 
 $(() => {
-  window.HasGeek.Search = function(config) {
+  window.Hasgeek.Search = function (config) {
     Search.init(config);
   };
 });

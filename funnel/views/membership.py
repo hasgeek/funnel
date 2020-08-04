@@ -39,7 +39,6 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
 
     @route('', methods=['GET', 'POST'])
     @render_with('organization_membership.html.jinja2')
-    @requires_roles({'admin'})
     def members(self):
         if not self.obj.organization:
             # User profiles don't have memberships
@@ -271,10 +270,8 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
         form_html = render_form(
             form=form,
-            title=_("Remove member"),
-            message=_(
-                "Are you sure you want to remove {member} from {profile} as an admin?"
-            ).format(
+            title=_("Confirm removal"),
+            message=_("Remove {member} as an admin from {profile}?").format(
                 member=self.obj.user.fullname, profile=self.obj.organization.title
             ),
             submit=_("Remove"),
@@ -563,10 +560,10 @@ class ProjectCrewMembershipView(
 
         form_html = render_form(
             form=form,
-            title=_("Remove member"),
-            message=_(
-                "Are you sure you want to remove {member} from the project?"
-            ).format(member=self.obj.user.fullname),
+            title=_("Confirm removal"),
+            message=_("Remove {member} as a crew member from this project?").format(
+                member=self.obj.user.fullname
+            ),
             submit=_("Remove"),
             ajax=False,
             with_chrome=False,

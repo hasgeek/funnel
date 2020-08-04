@@ -21,7 +21,7 @@ const Posts = {
         return {
           truncated: true,
           setReadMore: false,
-          svgIconUrl: window.HasGeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.config.svgIconUrl,
           now: new Date(),
         };
       },
@@ -87,7 +87,7 @@ const Posts = {
 };
 
 $(() => {
-  window.HasGeek.PostsInit = function (config) {
+  window.Hasgeek.PostsInit = function (config) {
     Posts.init(config);
   };
 });
