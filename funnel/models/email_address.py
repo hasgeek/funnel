@@ -331,8 +331,8 @@ class EmailAddress(BaseMixin, db.Model):
         """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
-                user = getattr(related_obj, related_obj.__email_for__)
-                if user is not None and user != owner:
+                curr_owner = getattr(related_obj, related_obj.__email_for__)
+                if curr_owner is not None and curr_owner != owner:
                     return False
         return True
 
@@ -473,7 +473,7 @@ class EmailAddress(BaseMixin, db.Model):
         Create a new :class:`EmailAddress` after validation.
 
         Unlike :meth:`add`, this one requires the email address to not be in an
-        exclusive relationship with another user.
+        exclusive relationship with another owner.
         """
         existing = cls._get_existing(email)
         if existing:
@@ -487,45 +487,62 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def validate_for(cls, owner: Optional[Any], email: str) -> Union[bool, str]:
+    def validate_for(
+        cls,
+        owner: Optional[Any],
+        email: str,
+        check_dns: bool = False,
+        new: bool = False,
+    ) -> Union[bool, str]:
         """
-        Validate whether the specified email address is available to the specified user.
+        Validate whether the email address is available to the given owner.
 
-        Returns False if the address is blocked or in use by another user, True if
+        Returns False if the address is blocked or in use by another owner, True if
         available without issues, or a string value indicating the concern:
 
-        1. 'soft_fail': Known to be soft bouncing, requiring a warning message
-        2. 'hard_fail': Known to be hard bouncing, usually a validation failure
+        1. 'not_new': Email address is already attached to owner (if `new` is True)
+        2. 'soft_fail': Known to be soft bouncing, requiring a warning message
+        3. 'hard_fail': Known to be hard bouncing, usually a validation failure
+
+        :param owner: Proposed owner of this email address (may be None)
+        :param str email: Email address to validate
+        :param bool check_dns: Check for MX records for a new email address
+        :param bool new: Fail validation if email address is already in use
         """
         try:
             existing = cls._get_existing(email)
         except EmailAddressBlockedError:
             return False
         if not existing:
-            if cls.is_valid_email_address(email):
+            if cls.is_valid_email_address(email, check_dns=check_dns):
                 return True
         # There's an existing? Is it available for this owner?
         if not existing.is_available_for(owner):
             return False
-        if existing.delivery_state.SOFT_FAIL:
+
+        # Any other concerns?
+        if new:
+            return 'not_new'
+        elif existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
         elif existing.delivery_state.HARD_FAIL:
             return 'hard_fail'
         return True
 
     @staticmethod
-    def is_valid_email_address(email: str) -> bool:
+    def is_valid_email_address(email: str, check_dns=False) -> bool:
         """
         Return True if given email address is syntactically valid.
 
         This implementation will refuse to accept unusual elements such as quoted
         strings, as they are unlikely to appear in real-world use.
+
+        :param bool check_dns: Optionally, check for existence of MX records
         """
         if email:
-            return (
-                is_email(email, check_dns=False, diagnose=True).diagnosis_type
-                == 'VALID'
-            )
+            return is_email(
+                email, check_dns=check_dns, diagnose=True
+            ).diagnosis_type in ('VALID', 'NO_NAMESERVERS', 'DNS_TIMEDOUT')
         return False
 
 
@@ -576,9 +593,9 @@ class EmailAddressMixin:
             the object requires the email address to be available to its owner::
 
                 self.email_address = EmailAddress.add(email)
-                self.email_address = EmailAddress.add_for(user, email)
+                self.email_address = EmailAddress.add_for(owner, email)
 
-            Where the user is found from the attribute named in `cls.__email_for__`.
+            Where the owner is found from the attribute named in `cls.__email_for__`.
             """
             if self.email_address:
                 return self.email_address.email

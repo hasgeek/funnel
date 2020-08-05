@@ -7,7 +7,6 @@ from ..models import (
     MODERATOR_REPORT_TYPE,
     Profile,
     User,
-    UserEmail,
     UserEmailClaim,
     UserPhone,
     UserPhoneClaim,
@@ -101,8 +100,7 @@ class RegisterForm(forms.RecaptchaForm):
         __("Email address"),
         validators=[
             forms.validators.DataRequired(),
-            EmailAddressAvailable(),
-            forms.validators.ValidEmail(),
+            EmailAddressAvailable(purpose='register'),
         ],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -257,7 +255,10 @@ class AccountForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         description=__("Required for sending you tickets, invoices and notifications"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
+        validators=[
+            forms.validators.DataRequired(),
+            EmailAddressAvailable(purpose='use'),
+        ],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
@@ -302,20 +303,22 @@ class AccountForm(forms.Form):
         else:
             raise forms.ValidationError(_("This username is not available"))
 
-    # TODO: Move to function and place before ValidEmail()
-    def validate_email(self, field):
-        existing = UserEmail.get(email=field.data)
-        if existing is not None and existing.user != self.edit_obj:
-            raise forms.ValidationError(
-                _("This email address has been claimed by another user")
-            )
+
+def validate_emailclaim(form, field):
+    existing = UserEmailClaim.get_for(user=current_auth.user, email=field.data)
+    if existing is not None:
+        raise forms.StopValidation(_("This email address is pending verification"))
 
 
 @User.forms('email_add')
 class NewEmailAddressForm(forms.RecaptchaForm):
     email = forms.EmailField(
         __("Email address"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
+        validators=[
+            forms.validators.DataRequired(),
+            validate_emailclaim,
+            EmailAddressAvailable(purpose='claim'),
+        ],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     type = forms.RadioField(  # NOQA: A003
@@ -329,28 +332,12 @@ class NewEmailAddressForm(forms.RecaptchaForm):
         ],
     )
 
-    # TODO: Move to function and place before ValidEmail()
-    def validate_email(self, field):
-        existing = UserEmail.get(email=field.data)
-        if existing is not None:
-            if existing.user == current_auth.user:
-                raise forms.ValidationError(
-                    _("You have already registered this email address")
-                )
-            else:
-                raise forms.ValidationError(
-                    _("This email address has already been claimed")
-                )
-        existing = UserEmailClaim.get_for(user=current_auth.user, email=field.data)
-        if existing is not None:
-            raise forms.ValidationError(_("This email address is pending verification"))
-
 
 @User.forms('email_primary')
 class EmailPrimaryForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
+        validators=[forms.validators.DataRequired()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
