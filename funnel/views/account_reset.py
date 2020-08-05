@@ -25,6 +25,7 @@ from .. import app, lastuserapp
 from ..forms import PasswordResetForm, PasswordResetRequestForm
 from ..models import User, db
 from ..registry import login_registry
+from ..serializers import email_serializer
 from ..utils import abort_null, mask_email
 from .email import send_password_reset_link
 from .helpers import validate_rate_limit
@@ -102,7 +103,7 @@ def reset():
         send_password_reset_link(
             email=email,
             user=user,
-            token=app.email_serializer.dumps(
+            token=email_serializer().dumps(
                 {'buid': user.buid, 'pw_set_at': str_pw_set_at(user)}
             ),
         )
@@ -198,7 +199,7 @@ def reset_email_do():
     # 2. There's a token in the session. Is it valid?
     try:
         # Allow 24 hours (86k seconds) validity for the reset token
-        token = app.email_serializer.loads(session['reset_token'], max_age=86400)
+        token = email_serializer().loads(session['reset_token'], max_age=86400)
     except itsdangerous.exc.SignatureExpired:
         # Link has expired (timeout).
         session.pop('reset_token', None)

@@ -624,6 +624,15 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
+    # An address in use is not available to claim as new
+    assert (
+        EmailAddress.validate_for(user1, 'example@example.com', new=True) == 'not_new'
+    )
+    assert EmailAddress.validate_for(user2, 'example@example.com', new=True) is False
+    assert (
+        EmailAddress.validate_for(anon_user, 'example@example.com', new=True) is False
+    )
+
     # When delivery state changes, validate_for's result changes too
     ea = link.email_address
     assert ea.delivery_state.UNKNOWN

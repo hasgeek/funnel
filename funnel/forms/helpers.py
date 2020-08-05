@@ -15,7 +15,14 @@ class EmailAddressAvailable:
     which should be used first. ValidEmail will check DNS records and inform the user
     if the email is malformed or the domain does not have appropriate records, while
     this one will only indicate if the email address is available for the user to claim.
+
+    :param purpose: One of 'use', 'claim', 'register'
     """
+
+    def __init__(self, purpose):
+        if purpose not in ('use', 'claim', 'register'):
+            raise ValueError("Invalid purpose")
+        self.purpose = purpose
 
     def __call__(self, form, field):
         # Get actor (from existing obj, or current_auth.actor)
@@ -28,12 +35,32 @@ class EmailAddressAvailable:
             actor = current_auth.actor
 
         # Call validator
-        is_valid = EmailAddress.validate_for(actor, field.data)
+        is_valid = EmailAddress.validate_for(
+            actor, field.data, check_dns=True, new=self.purpose != 'use',
+        )
 
         # Interpret code
         if not is_valid:
+            if actor:
+                raise forms.validators.StopValidation(
+                    _("This email address has been claimed by someone else")
+                )
             raise forms.validators.StopValidation(
-                _("This email address belongs to another user")
+                _(
+                    "This email address is already registered. You may want to try"
+                    " logging in or resetting your password"
+                )
+            )
+        elif is_valid == 'not_new' and self.purpose == 'register':
+            raise forms.validators.StopValidation(
+                _(
+                    "You or someone else has made an account with this email address"
+                    " but not confirmed it. Do you need to reset your password?"
+                )
+            )
+        elif is_valid == 'not_new' and self.purpose == 'claim':
+            raise forms.validators.StopValidation(
+                _("You have already registered this email address")
             )
         elif is_valid == 'soft_fail':
             # XXX: In the absence of support for warnings in WTForms, we can only use

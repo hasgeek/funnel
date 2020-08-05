@@ -208,11 +208,10 @@ class ProposalForm(forms.Form):
         __("Your email address"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.ValidEmail(),
-            EmailAddressAvailable(),
+            EmailAddressAvailable(purpose='use'),
         ],
         description=__(
-            "An email address we can contact you at. " "Not displayed anywhere"
+            "An email address we can contact you at. Not displayed anywhere"
         ),
     )
     phone = forms.StringField(

@@ -41,6 +41,7 @@ from ..models import (
     merge_users,
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
+from ..serializers import talkfunnel_serializer
 from ..signals import user_data_changed
 from ..utils import abort_null
 from .email import send_email_verify_link
@@ -614,7 +615,7 @@ def funnelapp_login(cookietest=False):
             message=_("Please enable cookies in your browser."),
         )
     # 2. Nonce has been set. Create a request code
-    request_code = app.login_serializer.dumps({'nonce': session['login_nonce']})
+    request_code = talkfunnel_serializer().dumps({'nonce': session['login_nonce']})
     # 3. Redirect user
     return redirect(app_url_for(app, 'login_talkfunnel', code=request_code))
 
@@ -625,12 +626,12 @@ def funnelapp_login(cookietest=False):
 def login_talkfunnel(code):
     # 2. Verify signature of code
     try:
-        request_code = app.login_serializer.loads(code)
+        request_code = talkfunnel_serializer().loads(code)
     except itsdangerous.exc.BadData:
         current_app.logger.warning("funnelapp login code is bad: %s", code)
         return redirect(url_for('index'))
     # 3. Create token
-    token = app.login_serializer.dumps(
+    token = talkfunnel_serializer().dumps(
         {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
     )
     # 4. Redirect user
@@ -649,7 +650,7 @@ def funnelapp_login_callback(token):
     try:
         # Valid up to 30 seconds for slow connections. This is the time gap between
         # `app` returning a redirect response and user agent loading `funnelapp`'s URL
-        request_token = app.login_serializer.loads(token, max_age=30)
+        request_token = talkfunnel_serializer().loads(token, max_age=30)
     except itsdangerous.exc.BadData:
         current_app.logger.warning("funnelapp received bad login token: %s", token)
         flash(_("Your attempt to login failed. Please try again"), 'error')

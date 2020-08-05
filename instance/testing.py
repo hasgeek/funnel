@@ -1,7 +1,8 @@
 from os import environ
 
 TESTING = True
-SECRET_KEY = 'testkey'  # nosec
+SECRET_KEYS = ['testkey']  # nosec
+LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3002'
@@ -58,12 +59,6 @@ OAUTH_GOOGLE_SCOPE = ['email', 'profile']
 
 #: Google Analytics code UA-XXXXXX-X
 GA_CODE = environ.get('GA_CODE')
-
-#: Recaptcha for the registration form
-RECAPTCHA_USE_SSL = True
-RECAPTCHA_PUBLIC_KEY = environ.get('RECAPTCHA_PUBLIC_KEY')
-RECAPTCHA_PRIVATE_KEY = environ.get('RECAPTCHA_PRIVATE_KEY')
-RECAPTCHA_OPTIONS = ''
 
 #: Exotel support is active
 SMS_EXOTEL_SID = environ.get('SMS_EXOTEL_SID')
