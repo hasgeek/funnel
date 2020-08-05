@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, request
+from flask import abort, flash, redirect, render_template, request
 
 from baseframe import _, request_is_xhr
 from baseframe.filters import date_filter
@@ -53,7 +53,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             template_name = 'user_profile.html.jinja2'
 
             submitted_proposals = self.obj.user.speaker_at.filter(
-                Proposal.state.CONFIRMED
+                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
             ).all()
 
             tagged_sessions = [
@@ -62,24 +62,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 if proposal.session is not None
             ]
 
-            participated_project_ids = [
-                proposal.project_id for proposal in submitted_proposals
-            ] + [participant.project.id for participant in self.obj.user.participants]
-            participated_projects = Project.query.join(Profile).filter(
-                Project.id.in_(set(participated_project_ids))
-            )
-
             ctx = {
                 'profile': self.obj.current_access(datasets=('primary', 'related')),
                 'tagged_sessions': [
                     session.current_access() for session in tagged_sessions
-                ],
-                'participated_projects': [
-                    project.current_access(datasets=('without_parent', 'related'))
-                    for project in participated_projects
-                ],
-                'submitted_proposals': [
-                    proposal.current_access() for proposal in submitted_proposals
                 ],
             }
 
@@ -175,6 +161,48 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 # self.obj is neither a user nor an organization profile
                 # this should not happen
                 raise ValueError("Template is not defined for profile")
+
+    @route('projects')
+    @render_with(json=True)
+    def user_participated_projects(self):
+        if self.obj.is_organization_profile:
+            abort(404)
+
+        submitted_proposals = self.obj.user.speaker_at.filter(
+            ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
+        ).all()
+
+        participated_project_ids = [
+            proposal.project_id for proposal in submitted_proposals
+        ] + [participant.project.id for participant in self.obj.user.participants]
+        participated_projects = Project.query.join(Profile).filter(
+            Project.id.in_(set(participated_project_ids))
+        )
+
+        return {
+            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'participared_projects': [
+                project.current_access(datasets=('without_parent', 'related'))
+                for project in participated_projects
+            ],
+        }
+
+    @route('proposals')
+    @render_with(json=True)
+    def user_proposals(self):
+        if self.obj.is_organization_profile:
+            abort(404)
+
+        submitted_proposals = self.obj.user.speaker_at.filter(
+            ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
+        ).all()
+
+        return {
+            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'submitted_proposals': [
+                proposal.current_access() for proposal in submitted_proposals
+            ],
+        }
 
     @route('past.json')
     @requestargs(('page', int), ('per_page', int))
