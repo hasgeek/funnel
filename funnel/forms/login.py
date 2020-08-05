@@ -3,7 +3,7 @@ from flask import Markup, escape, url_for
 from baseframe import _, __
 import baseframe.forms as forms
 
-from ..models import User, UserEmail, UserSession, getuser
+from ..models import EmailAddress, User, UserSession, getuser
 from .account import PasswordStrengthValidator, password_policy
 
 __all__ = [
@@ -71,9 +71,9 @@ class LoginForm(forms.Form):
         self.weak_password = password_policy.test_password(field.data)['is_weak']
 
 
-def not_existing_email(form, field):
-    existing = UserEmail.get(email=field.data)
-    if existing is not None:
+def email_available_for_new_user(form, field):
+    ea = EmailAddress.get(email=field.data)
+    if ea and not ea.is_available_for(None):
         raise forms.ValidationError(
             Markup(
                 _(
@@ -99,8 +99,8 @@ class RegisterForm(forms.RecaptchaForm):
         __("Email address"),
         validators=[
             forms.validators.DataRequired(),
+            email_available_for_new_user,
             forms.validators.ValidEmail(),
-            not_existing_email,
         ],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )

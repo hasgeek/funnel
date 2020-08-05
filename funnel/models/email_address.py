@@ -328,7 +328,16 @@ class EmailAddress(BaseMixin, db.Model):
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
     def is_available_for(self, owner: Any):
-        """Return True if this EmailAddress is available for the given owner"""
+        """
+        Return True if this EmailAddress is available for the given owner.
+
+        Accepts `None` as owner to validate whether the address is available for a new
+        owner. Usage::
+
+            ea = EmailAddress.get(email=email)
+            if ea and not ea.is_available_for(None):
+                raise ValidationError
+        """
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
                 user = getattr(related_obj, related_obj.__email_for__)
