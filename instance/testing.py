@@ -1,7 +1,7 @@
 from os import environ
 
 TESTING = True
-SECRET_KEY = 'testkey'  # nosec
+SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3002'
