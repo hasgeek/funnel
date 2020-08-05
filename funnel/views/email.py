@@ -89,6 +89,8 @@ def send_email_verify_link(useremail):
         _external=True,
         email_hash=useremail.email_address.email_hash,
         secret=useremail.verification_code,
+        utm_medium='email',
+        utm_campaign='website',
     )
     jsonld = jsonld_confirm_action(subject, url, _("Verify email address"))
     content = render_template(
@@ -103,7 +105,13 @@ def send_email_verify_link(useremail):
 def send_password_reset_link(email, user, token):
     """Mail a password reset link to the user"""
     subject = _("Reset your password")
-    url = url_for('reset_email', _external=True, token=token)
+    url = url_for(
+        'reset_email',
+        _external=True,
+        token=token,
+        utm_medium='email',
+        utm_campaign='website',
+    )
     jsonld = jsonld_view_action(subject, url, _("Reset password"))
     content = render_template(
         'email_account_reset.html.jinja2',
