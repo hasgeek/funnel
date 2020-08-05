@@ -7,7 +7,6 @@ from ..models import (
     MODERATOR_REPORT_TYPE,
     Profile,
     User,
-    UserEmail,
     UserEmailClaim,
     UserPhone,
     UserPhoneClaim,
@@ -15,8 +14,10 @@ from ..models import (
     password_policy,
 )
 from ..utils import strip_phone, valid_phone
+from .helpers import EmailAddressAvailable
 
 __all__ = [
+    'RegisterForm',
     'PasswordCreateForm',
     'PasswordPolicyForm',
     'PasswordResetRequestForm',
@@ -82,6 +83,43 @@ class PasswordStrengthValidator:
             if tested_password['suggestions']
             else self.message
         )
+
+
+@User.forms('register')
+class RegisterForm(forms.RecaptchaForm):
+    __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
+
+    fullname = forms.StringField(
+        __("Full name"),
+        description=__(
+            "This account is for you as an individual. We’ll make one for your organization later"
+        ),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+    )
+    email = forms.EmailField(
+        __("Email address"),
+        validators=[
+            forms.validators.DataRequired(),
+            EmailAddressAvailable(purpose='register'),
+        ],
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    )
+    password = forms.PasswordField(
+        __("Password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
+        ],
+    )
+    confirm_password = forms.PasswordField(
+        __("Confirm password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            forms.validators.EqualTo('password'),
+        ],
+    )
 
 
 @User.forms('password_policy')
@@ -217,7 +255,10 @@ class AccountForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         description=__("Required for sending you tickets, invoices and notifications"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
+        validators=[
+            forms.validators.DataRequired(),
+            EmailAddressAvailable(purpose='use'),
+        ],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
@@ -262,20 +303,22 @@ class AccountForm(forms.Form):
         else:
             raise forms.ValidationError(_("This username is not available"))
 
-    # TODO: Move to function and place before ValidEmail()
-    def validate_email(self, field):
-        existing = UserEmail.get(email=field.data)
-        if existing is not None and existing.user != self.edit_obj:
-            raise forms.ValidationError(
-                _("This email address has been claimed by another user")
-            )
+
+def validate_emailclaim(form, field):
+    existing = UserEmailClaim.get_for(user=current_auth.user, email=field.data)
+    if existing is not None:
+        raise forms.StopValidation(_("This email address is pending verification"))
 
 
 @User.forms('email_add')
 class NewEmailAddressForm(forms.RecaptchaForm):
     email = forms.EmailField(
         __("Email address"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
+        validators=[
+            forms.validators.DataRequired(),
+            validate_emailclaim,
+            EmailAddressAvailable(purpose='claim'),
+        ],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     type = forms.RadioField(  # NOQA: A003
@@ -289,28 +332,12 @@ class NewEmailAddressForm(forms.RecaptchaForm):
         ],
     )
 
-    # TODO: Move to function and place before ValidEmail()
-    def validate_email(self, field):
-        existing = UserEmail.get(email=field.data)
-        if existing is not None:
-            if existing.user == current_auth.user:
-                raise forms.ValidationError(
-                    _("You have already registered this email address")
-                )
-            else:
-                raise forms.ValidationError(
-                    _("This email address has already been claimed")
-                )
-        existing = UserEmailClaim.get_for(user=current_auth.user, email=field.data)
-        if existing is not None:
-            raise forms.ValidationError(_("This email address is pending verification"))
-
 
 @User.forms('email_primary')
 class EmailPrimaryForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
+        validators=[forms.validators.DataRequired()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
