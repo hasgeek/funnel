@@ -246,6 +246,12 @@
   background-color: $mui-bg-color-primary-dark;
 }
 
+.floating-menu-btns {
+  position: absolute;
+  right: $mui-grid-padding;
+  top: -52px;
+}
+
 @media (min-width: 768px) {
   .profile {
     position: relative;

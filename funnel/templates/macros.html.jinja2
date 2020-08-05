@@ -738,21 +738,23 @@
   <div class="mui-container profile-details">
     <div class="grid">
       <div class="grid__col-12">
+        <div>
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
           <h2 class="mui--text-headline mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
-          {% if profile.is_organization_profile and profile.features.new_project()  %}
+          {% if profile.is_organization_profile and profile.features.new_project() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
           {% elif profile.features.make_public() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
           {% endif %}
           {%- if profile.current_roles.admin %}
-            {{ profile_admin_buttons(profile) }}</p>
+            <div class="mui--d-inlineblock {% if profile.is_user_profile and profile.features.new_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</p></div>
           {% endif %}
         </div>
+      </div>
       </div>
     </div>
   </div>
