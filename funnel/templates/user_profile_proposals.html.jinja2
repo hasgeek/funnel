@@ -1,60 +1,23 @@
-{% extends "layout.html.jinja2" %}
-{% block title %}{{ profile.title }}{% endblock %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import profile_header, video_thumbnail, projectcard, proposal_list %}
-
-{%- block pageheaders %}
-<link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-     "@type" : "WebSite",
-     "name" : {{ config['SITE_TITLE']|tojson }},
-     "url" : {{ url_for('index', _external=true)|tojson }},
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
-      "query-input": "required name=query"
-    }
-  }
-</script>
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-    "@type" : "Organization",
-    "name" : {{ profile.title|tojson }},
-    {%- if profile.banner_image_url.url %}
-      "logo" : {{ profile.banner_image_url.url|tojson }},
-    {% elif profile.logo_url.url %}
-      "logo" : {{ profile.logo_url.url|tojson }},
-    {% endif %}
-    "url" : {{ profile.url_for(_external=true)|tojson }}
-  }
-</script>
-{%- endblock %}
-
-{% block bodytag %}
-  <body class="mui--bg-primary hg-app page-with-banner">
-{% endblock %}
-
-{% block contenthead %}
-{% endblock %}
+{% extends "user_profile.html.jinja2" %}
 
 {% block baseheadline %}
-  {{ profile_header(profile) }}
+  {{ profile_header(profile, current_page='proposals') }}
 {% endblock %}
 
 {% block contentwrapper %}
   <div class="grid" id="tagged-sessions">
-    {{ proposal_list(submitted_proposals) }}
+    <div class="grid__col-xs-12">
+      {% if submitted_proposals %}
+        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=submitted_proposals|length %}{{ count }} proposal submissions{% endtrans %}</p>
+      {% else %}
+        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans %}No proposal submission yet.{% endtrans %}</p>
+      {% endif %}
+    </div>
+    <div class="grid__col-xs-12">
+      {{ proposal_list(submitted_proposals) }}
+    </div>
   </div>
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('session_videos')) }}" type="text/javascript"></script>
-    <script type="text/javascript">
-    $(function() {
-      window.Hasgeek.SessionVideoInit();
-    });
-  </script>
 {% endblock %}

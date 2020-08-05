@@ -1,5 +1,7 @@
-#root_footer {
-  height: 0;
+@media (max-width: 767px) {
+  #root_footer {
+    height: 0;
+  }
 }
 
 .hg-app {
