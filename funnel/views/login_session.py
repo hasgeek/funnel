@@ -20,6 +20,7 @@ from ..models import (
     db,
     user_session_validity_period,
 )
+from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
 from .helpers import app_url_for, autoset_timezone, get_scheme_netloc
@@ -71,7 +72,7 @@ class LoginManager:
                 (
                     lastuser_cookie,
                     lastuser_cookie_headers,
-                ) = current_app.cookie_serializer.loads(
+                ) = lastuser_serializer().loads(
                     request.cookies['lastuser'], return_header=True
                 )
             except itsdangerous.exc.BadSignature:
@@ -213,7 +214,7 @@ def set_lastuser_cookie(response):
         expires = utcnow() + timedelta(days=365)
         response.set_cookie(
             'lastuser',
-            value=current_app.cookie_serializer.dumps(
+            value=lastuser_serializer().dumps(
                 current_auth.cookie, header_fields={'v': 1}
             ),
             # Keep this cookie for a year.
