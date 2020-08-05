@@ -124,7 +124,7 @@ class Proposal(
         User,
         primaryjoin=speaker_id == User.id,
         lazy='joined',
-        backref=db.backref('speaker_at', cascade='all'),
+        backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
     )
 
     phone = db.Column(db.Unicode(80), nullable=True)

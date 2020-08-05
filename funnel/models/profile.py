@@ -174,6 +174,14 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         self.reserved = False
 
     @hybrid_property
+    def is_user_profile(self):
+        return self.user_id is not None
+
+    @hybrid_property
+    def is_organization_profile(self):
+        return self.organization_id is not None
+
+    @hybrid_property
     def title(self):
         if self.user:
             return self.user.fullname
