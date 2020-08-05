@@ -657,8 +657,9 @@
     </div>
     <div class="modal__body">
       <ul class="mui-list--aligned mui--text-body2">
-        <li>{% trans %}Will not be visible to anyone other than you{% endtrans %}</li>
-        <li>{% trans %}Cannot host projects{% endtrans %}</li>
+        <li>{% trans %}Your profile will not be visible to anyone other than you{% endtrans %}</li>
+        <li>{% trans %}Your profile will be listed in search results{% endtrans %}</li>
+        <li>{% trans %}You cannot host projects{% endtrans %}</li>
         <li>{% trans %}Any existing projects will become inaccessible until the profile is public again{% endtrans %}</li>
       </ul>
       <form action="{{ profile.url_for('transition') }}" method="post">
@@ -716,9 +717,9 @@
                 </div>
                 <div class="modal__body">
                   <ul class="mui-list--aligned mui--text-body2">
-                    <li>{% trans %}Will be visible to anyone visiting the page{% endtrans %}</li>
-                    <li>{% trans %}Will be listed in search results{% endtrans %}</li>
-                    <li>{% trans %}Can host projects{% endtrans %}</li>
+                    <li>{% trans %}Your profile will be visible to anyone visiting the page{% endtrans %}</li>
+                    <li>{% trans %}Your profile will be listed in search results{% endtrans %}</li>
+                    <li>{% trans %}You can host projects{% endtrans %}</li>
                   </ul>
                   <form action="{{ profile.url_for('transition') }}" method="post">
                     {{ profile.forms.transition().hidden_tag() }}
