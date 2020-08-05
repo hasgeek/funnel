@@ -48,7 +48,7 @@
   <div class="grid" id="tagged-sessions">
     <div class="grid__col-xs-12">
       {% if tagged_sessions %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=tagged_sessions|length %}{{ count }} tagged sessions{% endtrans %}</p>
+        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=tagged_sessions|length, plural='s' if tagged_sessions|length > 1 else '' %}{{ count }} tagged session{{plural}}{% endtrans %}</p>
       {% else %}
         <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans %}No tagged sessions yet.{% endtrans %}</p>
       {% endif %}

@@ -8,13 +8,11 @@
   <div class="grid" id="tagged-sessions">
     <div class="grid__col-xs-12">
       {% if submitted_proposals %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=submitted_proposals|length %}{{ count }} proposal submissions{% endtrans %}</p>
+        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=submitted_proposals|length, plural='s' if submitted_proposals|length > 1 else ''  %}{{ count }} proposal submission{{plural}}{% endtrans %}</p>
+        {{ proposal_list(submitted_proposals) }}
       {% else %}
         <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans %}No proposal submission yet.{% endtrans %}</p>
       {% endif %}
-    </div>
-    <div class="grid__col-xs-12">
-      {{ proposal_list(submitted_proposals) }}
     </div>
   </div>
 {% endblock %}
