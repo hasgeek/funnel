@@ -10,7 +10,7 @@
       {% if participated_projects %}
         <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=participated_projects|length , plural='s' if participated_projects|length > 1 else '' %}{{ count }} project{{plural}} participated in{% endtrans %}</p>
       {% else %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans %}No participation yet.{% endtrans %}</p>
+        <p class="mui-panel mui--bg-accent">{% trans %}No participation yet.{% endtrans %}</p>
       {% endif %}
     </div>
     <ul class="mui-list--unstyled grid upcoming" role="list">

@@ -11,7 +11,7 @@
         <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=submitted_proposals|length, plural='s' if submitted_proposals|length > 1 else ''  %}{{ count }} proposal submission{{plural}}{% endtrans %}</p>
         {{ proposal_list(submitted_proposals) }}
       {% else %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans %}No proposal submission yet.{% endtrans %}</p>
+        <p class="mui-panel mui--bg-accent">{% trans %}No proposal submission yet.{% endtrans %}</p>
       {% endif %}
     </div>
   </div>

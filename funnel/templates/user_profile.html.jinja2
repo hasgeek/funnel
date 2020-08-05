@@ -50,7 +50,7 @@
       {% if tagged_sessions %}
         <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=tagged_sessions|length, plural='s' if tagged_sessions|length > 1 else '' %}{{ count }} tagged session{{plural}}{% endtrans %}</p>
       {% else %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans %}No tagged sessions yet.{% endtrans %}</p>
+        <p class="mui-panel mui--bg-accent">{% trans %}No tagged sessions yet.{% endtrans %}</p>
       {% endif %}
     </div>
     {% for session in tagged_sessions %}
