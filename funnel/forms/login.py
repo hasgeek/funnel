@@ -71,6 +71,19 @@ class LoginForm(forms.Form):
         self.weak_password = password_policy.test_password(field.data)['is_weak']
 
 
+def not_existing_email(form, field):
+    existing = UserEmail.get(email=field.data)
+    if existing is not None:
+        raise forms.ValidationError(
+            Markup(
+                _(
+                    'This email address is already registered. '
+                    'Do you want to <a href="{loginurl}">login</a> instead?'
+                ).format(loginurl=escape(url_for('login')))
+            )
+        )
+
+
 @User.forms('register')
 class RegisterForm(forms.RecaptchaForm):
     __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
@@ -84,7 +97,11 @@ class RegisterForm(forms.RecaptchaForm):
     )
     email = forms.EmailField(
         __("Email address"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.ValidEmail(),
+            not_existing_email,
+        ],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(
@@ -103,18 +120,6 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.EqualTo('password'),
         ],
     )
-
-    def validate_email(self, field):
-        existing = UserEmail.get(email=field.data)
-        if existing is not None:
-            raise forms.ValidationError(
-                Markup(
-                    _(
-                        'This email address is already registered. '
-                        'Do you want to <a href="{loginurl}">login</a> instead?'
-                    ).format(loginurl=escape(url_for('login')))
-                )
-            )
 
 
 @User.forms('logout')
