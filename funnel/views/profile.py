@@ -163,7 +163,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 raise ValueError("Template is not defined for profile")
 
     @route('projects')
-    @render_with(json=True)
+    @render_with('user_profile_projects.html.jinja2', json=True)
     def user_participated_projects(self):
         if self.obj.is_organization_profile:
             abort(404)
@@ -181,14 +181,14 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
-            'participared_projects': [
+            'participated_projects': [
                 project.current_access(datasets=('without_parent', 'related'))
                 for project in participated_projects
             ],
         }
 
     @route('proposals')
-    @render_with(json=True)
+    @render_with('user_profile_proposals.html.jinja2', json=True)
     def user_proposals(self):
         if self.obj.is_organization_profile:
             abort(404)
@@ -200,7 +200,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
             'submitted_proposals': [
-                proposal.current_access() for proposal in submitted_proposals
+                proposal.current_access(datasets=('without_parent', 'related'))
+                for proposal in submitted_proposals
             ],
         }
 
