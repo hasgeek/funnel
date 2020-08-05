@@ -871,7 +871,7 @@
 
 {% macro video_thumbnail(session) %}
   <div class="video">
-    <a class="video__thumbnail {%- if not (session.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.proposal.url_for() }}{%- endif %}"  data-action="view session video">
+    <a class="video__thumbnail {%- if not (session.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}"  data-action="view session video">
       {%- if session.video.thumbnail %}
         <img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
         <div class="video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
