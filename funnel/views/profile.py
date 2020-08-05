@@ -174,10 +174,13 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
         participated_project_ids = [
             proposal.project_id for proposal in submitted_proposals
-        ] + [participant.project.id for participant in self.obj.user.participants]
-        participated_projects = Project.query.join(Profile).filter(
-            Project.id.in_(set(participated_project_ids))
-        )
+        ] + [project.id for project in self.obj.user.projects_as_crew]
+
+        participated_projects = Project.query.filter(
+            Project.state.PUBLISHED,
+            Project.schedule_start_at.isnot(None),
+            Project.id.in_(set(participated_project_ids)),
+        ).order_by(Project.schedule_start_at.desc())
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
