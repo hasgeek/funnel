@@ -230,11 +230,14 @@
   }
 }
 
+.profile-create-btn {
+  margin-right: 8px;
+}
+
 .profile-dropdown-btn {
   background-color: $mui-bg-color-primary-dark;
   padding: 6px 16px;
   text-align: center;
-  margin-left: 8px;
 }
 
 .profile-dropdown-btn:hover,

@@ -1822,11 +1822,14 @@ a.loginbutton.hidden,
   transform: translate(-50%, -50%);
 }
 
+.profile-create-btn {
+  margin-right: 8px;
+}
+
 .profile-dropdown-btn {
   background-color: #f1f1f1;
   padding: 6px 16px;
   text-align: center;
-  margin-left: 8px;
 }
 
 .profile-dropdown-btn:hover,
@@ -3989,7 +3992,7 @@ a.loginbutton.hidden,
 .proposal-list-header {
   margin: 1px 0 0;
   width: 100%;
-  background: #eff2f7;
+  background: #f1f1f1;
   padding: 20px;
 }
 
@@ -3998,7 +4001,7 @@ a.loginbutton.hidden,
   border-spacing: 0;
 }
 .proposal-list-table tbody > tr > td {
-  border: 1px solid #eff2f7;
+  border: 1px solid #f1f1f1;
   border-top: 0;
 }
 .proposal-list-table tbody > tr > td .speaker-details {

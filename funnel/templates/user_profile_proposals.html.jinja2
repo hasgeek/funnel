@@ -1,7 +1,16 @@
 {% extends "user_profile.html.jinja2" %}
 
+{% block bodytag %}
+  <body class="mui--bg-primary hg-app no-sticky-header page-with-banner">
+{% endblock %}
+
 {% block baseheadline %}
-  {{ profile_header(profile, current_page='proposals') }}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ profile.url_for() }}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ profile.title }}(proposals page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Proposals{% endtrans %}</span>
+    </div>
+  </div>
+  {{ profile_header(profile,  class='mui--hidden-xs mui--hidden-sm', current_page='proposals') }}
 {% endblock %}
 
 {% block contentwrapper %}
