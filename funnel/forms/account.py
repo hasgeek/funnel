@@ -15,8 +15,10 @@ from ..models import (
     password_policy,
 )
 from ..utils import strip_phone, valid_phone
+from .helpers import EmailAddressAvailable
 
 __all__ = [
+    'RegisterForm',
     'PasswordCreateForm',
     'PasswordPolicyForm',
     'PasswordResetRequestForm',
@@ -82,6 +84,44 @@ class PasswordStrengthValidator:
             if tested_password['suggestions']
             else self.message
         )
+
+
+@User.forms('register')
+class RegisterForm(forms.RecaptchaForm):
+    __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
+
+    fullname = forms.StringField(
+        __("Full name"),
+        description=__(
+            "This account is for you as an individual. We’ll make one for your organization later"
+        ),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+    )
+    email = forms.EmailField(
+        __("Email address"),
+        validators=[
+            forms.validators.DataRequired(),
+            EmailAddressAvailable(),
+            forms.validators.ValidEmail(),
+        ],
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    )
+    password = forms.PasswordField(
+        __("Password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
+        ],
+    )
+    confirm_password = forms.PasswordField(
+        __("Confirm password"),
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(min=8, max=40),
+            forms.validators.EqualTo('password'),
+        ],
+    )
 
 
 @User.forms('password_policy')

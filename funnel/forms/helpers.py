@@ -32,8 +32,15 @@ class EmailAddressAvailable:
 
         # Interpret code
         if not is_valid:
+            if actor:
+                raise forms.validators.StopValidation(
+                    _("This email address belongs to another user")
+                )
             raise forms.validators.StopValidation(
-                _("This email address belongs to another user")
+                _(
+                    "This email address is already registered. You may want to try"
+                    " logging in or resetting your password"
+                )
             )
         elif is_valid == 'soft_fail':
             # XXX: In the absence of support for warnings in WTForms, we can only use
