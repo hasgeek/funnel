@@ -74,7 +74,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 'tagged_sessions': [
                     session.current_access() for session in tagged_sessions
                 ],
-                'participared_projects': [
+                'participated_projects': [
                     project.current_access(datasets=('without_parent', 'related'))
                     for project in participated_projects
                 ],

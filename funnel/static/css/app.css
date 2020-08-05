@@ -3923,7 +3923,7 @@ a.loginbutton.hidden,
   transform: translate(-50%, -50%);
 }
 .video .video__thumnail--novideo {
-  background: #656565;
+  background: #f1f1f1;
   padding-top: 56.25%;
 }
 .video .video__txt {
