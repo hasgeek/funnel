@@ -124,7 +124,7 @@ class Proposal(
         User,
         primaryjoin=speaker_id == User.id,
         lazy='joined',
-        backref=db.backref('speaker_at', cascade='all'),
+        backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
     )
 
     phone = db.Column(db.Unicode(80), nullable=True)
@@ -236,8 +236,9 @@ class Proposal(
                 'coordinates',
                 'session',
                 'project',
+                'datetime',
             },
-            'call': {'url_for'},
+            'call': {'url_for', 'state', 'commentset'},
         },
         'reviewer': {'read': {'email', 'phone'}},
         'project_editor': {'read': {'email', 'phone'}},
