@@ -183,7 +183,7 @@ class Delivery:
 
 
 class Send:
-    """ The JSON object that contains information about a send event is always empty. """
+    """ The JSON object that contains information about a send event. """
     pass
 
 
