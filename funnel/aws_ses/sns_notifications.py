@@ -13,65 +13,43 @@ from cryptography.hazmat.primitives.hashes import SHA1
 
 
 class Type(Enum):
-    """
-    Notification Type. Could only be one of the below
-    """
+    """ Notification Type. Could only be one of the below """
     SubscriptionConfirmation = 'SubscriptionConfirmation'
     Notification = 'Notification'
     UnsubscribeConfirmation = 'UnsubscribeConfirmation'
 
 
 class ValidatorException(Exception):
-    """
-    Base Exception for SES Message Validator.
-    """
-    pass
+    """ Base Exception for SES Message Validator. """
 
 
 class TopicException(ValidatorException):
-    """
-    Topic is not what we expect it to be.
-    """
-    pass
+    """ Topic is not what we expect it to be. """
 
 
 class SignatureVersionException(ValidatorException):
-    """
-    Signature Version does not match
-    """
-    pass
+    """ Signature Version does not match """
 
 
 class CertURLException(ValidatorException):
-    """
-    Certificate URL does not match the one from AWS.
-    """
-    pass
+    """ Certificate URL does not match the one from AWS. """
 
 
 class MessageTypeException(ValidatorException):
-    """
-    Does not belong to known Message Types
-    """
-    pass
+    """ Does not belong to known Message Types """
 
 
 class SignatureFailureException(ValidatorException):
-    """
-    Signature does not match with what we computed
-    """
-    pass
+    """ Signature does not match with what we computed """
 
 
 class ValidatorChecks(IntFlag):
-    """
-    List of Checks that is done by the Validator.
-    """
-    NONE = 0,
-    TOPIC = 1,
-    SIGNATURE_VERSION = 2,
-    CERTIFICATE_URL = 4,
-    SIGNATURE = 8,
+    """ List of Checks that is done by the Validator. """
+    NONE = 0
+    TOPIC = 1
+    SIGNATURE_VERSION = 2
+    CERTIFICATE_URL = 4
+    SIGNATURE = 8
     ALL = 15
 
 
@@ -119,10 +97,9 @@ class Validator:
     @staticmethod
     def _get_text_to_sign(message: Dict[str, str]) -> str:
         """
-        Extract the Plain Text that was used for Signing to compare Signatures. This is done based on the
-        Message Type. For instance, assume that the Type is Subscription, then the Message for verifying
-        the signature is "\nKEY1\nVALUE1...", where Keys are (Message, MessageId etc.). This scheme is
-        described in depth in this URL:
+        Extract the Plain Text that was used for Signing to compare
+        Signatures. This is done based on the Message Type.
+        See this URL for more information:
         https://docs.aws.amazon.com/sns/latest/dg/sns-example-code-endpoint-java-servlet.html
 
         :param message: SNS Message
@@ -130,7 +107,7 @@ class Validator:
         """
         keys = ()
         m_type = message.get('Type')
-        if m_type == Type.SubscriptionConfirmation.value or m_type == Type.UnsubscribeConfirmation.value:
+        if m_type in (Type.SubscriptionConfirmation.value, Type.UnsubscribeConfirmation.value):
             keys = ('Message', 'MessageId', 'SubscribeURL', 'Timestamp', 'Token', 'TopicArn', 'Type',)
         elif m_type == Type.Notification.value:
             if message.get('Subject'):
@@ -142,8 +119,9 @@ class Validator:
 
     def _get_public_key(self, message: Dict[str, str]) -> RSAPublicKey:
         """
-        Every message has a Signing URL which has a PEM file. We need to get the Public Key of the PEM.
-        To avoid getting it for every message, we can cache it internally.
+        Every message has a Signing URL which has a PEM file. We need to get
+        the Public Key of the PEM. To avoid getting it for every message,
+        we can cache it internally.
         :param message:  SNS Message
         :return:  Public Key
         """

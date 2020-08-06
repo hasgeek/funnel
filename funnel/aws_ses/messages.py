@@ -30,23 +30,23 @@ class CommonMailHeaders:
 @dataclass
 class Mail:
     """
-    The JSON object that contains information about a mail object has the following fields.
+    The JSON object that contains information about a mail object
 
-    timestamp:  The date and time, in ISO8601 format, when the message was sent.
+    timestamp:  The date and time, in ISO8601 format
 
     messageId:  A unique ID that Amazon SES assigned to the message.
 
-    source:     The email address that the message was sent from (the envelope MAIL FROM address).
+    source:     The email address that the message was sent from
 
-    sourceArn: The Amazon Resource Name (ARN) of the identity that was used to send the email.
+    sourceArn: The Amazon Resource Name (ARN) of the identity that was used
 
-    sendingAccountId: The AWS account ID of the account that was used to send the email.
+    sendingAccountId: The AWS account ID of the account
 
     destination: A list of email addresses that were recipients of the original mail.
 
-    headersTruncated: A string that specifies whether the headers are truncated in the notification.
+    headersTruncated: Are headers Truncated?
 
-    headers: A list of the email's original headers. Each header in the list has a name field and a value field.
+    headers: A list of the email's original headers.
 
     commonHeaders: A list of the email's original, commonly used headers.
     """
@@ -65,7 +65,7 @@ class Mail:
 @dataclass
 class BouncedRecipients:
     """
-    Recipients for whom the Email bounced. It contains the following fields:
+    Recipients for whom the Email bounced.
 
         emailAddress(str):      Email Address
 
@@ -86,21 +86,22 @@ class BouncedRecipients:
 @dataclass
 class Bounce:
     """
-    The JSON object that contains information about a Bounce event. It contains the following fields
+    The JSON object that contains information about a Bounce event.
 
-        bounceType (str): The type of bounce, as determined by Amazon SES.
+        bounceType: The type of bounce
 
-        bounceSubType (str): The subtype of the bounce, as determined by Amazon SES.
+        bounceSubType: The subtype of the bounce
 
-        bouncedRecipients(list(BouncedRecipients)): List of Recipients for whom the Email Bounced
+        bouncedRecipients: List of Recipients for whom the Email Bounced
 
-        timestamp(str): The date and time, in ISO8601 format (YYYY-MM-DDThh:mm:ss.sZ), of the bounce notification.
+        timestamp: The date and time, in ISO8601 format
 
         feedbackId(str): A unique ID for the bounce.
 
         reportingMTA(str): The value of the Reporting-MTA field from the DSN.
-                           This is the value of the Message Transfer Authority (MTA) that attempted to perform
-                           the delivery, relay, or gateway operation described in the DSN.
+                           This is the value of the Message Transfer Authority (MTA)
+                           that attempted to perform the delivery, relay, or
+                           gateway operation described in the DSN.
     """
     bounceType: str
     bounceSubType: str
@@ -112,8 +113,8 @@ class Bounce:
     def is_hard_bounce(self) -> bool:
         """
         Check if Bounce message is a hard bounce.
-        If you receive this type of bounce, you should remove the recipient's email address
-        from your mailing list.
+        If you receive this type of bounce, you should remove the
+        recipient's email address from your mailing list.
         :return: True if it is hard bounce, false if not.
         """
         return self.bounceType == "Permanent"
@@ -123,34 +124,35 @@ class Bounce:
 @dataclass
 class Complaint:
     """
-    The JSON object that contains information about a Complaint event has the following fields.
+    The JSON object that contains information about a Complaint event
 
-        complainedRecipients(list(BouncedRecipients)): Recipients that may have submitted the complaint.
+        complainedRecipients: Recipients that may have submitted the complaint.
 
-        timestamp: The date and time, in ISO8601 format (YYYY-MM-DDThh:mm:ss.sZ), of the complaint notification.
+        timestamp: The date and time, in ISO8601 format
 
         feedbackId: A unique ID for the complaint.
 
-        complaintSubType: The subtype of the complaint, as determined by Amazon SES.
+        complaintSubType: The subtype of the complaint
 
-        userAgent: This indicates the name and version of the system that generated the report.
+        userAgent: userAgent
 
         complaintFeedbackType: This contains the type of feedback.
 
-        arrivalDate: The value of the Arrival-Date or Received-Date field from the feedback report
+        arrivalDate: The value of the Arrival-Date or Received-Date field
 
     complaintFeedbackType will have one of the following:
-        abuse:          Indicates unsolicited email or some other kind of email abuse.
+
+        abuse:          Indicates unsolicited email
 
         auth-failure:   Email authentication failure report.
 
         fraud:          Indicates some kind of fraud or phishing activity.
 
-        not-spam:       Indicates that the entity providing the report does not consider the message to be spam.
+        not-spam:       Not a Spam
 
-        other:          Indicates any other feedback that does not fit into other registered types.
+        other:          Others not belonging to any category
 
-        virus:          Reports that a virus is found in the originating message.
+        virus:          A virus is found in the originating message.
     """
     complainedRecipients: List[BouncedRecipients]
     timestamp: str
@@ -165,17 +167,17 @@ class Complaint:
 @dataclass
 class Delivery:
     """
-    The JSON object that contains information about a Delivery event has the following fields.
+    The JSON object that contains information about a Delivery event
 
-        timestamp:            The date and time when Amazon SES delivered the email to the recipient's mail server
+        timestamp:            The date and time.
 
-        processingTimeMillis: Total time to process and send out the email Message.
+        processingTimeMillis: Time to process and send the Message.
 
-        recipients:           A list of intended recipients that the delivery event applies to.
+        recipients:           A list of intended recipients.
 
-        smtpResponse:         The SMTP response message of the remote ISP that accepted the email.
+        smtpResponse:         The SMTP response.
 
-        reportingMTA:         The host name of the Amazon SES mail server that sent the mail.
+        reportingMTA:         Host name of the Amazon SES mail server.
     """
     timestamp: str
     processingTimeMillis: int
@@ -195,10 +197,11 @@ class Send:
 @dataclass
 class Reject:
     """
-    The JSON object that contains information about a Reject event has the following fields.
+    The JSON object that contains information about a Reject event
 
-        reason: The reason the email was rejected. The only possible value is Bad content, which means that Amazon
-                SES detected that the email contained a virus
+        reason: The reason the email was rejected. The only possible value
+                is Bad content, which means that Amazon SES detected that the
+                email contained a virus
 
     """
     reason: str
@@ -208,13 +211,13 @@ class Reject:
 @dataclass
 class Open:
     """
-    The JSON object that contains information about a Open event has the following fields.
+    The JSON object that contains information about a Open event
 
         ipAddress:       The recipient's IP address.
 
-        timestamp:       The date and time when the open event occurred in ISO8601 format (YYYY-MM-DDThh:mm:ss.sZ).
+        timestamp:       The date and time when the open event occurred
 
-        userAgent:       The user agent of the device or email client that the recipient used to open the email.
+        userAgent:       The user agent of the device or email client
     """
     ipAddress: str
     timestamp: str
@@ -225,17 +228,17 @@ class Open:
 @dataclass
 class Click:
     """
-    The JSON object that contains information about a Click event has the following fields.
+    The JSON object that contains information about a Click event
 
     ipAddress:        The recipient's IP address.
 
-    timestamp:        The date and time when the click event occurred in ISO8601 format (YYYY-MM-DDThh:mm:ss.sZ).
+    timestamp:        The date and time when the click event occurred
 
-    userAgent:        The user agent of the client that the recipient used to click a link in the email.
+    userAgent:        The user agent of the client that the recipient
 
     link:             The URL of the link that the recipient clicked.
 
-    linkTags:         A list of tags that were added to the link using the ses:tags attribute.
+    linkTags:         A list of tags that were added to the link.
     """
     ipAddress: str
     timestamp: str
@@ -248,11 +251,11 @@ class Click:
 @dataclass
 class RenderFailure:
     """
-    The JSON object that contains information about a Rendering Failure event has the following fields.
+    The JSON object that contains information about Rendering Failure event
 
     templateName:  The name of the template used to send the email.
 
-    errorMessage:  A message that provides more information about the rendering failure.
+    errorMessage:  More information about the rendering failure.
     """
     templateName: str
     errorMessage: str
@@ -262,33 +265,33 @@ class RenderFailure:
 @dataclass
 class DeliveryDelay:
     """
-    The JSON object that contains information about a DeliveryDelay event has the following fields.
+    The JSON object that contains information about a DeliveryDelay event.
 
-    delayedRecipients:  An object that contains information about the recipient of the email.
+    delayedRecipients:  Information about the recipient of the email.
 
-    expirationTime:     The date and time when Amazon SES will stop trying to deliver the message.
+    expirationTime:     When Amazon SES will stop trying to deliver the message.
 
-    reportingMTA:       The IP address of the Message Transfer Agent (MTA) that reported the delay.
+    reportingMTA:       The IP address of the Message Transfer Agent (MTA)
 
-    timestamp:          The date and time when the delay occurred, shown in ISO 8601 format.
+    timestamp:          The date and time when the delay occurred
 
     delayType:          The type of delay. Possible values are:
 
-                    InternalFailure – An internal Amazon SES issue caused the message to be delayed.
+     InternalFailure – An internal Amazon SES issue caused the message to be delayed.
 
-                    General – A generic failure occurred during the SMTP conversation.
+     General – A generic failure occurred during the SMTP conversation.
 
-                    MailboxFull – The recipient's mailbox is full.
+     MailboxFull – The recipient's mailbox is full.
 
-                    SpamDetected – The recipient's mail server has detected a large amount of SPAM.
+     SpamDetected – The recipient's mail server has detected a large amount of SPAM.
 
-                    RecipientServerError – A temporary issue with the recipient's email server.
+     RecipientServerError – A temporary issue with the recipient's email server.
 
-                    IPFailure – The IP address that's sending the message is being blocked or throttled.
+     IPFailure – IP address that's sending the message is being blocked or throttled.
 
-                    TransientCommunicationGeneral – There was a temporary communication failure.
+     TransientCommunicationGeneral – Temporary communication failure.
 
-                    Undetermined – Amazon SES wasn't able to determine the reason for the delivery delay
+     Undetermined – Amazon SES wasn't able to determine the reason.
     """
     delayedRecipients: List[BouncedRecipients]
     expirationTime: str
@@ -305,7 +308,7 @@ class SesEvent:
     eventType: Possible values: Delivery, Send, Reject, Open, Click, Bounce,
                                 Complaint, Rendering Failure, or DeliveryDelay.
 
-    mail :     A JSON object that contains information about the email that produced the event.
+    mail :     A JSON object that contains information about the email
 
     bounce:    This field is only present if eventType is Bounce.
 

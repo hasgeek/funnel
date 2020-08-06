@@ -4,9 +4,9 @@ import os
 from funnel.aws_ses import SesEvent, Validator, ValidatorException, ValidatorChecks
 
 
-class TestSesEventJson(object):
+class TestSesEventJson:
 
-    def setup_method(self):
+    def __init__(self):
         self.data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
     def test_delivery(self) -> None:
