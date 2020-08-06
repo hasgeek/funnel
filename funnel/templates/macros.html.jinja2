@@ -744,6 +744,13 @@
           <h2 class="mui--text-headline mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
+        <p>
+          <span class="mui--visible-xs-block mui--visible-sm-block mui--visible-md-inline-block mui--visible-lg-inline-block mui--visible-xl-inline-block">{{ faicon(icon='history', icon_size='caption') }} {% trans date=profile.created_at|date%}Joined {{ date }}{% endtrans %}</span>
+          <span class="mui--hidden-xs mui--hidden-sm interpunct">&#8226;</span>
+          {% if profile.website %}
+            <a href="{{ profile.website }}">{{ faicon(icon='globe', icon_size='caption') }} {{ profile.website }}</a>
+          {% endif %}
+        </p>
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
           {% if profile.features.new_project() %}
