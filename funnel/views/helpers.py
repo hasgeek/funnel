@@ -4,6 +4,7 @@ from urllib.parse import unquote, urljoin, urlparse
 from flask import abort, current_app, g, request, url_for
 from werkzeug.urls import url_quote
 
+from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
@@ -78,6 +79,19 @@ def localize_date(date, from_tz=utc, to_tz=utc):
 @funnelapp.template_filter('url_join')
 def url_join(base, url=''):
     return urljoin(base, url)
+
+
+@app.template_filter('cleanurl')
+@funnelapp.template_filter('cleanurl')
+def cleanurl_filter(url):
+    url = url if isinstance(url, furl) else furl(url)
+    url.path.normalize()
+    clean_url = furl().set(netloc=url.netloc, path=url.path).url
+    if clean_url.startswith('//'):
+        clean_url = clean_url.lstrip('//')
+    if clean_url.endswith('/'):
+        clean_url = clean_url.rstrip('/')
+    return clean_url
 
 
 def mask_email(email):

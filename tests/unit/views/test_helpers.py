@@ -2,10 +2,11 @@ from urllib.parse import urlparse
 
 from werkzeug.routing import BuildError
 
+from furl import furl
 import pytest
 
 from funnel import app, funnelapp, lastuserapp
-from funnel.views.helpers import app_url_for
+from funnel.views.helpers import app_url_for, cleanurl_filter
 
 
 def test_app_url_for():
@@ -42,3 +43,21 @@ def test_app_url_for():
         change_password_url2 = app_url_for(app, 'change_password')
         assert change_password_url2 is not None
         assert change_password_url2 == change_password_url
+
+
+def test_urlclean_filter():
+    assert (
+        cleanurl_filter(furl("https://example.com/some/path/?query=value"))
+        == "example.com/some/path"
+    )
+    assert (
+        cleanurl_filter(furl("example.com/some/path/?query=value"))
+        == "example.com/some/path"
+    )
+    assert cleanurl_filter(furl("example.com/some/path/")) == "example.com/some/path"
+    assert cleanurl_filter(furl("example.com/some/path")) == "example.com/some/path"
+    assert cleanurl_filter(furl("example.com/")) == "example.com"
+    assert cleanurl_filter(furl("//example.com/")) == "example.com"
+    assert cleanurl_filter(furl("//test/")) == "test"
+    assert cleanurl_filter(furl("foobar")) == "foobar"
+    assert cleanurl_filter(furl("")) == ""
