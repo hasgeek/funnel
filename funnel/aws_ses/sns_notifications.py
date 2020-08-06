@@ -1,19 +1,20 @@
-import base64
-import re
 from enum import Enum, IntFlag
 from typing import Dict, List
+import base64
+import re
 
-import requests
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from cryptography.hazmat.primitives.hashes import SHA1
+import requests
 
 
 class Type(Enum):
     """ Notification Type. Could only be one of the below """
+
     SubscriptionConfirmation = 'SubscriptionConfirmation'
     Notification = 'Notification'
     UnsubscribeConfirmation = 'UnsubscribeConfirmation'
@@ -45,6 +46,7 @@ class SignatureFailureException(ValidatorException):
 
 class ValidatorChecks(IntFlag):
     """ List of Checks that is done by the Validator. """
+
     NONE = 0
     TOPIC = 1
     SIGNATURE_VERSION = 2
@@ -61,10 +63,16 @@ class Validator:
         CERT_URL_REGEX      Regular expression for Certificate URL
         SIGNATURE_VERSION   Signature Version
     """
+
     CERT_URL_REGEX: str = r'^https://sns\.[-a-z0-9]+\.amazonaws\.com/'
     SIGNATURE_VERSION: str = '1'
 
-    def __init__(self, topics: List[str], cert_regex: str = CERT_URL_REGEX, sig_version: str = SIGNATURE_VERSION):
+    def __init__(
+        self,
+        topics: List[str],
+        cert_regex: str = CERT_URL_REGEX,
+        sig_version: str = SIGNATURE_VERSION,
+    ):
         """
         Constructor
         :param topics:    List of Topic ARNs that we should accept
@@ -107,13 +115,37 @@ class Validator:
         """
         keys = ()
         m_type = message.get('Type')
-        if m_type in (Type.SubscriptionConfirmation.value, Type.UnsubscribeConfirmation.value):
-            keys = ('Message', 'MessageId', 'SubscribeURL', 'Timestamp', 'Token', 'TopicArn', 'Type',)
+        if m_type in (
+            Type.SubscriptionConfirmation.value,
+            Type.UnsubscribeConfirmation.value,
+        ):
+            keys = (
+                'Message',
+                'MessageId',
+                'SubscribeURL',
+                'Timestamp',
+                'Token',
+                'TopicArn',
+                'Type',
+            )
         elif m_type == Type.Notification.value:
             if message.get('Subject'):
-                keys = ('Message', 'MessageId', 'Subject', 'Timestamp', 'TopicArn', 'Type')
+                keys = (
+                    'Message',
+                    'MessageId',
+                    'Subject',
+                    'Timestamp',
+                    'TopicArn',
+                    'Type',
+                )
             else:
-                keys = ('Message', 'MessageId', 'Timestamp', 'TopicArn', 'Type',)
+                keys = (
+                    'Message',
+                    'MessageId',
+                    'Timestamp',
+                    'TopicArn',
+                    'Type',
+                )
         pairs = [f'{key}\n{message.get(key)}' for key in keys]
         return '\n'.join(pairs) + '\n'
 
@@ -148,15 +180,14 @@ class Validator:
         signature = base64.b64decode(message.get('Signature'))
         try:
             public_key.verify(
-                signature,
-                plaintext,
-                PKCS1v15(),
-                SHA1(),
+                signature, plaintext, PKCS1v15(), SHA1(),  # nosec
             )
         except InvalidSignature:
             raise SignatureFailureException('Signature mismatch.')
 
-    def check(self, message: Dict[str, str], checks: ValidatorChecks = ValidatorChecks.ALL) -> None:
+    def check(
+        self, message: Dict[str, str], checks: ValidatorChecks = ValidatorChecks.ALL
+    ) -> None:
         """
         Checks the given message against
         :param message: Given Message

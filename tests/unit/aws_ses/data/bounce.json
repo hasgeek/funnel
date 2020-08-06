@@ -21,9 +21,7 @@
     "sourceArn": "source",
     "sendingAccountId": "ABCD",
     "messageId": "01090173beca3c23-3d47d14c-4d3e-44b9-890c-13643325795b-000000",
-    "destination": [
-      "bounce@simulator.amazonses.com"
-    ],
+    "destination": ["bounce@simulator.amazonses.com"],
     "headersTruncated": false,
     "headers": [
       {
@@ -32,31 +30,17 @@
       }
     ],
     "commonHeaders": {
-      "from": [
-        "Example <no-reply@example.com>"
-      ],
-      "to": [
-        "Example <no-reply@example.com>"
-      ],
+      "from": ["Example <no-reply@example.com>"],
+      "to": ["Example <no-reply@example.com>"],
       "messageId": "01090173beca3c23-3d47d14c-4d3e-44b9-890c-13643325795b-000000",
       "subject": "SES Test Mail"
     },
     "tags": {
-      "ses:operation": [
-        "SendSmtpEmail"
-      ],
-      "ses:configuration-set": [
-        "ConfigSet"
-      ],
-      "ses:source-ip": [
-        "1.1.1.1"
-      ],
-      "ses:from-domain": [
-        "example.com"
-      ],
-      "ses:caller-identity": [
-        "SomeUser"
-      ]
+      "ses:operation": ["SendSmtpEmail"],
+      "ses:configuration-set": ["ConfigSet"],
+      "ses:source-ip": ["1.1.1.1"],
+      "ses:from-domain": ["example.com"],
+      "ses:caller-identity": ["SomeUser"]
     }
   }
 }

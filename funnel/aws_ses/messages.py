@@ -1,13 +1,14 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
-from dataclasses_json import dataclass_json, config
+from dataclasses_json import config, dataclass_json
 
 
 @dataclass_json
 @dataclass
 class MailHeaders:
     """ Mail Headers have name/value pairs """
+
     name: str
     value: str
 
@@ -16,10 +17,11 @@ class MailHeaders:
 @dataclass
 class CommonMailHeaders:
     """ Json Object for Common Mail Headers """
+
     from_address: List[str] = field(metadata=config(field_name="from"))
     to_address: List[str] = field(metadata=config(field_name="to"))
     subject: str
-    messageId: str
+    message_id: str = field(metadata=config(field_name="messageId"))
 
 
 @dataclass_json
@@ -46,14 +48,17 @@ class Mail:
 
     commonHeaders: A list of the email's original, commonly used headers.
     """
+
     timestamp: str
-    messageId: str
+    message_id: str = field(metadata=config(field_name="messageId"))
     source: str
-    sourceArn: str
-    sendingAccountId: str
+    source_arn: str = field(metadata=config(field_name="sourceArn"))
+    sending_account_id: str = field(metadata=config(field_name="sendingAccountId"))
     destination: List[str]
     headers: List[MailHeaders]
-    commonHeaders: CommonMailHeaders
+    common_headers: CommonMailHeaders = field(
+        metadata=config(field_name="commonHeaders")
+    )
     tags: Dict[str, List[str]]
 
 
@@ -72,10 +77,13 @@ class BouncedRecipients:
         diagnosticCode(str):    SMTP Diagnostic Code
 
     """
-    emailAddress: str
+
+    email_address: str = field(metadata=config(field_name="emailAddress"))
     action: Optional[str] = None
     status: Optional[str] = None
-    diagnosticCode: Optional[str] = None
+    diagnostic_code: Optional[str] = field(
+        metadata=config(field_name="diagnosticCode"), default=None
+    )
 
 
 @dataclass_json
@@ -99,12 +107,17 @@ class Bounce:
                            that attempted to perform the delivery, relay, or
                            gateway operation described in the DSN.
     """
-    bounceType: str
-    bounceSubType: str
-    bouncedRecipients: List[BouncedRecipients]
+
+    bounce_type: str = field(metadata=config(field_name="bounceType"))
+    bounce_sub_type: str = field(metadata=config(field_name="bounceSubType"))
+    bounced_recipients: List[BouncedRecipients] = field(
+        metadata=config(field_name="bouncedRecipients")
+    )
     timestamp: str
-    feedbackId: str
-    reportingMTA: Optional[str] = None
+    feedback_id: str = field(metadata=config(field_name="feedbackId"))
+    reporting_mta: Optional[str] = field(
+        metadata=config(field_name="reportingMTA"), default=None
+    )
 
     def is_hard_bounce(self) -> bool:
         """
@@ -113,7 +126,7 @@ class Bounce:
         recipient's email address from your mailing list.
         :return: True if it is hard bounce, false if not.
         """
-        return self.bounceType == "Permanent"
+        return self.bounce_type == "Permanent"
 
 
 @dataclass_json
@@ -150,13 +163,22 @@ class Complaint:
 
         virus:          A virus is found in the originating message.
     """
-    complainedRecipients: List[BouncedRecipients]
+
+    complained_recipients: List[BouncedRecipients] = field(
+        metadata=config(field_name="complainedRecipients")
+    )
     timestamp: str
-    feedbackId: str
-    complaintSubType: str
-    userAgent: Optional[str] = None
-    complaintFeedbackType: Optional[str] = None
-    arrivalDate: Optional[str] = None
+    feedback_id: str = field(metadata=config(field_name="feedbackId"))
+    complaint_sub_type: str = field(metadata=config(field_name="complaintSubType"))
+    user_agent: Optional[str] = field(
+        metadata=config(field_name="userAgent"), default=None
+    )
+    complaint_feedback_type: Optional[str] = field(
+        metadata=config(field_name="complaintFeedbackType"), default=None
+    )
+    arrival_date: Optional[str] = field(
+        metadata=config(field_name="arrivalDate"), default=None
+    )
 
 
 @dataclass_json
@@ -175,16 +197,16 @@ class Delivery:
 
         reportingMTA:         Host name of the Amazon SES mail server.
     """
+
     timestamp: str
-    processingTimeMillis: int
+    processing_time: int = field(metadata=config(field_name="processingTimeMillis"))
     recipients: List[str]
-    smtpResponse: str
-    reportingMTA: str
+    smtp_response: str = field(metadata=config(field_name="smtpResponse"))
+    reporting_mta: str = field(metadata=config(field_name="reportingMTA"))
 
 
 class Send:
     """ The JSON object that contains information about a send event. """
-    pass
 
 
 @dataclass_json
@@ -198,6 +220,7 @@ class Reject:
                 email contained a virus
 
     """
+
     reason: str
 
 
@@ -213,9 +236,10 @@ class Open:
 
         userAgent:       The user agent of the device or email client
     """
-    ipAddress: str
+
+    ip_address: str = field(metadata=config(field_name="ipAddress"))
     timestamp: str
-    userAgent: str
+    user_agent: str = field(metadata=config(field_name="userAgent"))
 
 
 @dataclass_json
@@ -234,11 +258,14 @@ class Click:
 
     linkTags:         A list of tags that were added to the link.
     """
-    ipAddress: str
+
+    ip_address: str = field(metadata=config(field_name="ipAddress"))
     timestamp: str
-    userAgent: str
+    user_agent: str = field(metadata=config(field_name="userAgent"))
     link: str
-    linkTags: Optional[Dict[str, List[str]]] = None
+    link_tags: Optional[Dict[str, List[str]]] = field(
+        metadata=config(field_name="linkTags"), default=None
+    )
 
 
 @dataclass_json
@@ -251,8 +278,9 @@ class RenderFailure:
 
     errorMessage:  More information about the rendering failure.
     """
-    templateName: str
-    errorMessage: str
+
+    template_name: str = field(metadata=config(field_name="templateName"))
+    error_message: str = field(metadata=config(field_name="errorMessage"))
 
 
 @dataclass_json
@@ -287,11 +315,14 @@ class DeliveryDelay:
 
      Undetermined – Amazon SES wasn't able to determine the reason.
     """
-    delayedRecipients: List[BouncedRecipients]
-    expirationTime: str
-    reportingMTA: str
+
+    delayed_recipients: List[BouncedRecipients] = field(
+        metadata=config(field_name="delayedRecipients")
+    )
+    expiration_time: str = field(metadata=config(field_name="expirationTime"))
+    reporting_mta: str = field(metadata=config(field_name="reportingMTA"))
     timestamp: str
-    delayType: str
+    delay_type: str = field(metadata=config(field_name="delayType"))
 
 
 @dataclass_json
@@ -322,14 +353,17 @@ class SesEvent:
 
     deliveryDelay:  This field is only present if eventType is DeliveryDelay.
     """
-    eventType: str
+
+    event_type: str = field(metadata=config(field_name="eventType"))
     mail: Mail
     bounce: Optional[Bounce] = None
     complaint: Optional[Complaint] = None
     delivery: Optional[Delivery] = None
     send: Optional[Send] = None
     reject: Optional[Reject] = None
-    open: Optional[Open] = None
+    opened: Optional[Open] = field(metadata=config(field_name="open"), default=None)
     click: Optional[Click] = None
     failure: Optional[RenderFailure] = None
-    deliveryDelay: Optional[DeliveryDelay] = None
+    delivery_delay: Optional[DeliveryDelay] = field(
+        metadata=config(field_name="deliveryDelay"), default=None
+    )

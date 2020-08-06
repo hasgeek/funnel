@@ -19,9 +19,7 @@
     "sourceArn": "ARN",
     "sendingAccountId": "143",
     "messageId": "01090173b99d6e86-6ca7ca13-b623-49b5-ad73-128c20cb2877-000000",
-    "destination": [
-      "abc@gmail.com"
-    ],
+    "destination": ["abc@gmail.com"],
     "headersTruncated": false,
     "headers": [
       {
@@ -46,34 +44,18 @@
       }
     ],
     "commonHeaders": {
-      "from": [
-        "Example <no-reply@example.com>"
-      ],
-      "to": [
-        "Example <test@example.com>"
-      ],
+      "from": ["Example <no-reply@example.com>"],
+      "to": ["Example <test@example.com>"],
       "messageId": "01090173b99d6e86-6ca7ca13-b623-49b5-ad73-128c20cb2877-000000",
       "subject": "Test"
     },
     "tags": {
-      "ses: operation": [
-        "SendSmtpEmail"
-      ],
-      "ses: configuration-set": [
-        "ConfigSet"
-      ],
-      "ses: source-ip": [
-        "1.1.1.1"
-      ],
-      "ses: from-domain": [
-        "example.com"
-      ],
-      "ses: caller-identity": [
-        "ses-user"
-      ],
-      "ses: outgoing-ip": [
-        "2.2.2.2"
-      ]
+      "ses: operation": ["SendSmtpEmail"],
+      "ses: configuration-set": ["ConfigSet"],
+      "ses: source-ip": ["1.1.1.1"],
+      "ses: from-domain": ["example.com"],
+      "ses: caller-identity": ["ses-user"],
+      "ses: outgoing-ip": ["2.2.2.2"]
     }
   }
 }
