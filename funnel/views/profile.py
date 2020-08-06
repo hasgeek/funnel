@@ -173,7 +173,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
         return ctx
 
-    @route('projects')
+    @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
     def user_participated_projects(self):
         if self.obj.is_organization_profile:
@@ -201,7 +201,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ],
         }
 
-    @route('proposals')
+    @route('in/proposals')
     @render_with('user_profile_proposals.html.jinja2', json=True)
     def user_proposals(self):
         if self.obj.is_organization_profile:
