@@ -1,6 +1,6 @@
-from flask import abort, flash, redirect, render_template, request
+from flask import Response, abort, flash, redirect, render_template, request
 
-from baseframe import _, request_is_xhr
+from baseframe import _
 from baseframe.filters import date_filter
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import current_auth
@@ -25,7 +25,16 @@ from .mixins import ProfileViewMixin
 
 @Profile.features('new_project')
 def feature_profile_new_project(obj):
-    return obj.current_roles.admin and bool(obj.state.PUBLIC)
+    return (
+        obj.is_organization_profile
+        and obj.current_roles.admin
+        and bool(obj.state.PUBLIC)
+    )
+
+
+@Profile.features('new_user_project')
+def feature_profile_new_user_project(obj):
+    return obj.is_user_profile and obj.current_roles.admin and bool(obj.state.PUBLIC)
 
 
 @Profile.features('make_public')
@@ -38,12 +47,18 @@ def feature_profile_make_private(obj):
     return obj.current_roles.admin and bool(obj.state.PUBLIC)
 
 
+def template_switcher(templateargs):
+    template = templateargs.pop('template')
+    return Response(render_template(template, **templateargs), mimetype='text/html')
+
+
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
+    @render_with({'*/*': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
     def view(self):
         template_name = None
@@ -63,13 +78,14 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ]
 
             ctx = {
+                'template': template_name,
                 'profile': self.obj.current_access(datasets=('primary', 'related')),
                 'tagged_sessions': [
                     session.current_access() for session in tagged_sessions
                 ],
             }
 
-        if self.obj.is_organization_profile:
+        elif self.obj.is_organization_profile:
             template_name = 'profile.html.jinja2'
 
             # `order_by(None)` clears any existing order defined in relationship.
@@ -121,6 +137,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 )
 
             ctx = {
+                'template': template_name,
                 'profile': self.obj.current_access(datasets=('primary', 'related')),
                 'all_projects': [
                     p.current_access(datasets=('without_parent', 'related'))
@@ -151,16 +168,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 ),
                 'project_save_form': SavedProjectForm(),
             }
-
-        if request_is_xhr():
-            return ctx
         else:
-            if template_name is not None:
-                return render_template(template_name, **ctx)
-            else:
-                # self.obj is neither a user nor an organization profile
-                # this should not happen
-                raise ValueError("Template is not defined for profile")
+            abort(404)  # Reserved profile
+
+        return ctx
 
     @route('projects')
     @render_with('user_profile_projects.html.jinja2', json=True)

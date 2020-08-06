@@ -17,7 +17,7 @@
   <div class="grid" id="tagged-sessions">
     <div class="grid__col-xs-12">
       {% if participated_projects %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=participated_projects|length , plural='s' if participated_projects|length > 1 else '' %}{{ count }} project{{plural}} participated in{% endtrans %}</p>
+        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{{ ngettext("%(num)d project participated in", "%(num)d projects participated in", participated_projects|length) }}</p>
       {% else %}
         <p class="mui-panel mui--bg-accent">{% trans %}No participation yet.{% endtrans %}</p>
       {% endif %}

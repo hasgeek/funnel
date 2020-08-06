@@ -387,7 +387,7 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, project_save_form='', include_calendar=true, calendarwidget_compact=true) %}
+{% macro projectcard(project, project_save_form=none, include_calendar=true, calendarwidget_compact=true) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
@@ -658,8 +658,8 @@
     <div class="modal__body">
       <ul class="mui-list--aligned mui--text-body2">
         <li>{% trans %}Your profile will not be visible to anyone other than you{% endtrans %}</li>
-        <li>{% trans %}Your profile will be listed in search results{% endtrans %}</li>
-        <li>{% trans %}You cannot host projects{% endtrans %}</li>
+        <li>{% trans %}It will not be listed in search results{% endtrans %}</li>
+        <li>{% trans %}You cannot host projects from this profile{% endtrans %}</li>
         <li>{% trans %}Any existing projects will become inaccessible until the profile is public again{% endtrans %}</li>
       </ul>
       <form action="{{ profile.url_for('transition') }}" method="post">
@@ -706,7 +706,7 @@
             </div>
           </div>
           <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
-            {% if profile.is_organization_profile and profile.features.new_project()  %}
+            {% if profile.features.new_project()  %}
               <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
             {% elif profile.features.make_public() %}
               <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
@@ -719,7 +719,7 @@
                   <ul class="mui-list--aligned mui--text-body2">
                     <li>{% trans %}Your profile will be visible to anyone visiting the page{% endtrans %}</li>
                     <li>{% trans %}Your profile will be listed in search results{% endtrans %}</li>
-                    <li>{% trans %}You can host projects{% endtrans %}</li>
+                    {#- <li>{% trans %}You can host projects{% endtrans %}</li> #}
                   </ul>
                   <form action="{{ profile.url_for('transition') }}" method="post">
                     {{ profile.forms.transition().hidden_tag() }}
@@ -746,13 +746,13 @@
         </div>
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
-          {% if profile.is_organization_profile and profile.features.new_project() %}
+          {% if profile.features.new_project() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
           {% elif profile.features.make_public() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
           {% endif %}
           {%- if profile.current_roles.admin %}
-            <div class="mui--d-inlineblock {% if profile.is_user_profile and profile.features.new_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</p></div>
+            <div class="mui--d-inlineblock {% if profile.features.new_user_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</p></div>
           {% endif %}
         </div>
       </div>

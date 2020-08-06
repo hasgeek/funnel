@@ -179,9 +179,17 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_user_profile(self):
         return self.user_id is not None
 
+    @is_user_profile.expression
+    def is_user_profile(cls):  # NOQA: N805
+        return cls.user_id.isnot(None)
+
     @hybrid_property
     def is_organization_profile(self):
         return self.organization_id is not None
+
+    @is_organization_profile.expression
+    def is_organization_profile(cls):  # NOQA: N805
+        return cls.organization_id.isnot(None)
 
     @hybrid_property
     def title(self):

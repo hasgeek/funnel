@@ -21,13 +21,10 @@
 <script type="application/ld+json">
   {
     "@context" : "http://schema.org",
-    "@type" : "Organization",
+    "@type" : "{% if profile.is_user_profile -%} Person {%- else -%} Organization {%- endif %}",
     "name" : {{ profile.title|tojson }},
-    {%- if profile.banner_image_url.url %}
-    "logo" : {{ profile.banner_image_url.url|tojson }},
-    {%- elif profile.logo_url.url %}
-    "logo" : {{ profile.logo_url.url|tojson }},
-    {% endif %}
+    {%- if profile.logo_url.url %}
+    "{% if profile.is_user_profile -%} image {%- else -%} logo {%- endif %}" : {{ profile.logo_url.url|tojson }},
     "url" : {{ profile.url_for(_external=true)|tojson }}
   }
 </script>

@@ -17,7 +17,7 @@
   <div class="grid" id="tagged-sessions">
     <div class="grid__col-xs-12">
       {% if submitted_proposals %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=submitted_proposals|length, plural='s' if submitted_proposals|length > 1 else ''  %}{{ count }} proposal submission{{plural}}{% endtrans %}</p>
+        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{{ ngettext("%(num)d proposal", "%(num)d proposals", submitted_proposals|length) }}</p>
         {{ proposal_list(submitted_proposals) }}
       {% else %}
         <p class="mui-panel mui--bg-accent">{% trans %}No proposal submission yet.{% endtrans %}</p>

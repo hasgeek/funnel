@@ -25,8 +25,6 @@
     "name" : {{ profile.title|tojson }},
     {%- if profile.logo_url.url %}
     "image" : {{ profile.logo_url.url|tojson }},
-    {%- elif profile.banner_image_url.url %}
-    "image" : {{ profile.banner_image_url.url|tojson }},
     {%- endif %}
     "url" : {{ profile.url_for(_external=true)|tojson }}
   }
@@ -48,7 +46,7 @@
   <div class="grid" id="tagged-sessions">
     <div class="grid__col-xs-12">
       {% if tagged_sessions %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{% trans count=tagged_sessions|length, plural='s' if tagged_sessions|length > 1 else '' %}{{ count }} tagged session{{plural}}{% endtrans %}</p>
+        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{{ ngettext("%(num)s tagged session", "%(num)s tagged sessions", tagged_sessions|length) }}</p>
       {% else %}
         <p class="mui-panel mui--bg-accent">{% trans %}No tagged sessions yet.{% endtrans %}</p>
       {% endif %}
