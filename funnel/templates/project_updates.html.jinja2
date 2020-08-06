@@ -33,7 +33,11 @@
             <a class="post-form" href="{{ project.url_for('new_update') }}" aria-label="Add new update" data-cy-btn="add-post">
             <div class="user">
               <div class="user__box">
-                <div class="user__box__gravatar user__box__gravatar--initials">{{ current_auth.user.fullname|initials }}</div>
+                {% if current_auth.user.avatar %}
+                  <img class="user__box__gravatar" src="{{ current_auth.user.avatar }}"/>
+                {%- else %}
+                  <div class="user__box__gravatar user__box__gravatar--initials">{{ current_auth.user.fullname|initials }}</div>
+                {% endif %}
                 <input type="text" placeholder="Post an update…" />
               </div>
             </div>

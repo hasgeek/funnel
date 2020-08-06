@@ -14,21 +14,33 @@
           <button class="js-uncollapse mui-btn mui-btn--nostyle mui--hide" aria-expanded="false" aria-label="{% trans %}Collapse comment{% endtrans %}">
             {{ faicon(icon='caret-circle-down', icon_size='subhead') }}
           </button>
-          <div class="comment--header__details">
-            {% if comment.state.DELETED -%}
-              <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
-            {% elif comment.state.SPAM -%}
-              <span class="commenter">[{% trans %}removed{% endtrans %}]</span>
-            {%- else -%}
-              <span class="commenter"><strong>{{ comment.user.pickername }}</strong></span>
-              {% for badge in comment.badges %}
-                <span class="badge">{{ badge }}</span>
-              {% endfor %}
-              <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
-              {%- if comment.edited_at %}
-                <span class="mui--text-caption mui--text-accent">({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})</span>
-              {%- endif %}
-            {%- endif %}
+          <div class="comment--header__details user">
+            <div class="user__box">
+              {% if comment.user.avatar %}
+                <img class="user__box__gravatar" src="{{ comment.user.avatar }}"/>
+              {%- else %}
+                <div class="user__box__gravatar user__box__gravatar--initials">{{ comment.user.fullname|initials }}</div>
+              {% endif %}
+              <div class="comment--header__details__content">
+                <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ comment.user.fullname }}</h3>
+                <h3 class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
+              </div>
+              <div class="comment--header__details__content">
+                {% if comment.state.DELETED -%}
+                  <span class="commenter">[{% trans %}deleted{% endtrans %}]</span>
+                {% elif comment.state.SPAM -%}
+                  <span class="commenter">[{% trans %}removed{% endtrans %}]</span>
+                {%- else -%}
+                  {% for badge in comment.badges %}
+                    <span class="badge">{{ badge }}</span>
+                  {% endfor %}
+                  <span class="mui--text-caption mui--text-accent">{{ comment.created_at|age }}</span>
+                  {%- if comment.edited_at %}
+                    <span class="mui--text-caption mui--text-accent">({% trans %}edited{% endtrans %} {{ comment.edited_at|age }})</span>
+                  {%- endif %}
+                {%- endif %}
+              </div>
+            </div>
           </div>
         </div>
         <div class="comment--body">

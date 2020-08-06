@@ -72,7 +72,11 @@
                     {% for contact in daterow.contacts.all() %}
                       <div class="user">
                         <div class="user__box">
-                          <div class="user__box__gravatar user__box__gravatar--initials">{{ contact.participant.fullname|initials }}</div>
+                          {% if contact.participant.user and contact.participant.user.avatar %}
+                            <img class="user__box__gravatar" src="{{ contact.participant.user.avatar }}"/>
+                          {%- else %}
+                            <div class="user__box__gravatar user__box__gravatar--initials">{{ contact.participant.fullname|initials }}</div>
+                          {% endif %}
                           <div class="mui--clearfix">
                             <div class=" mui--pull-left">
                               <p class="mui--text-subhead zero-bottom-margin">{{ contact.participant.fullname }}</p>

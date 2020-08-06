@@ -258,6 +258,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         else:
             return self.fullname
 
+    @with_roles(read={'all'})
+    @property
+    def avatar(self):
+        return self.profile.logo_url if self.profile and self.profile.logo_url else ''
+
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)
         useremail = failsafe_add(

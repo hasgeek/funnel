@@ -836,7 +836,8 @@
         </div>
         <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="post.urls.project_view">{{ post.title }}</a></p>
         <div class="user__box mui--clearfix post__header">
-          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(post.user.fullname) }}</div>
+          <img class="user__box__gravatar" :src="post.user.avatar" v-if="post.user.avatar"/>
+          <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(post.user.fullname) }}</div>
           <div class="mui--d-inlineblock">
             <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ post.user.fullname }}</h3>
             <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
