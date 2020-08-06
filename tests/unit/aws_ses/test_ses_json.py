@@ -1,14 +1,13 @@
 import json
 import os
-import unittest
 
-from funnel.util.aws_ses import SesEvent, Validator, ValidatorChecks, ValidatorException
+from funnel.aws_ses import SesEvent, Validator, ValidatorException, ValidatorChecks
 
 
-class SesEventJsonTest(unittest.TestCase):
+class TestSesEventJson(object):
 
-    def setUp(self) -> None:
-        self.data_dir = os.path.join(os.path.dirname(__file__), '../../../aws_ses/tests/data')
+    def setup_method(self):
+        self.data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
     def test_delivery(self) -> None:
         """
@@ -18,20 +17,20 @@ class SesEventJsonTest(unittest.TestCase):
         with open(os.path.join(self.data_dir, "delivery.json"), 'r') as file:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
-        self.assertEqual(obj.eventType, "Delivery")
-        self.assertIsNotNone(obj.mail.timestamp)
-        self.assertIsNotNone(obj.mail.tags)
-        self.assertIsNotNone(obj.mail.source)
-        self.assertIsNotNone(obj.mail.commonHeaders)
-        self.assertIsNotNone(obj.mail.destination)
-        self.assertIsNotNone(obj.mail.headers)
-        self.assertIsNotNone(obj.mail.sendingAccountId)
-        self.assertIsNotNone(obj.mail.sourceArn)
-        self.assertIsNotNone(obj.delivery.timestamp)
-        self.assertIsNotNone(obj.delivery.recipients)
-        self.assertIsNotNone(obj.delivery.reportingMTA)
-        self.assertIsNotNone(obj.delivery.smtpResponse)
-        self.assertIsNotNone(obj.delivery.processingTimeMillis)
+        assert obj.eventType == "Delivery"
+        assert obj.mail.tags
+        assert obj.mail.timestamp
+        assert obj.mail.source
+        assert obj.mail.commonHeaders
+        assert obj.mail.destination
+        assert obj.mail.headers
+        assert obj.mail.sendingAccountId
+        assert obj.mail.sourceArn
+        assert obj.delivery.timestamp
+        assert obj.delivery.recipients
+        assert obj.delivery.reportingMTA
+        assert obj.delivery.smtpResponse
+        assert obj.delivery.processingTimeMillis
 
     def test_bounce(self) -> None:
         """
@@ -41,13 +40,13 @@ class SesEventJsonTest(unittest.TestCase):
         with open(os.path.join(self.data_dir, "bounce.json"), 'r') as file:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
-        self.assertIsNotNone(obj.bounce)
-        self.assertEqual(obj.bounce.is_hard_bounce(), True)
-        self.assertEqual(obj.bounce.bounceSubType, "General")
-        self.assertEqual(len(obj.bounce.bouncedRecipients), 1)
-        self.assertIsNotNone(obj.bounce.feedbackId)
-        self.assertIsNotNone(obj.bounce.timestamp)
-        self.assertIsNotNone(obj.bounce.reportingMTA)
+        assert obj.bounce
+        assert obj.bounce.is_hard_bounce()
+        assert len(obj.bounce.bouncedRecipients) == 1
+        assert obj.bounce.bounceSubType == "General"
+        assert obj.bounce.feedbackId
+        assert obj.bounce.timestamp
+        assert obj.bounce.reportingMTA
 
     def test_complaint(self) -> None:
         """
@@ -57,13 +56,13 @@ class SesEventJsonTest(unittest.TestCase):
         with open(os.path.join(self.data_dir, "complaint.json"), 'r') as file:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
-        self.assertIsNotNone(obj.complaint)
-        self.assertIsNotNone(obj.complaint.feedbackId)
-        self.assertEqual(obj.complaint.complaintFeedbackType, "abuse")
-        self.assertEqual(obj.complaint.userAgent, "Amazon SES Mailbox Simulator")
-        self.assertEqual(len(obj.complaint.complainedRecipients), 1)
-        self.assertIsNone(obj.complaint.complaintSubType)
-        self.assertIsNotNone(obj.complaint.arrivalDate)
+        assert obj.complaint
+        assert obj.complaint.feedbackId
+        assert obj.complaint.complaintSubType is None
+        assert obj.complaint.arrivalDate
+        assert len(obj.complaint.complainedRecipients) == 1
+        assert obj.complaint.complaintFeedbackType == "abuse"
+        assert obj.complaint.userAgent == "Amazon SES Mailbox Simulator"
 
     def test_signature_good_message(self) -> None:
         """
@@ -101,6 +100,6 @@ class SesEventJsonTest(unittest.TestCase):
         validator.check(message, ValidatorChecks.TOPIC)
         try:
             validator.check(message, ValidatorChecks.SIGNATURE)
-            self.assertTrue(False)
+            assert False
         except ValidatorException:
-            self.assertTrue(True)
+            assert True
