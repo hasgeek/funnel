@@ -1,0 +1,62 @@
+{
+  "eventType": "Bounce",
+  "bounce": {
+    "feedbackId": "01090173beca4678-ddc1847b-b60a-42ff-a160-1f30fe177d19-000000",
+    "bounceType": "Permanent",
+    "bounceSubType": "General",
+    "bouncedRecipients": [
+      {
+        "emailAddress": "bounce@simulator.amazonses.com",
+        "action": "failed",
+        "status": "5.1.1",
+        "diagnosticCode": "smtp; 550 5.1.1 user unknown"
+      }
+    ],
+    "timestamp": "2020-08-05T13:23:14.369Z",
+    "reportingMTA": "dsn; c180-14.smtp-out.ap-south-1.amazonses.com"
+  },
+  "mail": {
+    "timestamp": "2020-08-05T13:23:11.523Z",
+    "source": "no-reply@example.com",
+    "sourceArn": "source",
+    "sendingAccountId": "ABCD",
+    "messageId": "01090173beca3c23-3d47d14c-4d3e-44b9-890c-13643325795b-000000",
+    "destination": [
+      "bounce@simulator.amazonses.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Received",
+        "value": "from email.txt "
+      }
+    ],
+    "commonHeaders": {
+      "from": [
+        "Example <no-reply@example.com>"
+      ],
+      "to": [
+        "Example <no-reply@example.com>"
+      ],
+      "messageId": "01090173beca3c23-3d47d14c-4d3e-44b9-890c-13643325795b-000000",
+      "subject": "SES Test Mail"
+    },
+    "tags": {
+      "ses:operation": [
+        "SendSmtpEmail"
+      ],
+      "ses:configuration-set": [
+        "ConfigSet"
+      ],
+      "ses:source-ip": [
+        "1.1.1.1"
+      ],
+      "ses:from-domain": [
+        "example.com"
+      ],
+      "ses:caller-identity": [
+        "SomeUser"
+      ]
+    }
+  }
+}

@@ -36,3 +36,5 @@ node_modules
 secrets.dev
 secrets.test
 test.db
+venv/
+.idea/
