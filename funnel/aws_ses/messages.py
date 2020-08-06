@@ -7,9 +7,7 @@ from dataclasses_json import dataclass_json, config
 @dataclass_json
 @dataclass
 class MailHeaders:
-    """
-    Mail Headers have name/value pairs
-    """
+    """ Mail Headers have name/value pairs """
     name: str
     value: str
 
@@ -17,9 +15,7 @@ class MailHeaders:
 @dataclass_json
 @dataclass
 class CommonMailHeaders:
-    """
-    Json Object for Common Mail Headers
-    """
+    """ Json Object for Common Mail Headers """
     from_address: List[str] = field(metadata=config(field_name="from"))
     to_address: List[str] = field(metadata=config(field_name="to"))
     subject: str
@@ -187,9 +183,7 @@ class Delivery:
 
 
 class Send:
-    """
-    The JSON object that contains information about a send event is always empty.
-    """
+    """ The JSON object that contains information about a send event is always empty. """
     pass
 
 
