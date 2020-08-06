@@ -176,7 +176,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
-    def user_participated_projects(self):
+    @requestargs(('page', int), ('per_page', int))
+    def user_participated_projects(self, page=None, per_page=9):
         if self.obj.is_organization_profile:
             abort(404)
 
@@ -186,7 +187,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
         participated_project_ids = [
             proposal.project_id for proposal in submitted_proposals
-        ] + [project.id for project in self.obj.user.projects_as_crew]
+        ] + [m.project_id for m in self.obj.user.projects_as_crew_active_memberships]
 
         participated_projects = Project.query.filter(
             Project.state.PUBLISHED,
@@ -194,11 +195,16 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             Project.id.in_(set(participated_project_ids)),
         ).order_by(Project.schedule_start_at.desc())
 
+        pagination = participated_projects.paginate(page=page, per_page=per_page)
+
         return {
+            'total_projects': pagination.total,
+            'pages': list(range(1, pagination.pages + 1)),  # list of page numbers
+            'current_page': pagination.page,
             'profile': self.obj.current_access(datasets=('primary', 'related')),
             'participated_projects': [
                 project.current_access(datasets=('without_parent', 'related'))
-                for project in participated_projects
+                for project in pagination.items
             ],
         }
 
