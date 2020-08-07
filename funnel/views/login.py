@@ -525,6 +525,9 @@ def login_service_postcallback(service, userdata):
     else:
         login_next = next_url
 
+    # Use a meta-refresh redirect because some versions of Firefox and Safari will
+    # not set cookies in a 30x redirect if the first redirect in the sequence originated
+    # on another domain. Our redirect chain is provider -> callback -> destination page.
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
             Response(
