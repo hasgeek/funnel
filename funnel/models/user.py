@@ -122,8 +122,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     )
     #: User's status (active, suspended, merged, etc)
     status = db.Column(db.SmallInteger, nullable=False, default=USER_STATUS.ACTIVE)
-    #: User avatar (URL to browser-ready image)
-    avatar = with_roles(db.Column(db.UnicodeText, nullable=True), read={'all'})
 
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
