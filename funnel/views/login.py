@@ -2,6 +2,7 @@ import urllib.parse
 import uuid
 
 from flask import (
+    Response,
     abort,
     current_app,
     flash,
@@ -524,12 +525,24 @@ def login_service_postcallback(service, userdata):
     else:
         login_next = next_url
 
+    # Use a meta-refresh redirect because some versions of Firefox and Safari will
+    # not set cookies in a 30x redirect if the first redirect in the sequence originated
+    # on another domain. Our redirect chain is provider -> callback -> destination page.
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            redirect(url_for('account_merge', next=login_next), code=303), service
+            Response(
+                render_template(
+                    'meta_refresh.html.jinja2',
+                    url=url_for('account_merge', next=login_next),
+                )
+            ),
+            service,
         )
     else:
-        return set_loginmethod_cookie(redirect(login_next, code=303), service)
+        return set_loginmethod_cookie(
+            Response(render_template('meta_refresh.html.jinja2', url=login_next)),
+            service,
+        )
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
