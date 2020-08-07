@@ -594,6 +594,9 @@ class DuckTypeUser(RoleMixin):
     def __init__(self, representation):
         self.fullname = self.title = self.pickername = representation
 
+    def __str__(self):
+        return self.pickername
+
 
 deleted_user = DuckTypeUser(__("[deleted]"))
 removed_user = DuckTypeUser(__("[removed]"))
