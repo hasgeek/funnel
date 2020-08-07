@@ -250,8 +250,6 @@
               }
             }
             .header__nav-links__dropdown {
-              right: 0;
-              left: auto;
               padding: 0;
               margin: 0;
               > li > a {
@@ -285,10 +283,6 @@
             }
             .logo-about:after {
               top: 14px;
-            }
-            .header__nav-links__dropdown {
-              right: auto;
-              left: 0;
             }
             .search-form {
               width: 400px;

@@ -35,7 +35,7 @@
             <div class="mui--d-inlineblock">
               <h3 class="mui--text-title user__box__fullname zero-bottom-margin">{{ current_auth.user.fullname }}</h3>
               {% if current_auth.user.username %}<h3 class="mui--text-subhead mui--text-light user__box__userid zero-bottom-margin">@{{ current_auth.user.username }}</h3>{%- endif %}
-              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}">Go to your profile {{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</a>{%- endif %}
+              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}">Go to your profile {{ faicon(icon='arrow-right', icon_size='caption', baseline=true) }}</a>{%- endif %}
             </div>
           </div>
         </div>

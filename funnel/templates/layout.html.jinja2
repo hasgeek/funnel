@@ -1,4 +1,4 @@
-{% extends "baseframe.html.jinja2" -%}
+\{% extends "baseframe.html.jinja2" -%}
 {% from "baseframe/components.html.jinja2" import hgtopnav, faicon %}
 {%- from "macros.html.jinja2" import user_avatar %}
 
@@ -108,7 +108,7 @@
               {{ user_avatar(current_auth.user) }}
             </div>
           </a>
-          <ul class="mui-dropdown__menu header__nav-links__dropdown">
+          <ul class="mui-dropdown__menu mui-dropdown__menu--right header__nav-links__dropdown">
             <li>
               {% if current_auth.user.profile %}
               <a href="{{ current_auth.user.profile.url_for() }}" class="user">

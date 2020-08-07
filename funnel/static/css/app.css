@@ -1160,8 +1160,6 @@ a.loginbutton.hidden,
     .header__site-title
     .header__site-title__title
     .header__nav-links__dropdown {
-    right: 0;
-    left: auto;
     padding: 0;
     margin: 0;
   }
@@ -1206,15 +1204,6 @@ a.loginbutton.hidden,
     .header__site-title__title
     .logo-about:after {
     top: 14px;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__site-title
-    .header__site-title__title
-    .header__nav-links__dropdown {
-    right: auto;
-    left: 0;
   }
   .hg-app
     .header--fixed
