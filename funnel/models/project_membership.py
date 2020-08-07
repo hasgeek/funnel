@@ -196,6 +196,12 @@ User.projects_as_crew_active_memberships = db.relationship(
     viewonly=True,
 )
 
+
+User.projects_as_crew = DynamicAssociationProxy(
+    'projects_as_crew_active_memberships', 'project'
+)
+
+
 User.projects_as_editor_active_memberships = db.relationship(
     ProjectCrewMembership,
     lazy='dynamic',

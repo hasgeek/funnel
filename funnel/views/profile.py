@@ -1,4 +1,4 @@
-from flask import flash, redirect, request
+from flask import Response, abort, flash, redirect, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -17,7 +17,7 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm, SavedProjectForm
-from ..models import Profile, Project, db
+from ..models import Profile, Project, Proposal, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
@@ -25,7 +25,16 @@ from .mixins import ProfileViewMixin
 
 @Profile.features('new_project')
 def feature_profile_new_project(obj):
-    return obj.current_roles.admin and bool(obj.state.PUBLIC)
+    return (
+        obj.is_organization_profile
+        and obj.current_roles.admin
+        and bool(obj.state.PUBLIC)
+    )
+
+
+@Profile.features('new_user_project')
+def feature_profile_new_user_project(obj):
+    return obj.is_user_profile and obj.current_roles.admin and bool(obj.state.PUBLIC)
 
 
 @Profile.features('make_public')
@@ -38,85 +47,178 @@ def feature_profile_make_private(obj):
     return obj.current_roles.admin and bool(obj.state.PUBLIC)
 
 
+def template_switcher(templateargs):
+    template = templateargs.pop('template')
+    return Response(render_template(template, **templateargs), mimetype='text/html')
+
+
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('profile.html.jinja2', json=True)
+    @render_with({'*/*': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
     def view(self):
-        # `order_by(None)` clears any existing order defined in relationship.
-        # We're using it because we want to define our own order here.
-        projects = self.obj.listed_projects.order_by(None)
-        all_projects = (
-            projects.filter(
-                Project.state.PUBLISHED,
-                db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
-            )
-            .order_by(Project.schedule_start_at.asc())
-            .all()
-        )
-        upcoming_projects = all_projects[:3]
-        all_projects = all_projects[3:]
-        featured_project = (
-            projects.filter(
-                Project.state.PUBLISHED,
-                db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
-                Project.featured.is_(True),
-            )
-            .order_by(Project.schedule_start_at.asc())
-            .limit(1)
-            .first()
-        )
-        if featured_project in upcoming_projects:
-            upcoming_projects.remove(featured_project)
-        open_cfp_projects = (
-            projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
-            .order_by(Project.schedule_start_at.asc())
-            .all()
-        )
+        template_name = None
+        ctx = {}
 
-        # If the user is an admin of this profile, show all draft projects.
-        # Else, only show the drafts they have a crew role in
-        if self.obj.current_roles.admin:
-            draft_projects = self.obj.draft_projects
-            unscheduled_projects = self.obj.projects.filter(
-                Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS
+        if self.obj.is_user_profile:
+            template_name = 'user_profile.html.jinja2'
+
+            submitted_proposals = self.obj.user.speaker_at.filter(
+                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
             ).all()
+
+            tagged_sessions = [
+                proposal.session
+                for proposal in submitted_proposals
+                if proposal.session is not None
+            ]
+
+            ctx = {
+                'template': template_name,
+                'profile': self.obj.current_access(datasets=('primary', 'related')),
+                'tagged_sessions': [
+                    session.current_access() for session in tagged_sessions
+                ],
+            }
+
+        elif self.obj.is_organization_profile:
+            template_name = 'profile.html.jinja2'
+
+            # `order_by(None)` clears any existing order defined in relationship.
+            # We're using it because we want to define our own order here.
+            projects = self.obj.listed_projects.order_by(None)
+            all_projects = (
+                projects.filter(
+                    Project.state.PUBLISHED,
+                    db.or_(
+                        Project.schedule_state.LIVE, Project.schedule_state.UPCOMING
+                    ),
+                )
+                .order_by(Project.schedule_start_at.asc())
+                .all()
+            )
+            upcoming_projects = all_projects[:3]
+            all_projects = all_projects[3:]
+            featured_project = (
+                projects.filter(
+                    Project.state.PUBLISHED,
+                    db.or_(
+                        Project.schedule_state.LIVE, Project.schedule_state.UPCOMING
+                    ),
+                    Project.featured.is_(True),
+                )
+                .order_by(Project.schedule_start_at.asc())
+                .limit(1)
+                .first()
+            )
+            if featured_project in upcoming_projects:
+                upcoming_projects.remove(featured_project)
+            open_cfp_projects = (
+                projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
+                .order_by(Project.schedule_start_at.asc())
+                .all()
+            )
+
+            # If the user is an admin of this profile, show all draft projects.
+            # Else, only show the drafts they have a crew role in
+            if self.obj.current_roles.admin:
+                draft_projects = self.obj.draft_projects
+                unscheduled_projects = self.obj.projects.filter(
+                    Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS
+                ).all()
+            else:
+                draft_projects = self.obj.draft_projects_for(current_auth.user)
+                unscheduled_projects = self.obj.unscheduled_projects_for(
+                    current_auth.user
+                )
+
+            ctx = {
+                'template': template_name,
+                'profile': self.obj.current_access(datasets=('primary', 'related')),
+                'all_projects': [
+                    p.current_access(datasets=('without_parent', 'related'))
+                    for p in all_projects
+                ],
+                'unscheduled_projects': [
+                    p.current_access(datasets=('without_parent', 'related'))
+                    for p in unscheduled_projects
+                ],
+                'upcoming_projects': [
+                    p.current_access(datasets=('without_parent', 'related'))
+                    for p in upcoming_projects
+                ],
+                'open_cfp_projects': [
+                    p.current_access(datasets=('without_parent', 'related'))
+                    for p in open_cfp_projects
+                ],
+                'draft_projects': [
+                    p.current_access(datasets=('without_parent', 'related'))
+                    for p in draft_projects
+                ],
+                'featured_project': (
+                    featured_project.current_access(
+                        datasets=('without_parent', 'related')
+                    )
+                    if featured_project
+                    else None
+                ),
+                'project_save_form': SavedProjectForm(),
+            }
         else:
-            draft_projects = self.obj.draft_projects_for(current_auth.user)
-            unscheduled_projects = self.obj.unscheduled_projects_for(current_auth.user)
+            abort(404)  # Reserved profile
+
+        return ctx
+
+    @route('in/projects')
+    @render_with('user_profile_projects.html.jinja2', json=True)
+    @requires_roles({'reader', 'admin'})
+    def user_participated_projects(self):
+        if self.obj.is_organization_profile:
+            abort(404)
+
+        submitted_proposals = self.obj.user.speaker_at.filter(
+            ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
+        ).all()
+
+        participated_project_ids = [
+            proposal.project_id for proposal in submitted_proposals
+        ] + [project.id for project in self.obj.user.projects_as_crew]
+
+        participated_projects = Project.query.filter(
+            Project.state.PUBLISHED,
+            Project.schedule_start_at.isnot(None),
+            Project.id.in_(set(participated_project_ids)),
+        ).order_by(Project.schedule_start_at.desc())
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
-            'all_projects': [
-                p.current_access(datasets=('without_parent', 'related'))
-                for p in all_projects
+            'participated_projects': [
+                project.current_access(datasets=('without_parent', 'related'))
+                for project in participated_projects
             ],
-            'unscheduled_projects': [
-                p.current_access(datasets=('without_parent', 'related'))
-                for p in unscheduled_projects
+        }
+
+    @route('in/proposals')
+    @render_with('user_profile_proposals.html.jinja2', json=True)
+    @requires_roles({'reader', 'admin'})
+    def user_proposals(self):
+        if self.obj.is_organization_profile:
+            abort(404)
+
+        submitted_proposals = self.obj.user.speaker_at.filter(
+            ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
+        ).all()
+
+        return {
+            'profile': self.obj.current_access(datasets=('primary', 'related')),
+            'submitted_proposals': [
+                proposal.current_access(datasets=('without_parent', 'related'))
+                for proposal in submitted_proposals
             ],
-            'upcoming_projects': [
-                p.current_access(datasets=('without_parent', 'related'))
-                for p in upcoming_projects
-            ],
-            'open_cfp_projects': [
-                p.current_access(datasets=('without_parent', 'related'))
-                for p in open_cfp_projects
-            ],
-            'draft_projects': [
-                p.current_access(datasets=('without_parent', 'related'))
-                for p in draft_projects
-            ],
-            'featured_project': (
-                featured_project.current_access(datasets=('without_parent', 'related'))
-                if featured_project
-                else None
-            ),
-            'project_save_form': SavedProjectForm(),
         }
 
     @route('past.json')

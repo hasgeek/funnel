@@ -112,6 +112,13 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     settype = db.Column('type', db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
 
+    __roles__ = {'all': {'read': {'settype', 'count'}}}
+
+    __datasets__ = {
+        'primary': {'settype', 'count'},
+        'related': {'uuid_b58', 'url_name_uuid_b58'},
+    }
+
     def __init__(self, **kwargs):
         super(Commentset, self).__init__(**kwargs)
         self.count = 0

@@ -387,7 +387,7 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, project_save_form, include_calendar=true, calendarwidget_compact=true) %}
+{% macro projectcard(project, project_save_form=none, include_calendar=true, calendarwidget_compact=true) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
@@ -657,8 +657,9 @@
     </div>
     <div class="modal__body">
       <ul class="mui-list--aligned mui--text-body2">
-        <li>{% trans %}Will not be visible to anyone other than you{% endtrans %}</li>
-        <li>{% trans %}Cannot host projects{% endtrans %}</li>
+        <li>{% trans %}Your profile will not be visible to anyone other than you{% endtrans %}</li>
+        <li>{% trans %}It will not be listed in search results{% endtrans %}</li>
+        <li>{% trans %}You cannot host projects from this profile{% endtrans %}</li>
         <li>{% trans %}Any existing projects will become inaccessible until the profile is public again{% endtrans %}</li>
       </ul>
       <form action="{{ profile.url_for('transition') }}" method="post">
@@ -706,7 +707,7 @@
           </div>
           <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
             {% if profile.features.new_project()  %}
-              <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
+              <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
             {% elif profile.features.make_public() %}
               <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
               <div class="modal" id="make-public-modal">
@@ -716,9 +717,9 @@
                 </div>
                 <div class="modal__body">
                   <ul class="mui-list--aligned mui--text-body2">
-                    <li>{% trans %}Will be visible to anyone visiting the page{% endtrans %}</li>
-                    <li>{% trans %}Will be listed in search results{% endtrans %}</li>
-                    <li>{% trans %}Can host projects{% endtrans %}</li>
+                    <li>{% trans %}Your profile will be visible to anyone visiting the page{% endtrans %}</li>
+                    <li>{% trans %}Your profile will be listed in search results{% endtrans %}</li>
+                    {#- <li>{% trans %}You can host projects{% endtrans %}</li> #}
                   </ul>
                   <form action="{{ profile.url_for('transition') }}" method="post">
                     {{ profile.forms.transition().hidden_tag() }}
@@ -738,28 +739,36 @@
   <div class="mui-container profile-details">
     <div class="grid">
       <div class="grid__col-12">
+        <div>
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
           <h2 class="mui--text-headline mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
-          {% if profile.features.new_project()  %}
+          {% if profile.features.new_project() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
           {% elif profile.features.make_public() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
           {% endif %}
           {%- if profile.current_roles.admin %}
-            {{ profile_admin_buttons(profile) }}</p>
+            <div class="mui--d-inlineblock {% if profile.features.new_user_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</p></div>
           {% endif %}
         </div>
+      </div>
       </div>
     </div>
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      {% if profile.is_organization_profile %}
+        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      {% else %}
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for() }}">{% trans %}Sessions{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'projects' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_participated_projects') }}">{% trans %}Projects{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_proposals') }}">{% trans %}Proposals{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      {% endif %}
     </nav>
   </div>
 </div>
@@ -934,3 +943,88 @@
     </nav>
   </div>
 {% endmacro %}
+
+{% macro video_thumbnail(session) %}
+  <div class="video">
+    <a class="video__thumbnail {%- if not (session.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}"  data-action="view session video">
+      {%- if session.video.thumbnail %}
+        <img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
+        <div class="video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+      {%- elif session.banner_image_url.url %}
+        <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
+      {%- endif %}
+    </a>
+    <p class="mui--text-subhead mui--text-bold video__txt" data-cy="title">{{ session.title }}</p>
+    {%- if session.speaker %}<p class="mui--text-body2 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
+    {%- if session.video %}
+      <div class="mui--text-caption mui--text-light">
+          {%- if session.video.duration %}<span class="js-video-duration" data-duration="{{ session.video.duration }}"></span>{%- endif %}
+          {%- if session.video.uploaded_at %}<span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span>{%- endif %}
+      </div>
+    {%- else %}
+    <div class="mui--text-caption mui--text-light">
+      {%- if session.start_at_localized %}<span>{{ session.start_at_localized|date }}</span>{%- endif %}
+    </div>
+    {%- endif %}
+  </div>
+{% endmacro %}
+
+{%- macro proposal_list(proposals, project='') %}
+  <table id="proposals-table" class="proposal-list-table mui-table">
+    <tbody>
+      {% for proposal in proposals %}
+        <tr id="{{ proposal.uuid_b58 }}">
+          <td class='js-searchable'>
+            <h3 class="mui--text-title zero-top-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
+            <p class="speaker-details">
+              {% if not project %}
+                <span class="mui--text-subhead">{{ proposal.project.title }}</span>
+              {%- elif proposal.speaker -%}
+                <span class="mui--text-subhead">{{ proposal.speaker.pickername }}</span>
+                {%- if proposal.user != proposal.speaker %}
+                  <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
+                {%- endif %}
+                {%- if project and project.current_roles.editor %}
+                  {%- if proposal.has_outstation_speaker %}
+                    {{ faicon(icon='plane', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}
+                    <span class="mui--hide" aria-label="{% trans %}Outstation speaker{% endtrans %}"></span>
+                  {%- endif %}
+                {%- endif %}
+              {%- else -%}
+                <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
+              {%- endif -%}
+            </p>
+            <ul class="mui-list--inline mui--text-body2 list-item-rgborder zero-bottom-margin">
+              {%- if proposal.project != project %}
+                <li>{{ proposal.project.short_title }}</li>
+              {% endif %}
+              {%- if proposal.commentset %}
+                <li>{{ proposal.commentset.count }} comments</li>
+              {% endif %}
+              {% if not project %}
+                <li>
+                  {{ proposal.state.label.title }}
+                </li>
+              {% endif %}
+              <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</li>
+              {% if proposal.video %}
+                <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
+                  {{ faicon(icon='video', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}
+                </li>
+              {% endif %}
+              {% if proposal.slides.url %}
+                <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" aria-label="{% trans %}This proposal has slides{% endtrans %}">
+                  {{ faicon(icon='presentation', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}
+                </li>
+              {% endif %}
+            </ul>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td><em>{% trans %}(No sessions have been submitted){% endtrans %}</em></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{%- endmacro %}

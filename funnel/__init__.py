@@ -8,7 +8,6 @@ from flask_mailman import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
-import itsdangerous
 
 import geoip2.database
 
@@ -45,7 +44,6 @@ assets['schedule-print.css'][version] = 'css/schedule-print.css'
 from . import models, signals, loginproviders, forms, views  # NOQA  # isort:skip
 from .models import db  # isort:skip
 
-
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
 coaster.app.init_app(funnelapp)
@@ -61,24 +59,6 @@ coaster.app.load_config_from_file(lastuserapp, 'lastuserapp.py')
 app.config['LEGACY'] = False
 funnelapp.config['LEGACY'] = True
 lastuserapp.config['LEGACY'] = True
-
-app.cookie_serializer = itsdangerous.JSONWebSignatureSerializer(
-    app.config.get('LASTUSER_SECRET_KEY') or app.config['SECRET_KEY']
-)
-funnelapp.cookie_serializer = itsdangerous.JSONWebSignatureSerializer(
-    funnelapp.config.get('LASTUSER_SECRET_KEY') or funnelapp.config['SECRET_KEY']
-)
-lastuserapp.cookie_serializer = itsdangerous.JSONWebSignatureSerializer(
-    lastuserapp.config.get('LASTUSER_SECRET_KEY') or lastuserapp.config['SECRET_KEY']
-)
-
-# Talkfunnel login support
-app.login_serializer = itsdangerous.URLSafeTimedSerializer(
-    app.config.get('LASTUSER_SECRET_KEY') or app.config['SECRET_KEY']
-)
-
-# Signed tokens in email with TTL
-app.email_serializer = itsdangerous.URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`
