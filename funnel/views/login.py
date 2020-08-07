@@ -2,6 +2,7 @@ import urllib.parse
 import uuid
 
 from flask import (
+    Response,
     abort,
     current_app,
     flash,
@@ -526,10 +527,13 @@ def login_service_postcallback(service, userdata):
 
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            redirect(url_for('account_merge', next=login_next), code=303), service
+            Response(render_template('meta_refresh.html.jinja2', url=login_next)), service,
         )
     else:
-        return set_loginmethod_cookie(redirect(login_next, code=303), service)
+        return set_loginmethod_cookie(
+            Response(render_template('meta_refresh.html.jinja2', url=login_next)),
+            service,
+        )
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
