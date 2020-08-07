@@ -957,7 +957,7 @@
 {%- endmacro %}
 
 {%- macro user_avatar(user, css_class='') %}
-  {% if user.profile.logo_url.url %}
+  {% if user.profile and user.profile.logo_url.url %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{  user.profile.logo_url.url }}"/>
   {%- else %}
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}">{{ user.fullname|initials }}</div>
