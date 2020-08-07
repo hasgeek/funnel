@@ -256,6 +256,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             username=self.username or self.buid, fullname=self.fullname
         )
 
+    def __str__(self):
+        return self.pickername
+
     @with_roles(read={'all'})
     @property
     def pickername(self):
