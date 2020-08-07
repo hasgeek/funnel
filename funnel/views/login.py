@@ -2,7 +2,6 @@ import urllib.parse
 import uuid
 
 from flask import (
-    Response,
     abort,
     current_app,
     flash,
@@ -46,7 +45,7 @@ from ..serializers import talkfunnel_serializer
 from ..signals import user_data_changed
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, validate_rate_limit
+from .helpers import app_url_for, metarefresh_redirect, validate_rate_limit
 from .login_session import (
     login_internal,
     logout_internal,
@@ -530,19 +529,10 @@ def login_service_postcallback(service, userdata):
     # on another domain. Our redirect chain is provider -> callback -> destination page.
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            Response(
-                render_template(
-                    'meta_refresh.html.jinja2',
-                    url=url_for('account_merge', next=login_next),
-                )
-            ),
-            service,
+            metarefresh_redirect(url_for('account_merge', next=login_next)), service,
         )
     else:
-        return set_loginmethod_cookie(
-            Response(render_template('meta_refresh.html.jinja2', url=login_next)),
-            service,
-        )
+        return set_loginmethod_cookie(metarefresh_redirect(login_next), service)
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
@@ -659,6 +649,7 @@ def funnelapp_login_callback(token):
         # Can't proceed if this happens
         current_app.logger.warning("funnelapp is missing an expected login nonce")
         return redirect(url_for('index'), code=303)
+
     # 1. Verify token
     try:
         # Valid up to 30 seconds for slow connections. This is the time gap between
@@ -667,22 +658,17 @@ def funnelapp_login_callback(token):
     except itsdangerous.exc.BadData:
         current_app.logger.warning("funnelapp received bad login token: %s", token)
         flash(_("Your attempt to login failed. Please try again"), 'error')
-        return redirect(url_for('index'), code=303)
+        return metarefresh_redirect(url_for('index'))
     if request_token['nonce'] != nonce:
         current_app.logger.warning(
             "funnelapp received invalid nonce in %r", request_token
         )
         flash(_("If you were attempting to login, please try again"), 'error')
-        return redirect(url_for('index'), code=303)
+        return metarefresh_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
     user_session = UserSession.get(request_token['sessionid'])
-    if not user_session:
-        # No user session? That shouldn't happen. Log it
-        current_app.logger.warning(
-            "User session is unexpectedly invalid in %r", request_token
-        )
-    else:
+    if user_session:
         user = user_session.user
         login_internal(user, user_session)
         db.session.commit()
@@ -690,7 +676,12 @@ def funnelapp_login_callback(token):
         current_app.logger.debug(
             "funnelapp login succeeded for %r, %r", user, user_session
         )
-        return redirect(get_next_url(session=True), code=303)
+        return metarefresh_redirect(get_next_url(session=True))
+
+    # No user session? That shouldn't happen. Log it
+    current_app.logger.warning(
+        "User session is unexpectedly invalid in %r", request_token
+    )
     return redirect(url_for('index'))
 
 
