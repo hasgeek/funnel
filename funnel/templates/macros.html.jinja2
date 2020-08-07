@@ -745,7 +745,7 @@
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
         <p>
-          <span class="mui--visible-xs-block mui--visible-sm-block mui--visible-md-inline-block mui--visible-lg-inline-block mui--visible-xl-inline-block">{{ faicon(icon='history', icon_size='caption') }} {% trans date=profile.created_at|date%}Joined {{ date }}{% endtrans %}</span>
+          <span class="mui--visible-xs-block mui--visible-sm-block mui--visible-md-inline-block mui--visible-lg-inline-block mui--visible-xl-inline-block">{{ faicon(icon='history', icon_size='caption') }} {% trans date=profile.owner.created_at|date%}Joined {{ date }}{% endtrans %}</span>
           {% if profile.website %}
             <span class="mui--hidden-xs mui--hidden-sm interpunct">&#8226;</span>
             <a href="{{ profile.website }}">{{ faicon(icon='globe', icon_size='caption') }} {{ profile.website|cleanurl }}</a>

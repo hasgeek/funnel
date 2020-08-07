@@ -139,7 +139,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'banner_image_url',
                 'is_organization_profile',
                 'is_user_profile',
-                'created_at',
+                'owner',
             },
             'call': {'url_for', 'features', 'forms'},
         }
@@ -156,6 +156,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             'website',
             'user',
             'organization',
+            'owner',
         },
         'related': {'urls', 'uuid_b58', 'name', 'title', 'description', 'logo_url'},
     }
