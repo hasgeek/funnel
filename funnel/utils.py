@@ -125,7 +125,7 @@ def extract_twitter_handle(handle):
     if not handle:
         return None
 
-    parsed_handle = urllib.parse.urlparse(handle)
+    parsed_handle = urllib.parse.urlsplit(handle)
     if (
         (parsed_handle.netloc and parsed_handle.netloc != 'twitter.com')
         or (not parsed_handle.netloc and len(handle) > 16)

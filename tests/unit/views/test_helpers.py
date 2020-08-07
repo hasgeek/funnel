@@ -1,4 +1,4 @@
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 from werkzeug.routing import BuildError
 
@@ -17,17 +17,17 @@ def test_app_url_for():
     assert url is not None
 
     # URLs are _external=True by default
-    assert urlparse(url).netloc not in ('', None)
+    assert urlsplit(url).netloc not in ('', None)
 
     # URLs can be generated with _external=False although there's no good reason
-    assert urlparse(app_url_for(app, 'index', _external=False)).netloc == ''
+    assert urlsplit(app_url_for(app, 'index', _external=False)).netloc == ''
 
     # Test cross-app
     with funnelapp.test_request_context():
         # app_url_for can be called for the app in context
-        assert urlparse(app_url_for(funnelapp, 'index')).path == '/'
+        assert urlsplit(app_url_for(funnelapp, 'index')).path == '/'
         # Or for another app
-        assert urlparse(app_url_for(app, 'index')).path == '/'
+        assert urlsplit(app_url_for(app, 'index')).path == '/'
         # Unfortunately we can't compare URLS in _this test_ as both paths are '/' and
         # server name comes from config. However, see next test:
 

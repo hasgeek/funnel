@@ -175,6 +175,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
+    @requires_roles({'reader', 'admin'})
     def user_participated_projects(self):
         if self.obj.is_organization_profile:
             abort(404)
@@ -203,6 +204,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('in/proposals')
     @render_with('user_profile_proposals.html.jinja2', json=True)
+    @requires_roles({'reader', 'admin'})
     def user_proposals(self):
         if self.obj.is_organization_profile:
             abort(404)

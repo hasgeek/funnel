@@ -1,7 +1,7 @@
 from datetime import datetime
-from urllib.parse import unquote, urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlsplit
 
-from flask import abort, current_app, g, request, url_for
+from flask import Response, abort, current_app, g, render_template, request, url_for
 from werkzeug.urls import url_quote
 
 from furl import furl
@@ -18,15 +18,24 @@ from .jobs import forget_email
 valid_timezones = set(common_timezones)
 
 
+# --- Utilities ------------------------------------------------------------------------
+
+
+def metarefresh_redirect(url):
+    return Response(render_template('meta_refresh.html.jinja2', url=url))
+
+
 def app_url_for(
     app, endpoint, _external=True, _method='GET', _anchor=None, _scheme=None, **values
 ):
     """
-    Equivalent of calling :func:`url_for` in another app's context. Notable differences:
+    Equivalent of calling `url_for` in another app's context, with some differences.
 
     - Does not support blueprints as this repo does not use them
     - Does not defer to a :exc:`BuildError` handler. Caller is responsible for handling
-    - However, defers to Flask's url_for if the provided app is also the current app
+    - However, defers to Flask's `url_for` if the provided app is also the current app
+
+    The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
     # 'app' here is the parameter, not the module-level import
     if current_app and current_app._get_current_object() is app:
@@ -55,6 +64,21 @@ def app_url_for(
     return result
 
 
+def mask_email(email):
+    """
+    Masks an email address to obfuscate it while (hopefully) keeping it recognisable.
+
+    >>> mask_email('foobar@example.com')
+    'foo***@example.com'
+    >>> mask_email('not-email')
+    'not-em***'
+    """
+    if '@' not in email:
+        return '{e}***'.format(e=email[:-3])
+    username, domain = email.split('@')
+    return '{u}***@{d}'.format(u=username[:-3], d=domain)
+
+
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
     return localize_timestamp(int(timestamp) / 1000, from_tz, to_tz)
 
@@ -75,65 +99,8 @@ def localize_date(date, from_tz=utc, to_tz=utc):
     return date
 
 
-@app.template_filter('url_join')
-@funnelapp.template_filter('url_join')
-def url_join(base, url=''):
-    return urljoin(base, url)
-
-
-@app.template_filter('cleanurl')
-@funnelapp.template_filter('cleanurl')
-def cleanurl_filter(url):
-    url = url if isinstance(url, furl) else furl(url)
-    url.path.normalize()
-    clean_url = furl().set(netloc=url.netloc, path=url.path).url
-    if clean_url.startswith('//'):
-        clean_url = clean_url.lstrip('//')
-    if clean_url.endswith('/'):
-        clean_url = clean_url.rstrip('/')
-    return clean_url
-
-
-def mask_email(email):
-    """
-    Masks an email address
-
-    >>> mask_email(u'foobar@example.com')
-    u'foo***@example.com'
-    >>> mask_email(u'not-email')
-    u'not-em***'
-    """
-    if '@' not in email:
-        return '{e}***'.format(e=email[:-3])
-    username, domain = email.split('@')
-    return '{u}***@{d}'.format(u=username[:-3], d=domain)
-
-
-@app.after_request
-@funnelapp.after_request
-@lastuserapp.after_request
-def cache_expiry_headers(response):
-    if 'Expires' not in response.headers:
-        response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
-    if 'Cache-Control' in response.headers:
-        if 'private' not in response.headers['Cache-Control']:
-            response.headers['Cache-Control'] = (
-                'private, ' + response.headers['Cache-Control']
-            )
-    else:
-        response.headers['Cache-Control'] = 'private'
-    return response
-
-
-@funnelapp.url_defaults
-def add_profile_parameter(endpoint, values):
-    if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
-        if 'profile' not in values:
-            values['profile'] = g.profile.name if g.profile else None
-
-
 def get_scheme_netloc(uri):
-    parsed_uri = urlparse(uri)
+    parsed_uri = urlsplit(uri)
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
@@ -214,6 +181,55 @@ def validate_rate_limit(
         token,
     )
     cache.set(cache_key, (count, token), timeout=timeout)
+
+
+# --- Filters and URL constructors -----------------------------------------------------
+
+
+@app.template_filter('url_join')
+@funnelapp.template_filter('url_join')
+@lastuserapp.template_filter('url_join')
+def url_join(base, url=''):
+    return urljoin(base, url)
+
+
+@app.template_filter('cleanurl')
+@funnelapp.template_filter('cleanurl')
+def cleanurl_filter(url):
+    url = url if isinstance(url, furl) else furl(url)
+    url.path.normalize()
+    clean_url = furl().set(netloc=url.netloc, path=url.path).url
+    if clean_url.startswith('//'):
+        clean_url = clean_url.lstrip('//')
+    if clean_url.endswith('/'):
+        clean_url = clean_url.rstrip('/')
+    return clean_url
+
+
+@funnelapp.url_defaults
+def add_profile_parameter(endpoint, values):
+    if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
+        if 'profile' not in values:
+            values['profile'] = g.profile.name if g.profile else None
+
+
+# --- Request/response handlers --------------------------------------------------------
+
+
+@app.after_request
+@funnelapp.after_request
+@lastuserapp.after_request
+def cache_expiry_headers(response):
+    if 'Expires' not in response.headers:
+        response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
+    if 'Cache-Control' in response.headers:
+        if 'private' not in response.headers['Cache-Control']:
+            response.headers['Cache-Control'] = (
+                'private, ' + response.headers['Cache-Control']
+            )
+    else:
+        response.headers['Cache-Control'] = 'private'
+    return response
 
 
 # If an email address had a reference count drop during the request, make a note of
