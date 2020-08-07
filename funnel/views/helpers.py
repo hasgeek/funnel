@@ -1,5 +1,5 @@
 from datetime import datetime
-from urllib.parse import unquote, urljoin, urlsplit, urlunsplit
+from urllib.parse import unquote, urljoin, urlsplit
 
 from flask import Response, abort, current_app, g, render_template, request, url_for
 from werkzeug.urls import url_quote
@@ -190,14 +190,6 @@ def validate_rate_limit(
 @lastuserapp.template_filter('url_join')
 def url_join(base, url=''):
     return urljoin(base, url)
-
-
-@app.template_filter('make_relative_url')
-@funnelapp.template_filter('make_relative_url')
-@lastuserapp.template_filter('make_relative_url')
-def make_relative_url(url):
-    """Filter to discard scheme and netloc from a URL, used to undo _external=True"""
-    return urlunsplit(urlsplit(url)._replace(scheme='', netloc=''))
 
 
 @funnelapp.url_defaults
