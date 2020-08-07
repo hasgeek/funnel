@@ -2,10 +2,9 @@
 {% block content -%}
   <p>{% trans editor=editor.name %}Hi {{ editor }},{% endtrans %}
   <p>{% trans project=project.title, proposal=proposal.title %}
-    <b>{{ project }}</b> has a received a new proposal submission titled <b>{{ proposal }}.</b>
+    <b>{{ project }}</b> has a received a new proposal submission titled <b>{{ proposal }}</b>.
   </p>
       {% endtrans %}
-  <p><a class="btn" href="{{ proposal.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}Proposal page{% endtrans %}</a></p>
+  <p><a class="btn" href="{{ proposal.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}View proposal{% endtrans %}</a></p>
 
 {%- endblock %}
-email_new_proposal_submission.html.jinja2
