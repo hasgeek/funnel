@@ -527,7 +527,13 @@ def login_service_postcallback(service, userdata):
 
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            Response(render_template('meta_refresh.html.jinja2', url=login_next)), service,
+            Response(
+                render_template(
+                    'meta_refresh.html.jinja2',
+                    url=url_for('account_merge', next=login_next),
+                )
+            ),
+            service,
         )
     else:
         return set_loginmethod_cookie(
