@@ -1,9 +1,6 @@
-from urllib.parse import urlparse
-
 from flask import abort, jsonify, render_template, request
-from werkzeug.exceptions import BadRequest
 
-from baseframe import _, __
+from baseframe import __
 from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import jsonp, requestargs
@@ -539,24 +536,6 @@ def session_verify(authtoken, args, files=None):
         }
     else:
         return {'active': False}
-
-
-@app.route('/api/1/avatar/edit', methods=['POST'])
-@lastuserapp.route('/api/1/avatar/edit', methods=['POST'])
-@resource_registry.resource('avatar/edit', __("Update your profile picture"))
-def resource_avatar_edit(authtoken, args, files=None):
-    """
-    Set a user's avatar image
-    """
-    avatar = abort_null(args['avatar'])
-    parsed = urlparse(avatar)
-    if parsed.scheme == 'https' and parsed.netloc:
-        # Accept any properly formatted URL.
-        # TODO: Add better validation.
-        authtoken.user.avatar = avatar
-        return {'avatar': authtoken.user.avatar}
-    else:
-        raise BadRequest(_("Invalid avatar URL"))
 
 
 @app.route('/api/1/email')
