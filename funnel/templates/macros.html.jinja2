@@ -825,7 +825,7 @@
           </div>
           <transition name="slide">
             <div class="comment__body" v-if="!hide">
-              <div v-if="!comment.state">{{ comment.message_body }}</div>
+              <div v-if="!comment.state">{{ comment.message.html }}</div>
               <div data-id="{{ comment.uuid_b58 }}">
                 <a class="mui--text-menu mui--text-accent link" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)">[Reply]</a>
                 <a class="mui--text-menu mui--text-accent link" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)">[Report Spam]</a>
@@ -838,7 +838,7 @@
                 <button class="mui-btn mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
                 <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
               </div>
-              <ul class="mui-list--aligned mui-list--unstyled comment--children" v-for="child_comment in comment.children_comments">
+              <ul class="mui-list--aligned mui-list--unstyled comment--children" v-for="child_comment in comment.replies">
                 <comment :comment="child_comment" :isuserparticipant="isuserparticipant"></comment>
               </ul>
             </div>

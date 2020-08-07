@@ -8,7 +8,7 @@ from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
-from .user import User
+from .user import User, deleted_user, removed_user
 
 __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
 
@@ -151,7 +151,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship(
+    _user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
         backref=db.backref('comments', lazy='dynamic', cascade='all'),
@@ -168,7 +168,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'Comment', backref=db.backref('parent', remote_side='Comment.id')
     )
 
-    message = MarkdownColumn('message', nullable=False)
+    _message = MarkdownColumn('message', nullable=False)
 
     _state = db.Column(
         'state',
@@ -191,11 +191,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'created_at',
                 'edited_at',
                 'user',
-                'user_pickername',
                 'title',
                 'message',
-                'message_body',
-                'children_comments',
+                'replies',
                 'urls',
                 'badges',
             },
@@ -213,15 +211,13 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             'title',
         },
         'json': {
-            'user_pickername',
-            'message_body',
             'created_at',
             'edited_at',
             'absolute_url',
             'title',
             'message',
             'user',
-            'children_comments',
+            'replies',
             'urls',
             'badges',
         },
@@ -248,28 +244,36 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
 
     @property
-    def children_comments(self):
+    def replies(self):
         return [child.current_access() for child in self.children if child.state.PUBLIC]
 
     @hybrid_property
-    def user_pickername(self):
+    def user(self):
         return (
-            _('[deleted]')
+            deleted_user
             if self.state.DELETED
-            else _('[removed]')
+            else removed_user
             if self.state.SPAM
-            else self.user.pickername
+            else self._user
         )
 
+    @user.setter
+    def user(self, value):
+        self._user = value
+
     @hybrid_property
-    def message_body(self):
+    def message(self):
         return (
             _('[deleted]')
             if self.state.DELETED
             else _('[removed]')
             if self.state.SPAM
-            else self.message.text
+            else self._message
         )
+
+    @message.setter
+    def message(self, value):
+        self._message = value
 
     @property
     def absolute_url(self):
@@ -283,10 +287,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         obj = self.commentset.proposal or self.commentset.project
         if obj:
             return _("{user} commented on {obj}").format(
-                user=self.user_pickername, obj=obj.title
+                user=self.user.pickername, obj=obj.title
             )
         else:
-            return _("{user} commented").format(user=self.user_pickername)
+            return _("{user} commented").format(user=self.user.pickername)
 
     @property
     def badges(self):
@@ -354,27 +358,6 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
 
 add_search_trigger(Comment, 'search_vector')
-
-
-@Comment.views('url')
-def comment_url(obj):
-    url = None
-    commentset_url = obj.commentset.views.url()
-    if commentset_url is not None:
-        url = commentset_url + '#c' + obj.uuid_b58
-    return url
-
-
-@Commentset.views('json_comments')
-def commentset_json(obj):
-    toplevel_comments = obj.toplevel_comments.join(Voteset).order_by(
-        Voteset.count, Comment.created_at.asc()
-    )
-    return [
-        comment.current_access(datasets=('json',))
-        for comment in toplevel_comments
-        if comment.state.PUBLIC or comment.children is not None
-    ]
 
 
 Commentset.toplevel_comments = db.relationship(

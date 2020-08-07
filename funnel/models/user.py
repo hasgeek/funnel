@@ -162,6 +162,10 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         db.defer('timezone'),
     ]
 
+    __roles__ = {'all': {'read': {'name', 'fullname', 'username', 'created_at'}}}
+
+    __datasets__ = {'related': {'name', 'fullname', 'username', 'created_at'}}
+
     def __init__(self, password=None, **kwargs):
         self.password = password
         super(User, self).__init__(**kwargs)

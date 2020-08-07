@@ -16,12 +16,33 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import CommentForm
-from ..models import Comment, Commentset, Proposal, db
+from ..models import Comment, Commentset, Proposal, Voteset, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProposalViewMixin
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
+
+
+@Comment.views('url')
+def comment_url(obj):
+    url = None
+    commentset_url = obj.commentset.views.url()
+    if commentset_url is not None:
+        url = commentset_url + '#c' + obj.uuid_b58
+    return url
+
+
+@Commentset.views('json_comments')
+def commentset_json(obj):
+    toplevel_comments = obj.toplevel_comments.join(Voteset).order_by(
+        Voteset.count, Comment.created_at.asc()
+    )
+    return [
+        comment.current_access(datasets=('json', 'related'))
+        for comment in toplevel_comments
+        if comment.state.PUBLIC or comment.children is not None
+    ]
 
 
 @Proposal.views('vote')
