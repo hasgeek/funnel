@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ profile.title }}{% endblock %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, past_projects_section, profile_header %}
+{%- from "macros.html.jinja2" import calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, past_projects_section, profile_header, user_avatar %}
 
 {%- block pageheaders %}
 <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
@@ -50,7 +50,7 @@
     {%- with people = profile.organization.views.people_and_teams() %}
       {%- if people %}
         <div class="mui-container">
-          <div class="page-content page-content--mob-nav">
+          <div class="page-content">
             <div class="mui-container">
               <div class="grid">
                 <div class="grid__col-xs-12">
@@ -59,11 +59,7 @@
                     {%- for user, teams in people %}
                       <div class="membership-wrapper__members__list user">
                         <div class="user__box mui--clearfix">
-                          {% if user.profile.logo_url.url %}
-                            <img class="user__box__gravatar" src="{{  user.profile.logo_url.url }}"/>
-                          {%- else %}
-                            <div class="user__box__gravatar user__box__gravatar--initials">{{ user.fullname|initials }}</div>
-                          {% endif %}
+                          {{ user_avatar(user) }}
                           <div class="mui--d-inlineblock">
                             <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
                             <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>

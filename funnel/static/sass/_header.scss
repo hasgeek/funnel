@@ -86,6 +86,10 @@
             display: inline-block;
           }
 
+          .mui-dropdown {
+            line-height: 1;
+          }
+
           .header__nav-links {
             text-decoration: none !important;
             .header__nav-links__text {
@@ -246,11 +250,16 @@
               }
             }
             .header__nav-links__dropdown {
-              margin-top: 13px;
               right: 0;
               left: auto;
+              padding: 0;
+              margin: 0;
               > li > a {
                 color: $mui-text-light;
+              }
+              .user {
+                padding: $mui-grid-padding;
+                border-bottom: 1px solid $mui-divider-color;
               }
             }
           }

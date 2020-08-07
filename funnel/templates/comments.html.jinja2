@@ -1,4 +1,4 @@
-{% from "baseframe/components.html.jinja2" import faicon %}
+{% from "baseframe/components.html.jinja2" import faicon, user_avatar %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 
 {% macro commenttree(comments, document, project, csrf_form) %}
@@ -16,11 +16,7 @@
           </button>
           <div class="comment--header__details user">
             <div class="user__box">
-              {% if comment.user.avatar %}
-                <img class="user__box__gravatar" src="{{ comment.user.avatar }}"/>
-              {%- else %}
-                <div class="user__box__gravatar user__box__gravatar--initials">{{ comment.user.fullname|initials }}</div>
-              {% endif %}
+              {{ user_avatar(comment.user) }}
               <div class="comment--header__details__content">
                 <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ comment.user.fullname }}</h3>
                 <h3 class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>

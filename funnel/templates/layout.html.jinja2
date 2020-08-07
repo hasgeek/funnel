@@ -1,5 +1,6 @@
 {% extends "baseframe.html.jinja2" -%}
 {% from "baseframe/components.html.jinja2" import hgtopnav, faicon %}
+{%- from "macros.html.jinja2" import user_avatar %}
 
 {%- block titletags %}
   <title>{% block titleblock %}{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif title_suffix == '' %}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}{%- endblock %}</title>
@@ -102,19 +103,38 @@
       {% if not current_auth.is_anonymous -%}
         <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="Account" data-action="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">Account</span></a>
         <div class="mui-dropdown mui--hidden-xs mui--hidden-sm">
-          <a href="javascript:void(0)" data-target="account dropdown" data-mui-toggle="dropdown" class="header__nav-links js-account-dropdown  {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" data-cy="account-link" data-action="Account dropdown">
-            {{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">Account</span>
-            <span class="mui-caret"></span>
+          <a href="javascript:void(0)" data-target="account dropdown" data-mui-toggle="dropdown" class="header__nav-links user user--standalone js-account-dropdown  {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" data-cy="account-link" data-action="Account dropdown">
+            <div class="user__box">
+              {{ user_avatar(current_auth.user) }}
+            </div>
           </a>
           <ul class="mui-dropdown__menu header__nav-links__dropdown">
-            {% if current_auth.user.profile %}<li><a href="{{ current_auth.user.profile.url_for() }}" class="mui--text-subhead" data-cy="my-profile">{{ current_auth.user.fullname }}</a></li>{%- endif %}
+            <li>
+              {% if current_auth.user.profile %}
+              <a href="{{ current_auth.user.profile.url_for() }}" class="user">
+              {%- else %}
+                <div class="user">
+              {%- endif %}
+                <div class="user__box mui--clearfix">
+                  {{ user_avatar(current_auth.user) }}
+                  <div class="mui--d-inlineblock">
+                    <h3 class="mui--text-body2 user__box__fullname">{{ current_auth.user.fullname }}</h3>
+                    {% if current_auth.user.username %}<h3 class="mui--text-caption user__box__userid">@{{ current_auth.user.username }}</h3>{%- endif %}
+                  </div>
+                </div>
+              {% if current_auth.user.profile %}
+              </a>
+              {%- else %}
+                  </div>
+              {%- endif %}
+            </li>
             <li><a href="{{ url_for('account') }}" class="mui--text-subhead" data-cy="my-account">Account</a></li>
             <li><a href="{{ url_for('saved') }}" class="mui--text-subhead">My saves</a></li>
             <li><a href="{{ url_for('scan_contact') }}" class="mui--text-subhead">Scan badge</a></li>
             <li><a href="{{ url_for('contacts') }}" class="mui--text-subhead">Contacts</a></li>
           </ul>
           <noscript>
-            <a href="{{ url_for('account') }}" class="header__nav-links" aria-label="Account" data-action="Account">{{ faicon(icon='user', css_class='header__nav-links__icon') }}<<span class="header__nav-links__text">Account</span></a>
+            <a href="{{ url_for('account') }}" class="header__nav-links user user--standalone" aria-label="Account" data-action="Account"><div class="user__box">{{ user_avatar(current_auth.user) }}</div></a>
           </noscript>
         </div>
       {%- elif request.endpoint != 'login' %}

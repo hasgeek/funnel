@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs %}
+{%- from "macros.html.jinja2" import account_tabs, user_avatar %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
@@ -28,6 +28,18 @@
 {% block basecontent %}
   <div class="mui-container tab-content">
     <div class="grid">
+      <div class="grid__col-xs-12">
+        <div class="user user--bigger">
+          <div class="user__box mui--clearfix">
+            {{ user_avatar(current_auth.user) }}
+            <div class="mui--d-inlineblock">
+              <h3 class="mui--text-title user__box__fullname zero-bottom-margin">{{ current_auth.user.fullname }}</h3>
+              {% if current_auth.user.username %}<h3 class="mui--text-subhead mui--text-light user__box__userid zero-bottom-margin">@{{ current_auth.user.username }}</h3>{%- endif %}
+              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}">Go to your profile {{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</a>{%- endif %}
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">

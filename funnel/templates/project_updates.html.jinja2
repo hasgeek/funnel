@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, widgetscripts %}
-{%- from "macros.html.jinja2" import project_header, posts_template %}
+{%- from "macros.html.jinja2" import project_header, posts_template, user_avatar %}
 {% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
@@ -33,11 +33,7 @@
             <a class="post-form" href="{{ project.url_for('new_update') }}" aria-label="Add new update" data-cy-btn="add-post">
             <div class="user">
               <div class="user__box">
-                {% if current_auth.user.avatar %}
-                  <img class="user__box__gravatar" src="{{ current_auth.user.avatar }}"/>
-                {%- else %}
-                  <div class="user__box__gravatar user__box__gravatar--initials">{{ current_auth.user.fullname|initials }}</div>
-                {% endif %}
+                {{ user_avatar(current_auth.user) }}
                 <input type="text" placeholder="Post an update…" />
               </div>
             </div>
