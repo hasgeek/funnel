@@ -1,5 +1,6 @@
-{% from "baseframe/components.html.jinja2" import faicon, user_avatar %}
+{% from "baseframe/components.html.jinja2" import faicon %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
+{%- from "macros.html.jinja2" import user_avatar %}
 
 {% macro commenttree(comments, document, project, csrf_form) %}
 {%- for comment in comments %}
