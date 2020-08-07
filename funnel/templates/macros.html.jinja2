@@ -825,7 +825,7 @@
           </div>
           <transition name="slide">
             <div class="comment__body" v-if="!hide">
-              <div v-if="!comment.state">{{ comment.message.html }}</div>
+              <div v-if="!comment.state" v-html="comment.message.html"></div>
               <div data-id="{{ comment.uuid_b58 }}">
                 <a class="mui--text-menu mui--text-accent link" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)">[Reply]</a>
                 <a class="mui--text-menu mui--text-accent link" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)">[Report Spam]</a>
