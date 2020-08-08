@@ -1,4 +1,6 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Dict, List, Optional
 
 from dataclasses_json import config, dataclass_json
@@ -169,7 +171,9 @@ class Complaint:
     )
     timestamp: str
     feedback_id: str = field(metadata=config(field_name="feedbackId"))
-    complaint_sub_type: str = field(metadata=config(field_name="complaintSubType"))
+    complaint_sub_type: Optional[str] = field(
+        metadata=config(field_name="complaintSubType"), default=None
+    )
     user_agent: Optional[str] = field(
         metadata=config(field_name="userAgent"), default=None
     )
@@ -325,6 +329,22 @@ class DeliveryDelay:
     delay_type: str = field(metadata=config(field_name="delayType"))
 
 
+class SesEvents(Enum):
+    """
+    Types of SesEvents
+    """
+
+    DELIVERY = "Delivery"
+    SEND = "Send"
+    REJECT = "Reject"
+    OPEN = "Open"
+    Click = "Click"
+    BOUNCE = "Bounce"
+    COMPLAINT = "Complaint"
+    RENDER = "Rendering Failure"
+    DELAY = "DeliveryDelay"
+
+
 @dataclass_json
 @dataclass
 class SesEvent:
@@ -367,3 +387,51 @@ class SesEvent:
     delivery_delay: Optional[DeliveryDelay] = field(
         metadata=config(field_name="deliveryDelay"), default=None
     )
+
+
+class Processor(ABC):
+    """
+    Abstract Base class for Message Processor.
+    """
+
+    def process(self, ses_event: SesEvent):
+        """
+        Process SES Event by calling the appropriate methods.
+        @param ses_event: SES Event object
+        """
+        if ses_event.event_type == SesEvents.BOUNCE.value:
+            self.bounce(ses_event.bounce)
+        elif ses_event.event_type == SesEvents.COMPLAINT.value:
+            self.complaint(ses_event.complaint)
+        elif ses_event.event_type == SesEvents.DELIVERY.value:
+            self.delivered(ses_event.delivery)
+        elif ses_event.event_type == SesEvents.DELAY.value:
+            self.delayed(ses_event.delivery_delay)
+
+    @abstractmethod
+    def bounce(self, bounce: Bounce) -> None:
+        """
+        Process (Hard) Bounce notifications
+        @param bounce: Bounce
+        """
+
+    @abstractmethod
+    def complaint(self, complaint: Complaint) -> None:
+        """
+        Process Complaint notifications
+        @param complaint: Complaint
+        """
+
+    @abstractmethod
+    def delivered(self, delivery: Delivery) -> None:
+        """
+        Process Delivery notifications
+        @param delivery: Delivery
+        """
+
+    @abstractmethod
+    def delayed(self, delayed: DeliveryDelay) -> None:
+        """
+        Process Delivery Delay (Soft Bounce) notifications
+        @param delayed: DeliveryDelay
+        """

@@ -12,6 +12,7 @@ from . import (
     contact,
     decorators,
     email,
+    email_events,
     event,
     helpers,
     index,

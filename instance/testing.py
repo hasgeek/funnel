@@ -70,4 +70,9 @@ SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
 SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
 SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
 
+# SES Notification Topic
+SES_NOTIFICATION_TOPICS = [
+    'arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com'
+]
+
 # nosec

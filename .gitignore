@@ -38,3 +38,4 @@ secrets.test
 test.db
 venv/
 .idea/
+dump.rdb

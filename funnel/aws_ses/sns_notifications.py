@@ -69,13 +69,12 @@ class Validator:
 
     def __init__(
         self,
-        topics: List[str],
+        topics: List[str] = (),
         cert_regex: str = CERT_URL_REGEX,
         sig_version: str = SIGNATURE_VERSION,
     ):
         """
         Constructor
-        :param topics:    List of Topic ARNs that we should accept
         :param cert_regex: Certificate URL Regex
         :param sig_version: Signature Version
         """
