@@ -121,7 +121,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 'name',
                 'title',
                 'body_text',
-                weights={'name': 'C', 'title': 'C', 'body_text': 'D'},
+                weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
                     visual_field_delimiter, Update.title, Update.body_html

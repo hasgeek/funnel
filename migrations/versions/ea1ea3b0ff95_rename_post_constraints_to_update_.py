@@ -49,7 +49,7 @@ def upgrade():
                 '''
         CREATE FUNCTION update_search_vector_update() RETURNS trigger AS $$
         BEGIN
-            NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'C') || setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'C') || setweight(to_tsvector('english', COALESCE(NEW.body_text, '')), 'D');
+            NEW.search_vector := setweight(to_tsvector('english', COALESCE(NEW.name, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') || setweight(to_tsvector('english', COALESCE(NEW.body_text, '')), 'B');
             RETURN NEW;
         END
         $$ LANGUAGE plpgsql;
@@ -85,7 +85,7 @@ def downgrade():
         END
         $$ LANGUAGE plpgsql;
 
-        CREATE TRIGGER post_search_vector_trigger BEFORE INSERT OR UPDATE ON post
+        CREATE TRIGGER post_search_vector_trigger BEFORE INSERT OR UPDATE ON update
         FOR EACH ROW EXECUTE PROCEDURE post_search_vector_update();
                 '''
             )
