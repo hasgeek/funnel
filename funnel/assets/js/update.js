@@ -3,20 +3,20 @@ import VS2 from 'vue-script2';
 import * as timeago from 'timeago.js';
 import { Utils } from './util';
 
-const Posts = {
+const Updates = {
   init({
     draft = '',
-    posts = '',
+    updates = '',
     divElem,
-    postTemplate,
+    updateTemplate,
     isEditor,
     headerHeight,
   }) {
     Vue.use(VS2);
 
-    const postUI = Vue.component('post', {
-      template: postTemplate,
-      props: ['post', 'iseditor'],
+    const updateUI = Vue.component('update', {
+      template: updateTemplate,
+      props: ['update', 'iseditor'],
       data() {
         return {
           truncated: true,
@@ -46,8 +46,8 @@ const Posts = {
       },
       computed: {
         age() {
-          return this.now && this.post.published_at
-            ? timeago.format(this.post.published_at)
+          return this.now && this.update.published_at
+            ? timeago.format(this.update.published_at)
             : '';
         },
       },
@@ -60,12 +60,12 @@ const Posts = {
 
     const app = new Vue({
       components: {
-        postUI,
+        updateUI,
       },
       data() {
         return {
           draft: draft.length > 0 ? draft : '',
-          posts: posts.length > 0 ? posts : '',
+          updates: updates.length > 0 ? updates : '',
           isEditor,
           headerHeight,
         };
@@ -87,7 +87,7 @@ const Posts = {
 };
 
 $(() => {
-  window.Hasgeek.PostsInit = function (config) {
-    Posts.init(config);
+  window.Hasgeek.UpdatesInit = function (config) {
+    Updates.init(config);
   };
 });
