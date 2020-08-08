@@ -1,7 +1,7 @@
 import json
 import os
 
-from funnel.aws_ses import SesEvent, Validator, ValidatorChecks, ValidatorException
+from funnel.extapi import SesEvent, Validator, ValidatorChecks, ValidatorException
 
 
 class TestSesEventJson:

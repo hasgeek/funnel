@@ -5,7 +5,7 @@ from flask import jsonify, make_response, request
 import requests
 
 from .. import app
-from ..aws_ses import (
+from ..extapi import (
     Bounce,
     Complaint,
     Delivery,
@@ -61,8 +61,8 @@ processor = SesProcessor()
 @app.route('/api/1/email/ses_event', methods=['POST'])
 def process_ses_event():
     """
-    Processes SES Events from AWS. The events are sent based on the configuration set of the outgoing
-    email.
+    Processes SES Events from AWS. The events are sent based on the
+    configuration set of the outgoing email.
     """
     # Try to decode the JSON
     try:
@@ -110,3 +110,6 @@ def process_ses_event():
         return make_response(
             jsonify(message='Notification processed', status='Success'), 200
         )
+
+    # The Path that should never be taken.
+    return make_response(jsonify(message='Unknown Message Type', status='error'), 500)
