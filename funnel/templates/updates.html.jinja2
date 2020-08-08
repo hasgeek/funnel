@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, widgetscripts %}
-{%- from "macros.html.jinja2" import project_header, posts_template %}
+{%- from "macros.html.jinja2" import project_header, updates_template %}
 {% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
@@ -30,7 +30,7 @@
       <div class="grid" id="updates">
         <div class="grid__col-xs-12">
           {% if project.features.post_update() -%}
-            <a class="post-form" href="{{ project.url_for('new_update') }}" aria-label="Add new update" data-cy-btn="add-post">
+            <a class="update-form" href="{{ project.url_for('new_update') }}" aria-label="Add new update" data-cy-btn="add-update">
             <div class="user">
               <div class="user__box">
                 <div class="user__box__gravatar user__box__gravatar--initials">{{ current_auth.user.fullname|initials }}</div>
@@ -39,8 +39,8 @@
             </div>
           </a>
           {%- endif %}
-          {{ posts_template() }}
-          {% if not project.published_posts -%}
+          {{ updates_template() }}
+          {% if not project.published_updates -%}
             <p class="mui-panel mui--bg-accent">{% trans %}This project has not posted any updates yet.{% endtrans %}</p>
           {%- endif %}
         </div>
@@ -51,12 +51,12 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename=asset_path('post')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('update')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: {{ project.url_for('save')|tojson }}
+        updateUrl: {{ project.url_for('save')|tojson }}
       }
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
@@ -68,16 +68,16 @@
         headerHeight = $('header').height() + $('nav').height();
       }
 
-      var postConfig = {
-        draft: {% if project.draft_posts -%} {{ project.draft_posts|tojson }} {%- else -%} [] {%- endif %},
-        posts: {% if project.published_posts -%} {{ project.published_posts|tojson }} {%- else -%} [] {%- endif %},
-        divElem: "#posts-wrapper",
-        postTemplate: '#post-template',
-        isEditor: {% if project.features.post_update() -%}true{% else %}false{% endif %},
+      var updateConfig = {
+        draft: {% if project.draft_updates -%} {{ project.draft_updates|tojson }} {%- else -%} [] {%- endif %},
+        updates: {% if project.published_updates -%} {{ project.published_updates|tojson }} {%- else -%} [] {%- endif %},
+        divElem: "#updates-wrapper",
+        updateTemplate: '#update-template',
+        isEditor: {{ project.features.post_update()|tojson }},
         headerHeight: headerHeight,
       };
 
-      window.Hasgeek.PostsInit(postConfig);
+      window.Hasgeek.UpdatesInit(updateConfig);
     });
   </script>
 {% endblock %}

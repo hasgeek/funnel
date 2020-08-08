@@ -26,6 +26,7 @@ from ..models import (
     Project,
     Proposal,
     Session,
+    Update,
     User,
     db,
     visual_field_delimiter,
@@ -95,6 +96,11 @@ search_types = OrderedDict(
                             Project.profile_id == Profile.id,
                             Profile.user_id == User.id,
                             User.search_vector.match(q),
+                        ).exists(),
+                        # 4. Update has search terms
+                        Update.query.filter(
+                            Update.project_id == Project.id,
+                            Update.search_vector.match(q),
                         ).exists(),
                     ),
                 )
