@@ -321,7 +321,10 @@ html.touch .collapsible__body--disable {
 
 .user--bigger {
   .user__box {
-    padding: 12px 8px 44px 89px;
+    padding: 12px 8px 8px 89px;
+    margin-bottom: 16px;
+    height: 100px;
+
     .user__box__gravatar {
       width: 80px;
       height: 80px;
@@ -775,6 +778,30 @@ a.loginbutton.hidden,
 
 .interpunct {
   padding: 0 8px;
+}
+
+.bullet-separated-list {
+  list-style: none;
+  padding: 0;
+  li {
+    padding: 0;
+    border: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .bullet-separated-list {
+    padding-left: 0;
+    display: flex;
+    list-style: inside;
+    li {
+      padding: 0 8px;
+    }
+    li:first-child {
+      list-style-type: none;
+      padding-left: 0;
+    }
+  }
 }
 
 // To hide vue template before Vue app is mounted
