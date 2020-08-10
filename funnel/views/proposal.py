@@ -28,6 +28,7 @@ from ..forms import (
     ProposalTransitionForm,
 )
 from ..models import Comment, Project, Proposal, db
+from ..signals import proposal_submitted
 from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, ProposalViewMixin
@@ -152,6 +153,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             )  # Vote up your own proposal by default
             db.session.commit()
             flash(_("Your new session has been saved"), 'info')
+            proposal_submitted.send(proposal)
             return redirect(proposal.url_for(), code=303)
 
         return render_form(

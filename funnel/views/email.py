@@ -122,6 +122,24 @@ def send_password_reset_link(email, user, token):
     send_email(subject, [(user.fullname, email)], content)
 
 
+@signals.proposal_submitted.connect
+def send_email_for_proposal_submission(proposal):
+    for membership in proposal.project.active_editor_memberships:
+        if membership.user.email:
+            send_email(
+                subject=_("New proposal in {project}").format(
+                    project=proposal.project.title
+                ),
+                to=[membership.user],
+                content=render_template(
+                    'email_new_proposal_submission.html.jinja2',
+                    proposal=proposal,
+                    project=proposal.project,
+                    editor=membership.user,
+                ),
+            )
+
+
 @signals.organization_admin_membership_added.connect
 def send_email_for_organization_admin_membership_added(
     sender, organization, membership, actor, user
@@ -160,20 +178,22 @@ def send_email_for_organization_admin_membership_revoked(
 
 @signals.user_registered_for_project.connect
 def send_email_for_project_registration(rsvp, project, user):
-    background_project_registration_email.queue(
-        project_id=project.id, user_id=user.id, locale=get_locale()
-    )
+    if user.email:
+        background_project_registration_email.queue(
+            project_id=project.id, user_id=user.id, locale=get_locale()
+        )
 
 
 @signals.user_cancelled_project_registration.connect
 def send_email_for_project_deregistration(rsvp, project, user):
-    send_email(
-        subject=_("Registration cancelled for {project}").format(project=project.title),
-        to=[user],
-        content=render_template(
-            'email_project_deregister.html.jinja2', user=user, project=project,
-        ),
-    )
+    if user.email:
+        send_email(
+            subject=_("Registration cancelled for {project}").format(project=project.title),
+            to=[user],
+            content=render_template(
+                'email_project_deregister.html.jinja2', user=user, project=project,
+            ),
+        )
 
 
 @rq.job('funnel')
