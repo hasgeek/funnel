@@ -45,6 +45,7 @@ class ProfileForm(OrganizationForm):
             forms.validators.Length(max=2000),
             forms.validators.URL(),
             forms.validators.ValidUrl(),
+            forms.filters.none_if_empty(),
         ],
     )
 
