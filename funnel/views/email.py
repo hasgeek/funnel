@@ -124,17 +124,17 @@ def send_password_reset_link(email, user, token):
 
 @signals.proposal_submitted.connect
 def send_email_for_proposal_submission(proposal):
-    for editor in proposal.project.active_editor_memberships:
+    for membership in proposal.project.active_editor_memberships:
         send_email(
-            subject=_("{project} has received a new proposal submission").format(
+            subject=_("New proposal in {project}").format(
                 project=proposal.project.title
             ),
-            to=[editor.user],
+            to=[membership.user],
             content=render_template(
                 'email_new_proposal_submission.html.jinja2',
                 proposal=proposal,
                 project=proposal.project,
-                editor=editor.user,
+                editor=membership.user,
             ),
         )
 
