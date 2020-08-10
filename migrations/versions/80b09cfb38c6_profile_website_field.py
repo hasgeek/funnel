@@ -1,7 +1,7 @@
 """profile website field
 
 Revision ID: 80b09cfb38c6
-Revises: ea1ea3b0ff95
+Revises: 99e5e7b54104
 Create Date: 2020-08-06 15:18:01.978252
 
 """
@@ -13,7 +13,7 @@ from coaster.sqlalchemy import UrlType
 
 # revision identifiers, used by Alembic.
 revision = '80b09cfb38c6'
-down_revision = 'ea1ea3b0ff95'
+down_revision = '99e5e7b54104'
 branch_labels = None
 depends_on = None
 
