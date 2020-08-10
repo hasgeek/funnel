@@ -6,7 +6,6 @@ from flask import (
     escape,
     flash,
     redirect,
-    render_template,
     request,
     session,
     url_for,
@@ -28,7 +27,7 @@ from ..registry import login_registry
 from ..serializers import email_serializer
 from ..utils import abort_null, mask_email
 from .email import send_password_reset_link
-from .helpers import validate_rate_limit
+from .helpers import metarefresh_redirect, validate_rate_limit
 from .login_session import logout_internal
 
 
@@ -145,9 +144,7 @@ def reset_email(token, cookietest=False):
         # the less secure meta-refresh redirect (browser extensions can read the URL)
         session['reset_token'] = token
         session['reset_token_at'] = datetime.utcnow()
-        return render_template(
-            'meta_refresh.html.jinja2', url=url_for('reset_email_do')
-        )
+        return metarefresh_redirect(url_for('reset_email_do'))
     return redirect(url_for('reset_email_do'))
 
 

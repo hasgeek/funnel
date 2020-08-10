@@ -39,15 +39,11 @@ class LoginManager:
 
     @property
     def autocomplete_endpoint(self):
-        if current_app != app:
-            return app_url_for(app, 'user_autocomplete')
-        return url_for('user_autocomplete')
+        return app_url_for(app, 'user_autocomplete')
 
     @property
     def getuser_endpoint(self):
-        if current_app != app:
-            return app_url_for(app, 'user_get_by_userids')
-        return url_for('user_get_by_userids')
+        return app_url_for(app, 'user_get_by_userids')
 
     @staticmethod
     def _load_user():

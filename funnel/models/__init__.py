@@ -41,6 +41,7 @@ from .feedback import *  # isort:skip
 from .label import *  # isort:skip
 from .profile import *  # isort:skip
 from .project import *  # isort:skip
+from .update import *  # isort:skip
 from .proposal import *  # isort:skip
 from .rsvp import *  # isort:skip
 from .saved import *  # isort:skip
@@ -52,4 +53,3 @@ from .project_membership import *  # isort:skip
 from .proposal_membership import *  # isort:skip
 from .site_membership import *  # isort:skip
 from .moderation import *  # isort:skip
-from .post import *  # isort:skip

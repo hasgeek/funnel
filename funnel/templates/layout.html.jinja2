@@ -233,7 +233,7 @@
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(document).ready(function() {
-      window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL }}"{% endassets %};
+      window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
     });
   </script>
   {%- if not config['LEGACY'] -%}

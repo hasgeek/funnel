@@ -1,13 +1,13 @@
 from baseframe import __
 import baseframe.forms as forms
 
-from ..models import Post
+from ..models import Update
 
-__all__ = ['ProjectPostForm']
+__all__ = ['UpdateForm']
 
 
-@Post.forms('project_main')
-class ProjectPostForm(forms.Form):
+@Update.forms('main')
+class UpdateForm(forms.Form):
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
