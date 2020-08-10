@@ -8,6 +8,7 @@
 *.wpr
 .coverage
 .DS_Store
+.mypy_cache
 .project
 .pydevproject
 .pytest_cache

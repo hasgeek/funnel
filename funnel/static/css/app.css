@@ -3282,34 +3282,34 @@ a.loginbutton.hidden,
   z-index: 5;
   display: none;
 }
-.pinned .pinned__post {
+.pinned .pinned__update {
   text-decoration: none !important;
   display: inline-block;
   width: 100%;
   padding: 8px 0;
   border-bottom: solid 1px rgba(121, 129, 139, 0.16);
 }
-.pinned .pinned__post__heading {
+.pinned .pinned__update__heading {
   margin-bottom: 0;
   padding: 0 16px;
   display: none;
 }
-.pinned .pinned__post__body {
+.pinned .pinned__update__body {
   margin-bottom: 0;
   padding: 0 16px;
 }
-.pinned .pinned__post__body .pinned__post__body__text {
+.pinned .pinned__update__body .pinned__update__body__text {
   padding-left: 5px;
 }
-.pinned .pinned__post__body .pinned__post__body__text > * {
+.pinned .pinned__update__body .pinned__update__body__text > * {
   display: inline-block;
   margin-bottom: 0;
 }
-.pinned .pinned__post__body .pinned__post__body__text > img {
+.pinned .pinned__update__body .pinned__update__body__text > img {
   display: none;
 }
 
-.pinned li:first-child .pinned__post__heading {
+.pinned li:first-child .pinned__update__heading {
   display: block;
 }
 
@@ -4771,37 +4771,37 @@ ul .login-session .mui-btn--nostyle {
   right: -2px;
 }
 
-.draft-posts {
+.draft-updates {
   margin-bottom: 32px;
 }
 
-.post {
+.update {
   margin: 16px 0 0;
 }
-.post .post__header {
+.update .update__header {
   margin-bottom: 16px;
 }
-.post .post__date {
+.update .update__date {
   margin-bottom: 10px;
 }
-.post .post__content {
+.update .update__content {
   display: inline-block;
   width: 100%;
 }
-.post .post__content img {
+.update .update__content img {
   max-width: 100%;
 }
 
-.post-form {
+.update-form {
   border-radius: 16px;
   background-color: #f9f9f9;
   padding: 24px;
   margin-bottom: 32px;
 }
-.post-form .user__box__gravatar--initials {
+.update-form .user__box__gravatar--initials {
   background-color: #f06a5e !important;
 }
-.post-form input {
+.update-form input {
   width: 100%;
   padding: 10px 16px;
   border-radius: 2px;
@@ -4819,7 +4819,7 @@ ul .login-session .mui-btn--nostyle {
     margin-bottom: -10px;
   }
 
-  .post {
+  .update {
     padding: 32px 16px;
     margin-bottom: 16px;
     border-radius: 16px;
