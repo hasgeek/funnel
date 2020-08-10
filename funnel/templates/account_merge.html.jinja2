@@ -1,4 +1,4 @@
-{% extends "account_formlayout.html.jinja2" %}
+{% extends "layout.html.jinja2" %}
 
 {% block title %}{% trans %}Merge accounts{% endtrans %}{% endblock %}
 
@@ -27,7 +27,7 @@
   </ul>
 {% endmacro %}
 
-{% block focuscontent %}
+{% block contentwrapper %}
   <p class="cookies-required">{% trans %}You appear to have two accounts. Would you like to merge them?{% endtrans %}</p>
   <div class="cookies-required grid">
     <div class="grid__col-xs-12 grid__col-sm-4">
