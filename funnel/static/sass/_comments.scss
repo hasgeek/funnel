@@ -9,10 +9,15 @@
     max-width: 100%;
   }
 
-  .comment--header button {
-    line-height: 1;
-    position: relative;
-    top: 3px;
+  .comment--header {
+    display: inline-block;
+    width: 100%;
+    button {
+      line-height: 1;
+      vertical-align: middle;
+      position: relative;
+      top: 20px;
+    }
   }
 
   .comment--body {
@@ -31,7 +36,12 @@
   .comment--header__details {
     display: inline-block;
     vertical-align: top;
-    padding: 5px 0 0 5px;
+    padding: 0 0 0 5px;
+    .comment--header__details__content {
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: top;
+    }
     .badge {
       margin-left: 2px;
       margin-right: 2px;

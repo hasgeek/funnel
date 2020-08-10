@@ -310,6 +310,24 @@ html.touch .collapsible__body--disable {
     }
   }
 }
+.user--standalone {
+  .user__box {
+    padding: 0;
+    .user__box__gravatar {
+      position: static;
+    }
+  }
+}
+
+.user--bigger {
+  .user__box {
+    padding: 12px 8px 44px 89px;
+    .user__box__gravatar {
+      width: 80px;
+      height: 80px;
+    }
+  }
+}
 
 .user:nth-child(even) {
   .user__box__gravatar--initials {
