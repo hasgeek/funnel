@@ -196,14 +196,10 @@ def url_join(base, url=''):
 @app.template_filter('cleanurl')
 @funnelapp.template_filter('cleanurl')
 def cleanurl_filter(url):
-    url = url if isinstance(url, furl) else furl(url)
+    if not isinstance(url, furl):
+        url = furl(url)
     url.path.normalize()
-    clean_url = furl().set(netloc=url.netloc, path=url.path).url
-    if clean_url.startswith('//'):
-        clean_url = clean_url.lstrip('//')
-    if clean_url.endswith('/'):
-        clean_url = clean_url.rstrip('/')
-    return clean_url
+    return furl().set(netloc=url.netloc, path=url.path).url.lstrip('//').rstrip('/')
 
 
 @funnelapp.url_defaults

@@ -40,7 +40,6 @@ class ProfileForm(OrganizationForm):
     )
     website = forms.URLField(
         __("Website URL"),
-        description=(""),
         validators=[forms.validators.Optional(), forms.validators.Length(max=2000)],
     )
 

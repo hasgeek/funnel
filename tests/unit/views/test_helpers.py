@@ -61,3 +61,18 @@ def test_urlclean_filter():
     assert cleanurl_filter(furl("//test/")) == "test"
     assert cleanurl_filter(furl("foobar")) == "foobar"
     assert cleanurl_filter(furl("")) == ""
+
+    assert (
+        cleanurl_filter("https://example.com/some/path/?query=value")
+        == "example.com/some/path"
+    )
+    assert (
+        cleanurl_filter("example.com/some/path/?query=value") == "example.com/some/path"
+    )
+    assert cleanurl_filter("example.com/some/path/") == "example.com/some/path"
+    assert cleanurl_filter("example.com/some/path") == "example.com/some/path"
+    assert cleanurl_filter("example.com/") == "example.com"
+    assert cleanurl_filter("//example.com/") == "example.com"
+    assert cleanurl_filter("//test/") == "test"
+    assert cleanurl_filter("foobar") == "foobar"
+    assert cleanurl_filter("") == ""

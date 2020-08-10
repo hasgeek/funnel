@@ -100,7 +100,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
 
-    __datasets__ = {'related': {'fullname', 'username', 'timezone', 'status', 'avatar'}}
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
@@ -158,9 +157,31 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         db.defer('timezone'),
     ]
 
-    __roles__ = {'all': {'read': {'name', 'fullname', 'created_at'}}}
+    __roles__ = {
+        'all': {
+            'read': {
+                'fullname',
+                'username',
+                'pickername',
+                'timezone',
+                'status',
+                'avatar',
+                'created_at',
+            }
+        }
+    }
 
-    __datasets__ = {'related': {'name', 'fullname', 'created_at'}}
+    __datasets__ = {
+        'related': {
+            'fullname',
+            'username',
+            'pickername',
+            'timezone',
+            'status',
+            'avatar',
+            'created_at',
+        }
+    }
 
     def __init__(self, password=None, **kwargs):
         self.password = password
