@@ -11,7 +11,8 @@ class TestModels(TestDatabaseFixture):
         """
         Test to verify merger of user accounts and return new user
         """
-        # Scenario 1: if first user's created_at date younger than second user's created_at
+        # Scenario 1: if first user's created_at date is older than second user's
+        # created_at
         crusoe = self.fixtures.crusoe
         bathound = models.User(username="bathound", fullname="Bathound")
         db.session.add(bathound)
@@ -24,7 +25,8 @@ class TestModels(TestDatabaseFixture):
             self.assertEqual(crusoe.status, 0)
             self.assertEqual(bathound.status, 2)
 
-        # Scenario 1: if second user's created_at date older than first user 's created_at
+        # Scenario 2: if second user's created_at date is older than first user's
+        # created_at
         tyrion = models.User(username='tyrion', fullname="Tyrion Lannister")
         db.session.add(tyrion)
         db.session.commit()
