@@ -64,8 +64,8 @@
 
 {% macro share_dropdown(url, title) %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
-    <li><a class="details__box__control__link mui--text-title" target="_blank" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-action="Tweet video">Twitter</a></li>
-    <li><a class="details__box__control__link mui--text-title" target="_blank" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-action="Share video on facebook">Facebook</a></li>
+    <li><a class="details__box__control__link mui--text-title" target="_blank" rel="noopener" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-action="Tweet video">Twitter</a></li>
+    <li><a class="details__box__control__link mui--text-title" target="_blank" rel="noopener" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-action="Share video on facebook">Facebook</a></li>
     <li><a class="details__box__control__link mui--text-title" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-action="Email video">Email</a></li>
     <li><a class="details__box__control__link mui--text-title" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-action="Share about {{ title }} on linkedin">Linkedin</a></li>
   </ul>
@@ -179,7 +179,7 @@
                 <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
                   <p class="video_txt">
                     {{ faicon(icon='video', icon_size='display1') }}<br>
-                    <a href="{{ stream }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                    <a href="{{ stream }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
                   </p>
                 </div>
               </div>
@@ -195,7 +195,7 @@
               <div class="embed-video-wrapper js-embed-video" data-video-src="{{ project.banner_video_url }}">
                 <p class="video_txt">
                   {{ faicon(icon='video', icon_size='display1') }}<br>
-                  <a href="{{ project.banner_video_url }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                  <a href="{{ project.banner_video_url }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
                 </p>
               </div>
             {%- elif project.bg_image.url %}
@@ -349,14 +349,14 @@
   {% else %}
     <p class="video_txt">
       {{ faicon(icon='video', icon_size='display1') }}<br>
-      <a href="{{ video.id }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+      <a href="{{ video.id }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
     </p>
   {%- endif %}
 {% endmacro %}
 
 {% macro video_action_bar(video, proposal='', session='') %}
   {%- if video.source == 'youtube' -%}
-    <p><a href="https://videoken.com" target="_blank" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
+    <p><a href="https://videoken.com" target="_blank" rel="noopener" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
   {%- endif %}
 
   {%- if proposal and 'edit_proposal' in proposal.permissions(current_auth.user) %}
