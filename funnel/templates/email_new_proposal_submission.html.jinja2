@@ -3,7 +3,7 @@
 
 <p>{% trans editor=editor.name %}Hi {{ editor }},{% endtrans %}</p>
 
-<p>{% trans project=project.title, proposal=proposal.title %}<b>{{ project }}</b> has a received a new proposal submission titled <b>{{ proposal }}</b>.</p>{% endtrans %}
+<p>{% trans project=project.title, proposal=proposal.title, proposer=proposal.user.fullname %}<b>{{ project }}</b> has a received a new proposal submission from <b>{{ proposer }}</b> titled <b>{{ proposal }}</b>.</p>{% endtrans %}
 
 <p><a class="btn" href="{{ proposal.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}View proposal{% endtrans %}</a></p>
 
