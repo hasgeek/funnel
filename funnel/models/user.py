@@ -100,7 +100,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
 
-    __datasets__ = {'related': {'fullname', 'username', 'timezone', 'status', 'avatar'}}
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
@@ -155,6 +154,36 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         db.defer('pw_expires_at'),
         db.defer('timezone'),
     ]
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'name',
+                'title',
+                'fullname',
+                'username',
+                'pickername',
+                'timezone',
+                'status',
+                'avatar',
+                'created_at',
+            }
+        }
+    }
+
+    __datasets__ = {
+        'related': {
+            'name',
+            'title',
+            'fullname',
+            'username',
+            'pickername',
+            'timezone',
+            'status',
+            'avatar',
+            'created_at',
+        }
+    }
 
     def __init__(self, password=None, **kwargs):
         self.password = password
@@ -589,8 +618,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
 
-    __datasets__ = {'related': {'name', 'title', 'pickername'}}
-
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
@@ -614,7 +641,14 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         ),
     )
 
-    __roles__ = {'all': {'call': {'views', 'features', 'forms'}}}
+    __roles__ = {
+        'all': {
+            'read': {'name', 'title', 'pickername', 'created_at'},
+            'call': {'views', 'features', 'forms'},
+        }
+    }
+
+    __datasets__ = {'related': {'name', 'title', 'pickername', 'created_at'}}
 
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 

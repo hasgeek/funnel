@@ -38,6 +38,15 @@ class ProfileForm(OrganizationForm):
             image_url_validator(),
         ],
     )
+    website = forms.URLField(
+        __("Website URL"),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.Length(max=2000),
+            forms.validators.URL(),
+            forms.validators.ValidUrl(),
+        ],
+    )
 
     def make_for_user(self):
         self.title.label.text = __("Your name")
