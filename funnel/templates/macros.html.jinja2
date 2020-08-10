@@ -836,7 +836,8 @@
         </div>
         <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="update.urls.view">{{ update.title }}</a></p>
         <div class="user__box mui--clearfix update__header">
-          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(update.user.fullname) }}</div>
+          <img class="user__box__gravatar" :src="update.user.avatar" v-if="update.user.avatar"/>
+          <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(update.user.fullname) }}</div>
           <div class="mui--d-inlineblock">
             <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ update.user.fullname }}</h3>
             <h3 v-if="update.user.username" class="mui--text-caption user__box__userid"><span>@{{ update.user.username }}</span></h3>
