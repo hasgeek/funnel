@@ -125,9 +125,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     )
     #: User's status (active, suspended, merged, etc)
     status = db.Column(db.SmallInteger, nullable=False, default=USER_STATUS.ACTIVE)
-    #: User avatar (URL to browser-ready image)
-    #: TODO: Drop this column and use profile logo instead
-    avatar = with_roles(db.Column(db.UnicodeText, nullable=True), read={'all'})
 
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
@@ -268,6 +265,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         else:
             return self.fullname
+
+    @with_roles(read={'all'})
+    @property
+    def avatar(self):
+        return self.profile.logo_url if self.profile and self.profile.logo_url else ''
 
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)

@@ -63,7 +63,7 @@ module.exports = {
     membership: path.resolve(__dirname, 'js/membership.js'),
     session_videos: path.resolve(__dirname, 'js/session_videos.js'),
     comments: path.resolve(__dirname, 'js/comments.js'),
-    post: path.resolve(__dirname, 'js/post.js'),
+    update: path.resolve(__dirname, 'js/update.js'),
     rsvp_list: path.resolve(__dirname, 'js/rsvp_list.js'),
   },
   output: {

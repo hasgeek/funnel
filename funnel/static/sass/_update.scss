@@ -1,24 +1,24 @@
-.draft-posts {
+.draft-updates {
   margin-bottom: $mui-grid-padding-double;
 }
 
-.post {
+.update {
   margin: $mui-grid-padding 0 0;
 
-  .post__header {
+  .update__header {
     margin-bottom: $mui-grid-padding;
   }
 
-  .post__date {
+  .update__date {
     margin-bottom: 10px;
   }
 
-  .post__content {
+  .update__content {
     display: inline-block;
     width: 100%;
   }
 
-  .post__content img {
+  .update__content img {
     max-width: 100%;
   }
 }
@@ -34,7 +34,7 @@
     top: 110px;
     margin-bottom: -10px;
   }
-  .post {
+  .update {
     padding: $mui-grid-padding-double $mui-grid-padding;
     margin-bottom: $mui-grid-padding;
     border-radius: 16px;

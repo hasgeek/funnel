@@ -331,12 +331,12 @@
       {%- endif %}
     </nav>
   </div>
-  {% with pinned_post = project.pinned_post %}{%- if pinned_post and pinned %}
+  {% with pinned_update = project.pinned_update %}{%- if pinned_update and pinned %}
   <ul class="mui-list--unstyled pinned  {% if current_page == 'project' %}pinned--about-page{%- endif %}">
     <li>
-      <a href="{{ pinned_post.urls['project_view'] }}" class="pinned__post">
-        <p class="pinned__post__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">Pinned update</span></p>
-        <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_post.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__post__body__text">{%- if not pinned_post.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_post.body.text }}</span>{% else %}<em>This update is for participants only</em>{%- endif %}</span></p>
+      <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
+        <p class="pinned__update__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">{% trans %}Pinned update{% endtrans %}</span></p>
+        <p class="pinned__update__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__update__body__text">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.text }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
       </a>
     </li>
   </ul>
@@ -872,53 +872,54 @@
   </p>
 {% endmacro %}
 
-{% macro posts_template() %}
+{% macro updates_template() %}
   {% raw %}
-    <div id="posts-wrapper" v-cloak>
+    <div id="updates-wrapper" v-cloak>
       <div v-if="isEditor">
         <h2 class="mui--text-headline mui--text-left" v-if="draft">Draft</h2>
-        <ul v-if="draft" class="draft-posts">
-          <li v-for="post in draft"><a :href="post.urls.project_view">{{ post.title }}</a></li>
+        <ul v-if="draft" class="draft-updates">
+          <li v-for="update in draft"><a :href="update.urls.view">{{ update.title }}</a></li>
         </ul>
       </div>
-      <ul class="mui-list--unstyled" v-if="posts.length > 0">
-        <post :post="post" :iseditor="isEditor" v-for="post in posts"></post>
+      <ul class="mui-list--unstyled" v-if="updates.length > 0">
+        <update :update="update" :iseditor="isEditor" v-for="update in updates"></update>
       </ul>
     </div>
 
-    <script type="text/x-template" id="post-template">
-      <li class="post user mui--bg-accent" :id="'#update-' + post.uuid_b58">
+    <script type="text/x-template" id="update-template">
+      <li class="update user mui--bg-accent" :id="'#update-' + update.uuid_b58">
         <div class="mui--clearfix">
           <div class="mui--pull-left">
-            <p class="mui--text-light mui--text-body2 post__date" v-if="post.number">
-              <a class="mui--text-uppercase mui--text-light" :href="post.urls.project_view">Update #{{ post.number }}</a>
-              <span v-if="age"><span class="interpunct" aria-hidden="true">&#8226;</span><a class="mui--text-light" :href="post.urls.project_view">{{ age }}</a></span>
-              <span v-if="post.visibility_label == 'Restricted'"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></span>
-              <span v-if="post.is_pinned"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 mui--align-middle" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg></span>
+            <p class="mui--text-light mui--text-body2 update__date" v-if="update.number">
+              <a class="mui--text-uppercase mui--text-light" :href="update.urls.view">Update #{{ update.number }}</a>
+              <span v-if="age"><span class="interpunct" aria-hidden="true">&#8226;</span><a class="mui--text-light" :href="update.urls.view">{{ age }}</a></span>
+              <span v-if="update.visibility_label == 'Restricted'"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></span>
+              <span v-if="update.is_pinned"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 mui--align-middle" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg></span>
             </p>
           </div>
           <div class="mui--pull-right">
-            <a class="mui--text-menu mui--text-hyperlink right-padding" :href="post.urls.project_view" aria-label="Share this post" v-if="post.visibility_label == 'Public' || iseditor"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#share-square'"></use></svg></a>
+            <a class="mui--text-menu mui--text-hyperlink right-padding" :href="update.urls.view" aria-label="Share this update"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#share-square'"></use></svg></a>
             <div class="mui-dropdown" v-if="iseditor">
               <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#ellipsis-v'"></use></svg></a>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
-                <li><a v-if="post.urls.project_edit" :href="post.urls.project_edit">Edit</a></li>
-                <li><a v-if="post.urls.project_delete" :href="post.urls.project_delete">Delete</a></li>
+                <li><a v-if="update.urls.edit" :href="update.urls.edit">Edit</a></li>
+                <li><a v-if="update.urls.delete" :href="update.urls.delete">Delete</a></li>
               </ul>
             </div>
           </div>
         </div>
-        <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="post.urls.project_view">{{ post.title }}</a></p>
-        <div class="user__box mui--clearfix post__header">
-          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(post.user.fullname) }}</div>
+        <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="update.urls.view">{{ update.title }}</a></p>
+        <div class="user__box mui--clearfix update__header">
+          <img class="user__box__gravatar" :src="update.user.avatar" v-if="update.user.avatar"/>
+          <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(update.user.fullname) }}</div>
           <div class="mui--d-inlineblock">
-            <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ post.user.fullname }}</h3>
-            <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
+            <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ update.user.fullname }}</h3>
+            <h3 v-if="update.user.username" class="mui--text-caption user__box__userid"><span>@{{ update.user.username }}</span></h3>
           </div>
         </div>
-        <div v-if="!post.is_currently_restricted">
-          <div class="post mui--text-light" v-if="truncated" :inner-html.prop="truncate(post.body.html, 250)"></div>
-          <div class="post mui--text-light fullcontent" v-else v-html="post.body.html"></div>
+        <div v-if="!update.is_currently_restricted">
+          <div class="update__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(update.body.html, 250)"></div>
+          <div class="update__content mui--text-light fullcontent" v-else v-html="update.body.html"></div>
           <p class="mui--text-body2">
             <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" aria-label="read more"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-down'"></use></svg> Read more</a></p>
             <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="hide"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-up'"></use></svg> Hide</a>
@@ -1027,4 +1028,12 @@
       {% endfor %}
     </tbody>
   </table>
+{%- endmacro %}
+
+{%- macro user_avatar(user, css_class='') %}
+  {% if user and user.avatar %}
+    <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar }}"/>
+  {%- else %}
+    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}">{{ user.fullname|initials }}</div>
+  {% endif %}
 {%- endmacro %}
