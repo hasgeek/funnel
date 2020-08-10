@@ -744,13 +744,12 @@
           <h2 class="mui--text-headline mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
-        <p>
-          <span class="mui--visible-xs-block mui--visible-sm-block mui--visible-md-inline-block mui--visible-lg-inline-block mui--visible-xl-inline-block">{{ faicon(icon='history', icon_size='caption') }} {% trans date=profile.owner.created_at|date%}Joined {{ date }}{% endtrans %}</span>
+        <ul class="bullet-separated-list">
+          <li class="">{{ faicon(icon='history', icon_size='caption') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
           {% if profile.website %}
-            <span class="mui--hidden-xs mui--hidden-sm interpunct">&#8226;</span>
-            <a href="{{ profile.website }}">{{ faicon(icon='globe', icon_size='caption') }} {{ profile.website|cleanurl }}</a>
+            <li><a href="{{ profile.website }}">{{ faicon(icon='globe', icon_size='caption') }} {{ profile.website|cleanurl }}</a></li>
           {% endif %}
-        </p>
+        </ul>
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
           {% if profile.features.new_project() %}
@@ -820,15 +819,15 @@
     </div>
 
     <script type="text/x-template" id="update-template">
-      <li class="update user mui--bg-accent" :id="'#update-' + update.uuid_b58">
+      <li class="update user" :id="'#update-' + update.uuid_b58">
         <div class="mui--clearfix">
           <div class="mui--pull-left">
-            <p class="mui--text-light mui--text-body2 update__date" v-if="update.number">
-              <a class="mui--text-uppercase mui--text-light" :href="update.urls.view">Update #{{ update.number }}</a>
-              <span v-if="age"><span class="interpunct" aria-hidden="true">&#8226;</span><a class="mui--text-light" :href="update.urls.view">{{ age }}</a></span>
-              <span v-if="update.visibility_label == 'Restricted'"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></span>
-              <span v-if="update.is_pinned"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 mui--align-middle" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg></span>
-            </p>
+            <ul class="bullet-separated-list mui--text-light mui--text-body2 update__date" v-if="update.number">
+              <li><a class="mui--text-uppercase mui--text-light" :href="update.urls.view">Update #{{ update.number }}</a></li>
+              <li v-if="age"><a class="mui--text-light" :href="update.urls.view">{{ age }}</a></li>
+              <li v-if="update.visibility_label == 'Restricted'"><svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></li>
+              <li v-if="update.is_pinned"><svg class="fa5-icon fa5-icon--body2 mui--align-middle" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg></li>
+            </ul>
           </div>
           <div class="mui--pull-right">
             <a class="mui--text-menu mui--text-hyperlink right-padding" :href="update.urls.view" aria-label="Share this update"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#share-square'"></use></svg></a>
