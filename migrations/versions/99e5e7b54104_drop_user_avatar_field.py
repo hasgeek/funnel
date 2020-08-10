@@ -1,7 +1,7 @@
 """drop user avatar field
 
 Revision ID: 99e5e7b54104
-Revises: dcd0870c24cc
+Revises: ea1ea3b0ff95
 Create Date: 2020-08-07 12:10:20.004784
 
 """
