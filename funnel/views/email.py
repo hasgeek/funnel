@@ -177,20 +177,22 @@ def send_email_for_organization_admin_membership_revoked(
 
 @signals.user_registered_for_project.connect
 def send_email_for_project_registration(rsvp, project, user):
-    background_project_registration_email.queue(
-        project_id=project.id, user_id=user.id, locale=get_locale()
-    )
+    if user.email:
+        background_project_registration_email.queue(
+            project_id=project.id, user_id=user.id, locale=get_locale()
+        )
 
 
 @signals.user_cancelled_project_registration.connect
 def send_email_for_project_deregistration(rsvp, project, user):
-    send_email(
-        subject=_("Registration cancelled for {project}").format(project=project.title),
-        to=[user],
-        content=render_template(
-            'email_project_deregister.html.jinja2', user=user, project=project,
-        ),
-    )
+    if user.email:
+        send_email(
+            subject=_("Registration cancelled for {project}").format(project=project.title),
+            to=[user],
+            content=render_template(
+                'email_project_deregister.html.jinja2', user=user, project=project,
+            ),
+        )
 
 
 @rq.job('funnel')
