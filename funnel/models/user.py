@@ -782,7 +782,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
                 # Unfortunately, we can't work with model instances as in the other
                 # `migrate_user` methods as team_membership is an unmapped table.
                 newuser.teams.append(team)
-            db.session.delete(team)
+            olduser.teams.remove(team)
         return [cls.__table__.name, team_membership.name]
 
     @classmethod

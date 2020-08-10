@@ -39,8 +39,3 @@ class TestTeam(TestDatabaseFixture):
         for each in result:
             permissions_received.append(each)
         self.assertCountEqual(permissions_expected, permissions_received)
-
-    def test_team_migrate_user(self):
-        """
-        Test for migrating an old user to newuser in a team (when merging user account takes place)
-        """
