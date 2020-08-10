@@ -71,7 +71,7 @@ def test_team_migrate_user3(team_merge_data):
     """
     Test to verify teams are transferred when merging users.
 
-    Scenario 2: Both users are in a team
+    Scenario 3: Both users are in a team
     """
     team_merge_data.team.users.append(team_merge_data.user1)
     team_merge_data.team.users.append(team_merge_data.user2)
