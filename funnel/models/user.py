@@ -158,6 +158,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
+                'name',
+                'title',
                 'fullname',
                 'username',
                 'pickername',
@@ -171,6 +173,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     __datasets__ = {
         'related': {
+            'name',
+            'title',
             'fullname',
             'username',
             'pickername',

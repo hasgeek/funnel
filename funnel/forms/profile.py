@@ -40,7 +40,12 @@ class ProfileForm(OrganizationForm):
     )
     website = forms.URLField(
         __("Website URL"),
-        validators=[forms.validators.Optional(), forms.validators.Length(max=2000)],
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.Length(max=2000),
+            forms.validators.URL(),
+            forms.validators.ValidUrl(),
+        ],
     )
 
     def make_for_user(self):
