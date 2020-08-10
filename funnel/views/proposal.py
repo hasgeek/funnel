@@ -153,10 +153,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             )  # Vote up your own proposal by default
             db.session.commit()
             flash(_("Your new session has been saved"), 'info')
-            for editor in proposal.project.active_editor_memberships:
-                proposal_submitted.send(
-                    proposal, project=proposal.project, editor=editor.user
-                )
+            proposal_submitted.send(proposal)
             return redirect(proposal.url_for(), code=303)
 
         return render_form(
