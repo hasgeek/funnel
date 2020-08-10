@@ -277,7 +277,6 @@ html.touch .collapsible__body--disable {
   padding: 8px 8px 8px 50px;
   position: relative;
   word-break: break-word;
-  min-height: 55px;
 }
 .user .user__box .user__box__gravatar {
   width: 40px;

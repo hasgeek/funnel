@@ -30,11 +30,11 @@
       <div class="grid" id="updates">
         <div class="grid__col-xs-12">
           {% if project.features.post_update() -%}
-            <a class="post-form-block" href="{{ project.url_for('new_update') }}" aria-label="Add new update" data-cy-btn="add-update">
+            <a class="post-form-block" href="{{ project.url_for('new_update') }}" aria-label="{% trans %}Add new update{% endtrans %}" data-cy-btn="add-update">
             <div class="user">
               <div class="user__box">
                 {{ user_avatar(current_auth.user) }}
-                <input type="text" placeholder="Post an update…" />
+                <input type="text" placeholder="{% trans %}Post an update…{% endtrans %}" />
               </div>
             </a>
           {%- endif %}
