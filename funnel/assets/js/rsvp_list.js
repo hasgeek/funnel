@@ -1,7 +1,7 @@
 $(() => {
   $('.participants').footable({
-    "sorting": {
-      "enabled": true
+    sorting: {
+      enabled: true,
     },
   });
 });

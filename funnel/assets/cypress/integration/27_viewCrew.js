@@ -1,10 +1,10 @@
-describe('View crew', function() {
+describe('View crew', function () {
   const admin = require('../fixtures/user.json').admin;
   const concierge = require('../fixtures/user.json').concierge;
   const usher = require('../fixtures/user.json').usher;
   const project = require('../fixtures/project.json');
 
-  it('View crew of the project', function() {
+  it('View crew of the project', function () {
     cy.visit('/');
     cy.get('.upcoming')
       .find('.card--upcoming')
@@ -28,9 +28,7 @@ describe('View crew', function() {
       .parents('.user__box')
       .find('[data-cy="role"]')
       .contains('Usher');
-    cy.get('[data-cy="member"]')
-      .contains(admin.username)
-      .click();
+    cy.get('[data-cy="member"]').contains(admin.username).click();
     cy.get('#member-form', { timeout: 10000 }).should('not.be.visible');
   });
 });
