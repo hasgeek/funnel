@@ -261,6 +261,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def user(self, value):
         self._user = value
 
+    @user.expression
+    def user(cls):  # NOQA: N805
+        return cls._user
+
     @hybrid_property
     def message(self):
         return (
@@ -274,6 +278,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @message.setter
     def message(self, value):
         self._message = value
+
+    @message.expression
+    def message(cls):  # NOQA: N805
+        return cls._message
 
     @property
     def absolute_url(self):
