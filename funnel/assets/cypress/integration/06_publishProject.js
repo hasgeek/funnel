@@ -1,9 +1,9 @@
-describe('Publish project', function() {
+describe('Publish project', function () {
   const editor = require('../fixtures/user.json').editor;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Publish project', function() {
+  it('Publish project', function () {
     cy.login('/' + profile.title, editor.username, editor.password);
     cy.get('[data-cy-title="' + project.title + '"]')
       .first()

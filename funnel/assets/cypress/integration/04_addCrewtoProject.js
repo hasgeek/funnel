@@ -1,4 +1,4 @@
-describe('Adding crew', function() {
+describe('Adding crew', function () {
   const owner = require('../fixtures/user.json').owner;
   const admin = require('../fixtures/user.json').admin;
   const concierge = require('../fixtures/user.json').concierge;
@@ -12,7 +12,7 @@ describe('Adding crew', function() {
     return false;
   });
 
-  it('Add crew to project', function() {
+  it('Add crew to project', function () {
     cy.login('/' + profile.title, admin.username, admin.password);
     cy.get('[data-cy-title="' + project.title + '"]')
       .first()
