@@ -188,7 +188,9 @@ def send_email_for_project_registration(rsvp, project, user):
 def send_email_for_project_deregistration(rsvp, project, user):
     if user.email:
         send_email(
-            subject=_("Registration cancelled for {project}").format(project=project.title),
+            subject=_("Registration cancelled for {project}").format(
+                project=project.title
+            ),
             to=[user],
             content=render_template(
                 'email_project_deregister.html.jinja2', user=user, project=project,
