@@ -195,6 +195,7 @@ def url_join(base, url=''):
 
 @app.template_filter('cleanurl')
 @funnelapp.template_filter('cleanurl')
+@lastuserapp.template_filter('cleanurl')
 def cleanurl_filter(url):
     if not isinstance(url, furl):
         url = furl(url)
