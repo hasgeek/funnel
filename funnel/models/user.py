@@ -289,7 +289,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @property
     def avatar(self):
         return (
-            self.profile.logo_url if self.profile and self.profile.logo_url.url else ''
+            self.profile.logo_url
+            if self.profile and self.profile.logo_url and self.profile.logo_url.url
+            else ''
         )
 
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
