@@ -4,6 +4,7 @@ from urllib.parse import unquote, urljoin, urlsplit
 from flask import Response, abort, current_app, g, render_template, request, url_for
 from werkzeug.urls import url_quote
 
+from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
@@ -190,6 +191,16 @@ def validate_rate_limit(
 @lastuserapp.template_filter('url_join')
 def url_join(base, url=''):
     return urljoin(base, url)
+
+
+@app.template_filter('cleanurl')
+@funnelapp.template_filter('cleanurl')
+@lastuserapp.template_filter('cleanurl')
+def cleanurl_filter(url):
+    if not isinstance(url, furl):
+        url = furl(url)
+    url.path.normalize()
+    return furl().set(netloc=url.netloc, path=url.path).url.lstrip('//').rstrip('/')
 
 
 @funnelapp.url_defaults

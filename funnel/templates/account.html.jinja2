@@ -211,7 +211,10 @@
                     %}
                   <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
                     <div>
-                      <p title="{{ user_agent }}" class="login-session__heading">{{ ua['browser'] }}<br class="mui--visible-xs-inline mui--visible-sm-inline" aria-hidden="true"><span class="mui--hidden-xs mui--hidden-sm interpunct" aria-hidden="true">&#8226;</span>{{ ua['os_device'] }}</p>
+                      <ul class="bullet-separated-list" title="{{ user_agent }}" data-toggle="tooltip" data-placement="bottom">
+                        <li class="login-session__heading">{{ ua['browser'] }}
+                        <li class="login-session__heading">{{ ua['os_device'] }}</li>
+                      </ul>
                       <p class="login-session__body mui--text-light">
                         {%- if login_service %}
                           {%- trans %}Since {{ since }} via {{ login_service }} – last active {{ last_active }}{% endtrans %}
