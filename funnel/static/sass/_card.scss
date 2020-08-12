@@ -300,8 +300,7 @@
           opacity: 1;
         }
 
-        .calendar__weekdays__dates__date:nth-child(1)
-          .calendar__weekdays__dates__time {
+        .calendar__weekdays__dates__date--1 .calendar__weekdays__dates__time {
           left: 0;
           transform: translate(0, 0);
         }
@@ -352,33 +351,17 @@
           z-index: -1;
           bottom: 0;
           background: $mui-bg-color-accent;
+          width: 16px;
         }
         .calendar__weekdays__dates__icon--left {
           position: absolute;
-          left: -$mui-grid-padding-double;
+          left: -$mui-grid-padding;
           line-height: 30px;
         }
         .calendar__weekdays__dates__icon--right {
           position: absolute;
-          right: -$mui-grid-padding-double;
+          right: -$mui-grid-padding;
           line-height: 30px;
-        }
-      }
-    }
-  }
-}
-
-.card--spotlight {
-  .card__calendar--compact {
-    .calendar {
-      .calendar__weekdays {
-        .calendar__weekdays__dates {
-          .calendar__weekdays__dates__icon--left {
-            left: -34px;
-          }
-          .calendar__weekdays__dates__icon--right {
-            right: -34px;
-          }
         }
       }
     }
