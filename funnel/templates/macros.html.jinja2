@@ -792,7 +792,7 @@
         <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
       </div>
       <p class="mui-panel mui--bg-accent" v-if="isuserloggedin && !isuserparticipant">You need to be a participant to comment.</p>
-      <a class="post-form-block" @click="fetchForm($event, newCommentUrl)" aria-label="Post comment" data-cy-btn="post-comment" v-if="isuserparticipant && !commentForm">
+      <a class="post-form-block" @click="fetchForm($event, newCommentUrl)" aria-label="Post comment" data-cy="post-comment" v-if="isuserparticipant && !commentForm">
         <div class="user">
           <div class="user__box">
             <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(user) }}</div>

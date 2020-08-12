@@ -6,6 +6,9 @@ describe('Add a new proposal', function () {
   const labels = require('../fixtures/labels.json');
 
   it('Add proposal', function () {
+    cy.server();
+    cy.route('GET', '**/new').as('get-form');
+
     cy.login('/' + profile.title, user.username, user.password);
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
@@ -42,10 +45,12 @@ describe('Add a new proposal', function () {
     cy.get('[data-cy-admin="delete"]').should('exist');
     cy.get('[data-cy="edit-proposal-video"]').should('exist');
 
+    cy.get('[data-cy="post-comment"]').click();
+    cy.wait('@get-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(proposal.proposer_note, { force: true });
-    cy.get('#comment-form').submit();
+    cy.get('button').contains('Post comment').click();
     cy.get('.comment--body').contains(proposal.proposer_note);
     cy.get('.comment--header').contains(user.username);
   });

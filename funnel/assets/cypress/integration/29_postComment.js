@@ -5,6 +5,7 @@ describe('Test comments feature', function () {
 
   it('Post comment on project page', function () {
     cy.server();
+    cy.route('GET', '**/new').as('get-form');
     cy.route('**/json').as('edit-comment');
 
     cy.visit('/');
@@ -17,10 +18,12 @@ describe('Test comments feature', function () {
     cy.get('a[data-cy="login-btn"]').click();
     cy.fill_login_details(user.username, user.password);
 
+    cy.get('[data-cy="post-comment"]').click();
+    cy.wait('@get-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.comment, { force: true });
-    cy.get('#comment-form').submit();
+    cy.get('button').contains('Post comment').click();
     cy.wait(1000);
     var cid = window.location.hash;
     cy.get('.comment--body').contains(project.comment);
@@ -31,7 +34,7 @@ describe('Test comments feature', function () {
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.edit_comment, { force: true });
-    cy.get('#comment-form').submit();
+    cy.get('button').contains('Edit comment').click();
     cy.wait(1000);
     cy.get(`${cid} .comment--body`).contains(project.edit_comment);
 
@@ -39,7 +42,7 @@ describe('Test comments feature', function () {
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.reply_comment, { force: true });
-    cy.get('#comment-form').submit();
+    cy.get('button').contains('Post comment').click();
     cy.wait(1000);
     cid = window.location.hash;
     cy.get(`${cid} .comment--body`).contains(project.reply_comment);

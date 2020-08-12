@@ -6,6 +6,9 @@ describe('Confirm proposal', function () {
   const labels = require('../fixtures/labels.json');
 
   it('Confirm proposal', function () {
+    cy.server();
+    cy.route('GET', '**/new').as('get-form');
+
     cy.login('/' + profile.title, editor.username, editor.password);
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
@@ -41,10 +44,12 @@ describe('Confirm proposal', function () {
       .click();
     cy.get('[data-cy-proposal-status="Confirmed"]').should('exist');
 
+    cy.get('[data-cy="post-comment"]').click();
+    cy.wait('@get-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(proposal.comment, { force: true });
-    cy.get('#comment-form').submit();
+    cy.get('button').contains('Post comment').click();
     cy.wait(1000);
     var cid = window.location.hash;
     cy.get(`${cid} .comment--body`).contains(proposal.comment);
