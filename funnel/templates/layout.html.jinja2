@@ -95,7 +95,7 @@
       </a>
       <form action="/search" class="search-form js-search-form">
         <input type="text" name="q" aria-label="Search the site" placeholder="Search…" class="search-form__field js-search-field" id="header-search">
-        {{ faicon(icon='search', css_class='search-form__field__icon') }}
+        {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
         <input type="text" name="type" value="project" hidden>
         <button type="submit" class="search-form__submit"></button>
       </form>
