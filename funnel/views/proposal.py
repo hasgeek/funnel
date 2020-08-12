@@ -194,7 +194,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('proposal.html.jinja2')
+    @render_with('proposal.html.jinja2', json=True)
     @requires_permission('view')
     def view(self):
         if request_is_xhr():
