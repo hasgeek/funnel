@@ -16,7 +16,7 @@ jobs:
 
     services:
       # Label used to access the service container
-      postgresql:
+      postgres:
         # Docker Hub image
         image: postgres:12.3
         # Provide the password for postgres
@@ -57,4 +57,4 @@ jobs:
         run: ./runtests.sh
         env:
           # The hostname used to communicate with the PostgreSQL service container
-          SQLALCHEMY_DATABASE_URI: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost/${{ env.POSTGRES_DB }}
+          SQLALCHEMY_DATABASE_URI: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@postgres/${{ env.POSTGRES_DB }}
