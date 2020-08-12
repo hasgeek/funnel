@@ -1,0 +1,47 @@
+name: Backend tests
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  # Label of the container job
+  container-job:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+
+    services:
+      # Label used to access the service container
+      postgresql:
+        # Docker Hub image
+        image: postgres:12.3
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: hasgeek
+          POSTGRES_DB: funnel_testing
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      # Downloads a copy of the code in your repository before running CI tests
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Set up Python 3.8.5
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install test dependencies
+        run: pip install -r test_requirements.txt
+      - name: Run tests
+        run: ./runtests.sh
+        env:
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: postgresql
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
