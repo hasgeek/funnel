@@ -745,9 +745,9 @@
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
         <ul class="bullet-separated-list">
-          <li class="">{{ faicon(icon='history', icon_size='caption') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
+          <li class="">{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
           {% if profile.website %}
-            <li><a href="{{ profile.website }}" target="_blank" rel="noopener">{{ faicon(icon='globe', icon_size='caption') }} {{ profile.website|cleanurl }}</a></li>
+            <li><a href="{{ profile.website }}" target="_blank" rel="noopener">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
           {% endif %}
         </ul>
         <div>{{ profile.description.html }}</div>
