@@ -324,7 +324,7 @@ class CommentView(UrlForView, ModelView):
     def report_spam(self):
         csrf_form = forms.Form()
         if request.method == 'POST':
-            if csrf_form.validate_on_submit():
+            if csrf_form.validate():
                 self.obj.report_spam(actor=current_auth.user)
                 return {
                     'status': 'ok',
