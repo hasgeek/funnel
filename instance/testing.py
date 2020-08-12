@@ -4,7 +4,9 @@ TESTING = True
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
-SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
+SQLALCHEMY_DATABASE_URI = environ.get(
+    'SQLALCHEMY_DATABASE_URI', 'postgresql:///funnel_testing'
+)
 SERVER_NAME = 'funnel.travis.local:3002'
 DEFAULT_DOMAIN = 'funnel.travis.local'
 STATIC_SUBDOMAIN = 'static'

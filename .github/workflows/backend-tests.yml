@@ -52,6 +52,4 @@ jobs:
         run: ./runtests.sh
         env:
           # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: postgresql
-          # The default PostgreSQL port
-          POSTGRES_PORT: 5432
+          SQLALCHEMY_DATABASE_URI: postgresql://${{ POSTGRES_USER }}:${{ POSTGRES_PASSWORD }}@${{ POSTGRES_HOST }}/${{ POSTGRES_DB }}
