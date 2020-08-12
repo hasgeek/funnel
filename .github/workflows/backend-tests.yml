@@ -3,6 +3,12 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: funnel_testing
+  POSTGRES_USER: hasgeek
+  POSTGRES_PASSWORD: postgres
+
 jobs:
   # Label of the container job
   container-job:
@@ -16,9 +22,10 @@ jobs:
         image: postgres:12.3
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: hasgeek
-          POSTGRES_DB: funnel_testing
+          POSTGRES_HOST: ${{ env.POSTGRES_HOST }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -52,4 +59,4 @@ jobs:
         run: ./runtests.sh
         env:
           # The hostname used to communicate with the PostgreSQL service container
-          SQLALCHEMY_DATABASE_URI: postgresql://${{ POSTGRES_USER }}:${{ POSTGRES_PASSWORD }}@${{ POSTGRES_HOST }}/${{ POSTGRES_DB }}
+          SQLALCHEMY_DATABASE_URI: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}/${{ env.POSTGRES_DB }}
