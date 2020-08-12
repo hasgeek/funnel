@@ -1,4 +1,4 @@
-describe('Checkin of attendees', function() {
+describe('Checkin of attendees', function () {
   const concierge = require('../fixtures/user.json').concierge;
   const user = require('../fixtures/user.json').user;
   const profile = require('../fixtures/profile.json');
@@ -6,7 +6,7 @@ describe('Checkin of attendees', function() {
   const events = require('../fixtures/events.json');
   const participants = require('../fixtures/participants.json');
 
-  it('Checkin of attendees', function() {
+  it('Checkin of attendees', function () {
     cy.login('/', concierge.username, concierge.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
@@ -18,8 +18,8 @@ describe('Checkin of attendees', function() {
     cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
 
-    cy.fixture('participants').then(participants => {
-      participants.forEach(function(participant) {
+    cy.fixture('participants').then((participants) => {
+      participants.forEach(function (participant) {
         cy.get('a[data-cy="add-participant"]').click();
         cy.get('#fullname').type(participant.fullname);
         cy.get('#email').type(participant.email);
@@ -30,9 +30,7 @@ describe('Checkin of attendees', function() {
           .find('label')
           .contains(participant.event)
           .click();
-        cy.get('button')
-          .contains('Add participant')
-          .click();
+        cy.get('button').contains('Add participant').click();
       });
     });
 

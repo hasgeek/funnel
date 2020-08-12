@@ -103,7 +103,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
 
-    __datasets__ = {'related': {'fullname', 'username', 'timezone', 'status', 'avatar'}}
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
@@ -159,9 +158,35 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         db.defer('timezone'),
     ]
 
-    __roles__ = {'all': {'read': {'name', 'fullname', 'username', 'created_at'}}}
+    __roles__ = {
+        'all': {
+            'read': {
+                'name',
+                'title',
+                'fullname',
+                'username',
+                'pickername',
+                'timezone',
+                'status',
+                'avatar',
+                'created_at',
+            }
+        }
+    }
 
-    __datasets__ = {'related': {'name', 'fullname', 'username', 'created_at'}}
+    __datasets__ = {
+        'related': {
+            'name',
+            'title',
+            'fullname',
+            'username',
+            'pickername',
+            'timezone',
+            'status',
+            'avatar',
+            'created_at',
+        }
+    }
 
     def __init__(self, password=None, **kwargs):
         self.password = password
@@ -269,7 +294,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @with_roles(read={'all'})
     @property
     def avatar(self):
-        return self.profile.logo_url if self.profile and self.profile.logo_url else ''
+        return (
+            self.profile.logo_url
+            if self.profile and self.profile.logo_url and self.profile.logo_url.url
+            else ''
+        )
 
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)
@@ -628,8 +657,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
 
-    __datasets__ = {'related': {'name', 'title', 'pickername'}}
-
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
@@ -653,7 +680,14 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         ),
     )
 
-    __roles__ = {'all': {'call': {'views', 'features', 'forms'}}}
+    __roles__ = {
+        'all': {
+            'read': {'name', 'title', 'pickername', 'created_at'},
+            'call': {'views', 'features', 'forms'},
+        }
+    }
+
+    __datasets__ = {'related': {'name', 'title', 'pickername', 'created_at'}}
 
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 
@@ -821,7 +855,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
                 # Unfortunately, we can't work with model instances as in the other
                 # `migrate_user` methods as team_membership is an unmapped table.
                 newuser.teams.append(team)
-            db.session.delete(team)
+            olduser.teams.remove(team)
         return [cls.__table__.name, team_membership.name]
 
     @classmethod
