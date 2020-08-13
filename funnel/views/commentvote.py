@@ -41,7 +41,7 @@ def commentset_json(obj):
     return [
         comment.current_access(datasets=('json', 'related'))
         for comment in toplevel_comments
-        if comment.state.PUBLIC or comment.children is not None
+        if comment.state.PUBLIC or comment.replies
     ]
 
 

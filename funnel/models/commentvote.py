@@ -304,12 +304,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def badges(self):
         badges = set()
         if self.commentset.project is not None:
-            if 'crew' in self.commentset.project.roles_for(self.user):
+            if 'crew' in self.commentset.project.roles_for(self._user):
                 badges.add(_("Crew"))
         elif self.commentset.proposal is not None:
-            if self.commentset.proposal.user == self.user:
+            if self.commentset.proposal.user == self._user:
                 badges.add(_("Proposer"))
-            if 'crew' in self.commentset.proposal.project.roles_for(self.user):
+            if 'crew' in self.commentset.proposal.project.roles_for(self._user):
                 badges.add(_("Crew"))
         return badges
 
@@ -351,7 +351,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         perms.add('view')
         if user is not None:
             perms.add('vote_comment')
-            if user == self.user:
+            if user == self._user:
                 perms.add('edit_comment')
                 perms.add('delete_comment')
         return perms
@@ -360,7 +360,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         roles = super(Comment, self).roles_for(actor, anchors)
         roles.add('reader')
         if actor is not None:
-            if actor == self.user:
+            if actor == self._user:
                 roles.add('author')
         return roles
 
