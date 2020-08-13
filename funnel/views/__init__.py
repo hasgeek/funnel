@@ -20,6 +20,7 @@ from . import (
     login_session,
     membership,
     mixins,
+    notification,
     organization,
     participant,
     profile,

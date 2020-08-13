@@ -69,7 +69,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
     project = with_roles(
         db.relationship(Project, backref=db.backref('updates', lazy='dynamic'),),
-        grants_via={None: {'editor': 'editor', 'participant': 'reader'}},
+        grants_via={
+            None: {
+                'editor': {'editor', 'project_editor'},
+                'participant': {'reader', 'project_participant'},
+                'crew': {'reader', 'project_crew'},
+            }
+        },
     )
     parent = db.synonym('project')
 

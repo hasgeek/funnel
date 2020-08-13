@@ -2,7 +2,6 @@ from collections import OrderedDict, defaultdict
 from datetime import timedelta
 
 from sqlalchemy.ext.orderinglist import ordering_list
-from sqlalchemy_utils import TimezoneType
 
 from flask import current_app
 from werkzeug.utils import cached_property
@@ -21,6 +20,7 @@ from . import (
     JsonDict,
     MarkdownColumn,
     TimestampMixin,
+    TimezoneType,
     TSVectorType,
     UrlType,
     UuidMixin,
@@ -281,7 +281,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'featured_sessions',
             },
         },
-        'participant': {'granted_via': {'rsvps': 'user'}},
     }
     # FIXME: Removed temporarily because Project.participants can have multiple records
     # for the same user. Requires resolution in either coaster.sqlalchemy.roles or in
@@ -977,6 +976,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def is_saved_by(self, user):
         return (
             user is not None and self.saved_by.filter_by(user=user).first() is not None
+        )
+
+    @classmethod
+    def get(cls, profile_project):
+        """
+        Get a project by its URL slug in the form ``<profile>/<project>``
+        """
+        profile_name, project_name = profile_project.split('/')
+        return (
+            cls.query.join(Profile)
+            .filter(Profile.name == profile_name, Project.name == project_name)
+            .one_or_none()
         )
 
 

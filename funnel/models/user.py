@@ -3,7 +3,6 @@ import hashlib
 
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy_utils import TimezoneType
 
 from werkzeug.utils import cached_property
 
@@ -20,7 +19,7 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
-from . import BaseMixin, TSVectorType, UuidMixin, db
+from . import BaseMixin, TimezoneType, TSVectorType, UuidMixin, db
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import add_search_trigger, valid_username
 
@@ -212,7 +211,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     with_roles(name, read={'all'})
     username = name
 
-    @property
+    @hybrid_property
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
 
@@ -360,6 +359,59 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # to get the phone number as a string.
         return ''
 
+    def is_profile_complete(self):
+        """
+        Return True if profile is complete (fullname, username and one contact are
+        present), False otherwise.
+        """
+        return bool(self.fullname and self.username and self.has_verified_contact_info)
+
+    # --- Transport details
+
+    @with_roles(call={'owner'})
+    def has_transport_email(self):
+        return self.is_active and self.email is not None
+
+    @with_roles(call={'owner'})
+    def has_transport_sms(self):
+        return self.is_active and self.phone is not None
+
+    @with_roles(call={'owner'})
+    def has_transport_webpush(self):
+        return False  # TODO
+
+    @with_roles(call={'owner'})
+    def has_transport_telegram(self):
+        return False  # TODO
+
+    @with_roles(call={'owner'})
+    def has_transport_whatsapp(self):
+        return False  # TODO
+
+    @with_roles(call={'owner'})
+    def transport_for_email(self, context):
+        """Return user's preferred email address within a context."""
+        # Per-profile/project customization is a future option
+        return self.email if self.is_active else None
+
+    @with_roles(call={'owner'})
+    def transport_for_sms(self, context):
+        """Return user's preferred phone number within a context."""
+        # Per-profile/project customization is a future option
+        return self.phone if self.is_active else None
+
+    @with_roles(call={'owner'})
+    def transport_for_webpush(self, context):
+        return None  # TODO
+
+    @with_roles(call={'owner'})
+    def transport_for_telegram(self, context):
+        return None  # TODO
+
+    @with_roles(call={'owner'})
+    def transport_for_whatsapp(self, context):
+        return None  # TODO
+
     def roles_for(self, actor, anchors=()):
         roles = super().roles_for(actor, anchors)
         if actor == self:
@@ -378,13 +430,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             membership.organization_id
             for membership in self.active_organization_owner_memberships
         ]
-
-    def is_profile_complete(self):
-        """
-        Return True if profile is complete (fullname, username and email are present), False
-        otherwise.
-        """
-        return bool(self.fullname and self.username and self.email)
 
     @classmethod
     def get(cls, username=None, buid=None, userid=None, defercols=False):

@@ -107,6 +107,14 @@ class Rsvp(NoIdMixin, db.Model):
             return result
 
 
+Project.active_rsvps = with_roles(
+    property(
+        lambda self: self.rsvps.join(User).filter(Rsvp.state.YES, User.is_active),
+    ),
+    grants_via={Rsvp.user: {'participant'}},
+)
+
+
 def _project_rsvp_for(self, user, create=False):
     return Rsvp.get_for(self, user, create)
 
