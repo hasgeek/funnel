@@ -4048,6 +4048,7 @@ a.loginbutton.hidden,
 }
 .comment .comment__header .comment__header__details .mui--d-inlineblock {
   vertical-align: top;
+  min-height: 40px;
 }
 .comment .comment__body {
   margin: 0 0 0 30px;

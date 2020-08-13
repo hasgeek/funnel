@@ -815,7 +815,8 @@
             <div class="comment__header__details user">
               <div class="user__box" v-if="!comment.state">
                 <img class="user__box__gravatar" :src="comment.user.avatar" v-if="comment.user.avatar"/>
-                <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(comment.user.fullname) }}</div>
+                <div class="user__box__gravatar user__box__gravatar--initials" v-else-if="comment.user.fullname !== '[deleted]'">{{ getInitials(comment.user.fullname) }}</div>
+                <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials() }}</div>
                 <div class="mui--d-inlineblock">
                   <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ comment.user.fullname }}</h3>
                   <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
@@ -833,7 +834,7 @@
           <transition name="slide">
             <div class="comment__body" v-if="!hide">
               <div v-if="!comment.state" v-html="comment.message.html"></div>
-              <div data-id="{{ comment.uuid_b58 }}">
+              <div>
                 <a class="mui--text-menu mui--text-accent link" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)">[Reply]</a>
                 <a class="mui--text-menu mui--text-accent link" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)">[Report Spam]</a>
                 <a class="mui--text-menu mui--text-accent link" data-cy="edit" v-if="comment.urls.edit" @click="fetchForm($event, comment.urls.edit)" v-if="comment.urls.edit">[Edit]</a>

@@ -5,9 +5,6 @@ describe('Test updates feature', function () {
   const project = require('../fixtures/project.json');
 
   it('Post update on project page', function () {
-    cy.server();
-    cy.route('GET', '**/new').as('get-form');
-
     cy.login('/', editor.username, editor.password);
     cy.get('.upcoming')
       .find('.card--upcoming')
@@ -27,7 +24,6 @@ describe('Test updates feature', function () {
     cy.location('pathname').should('contain', 'updates');
 
     cy.get('a[data-cy-btn="add-update"]').click();
-    cy.wait('@get-form');
     cy.get('#title').type(project.restricted_update_title);
     cy.get('#field-body')
       .find('.CodeMirror textarea')
