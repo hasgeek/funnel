@@ -615,7 +615,21 @@ class DuckTypeUser(RoleMixin):
     is_active = False
 
     __roles__ = {
-        'all': {'read': {'id', 'uuid', 'username', 'fullname', 'profile', 'is_active'}}
+        'all': {
+            'read': {
+                'id',
+                'uuid',
+                'username',
+                'fullname',
+                'pickername',
+                'profile',
+                'is_active',
+            }
+        }
+    }
+
+    __datasets__ = {
+        'related': {'username', 'fullname', 'pickername', 'profile', 'is_active'}
     }
 
     #: Make obj.user from a referring object falsy
