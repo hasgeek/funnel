@@ -893,7 +893,6 @@ a.loginbutton.hidden,
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
     0 1px 2px rgba(158, 158, 158, 0.24);
   display: none;
-  height: 50px;
 }
 .hg-app
   .header--fixed
@@ -918,7 +917,7 @@ a.loginbutton.hidden,
   .search-form
   .search-form__field__icon {
   position: absolute;
-  top: 17px;
+  bottom: 20px;
   left: 22px;
 }
 .hg-app
@@ -2723,7 +2722,7 @@ a.loginbutton.hidden,
   .calendar
   .calendar__weekdays
   .calendar__weekdays__dates
-  .calendar__weekdays__dates__date:nth-child(1)
+  .calendar__weekdays__dates__date--1
   .calendar__weekdays__dates__time {
   left: 0;
   transform: translate(0, 0);
@@ -2792,6 +2791,7 @@ a.loginbutton.hidden,
   z-index: -1;
   bottom: 0;
   background: #f9f9f9;
+  width: 16px;
 }
 .card__calendar--compact
   .calendar
@@ -2799,7 +2799,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__icon--left {
   position: absolute;
-  left: -32px;
+  left: -16px;
   line-height: 30px;
 }
 .card__calendar--compact
@@ -2808,25 +2808,8 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__icon--right {
   position: absolute;
-  right: -32px;
+  right: -16px;
   line-height: 30px;
-}
-
-.card--spotlight
-  .card__calendar--compact
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates
-  .calendar__weekdays__dates__icon--left {
-  left: -34px;
-}
-.card--spotlight
-  .card__calendar--compact
-  .calendar
-  .calendar__weekdays
-  .calendar__weekdays__dates
-  .calendar__weekdays__dates__icon--right {
-  right: -34px;
 }
 
 .card--upcoming {
