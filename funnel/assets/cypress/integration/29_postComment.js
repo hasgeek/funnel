@@ -6,6 +6,7 @@ describe('Test comments feature', function () {
   it('Post comment on project page', function () {
     cy.server();
     cy.route('GET', '**/new').as('get-form');
+    cy.route('POST', '**/new').as('post-comment');
     cy.route('**/json').as('edit-comment');
 
     cy.visit('/');
@@ -24,10 +25,10 @@ describe('Test comments feature', function () {
       .find('.CodeMirror textarea')
       .type(project.comment, { force: true });
     cy.get('button').contains('Post comment').click();
-    cy.wait(1000);
+    cy.wait('@post-comment');
     var cid = window.location.hash;
-    cy.get('.comment--body').contains(project.comment);
-    cy.get('.comment--header').contains(user.username);
+    cy.get('.comment__body').contains(project.comment);
+    cy.get('.comment__header').contains(user.username);
 
     cy.get('a[data-cy="edit"]').click();
     cy.wait('@edit-comment');
@@ -35,21 +36,21 @@ describe('Test comments feature', function () {
       .find('.CodeMirror textarea')
       .type(project.edit_comment, { force: true });
     cy.get('button').contains('Edit comment').click();
-    cy.wait(1000);
-    cy.get(`${cid} .comment--body`).contains(project.edit_comment);
+    cy.wait('@post-comment');
+    cy.get(`${cid} .comment__body`).contains(project.edit_comment);
 
     cy.get('a[data-cy="reply"]').click();
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.reply_comment, { force: true });
     cy.get('button').contains('Post comment').click();
-    cy.wait(1000);
+    cy.wait('@post-commet');
     cid = window.location.hash;
-    cy.get(`${cid} .comment--body`).contains(project.reply_comment);
+    cy.get(`${cid} .comment__body`).contains(project.reply_comment);
 
     cy.get('a[data-cy="delete"]').first().click();
     cy.get('[data-cy="delete-comment"]').click();
-    cy.get('.comment--body').contains(project.comment).should('not.exist');
+    cy.get('.comment__body').contains(project.comment).should('not.exist');
     cy.logout();
 
     cy.login('/', hguser.username, hguser.password);

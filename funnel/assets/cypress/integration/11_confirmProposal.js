@@ -8,6 +8,7 @@ describe('Confirm proposal', function () {
   it('Confirm proposal', function () {
     cy.server();
     cy.route('GET', '**/new').as('get-form');
+    cy.route('POST', '**/new').as('post-comment');
 
     cy.login('/' + profile.title, editor.username, editor.password);
 
@@ -50,9 +51,9 @@ describe('Confirm proposal', function () {
       .find('.CodeMirror textarea')
       .type(proposal.comment, { force: true });
     cy.get('button').contains('Post comment').click();
-    cy.wait(1000);
+    cy.wait('@post-comment');
     var cid = window.location.hash;
-    cy.get(`${cid} .comment--body`).contains(proposal.comment);
-    cy.get(`${cid} .comment--header`).contains(editor.username);
+    cy.get(`${cid} .comment__body`).contains(proposal.comment);
+    cy.get(`${cid} .comment__header`).contains(editor.username);
   });
 });
