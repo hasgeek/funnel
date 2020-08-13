@@ -7,6 +7,11 @@ describe('Test comments feature', function () {
     cy.server();
     cy.route('GET', '**/new').as('get-form');
     cy.route('POST', '**/new').as('post-comment');
+    cy.route('GET', '**/edit').as('edit-form');
+    cy.route('POST', '**/edit').as('edit-comment');
+    cy.route('GET', '**/reply').as('reply-form');
+    cy.route('POST', '**/reply').as('reply-comment');
+    cy.route('POST', '**/delete').as('delete-comment');
     cy.route('**/json').as('edit-comment');
 
     cy.visit('/');
@@ -24,6 +29,7 @@ describe('Test comments feature', function () {
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.comment, { force: true });
+    cy.wait(1000);
     cy.get('button').contains('Post comment').click();
     cy.wait('@post-comment');
     var cid = window.location.hash;
@@ -31,26 +37,31 @@ describe('Test comments feature', function () {
     cy.get('.comment__header').contains(user.username);
 
     cy.get('a[data-cy="edit"]').click();
-    cy.wait('@edit-comment');
+    cy.wait('@edit-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.edit_comment, { force: true });
+    cy.wait(1000);
     cy.get('button').contains('Edit comment').click();
-    cy.wait('@post-comment');
+    cy.wait('@edit-comment');
     cy.get(`${cid} .comment__body`).contains(project.edit_comment);
 
     cy.get('a[data-cy="reply"]').click();
+    cy.wait('@reply-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.reply_comment, { force: true });
+    cy.wait(1000);
     cy.get('button').contains('Post comment').click();
-    cy.wait('@post-commet');
+    cy.wait('@reply-comment');
     cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(project.reply_comment);
 
     cy.get('a[data-cy="delete"]').first().click();
-    cy.get('[data-cy="delete-comment"]').click();
+    cy.get('button').contains('Delete').click();
+    cy.wait('@delete-comment');
     cy.get('.comment__body').contains(project.comment).should('not.exist');
+    cy.wait(5000);
     cy.logout();
 
     cy.login('/', hguser.username, hguser.password);

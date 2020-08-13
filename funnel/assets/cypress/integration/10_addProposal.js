@@ -51,6 +51,7 @@ describe('Add a new proposal', function () {
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(proposal.proposer_note, { force: true });
+    cy.wait(1000);
     cy.get('button').contains('Post comment').click();
     cy.wait('@post-comment');
     cy.get('.comment__body').contains(proposal.proposer_note);

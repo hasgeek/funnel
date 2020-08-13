@@ -814,7 +814,8 @@
             </button>
             <div class="comment__header__details user">
               <div class="user__box" v-if="!comment.state">
-                <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(comment.user.fullname) }}</div>
+                <img class="user__box__gravatar" :src="comment.user.avatar" v-if="comment.user.avatar"/>
+                <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(comment.user.fullname) }}</div>
                 <div class="mui--d-inlineblock">
                   <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ comment.user.fullname }}</h3>
                   <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
