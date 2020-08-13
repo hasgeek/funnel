@@ -220,6 +220,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             'replies',
             'urls',
             'badges',
+            'uuid_b58',
         },
     }
 

@@ -106,6 +106,7 @@ const Comments = {
           refreshTimer: '',
           headerHeight,
           svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          initialLoad: true,
         };
       },
       methods: {
@@ -162,13 +163,11 @@ const Comments = {
           this.comments = commentsList.length > 0 ? commentsList : '';
         },
         fetchCommentsList() {
-          console.log('fetching');
           $.ajax({
             type: 'GET',
             timeout: window.Hasgeek.config.ajaxTimeout,
             dataType: 'json',
             success(data) {
-              console.log('data', data);
               app.updateCommentsList(data.comments);
             },
           });
@@ -207,12 +206,15 @@ const Comments = {
       mounted() {
         this.fetchCommentsList();
         this.refreshCommentsTimer();
-        if (window.location.hash) {
+      },
+      updated() {
+        if (this.initialLoad && window.location.hash) {
           Utils.animateScrollTo(
             document
               .getElementById(window.location.hash)
               .getBoundingClientRect().top - this.headerHeight
           );
+          this.initialLoad = false;
         }
       },
     });
