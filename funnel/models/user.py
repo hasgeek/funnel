@@ -13,6 +13,7 @@ import phonenumbers
 
 from baseframe import __
 from coaster.sqlalchemy import (
+    RoleMixin,
     add_primary_relationship,
     auto_init_default,
     failsafe_add,
@@ -26,6 +27,8 @@ from .helpers import add_search_trigger, valid_username
 
 __all__ = [
     'USER_STATUS',
+    'deleted_user',
+    'removed_user',
     'User',
     'UserOldId',
     'Organization',
@@ -274,6 +277,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return '<User {username} "{fullname}">'.format(
             username=self.username or self.buid, fullname=self.fullname
         )
+
+    def __str__(self):
+        return self.pickername
 
     @with_roles(read={'all'})
     @property
@@ -596,6 +602,49 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
     @classmethod
     def get(cls, uuid):
         return cls.query.filter_by(id=uuid).one_or_none()
+
+
+class DuckTypeUser(RoleMixin):
+    """User singleton constructor. Ducktypes a regular user object."""
+
+    id = None  # NOQA: A003
+    uuid = userid = buid = uuid_b58 = None
+    username = name = None
+    profile = None
+    email = phone = None
+    is_active = False
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'id',
+                'uuid',
+                'username',
+                'fullname',
+                'pickername',
+                'profile',
+                'is_active',
+            }
+        }
+    }
+
+    __datasets__ = {
+        'related': {'username', 'fullname', 'pickername', 'profile', 'is_active'}
+    }
+
+    #: Make obj.user from a referring object falsy
+    def __bool__(self):
+        return False
+
+    def __init__(self, representation):
+        self.fullname = self.title = self.pickername = representation
+
+    def __str__(self):
+        return self.pickername
+
+
+deleted_user = DuckTypeUser(__("[deleted]"))
+removed_user = DuckTypeUser(__("[removed]"))
 
 
 # --- Organizations and teams -------------------------------------------------

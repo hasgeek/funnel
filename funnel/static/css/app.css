@@ -2321,6 +2321,58 @@ a.loginbutton.hidden,
   width: 70%;
 }
 
+.ajax-form {
+  position: relative;
+  clear: both;
+}
+.ajax-form .mui-form--margins {
+  margin: 0;
+}
+.ajax-form .CodeMirror {
+  border: 1px solid #c0ccda;
+  min-height: 60px;
+}
+.ajax-form .CodeMirror ~ .CodeMirror {
+  display: none;
+}
+.ajax-form .CodeMirror-focused {
+  border: 1px solid #4a90e2;
+}
+.ajax-form .mui-form__fields {
+  margin-bottom: 0;
+}
+.ajax-form .mui-form.form-actions {
+  display: inline-block;
+  float: left;
+  margin-right: 10px;
+}
+.ajax-form .ajax-form__cancelbtn {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0;
+  position: relative;
+  top: 7px;
+}
+
+.post-form-block {
+  border-radius: 16px;
+  background-color: #f9fafc;
+  padding: 24px;
+  margin-bottom: 32px;
+  margin: 16px 0 32px;
+  display: block;
+}
+.post-form-block .user__box__gravatar--initials {
+  background-color: #e05f25 !important;
+}
+.post-form-block input {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 2px;
+  border: solid 1px rgba(77, 87, 99, 0.13);
+  background-color: #ffffff;
+}
+
 .card--spotlight {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
@@ -3974,66 +4026,74 @@ a.loginbutton.hidden,
 .comment {
   margin: 16px 0 0;
 }
-.comment .comment--content {
-  display: inline-block;
-}
-.comment .comment--content img {
-  max-width: 100%;
-}
-.comment .comment--header {
+.comment .comment__header {
   display: inline-block;
   width: 100%;
+  margin-bottom: 16px;
 }
-.comment .comment--header button {
-  line-height: 1;
-  vertical-align: middle;
-  position: relative;
-  top: 20px;
-}
-.comment .comment--body {
-  margin: 0 0 0 25px;
-}
-.comment .commenter--gravatar {
-  border-radius: 50%;
-  width: 25px;
+.comment .comment__header button {
   vertical-align: bottom;
-  margin-right: 5px;
 }
-.comment .mui-btn--nostyle + .mui-btn--nostyle {
+.comment .comment__header .mui-btn--nostyle + .mui-btn--nostyle {
   margin-left: 0;
 }
-.comment .comment--header__details {
+.comment .comment__header .comment__header__details {
   display: inline-block;
-  vertical-align: top;
-  padding: 0 0 0 5px;
+  min-width: 300px;
+  margin-left: 8px;
 }
-.comment .comment--header__details .comment--header__details__content {
-  display: inline-block;
+.comment .comment__header .comment__header__details .badge {
+  margin-left: 8px;
   margin-right: 8px;
+}
+.comment .comment__header .comment__header__details .mui--d-inlineblock {
   vertical-align: top;
+  min-height: 40px;
 }
-.comment .comment--header__details .badge {
-  margin-left: 2px;
-  margin-right: 2px;
+.comment .comment__body {
+  margin: 0 0 0 30px;
 }
-.comment blockquote {
+.comment .comment__body img {
+  max-width: 100%;
+}
+.comment .comment__body blockquote {
   border-left: 2px solid #c0ccda;
   margin: 0;
   padding-left: 16px;
 }
 
-.comments-form .CodeMirror {
-  border: 1px solid #c0ccda;
-  min-height: 60px;
+.slide-enter-active {
+  -moz-transition-duration: 0.3s;
+  -webkit-transition-duration: 0.3s;
+  -o-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -moz-transition-timing-function: ease-in;
+  -webkit-transition-timing-function: ease-in;
+  -o-transition-timing-function: ease-in;
+  transition-timing-function: ease-in;
 }
-.comments-form .CodeMirror-focused {
-  border: 1px solid #0f73ed;
+
+.slide-leave-active {
+  -moz-transition-duration: 0.3s;
+  -webkit-transition-duration: 0.3s;
+  -o-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -moz-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  -o-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
 }
-.comments-form .mui-form__fields {
-  margin-bottom: 0;
+
+.slide-enter-to,
+.slide-leave {
+  max-height: 100px;
+  overflow: hidden;
 }
-.comments-form .recaptcha-field {
-  height: 0;
+
+.slide-enter,
+.slide-leave-to {
+  overflow: hidden;
+  max-height: 0;
 }
 
 .proposal-list-header {
@@ -4833,23 +4893,6 @@ ul .login-session .mui-btn--nostyle {
 }
 .update .update__content img {
   max-width: 100%;
-}
-
-.update-form {
-  border-radius: 16px;
-  background-color: #f9f9f9;
-  padding: 24px;
-  margin-bottom: 32px;
-}
-.update-form .user__box__gravatar--initials {
-  background-color: #f06a5e !important;
-}
-.update-form input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 2px;
-  border: solid 1px rgba(77, 87, 99, 0.13);
-  background: #f9f9f9;
 }
 
 .publish-form form {

@@ -6,6 +6,10 @@ describe('Confirm proposal', function () {
   const labels = require('../fixtures/labels.json');
 
   it('Confirm proposal', function () {
+    cy.server();
+    cy.route('GET', '**/new').as('get-form');
+    cy.route('POST', '**/new').as('post-comment');
+
     cy.login('/' + profile.title, editor.username, editor.password);
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
@@ -41,13 +45,16 @@ describe('Confirm proposal', function () {
       .click();
     cy.get('[data-cy-proposal-status="Confirmed"]').should('exist');
 
+    cy.get('[data-cy="post-comment"]').click();
+    cy.wait('@get-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(proposal.comment, { force: true });
-    cy.get('#comment-form').submit();
     cy.wait(1000);
+    cy.get('button').contains('Post comment').click();
+    cy.wait('@post-comment');
     var cid = window.location.hash;
-    cy.get(`${cid} .comment--body`).contains(proposal.comment);
-    cy.get(`${cid} .comment--header`).contains(editor.username);
+    cy.get(`${cid} .comment__body`).contains(proposal.comment);
+    cy.get(`${cid} .comment__header`).contains(editor.username);
   });
 });

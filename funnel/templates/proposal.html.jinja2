@@ -2,8 +2,7 @@
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, project_mini_header %}
-{% from "comments.html.jinja2" import commenttree, commentformtemplate %}
+{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, comments_tree,  project_mini_header %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
@@ -282,12 +281,7 @@
 
     <section class="proposal__section">
       <h3 class="mui--text-headline mui--text-bold">{% trans %}Comments{% endtrans %}</h3>
-      {% if comments %}
-        <ul class="mui-list--unstyled">
-          {{ commenttree(comments, proposal, project, csrf_form) }}
-        </ul>
-      {% endif %}
-      {{ commentformtemplate(proposal, commentform, delcommentform, current_auth) }}
+      {{ comments_tree() }}
     </section>
   </div>
 
@@ -304,6 +298,7 @@
 <script src="{{ url_for('static', filename=asset_path('proposal')) }}" type="text/javascript"></script>
 {{ widgetscripts(proposal_transfer_form, script=true) }}
 {{ widgetscripts(commentform, script=true, ref_id='comment-form') }}
+<script src="{{ url_for('static', filename=asset_path('comments')) }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
     var proposalConfig = {};
@@ -311,7 +306,27 @@
     if(proposalConfig.videoWrapper) {
       proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-video-src');
     }
-    Hasgeek.ProposalInit(proposalConfig);
+    window.Hasgeek.ProposalInit(proposalConfig);
+
+    var headerHeight;
+    if($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+      headerHeight = $('.mobile-nav').height();
+    } else {
+      headerHeight = $('header').height() + $('nav').height();
+    }
+
+    var commentsConfig = {
+      newCommentUrl: "{{ proposal.commentset.url_for('new_comment') }}",
+      divElem: "#comments-wrapper",
+      commentTemplate: '#comment-template',
+      isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
+      isuserparticipant: {% if current_auth.user and proposal.features.comment_new() -%}true{% else %}false{% endif %},
+      user: {% if current_auth.user -%}{{ current_auth.user.fullname|tojson }}{% else %}''{% endif %},
+      loginUrl: "{{ url_for('login') }}",
+      headerHeight: headerHeight,
+    };
+
+    window.Hasgeek.Comments(commentsConfig);
 
   });
 </script>

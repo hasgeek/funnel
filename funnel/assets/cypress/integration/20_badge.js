@@ -6,10 +6,6 @@ describe('View participant badge', function () {
   const participants = require('../fixtures/participants.json');
 
   it('View participant badge', function () {
-    cy.server();
-    cy.route('POST', '**/participants/checkin?*').as('checkin');
-    cy.route('**/participants/json').as('participant-list');
-
     cy.login('/', usher.username, usher.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
