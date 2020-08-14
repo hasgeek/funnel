@@ -26,8 +26,8 @@ class ProfileForm(OrganizationForm):
         ],
         description=__("This message will be shown on the profile page"),
     )
-    logo_url = forms.URLField(
-        __("Profile image URL"),
+    logo_url = forms.ImgeeField(
+        label='Profile image URL',
         description=__(
             "From images.hasgeek.com, with 1:1 aspect ratio."
             " Should be < 30 kB in size"
@@ -48,6 +48,10 @@ class ProfileForm(OrganizationForm):
         ],
         filters=[forms.filters.none_if_empty()],
     )
+
+    def set_queries(self):
+        if self.edit_obj:
+            self.logo_url.profile = self.edit_obj.name
 
     def make_for_user(self):
         self.title.label.text = __("Your name")
