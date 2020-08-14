@@ -804,7 +804,7 @@
     </div>
     <script type="text/x-template" id="comment-template">
       <li class="comment">
-        <div :id="'#c' + comment.uuid_b58">
+        <div :id="'#c-' + comment.uuid_b58">
           <div class="comment__header">
             <button class="mui-btn mui-btn--nostyle" aria-label="Hide comment" aria-expanded="true" v-if="!hide" @click="collapse(true)">
               <svg class="fa5-icon fa5-icon--subhead test fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-up'"></use></svg>
@@ -839,7 +839,7 @@
                 <a class="mui--text-menu mui--text-accent link" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)">[Report Spam]</a>
                 <a class="mui--text-menu mui--text-accent link" data-cy="edit" v-if="comment.urls.edit" @click="fetchForm($event, comment.urls.edit)" v-if="comment.urls.edit">[Edit]</a>
                 <a class="mui--text-menu mui--text-accent link" data-cy="delete" v-if="comment.urls.delete"  @click="fetchForm($event, comment.urls.delete)">[Delete]</a>
-                <a class="mui--text-menu mui--text-accent comment--permalink" :href="'#c' + comment.uuid_b58">[Link]</a>
+                <a class="mui--text-menu mui--text-accent comment--permalink" :href="'#c-' + comment.uuid_b58">[Link]</a>
               </div>
               <div class="ajax-form ">
                 <component :is="Form"></component>
