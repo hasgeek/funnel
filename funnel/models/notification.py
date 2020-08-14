@@ -172,10 +172,8 @@ class Notification(NoIdMixin, db.Model):
     #: Subclasses may set this to aid loading of :attr:`target`
     target_model = None
 
-    #: Roles to send notifications to. When a notification is dispatched, it will be
-    #: sent to ``for role in self.roles: dispatch(document.actors_with({role}))``.
-    #: Roles must be in order of priority for situations where a user has more than one
-    #: role on the document.
+    #: Roles to send notifications to. Roles must be in order of priority for situations
+    #: where a user has more than one role on the document.
     roles = []
 
     #: The preference context this notification is being served under. Users may have
@@ -266,30 +264,27 @@ class Notification(NoIdMixin, db.Model):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
-        # TODO: Reduce this to one call to actors_with, and solve for discovering
-        # which role the actor was discovered with. Maybe a new flag to actors_with
-        for role in self.roles:
-            for user in (self.target or self.document).actors_with({role}):
-                # Was a notification already sent to this user? If so:
-                # 1. The user has multiple roles
-                # 2. We're being dispatched a second time, possibly because a background
-                #    job failed and is re-queued.
-                # In either case, don't notify the user a second time.
+        for (user, role) in (self.target or self.document).actors_with(
+            self.roles, with_role=True
+        ):
+            # Was a notification already sent to this user? If so:
+            # 1. The user has multiple roles
+            # 2. We're being dispatched a second time, possibly because a background
+            #    job failed and is re-queued.
+            # In either case, don't notify the user a second time.
 
-                # Since this query uses SQLAlchemy's session cache, we don't have to
-                # bother with a local cache for the first case.
-                existing_notification = UserNotification.query.get(
-                    (user.id, self.eventid)
+            # Since this query uses SQLAlchemy's session cache, we don't have to
+            # bother with a local cache for the first case.
+            existing_notification = UserNotification.query.get((user.id, self.eventid))
+            if not existing_notification:
+                user_notification = UserNotification(
+                    eventid=self.eventid,
+                    user_id=user.id,
+                    notification_id=self.id,
+                    role=role,
                 )
-                if not existing_notification:
-                    user_notification = UserNotification(
-                        eventid=self.eventid,
-                        user_id=user.id,
-                        notification_id=self.id,
-                        role=role,
-                    )
-                    db.session.add(user_notification)
-                    yield user_notification
+                db.session.add(user_notification)
+                yield user_notification
 
 
 class UserNotification(NoIdMixin, db.Model):
