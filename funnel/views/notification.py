@@ -1,8 +1,16 @@
-from ..models import Notification, UserNotification
+from itertools import filterfalse, zip_longest
+from uuid import uuid4
+
+from flask_babelhg import force_locale, get_locale
+
+from .. import app, rq
+from ..models import Notification, UserNotification, db, notification_type_registry
+
+__all__ = ['NotificationView', 'dispatch_notification']
 
 
 @Notification.views('render')
-class NotificationRenderView:
+class NotificationView:
     """
     Base class for rendering notifications.
 
@@ -14,6 +22,13 @@ class NotificationRenderView:
 
     def __init__(self, obj):
         self.notification = obj
+
+    def dispatch(self, user_notification):
+        """Method that does the actual sending."""
+        # TODO: Insert dispatch code here
+        user_notification.is_dispatched = True
+
+    # --- Overrideable render methods
 
     def web(self, user_notification):
         """
@@ -64,45 +79,90 @@ class NotificationRenderView:
         return self.sms(self)
 
 
-@UserNotification.views('render')
-class UserNotificationRenderView:
-    """Support class for rendering user notifications. """
+# --- Dispatch functions ---------------------------------------------------------------
 
-    def __init__(self, obj):
-        self.user_notification = obj
+# This has three parts:
+# 1. Front function dispatch_notification is called from views or signal handlers
+# 2. This queues a background job to process the notification, in two parts.
+# 3. First part (RQ job) creates the Notification subtype instances and calls their
+#    dispatch methods to retrive the UserNotification instances. It commits them to db,
+#    then passes their ids into a series of batched jobs.
+# 4. Second part (RQ jobs) processes each batch of UserNotification methods, calling
+#    NotificationView.dispatch (or its replacement subclass), which is responsible for
+#    the actual dispatch.
 
-    def web(self):
-        """
-        Render for display on the website.
-        """
-        return self.notification.views.render.web(self.user_notification)
 
-    def email(self):
-        """
-        Render an email update, suitable for handing over to send_email.
-        """
-        return self.notification.views.render.email(self.user_notification)
+def dispatch_notification(notification_types, document, target=None):
+    if isinstance(notification_types, Notification):
+        notification_types = [Notification]
+    for cls in notification_types:
+        if not isinstance(document, cls.document_model):
+            raise TypeError(
+                "Notification document is of incorrect type for %s" % cls.__name__
+            )
+        if target is not None and not isinstance(target, cls.target_model):
+            raise TypeError(
+                "Notification target is of incorrect type for %s" % cls.__name__
+            )
+    dispatch_notification_job.queue(
+        [ntype.cls_type for ntype in notification_types],
+        document_uuid=document.uuid,
+        target_uuid=target.uuid if target is not None else None,
+        locale=get_locale(),
+    )
 
-    def sms(self):
-        """
-        Render a short text message. Templates must use a single line with a link.
-        """
-        return self.notification.views.render.sms(self.user_notification)
 
-    def webpush(self):
-        """
-        Render a web push notification.
-        """
-        return self.notification.views.render.webpush(self.user_notification)
+DISPATCH_BATCH_SIZE = 10
 
-    def telegram(self):
-        """
-        Render a Telegram HTML message.
-        """
-        return self.notification.views.render.telegram(self.user_notification)
 
-    def whatsapp(self):
-        """
-        Render a WhatsApp-formatted text message.
-        """
-        return self.notification.views.render.whatsapp(self.user_notification)
+@rq.job('funnel')
+def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
+    with app.app_context(), force_locale(locale):
+        eventid = uuid4()  # Create a single eventid
+        notifications = [
+            notification_type_registry[ntype](
+                eventid=eventid, document_uuid=document_uuid, target_uuid=target_uuid
+            )
+            for ntype in ntypes
+        ]
+
+        # Commit notifications before dispatching
+        for notification in notifications:
+            db.session.add(notification)
+        db.session.commit()
+
+        # Dispatch, creating batches
+        for notification in notifications:
+            # How does this piece of magic work? There is a confusing recipe in the
+            # itertools module documentation. Here is what happens:
+            #
+            # `notification.dispatch()` returns a generator. We wrap it in a list and
+            # then make copies of the list, all pointing to the same generator. These
+            # are fed as positional parameters to the `zip_longest` function, which
+            # returns a batch containing one item from each of its parameters. For each
+            # batch (size 10 from the constant defined above), we commit to database
+            # and then queue a background job to deliver to them. When `zip_longest`
+            # runs out of items, it returns a batch padded with the fillvalue None.
+            # We use `filterfalse` to discard these None values. This difference
+            # distinguishes `zip_longest` from `zip`, which truncates the source data
+            # when it is short of a full batch.
+            for batch in (
+                filterfalse(lambda x: x is None, items)
+                for items in zip_longest(
+                    *[notification.dispatch()] * DISPATCH_BATCH_SIZE, fillvalue=None
+                )
+            ):
+                db.session.commit()
+                dispatch_user_notifications_job.queue(
+                    [user_notification.identity for user_notification in batch],
+                    locale=locale,
+                )
+
+
+@rq.job('funnel')
+def dispatch_user_notifications_job(user_notification_ids, locale):
+    with app.app_context(), force_locale(locale):
+        for identity in user_notification_ids:
+            user_notification = UserNotification.query.get(identity)
+            user_notification.notification.views.render.dispatch(user_notification)
+            db.session.commit()  # Commit after each recipient to protect from failure

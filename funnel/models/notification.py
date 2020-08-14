@@ -87,11 +87,12 @@ from . import BaseMixin, NoIdMixin, UUIDType, db
 from .user import User
 
 __all__ = [
+    'Notification',
+    'NotificationPreferences',
     'SMSMessage',
     'SMS_STATUS',
-    'Notification',
     'UserNotification',
-    'NotificationPreferences',
+    'notification_type_registry',
 ]
 
 # --- Registries -----------------------------------------------------------------------
@@ -220,6 +221,11 @@ class Notification(NoIdMixin, db.Model):
     @classmethodproperty
     def cls_type(cls):  # NOQA: N805
         return cls.__mapper_args__['polymorphic_identity']
+
+    @property
+    def identity(self):
+        """Primary key of this object."""
+        return (self.eventid, self.id)
 
     @cached_property
     def document(self):
@@ -367,6 +373,11 @@ class UserNotification(NoIdMixin, db.Model):
             [eventid, notification_id], [Notification.eventid, Notification.id]
         ),
     )
+
+    @property
+    def identity(self):
+        """Primary key of this object."""
+        return (self.user_id, self.eventid)
 
     @hybrid_property
     def is_read(self):
