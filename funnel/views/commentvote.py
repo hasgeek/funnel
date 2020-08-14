@@ -29,7 +29,7 @@ def comment_url(obj):
     url = None
     commentset_url = obj.commentset.views.url()
     if commentset_url is not None:
-        url = commentset_url + '#c' + obj.uuid_b58
+        url = commentset_url + '#c-' + obj.uuid_b58
     return url
 
 
