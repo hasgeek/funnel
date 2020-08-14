@@ -57,21 +57,23 @@ How it works:
     handles the ability to mark each as read. This marking is also automatically
     performed in the links in the rendered templates that were sent out.
 
-10. It is possible to have two separate notifications for the same event. For example,
-    a comment replying to another comment will trigger a CommentReplyNotification to
-    the user being replied to, and a ProjectCommentNotification or
-    ProposalCommentNotification for the project or proposal. The same user may be a
-    recipient of both notifications. To de-duplicate this, a random "event id" is shared
-    across both notifications, and is required to be unique per user, so that the second
-    notification will be skipped. (Event ids cause excessive database hits though, so
-    they probably should be skipped in the first release until the performance impact
-    can be gauged.)
+It is possible to have two separate notifications for the same event. For example, a
+comment replying to another comment will trigger a CommentReplyNotification to the user
+being replied to, and a ProjectCommentNotification or ProposalCommentNotification for
+the project or proposal. The same user may be a recipient of both notifications. To
+de-duplicate this, a random "eventid" is shared across both notifications, and is
+required to be unique per user, so that the second notification will be skipped. This
+is supported using an unusual primary and foreign key structure the in
+:class:`Notification` and :class:`UserNotification`:
+
+1. Notification has pkey ``(eventid, id)``, where `id` is local to the instance
+2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
+    using ``(eventid, notification_id)``.
 """
 from types import SimpleNamespace
 from uuid import uuid4
 
 from sqlalchemy import event
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.collections import column_mapped_collection
 
@@ -81,7 +83,7 @@ from baseframe import __
 from coaster.sqlalchemy import auto_init_default, with_roles
 from coaster.utils import LabeledEnum, classmethodproperty
 
-from . import BaseMixin, NoIdMixin, UuidMixin, UUIDType, db
+from . import BaseMixin, NoIdMixin, UUIDType, db
 from .user import User
 
 __all__ = [
@@ -135,7 +137,7 @@ class SMSMessage(BaseMixin, db.Model):
 # -- Notification models ---------------------------------------------------------------
 
 
-class Notification(UuidMixin, BaseMixin, db.Model):
+class Notification(NoIdMixin, db.Model):
     """
     Holds a single notification for an activity on a document object.
 
@@ -148,15 +150,28 @@ class Notification(UuidMixin, BaseMixin, db.Model):
     """
 
     __tablename__ = 'notification'
-    __uuid_primary_key__ = True
+
+    #: Random identifier for the event that triggered this notification. Event ids can
+    #: be shared across notifications, and will be used to enforce a limit of one
+    #: instance of a UserNotification per-event rather than per-notification.
+    eventid = db.Column(
+        UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+    )
+
+    #: Notification id
+    id = db.Column(  # NOQA: A003
+        UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+    )
 
     category = NOTIFICATION_CATEGORY.NONE
     description = __("Unspecified notification type")
 
     #: Subclasses may set this to aid loading of :attr:`document`
     document_model = None
+
     #: Subclasses may set this to aid loading of :attr:`target`
     target_model = None
+
     #: Roles to send notifications to. When a notification is dispatched, it will be
     #: sent to ``for role in self.roles: dispatch(document.actors_with({role}))``.
     #: Roles must be in order of priority for situations where a user has more than one
@@ -170,11 +185,6 @@ class Notification(UuidMixin, BaseMixin, db.Model):
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type = db.Column(db.Unicode, nullable=False)  # NOQA: A003
 
-    #: Random identifier for the event that triggered this notification. Event ids can
-    #: be shared across notifications, and will be used to enforce a limit of one
-    #: instance of a UserNotification per-event rather than per-notification.
-    event_uuid = db.Column(UUIDType(binary=False), nullable=False, default=uuid4)
-
     #: UUID of document that the notification refers to
     document_uuid = db.Column(UUIDType(binary=False), nullable=False, index=True)
 
@@ -184,7 +194,6 @@ class Notification(UuidMixin, BaseMixin, db.Model):
     target_uuid = db.Column(UUIDType(binary=False), nullable=True)
 
     __mapper_args__ = {'polymorphic_on': type, 'with_polymorphic': '*'}
-    __table_args__ = (db.UniqueConstraint('type', 'event_uuid'),)
 
     # Flags to control whether this notification can be delivered over a particular
     # transport. Subclasses can disable these if they consider notifications unsuitable
@@ -257,6 +266,8 @@ class Notification(UuidMixin, BaseMixin, db.Model):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
+        # TODO: Reduce this to one call to actors_with, and solve for discovering
+        # which role the actor was discovered with. Maybe a new flag to actors_with
         for role in self.roles:
             for user in (self.target or self.document).actors_with({role}):
                 # Was a notification already sent to this user? If so:
@@ -267,23 +278,18 @@ class Notification(UuidMixin, BaseMixin, db.Model):
 
                 # Since this query uses SQLAlchemy's session cache, we don't have to
                 # bother with a local cache for the first case.
-                existing_notification = UserNotification.query.get((self.id, user.id))
+                existing_notification = UserNotification.query.get(
+                    (user.id, self.eventid)
+                )
                 if not existing_notification:
                     user_notification = UserNotification(
-                        notification=self,
-                        user=user,
+                        eventid=self.eventid,
+                        user_id=user.id,
+                        notification_id=self.id,
                         role=role,
-                        event_uuid=self.event_uuid,
                     )
-                    try:
-                        db.session.add(user_notification)
-                        db.session.commit()
-                    except IntegrityError:
-                        # Parallel worker already created this instance. Discard here
-                        db.session.rollback()
-                    else:
-                        # We were first? Yield this for dispatch
-                        yield user_notification
+                    db.session.add(user_notification)
+                    yield user_notification
 
 
 class UserNotification(NoIdMixin, db.Model):
@@ -295,22 +301,7 @@ class UserNotification(NoIdMixin, db.Model):
 
     __tablename__ = 'user_notification'
 
-    # Primary key is a compound of (notification_id, user_id).
-    # Reversing the order to use (user_id, notification_id) is breaking SQLAlchemy for
-    # some reason. It supplies an int instead of a UUID for notification_id.
-
-    #: Id of notification that this user received
-    notification_id = db.Column(
-        None,
-        db.ForeignKey('notification.id', ondelete='CASCADE'),
-        primary_key=True,
-        nullable=False,
-    )
-    #: Notification that this user received
-    notification = with_roles(
-        db.relationship(Notification, backref=db.backref('recipients', lazy='dynamic')),
-        read={'owner'},
-    )
+    # Primary key is a compound of (user_id, eventid).
 
     #: Id of user being notified
     user_id = db.Column(
@@ -318,7 +309,6 @@ class UserNotification(NoIdMixin, db.Model):
         db.ForeignKey('user.id', ondelete='CASCADE'),
         primary_key=True,
         nullable=False,
-        index=True,
     )
     #: User being notified
     user = with_roles(
@@ -327,7 +317,16 @@ class UserNotification(NoIdMixin, db.Model):
         grants={'owner'},
     )
 
-    event_uuid = db.Column(UUIDType(binary=False), nullable=False)
+    #: Random eventid, shared with the Notification instance
+    eventid = db.Column(UUIDType(binary=False), primary_key=True, nullable=False)
+
+    #: Id of notification that this user received
+    notification_id = db.Column(None, nullable=False)  # fkey in __table_args__ below
+    #: Notification that this user received
+    notification = with_roles(
+        db.relationship(Notification, backref=db.backref('recipients', lazy='dynamic')),
+        read={'owner'},
+    )
 
     #: The role they held at the time of receiving the notification, used for
     #: customizing the template.
@@ -368,7 +367,11 @@ class UserNotification(NoIdMixin, db.Model):
     #: Message id for WhatsApp delivery
     messageid_whatsapp = db.Column(db.Unicode, nullable=True)
 
-    __table_args__ = (db.UniqueConstraint('user_id', 'event_uuid'),)
+    __table_args__ = (
+        db.ForeignKeyConstraint(
+            [eventid, notification_id], [Notification.eventid, Notification.id]
+        ),
+    )
 
     @hybrid_property
     def is_read(self):
@@ -482,6 +485,18 @@ class UserNotification(NoIdMixin, db.Model):
             .order_by(UserNotification.created_at.desc())
         )
 
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        for user_notification in cls.query.filter_by(user_id=old_user.id).all():
+            existing = cls.query.get((new_user.id, user_notification.eventid))
+            # TODO: Instead of dropping old_user's dupe notifications, check which of
+            # the two has a higher priority role and keep that. This may not be possible
+            # if the two copies are for different notifications under the same eventid.
+            if existing:
+                db.session.delete(user_notification)
+            else:
+                user_notification.user_id = new_user.id
+
 
 # --- Notification preferences ---------------------------------------------------------
 
@@ -548,10 +563,18 @@ class NotificationPreferences(BaseMixin, db.Model):
     @cached_property
     def type_cls(self):
         """Return the Notification subclass corresponding to self.notification_type"""
-        # Use `.get(type)` instead of `[type]` because the user may have saved
-        # preferences for a discontinued notification type. These should be dropped in
-        # migrations, but it's possible for the data to be outdated.
+        # Use `registry.get(type)` instead of `registry[type]` because the user may have
+        # saved preferences for a discontinued notification type. These should ideally
+        # be dropped in migrations, but it's possible for the data to be outdated.
         return notification_type_registry.get(self.notification_type)
+
+    @classmethod
+    def migrate_user(cls, old_user, new_user):
+        for ntype, prefs in list(old_user.notification_preferences.items()):
+            if ntype not in new_user.notification_preferences:
+                prefs.user = new_user
+            else:
+                db.session.delete(prefs)
 
     @db.validates('notification_type')
     def _valid_notification_type(self, key, value):
@@ -571,7 +594,7 @@ User.notification_preferences = db.relationship(
 # --- Signal handlers ------------------------------------------------------------------
 
 
-auto_init_default(Notification.event_uuid)
+auto_init_default(Notification.eventid)
 
 
 @event.listens_for(Notification, 'mapper_configured', propagate=True)
