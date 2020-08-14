@@ -211,6 +211,8 @@ class Notification(NoIdMixin, db.Model):
     #: This notification class may be delivered by WhatsApp message
     allow_whatsapp = True
 
+    renderers = {}  # Registry of {cls_type: CustomNotificationView}
+
     def __init__(self, document=None, target=None, **kwargs):
         if document:
             kwargs['document_uuid'] = document.uuid
@@ -249,6 +251,22 @@ class Notification(NoIdMixin, db.Model):
         """
         if self.target_model and self.target_uuid:
             return self.target_model.query.filter_by(uuid=self.target_uuid).one()
+
+    def renderer(self, cls):
+        """
+        Decorator for view class containing render methods.
+
+        Usage in views::
+
+            from ..models import MyNotificationType
+            from .views import NotificationView
+
+            @MyNotificationType.renderer
+            class MyNotificationView(NotificationView):
+                ...
+        """
+        self.renderers[self.cls_type] = cls
+        return cls
 
     def user_preferences(self, user):
         """Return notification preferences for the user"""
@@ -311,12 +329,8 @@ class UserNotification(NoIdMixin, db.Model):
         primary_key=True,
         nullable=False,
     )
-    #: User being notified
-    user = with_roles(
-        db.relationship(User, backref=db.backref('notifications', lazy='dynamic')),
-        read={'owner'},
-        grants={'owner'},
-    )
+    #: User being notified (backref defined below, outside the model)
+    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'},)
 
     #: Random eventid, shared with the Notification instance
     eventid = db.Column(UUIDType(binary=False), primary_key=True, nullable=False)
@@ -491,6 +505,18 @@ class UserNotification(NoIdMixin, db.Model):
             .order_by(UserNotification.created_at.desc())
         )
 
+    def dispatch(self):
+        """Perform a dispatch using the notification type's view renderer."""
+        return Notification.renderers[self.notification.cls_type](
+            self.notification
+        ).dispatch(self)
+
+    def render(self):
+        """Render for the web, using the notification type's view renderer."""
+        return Notification.renderers[self.notification.cls_type](
+            self.notification
+        ).web(self)
+
     @classmethod
     def migrate_user(cls, old_user, new_user):
         for user_notification in cls.query.filter_by(user_id=old_user.id).all():
@@ -503,6 +529,13 @@ class UserNotification(NoIdMixin, db.Model):
             else:
                 user_notification.user_id = new_user.id
 
+
+User.notifications = with_roles(
+    db.relationship(
+        UserNotification, lazy='dynamic', order_by=UserNotification.created_at.desc()
+    ),
+    read={'owner'},
+)
 
 # --- Notification preferences ---------------------------------------------------------
 

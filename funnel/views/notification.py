@@ -9,13 +9,18 @@ from ..models import Notification, UserNotification, db, notification_type_regis
 __all__ = ['NotificationView', 'dispatch_notification']
 
 
-@Notification.views('render')
 class NotificationView:
     """
     Base class for rendering notifications.
 
     Subclasses must override the render methods, currently :meth:`web`, :meth:`email`,
     :meth:`sms`, :meth:`webpush`, :meth:`telegram`, :meth:`whatsapp`.
+
+    Subclasses must be registered against the specific notification type like this::
+
+        @MyNotification.renderer
+        class MyNotificationView(NotificationView):
+            ...
 
     Also provides support methods for generating unsubscribe links.
     """
@@ -119,7 +124,7 @@ DISPATCH_BATCH_SIZE = 10
 def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
     with app.app_context(), force_locale(locale):
         eventid = uuid4()  # Create a single eventid
-        notifications = [
+        event_notifications = [
             notification_type_registry[ntype](
                 eventid=eventid, document_uuid=document_uuid, target_uuid=target_uuid
             )
@@ -127,28 +132,30 @@ def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
         ]
 
         # Commit notifications before dispatching
-        for notification in notifications:
+        for notification in event_notifications:
             db.session.add(notification)
         db.session.commit()
 
-        # Dispatch, creating batches
-        for notification in notifications:
-            # How does this piece of magic work? There is a confusing recipe in the
-            # itertools module documentation. Here is what happens:
+        # Dispatch, creating batches of DISPATCH_BATCH_SIZE each
+        for notification in event_notifications:
+            # How does the following piece of magic work? There is a confusing recipe in
+            # the itertools module documentation. Here is what happens:
             #
-            # `notification.dispatch()` returns a generator. We wrap it in a list and
-            # then make copies of the list, all pointing to the same generator. These
-            # are fed as positional parameters to the `zip_longest` function, which
+            # `notification.dispatch()` returns a generator. We make a list of the
+            # desired batch size containing repeated references to the same generator.
+            # This works because Python lists can contain the same item multiple times,
+            # and ``[item] * 2 == [item, item]`` (also: ``[1, 2] * 2 = [1, 2, 1, 2]``).
+            # These copies are fed as positional parameters to `zip_longest`, which
             # returns a batch containing one item from each of its parameters. For each
             # batch (size 10 from the constant defined above), we commit to database
             # and then queue a background job to deliver to them. When `zip_longest`
-            # runs out of items, it returns a batch padded with the fillvalue None.
+            # runs out of items, it returns a batch padded with the `fillvalue` None.
             # We use `filterfalse` to discard these None values. This difference
             # distinguishes `zip_longest` from `zip`, which truncates the source data
             # when it is short of a full batch.
             for batch in (
-                filterfalse(lambda x: x is None, items)
-                for items in zip_longest(
+                filterfalse(lambda x: x is None, unfiltered_batch)
+                for unfiltered_batch in zip_longest(
                     *[notification.dispatch()] * DISPATCH_BATCH_SIZE, fillvalue=None
                 )
             ):
@@ -163,6 +170,7 @@ def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
 def dispatch_user_notifications_job(user_notification_ids, locale):
     with app.app_context(), force_locale(locale):
         for identity in user_notification_ids:
-            user_notification = UserNotification.query.get(identity)
-            user_notification.notification.views.render.dispatch(user_notification)
-            db.session.commit()  # Commit after each recipient to protect from failure
+            # query.get() here cannot fail. If it does, something is wrong elsewhere.
+            UserNotification.query.get(identity).dispatch()
+            # Commit after each recipient to protect from dispatch failure
+            db.session.commit()
