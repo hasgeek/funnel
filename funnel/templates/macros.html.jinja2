@@ -266,7 +266,7 @@
               <a href="{{ project.url_for('rsvp_list') }}" class="mui--d-block mui--text-center" data-cy="see-responses">{% trans %}View participants{% endtrans %}</a>
             {% endif %}
           {% elif project.view_for('edit_schedule').is_available() %}
-            <a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable rsvp{% endtrans %}</a>
+            <a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable registrations{% endtrans %}</a>
           {%- endif %}
           <hr class="mui-divider">
           {% if project.cfp_state.OPEN -%}
