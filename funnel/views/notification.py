@@ -138,21 +138,6 @@ def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
 
         # Dispatch, creating batches of DISPATCH_BATCH_SIZE each
         for notification in event_notifications:
-            # How does the following piece of magic work? There is a confusing recipe in
-            # the itertools module documentation. Here is what happens:
-            #
-            # `notification.dispatch()` returns a generator. We make a list of the
-            # desired batch size containing repeated references to the same generator.
-            # This works because Python lists can contain the same item multiple times,
-            # and ``[item] * 2 == [item, item]`` (also: ``[1, 2] * 2 = [1, 2, 1, 2]``).
-            # These copies are fed as positional parameters to `zip_longest`, which
-            # returns a batch containing one item from each of its parameters. For each
-            # batch (size 10 from the constant defined above), we commit to database
-            # and then queue a background job to deliver to them. When `zip_longest`
-            # runs out of items, it returns a batch padded with the `fillvalue` None.
-            # We use `filterfalse` to discard these None values. This difference
-            # distinguishes `zip_longest` from `zip`, which truncates the source data
-            # when it is short of a full batch.
             for batch in (
                 filterfalse(lambda x: x is None, unfiltered_batch)
                 for unfiltered_batch in zip_longest(
@@ -164,6 +149,24 @@ def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
                     [user_notification.identity for user_notification in batch],
                     locale=locale,
                 )
+
+        # How does this batching work? There is a confusing recipe in the itertools
+        # module documentation. Here is what happens:
+        #
+        # `notification.dispatch()` returns a generator. We make a list of the
+        # desired batch size containing repeated references to the same generator.
+        # This works because Python lists can contain the same item multiple times,
+        # and ``[item] * 2 == [item, item]`` (also: ``[1, 2] * 2 = [1, 2, 1, 2]``).
+        # These copies are fed as positional parameters to `zip_longest`, which
+        # returns a batch containing one item from each of its parameters. For each
+        # batch (size 10 from the constant defined above), we commit to database
+        # and then queue a background job to deliver to them. When `zip_longest`
+        # runs out of items, it returns a batch padded with the `fillvalue` None.
+        # We use `filterfalse` to discard these None values. This difference
+        # distinguishes `zip_longest` from `zip`, which truncates the source data
+        # when it is short of a full batch.
+        #
+        # Discussion of approaches at https://stackoverflow.com/q/8290397/78903
 
 
 @rq.job('funnel')

@@ -1,5 +1,5 @@
 """
-Adds support for texting Indian mobile numbers
+Support functions for sending a short text message.
 """
 
 from flask import current_app, flash
@@ -8,10 +8,10 @@ import requests
 
 from baseframe import _
 
-from ..models import SMSMessage, db
+__all__ = ['send_sms']
 
 
-def send_message(msg):
+def send_sms(msg):
     if msg.phone_number.startswith('+91'):  # Indian number. Use Exotel
         if len(msg.phone_number) != 13:
             raise ValueError(_("Invalid Indian mobile number"))
@@ -94,15 +94,3 @@ def send_message(msg):
                     ),
                     'danger',
                 )
-
-
-def send_phone_verify_code(phoneclaim):
-    msg = SMSMessage(
-        phone_number=phoneclaim.phone,
-        message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
-            code=phoneclaim.verification_code
-        ),
-    )
-    # Now send this
-    send_message(msg)
-    db.session.add(msg)

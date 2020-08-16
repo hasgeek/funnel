@@ -41,7 +41,14 @@ assets['schedule-print.css'][version] = 'css/schedule-print.css'
 
 # --- Import rest of the app --------------------------------------------------
 
-from . import models, signals, loginproviders, forms, views  # NOQA  # isort:skip
+from . import (  # NOQA  # isort:skip
+    models,
+    signals,
+    forms,
+    loginproviders,
+    transports,
+    views,
+)
 from .models import db  # isort:skip
 
 # --- Configuration------------------------------------------------------------
@@ -143,6 +150,8 @@ if 'GEOIP_DB_ASN' in app.config:
     else:
         app.geoip_asn = geoip2.database.Reader(app.config['GEOIP_DB_ASN'])
 
+# Turn on supported notification transports
+transports.init()
 
 # Register JS and CSS assets on both apps
 app.assets.register(

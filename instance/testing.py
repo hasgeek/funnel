@@ -4,15 +4,15 @@ TESTING = True
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
+RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
+RQ_ASYNC = False
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3002'
 DEFAULT_DOMAIN = 'funnel.travis.local'
 STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
-LASTUSER_USE_SESSIONS = False
 UPLOAD_FOLDER = '/tmp'  # nosec
 TIMEZONE = 'Asia/Kolkata'
-RQ_LOW_URL = 'redis://localhost:6379/0'
 ASSET_BASE_PATH = "build"
 HASCORE_SERVER = 'https://api.hasgeek.com'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
@@ -69,5 +69,3 @@ SMS_EXOTEL_FROM = environ.get('SMS_EXOTEL_FROM')
 SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
 SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
 SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
-
-# nosec

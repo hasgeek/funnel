@@ -44,6 +44,7 @@ from ..models import (
     MODERATOR_REPORT_TYPE,
     Comment,
     CommentModeratorReport,
+    SMSMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -56,11 +57,23 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
+from ..transports.sms import send_sms
 from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import app_url_for
 from .login_session import login_internal, logout_internal, requires_login
-from .sms import send_phone_verify_code
+
+
+def send_phone_verify_code(phoneclaim):
+    msg = SMSMessage(
+        phone_number=phoneclaim.phone,
+        message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
+            code=phoneclaim.verification_code
+        ),
+    )
+    # Now send this
+    send_sms(msg)
+    db.session.add(msg)
 
 
 def blake2b_b58(text):

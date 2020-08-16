@@ -29,7 +29,6 @@ from . import (
     schedule,
     search,
     session,
-    sms,
     update,
     venue,
 )

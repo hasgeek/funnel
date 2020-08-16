@@ -1,84 +1,18 @@
-from collections import namedtuple
-from email.utils import formataddr, getaddresses
-
-from flask import current_app, render_template, request, url_for
-from flask_mailman import EmailMultiAlternatives
+from flask import render_template, url_for
 
 from flask_babelhg import force_locale, get_locale
-from html2text import html2text
-from premailer import transform
 
 from baseframe import _
 
-from .. import app, mail, rq, signals
-from ..models import EmailAddress, Project, User
+from .. import app, rq, signals
+from ..models import Project, User
+from ..transports.email import (
+    EmailAttachment,
+    jsonld_confirm_action,
+    jsonld_view_action,
+    send_email,
+)
 from .schedule import schedule_ical
-
-EmailAttachment = namedtuple('EmailAttachment', ['content', 'filename', 'mimetype'])
-
-
-def jsonld_view_action(description, url, title):
-    return {
-        "@context": "http://schema.org",
-        "@type": "EmailMessage",
-        "description": description,
-        "potentialAction": {"@type": "ViewAction", "name": title, "url": url},
-        "publisher": {
-            "@type": "Organization",
-            "name": current_app.config['SITE_TITLE'],
-            "url": request.url_root,
-        },
-    }
-
-
-def jsonld_confirm_action(description, url, title):
-    return {
-        "@context": "http://schema.org",
-        "@type": "EmailMessage",
-        "description": description,
-        "potentialAction": {
-            "@type": "ConfirmAction",
-            "name": title,
-            "handler": {"@type": "HttpActionHandler", "url": url},
-        },
-    }
-
-
-def send_email(subject, to, content, attachments=None):
-    """Helper function to send an email"""
-    # Parse recipients and convert as needed
-    to = [
-        # Is the recipient a User object? Send to "{user.fullname} <{user.email}>"
-        formataddr((recipient.fullname, str(recipient.email)))
-        if isinstance(recipient, User)
-        # Is the recipient (name, email)? Reformat to "{name} <{email}>"
-        else formataddr(recipient) if isinstance(recipient, tuple)
-        # Neither? Pass it in as is
-        else recipient
-        for recipient in to
-    ]
-    body = html2text(content)
-    html = transform(content, base_url=f'https://{app.config["DEFAULT_DOMAIN"]}/')
-    msg = EmailMultiAlternatives(
-        subject=subject, to=to, body=body, alternatives=[(html, 'text/html')]
-    )
-    if attachments:
-        for attachment in attachments:
-            msg.attach(
-                content=attachment.content,
-                filename=attachment.filename,
-                mimetype=attachment.mimetype,
-            )
-    # If an EmailAddress is blocked, this line will throw an exception
-    emails = [EmailAddress.add(email) for name, email in getaddresses(msg.recipients())]
-    # TODO: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
-    # catch that, remove the recipient, and notify the user via the upcoming
-    # notification centre.
-    result = mail.send(msg)
-    # After sending, mark the address as having received an email
-    for ea in emails:
-        ea.mark_sent()
-    return result
 
 
 def send_email_verify_link(useremail):
