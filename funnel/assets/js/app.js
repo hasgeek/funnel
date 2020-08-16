@@ -9,6 +9,7 @@ $(() => {
     ajaxTimeout: 30000,
     retryInterval: 10000,
     closeModalTimeout: 10000,
+    refreshInterval: 30000,
   };
 
   Utils.collapse();

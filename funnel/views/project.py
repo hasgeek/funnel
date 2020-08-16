@@ -12,7 +12,7 @@ from flask import (
     request,
 )
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
@@ -30,7 +30,6 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import (
     CfpForm,
-    CommentDeleteForm,
     CommentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
@@ -51,7 +50,6 @@ from ..models import (
     Proposal,
     Rsvp,
     SavedProject,
-    Voteset,
     db,
 )
 from ..signals import user_cancelled_project_registration, user_registered_for_project
@@ -751,28 +749,23 @@ class ProjectView(
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2')
+    @render_with('project_comments.html.jinja2', json=True)
     @requires_roles({'reader'})
     def comments(self):
-        project_save_form = SavedProjectForm()
-        comments = (
-            Comment.query.join(Voteset)
-            .filter(
-                Comment.commentset == self.obj.commentset, Comment.parent_id.is_(None)
-            )
-            .order_by(Voteset.count, Comment.created_at.asc())
-            .all()
-        )
-        commentform = CommentForm(model=Comment)
-        delcommentform = CommentDeleteForm()
-        return {
-            'project': self.obj,
-            'project_save_form': project_save_form,
-            'comments': comments,
-            'commentform': commentform,
-            'delcommentform': delcommentform,
-            'csrf_form': forms.Form(),
-        }
+        comments = self.obj.commentset.views.json_comments()
+        if request_is_xhr():
+            return {'comments': comments}
+        else:
+            project_save_form = SavedProjectForm()
+            commentform = CommentForm(model=Comment)
+            return {
+                'project': self.obj,
+                'project_save_form': project_save_form,
+                'comments': comments,
+                'commentform': commentform,
+                'delcommentform': forms.Form(),
+                'csrf_form': forms.Form(),
+            }
 
     @route('toggle_featured', methods=['POST'])
     def toggle_featured(self):

@@ -5,6 +5,13 @@ describe('Test comments feature', function () {
 
   it('Post comment on project page', function () {
     cy.server();
+    cy.route('GET', '**/new').as('get-form');
+    cy.route('POST', '**/new').as('post-comment');
+    cy.route('GET', '**/edit').as('edit-form');
+    cy.route('POST', '**/edit').as('edit-comment');
+    cy.route('GET', '**/reply').as('reply-form');
+    cy.route('POST', '**/reply').as('reply-comment');
+    cy.route('POST', '**/delete').as('delete-comment');
     cy.route('**/json').as('edit-comment');
 
     cy.visit('/');
@@ -17,36 +24,44 @@ describe('Test comments feature', function () {
     cy.get('a[data-cy="login-btn"]').click();
     cy.fill_login_details(user.username, user.password);
 
+    cy.get('[data-cy="post-comment"]').click();
+    cy.wait('@get-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.comment, { force: true });
-    cy.get('#comment-form').submit();
     cy.wait(1000);
+    cy.get('button').contains('Post comment').click();
+    cy.wait('@post-comment');
     var cid = window.location.hash;
-    cy.get('.comment--body').contains(project.comment);
-    cy.get('.comment--header').contains(user.username);
+    cy.get('.comment__body').contains(project.comment);
+    cy.get('.comment__header').contains(user.username);
 
     cy.get('a[data-cy="edit"]').click();
-    cy.wait('@edit-comment');
+    cy.wait('@edit-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.edit_comment, { force: true });
-    cy.get('#comment-form').submit();
     cy.wait(1000);
-    cy.get(`${cid} .comment--body`).contains(project.edit_comment);
+    cy.get('button').contains('Edit comment').click();
+    cy.wait('@edit-comment');
+    cy.get(`${cid} .comment__body`).contains(project.edit_comment);
 
     cy.get('a[data-cy="reply"]').click();
+    cy.wait('@reply-form');
     cy.get('#field-comment_message')
       .find('.CodeMirror textarea')
       .type(project.reply_comment, { force: true });
-    cy.get('#comment-form').submit();
     cy.wait(1000);
+    cy.get('button').contains('Post comment').click();
+    cy.wait('@reply-comment');
     cid = window.location.hash;
-    cy.get(`${cid} .comment--body`).contains(project.reply_comment);
+    cy.get(`${cid} .comment__body`).contains(project.reply_comment);
 
     cy.get('a[data-cy="delete"]').first().click();
-    cy.get('[data-cy="delete-comment"]').click();
-    cy.get('.comment--body').contains(project.comment).should('not.exist');
+    cy.get('button').contains('Delete').click();
+    cy.wait('@delete-comment');
+    cy.get('.comment__body').contains(project.comment).should('not.exist');
+    cy.wait(5000);
     cy.logout();
 
     cy.login('/', hguser.username, hguser.password);
