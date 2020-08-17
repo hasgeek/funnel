@@ -14,7 +14,12 @@ from premailer import transform
 from .. import app, mail
 from ..models import EmailAddress, User
 
-__all__ = ['EmailAddress', 'send_email']
+__all__ = [
+    'EmailAttachment',
+    'jsonld_confirm_action',
+    'jsonld_view_action',
+    'send_email',
+]
 
 
 class EmailAttachment(NamedTuple):

@@ -306,16 +306,16 @@ class Notification(NoIdMixin, db.Model):
         for user, role in (self.target or self.document).actors_with(
             self.roles, with_role=True
         ):
+            # If this notification requires that it not be sent to the actor that
+            # triggered the notification, don't notify them. For example, a user
+            # who leaves a comment should not be notified of their own comment.
+            # This `if` condition uses `user_id` instead of the recommended `user`
+            # for faster processing in a loop.
             if (
                 self.exclude_user
                 and self.user_id is not None
                 and self.user_id == user.id
             ):
-                # If this notification requires that it not be sent to the actor that
-                # triggered the notification, don't notify them. For example, a user
-                # who leaves a comment should not be notified of their own comment.
-                # This `if` condition uses `user_id` instead of the recommended `user`
-                # for faster processing in a loop.
                 continue
 
             # Was a notification already sent to this user? If so:
@@ -535,12 +535,14 @@ class UserNotification(NoIdMixin, db.Model):
 
     def dispatch_for(self, transport):
         """Perform a dispatch using the notification type's view renderer."""
+        # FIXME: Remove this method and put it entirely in the view
         return Notification.renderers[self.notification.cls_type](
             self.notification
         ).dispatch_for(self, transport)
 
     def render(self):
         """Render for the web, using the notification type's view renderer."""
+        # FIXME: Remove this method and put it entirely in the view
         return Notification.renderers[self.notification.cls_type](
             self.notification
         ).web(self)

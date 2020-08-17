@@ -1,30 +1,37 @@
 from itertools import filterfalse, zip_longest
 from uuid import uuid4
 
+import itsdangerous.exc
+
 from flask_babelhg import force_locale
 
 from coaster.auth import current_auth
 
 from .. import app, rq
 from ..models import Notification, UserNotification, db, notification_type_registry
+from ..serializers import token_serializer
 
 __all__ = ['NotificationView', 'dispatch_notification']
 
 
 class NotificationView:
     """
-    Base class for rendering notifications.
+    Base class for rendering notifications, with support methods.
 
-    Subclasses must override the render methods, currently :meth:`web`, :meth:`email`,
-    :meth:`sms`, :meth:`webpush`, :meth:`telegram`, :meth:`whatsapp`.
+    Subclasses must override the render methods:
+
+    * :meth:`web`
+    * :meth:`email` and :meth:`email_attachments`
+    * :meth:`sms`
+    * :meth:`webpush`
+    * :meth:`telegram`
+    * :meth:`whatsapp`
 
     Subclasses must be registered against the specific notification type like this::
 
         @MyNotification.renderer
         class MyNotificationView(NotificationView):
             ...
-
-    Also provides support methods for generating unsubscribe links.
     """
 
     def __init__(self, obj):
@@ -33,6 +40,37 @@ class NotificationView:
     def dispatch_for(self, user_notification, transport):
         """Method that does the actual sending."""
         # TODO: Insert dispatch code here
+
+    def unsubscribe_token(self, user_notification):
+        """
+        Return a token suitable for use in an unsubscribe link.
+
+        The token only contains a user id (``user.buid`` here) and notification type
+        (for ``user.notification_preferences``). The template should wrap this token
+        with ``?utm_campaign=unsubscribe&utm_source={notification.eventid}``. Since
+        tokens are sensitive, the view should strip them out of the URL before rendering
+        the page, using a similar mechanism to that used for account reset.
+        """
+        return token_serializer().dumps(
+            {
+                'buid': user_notification.user.buid,
+                'notification_type': self.notification.cls_type,
+            }
+        )
+
+    def verify_unsubscribe_token(self, token, max_age=365 * 24 * 60 * 60):
+        """
+        Verify an unsubscribe token. Has a default max_age of 1 year.
+
+        Returns a tuple of 'error' or 'ok', with the error reason or token payload.
+        """
+        try:
+            data = token_serializer().loads(token, max_age=max_age)
+        except itsdangerous.exc.SignatureExpired:
+            return 'error', 'expired'
+        except itsdangerous.exc.BadData:
+            return 'error', 'bad_data'
+        return 'ok', data
 
     # --- Overrideable render methods
 
@@ -88,6 +126,8 @@ class NotificationView:
         """
         return self.sms(self)
 
+
+# --- Account notifications tab --------------------------------------------------------
 
 # --- Dispatch functions ---------------------------------------------------------------
 
