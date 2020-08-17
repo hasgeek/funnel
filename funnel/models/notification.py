@@ -163,8 +163,12 @@ class Notification(NoIdMixin, db.Model):
         UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
     )
 
+    #: Default category of notification. Subclasses MUST override
     category = NOTIFICATION_CATEGORY.NONE
+    #: Default description for notification. Subclasses MUST override
     description = __("Unspecified notification type")
+    #: Reason specified in email templates. Subclasses MAY override
+    reason = __("You are receiving this because you have an account at hasgeek.com.")
 
     #: Subclasses may set this to aid loading of :attr:`document`
     document_model = None
@@ -632,6 +636,10 @@ class NotificationPreferences(BaseMixin, db.Model):
     def by_transport(self, transport):
         """Helper method to return ``self.by_<transport>``."""
         return getattr(self, 'by_' + transport)
+
+    def set_transport(self, transport, value):
+        """Helper method to set a preference for a transport."""
+        setattr(self, 'by_' + transport, value)
 
     @cached_property
     def type_cls(self):

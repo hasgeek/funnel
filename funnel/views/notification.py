@@ -1,15 +1,30 @@
+from datetime import datetime
 from itertools import filterfalse, zip_longest
 from uuid import uuid4
 
+from flask import flash, redirect, request, session, url_for
 import itsdangerous.exc
 
 from flask_babelhg import force_locale
 
-from coaster.auth import current_auth
+from baseframe import _
+from baseframe.forms import render_form, render_message
+from coaster.auth import add_auth_attribute, current_auth
+from coaster.utils import getbool
+from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, rq
-from ..models import Notification, UserNotification, db, notification_type_registry
+from ..forms import UnsubscribeForm
+from ..models import (
+    Notification,
+    User,
+    UserNotification,
+    db,
+    notification_type_registry,
+)
 from ..serializers import token_serializer
+from .helpers import metarefresh_redirect
+from .login_session import requires_login
 
 __all__ = ['NotificationView', 'dispatch_notification']
 
@@ -41,7 +56,7 @@ class NotificationView:
         """Method that does the actual sending."""
         # TODO: Insert dispatch code here
 
-    def unsubscribe_token(self, user_notification):
+    def unsubscribe_token(self, user_notification, transport):
         """
         Return a token suitable for use in an unsubscribe link.
 
@@ -51,26 +66,14 @@ class NotificationView:
         tokens are sensitive, the view should strip them out of the URL before rendering
         the page, using a similar mechanism to that used for account reset.
         """
+        # This payload is consumed by :meth:`AccountNotificationView.unsubscribe`
         return token_serializer().dumps(
             {
                 'buid': user_notification.user.buid,
                 'notification_type': self.notification.cls_type,
+                'transport': transport,
             }
         )
-
-    def verify_unsubscribe_token(self, token, max_age=365 * 24 * 60 * 60):
-        """
-        Verify an unsubscribe token. Has a default max_age of 1 year.
-
-        Returns a tuple of 'error' or 'ok', with the error reason or token payload.
-        """
-        try:
-            data = token_serializer().loads(token, max_age=max_age)
-        except itsdangerous.exc.SignatureExpired:
-            return 'error', 'expired'
-        except itsdangerous.exc.BadData:
-            return 'error', 'bad_data'
-        return 'ok', data
 
     # --- Overrideable render methods
 
@@ -128,6 +131,155 @@ class NotificationView:
 
 
 # --- Account notifications tab --------------------------------------------------------
+@route('/account/notifications')
+class AccountNotificationView(ClassView):
+    # This class cannot use ModelView because some routes do not require a logged in
+    # user
+    current_section = 'notification_settings'
+
+    @route('', endpoint='notification_preferences')
+    @requires_login
+    @render_with('notification_settings.html.jinja2')
+    def notification_settings(self):
+        # TODO: Add template and form handler
+        return {'preferences': current_auth.user.notification_preferences}
+
+    @route('unsubscribe/<token>', endpoint='notification_unsubscribe')
+    @route(
+        'unsubscribe',
+        defaults={'token': None},
+        endpoint='notification_unsubscribe',
+        methods=['GET', 'POST'],
+    )
+    @requestargs(('cookietest', getbool))
+    def unsubscribe(self, token, cookietest=False):
+        # This route strips the token from the URL before rendering the page, to avoid
+        # leaking the token to web analytics software.
+
+        # Step 1: Sanity check: someone loaded this URL without a token at all.
+        # Send them away
+        if not token and 'signed_token' not in session:
+            return redirect(url_for('notification_preferences'))
+
+        # Step 2: We have a token, but no `cookietest=1` in the URL. Copy token into
+        # session and reload the page with the flag set
+        if token and not cookietest:
+            session['signed_token'] = token
+            # Use naive datetime as the session can't handle tz-aware datetimes
+            session['signed_token_at'] = datetime.utcnow()
+            # These values are removed from the session in 10 minutes by
+            # :func:`clear_expired_signed_token` in views/account_reset.py
+
+            # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
+            # and reload the page
+            if request.query_string:
+                return redirect(request.url + '&cookietest=1')
+            return redirect(request.url + '?cookietest=1')
+
+        # Step 3a: We have a token and cookietest is now set, but token is missing
+        # from session. That typically means the browser is refusing to set cookies
+        # on 30x redirects that originated off-site (such as a webmail app). Do a
+        # meta-refresh redirect instead. It is less secure because browser extensions
+        # may be able to read the URL during the brief period the page is rendered,
+        # but so far there has been no indication of cookies not being set.
+        if token and 'signed_token' not in session:
+            session['signed_token'] = token
+            session['signed_token_at'] = datetime.utcnow()
+            return metarefresh_redirect(
+                url_for('notification_unsubscribe') + ('?' + request.query_string)
+                if request.query_string
+                else ''
+            )
+
+        # Step 3b: We have a token and cookietest is now set, and token is also in
+        # session. Great! No browser cookie problem, so redirect again to remove the
+        # token from the URL. This will hide it from web analytics software such as
+        # Google Analytics and Matomo.
+        if token and 'signed_token' in session:
+            # Browser is okay with cookies. Do a 302 redirect
+            return redirect(
+                url_for('notification_unsubscribe') + ('?' + request.query_string)
+                if request.query_string
+                else ''
+            )
+
+        # Step 4. We have a token and it's been stripped from the URL. Process it.
+        try:
+            payload = token_serializer().loads(
+                session['signed_token'], max_age=365 * 24 * 60 * 60
+            )
+        except itsdangerous.exc.SignatureExpired:
+            # Link has expired. It's been over a year!
+            session.pop('reset_token', None)
+            session.pop('reset_token_at', None)
+            flash(
+                _(
+                    "This unsubscribe link has expired."
+                    " However, you can manage your settings from your account page"
+                ),
+                'error',
+            )
+            return redirect(url_for('notification_preferences'), code=303)
+        except itsdangerous.exc.BadData:
+            session.pop('reset_token', None)
+            session.pop('reset_token_at', None)
+            flash(
+                _(
+                    "This unsubscribe link is invalid."
+                    " However, you can manage your settings from your account page"
+                ),
+                'error',
+            )
+            return redirect(url_for('notification_preferences'), code=303)
+
+        # Step 5. Validate whether the token matches the current user, if any
+        # Do not allow links to be used across accounts.
+        if current_auth.user and current_auth.user.buid != payload['buid']:
+            return render_message(
+                title=_("Unauthorized unsubscribe link"),
+                message=_(
+                    "This unsubscribe link is for someone else’s account. Please logout"
+                    " or use an incognito/private browsing session to use this link."
+                ),
+            )
+
+        # Step 6. Temporarily authenticate a user, valid for this URL only.
+        # The contents of `payload` are defined in
+        # :meth:`NotificationView.unsubscribe_token` above
+        user = User.get(buid=payload['buid'])
+        # TODO: Consider whether this is necessary. Coaster presents the notion of an
+        # 'anchor' that is meant to be used in just this sort of situation to load an
+        # actor for only URLs containing the anchor, but the spec isn't written yet. For
+        # now we hoist an actor up without the spec, with the hope that nothing in
+        # future breaks because this particular usage isn't tested with those changes.
+        add_auth_attribute('user', user, actor=True)
+
+        # Step 7. Ask the user to confirm unsubscribe. Do not unsubscribe on a GET
+        # request as it may be triggered by link previews (for messages using transports
+        # other than email)
+        form = UnsubscribeForm(
+            edit_user=user,
+            transport=payload['transport'],
+            notification_type=payload['notification_type'],
+        )
+        if form.validate_on_submit():
+            form.save_to_user()
+            session.pop('reset_token', None)
+            session.pop('reset_token_at', None)
+            return render_message(
+                title=_("Preferences saved"),
+                message=_("Your notification preferences have been updated"),
+            )
+        return render_form(
+            form=form,
+            title=_("Update notification preferences"),
+            # TODO: Include message identifying the transport
+            formid='unsubscribe-preferences',
+            submit=_("Update preferences"),
+            ajax=False,
+            template='account_formlayout.html.jinja2',
+        )
+
 
 # --- Dispatch functions ---------------------------------------------------------------
 

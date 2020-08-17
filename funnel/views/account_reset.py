@@ -130,35 +130,38 @@ def reset():
 @requestargs(('cookietest', getbool))
 def reset_email(token, cookietest=False):
     """Move token into session cookie and redirect to a token-free URL."""
-    session['reset_token'] = token
-    # Use naive datetime as the session can't handle tz-aware datetimes
-    session['reset_token_at'] = datetime.utcnow()
     if not cookietest:
+        session['signed_token'] = token
+        # Use naive datetime as the session can't handle tz-aware datetimes
+        session['signed_token_at'] = datetime.utcnow()
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
         # and reload the page
         if request.query_string:
             return redirect(request.url + '&cookietest=1')
         return redirect(request.url + '?cookietest=1')
-    if 'reset_token' not in session:
+    if 'signed_token' not in session:  # implicit: cookietest is True
         # Browser is refusing to set cookies on 302 redirects. Set it again and use
         # the less secure meta-refresh redirect (browser extensions can read the URL)
-        session['reset_token'] = token
-        session['reset_token_at'] = datetime.utcnow()
+        session['signed_token'] = token
+        session['signed_token_at'] = datetime.utcnow()
         return metarefresh_redirect(url_for('reset_email_do'))
+    # implicit: cookietest is True and 'signed_token' in session
     return redirect(url_for('reset_email_do'))
 
 
 @app.before_request
 @lastuserapp.before_request
-def clear_expired_reset_token():
-    """Clear reset_token from session if it's not used (user abandoned the attempt)."""
-    if 'reset_token_at' in session:
+def clear_expired_signed_token():
+    """Clear signed_token from session if it's not used (user abandoned the attempt)."""
+    # This value is set by :func:`reset_email` above and
+    # :meth:`AccountNotificationView.unsubscribe` in views/notification.py
+    if 'signed_token_at' in session:
         # Use naive datetime as the session can't handle tz-aware datetimes
         # Give the user 10 minutes to submit the password form.
-        if session['reset_token_at'] < datetime.utcnow() - timedelta(minutes=10):
-            session.pop('reset_token', None)
-            session.pop('reset_token_at', None)
-            current_app.logger.info("Cleared expired reset_token from session cookie")
+        if session['signed_token_at'] < datetime.utcnow() - timedelta(minutes=10):
+            session.pop('signed_token', None)
+            session.pop('signed_token_at', None)
+            current_app.logger.info("Cleared expired signed_token from session cookie")
 
 
 @app.route('/account/reset/<buid>/<secret>')
@@ -180,7 +183,7 @@ def reset_email_do():
 
     # Validate the token
     # 1. Do we have a token? User may have accidentally landed here
-    if 'reset_token' not in session:
+    if 'signed_token' not in session:
         if request.method == 'GET':
             # No token. GET request. Either user landed here by accident, or browser
             # reloaded this page from history. Send back to to the reset request page
@@ -196,11 +199,11 @@ def reset_email_do():
     # 2. There's a token in the session. Is it valid?
     try:
         # Allow 24 hours (86k seconds) validity for the reset token
-        token = token_serializer().loads(session['reset_token'], max_age=86400)
+        token = token_serializer().loads(session['signed_token'], max_age=86400)
     except itsdangerous.exc.SignatureExpired:
         # Link has expired (timeout).
-        session.pop('reset_token', None)
-        session.pop('reset_token_at', None)
+        session.pop('signed_token', None)
+        session.pop('signed_token_at', None)
         flash(
             _(
                 "This password reset link has expired."
@@ -211,8 +214,8 @@ def reset_email_do():
         return redirect(url_for('reset'), code=303)
     except itsdangerous.exc.BadData:
         # Link is invalid
-        session.pop('reset_token', None)
-        session.pop('reset_token_at', None)
+        session.pop('signed_token', None)
+        session.pop('signed_token_at', None)
         flash(
             _(
                 "This password reset link is invalid."
@@ -226,8 +229,8 @@ def reset_email_do():
     user = User.get(buid=token['buid'])
     if not user:
         # If the user has disappeared, it's likely because of account deletion.
-        session.pop('reset_token', None)
-        session.pop('reset_token_at', None)
+        session.pop('signed_token', None)
+        session.pop('signed_token_at', None)
         return render_message(
             title=_("Unknown user"),
             message=_("There is no account matching this password reset request"),
@@ -236,8 +239,8 @@ def reset_email_do():
     if token['pw_set_at'] != str_pw_set_at(user):
         # Token has been used to set a password, as the timestamp has changed. Ask user
         # if they want to reset their password again
-        session.pop('reset_token', None)
-        session.pop('reset_token_at', None)
+        session.pop('signed_token', None)
+        session.pop('signed_token_at', None)
         flash(
             _(
                 "This password reset link has been used."
@@ -257,8 +260,8 @@ def reset_email_do():
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
         user.password = form.password.data
-        session.pop('reset_token', None)
-        session.pop('reset_token_at', None)
+        session.pop('signed_token', None)
+        session.pop('signed_token_at', None)
         # Invalidate all of the user's active sessions
         counter = None
         for counter, user_session in enumerate(user.active_sessions.all()):

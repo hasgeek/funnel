@@ -11,6 +11,7 @@ from ..models import (
     UserPhone,
     UserPhoneClaim,
     getuser,
+    notification_type_registry,
     password_policy,
 )
 from ..utils import strip_phone, valid_phone
@@ -24,6 +25,7 @@ __all__ = [
     'PasswordResetForm',
     'PasswordChangeForm',
     'AccountForm',
+    'UnsubscribeForm',
     'EmailPrimaryForm',
     'ModeratorReportForm',
     'NewEmailAddressForm',
@@ -318,6 +320,56 @@ class AccountForm(forms.Form):
             raise forms.ValidationError(_("This username has been taken"))
         else:
             raise forms.ValidationError(_("This username is not available"))
+
+
+@User.forms('unsubscribe')
+class UnsubscribeForm(forms.Form):
+    __expects__ = ('edit_user', 'transport', 'notification_type')
+
+    # To consider: Replace the field's ListWidget with a GroupedListWidget, and show all
+    # known notifications by category, not just the ones the user has received a
+    # notification for. This will avoid a dark pattern wherein a user keeps getting
+    # subscribed to new types of notifications, a problem Twitter had when they
+    # attempted to engage dormant accounts by inventing new reasons to email them.
+    # However, also consider that this will be a long and overwhelming list, and will
+    # not help with new notification types added after the user visits this list. The
+    # better option may be to set notification preferences based on previous
+    # preferences. A crude form of this exists in the NotificationPreferences class,
+    # but it should be smarter about defaults per category of notification.
+
+    types = forms.SelectMultipleField(
+        __("Notify me for"),
+        widget=forms.ListWidget(),
+        option_widget=forms.CheckboxInput(),
+    )
+
+    def set_queries(self):
+        # Populate choices with all notification types that the user has a preference
+        # row for.
+        self.types.choices = [
+            (ntype, notification_type_registry[ntype].description)
+            for ntype in self.edit_user.notification_preferences
+            if ntype in notification_type_registry
+            and notification_type_registry[ntype].allow_transport(self.transport)
+        ]
+
+        # Populate data with all notification types for which the user has the current
+        # transport enabled
+        self.types.data = [
+            ntype
+            for ntype, user_prefs in self.edit_user.notification_preferences.items()
+            if user_prefs.by_transport(self.transport)
+        ]
+
+    def save_to_user(self):
+        # self.types.data will only contain the enabled preferences. Therefore, iterate
+        # through all choices and toggle true or false based on whether it's in the
+        # enabled list. This uses dict access instead of .get because set_queries
+        # also populates from this list.
+        for ntype, title in self.types.choices:
+            self.edit_user.notification_preferences[ntype].set_transport(
+                self.transport, ntype in self.types.data
+            )
 
 
 def validate_emailclaim(form, field):
