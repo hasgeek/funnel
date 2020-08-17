@@ -53,10 +53,10 @@
               {{ faicon(icon='user') }}&nbsp;&nbsp;{% if current_auth.user.username %}<a href="{{ current_auth.user.profile.url_for() }}" class="mui--text-subhead" data-cy="my-profile">{{ current_auth.user.username }}</a>{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.views.timezone() }} {%- if current_auth.user.auto_timezone %} <em>{% trans %}(from current device){% endtrans %}</em>{% endif %}
+              {{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.views.timezone() }}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon('language') }}&nbsp;&nbsp;{{ current_auth.user.views.locale() }} {%- if current_auth.user.auto_locale %} <em>{% trans %}(from current device){% endtrans %}</em>{% endif %}
+              {{ faicon('language') }}&nbsp;&nbsp;{{ current_auth.user.views.locale() }}
             </p>
           </div>
           <div class="mui-divider"></div>
