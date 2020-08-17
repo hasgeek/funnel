@@ -23,7 +23,7 @@ from ..models import (
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
-from .helpers import app_url_for, autoset_timezone, get_scheme_netloc
+from .helpers import app_url_for, autoset_timezone_and_locale, get_scheme_netloc
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(
@@ -426,7 +426,7 @@ def login_internal(user, user_session=None, login_service=None):
     current_auth.cookie['sessionid'] = user_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
-    autoset_timezone(user)
+    autoset_timezone_and_locale(user)
     user_login.send(user)
 
 

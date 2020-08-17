@@ -524,11 +524,11 @@ class UserNotification(NoIdMixin, db.Model):
             .order_by(UserNotification.created_at.desc())
         )
 
-    def dispatch(self):
+    def dispatch_for(self, transport):
         """Perform a dispatch using the notification type's view renderer."""
         return Notification.renderers[self.notification.cls_type](
             self.notification
-        ).dispatch(self)
+        ).dispatch_for(self, transport)
 
     def render(self):
         """Render for the web, using the notification type's view renderer."""

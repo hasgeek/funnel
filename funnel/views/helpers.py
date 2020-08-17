@@ -12,6 +12,7 @@ from pytz import utc
 from baseframe import cache, statsd
 
 from .. import app, funnelapp, lastuserapp
+from ..forms import supported_locales
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
 
@@ -104,13 +105,25 @@ def get_scheme_netloc(uri):
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
-def autoset_timezone(user):
-    # Set the user's timezone automatically if available
-    if user.timezone is None or user.timezone not in valid_timezones:
+def autoset_timezone_and_locale(user):
+    # Set the user's timezone and locale automatically if required
+    if (
+        user.auto_timezone
+        or user.timezone is None
+        or str(user.timezone) not in valid_timezones
+    ):
         if request.cookies.get('timezone'):
             timezone = unquote(request.cookies.get('timezone'))
             if timezone in valid_timezones:
                 user.timezone = timezone
+    if (
+        user.auto_locale
+        or user.locale is None
+        or str(user.locale) not in supported_locales
+    ):
+        user.locale = (
+            request.accept_languages.best_match(supported_locales.keys()) or 'en'
+        )
 
 
 def validate_rate_limit(

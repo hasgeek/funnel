@@ -39,6 +39,8 @@ from ..forms import (
     PhonePrimaryForm,
     VerifyEmailForm,
     VerifyPhoneForm,
+    supported_locales,
+    timezone_identifiers,
 )
 from ..models import (
     MODERATOR_REPORT_TYPE,
@@ -60,7 +62,7 @@ from ..signals import user_data_changed
 from ..transports.sms import send_sms
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for
+from .helpers import app_url_for, autoset_timezone_and_locale
 from .login_session import login_internal, logout_internal, requires_login
 
 
@@ -104,6 +106,20 @@ def phones_sorted(obj):
     primary = obj.primary_phone
     items = sorted(obj.phones, key=lambda i: (i != primary, i.phone))
     return items
+
+
+@User.views('locale')
+def user_locale(obj):
+    """Name of user's locale, defaulting to locale identifier."""
+    return supported_locales.get(str(obj.locale) if obj.locale else None, obj.locale)
+
+
+@User.views('timezone')
+def user_timezone(obj):
+    """Human-friendly identifier for user's timezone, defaulting to timezone name."""
+    return timezone_identifiers.get(
+        str(obj.timezone) if obj.timezone else None, obj.timezone
+    )
 
 
 @UserSession.views('user_agent_details')
@@ -447,6 +463,10 @@ def account_edit(newprofile=False):
         current_auth.user.fullname = form.fullname.data
         current_auth.user.username = form.username.data
         current_auth.user.timezone = form.timezone.data
+        current_auth.user.auto_timezone = form.auto_timezone.data
+        current_auth.user.locale = form.locale.data
+        current_auth.user.auto_locale = form.auto_locale.data
+        autoset_timezone_and_locale(current_auth.user)
 
         if newprofile and not current_auth.user.email:
             useremail = UserEmailClaim.get_for(

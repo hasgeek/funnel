@@ -1,6 +1,6 @@
 # flake8: noqa
 
-from sqlalchemy_utils import TimezoneType, TSVectorType, UUIDType
+from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 
 from coaster.db import db
 from coaster.sqlalchemy import (

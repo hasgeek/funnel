@@ -7,10 +7,11 @@ from flask import current_app
 from werkzeug.utils import cached_property
 
 from babel.dates import format_date
+from flask_babelhg import get_locale
 from isoweek import Week
 from pytz import utc
 
-from baseframe import __, get_locale, localize_timezone
+from baseframe import __, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 

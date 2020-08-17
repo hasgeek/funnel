@@ -1,9 +1,10 @@
 import gettext
 import re
 
+from flask_babelhg import get_locale
 import pycountry
 
-from baseframe import __, get_locale
+from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
 import baseframe.forms as forms
 

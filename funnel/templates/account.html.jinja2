@@ -35,7 +35,7 @@
             <div class="mui--d-inlineblock">
               <h3 class="mui--text-title user__box__fullname zero-bottom-margin">{{ current_auth.user.fullname }}</h3>
               {% if current_auth.user.username %}<h3 class="mui--text-subhead mui--text-light user__box__userid zero-bottom-margin">@{{ current_auth.user.username }}</h3>{%- endif %}
-              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}">Go to your profile {{ faicon(icon='arrow-right', icon_size='caption', baseline=true) }}</a>{%- endif %}
+              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}">Go to profile {{ faicon(icon='arrow-right', icon_size='caption', baseline=true) }}</a>{%- endif %}
             </div>
           </div>
         </div>
@@ -53,7 +53,10 @@
               {{ faicon(icon='user') }}&nbsp;&nbsp;{% if current_auth.user.username %}<a href="{{ current_auth.user.profile.url_for() }}" class="mui--text-subhead" data-cy="my-profile">{{ current_auth.user.username }}</a>{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.timezone }}
+              {{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.views.timezone() }} {%- if current_auth.user.auto_timezone %} <em>{% trans %}(from current device){% endtrans %}</em>{% endif %}
+            </p>
+            <p class="mui--text-subhead">
+              {{ faicon('language') }}&nbsp;&nbsp;{{ current_auth.user.views.locale() }} {%- if current_auth.user.auto_locale %} <em>{% trans %}(from current device){% endtrans %}</em>{% endif %}
             </p>
           </div>
           <div class="mui-divider"></div>
@@ -70,7 +73,7 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">{% trans %}External IDs <small>(Use any of these to login to your account){% endtrans %}</small></h3>
+            <h3 class="mui--text-title mui--text-bold">{% trans %}External IDs{% endtrans %} <small>{% trans %}(Use any of these to login){% endtrans %}</small></h3>
           </div>
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="mui-list--aligned mui-list--border">

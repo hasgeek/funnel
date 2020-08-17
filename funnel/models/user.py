@@ -20,7 +20,7 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
-from . import BaseMixin, TimezoneType, TSVectorType, UuidMixin, db
+from . import BaseMixin, LocaleType, TimezoneType, TSVectorType, UuidMixin, db
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import add_search_trigger, valid_username
 
@@ -117,10 +117,16 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     pw_set_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     #: Expiry date for the password (to prompt user to reset it)
     pw_expires_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    #: User's timezone
+    #: User's preferred/last known timezone
     timezone = with_roles(
         db.Column(TimezoneType(backend='pytz'), nullable=True), read={'owner'}
     )
+    #: Update timezone automatically from browser activity
+    auto_timezone = db.Column(db.Boolean, default=True, nullable=False)
+    #: User's preferred/last known locale
+    locale = with_roles(db.Column(LocaleType, nullable=True), read={'owner'})
+    #: Update locale automatically from browser activity
+    auto_locale = db.Column(db.Boolean, default=True, nullable=False)
     #: User's status (active, suspended, merged, etc)
     status = db.Column(db.SmallInteger, nullable=False, default=USER_STATUS.ACTIVE)
 

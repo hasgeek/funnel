@@ -1,7 +1,7 @@
 from itertools import filterfalse, zip_longest
 from uuid import uuid4
 
-from flask_babelhg import force_locale, get_locale
+from flask_babelhg import force_locale
 
 from .. import app, rq
 from ..models import Notification, UserNotification, db, notification_type_registry
@@ -28,10 +28,9 @@ class NotificationView:
     def __init__(self, obj):
         self.notification = obj
 
-    def dispatch(self, user_notification):
+    def dispatch_for(self, user_notification, transport):
         """Method that does the actual sending."""
         # TODO: Insert dispatch code here
-        user_notification.is_dispatched = True
 
     # --- Overrideable render methods
 
@@ -50,6 +49,10 @@ class NotificationView:
         Subclasses MUST implement this.
         """
         raise NotImplementedError("Subclasses must implement `email`")
+
+    def email_attachments(self, user_notification):
+        """Render optional attachments to an email notification."""
+        return None
 
     def sms(self, user_notification):
         """
@@ -113,7 +116,6 @@ def dispatch_notification(notification_types, document, target=None):
         [ntype.cls_type for ntype in notification_types],
         document_uuid=document.uuid,
         target_uuid=target.uuid if target is not None else None,
-        locale=get_locale(),
     )
 
 
@@ -121,8 +123,8 @@ DISPATCH_BATCH_SIZE = 10
 
 
 @rq.job('funnel')
-def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
-    with app.app_context(), force_locale(locale):
+def dispatch_notification_job(ntypes, document_uuid, target_uuid):
+    with app.app_context():
         eventid = uuid4()  # Create a single eventid
         event_notifications = [
             notification_type_registry[ntype](
@@ -146,8 +148,8 @@ def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
             ):
                 db.session.commit()
                 dispatch_user_notifications_job.queue(
+                    None,  # TODO per-transport batching
                     [user_notification.identity for user_notification in batch],
-                    locale=locale,
                 )
 
         # How does this batching work? There is a confusing recipe in the itertools
@@ -170,10 +172,12 @@ def dispatch_notification_job(ntypes, document_uuid, target_uuid, locale):
 
 
 @rq.job('funnel')
-def dispatch_user_notifications_job(user_notification_ids, locale):
-    with app.app_context(), force_locale(locale):
+def dispatch_user_notifications_job(transport, user_notification_ids):
+    with app.app_context():
         for identity in user_notification_ids:
             # query.get() here cannot fail. If it does, something is wrong elsewhere.
-            UserNotification.query.get(identity).dispatch()
+            user_notification = UserNotification.query.get(identity)
+            with force_locale(user_notification.user.locale or 'en'):
+                user_notification.dispatch_for(transport)
             # Commit after each recipient to protect from dispatch failure
             db.session.commit()

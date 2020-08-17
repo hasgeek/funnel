@@ -31,10 +31,18 @@ __all__ = [
     'PhonePrimaryForm',
     'VerifyEmailForm',
     'VerifyPhoneForm',
+    'supported_locales',
+    'timezone_identifiers',
 ]
 
 
 timezones = sorted_timezones()
+timezone_identifiers = dict(timezones)
+
+supported_locales = {
+    'en': __("English"),
+    'hi': __("Hindi (beta; incomplete)"),
+}
 
 
 class PasswordStrengthValidator:
@@ -283,7 +291,15 @@ class AccountForm(forms.Form):
         ),
         validators=[forms.validators.DataRequired()],
         choices=timezones,
+        widget_attrs={},
     )
+    auto_timezone = forms.BooleanField(__("Use your device’s timezone"))
+    locale = forms.SelectField(
+        __("Locale"),
+        description=__("Your preferred UI language"),
+        choices=supported_locales.items(),
+    )
+    auto_locale = forms.BooleanField(__("Use your device’s language"))
 
     def validate_username(self, field):
         reason = self.edit_obj.validate_name_candidate(field.data)
