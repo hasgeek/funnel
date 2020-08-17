@@ -176,13 +176,8 @@ class Notification(NoIdMixin, db.Model):
     #: where a user has more than one role on the document.
     roles = []
 
-    #: Excluded role to not send a notification to. Typically 'owner', because an
-    #: individual should not be notified of their own actions, except in situations
-    #: where an account hijack is suspected, such as an unusual login
-    excluded_role = 'owner'
-    # TODO: Consider using a `user_id` column to directly exclude the actor, as a role
-    # misconfiguration is likely and harder to debug. Notifications where the actor must
-    # not be excluded (such as confirmation emails) will then require another flag.
+    #: Exclude this user from receiving notifications? Subclasses may override.
+    exclude_user = False
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per profile or project.
@@ -190,6 +185,15 @@ class Notification(NoIdMixin, db.Model):
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type = db.Column(db.Unicode, nullable=False)  # NOQA: A003
+
+    #: Id of user that triggered this notification
+    user_id = db.Column(
+        None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+    )
+    #: User that triggered this notification. Optional, as not all notifications are
+    #: caused by user activity. Used to optionally exclude user from receiving
+    #: notifications of their own activity.
+    user = db.relationship(User)
 
     #: UUID of document that the notification refers to
     document_uuid = db.Column(UUIDType(binary=False), nullable=False, index=True)
@@ -299,14 +303,19 @@ class Notification(NoIdMixin, db.Model):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
-        for (user, role) in (self.target or self.document).actors_with(
+        for user, role in (self.target or self.document).actors_with(
             self.roles, with_role=True
         ):
-            if self.excluded_role and self.excluded_role in (
-                self.target or self.document
-            ).roles_for(user):
-                # Skip notifications to the excluded role, typically the immediate actor
-                # that triggered the notification
+            if (
+                self.exclude_user
+                and self.user_id is not None
+                and self.user_id == user.id
+            ):
+                # If this notification requires that it not be sent to the actor that
+                # triggered the notification, don't notify them. For example, a user
+                # who leaves a comment should not be notified of their own comment.
+                # This `if` condition uses `user_id` instead of the recommended `user`
+                # for faster processing in a loop.
                 continue
 
             # Was a notification already sent to this user? If so:

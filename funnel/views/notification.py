@@ -3,6 +3,8 @@ from uuid import uuid4
 
 from flask_babelhg import force_locale
 
+from coaster.auth import current_auth
+
 from .. import app, rq
 from ..models import Notification, UserNotification, db, notification_type_registry
 
@@ -114,6 +116,7 @@ def dispatch_notification(notification_types, document, target=None):
             )
     dispatch_notification_job.queue(
         [ntype.cls_type for ntype in notification_types],
+        user_id=current_auth.user.id if current_auth.user else None,
         document_uuid=document.uuid,
         target_uuid=target.uuid if target is not None else None,
     )
@@ -123,12 +126,15 @@ DISPATCH_BATCH_SIZE = 10
 
 
 @rq.job('funnel')
-def dispatch_notification_job(ntypes, document_uuid, target_uuid):
+def dispatch_notification_job(ntypes, user_id, document_uuid, target_uuid):
     with app.app_context():
         eventid = uuid4()  # Create a single eventid
         event_notifications = [
             notification_type_registry[ntype](
-                eventid=eventid, document_uuid=document_uuid, target_uuid=target_uuid
+                user_id=user_id,
+                eventid=eventid,
+                document_uuid=document_uuid,
+                target_uuid=target_uuid,
             )
             for ntype in ntypes
         ]
