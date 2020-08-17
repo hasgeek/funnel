@@ -70,7 +70,6 @@ is supported using an unusual primary and foreign key structure the in
 2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
     using ``(eventid, notification_id)``.
 """
-from types import SimpleNamespace
 from uuid import uuid4
 
 from sqlalchemy import event
@@ -177,6 +176,14 @@ class Notification(NoIdMixin, db.Model):
     #: where a user has more than one role on the document.
     roles = []
 
+    #: Excluded role to not send a notification to. Typically 'owner', because an
+    #: individual should not be notified of their own actions, except in situations
+    #: where an account hijack is suspected, such as an unusual login
+    excluded_role = 'owner'
+    # TODO: Consider using a `user_id` column to directly exclude the actor, as a role
+    # misconfiguration is likely and harder to debug. Notifications where the actor must
+    # not be excluded (such as confirmation emails) will then require another flag.
+
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per profile or project.
     preference_context = None
@@ -269,7 +276,7 @@ class Notification(NoIdMixin, db.Model):
         return cls
 
     def user_preferences(self, user):
-        """Return notification preferences for the user"""
+        """Return notification preferences for the user."""
         prefs = user.notification_preferences.get(self.type)
         if not prefs:
             prefs = NotificationPreferences(user=user, type=self.type)
@@ -277,9 +284,13 @@ class Notification(NoIdMixin, db.Model):
             user.notification_preferences[self.type] = prefs
         return prefs
 
+    def allow_transport(self, transport):
+        """Helper method to return ``self.allow_<transport>``."""
+        return getattr(self, 'allow_' + transport)
+
     def dispatch(self):
         """
-        Create UserNotification instances and yield in an iterator.
+        Create :class:`UserNotification` instances and yield in an iterator.
 
         This is a heavy method and must be called from a background job. When making
         new notifications, it will revoke previous notifications issued against the
@@ -291,6 +302,13 @@ class Notification(NoIdMixin, db.Model):
         for (user, role) in (self.target or self.document).actors_with(
             self.roles, with_role=True
         ):
+            if self.excluded_role and self.excluded_role in (
+                self.target or self.document
+            ).roles_for(user):
+                # Skip notifications to the excluded role, typically the immediate actor
+                # that triggered the notification
+                continue
+
             # Was a notification already sent to this user? If so:
             # 1. The user has multiple roles
             # 2. We're being dispatched a second time, possibly because a background
@@ -428,9 +446,9 @@ class UserNotification(NoIdMixin, db.Model):
         """Return the user's notification preferences."""
         return self.notification.user_preferences(self.user)
 
-    def transports(self):
+    def has_transport(self, transport):
         """
-        Return transport addresses for each transport.
+        Return whether the requested transport is an option.
 
         Uses three criteria:
 
@@ -438,31 +456,30 @@ class UserNotification(NoIdMixin, db.Model):
         2. The user preference allows it
         2. The user has this transport (verified email or phone, etc)
         """
-        transports = SimpleNamespace(
-            email=None, sms=None, webpush=None, telegram=None, whatsapp=None
-        )
         user_prefs = self.user_preferences()
-        if self.notification.allow_email and user_prefs.by_email:
-            transports.email = self.user.transport_for_email(
-                self.notification.preference_context
+        return (
+            self.notification.allow_transport(transport)
+            and user_prefs.by_transport(transport)
+            and self.user.has_transport(transport)
+        )
+
+    def transport_for(self, transport):
+        """
+        Return transport address for the requested transport.
+
+        Uses three criteria:
+
+        1. The notification type allows delivery over this transport
+        2. The user preference allows it
+        2. The user has this transport (verified email or phone, etc)
+        """
+        user_prefs = self.user_preferences()
+        if self.notification.allow_transport(transport) and user_prefs.by_transport(
+            transport
+        ):
+            return self.user.transport_for(
+                transport, self.notification.preference_context
             )
-        if self.notification.allow_sms and user_prefs.by_sms:
-            transports.sms = self.user.transport_for_sms(
-                self.notification.preference_context
-            )
-        if self.notification.allow_webpush and user_prefs.by_webpush:
-            transports.webpush = self.user.transport_for_webpush(
-                self.notification.preference_context
-            )
-        if self.notification.allow_telegram and user_prefs.by_telegram:
-            transports.telegram = self.user.transport_for_telegram(
-                self.notification.preference_context
-            )
-        if self.notification.allow_whatsapp and user_prefs.by_whatsapp:
-            transports.whatsapp = self.user.transport_for_whatsapp(
-                self.notification.preference_context
-            )
-        return transports
 
     def _revoke(self):
         """Revoke this instance and return the referred target."""
@@ -471,9 +488,11 @@ class UserNotification(NoIdMixin, db.Model):
 
     def revoke_previous(self):
         """
-        Find previous instances of notifications against the same document and revoke
-        them, returning their targets.
+        Revoke prior instances of :class:`UserNotification` against the same document.
+
+        Returns the targets of revoked notifications.
         """
+        # TODO: Consider revoking only unread notifications, to batch by user activity
         query = UserNotification.query.join(Notification)
         if self.notification.target_model:
             query = query.join(
@@ -494,7 +513,7 @@ class UserNotification(NoIdMixin, db.Model):
         return targets
 
     def rollup_notifications(self):
-        """Return all existing notifications of the same type on this document"""
+        """Return all existing notifications of the same type on this document."""
         return (
             UserNotification.query.join(Notification)
             .filter(
@@ -598,6 +617,10 @@ class NotificationPreferences(BaseMixin, db.Model):
                             for np in self.user.notification_preferences.values()
                         ),
                     )
+
+    def by_transport(self, transport):
+        """Helper method to return ``self.by_<transport>``."""
+        return getattr(self, 'by_' + transport)
 
     @cached_property
     def type_cls(self):

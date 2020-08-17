@@ -2,8 +2,8 @@
 Support functions for sending an email.
 """
 
-from collections import namedtuple
 from email.utils import formataddr, getaddresses
+from typing import NamedTuple
 
 from flask import current_app, request
 from flask_mailman import EmailMultiAlternatives
@@ -16,8 +16,13 @@ from ..models import EmailAddress, User
 
 __all__ = ['EmailAddress', 'send_email']
 
-#: namedtuple of (content, filename, mimetype)
-EmailAttachment = namedtuple('EmailAttachment', ['content', 'filename', 'mimetype'])
+
+class EmailAttachment(NamedTuple):
+    """An email attachment. Must have content, filename and mimetype."""
+
+    content: str
+    filename: str
+    mimetype: str
 
 
 def jsonld_view_action(description, url, title):

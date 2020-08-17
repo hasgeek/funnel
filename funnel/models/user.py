@@ -334,7 +334,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # No primary? Maybe there's one that's not set as primary?
         useremail = UserEmail.query.filter_by(user=self).first()
         if useremail:
-            # XXX: Mark at primary. This may or may not be saved depending on
+            # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_email = useremail
             return useremail
@@ -356,7 +356,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # No primary? Maybe there's one that's not set as primary?
         userphone = UserPhone.query.filter_by(user=self).first()
         if userphone:
-            # XXX: Mark at primary. This may or may not be saved depending on
+            # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_phone = userphone
             return userphone
@@ -383,16 +383,16 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return self.is_active and self.phone is not None
 
     @with_roles(call={'owner'})
-    def has_transport_webpush(self):
-        return False  # TODO
+    def has_transport_webpush(self):  # TODO  # pragma: no cover
+        return False
 
     @with_roles(call={'owner'})
-    def has_transport_telegram(self):
-        return False  # TODO
+    def has_transport_telegram(self):  # TODO  # pragma: no cover
+        return False
 
     @with_roles(call={'owner'})
-    def has_transport_whatsapp(self):
-        return False  # TODO
+    def has_transport_whatsapp(self):  # TODO  # pragma: no cover
+        return False
 
     @with_roles(call={'owner'})
     def transport_for_email(self, context):
@@ -407,16 +407,34 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return self.phone if self.is_active else None
 
     @with_roles(call={'owner'})
-    def transport_for_webpush(self, context):
-        return None  # TODO
+    def transport_for_webpush(self, context):  # TODO  # pragma: no cover
+        return None
 
     @with_roles(call={'owner'})
-    def transport_for_telegram(self, context):
-        return None  # TODO
+    def transport_for_telegram(self, context):  # TODO  # pragma: no cover
+        return None
 
     @with_roles(call={'owner'})
-    def transport_for_whatsapp(self, context):
-        return None  # TODO
+    def transport_for_whatsapp(self, context):  # TODO  # pragma: no cover
+        return None
+
+    @with_roles(call={'owner'})
+    def has_transport(self, transport):
+        """
+        Helper method to call ``self.has_transport_<transport>()``.
+
+        ..note::
+            Because this method does not accept a context, it may return True for a
+            transport that has been muted in that context. This may cause an empty
+            background job to be queued for a notification. Revisit this method when
+            preference contexts are supported.
+        """
+        return getattr(self, 'has_transport_' + transport)()
+
+    @with_roles(call={'owner'})
+    def transport_for(self, transport, context):
+        """Helper method to call ``self.transport_for_<transport>(context)``."""
+        return getattr(self, 'transport_for_' + transport)(context)
 
     def roles_for(self, actor, anchors=()):
         roles = super().roles_for(actor, anchors)

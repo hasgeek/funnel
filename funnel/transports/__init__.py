@@ -1,5 +1,3 @@
-from types import SimpleNamespace
-
 from .. import app
 from . import email, sms, telegram, webpush, whatsapp
 
@@ -8,14 +6,18 @@ __all__ = ['email', 'sms', 'webpush', 'telegram', 'whatsapp', 'platform_transpor
 #: List of available transports as platform capabilities. Each is turned on by
 #: :func:`init` if the necessary functionality and config exist. Views may consult this
 #: when exposing transport availability to users.
-platform_transports = SimpleNamespace(
-    email=False, sms=False, webpush=False, telegram=False, whatsapp=False
-)
+platform_transports = {
+    'email': False,
+    'sms': False,
+    'webpush': False,
+    'telegram': False,
+    'whatsapp': False,
+}
 
 
 def init():
     if app.config.get('MAIL_SERVER'):
-        platform_transports.email = True
+        platform_transports['email'] = True
     if all(
         app.config.get(var)
         for var in (
@@ -27,5 +29,5 @@ def init():
         )
     ):
         # TODO: Change this to turn on when transactional SMS infra is ready
-        platform_transports.sms = True
+        platform_transports['sms'] = True
     # Other transports are not supported yet
