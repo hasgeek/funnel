@@ -35,7 +35,7 @@
             <div class="mui--d-inlineblock">
               <h3 class="mui--text-title user__box__fullname zero-bottom-margin">{{ current_auth.user.fullname }}</h3>
               {% if current_auth.user.username %}<h3 class="mui--text-subhead mui--text-light user__box__userid zero-bottom-margin">@{{ current_auth.user.username }}</h3>{%- endif %}
-              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}">Go to profile {{ faicon(icon='arrow-right', icon_size='caption', baseline=true) }}</a>{%- endif %}
+              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}" data-cy="my-profile">Go to profile {{ faicon(icon='arrow-right', icon_size='caption', baseline=true) }}</a>{%- endif %}
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@
               {{ faicon(icon='address-card')}}&nbsp;&nbsp;{{ current_auth.user.fullname }}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon(icon='user') }}&nbsp;&nbsp;{% if current_auth.user.username %}<a href="{{ current_auth.user.profile.url_for() }}" class="mui--text-subhead" data-cy="my-profile">{{ current_auth.user.username }}</a>{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
+              {{ faicon(icon='user') }}&nbsp;&nbsp;{% if current_auth.user.username %}{{ current_auth.user.username }}{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
             </p>
             <p class="mui--text-subhead">
               {{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.views.timezone() }}
