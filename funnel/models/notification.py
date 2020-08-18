@@ -165,8 +165,6 @@ class Notification(NoIdMixin, db.Model):
     category = NOTIFICATION_CATEGORY.NONE
     #: Default description for notification. Subclasses MUST override
     description = __("Unspecified notification type")
-    #: Reason specified in email templates. Subclasses MAY override
-    reason = __("You are receiving this because you have an account at hasgeek.com.")
 
     #: Subclasses may set this to aid loading of :attr:`document`
     document_model = None
@@ -178,8 +176,8 @@ class Notification(NoIdMixin, db.Model):
     #: where a user has more than one role on the document.
     roles = []
 
-    #: Exclude this user from receiving notifications? Subclasses may override.
-    exclude_user = False
+    #: Exclude triggering actor from receiving notifications? Subclasses may override.
+    exclude_actor = False
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per profile or project.
@@ -274,7 +272,8 @@ class Notification(NoIdMixin, db.Model):
         if self.fragment_model and self.fragment_uuid:
             return self.fragment_model.query.filter_by(uuid=self.fragment_uuid).one()
 
-    def renderer(self, cls):
+    @classmethod
+    def renderer(cls, view):
         """
         Decorator for view class containing render methods.
 
@@ -287,26 +286,27 @@ class Notification(NoIdMixin, db.Model):
             class MyNotificationView(NotificationView):
                 ...
         """
-        if self.cls_type in self.renderers:
+        if cls.cls_type in cls.renderers:
             raise TypeError(
-                f"A renderer has already been registered for {self.cls_type}"
+                f"A renderer has already been registered for {cls.cls_type}"
             )
-        self.renderers[self.cls_type] = cls
-        return cls
+        cls.renderers[cls.cls_type] = view
+        return view
+
+    @classmethod
+    def allow_transport(cls, transport):
+        """Helper method to return ``cls.allow_<transport>``."""
+        return getattr(cls, 'allow_' + transport)
 
     def user_preferences(self, user):
         """Return notification preferences for the user."""
         prefs = user.notification_preferences.get(self.type)
         if not prefs:
             # TODO: Add rows for the entire category, not just one notification type
-            prefs = NotificationPreferences(user=user, type=self.type)
+            prefs = NotificationPreferences(user=user, notification_type=self.type)
             db.session.add(prefs)
             user.notification_preferences[self.type] = prefs
         return prefs
-
-    def allow_transport(self, transport):
-        """Helper method to return ``self.allow_<transport>``."""
-        return getattr(self, 'allow_' + transport)
 
     def dispatch(self):
         """
@@ -328,10 +328,14 @@ class Notification(NoIdMixin, db.Model):
             # This `if` condition uses `user_id` instead of the recommended `user`
             # for faster processing in a loop.
             if (
-                self.exclude_user
+                self.exclude_actor
                 and self.user_id is not None
                 and self.user_id == user.id
             ):
+                continue
+
+            # Don't notify inactive (suspended, merged) users
+            if not user.is_active:
                 continue
 
             # Was a notification already sent to this user? If so:

@@ -1,16 +1,19 @@
 from collections import defaultdict
+from functools import wraps
 from itertools import filterfalse, zip_longest
 from uuid import uuid4
 
+from flask import url_for
+
 from flask_babelhg import force_locale
 
+from baseframe import __
 from coaster.auth import current_auth
 
 from .. import app, rq
 from ..models import Notification, UserNotification, db
 from ..serializers import token_serializer
-from ..transports import platform_transports
-from ..transports.email import send_email
+from ..transports import TransportError, email, platform_transports, sms
 
 __all__ = ['NotificationView', 'dispatch_notification']
 
@@ -27,7 +30,7 @@ class NotificationView:
     Subclasses must override the render methods:
 
     * :meth:`web`
-    * :meth:`email`, :meth:`email_subject` and :meth:`email_attachments`
+    * :meth:`email_subject`, :meth:`email_content` and :meth:`email_attachments`
     * :meth:`sms`
     * :meth:`webpush`
     * :meth:`telegram`
@@ -40,9 +43,14 @@ class NotificationView:
             ...
     """
 
+    #: Reason specified in email templates. Subclasses MAY override
+    reason = __("You are receiving this because you have an account at hasgeek.com.")
+
     def __init__(self, user_notification):
         self.user_notification = user_notification
         self.notification = user_notification.notification
+        self.document = user_notification.notification.document
+        self.fragment = user_notification.notification.fragment
 
     def unsubscribe_token(self, transport):
         """
@@ -63,6 +71,19 @@ class NotificationView:
             }
         )
 
+    def unsubscribe_url(self, transport):
+        """
+        Return an unsubscribe URL.
+        """
+        return url_for(
+            'notification_unsubscribe',
+            token=self.unsubscribe_token(transport=transport),
+            _external=True,
+            utm_campaign='unsubscribe',
+            utm_medium=transport,
+            utm_source=self.notification.eventid,
+        )
+
     # --- Overrideable render methods
 
     def web(self):
@@ -73,14 +94,6 @@ class NotificationView:
         """
         raise NotImplementedError("Subclasses must implement `web`")
 
-    def email(self):
-        """
-        Render an email update, suitable for handing over to send_email.
-
-        Subclasses MUST implement this.
-        """
-        raise NotImplementedError("Subclasses must implement `email`")
-
     def email_subject(self):
         """
         Render the subject of an email update, suitable for handing over to send_email.
@@ -88,6 +101,14 @@ class NotificationView:
         Subclasses MUST implement this.
         """
         raise NotImplementedError("Subclasses must implement `email_subject`")
+
+    def email_content(self):
+        """
+        Render an email update, suitable for handing over to send_email.
+
+        Subclasses MUST implement this.
+        """
+        raise NotImplementedError("Subclasses must implement `email_content`")
 
     def email_attachments(self):
         """Render optional attachments to an email notification."""
@@ -159,6 +180,7 @@ def dispatch_notification(*notifications):
             raise TypeError(f"Not a notification: {notification!r}")
         notification.eventid = eventid
         notification.user = current_auth.user
+        db.session.add(notification)
     db.session.commit()
     dispatch_notification_job.queue(
         eventid, [notification.id for notification in notifications]
@@ -168,37 +190,70 @@ def dispatch_notification(*notifications):
 # --- Transports -----------------------------------------------------------------------
 
 
+def transport_worker_wrapper(func):
+    @wraps(func)
+    def inner(user_notification_ids):
+        with app.app_context():
+            queue = [
+                UserNotification.query.get(identity)
+                for identity in user_notification_ids
+            ]
+            for user_notification in queue:
+                with force_locale(user_notification.user.locale or 'en'):
+                    view = Notification.renderers[user_notification.notification.type](
+                        user_notification
+                    )
+                    try:
+                        func(user_notification, view)
+                        db.session.commit()
+                    except TransportError:
+                        if user_notification.notification.ignore_transport_errors:
+                            pass
+                        else:
+                            # TODO: Implement transport error handling code here
+                            raise
+
+    return inner
+
+
 @rq.job('funnel')
-def dispatch_transport_email(user_notification_ids):
-    with app.app_context():
-        queue = [
-            UserNotification.query.get(identity) for identity in user_notification_ids
-        ]
-        for user_notification in queue:
-            with force_locale(user_notification.user.locale or 'en'):
-                view = Notification.renderers[user_notification.notification.type](
-                    user_notification
-                )
-                subject = view.email_subject()
-                content = view.email()
-                attachments = view.email_attachments(user_notification)
-                user_notification.messageid_email = send_email(
-                    subject=subject,
-                    to=[
-                        (
-                            user_notification.user.fullname,
-                            user_notification.user.transport_for_email(
-                                user_notification.notification.preference_context
-                            ),
-                        )
-                    ],
-                    content=content,
-                    attachments=attachments,
-                )
+@transport_worker_wrapper
+def dispatch_transport_email(user_notification, view):
+    subject = view.email_subject()
+    content = view.email_content()
+    attachments = view.email_attachments()
+    user_notification.messageid_email = email.send_email(
+        subject=subject,
+        to=[
+            (
+                user_notification.user.fullname,
+                str(
+                    user_notification.user.transport_for_email(
+                        user_notification.notification.preference_context
+                    )
+                ),
+            )
+        ],
+        content=content,
+        attachments=attachments,
+    )
+
+
+@rq.job('funnel')
+@transport_worker_wrapper
+def dispatch_transport_sms(user_notification, view):
+    user_notification.messageid_sms = sms.send(
+        str(
+            user_notification.user.transport_for_sms(
+                user_notification.notification.preference_context
+            )
+        ),
+        view.sms(),
+    )
 
 
 # Add transport workers here as their worker methods are written
-transport_workers = {'email': dispatch_transport_email}
+transport_workers = {'email': dispatch_transport_email, 'sms': dispatch_transport_sms}
 
 # --- Notification background workers --------------------------------------------------
 

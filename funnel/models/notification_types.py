@@ -4,19 +4,65 @@ from .commentvote import Comment
 from .notification import NOTIFICATION_CATEGORY, Notification
 from .project import Project
 from .proposal import Proposal
+from .rsvp import Rsvp
 from .update import Update
 
 __all__ = [
-    'NewUpdateNotification',
     'NewProposalNotification',
-    'ProposalCommentNotification',
+    'NewUpdateNotification',
     'ProjectCommentNotification',
+    'ProposalCommentNotification',
+    'RegistrationCancellationNotification',
+    'RegistrationConfirmationNotification',
 ]
 
-# --- Model-specific notifications -----------------------------------------------------
+# --- Mixin classes --------------------------------------------------------------------
 
 
-class NewUpdateNotification(Notification):
+class ProjectIsParent:
+    @property
+    def preference_context(self):
+        return self.document.project.profile
+
+
+class ProfileIsParent:
+    @property
+    def preference_context(self):
+        return self.document.profile
+
+
+# --- Project notifications ------------------------------------------------------------
+
+
+class RegistrationConfirmationNotification(ProjectIsParent, Notification):
+    """
+    Notification confirming registration to a project.
+    """
+
+    __mapper_args__ = {'polymorphic_identity': 'rsvp_yes'}
+    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    description = __("When I register for a project")
+
+    document_model = Rsvp
+    exclude_user = False
+    roles = ['owner']
+
+
+class RegistrationCancellationNotification(ProjectIsParent, Notification):
+    """
+    Notification confirming cancelling registration to a project.
+    """
+
+    __mapper_args__ = {'polymorphic_identity': 'rsvp_no'}
+    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    description = __("When I cancel my registration")
+
+    document_model = Rsvp
+    exclude_user = False
+    roles = ['owner']
+
+
+class NewUpdateNotification(ProjectIsParent, Notification):
     """
     Notifications of new updates.
     """
@@ -29,12 +75,8 @@ class NewUpdateNotification(Notification):
     document_model = Update
     roles = ['project_crew', 'project_participant']
 
-    @property
-    def preference_context(self):
-        return self.document.project.profile
 
-
-class NewProposalNotification(Notification):
+class NewProposalNotification(ProjectIsParent, Notification):
     """
     Notifications of new proposals.
     """
@@ -47,15 +89,11 @@ class NewProposalNotification(Notification):
     document_model = Proposal
     roles = ['project_editor', 'project_participant']
 
-    @property
-    def preference_context(self):
-        return self.document.project.profile
+
+# --- Notifications with fragments -----------------------------------------------------
 
 
-# --- Notifications with fragments
-
-
-class ProposalCommentNotification(Notification):
+class ProposalCommentNotification(ProjectIsParent, Notification):
     """
     Notification of comments on a proposal.
     """
@@ -71,12 +109,8 @@ class ProposalCommentNotification(Notification):
     # fragment if present, document if not.
     roles = ['presenter', 'mentioned_commenter']
 
-    @property
-    def preference_context(self):
-        return self.document.project.profile
 
-
-class ProjectCommentNotification(Notification):
+class ProjectCommentNotification(ProfileIsParent, Notification):
     """
     Notification of comments on a proposal.
     """
@@ -91,7 +125,3 @@ class ProjectCommentNotification(Notification):
     # Note: These roles must be available on Comment, not Proposal. Roles come from
     # fragment if present, document if not.
     roles = ['project_editor', 'mentioned_commenter']
-
-    @property
-    def preference_context(self):
-        return self.document.profile

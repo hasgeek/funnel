@@ -5,7 +5,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import NoIdMixin, db
+from . import NoIdMixin, UuidMixin, db
 from .project import Project
 from .user import USER_STATUS, User
 
@@ -22,7 +22,7 @@ class RSVP_STATUS(LabeledEnum):  # NOQA: N801
     # USER_CHOICES = {YES, NO, MAYBE}
 
 
-class Rsvp(NoIdMixin, db.Model):
+class Rsvp(UuidMixin, NoIdMixin, db.Model):
     __tablename__ = 'rsvp'
     project_id = db.Column(
         None, db.ForeignKey('project.id'), nullable=False, primary_key=True
