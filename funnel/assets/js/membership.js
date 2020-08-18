@@ -1,6 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
 import { Utils } from './util';
+import { userAvatarUI, faSvg } from './vue_util';
 
 const Membership = {
   init({
@@ -33,6 +34,8 @@ const Membership = {
       el: divElem,
       components: {
         memberUI,
+        userAvatarUI,
+        faSvg,
       },
       data() {
         return {

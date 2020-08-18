@@ -11,6 +11,7 @@ describe('Test comments feature', function () {
     cy.route('POST', '**/edit').as('edit-comment');
     cy.route('GET', '**/reply').as('reply-form');
     cy.route('POST', '**/reply').as('reply-comment');
+    cy.route('GET', '**/delete').as('delete-form');
     cy.route('POST', '**/delete').as('delete-comment');
     cy.route('**/json').as('edit-comment');
 
@@ -58,6 +59,7 @@ describe('Test comments feature', function () {
     cy.get(`${cid} .comment__body`).contains(project.reply_comment);
 
     cy.get('a[data-cy="delete"]').first().click();
+    cy.wait('@delete-form');
     cy.get('button').contains('Delete').click();
     cy.wait('@delete-comment');
     cy.get('.comment__body').contains(project.comment).should('not.exist');

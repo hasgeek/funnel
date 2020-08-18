@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ profile.title }}{% endblock %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, past_projects_section, profile_header, user_avatar %}
+{%- from "macros.html.jinja2" import calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, past_projects_section, profile_header, useravatar %}
 
 {%- block pageheaders %}
 <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
@@ -55,19 +55,19 @@
               <div class="grid">
                 <div class="grid__col-xs-12">
                   <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}People{% endtrans %}</h2>
-                  <div class="membership-wrapper__members">
+                  <ul class="mui-list--unstyled mui-list--border">
                     {%- for user, teams in people %}
-                      <div class="membership-wrapper__members__list user">
+                      <li class="user">
                         <div class="user__box mui--clearfix">
-                          {{ user_avatar(user) }}
+                          {{ useravatar(user) }}
                           <div class="mui--d-inlineblock">
                             <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
                             <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>
                           </div>
                         </div>
-                      </div>
+                      </li>
                     {%- endfor %}
-                  </div>
+                  </ul>
                 </div>
               </div>
             </div>
