@@ -8,7 +8,6 @@ from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, requestargs, route
 
 from .. import app, funnelapp, lastuserapp, pages
-from ..forms import SavedProjectForm
 from ..models import Project, Proposal, db
 from .helpers import app_url_for
 from .project import project_data
@@ -72,7 +71,6 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'project_save_form': SavedProjectForm(),
         }
 
 

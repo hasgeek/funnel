@@ -213,6 +213,7 @@ class ProjectCfpTransitionForm(forms.Form):
         )
 
 
+@Project.forms('save')
 @SavedProject.forms('main')
 class SavedProjectForm(forms.Form):
     save = forms.BooleanField(

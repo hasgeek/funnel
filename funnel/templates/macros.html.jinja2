@@ -46,9 +46,9 @@
   </div>
 {% endmacro %}
 
-{% macro saveprojectform(project, form, formid='save-form', txt=false) %}
+{% macro saveprojectform(project, formid='save-form', txt=false) %}
   <form id={{formid}} class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
-    {{ form.hidden_tag() }}
+    {{ project.forms.save().hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
         <a class="mui--text-body2"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body2 mui--text-light login-txt">{% trans %}Login{% endtrans %} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}to save{% endtrans %}</span></span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
@@ -71,9 +71,9 @@
   </ul>
 {% endmacro %}
 
-{% macro project_share(project, project_save_form) %}
+{% macro project_share(project) %}
   <div class="project-banner__footer">
-    <div class="bookmark">{{ saveprojectform(project, project_save_form, txt=true) }}</div>
+    <div class="bookmark">{{ saveprojectform(project, txt=true) }}</div>
     {% if project.schedule_state.PUBLISHED %}
       <a class="add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar" data-cy="add-to-calendar"><span class="mui--text-body2 mui--text-light txt">{% trans %}Add to calendar{% endtrans %}</span>{{ faicon(icon='calendar-plus', baseline=false, css_class='mui--text-light') }}</a>
     {% endif %}
@@ -96,7 +96,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, csrf_form, class='', current_page='project', pinned=true) %}
+{% macro project_header(project, csrf_form, class='', current_page='project', pinned=true) %}
   {% if current_auth.user.is_site_editor %}
     <div class="site-admin">
       <div class="mui-container">
@@ -185,7 +185,7 @@
               </div>
             </div>
           {%- endfor %}
-          {{ project_share(project, project_save_form) }}
+          {{ project_share(project) }}
         </div>
       {% else %}
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
@@ -206,7 +206,7 @@
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
             {% endif %}
           </div>
-          {{ project_share(project, project_save_form) }}
+          {{ project_share(project) }}
         </div>
       {% endif %}
       <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
@@ -387,7 +387,7 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, project_save_form=none, include_calendar=true, calendarwidget_compact=true) %}
+{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
@@ -401,9 +401,9 @@
       {% endif %}
     </div>
     <div class="card__body">
-      {%- if not current_auth.is_anonymous and project_save_form %}
+      {%- if not current_auth.is_anonymous and project.forms.save() %}
         {% set save_form_id = "upcoming_" + project.uuid_b58 %}
-        <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+        <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, save_form_id) }}</div>
       {% endif %}
       {%- if include_calendar%}
         {% if calendarwidget_compact and project.schedule_state.PUBLISHED and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
@@ -427,7 +427,7 @@
   </a>
 {% endmacro %}
 
-{% macro featured_section(featured_project, project_save_form) %}
+{% macro featured_section(featured_project) %}
   {% if featured_project %}
     {% with current_sessions = featured_project.current_sessions() if
     featured_project is not none else none %}
@@ -510,7 +510,7 @@
                   {%- if not current_auth.is_anonymous %}
                     {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
                     <div class="card__body__bookmark">
-                      {{ saveprojectform(featured_project, project_save_form, save_form_id) }}
+                      {{ saveprojectform(featured_project, save_form_id) }}
                     </div>
                   {% endif %}
                   {% if featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
@@ -533,7 +533,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro upcoming_section(upcoming_projects, project_save_form) %}
+{% macro upcoming_section(upcoming_projects) %}
   {% if upcoming_projects|length > 0 %}
     <div class="projects-wrapper">
       <div class="mui-container">
@@ -545,7 +545,7 @@
         <ul class="mui-list--unstyled grid upcoming" role="list">
           {% for project in upcoming_projects %}
           <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(project, project_save_form) }}
+            {{ projectcard(project) }}
           </li>
           {%- endfor -%}
         </ul>
@@ -554,7 +554,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro open_cfp_section(open_cfp_projects, project_save_form) %}
+{% macro open_cfp_section(open_cfp_projects) %}
   {% if open_cfp_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
@@ -581,7 +581,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro all_projects_section(all_projects, project_save_form) %}
+{% macro all_projects_section(all_projects) %}
   {% if all_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
@@ -593,7 +593,7 @@
         <ul class="grid projects" role="list">
           {% for project in all_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(project, project_save_form) }}
+              {{ projectcard(project) }}
             </li>
           {%- endfor -%}
         </ul>

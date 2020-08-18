@@ -40,7 +40,6 @@ from ..forms import (
     ProjectScheduleTransitionForm,
     ProjectTransitionForm,
     RsvpTransitionForm,
-    SavedProjectForm,
 )
 from ..models import (
     RSVP_STATUS,
@@ -266,7 +265,6 @@ class ProjectView(
     def view(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
         return {
@@ -276,7 +274,6 @@ class ProjectView(
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form,
         }
 
     @route('proposals')
@@ -284,11 +281,9 @@ class ProjectView(
     @requires_roles({'reader'})
     def view_proposals(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 
@@ -296,11 +291,9 @@ class ProjectView(
     @render_with('session_videos.html.jinja2')
     def session_videos(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 
@@ -673,7 +666,7 @@ class ProjectView(
     @requires_login
     @requires_roles({'reader'})
     def save(self):
-        form = SavedProjectForm()
+        form = self.obj.forms.save()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 user=current_auth.user, project=self.obj
@@ -738,13 +731,11 @@ class ProjectView(
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 
@@ -756,11 +747,9 @@ class ProjectView(
         if request_is_xhr():
             return {'comments': comments}
         else:
-            project_save_form = SavedProjectForm()
             commentform = CommentForm(model=Comment)
             return {
                 'project': self.obj,
-                'project_save_form': project_save_form,
                 'comments': comments,
                 'commentform': commentform,
                 'delcommentform': forms.Form(),

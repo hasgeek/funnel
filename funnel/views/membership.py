@@ -17,7 +17,6 @@ from ..forms import (
     OrganizationMembershipForm,
     ProjectCrewMembershipForm,
     ProjectCrewMembershipInviteForm,
-    SavedProjectForm,
 )
 from ..models import (
     Organization,
@@ -295,14 +294,12 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
     @route('', methods=['GET', 'POST'])
     @render_with('project_membership.html.jinja2')
     def crew(self):
-        project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
             'memberships': [
                 membership.current_access(datasets=('without_parent', 'related'))
                 for membership in self.obj.active_crew_memberships
             ],
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 
