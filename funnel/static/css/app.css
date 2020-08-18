@@ -643,21 +643,22 @@ a.loginbutton.hidden,
   border-bottom: 1px solid rgba(132, 146, 166, 0.2);
   padding: 5px;
 }
-.mui-list--border li .item {
-  display: inline-block;
-  vertical-align: top;
-  width: calc(100% - 50px);
-}
-.mui-list--border li .item .subitem {
-  display: block;
-}
 
 .mui-list--border li:last-child {
   border-bottom: none;
 }
 
+.item {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(100% - 50px);
+}
+.item .subitem {
+  display: block;
+}
+
 @media (min-width: 1200px) {
-  .mui-list--border li .item .subitem {
+  .item .subitem {
     margin-left: 8px;
     display: inline-block;
   }
