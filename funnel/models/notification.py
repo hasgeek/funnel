@@ -224,6 +224,11 @@ class Notification(NoIdMixin, db.Model):
     #: This notification class may be delivered by WhatsApp message
     allow_whatsapp = True
 
+    #: Ignore transport errors? If True, an error will be ignored silently. If False,
+    #: an error report will be logged for the user or site administrator. TODO
+    ignore_transport_errors = False
+
+    #: Registry of per-class renderers
     renderers = {}  # Registry of {cls_type: CustomNotificationView}
 
     def __init__(self, document=None, fragment=None, **kwargs):
@@ -282,6 +287,10 @@ class Notification(NoIdMixin, db.Model):
             class MyNotificationView(NotificationView):
                 ...
         """
+        if self.cls_type in self.renderers:
+            raise TypeError(
+                f"A renderer has already been registered for {self.cls_type}"
+            )
         self.renderers[self.cls_type] = cls
         return cls
 
