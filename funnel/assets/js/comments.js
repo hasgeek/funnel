@@ -2,6 +2,7 @@ import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
 import * as timeago from 'timeago.js';
 import { Utils } from './util';
+import { userAvatarUI, faSvg } from './vue_util';
 
 const Comments = {
   init({
@@ -91,6 +92,8 @@ const Comments = {
       el: divElem,
       components: {
         commentUI,
+        userAvatarUI,
+        faSvg,
       },
       data() {
         return {

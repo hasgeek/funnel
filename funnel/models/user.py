@@ -175,6 +175,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 'status',
                 'avatar',
                 'created_at',
+                'profile_url',
             }
         }
     }
@@ -190,6 +191,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             'status',
             'avatar',
             'created_at',
+            'profile_url',
         }
     }
 
@@ -304,6 +306,16 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             if self.profile and self.profile.logo_url and self.profile.logo_url.url
             else ''
         )
+
+    @with_roles(read={'all'})
+    @property
+    def has_public_profile(self):
+        return self.profile.is_public if self.profile else False
+
+    @with_roles(read={'all'})
+    @property
+    def profile_url(self):
+        return self.profile.url_for() if self.has_public_profile else None
 
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)

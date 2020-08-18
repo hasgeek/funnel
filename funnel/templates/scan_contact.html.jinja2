@@ -41,27 +41,27 @@
             <p class="mui--text-subhead mui--text-danger page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera"></video>
-          {{#if video}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg>{{/if}}
+          {{#if video}}<faicon icon='expand' basline=false css_class='scanner-wrapper__badge--icon'></faicon>{{/if}}
         </div>
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-action="close modal"><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
+            <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-action="close modal"><faicon icon='times' icon_size='title' basline=true></faicon></a>
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4 class="mui--text-headlin mui--align-middle">Scanning <svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#spinner"></use></svg></h4>
+              <h4 class="mui--text-headlin mui--align-middle">Scanning <faicon icon='times' icon_size='title' basline=true></faicon></h4>
             {{elseif contactFound}}
-              <h3 class="mui--text-title mui--text-bold"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#user"></use></svg>&nbsp;&nbsp;{{ contact.fullname }}</h3>
-              <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#envelope"></use></svg>&nbsp;&nbsp; {{ contact.email }}</p>
+              <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=' icon-img--smaller'></faicon>{{ contact.fullname }}</h3>
+              <p class="mui--text-subhead"><faicon icon='envelope' css_class=' icon-img--smaller'></faicon>{{ contact.email }}</p>
               {{#if contact.phone }}
-                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#phone-alt"></use></svg>&nbsp;&nbsp; {{ contact.phone }}</p>
+                <p class="mui--text-subhead"><faicon icon='phone-alt' css_class=' icon-img--smaller'></faicon>{{ contact.phone }}</p>
               {{/if}}
               {{#if contact.twitter }}
-                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#twitter-square"></use></svg>&nbsp;&nbsp;{{ contact.twitter }}</p>
+                <p class="mui--text-subhead"><faicon icon='twitter-square' css_class=' icon-img--smaller'></faicon>{{ contact.twitter }}</p>
               {{/if}}
               {{#if contact.company }}
-                <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg>&nbsp;&nbsp; {{ contact.company }}</p>
+                <p class="mui--text-subhead"><faicon icon='briefcase' css_class=' icon-img--smaller'></faicon>{{ contact.company }}</p>
               {{/if}}
               <p class="mui--text-body2"><i>This contact has been added to contacts tab in the account page</i></p>
             {{else}}
@@ -81,23 +81,22 @@
           {{#each contacts:i}}
             <div class="card mui--z2 contact-card card--small">
               <div class="card__body mui--clearfix">
-                <p class="mui--pull-left"><svg class="fa5-icon fa5-icon--display1" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg></p>
-                <div class="mui--pull-right contact-card__details">
+                <div>
                   <div class="mui--clearfix">
-                    <div class="mui--pull-left">
-                      <h3 class="mui--text-title mui--text-bold"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#user"></use></svg>{{ contacts[i].fullname }}</h3>
-                      <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#envelope"></use></svg> {{ contacts[i].email }}</p>
+                    <div class="mui--pull-left contact-card__details">
+                      <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=' icon-img--smaller'></faicon>{{ contacts[i].fullname }}</h3>
+                      <p class="mui--text-subhead"><faicon icon='envelope' css_class=' icon-img--smaller'></faicon>{{ contacts[i].email }}</p>
                       {{#if contacts[i].phone }}
-                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#phone-alt"></use></svg> {{ contacts[i].phone }}</p>
+                        <p class="mui--text-subhead"><faicon icon='phone-alt' css_class=' icon-img--smaller'></faicon>{{ contacts[i].phone }}</p>
                       {{/if}}
                       {{#if contacts[i].twitter }}
-                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#twitter-square"></use></svg>{{ contacts[i].twitter }}</p>
+                        <p class="mui--text-subhead"><faicon icon='twitter-sqaure' css_class=' icon-img--smaller'></faicon>{{ contacts[i].twitter }}</p>
                       {{/if}}
                       {{#if contacts[i].company }}
-                        <p class="mui--text-subhead"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#briefcase"></use></svg> {{ contacts[i].company }}</p>
+                        <p class="mui--text-subhead"><faicon icon='briefcase' css_class=' icon-img--smaller'></faicon>{{ contacts[i].company }}</p>
                       {{/if}}
                     </div>
-                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><svg class="fa5-icon fa5-icon--headline mui--align-middle" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#address-card"></use></svg></a>
+                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><faicon icon='address-card' icon_size='headline' baseline=false css_class='mui--align-middle'></faicon></a>
                   </div>
                 </div>
               </div>

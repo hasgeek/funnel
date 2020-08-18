@@ -391,6 +391,7 @@
   margin-bottom: $mui-grid-padding-double;
   margin: 16px 0 32px;
   display: block;
+  cursor: pointer;
 
   .user__box__gravatar--initials {
     background-color: #e05f25 !important;
@@ -401,5 +402,6 @@
     border-radius: 2px;
     border: solid 1px rgba(77, 87, 99, 0.13);
     background-color: #ffffff;
+    cursor: pointer;
   }
 }

@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import project_header %}
+{%- from "macros.html.jinja2" import project_header, membership_template %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{% trans %}Crew{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
@@ -28,99 +28,32 @@
 
 {% block basecontent %}
   <div class="mui-container">
-  <div class="page-content page-content--mob-nav">
-    <div class="grid" id="crew">
-      <div class="grid__col-xs-12">
-        {% raw %}
-        <div id="manage-membership" v-cloak>
-          <div class="membership-wrapper" v-if="ready">
-            <div class="mui--clearfix">
-              <div class="btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
-                <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member" data-cy-btn="add-member"><svg class="fa5-icon fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#plus'"></use></svg> Add new member</p></button>
-              </div>
-              <div v-if="members" :class="[isUserProfileAdmin? 'membership-wrapper--half': '']">
-                <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
-                  <div class="mui-textfield">
-                    <input class="field-search mui--text-light" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
-                    <svg class="fa5-icon search-form__icon" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#search'"></use></svg>
-                  </div>
-                </form>
-              </div>
-            </div>
-            <hr class="separator">
-            <div v-if="members">
-              <div class="mui--clearfix membership-wrapper__filter">
-                <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
-                <div class="mui--pull-right">
-                   <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Name</button>
-                    <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Role</button>
-                </div>
-              </div>
-              <div v-if="view == 'role'" class="membership-wrapper__members">
-                <div v-for="role in roles">
-                  <p class="mui--text-subhead membership-wrapper__members__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }}
-                    <svg class="fa5-icon fa5-icon--title fa5--align-baseline mui--pull-right collapsible__icon" aria-hidden="true" role="img">
-                      <use v-bind:xlink:href="svgIconUrl + '#angle-right'" v-if="!role.showMembers"></use>
-                      <use v-bind:xlink:href="svgIconUrl + '#angle-down'" v-else></use>
-                    </svg>
-                  </p>
-                  <transition name="slide-fade">
-                    <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
-                      <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ?  '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']" v-if="member[role.roleKey]">
-                        <member :member="member"></member>
-                      </div>
-                    </div>
-                  </transition>
-                </div>
-              </div>
-              <div v-if="view == 'name'" class="membership-wrapper__members">
-                <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '', isUserProfileAdmin ? '' : 'membership-wrapper__members__list--viewonly']" @click="fetchForm($event, member.urls.edit, member)"  :aria-label="[isUserProfileAdmin ? 'Edit' : member.user.fullname]" :role="[isUserProfileAdmin ? 'dialog' : '']">
-                   <member :member="member"></member>
-                </div>
-              </div>
-            </div>
-            <div class="no-member" v-else>
-              <p class="mui--text-center"><svg class="fa5-icon mui--text-light no-member__icon" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#user-friends'"></use></svg></p>
-              <p class="mui--text-body2 mui--text-bold mui--text-center zero-bottom-margin">No members found</p>
-              <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">Members you add will appear here…</p>
-            </div>
-            <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
-              <a class="modal__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"  data-action="close modal">
-                <svg class="fa5-icon fa5-icon--title" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#times'"></use></svg>
-              </a>
-              <component :is="Form"></component>
-              <div class="modal-form__action-box mui--bg-accent">
-                <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
-                <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">Cancel</button>
-              </div>
-              <div v-if="activeMember" class="modal-form__action-box--revoke mui--text-center">
-                <button @click="fetchForm($event, deleteURL)" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-light mui--text-bold">Remove this member</button>
-              </div>
-            </div>
-          </div>
-        {% endraw %}
+    <div class="page-content page-content--mob-nav">
+      <div class="grid" id="crew">
+        <div class="grid__col-xs-12">
+          {{ membership_template() }}
+        </div>
       </div>
     </div>
   </div>
-</div>
-{% raw %}
-<script type="text/x-template" id="member-template">
-  <div class="user__box mui--clearfix">
-    <img class="user__box__gravatar" :src="member.user.avatar" v-if="member.user.avatar"/>
-    <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(member.user.fullname) }}</div>
-    <div class="mui--d-inlineblock">
-    <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
-    <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
+  {% raw %}
+  <script type="text/x-template" id="member-template">
+    <div class="user__box mui--clearfix">
+      <img class="user__box__gravatar" :src="member.user.avatar" v-if="member.user.avatar"/>
+      <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(member.user.fullname) }}</div>
+      <div class="mui--d-inlineblock">
+      <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+      <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
+      </div>
+      <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
+        <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Editor</li>
+        <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Concierge</li>
+        <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Usher</li>
+        <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
+      </ul>
     </div>
-    <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
-      <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Editor</li>
-      <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Concierge</li>
-      <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Usher</li>
-      <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
-    </ul>
-  </div>
-</script>
-{% endraw %}
+  </script>
+  {% endraw %}
 {% endblock %}
 
 {% block footerscripts %}
