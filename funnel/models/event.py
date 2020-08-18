@@ -210,6 +210,16 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     def avatar(self):
         return self.user.avatar if self.user else ''
 
+    @with_roles(read={'all'})
+    @property
+    def has_public_profile(self):
+        return self.user.has_public_profile if self.user else ''
+
+    @with_roles(read={'all'})
+    @property
+    def profile_url(self):
+        return self.user.profile.url_for() if self.user.has_public_profile else False
+
     @classmethod
     def get(cls, current_project, current_email):
         return cls.query.filter_by(

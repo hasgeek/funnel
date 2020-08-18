@@ -1,6 +1,7 @@
 import Ractive from 'ractive';
 import jsQR from 'jsqr';
 import vCardsJS from 'vcards-js';
+import { faSvg } from './ractive_util';
 
 const badgeScan = {
   init({ getContactApiUrl, wrapperId, templateId }) {
@@ -25,7 +26,7 @@ const badgeScan = {
         this.set('showModal', false);
         this.startRenderFrameLoop();
       },
-
+      components: { faSvg },
       downloadContact(event) {
         const contact = badgeScanComponent.get(event.keypath);
         const vCard = vCardsJS();

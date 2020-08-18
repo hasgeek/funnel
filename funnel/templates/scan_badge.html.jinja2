@@ -25,7 +25,7 @@
             <p class="mui--text-danger mui--text-subhead page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
-          {{#if video}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg> {{/if}}
+          {{#if video}}<faSvg icon='expand' basline=false cssclass='scanner-wrapper__badge--icon'></faSvg> {{/if}}
           {{#if video}}
           <div>
             <div class="mui-select camera-dropdown">
@@ -44,12 +44,12 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-action="close contact modal" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}" ><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
+            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-action="close contact modal" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><faSvg icon='times' iconsize='title' basline=true></faSvg></a>
             <h3 class="mui--text-title">Check in status</h3>
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4 class="mui--text-headline mui--align-middle">Scanning <svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#spinner"></use></svg></h4>
+              <h4 class="mui--text-headline mui--align-middle">Scanning <faSvg icon='spinner'></faSvg></h4>
             {{elseif attendeeFound}}
               <h4>Hello {{attendeeName}},</h4>
               <p>Thank you for choosing to participate in {{ projectTitle }} and for being a part of this growing community.</p>
