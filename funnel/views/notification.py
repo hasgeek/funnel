@@ -17,7 +17,7 @@ __all__ = ['NotificationView', 'dispatch_notification']
 
 @UserNotification.views('render')
 def render_user_notification(obj):
-    return Notification.renderers[obj.notification.cls_type](obj.notification).web(obj)
+    return Notification.renderers[obj.notification.type](obj.notification).web(obj)
 
 
 class NotificationView:
