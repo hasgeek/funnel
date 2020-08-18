@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, user_avatar %}
+{%- from "macros.html.jinja2" import account_tabs, useravatar %}
 
 {% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
 
@@ -72,7 +72,7 @@
                     {% for contact in daterow.contacts.all() %}
                       <div class="user">
                         <div class="user__box">
-                          {{ user_avatar(contact.participant) }}
+                          {{ useravatar(contact.participant) }}
                           <div class="mui--clearfix">
                             <div class=" mui--pull-left">
                               <p class="mui--text-subhead zero-bottom-margin">{{ contact.participant.fullname }}</p>

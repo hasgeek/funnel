@@ -36,7 +36,7 @@
             <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
             <div class="about__details__description">
               {% if project.view_for('cfp').is_available() -%}
-                <p class="mui--pull-right">
+                <p>
                   <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">
                     {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
                       {% trans %}Open proposal submissions{% endtrans %}

@@ -1,5 +1,6 @@
 import { Utils } from './util';
 import Ractive from 'ractive';
+import { useravatar, faicon } from './ractive_util';
 
 const Search = {
   init(config) {
@@ -36,6 +37,7 @@ const Search = {
         },
         getInitials: window.Baseframe.Utils.getInitials,
       },
+      components: { useravatar, faicon },
       getQueryString(paramName) {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has(paramName)) {
