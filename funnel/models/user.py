@@ -310,7 +310,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @with_roles(read={'all'})
     @property
     def profile_url(self):
-        return self.profile.url_for() if self.has_public_profile else False
+        return self.profile.url_for() if self.has_public_profile else None
 
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)

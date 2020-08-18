@@ -795,7 +795,7 @@
       <a class="post-form-block" @click="fetchForm($event, newCommentUrl)" aria-label="Post comment" data-cy="post-comment" v-if="isuserparticipant && !commentForm">
         <div class="user">
           <div class="user__box">
-            <user-avatar :user='user' :addprofilelink=false></user-avatar>
+            <useravatar :user='user' :addprofilelink=false></useravatar>
             <input type="text" placeholder="Post comment…" />
           </div>
         </div>
@@ -807,14 +807,14 @@
         <div :id="'#c-' + comment.uuid_b58">
           <div class="comment__header">
             <button class="mui-btn mui-btn--nostyle" aria-label="Hide comment" aria-expanded="true" v-if="!hide" @click="collapse(true)">
-              <fa-svg :icon="'caret-circle-up'" :iconsize="'subhead'"></fa-svg>
+              <faicon :icon="'caret-circle-up'" :icon_size="'subhead'"></faicon>
             </button>
             <button class="mui-btn mui-btn--nostyle" aria-expanded="false" aria-label="Collapse comment" v-else @click="collapse(false)">
-              <fa-svg :icon="'caret-circle-down'" :iconsize="'subhead'"></fa-svg>
+              <faicon :icon="'caret-circle-down'" :icon_size="'subhead'"></faicon>
             </button>
             <div class="comment__header__details user">
               <div class="user__box" v-if="!comment.state">
-                <user-avatar :user='comment.user' :addprofilelink=true></user-avatar>
+                <useravatar :user='comment.user' :addprofilelink=true></useravatar>
                 <div class="mui--d-inlineblock">
                   <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ comment.user.fullname }}</h3>
                   <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
@@ -900,17 +900,17 @@
               <li><a class="mui--text-uppercase mui--text-light" :href="update.urls.view">Update #{{ update.number }}</a></li>
               <li v-if="age"><a class="mui--text-light" :href="update.urls.view">{{ age }}</a></li>
               <li v-if="update.visibility_label == 'Restricted'">
-                <fa-svg :icon="'lock-alt'"></fa-svg>
+                <faicon :icon="'lock-alt'"></faicon>
               </li>
               <li v-if="update.is_pinned">
-                <fa-svg :icon="'thumbtack'" :baseline=false :cssclass="'mui--align-middle'"></fa-svg>
+                <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
               </li>
             </ul>
           </div>
           <div class="mui--pull-right">
-            <a class="mui--text-menu mui--text-hyperlink right-padding" :href="update.urls.view" aria-label="Share this update"><fa-svg :icon="'share-square'" :iconsize="'subhead'"></fa-svg></a>
+            <a class="mui--text-menu mui--text-hyperlink right-padding" :href="update.urls.view" aria-label="Share this update"><faicon :icon="'share-square'" :icon_size="'subhead'"></faicon></a>
             <div class="mui-dropdown" v-if="iseditor">
-              <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><fa-svg :icon="'ellipsis-v'" :iconsize="'subhead'"></fa-svg></a>
+              <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><faicon :icon="'ellipsis-v'" :icon_size="'subhead'"></faicon></a>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
                 <li><a v-if="update.urls.edit" :href="update.urls.edit">Edit</a></li>
                 <li><a v-if="update.urls.delete" :href="update.urls.delete">Delete</a></li>
@@ -920,7 +920,7 @@
         </div>
         <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="update.urls.view">{{ update.title }}</a></p>
         <div class="user__box mui--clearfix update__header">
-          <user-avatar :user='update.user' :addprofilelink=true></user-avatar>
+          <useravatar :user='update.user' :addprofilelink=true></useravatar>
           <div class="mui--d-inlineblock">
             <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ update.user.fullname }}</h3>
             <h3 v-if="update.user.username" class="mui--text-caption user__box__userid"><span>@{{ update.user.username }}</span></h3>
@@ -930,12 +930,12 @@
           <div class="update__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(update.body.html, 250)"></div>
           <div class="update__content mui--text-light fullcontent" v-else v-html="update.body.html"></div>
           <p class="mui--text-body2">
-            <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" aria-label="read more"><fa-svg :icon="'caret-circle-down'" :iconsize="'caption'"></fa-svg> Read more</a></p>
-            <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="hide"><fa-svg :icon="'caret-circle-up'" :iconsize="'caption'"></fa-svg> Hide</a>
+            <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" aria-label="read more"><faicon :icon="'caret-circle-down'" :icon_size="'caption'"></faicon> Read more</a></p>
+            <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="hide"><faicon :icon="'caret-circle-up'" :icon_size="'caption'"></faicon> Hide</a>
           </p>
         </div>
         <div v-else>
-          <p class="mui--text-body2 mui--text-light mui--text-center top-padding zero-bottom-margin"><fa-svg :icon="'lock-alt'" :iconsize="'caption'"></fa-svg> <em>This update is for participants only</em></p>
+          <p class="mui--text-body2 mui--text-light mui--text-center top-padding zero-bottom-margin"><faicon :icon="'lock-alt'" :icon_size="'caption'"></faicon> <em>This update is for participants only</em></p>
         </div>
         <hr class="mui--visible-xs-block mui--visible-sm-block">
       </li>
@@ -1039,7 +1039,7 @@
   </table>
 {%- endmacro %}
 
-{%- macro user_avatar(user, css_class='', add_profile_link=true) %}
+{%- macro useravatar(user, css_class='', add_profile_link=true) %}
   {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}">{% endif %}
   {% if user and user.avatar %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar }}"/>
@@ -1055,13 +1055,13 @@
       <div class="membership-wrapper" v-if="ready">
         <div class="mui--clearfix">
           <div class="btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
-            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member" data-cy-btn="add-member"><fa-svg :icon="'plus'"></fa-svg> Add new member</p></button>
+            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> Add new member</p></button>
           </div>
           <div class="membership-wrapper--half" v-if="members">
             <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
               <div class="mui-textfield">
                 <input class="field-search mui--text-light" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
-                <fa-svg :icon="'search'" :baseline=false :cssclass="'search-form__icon'"></fa-svg>
+                <faicon :icon="'search'" :baseline=false :css_class="'search-form__icon'"></faicon>
               </div>
             </form>
           </div>
@@ -1078,8 +1078,8 @@
           <div v-if="view == 'role'" class="membership-wrapper__members">
             <div v-for="role in roles">
               <p class="mui--text-subhead membership-wrapper__members__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }}
-                <fa-svg :icon="'angle-right'" :iconsize="'title'" :cssclass="'mui--pull-right collapsible__icon'" v-if="!role.showMembers"></fa-svg>
-                <fa-svg :icon="'angle-down'" :iconsize="'title'" :cssclass="'mui--pull-right collapsible__icon'" v-else></fa-svg>
+                <faicon :icon="'angle-right'" :icon_size="'title'" :css_class="'mui--pull-right collapsible__icon'" v-if="!role.showMembers"></faicon>
+                <faicon :icon="'angle-down'" :icon_size="'title'" :css_class="'mui--pull-right collapsible__icon'" v-else></faicon>
               </p>
               <transition name="slide-fade">
                 <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
@@ -1112,14 +1112,14 @@
         </div>
         <div class="no-member" v-else>
           <p class="mui--text-center">
-            <fa-svg :icon="'user-friends'" :cssclass="'no-member__icon'"></fa-svg>
+            <faicon :icon="'user-friends'" :css_class="'no-member__icon'"></faicon>
           </p>
           <p class="mui--text-body2 mui--text-bold mui--text-center zero-bottom-margin">No members found</p>
           <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">Members you add will appear here…</p>
         </div>
         <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
           <a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"  data-action="close modal">
-            <fa-svg :icon="'times'" :iconsize="'title'"></fa-svg>
+            <faicon :icon="'times'" :icon_size="'title'"></faicon>
           </a>
           <component :is="Form"></component>
           <div class="modal-form__action-box mui--bg-accent">

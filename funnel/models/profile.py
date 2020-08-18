@@ -199,7 +199,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     @with_roles(read={'all'})
     @property
     def is_public(self):
-        return True if self.state.PUBLIC else False
+        return bool(self.state.PUBLIC)
 
     @hybrid_property
     def title(self):

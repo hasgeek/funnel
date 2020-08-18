@@ -1,6 +1,6 @@
 import Ractive from 'ractive';
 import jsQR from 'jsqr';
-import { faSvg } from './ractive_util';
+import { faicon } from './ractive_util';
 
 const badgeScan = {
   init({ checkinApiUrl, wrapperId, templateId, projectTitle, eventTitle }) {
@@ -24,7 +24,7 @@ const badgeScan = {
         selectedCamera: '',
         svgIconUrl: window.Hasgeek.config.svgIconUrl,
       },
-      components: { faSvg },
+      components: { faicon },
       closeModal(event) {
         if (event) event.original.preventDefault();
         $.modal.close();

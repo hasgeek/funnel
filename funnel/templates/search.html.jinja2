@@ -68,7 +68,7 @@
                                             </p>
                                           {{/each}}
                                           {{#if obj.calendar_weeks_compact.weeks.length > 1 }}
-                                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right"><faSvg icon='chevron-right' iconsize='caption' basline=false></faSvg></p>
+                                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right"><faicon icon='chevron-right' icon_size='caption' basline=false></faicon></p>
                                           {{/if}}
                                         </div>
                                       </div>
@@ -80,10 +80,10 @@
                             <div class="card__body__title js-truncate {{#if !obj.calendar_weeks_full.weeks.length }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}:</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
                             <p class="mui--text-subhead card__body__location">
                             {{#if obj.location }}
-                              <faSvg icon='map-marker-alt' iconsize='caption' basline=false></faSvg> {{ obj.location }}
+                              <faicon icon='map-marker-alt' icon_size='caption' basline=false></faicon> {{ obj.location }}
                             {{/if}}
                             </p>
-                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faSvg icon='search' cssclass='search-icon' basline=false></faSvg> {{{ snippet_html }}}</p>
+                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
                           </div>
                         </a>
                       {{elseif result == 'profile'}}
@@ -100,33 +100,33 @@
                           </div>
                           <div class="card__body">
                             <div class="card__body__title js-truncate card__body__title--smaller" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{{ obj.description.html }}}</span></div>
-                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faSvg icon='search' cssclass='search-icon' basline=false></faSvg> {{{ snippet_html }}}</p>
+                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
                           </div>
                         </a>
                       {{elseif result == 'session'}}
                         <div class="user__box">
-                          <userAvatarUI user={{obj.user}}></userAvatarUI>
+                          <useravatar user={{obj.user}}></useravatar>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                           <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">{{#if obj.speaker }}<span>{{ obj.speaker }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                           <p class="mui--text-body2 zero-top-margin  zero-bottom-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.start_at) }}–{{ formatTime(obj.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.start_at) }}</p>
-                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faSvg icon='search' cssclass='search-icon' basline=false></faSvg> {{{ snippet_html }}}</p>
+                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
                         </div>
                       {{elseif result == 'proposal'}}
                         <div class="user__box">
-                          <userAvatarUI user={{obj.user}}></userAvatarUI>
+                          <useravatar user={{obj.user}}></useravatar>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h2>
                           <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">{{#if obj.speaker.fullname }}<span>{{ obj.speaker.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span></h3>
                           {{#if obj.session}}{{#if obj.session.start_at}}
                             <p class="mui--text-body2 zero-top-margin"><span class="mui--text-light">at</span> {{ formatTime(obj.session.start_at) }}–{{ formatTime(obj.session.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start_at) }}</p>
                           {{/if}}{{/if}}
-                          <p class="mui--text-body2 mui--text-light snippets"><faSvg icon='search' cssclass='search-icon' basline=false></faSvg> {{{ snippet_html }}}</p>
+                          <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
                         </div>
                       {{elseif result == 'comment'}}
                         <div class="user__box">
-                          <userAvatarUI user={{obj.user}}></userAvatarUI>
+                          <useravatar user={{obj.user}}></useravatar>
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{ obj.title }}</a></h2>
                           <p class="mui--text-body2 mui--text-light">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
-                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faSvg icon='search' cssclass='search-icon' basline=false></faSvg> {{{ snippet_html }}}</p>
+                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
                         </div>
                       {{/if}}
                     </div>
@@ -134,7 +134,7 @@
                     <p class="mui--text-title">No results found</p>
                   {{/}}
                   {{#if results[result].next_num }}
-                    <p class="js-lazy-loader mui--text-title mui--text-bold mui--text-center" data-next-page="{{ results[result].next_num }}"><faSvg icon='spinner' iconsize='subhead'></faSvg> Loading more</p>
+                    <p class="js-lazy-loader mui--text-title mui--text-bold mui--text-center" data-next-page="{{ results[result].next_num }}"><faicon icon='spinner' icon_size='subhead'></faicon> Loading more</p>
                   {{/if}}
                 {{/if}}
               {{/each}}

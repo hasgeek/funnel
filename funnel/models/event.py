@@ -213,12 +213,16 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     @with_roles(read={'all'})
     @property
     def has_public_profile(self):
-        return self.user.has_public_profile if self.user else ''
+        return self.user.has_public_profile if self.user else False
 
     @with_roles(read={'all'})
     @property
     def profile_url(self):
-        return self.user.profile.url_for() if self.user.has_public_profile else False
+        return (
+            self.user.profile.url_for()
+            if self.user and self.user.has_public_profile
+            else None
+        )
 
     @classmethod
     def get(cls, current_project, current_email):

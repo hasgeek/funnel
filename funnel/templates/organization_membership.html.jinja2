@@ -35,7 +35,7 @@
   {% raw %}
     <script type="text/x-template" id="member-template">
       <div class="user__box mui--clearfix">
-        <user-avatar :user='member.user' :addprofilelink=true></user-avatar>
+        <useravatar :user='member.user' :addprofilelink=true></useravatar>
         <div class="mui--d-inlineblock">
         <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
         <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
