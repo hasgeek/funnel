@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import project_header, membership_template, member_template %}
+{%- from "macros.html.jinja2" import project_header, membership_template %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{% trans %}Crew{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
@@ -36,7 +36,24 @@
       </div>
     </div>
   </div>
-  {{ member_template() }}
+  {% raw %}
+  <script type="text/x-template" id="member-template">
+    <div class="user__box mui--clearfix">
+      <img class="user__box__gravatar" :src="member.user.avatar" v-if="member.user.avatar"/>
+      <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(member.user.fullname) }}</div>
+      <div class="mui--d-inlineblock">
+      <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+      <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
+      </div>
+      <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
+        <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Editor</li>
+        <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Concierge</li>
+        <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Usher</li>
+        <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">+ {{ rolesCount(member) }} more <span v-if="rolesCount(member) > 1">roles</span><span v-else>role</span></li>
+      </ul>
+    </div>
+  </script>
+  {% endraw %}
 {% endblock %}
 
 {% block footerscripts %}

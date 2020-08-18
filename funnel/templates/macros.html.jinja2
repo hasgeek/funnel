@@ -1134,21 +1134,3 @@
     </div>
   {% endraw %}
 {%- endmacro %}
-
-{% macro member_template() %}
-  {% raw %}
-    <script type="text/x-template" id="member-template">
-      <div class="user__box mui--clearfix">
-        <user-avatar :user='member.user' :addprofilelink=true></user-avatar>
-        <div class="mui--d-inlineblock">
-        <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
-        <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
-        </div>
-        <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
-          <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Owner</li>
-          <li v-else class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Admin</li>
-        </ul>
-      </div>
-    </script>
-  {% endraw %}
-{%- endmacro %}
