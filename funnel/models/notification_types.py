@@ -44,7 +44,7 @@ class RegistrationConfirmationNotification(ProjectIsParent, Notification):
     description = __("When I register for a project")
 
     document_model = Rsvp
-    exclude_user = False
+    exclude_actor = False
     roles = ['owner']
 
 
@@ -58,7 +58,7 @@ class RegistrationCancellationNotification(ProjectIsParent, Notification):
     description = __("When I cancel my registration")
 
     document_model = Rsvp
-    exclude_user = False
+    exclude_actor = False
     roles = ['owner']
 
 
