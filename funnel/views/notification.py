@@ -158,17 +158,18 @@ class AccountNotificationView(ClassView):
 
         # Step 1: Sanity check: someone loaded this URL without a token at all.
         # Send them away
-        if not token and 'signed_token' not in session:
+        if not token and 'temp_token' not in session:
             return redirect(url_for('notification_preferences'))
 
         # Step 2: We have a token, but no `cookietest=1` in the URL. Copy token into
         # session and reload the page with the flag set
         if token and not cookietest:
-            session['signed_token'] = token
+            session['temp_token'] = token
             # Use naive datetime as the session can't handle tz-aware datetimes
-            session['signed_token_at'] = datetime.utcnow()
+            session['temp_token_at'] = datetime.utcnow()
             # These values are removed from the session in 10 minutes by
-            # :func:`clear_expired_signed_token` in views/account_reset.py
+            # :func:`funnel.views.login_session.clear_expired_temp_token` if the user
+            # abandons this page.
 
             # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
             # and reload the page
@@ -182,9 +183,9 @@ class AccountNotificationView(ClassView):
         # meta-refresh redirect instead. It is less secure because browser extensions
         # may be able to read the URL during the brief period the page is rendered,
         # but so far there has been no indication of cookies not being set.
-        if token and 'signed_token' not in session:
-            session['signed_token'] = token
-            session['signed_token_at'] = datetime.utcnow()
+        if token and 'temp_token' not in session:
+            session['temp_token'] = token
+            session['temp_token_at'] = datetime.utcnow()
             return metarefresh_redirect(
                 url_for('notification_unsubscribe') + ('?' + request.query_string)
                 if request.query_string
@@ -195,7 +196,7 @@ class AccountNotificationView(ClassView):
         # session. Great! No browser cookie problem, so redirect again to remove the
         # token from the URL. This will hide it from web analytics software such as
         # Google Analytics and Matomo.
-        if token and 'signed_token' in session:
+        if token and 'temp_token' in session:
             # Browser is okay with cookies. Do a 302 redirect
             return redirect(
                 url_for('notification_unsubscribe') + ('?' + request.query_string)
@@ -206,7 +207,7 @@ class AccountNotificationView(ClassView):
         # Step 4. We have a token and it's been stripped from the URL. Process it.
         try:
             payload = token_serializer().loads(
-                session['signed_token'], max_age=365 * 24 * 60 * 60
+                session['temp_token'], max_age=365 * 24 * 60 * 60
             )
         except itsdangerous.exc.SignatureExpired:
             # Link has expired. It's been over a year!
