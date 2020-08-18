@@ -287,6 +287,7 @@ class Notification(NoIdMixin, db.Model):
         """Return notification preferences for the user."""
         prefs = user.notification_preferences.get(self.type)
         if not prefs:
+            # TODO: Add rows for the entire category, not just one notification type
             prefs = NotificationPreferences(user=user, type=self.type)
             db.session.add(prefs)
             user.notification_preferences[self.type] = prefs
