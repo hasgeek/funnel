@@ -181,7 +181,7 @@ def test_update_notification_structure(project_fixtures, update):
 
     assert notification.type == 'update_new'
     assert notification.document == update
-    assert notification.target is None
+    assert notification.fragment is None
     assert notification.roles == ['project_crew', 'project_participant']
     assert notification.preference_context == project_fixtures.org.profile
 

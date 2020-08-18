@@ -146,7 +146,7 @@ class Notification(NoIdMixin, db.Model):
     or other transport.
 
     Notifications cannot hold any data and must source everything from the linked
-    document and target.
+    document and fragment.
     """
 
     __tablename__ = 'notification'
@@ -173,8 +173,8 @@ class Notification(NoIdMixin, db.Model):
     #: Subclasses may set this to aid loading of :attr:`document`
     document_model = None
 
-    #: Subclasses may set this to aid loading of :attr:`target`
-    target_model = None
+    #: Subclasses may set this to aid loading of :attr:`fragment`
+    fragment_model = None
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document.
@@ -202,10 +202,10 @@ class Notification(NoIdMixin, db.Model):
     #: UUID of document that the notification refers to
     document_uuid = db.Column(UUIDType(binary=False), nullable=False, index=True)
 
-    #: Optional target within document that the notification refers to. This may be the
-    #: document itself, or something within it, such as a comment. Notifications for
-    #: multiple targets are collapsed into a single notification.
-    target_uuid = db.Column(UUIDType(binary=False), nullable=True)
+    #: Optional fragment within document that the notification refers to. This may be
+    #: the document itself, or something within it, such as a comment. Notifications for
+    #: multiple fragments are collapsed into a single notification.
+    fragment_uuid = db.Column(UUIDType(binary=False), nullable=True)
 
     __mapper_args__ = {'polymorphic_on': type, 'with_polymorphic': '*'}
 
@@ -228,11 +228,11 @@ class Notification(NoIdMixin, db.Model):
 
     renderers = {}  # Registry of {cls_type: CustomNotificationView}
 
-    def __init__(self, document=None, target=None, **kwargs):
+    def __init__(self, document=None, fragment=None, **kwargs):
         if document:
             kwargs['document_uuid'] = document.uuid
-        if target:
-            kwargs['target_uuid'] = target.uuid
+        if fragment:
+            kwargs['fragment_uuid'] = fragment.uuid
         super().__init__(**kwargs)
 
     @classmethodproperty
@@ -257,15 +257,15 @@ class Notification(NoIdMixin, db.Model):
             return self.document_model.query.filter_by(uuid=self.document_uuid).one()
 
     @cached_property
-    def target(self):
+    def fragment(self):
         """
-        Retrieve the target within a document referenced by this Notification, if any.
+        Retrieve the fragment within a document referenced by this Notification, if any.
 
         This assumes the underlying object won't disappear, as there is no SQL foreign
         key constraint enforcing a link.
         """
-        if self.target_model and self.target_uuid:
-            return self.target_model.query.filter_by(uuid=self.target_uuid).one()
+        if self.fragment_model and self.fragment_uuid:
+            return self.fragment_model.query.filter_by(uuid=self.fragment_uuid).one()
 
     def renderer(self, cls):
         """
@@ -308,7 +308,7 @@ class Notification(NoIdMixin, db.Model):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
-        for user, role in (self.target or self.document).actors_with(
+        for user, role in (self.fragment or self.document).actors_with(
             self.roles, with_role=True
         ):
             # If this notification requires that it not be sent to the actor that
@@ -452,9 +452,9 @@ class UserNotification(NoIdMixin, db.Model):
 
     @with_roles(read={'owner'})
     @property
-    def target(self):
-        """The target within this document that this notification is for."""
-        return self.notification.target
+    def fragment(self):
+        """The fragment within this document that this notification is for."""
+        return self.notification.fragment
 
     def user_preferences(self):
         """Return the user's notification preferences."""
@@ -496,24 +496,24 @@ class UserNotification(NoIdMixin, db.Model):
             )
 
     def _revoke(self):
-        """Revoke this instance and return the referred target."""
+        """Revoke this instance and return the referred fragment."""
         self.is_revoked = True
-        return self.target
+        return self.fragment
 
     def revoke_previous(self):
         """
         Revoke prior instances of :class:`UserNotification` against the same document.
 
-        Returns the targets of revoked notifications.
+        Returns the fragments of revoked notifications.
         """
         # TODO: Consider revoking only unread notifications, to batch by user activity
         query = UserNotification.query.join(Notification)
-        if self.notification.target_model:
+        if self.notification.fragment_model:
             query = query.join(
-                self.notification.target_model,
-                UserNotification.target_uuid == self.notification.target_model.uuid,
+                self.notification.fragment_model,
+                UserNotification.fragment_uuid == self.notification.fragment_model.uuid,
             )
-        targets = {
+        fragments = {
             user_notification._revoke()
             for user_notification in query.filter(
                 UserNotification.user_id == self.user_id,  # This user
@@ -522,9 +522,9 @@ class UserNotification(NoIdMixin, db.Model):
                 Notification.document_uuid == self.notification.document_uuid,
             ).order_by(UserNotification.created_at.desc())
         }
-        if None in targets:
-            targets.remove(None)
-        return targets
+        if None in fragments:
+            fragments.remove(None)
+        return fragments
 
     def rollup_notifications(self):
         """Return all existing notifications of the same type on this document."""

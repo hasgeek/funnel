@@ -126,7 +126,7 @@ class NotificationView:
 #    the actual dispatch.
 
 
-def dispatch_notification(notification_types, document, target=None):
+def dispatch_notification(notification_types, document, fragment=None):
     if isinstance(notification_types, Notification):
         notification_types = [Notification]
     for cls in notification_types:
@@ -134,15 +134,15 @@ def dispatch_notification(notification_types, document, target=None):
             raise TypeError(
                 "Notification document is of incorrect type for %s" % cls.__name__
             )
-        if target is not None and not isinstance(target, cls.target_model):
+        if fragment is not None and not isinstance(fragment, cls.fragment_model):
             raise TypeError(
-                "Notification target is of incorrect type for %s" % cls.__name__
+                "Notification fragment is of incorrect type for %s" % cls.__name__
             )
     dispatch_notification_job.queue(
         [ntype.cls_type for ntype in notification_types],
         user_id=current_auth.user.id if current_auth.user else None,
         document_uuid=document.uuid,
-        target_uuid=target.uuid if target is not None else None,
+        fragment_uuid=fragment.uuid if fragment is not None else None,
     )
 
 
@@ -150,7 +150,7 @@ DISPATCH_BATCH_SIZE = 10
 
 
 @rq.job('funnel')
-def dispatch_notification_job(ntypes, user_id, document_uuid, target_uuid):
+def dispatch_notification_job(ntypes, user_id, document_uuid, fragment_uuid):
     with app.app_context():
         eventid = uuid4()  # Create a single eventid
         event_notifications = [
@@ -158,7 +158,7 @@ def dispatch_notification_job(ntypes, user_id, document_uuid, target_uuid):
                 user_id=user_id,
                 eventid=eventid,
                 document_uuid=document_uuid,
-                target_uuid=target_uuid,
+                fragment_uuid=fragment_uuid,
             )
             for ntype in ntypes
         ]

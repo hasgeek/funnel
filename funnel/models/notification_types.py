@@ -52,7 +52,7 @@ class NewProposalNotification(Notification):
         return self.document.project.profile
 
 
-# --- Notifications with targets
+# --- Notifications with fragments
 
 
 class ProposalCommentNotification(Notification):
@@ -66,9 +66,9 @@ class ProposalCommentNotification(Notification):
     description = __("When my proposal receives a comment")
 
     document_model = Proposal
-    target_model = Comment
+    fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
-    # target if present, document if not.
+    # fragment if present, document if not.
     roles = ['presenter', 'mentioned_commenter']
 
     @property
@@ -87,9 +87,9 @@ class ProjectCommentNotification(Notification):
     description = __("When my project receives a comment")
 
     document_model = Project
-    target_model = Comment
+    fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
-    # target if present, document if not.
+    # fragment if present, document if not.
     roles = ['project_editor', 'mentioned_commenter']
 
     @property
