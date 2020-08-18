@@ -53,10 +53,10 @@
               {{ faicon(icon='user') }}&nbsp;&nbsp;{% if current_auth.user.username %}{{ current_auth.user.username }}{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.views.timezone() }}
+              <span class="item">{{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.views.timezone() }}{%if current_auth.user.auto_timezone %} <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>{% endif %}</span>
             </p>
             <p class="mui--text-subhead">
-              {{ faicon('language') }}&nbsp;&nbsp;{{ current_auth.user.views.locale() }}
+              <span class="item">{{ faicon('language') }}&nbsp;&nbsp;{{ current_auth.user.views.locale() }}{%if current_auth.user.auto_locale %} <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>{% endif %}</span>
             </p>
           </div>
           <div class="mui-divider"></div>
@@ -79,12 +79,15 @@
             <ol class="mui-list--aligned mui-list--border">
               {% for extid in current_auth.user.externalids %}
                 <li>
-                  {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }}<small class="subitem"><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small></span>
+                  {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }}<small class="subitem"><em>{% trans last_used_at=extid.last_used_at|age %}Last used {{ last_used_at }}{% endtrans %}</em></small></span>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
               {% endfor %}
             </ol>
-            <p>{% trans %}Add External ID{% endtrans %}</p>
+          </div>
+          <div class="mui-divider"></div>
+          <div class="card__body card__body--lgtext mui--text-subhead">
+            <p>{% trans %}Adding an external id will merge any Hasgeek account linked to it{% endtrans %}</p>
             {% for provider in login_registry %}
               <a class="mui-btn mui-btn--small mui-btn--raised login login--smaller login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img icon-img--smaller" alt="{{ login_registry[provider]['title'] }}"/>{{ login_registry[provider]['title'] }}</a>
             {% endfor %}

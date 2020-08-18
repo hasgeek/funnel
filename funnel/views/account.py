@@ -501,13 +501,13 @@ def account_edit(newprofile=False):
     if newprofile:
         return render_form(
             form,
-            title=_("Update profile"),
+            title=_("Update account"),
             formid='account_new',
             submit=_("Continue"),
             message=Markup(
                 _(
                     "Hello, <strong>{fullname}</strong>. Please spare a minute to fill"
-                    " out your profile"
+                    " out your account"
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
             ajax=False,
@@ -516,7 +516,7 @@ def account_edit(newprofile=False):
     else:
         return render_form(
             form,
-            title=_("Edit profile"),
+            title=_("Edit account"),
             formid='account_edit',
             submit=_("Save changes"),
             ajax=False,
