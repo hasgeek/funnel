@@ -228,8 +228,12 @@ class Notification(NoIdMixin, db.Model):
 
     def __init__(self, document=None, fragment=None, **kwargs):
         if document:
+            if not isinstance(document, self.document_model):
+                raise TypeError(f"{document!r} is not of type {self.document_model!r}")
             kwargs['document_uuid'] = document.uuid
         if fragment:
+            if not isinstance(fragment, self.fragment_model):
+                raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
             kwargs['fragment_uuid'] = fragment.uuid
         super().__init__(**kwargs)
 
@@ -571,13 +575,6 @@ class UserNotification(NoIdMixin, db.Model):
                 .filter(UserNotification.rollupid == self.rollupid)
             )
         )
-
-    def dispatch_for(self, transport):
-        """Perform a dispatch using the notification type's view renderer."""
-        # FIXME: Remove this method and put it entirely in the view
-        return Notification.renderers[self.notification.cls_type](
-            self.notification
-        ).dispatch_for(self, transport)
 
     @classmethod
     def migrate_user(cls, old_user, new_user):
