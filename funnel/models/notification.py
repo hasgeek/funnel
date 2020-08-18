@@ -49,9 +49,7 @@ How it works:
     mechanism then calls the appropriate transport helper (``send_email``, etc) to do
     the actual sending. The message id returned by these functions is saved to the
     messageid columns in UserNotification, as record that the notification was sent.
-    If the transport doesn't support message ids, a random non-None value is used. When
-    all available transports are sent, the `is_dispatched` column is set. This is used
-    to prevent dupe sends from requeued background jobs.
+    If the transport doesn't support message ids, a random non-None value is used.
 
 9. The notifications endpoint on the website shows a feed of UserNotification items and
     handles the ability to mark each as read. This marking is also automatically
@@ -382,12 +380,6 @@ class UserNotification(NoIdMixin, db.Model):
     #: entirely in-app symbol (i.e., code refactorable) to being data in the database
     #: (i.e., requiring a data migration alongside a code refactor)
     role = with_roles(db.Column(db.Unicode, nullable=False), read={'owner'})
-
-    #: Whether the notification has been dispatched. This should be used in conjunction
-    #: with per-transport transaction id columns to avoid repeat sending.
-    is_dispatched = with_roles(
-        db.Column(db.Boolean, default=False, nullable=False), read={'owner'}
-    )
 
     #: Timestamp for when this notification was marked as read
     read_at = with_roles(
