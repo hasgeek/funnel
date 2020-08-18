@@ -12,6 +12,11 @@ from ..serializers import token_serializer
 __all__ = ['NotificationView', 'dispatch_notification']
 
 
+@UserNotification.views('render')
+def render_user_notification(obj):
+    return Notification.renderers[obj.notification.cls_type](obj.notification).web(obj)
+
+
 class NotificationView:
     """
     Base class for rendering notifications, with support methods.

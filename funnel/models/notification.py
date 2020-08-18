@@ -403,6 +403,11 @@ class UserNotification(NoIdMixin, db.Model):
         db.Column(db.Boolean, default=False, nullable=False, index=True), read={'owner'}
     )
 
+    #: When a roll-up is performed, record an identifier for the items rolled up
+    rollupid = with_roles(
+        db.Column(UUIDType(binary=False), nullable=True, index=True), read={'owner'}
+    )
+
     #: Message id for email delivery
     messageid_email = db.Column(db.Unicode, nullable=True)
     #: Message id for SMS delivery
@@ -495,47 +500,84 @@ class UserNotification(NoIdMixin, db.Model):
                 transport, self.notification.preference_context
             )
 
-    def _revoke(self):
-        """Revoke this instance and return the referred fragment."""
-        self.is_revoked = True
-        return self.fragment
-
-    def revoke_previous(self):
+    def rollup_previous(self):
         """
-        Revoke prior instances of :class:`UserNotification` against the same document.
+        Rollup prior instances of :class:`UserNotification` against the same document.
 
-        Returns the fragments of revoked notifications.
+        Revokes and sets a shared rollup id on all prior user notifications.
         """
-        # TODO: Consider revoking only unread notifications, to batch by user activity
-        query = UserNotification.query.join(Notification)
-        if self.notification.fragment_model:
-            query = query.join(
-                self.notification.fragment_model,
-                UserNotification.fragment_uuid == self.notification.fragment_model.uuid,
-            )
-        fragments = {
-            user_notification._revoke()
-            for user_notification in query.filter(
-                UserNotification.user_id == self.user_id,  # This user
-                Notification.id != self.notification_id,  # But not this notification
-                Notification.type == self.notification.type,
-                Notification.document_uuid == self.notification.document_uuid,
-            ).order_by(UserNotification.created_at.desc())
-        }
-        if None in fragments:
-            fragments.remove(None)
-        return fragments
+        if not self.notification.fragment_model:
+            # We can only rollup fragments within a document. Rollup doesn't apply
+            # for notifications without fragments.
+            return
 
-    def rollup_notifications(self):
-        """Return all existing notifications of the same type on this document."""
-        return (
-            UserNotification.query.join(Notification)
+        if self.is_revoked or self.rollupid is not None:
+            # We've already been revoked or rolled up. Nothing to do.
+            return
+
+        # For rollup: find most recent unread that has a rollupid. Reuse that id so that
+        # the current notification becomes the latest in that batch of rolled up
+        # notifications. If none, this is the start of a new batch, so make a new id.
+        rollupid = (
+            db.session.query(UserNotification.rollupid)
+            .join(Notification)
             .filter(
+                # Same user
                 UserNotification.user_id == self.user_id,
+                # Same type of notification
                 Notification.type == self.notification.type,
+                # Same document
                 Notification.document_uuid == self.notification.document_uuid,
+                # Earlier instance is unread
+                UserNotification.read_at.is_(None),
+                # Earlier instance is not revoked
+                UserNotification.is_revoked.is_(False),
+                # Earlier instance has a rollupid
+                UserNotification.rollupid.isnot(None),
             )
-            .order_by(UserNotification.created_at.desc())
+            .order_by(UserNotification.created_at)
+            .limit(1)
+            .scalar()
+        )
+        # No previous rollup? Make a new id
+        if not rollupid:
+            self.rollupid = uuid4()
+
+        # Now rollup all previous. This will skip (a) previously revoked user
+        # notifications, and (b) unrolled but read user notifications.
+        UserNotification.query.join(Notification).filter(
+            # Same user
+            UserNotification.user_id == self.user_id,
+            # Same type of notification
+            Notification.type == self.notification.type,
+            # Same document
+            Notification.document_uuid == self.notification.document_uuid,
+            # Earlier instance is not revoked
+            UserNotification.is_revoked.is_(False),
+            # Earlier instance doesn't have a rollupid
+            UserNotification.rollupid.is_(None),
+        ).update(
+            {'is_revoked': True, 'rollupid': self.rollupid}, synchronize_session=False
+        )
+
+    def rolledup_fragments(self):
+        """
+        Return all fragments in the rolled up batch as a base query.
+        """
+        if not self.notification.fragment_model:
+            return None
+        # Return a query
+        if not self.rollupid:
+            return self.notification.fragment_model.query.filter_by(
+                uuid=self.notification.fragment_uuid
+            )
+        return self.notification.fragment_model.query.filter(
+            self.notification.fragment_model.uuid.in_(
+                db.session.query(Notification.fragment_uuid)
+                .select_from(UserNotification)
+                .join(UserNotification.notification)
+                .filter(UserNotification.rollupid == self.rollupid)
+            )
         )
 
     def dispatch_for(self, transport):
@@ -544,13 +586,6 @@ class UserNotification(NoIdMixin, db.Model):
         return Notification.renderers[self.notification.cls_type](
             self.notification
         ).dispatch_for(self, transport)
-
-    def render(self):
-        """Render for the web, using the notification type's view renderer."""
-        # FIXME: Remove this method and put it entirely in the view
-        return Notification.renderers[self.notification.cls_type](
-            self.notification
-        ).web(self)
 
     @classmethod
     def migrate_user(cls, old_user, new_user):
