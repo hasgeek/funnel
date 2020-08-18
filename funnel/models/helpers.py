@@ -65,6 +65,8 @@ RESERVED_NAMES = {
     'membership',
     'new',
     'news',
+    'notification',
+    'notifications',
     'org',
     'organization',
     'organizations',
