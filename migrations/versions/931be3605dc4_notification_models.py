@@ -76,7 +76,9 @@ def upgrade():
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
-            ['eventid', 'notification_id'], ['notification.eventid', 'notification.id'],
+            ['eventid', 'notification_id'],
+            ['notification.eventid', 'notification.id'],
+            name='user_notification_eventid_notification_id_fkey',
         ),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('user_id', 'eventid'),

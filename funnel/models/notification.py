@@ -441,13 +441,37 @@ class UserNotification(NoIdMixin, db.Model):
             [eventid, notification_id],
             [Notification.eventid, Notification.id],
             ondelete='CASCADE',
+            name='user_notification_eventid_notification_id_fkey',
         ),
     )
 
+    __roles__ = {'owner': {'read': {'created_at'}}}
+
     __datasets__ = {
-        'primary': {'eventid', 'role', 'read_at', 'is_read', 'is_revoked', 'rollupid'},
-        'related': {'eventid', 'role', 'read_at', 'is_read', 'is_revoked', 'rollupid'},
+        'primary': {
+            'created_at',
+            'eventid',
+            'role',
+            'read_at',
+            'is_read',
+            'is_revoked',
+            'rollupid',
+            'notification_type',
+            'document_type',
+            'fragment_type',
+        },
+        'related': {
+            'created_at',
+            'eventid',
+            'role',
+            'read_at',
+            'is_read',
+            'is_revoked',
+            'rollupid',
+        },
     }
+
+    # --- User notification properties -------------------------------------------------
 
     @property
     def identity(self):
@@ -472,6 +496,8 @@ class UserNotification(NoIdMixin, db.Model):
         return cls.read_at.isnot(None)
 
     with_roles(is_read, read={'owner'}, write={'owner'})
+
+    # --- Shortcuts to Notification class (avoids RoleMixin role lookup) ---------------
 
     @with_roles(read={'owner'})
     @property
@@ -507,6 +533,8 @@ class UserNotification(NoIdMixin, db.Model):
     def fragment(self):
         """The fragment within this document that this notification is for."""
         return self.notification.fragment
+
+    # --- Dispatch helper methods ------------------------------------------------------
 
     def user_preferences(self):
         """Return the user's notification preferences."""
