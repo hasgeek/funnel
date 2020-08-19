@@ -5,7 +5,9 @@
 
 <p>{% trans project=project.title %}You have successfully registered for <b>{{ project }}</b>.{% endtrans %}</p>
 
-<p>{% trans next_session=project.next_session_at|datetime %}The next session in the schedule will begin at {{ next_session }}.{% endtrans %}</p>
+{% with next_session_at=project.next_session_at %}{% if next_session_at -%}
+  <p>{% trans date_and_time=next_session_at|datetime %}The next session in the schedule will begin at {{ date_and_time }}.{% endtrans %}</p>
+{%- endif %}{% endwith %}
 
 <p><a class="btn" href="{{ project.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}Project page{% endtrans %}</a></p>
 

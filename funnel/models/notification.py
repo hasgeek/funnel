@@ -165,8 +165,6 @@ class Notification(NoIdMixin, db.Model):
     category = NOTIFICATION_CATEGORY.NONE
     #: Default description for notification. Subclasses MUST override
     description = __("Unspecified notification type")
-    #: Reason specified in email templates. Subclasses MAY override
-    reason = __("You are receiving this because you have an account at hasgeek.com.")
 
     #: Subclasses may set this to aid loading of :attr:`document`
     document_model = None
@@ -178,8 +176,8 @@ class Notification(NoIdMixin, db.Model):
     #: where a user has more than one role on the document.
     roles = []
 
-    #: Exclude this user from receiving notifications? Subclasses may override.
-    exclude_user = False
+    #: Exclude triggering actor from receiving notifications? Subclasses may override.
+    exclude_actor = False
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per profile or project.
@@ -207,6 +205,11 @@ class Notification(NoIdMixin, db.Model):
 
     __mapper_args__ = {'polymorphic_on': type, 'with_polymorphic': '*'}
 
+    __datasets__ = {
+        'primary': {'eventid', 'document', 'fragment', 'type', 'user'},
+        'related': {'eventid', 'document', 'fragment', 'type'},
+    }
+
     # Flags to control whether this notification can be delivered over a particular
     # transport. Subclasses can disable these if they consider notifications unsuitable
     # for particular transports.
@@ -224,12 +227,21 @@ class Notification(NoIdMixin, db.Model):
     #: This notification class may be delivered by WhatsApp message
     allow_whatsapp = True
 
+    #: Ignore transport errors? If True, an error will be ignored silently. If False,
+    #: an error report will be logged for the user or site administrator. TODO
+    ignore_transport_errors = False
+
+    #: Registry of per-class renderers
     renderers = {}  # Registry of {cls_type: CustomNotificationView}
 
     def __init__(self, document=None, fragment=None, **kwargs):
         if document:
+            if not isinstance(document, self.document_model):
+                raise TypeError(f"{document!r} is not of type {self.document_model!r}")
             kwargs['document_uuid'] = document.uuid
         if fragment:
+            if not isinstance(fragment, self.fragment_model):
+                raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
             kwargs['fragment_uuid'] = fragment.uuid
         super().__init__(**kwargs)
 
@@ -265,7 +277,8 @@ class Notification(NoIdMixin, db.Model):
         if self.fragment_model and self.fragment_uuid:
             return self.fragment_model.query.filter_by(uuid=self.fragment_uuid).one()
 
-    def renderer(self, cls):
+    @classmethod
+    def renderer(cls, view):
         """
         Decorator for view class containing render methods.
 
@@ -278,22 +291,27 @@ class Notification(NoIdMixin, db.Model):
             class MyNotificationView(NotificationView):
                 ...
         """
-        self.renderers[self.cls_type] = cls
-        return cls
+        if cls.cls_type in cls.renderers:
+            raise TypeError(
+                f"A renderer has already been registered for {cls.cls_type}"
+            )
+        cls.renderers[cls.cls_type] = view
+        return view
+
+    @classmethod
+    def allow_transport(cls, transport):
+        """Helper method to return ``cls.allow_<transport>``."""
+        return getattr(cls, 'allow_' + transport)
 
     def user_preferences(self, user):
         """Return notification preferences for the user."""
         prefs = user.notification_preferences.get(self.type)
         if not prefs:
             # TODO: Add rows for the entire category, not just one notification type
-            prefs = NotificationPreferences(user=user, type=self.type)
+            prefs = NotificationPreferences(user=user, notification_type=self.type)
             db.session.add(prefs)
             user.notification_preferences[self.type] = prefs
         return prefs
-
-    def allow_transport(self, transport):
-        """Helper method to return ``self.allow_<transport>``."""
-        return getattr(self, 'allow_' + transport)
 
     def dispatch(self):
         """
@@ -315,10 +333,14 @@ class Notification(NoIdMixin, db.Model):
             # This `if` condition uses `user_id` instead of the recommended `user`
             # for faster processing in a loop.
             if (
-                self.exclude_user
+                self.exclude_actor
                 and self.user_id is not None
                 and self.user_id == user.id
             ):
+                continue
+
+            # Don't notify inactive (suspended, merged) users
+            if not user.is_active:
                 continue
 
             # Was a notification already sent to this user? If so:
@@ -360,10 +382,13 @@ class UserNotification(NoIdMixin, db.Model):
         nullable=False,
     )
     #: User being notified (backref defined below, outside the model)
-    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'},)
+    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
 
     #: Random eventid, shared with the Notification instance
-    eventid = db.Column(UUIDType(binary=False), primary_key=True, nullable=False)
+    eventid = with_roles(
+        db.Column(UUIDType(binary=False), primary_key=True, nullable=False),
+        read={'owner'},
+    )
 
     #: Id of notification that this user received
     notification_id = db.Column(None, nullable=False)  # fkey in __table_args__ below
@@ -413,9 +438,16 @@ class UserNotification(NoIdMixin, db.Model):
 
     __table_args__ = (
         db.ForeignKeyConstraint(
-            [eventid, notification_id], [Notification.eventid, Notification.id]
+            [eventid, notification_id],
+            [Notification.eventid, Notification.id],
+            ondelete='CASCADE',
         ),
     )
+
+    __datasets__ = {
+        'primary': {'eventid', 'role', 'read_at', 'is_read', 'is_revoked', 'rollupid'},
+        'related': {'eventid', 'role', 'read_at', 'is_read', 'is_revoked', 'rollupid'},
+    }
 
     @property
     def identity(self):
@@ -443,9 +475,32 @@ class UserNotification(NoIdMixin, db.Model):
 
     @with_roles(read={'owner'})
     @property
+    def notification_type(self):
+        return self.notification.type
+
+    @with_roles(read={'owner'})
+    @property
+    def document_type(self):
+        return (
+            self.notification.document_model.__tablename__
+            if self.notification.document_model
+            else None
+        )
+
+    @with_roles(read={'owner'})
+    @property
     def document(self):
         """The document that this notification is for."""
         return self.notification.document
+
+    @with_roles(read={'owner'})
+    @property
+    def fragment_type(self):
+        return (
+            self.notification.fragment_model.__tablename__
+            if self.notification.fragment_model
+            else None
+        )
 
     @with_roles(read={'owner'})
     @property
@@ -572,13 +627,6 @@ class UserNotification(NoIdMixin, db.Model):
             )
         )
 
-    def dispatch_for(self, transport):
-        """Perform a dispatch using the notification type's view renderer."""
-        # FIXME: Remove this method and put it entirely in the view
-        return Notification.renderers[self.notification.cls_type](
-            self.notification
-        ).dispatch_for(self, transport)
-
     @classmethod
     def migrate_user(cls, old_user, new_user):
         for user_notification in cls.query.filter_by(user_id=old_user.id).all():
@@ -592,7 +640,7 @@ class UserNotification(NoIdMixin, db.Model):
                 user_notification.user_id = new_user.id
 
 
-User.notifications = with_roles(
+User.all_notifications = with_roles(
     db.relationship(
         UserNotification, lazy='dynamic', order_by=UserNotification.created_at.desc()
     ),

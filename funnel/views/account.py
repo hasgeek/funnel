@@ -59,7 +59,7 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
-from ..transports.sms import send_sms
+from ..transports import TransportConnectionError, sms
 from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, autoset_timezone_and_locale
@@ -74,8 +74,11 @@ def send_phone_verify_code(phoneclaim):
         ),
     )
     # Now send this
-    send_sms(msg)
-    db.session.add(msg)
+    try:
+        msg.transactionid = sms.send(msg.phone_number, msg.message)
+        db.session.add(msg)
+    except TransportConnectionError:
+        flash(_("Unable to send a message right now. Please try again"))
 
 
 def blake2b_b58(text):

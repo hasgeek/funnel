@@ -11,7 +11,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
 from ..forms import UnsubscribeForm
-from ..models import User
+from ..models import User, db
 from ..serializers import token_serializer
 from .helpers import metarefresh_redirect
 from .login_session import requires_login
@@ -79,7 +79,8 @@ class AccountNotificationView(ClassView):
             session['temp_token'] = token
             session['temp_token_at'] = datetime.utcnow()
             return metarefresh_redirect(
-                url_for('notification_unsubscribe') + ('?' + request.query_string)
+                url_for('notification_unsubscribe')
+                + ('?' + request.query_string.decode())
                 if request.query_string
                 else ''
             )
@@ -91,7 +92,8 @@ class AccountNotificationView(ClassView):
         if token and 'temp_token' in session:
             # Browser is okay with cookies. Do a 302 redirect
             return redirect(
-                url_for('notification_unsubscribe') + ('?' + request.query_string)
+                url_for('notification_unsubscribe')
+                + ('?' + request.query_string.decode())
                 if request.query_string
                 else ''
             )
@@ -157,6 +159,7 @@ class AccountNotificationView(ClassView):
         )
         if form.validate_on_submit():
             form.save_to_user()
+            db.session.commit()
             session.pop('temp_token', None)
             session.pop('temp_token_at', None)
             return render_message(

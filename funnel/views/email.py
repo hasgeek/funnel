@@ -1,18 +1,9 @@
 from flask import render_template, url_for
 
-from flask_babelhg import force_locale, get_locale
-
 from baseframe import _
 
-from .. import app, rq, signals
-from ..models import Project, User
-from ..transports.email import (
-    EmailAttachment,
-    jsonld_confirm_action,
-    jsonld_view_action,
-    send_email,
-)
-from .schedule import schedule_ical
+from .. import signals
+from ..transports.email import jsonld_confirm_action, jsonld_view_action, send_email
 
 
 def send_email_verify_link(useremail):
@@ -108,51 +99,6 @@ def send_email_for_organization_admin_membership_revoked(
             membership=membership,
         ),
     )
-
-
-@signals.user_registered_for_project.connect
-def send_email_for_project_registration(rsvp, project, user):
-    if user.email:
-        background_project_registration_email.queue(
-            project_id=project.id, user_id=user.id, locale=get_locale()
-        )
-
-
-@signals.user_cancelled_project_registration.connect
-def send_email_for_project_deregistration(rsvp, project, user):
-    if user.email:
-        send_email(
-            subject=_("Registration cancelled for {project}").format(
-                project=project.title
-            ),
-            to=[user],
-            content=render_template(
-                'email_project_deregister.html.jinja2', user=user, project=project,
-            ),
-        )
-
-
-@rq.job('funnel')
-def background_project_registration_email(project_id, user_id, locale):
-    with app.app_context(), force_locale(locale):
-        project = Project.query.get(project_id)
-        user = User.query.get(user_id)
-        send_email(
-            subject=_("Registration confirmation for {project}").format(
-                project=project.title
-            ),
-            to=[user],
-            attachments=[
-                EmailAttachment(
-                    content=schedule_ical(project),
-                    filename='%s.ics' % project.name,
-                    mimetype='text/calendar',
-                )
-            ],
-            content=render_template(
-                'email_project_registration.html.jinja2', user=user, project=project,
-            ),
-        )
 
 
 @signals.project_crew_membership_added.connect

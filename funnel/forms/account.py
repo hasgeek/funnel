@@ -1,3 +1,5 @@
+from flask import request
+
 from baseframe import _, __
 from coaster.auth import current_auth
 from coaster.utils import nullstr, sorted_timezones
@@ -326,6 +328,14 @@ class AccountForm(forms.Form):
 class UnsubscribeForm(forms.Form):
     __expects__ = ('edit_user', 'transport', 'notification_type')
 
+    notify_transport_labels = {
+        'email': __("Notify me by email"),
+        'sms': __("Notify me by SMS"),
+        'webpush': __("Notify me with a push notification"),
+        'telegram': __("Notify me on Telegram"),
+        'whatsapp': __("Notify me on WhatsApp"),
+    }
+
     # To consider: Replace the field's ListWidget with a GroupedListWidget, and show all
     # known notifications by category, not just the ones the user has received a
     # notification for. This will avoid a dark pattern wherein a user keeps getting
@@ -338,14 +348,14 @@ class UnsubscribeForm(forms.Form):
     # but it should be smarter about defaults per category of notification.
 
     types = forms.SelectMultipleField(
-        __("Notify me for"),
-        widget=forms.ListWidget(),
-        option_widget=forms.CheckboxInput(),
+        __("Notify me"), widget=forms.ListWidget(), option_widget=forms.CheckboxInput(),
     )
 
     def set_queries(self):
         # Populate choices with all notification types that the user has a preference
         # row for.
+        if self.transport in self.notify_transport_labels:
+            self.types.label.text = self.notify_transport_labels[self.transport]
         self.types.choices = [
             (ntype, notification_type_registry[ntype].description)
             for ntype in self.edit_user.notification_preferences
@@ -353,13 +363,14 @@ class UnsubscribeForm(forms.Form):
             and notification_type_registry[ntype].allow_transport(self.transport)
         ]
 
-        # Populate data with all notification types for which the user has the current
-        # transport enabled
-        self.types.data = [
-            ntype
-            for ntype, user_prefs in self.edit_user.notification_preferences.items()
-            if user_prefs.by_transport(self.transport)
-        ]
+        if request.method == 'GET':
+            # Populate data with all notification types for which the user has the
+            # current transport enabled
+            self.types.data = [
+                ntype
+                for ntype, user_prefs in self.edit_user.notification_preferences.items()
+                if user_prefs.by_transport(self.transport)
+            ]
 
     def save_to_user(self):
         # self.types.data will only contain the enabled preferences. Therefore, iterate
