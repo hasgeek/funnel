@@ -84,10 +84,11 @@ from . import BaseMixin, NoIdMixin, UUIDType, db
 from .user import User
 
 __all__ = [
+    'SMS_STATUS',
+    'NOTIFICATION_CATEGORY',
+    'SMSMessage',
     'Notification',
     'NotificationPreferences',
-    'SMSMessage',
-    'SMS_STATUS',
     'UserNotification',
     'notification_type_registry',
 ]
@@ -694,13 +695,23 @@ class NotificationPreferences(BaseMixin, db.Model):
     # To consider: type = '' holds the veto switch to disable a transport entirely
     notification_type = db.Column(db.Unicode, nullable=False)
 
-    by_email = db.Column(db.Boolean, nullable=False)
-    by_sms = db.Column(db.Boolean, nullable=False)
-    by_webpush = db.Column(db.Boolean, nullable=False)
-    by_telegram = db.Column(db.Boolean, nullable=False)
-    by_whatsapp = db.Column(db.Boolean, nullable=False)
+    by_email = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
+    by_sms = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
+    by_webpush = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
+    by_telegram = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
+    by_whatsapp = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
 
     __table_args__ = (db.UniqueConstraint('user_id', 'notification_type'),)
+
+    __datasets__ = {
+        'preferences': {
+            'by_email',
+            'by_sms',
+            'by_webpush',
+            'by_telegram',
+            'by_whatsapp',
+        }
+    }
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -737,10 +748,12 @@ class NotificationPreferences(BaseMixin, db.Model):
                         ),
                     )
 
+    @with_roles(call={'owner'})
     def by_transport(self, transport):
         """Helper method to return ``self.by_<transport>``."""
         return getattr(self, 'by_' + transport)
 
+    @with_roles(call={'owner'})
     def set_transport(self, transport, value):
         """Helper method to set a preference for a transport."""
         setattr(self, 'by_' + transport, value)

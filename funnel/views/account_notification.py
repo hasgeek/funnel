@@ -11,8 +11,9 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
 from ..forms import UnsubscribeForm
-from ..models import User, db
+from ..models import NOTIFICATION_CATEGORY, User, db, notification_type_registry
 from ..serializers import token_serializer
+from ..transports import platform_transports
 from .helpers import metarefresh_redirect
 from .login_session import requires_login
 
@@ -33,8 +34,30 @@ class AccountNotificationView(ClassView):
     @requires_login
     @render_with('notification_preferences.html.jinja2')
     def notification_preferences(self):
-        # TODO: Add template and form handler
-        return {'preferences': current_auth.user.notification_preferences}
+        # TODO: Add form handler
+        user_preferences = current_auth.user.notification_preferences
+        preferences = {
+            key: {'title': value, 'types': []}
+            for key, value in NOTIFICATION_CATEGORY.items()
+        }
+        for ntype, ncls in notification_type_registry.items():
+            preferences[ncls.category]['types'].append(
+                {
+                    'type': ntype,
+                    'description': ncls.description,
+                    'preferences': {
+                        transport: user_preferences[ntype].by_transport(transport)
+                        for transport in platform_transports
+                    }
+                    if ntype in user_preferences
+                    else None,
+                }
+            )
+
+        return {
+            'preferences': preferences,
+            'transports': [key for key, value in platform_transports.items() if value],
+        }
 
     @route('unsubscribe/<token>', endpoint='notification_unsubscribe')
     @route(
