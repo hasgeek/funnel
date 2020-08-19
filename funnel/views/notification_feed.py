@@ -15,9 +15,11 @@ class AllNotificationsView(ClassView):
     @render_with(json=True)
     @requestargs(('page', int), ('per_page', int))
     def view(self, page=1, per_page=10):
-        pagination = UserNotification.query.filter(
-            UserNotification.user == current_auth.user
-        ).paginate(page=page, per_page=per_page, max_per_page=100)
+        pagination = (
+            UserNotification.query.filter(UserNotification.user == current_auth.user)
+            .order_by(UserNotification.created_at.desc())
+            .paginate(page=page, per_page=per_page, max_per_page=100)
+        )
         return {
             'notifications': [
                 {
