@@ -206,19 +206,20 @@ def transport_worker_wrapper(func):
                 for identity in user_notification_ids
             ]
             for user_notification in queue:
-                with force_locale(user_notification.user.locale or 'en'):
-                    view = Notification.renderers[user_notification.notification.type](
-                        user_notification
-                    )
-                    try:
-                        func(user_notification, view)
-                        db.session.commit()
-                    except TransportError:
-                        if user_notification.notification.ignore_transport_errors:
-                            pass
-                        else:
-                            # TODO: Implement transport error handling code here
-                            raise
+                if not user_notification.is_revoked:
+                    with force_locale(user_notification.user.locale or 'en'):
+                        view = Notification.renderers[
+                            user_notification.notification.type
+                        ](user_notification)
+                        try:
+                            func(user_notification, view)
+                            db.session.commit()
+                        except TransportError:
+                            if user_notification.notification.ignore_transport_errors:
+                                pass
+                            else:
+                                # TODO: Implement transport error handling code here
+                                raise
 
     return inner
 
