@@ -91,18 +91,18 @@
       </a>
       <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %} </a>
       <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-action="Home">
-        {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__logo"/>{%- endif %}<span class="header__nav-links__text">Home</span>
+        {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
       </a>
       <form action="/search" class="search-form js-search-form">
-        <input type="text" name="q" aria-label="Search the site" placeholder="Search…" class="search-form__field js-search-field" id="header-search">
+        <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">
         {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
         <input type="text" name="type" value="project" hidden>
         <button type="submit" class="search-form__submit"></button>
       </form>
-      <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="Search" data-action="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">Search</span></a>
+      <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-action="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
       {% if not current_auth.is_anonymous -%}
-        <a href="{{ url_for('notifications') }}" class="header__nav-links {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right" aria-label="Account" data-action="Account">{{ faicon(icon='bell-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">Notifications</span></a>
-        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="Account" data-action="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">Account</span></a>
+        <a href="{{ url_for('notifications') }}" class="header__nav-links {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
+        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-action="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
         <div class="mui-dropdown mui--hidden-xs mui--hidden-sm">
           <a href="javascript:void(0)" data-target="account dropdown" data-mui-toggle="dropdown" class="header__nav-links user user--standalone js-account-dropdown  {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" data-cy="account-link" data-action="Account dropdown">
             <div class="user__box">
