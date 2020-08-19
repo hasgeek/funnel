@@ -25,6 +25,10 @@
   }
 }
 
+.update--small {
+  margin: $mui-grid-padding/4 0;
+}
+
 .publish-form {
   form {
     margin: 0;
@@ -42,5 +46,10 @@
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: #f9f9f9;
+  }
+  .update--small {
+    padding: $mui-grid-padding/2 $mui-grid-padding;
+    border-radius: 4px;
+    margin: $mui-grid-padding/2 0;
   }
 }

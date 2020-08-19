@@ -9,17 +9,17 @@ from .login_session import requires_login
 
 @route('/updates')
 class AllNotificationsView(ClassView):
+    current_section = 'notifications'  # needed for showing active tab
+
     @route('', endpoint='notifications')
     @requires_login
-    # @render_with('notification_feed.html.jinja2', json=True)
-    @render_with(json=True)
+    @render_with('notification_feed.html.jinja2', json=True)
+    # @render_with(json=True)
     @requestargs(('page', int), ('per_page', int))
     def view(self, page=1, per_page=10):
-        pagination = (
-            UserNotification.query.filter(UserNotification.user == current_auth.user)
-            .order_by(UserNotification.created_at.desc())
-            .paginate(page=page, per_page=per_page, max_per_page=100)
-        )
+        pagination = UserNotification.query.filter(
+            UserNotification.user == current_auth.user
+        ).paginate(page=page, per_page=per_page, max_per_page=100)
         return {
             'notifications': [
                 {
