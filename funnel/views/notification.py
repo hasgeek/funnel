@@ -93,6 +93,11 @@ class RenderNotification:
 
     # --- Overrideable render methods
 
+    @property
+    def actor(self):
+        """The actor that prompted this notification. May be overriden."""
+        return self.notification.user
+
     def web(self):
         """
         Render for display on the website.

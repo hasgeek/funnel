@@ -1,0 +1,12 @@
+{%- from "macros.html.jinja2" import account_tabs, useravatar %}
+{% block update %}
+  <li class="update update--small">
+    <div class="user">
+      <div class="user__box">
+        {% block icon %}{% if view.actor %}{{ useravatar(view.actor) }}{% endif %}{% endblock %}
+        <div class="mui--text-subhead html-content">{% block content %}{% endblock %}</div>
+        <p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>
+      </div>
+    </div>
+  </li>
+{% endblock %}

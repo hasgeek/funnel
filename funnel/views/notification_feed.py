@@ -14,7 +14,6 @@ class AllNotificationsView(ClassView):
     @route('', endpoint='notifications')
     @requires_login
     @render_with('notification_feed.html.jinja2', json=True)
-    # @render_with(json=True)
     @requestargs(('page', int), ('per_page', int))
     def view(self, page=1, per_page=10):
         pagination = UserNotification.query.filter(

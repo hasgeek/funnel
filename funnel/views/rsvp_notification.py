@@ -1,4 +1,4 @@
-from flask import render_template, render_template_string
+from flask import render_template
 
 from baseframe import _
 
@@ -18,12 +18,9 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
     # self.document is Rsvp instance
 
     def web(self):
-        return render_template_string(
-            """
-            <p>{% trans title=project.title, url=project.url_for() -%}
-              You registered for <a href="{{ url }}">{{ title }}</a>.
-            {%- endtrans %}</p>
-            """,
+        return render_template(
+            'notifications/web_rsvp_yes.html.jinja2',
+            view=self,
             project=self.document.project,
         )
 
@@ -33,6 +30,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
         )
 
     def email_content(self):
+        # FIXME: Move into folder, rename to match notification type, and use 'actor'
         return render_template(
             'email_project_registration.html.jinja2',
             view=self,
@@ -64,12 +62,9 @@ class RenderRegistrationCancellationNotification(RenderNotification):
     # self.document is Rsvp instance
 
     def web(self):
-        return render_template_string(
-            """
-            <p>{% trans title=project.title, url=project.url_for() -%}
-              You cancelled your registration for <a href="{{ url }}">{{ title }}</a>.
-            {%- endtrans %}</p>
-            """,
+        return render_template(
+            'notifications/web_rsvp_no.html.jinja2',
+            view=self,
             project=self.document.project,
         )
 
@@ -79,6 +74,7 @@ class RenderRegistrationCancellationNotification(RenderNotification):
         )
 
     def email_content(self):
+        # FIXME: Move into folder, rename to match notification type, and use 'actor'
         return render_template(
             'email_project_deregister.html.jinja2',
             view=self,

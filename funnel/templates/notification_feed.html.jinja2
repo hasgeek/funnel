@@ -1,9 +1,8 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, useravatar %}
 
-{% block title %}{% trans %}Notifications{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-display1">
@@ -17,15 +16,7 @@
       <div class="grid__col-xs-12">
         <ul class="mui-list--unstyled">
           {% for notification in notifications %}
-            <li class="update update--small">
-              <div class="user">
-                <div class="user__box">
-                  {{ useravatar(notification.document.user) }}
-                  <div class="mui--text-subhead html-content">{{ notification.html|safe }}</div>
-                  <p class="mui--text-body2 zero-bottom-margin">{{ notification.notification.created_at|age }}</p>
-                </div>
-              </div>
-            </li>
+            {{ notification.html|safe }}
           {% endfor %}
         </ul>
       </div>
