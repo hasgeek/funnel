@@ -27,8 +27,12 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
     project_id = db.Column(
         None, db.ForeignKey('project.id'), nullable=False, primary_key=True
     )
-    project = db.relationship(
-        Project, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
+    project = with_roles(
+        db.relationship(
+            Project, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
+        ),
+        read={'owner', 'project_concierge'},
+        grants_via={None: {'crew': 'project_crew', 'concierge': 'project_concierge'}},
     )
     user_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=False, primary_key=True
@@ -37,6 +41,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         db.relationship(
             User, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
         ),
+        read={'owner', 'project_concierge'},
         grants={'owner'},
     )
 
@@ -48,6 +53,14 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         nullable=False,
     )
     state = StateManager('_state', RSVP_STATUS, doc="RSVP answer")
+
+    __datasets__ = {'primary': {'project', 'user', 'response'}, 'related': {'response'}}
+
+    @with_roles(read={'owner', 'project_concierge'})
+    @property
+    def response(self):
+        """Return state as a raw value"""
+        return self._state
 
     @with_roles(call={'owner'})
     @state.transition(

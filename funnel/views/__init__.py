@@ -22,6 +22,7 @@ from . import (
     membership,
     mixins,
     notification,
+    notification_feed,
     organization,
     participant,
     profile,

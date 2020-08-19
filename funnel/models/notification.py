@@ -205,6 +205,11 @@ class Notification(NoIdMixin, db.Model):
 
     __mapper_args__ = {'polymorphic_on': type, 'with_polymorphic': '*'}
 
+    __datasets__ = {
+        'primary': {'eventid', 'document', 'fragment', 'type', 'user'},
+        'related': {'eventid', 'document', 'fragment', 'type'},
+    }
+
     # Flags to control whether this notification can be delivered over a particular
     # transport. Subclasses can disable these if they consider notifications unsuitable
     # for particular transports.
@@ -377,10 +382,13 @@ class UserNotification(NoIdMixin, db.Model):
         nullable=False,
     )
     #: User being notified (backref defined below, outside the model)
-    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'},)
+    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
 
     #: Random eventid, shared with the Notification instance
-    eventid = db.Column(UUIDType(binary=False), primary_key=True, nullable=False)
+    eventid = with_roles(
+        db.Column(UUIDType(binary=False), primary_key=True, nullable=False),
+        read={'owner'},
+    )
 
     #: Id of notification that this user received
     notification_id = db.Column(None, nullable=False)  # fkey in __table_args__ below
@@ -436,6 +444,11 @@ class UserNotification(NoIdMixin, db.Model):
         ),
     )
 
+    __datasets__ = {
+        'primary': {'eventid', 'role', 'read_at', 'is_read', 'is_revoked', 'rollupid'},
+        'related': {'eventid', 'role', 'read_at', 'is_read', 'is_revoked', 'rollupid'},
+    }
+
     @property
     def identity(self):
         """Primary key of this object."""
@@ -462,9 +475,32 @@ class UserNotification(NoIdMixin, db.Model):
 
     @with_roles(read={'owner'})
     @property
+    def notification_type(self):
+        return self.notification.type
+
+    @with_roles(read={'owner'})
+    @property
+    def document_type(self):
+        return (
+            self.notification.document_model.__tablename__
+            if self.notification.document_model
+            else None
+        )
+
+    @with_roles(read={'owner'})
+    @property
     def document(self):
         """The document that this notification is for."""
         return self.notification.document
+
+    @with_roles(read={'owner'})
+    @property
+    def fragment_type(self):
+        return (
+            self.notification.fragment_model.__tablename__
+            if self.notification.fragment_model
+            else None
+        )
 
     @with_roles(read={'owner'})
     @property
@@ -604,7 +640,7 @@ class UserNotification(NoIdMixin, db.Model):
                 user_notification.user_id = new_user.id
 
 
-User.notifications = with_roles(
+User.all_notifications = with_roles(
     db.relationship(
         UserNotification, lazy='dynamic', order_by=UserNotification.created_at.desc()
     ),

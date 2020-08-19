@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, render_template_string
 
 from baseframe import _
 
@@ -16,6 +16,16 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
     """Notify the participant when they register."""
 
     # self.document is Rsvp instance
+
+    def web(self):
+        return render_template_string(
+            """
+            <p>{% trans title=project.title, url=project.url_for() -%}
+              You registered for <a href="{{ url }}">{{ title }}</a>.
+            {%- endtrans %}</p>
+            """,
+            project=self.document.project,
+        )
 
     def email_subject(self):
         return _("Registration confirmation for {project}").format(
@@ -52,6 +62,16 @@ class RenderRegistrationCancellationNotification(RenderNotification):
     """Notify the participant when they cancel registration."""
 
     # self.document is Rsvp instance
+
+    def web(self):
+        return render_template_string(
+            """
+            <p>{% trans title=project.title, url=project.url_for() -%}
+              You cancelled your registration for <a href="{{ url }}">{{ title }}</a>.
+            {%- endtrans %}</p>
+            """,
+            project=self.document.project,
+        )
 
     def email_subject(self):
         return _("Registration cancelled for {project}").format(
