@@ -57,7 +57,7 @@ class AllNotificationsView(ClassView):
     @render_with(json=True)
     def unread_count(self):
         return {
-            'count': UserNotification.query.filter(
+            'unread': UserNotification.query.filter(
                 UserNotification.user == current_auth.user,
                 UserNotification.read_at.is_(None),
             ).count()
