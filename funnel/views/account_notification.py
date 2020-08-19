@@ -10,8 +10,14 @@ from coaster.utils import getbool
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
-from ..forms import UnsubscribeForm
-from ..models import NOTIFICATION_CATEGORY, User, db, notification_type_registry
+from ..forms import SetNotificationPreferenceForm, UnsubscribeForm
+from ..models import (
+    NOTIFICATION_CATEGORY,
+    NotificationPreferences,
+    User,
+    db,
+    notification_type_registry,
+)
 from ..serializers import token_serializer
 from ..transports import platform_transports
 from .helpers import metarefresh_redirect
@@ -34,7 +40,6 @@ class AccountNotificationView(ClassView):
     @requires_login
     @render_with('notification_preferences.html.jinja2')
     def notification_preferences(self):
-        # TODO: Add form handler
         user_preferences = current_auth.user.notification_preferences
         preferences = {
             key: {'title': value, 'types': []}
@@ -43,7 +48,7 @@ class AccountNotificationView(ClassView):
         for ntype, ncls in notification_type_registry.items():
             preferences[ncls.category]['types'].append(
                 {
-                    'type': ntype,
+                    'notification_type': ntype,
                     'description': ncls.description,
                     'preferences': {
                         transport: user_preferences[ntype].by_transport(transport)
@@ -58,6 +63,44 @@ class AccountNotificationView(ClassView):
             'preferences': preferences,
             'transports': [key for key, value in platform_transports.items() if value],
         }
+
+    @route('set', endpoint='set_notification_preference', methods=['POST'])
+    @requires_login
+    @render_with(json=True)
+    def set_notification_preference(self):
+        """Set one notification preference."""
+        form = SetNotificationPreferenceForm.from_json(request.get_json())
+        del form.form_nonce
+        if form.validate():
+            if (
+                form.notification_type.data
+                not in current_auth.user.notification_preferences
+            ):
+                prefs = NotificationPreferences(
+                    user=current_auth.user,
+                    notification_type=form.notification_type.data,
+                )
+                db.session.add(prefs)
+                is_new = True
+            else:
+                prefs = current_auth.user.notification_preferences[
+                    form.notification_type.data
+                ]
+                is_new = False
+            prefs.set_transport(form.transport.data, form.enabled.data)
+            db.session.commit()
+            return (
+                {
+                    'status': 'ok',
+                    'notification_type': prefs.notification_type,
+                    'preferences': {
+                        transport: prefs.by_transport(transport)
+                        for transport in platform_transports
+                    },
+                },
+                201 if is_new else 200,
+            )
+        return {'status': 'error', 'error': 'csrf'}
 
     @route('unsubscribe/<token>', endpoint='notification_unsubscribe')
     @route(

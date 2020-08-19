@@ -16,6 +16,7 @@ from ..models import (
     notification_type_registry,
     password_policy,
 )
+from ..transports import platform_transports
 from ..utils import strip_phone, valid_phone
 from .helpers import EmailAddressAvailable
 
@@ -28,6 +29,7 @@ __all__ = [
     'PasswordChangeForm',
     'AccountForm',
     'UnsubscribeForm',
+    'SetNotificationPreferenceForm',
     'EmailPrimaryForm',
     'ModeratorReportForm',
     'NewEmailAddressForm',
@@ -381,6 +383,30 @@ class UnsubscribeForm(forms.Form):
             self.edit_user.notification_preferences[ntype].set_transport(
                 self.transport, ntype in self.types.data
             )
+
+
+@User.forms('set_notification_preference')
+class SetNotificationPreferenceForm(forms.Form):
+    """Set one notification preference."""
+
+    notification_type = forms.SelectField(
+        __("Notification type"), validators=[forms.validators.DataRequired()],
+    )
+    transport = forms.SelectField(
+        __("Transport"), validators=[forms.validators.DataRequired()],
+    )
+    enabled = forms.BooleanField(__("Enable this transport"))
+
+    def set_queries(self):
+        self.notification_type.choices = [
+            (ntype, cls.description)
+            for ntype, cls in notification_type_registry.items()
+        ]
+        self.transport.choices = [
+            (transport, transport)
+            for transport in platform_transports
+            if platform_transports[transport]
+        ]
 
 
 def validate_emailclaim(form, field):
