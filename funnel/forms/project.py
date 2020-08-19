@@ -219,7 +219,11 @@ class SavedProjectForm(forms.Form):
     save = forms.BooleanField(
         __("Save this project?"), validators=[forms.validators.InputRequired()]
     )
-    description = forms.StringField(__("Note to self"))
+    # description = forms.StringField(
+    #     __("Note to self"),
+    #     validators=[forms.validators.Optional()],
+    #     filters=[forms.filters.strip()],
+    # )
 
 
 @Rsvp.forms('transition')

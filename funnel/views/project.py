@@ -666,7 +666,7 @@ class ProjectView(
     @requires_login
     @requires_roles({'reader'})
     def save(self):
-        form = self.obj.forms.save()
+        form = Project.forms.save()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 user=current_auth.user, project=self.obj
