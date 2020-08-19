@@ -401,7 +401,7 @@
       {% endif %}
     </div>
     <div class="card__body">
-      {%- if not current_auth.is_anonymous and project.forms.save() %}
+      {%- if not current_auth.is_anonymous %}
         {% set save_form_id = "upcoming_" + project.uuid_b58 %}
         <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, save_form_id) }}</div>
       {% endif %}
