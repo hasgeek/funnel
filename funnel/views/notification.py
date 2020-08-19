@@ -15,7 +15,7 @@ from ..models import Notification, UserNotification, db
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
 
-__all__ = ['NotificationView', 'dispatch_notification']
+__all__ = ['RenderNotification', 'dispatch_notification']
 
 
 @UserNotification.views('render')
@@ -23,7 +23,7 @@ def render_user_notification(obj):
     return Notification.renderers[obj.notification.type](obj.notification).web(obj)
 
 
-class NotificationView:
+class RenderNotification:
     """
     Base class for rendering user notifications, with support methods.
 
@@ -45,6 +45,13 @@ class NotificationView:
 
     #: Reason specified in email templates. Subclasses MAY override
     reason = __("You are receiving this because you have an account at hasgeek.com.")
+
+    #: Copies of reason per transport that can be overriden by subclasses
+    reason_email = reason
+    reason_sms = reason
+    reason_webpush = reason
+    reason_telegram = reason
+    reason_whatsapp = reason
 
     def __init__(self, user_notification):
         self.user_notification = user_notification

@@ -7,12 +7,12 @@ from ..models import (
     RegistrationConfirmationNotification,
 )
 from ..transports import email
-from .notification import NotificationView
+from .notification import RenderNotification
 from .schedule import schedule_ical
 
 
 @RegistrationConfirmationNotification.renderer
-class RegistrationConfirmationNotificationView(NotificationView):
+class RenderRegistrationConfirmationNotification(RenderNotification):
     """Notify the participant when they register."""
 
     # self.document is Rsvp instance
@@ -48,7 +48,7 @@ class RegistrationConfirmationNotificationView(NotificationView):
 
 
 @RegistrationCancellationNotification.renderer
-class RegistrationCancellationNotificationView(NotificationView):
+class RenderRegistrationCancellationNotification(RenderNotification):
     """Notify the participant when they cancel registration."""
 
     # self.document is Rsvp instance
