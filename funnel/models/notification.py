@@ -430,7 +430,9 @@ class UserNotification(NoIdMixin, db.Model):
 
     __table_args__ = (
         db.ForeignKeyConstraint(
-            [eventid, notification_id], [Notification.eventid, Notification.id]
+            [eventid, notification_id],
+            [Notification.eventid, Notification.id],
+            ondelete='CASCADE',
         ),
     )
 
