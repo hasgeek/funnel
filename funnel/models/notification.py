@@ -441,6 +441,7 @@ class UserNotification(NoIdMixin, db.Model):
             [eventid, notification_id],
             [Notification.eventid, Notification.id],
             ondelete='CASCADE',
+            name='user_notification_eventid_notification_id_fkey',
         ),
     )
 
