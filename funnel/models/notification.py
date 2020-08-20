@@ -556,7 +556,7 @@ class UserNotification(NoIdMixin, db.Model):
         """
         Return whether the requested transport is an option.
 
-        Uses three criteria:
+        Uses four criteria:
 
         1. The notification type allows delivery over this transport
         2. The user's main transport preferences allow this one
@@ -579,15 +579,19 @@ class UserNotification(NoIdMixin, db.Model):
         """
         Return transport address for the requested transport.
 
-        Uses three criteria:
+        Uses four criteria:
 
         1. The notification type allows delivery over this transport
-        2. The user preference allows it
-        2. The user has this transport (verified email or phone, etc)
+        2. The user's main transport preferences allow this one
+        3. The user's per-type preference allows it
+        4. The user has this transport (verified email or phone, etc)
         """
+        main_prefs = self.user.main_notification_preferences
         user_prefs = self.user_preferences()
-        if self.notification.allow_transport(transport) and user_prefs.by_transport(
-            transport
+        if (
+            self.notification.allow_transport(transport)
+            and main_prefs.by_transport(transport)
+            and user_prefs.by_transport(transport)
         ):
             return self.user.transport_for(
                 transport, self.notification.preference_context
