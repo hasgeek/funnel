@@ -62,6 +62,7 @@ class AccountNotificationView(ClassView):
         return {
             'preferences': preferences,
             'transports': [key for key, value in platform_transports.items() if value],
+            'csrf_form': SetNotificationPreferenceForm(),
         }
 
     @route('set', endpoint='set_notification_preference', methods=['POST'])

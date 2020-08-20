@@ -148,9 +148,11 @@
 
 @keyframes spin {
   0% {
+    -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
   }
   100% {
+    -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
 }
@@ -421,6 +423,7 @@ html.touch .collapsible__body--disable {
   text-align: center;
   position: absolute;
   top: 50%;
+  -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   left: 50%;
 }
@@ -436,6 +439,7 @@ html.touch .collapsible__body--disable {
   position: absolute;
   top: 50%;
   left: 50%;
+  -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   font-size: 32px;
 }
@@ -640,7 +644,7 @@ a.loginbutton.hidden,
   }
 }
 .mui-list--border li {
-  border-bottom: 1px solid rgba(132, 146, 166, 0.2);
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   padding: 5px;
 }
 
@@ -804,6 +808,58 @@ a.loginbutton.hidden,
 }
 .html-content p {
   margin: 0;
+}
+
+.switch {
+  display: inline-block;
+  height: 14px;
+  position: relative;
+  width: 45px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  background-color: #f1f1f1;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.4s;
+}
+
+.slider:before {
+  background-color: #fff;
+  position: absolute;
+  left: -1px;
+  bottom: -2px;
+  content: '';
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #0f73ed;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 16px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }
 
 @media (max-width: 767px) {
