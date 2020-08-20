@@ -366,9 +366,11 @@ def test_email_address_delivery_state(clean_db):
     ea.mark_sent()
 
     # Recipient is known to be interacting with email (viewing or opening links)
+    # This sets a timestamp but does not change state
+    assert ea.active_at is None
     ea.mark_active()
-    assert ea.delivery_state.ACTIVE
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert ea.delivery_state.SENT
+    assert str(ea.active_at) == str(db.func.utcnow())
 
     # This can be "downgraded" to SENT, as we only record the latest status
     ea.mark_sent()
@@ -645,12 +647,6 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
 
     ea.mark_sent()
     assert ea.delivery_state.SENT
-    assert EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
-
-    ea.mark_active()
-    assert ea.delivery_state.ACTIVE
     assert EmailAddress.validate_for(user1, 'example@example.com') is True
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False

@@ -13,6 +13,7 @@ from .. import app
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm
 from ..models import (
     NOTIFICATION_CATEGORY,
+    EmailAddress,
     NotificationPreferences,
     User,
     db,
@@ -225,6 +226,10 @@ class AccountNotificationView(ClassView):
         # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
         user = User.get(buid=payload['buid'])
+        if payload['transport'] == 'email' and 'hash' in payload:
+            email_address = EmailAddress.get(email_hash=payload['hash'])
+            email_address.mark_active()
+            db.session.commit()
 
         # Step 7. Ask the user to confirm unsubscribe. Do not unsubscribe on a GET
         # request as it may be triggered by link previews (for transports other than
