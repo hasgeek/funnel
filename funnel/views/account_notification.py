@@ -69,7 +69,7 @@ class AccountNotificationView(ClassView):
     @render_with(json=True)
     def set_notification_preference(self):
         """Set one notification preference."""
-        form = SetNotificationPreferenceForm.from_json(request.get_json())
+        form = SetNotificationPreferenceForm()
         del form.form_nonce
         if form.validate():
             if (

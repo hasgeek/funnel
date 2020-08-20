@@ -8,7 +8,6 @@ from flask_mailman import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
-import wtforms_json
 
 import geoip2.database
 
@@ -17,7 +16,6 @@ import coaster.app
 
 from ._version import __version__
 
-wtforms_json.init()
 # Three apps
 app = Flask(__name__, instance_relative_config=True)
 funnelapp = Flask(__name__, instance_relative_config=True, subdomain_matching=True)
