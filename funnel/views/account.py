@@ -138,9 +138,7 @@ def user_agent_details(obj):
             else str(ua.device.brand or '') + ' ' + str(ua.device.model or '') + ' '
         )
         + ' ('
-        + str(ua.os.family)
-        + ' '
-        + str(ua.os.version_string)
+        + (str(ua.os.family) + ' ' + str(ua.os.version_string)).strip()
         + ')',
     }
 
