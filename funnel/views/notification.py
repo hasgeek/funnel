@@ -232,6 +232,11 @@ def transport_worker_wrapper(func):
 @rq.job('funnel')
 @transport_worker_wrapper
 def dispatch_transport_email(user_notification, view):
+    if not user_notification.user.main_notification_preferences.by_transport('email'):
+        # Cancel delivery if user's main switch is off. This was already checked, but
+        # the worker may be delayed and the user may have changed their preference.
+        user_notification.messageid_email = 'cancelled'
+        return
     subject = view.email_subject()
     content = view.email_content()
     attachments = view.email_attachments()
@@ -255,6 +260,11 @@ def dispatch_transport_email(user_notification, view):
 @rq.job('funnel')
 @transport_worker_wrapper
 def dispatch_transport_sms(user_notification, view):
+    if not user_notification.user.main_notification_preferences.by_transport('sms'):
+        # Cancel delivery if user's main switch is off. This was already checked, but
+        # the worker may be delayed and the user may have changed their preference.
+        user_notification.messageid_sms = 'cancelled'
+        return
     user_notification.messageid_sms = sms.send(
         str(
             user_notification.user.transport_for_sms(
@@ -327,7 +337,7 @@ def dispatch_user_notifications_job(user_notification_ids):
                     transport
                 ):
                     transport_batch[transport].append(user_notification.identity)
-        db.session.commit()
+            db.session.commit()
         for transport, batch in transport_batch.items():
             # Based on user preferences, a transport may have no recipients at all.
             # Only queue a background job when there is work to do.

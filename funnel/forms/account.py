@@ -389,16 +389,15 @@ class UnsubscribeForm(forms.Form):
 class SetNotificationPreferenceForm(forms.Form):
     """Set one notification preference."""
 
-    notification_type = forms.SelectField(
-        __("Notification type"), validators=[forms.validators.DataRequired()],
-    )
+    notification_type = forms.SelectField(__("Notification type"))
     transport = forms.SelectField(
         __("Transport"), validators=[forms.validators.DataRequired()],
     )
     enabled = forms.BooleanField(__("Enable this transport"))
 
     def set_queries(self):
-        self.notification_type.choices = [
+        # The main switch is special-cased with an empty string for notification type
+        self.notification_type.choices = [('', __("Main switch"))] + [
             (ntype, cls.description)
             for ntype, cls in notification_type_registry.items()
         ]

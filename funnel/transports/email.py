@@ -92,11 +92,12 @@ def send_email(subject, to, content, attachments=None):
             )
     # If an EmailAddress is blocked, this line will throw an exception
     emails = [EmailAddress.add(email) for name, email in getaddresses(msg.recipients())]
-    # TODO: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
+    # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
     # catch that, remove the recipient, and notify the user via the upcoming
-    # notification centre.
+    # notification centre. (Raise a TransportRecipientError)
     result = mail.send(msg)
     # After sending, mark the address as having received an email
     for ea in emails:
         ea.mark_sent()
+    # FIXME: 'result' is a number. Why? We need message-id
     return result

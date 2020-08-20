@@ -81,6 +81,7 @@ from coaster.sqlalchemy import auto_init_default, with_roles
 from coaster.utils import LabeledEnum, classmethodproperty
 
 from . import BaseMixin, NoIdMixin, UUIDType, db
+from .helpers import add_to_class
 from .user import User
 
 __all__ = [
@@ -228,6 +229,19 @@ class Notification(NoIdMixin, db.Model):
     #: This notification class may be delivered by WhatsApp message
     allow_whatsapp = True
 
+    # Flags to set defaults for transports, in case the user has not made a choice
+
+    #: By default, turn on/off delivery by email
+    default_email = True
+    #: By default, turn on/off delivery by SMS
+    default_sms = True
+    #: By default, turn on/off delivery by push notification
+    default_webpush = True
+    #: By default, turn on/off delivery by Telegram message
+    default_telegram = True
+    #: By default, turn on/off delivery by WhatsApp message
+    default_whatsapp = True
+
     #: Ignore transport errors? If True, an error will be ignored silently. If False,
     #: an error report will be logged for the user or site administrator. TODO
     ignore_transport_errors = False
@@ -303,16 +317,6 @@ class Notification(NoIdMixin, db.Model):
     def allow_transport(cls, transport):
         """Helper method to return ``cls.allow_<transport>``."""
         return getattr(cls, 'allow_' + transport)
-
-    def user_preferences(self, user):
-        """Return notification preferences for the user."""
-        prefs = user.notification_preferences.get(self.type)
-        if not prefs:
-            # TODO: Add rows for the entire category, not just one notification type
-            prefs = NotificationPreferences(user=user, notification_type=self.type)
-            db.session.add(prefs)
-            user.notification_preferences[self.type] = prefs
-        return prefs
 
     def dispatch(self):
         """
@@ -538,8 +542,15 @@ class UserNotification(NoIdMixin, db.Model):
     # --- Dispatch helper methods ------------------------------------------------------
 
     def user_preferences(self):
-        """Return the user's notification preferences."""
-        return self.notification.user_preferences(self.user)
+        """Return the user's notification preferences for this notification type."""
+        prefs = self.user.notification_preferences.get(self.notification_type)
+        if not prefs:
+            prefs = NotificationPreferences(
+                user=self.user, notification_type=self.notification_type
+            )
+            db.session.add(prefs)
+            self.user.notification_preferences[self.notification_type] = prefs
+        return prefs
 
     def has_transport(self, transport):
         """
@@ -548,12 +559,18 @@ class UserNotification(NoIdMixin, db.Model):
         Uses three criteria:
 
         1. The notification type allows delivery over this transport
-        2. The user preference allows it
-        2. The user has this transport (verified email or phone, etc)
+        2. The user's main transport preferences allow this one
+        3. The user's per-type preference allows it
+        4. The user actually has this transport (verified email or phone, etc)
         """
+        # This property inserts the row if not already present. An immediate database
+        # commit is required to ensure a parallel worker processing another notification
+        # doesn't make a conflicting row.
+        main_prefs = self.user.main_notification_preferences
         user_prefs = self.user_preferences()
         return (
             self.notification.allow_transport(transport)
+            and main_prefs.by_transport(transport)
             and user_prefs.by_transport(transport)
             and self.user.has_transport(transport)
         )
@@ -692,7 +709,7 @@ class NotificationPreferences(BaseMixin, db.Model):
     user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'},)
 
     # Notification type, corresponding to Notification.type (a class attribute there)
-    # To consider: type = '' holds the veto switch to disable a transport entirely
+    # notification_type = '' holds the veto switch to disable a transport entirely
     notification_type = db.Column(db.Unicode, nullable=False)
 
     by_email = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
@@ -718,32 +735,49 @@ class NotificationPreferences(BaseMixin, db.Model):
         if self.user:
             self.set_defaults()
 
+    def __repr__(self):
+        return (
+            f'NotificationPreferences('
+            f'notification_type={self.notification_type!r}, user={self.user!r}'
+            f')'
+        )
+
     def set_defaults(self):
         """
-        Set defaults based on whether the user has it enabled for other notifications.
+        Set defaults based on notification type's defaults, and previous user prefs.
         """
         transport_attrs = (
-            'by_email',
-            'by_sms',
-            'by_webpush',
-            'by_telegram',
-            'by_whatsapp',
+            ('by_email', 'default_email'),
+            ('by_sms', 'default_sms'),
+            ('by_webpush', 'default_webpush'),
+            ('by_telegram', 'default_telegram'),
+            ('by_whatsapp', 'default_whatsapp'),
         )
         if not self.user.notification_preferences:
-            for attr in transport_attrs:
-                if getattr(self, attr) is None:
-                    # Default True if this is the first notification
-                    setattr(self, attr, True)
+            # No existing preferences. Get defaults from notification type's class
+            if (
+                self.notification_type
+                and self.notification_type in notification_type_registry
+            ):
+                type_cls = notification_type_registry[self.notification_type]
+                for t_attr, d_attr in transport_attrs:
+                    if getattr(self, t_attr) is None:
+                        setattr(self, t_attr, getattr(type_cls, d_attr))
+            else:
+                # No notification type class either. Turn on everything.
+                for t_attr, d_attr in transport_attrs:
+                    if getattr(self, t_attr) is None:
+                        setattr(self, t_attr, True)
         else:
-            for attr in transport_attrs:
-                if getattr(self, attr) is None:
+            for t_attr, d_attr in transport_attrs:
+                if getattr(self, t_attr) is None:
                     # If this transport is enabled for any existing notification type,
                     # also enable here.
                     setattr(
                         self,
-                        attr,
+                        t_attr,
                         any(
-                            getattr(np, attr)
+                            getattr(np, t_attr)
                             for np in self.user.notification_preferences.values()
                         ),
                     )
@@ -776,7 +810,9 @@ class NotificationPreferences(BaseMixin, db.Model):
 
     @db.validates('notification_type')
     def _valid_notification_type(self, key, value):
-        if value not in notification_type_registry:
+        if value == '':  # Special-cased name for main preferences
+            return value
+        if value is None or value not in notification_type_registry:
             raise ValueError("Invalid notification_type: %s" % value)
         return value
 
@@ -787,6 +823,33 @@ User.notification_preferences = db.relationship(
         NotificationPreferences.notification_type
     ),
 )
+
+# This relationship is wrapped in a property that creates it on first access
+User._main_notification_preferences = db.relationship(
+    NotificationPreferences,
+    primaryjoin=db.and_(
+        NotificationPreferences.user_id == User.id,
+        NotificationPreferences.notification_type == '',
+    ),
+    uselist=False,
+)
+
+
+@add_to_class(User, 'main_notification_preferences')
+@property
+def user_main_notification_preferences(self):
+    if not self._main_notification_preferences:
+        self._main_notification_preferences = NotificationPreferences(
+            user=self,
+            notification_type='',
+            by_email=True,
+            by_sms=False,
+            by_webpush=False,
+            by_telegram=False,
+            by_whatsapp=False,
+        )
+        db.session.add(self._main_notification_preferences)
+    return self._main_notification_preferences
 
 
 # --- Signal handlers ------------------------------------------------------------------

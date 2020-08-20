@@ -11,6 +11,7 @@ from zxcvbn import zxcvbn
 __all__ = [
     'RESERVED_NAMES',
     'password_policy',
+    'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
     'add_search_trigger',
@@ -130,6 +131,17 @@ _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
 visual_field_delimiter = ' ¦ '
+
+
+def add_to_class(cls, name=None):
+    def decorator(attr):
+        use_name = name or attr.__name__
+        if use_name in cls.__dict__:
+            raise AttributeError(f"{cls.__name__} already has attribute {use_name}")
+        setattr(cls, use_name, attr)
+        return attr
+
+    return decorator
 
 
 def valid_username(candidate):
