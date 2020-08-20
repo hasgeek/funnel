@@ -122,10 +122,13 @@ class AccountNotificationView(ClassView):
 
         # Step 1: Sanity check: someone loaded this URL without a token at all.
         # Send them away
-        if not token and 'temp_token' not in session:
+        if not token and (
+            (request.method == 'GET' and 'temp_token' not in session)
+            or (request.method == 'POST' and 'token' not in request.form)
+        ):
             return redirect(url_for('notification_preferences'))
 
-        # Step 2: We have a token, but no `cookietest=1` in the URL. Copy token into
+        # Step 2: We have a URL token, but no `cookietest=1` in the URL. Copy token into
         # session and reload the page with the flag set
         if token and not cookietest:
             session['temp_token'] = token
@@ -141,7 +144,7 @@ class AccountNotificationView(ClassView):
                 return redirect(request.url + '&cookietest=1')
             return redirect(request.url + '?cookietest=1')
 
-        # Step 3a: We have a token and cookietest is now set, but token is missing
+        # Step 3a: We have a URL token and cookietest is now set, but token is missing
         # from session. That typically means the browser is refusing to set cookies
         # on 30x redirects that originated off-site (such as a webmail app). Do a
         # meta-refresh redirect instead. It is less secure because browser extensions
@@ -157,7 +160,7 @@ class AccountNotificationView(ClassView):
                 else ''
             )
 
-        # Step 3b: We have a token and cookietest is now set, and token is also in
+        # Step 3b: We have a URL token and cookietest is now set, and token is also in
         # session. Great! No browser cookie problem, so redirect again to remove the
         # token from the URL. This will hide it from web analytics software such as
         # Google Analytics and Matomo.
@@ -178,8 +181,11 @@ class AccountNotificationView(ClassView):
 
         # Step 4. We have a token and it's been stripped from the URL. Process it.
         try:
+            # Token will be in session in the GET request, and will be in request.form
+            # in the POST request. We'll move it over during the GET request
             payload = token_serializer().loads(
-                session['temp_token'], max_age=365 * 24 * 60 * 60
+                session.get('temp_token') or request.form['token'],
+                max_age=365 * 24 * 60 * 60,
             )
         except itsdangerous.exc.SignatureExpired:
             # Link has expired. It's been over a year!
@@ -228,28 +234,32 @@ class AccountNotificationView(ClassView):
         add_auth_attribute('user', user, actor=True)
 
         # Step 7. Ask the user to confirm unsubscribe. Do not unsubscribe on a GET
-        # request as it may be triggered by link previews (for messages using transports
-        # other than email)
+        # request as it may be triggered by link previews (for transports other than
+        # email, or when an email is copy-pasted into a messenger app).
         form = UnsubscribeForm(
             edit_user=user,
             transport=payload['transport'],
             notification_type=payload['notification_type'],
         )
+        # Move the token from session to form. The session is swept every 10 minutes,
+        # so if the user opens an unsubscribe link, wanders away and comes back later,
+        # it'll be gone from session. It's safe for longer in the form, and doesn't
+        # bear the leakage risk of being in the URL where analytics software can log it.
+        if 'temp_token' in session:
+            form.token.data = session.pop('temp_token')
+            session.pop('temp_token_at', None)
         if form.validate_on_submit():
             form.save_to_user()
             db.session.commit()
-            session.pop('temp_token', None)
-            session.pop('temp_token_at', None)
             return render_message(
                 title=_("Preferences saved"),
                 message=_("Your notification preferences have been updated"),
             )
         return render_form(
             form=form,
-            title=_("Update notification preferences"),
-            # TODO: Include message identifying the transport
+            title=_("Unsubscribe from notifications"),
             formid='unsubscribe-preferences',
-            submit=_("Update preferences"),
+            submit=_("Save preferences"),
             ajax=False,
             template='account_formlayout.html.jinja2',
         )

@@ -359,6 +359,12 @@ class UnsubscribeForm(forms.Form):
         option_widget=forms.CheckboxInput(),
     )
 
+    # This token is validated in the view, not here, because it has to be valid in the
+    # GET request itself, and the UI flow is very dependent on the validation error.
+    token = forms.HiddenField(
+        __("Unsubscribe token"), validators=[forms.validators.DataRequired()]
+    )
+
     def set_queries(self):
         # Populate choices with all notification types that the user has a preference
         # row for.
