@@ -28,8 +28,8 @@ from .login_session import requires_login
 
 @route('/account/notifications')
 class AccountNotificationView(ClassView):
-    # TODO: This class does use ModelView on User because some routes do not require a
-    # logged in user. While it would be nice to have current_auth.user.url_for('...'),
+    # TODO: This class does not use ModelView on User because some routes do not require
+    # a logged in user. While it would be nice to have current_auth.user.url_for('...'),
     # this does not work when there is no current_auth.user. However, this can be
     # handled using an explicit endpoint name and url_for(endpoint_name), so maybe we
     # should use a ModelView after all.

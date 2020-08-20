@@ -1070,6 +1070,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'),)
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
+    # TODO: Remove obsolete blake2b column
     blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
@@ -1170,7 +1171,22 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
 auto_init_default(UserEmailClaim.verification_code)
 
 
-class UserPhone(BaseMixin, db.Model):
+class PhoneHashMixin:
+    """Temporary mixin until blake2b160 is a stored pre-hashed column."""
+
+    # TODO: Add migration to include blake2b160 column and phone_hash comparator
+
+    @property
+    def blake2b160(self):
+        return hashlib.blake2b(self.phone.encode('utf-8'), digest_size=20).digest()
+
+    @property
+    def transport_hash(self):
+        """Identifier for phone number, for notifications framework."""
+        base58.b58encode(self.blake2b160).decode()
+
+
+class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     __tablename__ = 'user_phone'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('phones', cascade='all'))
@@ -1248,7 +1264,7 @@ class UserPhone(BaseMixin, db.Model):
         return [cls.__table__.name, user_phone_primary_table.name]
 
 
-class UserPhoneClaim(BaseMixin, db.Model):
+class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     __tablename__ = 'user_phone_claim'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'),)

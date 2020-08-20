@@ -299,6 +299,9 @@ class EmailAddress(BaseMixin, db.Model):
         """Public identifier string for email address, usable in URLs."""
         return base58.b58encode(self.blake2b160).decode()
 
+    # Compatibility name for notifications framework
+    transport_hash = email_hash
+
     @with_roles(call={'all'})
     def md5(self) -> Optional[str]:
         """MD5 hash of :property:`email_normalized`, for legacy use only."""
@@ -624,6 +627,11 @@ class EmailAddressMixin:
     def email_address_reference_is_active(self):
         """Subclasses should replace this if they hold inactive references"""
         return True
+
+    @property
+    def transport_hash(self):
+        """Email hash using the compatibility name for notifications framework."""
+        return self.email_address.email_hash
 
 
 auto_init_default(EmailAddress._delivery_state)

@@ -59,15 +59,34 @@ class RenderNotification:
         self.document = user_notification.notification.document
         self.fragment = user_notification.notification.fragment
 
+    def transport_for(self, transport):
+        """
+        Return the transport address for the notification.
+
+        Subclasses may override this if they need to enforce a specific transport
+        address, such as verification tokens sent to a specific email address or phone
+        number. Since notifications cannot have data, the notification will have to be
+        raised on the address document (eg: UserEmail, UserPhone, EmailAddress).
+        """
+        return self.user_notification.user.transport_for(
+            transport, self.notification.preference_context
+        )
+
     def unsubscribe_token(self, transport):
         """
         Return a token suitable for use in an unsubscribe link.
 
-        The token only contains a user id (``user.buid`` here) and notification type
-        (for ``user.notification_preferences``). The template should wrap this token
-        with ``?utm_campaign=unsubscribe&utm_source={notification.eventid}``. Since
-        tokens are sensitive, the view will strip them out of the URL before rendering
-        the page, using a similar mechanism to that used for account reset.
+        The token contains:
+
+        1. The user id (``user.buid`` for now)
+        2. The notification type (for ``user.notification_preferences``)
+        3. The transport (for attribute to unset), and
+        4. The transport hash, for identifying the source.
+
+        The template should wrap this token with ``utm_campaign=unsubscribe`` and
+        ``utm_source={notification.eventid}``. Since tokens are sensitive, the view will
+        strip them out of the URL before rendering the page, using a similar mechanism
+        to that used for account reset.
         """
         # This payload is consumed by :meth:`AccountNotificationView.unsubscribe`
         return token_serializer().dumps(
@@ -75,6 +94,7 @@ class RenderNotification:
                 'buid': self.user_notification.user.buid,
                 'notification_type': self.notification.type,
                 'transport': transport,
+                'hash': self.transport_for(transport).transport_hash,
             }
         )
 
@@ -237,21 +257,13 @@ def dispatch_transport_email(user_notification, view):
         # the worker may be delayed and the user may have changed their preference.
         user_notification.messageid_email = 'cancelled'
         return
+    address = view.transport_for('email')
     subject = view.email_subject()
     content = view.email_content()
     attachments = view.email_attachments()
     user_notification.messageid_email = email.send_email(
         subject=subject,
-        to=[
-            (
-                user_notification.user.fullname,
-                str(
-                    user_notification.user.transport_for_email(
-                        user_notification.notification.preference_context
-                    )
-                ),
-            )
-        ],
+        to=[(user_notification.user.fullname, str(address))],
         content=content,
         attachments=attachments,
     )
@@ -266,12 +278,7 @@ def dispatch_transport_sms(user_notification, view):
         user_notification.messageid_sms = 'cancelled'
         return
     user_notification.messageid_sms = sms.send(
-        str(
-            user_notification.user.transport_for_sms(
-                user_notification.notification.preference_context
-            )
-        ),
-        view.sms(),
+        str(view.transport_for('sms')), view.sms(),
     )
 
 
