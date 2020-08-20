@@ -40,6 +40,7 @@ class AccountNotificationView(ClassView):
     @requires_login
     @render_with('notification_preferences.html.jinja2')
     def notification_preferences(self):
+        main_preferences = current_auth.user.main_notification_preferences
         user_preferences = current_auth.user.notification_preferences
         preferences = {
             key: {'title': value, 'types': []}
@@ -60,6 +61,10 @@ class AccountNotificationView(ClassView):
             )
 
         return {
+            'main_preferences': {
+                transport: main_preferences.by_transport(transport)
+                for transport in platform_transports
+            },
             'preferences': preferences,
             'transports': [key for key, value in platform_transports.items() if value],
             'csrf_form': SetNotificationPreferenceForm(),
