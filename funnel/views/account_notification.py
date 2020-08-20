@@ -5,7 +5,7 @@ import itsdangerous.exc
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
-from coaster.auth import add_auth_attribute, current_auth
+from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import ClassView, render_with, requestargs, route
 
@@ -222,16 +222,9 @@ class AccountNotificationView(ClassView):
                 ),
             )
 
-        # Step 6. Temporarily authenticate a user, valid for this URL only.
-        # The contents of `payload` are defined in
+        # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
         user = User.get(buid=payload['buid'])
-        # TODO: Consider whether this is necessary. Coaster presents the notion of an
-        # 'anchor' that is meant to be used in just this sort of situation to load an
-        # actor for only URLs containing the anchor, but the spec isn't written yet. For
-        # now we hoist an actor up without the spec, with the hope that nothing in
-        # future breaks because this particular usage isn't tested with those changes.
-        add_auth_attribute('user', user, actor=True)
 
         # Step 7. Ask the user to confirm unsubscribe. Do not unsubscribe on a GET
         # request as it may be triggered by link previews (for transports other than
