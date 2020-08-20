@@ -349,15 +349,21 @@ class UnsubscribeForm(forms.Form):
     # preferences. A crude form of this exists in the NotificationPreferences class,
     # but it should be smarter about defaults per category of notification.
 
+    main = forms.BooleanField(
+        __("Notify me"), description=__("Uncheck this to disable all notifications"),
+    )
+
     types = forms.SelectMultipleField(
-        __("Notify me"), widget=forms.ListWidget(), option_widget=forms.CheckboxInput(),
+        __("Or disable only a specific notification"),
+        widget=forms.ListWidget(),
+        option_widget=forms.CheckboxInput(),
     )
 
     def set_queries(self):
         # Populate choices with all notification types that the user has a preference
         # row for.
         if self.transport in self.notify_transport_labels:
-            self.types.label.text = self.notify_transport_labels[self.transport]
+            self.main.label.text = self.notify_transport_labels[self.transport]
         self.types.choices = [
             (ntype, notification_type_registry[ntype].description)
             for ntype in self.edit_user.notification_preferences
@@ -368,6 +374,9 @@ class UnsubscribeForm(forms.Form):
         if request.method == 'GET':
             # Populate data with all notification types for which the user has the
             # current transport enabled
+            self.main.data = self.edit_user.main_notification_preferences.by_transport(
+                self.transport
+            )
             self.types.data = [
                 ntype
                 for ntype, user_prefs in self.edit_user.notification_preferences.items()
@@ -379,6 +388,9 @@ class UnsubscribeForm(forms.Form):
         # through all choices and toggle true or false based on whether it's in the
         # enabled list. This uses dict access instead of .get because set_queries
         # also populates from this list.
+        self.edit_user.main_notification_preferences.set_transport(
+            self.transport, self.main.data
+        )
         for ntype, title in self.types.choices:
             self.edit_user.notification_preferences[ntype].set_transport(
                 self.transport, ntype in self.types.data

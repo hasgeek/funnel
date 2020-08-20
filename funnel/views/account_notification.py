@@ -163,11 +163,17 @@ class AccountNotificationView(ClassView):
         # Google Analytics and Matomo.
         if token and 'temp_token' in session:
             # Browser is okay with cookies. Do a 302 redirect
+            # Strip out `cookietest=1` from the redirected URL
             return redirect(
-                url_for('notification_unsubscribe')
-                + ('?' + request.query_string.decode())
-                if request.query_string
-                else ''
+                (
+                    url_for('notification_unsubscribe')
+                    + ('?' + request.query_string.decode())
+                    if request.query_string
+                    else ''
+                )
+                .replace('?cookietest=1&', '?')  # If cookietest is somehow at start
+                .replace('?cookietest=1', '')  # If it's solo
+                .replace('&cookietest=1', '')  # If it's in the middle or end
             )
 
         # Step 4. We have a token and it's been stripped from the URL. Process it.
