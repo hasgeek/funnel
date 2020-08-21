@@ -47,3 +47,21 @@ ul .login-session {
     right: -2px;
   }
 }
+
+.preference {
+  margin-top: $mui-grid-padding;
+  .preference__switch {
+    margin-bottom: $mui-grid-padding;
+  }
+}
+
+@media (min-width: 1200px) {
+  .preference {
+    position: relative;
+    .preference__switch {
+      position: absolute;
+      top: -40px;
+      right: 0;
+    }
+  }
+}

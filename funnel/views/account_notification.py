@@ -104,6 +104,7 @@ class AccountNotificationView(ClassView):
                         transport: prefs.by_transport(transport)
                         for transport in platform_transports
                     },
+                    'message': _("Your preference has been set"),
                 },
                 201 if is_new else 200,
             )

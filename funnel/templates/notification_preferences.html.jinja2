@@ -29,33 +29,54 @@
   <div class="mui-container tab-content">
     <div class="grid">
       <div class="grid__col-xs-12">
+        <p class="mui--text-subhead mui--text-bold">{% trans %}Manage notifications{% endtrans %}</p>
+        <ul class="mui-tabs__bar mui-tabs__bar--pills" role="tablist">
+          {% for transport in transports %}
+            <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
+              <a href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport }}</a>
+            </li>
+          {%- endfor %}
+        </ul>
         {% for transport in transports %}
-          <p class="mui--text-title mui--text-capitalize">{{ transport }}</p>
-          {% for key, preference in preferences.items() %}
-            <div class="card">
-              <div class="card__header">
-                <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ preference.title }}</p>
-              </div>
-              <div class="card__body">
-                {% for type in preference.types %}
-                  <div class="mui--clearfix">
-                    <p class="mui--pull-left">{{ type.description }}</p>
-                    <form method="POST" class="js-autosubmit-form">
-                      {{ csrf_form.hidden_tag() }}
-                      <input type="hidden" name="notification_type" value="{{ type.notification_type }}">
-                      <input type="hidden" name="transport" value="{{ transport }}">
-                      <label class="switch mui--pull-right" for="{{type.notification_type}}-{{transport}}">
-                        <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{type.notification_type}}-{{transport}}" class="js-toggle-switch"/>
-                        <div class="slider round"></div>
-                      </label>
-                    </form>
-                  </div>
-                {% else %}
-                  <p class="mui--pull-left">{% trans %}{% endtrans %}</p>
-                {%- endfor -%}
-              </div>
+          <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ transport }}">
+            <div class="preference__switch">
+              <p class="mui--d-inlineblock right-padding">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
+              <form method="POST" class="js-autosubmit-form mui--d-inlineblock">
+                {{ csrf_form.hidden_tag() }}
+                <input type="hidden" name="notification_type" value="">
+                <input type="hidden" name="transport" value="{{ transport }}">
+                <label class="switch" for="{{ transport }}">
+                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="js-toggle-switch"/>
+                  <div class="slider round"></div>
+                </label>
+              </form>
             </div>
-          {%- endfor -%}
+            {% for key, preference in preferences.items() %}
+              <div class="card">
+                <div class="card__header">
+                   <p class="mui--text-subhead mui--text-bold mui--text-capitalize zero-bottom-margin">{{ preference.title }}</p>
+                </div>
+                <div class="card__body">
+                  {% for type in preference.types %}
+                    <div class="mui--clearfix top-padding bottom-padding ">
+                      <p class="mui--pull-left zero-bottom-margin">{{ type.description }}</p>
+                      <form method="POST" class="js-autosubmit-form">
+                        {{ csrf_form.hidden_tag() }}
+                        <input type="hidden" name="notification_type" value="{{ type.notification_type }}">
+                        <input type="hidden" name="transport" value="{{ transport }}">
+                        <label class="switch mui--pull-right" for="{{ type.notification_type }}-{{ transport }}">
+                          <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="js-toggle-switch"/>
+                          <div class="slider round"></div>
+                        </label>
+                      </form>
+                    </div>
+                  {% else %}
+                    <p class="mui--pull-left">{% trans %}{% endtrans %}</p>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
         {%- endfor -%}
       </div>
     </div>
@@ -65,8 +86,7 @@
 {% block footerscripts %}
   <script type="text/javascript">
     $(function() {
-      $('.js-toggle-switch').on('change', function(){
-        console.log('changed');
+      $('.js-toggle-switch').on('change', function() {
         var checkbox = $(this);
         $.ajax({
           type: 'POST',
@@ -74,11 +94,10 @@
           data: $(this).parents('.js-autosubmit-form').serializeArray(),
           dataType: 'json',
           timeout: 15000,
-          success: function (remoteData) {
-            console.log('remoteData', remoteData)
+          success: function (responseData) {
+            window.toastr.success(responseData.message);
           },
           error: function (response) {
-            console.log('response', response)
             var errorMsg = '';
             if (response.readyState === 4) {
               if (response.status === 500) {

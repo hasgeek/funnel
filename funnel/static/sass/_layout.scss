@@ -69,7 +69,7 @@
 }
 
 .list-item-rgborder li {
-  border-right: 1px solid;
+  border-right: 1px solid $mui-divider-color;
   border-radius: 0;
   padding-right: 10px;
   line-height: 1;
@@ -162,7 +162,7 @@
   margin: 10px 0;
   width: 100%;
   background: $mui-bg-color-primary-dark;
-  padding: 20px;
+  padding: $mui-grid-padding;
   cursor: pointer;
 }
 
@@ -173,6 +173,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.collapsible__header--inner {
+  padding: $mui-grid-padding/2;
+  background: $mui-bg-color-accent;
 }
 
 .collapsible__header__title {
@@ -888,6 +893,7 @@ a.loginbutton.hidden,
   height: 14px;
   position: relative;
   width: 45px;
+  top: 2px;
 }
 
 .switch input {
@@ -895,7 +901,7 @@ a.loginbutton.hidden,
 }
 
 .slider {
-  background-color: $mui-bg-color-primary-dark;
+  background-color: $mui-neutral-color;
   bottom: 0;
   cursor: pointer;
   left: 0;
