@@ -10,7 +10,7 @@ from coaster.utils import getbool
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
-from ..forms import SetNotificationPreferenceForm, UnsubscribeForm
+from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
     NOTIFICATION_CATEGORY,
     EmailAddress,
@@ -60,6 +60,10 @@ class AccountNotificationView(ClassView):
                     else None,
                 }
             )
+        # Remove empty categories
+        for key in list(preferences):
+            if not preferences[key]['types']:
+                del preferences[key]
 
         return {
             'main_preferences': {
@@ -67,8 +71,16 @@ class AccountNotificationView(ClassView):
                 for transport in platform_transports
             },
             'preferences': preferences,
-            'transports': [key for key, value in platform_transports.items() if value],
-            'csrf_form': SetNotificationPreferenceForm(),
+            'transports': [
+                transport
+                for transport, enabled in platform_transports.items()
+                if enabled
+            ],
+            'transport_labels': {
+                transport: transport_labels[transport]
+                for transport, enabled in platform_transports.items()
+                if enabled
+            },
         }
 
     @route('set', endpoint='set_notification_preference', methods=['POST'])
@@ -104,11 +116,18 @@ class AccountNotificationView(ClassView):
                         transport: prefs.by_transport(transport)
                         for transport in platform_transports
                     },
-                    'message': _("Your preference has been set"),
+                    'message': form.status_message(),
                 },
                 201 if is_new else 200,
             )
-        return {'status': 'error', 'error': 'csrf'}
+        return (
+            {
+                'status': 'error',
+                'error': 'csrf',
+                'error_description': form.status_message(),
+            },
+            400,
+        )
 
     @route('unsubscribe/<token>', endpoint='notification_unsubscribe')
     @route(

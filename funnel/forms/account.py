@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from flask import request
 
 from baseframe import _, __
@@ -39,6 +41,7 @@ __all__ = [
     'VerifyPhoneForm',
     'supported_locales',
     'timezone_identifiers',
+    'transport_labels',
 ]
 
 
@@ -48,6 +51,66 @@ timezone_identifiers = dict(timezones)
 supported_locales = {
     'en': __("English"),
     'hi': __("Hindi (beta; incomplete)"),
+}
+
+TransportLabels = namedtuple(
+    'TransportLabels',
+    [
+        'title',
+        'unsubscribe_form',
+        'switch',
+        'enabled_main',
+        'enabled',
+        'disabled_main',
+        'disabled',
+    ],
+)
+transport_labels = {
+    'email': TransportLabels(
+        __("Email"),
+        __("Notify me by email"),
+        __("Email notifications"),
+        __("Enabled selected email notifications"),
+        __("Enabled this email notification"),
+        __("Disabled all email notifications"),
+        __("Disabled this email notification"),
+    ),
+    'sms': TransportLabels(
+        __("SMS"),
+        __("Notify me by SMS"),
+        __("SMS notifications"),
+        __("Enabled selected SMS notifications"),
+        __("Enabled this SMS notification"),
+        __("Disabled all SMS notifications"),
+        __("Disabled this SMS notification"),
+    ),
+    'webpush': TransportLabels(
+        __("Browser"),
+        __("Notify me with browser notifications"),
+        __("Push notifications"),
+        __("Enabled selected push notifications"),
+        __("Enabled this push notification"),
+        __("Disabled all push notifications"),
+        __("Disabled this push notification"),
+    ),
+    'telegram': TransportLabels(
+        __("Telegram"),
+        __("Notify me on Telegram"),
+        __("Telegram notifications"),
+        __("Enabled selected Telegram notifications"),
+        __("Enabled this Telegram notification"),
+        __("Disabled all Telegram notifications"),
+        __("Disabled this Telegram notification"),
+    ),
+    'whatsapp': TransportLabels(
+        __("WhatsApp"),
+        __("Notify me on WhatsApp"),
+        __("WhatsApp notifications"),
+        __("Enabled selected WhatsApp notifications"),
+        __("Enabled this WhatsApp notification"),
+        __("Disabled all WhatsApp notifications"),
+        __("Disabled this WhatsApp notification"),
+    ),
 }
 
 
@@ -330,14 +393,6 @@ class AccountForm(forms.Form):
 class UnsubscribeForm(forms.Form):
     __expects__ = ('edit_user', 'transport', 'notification_type')
 
-    notify_transport_labels = {
-        'email': __("Notify me by email"),
-        'sms': __("Notify me by SMS"),
-        'webpush': __("Notify me with a push notification"),
-        'telegram': __("Notify me on Telegram"),
-        'whatsapp': __("Notify me on WhatsApp"),
-    }
-
     # To consider: Replace the field's ListWidget with a GroupedListWidget, and show all
     # known notifications by category, not just the ones the user has received a
     # notification for. This will avoid a dark pattern wherein a user keeps getting
@@ -368,8 +423,8 @@ class UnsubscribeForm(forms.Form):
     def set_queries(self):
         # Populate choices with all notification types that the user has a preference
         # row for.
-        if self.transport in self.notify_transport_labels:
-            self.main.label.text = self.notify_transport_labels[self.transport]
+        if self.transport in transport_labels:
+            self.main.label.text = transport_labels[self.transport].unsubscribe_form
         self.types.choices = [
             (ntype, notification_type_registry[ntype].description)
             for ntype in self.edit_user.notification_preferences
@@ -424,6 +479,24 @@ class SetNotificationPreferenceForm(forms.Form):
             for transport in platform_transports
             if platform_transports[transport]
         ]
+
+    def status_message(self):
+        """Render a success or error message."""
+        if self.errors:
+            # Flatten errors into a single string because typically this will only
+            # be a CSRF error.
+            return ' '.join(' '.join(message) for message in self.errors.values())
+        if self.notification_type.data == '':
+            return (
+                transport_labels[self.transport.data].enabled_main
+                if self.enabled.data
+                else transport_labels[self.transport.data].disabled_main
+            )
+        return (
+            transport_labels[self.transport.data].enabled
+            if self.enabled.data
+            else transport_labels[self.transport.data].disabled
+        )
 
 
 def validate_emailclaim(form, field):
