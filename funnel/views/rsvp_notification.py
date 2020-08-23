@@ -19,7 +19,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
 
     def web(self):
         return render_template(
-            'notifications/web_rsvp_yes.html.jinja2',
+            'notifications/rsvp_yes_web.html.jinja2',
             view=self,
             project=self.document.project,
         )
@@ -63,7 +63,7 @@ class RenderRegistrationCancellationNotification(RenderNotification):
 
     def web(self):
         return render_template(
-            'notifications/web_rsvp_no.html.jinja2',
+            'notifications/rsvp_no_web.html.jinja2',
             view=self,
             project=self.document.project,
         )
