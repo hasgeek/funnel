@@ -103,12 +103,12 @@
             var errorMsg = '';
             if (response.readyState === 4) {
               if (response.status === 500) {
-                errorMsg = {{ gettext('Internal Server Error. Please reload and try again.')|tojson }};
+                errorMsg = {{ gettext('The server experienced an error processing this request, and the maintenance team has been notified. Please try again in a while.')|tojson }};
               } else {
                 errorMsg = JSON.parse(response.responseText).error_description;
               }
             } else {
-              errorMsg = {{ gettext('Unable to connect. Please reload and try again.')|tojson }};
+              errorMsg = {{ gettext('Unable to connect. Please check the internet connection and try again.')|tojson }};
             }
             window.toastr.error(errorMsg);
           },

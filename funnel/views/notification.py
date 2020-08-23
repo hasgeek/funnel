@@ -231,6 +231,8 @@ def transport_worker_wrapper(func):
                 for identity in user_notification_ids
             ]
             for user_notification in queue:
+                # The notification may be revoked by the time this worker processes it.
+                # If so, skip it.
                 if not user_notification.is_revoked:
                     with force_locale(user_notification.user.locale or 'en'):
                         view = Notification.renderers[
