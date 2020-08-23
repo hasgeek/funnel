@@ -44,3 +44,4 @@ def init():
         # TODO: Change this to turn on when transactional SMS infra is ready
         platform_transports['sms'] = True
     # Other transports are not supported yet
+    platform_transports['webpush'] = True  # TEST

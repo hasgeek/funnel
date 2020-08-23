@@ -71,13 +71,21 @@ class AccountNotificationView(ClassView):
                 for transport in platform_transports
             },
             'preferences': preferences,
+            # Transports is an ordered list (priority, not alphabetic)
             'transports': [
                 transport
                 for transport, enabled in platform_transports.items()
                 if enabled
             ],
-            'transport_labels': {
-                transport: transport_labels[transport]
+            # Details as a separate dictionary as they don't preserve order by priority
+            # when passed through JSON
+            'transport_details': {
+                transport: {
+                    'available': current_auth.user.has_transport(transport),
+                    'title': transport_labels[transport].title,
+                    'requirement': transport_labels[transport].requirement,
+                    'switch': transport_labels[transport].switch,
+                }
                 for transport, enabled in platform_transports.items()
                 if enabled
             },

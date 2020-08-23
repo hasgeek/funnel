@@ -57,6 +57,7 @@ TransportLabels = namedtuple(
     'TransportLabels',
     [
         'title',
+        'requirement',
         'unsubscribe_form',
         'switch',
         'enabled_main',
@@ -68,6 +69,7 @@ TransportLabels = namedtuple(
 transport_labels = {
     'email': TransportLabels(
         __("Email"),
+        __("To enable, add a verified email address"),
         __("Notify me by email"),
         __("Email notifications"),
         __("Enabled selected email notifications"),
@@ -77,6 +79,7 @@ transport_labels = {
     ),
     'sms': TransportLabels(
         __("SMS"),
+        __("To enable, add a verified phone number"),
         __("Notify me by SMS"),
         __("SMS notifications"),
         __("Enabled selected SMS notifications"),
@@ -86,6 +89,7 @@ transport_labels = {
     ),
     'webpush': TransportLabels(
         __("Browser"),
+        __("To enable, allow push notifications in the browser"),
         __("Notify me with browser notifications"),
         __("Push notifications"),
         __("Enabled selected push notifications"),
@@ -95,6 +99,7 @@ transport_labels = {
     ),
     'telegram': TransportLabels(
         __("Telegram"),
+        __("To enable, link your Telegram account"),
         __("Notify me on Telegram"),
         __("Telegram notifications"),
         __("Enabled selected Telegram notifications"),
@@ -104,6 +109,7 @@ transport_labels = {
     ),
     'whatsapp': TransportLabels(
         __("WhatsApp"),
+        __("To enable, add your WhatsApp number"),
         __("Notify me on WhatsApp"),
         __("WhatsApp notifications"),
         __("Enabled selected WhatsApp notifications"),

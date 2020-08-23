@@ -33,23 +33,27 @@
         <ul class="mui-tabs__bar mui-tabs__bar--pills" role="tablist">
           {% for transport in transports %}
             <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-              <a href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_labels[transport].title }}</a>
+              <a href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_details[transport]['title'] }}</a>
             </li>
           {%- endfor %}
         </ul>
         {% for transport in transports %}
           <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ transport }}">
             <div class="preference__switch">
-              <p class="mui--d-inlineblock right-padding">{{ transport_labels[transport].switch }}</p>
-              <form method="POST" class="js-autosubmit-form mui--d-inlineblock">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                <input type="hidden" name="notification_type" value="" />
-                <input type="hidden" name="transport" value="{{ transport }}" />
-                <label class="switch" for="{{ transport }}">
-                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="js-toggle-switch"/>
-                  <div class="slider round"></div>
-                </label>
-              </form>
+              {% if transport_details[transport]['available'] %}
+                <p class="mui--d-inlineblock right-padding">{{ transport_details[transport]['switch'] }}</p>
+                <form method="POST" class="js-autosubmit-form mui--d-inlineblock">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                  <input type="hidden" name="notification_type" value="" />
+                  <input type="hidden" name="transport" value="{{ transport }}" />
+                  <label class="switch" for="{{ transport }}">
+                    <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="js-toggle-switch"/>
+                    <div class="slider round"></div>
+                  </label>
+                </form>
+              {% else %}
+                <p class="mui--d-inlineblock right-padding">{{ transport_details[transport]['requirement'] }}</p>
+              {% endif %}
             </div>
             {% for key, preference in preferences.items() %}
               <div class="card">
