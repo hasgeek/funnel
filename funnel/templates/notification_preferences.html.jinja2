@@ -33,27 +33,31 @@
         <ul class="mui-tabs__bar mui-tabs__bar--pills mui--text-capitalize" role="tablist">
           {% for transport in transports %}
             <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-              <a href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport }}</a>
+              <a href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_details[transport]['title'] }}</a>
             </li>
           {%- endfor %}
         </ul>
         {% for transport in transports %}
           <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ transport }}">
             <div class="preference__switch mui--clearfix">
-              <p class="mui--pull-left right-padding zer-bottom-margin mui--clearfix">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
-              <form method="POST" class="js-autosubmit-form">
-                {{ csrf_form.hidden_tag() }}
-                <input type="hidden" name="notification_type" value="">
-                <input type="hidden" name="transport" value="{{ transport }}">
-                <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch"/>
-                <label class="switch-label mui--pull-left" for="{{ transport }}">
-                </label>
-              </form>
+              {% if transport_details[transport]['available'] %}
+                <p class="mui--pull-left right-padding zer-bottom-margin mui--clearfix">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
+                <form method="POST" class="js-autosubmit-form">
+                  {{ csrf_form.hidden_tag() }}
+                  <input type="hidden" name="notification_type" value="">
+                  <input type="hidden" name="transport" value="{{ transport }}">
+                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch"/>
+                  <label class="switch-label mui--pull-left" for="{{ transport }}">
+                  </label>
+                </form>
+              {% else %}
+                <p class="mui--d-inlineblock right-padding">{{ transport_details[transport]['requirement'] }}</p>
+              {% endif %}
             </div>
             {% for key, preference in preferences.items() %}
               <div class="card">
                 <div class="card__header">
-                   <p class="mui--text-subhead mui--text-bold mui--text-capitalize zero-bottom-margin">{{ preference.title }}</p>
+                   <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ preference.title }}</p>
                 </div>
                 <div class="card__body">
                   {% for type in preference.types %}
@@ -94,18 +98,20 @@
           dataType: 'json',
           timeout: 15000,
           success: function (responseData) {
-            window.toastr.success(responseData.message);
+            // Success messages are noisy, so don't show in UI.
+            // window.toastr.success(responseData.message);
+            console.log(responseData.message);
           },
           error: function (response) {
             var errorMsg = '';
             if (response.readyState === 4) {
               if (response.status === 500) {
-                errorMsg ='Internal Server Error. Please reload and try again.';
+                errorMsg = {{ gettext('The server experienced an error processing this request, and the maintenance team has been notified. Please try again in a while.')|tojson }};
               } else {
                 errorMsg = JSON.parse(response.responseText).error_description;
               }
             } else {
-              errorMsg = 'Unable to connect. Please reload and try again.';
+              errorMsg = {{ gettext('Unable to connect. Please check the internet connection and try again.')|tojson }};
             }
             window.toastr.error(errorMsg);
             $(checkbox).prop('checked', state);

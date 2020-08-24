@@ -19,7 +19,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
 
     def web(self):
         return render_template(
-            'notifications/web_rsvp_yes.html.jinja2',
+            'notifications/rsvp_yes_web.html.jinja2',
             view=self,
             project=self.document.project,
         )
@@ -32,9 +32,9 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
     def email_content(self):
         # FIXME: Move into folder, rename to match notification type, and use 'actor'
         return render_template(
-            'email_project_registration.html.jinja2',
+            'notifications/rsvp_yes_email.html.jinja2',
             view=self,
-            user=self.document.user,
+            actor=self.document.user,
             project=self.document.project,
         )
 
@@ -63,7 +63,7 @@ class RenderRegistrationCancellationNotification(RenderNotification):
 
     def web(self):
         return render_template(
-            'notifications/web_rsvp_no.html.jinja2',
+            'notifications/rsvp_no_web.html.jinja2',
             view=self,
             project=self.document.project,
         )
@@ -74,11 +74,10 @@ class RenderRegistrationCancellationNotification(RenderNotification):
         )
 
     def email_content(self):
-        # FIXME: Move into folder, rename to match notification type, and use 'actor'
         return render_template(
-            'email_project_deregister.html.jinja2',
+            'notifications/rsvp_no_email.html.jinja2',
             view=self,
-            user=self.document.user,
+            actor=self.document.user,
             project=self.document.project,
         )
 

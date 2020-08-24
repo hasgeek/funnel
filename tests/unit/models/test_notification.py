@@ -17,23 +17,15 @@ from funnel.models import (
     Update,
     User,
     UserPhone,
-    db,
 )
 
-
-@pytest.fixture()
-def empty_db():
-    """Provide an empty database."""
-    db.create_all()
-    yield db
-    db.session.rollback()
-    db.drop_all()
+# TODO Write custom notification types for tests. Don't test existing here.
 
 
-@pytest.fixture()
-def project_fixtures(empty_db, test_client):
+@pytest.fixture(scope='module')
+def project_fixtures(test_db_structure, test_client):
     """Provide users, one org and one project, for tests on them."""
-    db = empty_db
+    db = test_db_structure
 
     user_owner = User(username='user-owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
@@ -85,6 +77,13 @@ def project_fixtures(empty_db, test_client):
     user_suspended.status = USER_STATUS.SUSPENDED
     db.session.add_all([rsvp_y, rsvp_n, rsvp_suspended])
     db.session.commit()
+
+    refresh_attrs = [attr for attr in locals().values() if isinstance(attr, db.Model)]
+
+    def refresh():
+        for attr in refresh_attrs:
+            db.session.add(attr)
+
     return SimpleNamespace(**locals())
 
 
@@ -128,8 +127,9 @@ def test_project_roles(project_fixtures):
 
 
 @pytest.fixture()
-def update(project_fixtures):
+def update(project_fixtures, db_transaction):
     """Publish an update as a fixture."""
+    db = db_transaction
     update = Update(
         project=project_fixtures.project,
         user=project_fixtures.user_editor,
@@ -173,8 +173,10 @@ def test_update_roles(project_fixtures, update):
     assert 'project_participant' not in bystander_roles
 
 
-def test_update_notification_structure(project_fixtures, update):
+def test_update_notification_structure(project_fixtures, update, db_transaction):
     """Test whether a NewUpdateNotification has the appropriate structure."""
+    db = db_transaction
+    project_fixtures.refresh()
     notification = NewUpdateNotification(update)
     db.session.add(notification)
     db.session.commit()
@@ -222,9 +224,9 @@ def test_update_notification_structure(project_fixtures, update):
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_user_notification_preferences(empty_db):
+def test_user_notification_preferences(db_transaction):
     """Test that users have a notification_preferences dict."""
-    db = empty_db
+    db = db_transaction
     user = User(fullname="User")
     db.session.add(user)
     db.session.commit()
@@ -262,8 +264,9 @@ def test_user_notification_preferences(empty_db):
     assert set(user.notification_preferences.keys()) == {'update_new', 'proposal_new'}
 
 
-def test_notification_preferences(project_fixtures, update):
+def test_notification_preferences(project_fixtures, update, db_transaction):
     """Test whether user preferences are correctly accessed."""
+    db = db_transaction
     # Rather than dispatching, we'll hardcode UserNotification for each test user
     notification = NewUpdateNotification(update)
     db.session.add(notification)
