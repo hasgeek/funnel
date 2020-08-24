@@ -3,7 +3,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 import baseframe.forms as forms
 
 from .. import app
-from ..models import UserNotification, db
+from ..models import Notification, UserNotification, db
 from .login_session import requires_login
 
 
@@ -17,11 +17,12 @@ class AllNotificationsView(ClassView):
     @requestargs(('page', int), ('per_page', int))
     def view(self, page=1, per_page=10):
         pagination = (
-            UserNotification.query.filter(
+            UserNotification.query.join(Notification)
+            .filter(
                 UserNotification.user == current_auth.user,
                 UserNotification.is_revoked.is_(False),
             )
-            .order_by(UserNotification.created_at.desc())
+            .order_by(Notification.created_at.desc())
             .paginate(page=page, per_page=per_page, max_per_page=100)
         )
         return {
@@ -74,8 +75,9 @@ class AllNotificationsView(ClassView):
     @render_with(json=True)
     def mark_read(self, eventid):
         # TODO: Use Base58 ids
-        # TODO: Ignore form nonce
-        if forms.Form().validate_on_submit():
+        form = forms.Form()
+        del form.form_nonce
+        if form.validate_on_submit():
             # TODO: Use query.get((user_id, eventid)) and do manual 404
             un = UserNotification.query.filter(
                 UserNotification.user == current_auth.user,

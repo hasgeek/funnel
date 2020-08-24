@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 from functools import wraps
 from itertools import filterfalse, zip_longest
 from uuid import uuid4
@@ -14,6 +15,7 @@ from .. import app, rq
 from ..models import Notification, UserNotification, db
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
+from .helpers import make_cached_token
 
 __all__ = ['RenderNotification', 'dispatch_notification']
 
@@ -110,6 +112,35 @@ class RenderNotification:
             utm_medium=transport,
             utm_source=self.notification.eventid,
         )
+
+    def unsubscribe_short_url(self, transport='sms'):
+        """
+        Return a short but temporary unsubscribe URL (for SMS).
+        """
+        # Eventid is included here because SMS links can't have utm_* tags.
+        # However, the current implementation of the unsubscribe handler doesn't
+        # use this, and can't add utm_* tags to the URL as it only examines the token
+        # after cleaning up the URL, so there are no more redirects left.
+        token = make_cached_token(
+            {
+                'buid': self.user_notification.user.buid,
+                'notification_type': self.notification.type,
+                'transport': transport,
+                'hash': self.transport_for(transport).transport_hash,
+                'eventid': self.notification.eventid,
+                'timestamp': datetime.utcnow(),  # Naive timestamp
+            },
+            timeout=14 * 24 * 60 * 60,  # Reserve generated token for 14 days
+        )
+        unsubscribe_domain = app.config.get('UNSUBSCRIBE_DOMAIN')
+        if unsubscribe_domain:
+            # For this to work, a web server must listen on the unsubscribe domain and
+            # redirect all paths to url_for('notification_unsubscribe_short') + path
+            return 'https://' + unsubscribe_domain + '/' + token
+        else:
+            return url_for(
+                'notification_unsubscribe_short', token=token, _external=True
+            )
 
     # --- Overrideable render methods
 

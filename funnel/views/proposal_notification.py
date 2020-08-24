@@ -36,8 +36,12 @@ class RenderProposalReceivedNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("New proposal for {project}: {proposal}").format(
-            proposal=self.document.title, project=self.document.project.title,
+        return _(
+            "New proposal for {project}: {proposal}. To stop: {unsubscribe}"
+        ).format(
+            proposal=self.document.title,
+            project=self.document.project.title,
+            unsubscribe=self.unsubscribe_short_url(),
         )
 
 

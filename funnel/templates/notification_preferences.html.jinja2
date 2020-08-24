@@ -49,7 +49,7 @@
                   <label class="switch-label mui--pull-right" for="{{ transport }}">
                   </label>
                 </form>
-                <p class="mui--pull-right right-padding zer-bottom-margin mui--clearfix">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
+                <p class="mui--pull-right right-padding zer-bottom-margin mui--clearfix">{{ transport_details[transport]['switch'] }}</p>
               {% else %}
                 <p class="mui--d-inlineblock mui--pull-right">{{ transport_details[transport]['requirement'] }}</p>
               {% endif %}
@@ -72,6 +72,8 @@
                         </label>
                       </form>
                     </div>
+                  {% else %}
+                    <p class="mui--pull-left">{% trans %}No notifications in this category{% endtrans %}</p>
                   {%- endfor -%}
                 </div>
               </div>

@@ -188,6 +188,12 @@ def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
     statsd.set('users.active_users', obj.user.id, rate=1)
 
 
+def discard_temp_token():
+    session.pop('temp_token', None)
+    session.pop('temp_token_type', None)
+    session.pop('temp_token_at', None)
+
+
 @app.before_request
 @funnelapp.before_request
 @lastuserapp.before_request
@@ -203,8 +209,7 @@ def clear_expired_temp_token():
         # Give the user 10 minutes to complete the action. Remove the token if it's
         # been longer than 10 minutes.
         if session['temp_token_at'] < datetime.utcnow() - timedelta(minutes=10):
-            session.pop('temp_token', None)
-            session.pop('temp_token_at', None)
+            discard_temp_token()
             current_app.logger.info("Cleared expired temp_token from session cookie")
     elif 'temp_token' in session:
         # We have a temp token without a timestamp. This shouldn't happen, so remove it

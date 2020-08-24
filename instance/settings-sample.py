@@ -82,3 +82,6 @@ SMS_EXOTEL_FROM = ''
 SMS_TWILIO_SID = ''
 SMS_TWILIO_TOKEN = ''
 SMS_TWILIO_FROM = ''
+
+#: Unsubscribe token domain
+UNSUBSCRIBE_DOMAIN = 'bye.li'
