@@ -669,3 +669,30 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert EmailAddress.validate_for(user1, 'blocked@example.com') is False
     assert EmailAddress.validate_for(user2, 'blocked@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'blocked@example.com') is False
+
+    # An invalid address is available to no one
+    assert EmailAddress.validate_for(user1, 'invalid') == 'invalid'
+    assert EmailAddress.validate_for(user2, 'invalid') == 'invalid'
+    assert EmailAddress.validate_for(anon_user, 'invalid') == 'invalid'
+
+
+def test_email_address_validate_for_check_dns(email_models, clean_mixin_db):
+    """Validate_for with check_dns=True. Separate test as DNS lookup may fail."""
+    db = clean_mixin_db
+    models = email_models
+
+    user1 = models.EmailUser()
+    user2 = models.EmailUser()
+    anon_user = None
+    db.session.add_all([user1, user2])
+
+    # A domain without MX records is invalid if check_dns=True
+    # This uses hsgk.in, a known domain without MX.
+    # example.* use null MX as per RFC 7505, but the underlying validator in pyIsEmail
+    # does not support this.
+    assert EmailAddress.validate_for(user1, 'example@hsgk.in', check_dns=True) == 'nomx'
+    assert EmailAddress.validate_for(user2, 'example@hsgk.in', check_dns=True) == 'nomx'
+    assert (
+        EmailAddress.validate_for(anon_user, 'example@hsgk.in', check_dns=True)
+        == 'nomx'
+    )

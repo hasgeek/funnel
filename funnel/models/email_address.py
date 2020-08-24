@@ -506,9 +506,11 @@ class EmailAddress(BaseMixin, db.Model):
         Returns False if the address is blocked or in use by another owner, True if
         available without issues, or a string value indicating the concern:
 
-        1. 'not_new': Email address is already attached to owner (if `new` is True)
-        2. 'soft_fail': Known to be soft bouncing, requiring a warning message
-        3. 'hard_fail': Known to be hard bouncing, usually a validation failure
+        1. 'nomx': Email address is available, but has no MX records
+        2. 'not_new': Email address is already attached to owner (if `new` is True)
+        3. 'soft_fail': Known to be soft bouncing, requiring a warning message
+        4. 'hard_fail': Known to be hard bouncing, usually a validation failure
+        5. 'invalid': Available, but failed syntax validation
 
         :param owner: Proposed owner of this email address (may be None)
         :param str email: Email address to validate
@@ -520,8 +522,15 @@ class EmailAddress(BaseMixin, db.Model):
         except EmailAddressBlockedError:
             return False
         if not existing:
-            if cls.is_valid_email_address(email, check_dns=check_dns):
+            diagnosis = cls.is_valid_email_address(
+                email, check_dns=check_dns, diagnose=True
+            )
+            if diagnosis is True:
+                # No problems
                 return True
+            if diagnosis and diagnosis.diagnosis_type == 'NO_MX_RECORD':
+                return 'nomx'
+            return 'invalid'
         # There's an existing? Is it available for this owner?
         if not existing.is_available_for(owner):
             return False
@@ -536,7 +545,7 @@ class EmailAddress(BaseMixin, db.Model):
         return True
 
     @staticmethod
-    def is_valid_email_address(email: str, check_dns=False) -> bool:
+    def is_valid_email_address(email: str, check_dns=False, diagnose=False) -> bool:
         """
         Return True if given email address is syntactically valid.
 
@@ -544,11 +553,13 @@ class EmailAddress(BaseMixin, db.Model):
         strings, as they are unlikely to appear in real-world use.
 
         :param bool check_dns: Optionally, check for existence of MX records
+        :param bool diagnose: In case of errors only, return the diagnosis
         """
         if email:
-            return is_email(
-                email, check_dns=check_dns, diagnose=True
-            ).diagnosis_type in ('VALID', 'NO_NAMESERVERS', 'DNS_TIMEDOUT')
+            result = is_email(email, check_dns=check_dns, diagnose=True)
+            if result.diagnosis_type in ('VALID', 'NO_NAMESERVERS', 'DNS_TIMEDOUT'):
+                return True
+            return result if diagnose else False
         return False
 
 
