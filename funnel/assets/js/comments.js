@@ -105,7 +105,7 @@ const Comments = {
           commentForm: '',
           errorMsg: '',
           loginUrl,
-          refreshInterval: window.Hasgeek.config.refreshInterval,
+          refreshInterval: window.Hasgeek.config.ajaxTimeout,
           refreshTimer: '',
           headerHeight,
           svgIconUrl: window.Hasgeek.config.svgIconUrl,

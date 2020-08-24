@@ -7,7 +7,7 @@ $(() => {
   window.Hasgeek.config.ajaxTimeout = 30000;
   window.Hasgeek.config.retryInterval = 10000;
   window.Hasgeek.config.closeModalTimeout = 10000;
-  window.Hasgeek.config.refreshInterval = 30000;
+  window.Hasgeek.config.refreshInterval = 300000;
 
   Utils.collapse();
   Utils.smoothScroll();
@@ -17,6 +17,11 @@ $(() => {
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
   Utils.handleModalForm();
+  Utils.updateNotificationStatus();
+  window.setInterval(
+    Utils.updateNotificationStatus,
+    window.Hasgeek.config.refreshInterval
+  );
 
   const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {
@@ -87,7 +92,7 @@ $(() => {
     type: 'GET',
     url: window.Hasgeek.config.notificationCount,
     dataType: 'json',
-    timeout: 15000,
+    timeout: window.Hasgeek.config.ajaxTimeout,
     success: function (responseData) {
       if (responseData.unread) {
         $('.header__nav-links--updates').addClass(

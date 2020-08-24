@@ -97,11 +97,6 @@
           data: $(this).parents('.js-autosubmit-form').serializeArray(),
           dataType: 'json',
           timeout: 15000,
-          success: function (responseData) {
-            // Success messages are noisy, so don't show in UI.
-            // window.toastr.success(responseData.message);
-            console.log(responseData.message);
-          },
           error: function (response) {
             var errorMsg = '';
             if (response.readyState === 4) {

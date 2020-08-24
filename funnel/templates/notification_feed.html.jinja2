@@ -14,9 +14,9 @@
   <div class="mui-container tab-content">
     <div class="grid">
       {% raw %}
-      <div class="grid__col-xs-12" id="updates" v-cloak>
+      <div class="grid__col-xs-12" id="notifications" v-cloak>
         <ul class="mui-list--unstyled">
-          <li class="update update--small" v-for="notification in notifications" :class="[!notification.is_read ? 'update--unread' : 'update--read']">
+          <li class="update update--small" v-for="(notification, index) in notifications" :class="[!notification.notification.is_read ? 'update--unread' : 'update--read']" data-visible-time='' :ref="'notification-'+index" :data-index='index'>
             <div v-html=notification.html></div>
           </li>
         </ul>
@@ -31,15 +31,19 @@
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
   <script type="text/javascript">
+    var notificationConfig = {
+      markReadUrl: {{ url_for('notification_mark_read', eventid='eventid')|tojson }},
+    };
     $(function() {
       Vue.config.devtools = true;
       const updatesApp = new Vue({
-        el: '#updates',
+        el: '#notifications',
         data() {
           return {
             notifications: [],
             next_num: 1,
             waitingForResponse: false,
+            markReadUrl: notificationConfig.markReadUrl,
           };
         },
         methods: {
@@ -60,7 +64,6 @@
                   else
                     updatesApp.next_num = 0;
                   updatesApp.waitingForResponse = false;
-                  updatesApp.checkReadStatus();
                 },
               });
             }
@@ -84,28 +87,53 @@
               }
             });
           },
-          updateReadStatus() {
+          updateReadStatus(notification) {
+            if($(notification).attr('data-visible-time')) {
+              let notificationItem = this.notifications[$(notification).attr('data-index')];
+              let url = this.markReadUrl.replace('eventid', notificationItem.notification.eventid);
+              $.ajax({
+                type: 'POST',
+                url: url,
+                data: { csrf_token: $('meta[name="csrf-token"]').attr('content')},
+                dataType: 'json',
+                timeout: window.Hasgeek.config.ajaxTimeout,
+                success: function (responseData) {
+                  notificationItem.notification.is_read = true;
+                  notificationItem.observer.unobserve(notification);
+                },
+              });
+            }
+          },
+          notificationInViewport(entries) {
+            let app = this;
             entries.forEach((entry) => {
-              console.log('entry', entry)
+              if (entry.isIntersecting) {
+                $(entry.target).attr('data-visible-time', entry.time);
+                window.setTimeout(function() {
+                  app.updateReadStatus(entry.target)
+                }, 5000)
+              } else {
+                $(entry.target).attr('data-visible-time', '');
+              }
             });
           },
-          checkReadStatus() {
-            console.log('checkReadStatus');
-            let app = this;
-            $.each($('.update--unread'), function(index, elem) {
-              console.log('checkReadStatus', elem)
-              app.updateReadStatus = app.updateReadStatus.bind(app);
-              const notificationObserver = new IntersectionObserver(app.updateReadStatus, {
-                rootMargin: '0px',
-                threshold: 0,
-              });
-              notificationObserver.observe(elem);
-            });
-          }
         },
         mounted() {
           this.lazyoad();
         },
+        updated() {
+          let app = this;
+          $.each($('.update--unread'), function(index, elem) {
+            app.notificationInViewport = app.notificationInViewport.bind(app);
+            const notificationObserver = new IntersectionObserver(app.notificationInViewport, {
+              rootMargin: '0px',
+              threshold: 0,
+            });
+            notificationObserver.observe(elem);
+            let notificationItem = app.notifications[$(elem).attr('data-index')];
+            notificationItem.observer = notificationObserver;
+          });
+        }
       });
     });
   </script>
