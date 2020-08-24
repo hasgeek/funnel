@@ -896,7 +896,7 @@ a.loginbutton.hidden,
   display: inline-block;
   cursor: pointer;
   text-align: left;
-  padding: 16px 0 16px 44px;
+  padding: 16px 0 16px 32px;
 }
 .switch-label:before,
 .switch-label:after {
@@ -924,14 +924,14 @@ a.loginbutton.hidden,
   height: 20px;
   background-color: #fafafa;
   border-radius: 50%;
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.14),
-    0 2px 2px 0 rgba(0, 0, 0, 0.098), 0 1px 5px 0 rgba(0, 0, 0, 0.084);
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 .switch-input:checked + .switch-label:before {
-  background-color: transparentize($mui-success-color, 0.4);
+  background-color: transparentize($mui-primary-color, 0.4);
 }
 .switch-input:checked + .switch-label:after {
-  background-color: $mui-success-color;
+  background-color: $mui-primary-color;
   -ms-transform: translate(80%, -50%);
   -webkit-transform: translate(80%, -50%);
   transform: translate(80%, -50%);

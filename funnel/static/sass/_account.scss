@@ -52,9 +52,13 @@ ul .login-session {
   margin-top: $mui-grid-padding;
   .preference__switch {
     margin-bottom: $mui-grid-padding;
+    .preference__switch__txt {
+      float: left;
+    }
     .switch-label {
       position: relative;
       top: -3px;
+      float: left;
     }
   }
 }

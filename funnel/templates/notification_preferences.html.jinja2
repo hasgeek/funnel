@@ -41,17 +41,17 @@
           <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ transport }}">
             <div class="preference__switch mui--clearfix">
               {% if transport_details[transport]['available'] %}
-                <p class="mui--pull-left right-padding zer-bottom-margin mui--clearfix">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
-                <form method="POST" class="js-autosubmit-form">
+                <form method="POST" class="js-autosubmit-form right-padding">
                   {{ csrf_form.hidden_tag() }}
                   <input type="hidden" name="notification_type" value="">
                   <input type="hidden" name="transport" value="{{ transport }}">
                   <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch"/>
-                  <label class="switch-label mui--pull-left" for="{{ transport }}">
+                  <label class="switch-label mui--pull-right" for="{{ transport }}">
                   </label>
                 </form>
+                <p class="mui--pull-right right-padding zer-bottom-margin mui--clearfix">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
               {% else %}
-                <p class="mui--d-inlineblock right-padding">{{ transport_details[transport]['requirement'] }}</p>
+                <p class="mui--d-inlineblock mui--pull-right">{{ transport_details[transport]['requirement'] }}</p>
               {% endif %}
             </div>
             {% for key, preference in preferences.items() %}
@@ -72,8 +72,6 @@
                         </label>
                       </form>
                     </div>
-                  {% else %}
-                    <p class="mui--pull-left">{% trans %}{% endtrans %}</p>
                   {%- endfor -%}
                 </div>
               </div>
@@ -86,33 +84,13 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('notification_settings')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      $('.js-toggle-switch').on('change', function() {
-        var checkbox = $(this);
-        var state = !this.checked;
-        $.ajax({
-          type: 'POST',
-          url: {{ url_for('set_notification_preference')|tojson }},
-          data: $(this).parents('.js-autosubmit-form').serializeArray(),
-          dataType: 'json',
-          timeout: 15000,
-          error: function (response) {
-            var errorMsg = '';
-            if (response.readyState === 4) {
-              if (response.status === 500) {
-                errorMsg = {{ gettext('The server experienced an error processing this request, and the maintenance team has been notified. Please try again in a while.')|tojson }};
-              } else {
-                errorMsg = JSON.parse(response.responseText).error_description;
-              }
-            } else {
-              errorMsg = {{ gettext('Unable to connect. Please check the internet connection and try again.')|tojson }};
-            }
-            window.toastr.error(errorMsg);
-            $(checkbox).prop('checked', state);
-          },
-        });
-      });
+      var config = {
+        url: {{ url_for('set_notification_preference')|tojson }},
+      }
+      window.Hasgeek.NotificationSettings(config);
     });
   </script>
 {% endblock %}
