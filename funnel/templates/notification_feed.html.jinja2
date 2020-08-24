@@ -36,36 +36,53 @@
     };
     $(function() {
       Vue.config.devtools = true;
-      const updatesApp = new Vue({
+      const notificationApp = new Vue({
         el: '#notifications',
         data() {
           return {
             notifications: [],
+            eventids: [],
             next_num: 1,
             waitingForResponse: false,
             markReadUrl: notificationConfig.markReadUrl,
           };
         },
         methods: {
-          fetchResult() {
-            if (!updatesApp.waitingForResponse) {
-              updatesApp.waitingForResponse = true;
+          fetchResult(page) {
+            console.log('fetchResult', page)
+            if (!notificationApp.waitingForResponse) {
+              notificationApp.waitingForResponse = true;
               $.ajax({
                 type: 'GET',
                 data: {
-                  page: updatesApp.next_num,
+                  page: page,
                 },
                 timeout: window.Hasgeek.config.ajaxTimeout,
                 dataType: 'json',
                 success(data) {
-                  updatesApp.notifications.push(...data.notifications);
+                  notificationApp.addNotifications(data.notifications, page);
                   if(data.next_num)
-                    updatesApp.next_num = data.next_num;
+                    notificationApp.next_num = data.next_num;
                   else
-                    updatesApp.next_num = 0;
-                  updatesApp.waitingForResponse = false;
+                    notificationApp.next_num = 0;
+                  notificationApp.waitingForResponse = false;
                 },
               });
+            }
+          },
+          addNotifications(notifications, page) {
+            for (notice of notifications) {
+              if(!notificationApp.eventids.includes(notice.notification.eventid)) {
+                console.log('notice not present', notice.notification.eventid);
+                notificationApp.notifications.push(notice);
+                if(page > 1)
+                  notificationApp.notifications.push(notice);
+                else
+                  notificationApp.notifications.unshift(notice);
+                notificationApp.eventids.push(notice.notification.eventid);
+              } else {
+                console.log('notice is present', notice.notification.eventid);
+              }
             }
           },
           lazyoad() {
@@ -83,7 +100,7 @@
           handleObserver(entries) {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
-                this.fetchResult();
+                this.fetchResult(notificationApp.next_num);
               }
             });
           },
@@ -111,7 +128,7 @@
                 $(entry.target).attr('data-visible-time', entry.time);
                 window.setTimeout(function() {
                   app.updateReadStatus(entry.target)
-                }, 5000)
+                }, window.Hasgeek.config.readReceipt)
               } else {
                 $(entry.target).attr('data-visible-time', '');
               }
@@ -120,6 +137,9 @@
         },
         mounted() {
           this.lazyoad();
+          window.setInterval(() => {
+            this.fetchResult(1) }, window.Hasgeek.config.refreshInterval
+          );
         },
         updated() {
           let app = this;

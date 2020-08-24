@@ -7,7 +7,9 @@ $(() => {
   window.Hasgeek.config.ajaxTimeout = 30000;
   window.Hasgeek.config.retryInterval = 10000;
   window.Hasgeek.config.closeModalTimeout = 10000;
-  window.Hasgeek.config.refreshInterval = 300000;
+  window.Hasgeek.config.refreshInterval = 60000;
+  window.Hasgeek.config.notificationrefreshInterval = 300000;
+  window.Hasgeek.config.readReceipt = 5000;
 
   Utils.collapse();
   Utils.smoothScroll();
@@ -20,7 +22,7 @@ $(() => {
   Utils.updateNotificationStatus();
   window.setInterval(
     Utils.updateNotificationStatus,
-    window.Hasgeek.config.refreshInterval
+    window.Hasgeek.config.notificationrefreshInterval
   );
 
   const intersectionObserverComponents = function () {
