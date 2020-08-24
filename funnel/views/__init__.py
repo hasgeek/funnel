@@ -2,7 +2,6 @@
 
 from . import (
     account,
-    account_notification,
     account_reset,
     auth_client,
     auth_dashboard,
@@ -23,6 +22,7 @@ from . import (
     mixins,
     notification,
     notification_feed,
+    notification_preferences,
     organization,
     participant,
     profile,
