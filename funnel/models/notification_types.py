@@ -100,6 +100,7 @@ class ProposalSubmittedNotification(ProjectIsParent, Notification):
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
     description = __("When I submit a proposal on a project")
+    allow_sms = False
 
     document_model = Proposal
     roles = ['creator']

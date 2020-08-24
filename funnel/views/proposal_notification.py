@@ -68,8 +68,3 @@ class RenderProposalSubmittedNotification(RenderNotification):
             proposal=self.document,
             project=self.document.project,
         )
-
-    def sms(self):
-        return _("You have submitted a proposal for {project}: {proposal}").format(
-            proposal=self.document.title, project=self.document.project.title
-        )
