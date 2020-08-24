@@ -213,9 +213,7 @@ def make_cached_token(payload, timeout=24 * 60 * 60, reserved=None):
     :param set reserved: Reserved words that should not be used as token
     """
     while True:
-        token_bytes = urandom(TOKEN_BYTES_LEN)
-        # If TOKEN_BYTES_LEN is not a multiple of 3, add `.rstrip('==')`
-        token = urlsafe_b64encode(token_bytes).decode()
+        token = urlsafe_b64encode(urandom(TOKEN_BYTES_LEN)).decode().rstrip('=')
         if reserved and token in reserved:
             continue  # Reserved word, try again
 
