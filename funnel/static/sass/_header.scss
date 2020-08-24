@@ -113,6 +113,26 @@
               color: $mui-primary-color;
             }
           }
+          .header__nav-links--updates {
+            position: relative;
+          }
+          .header__nav-links--updates:after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: 10px;
+            width: 6px;
+            height: 6px;
+            background: red;
+            border-radius: 50%;
+            display: none;
+          }
+          .header__nav-links--updates:hover:after {
+            top: -4px;
+          }
+          .header__nav-links--updates--unread:after {
+            display: inline-block;
+          }
         }
       }
 
@@ -271,18 +291,11 @@
                 height: 16px;
               }
             }
-            .header__nav-links--right--updates:after {
-              content: '';
-              position: absolute;
+            .header__nav-links--updates:after {
               top: 6px;
-              right: 10px;
-              width: 8px;
-              height: 8px;
-              background: red;
-              border-radius: 50%;
             }
-            .header__nav-links--right--updates:hover:after {
-              top: 1px;
+            .header__nav-links--updates:hover:after {
+              top: 4px;
             }
           }
         }

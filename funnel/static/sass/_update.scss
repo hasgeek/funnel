@@ -5,6 +5,7 @@
 .update {
   margin: $mui-grid-padding 0 0;
   background: $mui-bg-color-primary;
+  color: $mui-text-light;
 
   .update__header {
     margin-bottom: $mui-grid-padding;
@@ -52,4 +53,8 @@
     border-radius: 4px;
     margin: $mui-grid-padding/2 0;
   }
+}
+
+.update--unread {
+  background: transparentize($mui-accent-color, 0.8);
 }

@@ -3,14 +3,11 @@
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
-  window.Hasgeek = {};
-  window.Hasgeek.config = {
-    mobileBreakpoint: 768, // this breakpoint switches to desktop UI
-    ajaxTimeout: 30000,
-    retryInterval: 10000,
-    closeModalTimeout: 10000,
-    refreshInterval: 30000,
-  };
+  window.Hasgeek.config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
+  window.Hasgeek.config.ajaxTimeout = 30000;
+  window.Hasgeek.config.retryInterval = 10000;
+  window.Hasgeek.config.closeModalTimeout = 10000;
+  window.Hasgeek.config.refreshInterval = 30000;
 
   Utils.collapse();
   Utils.smoothScroll();
@@ -85,6 +82,20 @@ $(() => {
   if ($.cookie('timezone') === null) {
     $.cookie('timezone', jstz.determine().name(), { path: '/' });
   }
+
+  $.ajax({
+    type: 'GET',
+    url: window.Hasgeek.config.notificationCount,
+    dataType: 'json',
+    timeout: 15000,
+    success: function (responseData) {
+      if (responseData.unread) {
+        $('.header__nav-links--updates').addClass(
+          'header__nav-links--updates--unread'
+        );
+      }
+    },
+  });
 });
 
 if (

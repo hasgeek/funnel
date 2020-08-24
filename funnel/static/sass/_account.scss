@@ -52,6 +52,10 @@ ul .login-session {
   margin-top: $mui-grid-padding;
   .preference__switch {
     margin-bottom: $mui-grid-padding;
+    .switch-label {
+      position: relative;
+      top: -3px;
+    }
   }
 }
 
@@ -62,6 +66,7 @@ ul .login-session {
       position: absolute;
       top: -40px;
       right: 0;
+      min-width: 275px;
     }
   }
 }

@@ -30,7 +30,7 @@
     <div class="grid">
       <div class="grid__col-xs-12">
         <p class="mui--text-subhead mui--text-bold">{% trans %}Manage notifications{% endtrans %}</p>
-        <ul class="mui-tabs__bar mui-tabs__bar--pills" role="tablist">
+        <ul class="mui-tabs__bar mui-tabs__bar--pills mui--text-capitalize" role="tablist">
           {% for transport in transports %}
             <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
               <a href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport }}</a>
@@ -39,15 +39,14 @@
         </ul>
         {% for transport in transports %}
           <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ transport }}">
-            <div class="preference__switch">
-              <p class="mui--d-inlineblock right-padding">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
-              <form method="POST" class="js-autosubmit-form mui--d-inlineblock">
+            <div class="preference__switch mui--clearfix">
+              <p class="mui--pull-left right-padding zer-bottom-margin mui--clearfix">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
+              <form method="POST" class="js-autosubmit-form">
                 {{ csrf_form.hidden_tag() }}
                 <input type="hidden" name="notification_type" value="">
                 <input type="hidden" name="transport" value="{{ transport }}">
-                <label class="switch" for="{{ transport }}">
-                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="js-toggle-switch"/>
-                  <div class="slider round"></div>
+                <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch"/>
+                <label class="switch-label mui--pull-left" for="{{ transport }}">
                 </label>
               </form>
             </div>
@@ -64,9 +63,8 @@
                         {{ csrf_form.hidden_tag() }}
                         <input type="hidden" name="notification_type" value="{{ type.notification_type }}">
                         <input type="hidden" name="transport" value="{{ transport }}">
-                        <label class="switch mui--pull-right" for="{{ type.notification_type }}-{{ transport }}">
-                          <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="js-toggle-switch"/>
-                          <div class="slider round"></div>
+                        <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="switch-input js-toggle-switch"/>
+                        <label class="switch-label mui--pull-right" for="{{ type.notification_type }}-{{ transport }}">
                         </label>
                       </form>
                     </div>
@@ -88,6 +86,7 @@
     $(function() {
       $('.js-toggle-switch').on('change', function() {
         var checkbox = $(this);
+        var state = !this.checked;
         $.ajax({
           type: 'POST',
           url: {{ url_for('set_notification_preference')|tojson }},
@@ -109,6 +108,7 @@
               errorMsg = 'Unable to connect. Please reload and try again.';
             }
             window.toastr.error(errorMsg);
+            $(checkbox).prop('checked', state);
           },
         });
       });

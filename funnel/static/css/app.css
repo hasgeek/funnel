@@ -815,57 +815,59 @@ a.loginbutton.hidden,
   margin: 0;
 }
 
-.switch {
-  display: inline-block;
-  height: 14px;
-  position: relative;
-  width: 45px;
-  top: 2px;
-}
-
-.switch input {
+.switch-input {
   display: none;
 }
 
-.slider {
-  background-color: #656565;
-  bottom: 0;
+.switch-label {
+  position: relative;
+  display: inline-block;
   cursor: pointer;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  transition: 0.4s;
+  text-align: left;
+  padding: 16px 0 16px 44px;
 }
 
-.slider:before {
-  background-color: #fff;
-  position: absolute;
-  left: -1px;
-  bottom: -2px;
+.switch-label:before,
+.switch-label:after {
   content: '';
+  position: absolute;
+  margin: 0;
+  outline: 0;
+  top: 50%;
+  -ms-transform: translate(0, -50%);
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.switch-label:before {
+  left: 1px;
+  width: 34px;
+  height: 14px;
+  background-color: #9e9e9e;
+  border-radius: 8px;
+}
+
+.switch-label:after {
+  left: 0;
   width: 20px;
   height: 20px;
-  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
-    0 1px 3px 0 rgba(0, 0, 0, 0.12);
-  transition: 0.4s;
-}
-
-input:checked + .slider {
-  background-color: #0f73ed;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-.slider.round {
-  border-radius: 16px;
-}
-
-.slider.round:before {
+  background-color: #fafafa;
   border-radius: 50%;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.14),
+    0 2px 2px 0 rgba(0, 0, 0, 0.098), 0 1px 5px 0 rgba(0, 0, 0, 0.084);
+}
+
+.switch-input:checked + .switch-label:before {
+  background-color: rgba(83, 183, 131, 0.6);
+}
+
+.switch-input:checked + .switch-label:after {
+  background-color: #53b783;
+  -ms-transform: translate(80%, -50%);
+  -webkit-transform: translate(80%, -50%);
+  transform: translate(80%, -50%);
 }
 
 @media (max-width: 767px) {
@@ -1074,6 +1076,46 @@ input:checked + .slider:before {
   .header__nav-links--active
   .mui-caret {
   color: #0f73ed;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__nav-links--updates {
+  position: relative;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__nav-links--updates:after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: 10px;
+  width: 6px;
+  height: 6px;
+  background: red;
+  border-radius: 50%;
+  display: none;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__nav-links--updates:hover:after {
+  top: -4px;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__nav-links--updates--unread:after {
+  display: inline-block;
 }
 .hg-app .header--fixed .header__nav .header__right-nav {
   display: none;
@@ -1292,23 +1334,16 @@ input:checked + .slider:before {
     .header__nav
     .header__site-title
     .header__site-title__title
-    .header__nav-links--right--updates:after {
-    content: '';
-    position: absolute;
+    .header__nav-links--updates:after {
     top: 6px;
-    right: 10px;
-    width: 8px;
-    height: 8px;
-    background: red;
-    border-radius: 50%;
   }
   .hg-app
     .header--fixed
     .header__nav
     .header__site-title
     .header__site-title__title
-    .header__nav-links--right--updates:hover:after {
-    top: 1px;
+    .header__nav-links--updates:hover:after {
+    top: 4px;
   }
   .hg-app .content-wrapper {
     padding-top: 50px;
@@ -4967,6 +5002,10 @@ ul .login-session .mui-btn--nostyle {
 .preference .preference__switch {
   margin-bottom: 16px;
 }
+.preference .preference__switch .switch-label {
+  position: relative;
+  top: -3px;
+}
 
 @media (min-width: 1200px) {
   .preference {
@@ -4976,6 +5015,7 @@ ul .login-session .mui-btn--nostyle {
     position: absolute;
     top: -40px;
     right: 0;
+    min-width: 275px;
   }
 }
 .draft-updates {
@@ -4985,6 +5025,7 @@ ul .login-session .mui-btn--nostyle {
 .update {
   margin: 16px 0 0;
   background: #ffffff;
+  color: #4d5763;
 }
 .update .update__header {
   margin-bottom: 16px;
@@ -5029,6 +5070,10 @@ ul .login-session .mui-btn--nostyle {
     margin: 8px 0;
   }
 }
+.update--unread {
+  background: rgba(240, 106, 94, 0.2);
+}
+
 .footer {
   padding-bottom: 50px;
   margin-top: 0;

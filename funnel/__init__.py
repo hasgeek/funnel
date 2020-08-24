@@ -279,6 +279,14 @@ app.assets.register(
     ),
 )
 app.assets.register(
+    'js_footable_paginate',
+    Bundle(
+        assets.require('!jquery.js', 'footable-paginate.js'),
+        output='js/footable_paginate.packed.js',
+        filters='uglipyjs',
+    ),
+)
+app.assets.register(
     'css_footable',
     Bundle(
         assets.require('baseframe-footable-mui.css'),

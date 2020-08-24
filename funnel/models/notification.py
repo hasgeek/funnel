@@ -450,7 +450,7 @@ class UserNotification(NoIdMixin, db.Model):
         ),
     )
 
-    __roles__ = {'owner': {'read': {'created_at'}}}
+    __roles__ = {'owner': {'read': {'created_at'}, 'all': {'read': {'is_read'}}}}
 
     __datasets__ = {
         'primary': {

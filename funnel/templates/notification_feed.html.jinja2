@@ -13,20 +13,100 @@
 {% block basecontent %}
   <div class="mui-container tab-content">
     <div class="grid">
-      <div class="grid__col-xs-12">
+      {% raw %}
+      <div class="grid__col-xs-12" id="updates" v-cloak>
         <ul class="mui-list--unstyled">
-          {% for notification in notifications %}
-            {{ notification.html|safe }}
-          {% endfor %}
+          <li class="update update--small" v-for="notification in notifications" :class="[!notification.is_read ? 'update--unread' : 'update--read']">
+            <div v-html=notification.html></div>
+          </li>
         </ul>
+        <p class="js-lazy-loader loading" v-if="next_num"></p>
       </div>
+      {% endraw %}
     </div>
   </div>
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
   <script type="text/javascript">
     $(function() {
+      Vue.config.devtools = true;
+      const updatesApp = new Vue({
+        el: '#updates',
+        data() {
+          return {
+            notifications: [],
+            next_num: 1,
+            waitingForResponse: false,
+          };
+        },
+        methods: {
+          fetchResult() {
+            if (!updatesApp.waitingForResponse) {
+              updatesApp.waitingForResponse = true;
+              $.ajax({
+                type: 'GET',
+                data: {
+                  page: updatesApp.next_num,
+                },
+                timeout: window.Hasgeek.config.ajaxTimeout,
+                dataType: 'json',
+                success(data) {
+                  updatesApp.notifications.push(...data.notifications);
+                  if(data.next_num)
+                    updatesApp.next_num = data.next_num;
+                  else
+                    updatesApp.next_num = 0;
+                  updatesApp.waitingForResponse = false;
+                  updatesApp.checkReadStatus();
+                },
+              });
+            }
+          },
+          lazyoad() {
+            const lazyLoader = document.querySelector('.js-lazy-loader');
+            if (lazyLoader) {
+              this.handleObserver = this.handleObserver.bind(this);
+
+              const observer = new IntersectionObserver(this.handleObserver, {
+                rootMargin: '0px',
+                threshold: 0,
+              });
+              observer.observe(lazyLoader);
+            }
+          },
+          handleObserver(entries) {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                this.fetchResult();
+              }
+            });
+          },
+          updateReadStatus() {
+            entries.forEach((entry) => {
+              console.log('entry', entry)
+            });
+          },
+          checkReadStatus() {
+            console.log('checkReadStatus');
+            let app = this;
+            $.each($('.update--unread'), function(index, elem) {
+              console.log('checkReadStatus', elem)
+              app.updateReadStatus = app.updateReadStatus.bind(app);
+              const notificationObserver = new IntersectionObserver(app.updateReadStatus, {
+                rootMargin: '0px',
+                threshold: 0,
+              });
+              notificationObserver.observe(elem);
+            });
+          }
+        },
+        mounted() {
+          this.lazyoad();
+        },
+      });
     });
   </script>
 {% endblock %}

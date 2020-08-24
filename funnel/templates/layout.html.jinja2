@@ -101,10 +101,10 @@
       </form>
       <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-action="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
       {% if not current_auth.is_anonymous -%}
-        <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right .header__nav-links--right--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
+        <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
         <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-action="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
         <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-          <a href="{{ url_for('notifications') }}" class="header__nav-links {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--right--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
+          <a href="{{ url_for('notifications') }}" class="header__nav-links {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
           <a href="{{ url_for('account') }}" class="header__nav-links {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
           {% if current_auth.user.profile %}
             <a href="{{ current_auth.user.profile.url_for() }}" class="header__nav-links user user--standalone js-account-dropdown  {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" data-cy="account-link" data-action="Account dropdown">
@@ -207,12 +207,15 @@
   {% assets "js_jquerytruncate" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(document).ready(function() {
+        window.Hasgeek = {};
+        window.Hasgeek.config = {};
       window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
+      window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
     });
   </script>
+  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
   {%- if not config['LEGACY'] -%}
   <script type="text/javascript">
     if ('serviceWorker' in navigator) {
