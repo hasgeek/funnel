@@ -28,6 +28,7 @@ from . import (
     profile,
     project,
     proposal,
+    proposal_notification,
     rsvp_notification,
     schedule,
     search,

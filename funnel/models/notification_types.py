@@ -8,10 +8,11 @@ from .rsvp import Rsvp
 from .update import Update
 
 __all__ = [
-    'NewProposalNotification',
     'NewUpdateNotification',
     'ProjectCommentNotification',
     'ProposalCommentNotification',
+    'ProposalReceivedNotification',
+    'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
 ]
@@ -76,18 +77,32 @@ class NewUpdateNotification(ProjectIsParent, Notification):
     roles = ['project_crew', 'project_participant']
 
 
-class NewProposalNotification(ProjectIsParent, Notification):
+class ProposalReceivedNotification(ProjectIsParent, Notification):
     """
     Notifications of new proposals.
     """
 
-    __mapper_args__ = {'polymorphic_identity': 'proposal_new'}
+    __mapper_args__ = {'polymorphic_identity': 'proposal_received'}
 
     category = NOTIFICATION_CATEGORY.PROJECT_CREW
     description = __("When my project receives a new proposal")
 
     document_model = Proposal
-    roles = ['project_editor', 'project_participant']
+    roles = ['project_editor']
+
+
+class ProposalSubmittedNotification(ProjectIsParent, Notification):
+    """
+    Notification to the proposer on new proposals.
+    """
+
+    __mapper_args__ = {'polymorphic_identity': 'proposal_submitted'}
+
+    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    description = __("When I submit a proposal on a project")
+
+    document_model = Proposal
+    roles = ['creator']
 
 
 # --- Notifications with fragments -----------------------------------------------------

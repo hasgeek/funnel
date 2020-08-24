@@ -6,13 +6,13 @@ import pytest
 
 from funnel.models import (
     USER_STATUS,
-    NewProposalNotification,
     NewUpdateNotification,
     Notification,
     NotificationPreferences,
     Organization,
     Project,
     ProjectCrewMembership,
+    ProposalReceivedNotification,
     Rsvp,
     Update,
     User,
@@ -190,7 +190,7 @@ def test_update_notification_structure(project_fixtures, update, db_transaction)
     load_notification = Notification.query.first()
     assert isinstance(load_notification, Notification)
     assert isinstance(load_notification, NewUpdateNotification)
-    assert not isinstance(load_notification, NewProposalNotification)
+    assert not isinstance(load_notification, ProposalReceivedNotification)
     assert load_notification == notification
 
     # Extract all the user notifications and confirm they're correctly assigned
@@ -257,11 +257,14 @@ def test_user_notification_preferences(db_transaction):
 
     # Preferences can be set for other notification types though
     np2 = NotificationPreferences(
-        user=user, notification_type=NewProposalNotification.cls_type
+        user=user, notification_type=ProposalReceivedNotification.cls_type
     )
     db.session.add(np2)
     db.session.commit()
-    assert set(user.notification_preferences.keys()) == {'update_new', 'proposal_new'}
+    assert set(user.notification_preferences.keys()) == {
+        'update_new',
+        'proposal_received',
+    }
 
 
 def test_notification_preferences(project_fixtures, update, db_transaction):
