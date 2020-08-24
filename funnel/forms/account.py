@@ -425,6 +425,9 @@ class UnsubscribeForm(forms.Form):
     token = forms.HiddenField(
         __("Unsubscribe token"), validators=[forms.validators.DataRequired()]
     )
+    token_type = forms.HiddenField(
+        __("Unsubscribe token type"), validators=[forms.validators.DataRequired()]
+    )
 
     def set_queries(self):
         # Populate choices with all notification types that the user has a preference
@@ -437,6 +440,8 @@ class UnsubscribeForm(forms.Form):
             if ntype in notification_type_registry
             and notification_type_registry[ntype].allow_transport(self.transport)
         ]
+        # Sort by type string. Temp fix for stable ordering until we introduce grouping
+        self.types.choices.sort()
 
         if request.method == 'GET':
             # Populate data with all notification types for which the user has the

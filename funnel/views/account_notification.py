@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from flask import flash, redirect, request, session, url_for
+from flask import abort, flash, redirect, request, session, url_for
 import itsdangerous.exc
 
 from baseframe import _
@@ -21,8 +21,8 @@ from ..models import (
 )
 from ..serializers import token_serializer
 from ..transports import platform_transports
-from .helpers import metarefresh_redirect
-from .login_session import requires_login
+from .helpers import metarefresh_redirect, retrieve_cached_token
+from .login_session import discard_temp_token, requires_login
 
 # --- Account notifications tab --------------------------------------------------------
 
@@ -138,15 +138,25 @@ class AccountNotificationView(ClassView):
             400,
         )
 
-    @route('unsubscribe/<token>', endpoint='notification_unsubscribe')
+    @route(
+        'unsubscribe/<token>',
+        defaults={'token_type': 'signed'},
+        endpoint='notification_unsubscribe',
+    )
+    @route(
+        'bye/<token>',
+        defaults={'token_type': 'cached'},
+        methods=['GET', 'POST'],
+        endpoint='notification_unsubscribe_short',
+    )
     @route(
         'unsubscribe',
-        defaults={'token': None},
-        endpoint='notification_unsubscribe',
+        defaults={'token': None, 'token_type': None},
         methods=['GET', 'POST'],
+        endpoint='notification_unsubscribe_do',
     )
     @requestargs(('cookietest', getbool))
-    def unsubscribe(self, token, cookietest=False):
+    def unsubscribe(self, token, token_type, cookietest=False):
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.
 
@@ -162,6 +172,7 @@ class AccountNotificationView(ClassView):
         # session and reload the page with the flag set
         if token and not cookietest:
             session['temp_token'] = token
+            session['temp_token_type'] = token_type
             # Use naive datetime as the session can't handle tz-aware datetimes
             session['temp_token_at'] = datetime.utcnow()
             # These values are removed from the session in 10 minutes by
@@ -182,9 +193,10 @@ class AccountNotificationView(ClassView):
         # but so far there has been no indication of cookies not being set.
         if token and 'temp_token' not in session:
             session['temp_token'] = token
+            session['temp_token_type'] = token_type
             session['temp_token_at'] = datetime.utcnow()
             return metarefresh_redirect(
-                url_for('notification_unsubscribe')
+                url_for('notification_unsubscribe_do')
                 + ('?' + request.query_string.decode())
                 if request.query_string
                 else ''
@@ -199,47 +211,83 @@ class AccountNotificationView(ClassView):
             # Strip out `cookietest=1` from the redirected URL
             return redirect(
                 (
-                    url_for('notification_unsubscribe')
+                    url_for('notification_unsubscribe_do')
                     + ('?' + request.query_string.decode())
                     if request.query_string
                     else ''
                 )
                 .replace('?cookietest=1&', '?')  # If cookietest is somehow at start
-                .replace('?cookietest=1', '')  # If it's solo
-                .replace('&cookietest=1', '')  # If it's in the middle or end
+                .replace('?cookietest=1', '')  # Or if it's solo
+                .replace('&cookietest=1', '')  # And/or if it's in the middle or end
             )
 
-        # Step 4. We have a token and it's been stripped from the URL. Process it.
-        try:
-            # Token will be in session in the GET request, and will be in request.form
-            # in the POST request. We'll move it over during the GET request
-            payload = token_serializer().loads(
-                session.get('temp_token') or request.form['token'],
-                max_age=365 * 24 * 60 * 60,
+        # Step 4. We have a token and it's been stripped from the URL. Process it based
+        # on the token type.
+        if not token_type:
+            token_type = session.get('temp_token_type') or request.form['token_type']
+
+        # --- Signed tokens (email)
+        if token_type == 'signed':
+            try:
+                # Token will be in session in the GET request, and in request.form
+                # in the POST request because we'll move it over during the GET request.
+                payload = token_serializer().loads(
+                    session.get('temp_token') or request.form['token'],
+                    max_age=365 * 24 * 60 * 60,  # Validity 1 year (365 days)
+                )
+            except itsdangerous.exc.SignatureExpired:
+                # Link has expired. It's been over a year!
+                discard_temp_token()
+                flash(
+                    _(
+                        "This unsubscribe link has expired. However, you can manage"
+                        " your preferences from your account page"
+                    ),
+                    'error',
+                )
+                return redirect(url_for('notification_preferences'), code=303)
+            except itsdangerous.exc.BadData:
+                discard_temp_token()
+                flash(
+                    _(
+                        "This unsubscribe link is invalid. However, you can manage your"
+                        " preferences from your account page"
+                    ),
+                    'error',
+                )
+                return redirect(url_for('notification_preferences'), code=303)
+
+        # --- Cached tokens (SMS)
+        elif token_type == 'cached':
+            payload = retrieve_cached_token(
+                session.get('temp_token') or request.form['token']
             )
-        except itsdangerous.exc.SignatureExpired:
-            # Link has expired. It's been over a year!
-            session.pop('temp_token', None)
-            session.pop('temp_token_at', None)
-            flash(
-                _(
-                    "This unsubscribe link has expired."
-                    " However, you can manage your settings from your account page"
-                ),
-                'error',
-            )
-            return redirect(url_for('notification_preferences'), code=303)
-        except itsdangerous.exc.BadData:
-            session.pop('temp_token', None)
-            session.pop('temp_token_at', None)
-            flash(
-                _(
-                    "This unsubscribe link is invalid."
-                    " However, you can manage your settings from your account page"
-                ),
-                'error',
-            )
-            return redirect(url_for('notification_preferences'), code=303)
+            if not payload:
+                # No payload, meaning invalid token
+                discard_temp_token()
+                flash(
+                    _(
+                        "This unsubscribe link is invalid. However, you can manage your"
+                        " preferences from your account page"
+                    ),
+                    'error',
+                )
+                return redirect(url_for('notification_preferences'), code=303)
+            if payload['timestamp'] < datetime.utcnow() - timedelta(days=7):
+                # Link older than a week. Expire it
+                discard_temp_token()
+                flash(
+                    _(
+                        "This unsubscribe link has expired. However, you can manage"
+                        " your preferences from your account page"
+                    ),
+                    'error',
+                )
+                return redirect(url_for('notification_preferences'), code=303)
+
+        else:
+            # This is not supposed to happen
+            abort(400)
 
         # Step 5. Validate whether the token matches the current user, if any
         # Do not allow links to be used across accounts.
@@ -259,6 +307,7 @@ class AccountNotificationView(ClassView):
             email_address = EmailAddress.get(email_hash=payload['hash'])
             email_address.mark_active()
             db.session.commit()
+        # TODO: Add active status for phone numbers and check here
 
         # Step 7. Ask the user to confirm unsubscribe. Do not unsubscribe on a GET
         # request as it may be triggered by link previews (for transports other than
@@ -273,8 +322,9 @@ class AccountNotificationView(ClassView):
         # it'll be gone from session. It's safe for longer in the form, and doesn't
         # bear the leakage risk of being in the URL where analytics software can log it.
         if 'temp_token' in session:
-            form.token.data = session.pop('temp_token')
-            session.pop('temp_token_at', None)
+            form.token.data = session['temp_token']
+            form.token_type.data = session['temp_token_type']
+            discard_temp_token()
         if form.validate_on_submit():
             form.save_to_user()
             db.session.commit()

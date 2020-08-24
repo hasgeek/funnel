@@ -1,4 +1,6 @@
+from base64 import urlsafe_b64encode
 from datetime import datetime
+from os import urandom
 from urllib.parse import unquote, urljoin, urlsplit
 
 from flask import Response, abort, current_app, g, render_template, request, url_for
@@ -194,6 +196,45 @@ def validate_rate_limit(
         token,
     )
     cache.set(cache_key, (count, token), timeout=timeout)
+
+
+# Text token length in bytes
+# 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities
+TOKEN_BYTES_LEN = 3
+text_token_prefix = 'temp_token/v1/'
+
+
+def make_cached_token(payload, timeout=24 * 60 * 60, reserved=None):
+    """
+    Make a short text token that caches data with a timeout period.
+
+    :param dict payload: Data to save against the token
+    :param int timeout: Timeout period for token in seconds (default 24 hours)
+    :param set reserved: Reserved words that should not be used as token
+    """
+    while True:
+        token_bytes = urandom(TOKEN_BYTES_LEN)
+        # If TOKEN_BYTES_LEN is not a multiple of 3, add `.rstrip('==')`
+        token = urlsafe_b64encode(token_bytes).decode()
+        if reserved and token in reserved:
+            continue  # Reserved word, try again
+
+        existing = cache.get(text_token_prefix + token)
+        if existing:
+            continue  # Token in use, try again
+
+        break
+
+    cache.set(text_token_prefix + token, payload, timeout=timeout)
+    return token
+
+
+def retrieve_cached_token(token):
+    return cache.get(text_token_prefix + token)
+
+
+def delete_cached_token(token):
+    return cache.delete(text_token_prefix + token)
 
 
 # --- Filters and URL constructors -----------------------------------------------------

@@ -41,7 +41,7 @@
           <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ transport }}">
             <div class="preference__switch mui--clearfix">
               {% if transport_details[transport]['available'] %}
-                <p class="mui--pull-left right-padding zer-bottom-margin mui--clearfix">{% trans mode = transport %}Turn on all {{ mode }} notifications{% endtrans %}</p>
+                <p class="mui--pull-left right-padding zer-bottom-margin mui--clearfix">{{ transport_details[transport]['switch'] }}</p>
                 <form method="POST" class="js-autosubmit-form">
                   {{ csrf_form.hidden_tag() }}
                   <input type="hidden" name="notification_type" value="">
@@ -73,7 +73,7 @@
                       </form>
                     </div>
                   {% else %}
-                    <p class="mui--pull-left">{% trans %}{% endtrans %}</p>
+                    <p class="mui--pull-left">{% trans %}No notifications in this category{% endtrans %}</p>
                   {%- endfor -%}
                 </div>
               </div>

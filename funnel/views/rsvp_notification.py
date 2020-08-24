@@ -50,8 +50,9 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
             ]
 
     def sms(self):
-        return _("You have registered for {project}").format(
-            project=self.document.project.title
+        return _("You have registered for {project}. To stop: {unsubscribe}").format(
+            project=self.document.project.title,
+            unsubscribe=self.unsubscribe_short_url(),
         )
 
 
@@ -82,6 +83,9 @@ class RenderRegistrationCancellationNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("You have cancelled your registration for {project}").format(
-            project=self.document.project.title
+        return _(
+            "You have cancelled your registration for {project}. To stop: {unsubscribe}"
+        ).format(
+            project=self.document.project.title,
+            unsubscribe=self.unsubscribe_short_url(),
         )
