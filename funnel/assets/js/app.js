@@ -19,11 +19,13 @@ $(() => {
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
   Utils.handleModalForm();
-  Utils.updateNotificationStatus();
-  window.setInterval(
-    Utils.updateNotificationStatus,
-    window.Hasgeek.config.notificationrefreshInterval
-  );
+  if ($('.header__nav-links--updates').length) {
+    Utils.updateNotificationStatus();
+    window.setInterval(
+      Utils.updateNotificationStatus,
+      window.Hasgeek.config.notificationrefreshInterval
+    );
+  }
 
   const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {
