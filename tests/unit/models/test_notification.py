@@ -5,21 +5,56 @@ from sqlalchemy.exc import IntegrityError
 import pytest
 
 from funnel.models import (
+    NOTIFICATION_CATEGORY,
     USER_STATUS,
-    NewUpdateNotification,
     Notification,
     NotificationPreferences,
     Organization,
     Project,
     ProjectCrewMembership,
-    ProposalReceivedNotification,
+    Proposal,
     Rsvp,
     Update,
     User,
     UserPhone,
 )
 
-# TODO Write custom notification types for tests. Don't test existing here.
+
+@pytest.fixture(scope='session')
+def notification_types():
+    class ProjectIsParent:
+        @property
+        def preference_context(self):
+            return self.document.project.profile
+
+    class TestNewUpdateNotification(ProjectIsParent, Notification):
+        """
+        Notifications of new updates (test edition)
+        """
+
+        __mapper_args__ = {'polymorphic_identity': 'update_new_test'}
+
+        category = NOTIFICATION_CATEGORY.PARTICIPANT
+        description = "When a project posts an update"
+
+        document_model = Update
+        roles = ['project_crew', 'project_participant']
+
+    class TestProposalReceivedNotification(ProjectIsParent, Notification):
+        """
+        Notifications of new proposals.
+        """
+
+        __mapper_args__ = {'polymorphic_identity': 'proposal_received_test'}
+
+        category = NOTIFICATION_CATEGORY.PROJECT_CREW
+        description = "When my project receives a new proposal"
+
+        document_model = Project
+        fragment_model = Proposal
+        roles = ['project_editor']
+
+    return SimpleNamespace(**locals())
 
 
 @pytest.fixture(scope='module')
@@ -173,15 +208,17 @@ def test_update_roles(project_fixtures, update):
     assert 'project_participant' not in bystander_roles
 
 
-def test_update_notification_structure(project_fixtures, update, db_transaction):
+def test_update_notification_structure(
+    notification_types, project_fixtures, update, db_transaction
+):
     """Test whether a NewUpdateNotification has the appropriate structure."""
     db = db_transaction
     project_fixtures.refresh()
-    notification = NewUpdateNotification(update)
+    notification = notification_types.TestNewUpdateNotification(update)
     db.session.add(notification)
     db.session.commit()
 
-    assert notification.type == 'update_new'
+    assert notification.type == 'update_new_test'
     assert notification.document == update
     assert notification.fragment is None
     assert notification.roles == ['project_crew', 'project_participant']
@@ -189,8 +226,10 @@ def test_update_notification_structure(project_fixtures, update, db_transaction)
 
     load_notification = Notification.query.first()
     assert isinstance(load_notification, Notification)
-    assert isinstance(load_notification, NewUpdateNotification)
-    assert not isinstance(load_notification, ProposalReceivedNotification)
+    assert isinstance(load_notification, notification_types.TestNewUpdateNotification)
+    assert not isinstance(
+        load_notification, notification_types.TestProposalReceivedNotification
+    )
     assert load_notification == notification
 
     # Extract all the user notifications and confirm they're correctly assigned
@@ -224,7 +263,7 @@ def test_update_notification_structure(project_fixtures, update, db_transaction)
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_user_notification_preferences(db_transaction):
+def test_user_notification_preferences(notification_types, db_transaction):
     """Test that users have a notification_preferences dict."""
     db = db_transaction
     user = User(fullname="User")
@@ -232,20 +271,25 @@ def test_user_notification_preferences(db_transaction):
     db.session.commit()
     assert user.notification_preferences == {}
     np = NotificationPreferences(
-        user=user, notification_type=NewUpdateNotification.cls_type
+        user=user,
+        notification_type=notification_types.TestNewUpdateNotification.cls_type,
     )
     db.session.add(np)
     db.session.commit()
-    assert set(user.notification_preferences.keys()) == {'update_new'}
-    assert user.notification_preferences['update_new'] == np
-    assert user.notification_preferences['update_new'].user == user
-    assert user.notification_preferences['update_new'].type_cls == NewUpdateNotification
+    assert set(user.notification_preferences.keys()) == {'update_new_test'}
+    assert user.notification_preferences['update_new_test'] == np
+    assert user.notification_preferences['update_new_test'].user == user
+    assert (
+        user.notification_preferences['update_new_test'].type_cls
+        == notification_types.TestNewUpdateNotification
+    )
 
     # There cannot be two sets of preferences for the same notification type
     with pytest.raises(IntegrityError):
         db.session.add(
             NotificationPreferences(
-                user=user, notification_type=NewUpdateNotification.cls_type
+                user=user,
+                notification_type=notification_types.TestNewUpdateNotification.cls_type,
             )
         )
         db.session.commit()
@@ -257,21 +301,24 @@ def test_user_notification_preferences(db_transaction):
 
     # Preferences can be set for other notification types though
     np2 = NotificationPreferences(
-        user=user, notification_type=ProposalReceivedNotification.cls_type
+        user=user,
+        notification_type=notification_types.TestProposalReceivedNotification.cls_type,
     )
     db.session.add(np2)
     db.session.commit()
     assert set(user.notification_preferences.keys()) == {
-        'update_new',
-        'proposal_received',
+        'update_new_test',
+        'proposal_received_test',
     }
 
 
-def test_notification_preferences(project_fixtures, update, db_transaction):
+def test_notification_preferences(
+    notification_types, project_fixtures, update, db_transaction
+):
     """Test whether user preferences are correctly accessed."""
     db = db_transaction
     # Rather than dispatching, we'll hardcode UserNotification for each test user
-    notification = NewUpdateNotification(update)
+    notification = notification_types.TestNewUpdateNotification(update)
     db.session.add(notification)
     db.session.commit()
 
