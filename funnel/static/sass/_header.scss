@@ -275,7 +275,7 @@
             .header__site-title__title__settings {
               display: flex;
               width: 152px;
-              justify-content: space-between;
+              justify-content: flex-end;
             }
             .header__nav-links--right {
               position: relative;
@@ -286,6 +286,7 @@
               display: flex;
               align-items: center;
               justify-content: center;
+              margin-right: 16px;
               .header__nav-links__icon {
                 width: 16px;
                 height: 16px;

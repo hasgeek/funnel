@@ -51,7 +51,7 @@
                 </form>
                 <p class="mui--pull-right right-padding zer-bottom-margin mui--clearfix">{{ transport_details[transport]['switch'] }}</p>
               {% else %}
-                <p class="mui--d-inlineblock mui--pull-right">{{ transport_details[transport]['requirement'] }}</p>
+                <p class="mui--d-inlineblock mui--pull-right mui--text-right right-padding">{{ transport_details[transport]['requirement'] }}</p>
               {% endif %}
             </div>
             {% for key, preference in preferences.items() %}
