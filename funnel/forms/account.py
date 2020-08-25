@@ -297,7 +297,7 @@ class AccountForm(forms.Form):
     locale = forms.SelectField(
         __("Locale"),
         description=__("Your preferred UI language"),
-        choices=supported_locales.items(),
+        choices=list(supported_locales.items()),
     )
     auto_locale = forms.BooleanField(__("Use your device’s language"))
 
