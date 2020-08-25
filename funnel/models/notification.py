@@ -166,7 +166,9 @@ class Notification(NoIdMixin, db.Model):
     #: Default category of notification. Subclasses MUST override
     category = NOTIFICATION_CATEGORY.NONE
     #: Default description for notification. Subclasses MUST override
-    description = __("Unspecified notification type")
+    title = __("Unspecified notification type")
+    #: Default description for notification. Subclasses MUST override
+    description = ''
 
     #: Subclasses may set this to aid loading of :attr:`document`
     document_model = None

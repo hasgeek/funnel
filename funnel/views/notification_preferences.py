@@ -57,6 +57,7 @@ class AccountNotificationView(ClassView):
             preferences[ncls.category]['types'].append(
                 {
                     'notification_type': ntype,
+                    'title': ncls.title,
                     'description': ncls.description,
                     'preferences': {
                         transport: user_preferences[ntype].by_transport(transport)
@@ -340,7 +341,7 @@ class AccountNotificationView(ClassView):
             )
         return render_form(
             form=form,
-            title=_("Unsubscribe from notifications"),
+            title=_("Notification preferences"),
             formid='unsubscribe-preferences',
             submit=_("Save preferences"),
             ajax=False,

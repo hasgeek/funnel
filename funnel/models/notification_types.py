@@ -42,7 +42,11 @@ class RegistrationConfirmationNotification(ProjectIsParent, Notification):
 
     __mapper_args__ = {'polymorphic_identity': 'rsvp_yes'}
     category = NOTIFICATION_CATEGORY.PARTICIPANT
-    description = __("When I register for a project")
+    title = __("When I register for a project")
+    description = __(
+        "For your records. The email notification will include a calendar entry that"
+        " Gmail and other mail clients will add to your calendar."
+    )
 
     document_model = Rsvp
     exclude_actor = False
@@ -57,7 +61,7 @@ class RegistrationCancellationNotification(ProjectIsParent, Notification):
 
     __mapper_args__ = {'polymorphic_identity': 'rsvp_no'}
     category = NOTIFICATION_CATEGORY.PARTICIPANT
-    description = __("When I cancel my registration")
+    title = __("When I cancel my registration")
 
     document_model = Rsvp
     exclude_actor = False
@@ -73,7 +77,7 @@ class NewUpdateNotification(ProjectIsParent, Notification):
     __mapper_args__ = {'polymorphic_identity': 'update_new'}
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
-    description = __("When a project posts an update")
+    title = __("When a project posts an update")
 
     document_model = Update
     roles = ['project_crew', 'project_participant']
@@ -88,7 +92,7 @@ class ProposalReceivedNotification(ProfileIsParent, Notification):
     __mapper_args__ = {'polymorphic_identity': 'proposal_received'}
 
     category = NOTIFICATION_CATEGORY.PROJECT_CREW
-    description = __("When my project receives a new proposal")
+    title = __("When my project receives a new proposal")
 
     document_model = Project
     fragment_model = Proposal
@@ -104,7 +108,7 @@ class ProposalSubmittedNotification(ProjectIsParent, Notification):
     __mapper_args__ = {'polymorphic_identity': 'proposal_submitted'}
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
-    description = __("When I submit a proposal")
+    title = __("When I submit a proposal")
 
     document_model = Proposal
     roles = ['creator']
@@ -129,7 +133,7 @@ class ProposalCommentNotification(ProjectIsParent, Notification):
     __mapper_args__ = {'polymorphic_identity': 'proposal_comment'}
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
-    description = __("When my proposal receives a comment")
+    title = __("When my proposal receives a comment")
     exclude_actor = True
 
     document_model = Proposal
@@ -147,7 +151,7 @@ class ProjectCommentNotification(ProfileIsParent, Notification):
     __mapper_args__ = {'polymorphic_identity': 'project_comment'}
 
     category = NOTIFICATION_CATEGORY.PROJECT_CREW
-    description = __("When my project receives a comment")
+    title = __("When my project receives a comment")
     exclude_actor = True
 
     document_model = Project

@@ -134,7 +134,7 @@ class UnsubscribeForm(forms.Form):
                 self.transport
             ].unsubscribe_description
         self.types.choices = [
-            (ntype, notification_type_registry[ntype].description)
+            (ntype, notification_type_registry[ntype].title)
             for ntype in self.edit_user.notification_preferences
             if ntype in notification_type_registry
             and notification_type_registry[ntype].allow_transport(self.transport)
@@ -181,8 +181,7 @@ class SetNotificationPreferenceForm(forms.Form):
     def set_queries(self):
         # The main switch is special-cased with an empty string for notification type
         self.notification_type.choices = [('', __("Main switch"))] + [
-            (ntype, cls.description)
-            for ntype, cls in notification_type_registry.items()
+            (ntype, cls.title) for ntype, cls in notification_type_registry.items()
         ]
         self.transport.choices = [
             (transport, transport)
