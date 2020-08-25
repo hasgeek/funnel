@@ -303,10 +303,10 @@ html.touch .collapsible__body--disable {
   text-transform: uppercase;
 }
 .user .user__box .user__box__fullname {
-  margin: 0px 0 4px;
+  margin: 0;
 }
 .user .user__box .user__box__userid {
-  margin: 0;
+  margin: 0 0 5px;
 }
 
 .user--standalone .user__box {
@@ -4950,6 +4950,7 @@ ul .login-session .mui-btn--nostyle {
 }
 .preference .preference__switch .preference__switch__txt {
   float: left;
+  padding-left: 16px;
 }
 .preference .preference__switch .switch-label {
   position: relative;

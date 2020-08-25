@@ -35,7 +35,7 @@ class AccountNotificationView(ClassView):
     # handled using an explicit endpoint name and url_for(endpoint_name), so maybe we
     # should use a ModelView after all.
 
-    current_section = 'notification_preferences'
+    current_section = 'account'
 
     @route('', endpoint='notification_preferences')
     @requires_login
@@ -227,7 +227,7 @@ class AccountNotificationView(ClassView):
             token_type = session.get('temp_token_type') or request.form['token_type']
 
         # --- Signed tokens (email)
-        if token_type == 'signed':
+        if token_type == 'signed':  # nosec
             try:
                 # Token will be in session in the GET request, and in request.form
                 # in the POST request because we'll move it over during the GET request.
@@ -258,7 +258,7 @@ class AccountNotificationView(ClassView):
                 return redirect(url_for('notification_preferences'), code=303)
 
         # --- Cached tokens (SMS)
-        elif token_type == 'cached':
+        elif token_type == 'cached':  # nosec
             payload = retrieve_cached_token(
                 session.get('temp_token') or request.form['token']
             )
