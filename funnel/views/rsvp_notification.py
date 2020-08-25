@@ -34,6 +34,9 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
             'notifications/rsvp_yes_email.html.jinja2',
             view=self,
             project=self.rsvp.project,
+            jsonld=email.jsonld_view_action(
+                self.rsvp.project.title, self.rsvp.project.url_for(), _("View project")
+            ),
         )
 
     def email_attachments(self):
@@ -76,6 +79,9 @@ class RenderRegistrationCancellationNotification(RenderNotification):
             'notifications/rsvp_no_email.html.jinja2',
             view=self,
             project=self.rsvp.project,
+            jsonld=email.jsonld_view_action(
+                self.rsvp.project.title, self.rsvp.project.url_for(), _("View project")
+            ),
         )
 
     def sms(self):
