@@ -1,7 +1,7 @@
 {% extends "notifications/layout_email.html.jinja2" %}
 {% block content -%}
 
-<p>{% trans actor=actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
+<p>{% trans actor=view.actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
 
 <p>{% trans project=project.title, proposal=proposal.title %}Your project <b>{{ project }}</b> has a new proposal: <b>{{ proposal }}</b>.{% endtrans %}</p>
 

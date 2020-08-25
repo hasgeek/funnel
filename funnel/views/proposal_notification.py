@@ -2,7 +2,12 @@ from flask import render_template
 
 from baseframe import _
 
-from ..models import ProposalReceivedNotification, ProposalSubmittedNotification
+from ..models import (
+    Proposal,
+    ProposalReceivedNotification,
+    ProposalSubmittedNotification,
+    db,
+)
 from .notification import RenderNotification
 
 
@@ -13,11 +18,23 @@ class RenderProposalReceivedNotification(RenderNotification):
     aliases = {'document': 'project', 'fragment': 'proposal'}
 
     def web(self):
+        proposals = (
+            self.user_notification.rolledup_fragments()
+            .options(
+                db.load_only(
+                    Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
+                )
+            )
+            .order_by(Proposal.datetime.desc())
+            .all()
+        )
         return render_template(
             'notifications/proposal_received_web.html.jinja2',
             view=self,
             proposal=self.proposal,
             project=self.project,
+            is_rollup=len(proposals) > 1,
+            proposals=proposals,
         )
 
     def email_subject(self):
@@ -29,7 +46,6 @@ class RenderProposalReceivedNotification(RenderNotification):
         return render_template(
             'notifications/proposal_received_email.html.jinja2',
             view=self,
-            actor=self.notification.user,
             proposal=self.proposal,
             project=self.project,
         )
@@ -66,7 +82,6 @@ class RenderProposalSubmittedNotification(RenderNotification):
         return render_template(
             'notifications/proposal_submitted_email.html.jinja2',
             view=self,
-            actor=self.notification.user,
             proposal=self.proposal,
             project=self.proposal.project,
         )

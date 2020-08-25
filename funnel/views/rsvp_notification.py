@@ -30,11 +30,9 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
         )
 
     def email_content(self):
-        # FIXME: Move into folder, rename to match notification type, and use 'actor'
         return render_template(
             'notifications/rsvp_yes_email.html.jinja2',
             view=self,
-            actor=self.notification.user,
             project=self.rsvp.project,
         )
 
@@ -77,7 +75,6 @@ class RenderRegistrationCancellationNotification(RenderNotification):
         return render_template(
             'notifications/rsvp_no_email.html.jinja2',
             view=self,
-            actor=self.rsvp.user,
             project=self.rsvp.project,
         )
 

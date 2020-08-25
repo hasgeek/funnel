@@ -1,8 +1,30 @@
 {% extends "notifications/layout_web.html.jinja2" %}
 {% block content %}
-<p>
-  {% trans project=project.title, project_url=project.url_for(), proposal=proposal.title, proposal_url=proposal.url_for() -%}
-    Your project <a href="{{ project_url }}">{{ project }}</a> has received a new proposal: <a href="{{ proposal_url }}">{{ proposal }}</a>.
-  {%- endtrans %}
-</p>
-{% endblock %}
+  {%- if is_rollup %}
+    <p>
+      {%- trans project=project.title, project_url=project.url_for(), count=proposals|length %}
+        Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new proposals:
+      {%- endtrans %}
+    </p>
+    <ol>
+      {%- for proposal in proposals %}
+        <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.owner.pickername, age=proposal.datetime|age %}
+          <a href="{{ url }}">{{ proposal }}</a> by {{ actor }} {{ age }}
+        {% endtrans %}</li>
+      {%- endfor %}
+    </ol>
+  {%- else %}
+    <p>
+      {% trans project=project.title, project_url=project.url_for(), proposal=proposal.title, proposal_url=proposal.url_for(), actor=view.actor.pickername -%}
+        Your project <a href="{{ project_url }}">{{ project }}</a> has received a new proposal: <a href="{{ proposal_url }}">{{ proposal }}</a> from {{ actor }}.
+      {%- endtrans %}
+    </p>
+  {%- endif %}
+{%- endblock %}
+{%- block avatar %}
+  {%- if is_rollup %}
+    {# Insert multiple avatars here #}
+  {%- else %}
+  {%- if view.actor %}{{ useravatar(view.actor) }}{% endif %}
+  {%- endif %}
+{%- endblock %}

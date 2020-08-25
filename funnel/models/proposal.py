@@ -501,7 +501,7 @@ class Proposal(
             if self.speaker == self.user:
                 self.speaker = None  # Reset only if it's currently set to user
 
-    @property
+    @hybrid_property
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
 

@@ -632,46 +632,47 @@ class UserNotification(NoIdMixin, db.Model):
                 # Earlier instance has a rollupid
                 UserNotification.rollupid.isnot(None),
             )
-            .order_by(UserNotification.created_at)
+            .order_by(UserNotification.created_at.asc())
             .limit(1)
             .scalar()
         )
-        # No previous rollup? Make a new id
         if not rollupid:
+            # No previous rollupid? Then we're the first. The next notification
+            # will use our rollupid as long as we're unread
             self.rollupid = uuid4()
+        else:
+            # Use the existing id, find all using it and revoke them
+            self.rollupid = rollupid
 
-        # Now rollup all previous. This will skip (a) previously revoked user
-        # notifications, and (b) unrolled but read user notifications.
-        for previous in (
-            UserNotification.query.join(Notification)
-            .filter(
-                # Same user
-                UserNotification.user_id == self.user_id,
-                # Not ourselves
-                UserNotification.eventid != self.eventid,
-                # Same type of notification
-                Notification.type == self.notification.type,
-                # Same document
-                Notification.document_uuid == self.notification.document_uuid,
-                # Earlier instance is not revoked
-                UserNotification.is_revoked.is_(False),
-                # Earlier instance doesn't have a rollupid, or has the current id
-                db.or_(
-                    UserNotification.rollupid.is_(None),
+            # Now rollup all previous unread. This will skip (a) previously revoked user
+            # notifications, and (b) unrolled but read user notifications.
+            for previous in (
+                UserNotification.query.join(Notification)
+                .filter(
+                    # Same user
+                    UserNotification.user_id == self.user_id,
+                    # Not ourselves
+                    UserNotification.eventid != self.eventid,
+                    # Same type of notification
+                    Notification.type == self.notification.type,
+                    # Same document
+                    Notification.document_uuid == self.notification.document_uuid,
+                    # Earlier instance is not revoked
+                    UserNotification.is_revoked.is_(False),
+                    # Earlier instance shares our rollupid
                     UserNotification.rollupid == self.rollupid,
-                ),
-            )
-            .options(
-                db.load_only(
-                    UserNotification.user_id,
-                    UserNotification.eventid,
-                    UserNotification.is_revoked,
-                    UserNotification.rollupid,
                 )
-            )
-        ):
-            previous.is_revoked = True
-            previous.rollupid = self.rollupid
+                .options(
+                    db.load_only(
+                        UserNotification.user_id,
+                        UserNotification.eventid,
+                        UserNotification.is_revoked,
+                        UserNotification.rollupid,
+                    )
+                )
+            ):
+                previous.is_revoked = True
+                previous.rollupid = self.rollupid
 
     def rolledup_fragments(self):
         """

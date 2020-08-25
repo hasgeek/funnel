@@ -60,15 +60,21 @@ class AllNotificationsView(ClassView):
         }
 
     @route('count', endpoint='notifications_count')
-    @requires_login
     @render_with(json=True)
     def unread_count(self):
-        return {
-            'unread': UserNotification.query.filter(
-                UserNotification.user == current_auth.user,
-                UserNotification.read_at.is_(None),
-            ).count()
-        }
+        # This view must not have a `@requires_login` decorator as it will insert
+        # itself as the next page after login
+        if current_auth.user:
+            return {
+                'status': 'ok',
+                'unread': UserNotification.query.filter(
+                    UserNotification.user == current_auth.user,
+                    UserNotification.read_at.is_(None),
+                    UserNotification.is_revoked.is_(False),
+                ).count(),
+            }
+        else:
+            return {'status': 'error', 'error': 'requires_login'}
 
     @route('mark_read/<eventid>', endpoint='notification_mark_read', methods=['POST'])
     @requires_login

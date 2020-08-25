@@ -1,7 +1,7 @@
 {% extends "notifications/layout_email.html.jinja2" %}
 {% block content -%}
 
-<p>{% trans actor=actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
+<p>{% trans actor=view.actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
 
 <p>{% trans project=project.title %}You have cancelled your registration for <b>{{ project }}</b>. In this was accidental, you can register again.{% endtrans %}</p>
 
