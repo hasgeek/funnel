@@ -4,8 +4,6 @@ TESTING = True
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
-RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
-RQ_ASYNC = False
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3002'
 DEFAULT_DOMAIN = 'funnel.travis.local'
@@ -69,3 +67,8 @@ SMS_EXOTEL_FROM = environ.get('SMS_EXOTEL_FROM')
 SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
 SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
 SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
+
+# Needed for unit tests, but will break Cypress tests
+# Must be added to a fixture for unit tests
+# RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
+# RQ_ASYNC = False
