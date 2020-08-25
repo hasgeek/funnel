@@ -8,7 +8,7 @@ from flask import url_for
 
 from flask_babelhg import force_locale
 
-from baseframe import __
+from baseframe import _, __
 from coaster.auth import current_auth
 
 from .. import app, rq
@@ -55,11 +55,18 @@ class RenderNotification:
     reason_telegram = reason
     reason_whatsapp = reason
 
+    #: Aliases for document and fragment, to make render methods clearer
+    aliases = {}
+
     def __init__(self, user_notification):
         self.user_notification = user_notification
         self.notification = user_notification.notification
         self.document = user_notification.notification.document
         self.fragment = user_notification.notification.fragment
+        if 'document' in self.aliases:
+            setattr(self, self.aliases['document'], self.document)
+        if 'fragment' in self.aliases:
+            setattr(self, self.aliases['fragment'], self.fragment)
 
     def transport_for(self, transport):
         """
@@ -184,6 +191,16 @@ class RenderNotification:
         Subclasses MUST implement this.
         """
         raise NotImplementedError("Subclasses must implement `sms`")
+
+    def sms_with_unsubscribe(self):
+        """Add an unsubscribe link to the SMS message."""
+        return (
+            self.sms()
+            + ' '
+            + _("To stop: {unsubscribe}").format(
+                unsubscribe=self.unsubscribe_short_url('sms')
+            )
+        )
 
     def webpush(self):
         """
@@ -311,7 +328,7 @@ def dispatch_transport_sms(user_notification, view):
         user_notification.messageid_sms = 'cancelled'
         return
     user_notification.messageid_sms = sms.send(
-        str(view.transport_for('sms')), view.sms(),
+        str(view.transport_for('sms')), view.sms_with_unsubscribe(),
     )
 
 

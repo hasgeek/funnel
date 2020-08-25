@@ -161,7 +161,9 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             flash(_("Your new session proposal has been submitted"), 'info')
             dispatch_notification(
                 ProposalSubmittedNotification(document=proposal),
-                ProposalReceivedNotification(document=proposal),
+                ProposalReceivedNotification(
+                    document=proposal.project, fragment=proposal
+                ),
             )
             return redirect(proposal.url_for(), code=303)
 

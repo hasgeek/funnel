@@ -47,6 +47,7 @@ class RegistrationConfirmationNotification(ProjectIsParent, Notification):
     document_model = Rsvp
     exclude_actor = False
     roles = ['owner']
+    exclude_actor = False  # This is a notification to the actor
 
 
 class RegistrationCancellationNotification(ProjectIsParent, Notification):
@@ -61,6 +62,7 @@ class RegistrationCancellationNotification(ProjectIsParent, Notification):
     document_model = Rsvp
     exclude_actor = False
     roles = ['owner']
+    exclude_actor = False  # This is a notification to the actor
 
 
 class NewUpdateNotification(ProjectIsParent, Notification):
@@ -75,11 +77,12 @@ class NewUpdateNotification(ProjectIsParent, Notification):
 
     document_model = Update
     roles = ['project_crew', 'project_participant']
+    exclude_actor = False  # Send to everyone including the actor
 
 
-class ProposalReceivedNotification(ProjectIsParent, Notification):
+class ProposalReceivedNotification(ProfileIsParent, Notification):
     """
-    Notifications of new proposals.
+    Notification to editors of new proposals.
     """
 
     __mapper_args__ = {'polymorphic_identity': 'proposal_received'}
@@ -87,23 +90,32 @@ class ProposalReceivedNotification(ProjectIsParent, Notification):
     category = NOTIFICATION_CATEGORY.PROJECT_CREW
     description = __("When my project receives a new proposal")
 
-    document_model = Proposal
+    document_model = Project
+    fragment_model = Proposal
     roles = ['project_editor']
+    exclude_actor = True  # Don't notify editor of proposal they submitted
 
 
 class ProposalSubmittedNotification(ProjectIsParent, Notification):
     """
-    Notification to the proposer on new proposals.
+    Notification to the proposer on a successful proposal submission.
     """
 
     __mapper_args__ = {'polymorphic_identity': 'proposal_submitted'}
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
-    description = __("When I submit a proposal on a project")
-    allow_sms = False
+    description = __("When I submit a proposal")
 
     document_model = Proposal
     roles = ['creator']
+    exclude_actor = False  # This notification is for the actor
+
+    # Email is typically fine. Messengers may be too noisy
+    default_email = True
+    default_sms = False
+    default_webpush = False
+    default_telegram = False
+    default_whatsapp = False
 
 
 # --- Notifications with fragments -----------------------------------------------------
@@ -118,12 +130,13 @@ class ProposalCommentNotification(ProjectIsParent, Notification):
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
     description = __("When my proposal receives a comment")
+    exclude_actor = True
 
     document_model = Proposal
     fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
     # fragment if present, document if not.
-    roles = ['presenter', 'mentioned_commenter']
+    roles = ['presenter', 'repliedto_commenter']
 
 
 class ProjectCommentNotification(ProfileIsParent, Notification):
@@ -135,9 +148,10 @@ class ProjectCommentNotification(ProfileIsParent, Notification):
 
     category = NOTIFICATION_CATEGORY.PROJECT_CREW
     description = __("When my project receives a comment")
+    exclude_actor = True
 
     document_model = Project
     fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
     # fragment if present, document if not.
-    roles = ['project_editor', 'mentioned_commenter']
+    roles = ['project_editor', 'repliedto_commenter']

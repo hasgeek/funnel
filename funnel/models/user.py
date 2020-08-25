@@ -394,11 +394,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     def has_transport_email(self):
-        return self.is_active and self.email is not None
+        return self.is_active and bool(self.email)
 
     @with_roles(call={'owner'})
     def has_transport_sms(self):
-        return self.is_active and self.phone is not None
+        return self.is_active and bool(self.phone)
 
     @with_roles(call={'owner'})
     def has_transport_webpush(self):  # TODO  # pragma: no cover

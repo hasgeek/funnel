@@ -3,8 +3,8 @@
 
 <p>{% trans actor=actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
 
-<p>{% trans project=project.title, proposal=proposal.title %}You have submitted a new proposal <b>{{ proposal }}</b> for the project <b>{{ project }}</b>.{% endtrans %}</p>
+<p>{% trans project=project.title, proposal=proposal.title %}You have submitted a new proposal <b>{{ proposal }}</b> to the project <b>{{ project }}</b>.{% endtrans %}</p>
 
-<p><a class="btn" href="{{ proposal.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}Proposal page{% endtrans %}</a></p>
+<p><a class="btn" href="{{ proposal.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}View proposal{% endtrans %}</a></p>
 
 {%- endblock %}

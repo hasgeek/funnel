@@ -198,7 +198,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'badges',
             },
             'call': {'state', 'commentset', 'view_for', 'url_for'},
-        }
+        },
+        'repliedto_commenter': {'granted_via': {'parent': 'user'}},
     }
 
     __datasets__ = {

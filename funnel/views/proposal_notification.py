@@ -10,65 +10,70 @@ from .notification import RenderNotification
 class RenderProposalReceivedNotification(RenderNotification):
     """Notify the project editor when a new proposal is submitted."""
 
-    # self.document is Rsvp instance
+    aliases = {'document': 'project', 'fragment': 'proposal'}
 
     def web(self):
         return render_template(
             'notifications/proposal_received_web.html.jinja2',
             view=self,
-            proposal=self.document,
-            project=self.document.project,
+            proposal=self.proposal,
+            project=self.project,
         )
 
     def email_subject(self):
         return _("New proposal for {project}: {proposal}").format(
-            proposal=self.document, project=self.document.project.title
+            proposal=self.proposal, project=self.project.title
         )
 
     def email_content(self):
-        # FIXME: Move into folder, rename to match notification type, and use 'actor'
         return render_template(
             'notifications/proposal_received_email.html.jinja2',
             view=self,
-            actor=self.document.user,
-            proposal=self.document,
-            project=self.document.project,
+            actor=self.notification.user,
+            proposal=self.proposal,
+            project=self.project,
         )
 
     def sms(self):
-        return _(
-            "New proposal for {project}: {proposal}. To stop: {unsubscribe}"
-        ).format(
-            proposal=self.document.title,
-            project=self.document.project.title,
+        return _("New proposal for {project}: {proposal}. {url}").format(
+            proposal=self.proposal.title,
+            project=self.project.title,
+            url=self.proposal.url_for(),
             unsubscribe=self.unsubscribe_short_url(),
         )
 
 
 @ProposalSubmittedNotification.renderer
 class RenderProposalSubmittedNotification(RenderNotification):
-    """Notify the participant when they cancel registration."""
+    """Notify the proposer that their proposal has been submitted."""
 
-    # self.document is Rsvp instance
+    aliases = {'document': 'proposal'}
 
     def web(self):
         return render_template(
             'notifications/proposal_submitted_web.html.jinja2',
             view=self,
-            proposal=self.document,
-            project=self.document.project,
+            proposal=self.proposal,
+            project=self.proposal.project,
         )
 
     def email_subject(self):
         return _("Proposal submitted for {project}: {proposal}").format(
-            project=self.document.project.title, proposal=self.document.title,
+            project=self.proposal.project.title, proposal=self.proposal.title,
         )
 
     def email_content(self):
         return render_template(
             'notifications/proposal_submitted_email.html.jinja2',
             view=self,
-            actor=self.document.user,
-            proposal=self.document,
-            project=self.document.project,
+            actor=self.notification.user,
+            proposal=self.proposal,
+            project=self.proposal.project,
+        )
+
+    def sms(self):
+        return _("Your proposal has been submitted to {project}. {url}").format(
+            project=self.proposal.project.title,
+            url=self.proposal.url_for(),
+            unsubscribe=self.unsubscribe_short_url(),
         )

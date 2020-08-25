@@ -526,7 +526,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None
         and project.cfp_start_at <= utcnow()
-        and (project.cfp_end_at is None or utcnow() < project.cfp_end_at),
+        and (project.cfp_end_at is None or (utcnow() < project.cfp_end_at)),
         lambda project: db.and_(
             project.cfp_start_at.isnot(None),
             project.cfp_start_at <= db.func.utcnow(),
