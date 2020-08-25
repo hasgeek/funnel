@@ -56,5 +56,3 @@ organization_admin_membership_revoked = app_signals.signal(
 project_crew_membership_added = app_signals.signal('project_crew_membership_added')
 project_crew_membership_invited = app_signals.signal('project_crew_membership_invited')
 project_crew_membership_revoked = app_signals.signal('project_crew_membership_revoked')
-
-proposal_submitted = app_signals.signal('proposal_submitted')

@@ -47,24 +47,6 @@ def send_password_reset_link(email, user, token):
     send_email(subject, [(user.fullname, email)], content)
 
 
-@signals.proposal_submitted.connect
-def send_email_for_proposal_submission(proposal):
-    for membership in proposal.project.active_editor_memberships:
-        if membership.user.email:
-            send_email(
-                subject=_("New proposal in {project}").format(
-                    project=proposal.project.title
-                ),
-                to=[membership.user],
-                content=render_template(
-                    'email_new_proposal_submission.html.jinja2',
-                    proposal=proposal,
-                    project=proposal.project,
-                    editor=membership.user,
-                ),
-            )
-
-
 @signals.organization_admin_membership_added.connect
 def send_email_for_organization_admin_membership_added(
     sender, organization, membership, actor, user
