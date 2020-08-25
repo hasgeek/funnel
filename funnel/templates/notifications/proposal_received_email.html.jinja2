@@ -5,6 +5,6 @@
 
 <p>{% trans project=project.title, proposal=proposal.title %}Your project <b>{{ project }}</b> has a new proposal: <b>{{ proposal }}</b>.{% endtrans %}</p>
 
-<p><a class="btn" href="{{ proposal.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}Proposal page{% endtrans %}</a></p>
+<p><a class="btn" href="{{ proposal.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Proposal page{% endtrans %}</a></p>
 
 {%- endblock %}

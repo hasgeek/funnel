@@ -35,7 +35,9 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
             view=self,
             project=self.rsvp.project,
             jsonld=email.jsonld_view_action(
-                self.rsvp.project.title, self.rsvp.project.url_for(), _("View project")
+                self.rsvp.project.title,
+                self.rsvp.project.url_for(_external=True),
+                _("View project"),
             ),
         )
 
@@ -52,7 +54,8 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
 
     def sms(self):
         return _("You have registered for {project}. {url}").format(
-            project=self.rsvp.project.title, url=self.rsvp.project.url_for(),
+            project=self.rsvp.project.title,
+            url=self.rsvp.project.url_for(_external=True),
         )
 
 
@@ -80,7 +83,9 @@ class RenderRegistrationCancellationNotification(RenderNotification):
             view=self,
             project=self.rsvp.project,
             jsonld=email.jsonld_view_action(
-                self.rsvp.project.title, self.rsvp.project.url_for(), _("View project")
+                self.rsvp.project.title,
+                self.rsvp.project.url_for(_external=True),
+                _("View project"),
             ),
         )
 

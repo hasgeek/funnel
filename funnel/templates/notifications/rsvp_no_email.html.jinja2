@@ -5,6 +5,6 @@
 
 <p>{% trans project=project.title %}You have cancelled your registration for <b>{{ project }}</b>. In this was accidental, you can register again.{% endtrans %}</p>
 
-<p><a class="btn" href="{{ project.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}Project page{% endtrans %}</a></p>
+<p><a class="btn" href="{{ project.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Project page{% endtrans %}</a></p>
 
 {%- endblock %}

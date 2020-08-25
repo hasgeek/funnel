@@ -218,13 +218,16 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         state.DRAFT, state.PUBLISHED,
     )
     def publish(self, actor):
+        first_publishing = False
         self.published_by = actor
         if self.published_at is None:
+            first_publishing = True
             self.published_at = db.func.utcnow()
         if self.number is None:
             self.number = db.select(
                 [db.func.coalesce(db.func.max(Update.number), 0) + 1]
             ).where(Update.project == self.project)
+        return first_publishing
 
     @with_roles(call={'editor'})
     @state.transition(

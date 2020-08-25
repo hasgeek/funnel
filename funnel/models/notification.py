@@ -116,6 +116,7 @@ class NOTIFICATION_CATEGORY(LabeledEnum):  # NOQA: N801
     SUBSCRIPTIONS = (2, __("My subscriptions and billing"))
     PARTICIPANT = (3, __("Projects I am participating in"))
     PROJECT_CREW = (4, __("Projects I am a collaborator in"))
+    ORGANIZATION_ADMIN = (5, __("Organizations I manage"))
 
 
 # --- Legacy models --------------------------------------------------------------------

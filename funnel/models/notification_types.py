@@ -43,10 +43,7 @@ class RegistrationConfirmationNotification(ProjectIsParent, Notification):
     __mapper_args__ = {'polymorphic_identity': 'rsvp_yes'}
     category = NOTIFICATION_CATEGORY.PARTICIPANT
     title = __("When I register for a project")
-    description = __(
-        "For your records. The email notification will include a calendar entry that"
-        " Gmail and other mail clients will add to your calendar."
-    )
+    description = __("This will prompt a calendar entry in Gmail and other apps.")
 
     document_model = Rsvp
     exclude_actor = False
@@ -78,6 +75,9 @@ class NewUpdateNotification(ProjectIsParent, Notification):
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
     title = __("When a project posts an update")
+    description = __(
+        "Typically contains critical information such as video conference links"
+    )
 
     document_model = Update
     roles = ['project_crew', 'project_participant']

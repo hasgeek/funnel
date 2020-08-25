@@ -6,7 +6,7 @@
   {% endtrans %}</p>
 
   <p>
-    <a class="btn" href="{{ organization.profile.url_for('members', _external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}See all admins{% endtrans %}</a>
+    <a class="btn" href="{{ organization.profile.url_for('members', _external=true, utm_medium='email', utm_campaign='notification') }}">{% trans %}See all admins{% endtrans %}</a>
   </p>
 
 {%- endblock %}

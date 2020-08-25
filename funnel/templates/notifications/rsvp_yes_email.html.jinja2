@@ -9,6 +9,6 @@
   <p>{% trans date_and_time=next_session_at|datetime %}The next session in the schedule will begin at {{ date_and_time }}.{% endtrans %}</p>
 {%- endif %}{% endwith %}
 
-<p><a class="btn" href="{{ project.url_for(_external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}Project page{% endtrans %}</a></p>
+<p><a class="btn" href="{{ project.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Project page{% endtrans %}</a></p>
 
 {%- endblock %}
