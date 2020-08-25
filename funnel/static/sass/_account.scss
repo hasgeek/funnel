@@ -60,6 +60,9 @@ ul .login-session {
       top: -3px;
       float: left;
     }
+    .preference__switch__txt--noswitch {
+      margin-bottom: $mui-grid-padding/2;
+    }
   }
 }
 
@@ -71,6 +74,11 @@ ul .login-session {
       top: -40px;
       right: 0;
       min-width: 275px;
+
+      .preference__switch__txt {
+        float: right;
+        padding-right: $mui-grid-padding;
+      }
     }
   }
 }

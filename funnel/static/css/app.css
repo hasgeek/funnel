@@ -4956,6 +4956,9 @@ ul .login-session .mui-btn--nostyle {
   top: -3px;
   float: left;
 }
+.preference .preference__switch .preference__switch__txt--noswitch {
+  margin-bottom: 8px;
+}
 
 @media (min-width: 1200px) {
   .preference {
@@ -4966,6 +4969,10 @@ ul .login-session .mui-btn--nostyle {
     top: -40px;
     right: 0;
     min-width: 275px;
+  }
+  .preference .preference__switch .preference__switch__txt {
+    float: right;
+    padding-right: 16px;
   }
 }
 .draft-updates {

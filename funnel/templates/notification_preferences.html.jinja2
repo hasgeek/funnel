@@ -49,9 +49,9 @@
                   <label class="switch-label mui--pull-right" for="{{ transport }}">
                   </label>
                 </form>
-                <p class="mui--pull-right right-padding zer-bottom-margin mui--clearfix">{{ transport_details[transport]['switch'] }}</p>
+                <p class="preference__switch__txt zero-bottom-margin mui--clearfix">{{ transport_details[transport]['switch'] }}</p>
               {% else %}
-                <p class="mui--d-inlineblock mui--pull-right mui--text-right right-padding">{{ transport_details[transport]['requirement'] }}</p>
+                <p class="preference__switch__txt preference__switch__txt--noswitch">{{ transport_details[transport]['requirement'] }}</p>
               {% endif %}
             </div>
             {% for key, preference in preferences.items() %}
