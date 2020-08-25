@@ -47,7 +47,13 @@ class AccountNotificationView(ClassView):
             key: {'title': value, 'types': []}
             for key, value in NOTIFICATION_CATEGORY.items()
         }
+        commit_new_preferences = False
         for ntype, ncls in notification_type_registry.items():
+            if ntype not in user_preferences:
+                user_preferences[ntype] = NotificationPreferences(
+                    user=current_auth.user, notification_type=ntype
+                )
+                commit_new_preferences = True
             preferences[ncls.category]['types'].append(
                 {
                     'notification_type': ntype,
@@ -55,11 +61,11 @@ class AccountNotificationView(ClassView):
                     'preferences': {
                         transport: user_preferences[ntype].by_transport(transport)
                         for transport in platform_transports
-                    }
-                    if ntype in user_preferences
-                    else None,
+                    },
                 }
             )
+        if commit_new_preferences:
+            db.session.commit()
         # Remove empty categories
         for key in list(preferences):
             if not preferences[key]['types']:
