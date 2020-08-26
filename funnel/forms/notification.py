@@ -42,7 +42,9 @@ transport_labels = {
     ),
     'sms': TransportLabels(
         title=__("SMS"),
-        requirement=__("To enable, add a verified phone number"),
+        # requirement=__("To enable, add a verified phone number"),
+        # Temporary requirement, until SMS templates are registered
+        requirement=__("SMS support is forthcoming"),
         unsubscribe_form=__("Notify me by SMS"),
         unsubscribe_description=__("Uncheck this to disable all SMS notifications"),
         switch=__("SMS notifications"),
