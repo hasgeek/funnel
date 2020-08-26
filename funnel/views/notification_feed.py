@@ -1,9 +1,12 @@
+from flask import redirect
+
 from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 import baseframe.forms as forms
 
-from .. import app
+from .. import app, funnelapp, lastuserapp
 from ..models import Notification, UserNotification, db
+from .helpers import app_url_for
 from .login_session import requires_login
 
 
@@ -62,8 +65,8 @@ class AllNotificationsView(ClassView):
     @route('count', endpoint='notifications_count')
     @render_with(json=True)
     def unread_count(self):
-        # This view must not have a `@requires_login` decorator as it will insert
-        # itself as the next page after login
+        # This view must not have a `@requires_login` decorator as that will insert
+        # it as the next page after login
         if current_auth.user:
             return {
                 'status': 'ok',
@@ -114,3 +117,22 @@ class AllNotificationsView(ClassView):
 
 
 AllNotificationsView.init_app(app)
+
+
+@route('/updates')
+class OtherAppNotificationsView(ClassView):
+    @route('', endpoint='notifications')
+    def view(self):
+        return redirect(app_url_for(app, 'notifications'))
+
+    @route('count', endpoint='notifications_count')
+    @render_with(json=True)
+    def unread_count(self):
+        return {
+            'status': 'ok',
+            'unread': 0,
+        }
+
+
+OtherAppNotificationsView.init_app(funnelapp)
+OtherAppNotificationsView.init_app(lastuserapp)
