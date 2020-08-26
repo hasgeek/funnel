@@ -6,6 +6,10 @@
   margin-top: 0 !important;
 }
 
+.smaller-margin {
+  margin-bottom: $mui-grid-padding/2;
+}
+
 .mui-btn--nomargin {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
@@ -879,11 +883,5 @@ a.loginbutton.hidden,
     .fifty-width {
       width: 50%;
     }
-  }
-}
-
-.html-content {
-  p {
-    margin: 0;
   }
 }

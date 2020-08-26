@@ -62,8 +62,10 @@
                 <div class="card__body">
                   {% for type in preference.types %}
                     <div class="mui--clearfix top-padding bottom-padding ">
-                      <p class="mui--pull-left zero-bottom-margin">{{ type.title }}</p>
-                      <p class="mui--pull-left zero-bottom-margin">{{ type.description }}</p>
+                      <div class="mui--pull-left">
+                        <p class="mui--text-body2 smaller-margin">{{ type.title }}</p>
+                        <p class="mui--text-caption"><em>{{ type.description }}</em></p>
+                      </div>
                       <form method="POST" class="js-autosubmit-form">
                         {{ csrf_form.hidden_tag() }}
                         <input type="hidden" name="notification_type" value="{{ type.notification_type }}">

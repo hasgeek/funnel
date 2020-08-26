@@ -6,6 +6,10 @@
   margin-top: 0 !important;
 }
 
+.smaller-margin {
+  margin-bottom: 8px;
+}
+
 .mui-btn--nomargin {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
@@ -811,10 +815,6 @@ a.loginbutton.hidden,
     width: 50%;
   }
 }
-.html-content p {
-  margin: 0;
-}
-
 @media (max-width: 767px) {
   #root_footer {
     height: 0;

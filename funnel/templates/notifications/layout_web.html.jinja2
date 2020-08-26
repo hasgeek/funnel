@@ -3,7 +3,7 @@
   <div class="user">
     <div class="user__box">
       {% block avatar %}{% if view.actor %}{{ useravatar(view.actor) }}{% endif %}{% endblock %}
-      <div class="mui--text-subhead html-content">{% block content %}{% trans %}(This template is missing content){% endtrans %}{% endblock %}</div>
+      <div class="mui--text-subhead">{% block content %}{% trans %}(This template is missing content){% endtrans %}{% endblock %}</div>
       {% if not is_rollup %}<p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>{% endif %}
     </div>
   </div>
