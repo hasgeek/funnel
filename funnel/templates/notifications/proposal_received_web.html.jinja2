@@ -1,4 +1,6 @@
 {% extends "notifications/layout_web.html.jinja2" %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+
 {% block content %}
   {%- if is_rollup %}
     <p>
@@ -23,7 +25,7 @@
 {%- endblock %}
 {%- block avatar %}
   {%- if is_rollup %}
-    {# Insert multiple avatars here #}
+    <div class="user__box__gravatar user__box__gravatar--initials">{{ faicon(icon='users', icon_size='headline', baseline=false) }}</div>
   {%- else %}
   {%- if view.actor %}{{ useravatar(view.actor) }}{% endif %}
   {%- endif %}
