@@ -143,7 +143,7 @@ def add_to_class(cls, name=None):
         def new_method(self, *args):
             pass
 
-        @add_to_class(ExistingClass, 'new_property_name')
+        @add_to_class(ExistingClass, 'new_property')
         @property
         def existing_class_new_property(self):
             pass
@@ -161,32 +161,58 @@ def add_to_class(cls, name=None):
 
 def reopen(cls):
     """
-    Copies the contents of the decorated class into an existing class and returns it.
+    Moves the contents of the decorated class into an existing class and returns that.
 
     Usage::
 
         @reopen(ExistingClass)
         class ExistingClass:
-            def new_method(self, *args):
+            @property
+            def new_property(self):
                 pass
+
+    This is equivalent to::
+
+        def new_property(self):
+            pass
+
+        ExistingClass.new_property = property(new_property)
+
+    This decorator is syntactic sugar to make class extension visually similar to class
+    definition. It is not for monkey patching. It will refuse to overwrite existing
+    attributes, and will reject a decorated class that contains base classes or a
+    metaclass. If the existing class was processed by a metaclass, the new attributes
+    added to it may not receive the same processing.
+
+    This decorator is intended to aid legibility of bi-directional relationships in
+    SQLAlchemy models, specifically where a basic backref is augmented with methods or
+    properties that do more processing.
     """
 
-    def decorator(new_cls):
-        if new_cls.__bases__ != (object,):
+    def decorator(temp_cls):
+        if temp_cls.__bases__ != (object,):
             raise TypeError("Reopened class cannot add base classes")
-        if new_cls.__class__ is not type:
+        if temp_cls.__class__ is not type:
             raise TypeError("Reopened class cannot add a metaclass")
-        for attr, value in new_cls.__dict__.items():
-            if attr not in (
-                '__dict__',
-                '__doc__',
-                '__module__',
-                '__slots__',
-                '__weakref__',
-            ):
+        if {
+            '__slots__',
+            '__getattribute__',
+            '__getattr__',
+            '__setattr__',
+            '__delattr__',
+        }.intersection(set(temp_cls.__dict__.keys())):
+            raise TypeError("Reopened class contains unsupported __attributes__")
+        for attr, value in list(temp_cls.__dict__.items()):
+            # Skip the standard Python attributes, process the rest
+            if attr not in ('__dict__', '__doc__', '__module__', '__weakref__',):
+                # Refuse to overwrite existing attributes
                 if hasattr(cls, attr):
                     raise AttributeError(f"{cls.__name__} already has attribute {attr}")
+                # All good? Copy the attribute over...
                 setattr(cls, attr, value)
+                # ...And remove it from the temporary class
+                delattr(temp_cls, attr)
+        # Return the original class. Leave the temporary class to the garbage collector
         return cls
 
     return decorator
