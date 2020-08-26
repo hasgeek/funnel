@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import wraps
 
 from flask import Response, current_app, flash, redirect, request, session, url_for
@@ -23,7 +23,7 @@ from ..models import (
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
-from .helpers import app_url_for, autoset_timezone, get_scheme_netloc
+from .helpers import app_url_for, autoset_timezone_and_locale, get_scheme_netloc
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(
@@ -186,6 +186,34 @@ def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
     # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
     statsd.set('users.active_sessions', obj.id, rate=1)
     statsd.set('users.active_users', obj.user.id, rate=1)
+
+
+def discard_temp_token():
+    session.pop('temp_token', None)
+    session.pop('temp_token_type', None)
+    session.pop('temp_token_at', None)
+
+
+@app.before_request
+@funnelapp.before_request
+@lastuserapp.before_request
+def clear_expired_temp_token():
+    """
+    Clear temp_token from session if it's not used (user abandoned the attempt).
+
+    This value is set by :func:`funnel.views.account_reset.reset_email` and
+    :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`.
+    """
+    if 'temp_token_at' in session:
+        # Use naive datetime as the session can't handle tz-aware datetimes
+        # Give the user 10 minutes to complete the action. Remove the token if it's
+        # been longer than 10 minutes.
+        if session['temp_token_at'] < datetime.utcnow() - timedelta(minutes=10):
+            discard_temp_token()
+            current_app.logger.info("Cleared expired temp_token from session cookie")
+    elif 'temp_token' in session:
+        # We have a temp token without a timestamp. This shouldn't happen, so remove it
+        session.pop('temp_token')
 
 
 @app.after_request
@@ -426,7 +454,7 @@ def login_internal(user, user_session=None, login_service=None):
     current_auth.cookie['sessionid'] = user_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
-    autoset_timezone(user)
+    autoset_timezone_and_locale(user)
     user_login.send(user)
 
 

@@ -1,0 +1,8 @@
+{% extends "notifications/layout_web.html.jinja2" %}
+{% block content %}
+<p>
+  {% trans project=project.title, project_url=project.url_for(), proposal=proposal.title, proposal_url=proposal.url_for() -%}
+    You submitted <a href="{{ proposal_url }}">{{ proposal }}</a> to <a href="{{ project_url }}">{{ project }}</a>.
+  {%- endtrans %}
+</p>
+{% endblock %}

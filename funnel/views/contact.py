@@ -32,7 +32,7 @@ def contact_details(participant):
 
 @route('/account/contacts')
 class ContactView(ClassView):
-    current_section = 'contact'
+    current_section = 'account'
 
     def get_project(self, uuid_b58):
         return (

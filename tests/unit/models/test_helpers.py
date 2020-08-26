@@ -1,4 +1,6 @@
-from funnel.models.helpers import valid_name, valid_username
+import pytest
+
+from funnel.models.helpers import add_to_class, reopen, valid_name, valid_username
 
 
 def test_valid_name():
@@ -30,9 +32,7 @@ def test_valid_name():
 
 
 def test_valid_username():
-    """
-    Usernames contain letters, numbers and non-terminal hyphens.
-    """
+    """Usernames contain letters, numbers and non-terminal hyphens."""
     assert valid_username('example person') is False
     assert valid_username('example_person') is False
     assert valid_username('exampleperson') is True
@@ -57,3 +57,88 @@ def test_valid_username():
     assert valid_username('Ab-') is False
     assert valid_username('-A') is False
     assert valid_username('-Ab') is False
+
+
+def test_reopen():
+    """Test reopening a class to add more to it."""
+
+    class UnrelatedMixin:
+        pass
+
+    class OriginalClass:
+        def foo(self):
+            return "foo"
+
+    saved_reference = OriginalClass
+
+    @reopen(OriginalClass)
+    class ReopenedClass:
+        def bar(self):
+            return "bar"
+
+    # The decorator returns the original class with the decorated class's contents
+    assert ReopenedClass is OriginalClass
+    assert saved_reference is ReopenedClass
+    assert ReopenedClass.foo is OriginalClass.foo
+    assert ReopenedClass.bar is OriginalClass.bar
+
+    # The decorator will refuse to process classes with base classes
+    with pytest.raises(TypeError):
+
+        @reopen(OriginalClass)
+        class Subclass(UnrelatedMixin):
+            pass
+
+    # The decorator will refuse to process classes with metaclasses
+    with pytest.raises(TypeError):
+
+        @reopen(OriginalClass)
+        class HasMetaclass(with_metaclass=UnrelatedMixin):
+            pass
+
+    # The decorator will refuse to process classes that affect the original's attributes
+    # (__slots__, __getattribute__, __get/set/delattr__)
+    with pytest.raises(TypeError):
+
+        @reopen(OriginalClass)
+        class HasSlots:
+            __slots__ = ['foo', 'bar']
+
+
+def test_add_to_class():
+    """Add to class adds new attributes to a class."""
+
+    class ReferenceClass:
+        def foo(self):
+            return 'is_foo'
+
+    assert ReferenceClass().foo() == 'is_foo'
+    assert not hasattr(ReferenceClass, 'bar')
+
+    # New methods can be added
+    @add_to_class(ReferenceClass)
+    def bar(self):
+        return 'is_bar'
+
+    assert hasattr(ReferenceClass, 'bar')
+    assert ReferenceClass().bar() == 'is_bar'
+    assert not hasattr(ReferenceClass, 'foobar')
+    assert not hasattr(ReferenceClass, 'foobar_property')
+
+    # New methods can have a custom name and can take any decorator valid in the class
+    @add_to_class(ReferenceClass, 'foobar')
+    @property
+    def foobar_property(self):
+        return 'is_foobar'
+
+    assert hasattr(ReferenceClass, 'foobar')
+    assert not hasattr(ReferenceClass, 'foobar_property')
+    assert ReferenceClass.foobar is foobar_property
+    assert ReferenceClass().foobar == 'is_foobar'
+
+    # Existing attributes cannot be replaced
+    with pytest.raises(AttributeError):
+
+        @add_to_class(ReferenceClass, 'foobar')
+        def new_foobar(self):
+            pass

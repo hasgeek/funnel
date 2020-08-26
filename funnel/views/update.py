@@ -1,4 +1,4 @@
-from flask import flash, g, redirect
+from flask import abort, flash, g, redirect
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -15,9 +15,10 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import SavedProjectForm, UpdateForm
-from ..models import Profile, Project, Update, db
+from ..models import NewUpdateNotification, Profile, Project, Update, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
+from .notification import dispatch_notification
 from .project import ProjectViewMixin
 
 
@@ -32,7 +33,19 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     def updates(self):
         project_save_form = SavedProjectForm()
         return {
-            'project': self.obj.current_access(),
+            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'draft_updates': (
+                [
+                    update.current_access(datasets=('primary', 'related'))
+                    for update in self.obj.draft_updates
+                ]
+                if self.obj.features.post_update()
+                else []
+            ),
+            'published_updates': [
+                update.current_access(datasets=('primary', 'related'))
+                for update in self.obj.published_updates
+            ],
             'new_update': self.obj.url_for('new_update'),
             'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
@@ -99,8 +112,10 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
     def view(self):
+        if not self.obj.current_roles.reader and self.obj.state.WITHDRAWN:
+            abort(410)
         return {
-            'update': self.obj.current_access(),
+            'update': self.obj.current_access(datasets=('primary', 'related')),
             'publish_form': forms.Form(),
             'project': self.obj.project.current_access(),
         }
@@ -112,9 +127,11 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
             return redirect(self.obj.url_for())
         form = forms.Form()
         if form.validate_on_submit():
-            self.obj.publish(actor=current_auth.user)
+            first_publishing = self.obj.publish(actor=current_auth.user)
             db.session.commit()
             flash(_("The update has been published"), 'success')
+            if first_publishing:
+                dispatch_notification(NewUpdateNotification(document=self.obj))
         else:
             flash(
                 _(

@@ -15,7 +15,7 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE
-from .helpers import add_search_trigger, visual_field_delimiter
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 
 __all__ = ['Update']
 
@@ -69,7 +69,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
     project = with_roles(
         db.relationship(Project, backref=db.backref('updates', lazy='dynamic'),),
-        grants_via={None: {'editor': 'editor', 'participant': 'reader'}},
+        grants_via={
+            None: {
+                'editor': {'editor', 'project_editor'},
+                'participant': {'reader', 'project_participant'},
+                'crew': {'reader', 'project_crew'},
+            }
+        },
     )
     parent = db.synonym('project')
 
@@ -169,8 +175,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'is_currently_restricted',
             'visibility_label',
             'state_label',
+            'urls',
         },
-        'related': {'name', 'title'},
+        'related': {'name', 'title', 'urls'},
     }
 
     def __init__(self, **kwargs):
@@ -208,29 +215,26 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.DRAFT, state.PUBLISHED,
-    )
+    @state.transition(state.DRAFT, state.PUBLISHED)
     def publish(self, actor):
+        first_publishing = False
         self.published_by = actor
         if self.published_at is None:
+            first_publishing = True
             self.published_at = db.func.utcnow()
         if self.number is None:
             self.number = db.select(
                 [db.func.coalesce(db.func.max(Update.number), 0) + 1]
             ).where(Update.project == self.project)
+        return first_publishing
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.PUBLISHED, state.DRAFT,
-    )
+    @state.transition(state.PUBLISHED, state.DRAFT)
     def undo_publish(self):
         pass
 
     @with_roles(call={'creator', 'editor'})
-    @state.transition(
-        None, state.DELETED,
-    )
+    @state.transition(None, state.DELETED)
     def delete(self, actor):
         if self.state.UNPUBLISHED:
             # If it was never published, hard delete it
@@ -241,24 +245,18 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             self.deleted_at = db.func.utcnow()
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.DELETED, state.DRAFT,
-    )
+    @state.transition(state.DELETED, state.DRAFT)
     def undo_delete(self):
         self.deleted_by = None
         self.deleted_at = None
 
     @with_roles(call={'editor'})
-    @visibility_state.transition(
-        visibility_state.RESTRICTED, visibility_state.PUBLIC,
-    )
+    @visibility_state.transition(visibility_state.RESTRICTED, visibility_state.PUBLIC)
     def make_public(self):
         pass
 
     @with_roles(call={'editor'})
-    @visibility_state.transition(
-        visibility_state.PUBLIC, visibility_state.RESTRICTED,
-    )
+    @visibility_state.transition(visibility_state.PUBLIC, visibility_state.RESTRICTED)
     def make_restricted(self):
         pass
 
@@ -290,31 +288,26 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
 add_search_trigger(Update, 'search_vector')
 
-Project.published_updates = with_roles(
-    property(
-        lambda self: self.updates.filter(Update.state.PUBLISHED).order_by(
+
+@reopen(Project)
+class Project:
+    @with_roles(read={'all'})
+    @property
+    def published_updates(self):
+        return self.updates.filter(Update.state.PUBLISHED).order_by(
             Update.is_pinned.desc(), Update.published_at.desc()
         )
-    ),
-    read={'all'},
-)
 
+    @with_roles(read={'editor'})
+    @property
+    def draft_updates(self):
+        return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
-Project.draft_updates = with_roles(
-    property(
-        lambda self: self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
-    ),
-    read={'editor'},
-)
-
-
-Project.pinned_update = with_roles(
-    property(
-        lambda self: self.updates.filter(
-            Update.state.PUBLISHED, Update.is_pinned.is_(True)
+    @with_roles(read={'all'})
+    @property
+    def pinned_update(self):
+        return (
+            self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
+            .order_by(Update.published_at.desc())
+            .first()
         )
-        .order_by(Update.published_at.desc())
-        .first()
-    ),
-    read={'all'},
-)
