@@ -102,7 +102,7 @@ const Notification = {
               $(entry.target).attr('data-visible-time', entry.time);
               window.setTimeout(function () {
                 app.updateReadStatus(entry.target);
-              }, window.Hasgeek.config.readReceipt);
+              }, window.Hasgeek.config.readReceiptTimeout);
             } else {
               $(entry.target).attr('data-visible-time', '');
             }

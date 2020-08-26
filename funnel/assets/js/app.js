@@ -8,8 +8,8 @@ $(() => {
   window.Hasgeek.config.retryInterval = 10000;
   window.Hasgeek.config.closeModalTimeout = 10000;
   window.Hasgeek.config.refreshInterval = 60000;
-  window.Hasgeek.config.notificationrefreshInterval = 300000;
-  window.Hasgeek.config.readReceipt = 5000;
+  window.Hasgeek.config.notificationRefreshInterval = 300000;
+  window.Hasgeek.config.readReceiptTimeout = 5000;
 
   Utils.collapse();
   Utils.smoothScroll();
@@ -23,7 +23,7 @@ $(() => {
     Utils.updateNotificationStatus();
     window.setInterval(
       Utils.updateNotificationStatus,
-      window.Hasgeek.config.notificationrefreshInterval
+      window.Hasgeek.config.notificationRefreshInterval
     );
   }
 

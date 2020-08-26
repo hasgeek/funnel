@@ -65,6 +65,9 @@ ul .login-session {
       margin-bottom: $mui-grid-padding/2;
     }
   }
+  .preference__title {
+    width: calc(100% - 45px);
+  }
 }
 
 @media (min-width: 1200px) {

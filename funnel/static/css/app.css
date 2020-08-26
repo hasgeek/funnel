@@ -4960,6 +4960,9 @@ ul .login-session .mui-btn--nostyle {
 .preference .preference__switch .preference__switch__txt--noswitch {
   margin-bottom: 8px;
 }
+.preference .preference__title {
+  width: calc(100% - 45px);
+}
 
 @media (min-width: 1200px) {
   .preference {
