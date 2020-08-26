@@ -22,7 +22,7 @@ def talkfunnel_serializer():
 
 
 # Signed tokens in email with TTL
-def email_serializer():
+def token_serializer():
     return KeyRotationWrapper(
         itsdangerous.URLSafeTimedSerializer, app.config['SECRET_KEYS']
     )

@@ -1,0 +1,101 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import account_tabs, useravatar %}
+
+{% block title %}{% trans %}My account{% endtrans %}{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-primary hg-app tabs-navbar">
+  {%- else %}
+    <body class="mui--bg-primary">
+  {%- endif %}
+{% endblock %}
+
+{% block headline -%}
+  <div class="tabs-wrapper tabs-wrapper--sticky">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          {{ account_tabs(active_tab='notification_preferences') }}
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endblock %}
+
+{% block basecontent %}
+  <div class="mui-container tab-content">
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        <p class="mui--text-subhead mui--text-bold">{% trans %}Manage notifications{% endtrans %}</p>
+        <ul class="mui-tabs__bar mui-tabs__bar--pills mui--text-capitalize" role="tablist">
+          {% for transport in transports %}
+            <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
+              <a href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_details[transport]['title'] }}</a>
+            </li>
+          {%- endfor %}
+        </ul>
+        {% for transport in transports %}
+          <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ transport }}">
+            <div class="preference__switch mui--clearfix">
+              {% if transport_details[transport]['available'] %}
+                <form method="POST" class="js-autosubmit-form right-padding">
+                  {{ csrf_form.hidden_tag() }}
+                  <input type="hidden" name="notification_type" value="">
+                  <input type="hidden" name="transport" value="{{ transport }}">
+                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch"/>
+                  <label class="switch-label mui--pull-right" for="{{ transport }}">
+                  </label>
+                </form>
+                <p class="preference__switch__txt zero-bottom-margin mui--clearfix">{{ transport_details[transport]['switch'] }}</p>
+              {% else %}
+                <p class="preference__switch__txt preference__switch__txt--noswitch">{{ transport_details[transport]['requirement'] }}</p>
+              {% endif %}
+            </div>
+            {% for key, preference in preferences.items() %}
+              <div class="card">
+                <div class="card__header">
+                   <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ preference.title }}</p>
+                </div>
+                <div class="card__body">
+                  {% for type in preference.types %}
+                    <div class="mui--clearfix top-padding">
+                      <div class="mui--pull-left preference__title">
+                        <p class="mui--text-body2 smaller-margin">{{ type.title }}</p>
+                        <p class="mui--text-caption"><em>{{ type.description }}</em></p>
+                      </div>
+                      <form method="POST" class="js-autosubmit-form">
+                        {{ csrf_form.hidden_tag() }}
+                        <input type="hidden" name="notification_type" value="{{ type.notification_type }}">
+                        <input type="hidden" name="transport" value="{{ transport }}">
+                        <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="switch-input js-toggle-switch"/>
+                        <label class="switch-label mui--pull-right" for="{{ type.notification_type }}-{{ transport }}">
+                        </label>
+                      </form>
+                    </div>
+                  {% else %}
+                    <p class="mui--pull-left">{% trans %}No notifications in this category{% endtrans %}</p>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('notification_settings')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var config = {
+        url: {{ url_for('set_notification_preference')|tojson }},
+      }
+      window.Hasgeek.NotificationSettings(config);
+    });
+  </script>
+{% endblock %}

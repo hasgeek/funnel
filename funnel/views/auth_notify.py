@@ -116,17 +116,18 @@ def notify_org_data_changed(org, user, changes, team=None):
             notify_user = user
         else:
             notify_user = users[0]  # First user available
-        send_auth_client_notice.queue(
-            auth_client.notification_uri,
-            data={
-                'userid': notify_user.buid,  # XXX: Deprecated parameter
-                'buid': notify_user.buid,
-                'type': 'org' if team is None else 'team',
-                'orgid': org.buid,
-                'teamid': team.buid if team is not None else None,
-                'changes': changes,
-            },
-        )
+        if auth_client.trusted:
+            send_auth_client_notice.queue(
+                auth_client.notification_uri,
+                data={
+                    'userid': notify_user.buid,  # XXX: Deprecated parameter
+                    'buid': notify_user.buid,
+                    'type': 'org' if team is None else 'team',
+                    'orgid': org.buid,
+                    'teamid': team.buid if team is not None else None,
+                    'changes': changes,
+                },
+            )
 
 
 @team_data_changed.connect

@@ -7,6 +7,7 @@ from .helpers import *
 from .label import *
 from .login import *
 from .membership import *
+from .notification import *
 from .organization import *
 from .participant import *
 from .profile import *

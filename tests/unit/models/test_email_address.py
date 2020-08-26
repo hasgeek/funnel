@@ -110,6 +110,8 @@ def test_email_address_init():
     assert repr(ea1) == "EmailAddress('example@example.com')"
     # Public hash (for URLs)
     assert ea1.email_hash == '2EGz72jxcsYjvXxF7r5rqfAgikor'
+    # Aliased hash attribute for notifications framework
+    assert ea1.transport_hash == '2EGz72jxcsYjvXxF7r5rqfAgikor'
 
     # Case is preserved but disregarded for hashes
     ea2 = EmailAddress('Example@Example.com')
@@ -364,9 +366,11 @@ def test_email_address_delivery_state(clean_db):
     ea.mark_sent()
 
     # Recipient is known to be interacting with email (viewing or opening links)
+    # This sets a timestamp but does not change state
+    assert ea.active_at is None
     ea.mark_active()
-    assert ea.delivery_state.ACTIVE
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert ea.delivery_state.SENT
+    assert str(ea.active_at) == str(db.func.utcnow())
 
     # This can be "downgraded" to SENT, as we only record the latest status
     ea.mark_sent()
@@ -454,6 +458,8 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     ea1 = EmailAddress.get('example@example.com')
     assert link1.email == 'example@example.com'
     assert link1.email_address == ea1
+    assert link1.transport_hash == ea1.transport_hash
+    assert bool(link1.transport_hash)
 
     # Link an unrelated email address to another user to demonstrate that it works
     link2 = models.EmailLink(emailuser=user2, email='other@example.com')
@@ -461,6 +467,8 @@ def test_email_address_mixin(email_models, clean_mixin_db):
     ea2 = EmailAddress.get('other@example.com')
     assert link2.email == 'other@example.com'
     assert link2.email_address == ea2
+    assert link2.transport_hash == ea2.transport_hash
+    assert bool(link1.transport_hash)
 
     db.session.commit()
 
@@ -639,12 +647,6 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
 
     ea.mark_sent()
     assert ea.delivery_state.SENT
-    assert EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
-
-    ea.mark_active()
-    assert ea.delivery_state.ACTIVE
     assert EmailAddress.validate_for(user1, 'example@example.com') is True
     assert EmailAddress.validate_for(user2, 'example@example.com') is False
     assert EmailAddress.validate_for(anon_user, 'example@example.com') is False

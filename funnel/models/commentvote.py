@@ -198,7 +198,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'badges',
             },
             'call': {'state', 'commentset', 'view_for', 'url_for'},
-        }
+        },
+        'replied_to_commenter': {'granted_via': {'parent': 'user'}},
     }
 
     __datasets__ = {
@@ -211,6 +212,18 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             'title',
         },
         'json': {
+            'created_at',
+            'edited_at',
+            'absolute_url',
+            'title',
+            'message',
+            'user',
+            'replies',
+            'urls',
+            'badges',
+            'uuid_b58',
+        },
+        'related': {
             'created_at',
             'edited_at',
             'absolute_url',
@@ -246,7 +259,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @property
     def replies(self):
-        return [child.current_access() for child in self.children if child.state.PUBLIC]
+        return [
+            child.current_access(datasets=('json', 'related'))
+            for child in self.children
+            if child.state.PUBLIC
+        ]
 
     @hybrid_property
     def user(self):

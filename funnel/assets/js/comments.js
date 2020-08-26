@@ -105,7 +105,6 @@ const Comments = {
           commentForm: '',
           errorMsg: '',
           loginUrl,
-          refreshInterval: window.Hasgeek.config.refreshInterval,
           refreshTimer: '',
           headerHeight,
           svgIconUrl: window.Hasgeek.config.svgIconUrl,
@@ -187,7 +186,7 @@ const Comments = {
         refreshCommentsTimer() {
           this.refreshTimer = window.setInterval(
             this.fetchCommentsList,
-            this.refreshInterval
+            window.Hasgeek.config.refreshInterval
           );
         },
         getInitials: window.Baseframe.Utils.getInitials,

@@ -47,11 +47,9 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
 
     UNKNOWN = (0, 'unknown')  # Never mailed
     SENT = (1, 'sent')  # Mail sent, nothing further known
-    ACTIVE = (2, 'active')  # Recipient is interacting with received messages
+    # ACTIVE state has been removed
     SOFT_FAIL = (3, 'soft_fail')  # Soft fail reported
     HARD_FAIL = (4, 'hard_fail')  # Hard fail reported
-
-    NOT_ACTIVE = {UNKNOWN, SENT, SOFT_FAIL, HARD_FAIL}
 
 
 def canonical_email_representation(email: str) -> List[str]:
@@ -200,7 +198,11 @@ class EmailAddress(BaseMixin, db.Model):
     _delivery_state = db.Column(
         'delivery_state',
         db.Integer,
-        StateManager.check_constraint('delivery_state', EMAIL_DELIVERY_STATE),
+        StateManager.check_constraint(
+            'delivery_state',
+            EMAIL_DELIVERY_STATE,
+            name='email_address_delivery_state_check',
+        ),
         nullable=False,
         default=EMAIL_DELIVERY_STATE.UNKNOWN,
     )
@@ -213,6 +215,8 @@ class EmailAddress(BaseMixin, db.Model):
     delivery_state_at = db.Column(
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
+    #: Timestamp of last known recipient activity resulting from sent mail
+    active_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     #: Is this email address blocked from being used? If so, :attr:`email` should be
     #: null. Blocks apply to the canonical address (without the +sub-address variation),
@@ -299,6 +303,9 @@ class EmailAddress(BaseMixin, db.Model):
         """Public identifier string for email address, usable in URLs."""
         return base58.b58encode(self.blake2b160).decode()
 
+    # Compatibility name for notifications framework
+    transport_hash = email_hash
+
     @with_roles(call={'all'})
     def md5(self) -> Optional[str]:
         """MD5 hash of :property:`email_normalized`, for legacy use only."""
@@ -341,10 +348,9 @@ class EmailAddress(BaseMixin, db.Model):
         """Record fact of an email message being sent to this address."""
         self.delivery_state_at = db.func.utcnow()
 
-    @delivery_state.transition(None, delivery_state.ACTIVE)
     def mark_active(self) -> None:
-        """Record fact of recipient activity."""
-        self.delivery_state_at = db.func.utcnow()
+        """Record timestamp of recipient activity."""
+        self.active_at = db.func.utcnow()
 
     @delivery_state.transition(None, delivery_state.SOFT_FAIL)
     def mark_soft_fail(self) -> None:
@@ -635,6 +641,11 @@ class EmailAddressMixin:
     def email_address_reference_is_active(self):
         """Subclasses should replace this if they hold inactive references"""
         return True
+
+    @property
+    def transport_hash(self):
+        """Email hash using the compatibility name for notifications framework."""
+        return self.email_address.email_hash
 
 
 auto_init_default(EmailAddress._delivery_state)

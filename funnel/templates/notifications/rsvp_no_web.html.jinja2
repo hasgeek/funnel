@@ -1,0 +1,8 @@
+{% extends "notifications/layout_web.html.jinja2" %}
+{% block content %}
+<p>
+  {% trans title=project.title, url=project.url_for() -%}
+    You cancelled your registration for <a href="{{ url }}">{{ title }}</a>.
+  {%- endtrans %}
+</p>
+{% endblock %}
