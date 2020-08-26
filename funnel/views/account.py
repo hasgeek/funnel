@@ -440,18 +440,6 @@ OtherAppAccountView.init_app(lastuserapp)
     defaults={'newprofile': True},
     endpoint='account_new',
 )
-@lastuserapp.route(
-    '/account/edit',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': False},
-    endpoint='account_edit',
-)
-@lastuserapp.route(
-    '/account/new',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': True},
-    endpoint='account_new',
-)
 @requires_login
 def account_edit(newprofile=False):
     form = AccountForm(obj=current_auth.user)
@@ -969,3 +957,20 @@ def remove_extid(extid):
 @lastuserapp.route('/profile/email/<email_hash>/verify')
 def verify_email_old(email_hash):
     return redirect(app_url_for(app, 'verify_email', email_hash=email_hash), code=301)
+
+
+# Redirect from Lastuser's account edit page
+@lastuserapp.route(
+    '/account/edit',
+    methods=['GET', 'POST'],
+    defaults={'newprofile': False},
+    endpoint='account_edit',
+)
+@lastuserapp.route(
+    '/account/new',
+    methods=['GET', 'POST'],
+    defaults={'newprofile': True},
+    endpoint='account_new',
+)
+def lastuser_account_edit(newprofile):
+    return redirect(app_url_for(app, 'account_new' if newprofile else 'account_edit'))
