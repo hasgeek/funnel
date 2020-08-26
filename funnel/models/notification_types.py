@@ -1,6 +1,6 @@
 from baseframe import __
 
-# from .commentvote import Comment
+from .commentvote import Comment
 from .notification import NOTIFICATION_CATEGORY, Notification
 from .project import Project
 from .proposal import Proposal
@@ -9,8 +9,8 @@ from .update import Update
 
 __all__ = [
     'NewUpdateNotification',
-    # 'ProjectCommentNotification',
-    # 'ProposalCommentNotification',
+    'ProjectCommentNotification',
+    'ProposalCommentNotification',
     'ProposalReceivedNotification',
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
@@ -126,39 +126,40 @@ class ProposalSubmittedNotification(ProjectIsParent, Notification):
 
 # --- Comment notifications ------------------------------------------------------------
 
-# Uncomment when views are implemented
 
-# class ProposalCommentNotification(ProjectIsParent, Notification):
-#     """
-#     Notification of comments on a proposal.
-#     """
+class ProposalCommentNotification(ProjectIsParent, Notification):
+    """
+    Notification of comments on a proposal.
+    """
 
-#     __mapper_args__ = {'polymorphic_identity': 'proposal_comment'}
+    __mapper_args__ = {'polymorphic_identity': 'proposal_comment'}
+    active = False
 
-#     category = NOTIFICATION_CATEGORY.PARTICIPANT
-#     title = __("When my proposal receives a comment")
-#     exclude_actor = True
+    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    title = __("When my proposal receives a comment")
+    exclude_actor = True
 
-#     document_model = Proposal
-#     fragment_model = Comment
-#     # Note: These roles must be available on Comment, not Proposal. Roles come from
-#     # fragment if present, document if not.
-#     roles = ['presenter', 'replied_to_commenter']
+    document_model = Proposal
+    fragment_model = Comment
+    # Note: These roles must be available on Comment, not Proposal. Roles come from
+    # fragment if present, document if not.
+    roles = ['presenter', 'replied_to_commenter']
 
 
-# class ProjectCommentNotification(ProfileIsParent, Notification):
-#     """
-#     Notification of comments on a proposal.
-#     """
+class ProjectCommentNotification(ProfileIsParent, Notification):
+    """
+    Notification of comments on a proposal.
+    """
 
-#     __mapper_args__ = {'polymorphic_identity': 'project_comment'}
+    __mapper_args__ = {'polymorphic_identity': 'project_comment'}
+    active = False
 
-#     category = NOTIFICATION_CATEGORY.PROJECT_CREW
-#     title = __("When my project receives a comment")
-#     exclude_actor = True
+    category = NOTIFICATION_CATEGORY.PROJECT_CREW
+    title = __("When my project receives a comment")
+    exclude_actor = True
 
-#     document_model = Project
-#     fragment_model = Comment
-#     # Note: These roles must be available on Comment, not Proposal. Roles come from
-#     # fragment if present, document if not.
-#     roles = ['project_editor', 'replied_to_commenter']
+    document_model = Project
+    fragment_model = Comment
+    # Note: These roles must be available on Comment, not Proposal. Roles come from
+    # fragment if present, document if not.
+    roles = ['project_editor', 'replied_to_commenter']

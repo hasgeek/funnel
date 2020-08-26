@@ -215,6 +215,10 @@ class Notification(NoIdMixin, db.Model):
         'related': {'eventid', 'document', 'fragment', 'type'},
     }
 
+    #: Flag indicating this is an active notification type. Can be False for draft
+    #: and retired notification types to hide them from preferences UI.
+    active = True
+
     # Flags to control whether this notification can be delivered over a particular
     # transport. Subclasses can disable these if they consider notifications unsuitable
     # for particular transports.
@@ -884,5 +888,6 @@ auto_init_default(Notification.eventid)
 
 @event.listens_for(Notification, 'mapper_configured', propagate=True)
 def _register_notification_types(mapper_, cls):
-    if cls is not Notification:  # Don't register the base class itself
+    # Don't register the base class itself, or inactive types
+    if cls is not Notification and cls.active:
         notification_type_registry[cls.__mapper_args__['polymorphic_identity']] = cls
