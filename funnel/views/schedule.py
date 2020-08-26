@@ -153,7 +153,9 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
-    organizer = vCalAddress(f"MAILTO:no-reply@{current_app.config['DEFAULT_DOMAIN']}")  # NOQA
+    organizer = vCalAddress(
+        f"MAILTO:no-reply@{current_app.config['DEFAULT_DOMAIN']}"  # NOQA
+    )
     organizer.params['cn'] = session.project.profile.title
     event['organizer'] = organizer
     event.add(
