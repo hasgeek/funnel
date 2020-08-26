@@ -175,8 +175,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'is_currently_restricted',
             'visibility_label',
             'state_label',
+            'urls',
         },
-        'related': {'name', 'title'},
+        'related': {'name', 'title', 'urls'},
     }
 
     def __init__(self, **kwargs):

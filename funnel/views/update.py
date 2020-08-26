@@ -34,6 +34,16 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         project_save_form = SavedProjectForm()
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
+            'draft_updates': [
+                update.current_access(datasets=('primary', 'related'))
+                for update in self.obj.draft_updates
+            ]
+            if self.obj.features.post_update()
+            else [],
+            'published_updates': [
+                update.current_access(datasets=('primary', 'related'))
+                for update in self.obj.published_updates
+            ],
             'new_update': self.obj.url_for('new_update'),
             'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
