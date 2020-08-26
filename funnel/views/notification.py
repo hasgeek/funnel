@@ -8,7 +8,7 @@ from flask import url_for
 
 from flask_babelhg import force_locale
 
-from baseframe import _, __
+from baseframe import _, __, statsd
 from coaster.auth import current_auth
 
 from .. import app, rq
@@ -265,6 +265,10 @@ def dispatch_notification(*notifications):
     dispatch_notification_job.queue(
         eventid, [notification.id for notification in notifications]
     )
+    for notification in notifications:
+        statsd.incr(
+            'notification.dispatch', tags={'notification_type': notification.type}
+        )
 
 
 # --- Transports -----------------------------------------------------------------------
@@ -317,6 +321,13 @@ def dispatch_transport_email(user_notification, view):
         content=content,
         attachments=attachments,
     )
+    statsd.incr(
+        'notification.transport',
+        tags={
+            'notification_type': user_notification.notification_type,
+            'transport': 'email',
+        },
+    )
 
 
 @rq.job('funnel')
@@ -329,6 +340,13 @@ def dispatch_transport_sms(user_notification, view):
         return
     user_notification.messageid_sms = sms.send(
         str(view.transport_for('sms')), view.sms_with_unsubscribe(),
+    )
+    statsd.incr(
+        'notification.transport',
+        tags={
+            'notification_type': user_notification.notification_type,
+            'transport': 'sms',
+        },
     )
 
 
@@ -356,8 +374,14 @@ def dispatch_notification_job(eventid, notification_ids):
                 )
             ):
                 db.session.commit()
-                dispatch_user_notifications_job.queue(
-                    [user_notification.identity for user_notification in batch],
+                notification_ids = [
+                    user_notification.identity for user_notification in batch
+                ]
+                dispatch_user_notifications_job.queue(notification_ids)
+                statsd.incr(
+                    'notification.recipient',
+                    count=len(notification_ids),
+                    tags={'notification_type': notification.type},
                 )
 
         # How does this batching work? There is a confusing recipe in the itertools
