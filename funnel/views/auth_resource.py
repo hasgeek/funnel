@@ -370,8 +370,8 @@ def user_getall(name):
     if not names:
         return api_result('error', error='no_name_provided')
     results = []
-    for name in names:
-        user = getuser(name)
+    for username in names:
+        user = getuser(username)
         if user and user.buid not in buids:
             results.append(
                 {

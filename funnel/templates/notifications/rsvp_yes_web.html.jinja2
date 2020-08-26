@@ -1,8 +1,8 @@
 {% extends "notifications/layout_web.html.jinja2" %}
 {% block content %}
 <p>
-  {% trans title=project.title, url=project.url_for() -%}
-    You registered for <a href="{{ url }}">{{ title }}</a>.
+  {% trans project=project.title, profile=project.profile.title, url=project.url_for() -%}
+    You registered for <a href="{{ url }}">{{ project }}</a> by {{ profile }}.
   {%- endtrans %}
 </p>
 {% endblock %}
