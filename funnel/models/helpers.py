@@ -172,6 +172,10 @@ def reopen(cls):
     """
 
     def decorator(new_cls):
+        if new_cls.__bases__ != (object,):
+            raise TypeError("Reopened class cannot add base classes")
+        if new_cls.__class__ is not type:
+            raise TypeError("Reopened class cannot add a metaclass")
         for attr, value in new_cls.__dict__.items():
             if attr not in (
                 '__dict__',
