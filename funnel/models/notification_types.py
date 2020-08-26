@@ -140,7 +140,7 @@ class ProposalCommentNotification(ProjectIsParent, Notification):
     fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
     # fragment if present, document if not.
-    roles = ['presenter', 'repliedto_commenter']
+    roles = ['presenter', 'replied_to_commenter']
 
 
 class ProjectCommentNotification(ProfileIsParent, Notification):
@@ -158,4 +158,4 @@ class ProjectCommentNotification(ProfileIsParent, Notification):
     fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
     # fragment if present, document if not.
-    roles = ['project_editor', 'repliedto_commenter']
+    roles = ['project_editor', 'replied_to_commenter']
