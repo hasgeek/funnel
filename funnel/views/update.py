@@ -1,4 +1,4 @@
-from flask import flash, g, redirect
+from flask import abort, flash, g, redirect
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -110,6 +110,8 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
     def view(self):
+        if not self.obj.current_roles.reader and self.obj.state.WITHDRAWN:
+            abort(410)
         return {
             'update': self.obj.current_access(datasets=('primary', 'related')),
             'publish_form': forms.Form(),

@@ -134,12 +134,56 @@ visual_field_delimiter = ' ¦ '
 
 
 def add_to_class(cls, name=None):
+    """
+    Decorator to add a new method to a class. Takes an optional attribute name.
+
+    Usage::
+
+        @add_to_class(ExistingClass)
+        def new_method(self, *args):
+            pass
+
+        @add_to_class(ExistingClass, 'new_property_name')
+        @property
+        def existing_class_new_property(self):
+            pass
+    """
+
     def decorator(attr):
         use_name = name or attr.__name__
         if use_name in cls.__dict__:
             raise AttributeError(f"{cls.__name__} already has attribute {use_name}")
         setattr(cls, use_name, attr)
         return attr
+
+    return decorator
+
+
+def reopen(cls):
+    """
+    Copies the contents of the decorated class into an existing class and returns it.
+
+    Usage::
+
+        @reopen(ExistingClass)
+        class ExistingClass:
+            def new_method(self, *args):
+                pass
+    """
+
+    def decorator(new_cls):
+        for attr, value in new_cls.__dict__.items():
+            if attr not in (
+                '__dict__',
+                '__doc__',
+                '__module__',
+                '__slots__',
+                '__weakref__',
+            ):
+                if hasattr(cls, attr):
+                    raise AttributeError(f"{cls.__name__} already has attribute {attr}")
+                setattr(cls, attr, value)
+        return cls
 
     return decorator
 
