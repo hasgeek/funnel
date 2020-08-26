@@ -32,9 +32,7 @@ def test_valid_name():
 
 
 def test_valid_username():
-    """
-    Usernames contain letters, numbers and non-terminal hyphens.
-    """
+    """Usernames contain letters, numbers and non-terminal hyphens."""
     assert valid_username('example person') is False
     assert valid_username('example_person') is False
     assert valid_username('exampleperson') is True
@@ -62,9 +60,7 @@ def test_valid_username():
 
 
 def test_reopen():
-    """
-    Test reopening a class to add more to it.
-    """
+    """Test reopening a class to add more to it."""
 
     class UnrelatedMixin:
         pass
@@ -110,9 +106,7 @@ def test_reopen():
 
 
 def test_add_to_class():
-    """
-    Add to class adds new attributes to a class.
-    """
+    """Add to class adds new attributes to a class."""
 
     class ReferenceClass:
         def foo(self):

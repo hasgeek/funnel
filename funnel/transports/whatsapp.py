@@ -1,3 +1,1 @@
-"""
-Support functions for sending a WhatsApp message. Forthcoming.
-"""
+"""Support functions for sending a WhatsApp message. Forthcoming."""

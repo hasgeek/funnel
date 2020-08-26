@@ -1,6 +1,4 @@
-"""
-Support functions for sending a short text message.
-"""
+"""Support functions for sending a short text message."""
 
 import requests
 
@@ -35,8 +33,7 @@ def send_via_exotel(phone_number, message):
             else:
                 transactionid = jsonresponse.get('SMSMessage', {}).get('Sid')
             return transactionid
-        else:
-            raise TransportTransactionError("Exotel API error", r.status_code, r.text)
+        raise TransportTransactionError("Exotel API error", r.status_code, r.text)
     except requests.ConnectionError:
         raise TransportConnectionError("Exotel not reachable")
 
@@ -60,8 +57,7 @@ def send_via_twilio(phone_number, message):
             # All good
             jsonresponse = r.json()
             return jsonresponse.get('sid')
-        else:
-            raise TransportTransactionError("Twilio API error", r.status_code, r.text)
+        raise TransportTransactionError("Twilio API error", r.status_code, r.text)
     except requests.ConnectionError:
         raise TransportConnectionError("Twilio not reachable")
 

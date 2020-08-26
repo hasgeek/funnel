@@ -981,9 +981,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @classmethod
     def get(cls, profile_project):
-        """
-        Get a project by its URL slug in the form ``<profile>/<project>``
-        """
+        """Get a project by its URL slug in the form ``<profile>/<project>``."""
         profile_name, project_name = profile_project.split('/')
         return (
             cls.query.join(Profile)

@@ -1,6 +1,4 @@
-"""
-Support functions for sending an email.
-"""
+"""Support functions for sending an email."""
 
 from email.utils import formataddr, getaddresses
 from typing import NamedTuple

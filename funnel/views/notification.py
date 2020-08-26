@@ -108,9 +108,7 @@ class RenderNotification:
         )
 
     def unsubscribe_url(self, transport):
-        """
-        Return an unsubscribe URL.
-        """
+        """Return an unsubscribe URL."""
         return url_for(
             'notification_unsubscribe',
             token=self.unsubscribe_token(transport=transport),
@@ -121,9 +119,7 @@ class RenderNotification:
         )
 
     def unsubscribe_short_url(self, transport='sms'):
-        """
-        Return a short but temporary unsubscribe URL (for SMS).
-        """
+        """Return a short but temporary unsubscribe URL (for SMS)."""
         # Eventid is included here because SMS links can't have utm_* tags.
         # However, the current implementation of the unsubscribe handler doesn't
         # use this, and can't add utm_* tags to the URL as it only examines the token
@@ -144,10 +140,7 @@ class RenderNotification:
             # For this to work, a web server must listen on the unsubscribe domain and
             # redirect all paths to url_for('notification_unsubscribe_short') + path
             return 'https://' + unsubscribe_domain + '/' + token
-        else:
-            return url_for(
-                'notification_unsubscribe_short', token=token, _external=True
-            )
+        return url_for('notification_unsubscribe_short', token=token, _external=True)
 
     # --- Overrideable render methods
 
@@ -208,7 +201,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms(self)
+        return self.sms()
 
     def telegram(self):
         """
@@ -216,7 +209,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms(self)
+        return self.sms()
 
     def whatsapp(self):
         """
@@ -224,7 +217,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms(self)
+        return self.sms()
 
 
 # --- Dispatch functions ---------------------------------------------------------------

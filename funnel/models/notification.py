@@ -81,7 +81,7 @@ from coaster.sqlalchemy import auto_init_default, with_roles
 from coaster.utils import LabeledEnum, classmethodproperty
 
 from . import BaseMixin, NoIdMixin, UUIDType, db
-from .helpers import add_to_class
+from .helpers import reopen
 from .user import User
 
 __all__ = [
@@ -287,6 +287,7 @@ class Notification(NoIdMixin, db.Model):
         """
         if self.document_model and self.document_uuid:
             return self.document_model.query.filter_by(uuid=self.document_uuid).one()
+        return None
 
     @cached_property
     def fragment(self):
@@ -298,6 +299,7 @@ class Notification(NoIdMixin, db.Model):
         """
         if self.fragment_model and self.fragment_uuid:
             return self.fragment_model.query.filter_by(uuid=self.fragment_uuid).one()
+        return None
 
     @classmethod
     def renderer(cls, view):
@@ -603,6 +605,7 @@ class UserNotification(NoIdMixin, db.Model):
             return self.user.transport_for(
                 transport, self.notification.preference_context
             )
+        return None
 
     def rollup_previous(self):
         """
@@ -682,9 +685,7 @@ class UserNotification(NoIdMixin, db.Model):
                 previous.rollupid = self.rollupid
 
     def rolledup_fragments(self):
-        """
-        Return all fragments in the rolled up batch as a base query.
-        """
+        """Return all fragments in the rolled up batch as a base query."""
         if not self.notification.fragment_model:
             return None
         # Return a query
@@ -845,39 +846,39 @@ class NotificationPreferences(BaseMixin, db.Model):
         return value
 
 
-User.notification_preferences = db.relationship(
-    NotificationPreferences,
-    collection_class=column_mapped_collection(
-        NotificationPreferences.notification_type
-    ),
-)
+@reopen(User)
+class User:
+    notification_preferences = db.relationship(
+        NotificationPreferences,
+        collection_class=column_mapped_collection(
+            NotificationPreferences.notification_type
+        ),
+    )
 
-# This relationship is wrapped in a property that creates it on first access
-User._main_notification_preferences = db.relationship(
-    NotificationPreferences,
-    primaryjoin=db.and_(
-        NotificationPreferences.user_id == User.id,
-        NotificationPreferences.notification_type == '',
-    ),
-    uselist=False,
-)
+    # This relationship is wrapped in a property that creates it on first access
+    _main_notification_preferences = db.relationship(
+        NotificationPreferences,
+        primaryjoin=db.and_(
+            NotificationPreferences.user_id == User.id,
+            NotificationPreferences.notification_type == '',
+        ),
+        uselist=False,
+    )
 
-
-@add_to_class(User, 'main_notification_preferences')
-@property
-def user_main_notification_preferences(self):
-    if not self._main_notification_preferences:
-        self._main_notification_preferences = NotificationPreferences(
-            user=self,
-            notification_type='',
-            by_email=True,
-            by_sms=False,
-            by_webpush=False,
-            by_telegram=False,
-            by_whatsapp=False,
-        )
-        db.session.add(self._main_notification_preferences)
-    return self._main_notification_preferences
+    @property
+    def main_notification_preferences(self):
+        if not self._main_notification_preferences:
+            self._main_notification_preferences = NotificationPreferences(
+                user=self,
+                notification_type='',
+                by_email=True,
+                by_sms=False,
+                by_webpush=False,
+                by_telegram=False,
+                by_whatsapp=False,
+            )
+            db.session.add(self._main_notification_preferences)
+        return self._main_notification_preferences
 
 
 # --- Signal handlers ------------------------------------------------------------------

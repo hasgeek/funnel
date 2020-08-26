@@ -73,8 +73,7 @@ class AllNotificationsView(ClassView):
                     UserNotification.is_revoked.is_(False),
                 ).count(),
             }
-        else:
-            return {'status': 'error', 'error': 'requires_login'}
+        return {'status': 'error', 'error': 'requires_login'}
 
     @route('mark_read/<eventid>', endpoint='notification_mark_read', methods=['POST'])
     @requires_login

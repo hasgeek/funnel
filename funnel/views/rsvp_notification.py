@@ -51,6 +51,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
                     mimetype='text/calendar',
                 )
             ]
+        return None
 
     def sms(self):
         return _("You have registered for {project}. {url}").format(

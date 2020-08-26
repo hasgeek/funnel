@@ -36,9 +36,7 @@ class ProfileIsParent:
 
 
 class RegistrationConfirmationNotification(ProjectIsParent, Notification):
-    """
-    Notification confirming registration to a project.
-    """
+    """Notification confirming registration to a project."""
 
     __mapper_args__ = {'polymorphic_identity': 'rsvp_yes'}
     category = NOTIFICATION_CATEGORY.PARTICIPANT
@@ -52,9 +50,7 @@ class RegistrationConfirmationNotification(ProjectIsParent, Notification):
 
 
 class RegistrationCancellationNotification(ProjectIsParent, Notification):
-    """
-    Notification confirming cancelling registration to a project.
-    """
+    """Notification confirming cancelling registration to a project."""
 
     __mapper_args__ = {'polymorphic_identity': 'rsvp_no'}
     category = NOTIFICATION_CATEGORY.PARTICIPANT
@@ -68,9 +64,7 @@ class RegistrationCancellationNotification(ProjectIsParent, Notification):
 
 
 class NewUpdateNotification(ProjectIsParent, Notification):
-    """
-    Notifications of new updates.
-    """
+    """Notifications of new updates."""
 
     __mapper_args__ = {'polymorphic_identity': 'update_new'}
 
@@ -86,9 +80,7 @@ class NewUpdateNotification(ProjectIsParent, Notification):
 
 
 class ProposalReceivedNotification(ProfileIsParent, Notification):
-    """
-    Notification to editors of new proposals.
-    """
+    """Notification to editors of new proposals."""
 
     __mapper_args__ = {'polymorphic_identity': 'proposal_received'}
 
@@ -102,9 +94,7 @@ class ProposalReceivedNotification(ProfileIsParent, Notification):
 
 
 class ProposalSubmittedNotification(ProjectIsParent, Notification):
-    """
-    Notification to the proposer on a successful proposal submission.
-    """
+    """Notification to the proposer on a successful proposal submission."""
 
     __mapper_args__ = {'polymorphic_identity': 'proposal_submitted'}
 
@@ -128,9 +118,7 @@ class ProposalSubmittedNotification(ProjectIsParent, Notification):
 
 
 class ProposalCommentNotification(ProjectIsParent, Notification):
-    """
-    Notification of comments on a proposal.
-    """
+    """Notification of comments on a proposal."""
 
     __mapper_args__ = {'polymorphic_identity': 'proposal_comment'}
     active = False
@@ -147,9 +135,7 @@ class ProposalCommentNotification(ProjectIsParent, Notification):
 
 
 class ProjectCommentNotification(ProfileIsParent, Notification):
-    """
-    Notification of comments on a proposal.
-    """
+    """Notification of comments on a proposal."""
 
     __mapper_args__ = {'polymorphic_identity': 'project_comment'}
     active = False

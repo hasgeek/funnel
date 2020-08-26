@@ -28,9 +28,7 @@ def notification_types():
             return self.document.project.profile
 
     class TestNewUpdateNotification(ProjectIsParent, Notification):
-        """
-        Notifications of new updates (test edition)
-        """
+        """Notifications of new updates (test edition)."""
 
         __mapper_args__ = {'polymorphic_identity': 'update_new_test'}
 
@@ -41,9 +39,7 @@ def notification_types():
         roles = ['project_crew', 'project_participant']
 
     class TestProposalReceivedNotification(ProjectIsParent, Notification):
-        """
-        Notifications of new proposals.
-        """
+        """Notifications of new proposals (test edition)."""
 
         __mapper_args__ = {'polymorphic_identity': 'proposal_received_test'}
 

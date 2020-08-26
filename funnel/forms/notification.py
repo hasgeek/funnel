@@ -164,7 +164,7 @@ class UnsubscribeForm(forms.Form):
         self.edit_user.main_notification_preferences.set_transport(
             self.transport, self.main.data
         )
-        for ntype, title in self.types.choices:
+        for ntype, _title in self.types.choices:
             self.edit_user.notification_preferences[ntype].set_transport(
                 self.transport, ntype in self.types.data
             )
