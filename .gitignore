@@ -1,23 +1,14 @@
-# Python-ish files
-*.bz2
+# Cache files
 *.egg-info
-*.gz
 *.pyc
-*.sql
-*.wpr
 .coverage
-.DS_Store
 .mypy_cache
-.project
-.pydevproject
 .pytest_cache
 .ropeproject
 .sass-cache
-.settings
-.vscode
+.sass-cache
 .webassets-cache
-baseframe-packed.*
-console.py
+__pycache__
 
 # MacOS File
 .DS_Store
@@ -32,17 +23,11 @@ funnel/static/img/fa5-packed.svg
 node_modules
 *.packed.css
 *.packed.js
-
-# Cache files
-.pytest_cache
 .webassets-cache
-.sass-cache
+baseframe-packed.*
 
-# Test files
+# Log files
 error.log
-.coverage
-
-# Other log files
 ghostdriver.log
 
 # Instance Files that should not be checked-in.
@@ -65,9 +50,13 @@ venv/
 .vscode
 .project
 .pydevproject
-.ropeproject
 .settings
+*.wpr
+.vscode
 
 # Local DBs
 dump.rdb
 test.db
+*.bz2
+*.gz
+*.sql
