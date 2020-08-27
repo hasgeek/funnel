@@ -8,7 +8,6 @@ def test_process_recipient():
     Process recipient produces output that Flask-Mailman's sanitize_address won't raise
     ValueError on.
     """
-    # if the `realname` portion has no special character, `realname` output is not quoted
     assert bool(
         sanitize_address(
             process_recipient(

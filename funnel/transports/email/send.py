@@ -10,9 +10,9 @@ from flask_mailman.message import sanitize_address
 from html2text import html2text
 from premailer import transform
 
-from .. import app, mail
-from ..models import EmailAddress, EmailAddressBlockedError, User
-from .base import TransportRecipientError
+from ... import app, mail
+from ...models import EmailAddress, EmailAddressBlockedError, User
+from ..base import TransportRecipientError
 
 __all__ = [
     'EmailAttachment',
@@ -60,7 +60,7 @@ def jsonld_confirm_action(description, url, title):
 
 def process_recipient(recipient):
     if isinstance(recipient, User):
-        formatted = formataddr(recipient.fullname, str(recipient.email))
+        formatted = formataddr((recipient.fullname, str(recipient.email)))
     elif isinstance(recipient, tuple):
         formatted = formataddr(recipient)
     elif isinstance(recipient, str):
