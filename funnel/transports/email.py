@@ -57,7 +57,6 @@ def jsonld_confirm_action(description, url, title):
 
 
 def sanitize_emailaddr(recipient):
-    formatted = None
     if isinstance(recipient, User):
         formatted = formataddr(recipient.fullname, str(recipient.email))
     elif isinstance(recipient, tuple):
@@ -68,20 +67,22 @@ def sanitize_emailaddr(recipient):
         raise ValueError(
             "Not a valid email format. Provide either a User object, or"
             " a tuple of (realname, email) or"
-            " a preformatted string e.g. '<\"Name\" email>'"
+            " a preformatted string with Name e.g. '<\"Name\" email>'"
         )
 
     realname, email_address = parseaddr(formatted)
     if not email_address:
         raise ValueError('No email address to sanitize')
 
-    try:
-        # try to sanitize the address to check
-        sanitize_address((realname, email_address), 'utf-8')
-    except ValueError:
-        # `realname` is too long, call this function again but
-        # truncate realname by 1 character
-        return sanitize_emailaddr((realname[:-1], email_address))
+    while True:
+        try:
+            # try to sanitize the address to check
+            sanitize_address((realname, email_address), 'utf-8')
+            break
+        except ValueError:
+            # `realname` is too long, call this function again but
+            # truncate realname by 1 character
+            realname = realname[:-1]
 
     # `realname` and `addr` are valid, return formatted string
     return formataddr((realname, email_address))
