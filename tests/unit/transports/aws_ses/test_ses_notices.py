@@ -14,13 +14,13 @@ class TestSESNotices:
     URL = '/api/1/email/ses_event'
 
     def test_invalid_method(self, test_client) -> None:
-        """ Tests Get Message which is Invalid as only Posts are allowed. """
+        """GET requests are not allowed."""
         with test_client as c:
             resp: Response = c.get(self.URL)
         assert resp.status_code == 405
 
     def test_empty_json(self, test_client) -> None:
-        """ Test Empty JSON """
+        """Test empty JSON."""
         with test_client as c:
             resp: Response = c.post(self.URL)
         assert resp.status_code == 400
@@ -28,7 +28,7 @@ class TestSESNotices:
         assert data['status'] == 'error'
 
     def test_bad_message(self, test_client) -> None:
-        """ Test Bad Message """
+        """Test bad signature message."""
         with open(os.path.join(self.DATA_DIR, "bad-message.json"), 'r') as file:
             data = file.read()
         with test_client as c:
@@ -39,7 +39,7 @@ class TestSESNotices:
         assert data['message'] == ['Signature mismatch']
 
     def test_complaint_message(self, test_client, test_db_structure):
-        """ Test complaint message """
+        """Test Complaint message."""
         with open(os.path.join(self.DATA_DIR, "full-message.json"), 'r') as file:
             data = file.read()
         with test_client as c:
@@ -49,7 +49,7 @@ class TestSESNotices:
         assert data['status'] == 'ok'
 
     def test_delivery_message(self, test_client, test_db_structure):
-        """ Test Delivery message """
+        """Test Delivery message."""
         with open(os.path.join(self.DATA_DIR, "delivery-message.json"), 'r') as file:
             data = file.read()
         with test_client as c:
@@ -60,9 +60,7 @@ class TestSESNotices:
         test_db_structure.session.commit()
 
     def test_bounce_message(self, test_client, test_db_structure):
-        """
-        Test Bounce Message
-        """
+        """Test Bounce message."""
         with open(os.path.join(self.DATA_DIR, "bounce-message.json"), 'r') as file:
             data = file.read()
         with test_client as c:

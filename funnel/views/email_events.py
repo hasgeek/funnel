@@ -46,7 +46,7 @@ class SesProcessor(SesProcessorAbc):
 
     def complaint(self, complaint: Complaint) -> None:
         for complained in complaint.complained_recipients:
-            if complaint.complaint_feedback_type == "not-spam":
+            if complaint.complaint_feedback_type == 'not-spam':
                 email_address = EmailAddress.get(complained.email)
                 if not email_address:
                     email_address = EmailAddress.add(complained.email)
@@ -55,7 +55,9 @@ class SesProcessor(SesProcessorAbc):
                 EmailAddress.mark_blocked(complained.email)
 
     def delivered(self, delivery: Delivery) -> None:
-        # TODO: Why is this a string and not a structure? Is this correct?
+        # Recipients here are strings and not structures. Unusual, but reflected in
+        # the documentation.
+        # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-send
         for sent in delivery.recipients:
             email_address = EmailAddress.get(sent)
             if not email_address:
