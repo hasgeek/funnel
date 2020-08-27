@@ -1,6 +1,5 @@
-"""
-This module contains SES message types, as received over SNS.
-"""
+"""This module contains SES message types, as received over SNS."""
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
@@ -353,9 +352,7 @@ class SesEvent:
 
 
 class SesProcessorAbc(ABC):
-    """
-    Abstract Base class for Message Processor.
-    """
+    """Abstract Base class for Message Processor."""
 
     def process(self, ses_event: SesEvent):
         """
