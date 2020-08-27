@@ -702,7 +702,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         weeks = defaultdict(dict)
         today = now.date()
-        for project_date, day_start_at, day_end_at, session_count in session_dates:
+        for project_date, _day_start_at, _day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
                 weeks[weekobj.week]['year'] = weekobj.year

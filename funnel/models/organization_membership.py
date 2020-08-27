@@ -89,7 +89,7 @@ Organization.active_admin_memberships = with_roles(
             db.remote(OrganizationMembership.organization_id) == Organization.id,
             OrganizationMembership.is_active,
         ),
-        order_by=lambda: OrganizationMembership.granted_at.asc(),
+        order_by=OrganizationMembership.granted_at.asc(),
         viewonly=True,
     ),
     grants_via={'user': {'admin', 'owner'}},

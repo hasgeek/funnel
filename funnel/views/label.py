@@ -64,7 +64,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             self.obj.labels.reorder()
             db.session.add(label)
 
-            for idx, title in enumerate(titlelist):
+            for idx in range(len(titlelist)):
                 subform = LabelOptionForm(
                     MultiDict({'title': titlelist[idx], 'icon_emoji': emojilist[idx]}),
                     meta={'csrf': False},
@@ -151,7 +151,7 @@ class LabelView(UrlForView, ModelView):
             titlelist.pop(0)
             emojilist.pop(0)
 
-            for idx, title in enumerate(titlelist):
+            for idx in range(len(titlelist)):
                 if namelist[idx]:
                     # existing option
                     subl = Label.query.filter_by(
