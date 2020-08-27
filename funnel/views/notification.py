@@ -270,7 +270,7 @@ def dispatch_notification(*notifications):
 def transport_worker_wrapper(func):
     @wraps(func)
     def inner(user_notification_ids):
-        with app.test_request_context():  # Views may need request.url_root
+        with app.app_context():
             queue = [
                 UserNotification.query.get(identity)
                 for identity in user_notification_ids
