@@ -1,5 +1,5 @@
 from enum import Enum, IntFlag
-from typing import Dict, List
+from typing import Dict, List, Pattern
 import base64
 import re
 
@@ -11,43 +11,48 @@ from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from cryptography.hazmat.primitives.hashes import SHA1
 import requests
 
-__all__ = ['Type', 'Validator', 'ValidatorChecks', 'ValidatorException']
+__all__ = [
+    'SnsNotificationType',
+    'SnsValidator',
+    'SnsValidatorChecks',
+    'SnsValidatorException',
+]
 
 
-class Type(Enum):
-    """ Notification Type. Could only be one of the below """
+class SnsNotificationType(Enum):
+    """SNS notification type."""
 
     SubscriptionConfirmation = 'SubscriptionConfirmation'
     Notification = 'Notification'
     UnsubscribeConfirmation = 'UnsubscribeConfirmation'
 
 
-class ValidatorException(Exception):
-    """ Base Exception for SES Message Validator. """
+class SnsValidatorException(Exception):
+    """Base exception for SNS message validator."""
 
 
-class TopicException(ValidatorException):
-    """ Topic is not what we expect it to be. """
+class SnsTopicException(SnsValidatorException):
+    """Topic is not what we expect it to be."""
 
 
-class SignatureVersionException(ValidatorException):
-    """ Signature Version does not match """
+class SnsSignatureVersionException(SnsValidatorException):
+    """Signature Version does not match."""
 
 
-class CertURLException(ValidatorException):
-    """ Certificate URL does not match the one from AWS. """
+class SnsCertURLException(SnsValidatorException):
+    """Certificate URL does not match the one from AWS."""
 
 
-class MessageTypeException(ValidatorException):
-    """ Does not belong to known Message Types """
+class SnsMessageTypeException(SnsValidatorException):
+    """Does not belong to known message types."""
 
 
-class SignatureFailureException(ValidatorException):
-    """ Signature does not match with what we computed """
+class SnsSignatureFailureException(SnsValidatorException):
+    """Signature does not match with what we computed."""
 
 
-class ValidatorChecks(IntFlag):
-    """ List of Checks that is done by the Validator. """
+class SnsValidatorChecks(IntFlag):
+    """List of checks performed by SnsValidator."""
 
     NONE = 0
     TOPIC = 1
@@ -57,68 +62,66 @@ class ValidatorChecks(IntFlag):
     ALL = 15
 
 
-class Validator:
+class SnsValidator:
     """
-    Validator for SNS Notifications.
+    Validator for SNS notifications.
 
-    Attributes:
-        CERT_URL_REGEX      Regular expression for Certificate URL
-        SIGNATURE_VERSION   Signature Version
+    :param cert_regex: Certificate URL compiled regex
+    :param sig_version: Signature version (default: 1)
     """
 
-    CERT_URL_REGEX: str = r'^https://sns\.[-a-z0-9]+\.amazonaws\.com/'
+    #: Regular expression for certificate URL
+    CERT_URL_REGEX: Pattern[str] = re.compile(
+        r'^https://sns\.[-a-z0-9]+\.amazonaws\.com/'
+    )
+    #: Signature version
     SIGNATURE_VERSION: str = '1'
 
     def __init__(
         self,
         topics: List[str] = (),
-        cert_regex: str = CERT_URL_REGEX,
+        cert_regex: Pattern[str] = CERT_URL_REGEX,
         sig_version: str = SIGNATURE_VERSION,
     ):
-        """
-        Constructor
-        :param cert_regex: Certificate URL Regex
-        :param sig_version: Signature Version
-        """
         self.topics = topics
         self.cert_regex = cert_regex
         self.sig_version = sig_version
-        self.public_keys = {}
+        self.public_keys = {}  # Cache of public keys (per Python process)
 
     def _check_topics(self, message: Dict[str, str]):
         topic = message.get('TopicArn')
         if not topic:
-            raise TopicException('No Topic')
+            raise SnsTopicException("No Topic")
         if topic not in self.topics:
-            raise TopicException('Given Topic is not in our List of Interest.')
+            raise SnsTopicException("Received topic is not in the list of interest")
 
     def _check_signature_version(self, message: Dict[str, str]) -> None:
         if message.get('SignatureVersion') != self.sig_version:
-            raise SignatureVersionException('Signature version is invalid.')
+            raise SnsSignatureVersionException("Signature version is invalid")
 
     def _check_cert_url(self, message: Dict[str, str]) -> None:
         cert_url = message.get('SigningCertURL')
         if not cert_url:
-            raise CertURLException('Missing SigningCertURL field in message.')
-        if not re.search(self.cert_regex, cert_url):
-            raise CertURLException('Invalid URL.')
+            raise SnsCertURLException("Missing SigningCertURL field in message")
+        if not self.cert_regex.search(cert_url):
+            raise SnsCertURLException("Invalid certificate URL")
 
     @staticmethod
     def _get_text_to_sign(message: Dict[str, str]) -> str:
         """
-        Extract the Plain Text that was used for Signing to compare
-        Signatures. This is done based on the Message Type.
-        See this URL for more information:
+        Extract the plain text that was used for signing to compare signatures.
+
+        This is done based on the message type. See this URL for more information:
         https://docs.aws.amazon.com/sns/latest/dg/sns-example-code-endpoint-java-servlet.html
 
         :param message: SNS Message
-        :return: Plain Text for Creating the Signature on the client side.
+        :return: Plain text for creating the signature on the client side
         """
         keys = ()
         m_type = message.get('Type')
         if m_type in (
-            Type.SubscriptionConfirmation.value,
-            Type.UnsubscribeConfirmation.value,
+            SnsNotificationType.SubscriptionConfirmation.value,
+            SnsNotificationType.UnsubscribeConfirmation.value,
         ):
             keys = (
                 'Message',
@@ -129,7 +132,7 @@ class Validator:
                 'TopicArn',
                 'Type',
             )
-        elif m_type == Type.Notification.value:
+        elif m_type == SnsNotificationType.Notification.value:
             if message.get('Subject'):
                 keys = (
                     'Message',
@@ -152,11 +155,12 @@ class Validator:
 
     def _get_public_key(self, message: Dict[str, str]) -> RSAPublicKey:
         """
-        Every message has a Signing URL which has a PEM file. We need to get
-        the Public Key of the PEM. To avoid getting it for every message,
-        we can cache it internally.
-        :param message:  SNS Message
-        :return:  Public Key
+        Every message has a signing URL which has a PEM file. We need to get the public
+        key of the PEM. To avoid getting it for every message, we can cache it
+        internally.
+
+        :param message: SNS Message
+        :return: Public Key
         """
         url = message.get('SigningCertURL')
         public_key = self.public_keys.get(url)
@@ -166,8 +170,8 @@ class Validator:
                 cert = x509.load_pem_x509_certificate(pem, default_backend())
                 public_key = cert.public_key()
                 self.public_keys[url] = public_key
-            except Exception:
-                raise SignatureFailureException('Failed to fetch cert file.')
+            except requests.exceptions.RequestException as exc:
+                raise SnsSignatureFailureException(exc)
         return public_key
 
     def _check_signature(self, message: Dict[str, str]):
@@ -184,22 +188,25 @@ class Validator:
                 signature, plaintext, PKCS1v15(), SHA1(),  # nosec
             )
         except InvalidSignature:
-            raise SignatureFailureException('Signature mismatch.')
+            raise SnsSignatureFailureException("Signature mismatch")
 
     def check(
-        self, message: Dict[str, str], checks: ValidatorChecks = ValidatorChecks.ALL
+        self,
+        message: Dict[str, str],
+        checks: SnsValidatorChecks = SnsValidatorChecks.ALL,
     ) -> None:
         """
-        Checks the given message against
+        Checks the given message against specified checks.
+
         :param message: Given Message
         :param checks:  List of Checks to apply
         :return: None if checks pass or else throws exceptions
         """
-        if ValidatorChecks.TOPIC in checks:
+        if SnsValidatorChecks.TOPIC in checks:
             self._check_topics(message)
-        if ValidatorChecks.SIGNATURE_VERSION in checks:
+        if SnsValidatorChecks.SIGNATURE_VERSION in checks:
             self._check_signature_version(message)
-        if ValidatorChecks.CERTIFICATE_URL in checks:
+        if SnsValidatorChecks.CERTIFICATE_URL in checks:
             self._check_cert_url(message)
-        if ValidatorChecks.SIGNATURE in checks:
+        if SnsValidatorChecks.SIGNATURE in checks:
             self._check_signature(message)

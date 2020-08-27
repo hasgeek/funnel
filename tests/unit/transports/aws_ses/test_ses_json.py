@@ -1,7 +1,14 @@
 import json
 import os
 
-from funnel.extapi import SesEvent, Validator, ValidatorChecks, ValidatorException
+import pytest
+
+from funnel.transports.email.aws_ses import (
+    SesEvent,
+    SnsValidator,
+    SnsValidatorChecks,
+    SnsValidatorException,
+)
 
 
 class TestSesEventJson:
@@ -23,7 +30,7 @@ class TestSesEventJson:
         assert obj.mail.common_headers
         assert obj.mail.destination
         assert obj.mail.headers
-        assert obj.mail.sending_account_id
+        assert obj.mail.sending_accountid
         assert obj.mail.source_arn
         assert obj.delivery.timestamp
         assert obj.delivery.recipients
@@ -40,10 +47,10 @@ class TestSesEventJson:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
         assert obj.bounce
-        assert obj.bounce.is_hard_bounce()
+        assert obj.bounce.is_hard_bounce is True
         assert len(obj.bounce.bounced_recipients) == 1
         assert obj.bounce.bounce_sub_type == "General"
-        assert obj.bounce.feedback_id
+        assert obj.bounce.feedbackid
         assert obj.bounce.timestamp
         assert obj.bounce.reporting_mta
 
@@ -56,7 +63,7 @@ class TestSesEventJson:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
         assert obj.complaint
-        assert obj.complaint.feedback_id
+        assert obj.complaint.feedbackid
         assert obj.complaint.complaint_sub_type is None
         assert obj.complaint.arrival_date
         assert len(obj.complaint.complained_recipients) == 1
@@ -73,15 +80,15 @@ class TestSesEventJson:
 
         # Decode the JSON
         message = json.loads(data)
-        validator = Validator(
+        validator = SnsValidator(
             ["arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com"]
         )
 
         # Checks
-        validator.check(message, ValidatorChecks.SIGNATURE)
-        validator.check(message, ValidatorChecks.SIGNATURE_VERSION)
-        validator.check(message, ValidatorChecks.CERTIFICATE_URL)
-        validator.check(message, ValidatorChecks.TOPIC)
+        validator.check(message, SnsValidatorChecks.SIGNATURE)
+        validator.check(message, SnsValidatorChecks.SIGNATURE_VERSION)
+        validator.check(message, SnsValidatorChecks.CERTIFICATE_URL)
+        validator.check(message, SnsValidatorChecks.TOPIC)
 
     def test_signature_bad_message(self) -> None:
         """
@@ -93,16 +100,13 @@ class TestSesEventJson:
 
         # Decode the JSON
         message = json.loads(data)
-        validator = Validator(
+        validator = SnsValidator(
             ["arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com"]
         )
 
         # Checks
-        validator.check(message, ValidatorChecks.SIGNATURE_VERSION)
-        validator.check(message, ValidatorChecks.CERTIFICATE_URL)
-        validator.check(message, ValidatorChecks.TOPIC)
-        try:
-            validator.check(message, ValidatorChecks.SIGNATURE)
-            assert False
-        except ValidatorException:
-            assert True
+        validator.check(message, SnsValidatorChecks.SIGNATURE_VERSION)
+        validator.check(message, SnsValidatorChecks.CERTIFICATE_URL)
+        validator.check(message, SnsValidatorChecks.TOPIC)
+        with pytest.raises(SnsValidatorException):
+            validator.check(message, SnsValidatorChecks.SIGNATURE)

@@ -36,7 +36,7 @@ class TestSESNotices:
         assert resp.status_code == 400
         data = resp.get_json()
         assert data['status'] == 'error'
-        assert data['message'] == ['Signature mismatch.']
+        assert data['message'] == ['Signature mismatch']
 
     def test_complaint_message(self, test_client, test_db_structure):
         """ Test complaint message """
@@ -46,7 +46,7 @@ class TestSESNotices:
             resp: Response = c.post(self.URL, json=json.loads(data))
         assert resp.status_code == 200
         data = resp.get_json()
-        assert data['status'] == 'Success'
+        assert data['status'] == 'ok'
 
     def test_delivery_message(self, test_client, test_db_structure):
         """ Test Delivery message """
@@ -56,7 +56,7 @@ class TestSESNotices:
             resp: Response = c.post(self.URL, json=json.loads(data))
         assert resp.status_code == 200
         data = resp.get_json()
-        assert data['status'] == 'Success'
+        assert data['status'] == 'ok'
         test_db_structure.session.commit()
 
     def test_bounce_message(self, test_client, test_db_structure):
@@ -69,5 +69,5 @@ class TestSESNotices:
             resp: Response = c.post(self.URL, json=json.loads(data))
         assert resp.status_code == 200
         data = resp.get_json()
-        assert data['status'] == 'Success'
+        assert data['status'] == 'ok'
         test_db_structure.session.commit()

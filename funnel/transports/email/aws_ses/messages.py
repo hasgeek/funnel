@@ -1,3 +1,6 @@
+"""
+This module contains SES message types, as received over SNS.
+"""
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
@@ -5,13 +8,20 @@ from typing import Dict, List, Optional
 
 from dataclasses_json import config, dataclass_json
 
-__all__ = ['Bounce', 'Complaint', 'Delivery', 'DeliveryDelay', 'Processor', 'SesEvent']
+__all__ = [
+    'Bounce',
+    'Complaint',
+    'Delivery',
+    'DeliveryDelay',
+    'SesEvent',
+    'SesProcessorAbc',
+]
 
 
 @dataclass_json
 @dataclass
 class MailHeaders:
-    """ Mail Headers have name/value pairs """
+    """Mail Headers have name/value pairs."""
 
     name: str
     value: str
@@ -20,45 +30,39 @@ class MailHeaders:
 @dataclass_json
 @dataclass
 class CommonMailHeaders:
-    """ Json Object for Common Mail Headers """
+    """Json object for common mail headers."""
 
     from_address: List[str] = field(metadata=config(field_name="from"))
     to_address: List[str] = field(metadata=config(field_name="to"))
     subject: str
-    message_id: str = field(metadata=config(field_name="messageId"))
+    messageid: str = field(metadata=config(field_name="messageId"))
 
 
 @dataclass_json
 @dataclass
 class Mail:
     """
-    The JSON object that contains information about a mail object
+    The JSON object that contains information about a mail object.
 
-    timestamp:  The date and time, in ISO8601 format
-
-    messageId:  A unique ID that Amazon SES assigned to the message.
-
-    source:     The email address that the message was sent from
-
-    sourceArn: The Amazon Resource Name (ARN) of the identity that was used
-
-    sendingAccountId: The AWS account ID of the account
-
-    destination: A list of email addresses that were recipients of the original mail.
-
-    headersTruncated: Are headers Truncated?
-
-    headers: A list of the email's original headers.
-
-    commonHeaders: A list of the email's original, commonly used headers.
+    * timestamp: The date and time, in ISO8601 format
+    * messageid: A unique ID that Amazon SES assigned to the message.
+    * source: The email address that the message was sent from
+    * source_arn: The Amazon Resource Name (ARN) of the identity that was used
+    * sending_accountid: The AWS account ID of the account
+    * destination: A list of email addresses that were recipients of the original mail
+    * headers_truncated: Are headers truncated?
+    * headers: A list of the email's original headers.
+    * common_headers: A list of the email's original, commonly used headers.
+    * tags: ?
     """
 
     timestamp: str
-    message_id: str = field(metadata=config(field_name="messageId"))
+    messageid: str = field(metadata=config(field_name="messageId"))
     source: str
     source_arn: str = field(metadata=config(field_name="sourceArn"))
-    sending_account_id: str = field(metadata=config(field_name="sendingAccountId"))
+    sending_accountid: str = field(metadata=config(field_name="sendingAccountId"))
     destination: List[str]
+    headers_truncated: bool = field(metadata=config(field_name="headersTruncated"))
     headers: List[MailHeaders]
     common_headers: CommonMailHeaders = field(
         metadata=config(field_name="commonHeaders")
@@ -68,21 +72,17 @@ class Mail:
 
 @dataclass_json
 @dataclass
-class BouncedRecipients:
+class IndividualRecipient:
     """
-    Recipients for whom the Email bounced.
+    Individual recipient for whom the email message bounced.
 
-        emailAddress(str):      Email Address
-
-        action(str):            Action (Mostly "failed")
-
-        status(str):            Numeric Status in String format.
-
-        diagnosticCode(str):    SMTP Diagnostic Code
-
+    * email: Email Address
+    * action: Action (mostly "failed")
+    * status: Numeric status in string format
+    * diagnostic_code: SMTP diagnostic code
     """
 
-    email_address: str = field(metadata=config(field_name="emailAddress"))
+    email: str = field(metadata=config(field_name="emailAddress"))
     action: Optional[str] = None
     status: Optional[str] = None
     diagnostic_code: Optional[str] = field(
@@ -96,33 +96,28 @@ class Bounce:
     """
     The JSON object that contains information about a Bounce event.
 
-        bounceType: The type of bounce
-
-        bounceSubType: The subtype of the bounce
-
-        bouncedRecipients: List of Recipients for whom the Email Bounced
-
-        timestamp: The date and time, in ISO8601 format
-
-        feedbackId(str): A unique ID for the bounce.
-
-        reportingMTA(str): The value of the Reporting-MTA field from the DSN.
-                           This is the value of the Message Transfer Authority (MTA)
-                           that attempted to perform the delivery, relay, or
-                           gateway operation described in the DSN.
+    * bounce_type: The type of bounce
+    * bounce_sub_type: The subtype of the bounce
+    * bounced_recipients: List of recipients for whom the email bounced
+    * timestamp: The date and time, in ISO8601 format
+    * feedbackid: A unique ID for the bounce
+    * reporting_mta: The value of the Reporting-MTA field from the DSN. This is the
+        value of the Message Transfer Authority (MTA) that attempted to perform the
+        delivery, relay, or gateway operation described in the DSN.
     """
 
     bounce_type: str = field(metadata=config(field_name="bounceType"))
     bounce_sub_type: str = field(metadata=config(field_name="bounceSubType"))
-    bounced_recipients: List[BouncedRecipients] = field(
+    bounced_recipients: List[IndividualRecipient] = field(
         metadata=config(field_name="bouncedRecipients")
     )
     timestamp: str
-    feedback_id: str = field(metadata=config(field_name="feedbackId"))
+    feedbackid: str = field(metadata=config(field_name="feedbackId"))
     reporting_mta: Optional[str] = field(
         metadata=config(field_name="reportingMTA"), default=None
     )
 
+    @property
     def is_hard_bounce(self) -> bool:
         """
         Check if Bounce message is a hard bounce.
@@ -137,42 +132,31 @@ class Bounce:
 @dataclass
 class Complaint:
     """
-    The JSON object that contains information about a Complaint event
+    The JSON object that contains information about a Complaint event.
 
-        complainedRecipients: Recipients that may have submitted the complaint.
+    * complained_recipients: Recipients that may have submitted the complaint
+    * timestamp: The date and time, in ISO8601 format
+    * feedbackid: A unique ID for the complaint
+    * complaint_sub_type: The subtype of the complaint
+    * user_agent: userAgent
+    * complaint_feedback_type: This contains the type of feedback
+    * arrival_date: The value of the Arrival-Date or Received-Date field
 
-        timestamp: The date and time, in ISO8601 format
+    complaint_feedback_type will have one of the following:
 
-        feedbackId: A unique ID for the complaint.
-
-        complaintSubType: The subtype of the complaint
-
-        userAgent: userAgent
-
-        complaintFeedbackType: This contains the type of feedback.
-
-        arrivalDate: The value of the Arrival-Date or Received-Date field
-
-    complaintFeedbackType will have one of the following:
-
-        abuse:          Indicates unsolicited email
-
-        auth-failure:   Email authentication failure report.
-
-        fraud:          Indicates some kind of fraud or phishing activity.
-
-        not-spam:       Not a Spam
-
-        other:          Others not belonging to any category
-
-        virus:          A virus is found in the originating message.
+    * 'abuse': Indicates unsolicited email
+    * 'auth-failure': Email authentication failure report
+    * 'fraud': Indicates some kind of fraud or phishing activity
+    * 'not-spam': Not a spam message
+    * 'other': Others not belonging to any category
+    * 'virus': A virus is found in the originating message
     """
 
-    complained_recipients: List[BouncedRecipients] = field(
+    complained_recipients: List[IndividualRecipient] = field(
         metadata=config(field_name="complainedRecipients")
     )
     timestamp: str
-    feedback_id: str = field(metadata=config(field_name="feedbackId"))
+    feedbackid: str = field(metadata=config(field_name="feedbackId"))
     complaint_sub_type: Optional[str] = field(
         metadata=config(field_name="complaintSubType"), default=None
     )
@@ -191,17 +175,13 @@ class Complaint:
 @dataclass
 class Delivery:
     """
-    The JSON object that contains information about a Delivery event
+    The JSON object that contains information about a Delivery event.
 
-        timestamp:            The date and time.
-
-        processingTimeMillis: Time to process and send the Message.
-
-        recipients:           A list of intended recipients.
-
-        smtpResponse:         The SMTP response.
-
-        reportingMTA:         Host name of the Amazon SES mail server.
+    * timestamp: The date and time
+    * processing_time: Time to process and send the message, in milliseconds
+    * recipients: A list of intended recipients
+    * smtp_response: The SMTP response
+    * reporting_mta: Host name of the Amazon SES mail server
     """
 
     timestamp: str
@@ -211,20 +191,22 @@ class Delivery:
     reporting_mta: str = field(metadata=config(field_name="reportingMTA"))
 
 
+@dataclass_json
+@dataclass
 class Send:
-    """ The JSON object that contains information about a send event. """
+    """The JSON object that contains information about a send event."""
+
+    # TODO
 
 
 @dataclass_json
 @dataclass
 class Reject:
     """
-    The JSON object that contains information about a Reject event
+    The JSON object that contains information about a Reject event.
 
-        reason: The reason the email was rejected. The only possible value
-                is Bad content, which means that Amazon SES detected that the
-                email contained a virus
-
+    * reason: The reason the email was rejected. The only possible value is Bad content,
+        which means that Amazon SES detected that the email contained a virus
     """
 
     reason: str
@@ -234,13 +216,11 @@ class Reject:
 @dataclass
 class Open:
     """
-    The JSON object that contains information about a Open event
+    The JSON object that contains information about a Open event.
 
-        ipAddress:       The recipient's IP address.
-
-        timestamp:       The date and time when the open event occurred
-
-        userAgent:       The user agent of the device or email client
+    * ip_address: The recipient's IP address
+    * timestamp: The date and time when the open event occurred (string)
+    * user_agent: The user agent of the device or email client
     """
 
     ip_address: str = field(metadata=config(field_name="ipAddress"))
@@ -252,17 +232,13 @@ class Open:
 @dataclass
 class Click:
     """
-    The JSON object that contains information about a Click event
+    The JSON object that contains information about a Click event.
 
-    ipAddress:        The recipient's IP address.
-
-    timestamp:        The date and time when the click event occurred
-
-    userAgent:        The user agent of the client that the recipient
-
-    link:             The URL of the link that the recipient clicked.
-
-    linkTags:         A list of tags that were added to the link.
+    * ip_address: The recipient's IP address.
+    * timestamp: The date and time when the click event occurred
+    * user_agent: The user agent of the client that the recipient
+    * link: The URL of the link that the recipient clicked
+    * link_tags: A list of tags that were added to the link
     """
 
     ip_address: str = field(metadata=config(field_name="ipAddress"))
@@ -278,11 +254,10 @@ class Click:
 @dataclass
 class RenderFailure:
     """
-    The JSON object that contains information about Rendering Failure event
+    The JSON object that contains information about Rendering Failure event.
 
-    templateName:  The name of the template used to send the email.
-
-    errorMessage:  More information about the rendering failure.
+    * template_name: The name of the template used to send the email
+    * error_message: More information about the rendering failure
     """
 
     template_name: str = field(metadata=config(field_name="templateName"))
@@ -295,34 +270,25 @@ class DeliveryDelay:
     """
     The JSON object that contains information about a DeliveryDelay event.
 
-    delayedRecipients:  Information about the recipient of the email.
-
-    expirationTime:     When Amazon SES will stop trying to deliver the message.
-
-    reportingMTA:       The IP address of the Message Transfer Agent (MTA)
-
-    timestamp:          The date and time when the delay occurred
-
-    delayType:          The type of delay. Possible values are:
-
-     InternalFailure – An internal Amazon SES issue caused the message to be delayed.
-
-     General – A generic failure occurred during the SMTP conversation.
-
-     MailboxFull – The recipient's mailbox is full.
-
-     SpamDetected – The recipient's mail server has detected a large amount of SPAM.
-
-     RecipientServerError – A temporary issue with the recipient's email server.
-
-     IPFailure – IP address that's sending the message is being blocked or throttled.
-
-     TransientCommunicationGeneral – Temporary communication failure.
-
-     Undetermined – Amazon SES wasn't able to determine the reason.
+    * delayed_recipients: Information about the recipient of the email
+    * expiration_time: When Amazon SES will stop trying to deliver the message
+    * reporting_mta: The IP address of the Message Transfer Agent (MTA)
+    * timestamp: The date and time when the delay occurred (string)
+    * delay_type: The type of delay. Possible values are:
+        * 'InternalFailure': An internal Amazon SES issue caused the message to be
+            delayed
+        * 'General': A generic failure occurred during the SMTP conversation
+        * 'MailboxFull': The recipient's mailbox is full
+        * 'SpamDetected': The recipient's mail server has detected a large amount of
+            SPAM
+        * 'RecipientServerError': A temporary issue with the recipient's email server
+        * 'IPFailure': IP address that's sending the message is being blocked or
+            throttled
+        * 'TransientCommunicationGeneral': Temporary communication failure
+        * 'Undetermined': Amazon SES wasn't able to determine the reason
     """
 
-    delayed_recipients: List[BouncedRecipients] = field(
+    delayed_recipients: List[IndividualRecipient] = field(
         metadata=config(field_name="delayedRecipients")
     )
     expiration_time: str = field(metadata=config(field_name="expirationTime"))
@@ -332,9 +298,7 @@ class DeliveryDelay:
 
 
 class SesEvents(Enum):
-    """
-    Types of SesEvents
-    """
+    """Types of SesEvents."""
 
     DELIVERY = "Delivery"
     SEND = "Send"
@@ -351,29 +315,28 @@ class SesEvents(Enum):
 @dataclass
 class SesEvent:
     """
-    SES Event object JSON which contains the following:
-    eventType: Possible values: Delivery, Send, Reject, Open, Click, Bounce,
-                                Complaint, Rendering Failure, or DeliveryDelay.
+    SES Event object JSON which contains the following.
 
-    mail :     A JSON object that contains information about the email
-
-    bounce:    This field is only present if eventType is Bounce.
-
-    complaint: This field is only present if eventType is Complaint.
-
-    delivery:  This field is only present if eventType is Delivery.
-
-    send:      This field is only present if eventType is Send.
-
-    reject:    This field is only present if eventType is Reject.
-
-    open:      This field is only present if eventType is Open.
-
-    click:     This field is only present if eventType is Click.
-
-    failure:   This field is only present if eventType is Rendering Failure.
-
-    deliveryDelay:  This field is only present if eventType is DeliveryDelay.
+    * event_type: Possible values:
+        * 'Delivery',
+        * 'Send'
+        * 'Reject'
+        * 'Open'
+        * 'Click'
+        * 'Bounce'
+        * 'Complaint'
+        * 'Rendering Failure'
+        * 'DeliveryDelay'
+    * mail: A JSON object that contains information about the email
+    * bounce: This field is only present if event_type is Bounce
+    * complaint: This field is only present if event_type is Complaint
+    * delivery: This field is only present if event_type is Delivery.
+    * send: This field is only present if event_type is Send
+    * reject: This field is only present if event_type is Reject
+    * open: This field is only present if event_type is Open
+    * click: This field is only present if event_type is Click
+    * failure: This field is only present if eventType is Rendering Failure
+    * delivery_delay: This field is only present if event_type is DeliveryDelay
     """
 
     event_type: str = field(metadata=config(field_name="eventType"))
@@ -391,7 +354,7 @@ class SesEvent:
     )
 
 
-class Processor(ABC):
+class SesProcessorAbc(ABC):
     """
     Abstract Base class for Message Processor.
     """

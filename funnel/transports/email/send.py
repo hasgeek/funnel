@@ -12,7 +12,7 @@ from premailer import transform
 
 from ... import app, mail
 from ...models import EmailAddress, EmailAddressBlockedError, User
-from .base import TransportRecipientError
+from ..base import TransportRecipientError
 
 __all__ = [
     'EmailAttachment',
