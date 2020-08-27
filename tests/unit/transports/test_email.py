@@ -1,30 +1,41 @@
+from flask_mailman.message import sanitize_address
+
 from funnel.transports.email import process_recipient
 
 
 def test_process_recipient():
+    """
+    Process recipient produces output that Flask-Mailman's sanitize_address won't raise
+    ValueError on.
+    """
     # if the `realname` portion has no special character, `realname` output is not quoted
-    assert (
-        process_recipient(
-            (
-                "Neque porro quisquam est qui dolorem ipsum quia dolor sit amets consectetur",
-                "example@example.com",
-            )
+    assert bool(
+        sanitize_address(
+            process_recipient(
+                (
+                    "Neque porro quisquam est qui dolorem ipsum quia dolor sit amets consectetur",
+                    "example@example.com",
+                )
+            ),
+            'utf-8',
         )
-        == 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amets co <example@example.com>'
     )
     # `realname` output is quoted and `realname` is truncated accordingly
-    assert (
-        process_recipient(
-            (
-                "Neque porro quisquam est qui dolorem ipsum (quia dolor sit amets consectetur",
-                "example@example.com",
-            )
+    assert bool(
+        sanitize_address(
+            process_recipient(
+                (
+                    "Neque porro quisquam est qui dolorem ipsum (quia dolor sit amets consectetur",
+                    "example@example.com",
+                )
+            ),
+            'utf-8',
         )
-        == '"Neque porro quisquam est qui dolorem ipsum (quia dolor sit amets" <example@example.com>'
     )
     # some regular cases
-    assert (
-        process_recipient(("Neque porro quisquam", "example@example.com",))
-        == 'Neque porro quisquam <example@example.com>'
+    assert bool(
+        sanitize_address(
+            process_recipient(("Neque porro quisquam", "example@example.com",)), 'utf-8'
+        )
     )
     assert process_recipient(("", "example@example.com",)) == 'example@example.com'
