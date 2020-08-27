@@ -60,7 +60,7 @@ def jsonld_confirm_action(description, url, title):
 
 def process_recipient(recipient):
     if isinstance(recipient, User):
-        formatted = formataddr(recipient.fullname, str(recipient.email))
+        formatted = formataddr((recipient.fullname, str(recipient.email)))
     elif isinstance(recipient, tuple):
         formatted = formataddr(recipient)
     elif isinstance(recipient, str):
