@@ -18,6 +18,7 @@ __all__ = [
     'EmailAttachment',
     'jsonld_confirm_action',
     'jsonld_view_action',
+    'process_recipient',
     'send_email',
 ]
 
