@@ -5,6 +5,8 @@ from typing import Dict, List, Optional
 
 from dataclasses_json import config, dataclass_json
 
+__all__ = ['Bounce', 'Complaint', 'Delivery', 'DeliveryDelay', 'Processor', 'SesEvent']
+
 
 @dataclass_json
 @dataclass

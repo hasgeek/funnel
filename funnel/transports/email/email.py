@@ -9,8 +9,8 @@ from flask_mailman import EmailMultiAlternatives
 from html2text import html2text
 from premailer import transform
 
-from .. import app, mail
-from ..models import EmailAddress, User
+from ... import app, mail
+from ...models import EmailAddress, User
 
 __all__ = [
     'EmailAttachment',

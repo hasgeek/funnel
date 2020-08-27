@@ -5,7 +5,8 @@ from flask import jsonify, make_response, request
 import requests
 
 from .. import app
-from ..extapi import (
+from ..models import EmailAddress
+from ..transports.email.aws_ses import (
     Bounce,
     Complaint,
     Delivery,
@@ -16,7 +17,6 @@ from ..extapi import (
     Validator,
     ValidatorException,
 )
-from ..models import EmailAddress
 
 
 class SesProcessor(Processor):
