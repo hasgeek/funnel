@@ -1,10 +1,11 @@
 """Support functions for sending an email."""
 
-from email.utils import formataddr, getaddresses
+from email.utils import formataddr, getaddresses, parseaddr
 from typing import NamedTuple
 
 from flask import current_app, request
 from flask_mailman import EmailMultiAlternatives
+from flask_mailman.message import sanitize_address
 
 from html2text import html2text
 from premailer import transform
@@ -55,6 +56,37 @@ def jsonld_confirm_action(description, url, title):
     }
 
 
+def sanitize_emailaddr(recipient):
+    formatted = None
+    if isinstance(recipient, User):
+        formatted = formataddr(recipient.fullname, str(recipient.email))
+    elif isinstance(recipient, tuple):
+        formatted = formataddr(recipient)
+    elif isinstance(recipient, str):
+        formatted = recipient
+    else:
+        raise ValueError(
+            "Not a valid email format. Provide either a User object, or"
+            " a tuple of (realname, email) or"
+            " a preformatted string e.g. '<\"Name\" email>'"
+        )
+
+    realname, email_address = parseaddr(formatted)
+    if not email_address:
+        raise ValueError('No email address to sanitize')
+
+    try:
+        # try to sanitize the address to check
+        sanitize_address((realname, email_address), 'utf-8')
+    except ValueError:
+        # `realname` is too long, call this function again but
+        # truncate realname by 1 character
+        return sanitize_emailaddr((realname[:-1], email_address))
+
+    # `realname` and `addr` are valid, return formatted string
+    return formataddr((realname, email_address))
+
+
 def send_email(subject, to, content, attachments=None):
     """
     Helper function to send an email.
@@ -66,16 +98,8 @@ def send_email(subject, to, content, attachments=None):
     :param list attachments: List of :class:`EmailAttachment` attachments
     """
     # Parse recipients and convert as needed
-    to = [
-        # Is the recipient a User object? Send to "{user.fullname} <{user.email}>"
-        formataddr((recipient.fullname, str(recipient.email)))
-        if isinstance(recipient, User)
-        # Is the recipient (name, email)? Reformat to "{name} <{email}>"
-        else formataddr(recipient) if isinstance(recipient, tuple)
-        # Neither? Pass it in as is
-        else recipient
-        for recipient in to
-    ]
+    to = [sanitize_emailaddr(recipient) for recipient in to]
+
     body = html2text(content)
     html = transform(content, base_url=f'https://{app.config["DEFAULT_DOMAIN"]}/')
     msg = EmailMultiAlternatives(

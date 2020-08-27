@@ -15,6 +15,7 @@ from funnel.models.email_address import (
     email_normalized,
 )
 from funnel.signals import emailaddress_refcount_dropping
+from funnel.transports.email import sanitize_emailaddr
 
 # Fixture used across tests.
 hash_map = {
@@ -36,6 +37,35 @@ def refcount_data():
     emailaddress_refcount_dropping.connect(refcount_signal_receiver)
     yield refcount_signal_fired
     emailaddress_refcount_dropping.disconnect(refcount_signal_receiver)
+
+
+def test_sanitize_emailaddr():
+    # if the `realname` portion has no special character, `realname` output is not quoted
+    assert (
+        sanitize_emailaddr(
+            (
+                "Neque porro quisquam est qui dolorem ipsum quia dolor sit amets consectetur",
+                "example@example.com",
+            )
+        )
+        == 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amets co <example@example.com>'
+    )
+    # `realname` output is quoted and `realname` is truncated accordingly
+    assert (
+        sanitize_emailaddr(
+            (
+                "Neque porro quisquam est qui dolorem ipsum (quia dolor sit amets consectetur",
+                "example@example.com",
+            )
+        )
+        == '"Neque porro quisquam est qui dolorem ipsum (quia dolor sit amets" <example@example.com>'
+    )
+    # some regular cases
+    assert (
+        sanitize_emailaddr(("Neque porro quisquam", "example@example.com",))
+        == 'Neque porro quisquam <example@example.com>'
+    )
+    assert sanitize_emailaddr(("", "example@example.com",)) == 'example@example.com'
 
 
 def test_email_normalized():
