@@ -41,7 +41,7 @@ class RegistrationConfirmationNotification(ProjectIsParent, Notification):
     __mapper_args__ = {'polymorphic_identity': 'rsvp_yes'}
     category = NOTIFICATION_CATEGORY.PARTICIPANT
     title = __("When I register for a project")
-    description = __("This will prompt a calendar entry in Gmail and other apps.")
+    description = __("This will prompt a calendar entry in Gmail and other apps")
 
     document_model = Rsvp
     exclude_actor = False
