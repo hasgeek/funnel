@@ -15,7 +15,7 @@ class TestClientCredential(TestDatabaseFixture):
         Test for ClientCredential model's new()
         """
         auth_client = self.fixtures.auth_client
-        cred, secret = models.AuthClientCredential.new(auth_client)
+        cred, _secret = models.AuthClientCredential.new(auth_client)
         assert cred.auth_client == auth_client
         assert isinstance(cred, models.AuthClientCredential)
         client_secret = cred.secret_hash
@@ -26,7 +26,7 @@ class TestClientCredential(TestDatabaseFixture):
         Test for ClientCredential model's get()
         """
         auth_client = self.fixtures.auth_client
-        cred, secret = models.AuthClientCredential.new(auth_client)
+        cred, _secret = models.AuthClientCredential.new(auth_client)
         name = cred.name
         get_credentials = models.AuthClientCredential.get(name)
         assert isinstance(get_credentials, models.AuthClientCredential)

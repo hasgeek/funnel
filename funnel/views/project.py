@@ -12,7 +12,7 @@ from flask import (
     request,
 )
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
@@ -30,7 +30,6 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import (
     CfpForm,
-    CommentDeleteForm,
     CommentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
@@ -49,16 +48,17 @@ from ..models import (
     Profile,
     Project,
     Proposal,
+    RegistrationCancellationNotification,
+    RegistrationConfirmationNotification,
     Rsvp,
     SavedProject,
-    Voteset,
     db,
 )
-from ..signals import user_cancelled_project_registration, user_registered_for_project
 from .decorators import legacy_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
+from .notification import dispatch_notification
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
 
@@ -578,8 +578,8 @@ class ProjectView(
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
-                user_registered_for_project.send(
-                    rsvp, project=self.obj, user=current_auth.user
+                dispatch_notification(
+                    RegistrationConfirmationNotification(document=rsvp)
                 )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
@@ -595,8 +595,8 @@ class ProjectView(
                 rsvp.rsvp_no()
                 db.session.commit()
                 flash(_("Your registration has been cancelled"), 'info')
-                user_cancelled_project_registration.send(
-                    rsvp, project=self.obj, user=current_auth.user
+                dispatch_notification(
+                    RegistrationCancellationNotification(document=rsvp)
                 )
         else:
             flash(
@@ -751,28 +751,23 @@ class ProjectView(
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2')
+    @render_with('project_comments.html.jinja2', json=True)
     @requires_roles({'reader'})
     def comments(self):
-        project_save_form = SavedProjectForm()
-        comments = (
-            Comment.query.join(Voteset)
-            .filter(
-                Comment.commentset == self.obj.commentset, Comment.parent_id.is_(None)
-            )
-            .order_by(Voteset.count, Comment.created_at.asc())
-            .all()
-        )
-        commentform = CommentForm(model=Comment)
-        delcommentform = CommentDeleteForm()
-        return {
-            'project': self.obj,
-            'project_save_form': project_save_form,
-            'comments': comments,
-            'commentform': commentform,
-            'delcommentform': delcommentform,
-            'csrf_form': forms.Form(),
-        }
+        comments = self.obj.commentset.views.json_comments()
+        if request_is_xhr():
+            return {'comments': comments}
+        else:
+            project_save_form = SavedProjectForm()
+            commentform = CommentForm(model=Comment)
+            return {
+                'project': self.obj,
+                'project_save_form': project_save_form,
+                'comments': comments,
+                'commentform': commentform,
+                'delcommentform': forms.Form(),
+                'csrf_form': forms.Form(),
+            }
 
     @route('toggle_featured', methods=['POST'])
     def toggle_featured(self):

@@ -253,6 +253,25 @@ export const Utils = {
       }
     }
   },
+  updateNotificationStatus() {
+    $.ajax({
+      type: 'GET',
+      url: window.Hasgeek.config.notificationCount,
+      dataType: 'json',
+      timeout: window.Hasgeek.config.ajaxTimeout,
+      success: function (responseData) {
+        if (responseData.unread) {
+          $('.header__nav-links--updates').addClass(
+            'header__nav-links--updates--unread'
+          );
+        } else {
+          $('.header__nav-links--updates').removeClass(
+            'header__nav-links--updates--unread'
+          );
+        }
+      },
+    });
+  },
 };
 
 export const ScrollActiveMenu = {

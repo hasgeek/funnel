@@ -5,6 +5,17 @@
 *.pyc
 *.sql
 *.wpr
+.coverage
+.DS_Store
+.mypy_cache
+.project
+.pydevproject
+.pytest_cache
+.ropeproject
+.sass-cache
+.settings
+.vscode
+.webassets-cache
 baseframe-packed.*
 console.py
 

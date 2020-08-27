@@ -1,4 +1,4 @@
-from flask import flash, g, redirect
+from flask import abort, flash, g, redirect
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -14,10 +14,11 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import ProjectPostForm, SavedProjectForm
-from ..models import Post, Profile, Project, db
+from ..forms import SavedProjectForm, UpdateForm
+from ..models import NewUpdateNotification, Profile, Project, Update, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
+from .notification import dispatch_notification
 from .project import ProjectViewMixin
 
 
@@ -27,12 +28,24 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET'])
-    @render_with('project_updates.html.jinja2', json=True)
+    @render_with('updates.html.jinja2', json=True)
     @requires_roles({'reader'})
     def updates(self):
         project_save_form = SavedProjectForm()
         return {
-            'project': self.obj.current_access(),
+            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'draft_updates': (
+                [
+                    update.current_access(datasets=('primary', 'related'))
+                    for update in self.obj.draft_updates
+                ]
+                if self.obj.features.post_update()
+                else []
+            ),
+            'published_updates': [
+                update.current_access(datasets=('primary', 'related'))
+                for update in self.obj.published_updates
+            ],
             'new_update': self.obj.url_for('new_update'),
             'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
@@ -42,18 +55,18 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     @requires_login
     @requires_roles({'editor'})
     def new_update(self):
-        post_form = ProjectPostForm()
+        form = UpdateForm()
 
-        if post_form.validate_on_submit():
-            post = Post(user=current_auth.user, project=self.obj)
-            post_form.populate_obj(post)
-            post.name = make_name(post.title)
-            db.session.add(post)
+        if form.validate_on_submit():
+            update = Update(user=current_auth.user, project=self.obj)
+            form.populate_obj(update)
+            update.name = make_name(update.title)
+            db.session.add(update)
             db.session.commit()
-            return redirect(post.url_for('project_view'), code=303)
+            return redirect(update.url_for(), code=303)
 
         return render_form(
-            form=post_form,
+            form=form,
             title=_("Post an update"),
             submit=_("Save & preview"),
             cancel_url=self.obj.url_for('updates'),
@@ -69,52 +82,56 @@ ProjectUpdatesView.init_app(app)
 FunnelProjectUpdatesView.init_app(funnelapp)
 
 
-@Post.features('publish')
-def post_publishable(obj):
+@Update.features('publish')
+def update_publishable(obj):
     return obj.state.DRAFT and 'editor' in obj.roles_for(current_auth.user)
 
 
-@Post.views('project')
-@route('/<profile>/<project>/updates/<post>')
-class ProjectPostView(UrlChangeCheck, UrlForView, ModelView):
+@Update.views('project')
+@route('/<profile>/<project>/updates/<update>')
+class UpdateView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
-    model = Post
+    model = Update
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'post': 'url_name_uuid_b58',
+        'update': 'url_name_uuid_b58',
     }
 
-    def loader(self, profile, project, post):
-        post = (
+    def loader(self, profile, project, update):
+        obj = (
             self.model.query.join(Project)
             .join(Profile, Project.profile_id == Profile.id)
-            .filter(Post.url_name_uuid_b58 == post)
+            .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
 
-        g.profile = post.project.profile
-        return post
+        g.profile = obj.project.profile
+        return obj
 
     @route('', methods=['GET'])
-    @render_with('project_update_details.html.jinja2')
-    def project_view(self):
+    @render_with('update_details.html.jinja2')
+    def view(self):
+        if not self.obj.current_roles.reader and self.obj.state.WITHDRAWN:
+            abort(410)
         return {
-            'post': self.obj.current_access(),
+            'update': self.obj.current_access(datasets=('primary', 'related')),
             'publish_form': forms.Form(),
             'project': self.obj.project.current_access(),
         }
 
     @route('publish', methods=['POST'])
     @requires_roles({'editor'})
-    def project_publish(self):
+    def publish(self):
         if not self.obj.state.DRAFT:
-            return redirect(self.obj.url_for('project_view'))
+            return redirect(self.obj.url_for())
         form = forms.Form()
         if form.validate_on_submit():
-            self.obj.publish(actor=current_auth.user)
+            first_publishing = self.obj.publish(actor=current_auth.user)
             db.session.commit()
             flash(_("The update has been published"), 'success')
+            if first_publishing:
+                dispatch_notification(NewUpdateNotification(document=self.obj))
         else:
             flash(
                 _(
@@ -128,35 +145,35 @@ class ProjectPostView(UrlChangeCheck, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
     @requires_roles({'editor'})
-    def project_edit(self):
-        post_form = ProjectPostForm(obj=self.obj)
-        if post_form.validate_on_submit():
-            post_form.populate_obj(self.obj)
+    def edit(self):
+        form = UpdateForm(obj=self.obj)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
             db.session.commit()
             flash(_("The update has been edited"), 'success')
-            return redirect(self.obj.url_for('project_view'), code=303)
+            return redirect(self.obj.url_for(), code=303)
 
         return render_form(
-            form=post_form,
+            form=form,
             title=_("Edit update"),
             submit=_("Save"),
-            cancel_url=self.obj.url_for('project_view'),
+            cancel_url=self.obj.url_for(),
         )
 
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
     @requires_roles({'editor'})
-    def project_delete(self):
-        delete_form = forms.Form()
+    def delete(self):
+        form = forms.Form()
 
-        if delete_form.validate_on_submit():
+        if form.validate_on_submit():
             self.obj.delete(actor=current_auth.user)
             db.session.commit()
             flash(_("The update has been deleted"), 'success')
             return redirect(self.obj.project.url_for('updates'))
 
         return render_form(
-            form=delete_form,
+            form=form,
             title=_("Confirm delete"),
             message=_(
                 "Delete this draft update? This operation is permanent and cannot be"
@@ -168,14 +185,14 @@ class ProjectPostView(UrlChangeCheck, UrlForView, ModelView):
                 " for the next update."
             ).format(number=self.obj.number),
             submit=_("Delete"),
-            cancel_url=self.obj.url_for('project_view'),
+            cancel_url=self.obj.url_for(),
         )
 
 
-@route('/<project>/updates/<post>', subdomain='<profile>')
-class FunnelProjectPostView(ProjectPostView):
+@route('/<project>/updates/<update>', subdomain='<profile>')
+class FunnelUpdateView(UpdateView):
     pass
 
 
-ProjectPostView.init_app(app)
-FunnelProjectPostView.init_app(funnelapp)
+UpdateView.init_app(app)
+FunnelUpdateView.init_app(funnelapp)

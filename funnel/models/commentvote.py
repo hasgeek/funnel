@@ -1,3 +1,5 @@
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from flask import current_app
 
 from baseframe import _, __
@@ -6,7 +8,7 @@ from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger
-from .user import User
+from .user import User, deleted_user, removed_user
 
 __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
 
@@ -31,7 +33,7 @@ class SET_TYPE:  # NOQA: N801
     PROJECT = 0
     PROPOSAL = 2
     COMMENT = 3
-    POST = 4
+    UPDATE = 4
 
 
 # --- Models ------------------------------------------------------------------
@@ -110,6 +112,13 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     settype = db.Column('type', db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
 
+    __roles__ = {'all': {'read': {'settype', 'count'}}}
+
+    __datasets__ = {
+        'primary': {'settype', 'count'},
+        'related': {'uuid_b58', 'url_name_uuid_b58'},
+    }
+
     def __init__(self, **kwargs):
         super(Commentset, self).__init__(**kwargs)
         self.count = 0
@@ -138,21 +147,11 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         return roles
 
 
-@Commentset.views('url')
-def parent_comments_url(obj):
-    url = None  # project or proposal object
-    if obj.project is not None:
-        url = obj.project.url_for('comments', _external=True)
-    elif obj.proposal is not None:
-        url = obj.proposal.url_for(_external=True)
-    return url
-
-
 class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship(
+    _user = db.relationship(
         User,
         primaryjoin=user_id == User.id,
         backref=db.backref('comments', lazy='dynamic', cascade='all'),
@@ -169,7 +168,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'Comment', backref=db.backref('parent', remote_side='Comment.id')
     )
 
-    message = MarkdownColumn('message', nullable=False)
+    _message = MarkdownColumn('message', nullable=False)
 
     _state = db.Column(
         'state',
@@ -194,8 +193,13 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'user',
                 'title',
                 'message',
-            }
-        }
+                'replies',
+                'urls',
+                'badges',
+            },
+            'call': {'state', 'commentset', 'view_for', 'url_for'},
+        },
+        'replied_to_commenter': {'granted_via': {'parent': 'user'}},
     }
 
     __datasets__ = {
@@ -206,7 +210,31 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             'edited_at',
             'absolute_url',
             'title',
-        }
+        },
+        'json': {
+            'created_at',
+            'edited_at',
+            'absolute_url',
+            'title',
+            'message',
+            'user',
+            'replies',
+            'urls',
+            'badges',
+            'uuid_b58',
+        },
+        'related': {
+            'created_at',
+            'edited_at',
+            'absolute_url',
+            'title',
+            'message',
+            'user',
+            'replies',
+            'urls',
+            'badges',
+            'uuid_b58',
+        },
     }
 
     search_vector = db.deferred(
@@ -230,6 +258,50 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
 
     @property
+    def replies(self):
+        return [
+            child.current_access(datasets=('json', 'related'))
+            for child in self.children
+            if child.state.PUBLIC
+        ]
+
+    @hybrid_property
+    def user(self):
+        return (
+            deleted_user
+            if self.state.DELETED
+            else removed_user
+            if self.state.SPAM
+            else self._user
+        )
+
+    @user.setter
+    def user(self, value):
+        self._user = value
+
+    @user.expression
+    def user(cls):  # NOQA: N805
+        return cls._user
+
+    @hybrid_property
+    def message(self):
+        return (
+            _('[deleted]')
+            if self.state.DELETED
+            else _('[removed]')
+            if self.state.SPAM
+            else self._message
+        )
+
+    @message.setter
+    def message(self, value):
+        self._message = value
+
+    @message.expression
+    def message(cls):  # NOQA: N805
+        return cls._message
+
+    @property
     def absolute_url(self):
         if self.commentset.proposal:
             return self.commentset.proposal.absolute_url + '#c' + self.uuid_b58
@@ -250,12 +322,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def badges(self):
         badges = set()
         if self.commentset.project is not None:
-            if 'crew' in self.commentset.project.roles_for(self.user):
+            if 'crew' in self.commentset.project.roles_for(self._user):
                 badges.add(_("Crew"))
         elif self.commentset.proposal is not None:
-            if self.commentset.proposal.user == self.user:
+            if self.commentset.proposal.user == self._user:
                 badges.add(_("Proposer"))
-            if 'crew' in self.commentset.proposal.project.roles_for(self.user):
+            if 'crew' in self.commentset.proposal.project.roles_for(self._user):
                 badges.add(_("Crew"))
         return badges
 
@@ -297,7 +369,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         perms.add('view')
         if user is not None:
             perms.add('vote_comment')
-            if user == self.user:
+            if user == self._user:
                 perms.add('edit_comment')
                 perms.add('delete_comment')
         return perms
@@ -306,7 +378,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         roles = super(Comment, self).roles_for(actor, anchors)
         roles.add('reader')
         if actor is not None:
-            if actor == self.user:
+            if actor == self._user:
                 roles.add('author')
         return roles
 
@@ -314,10 +386,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 add_search_trigger(Comment, 'search_vector')
 
 
-@Comment.views('url')
-def comment_url(obj):
-    url = None
-    commentset_url = obj.commentset.views.url()
-    if commentset_url is not None:
-        url = commentset_url + '#c' + obj.uuid_b58
-    return url
+Commentset.toplevel_comments = db.relationship(
+    Comment,
+    lazy='dynamic',
+    primaryjoin=db.and_(
+        Comment.commentset_id == Commentset.id, Comment.parent_id.is_(None),
+    ),
+    viewonly=True,
+)

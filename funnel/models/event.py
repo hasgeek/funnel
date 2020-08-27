@@ -205,6 +205,25 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             return self.project.permissions(user) | perms
         return perms
 
+    @with_roles(read={'all'})
+    @property
+    def avatar(self):
+        return self.user.avatar if self.user else ''
+
+    @with_roles(read={'all'})
+    @property
+    def has_public_profile(self):
+        return self.user.has_public_profile if self.user else False
+
+    @with_roles(read={'all'})
+    @property
+    def profile_url(self):
+        return (
+            self.user.profile.url_for()
+            if self.user and self.user.has_public_profile
+            else None
+        )
+
     @classmethod
     def get(cls, current_project, current_email):
         return cls.query.filter_by(

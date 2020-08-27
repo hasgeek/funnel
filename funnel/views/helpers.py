@@ -1,9 +1,12 @@
+from base64 import urlsafe_b64encode
 from datetime import datetime
-from urllib.parse import unquote, urljoin, urlparse
+from os import urandom
+from urllib.parse import unquote, urljoin, urlsplit
 
-from flask import abort, current_app, g, request, url_for
+from flask import Response, abort, current_app, g, render_template, request, url_for
 from werkzeug.urls import url_quote
 
+from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
@@ -11,21 +14,31 @@ from pytz import utc
 from baseframe import cache, statsd
 
 from .. import app, funnelapp, lastuserapp
+from ..forms import supported_locales
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
 
 
+# --- Utilities ------------------------------------------------------------------------
+
+
+def metarefresh_redirect(url):
+    return Response(render_template('meta_refresh.html.jinja2', url=url))
+
+
 def app_url_for(
     app, endpoint, _external=True, _method='GET', _anchor=None, _scheme=None, **values
 ):
     """
-    Equivalent of calling :func:`url_for` in another app's context. Notable differences:
+    Equivalent of calling `url_for` in another app's context, with some differences.
 
     - Does not support blueprints as this repo does not use them
     - Does not defer to a :exc:`BuildError` handler. Caller is responsible for handling
-    - However, defers to Flask's url_for if the provided app is also the current app
+    - However, defers to Flask's `url_for` if the provided app is also the current app
+
+    The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
     # 'app' here is the parameter, not the module-level import
     if current_app and current_app._get_current_object() is app:
@@ -54,6 +67,21 @@ def app_url_for(
     return result
 
 
+def mask_email(email):
+    """
+    Masks an email address to obfuscate it while (hopefully) keeping it recognisable.
+
+    >>> mask_email('foobar@example.com')
+    'foo***@example.com'
+    >>> mask_email('not-email')
+    'not-em***'
+    """
+    if '@' not in email:
+        return '{e}***'.format(e=email[:-3])
+    username, domain = email.split('@')
+    return '{u}***@{d}'.format(u=username[:-3], d=domain)
+
+
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
     return localize_timestamp(int(timestamp) / 1000, from_tz, to_tz)
 
@@ -74,62 +102,30 @@ def localize_date(date, from_tz=utc, to_tz=utc):
     return date
 
 
-@app.template_filter('url_join')
-@funnelapp.template_filter('url_join')
-def url_join(base, url=''):
-    return urljoin(base, url)
-
-
-def mask_email(email):
-    """
-    Masks an email address
-
-    >>> mask_email(u'foobar@example.com')
-    u'foo***@example.com'
-    >>> mask_email(u'not-email')
-    u'not-em***'
-    """
-    if '@' not in email:
-        return '{e}***'.format(e=email[:-3])
-    username, domain = email.split('@')
-    return '{u}***@{d}'.format(u=username[:-3], d=domain)
-
-
-@app.after_request
-@funnelapp.after_request
-@lastuserapp.after_request
-def cache_expiry_headers(response):
-    if 'Expires' not in response.headers:
-        response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
-    if 'Cache-Control' in response.headers:
-        if 'private' not in response.headers['Cache-Control']:
-            response.headers['Cache-Control'] = (
-                'private, ' + response.headers['Cache-Control']
-            )
-    else:
-        response.headers['Cache-Control'] = 'private'
-    return response
-
-
-@funnelapp.url_defaults
-def add_profile_parameter(endpoint, values):
-    if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
-        if 'profile' not in values:
-            values['profile'] = g.profile.name if g.profile else None
-
-
 def get_scheme_netloc(uri):
-    parsed_uri = urlparse(uri)
+    parsed_uri = urlsplit(uri)
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
-def autoset_timezone(user):
-    # Set the user's timezone automatically if available
-    if user.timezone is None or user.timezone not in valid_timezones:
+def autoset_timezone_and_locale(user):
+    # Set the user's timezone and locale automatically if required
+    if (
+        user.auto_timezone
+        or user.timezone is None
+        or str(user.timezone) not in valid_timezones
+    ):
         if request.cookies.get('timezone'):
             timezone = unquote(request.cookies.get('timezone'))
             if timezone in valid_timezones:
                 user.timezone = timezone
+    if (
+        user.auto_locale
+        or user.locale is None
+        or str(user.locale) not in supported_locales
+    ):
+        user.locale = (
+            request.accept_languages.best_match(supported_locales.keys()) or 'en'
+        )
 
 
 def validate_rate_limit(
@@ -200,6 +196,89 @@ def validate_rate_limit(
         token,
     )
     cache.set(cache_key, (count, token), timeout=timeout)
+
+
+# Text token length in bytes
+# 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities
+TOKEN_BYTES_LEN = 3
+text_token_prefix = 'temp_token/v1/'
+
+
+def make_cached_token(payload, timeout=24 * 60 * 60, reserved=None):
+    """
+    Make a short text token that caches data with a timeout period.
+
+    :param dict payload: Data to save against the token
+    :param int timeout: Timeout period for token in seconds (default 24 hours)
+    :param set reserved: Reserved words that should not be used as token
+    """
+    while True:
+        token = urlsafe_b64encode(urandom(TOKEN_BYTES_LEN)).decode().rstrip('=')
+        if reserved and token in reserved:
+            continue  # Reserved word, try again
+
+        existing = cache.get(text_token_prefix + token)
+        if existing:
+            continue  # Token in use, try again
+
+        break
+
+    cache.set(text_token_prefix + token, payload, timeout=timeout)
+    return token
+
+
+def retrieve_cached_token(token):
+    return cache.get(text_token_prefix + token)
+
+
+def delete_cached_token(token):
+    return cache.delete(text_token_prefix + token)
+
+
+# --- Filters and URL constructors -----------------------------------------------------
+
+
+@app.template_filter('url_join')
+@funnelapp.template_filter('url_join')
+@lastuserapp.template_filter('url_join')
+def url_join(base, url=''):
+    return urljoin(base, url)
+
+
+@app.template_filter('cleanurl')
+@funnelapp.template_filter('cleanurl')
+@lastuserapp.template_filter('cleanurl')
+def cleanurl_filter(url):
+    if not isinstance(url, furl):
+        url = furl(url)
+    url.path.normalize()
+    return furl().set(netloc=url.netloc, path=url.path).url.lstrip('//').rstrip('/')
+
+
+@funnelapp.url_defaults
+def add_profile_parameter(endpoint, values):
+    if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
+        if 'profile' not in values:
+            values['profile'] = g.profile.name if g.profile else None
+
+
+# --- Request/response handlers --------------------------------------------------------
+
+
+@app.after_request
+@funnelapp.after_request
+@lastuserapp.after_request
+def cache_expiry_headers(response):
+    if 'Expires' not in response.headers:
+        response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
+    if 'Cache-Control' in response.headers:
+        if 'private' not in response.headers['Cache-Control']:
+            response.headers['Cache-Control'] = (
+                'private, ' + response.headers['Cache-Control']
+            )
+    else:
+        response.headers['Cache-Control'] = 'private'
+    return response
 
 
 # If an email address had a reference count drop during the request, make a note of

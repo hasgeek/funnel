@@ -2,8 +2,8 @@
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import project_header, project_mini_header, posts_template %}
-{% block title %}{{post.title}}{% endblock %}
+{%- from "macros.html.jinja2" import project_header, project_mini_header, updates_template %}
+{% block title %}{{update.title}}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
 {% block bodytag %}
@@ -22,10 +22,10 @@
   <div class="mui-container">
     <div class="grid project-section">
       <div class="grid__col-xs-12">
-        {{ posts_template() }}
-        {% if post.features.publish() %}
+        {{ updates_template() }}
+        {% if update.features.publish() %}
           <div class="publish-form">
-            {{ renderform(form=publish_form, submit="Publish update", action=post.url_for('project_publish')) }}
+            {{ renderform(form=publish_form, submit="Publish update", action=update.url_for('publish')) }}
           </div>
         {% endif %}
         </div>
@@ -38,7 +38,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('post')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('update')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var headerHeight;
@@ -48,16 +48,16 @@
         headerHeight = $('header').height() + $('nav').height();
       }
 
-      var postConfig = {
+      var updateConfig = {
         draft: [],
-        posts: {% if post -%}[{{ post|tojson }}]{%- else -%} [] {%- endif %},
-        divElem: "#posts-wrapper",
-        postTemplate: '#post-template',
-        isEditor: {% if project.features.post_update() -%}true{% else %}false{% endif %},
+        updates: {% if update -%}[{{ update|tojson }}]{%- else -%} [] {%- endif %},
+        divElem: "#updates-wrapper",
+        updateTemplate: '#update-template',
+        isEditor: {{ project.features.post_update()|tojson }},
         headerHeight: headerHeight,
       };
 
-      window.Hasgeek.PostsInit(postConfig);
+      window.Hasgeek.UpdatesInit(updateConfig);
     });
   </script>
 {% endblock %}

@@ -1,0 +1,10 @@
+{% extends "notifications/layout_email.html.jinja2" %}
+{% block content -%}
+
+<p>{% trans actor=view.actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
+
+<p>{% trans project=project.title, profile=project.profile.title %}You have cancelled your registration for <b>{{ project }}</b> by <b>{{ profile }}</b>. In this was accidental, you can register again.{% endtrans %}</p>
+
+<p><a class="btn" href="{{ project.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Project page{% endtrans %}</a></p>
+
+{%- endblock %}

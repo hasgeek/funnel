@@ -86,6 +86,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     state = StateManager('_state', PROFILE_STATE, doc="Current state of the profile")
 
     description = MarkdownColumn('description', default='', nullable=False)
+    website = db.Column(UrlType, nullable=True)
     logo_url = db.Column(UrlType, nullable=True)
     banner_image_url = db.Column(UrlType, nullable=True)
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
@@ -131,10 +132,14 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'name',
                 'title',
                 'description',
+                'website',
                 'logo_url',
                 'user',
                 'organization',
                 'banner_image_url',
+                'is_organization_profile',
+                'is_user_profile',
+                'owner',
             },
             'call': {'url_for', 'features', 'forms'},
         }
@@ -148,8 +153,10 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             'title',
             'description',
             'logo_url',
+            'website',
             'user',
             'organization',
+            'owner',
         },
         'related': {'urls', 'uuid_b58', 'name', 'title', 'description', 'logo_url'},
     }
@@ -172,6 +179,27 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             raise ValueError(value)
         self.reserved = False
+
+    @hybrid_property
+    def is_user_profile(self):
+        return self.user_id is not None
+
+    @is_user_profile.expression
+    def is_user_profile(cls):  # NOQA: N805
+        return cls.user_id.isnot(None)
+
+    @hybrid_property
+    def is_organization_profile(self):
+        return self.organization_id is not None
+
+    @is_organization_profile.expression
+    def is_organization_profile(cls):  # NOQA: N805
+        return cls.organization_id.isnot(None)
+
+    @with_roles(read={'all'})
+    @property
+    def is_public(self):
+        return bool(self.state.PUBLIC)
 
     @hybrid_property
     def title(self):

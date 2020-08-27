@@ -64,8 +64,8 @@
 
 {% macro share_dropdown(url, title) %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
-    <li><a class="details__box__control__link mui--text-title" target="_blank" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-action="Tweet video">Twitter</a></li>
-    <li><a class="details__box__control__link mui--text-title" target="_blank" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-action="Share video on facebook">Facebook</a></li>
+    <li><a class="details__box__control__link mui--text-title" target="_blank" rel="noopener" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-action="Tweet video">Twitter</a></li>
+    <li><a class="details__box__control__link mui--text-title" target="_blank" rel="noopener" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-action="Share video on facebook">Facebook</a></li>
     <li><a class="details__box__control__link mui--text-title" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-action="Email video">Email</a></li>
     <li><a class="details__box__control__link mui--text-title" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-action="Share about {{ title }} on linkedin">Linkedin</a></li>
   </ul>
@@ -179,7 +179,7 @@
                 <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
                   <p class="video_txt">
                     {{ faicon(icon='video', icon_size='display1') }}<br>
-                    <a href="{{ stream }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                    <a href="{{ stream }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
                   </p>
                 </div>
               </div>
@@ -195,7 +195,7 @@
               <div class="embed-video-wrapper js-embed-video" data-video-src="{{ project.banner_video_url }}">
                 <p class="video_txt">
                   {{ faicon(icon='video', icon_size='display1') }}<br>
-                  <a href="{{ project.banner_video_url }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                  <a href="{{ project.banner_video_url }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
                 </p>
               </div>
             {%- elif project.bg_image.url %}
@@ -266,7 +266,7 @@
               <a href="{{ project.url_for('rsvp_list') }}" class="mui--d-block mui--text-center" data-cy="see-responses">{% trans %}View participants{% endtrans %}</a>
             {% endif %}
           {% elif project.view_for('edit_schedule').is_available() %}
-            <a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable rsvp{% endtrans %}</a>
+            <a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule to enable registrations{% endtrans %}</a>
           {%- endif %}
           <hr class="mui-divider">
           {% if project.cfp_state.OPEN -%}
@@ -331,12 +331,12 @@
       {%- endif %}
     </nav>
   </div>
-  {% with pinned_post = project.pinned_post %}{%- if pinned_post and pinned %}
+  {% with pinned_update = project.pinned_update %}{%- if pinned_update and pinned %}
   <ul class="mui-list--unstyled pinned  {% if current_page == 'project' %}pinned--about-page{%- endif %}">
     <li>
-      <a href="{{ pinned_post.urls['project_view'] }}" class="pinned__post">
-        <p class="pinned__post__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">Pinned update</span></p>
-        <p class="pinned__post__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_post.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__post__body__text">{%- if not pinned_post.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_post.body.text }}</span>{% else %}<em>This update is for participants only</em>{%- endif %}</span></p>
+      <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
+        <p class="pinned__update__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">{% trans %}Pinned update{% endtrans %}</span></p>
+        <p class="pinned__update__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__update__body__text">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.text }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
       </a>
     </li>
   </ul>
@@ -349,14 +349,14 @@
   {% else %}
     <p class="video_txt">
       {{ faicon(icon='video', icon_size='display1') }}<br>
-      <a href="{{ video.id }}" target="_blank" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+      <a href="{{ video.id }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
     </p>
   {%- endif %}
 {% endmacro %}
 
 {% macro video_action_bar(video, proposal='', session='') %}
   {%- if video.source == 'youtube' -%}
-    <p><a href="https://videoken.com" target="_blank" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
+    <p><a href="https://videoken.com" target="_blank" rel="noopener" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
   {%- endif %}
 
   {%- if proposal and 'edit_proposal' in proposal.permissions(current_auth.user) %}
@@ -381,13 +381,14 @@
 {% macro account_tabs(active_tab='account') %}
   <div class="tabs" id="jquery-scroll-tabs">
     <a {% if active_tab != 'account' %}href="{{ url_for('account') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase  {% if active_tab == 'account' %}tabs__item--active{%- endif %}">{% trans %}Account{% endtrans %}</a>
+    <a {% if active_tab != 'notification_preferences' %}href="{{ url_for('notification_preferences') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'notification_preferences' %}tabs__item--active{%- endif %}">{% trans %}Notifications{% endtrans %}</a>
     <a {% if active_tab != 'saved' %}href="{{ url_for('saved') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'saved' %}tabs__item--active{%- endif %}">{% trans %}My saves{% endtrans %}</a>
     <a {% if active_tab != 'scan' %}href="{{ url_for('scan_contact') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'scan' %}tabs__item--active{%- endif %}">{% trans %}Scan badge{% endtrans %}</a>
     <a {% if active_tab != 'contacts' %}href="{{ url_for('contacts') }}"{%- endif %} class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {% if active_tab == 'contacts' %}tabs__item--active{%- endif %}">{% trans %}Contacts{% endtrans %}</a>
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, project_save_form, include_calendar=true, calendarwidget_compact=true) %}
+{% macro projectcard(project, project_save_form=none, include_calendar=true, calendarwidget_compact=true) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
@@ -657,8 +658,9 @@
     </div>
     <div class="modal__body">
       <ul class="mui-list--aligned mui--text-body2">
-        <li>{% trans %}Will not be visible to anyone other than you{% endtrans %}</li>
-        <li>{% trans %}Cannot host projects{% endtrans %}</li>
+        <li>{% trans %}Your profile will not be visible to anyone other than you{% endtrans %}</li>
+        <li>{% trans %}It will not be listed in search results{% endtrans %}</li>
+        <li>{% trans %}You cannot host projects from this profile{% endtrans %}</li>
         <li>{% trans %}Any existing projects will become inaccessible until the profile is public again{% endtrans %}</li>
       </ul>
       <form action="{{ profile.url_for('transition') }}" method="post">
@@ -706,7 +708,7 @@
           </div>
           <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
             {% if profile.features.new_project()  %}
-              <a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
+              <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
             {% elif profile.features.make_public() %}
               <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
               <div class="modal" id="make-public-modal">
@@ -716,9 +718,9 @@
                 </div>
                 <div class="modal__body">
                   <ul class="mui-list--aligned mui--text-body2">
-                    <li>{% trans %}Will be visible to anyone visiting the page{% endtrans %}</li>
-                    <li>{% trans %}Will be listed in search results{% endtrans %}</li>
-                    <li>{% trans %}Can host projects{% endtrans %}</li>
+                    <li>{% trans %}Your profile will be visible to anyone visiting the page{% endtrans %}</li>
+                    <li>{% trans %}Your profile will be listed in search results{% endtrans %}</li>
+                    {#- <li>{% trans %}You can host projects{% endtrans %}</li> #}
                   </ul>
                   <form action="{{ profile.url_for('transition') }}" method="post">
                     {{ profile.forms.transition().hidden_tag() }}
@@ -738,33 +740,121 @@
   <div class="mui-container profile-details">
     <div class="grid">
       <div class="grid__col-12">
+        <div>
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
           <h2 class="mui--text-headline mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
+        <ul class="bullet-separated-list">
+          <li class="">{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
+          {% if profile.website %}
+            <li><a href="{{ profile.website }}" target="_blank" rel="noopener">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
+          {% endif %}
+        </ul>
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
-          {% if profile.features.new_project()  %}
+          {% if profile.features.new_project() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
           {% elif profile.features.make_public() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
           {% endif %}
           {%- if profile.current_roles.admin %}
-            {{ profile_admin_buttons(profile) }}</p>
+            <div class="mui--d-inlineblock {% if profile.features.new_user_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</p></div>
           {% endif %}
         </div>
+      </div>
       </div>
     </div>
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-action="all-projects" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins" aria-label="{% trans %}View admins{% endtrans %}">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      {% if profile.is_organization_profile %}
+        <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
+        <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-action="manage-profile-admins" data-cy-navbar="admins">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      {% else %}
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for() }}">{% trans %}Sessions{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'projects' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_participated_projects') }}">{% trans %}Projects{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'proposals' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_proposals') }}">{% trans %}Proposals{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      {% endif %}
     </nav>
   </div>
 </div>
 {% endmacro %}
 
+{% macro comments_tree() %}
+  {% raw %}
+    <div id="comments-wrapper" v-cloak>
+      <ul class="mui-list--unstyled" v-for="comment in comments">
+        <comment :comment="comment" :isuserparticipant="isuserparticipant"></comment>
+      </ul>
+      <div class="ajax-form">
+        <component :is="Form"></component>
+        <button class="mui-btn mui-btn--raised mui-btn--accent ajax-form_cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
+        <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+      </div>
+      <p class="mui-panel mui--bg-accent" v-if="isuserloggedin && !isuserparticipant">You need to be a participant to comment.</p>
+      <a class="post-form-block" @click="fetchForm($event, newCommentUrl)" aria-label="Post comment" data-cy="post-comment" v-if="isuserparticipant && !commentForm">
+        <div class="user">
+          <div class="user__box">
+            <useravatar :user='user' :addprofilelink=false></useravatar>
+            <input type="text" placeholder="Post comment…" />
+          </div>
+        </div>
+      </a>
+      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">Login to leave a comment</a>
+    </div>
+    <script type="text/x-template" id="comment-template">
+      <li class="comment">
+        <div :id="'#c-' + comment.uuid_b58">
+          <div class="comment__header">
+            <button class="mui-btn mui-btn--nostyle" aria-label="Hide comment" aria-expanded="true" v-if="!hide" @click="collapse(true)">
+              <faicon :icon="'caret-circle-up'" :icon_size="'subhead'"></faicon>
+            </button>
+            <button class="mui-btn mui-btn--nostyle" aria-expanded="false" aria-label="Collapse comment" v-else @click="collapse(false)">
+              <faicon :icon="'caret-circle-down'" :icon_size="'subhead'"></faicon>
+            </button>
+            <div class="comment__header__details user">
+              <div class="user__box" v-if="!comment.state">
+                <useravatar :user='comment.user' :addprofilelink=true></useravatar>
+                <div class="mui--d-inlineblock">
+                  <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ comment.user.fullname }}</h3>
+                  <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
+                </div>
+                <div class="mui--d-inlineblock">
+                  <span class="commenter" v-if="comment.state && comment.state.DELETED">[deleted]</span>
+                  <span class="commenter" v-if="comment.state && comment.state.SPAM">[removed]</span>
+                  <span class="badge" v-for="badge in comment.badges">{{ badge }}</span>
+                  <span class="mui--text-caption mui--text-accent">{{ created_at_age }}</span>
+                  <span class="mui--text-caption mui--text-accent" v-if="comment.edited_at">(edited {{ edited_at_age }})</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <transition name="slide">
+            <div class="comment__body" v-if="!hide">
+              <div v-if="!comment.state" v-html="comment.message.html"></div>
+              <div>
+                <a class="mui--text-menu mui--text-accent link" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)">[Reply]</a>
+                <a class="mui--text-menu mui--text-accent link" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)">[Report Spam]</a>
+                <a class="mui--text-menu mui--text-accent link" data-cy="edit" v-if="comment.urls.edit" @click="fetchForm($event, comment.urls.edit)" v-if="comment.urls.edit">[Edit]</a>
+                <a class="mui--text-menu mui--text-accent link" data-cy="delete" v-if="comment.urls.delete"  @click="fetchForm($event, comment.urls.delete)">[Delete]</a>
+                <a class="mui--text-menu mui--text-accent comment--permalink" :href="'#c-' + comment.uuid_b58">[Link]</a>
+              </div>
+              <div class="ajax-form ">
+                <component :is="Form"></component>
+                <button class="mui-btn mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
+                <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+              </div>
+              <ul class="mui-list--aligned mui-list--unstyled comment--children" v-for="child_comment in comment.replies">
+                <comment :comment="child_comment" :isuserparticipant="isuserparticipant"></comment>
+              </ul>
+            </div>
+          </transition>
+        </div>
+      </li>
+    </script>
+  {% endraw %}
+{% endmacro %}
 
 {% macro project_mini_header(project) %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
@@ -789,60 +879,64 @@
   </p>
 {% endmacro %}
 
-{% macro posts_template() %}
+{% macro updates_template() %}
   {% raw %}
-    <div id="posts-wrapper" v-cloak>
+    <div id="updates-wrapper" v-cloak>
       <div v-if="isEditor">
         <h2 class="mui--text-headline mui--text-left" v-if="draft">Draft</h2>
-        <ul v-if="draft" class="draft-posts">
-          <li v-for="post in draft"><a :href="post.urls.project_view">{{ post.title }}</a></li>
+        <ul v-if="draft" class="draft-updates">
+          <li v-for="update in draft"><a :href="update.urls.view">{{ update.title }}</a></li>
         </ul>
       </div>
-      <ul class="mui-list--unstyled" v-if="posts.length > 0">
-        <post :post="post" :iseditor="isEditor" v-for="post in posts"></post>
+      <ul class="mui-list--unstyled" v-if="updates.length > 0">
+        <update :update="update" :iseditor="isEditor" v-for="update in updates"></update>
       </ul>
     </div>
 
-    <script type="text/x-template" id="post-template">
-      <li class="post user mui--bg-accent" :id="'#update-' + post.uuid_b58">
+    <script type="text/x-template" id="update-template">
+      <li class="update user" :id="'#update-' + update.uuid_b58">
         <div class="mui--clearfix">
           <div class="mui--pull-left">
-            <p class="mui--text-light mui--text-body2 post__date" v-if="post.number">
-              <a class="mui--text-uppercase mui--text-light" :href="post.urls.project_view">Update #{{ post.number }}</a>
-              <span v-if="age"><span class="interpunct" aria-hidden="true">&#8226;</span><a class="mui--text-light" :href="post.urls.project_view">{{ age }}</a></span>
-              <span v-if="post.visibility_label == 'Restricted'"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg></span>
-              <span v-if="post.is_pinned"><span class="interpunct">&#8226;</span><svg class="fa5-icon fa5-icon--body2 mui--align-middle" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#thumbtack'"></use></svg></span>
-            </p>
+            <ul class="bullet-separated-list mui--text-light mui--text-body2 update__date" v-if="update.number">
+              <li><a class="mui--text-uppercase mui--text-light" :href="update.urls.view">Update #{{ update.number }}</a></li>
+              <li v-if="age"><a class="mui--text-light" :href="update.urls.view">{{ age }}</a></li>
+              <li v-if="update.visibility_label == 'Restricted'">
+                <faicon :icon="'lock-alt'"></faicon>
+              </li>
+              <li v-if="update.is_pinned">
+                <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+              </li>
+            </ul>
           </div>
           <div class="mui--pull-right">
-            <a class="mui--text-menu mui--text-hyperlink right-padding" :href="post.urls.project_view" aria-label="Share this post" v-if="post.visibility_label == 'Public' || iseditor"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#share-square'"></use></svg></a>
+            <a class="mui--text-menu mui--text-hyperlink right-padding" :href="update.urls.view" aria-label="Share this update"><faicon :icon="'share-square'" :icon_size="'subhead'"></faicon></a>
             <div class="mui-dropdown" v-if="iseditor">
-              <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><svg class="fa5-icon fa5-icon--subhead fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#ellipsis-v'"></use></svg></a>
+              <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><faicon :icon="'ellipsis-v'" :icon_size="'subhead'"></faicon></a>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
-                <li><a v-if="post.urls.project_edit" :href="post.urls.project_edit">Edit</a></li>
-                <li><a v-if="post.urls.project_delete" :href="post.urls.project_delete">Delete</a></li>
+                <li><a v-if="update.urls.edit" :href="update.urls.edit">Edit</a></li>
+                <li><a v-if="update.urls.delete" :href="update.urls.delete">Delete</a></li>
               </ul>
             </div>
           </div>
         </div>
-        <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="post.urls.project_view">{{ post.title }}</a></p>
-        <div class="user__box mui--clearfix post__header">
-          <div class="user__box__gravatar user__box__gravatar--initials">{{ getInitials(post.user.fullname) }}</div>
+        <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="update.urls.view">{{ update.title }}</a></p>
+        <div class="user__box mui--clearfix update__header">
+          <useravatar :user='update.user' :addprofilelink=true></useravatar>
           <div class="mui--d-inlineblock">
-            <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ post.user.fullname }}</h3>
-            <h3 v-if="post.user.username" class="mui--text-caption user__box__userid"><span>@{{ post.user.username }}</span></h3>
+            <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ update.user.fullname }}</h3>
+            <h3 v-if="update.user.username" class="mui--text-caption user__box__userid"><span>@{{ update.user.username }}</span></h3>
           </div>
         </div>
-        <div v-if="!post.is_currently_restricted">
-          <div class="post__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(post.body.html, 250)"></div>
-          <div class="post__content mui--text-light fullcontent" v-else v-html="post.body.html"></div>
+        <div v-if="!update.is_currently_restricted">
+          <div class="update__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(update.body.html, 250)"></div>
+          <div class="update__content mui--text-light fullcontent" v-else v-html="update.body.html"></div>
           <p class="mui--text-body2">
-            <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" aria-label="read more"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-down'"></use></svg> Read more</a></p>
-            <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="hide"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#caret-circle-up'"></use></svg> Hide</a>
+            <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" aria-label="read more"><faicon :icon="'caret-circle-down'" :icon_size="'caption'"></faicon> Read more</a></p>
+            <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="hide"><faicon :icon="'caret-circle-up'" :icon_size="'caption'"></faicon> Hide</a>
           </p>
         </div>
         <div v-else>
-          <p class="mui--text-body2 mui--text-light mui--text-center top-padding zero-bottom-margin"><svg class="fa5-icon fa5-icon--caption fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#lock-alt'"></use></svg> <em>This update is for participants only</em></p>
+          <p class="mui--text-body2 mui--text-light mui--text-center top-padding zero-bottom-margin"><faicon :icon="'lock-alt'" :icon_size="'caption'"></faicon> <em>This update is for participants only</em></p>
         </div>
         <hr class="mui--visible-xs-block mui--visible-sm-block">
       </li>
@@ -860,3 +954,184 @@
     </nav>
   </div>
 {% endmacro %}
+
+{% macro video_thumbnail(session) %}
+  <div class="video">
+    <a class="video__thumbnail {%- if not (session.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}"  data-action="view session video">
+      {%- if session.video.thumbnail %}
+        <img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
+        <div class="video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+      {%- elif session.banner_image_url.url %}
+        <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
+      {%- endif %}
+    </a>
+    <p class="mui--text-subhead mui--text-bold video__txt" data-cy="title">{{ session.title }}</p>
+    {%- if session.speaker %}<p class="mui--text-body2 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
+    {%- if session.video %}
+      <div class="mui--text-caption mui--text-light">
+          {%- if session.video.duration %}<span class="js-video-duration" data-duration="{{ session.video.duration }}"></span>{%- endif %}
+          {%- if session.video.uploaded_at %}<span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span>{%- endif %}
+      </div>
+    {%- else %}
+    <div class="mui--text-caption mui--text-light">
+      {%- if session.start_at_localized %}<span>{{ session.start_at_localized|date }}</span>{%- endif %}
+    </div>
+    {%- endif %}
+  </div>
+{% endmacro %}
+
+{%- macro proposal_list(proposals, project='') %}
+  <table id="proposals-table" class="proposal-list-table mui-table">
+    <tbody>
+      {% for proposal in proposals %}
+        <tr id="{{ proposal.uuid_b58 }}">
+          <td class='js-searchable'>
+            <h3 class="mui--text-title zero-top-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
+            <p class="speaker-details">
+              {% if not project %}
+                <span class="mui--text-subhead">{{ proposal.project.title }}</span>
+              {%- elif proposal.speaker -%}
+                <span class="mui--text-subhead">{{ proposal.speaker.pickername }}</span>
+                {%- if proposal.user != proposal.speaker %}
+                  <small class="mui--text-caption mui--text-accent">via {{ proposal.user.pickername }}</small>
+                {%- endif %}
+                {%- if project and project.current_roles.editor %}
+                  {%- if proposal.has_outstation_speaker %}
+                    {{ faicon(icon='plane', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}
+                    <span class="mui--hide" aria-label="{% trans %}Outstation speaker{% endtrans %}"></span>
+                  {%- endif %}
+                {%- endif %}
+              {%- else -%}
+                <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
+              {%- endif -%}
+            </p>
+            <ul class="mui-list--inline mui--text-body2 list-item-rgborder zero-bottom-margin">
+              {%- if proposal.project != project %}
+                <li>{{ proposal.project.short_title }}</li>
+              {% endif %}
+              {%- if proposal.commentset %}
+                <li>{{ proposal.commentset.count }} comments</li>
+              {% endif %}
+              {% if not project %}
+                <li>
+                  {{ proposal.state.label.title }}
+                </li>
+              {% endif %}
+              <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</li>
+              {% if proposal.video %}
+                <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
+                  {{ faicon(icon='video', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}
+                </li>
+              {% endif %}
+              {% if proposal.slides.url %}
+                <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" aria-label="{% trans %}This proposal has slides{% endtrans %}">
+                  {{ faicon(icon='presentation', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}
+                </li>
+              {% endif %}
+            </ul>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td><em>{% trans %}(No sessions have been submitted){% endtrans %}</em></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{%- endmacro %}
+
+{%- macro useravatar(user, css_class='', add_profile_link=true) %}
+  {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}">{% endif %}
+  {% if user and user.avatar %}
+    <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar }}"/>
+  {%- else %}
+    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}">{{ user.fullname|initials }}</div>
+  {% endif %}
+  {% if user.profile_url and add_profile_link%}</a>{% endif %}
+{%- endmacro %}
+
+{% macro membership_template() %}
+  {% raw %}
+    <div id="manage-membership" v-cloak>
+      <div class="membership-wrapper" v-if="ready">
+        <div class="mui--clearfix">
+          <div class="btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
+            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="Add new member" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> Add new member</p></button>
+          </div>
+          <div class="membership-wrapper--half" v-if="members">
+            <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
+              <div class="mui-textfield">
+                <input class="field-search mui--text-light" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
+                <faicon :icon="'search'" :baseline=false :css_class="'search-form__icon'"></faicon>
+              </div>
+            </form>
+          </div>
+        </div>
+         <hr class="separator">
+        <div v-if="members">
+          <div class="mui--clearfix membership-wrapper__filter">
+            <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">members</span><span v-else>member</span></p>
+            <div class="mui--pull-right">
+               <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Name</button>
+                <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">Role</button>
+            </div>
+          </div>
+          <div v-if="view == 'role'" class="membership-wrapper__members">
+            <div v-for="role in roles">
+              <p class="mui--text-subhead membership-wrapper__members__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }}
+                <faicon :icon="'angle-right'" :icon_size="'title'" :css_class="'mui--pull-right collapsible__icon'" v-if="!role.showMembers"></faicon>
+                <faicon :icon="'angle-down'" :icon_size="'title'" :css_class="'mui--pull-right collapsible__icon'" v-else></faicon>
+              </p>
+              <transition name="slide-fade">
+                <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
+                  <div v-if="isUserProfileAdmin">
+                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" aria-label="Edit" role="dialog" v-if="member[role.roleKey]">
+                      <member :member="member"></member>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user membership-wrapper__members__list--viewonly" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" :aria-label="member.user.fullname" v-if="member[role.roleKey]">
+                      <member :member="member"></member>
+                    </div>
+                  </div>
+                </div>
+              </transition>
+            </div>
+          </div>
+          <div v-if="view == 'name'" class="membership-wrapper__members">
+            <div v-if="isUserProfileAdmin">
+              <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" aria-label="Edit" role="dialog">
+                <member :member="member"></member>
+              </div>
+            </div>
+            <div v-else>
+              <div class="membership-wrapper__members__list membership-wrapper__members__list--viewonly user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" :aria-label="member.user.fullname">
+                <member :member="member"></member>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="no-member" v-else>
+          <p class="mui--text-center">
+            <faicon :icon="'user-friends'" :css_class="'no-member__icon'"></faicon>
+          </p>
+          <p class="mui--text-body2 mui--text-bold mui--text-center zero-bottom-margin">No members found</p>
+          <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">Members you add will appear here…</p>
+        </div>
+        <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
+          <a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"  data-action="close modal">
+            <faicon :icon="'times'" :icon_size="'title'"></faicon>
+          </a>
+          <component :is="Form"></component>
+          <div class="modal-form__action-box mui--bg-accent">
+            <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+            <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">Cancel</button>
+          </div>
+          <div v-if="activeMember" class="modal-form__action-box--revoke mui--text-center">
+            <button @click="fetchForm($event, deleteURL)" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-light mui--text-bold" data-cy-btn="revoke">Remove this member</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endraw %}
+{%- endmacro %}

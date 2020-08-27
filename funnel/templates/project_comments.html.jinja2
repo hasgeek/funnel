@@ -1,8 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, widgetscripts %}
-{% from "comments.html.jinja2" import commenttree, commentformtemplate %}
-{%- from "macros.html.jinja2" import project_header %}
+{%- from "macros.html.jinja2" import project_header, comments_tree %}
 {% block title %}{% trans %}Comments{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
@@ -41,12 +40,7 @@
           <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Comments{% endtrans %}</h2>
         </div>
         <div class="grid__col-xs-12">
-          {% if comments %}
-            <ul class="mui-list--unstyled">
-              {{ commenttree(comments, project.commentset, project, csrf_form) }}
-            </ul>
-          {% endif %}
-          {{ commentformtemplate(project, commentform, delcommentform, current_auth) }}
+          {{ comments_tree() }}
         </div>
       </div>
     </div>
@@ -61,8 +55,7 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename=asset_path('project_comments')) }}" type="text/javascript"></script>
-  {{ widgetscripts(commentform, script=true, ref_id='comment-form') }}
+  <script src="{{ url_for('static', filename=asset_path('comments')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var saveProjectConfig = {
@@ -71,7 +64,27 @@
       }
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
-      window.Hasgeek.ProjectCommentsInit();
+
+      var headerHeight;
+      if($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+        headerHeight = $('.mobile-nav').height();
+      } else {
+        headerHeight = $('header').height() + $('nav').height();
+      }
+
+      var commentsConfig = {
+        newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
+        comments: [],
+        divElem: "#comments-wrapper",
+        commentTemplate: '#comment-template',
+        isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
+        isuserparticipant: {% if current_auth.user and project.features.comment_new() -%}true{% else %}false{% endif %},
+        user: {% if current_auth.user -%}{{ { 'fullaname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}''{% endif %},
+        loginUrl: "{{ url_for('login') }}",
+        headerHeight: headerHeight,
+      };
+
+      window.Hasgeek.Comments(commentsConfig);
     });
   </script>
 {% endblock %}

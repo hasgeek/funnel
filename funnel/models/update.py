@@ -1,5 +1,3 @@
-from sqlalchemy.ext.hybrid import hybrid_property
-
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
@@ -8,7 +6,6 @@ from . import (
     BaseScopedIdNameMixin,
     Commentset,
     MarkdownColumn,
-    Profile,
     Project,
     TimestampMixin,
     TSVectorType,
@@ -18,12 +15,12 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE
-from .helpers import add_search_trigger, visual_field_delimiter
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 
-__all__ = ['Post']
+__all__ = ['Update']
 
 
-class POST_STATE(LabeledEnum):  # NOQA: N801
+class UPDATE_STATE(LabeledEnum):  # NOQA: N801
     DRAFT = (0, 'draft', __("Draft"))
     PUBLISHED = (1, 'published', __("Published"))
     DELETED = (2, 'deleted', __("Deleted"))
@@ -34,8 +31,8 @@ class VISIBILITY_STATE(LabeledEnum):  # NOQA: N801
     RESTRICTED = (1, 'restricted', __("Restricted"))
 
 
-class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
-    __tablename__ = 'post'
+class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
+    __tablename__ = 'update'
 
     _visibility_state = db.Column(
         'visibility_state',
@@ -52,36 +49,39 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     _state = db.Column(
         'state',
         db.SmallInteger,
-        StateManager.check_constraint('state', POST_STATE),
-        default=POST_STATE.DRAFT,
+        StateManager.check_constraint('state', UPDATE_STATE),
+        default=UPDATE_STATE.DRAFT,
         nullable=False,
         index=True,
     )
-    state = StateManager('_state', POST_STATE, doc="Post state")
+    state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, index=True)
     user = with_roles(
         db.relationship(
-            User, backref=db.backref('posts', lazy='dynamic'), foreign_keys=[user_id],
+            User, backref=db.backref('updates', lazy='dynamic'), foreign_keys=[user_id],
         ),
         grants={'creator'},
     )
 
-    profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=True, index=True)
-    profile = with_roles(
-        db.relationship(Profile, backref=db.backref('posts', lazy='dynamic'),),
-        grants_via={None: {'admin': 'editor'}},
+    project_id = db.Column(
+        None, db.ForeignKey('project.id'), nullable=False, index=True
     )
-
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=True, index=True)
     project = with_roles(
-        db.relationship(Project, backref=db.backref('posts', lazy='dynamic'),),
-        grants_via={None: {'editor': 'editor'}},
+        db.relationship(Project, backref=db.backref('updates', lazy='dynamic'),),
+        grants_via={
+            None: {
+                'editor': {'editor', 'project_editor'},
+                'participant': {'reader', 'project_participant'},
+                'crew': {'reader', 'project_crew'},
+            }
+        },
     )
+    parent = db.synonym('project')
 
     body = MarkdownColumn('body', nullable=False)
 
-    #: Update number, for Project updates, assigned when the post is published
+    #: Update number, for Project updates, assigned when the update is published
     number = db.Column(db.Integer, nullable=True, default=None)
 
     #: Like pinned tweets. You can keep posting updates,
@@ -93,7 +93,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
     published_by = db.relationship(
         User,
-        backref=db.backref('published_posts', lazy='dynamic'),
+        backref=db.backref('published_updates', lazy='dynamic'),
         foreign_keys=[published_by_id],
     )
     published_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
@@ -101,7 +101,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     deleted_by_id = db.Column(None, db.ForeignKey('user.id'), nullable=True, index=True)
     deleted_by = db.relationship(
         User,
-        backref=db.backref('deleted_posts', lazy='dynamic'),
+        backref=db.backref('deleted_updates', lazy='dynamic'),
         foreign_keys=[deleted_by_id],
     )
     deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
@@ -118,7 +118,7 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         lazy='joined',
         cascade='all',
         single_parent=True,
-        backref=db.backref('post', uselist=False),
+        backref=db.backref('update', uselist=False),
     )
 
     search_vector = db.deferred(
@@ -130,20 +130,11 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
-                    visual_field_delimiter, Post.title, Post.body_html
+                    visual_field_delimiter, Update.title, Update.body_html
                 ),
             ),
             nullable=False,
         )
-    )
-
-    __table_args__ = (
-        db.CheckConstraint(
-            db.case([(profile_id.isnot(None), 1)], else_=0)
-            + db.case([(project_id.isnot(None), 1)], else_=0)
-            == 1,
-            name='post_owner_check',
-        ),
     )
 
     __roles__ = {
@@ -184,88 +175,66 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'is_currently_restricted',
             'visibility_label',
             'state_label',
+            'urls',
         },
-        'related': {'name', 'title'},
+        'related': {'name', 'title', 'urls'},
     }
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.POST)
-        self.commentset = Commentset(settype=SET_TYPE.POST)
+        self.voteset = Voteset(settype=SET_TYPE.UPDATE)
+        self.commentset = Commentset(settype=SET_TYPE.UPDATE)
 
     def __repr__(self):
-        return '<Post "{title}" {uuid_b58}>'.format(
+        return '<Update "{title}" {uuid_b58}>'.format(
             title=self.title, uuid_b58=self.uuid_b58
         )
 
-    @hybrid_property
-    def parent(self):
-        return self.project if self.project is not None else self.profile
-
-    @parent.setter
-    def parent(self, value):
-        if not isinstance(value, (Project, Profile)):
-            raise ValueError("Only a project or a profile can be parent of a post")
-
-        if isinstance(value, Project):
-            self.project = value
-            self.profile = None
-        else:
-            self.profile = value
-            self.project = None
-
-    @hybrid_property
+    @property
     def visibility_label(self):
         return self.visibility_state.label.title
 
-    @hybrid_property
+    @property
     def state_label(self):
         return self.state.label.title
 
     state.add_conditional_state(
         'UNPUBLISHED',
         state.DRAFT,
-        lambda post: post.published_at is None,
-        lambda post: post.published_at.is_(None),
+        lambda update: update.published_at is None,
+        lambda update: update.published_at.is_(None),
         label=('unpublished', __("Unpublished")),
     )
 
     state.add_conditional_state(
         'WITHDRAWN',
         state.DRAFT,
-        lambda post: post.published_at is not None,
-        lambda post: post.published_at.isnot(None),
+        lambda update: update.published_at is not None,
+        lambda update: update.published_at.isnot(None),
         label=('withdrawn', __("Withdrawn")),
     )
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.DRAFT, state.PUBLISHED,
-    )
+    @state.transition(state.DRAFT, state.PUBLISHED)
     def publish(self, actor):
+        first_publishing = False
         self.published_by = actor
         if self.published_at is None:
+            first_publishing = True
             self.published_at = db.func.utcnow()
         if self.number is None:
             self.number = db.select(
-                [db.func.coalesce(db.func.max(Post.number), 0) + 1]
-            ).where(
-                (Post.project == self.project)
-                if self.project is not None
-                else (Post.profile == self.profile)
-            )
+                [db.func.coalesce(db.func.max(Update.number), 0) + 1]
+            ).where(Update.project == self.project)
+        return first_publishing
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.PUBLISHED, state.DRAFT,
-    )
+    @state.transition(state.PUBLISHED, state.DRAFT)
     def undo_publish(self):
         pass
 
     @with_roles(call={'creator', 'editor'})
-    @state.transition(
-        None, state.DELETED,
-    )
+    @state.transition(None, state.DELETED)
     def delete(self, actor):
         if self.state.UNPUBLISHED:
             # If it was never published, hard delete it
@@ -276,24 +245,18 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             self.deleted_at = db.func.utcnow()
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.DELETED, state.DRAFT,
-    )
+    @state.transition(state.DELETED, state.DRAFT)
     def undo_delete(self):
         self.deleted_by = None
         self.deleted_at = None
 
     @with_roles(call={'editor'})
-    @visibility_state.transition(
-        visibility_state.RESTRICTED, visibility_state.PUBLIC,
-    )
+    @visibility_state.transition(visibility_state.RESTRICTED, visibility_state.PUBLIC)
     def make_public(self):
         pass
 
     @with_roles(call={'editor'})
-    @visibility_state.transition(
-        visibility_state.PUBLIC, visibility_state.RESTRICTED,
-    )
+    @visibility_state.transition(visibility_state.PUBLIC, visibility_state.RESTRICTED)
     def make_restricted(self):
         pass
 
@@ -314,47 +277,37 @@ class Post(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     def roles_for(self, actor=None, anchors=()):
         roles = super().roles_for(actor, anchors)
-        project_roles = (
-            self.project.roles_for(actor) if self.project is not None else set()
-        )
-        profile_roles = (
-            self.profile.roles_for(actor) if self.profile is not None else set()
-        )
-
-        if self.visibility_state.RESTRICTED:
-            if 'participant' in project_roles or 'admin' in profile_roles:
-                roles.add('reader')
-        else:
+        if not self.visibility_state.RESTRICTED:
+            # Everyone gets reader role when the post is not restricted.
+            # If it is, 'reader' must be mapped from 'participant' in the project,
+            # specified above in the grants_via annotation on project.
             roles.add('reader')
 
         return roles
 
 
-add_search_trigger(Post, 'search_vector')
+add_search_trigger(Update, 'search_vector')
 
-Project.published_posts = with_roles(
-    property(
-        lambda self: self.posts.filter(Post.state.PUBLISHED).order_by(
-            Post.is_pinned.desc(), Post.published_at.desc()
+
+@reopen(Project)
+class Project:
+    @with_roles(read={'all'})
+    @property
+    def published_updates(self):
+        return self.updates.filter(Update.state.PUBLISHED).order_by(
+            Update.is_pinned.desc(), Update.published_at.desc()
         )
-    ),
-    read={'all'},
-)
 
+    @with_roles(read={'editor'})
+    @property
+    def draft_updates(self):
+        return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
-Project.draft_posts = with_roles(
-    property(
-        lambda self: self.posts.filter(Post.state.DRAFT).order_by(Post.created_at)
-    ),
-    read={'editor'},
-)
-
-
-Project.pinned_post = with_roles(
-    property(
-        lambda self: self.posts.filter(Post.state.PUBLISHED, Post.is_pinned.is_(True))
-        .order_by(Post.published_at.desc())
-        .first()
-    ),
-    read={'all'},
-)
+    @with_roles(read={'all'})
+    @property
+    def pinned_update(self):
+        return (
+            self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
+            .order_by(Update.published_at.desc())
+            .first()
+        )

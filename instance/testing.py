@@ -9,10 +9,8 @@ SERVER_NAME = 'funnel.travis.local:3002'
 DEFAULT_DOMAIN = 'funnel.travis.local'
 STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
-LASTUSER_USE_SESSIONS = False
 UPLOAD_FOLDER = '/tmp'  # nosec
 TIMEZONE = 'Asia/Kolkata'
-RQ_LOW_URL = 'redis://localhost:6379/0'
 ASSET_BASE_PATH = "build"
 HASCORE_SERVER = 'https://api.hasgeek.com'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
@@ -71,8 +69,11 @@ SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
 SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
 
 # SES Notification Topic
-SES_NOTIFICATION_TOPICS = [
+SES_NOTIFICATION_TOPICS = [  # nosec
     'arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com'
 ]
 
-# nosec
+# Needed for unit tests, but will break Cypress tests
+# Must be added to a fixture for unit tests
+# RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
+# RQ_ASYNC = False

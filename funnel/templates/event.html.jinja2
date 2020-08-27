@@ -47,9 +47,9 @@
     </div>
     <div class="grid__col-xs-12 grid__col-md-9">
       <ul class="mui-list--inline">
-        <li><a href="{{ event.url_for('badges') }}" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
-         <li><a href="{{ event.url_for('label_badges') }}" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
-        <li><a href="{{ event.url_for('badges') }}?badge_printed=t" target="_blank" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
+        <li><a href="{{ event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
+         <li><a href="{{ event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
+        <li><a href="{{ event.url_for('badges') }}?badge_printed=t" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
@@ -86,10 +86,10 @@
                 <ul class="mui-list--unstyled">
                   {{#if isUsher || isConcierge}}
                   <li>
-                    <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" data-cy="show-badge">Show badge</a>
+                    <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-badge">Show badge</a>
                   </li>
                   <li>
-                    <a href="{{ label_badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" data-cy="show-label-badge">Show Label Badge</a>
+                    <a href="{{ label_badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-label-badge">Show Label Badge</a>
                   </li>
                   {{/if}}
                   <li>
@@ -107,7 +107,7 @@
                   </li>
                   {{#if isConcierge}}
                   <li>
-                    <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" data-cy="edit-attendee-details">Edit attendee details</a>
+                    <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" rel="noopener" data-cy="edit-attendee-details">Edit attendee details</a>
                   </li>
                   {{/if}}
                 </ul>

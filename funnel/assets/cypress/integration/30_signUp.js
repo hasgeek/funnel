@@ -14,8 +14,6 @@ describe('Creating a new user account', function () {
     cy.get('#confirm_password').type(newuser.password);
     cy.get('button').contains('Sign up').click();
     cy.get('.alert--success').should('visible');
-    cy.get('#hgnav').find('a[data-cy="account-link"]').click();
-    cy.wait(1000);
     cy.get('a[data-cy="my-account"]').click();
     cy.get('a[data-cy="edit"]').click();
     cy.get('#username').type(newuser.username);
