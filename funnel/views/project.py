@@ -47,15 +47,17 @@ from ..models import (
     Profile,
     Project,
     Proposal,
+    RegistrationCancellationNotification,
+    RegistrationConfirmationNotification,
     Rsvp,
     SavedProject,
     db,
 )
-from ..signals import user_cancelled_project_registration, user_registered_for_project
 from .decorators import legacy_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
+from .notification import dispatch_notification
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
 
@@ -569,8 +571,8 @@ class ProjectView(
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
-                user_registered_for_project.send(
-                    rsvp, project=self.obj, user=current_auth.user
+                dispatch_notification(
+                    RegistrationConfirmationNotification(document=rsvp)
                 )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
@@ -586,8 +588,8 @@ class ProjectView(
                 rsvp.rsvp_no()
                 db.session.commit()
                 flash(_("Your registration has been cancelled"), 'info')
-                user_cancelled_project_registration.send(
-                    rsvp, project=self.obj, user=current_auth.user
+                dispatch_notification(
+                    RegistrationCancellationNotification(document=rsvp)
                 )
         else:
             flash(

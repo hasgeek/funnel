@@ -6,7 +6,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from flask import Response, current_app, json, jsonify
 
-from icalendar import Alarm, Calendar, Event
+from icalendar import Alarm, Calendar, Event, vCalAddress
 
 from baseframe import forms, localize_timezone
 from coaster.utils import utcnow
@@ -153,6 +153,11 @@ def session_ical(session):
 
     event = Event()
     event.add('summary', session.title)
+    organizer = vCalAddress(
+        f"MAILTO:no-reply@{current_app.config['DEFAULT_DOMAIN']}"  # NOQA
+    )
+    organizer.params['cn'] = session.project.profile.title
+    event['organizer'] = organizer
     event.add(
         'uid',
         f'session/{session.uuid_b58}@{current_app.config["DEFAULT_DOMAIN"]}',  # NOQA

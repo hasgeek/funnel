@@ -69,8 +69,8 @@
       }
 
       var updateConfig = {
-        draft: {% if project.draft_updates -%} {{ project.draft_updates|tojson }} {%- else -%} [] {%- endif %},
-        updates: {% if project.published_updates -%} {{ project.published_updates|tojson }} {%- else -%} [] {%- endif %},
+        draft: {% if draft_updates -%} {{ draft_updates|tojson }} {%- else -%} [] {%- endif %},
+        updates: {% if published_updates -%} {{ published_updates|tojson }} {%- else -%} [] {%- endif %},
         divElem: "#updates-wrapper",
         updateTemplate: '#update-template',
         isEditor: {{ project.features.post_update()|tojson }},

@@ -39,11 +39,14 @@ from ..forms import (
     PhonePrimaryForm,
     VerifyEmailForm,
     VerifyPhoneForm,
+    supported_locales,
+    timezone_identifiers,
 )
 from ..models import (
     MODERATOR_REPORT_TYPE,
     Comment,
     CommentModeratorReport,
+    SMSMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -56,11 +59,26 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
+from ..transports import TransportConnectionError, sms
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for
+from .helpers import app_url_for, autoset_timezone_and_locale
 from .login_session import login_internal, logout_internal, requires_login
-from .sms import send_phone_verify_code
+
+
+def send_phone_verify_code(phoneclaim):
+    msg = SMSMessage(
+        phone_number=phoneclaim.phone,
+        message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
+            code=phoneclaim.verification_code
+        ),
+    )
+    # Now send this
+    try:
+        msg.transactionid = sms.send(msg.phone_number, msg.message)
+        db.session.add(msg)
+    except TransportConnectionError:
+        flash(_("Unable to send a message right now. Please try again"))
 
 
 def blake2b_b58(text):
@@ -93,6 +111,20 @@ def phones_sorted(obj):
     return items
 
 
+@User.views('locale')
+def user_locale(obj):
+    """Name of user's locale, defaulting to locale identifier."""
+    return supported_locales.get(str(obj.locale) if obj.locale else None, obj.locale)
+
+
+@User.views('timezone')
+def user_timezone(obj):
+    """Human-friendly identifier for user's timezone, defaulting to timezone name."""
+    return timezone_identifiers.get(
+        str(obj.timezone) if obj.timezone else None, obj.timezone
+    )
+
+
 @UserSession.views('user_agent_details')
 def user_agent_details(obj):
     ua = user_agents.parse(obj.user_agent)
@@ -106,9 +138,7 @@ def user_agent_details(obj):
             else str(ua.device.brand or '') + ' ' + str(ua.device.model or '') + ' '
         )
         + ' ('
-        + str(ua.os.family)
-        + ' '
-        + str(ua.os.version_string)
+        + (str(ua.os.family) + ' ' + str(ua.os.version_string)).strip()
         + ')',
     }
 
@@ -410,18 +440,6 @@ OtherAppAccountView.init_app(lastuserapp)
     defaults={'newprofile': True},
     endpoint='account_new',
 )
-@lastuserapp.route(
-    '/account/edit',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': False},
-    endpoint='account_edit',
-)
-@lastuserapp.route(
-    '/account/new',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': True},
-    endpoint='account_new',
-)
 @requires_login
 def account_edit(newprofile=False):
     form = AccountForm(obj=current_auth.user)
@@ -434,6 +452,10 @@ def account_edit(newprofile=False):
         current_auth.user.fullname = form.fullname.data
         current_auth.user.username = form.username.data
         current_auth.user.timezone = form.timezone.data
+        current_auth.user.auto_timezone = form.auto_timezone.data
+        current_auth.user.locale = form.locale.data
+        current_auth.user.auto_locale = form.auto_locale.data
+        autoset_timezone_and_locale(current_auth.user)
 
         if newprofile and not current_auth.user.email:
             useremail = UserEmailClaim.get_for(
@@ -468,13 +490,13 @@ def account_edit(newprofile=False):
     if newprofile:
         return render_form(
             form,
-            title=_("Update profile"),
+            title=_("Update account"),
             formid='account_new',
             submit=_("Continue"),
             message=Markup(
                 _(
                     "Hello, <strong>{fullname}</strong>. Please spare a minute to fill"
-                    " out your profile"
+                    " out your account"
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
             ajax=False,
@@ -483,7 +505,7 @@ def account_edit(newprofile=False):
     else:
         return render_form(
             form,
-            title=_("Edit profile"),
+            title=_("Edit account"),
             formid='account_edit',
             submit=_("Save changes"),
             ajax=False,
@@ -935,3 +957,20 @@ def remove_extid(extid):
 @lastuserapp.route('/profile/email/<email_hash>/verify')
 def verify_email_old(email_hash):
     return redirect(app_url_for(app, 'verify_email', email_hash=email_hash), code=301)
+
+
+# Redirect from Lastuser's account edit page
+@lastuserapp.route(
+    '/account/edit',
+    methods=['GET', 'POST'],
+    defaults={'newprofile': False},
+    endpoint='account_edit',
+)
+@lastuserapp.route(
+    '/account/new',
+    methods=['GET', 'POST'],
+    defaults={'newprofile': True},
+    endpoint='account_new',
+)
+def lastuser_account_edit(newprofile):
+    return redirect(app_url_for(app, 'account_new' if newprofile else 'account_edit'))

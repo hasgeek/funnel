@@ -47,3 +47,42 @@ ul .login-session {
     right: -2px;
   }
 }
+
+.preference {
+  margin-top: $mui-grid-padding;
+  .preference__switch {
+    margin-bottom: $mui-grid-padding;
+    .preference__switch__txt {
+      float: left;
+      padding-left: $mui-grid-padding;
+    }
+    .switch-label {
+      position: relative;
+      top: -3px;
+      float: left;
+    }
+    .preference__switch__txt--noswitch {
+      margin-bottom: $mui-grid-padding/2;
+    }
+  }
+  .preference__title {
+    width: calc(100% - 45px);
+  }
+}
+
+@media (min-width: 1200px) {
+  .preference {
+    position: relative;
+    .preference__switch {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      min-width: 275px;
+
+      .preference__switch__txt {
+        float: right;
+        padding-right: $mui-grid-padding;
+      }
+    }
+  }
+}

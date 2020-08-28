@@ -1,4 +1,6 @@
+from base64 import urlsafe_b64encode
 from datetime import datetime
+from os import urandom
 from urllib.parse import unquote, urljoin, urlsplit
 
 from flask import Response, abort, current_app, g, render_template, request, url_for
@@ -12,6 +14,7 @@ from pytz import utc
 from baseframe import cache, statsd
 
 from .. import app, funnelapp, lastuserapp
+from ..forms import supported_locales
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
 
@@ -104,13 +107,25 @@ def get_scheme_netloc(uri):
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
-def autoset_timezone(user):
-    # Set the user's timezone automatically if available
-    if user.timezone is None or user.timezone not in valid_timezones:
+def autoset_timezone_and_locale(user):
+    # Set the user's timezone and locale automatically if required
+    if (
+        user.auto_timezone
+        or user.timezone is None
+        or str(user.timezone) not in valid_timezones
+    ):
         if request.cookies.get('timezone'):
             timezone = unquote(request.cookies.get('timezone'))
             if timezone in valid_timezones:
                 user.timezone = timezone
+    if (
+        user.auto_locale
+        or user.locale is None
+        or str(user.locale) not in supported_locales
+    ):
+        user.locale = (
+            request.accept_languages.best_match(supported_locales.keys()) or 'en'
+        )
 
 
 def validate_rate_limit(
@@ -181,6 +196,43 @@ def validate_rate_limit(
         token,
     )
     cache.set(cache_key, (count, token), timeout=timeout)
+
+
+# Text token length in bytes
+# 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities
+TOKEN_BYTES_LEN = 3
+text_token_prefix = 'temp_token/v1/'
+
+
+def make_cached_token(payload, timeout=24 * 60 * 60, reserved=None):
+    """
+    Make a short text token that caches data with a timeout period.
+
+    :param dict payload: Data to save against the token
+    :param int timeout: Timeout period for token in seconds (default 24 hours)
+    :param set reserved: Reserved words that should not be used as token
+    """
+    while True:
+        token = urlsafe_b64encode(urandom(TOKEN_BYTES_LEN)).decode().rstrip('=')
+        if reserved and token in reserved:
+            continue  # Reserved word, try again
+
+        existing = cache.get(text_token_prefix + token)
+        if existing:
+            continue  # Token in use, try again
+
+        break
+
+    cache.set(text_token_prefix + token, payload, timeout=timeout)
+    return token
+
+
+def retrieve_cached_token(token):
+    return cache.get(text_token_prefix + token)
+
+
+def delete_cached_token(token):
+    return cache.delete(text_token_prefix + token)
 
 
 # --- Filters and URL constructors -----------------------------------------------------
