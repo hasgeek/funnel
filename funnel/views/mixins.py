@@ -70,6 +70,7 @@ class ProjectViewMixin(object):
 class ProfileViewMixin(object):
     model = Profile
     route_model_map = {'profile': 'name'}
+    SavedProjectForm = SavedProjectForm
 
     def loader(self, profile):
         profile = self.model.get(profile)
