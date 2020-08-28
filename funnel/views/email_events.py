@@ -108,7 +108,7 @@ def process_ses_event():
     The events are sent based on the configuration set of the outgoing email.
     """
     # Get the JSON message
-    message = request.get_json(silent=True)
+    message = request.get_json(force=True, silent=True)
     if not message:
         return {'status': 'error', 'error': 'not_json'}, 400
 
