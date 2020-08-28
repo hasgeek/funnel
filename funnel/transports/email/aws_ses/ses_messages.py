@@ -361,40 +361,39 @@ class SesProcessorAbc(ABC):
 
         :param ses_event: SES Event object
         """
-        self.ses_event = ses_event
         if ses_event.event_type == SesEvents.BOUNCE.value:
-            self.bounce()
+            self.bounce(ses_event)
         elif ses_event.event_type == SesEvents.COMPLAINT.value:
-            self.complaint()
+            self.complaint(ses_event)
         elif ses_event.event_type == SesEvents.DELIVERY.value:
-            self.delivered()
+            self.delivered(ses_event)
         elif ses_event.event_type == SesEvents.DELAY.value:
-            self.delayed()
+            self.delayed(ses_event)
         elif ses_event.event_type == SesEvents.OPEN.value:
-            self.opened()
+            self.opened(ses_event)
         elif ses_event.event_type == SesEvents.CLICK.value:
-            self.click()
+            self.click(ses_event)
 
     @abstractmethod
-    def bounce(self) -> None:
+    def bounce(self, ses_event: SesEvent) -> None:
         """Process (Hard) Bounce notifications."""
 
     @abstractmethod
-    def complaint(self) -> None:
+    def complaint(self, ses_event: SesEvent) -> None:
         """Process Complaint notifications."""
 
     @abstractmethod
-    def delivered(self) -> None:
+    def delivered(self, ses_event: SesEvent) -> None:
         """Process Delivery notifications."""
 
     @abstractmethod
-    def delayed(self) -> None:
+    def delayed(self, ses_event: SesEvent) -> None:
         """Process Delivery Delay (Soft Bounce) notifications."""
 
     @abstractmethod
-    def opened(self) -> None:
+    def opened(self, ses_event: SesEvent) -> None:
         """Process Open notifications."""
 
     @abstractmethod
-    def click(self) -> None:
+    def click(self, ses_event: SesEvent) -> None:
         """Process Click notifications."""

@@ -23,26 +23,26 @@ class SesProcessor(SesProcessorAbc):
     # never seen this email address before? Because it may have originated in Hasjob
     # or elsewhere in shared infrastructure.
 
-    def bounce(self) -> None:
-        for bounced in self.ses_event.bounce.bounced_recipients:
+    def bounce(self, ses_event: SesEvent) -> None:
+        for bounced in ses_event.bounce.bounced_recipients:
             email_address = EmailAddress.get(bounced.email)
             if not email_address:
                 email_address = EmailAddress.add(bounced.email)
-            if self.ses_event.bounce.is_hard_bounce:
+            if ses_event.bounce.is_hard_bounce:
                 email_address.mark_hard_fail()
             else:
                 email_address.mark_soft_fail()
 
-    def delayed(self) -> None:
-        for failed in self.ses_event.delivery_delay.delayed_recipients:
+    def delayed(self, ses_event: SesEvent) -> None:
+        for failed in ses_event.delivery_delay.delayed_recipients:
             email_address = EmailAddress.get(failed.email)
             if not email_address:
                 email_address = EmailAddress.add(failed.email)
             email_address.mark_soft_fail()
 
-    def complaint(self) -> None:
-        for complained in self.ses_event.complaint.complained_recipients:
-            if self.ses_event.complaint.complaint_feedback_type == 'not-spam':
+    def complaint(self, ses_event: SesEvent) -> None:
+        for complained in ses_event.complaint.complained_recipients:
+            if ses_event.complaint.complaint_feedback_type == 'not-spam':
                 email_address = EmailAddress.get(complained.email)
                 if not email_address:
                     email_address = EmailAddress.add(complained.email)
@@ -50,25 +50,25 @@ class SesProcessor(SesProcessorAbc):
             else:
                 EmailAddress.mark_blocked(complained.email)
 
-    def delivered(self) -> None:
+    def delivered(self, ses_event: SesEvent) -> None:
         # Recipients here are strings and not structures. Unusual, but reflected in
         # the documentation.
         # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-send
-        for sent in self.ses_event.delivery.recipients:
+        for sent in ses_event.delivery.recipients:
             email_address = EmailAddress.get(sent)
             if not email_address:
                 email_address = EmailAddress.add(sent)
             email_address.mark_sent()
 
-    def opened(self) -> None:
-        for email in self.ses_event.mail.destination:
+    def opened(self, ses_event: SesEvent) -> None:
+        for email in ses_event.mail.destination:
             email_address = EmailAddress.get(email)
             if not email_address:
                 email_address = EmailAddress.add(email)
             email_address.mark_active()
 
-    def click(self) -> None:
-        for email in self.ses_event.mail.destination:
+    def click(self, ses_event: SesEvent) -> None:
+        for email in ses_event.mail.destination:
             email_address = EmailAddress.get(email)
             if not email_address:
                 email_address = EmailAddress.add(email)
