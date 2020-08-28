@@ -238,6 +238,17 @@
           }
         });
       });
+
+      {%- if current_auth.is_anonymous %}
+        if ('serviceWorker' in navigator) {
+          console.log('caches', caches.keys());
+          caches.keys().then(function(cacheNames) {
+            cacheNames.forEach(function(cacheName) {
+              caches.delete(cacheName);
+            });
+          });
+        }
+      {%- endif %}
     }
   </script>
   {%- endif -%}
