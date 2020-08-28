@@ -1,0 +1,17 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}Logout{% endtrans %}{% endblock %}
+
+{% block footerscripts %}
+  <script type="text/javascript">
+    {%- if current_auth.is_anonymous %}
+      if ('serviceWorker' in navigator) {
+        caches.keys().then(function(cacheNames) {
+          cacheNames.forEach(function(cacheName) {
+            caches.delete(cacheName);
+          });
+        });
+      }
+    {%- endif %}
+    window.location.href = {{ next|tojson }};
+  </script>
+{% endblock %}

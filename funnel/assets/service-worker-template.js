@@ -14,7 +14,7 @@ workbox.routing.registerRoute(
 workbox.routing.registerRoute(
   '/',
   new workbox.strategies.NetworkFirst({
-    cacheName: 'routes',
+    cacheName: 'homepage',
   }),
   'GET'
 );
