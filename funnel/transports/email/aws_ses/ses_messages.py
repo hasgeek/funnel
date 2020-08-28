@@ -8,10 +8,10 @@ from typing import Dict, List, Optional
 from dataclasses_json import config, dataclass_json
 
 __all__ = [
-    'Bounce',
-    'Complaint',
-    'Delivery',
-    'DeliveryDelay',
+    'SesBounce',
+    'SesComplaint',
+    'SesDelivery',
+    'SesDeliveryDelay',
     'SesEvent',
     'SesProcessorAbc',
 ]
@@ -19,7 +19,7 @@ __all__ = [
 
 @dataclass_json
 @dataclass
-class MailHeaders:
+class SesMailHeaders:
     """Mail Headers have name/value pairs."""
 
     name: str
@@ -28,7 +28,7 @@ class MailHeaders:
 
 @dataclass_json
 @dataclass
-class CommonMailHeaders:
+class SesCommonMailHeaders:
     """Json object for common mail headers."""
 
     from_address: List[str] = field(metadata=config(field_name='from'))
@@ -39,7 +39,7 @@ class CommonMailHeaders:
 
 @dataclass_json
 @dataclass
-class Mail:
+class SesMail:
     """
     The JSON object that contains information about a mail object.
 
@@ -62,8 +62,8 @@ class Mail:
     sending_accountid: str = field(metadata=config(field_name='sendingAccountId'))
     destination: List[str]
     headers_truncated: bool = field(metadata=config(field_name='headersTruncated'))
-    headers: List[MailHeaders]
-    common_headers: CommonMailHeaders = field(
+    headers: List[SesMailHeaders]
+    common_headers: SesCommonMailHeaders = field(
         metadata=config(field_name='commonHeaders')
     )
     tags: Dict[str, List[str]]
@@ -71,7 +71,7 @@ class Mail:
 
 @dataclass_json
 @dataclass
-class IndividualRecipient:
+class SesIndividualRecipient:
     """
     Individual recipient for whom the email message bounced.
 
@@ -91,7 +91,7 @@ class IndividualRecipient:
 
 @dataclass_json
 @dataclass
-class Bounce:
+class SesBounce:
     """
     The JSON object that contains information about a Bounce event.
 
@@ -107,7 +107,7 @@ class Bounce:
 
     bounce_type: str = field(metadata=config(field_name='bounceType'))
     bounce_sub_type: str = field(metadata=config(field_name='bounceSubType'))
-    bounced_recipients: List[IndividualRecipient] = field(
+    bounced_recipients: List[SesIndividualRecipient] = field(
         metadata=config(field_name='bouncedRecipients')
     )
     timestamp: str
@@ -122,6 +122,7 @@ class Bounce:
         Check if Bounce message is a hard bounce.
         If you receive this type of bounce, you should remove the
         recipient's email address from your mailing list.
+
         :return: True if it is hard bounce, false if not.
         """
         return self.bounce_type == 'Permanent'
@@ -129,7 +130,7 @@ class Bounce:
 
 @dataclass_json
 @dataclass
-class Complaint:
+class SesComplaint:
     """
     The JSON object that contains information about a Complaint event.
 
@@ -141,7 +142,7 @@ class Complaint:
     * complaint_feedback_type: This contains the type of feedback
     * arrival_date: The value of the Arrival-Date or Received-Date field
 
-    complaint_feedback_type will have one of the following:
+    ``complaint_feedback_type`` will have one of the following:
 
     * 'abuse': Indicates unsolicited email
     * 'auth-failure': Email authentication failure report
@@ -151,7 +152,7 @@ class Complaint:
     * 'virus': A virus is found in the originating message
     """
 
-    complained_recipients: List[IndividualRecipient] = field(
+    complained_recipients: List[SesIndividualRecipient] = field(
         metadata=config(field_name='complainedRecipients')
     )
     timestamp: str
@@ -172,7 +173,7 @@ class Complaint:
 
 @dataclass_json
 @dataclass
-class Delivery:
+class SesDelivery:
     """
     The JSON object that contains information about a Delivery event.
 
@@ -192,13 +193,13 @@ class Delivery:
 
 @dataclass_json
 @dataclass
-class Send:
+class SesSend:
     """ The JSON object that contains information about a Send event. Has no data."""
 
 
 @dataclass_json
 @dataclass
-class Reject:
+class SesReject:
     """
     The JSON object that contains information about a Reject event.
 
@@ -211,7 +212,7 @@ class Reject:
 
 @dataclass_json
 @dataclass
-class Open:
+class SesOpen:
     """
     The JSON object that contains information about a Open event.
 
@@ -227,7 +228,7 @@ class Open:
 
 @dataclass_json
 @dataclass
-class Click:
+class SesClick:
     """
     The JSON object that contains information about a Click event.
 
@@ -249,7 +250,7 @@ class Click:
 
 @dataclass_json
 @dataclass
-class RenderFailure:
+class SesRenderFailure:
     """
     The JSON object that contains information about Rendering Failure event.
 
@@ -263,7 +264,7 @@ class RenderFailure:
 
 @dataclass_json
 @dataclass
-class DeliveryDelay:
+class SesDeliveryDelay:
     """
     The JSON object that contains information about a DeliveryDelay event.
 
@@ -285,7 +286,7 @@ class DeliveryDelay:
         * 'Undetermined': Amazon SES wasn't able to determine the reason
     """
 
-    delayed_recipients: List[IndividualRecipient] = field(
+    delayed_recipients: List[SesIndividualRecipient] = field(
         metadata=config(field_name='delayedRecipients')
     )
     expiration_time: str = field(metadata=config(field_name='expirationTime'))
@@ -301,7 +302,7 @@ class SesEvents(Enum):
     SEND = 'Send'
     REJECT = 'Reject'
     OPEN = 'Open'
-    Click = 'Click'
+    CLICK = 'Click'
     BOUNCE = 'Bounce'
     COMPLAINT = 'Complaint'
     RENDER = 'Rendering Failure'
@@ -315,7 +316,7 @@ class SesEvent:
     SES Event object JSON which contains the following.
 
     * event_type: Possible values:
-        * 'Delivery',
+        * 'Delivery'
         * 'Send'
         * 'Reject'
         * 'Open'
@@ -337,16 +338,16 @@ class SesEvent:
     """
 
     event_type: str = field(metadata=config(field_name='eventType'))
-    mail: Mail
-    bounce: Optional[Bounce] = None
-    complaint: Optional[Complaint] = None
-    delivery: Optional[Delivery] = None
-    send: Optional[Send] = None
-    reject: Optional[Reject] = None
-    opened: Optional[Open] = field(metadata=config(field_name='open'), default=None)
-    click: Optional[Click] = None
-    failure: Optional[RenderFailure] = None
-    delivery_delay: Optional[DeliveryDelay] = field(
+    mail: SesMail
+    bounce: Optional[SesBounce] = None
+    complaint: Optional[SesComplaint] = None
+    delivery: Optional[SesDelivery] = None
+    send: Optional[SesSend] = None
+    reject: Optional[SesReject] = None
+    opened: Optional[SesOpen] = field(metadata=config(field_name='open'), default=None)
+    click: Optional[SesClick] = None
+    failure: Optional[SesRenderFailure] = None
+    delivery_delay: Optional[SesDeliveryDelay] = field(
         metadata=config(field_name='deliveryDelay'), default=None
     )
 
@@ -357,41 +358,43 @@ class SesProcessorAbc(ABC):
     def process(self, ses_event: SesEvent):
         """
         Process SES Event by calling the appropriate methods.
-        @param ses_event: SES Event object
+
+        :param ses_event: SES Event object
         """
+        self.ses_event = ses_event
         if ses_event.event_type == SesEvents.BOUNCE.value:
-            self.bounce(ses_event.bounce)
+            self.bounce()
         elif ses_event.event_type == SesEvents.COMPLAINT.value:
-            self.complaint(ses_event.complaint)
+            self.complaint()
         elif ses_event.event_type == SesEvents.DELIVERY.value:
-            self.delivered(ses_event.delivery)
+            self.delivered()
         elif ses_event.event_type == SesEvents.DELAY.value:
-            self.delayed(ses_event.delivery_delay)
+            self.delayed()
+        elif ses_event.event_type == SesEvents.OPEN.value:
+            self.opened()
+        elif ses_event.event_type == SesEvents.CLICK.value:
+            self.click()
 
     @abstractmethod
-    def bounce(self, bounce: Bounce) -> None:
-        """
-        Process (Hard) Bounce notifications
-        @param bounce: Bounce
-        """
+    def bounce(self) -> None:
+        """Process (Hard) Bounce notifications."""
 
     @abstractmethod
-    def complaint(self, complaint: Complaint) -> None:
-        """
-        Process Complaint notifications
-        @param complaint: Complaint
-        """
+    def complaint(self) -> None:
+        """Process Complaint notifications."""
 
     @abstractmethod
-    def delivered(self, delivery: Delivery) -> None:
-        """
-        Process Delivery notifications
-        @param delivery: Delivery
-        """
+    def delivered(self) -> None:
+        """Process Delivery notifications."""
 
     @abstractmethod
-    def delayed(self, delayed: DeliveryDelay) -> None:
-        """
-        Process Delivery Delay (Soft Bounce) notifications
-        @param delayed: DeliveryDelay
-        """
+    def delayed(self) -> None:
+        """Process Delivery Delay (Soft Bounce) notifications."""
+
+    @abstractmethod
+    def opened(self) -> None:
+        """Process Open notifications."""
+
+    @abstractmethod
+    def click(self) -> None:
+        """Process Click notifications."""
