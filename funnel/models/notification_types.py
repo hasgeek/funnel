@@ -15,6 +15,7 @@ __all__ = [
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
+    'SessionStartingNotification',
 ]
 
 # --- Mixin classes --------------------------------------------------------------------
@@ -112,6 +113,20 @@ class ProposalSubmittedNotification(ProjectIsParent, Notification):
     default_webpush = False
     default_telegram = False
     default_whatsapp = False
+
+
+class SessionStartingNotification(ProfileIsParent, Notification):
+    """Notification of a session about to start."""
+
+    __mapper_args__ = {'polymorphic_identity': 'project_session_starting'}
+
+    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    title = __("When a session I’ve registered for is about to start")
+    description = __("You will be notified 5-10 minutes before starting time")
+
+    document_model = Project
+    roles = ['crew', 'participant']
+    # This is a notification triggered without an actor
 
 
 # --- Comment notifications ------------------------------------------------------------

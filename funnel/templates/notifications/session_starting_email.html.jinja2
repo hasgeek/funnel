@@ -1,0 +1,17 @@
+{% extends "notifications/layout_email.html.jinja2" %}
+{%- from "macros.html.jinja2" import project_title %}
+{% block content -%}
+
+<p>{% trans user=view.user_notification.user.fullname %}Hi {{ user }},{% endtrans %}</p>
+
+<p>
+  {%- with next_session_at=view.project.next_session_at %}
+    {%- trans project=project_title(view.project), date_and_time=next_session_at|datetime -%}
+      A session is about to start in <b>{{ project }}</b>, at {{ date_and_time }}.
+    {%- endtrans %}
+  {%- endwith -%}
+</p>
+
+<p><a class="btn" href="{{ view.project.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Project page{% endtrans %}</a></p>
+
+{%- endblock %}

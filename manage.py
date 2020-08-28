@@ -1,6 +1,6 @@
 #! /usr/bin/env python
-
 from collections import namedtuple
+from datetime import timedelta
 import sys
 
 from dateutil.relativedelta import relativedelta
@@ -10,6 +10,8 @@ import requests
 from coaster.manage import Manager, init_manager, manager
 from coaster.utils import midnight_to_utc, utcnow
 from funnel import app, funnelapp, lastuserapp, models
+from funnel.models import db
+from funnel.views.notification import dispatch_notification
 
 # --- Data sources ---------------------------------------------------------------------
 
@@ -22,7 +24,7 @@ data_sources = {
         models.UserSession.accessed_at,
     ),
     'app_user_sessions': DataSource(
-        models.db.session.query(models.db.func.distinct(models.UserSession.user_id))
+        db.session.query(db.func.distinct(models.UserSession.user_id))
         .select_from(models.auth_client_user_session, models.UserSession)
         .filter(
             models.auth_client_user_session.c.user_session_id == models.UserSession.id
@@ -71,7 +73,7 @@ periodic = Manager(usage="Periodic tasks from cron (with recommended intervals)"
 def phoneclaims():
     """Sweep phone claims to close all unclaimed beyond expiry period (10m)"""
     models.UserPhoneClaim.delete_expired()
-    models.db.session.commit()
+    db.session.commit()
 
 
 @periodic.command
@@ -214,7 +216,8 @@ def growthstats():
             )
 
     requests.post(
-        f'https://api.telegram.org/bot{app.config["TELEGRAM_STATS_BOT_TOKEN"]}/sendMessage',
+        f'https://api.telegram.org/bot{app.config["TELEGRAM_STATS_BOT_TOKEN"]}'
+        f'/sendMessage',
         data={
             'chat_id': app.config['TELEGRAM_STATS_CHAT_ID'],
             'parse_mode': 'markdown',
@@ -223,9 +226,53 @@ def growthstats():
     )
 
 
+@periodic.command
+def next_session():
+    """Send notifications for sessions that are about to start."""
+    with app.app_context():
+        # Rollback to the most recent 5 minute interval, to account for startup delays
+        use_now = db.session.query(
+            db.func.date_trunc('hour', db.func.utcnow())
+            + db.cast(db.func.date_part('minute', db.func.utcnow()), db.Integer)
+            / 5
+            * timedelta(minutes=5)
+        ).scalar()
+
+        # Find all projects that have a session starting between 10 and 15 minutes from
+        # start time, and where the same project did not have a session ending within
+        # the prior hour.
+
+        for row in (
+            db.session.query(models.Project.uuid)
+            .filter(
+                models.Project.id.in_(
+                    db.session.query(
+                        db.func.distinct(models.Session.project_id).label('project_id')
+                    ).filter(
+                        models.Session.start_at >= use_now + timedelta(minutes=10),
+                        models.Session.start_at < use_now + timedelta(minutes=15),
+                        models.Session.project_id.notin_(
+                            db.session.query(
+                                db.func.distinct(models.Session.project_id)
+                            ).filter(
+                                models.Session.end_at > use_now - timedelta(minutes=50),
+                                models.Session.end_at
+                                <= use_now + timedelta(minutes=10),
+                            )
+                        ),
+                    )
+                )
+            )
+            .all()
+        ):
+            dispatch_notification(
+                models.SessionStartingNotification(document_uuid=row.uuid)
+            )
+
+
 if __name__ == "__main__":
     manager = init_manager(
-        app, models.db, models=models, funnelapp=funnelapp, lastuserapp=lastuserapp
+        app, db, models=models, funnelapp=funnelapp, lastuserapp=lastuserapp
     )
     manager.add_command('periodic', periodic)
     manager.run()

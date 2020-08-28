@@ -1,9 +1,10 @@
 {% extends "notifications/layout_email.html.jinja2" %}
+{%- from "macros.html.jinja2" import project_title %}
 {% block content -%}
 
 <p>{% trans actor=view.actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
 
-<p>{% trans project=project.title, profile=project.profile.title %}You have registered for <b>{{ project }}</b> by <b>{{ profile }}</b>{% endtrans %}</p>
+<p>{% trans project=project_title(project) %}You have registered for <b>{{ project }}</b>.{% endtrans %}</p>
 
 {% with next_session_at=project.next_session_at %}{% if next_session_at -%}
   <p>{% trans date_and_time=next_session_at|datetime %}The next session in the schedule will begin at {{ date_and_time }}.{% endtrans %}</p>

@@ -2,8 +2,8 @@
 {%- from "macros.html.jinja2" import project_title %}
 {% block content %}
 <p>
-  {% trans project=project_title(project), url=project.url_for() -%}
-    You registered for <a href="{{ url }}">{{ project }}</a>.
+  {% trans project=project_title(view.project), url=view.project.url_for() -%}
+    A session is about to start in <a href="{{ url }}">{{ project }}</a>.
   {%- endtrans %}
 </p>
 {% endblock %}

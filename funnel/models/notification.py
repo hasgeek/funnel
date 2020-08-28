@@ -89,8 +89,10 @@ __all__ = [
     'NOTIFICATION_CATEGORY',
     'SMSMessage',
     'Notification',
+    'MockNotification',
     'NotificationPreferences',
     'UserNotification',
+    'NotificationFor',
     'notification_type_registry',
 ]
 
@@ -377,7 +379,68 @@ class Notification(NoIdMixin, db.Model):
                 yield user_notification
 
 
-class UserNotification(NoIdMixin, db.Model):
+class MockNotification:
+    """
+    Mocks a Notification subclass without instantiating it.
+
+    To be used with :class:`NotificationFor`, like so::
+
+        NotificationFor(MockNotification(NotificationType), user)
+    """
+
+    def __init__(self, cls, document, fragment=None):
+        self.cls = cls
+        self.document = document
+        self.document_uuid = document.uuid
+        self.fragment = fragment
+        self.fragment_uuid = fragment.uuid
+
+    def __getattr__(self, attr):
+        return getattr(self.cls, attr)
+
+
+class UserNotificationMixin:
+    """
+    Contains helper methods for :class:`UserNotification` and :class:`NotificationFor`.
+    """
+
+    @with_roles(read={'owner'})
+    @property
+    def notification_type(self):
+        return self.notification.type
+
+    @with_roles(read={'owner'})
+    @property
+    def document_type(self):
+        return (
+            self.notification.document_model.__tablename__
+            if self.notification.document_model
+            else None
+        )
+
+    @with_roles(read={'owner'})
+    @property
+    def document(self):
+        """The document that this notification is for."""
+        return self.notification.document
+
+    @with_roles(read={'owner'})
+    @property
+    def fragment_type(self):
+        return (
+            self.notification.fragment_model.__tablename__
+            if self.notification.fragment_model
+            else None
+        )
+
+    @with_roles(read={'owner'})
+    @property
+    def fragment(self):
+        """The fragment within this document that this notification is for."""
+        return self.notification.fragment
+
+
+class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     """
     The recipient of a notification.
 
@@ -459,7 +522,7 @@ class UserNotification(NoIdMixin, db.Model):
         ),
     )
 
-    __roles__ = {'owner': {'read': {'created_at'}, 'all': {'read': {'is_read'}}}}
+    __roles__ = {'owner': {'read': {'created_at'}}}
 
     __datasets__ = {
         'primary': {
@@ -509,44 +572,7 @@ class UserNotification(NoIdMixin, db.Model):
     def is_read(cls):  # NOQA: N805
         return cls.read_at.isnot(None)
 
-    with_roles(is_read, read={'owner'}, write={'owner'})
-
-    # --- Shortcuts to Notification class (avoids RoleMixin role lookup) ---------------
-
-    @with_roles(read={'owner'})
-    @property
-    def notification_type(self):
-        return self.notification.type
-
-    @with_roles(read={'owner'})
-    @property
-    def document_type(self):
-        return (
-            self.notification.document_model.__tablename__
-            if self.notification.document_model
-            else None
-        )
-
-    @with_roles(read={'owner'})
-    @property
-    def document(self):
-        """The document that this notification is for."""
-        return self.notification.document
-
-    @with_roles(read={'owner'})
-    @property
-    def fragment_type(self):
-        return (
-            self.notification.fragment_model.__tablename__
-            if self.notification.fragment_model
-            else None
-        )
-
-    @with_roles(read={'owner'})
-    @property
-    def fragment(self):
-        """The fragment within this document that this notification is for."""
-        return self.notification.fragment
+    with_roles(is_read, rw={'owner'})
 
     # --- Dispatch helper methods ------------------------------------------------------
 
@@ -715,12 +741,35 @@ class UserNotification(NoIdMixin, db.Model):
                 user_notification.user_id = new_user.id
 
 
-User.all_notifications = with_roles(
-    db.relationship(
-        UserNotification, lazy='dynamic', order_by=UserNotification.created_at.desc()
-    ),
-    read={'owner'},
-)
+class NotificationFor(UserNotificationMixin):
+    """View-only wrapper to mimic :class:`UserNotification`."""
+
+    identity = read_at = None
+    is_revoked = is_read = False
+
+    def __init__(self, notification, user):
+        self.notification = notification
+        self.eventid = notification.eventid
+        self.notification_id = notification.id
+
+        self.user = user
+        self.user_id = user.id
+
+    @property
+    def role(self):
+        """User's primary matching role for this notification."""
+        if self.document and self.user:
+            roles = self.document.roles_for(self.user)
+            for role in self.notification.roles:
+                if role in roles:
+                    return role
+        return None
+
+    def rolledup_fragments(self):
+        if not self.notification.fragment_model:
+            return None
+        return [self.fragment]
+
 
 # --- Notification preferences ---------------------------------------------------------
 
@@ -848,6 +897,15 @@ class NotificationPreferences(BaseMixin, db.Model):
 
 @reopen(User)
 class User:
+    all_notifications = with_roles(
+        db.relationship(
+            UserNotification,
+            lazy='dynamic',
+            order_by=UserNotification.created_at.desc(),
+        ),
+        read={'owner'},
+    )
+
     notification_preferences = db.relationship(
         NotificationPreferences,
         collection_class=column_mapped_collection(

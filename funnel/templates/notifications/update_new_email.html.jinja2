@@ -1,9 +1,8 @@
 {% extends "notifications/layout_email.html.jinja2" %}
+{%- from "macros.html.jinja2" import project_title %}
 {% block content %}
 
-<p>{% trans user=view.user_notification.user.fullname %}Hi {{ user }},{% endtrans %}</p>
-
-<p>{% trans actor=view.actor.pickername, project=view.update.project.title, project_url=view.update.project.url_for() %}{{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:{% endtrans %}</p>
+<p>{% trans actor=view.actor.pickername, project=project_title(view.update.project), project_url=view.update.project.url_for() %}{{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:{% endtrans %}</p>
 
 <h1><a href="{{ view.update.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{{ view.update.title }}</a></h1>
 

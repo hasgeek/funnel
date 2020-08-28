@@ -34,6 +34,7 @@ from . import (
     schedule,
     search,
     session,
+    session_starting_notification,
     update,
     update_notification,
     venue,
