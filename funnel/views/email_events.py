@@ -41,14 +41,24 @@ class SesProcessor(SesProcessorAbc):
             email_address.mark_soft_fail()
 
     def complaint(self, ses_event: SesEvent) -> None:
-        for complained in ses_event.complaint.complained_recipients:
-            if ses_event.complaint.complaint_feedback_type == 'not-spam':
-                email_address = EmailAddress.get(complained.email)
-                if not email_address:
-                    email_address = EmailAddress.add(complained.email)
-                email_address.mark_active()
-            else:
-                EmailAddress.mark_blocked(complained.email)
+        # As per SES documentation, ISPs may not report the actual email addresses
+        # that filed the complaint. SES sends us the original recipients who are at
+        # the same domain, as a _maybe_ list. We respond to complaints by blocking their
+        # address from further use. Since this is a serious outcome, we can only do this
+        # when there was a single recipient to the original email.
+        # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-complaint-object
+        if len(ses_event.complaint.complained_recipients) == 1:
+            for complained in ses_event.complaint.complained_recipients:
+                if ses_event.complaint.complaint_feedback_type == 'not-spam':
+                    email_address = EmailAddress.get(complained.email)
+                    if not email_address:
+                        email_address = EmailAddress.add(complained.email)
+                    email_address.mark_active()
+                elif ses_event.complaint.complaint_feedback_type == 'abuse':
+                    EmailAddress.mark_blocked(complained.email)
+                else:
+                    # TODO: Process 'auth-failure', 'fraud', 'other', 'virus'
+                    pass
 
     def delivered(self, ses_event: SesEvent) -> None:
         # Recipients here are strings and not structures. Unusual, but reflected in
