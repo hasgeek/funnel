@@ -93,7 +93,14 @@ class AllNotificationsView(ClassView):
             ).one_or_404()
             un.is_read = True
             db.session.commit()
-            return {'status': 'ok'}
+            return {
+                'status': 'ok',
+                'unread': UserNotification.query.filter(
+                    UserNotification.user == current_auth.user,
+                    UserNotification.read_at.is_(None),
+                    UserNotification.is_revoked.is_(False),
+                ).count(),
+            }
         return {'status': 'error', 'error': 'csrf'}
 
     @route(
