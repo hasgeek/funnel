@@ -668,7 +668,8 @@ class ProjectView(
     @requires_login
     @requires_roles({'reader'})
     def save(self):
-        form = Project.forms.save()
+        form = self.SavedProjectForm()
+        form.form_nonce.data = form.form_nonce.default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 user=current_auth.user, project=self.obj
@@ -696,7 +697,6 @@ class ProjectView(
                 },
                 400,
             )
-        return redirect(self.obj.url_for(), code=303)
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')

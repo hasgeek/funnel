@@ -7,6 +7,7 @@ from baseframe import _, forms
 from coaster.auth import current_auth
 from coaster.utils import require_one_of
 
+from ..forms import SavedProjectForm
 from ..models import (
     Draft,
     Event,
@@ -26,6 +27,7 @@ from ..models import (
 class ProjectViewMixin(object):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
+    SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, session=None):
         proj = (

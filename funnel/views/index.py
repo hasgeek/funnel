@@ -8,6 +8,7 @@ from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, requestargs, route
 
 from .. import app, funnelapp, lastuserapp, pages
+from ..forms import SavedProjectForm
 from ..models import Project, Proposal, db
 from .helpers import app_url_for
 from .project import project_data
@@ -16,6 +17,7 @@ from .project import project_data
 @route('/')
 class IndexView(ClassView):
     current_section = 'home'
+    SavedProjectForm = SavedProjectForm
 
     @render_with('index.html.jinja2')
     def home(self):

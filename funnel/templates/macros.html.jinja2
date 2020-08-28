@@ -48,7 +48,7 @@
 
 {% macro saveprojectform(project, formid='save-form', txt=false) %}
   <form id={{formid}} class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
-    {{ project.forms.save().hidden_tag() }}
+    {{ current_view.SavedProjectForm().hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
         <a class="mui--text-body2"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body2 mui--text-light login-txt">{% trans %}Login{% endtrans %} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}to save{% endtrans %}</span></span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
