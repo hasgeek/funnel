@@ -7,10 +7,6 @@ from coaster.views import render_with
 from .. import app
 from ..models import EmailAddress, db
 from ..transports.email.aws_ses import (
-    Bounce,
-    Complaint,
-    Delivery,
-    DeliveryDelay,
     SesEvent,
     SesProcessorAbc,
     SnsNotificationType,
@@ -27,42 +23,72 @@ class SesProcessor(SesProcessorAbc):
     # never seen this email address before? Because it may have originated in Hasjob
     # or elsewhere in shared infrastructure.
 
-    def bounce(self, bounce: Bounce) -> None:
-        for bounced in bounce.bounced_recipients:
+    def bounce(self, ses_event: SesEvent) -> None:
+        for bounced in ses_event.bounce.bounced_recipients:
             email_address = EmailAddress.get(bounced.email)
             if not email_address:
                 email_address = EmailAddress.add(bounced.email)
-            if bounce.is_hard_bounce:
+            if ses_event.bounce.is_hard_bounce:
                 email_address.mark_hard_fail()
             else:
                 email_address.mark_soft_fail()
 
-    def delayed(self, delayed: DeliveryDelay) -> None:
-        for failed in delayed.delayed_recipients:
+    def delayed(self, ses_event: SesEvent) -> None:
+        for failed in ses_event.delivery_delay.delayed_recipients:
             email_address = EmailAddress.get(failed.email)
             if not email_address:
                 email_address = EmailAddress.add(failed.email)
             email_address.mark_soft_fail()
 
-    def complaint(self, complaint: Complaint) -> None:
-        for complained in complaint.complained_recipients:
-            if complaint.complaint_feedback_type == 'not-spam':
-                email_address = EmailAddress.get(complained.email)
-                if not email_address:
-                    email_address = EmailAddress.add(complained.email)
-                email_address.mark_active()
-            else:
-                EmailAddress.mark_blocked(complained.email)
+    def complaint(self, ses_event: SesEvent) -> None:
+        # As per SES documentation, ISPs may not report the actual email addresses
+        # that filed the complaint. SES sends us the original recipients who are at
+        # the same domain, as a _maybe_ list. We respond to complaints by blocking their
+        # address from further use. Since this is a serious outcome, we can only do this
+        # when there was a single recipient to the original email.
+        # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-complaint-object
+        if len(ses_event.complaint.complained_recipients) == 1:
+            for complained in ses_event.complaint.complained_recipients:
+                if ses_event.complaint.complaint_feedback_type == 'not-spam':
+                    email_address = EmailAddress.get(complained.email)
+                    if not email_address:
+                        email_address = EmailAddress.add(complained.email)
+                    email_address.mark_active()
+                elif ses_event.complaint.complaint_feedback_type == 'abuse':
+                    EmailAddress.mark_blocked(complained.email)
+                else:
+                    # TODO: Process 'auth-failure', 'fraud', 'other', 'virus'
+                    pass
 
-    def delivered(self, delivery: Delivery) -> None:
+    def delivered(self, ses_event: SesEvent) -> None:
         # Recipients here are strings and not structures. Unusual, but reflected in
         # the documentation.
         # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-send
-        for sent in delivery.recipients:
+        for sent in ses_event.delivery.recipients:
             email_address = EmailAddress.get(sent)
             if not email_address:
                 email_address = EmailAddress.add(sent)
             email_address.mark_sent()
+
+    def opened(self, ses_event: SesEvent) -> None:
+        # SES doesn't track the recipient that triggered this action, so process this
+        # only if the original email had a single recipient
+        if len(ses_event.mail.destination) == 1:
+            email = ses_event.mail.destination[0]
+            email_address = EmailAddress.get(email)
+            if not email_address:
+                email_address = EmailAddress.add(email)
+            email_address.mark_active()
+
+    def click(self, ses_event: SesEvent) -> None:
+        # SES doesn't track the recipient that triggered this action, so process this
+        # only if the original email had a single recipient
+        if len(ses_event.mail.destination) == 1:
+            email = ses_event.mail.destination[0]
+            email_address = EmailAddress.get(email)
+            if not email_address:
+                email_address = EmailAddress.add(email)
+            email_address.mark_active()
 
 
 # Local Variable for Validator, as there is no need to instantiate it every time we get

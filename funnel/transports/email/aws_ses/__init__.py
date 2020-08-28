@@ -1,4 +1,4 @@
 # flake8: noqa
 
-from .messages import *
+from .ses_messages import *
 from .sns_notifications import *
