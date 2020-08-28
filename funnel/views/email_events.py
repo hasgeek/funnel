@@ -119,6 +119,9 @@ def process_ses_event():
     except SnsValidatorException as exc:
         return {'status': 'error', 'error': 'invalid_topic', 'message': exc.args}, 400
 
+    # Log the message for later analysis
+    app.logger.info("SNS/SES event: %r", message)
+
     # Message Type
     m_type = message.get('Type')
 
@@ -143,5 +146,5 @@ def process_ses_event():
         db.session.commit()
         return {'status': 'ok', 'message': 'notification_processed'}
 
-    # The Path that should never be taken
+    # We'll only get here if there's a misconfiguration
     return {'status': 'error', 'error': 'unknown_message_type'}, 400
