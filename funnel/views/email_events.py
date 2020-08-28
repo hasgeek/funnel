@@ -71,14 +71,20 @@ class SesProcessor(SesProcessorAbc):
             email_address.mark_sent()
 
     def opened(self, ses_event: SesEvent) -> None:
-        for email in ses_event.mail.destination:
+        # SES doesn't track the recipient that triggered this action, so process this
+        # only if the original email had a single recipient
+        if len(ses_event.mail.destination) == 1:
+            email = ses_event.mail.destination[0]
             email_address = EmailAddress.get(email)
             if not email_address:
                 email_address = EmailAddress.add(email)
             email_address.mark_active()
 
     def click(self, ses_event: SesEvent) -> None:
-        for email in ses_event.mail.destination:
+        # SES doesn't track the recipient that triggered this action, so process this
+        # only if the original email had a single recipient
+        if len(ses_event.mail.destination) == 1:
+            email = ses_event.mail.destination[0]
             email_address = EmailAddress.get(email)
             if not email_address:
                 email_address = EmailAddress.add(email)
