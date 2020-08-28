@@ -156,6 +156,7 @@ class SessionViewMixin(object):
         'project': 'project.name',
         'session': 'url_name_uuid_b58',
     }
+    SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, session):
         session = (
