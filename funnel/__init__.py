@@ -53,8 +53,8 @@ from .models import db  # isort:skip
 
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
-coaster.app.init_app(funnelapp)
-coaster.app.init_app(lastuserapp)
+coaster.app.init_app(funnelapp, init_logging=False)
+coaster.app.init_app(lastuserapp, init_logging=False)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
