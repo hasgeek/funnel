@@ -28,6 +28,7 @@ baseframe-packed.*
 
 # Log files
 error.log
+error.log.*
 ghostdriver.log
 
 # Instance Files that should not be checked-in.
