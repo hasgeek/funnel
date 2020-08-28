@@ -1,8 +1,6 @@
 workbox.core.skipWaiting();
 workbox.core.clientsClaim();
 
-workbox.precaching.precacheAndRoute(self.__precacheManifest);
-
 workbox.routing.registerRoute(
   '/api/1/template/offline',
   new workbox.strategies.NetworkFirst({
