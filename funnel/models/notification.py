@@ -210,7 +210,23 @@ class Notification(NoIdMixin, db.Model):
     #: multiple fragments are collapsed into a single notification.
     fragment_uuid = db.Column(UUIDType(binary=False), nullable=True)
 
-    __mapper_args__ = {'polymorphic_on': type, 'with_polymorphic': '*'}
+    __table_args__ = (
+        db.Index(
+            'notification_type_document_uuid_fragment_uuid_key',
+            type,
+            document_uuid,
+            fragment_uuid,
+            unique=True,
+            postgresql_where=fragment_uuid.isnot(None),
+        ),
+    )
+
+    __mapper_args__ = {
+        # 'polymorphic_identity' from subclasses is stored in the type column
+        'polymorphic_on': type,
+        # When querying the Notification model, cast automatically to all subclasses
+        'with_polymorphic': '*',
+    }
 
     __datasets__ = {
         'primary': {'eventid', 'document', 'fragment', 'type', 'user'},
