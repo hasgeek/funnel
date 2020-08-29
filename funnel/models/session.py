@@ -13,7 +13,7 @@ from . import (
     UuidMixin,
     db,
 )
-from .helpers import add_search_trigger, visual_field_delimiter
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .proposal import Proposal
 from .venue import VenueRoom
@@ -26,8 +26,17 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     __tablename__ = 'session'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = db.relationship(
-        Project, backref=db.backref('sessions', cascade='all', lazy='dynamic')
+    project = with_roles(
+        db.relationship(
+            Project, backref=db.backref('sessions', cascade='all', lazy='dynamic')
+        ),
+        grants_via={
+            None: {
+                'crew': 'project_crew',
+                'participant': 'project_participant',
+                'editor': 'project_editor',
+            }
+        },
     )
     parent = db.synonym('project')
     description = MarkdownColumn('description', default='', nullable=False)
@@ -212,57 +221,102 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
 add_search_trigger(Session, 'search_vector')
 
 
-# Project schedule column expressions
-# Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
-Project.schedule_start_at = with_roles(
-    db.column_property(
-        db.select([db.func.min(Session.start_at)])
-        .where(Session.start_at.isnot(None))
-        .where(Session.project_id == Project.id)
-        .correlate_except(Session)
-    ),
-    read={'all'},
-)
-
-Project.next_session_at = with_roles(
-    db.column_property(
-        db.select([db.func.min(Session.start_at)])
-        .where(Session.start_at.isnot(None))
-        .where(Session.start_at > db.func.utcnow())
-        .where(Session.project_id == Project.id)
-        .correlate_except(Session)
-    ),
-    read={'all'},
-)
-
-Project.schedule_end_at = with_roles(
-    db.column_property(
-        db.select([db.func.max(Session.end_at)])
-        .where(Session.end_at.isnot(None))
-        .where(Session.project_id == Project.id)
-        .correlate_except(Session)
-    ),
-    read={'all'},
-)
-
-Project.sessions_with_video = with_roles(
-    db.relationship(
-        Session,
-        lazy='dynamic',
-        primaryjoin=db.and_(
-            Project.id == Session.project_id,
-            Session.video_id.isnot(None),
-            Session.video_source.isnot(None),
+@reopen(Project)
+class Project:
+    # Project schedule column expressions
+    # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
+    schedule_start_at = with_roles(
+        db.column_property(
+            db.select([db.func.min(Session.start_at)])
+            .where(Session.start_at.isnot(None))
+            .where(Session.project_id == Project.id)
+            .correlate_except(Session)
         ),
-    ),
-    read={'all'},
-)
+        read={'all'},
+    )
 
-Project.has_sessions_with_video = with_roles(
-    cached_property(
-        lambda self: self.query.session.query(
-            self.sessions_with_video.exists()
-        ).scalar()
-    ),
-    read={'all'},
-)
+    next_session_at = with_roles(
+        db.column_property(
+            db.select([db.func.min(Session.start_at)])
+            .where(Session.start_at.isnot(None))
+            .where(Session.start_at > db.func.utcnow())
+            .where(Session.project_id == Project.id)
+            .correlate_except(Session)
+        ),
+        read={'all'},
+    )
+
+    schedule_end_at = with_roles(
+        db.column_property(
+            db.select([db.func.max(Session.end_at)])
+            .where(Session.end_at.isnot(None))
+            .where(Session.project_id == Project.id)
+            .correlate_except(Session)
+        ),
+        read={'all'},
+    )
+
+    sessions_with_video = with_roles(
+        db.relationship(
+            Session,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                Project.id == Session.project_id,
+                Session.video_id.isnot(None),
+                Session.video_source.isnot(None),
+            ),
+        ),
+        read={'all'},
+    )
+
+    has_sessions_with_video = with_roles(
+        cached_property(
+            lambda self: self.query.session.query(
+                self.sessions_with_video.exists()
+            ).scalar()
+        ),
+        read={'all'},
+    )
+
+    def next_session_from(self, timestamp):
+        """
+        Find the next session in this project starting at or after given timestamp.
+        """
+        return (
+            self.sessions.filter(
+                Session.start_at.isnot(None), Session.start_at >= timestamp
+            )
+            .order_by(Session.start_at.asc())
+            .first()
+        )
+
+    @classmethod
+    def starting_at(cls, timestamp, interval, gap):
+        """
+        Returns projects that are about to start, for sending notifications.
+
+        :param datetime timestamp: The timestamp to look for new sessions at
+        :param timedelta interval: The interval after which this method will be called
+            again. Lookup will be for sessions where timestamp >= start_at < +interval
+        :param timedelta gap: A project will be considered to be starting if it has no
+            sessions ending within the gap period before the timestamp
+
+        Typical use of this method is from a background worker that calls it at
+        intervals of five minutes with parameters (timestamp, 5m interval, 60m gap).
+        """
+        return cls.query.filter(
+            cls.id.in_(
+                db.session.query(db.func.distinct(Session.project_id)).filter(
+                    Session.start_at.isnot(None),
+                    Session.start_at >= timestamp,
+                    Session.start_at < timestamp + interval,
+                    Session.project_id.notin_(
+                        db.session.query(db.func.distinct(Session.project_id)).filter(
+                            Session.end_at.isnot(None),
+                            Session.end_at > timestamp - gap,
+                            Session.end_at <= timestamp,
+                        )
+                    ),
+                )
+            )
+        )

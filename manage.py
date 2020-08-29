@@ -1,6 +1,6 @@
 #! /usr/bin/env python
-
 from collections import namedtuple
+from datetime import timedelta
 import sys
 
 from dateutil.relativedelta import relativedelta
@@ -10,6 +10,8 @@ import requests
 from coaster.manage import Manager, init_manager, manager
 from coaster.utils import midnight_to_utc, utcnow
 from funnel import app, funnelapp, lastuserapp, models
+from funnel.models import db
+from funnel.views.notification import dispatch_notification
 
 # --- Data sources ---------------------------------------------------------------------
 
@@ -22,7 +24,7 @@ data_sources = {
         models.UserSession.accessed_at,
     ),
     'app_user_sessions': DataSource(
-        models.db.session.query(models.db.func.distinct(models.UserSession.user_id))
+        db.session.query(db.func.distinct(models.UserSession.user_id))
         .select_from(models.auth_client_user_session, models.UserSession)
         .filter(
             models.auth_client_user_session.c.user_session_id == models.UserSession.id
@@ -71,14 +73,49 @@ periodic = Manager(usage="Periodic tasks from cron (with recommended intervals)"
 def phoneclaims():
     """Sweep phone claims to close all unclaimed beyond expiry period (10m)"""
     models.UserPhoneClaim.delete_expired()
-    models.db.session.commit()
+    db.session.commit()
+
+
+@periodic.command
+def project_starting_alert():
+    """Send notifications for projects that are about to start schedule. (5m)"""
+    with app.app_context():
+        # Rollback to the most recent 5 minute interval, to account for startup delay
+        # for periodic job processes.
+        use_now = db.session.query(
+            db.func.date_trunc('hour', db.func.utcnow())
+            + db.cast(db.func.date_part('minute', db.func.utcnow()), db.Integer)
+            / 5
+            * timedelta(minutes=5)
+        ).scalar()
+
+        # Find all projects that have a session starting between 10 and 15 minutes from
+        # use_now, and where the same project did not have a session ending within
+        # the prior hour.
+
+        # Any eager-loading columns and relationships should be deferred with
+        # db.defer(column) and db.noload(relationship). There are none as of this
+        # commit.
+        for project in (
+            models.Project.starting_at(
+                use_now + timedelta(minutes=10),
+                timedelta(minutes=5),
+                timedelta(minutes=60),
+            )
+            .options(db.load_only(models.Project.uuid))
+            .all()
+        ):
+            dispatch_notification(
+                models.ProjectStartingNotification(
+                    document=project,
+                    fragment=project.next_session_from(use_now + timedelta(minutes=10)),
+                )
+            )
 
 
 @periodic.command
 def growthstats():
-    """
-    Publish growth statistics to Telegram
-    """
+    """Publish growth statistics to Telegram (midnight)"""
     if not app.config.get('TELEGRAM_STATS_BOT_TOKEN') or not app.config.get(
         'TELEGRAM_STATS_CHAT_ID'
     ):
@@ -187,7 +224,7 @@ def growthstats():
             )
 
     message = (
-        f"*Growth statistics for {display_date.strftime('%a, %-d %b %Y')}*\n"
+        f"*Growth #statistics for {display_date.strftime('%a, %-d %b %Y')}*\n"
         f"\n"
         f"*Active users*, of which\n"
         f"↝ also using other apps, and\n"
@@ -214,7 +251,8 @@ def growthstats():
             )
 
     requests.post(
-        f'https://api.telegram.org/bot{app.config["TELEGRAM_STATS_BOT_TOKEN"]}/sendMessage',
+        f'https://api.telegram.org/bot{app.config["TELEGRAM_STATS_BOT_TOKEN"]}'
+        f'/sendMessage',
         data={
             'chat_id': app.config['TELEGRAM_STATS_CHAT_ID'],
             'parse_mode': 'markdown',
@@ -225,7 +263,7 @@ def growthstats():
 
 if __name__ == "__main__":
     manager = init_manager(
-        app, models.db, models=models, funnelapp=funnelapp, lastuserapp=lastuserapp
+        app, db, models=models, funnelapp=funnelapp, lastuserapp=lastuserapp
     )
     manager.add_command('periodic', periodic)
     manager.run()
