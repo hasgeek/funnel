@@ -209,7 +209,7 @@ export const Utils = {
     return $(`#${formId}`).attr('action');
   },
   updateFormNonce(response) {
-    if (response.form_nonce) {
+    if (response && response.form_nonce) {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
   },
@@ -253,6 +253,17 @@ export const Utils = {
       }
     }
   },
+  setNotifyIcon(unread) {
+    if (unread) {
+      $('.header__nav-links--updates').addClass(
+        'header__nav-links--updates--unread'
+      );
+    } else {
+      $('.header__nav-links--updates').removeClass(
+        'header__nav-links--updates--unread'
+      );
+    }
+  },
   updateNotificationStatus() {
     $.ajax({
       type: 'GET',
@@ -260,15 +271,7 @@ export const Utils = {
       dataType: 'json',
       timeout: window.Hasgeek.config.ajaxTimeout,
       success: function (responseData) {
-        if (responseData.unread) {
-          $('.header__nav-links--updates').addClass(
-            'header__nav-links--updates--unread'
-          );
-        } else {
-          $('.header__nav-links--updates').removeClass(
-            'header__nav-links--updates--unread'
-          );
-        }
+        Utils.setNotifyIcon(responseData.unread);
       },
     });
   },

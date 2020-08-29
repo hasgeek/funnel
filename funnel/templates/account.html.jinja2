@@ -53,11 +53,13 @@
               {{ faicon(icon='user', css_class='icon-img--smaller') }}{% if current_auth.user.username %}{{ current_auth.user.username }}{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
             </p>
             <p class="mui--text-subhead">
-              <span class="item">{{ faicon('clock', css_class='icon-img--smaller') }}{{ current_auth.user.views.timezone() }}{%if current_auth.user.auto_timezone %} <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>{% endif %}</span>
+              {{ faicon('clock', css_class='icon-img--smaller') }}<span class="item">{{ current_auth.user.views.timezone() }}{%if current_auth.user.auto_timezone %} <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>{% endif %}</span>
             </p>
-            <p class="mui--text-subhead">
-              <span class="item">{{ faicon('language', css_class='icon-img--smaller') }}{{ current_auth.user.views.locale() }}{%if current_auth.user.auto_locale %} <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>{% endif %}</span>
-            </p>
+            {%if current_auth.user.views.locale() %}
+              <p class="mui--text-subhead">
+                {{ faicon('language', css_class='icon-img--smaller') }}<span class="item">{{ current_auth.user.views.locale() }}{%if current_auth.user.auto_locale %} <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>{% endif %}</span>
+              </p>
+            {% endif %}
           </div>
           <div class="mui-divider"></div>
           <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
