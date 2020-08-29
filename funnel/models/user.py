@@ -66,25 +66,25 @@ class SharedProfileMixin:
             return
         return Profile.validate_name_candidate(name)
 
-    # TODO: This property is temporary while account and org edit forms have a checkbox
-    # for determining profile visibility. Profile visibility should be controlled
-    # through transitions, not as data in a form.
-
     @property
-    def is_public_profile(self):
+    def has_public_profile(self):
         """Controls the visibility state of a public profile"""
         return self.profile is not None and self.profile.state.PUBLIC
 
-    @is_public_profile.setter
-    def is_public_profile(self, value):
-        if not self.profile:
-            raise ValueError("There is no profile")
-        if value:
-            if not self.profile.state.PUBLIC:
-                self.profile.make_public()
-        else:
-            if self.profile.state.PUBLIC:
-                self.profile.make_private()
+    with_roles(has_public_profile, read={'all'}, write={'owner'})
+
+    @property
+    def avatar(self):
+        return (
+            self.profile.logo_url
+            if self.profile and self.profile.logo_url and self.profile.logo_url.url
+            else ''
+        )
+
+    @with_roles(read={'all'})
+    @property
+    def profile_url(self):
+        return self.profile.url_for() if self.has_public_profile else None
 
 
 class USER_STATUS(LabeledEnum):  # NOQA: N801
@@ -297,25 +297,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         else:
             return self.fullname
-
-    @with_roles(read={'all'})
-    @property
-    def avatar(self):
-        return (
-            self.profile.logo_url
-            if self.profile and self.profile.logo_url and self.profile.logo_url.url
-            else ''
-        )
-
-    @with_roles(read={'all'})
-    @property
-    def has_public_profile(self):
-        return self.profile.is_public if self.profile else False
-
-    @with_roles(read={'all'})
-    @property
-    def profile_url(self):
-        return self.profile.url_for() if self.has_public_profile else None
 
     def add_email(self, email, primary=False, type=None, private=False):  # NOQA: A002
         useremail = UserEmail(user=self, email=email, type=type, private=private)

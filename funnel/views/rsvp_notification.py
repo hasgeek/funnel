@@ -1,6 +1,6 @@
 from flask import render_template
 
-from baseframe import _
+from baseframe import _, __
 
 from ..models import (
     RegistrationCancellationNotification,
@@ -17,25 +17,22 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
 
     aliases = {'document': 'rsvp'}
 
+    reason = __("You are receiving this because you have registered for this project.")
+
     def web(self):
-        return render_template(
-            'notifications/rsvp_yes_web.html.jinja2',
-            view=self,
-            project=self.rsvp.project,
-        )
+        return render_template('notifications/rsvp_yes_web.html.jinja2', view=self)
 
     def email_subject(self):
-        return _("Registration confirmation for {project}").format(
-            project=self.rsvp.project.title
+        return _("🎟️ Registration confirmation for {project}").format(
+            project=self.rsvp.project.joined_title()
         )
 
     def email_content(self):
         return render_template(
             'notifications/rsvp_yes_email.html.jinja2',
             view=self,
-            project=self.rsvp.project,
             jsonld=email.jsonld_view_action(
-                self.rsvp.project.title,
+                self.rsvp.project.joined_title(),
                 self.rsvp.project.url_for(_external=True),
                 _("View project"),
             ),
@@ -55,7 +52,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
 
     def sms(self):
         return _("You have registered for {project}. {url}").format(
-            project=self.rsvp.project.title,
+            project=self.rsvp.project.joined_title('>'),
             url=self.rsvp.project.url_for(_external=True),
         )
 
@@ -66,25 +63,22 @@ class RenderRegistrationCancellationNotification(RenderNotification):
 
     aliases = {'document': 'rsvp'}
 
+    reason = __("You are receiving this because you had registered for this project.")
+
     def web(self):
-        return render_template(
-            'notifications/rsvp_no_web.html.jinja2',
-            view=self,
-            project=self.rsvp.project,
-        )
+        return render_template('notifications/rsvp_no_web.html.jinja2', view=self)
 
     def email_subject(self):
-        return _("Registration cancelled for {project}").format(
-            project=self.rsvp.project.title
+        return _("🎫 Registration cancelled for {project}").format(
+            project=self.rsvp.project.joined_title()
         )
 
     def email_content(self):
         return render_template(
             'notifications/rsvp_no_email.html.jinja2',
             view=self,
-            project=self.rsvp.project,
             jsonld=email.jsonld_view_action(
-                self.rsvp.project.title,
+                self.rsvp.project.joined_title(),
                 self.rsvp.project.url_for(_external=True),
                 _("View project"),
             ),
@@ -92,5 +86,5 @@ class RenderRegistrationCancellationNotification(RenderNotification):
 
     def sms(self):
         return _("You have cancelled your registration for {project}.").format(
-            project=self.rsvp.project.title,
+            project=self.rsvp.project.joined_title('>'),
         )

@@ -28,6 +28,7 @@ from . import (
     participant,
     profile,
     project,
+    project_starting_notification,
     proposal,
     proposal_notification,
     rsvp_notification,

@@ -5,6 +5,7 @@ from .notification import NOTIFICATION_CATEGORY, Notification
 from .project import Project
 from .proposal import Proposal
 from .rsvp import Rsvp
+from .session import Session
 from .update import Update
 
 __all__ = [
@@ -15,6 +16,7 @@ __all__ = [
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
+    'ProjectStartingNotification',
 ]
 
 # --- Mixin classes --------------------------------------------------------------------
@@ -112,6 +114,21 @@ class ProposalSubmittedNotification(ProjectIsParent, Notification):
     default_webpush = False
     default_telegram = False
     default_whatsapp = False
+
+
+class ProjectStartingNotification(ProfileIsParent, Notification):
+    """Notification of a session about to start."""
+
+    __mapper_args__ = {'polymorphic_identity': 'project_starting'}
+
+    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    title = __("When a session I’ve registered for is about to start")
+    description = __("You will be notified 5-10 minutes before starting time")
+
+    document_model = Project
+    fragment_model = Session
+    roles = ['project_crew', 'project_participant']
+    # This is a notification triggered without an actor
 
 
 # --- Comment notifications ------------------------------------------------------------

@@ -5,7 +5,7 @@
     <b>{{ actor }}</b> has added you to <b>{{ organization }}</b> as an admin.
   {% endtrans %}</p>
 
-  <p>
+  <p class="btn-bar">
     <a class="btn" href="{{ organization.profile.url_for('members', _external=true, utm_medium='email', utm_campaign='notification') }}">{% trans %}See all admins{% endtrans %}</a>
   </p>
 
