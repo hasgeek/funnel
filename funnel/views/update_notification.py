@@ -17,7 +17,7 @@ class RenderNewUpdateNotification(RenderNotification):
 
     def email_subject(self):
         return _("📰 {update} ({project})").format(
-            update=self.update.title, project=self.update.project.joined_title
+            update=self.update.title, project=self.update.project.joined_title()
         )
 
     def email_content(self):
@@ -25,7 +25,7 @@ class RenderNewUpdateNotification(RenderNotification):
 
     def sms(self):
         return _("Update: {update} ({project}): {url}").format(
-            project=self.update.project.joined_title,
+            project=self.update.project.joined_title('>'),
             update=self.update.title,
             url=self.update.url_for(_external=True),
         )

@@ -26,7 +26,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
 
     def email_subject(self):
         return _("Registration confirmation for {project}").format(
-            project=self.rsvp.project.joined_title
+            project=self.rsvp.project.joined_title()
         )
 
     def email_content(self):
@@ -35,7 +35,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
             view=self,
             project=self.rsvp.project,
             jsonld=email.jsonld_view_action(
-                self.rsvp.project.joined_title,
+                self.rsvp.project.joined_title(),
                 self.rsvp.project.url_for(_external=True),
                 _("View project"),
             ),
@@ -55,7 +55,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
 
     def sms(self):
         return _("You have registered for {project}. {url}").format(
-            project=self.rsvp.project.joined_title,
+            project=self.rsvp.project.joined_title('>'),
             url=self.rsvp.project.url_for(_external=True),
         )
 
@@ -75,7 +75,7 @@ class RenderRegistrationCancellationNotification(RenderNotification):
 
     def email_subject(self):
         return _("Registration cancelled for {project}").format(
-            project=self.rsvp.project.joined_title
+            project=self.rsvp.project.joined_title()
         )
 
     def email_content(self):
@@ -84,7 +84,7 @@ class RenderRegistrationCancellationNotification(RenderNotification):
             view=self,
             project=self.rsvp.project,
             jsonld=email.jsonld_view_action(
-                self.rsvp.project.joined_title,
+                self.rsvp.project.joined_title(),
                 self.rsvp.project.url_for(_external=True),
                 _("View project"),
             ),
@@ -92,5 +92,5 @@ class RenderRegistrationCancellationNotification(RenderNotification):
 
     def sms(self):
         return _("You have cancelled your registration for {project}.").format(
-            project=self.rsvp.project.joined_title,
+            project=self.rsvp.project.joined_title('>'),
         )

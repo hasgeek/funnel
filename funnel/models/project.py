@@ -402,12 +402,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             return self.profile.title
         return ''
 
-    @property
-    def joined_title(self):
+    def joined_title(self, sep='›'):
         """Return the project's title joined with the profile's title, if divergent."""
         if self.short_title == self.title:
             # Project title does not derive from profile title, so use both
-            return f"{self.profile.title} > {self.title}"
+            return f"{self.profile.title} {sep} {self.title}"
         # Project title extends profile title, so profile title is not needed
         return self.title
 

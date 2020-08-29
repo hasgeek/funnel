@@ -18,7 +18,9 @@ class RenderProjectStartingNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("⏰ Starting now! {project}").format(project=self.project.joined_title)
+        return _("⏰ Starting now! {project}").format(
+            project=self.project.joined_title()
+        )
 
     def email_content(self):
         return render_template(
@@ -27,5 +29,6 @@ class RenderProjectStartingNotification(RenderNotification):
 
     def sms(self):
         return _("Starting now! {project} {url}").format(
-            project=self.project.joined_title, url=self.project.url_for(_external=True),
+            project=self.project.joined_title('>'),
+            url=self.project.url_for(_external=True),
         )

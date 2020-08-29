@@ -39,7 +39,7 @@ class RenderProposalReceivedNotification(RenderNotification):
 
     def email_subject(self):
         return _("New proposal for {project}: {proposal}").format(
-            proposal=self.proposal, project=self.project.joined_title
+            proposal=self.proposal, project=self.project.joined_title()
         )
 
     def email_content(self):
@@ -53,7 +53,7 @@ class RenderProposalReceivedNotification(RenderNotification):
     def sms(self):
         return _("New proposal for {project}: {proposal} {url}").format(
             proposal=self.proposal.title,
-            project=self.project.joined_title,
+            project=self.project.joined_title('>'),
             url=self.proposal.url_for(_external=True),
         )
 
@@ -74,7 +74,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
 
     def email_subject(self):
         return _("Proposal submitted for {project}: {proposal}").format(
-            project=self.proposal.project.joined_title, proposal=self.proposal.title,
+            project=self.proposal.project.joined_title(), proposal=self.proposal.title,
         )
 
     def email_content(self):
@@ -87,6 +87,6 @@ class RenderProposalSubmittedNotification(RenderNotification):
 
     def sms(self):
         return _("Your proposal has been submitted to {project} {url}").format(
-            project=self.proposal.project.joined_title,
+            project=self.proposal.project.joined_title('>'),
             url=self.proposal.url_for(_external=True),
         )
