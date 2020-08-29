@@ -77,10 +77,45 @@ def phoneclaims():
 
 
 @periodic.command
+def project_starting_alert():
+    """Send notifications for projects that are about to start schedule. (5m)"""
+    with app.app_context():
+        # Rollback to the most recent 5 minute interval, to account for startup delay
+        # for periodic job processes.
+        use_now = db.session.query(
+            db.func.date_trunc('hour', db.func.utcnow())
+            + db.cast(db.func.date_part('minute', db.func.utcnow()), db.Integer)
+            / 5
+            * timedelta(minutes=5)
+        ).scalar()
+
+        # Find all projects that have a session starting between 10 and 15 minutes from
+        # use_now, and where the same project did not have a session ending within
+        # the prior hour.
+
+        # Any eager-loading columns and relationships should be deferred with
+        # db.defer(column) and db.noload(relationship). There are none as of this
+        # commit.
+        for project in (
+            models.Project.starting_at(
+                use_now + timedelta(minutes=10),
+                timedelta(minutes=5),
+                timedelta(minutes=60),
+            )
+            .options(db.load_only(models.Project.uuid))
+            .all()
+        ):
+            dispatch_notification(
+                models.ProjectStartingNotification(
+                    document=project,
+                    fragment=project.next_session_from(use_now + timedelta(minutes=10)),
+                )
+            )
+
+
+@periodic.command
 def growthstats():
-    """
-    Publish growth statistics to Telegram
-    """
+    """Publish growth statistics to Telegram (midnight)"""
     if not app.config.get('TELEGRAM_STATS_BOT_TOKEN') or not app.config.get(
         'TELEGRAM_STATS_CHAT_ID'
     ):
@@ -224,50 +259,6 @@ def growthstats():
             'text': message,
         },
     )
-
-
-@periodic.command
-def next_session():
-    """Send notifications for sessions that are about to start."""
-    with app.app_context():
-        # Rollback to the most recent 5 minute interval, to account for startup delays
-        use_now = db.session.query(
-            db.func.date_trunc('hour', db.func.utcnow())
-            + db.cast(db.func.date_part('minute', db.func.utcnow()), db.Integer)
-            / 5
-            * timedelta(minutes=5)
-        ).scalar()
-
-        # Find all projects that have a session starting between 10 and 15 minutes from
-        # start time, and where the same project did not have a session ending within
-        # the prior hour.
-
-        for project in (
-            models.Project.query.filter(
-                models.Project.id.in_(
-                    db.session.query(
-                        db.func.distinct(models.Session.project_id)
-                    ).filter(
-                        models.Session.start_at >= use_now + timedelta(minutes=10),
-                        models.Session.start_at < use_now + timedelta(minutes=15),
-                        models.Session.project_id.notin_(
-                            db.session.query(
-                                db.func.distinct(models.Session.project_id)
-                            ).filter(
-                                models.Session.end_at > use_now - timedelta(minutes=50),
-                                models.Session.end_at
-                                <= use_now + timedelta(minutes=10),
-                            )
-                        ),
-                    )
-                )
-            )
-            # Any eager-loading columns and relationships should be deferred with
-            # db.defer(column) and db.noload(relationship). There are none as of this
-            # commit.
-            .options(db.load_only(models.Project.uuid)).all()
-        ):
-            dispatch_notification(models.ProjectStartingNotification(document=project))
 
 
 if __name__ == "__main__":

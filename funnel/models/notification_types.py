@@ -5,6 +5,7 @@ from .notification import NOTIFICATION_CATEGORY, Notification
 from .project import Project
 from .proposal import Proposal
 from .rsvp import Rsvp
+from .session import Session
 from .update import Update
 
 __all__ = [
@@ -125,7 +126,8 @@ class ProjectStartingNotification(ProfileIsParent, Notification):
     description = __("You will be notified 5-10 minutes before starting time")
 
     document_model = Project
-    roles = ['crew', 'participant']
+    fragment_model = Session
+    roles = ['project_crew', 'project_participant']
     # This is a notification triggered without an actor
 
 

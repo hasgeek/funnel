@@ -5,7 +5,7 @@
     <b>{{ actor }}</b> has removed you as an admin from <b>{{ organization }}</b>.
   {% endtrans %}</p>
 
-  <p>
+  <p class="btn-bar">
     <a class="btn" href="{{ organization.profile.url_for('members', _external=true, utm_medium='email', utm_campaign='notification') }}">{% trans %}See all admins{% endtrans %}</a>
   </p>
 

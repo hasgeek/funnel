@@ -8,6 +8,6 @@
 
 {{ view.update.body }}
 
-<p><a class="btn" href="{{ view.update.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Read on the website{% endtrans %}</a></p>
+<p class="btn-bar"><a class="btn" href="{{ view.update.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Read on the website{% endtrans %}</a></p>
 
 {% endblock %}

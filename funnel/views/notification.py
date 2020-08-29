@@ -48,12 +48,17 @@ class RenderNotification:
     #: Reason specified in email templates. Subclasses MAY override
     reason = __("You are receiving this because you have an account at hasgeek.com.")
 
-    #: Copies of reason per transport that can be overriden by subclasses
-    reason_email = reason
-    reason_sms = reason
-    reason_webpush = reason
-    reason_telegram = reason
-    reason_whatsapp = reason
+    #: Copies of reason per transport that can be overriden by subclasses using either
+    #: a property or an attribute
+    @property
+    def reason_for(self):
+        return self.reason
+
+    reason_email = reason_for
+    reason_sms = reason_for
+    reason_webpush = reason_for
+    reason_telegram = reason_for
+    reason_whatsapp = reason_for
 
     #: Aliases for document and fragment, to make render methods clearer
     aliases = {}

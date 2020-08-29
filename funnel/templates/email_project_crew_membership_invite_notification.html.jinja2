@@ -5,7 +5,7 @@
     <b>{{ actor }}</b> has invited you to join <b>{{ project }}</b> as a crew member.
   {% endtrans %}</p>
 
-  <p>
+  <p class="btn-bar">
     <a class="btn" href="{{ membership.url_for('invite', _external=true, utm_medium='email', utm_campaign='notification') }}">{% trans %}Accept or decline invite{% endtrans %}</a>
   </p>
 
