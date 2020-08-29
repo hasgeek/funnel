@@ -211,6 +211,11 @@ class Notification(NoIdMixin, db.Model):
     fragment_uuid = db.Column(UUIDType(binary=False), nullable=True)
 
     __table_args__ = (
+        # This could have been achieved with a UniqueConstraint on all three columns.
+        # When the third column (fragment_uuid) is null it has the same effect as the
+        # PostgreSQL-specific where clause. We use the clause here to make clear our
+        # intent of only enforcing a one-notification limit when the fragment is
+        # present. Hence the naming convention of `_key` suffix rather than `ix_` prefix
         db.Index(
             'notification_type_document_uuid_fragment_uuid_key',
             type,

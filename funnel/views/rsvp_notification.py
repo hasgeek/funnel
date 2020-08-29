@@ -1,6 +1,6 @@
 from flask import render_template
 
-from baseframe import _
+from baseframe import _, __
 
 from ..models import (
     RegistrationCancellationNotification,
@@ -17,6 +17,8 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
 
     aliases = {'document': 'rsvp'}
 
+    reason = __("You are receiving this because you have registered for this project.")
+
     def web(self):
         return render_template(
             'notifications/rsvp_yes_web.html.jinja2',
@@ -25,7 +27,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("Registration confirmation for {project}").format(
+        return _("🎟️ Registration confirmation for {project}").format(
             project=self.rsvp.project.joined_title()
         )
 
@@ -66,6 +68,8 @@ class RenderRegistrationCancellationNotification(RenderNotification):
 
     aliases = {'document': 'rsvp'}
 
+    reason = __("You are receiving this because you have registered for this project.")
+
     def web(self):
         return render_template(
             'notifications/rsvp_no_web.html.jinja2',
@@ -74,7 +78,7 @@ class RenderRegistrationCancellationNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("Registration cancelled for {project}").format(
+        return _("🎫 Registration cancelled for {project}").format(
             project=self.rsvp.project.joined_title()
         )
 

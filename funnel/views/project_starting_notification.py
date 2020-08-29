@@ -1,6 +1,6 @@
 from flask import render_template
 
-from baseframe import _
+from baseframe import _, __
 
 from ..models import ProjectStartingNotification
 from .notification import RenderNotification
@@ -8,9 +8,11 @@ from .notification import RenderNotification
 
 @ProjectStartingNotification.renderer
 class RenderProjectStartingNotification(RenderNotification):
-    """Notify crew and participants when the project has a session about to start."""
+    """Notify crew and participants when the project's schedule is about to start."""
 
     aliases = {'document': 'project'}
+
+    reason = __("You are receiving this because you have registered for this project.")
 
     def web(self):
         return render_template(

@@ -1,6 +1,6 @@
 from flask import render_template
 
-from baseframe import _
+from baseframe import _, __
 
 from ..models import (
     Proposal,
@@ -16,6 +16,8 @@ class RenderProposalReceivedNotification(RenderNotification):
     """Notify the project editor when a new proposal is submitted."""
 
     aliases = {'document': 'project', 'fragment': 'proposal'}
+
+    reason = __("You are receiving this because you are an editor of this project.")
 
     def web(self):
         proposals = (
@@ -38,7 +40,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("New proposal for {project}: {proposal}").format(
+        return _("📥 New proposal in {project}: {proposal}").format(
             proposal=self.proposal, project=self.project.joined_title()
         )
 
@@ -51,7 +53,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("New proposal for {project}: {proposal} {url}").format(
+        return _("New proposal in {project}: {proposal} {url}").format(
             proposal=self.proposal.title,
             project=self.project.joined_title('>'),
             url=self.proposal.url_for(_external=True),
@@ -64,6 +66,8 @@ class RenderProposalSubmittedNotification(RenderNotification):
 
     aliases = {'document': 'proposal'}
 
+    reason = __("You are receiving this because you have submitted this proposal.")
+
     def web(self):
         return render_template(
             'notifications/proposal_submitted_web.html.jinja2',
@@ -73,7 +77,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("Proposal submitted for {project}: {proposal}").format(
+        return _("📤 Proposal submitted to {project}: {proposal}").format(
             project=self.proposal.project.joined_title(), proposal=self.proposal.title,
         )
 
