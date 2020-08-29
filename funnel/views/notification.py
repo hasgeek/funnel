@@ -177,6 +177,14 @@ class RenderNotification:
         """Render optional attachments to an email notification."""
         return None
 
+    def email_from(self):
+        """The sender of an email."""
+        if self.notification.preference_context:
+            return _("{sender} (via Hasgeek)").format(
+                sender=self.notification.preference_context.title
+            )
+        return _("Hasgeek")
+
     def sms(self):
         """
         Render a short text message. Templates must use a single line with a link.
@@ -313,6 +321,7 @@ def dispatch_transport_email(user_notification, view):
         to=[(user_notification.user.fullname, str(address))],
         content=content,
         attachments=attachments,
+        from_email=(view.email_from(), 'no-reply@' + app.config['DEFAULT_DOMAIN']),
     )
     statsd.incr(
         'notification.transport',
