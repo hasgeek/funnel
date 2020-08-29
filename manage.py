@@ -224,7 +224,7 @@ def growthstats():
             )
 
     message = (
-        f"*Growth statistics for {display_date.strftime('%a, %-d %b %Y')}*\n"
+        f"*Growth #statistics for {display_date.strftime('%a, %-d %b %Y')}*\n"
         f"\n"
         f"*Active users*, of which\n"
         f"↝ also using other apps, and\n"
