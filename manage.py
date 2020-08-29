@@ -267,7 +267,7 @@ def next_session():
             # commit.
             .options(db.load_only(models.Project.uuid)).all()
         ):
-            dispatch_notification(models.SessionStartingNotification(document=project))
+            dispatch_notification(models.ProjectStartingNotification(document=project))
 
 
 if __name__ == "__main__":

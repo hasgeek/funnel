@@ -15,7 +15,7 @@ __all__ = [
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
-    'SessionStartingNotification',
+    'ProjectStartingNotification',
 ]
 
 # --- Mixin classes --------------------------------------------------------------------
@@ -115,10 +115,10 @@ class ProposalSubmittedNotification(ProjectIsParent, Notification):
     default_whatsapp = False
 
 
-class SessionStartingNotification(ProfileIsParent, Notification):
+class ProjectStartingNotification(ProfileIsParent, Notification):
     """Notification of a session about to start."""
 
-    __mapper_args__ = {'polymorphic_identity': 'project_session_starting'}
+    __mapper_args__ = {'polymorphic_identity': 'project_starting'}
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
     title = __("When a session I’ve registered for is about to start")

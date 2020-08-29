@@ -2,19 +2,19 @@ from flask import render_template
 
 from baseframe import _
 
-from ..models import SessionStartingNotification
+from ..models import ProjectStartingNotification
 from .notification import RenderNotification
 
 
-@SessionStartingNotification.renderer
-class RenderSessionStartingNotification(RenderNotification):
+@ProjectStartingNotification.renderer
+class RenderProjectStartingNotification(RenderNotification):
     """Notify crew and participants when the project has a session about to start."""
 
     aliases = {'document': 'project'}
 
     def web(self):
         return render_template(
-            'notifications/session_starting_web.html.jinja2', view=self
+            'notifications/project_starting_web.html.jinja2', view=self
         )
 
     def email_subject(self):
@@ -22,7 +22,7 @@ class RenderSessionStartingNotification(RenderNotification):
 
     def email_content(self):
         return render_template(
-            'notifications/session_starting_email.html.jinja2', view=self
+            'notifications/project_starting_email.html.jinja2', view=self
         )
 
     def sms(self):
