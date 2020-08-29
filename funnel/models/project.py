@@ -145,7 +145,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     commentset = db.relationship(
         Commentset,
         uselist=False,
-        lazy='joined',
         cascade='all',
         single_parent=True,
         backref=db.backref('project', uselist=False),
@@ -409,9 +408,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.short_title == self.title:
             # Project title does not derive from profile title, so use both
             return f"{self.profile.title} > {self.title}"
-        else:
-            # Project title extends profile title, so profile title is not needed
-            return self.title
+        # Project title extends profile title, so profile title is not needed
+        return self.title
 
     @cached_property
     def datelocation(self):

@@ -242,12 +242,11 @@ def next_session():
         # start time, and where the same project did not have a session ending within
         # the prior hour.
 
-        for row in (
-            db.session.query(models.Project.uuid)
-            .filter(
+        for project in (
+            models.Project.query.filter(
                 models.Project.id.in_(
                     db.session.query(
-                        db.func.distinct(models.Session.project_id).label('project_id')
+                        db.func.distinct(models.Session.project_id)
                     ).filter(
                         models.Session.start_at >= use_now + timedelta(minutes=10),
                         models.Session.start_at < use_now + timedelta(minutes=15),
@@ -263,11 +262,12 @@ def next_session():
                     )
                 )
             )
-            .all()
+            # Any eager-loading columns and relationships should be deferred with
+            # db.defer(column) and db.noload(relationship). There are none as of this
+            # commit.
+            .options(db.load_only(models.Project.uuid)).all()
         ):
-            dispatch_notification(
-                models.SessionStartingNotification(document_uuid=row.uuid)
-            )
+            dispatch_notification(models.SessionStartingNotification(document=project))
 
 
 if __name__ == "__main__":
