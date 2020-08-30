@@ -136,7 +136,11 @@ class UnsubscribeForm(forms.Form):
                 self.transport
             ].unsubscribe_description
         self.types.choices = [
-            (ntype, notification_type_registry[ntype].title)
+            (
+                ntype,
+                notification_type_registry[ntype].title
+                + (" 👈" if ntype == self.notification_type else ''),
+            )
             for ntype in self.edit_user.notification_preferences
             if ntype in notification_type_registry
             and notification_type_registry[ntype].allow_transport(self.transport)

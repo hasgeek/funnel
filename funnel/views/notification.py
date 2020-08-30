@@ -1,10 +1,12 @@
 from collections import defaultdict
 from datetime import datetime
+from email.utils import formataddr
 from functools import wraps
 from itertools import filterfalse, zip_longest
 from uuid import uuid4
 
 from flask import url_for
+from werkzeug.utils import cached_property
 
 from flask_babelhg import force_locale
 
@@ -130,6 +132,10 @@ class RenderNotification:
             _external=True,
             **self.tracking_tags(transport=transport, campaign='unsubscribe'),
         )
+
+    @cached_property
+    def unsubscribe_url_email(self):
+        return self.unsubscribe_url('email')
 
     def unsubscribe_short_url(self, transport='sms'):
         """Return a short but temporary unsubscribe URL (for SMS)."""
@@ -335,6 +341,21 @@ def dispatch_transport_email(user_notification, view):
         content=content,
         attachments=attachments,
         from_email=(view.email_from(), 'no-reply@' + app.config['DEFAULT_DOMAIN']),
+        headers={
+            'List-Id': formataddr(
+                (
+                    # formataddr can't handle lazy_gettext strings, so cast to regular
+                    str(user_notification.notification.title),
+                    user_notification.notification.type
+                    + '-notification.'
+                    + app.config['DEFAULT_DOMAIN'],
+                )
+            ),
+            'List-Help': f'<{url_for("notification_preferences")}>',
+            'List-Unsubscribe': f'<{view.unsubscribe_url_email}>',
+            'List-Unsubscribe-Post': 'One-Click',
+            'List-Archive': f'<{url_for("notifications")}>',
+        },
     )
     statsd.incr(
         'notification.transport',
