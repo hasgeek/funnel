@@ -15,6 +15,7 @@ from . import (
 )
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
+from .project_membership import project_child_role_map
 from .proposal import Proposal
 from .venue import VenueRoom
 from .video import VideoMixin
@@ -30,13 +31,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         db.relationship(
             Project, backref=db.backref('sessions', cascade='all', lazy='dynamic')
         ),
-        grants_via={
-            None: {
-                'crew': 'project_crew',
-                'participant': 'project_participant',
-                'editor': 'project_editor',
-            }
-        },
+        grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
     description = MarkdownColumn('description', default='', nullable=False)

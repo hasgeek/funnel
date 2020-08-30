@@ -7,6 +7,7 @@ from coaster.utils import LabeledEnum
 
 from . import NoIdMixin, UuidMixin, db
 from .project import Project
+from .project_membership import project_child_role_map
 from .user import USER_STATUS, User
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
@@ -32,7 +33,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
             Project, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_concierge'},
-        grants_via={None: {'crew': 'project_crew', 'concierge': 'project_concierge'}},
+        grants_via={None: project_child_role_map},
     )
     user_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=False, primary_key=True
