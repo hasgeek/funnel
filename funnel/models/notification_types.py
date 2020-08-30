@@ -122,7 +122,7 @@ class ProjectStartingNotification(ProfileIsParent, Notification):
     __mapper_args__ = {'polymorphic_identity': 'project_starting'}
 
     category = NOTIFICATION_CATEGORY.PARTICIPANT
-    title = __("When a session I’ve registered for is about to start")
+    title = __("When a project I’ve registered for is about to start")
     description = __("You will be notified 5-10 minutes before starting time")
 
     document_model = Project

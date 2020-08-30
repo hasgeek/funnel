@@ -86,6 +86,17 @@ class RenderNotification:
             transport, self.notification.preference_context
         )
 
+    def tracking_tags(self, transport=None, campaign=None):
+        if not transport:
+            transport = 'email'  # Tracking is mostly an email thing
+        if not campaign:
+            campaign = 'notification'  # Tracking notifications unless it's unsubscribe
+        return {
+            'utm_campaign': campaign,
+            'utm_medium': transport,
+            'utm_source': self.notification.eventid,
+        }
+
     def unsubscribe_token(self, transport):
         """
         Return a token suitable for use in an unsubscribe link.
@@ -97,12 +108,11 @@ class RenderNotification:
         3. The transport (for attribute to unset), and
         4. The transport hash, for identifying the source.
 
-        The template should wrap this token with ``utm_campaign=unsubscribe`` and
-        ``utm_source={notification.eventid}``. Since tokens are sensitive, the view will
-        strip them out of the URL before rendering the page, using a similar mechanism
-        to that used for account reset.
+        Since tokens are sensitive, the view will strip them out of the URL before
+        rendering the page, using a similar mechanism to that used for password reset.
         """
         # This payload is consumed by :meth:`AccountNotificationView.unsubscribe`
+        # in `views/notification_preferences.py`
         return token_serializer().dumps(
             {
                 'buid': self.user_notification.user.buid,
@@ -118,9 +128,7 @@ class RenderNotification:
             'notification_unsubscribe',
             token=self.unsubscribe_token(transport=transport),
             _external=True,
-            utm_campaign='unsubscribe',
-            utm_medium=transport,
-            utm_source=self.notification.eventid,
+            **self.tracking_tags(transport=transport, campaign='unsubscribe'),
         )
 
     def unsubscribe_short_url(self, transport='sms'):

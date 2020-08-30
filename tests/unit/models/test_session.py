@@ -7,6 +7,8 @@ import pytest
 
 from funnel.models import Project, Session
 
+# TODO: Create a second parallel project and confirm they don't clash
+
 
 @pytest.fixture(scope='module')
 def block_of_sessions(test_db_structure, create_project):
@@ -97,6 +99,19 @@ def block_of_sessions(test_db_structure, create_project):
     return SimpleNamespace(**locals())
 
 
+def find_projects(starting_times, within, gap):
+    # Keep the timestamps at which projects were found, plus the project. Criteria:
+    # starts at `timestamp` + up to `within` period, with `gap` from prior sessions
+    return {
+        timestamp: found
+        for timestamp, found in {
+            timestamp: Project.starting_at(timestamp, within, gap).all()
+            for timestamp in starting_times
+        }.items()
+        if found
+    }
+
+
 def test_project_starting_at(db_transaction, block_of_sessions):
     block_of_sessions.refresh()
 
@@ -106,18 +121,9 @@ def test_project_starting_at(db_transaction, block_of_sessions):
         for multipler in range(100)
     ]
 
-    # Keep the timestamps at which projects were found, plus the project. Criteria:
-    # starts in range timestamp + up to 5 minutes, gap of 1 hour from prior sessions
-    found_projects = {
-        timestamp: found
-        for timestamp, found in {
-            timestamp: Project.starting_at(
-                timestamp, timedelta(minutes=5), timedelta(minutes=60)
-            ).all()
-            for timestamp in starting_times
-        }.items()
-        if found
-    }
+    found_projects = find_projects(
+        starting_times, timedelta(minutes=5), timedelta(minutes=60)
+    )
 
     # Confirm we found two starting times at 9 AM and 2:30 PM
     assert found_projects == {
@@ -137,18 +143,29 @@ def test_project_starting_at(db_transaction, block_of_sessions):
 
     # Repeat search with 120 minute gap requirement instead of 60. Now we find a single
     # match
-    found_projects = {
-        timestamp: found
-        for timestamp, found in {
-            timestamp: Project.starting_at(
-                timestamp, timedelta(minutes=5), timedelta(minutes=120)
-            ).all()
-            for timestamp in starting_times
-        }.items()
-        if found
-    }
+    found_projects = find_projects(
+        starting_times, timedelta(minutes=5), timedelta(minutes=120)
+    )
 
     # Confirm we found a single starting time at 9 AM
     assert found_projects == {
         datetime(2010, 10, 9, 9, 0, tzinfo=utc): [block_of_sessions.project],
+    }
+
+    # Use an an odd offset on the starting time. We're looking for 1 hour gap before the
+    # query time and not session starting time, so this will miss the second block
+    starting_times = [
+        datetime(2010, 10, 9, 7, 59, tzinfo=utc) + timedelta(minutes=5) * multipler
+        for multipler in range(100)
+    ]
+
+    found_projects = find_projects(
+        starting_times, timedelta(minutes=5), timedelta(minutes=60)
+    )
+
+    # Confirm:
+    # 1. The first block is found (test uses query timestamp, not session timestamp)
+    # 2. The second block was missed because 13:29 to 14:29 has a match at 13:30 end_at.
+    assert found_projects == {
+        datetime(2010, 10, 9, 8, 59, tzinfo=utc): [block_of_sessions.project],
     }

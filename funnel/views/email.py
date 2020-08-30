@@ -15,7 +15,7 @@ def send_email_verify_link(useremail):
         email_hash=useremail.email_address.email_hash,
         secret=useremail.verification_code,
         utm_medium='email',
-        utm_campaign='website',
+        utm_campaign='verify',
     )
     jsonld = jsonld_confirm_action(subject, url, _("Verify email address"))
     content = render_template(
@@ -35,7 +35,7 @@ def send_password_reset_link(email, user, token):
         _external=True,
         token=token,
         utm_medium='email',
-        utm_campaign='website',
+        utm_campaign='reset',
     )
     jsonld = jsonld_view_action(subject, url, _("Reset password"))
     content = render_template(

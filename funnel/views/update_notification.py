@@ -14,6 +14,15 @@ class RenderNewUpdateNotification(RenderNotification):
 
     reason = __("You are receiving this because you have registered for this project.")
 
+    @property
+    def actor(self):
+        """
+        Updates may be written by one user and published by another. The notification's
+        default actor is the publisher as they caused it to be dispatched, but in this
+        case the actor of interest is the author of the update.
+        """
+        return self.update.user
+
     def web(self):
         return render_template('notifications/update_new_web.html.jinja2', view=self)
 

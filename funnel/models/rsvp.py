@@ -95,6 +95,10 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
     def rsvp_maybe(self):
         pass
 
+    def user_email(self):
+        """User's preferred email address for this registration."""
+        return self.user.transport_for_email(self.project.profile)
+
     @classmethod
     def migrate_user(cls, old_user, new_user):
         project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
