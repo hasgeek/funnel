@@ -1,17 +1,14 @@
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from werkzeug.utils import cached_property
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, UuidMixin, db
 from .user import User
-
-try:
-    from functools import cached_property
-except ImportError:
-    from werkzeug.utils import cached_property
 
 
 class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801

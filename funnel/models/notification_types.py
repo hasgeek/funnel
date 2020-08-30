@@ -1,7 +1,7 @@
 from baseframe import __
 
 from .commentvote import Comment
-from .notification import NOTIFICATION_CATEGORY, Notification
+from .notification import Notification, notification_categories
 from .organization_membership import OrganizationMembership
 from .project import Project
 from .project_membership import ProjectCrewMembership
@@ -44,7 +44,7 @@ class RegistrationConfirmationNotification(DocumentHasProject, Notification):
     """Notification confirming registration to a project."""
 
     __mapper_args__ = {'polymorphic_identity': 'rsvp_yes'}
-    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    category = notification_categories.participant
     title = __("When I register for a project")
     description = __("This will prompt a calendar entry in Gmail and other apps")
 
@@ -58,7 +58,7 @@ class RegistrationCancellationNotification(DocumentHasProject, Notification):
     """Notification confirming cancelling registration to a project."""
 
     __mapper_args__ = {'polymorphic_identity': 'rsvp_no'}
-    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    category = notification_categories.participant
     title = __("When I cancel my registration")
     description = __("Confirmation for your records")
 
@@ -73,7 +73,7 @@ class NewUpdateNotification(DocumentHasProject, Notification):
 
     __mapper_args__ = {'polymorphic_identity': 'update_new'}
 
-    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    category = notification_categories.participant
     title = __("When a project posts an update")
     description = __(
         "Typically contains critical information such as video conference links"
@@ -89,7 +89,7 @@ class ProposalSubmittedNotification(DocumentHasProject, Notification):
 
     __mapper_args__ = {'polymorphic_identity': 'proposal_submitted'}
 
-    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    category = notification_categories.participant
     title = __("When I submit a proposal")
     description = __("Confirmation for your records")
 
@@ -110,7 +110,7 @@ class ProjectStartingNotification(DocumentHasProfile, Notification):
 
     __mapper_args__ = {'polymorphic_identity': 'project_starting'}
 
-    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    category = notification_categories.participant
     title = __("When a project I’ve registered for is about to start")
     description = __("You will be notified 5-10 minutes before the starting time")
 
@@ -129,7 +129,7 @@ class CommentReplyNotification(Notification):
     __mapper_args__ = {'polymorphic_identity': 'comment_reply'}
     active = False
 
-    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    category = notification_categories.participant
     title = __("When someone replies to my comment")
     exclude_actor = True
 
@@ -144,7 +144,7 @@ class ProposalCommentNotification(DocumentHasProject, Notification):
     __mapper_args__ = {'polymorphic_identity': 'comment_proposal'}
     active = False
 
-    category = NOTIFICATION_CATEGORY.PARTICIPANT
+    category = notification_categories.participant
     title = __("When my proposal receives a comment")
     exclude_actor = True
 
@@ -161,7 +161,7 @@ class ProjectCommentNotification(DocumentHasProfile, Notification):
     __mapper_args__ = {'polymorphic_identity': 'comment_project'}
     active = False
 
-    category = NOTIFICATION_CATEGORY.PROJECT_CREW
+    category = notification_categories.project_crew
     title = __("When my project receives a comment")
     exclude_actor = True
 
@@ -181,7 +181,7 @@ class ProjectCrewMembershipNotification(DocumentHasProject, Notification):
     __mapper_args__ = {'polymorphic_identity': 'project_crew_membership_granted'}
     active = False
 
-    category = NOTIFICATION_CATEGORY.PROJECT_CREW
+    category = notification_categories.project_crew
     title = __("When a project crew member is added, or roles change")
     description = __("Crew members have access to the project’s controls")
 
@@ -197,7 +197,7 @@ class ProjectCrewMembershipRevokedNotification(DocumentHasProject, Notification)
     __mapper_args__ = {'polymorphic_identity': 'project_crew_membership_revoked'}
     active = False
 
-    category = NOTIFICATION_CATEGORY.PROJECT_CREW
+    category = notification_categories.project_crew
     title = __("When a project crew member is removed, including me")
 
     document_model = Project
@@ -211,7 +211,7 @@ class ProposalReceivedNotification(DocumentHasProfile, Notification):
 
     __mapper_args__ = {'polymorphic_identity': 'proposal_received'}
 
-    category = NOTIFICATION_CATEGORY.PROJECT_CREW
+    category = notification_categories.project_crew
     title = __("When my project receives a new proposal")
 
     document_model = Project
@@ -226,7 +226,7 @@ class RegistrationReceivedNotification(DocumentHasProfile, Notification):
     __mapper_args__ = {'polymorphic_identity': 'rsvp_received'}
     active = False
 
-    category = NOTIFICATION_CATEGORY.PROJECT_CREW
+    category = notification_categories.project_crew
     title = __("When someone registers for my project")
 
     document_model = Project
@@ -244,7 +244,7 @@ class OrganizationAdminMembershipNotification(DocumentHasProfile, Notification):
     __mapper_args__ = {'polymorphic_identity': 'organization_membership_granted'}
     active = False
 
-    category = NOTIFICATION_CATEGORY.ORGANIZATION_ADMIN
+    category = notification_categories.organization_admin
     title = __("When organization admins change")
     description = __("Organization admins control all projects under the organization")
 
@@ -260,7 +260,7 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
     __mapper_args__ = {'polymorphic_identity': 'organization_membership_revoked'}
     active = False
 
-    category = NOTIFICATION_CATEGORY.ORGANIZATION_ADMIN
+    category = notification_categories.organization_admin
     title = __("When an organization admin is removed, including me")
 
     document_model = Organization

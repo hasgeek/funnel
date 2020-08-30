@@ -72,6 +72,8 @@ is supported using an unusual primary and foreign key structure the in
 2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
     using ``(eventid, notification_id)``.
 """
+from types import SimpleNamespace
+from typing import Callable, NamedTuple
 from uuid import uuid4
 
 from sqlalchemy import event
@@ -90,7 +92,7 @@ from .user import User
 
 __all__ = [
     'SMS_STATUS',
-    'NOTIFICATION_CATEGORY',
+    'notification_categories',
     'SMSMessage',
     'Notification',
     'MockNotification',
@@ -105,6 +107,56 @@ __all__ = [
 #: Registry of Notification subclasses, automatically populated
 notification_type_registry = {}
 
+
+class NotificationCategory(NamedTuple):
+    priority_id: int
+    title: str
+    available_for: Callable[[User], bool]
+
+
+#: Registry of notification categories
+notification_categories = SimpleNamespace(
+    none=NotificationCategory(0, __("Uncategorized"), lambda user: False),
+    account=NotificationCategory(1, __("My account"), lambda user: True),
+    subscriptions=NotificationCategory(
+        2, __("My subscriptions and billing"), lambda user: False
+    ),
+    participant=NotificationCategory(
+        3,
+        __("Projects I am participating in"),
+        # Criteria: User has registered or proposed
+        lambda user: (
+            db.session.query(user.rsvps.exists()).scalar()
+            or db.session.query(user.proposals.exists()).scalar()
+            or db.session.query(user.speaker_at.exists()).scalar()
+            or db.session.query(user.proposal_memberships.exists()).scalar()
+        ),
+    ),
+    project_crew=NotificationCategory(
+        4,
+        __("Projects I am a crew member in"),
+        # Criteria: user has ever been a project crew member
+        lambda user: db.session.query(
+            user.projects_as_crew_memberships.exists()
+        ).scalar(),
+    ),
+    organization_admin=NotificationCategory(
+        5,
+        __("Organizations I manage"),
+        # Criteria: user has ever been an organization admin
+        lambda user: db.session.query(
+            user.organization_admin_memberships.exists()
+        ).scalar(),
+    ),
+    site_admin=NotificationCategory(
+        6,
+        __("As a website administrator"),
+        # Criteria: User has a currently active site membership
+        lambda user: bool(user.active_site_membership),
+    ),
+)
+
+
 # --- Flags ----------------------------------------------------------------------------
 
 
@@ -114,15 +166,6 @@ class SMS_STATUS(LabeledEnum):  # NOQA: N801
     DELIVERED = (2, __("Delivered"))
     FAILED = (3, __("Failed"))
     UNKNOWN = (4, __("Unknown"))
-
-
-class NOTIFICATION_CATEGORY(LabeledEnum):  # NOQA: N801
-    NONE = (0, __("Uncategorized"))
-    ACCOUNT = (1, __("My account"))
-    SUBSCRIPTIONS = (2, __("My subscriptions and billing"))
-    PARTICIPANT = (3, __("Projects I am participating in"))
-    PROJECT_CREW = (4, __("Projects I am a collaborator in"))
-    ORGANIZATION_ADMIN = (5, __("Organizations I manage"))
 
 
 # --- Legacy models --------------------------------------------------------------------
@@ -171,7 +214,7 @@ class Notification(NoIdMixin, db.Model):
     )
 
     #: Default category of notification. Subclasses MUST override
-    category = NOTIFICATION_CATEGORY.NONE
+    category = notification_categories.none
     #: Default description for notification. Subclasses MUST override
     title = __("Unspecified notification type")
     #: Default description for notification. Subclasses MUST override

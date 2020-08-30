@@ -12,11 +12,11 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
-    NOTIFICATION_CATEGORY,
     EmailAddress,
     NotificationPreferences,
     User,
     db,
+    notification_categories,
     notification_type_registry,
 )
 from ..serializers import token_serializer
@@ -54,27 +54,29 @@ class AccountNotificationView(ClassView):
         main_preferences = current_auth.user.main_notification_preferences
         user_preferences = current_auth.user.notification_preferences
         preferences = {
-            key: {'title': value, 'types': []}
-            for key, value in NOTIFICATION_CATEGORY.items()
+            ncat.priority_id: {'title': ncat.title, 'types': []}
+            for ncat in notification_categories.__dict__.values()
+            if ncat.available_for(current_auth.user)
         }
         commit_new_preferences = False
         for ntype, ncls in notification_type_registry.items():
-            if ntype not in user_preferences:
-                user_preferences[ntype] = NotificationPreferences(
-                    user=current_auth.user, notification_type=ntype
+            if ncls.category.priority_id in preferences:
+                if ntype not in user_preferences:
+                    user_preferences[ntype] = NotificationPreferences(
+                        user=current_auth.user, notification_type=ntype
+                    )
+                    commit_new_preferences = True
+                preferences[ncls.category.priority_id]['types'].append(
+                    {
+                        'notification_type': ntype,
+                        'title': ncls.title,
+                        'description': ncls.description,
+                        'preferences': {
+                            transport: user_preferences[ntype].by_transport(transport)
+                            for transport in platform_transports
+                        },
+                    }
                 )
-                commit_new_preferences = True
-            preferences[ncls.category]['types'].append(
-                {
-                    'notification_type': ntype,
-                    'title': ncls.title,
-                    'description': ncls.description,
-                    'preferences': {
-                        transport: user_preferences[ntype].by_transport(transport)
-                        for transport in platform_transports
-                    },
-                }
-            )
         if commit_new_preferences:
             db.session.commit()
         # Remove empty categories

@@ -114,7 +114,7 @@ class Proposal(
         db.relationship(
             User,
             primaryjoin=user_id == User.id,
-            backref=db.backref('proposals', cascade='all'),
+            backref=db.backref('proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator'},
     )
