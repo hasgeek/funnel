@@ -33,27 +33,31 @@ How it works:
 5. UserNotification.dispatch is now called from the view. User preferences are obtained
     from the User model along with transport address (email, phone, etc).
 
-6. For each user in the filtered list, a UserNotification db instance is created. A
-    scan is performed for previous instances of UserNotification referring to the
-    same Update object, determined from UserNotification.notification.document_uuid,
-    and those are revoked to remove them from the user's feed.
+6. For each user in the filtered list, a UserNotification db instance is created.
 
-7. A separate view helper class named NewUpdateNotificationRenderView contains methods
-    named `web`, `email`, `sms`, `webpush`, `telegram` and `whatsapp`. These may be
-    called with the UserNotification instance as a parameter, and are expected to return
-    a rendered message. The `web` render is used for the notifications page on the
-    website.
+7. For notifications (not this one) where both a document and a fragment are present,
+    like ProposalReceivedNotication with Project+Proposal, a scan is performed for
+    previous unread instances of UserNotification referring to the same document,
+    determined from UserNotification.notification.document_uuid, and those are revoked
+    to remove them from the user's feed. A rollup is presented instead, showing all
+    freshly submitted proposals.
 
-8. Views are registered to the model, so the dispatch mechanism only needs to call
-    ``user_notification.render.web()`` etc to get the rendered content. The dispatch
-    mechanism then calls the appropriate transport helper (``send_email``, etc) to do
-    the actual sending. The message id returned by these functions is saved to the
-    messageid columns in UserNotification, as record that the notification was sent.
-    If the transport doesn't support message ids, a random non-None value is used.
+8. A separate render view class named RenderNewUpdateNotification contains methods named
+    like `web`, `email`, `sms` and others. These are expected to return a rendered
+    message. The `web` render is used for the notification feed page on the website.
 
-9. The notifications endpoint on the website shows a feed of UserNotification items and
-    handles the ability to mark each as read. This marking is also automatically
-    performed in the links in the rendered templates that were sent out.
+9. Views are registered to the model, so the dispatch mechanism only needs to call
+    ``view.email()`` etc to get the rendered content. The dispatch mechanism then calls
+    the appropriate transport helper (``send_email``, etc) to do the actual sending. The
+    message id returned by these functions is saved to the messageid columns in
+    UserNotification, as record that the notification was sent. If the transport doesn't
+    support message ids, a random non-None value is used. Accurate message ids are only
+    required when user interaction over the same transport is expected, such as reply
+    emails.
+
+10. The notifications endpoint on the website shows a feed of UserNotification items and
+    handles the ability to mark each as read. This marking is not yet automatically
+    performed in the links in the rendered templates that were sent out, but should be.
 
 It is possible to have two separate notifications for the same event. For example, a
 comment replying to another comment will trigger a CommentReplyNotification to the user
