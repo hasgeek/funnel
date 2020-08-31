@@ -24,7 +24,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import ProjectScheduleTransitionForm, SavedProjectForm
+from ..forms import ProjectScheduleTransitionForm
 from ..models import Project, Proposal, Session, VenueRoom, db
 from .decorators import legacy_redirect
 from .helpers import localize_date
@@ -207,7 +207,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @requires_roles({'reader'})
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         scheduled_sessions_list = session_list_data(
             self.obj.scheduled_sessions, with_modal_url='view_popup'
         )
@@ -222,7 +221,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
             'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 

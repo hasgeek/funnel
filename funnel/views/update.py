@@ -14,7 +14,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import SavedProjectForm, UpdateForm
+from ..forms import UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
@@ -31,7 +31,6 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     @render_with('updates.html.jinja2', json=True)
     @requires_roles({'reader'})
     def updates(self):
-        project_save_form = SavedProjectForm()
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'draft_updates': (
@@ -47,7 +46,6 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
                 for update in self.obj.published_updates
             ],
             'new_update': self.obj.url_for('new_update'),
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 
