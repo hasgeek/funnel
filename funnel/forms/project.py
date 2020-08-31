@@ -100,7 +100,24 @@ class ProjectLivestreamForm(forms.Form):
         validators=[
             forms.validators.Optional(),
             forms.validators.ForEach(
-                [forms.validators.URL(), forms.validators.ValidUrl()]
+                [
+                    forms.validators.URL(),
+                    forms.validators.ValidUrl(
+                        allowed_schemes=('https',),
+                        allowed_domains=(
+                            'www.youtube.com',
+                            'youtube.com',
+                            'youtu.be',
+                            'y2u.be',
+                            'www.vimeo.com',
+                            'vimeo.com',
+                        ),
+                        message_schemes=__("A https:// URL is required"),
+                        message_domains=__(
+                            "Livestream must be hosted at either YouTube or Vimeo"
+                        ),
+                    ),
+                ]
             ),
         ],
     )
