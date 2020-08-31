@@ -52,6 +52,7 @@ class RegistrationConfirmationNotification(DocumentHasProject, Notification):
     exclude_actor = False
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
+    for_private_recipient = True
 
 
 class RegistrationCancellationNotification(DocumentHasProject, Notification):
@@ -66,6 +67,7 @@ class RegistrationCancellationNotification(DocumentHasProject, Notification):
     exclude_actor = False
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
+    for_private_recipient = True
 
 
 class NewUpdateNotification(DocumentHasProject, Notification):
@@ -96,6 +98,7 @@ class ProposalSubmittedNotification(DocumentHasProject, Notification):
     document_model = Proposal
     roles = ['creator']
     exclude_actor = False  # This notification is for the actor
+    for_private_recipient = True
 
     # Email is typically fine. Messengers may be too noisy
     default_email = True

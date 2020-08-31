@@ -89,15 +89,15 @@ class RenderNotification:
         )
 
     def tracking_tags(self, transport=None, campaign=None):
-        if not transport:
-            transport = 'email'  # Tracking is mostly an email thing
-        if not campaign:
-            campaign = 'notification'  # Tracking notifications unless it's unsubscribe
-        return {
-            'utm_campaign': campaign,
-            'utm_medium': transport,
-            'utm_source': self.notification.eventid,
+        tags = {
+            # Tracking notifications unless it's unsubscribe or other specialized link
+            'utm_campaign': campaign or 'notification',
+            # Tracking is mostly an email thing
+            'utm_medium': transport or 'email',
         }
+        if not self.notification.for_private_recipient:
+            tags['utm_source'] = self.notification.eventid
+        return tags
 
     def unsubscribe_token(self, transport):
         """
@@ -280,7 +280,12 @@ def dispatch_notification(*notifications):
             raise TypeError(f"Not a notification: {notification!r}")
         notification.eventid = eventid
         notification.user = current_auth.user
-        db.session.add(notification)
+    if sum(_n.for_private_recipient for _n in notifications) != len(notifications):
+        raise TypeError(
+            "Mixed use of private and non-private notifications."
+            " Either all are private (no event tracking in links) or none are"
+        )
+    db.session.add_all(notifications)
     db.session.commit()
     dispatch_notification_job.queue(
         eventid, [notification.id for notification in notifications]

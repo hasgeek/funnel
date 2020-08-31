@@ -95,7 +95,7 @@ __all__ = [
     'notification_categories',
     'SMSMessage',
     'Notification',
-    'MockNotification',
+    'PreviewNotification',
     'NotificationPreferences',
     'UserNotification',
     'NotificationFor',
@@ -201,9 +201,13 @@ class Notification(NoIdMixin, db.Model):
 
     __tablename__ = 'notification'
 
+    #: Flag indicating this is an active notification type. Can be False for draft
+    #: and retired notification types to hide them from preferences UI
+    active = True
+
     #: Random identifier for the event that triggered this notification. Event ids can
     #: be shared across notifications, and will be used to enforce a limit of one
-    #: instance of a UserNotification per-event rather than per-notification.
+    #: instance of a UserNotification per-event rather than per-notification
     eventid = db.Column(
         UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
     )
@@ -230,11 +234,15 @@ class Notification(NoIdMixin, db.Model):
     #: where a user has more than one role on the document.
     roles = []
 
-    #: Exclude triggering actor from receiving notifications? Subclasses may override.
+    #: Exclude triggering actor from receiving notifications? Subclasses may override
     exclude_actor = False
 
+    #: If this notification is typically for a single recipient, views will need to be
+    #: careful about leaking out recipient identifiers such as a utm_source tracking tag
+    for_private_recipient = False
+
     #: The preference context this notification is being served under. Users may have
-    #: customized preferences per profile or project.
+    #: customized preferences per profile or project
     preference_context = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
@@ -246,7 +254,7 @@ class Notification(NoIdMixin, db.Model):
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
-    #: notifications of their own activity.
+    #: notifications of their own activity
     user = db.relationship(User)
 
     #: UUID of document that the notification refers to
@@ -254,7 +262,7 @@ class Notification(NoIdMixin, db.Model):
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
-    #: multiple fragments are collapsed into a single notification.
+    #: multiple fragments are collapsed into a single notification
     fragment_uuid = db.Column(UUIDType(binary=False), nullable=True)
 
     __table_args__ = (
@@ -284,10 +292,6 @@ class Notification(NoIdMixin, db.Model):
         'primary': {'eventid', 'document', 'fragment', 'type', 'user'},
         'related': {'eventid', 'document', 'fragment', 'type'},
     }
-
-    #: Flag indicating this is an active notification type. Can be False for draft
-    #: and retired notification types to hide them from preferences UI.
-    active = True
 
     # Flags to control whether this notification can be delivered over a particular
     # transport. Subclasses can disable these if they consider notifications unsuitable
@@ -447,16 +451,17 @@ class Notification(NoIdMixin, db.Model):
                 yield user_notification
 
 
-class MockNotification:
+class PreviewNotification:
     """
-    Mocks a Notification subclass without instantiating it.
+    Mimics a Notification subclass without instantiating it, for providing a preview.
 
-    To be used with :class:`NotificationFor`, like so::
+    To be used with :class:`NotificationFor`::
 
-        NotificationFor(MockNotification(NotificationType), user)
+        NotificationFor(PreviewNotification(NotificationType), user)
     """
 
     def __init__(self, cls, document, fragment=None):
+        self.eventid = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
         self.document = document
         self.document_uuid = document.uuid
