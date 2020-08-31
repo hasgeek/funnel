@@ -10,34 +10,26 @@ class TestProjectForms(object):
     def test_livestream_form_valid(self, test_client):
         with current_app.test_request_context('/'):
             with requests_mock.Mocker() as m:
-                m.get("https://www.youtube.com/watch?v=dQw4w9WgXcQ", text='resp')
+                valid_urls = [
+                    "https://y2u.be/dQw4w9WgXcQ",
+                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    "https://youtu.be/dQw4w9WgXcQ",
+                    "https://vimeo.com/336892869",
+                    "https://www.vimeo.com/336892869",
+                ]
+
+                for url in valid_urls:
+                    m.get(url, text='resp')
+
+                # Single url
                 form = ProjectLivestreamForm(
-                    MultiDict(
-                        {
-                            'livestream_urls': "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                        }
-                    ),
-                    meta={'csrf': False},
+                    MultiDict({'livestream_urls': valid_urls[0]}), meta={'csrf': False},
                 )
                 assert form.validate()
 
-                m.get("https://y2u.be/dQw4w9WgXcQ", text='resp')
-                m.get("https://www.youtube.com/watch?v=dQw4w9WgXcQ", text='resp')
-                m.get("https://youtu.be/dQw4w9WgXcQ", text='resp')
-                m.get("https://vimeo.com/336892869", text='resp')
-                m.get("https://www.vimeo.com/336892869", text='resp')
+                # Multiple urls in multiple lines
                 form2 = ProjectLivestreamForm(
-                    MultiDict(
-                        {
-                            'livestream_urls': """
-                            https://y2u.be/dQw4w9WgXcQ
-                            https://www.youtube.com/watch?v=dQw4w9WgXcQ
-                            https://youtu.be/dQw4w9WgXcQ
-                            https://vimeo.com/336892869
-                            https://www.vimeo.com/336892869
-                            """,
-                        }
-                    ),
+                    MultiDict({'livestream_urls': '\n'.join(valid_urls)}),
                     meta={'csrf': False},
                 )
                 assert form2.validate()
