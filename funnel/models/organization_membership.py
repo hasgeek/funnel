@@ -23,7 +23,21 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     # List of role columns in this model
     __data_columns__ = ('is_owner',)
 
-    __roles__ = {'all': {'read': {'urls', 'user', 'is_owner', 'organization'}}}
+    __roles__ = {
+        'all': {'read': {'urls', 'user', 'is_owner', 'organization'}},
+        'profile_admin': {
+            'read': {
+                'record_type',
+                'granted_at',
+                'granted_by',
+                'revoked_at',
+                'revoked_by',
+                'user',
+                'is_active',
+                'is_invite',
+            }
+        },
+    }
     __datasets__ = {
         'primary': {
             'urls',
@@ -44,11 +58,14 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
         )
     )
     organization = immutable(
-        db.relationship(
-            Organization,
-            backref=db.backref(
-                'memberships', lazy='dynamic', cascade='all', passive_deletes=True
+        with_roles(
+            db.relationship(
+                Organization,
+                backref=db.backref(
+                    'memberships', lazy='dynamic', cascade='all', passive_deletes=True
+                ),
             ),
+            grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
         )
     )
     parent = immutable(db.synonym('organization'))
@@ -63,16 +80,6 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
         roles = {'admin'}
         if self.is_owner:
             roles.add('owner')
-        return roles
-
-    def roles_for(self, actor, anchors=()):
-        """Roles available to the specified actor and anchors"""
-        roles = super().roles_for(actor, anchors)
-        org_roles = self.organization.roles_for(actor, anchors)
-        if 'admin' in org_roles:
-            roles.add('profile_admin')
-        if 'owner' in org_roles:
-            roles.add('profile_owner')
         return roles
 
 

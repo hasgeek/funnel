@@ -175,8 +175,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 'status',
                 'avatar',
                 'created_at',
+                'profile',
                 'profile_url',
-            }
+                'urls',
+            },
+            'call': {'views', 'forms', 'features', 'url_for'},
         }
     }
 
@@ -764,12 +767,32 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {'name', 'title', 'pickername', 'created_at'},
-            'call': {'views', 'features', 'forms'},
+            'read': {
+                'name',
+                'title',
+                'pickername',
+                'created_at',
+                'profile',
+                'profile_url',
+                'urls',
+            },
+            'call': {'views', 'features', 'forms', 'url_for'},
         }
     }
 
-    __datasets__ = {'related': {'name', 'title', 'pickername', 'created_at'}}
+    __datasets__ = {
+        'primary': {
+            'name',
+            'title',
+            'username',
+            'pickername',
+            'avatar',
+            'created_at',
+            'profile',
+            'profile_url',
+        },
+        'related': {'name', 'title', 'pickername', 'created_at'},
+    }
 
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 

@@ -53,7 +53,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("New proposal in {project}: {proposal} {url}").format(
+        return _("Hi! New proposal in {project}: {proposal} {url}").format(
             proposal=self.proposal.title,
             project=self.project.joined_title('>'),
             url=self.proposal.url_for(_external=True),
@@ -90,7 +90,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("Your proposal has been submitted to {project} {url}").format(
+        return _("Hi! Your proposal has been submitted to {project} {url}").format(
             project=self.proposal.project.joined_title('>'),
             url=self.proposal.url_for(_external=True),
         )

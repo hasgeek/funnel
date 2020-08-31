@@ -21,6 +21,8 @@ from ..forms import (
 )
 from ..models import (
     Organization,
+    OrganizationAdminMembershipNotification,
+    OrganizationAdminMembershipRevokedNotification,
     OrganizationMembership,
     Profile,
     Project,
@@ -30,6 +32,7 @@ from ..models import (
 from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProfileViewMixin, ProjectViewMixin
+from .notification import dispatch_notification
 
 
 @Profile.views('members')
@@ -106,14 +109,13 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     )
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
-                    signals.organization_admin_membership_added.send(
-                        self.obj,
-                        organization=self.obj.organization,
-                        membership=new_membership,
-                        actor=current_auth.user,
-                        user=new_membership.user,
-                    )
                     db.session.commit()
+                    dispatch_notification(
+                        OrganizationAdminMembershipNotification(
+                            document=new_membership.organization,
+                            fragment=new_membership,
+                        )
+                    )
                     return {
                         'status': 'ok',
                         'message': _("The user has been added as an admin"),
@@ -240,14 +242,13 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                     }
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
-                    signals.organization_admin_membership_revoked.send(
-                        self.obj,
-                        organization=self.obj.organization,
-                        membership=previous_membership,
-                        actor=current_auth.user,
-                        user=previous_membership.user,
-                    )
                     db.session.commit()
+                    dispatch_notification(
+                        OrganizationAdminMembershipRevokedNotification(
+                            document=previous_membership.organization,
+                            fragment=previous_membership,
+                        )
+                    )
                 return {
                     'status': 'ok',
                     'message': _("The member has been removed"),

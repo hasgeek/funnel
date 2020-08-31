@@ -32,17 +32,28 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
     granted_at = immutable(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow())
+        with_roles(
+            db.Column(
+                db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
+            ),
+            read={'subject', 'editor'},
+        )
     )
     #: End time of membership, ordinarily a mirror of updated_at
-    revoked_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    revoked_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True),
+        read={'subject', 'editor'},
+    )
     #: Record type
     record_type = immutable(
-        db.Column(
-            db.Integer,
-            StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
-            default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
-            nullable=False,
+        with_roles(
+            db.Column(
+                db.Integer,
+                StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
+                default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
+                nullable=False,
+            ),
+            read={'subject', 'editor'},
         )
     )
 
@@ -55,6 +66,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             index=True,
         )
 
+    @with_roles(read={'subject', 'editor'}, grants={'subject'})
     @declared_attr
     def user(cls):
         return db.relationship(User, foreign_keys=[cls.user_id])
@@ -66,6 +78,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
 
+    @with_roles(read={'subject'}, grants={'editor'})
     @declared_attr
     def revoked_by(cls):
         """User who revoked the membership"""
@@ -82,6 +95,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
 
+    @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     def granted_by(cls):
         """User who assigned the membership"""
@@ -100,6 +114,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
         )
 
+    with_roles(is_active, read={'subject'})
+
+    @with_roles(read={'subject', 'editor'})
     @hybrid_property
     def is_invite(self):
         return self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE

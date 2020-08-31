@@ -67,7 +67,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
         )
 
     def sms(self):
-        return _("You have registered for {project} {url}").format(
+        return _("Hi! You have registered for {project} {url}").format(
             project=self.rsvp.project.joined_title('>'),
             url=self.rsvp.project.url_for(_external=True),
         )
@@ -101,6 +101,6 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
         )
 
     def sms(self):
-        return _("You have cancelled your registration for {project}").format(
+        return _("Hi! You have cancelled your registration for {project}").format(
             project=self.rsvp.project.joined_title('>'),
         )

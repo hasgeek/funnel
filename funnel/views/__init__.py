@@ -25,6 +25,7 @@ from . import (
     notification_feed,
     notification_preferences,
     organization,
+    organization_membership_notification,
     participant,
     profile,
     project,

@@ -226,13 +226,8 @@ class RenderNotification:
 
     def sms_with_unsubscribe(self):
         """Add an unsubscribe link to the SMS message."""
-        return (
-            self.sms()
-            + ' '
-            + _("To stop: {unsubscribe}").format(
-                unsubscribe=self.unsubscribe_short_url('sms')
-            )
-        )
+        # SMS templates can't be translated, so the "to stop" is static
+        return self.sms() + f"\r\n\r\n{self.unsubscribe_short_url('sms')} to stop"
 
     def webpush(self):
         """
@@ -290,9 +285,14 @@ def dispatch_notification(*notifications):
     for notification in notifications:
         if not isinstance(notification, Notification):
             raise TypeError(f"Not a notification: {notification!r}")
+        if not notification.active:
+            raise TypeError(f"{notification!r} is marked inactive")
         notification.eventid = eventid
         notification.user = current_auth.user
-    if sum(_n.for_private_recipient for _n in notifications) != len(notifications):
+    if sum(_n.for_private_recipient for _n in notifications) not in (
+        0,  # None are private
+        len(notifications),  # Or all are private
+    ):
         raise TypeError(
             "Mixed use of private and non-private notifications."
             " Either all are private (no event tracking in links) or none are"

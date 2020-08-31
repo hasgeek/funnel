@@ -20,6 +20,8 @@ __all__ = [
     'RegistrationCancellationNotification',
     'RegistrationConfirmationNotification',
     'ProjectStartingNotification',
+    'OrganizationAdminMembershipNotification',
+    'OrganizationAdminMembershipRevokedNotification',
 ]
 
 # --- Mixin classes --------------------------------------------------------------------
@@ -245,7 +247,6 @@ class OrganizationAdminMembershipNotification(DocumentHasProfile, Notification):
     """Notification of being granted admin membership (including role changes)."""
 
     __mapper_args__ = {'polymorphic_identity': 'organization_membership_granted'}
-    active = False
 
     category = notification_categories.organization_admin
     title = __("When organization admins change")
@@ -253,7 +254,7 @@ class OrganizationAdminMembershipNotification(DocumentHasProfile, Notification):
 
     document_model = Organization
     fragment_model = OrganizationMembership
-    roles = ['subject', 'organization_admin']
+    roles = ['subject', 'profile_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -261,12 +262,11 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
     """Notification of being granted admin membership (including role changes)."""
 
     __mapper_args__ = {'polymorphic_identity': 'organization_membership_revoked'}
-    active = False
 
     category = notification_categories.organization_admin
     title = __("When an organization admin is removed, including me")
 
     document_model = Organization
     fragment_model = OrganizationMembership
-    roles = ['subject', 'organization_admin']
+    roles = ['subject', 'profile_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
