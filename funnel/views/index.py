@@ -17,6 +17,7 @@ from .project import project_data
 @route('/')
 class IndexView(ClassView):
     current_section = 'home'
+    SavedProjectForm = SavedProjectForm
 
     @render_with('index.html.jinja2')
     def home(self):
@@ -72,7 +73,6 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'project_save_form': SavedProjectForm(),
         }
 
 
