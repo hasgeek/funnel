@@ -22,7 +22,7 @@ class TestProjectForms(object):
                         https://y2u.be/dQw4w9WgXcQ
                         https://www.youtube.com/watch?v=dQw4w9WgXcQ
                         https://youtu.be/dQw4w9WgXcQ
-                        https://www.vimeo.com/336892869
+                        https://vimeo.com/336892869
                         https://www.vimeo.com/336892869
                         """,
                     }
