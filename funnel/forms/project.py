@@ -95,7 +95,10 @@ class ProjectForm(forms.Form):
 
 class ProjectLivestreamForm(forms.Form):
     livestream_urls = forms.TextListField(
-        __("Livestream URLs. One per line."),
+        __(
+            "Livestream URLs. One per line. Must be on YouTube or Vimeo. "
+            "Must begin with https://"
+        ),
         filters=[forms.filters.strip_each()],
         validators=[
             forms.validators.Optional(),
@@ -113,9 +116,7 @@ class ProjectLivestreamForm(forms.Form):
                             'vimeo.com',
                         ),
                         message_schemes=__("A https:// URL is required"),
-                        message_domains=__(
-                            "Livestream must be hosted at either YouTube or Vimeo"
-                        ),
+                        message_domains=__("Livestream must be on YouTube or Vimeo"),
                     ),
                 ]
             ),
