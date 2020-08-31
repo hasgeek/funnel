@@ -68,8 +68,20 @@ class RenderNotification:
     def __init__(self, user_notification):
         self.user_notification = user_notification
         self.notification = user_notification.notification
-        self.document = user_notification.notification.document
-        self.fragment = user_notification.notification.fragment
+        self.document = (
+            user_notification.notification.document.access_for(
+                actor=self.user_notification.user
+            )
+            if user_notification.notification.document is not None
+            else None
+        )
+        self.fragment = (
+            user_notification.notification.fragment.access_for(
+                actor=self.user_notification.user
+            )
+            if user_notification.notification.fragment is not None
+            else None
+        )
         if 'document' in self.aliases:
             setattr(self, self.aliases['document'], self.document)
         if 'fragment' in self.aliases:
