@@ -135,18 +135,17 @@ class UnsubscribeForm(forms.Form):
             self.main.description = transport_labels[
                 self.transport
             ].unsubscribe_description
+
         self.types.choices = [
             (
                 ntype,
                 notification_type_registry[ntype].title
                 + (" 👈" if ntype == self.notification_type else ''),
             )
-            for ntype in self.edit_user.notification_preferences
-            if ntype in notification_type_registry
+            for ntype in notification_type_registry
+            if ntype in self.edit_user.notification_preferences
             and notification_type_registry[ntype].allow_transport(self.transport)
-        ]
-        # Sort by type string. Temp fix for stable ordering until we introduce grouping
-        self.types.choices.sort()
+        ]  # Sorted by definition order. Usable until we introduce grouping
 
         if request.method == 'GET':
             # Populate data with all notification types for which the user has the
