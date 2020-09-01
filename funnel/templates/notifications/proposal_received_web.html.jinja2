@@ -12,7 +12,7 @@
     <ol>
       {%- for proposal in proposals %}
         <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.owner.pickername, age=proposal.datetime|age %}
-          <a href="{{ url }}">{{ proposal }}</a> by {{ actor }} {{ age }}
+          <a href="{{ url }}">{{ proposal }}</a> by {{ actor }} <span class="mui--text-body2">{{ age }}</span>
         {% endtrans %}</li>
       {%- endfor %}
     </ol>
@@ -24,10 +24,11 @@
     </p>
   {%- endif %}
 {%- endblock %}
+
 {%- block avatar %}
   {%- if is_rollup %}
     <div class="user__box__gravatar user__box__gravatar--initials">{{ faicon(icon='users', icon_size='headline', baseline=false) }}</div>
   {%- else %}
-  {%- if view.actor %}{{ useravatar(view.actor) }}{% endif %}
+    {%- if view.actor %}{{ useravatar(view.actor) }}{% endif %}
   {%- endif %}
 {%- endblock %}

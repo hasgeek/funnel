@@ -166,6 +166,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
+                'uuid',
                 'name',
                 'title',
                 'fullname',

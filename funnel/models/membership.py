@@ -163,6 +163,25 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise TypeError("This membership record has already been revoked")
         if not set(roles.keys()).issubset(self.__data_columns__):
             raise AttributeError("Unknown role")
+
+        # Perform sanity check. If nothing changed, just return ourselves
+        has_changes = False
+        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
+            # If we existing record is an INVITE, this must be an ACCEPT. This is an
+            # acceptable change
+            has_changes = True
+        else:
+            # If it's not an ACCEPT, are the supplied roles different from existing?
+            for column in roles:
+                if roles[column] != getattr(self, column):
+                    has_changes = True
+        if not has_changes:
+            # Nothing is changing. This is probably a form submit with no changes.
+            # Do nothing and return self
+            return self
+
+        # An actual change? Revoke this record and make a new record
+
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
         new = type(self)(
@@ -170,7 +189,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
 
         # if existing record type is INVITE, replace it with ACCEPT,
-        # else, replace it with AMEND.
+        # else replace it with AMEND
         if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
             new.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
         else:

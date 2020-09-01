@@ -97,7 +97,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     return (
                         {
                             'status': 'error',
-                            'error_description': _('This person is already a member'),
+                            'error_description': _("This user is already an admin"),
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
                         },
@@ -130,7 +130,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                 return (
                     {
                         'status': 'error',
-                        'error_description': _("The new member could not be added"),
+                        'error_description': _("The new admin could not be added"),
                         'errors': membership_form.errors,
                         'form_nonce': membership_form.form_nonce.data,
                     },
@@ -187,17 +187,28 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 if previous_membership.user == current_auth.user:
                     return {
                         'status': 'error',
-                        'error_description': _("You can‘t edit your own role"),
+                        'error_description': _("You can’t edit your own role"),
                         'form_nonce': membership_form.form_nonce.data,
                     }
 
-                previous_membership.replace(
+                new_membership = previous_membership.replace(
                     actor=current_auth.user, is_owner=membership_form.is_owner.data
                 )
-                db.session.commit()
+                if new_membership != previous_membership:
+                    db.session.commit()
+                    dispatch_notification(
+                        OrganizationAdminMembershipNotification(
+                            document=new_membership.organization,
+                            fragment=new_membership,
+                        )
+                    )
                 return {
                     'status': 'ok',
-                    'message': _("The member‘s roles have been updated"),
+                    'message': (
+                        _("The member’s roles have been updated")
+                        if new_membership != previous_membership
+                        else _("No changes were detected")
+                    ),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
@@ -237,7 +248,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                 if previous_membership.user == current_auth.user:
                     return {
                         'status': 'error',
-                        'error_description': _("You can‘t revoke your own membership"),
+                        'error_description': _("You can’t revoke your own membership"),
                         'form_nonce': form.form_nonce.data,
                     }
                 if previous_membership.is_active:
