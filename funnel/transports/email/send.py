@@ -1,7 +1,7 @@
 """Support functions for sending an email."""
 
 from email.utils import formataddr, getaddresses, parseaddr
-from typing import NamedTuple
+from typing import List, NamedTuple, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -9,6 +9,8 @@ from flask_mailman.message import sanitize_address
 
 from html2text import html2text
 from premailer import transform
+
+from baseframe import statsd
 
 from ... import app, mail
 from ...models import EmailAddress, EmailAddressBlockedError, User
@@ -21,6 +23,9 @@ __all__ = [
     'process_recipient',
     'send_email',
 ]
+
+# Short Type
+EmailRecipient = Union[User, tuple, str]
 
 
 class EmailAttachment(NamedTuple):
@@ -58,7 +63,15 @@ def jsonld_confirm_action(description, url, title):
     }
 
 
-def process_recipient(recipient):
+def process_recipient(recipient: EmailRecipient) -> str:
+    """
+    Processes recipient in any of the given input formats. These could be:
+    1. A User object
+    2. A Tuple
+    3. String.
+    :param recipient: Recipient of an Email Address
+    :returns RFC 2822 compliant Email Address (String)
+    """
     if isinstance(recipient, User):
         formatted = formataddr((recipient.fullname, str(recipient.email)))
     elif isinstance(recipient, tuple):
@@ -89,7 +102,13 @@ def process_recipient(recipient):
     return formataddr((realname, email_address))
 
 
-def send_email(subject, to, content, attachments=None, from_email=None):
+def send_email(
+    subject: str,
+    to: List[EmailRecipient],
+    content: str,
+    attachments: List[EmailAttachment] = None,
+    from_email: EmailRecipient = None,
+):
     """
     Helper function to send an email.
 
@@ -129,9 +148,16 @@ def send_email(subject, to, content, attachments=None, from_email=None):
     # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
     # catch that, remove the recipient, and notify the user via the upcoming
     # notification centre. (Raise a TransportRecipientError)
+
     result = mail.send(msg)
-    # After sending, mark the address as having received an email
+
+    # After sending, mark the address as having received an email and also update the statistics counters.
+    # Note that this will only track emails sent by *this app*. However SES events will track statistics
+    # across all apps and hence the difference between this counter and SES event counters will be emails
+    # sent by other apps.
+    statsd.incr("email_address.ses_email.sent")
     for ea in emails:
         ea.mark_sent()
+
     # FIXME: 'result' is a number. Why? We need message-id
     return result
