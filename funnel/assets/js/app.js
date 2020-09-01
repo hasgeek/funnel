@@ -119,3 +119,31 @@ if (
     Pace.stop();
   };
 }
+
+if (navigator.share) {
+  const shareBtn = document.querySelector('.share-btn');
+  if (shareBtn) {
+    $('.share').hide();
+    $('.share-btn').removeClass('hide');
+
+    shareBtn.addEventListener('click', () => {
+      navigator
+        .share({
+          title: document.title,
+          text: $('meta[name="description"]').attr('content'),
+          url:
+            (document.querySelector('link[rel=canonical]') &&
+              document.querySelector('link[rel=canonical]').href) ||
+            window.location.href,
+        })
+        .then(() => {
+          console.log('Thanks for sharing!');
+        })
+        .catch((err) => {
+          console.log(`Couldn't share because of`, err.message);
+        });
+    });
+  }
+} else {
+  console.log('web share not supported');
+}

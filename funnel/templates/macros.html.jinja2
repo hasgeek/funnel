@@ -32,11 +32,9 @@
           {% set event.month = week.month  %}
           {% set event.year = week.year  %}
           <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first calendar__weekdays__dates--latest {% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__weekdays__dates--latest {% endif %}"  data-month="{{ week.month }}">
-            {% if event.previous  %}
-              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
-                {{ faicon(icon='chevron-left',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
-              </p>
-            {% endif %}
+            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
+              {% if event.previous  %}{{ faicon(icon='chevron-left',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}{% endif %}
+            </p>
             {% for date in week.dates %}
               <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} calendar__weekdays__dates__date--{{ loop.index }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
@@ -44,11 +42,9 @@
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} – {{ date.day_end_at }}</span>{% endif %}
               </p>
             {% endfor %}
-            {% if event.next  %}
-              <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right">
-                {{ faicon(icon='chevron-right',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}
-              </p>
-            {% endif %}
+            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right">
+              {% if event.next  %}{{ faicon(icon='chevron-right',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}{% endif %}
+            </p>
           </div>
         {% endfor %}
       </div>
@@ -91,6 +87,7 @@
       <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead share" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><span class="mui--text-body2 mui--text-light txt">{% trans %}Share <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{{ faicon(icon='share-square', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</a>
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
+    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead share-btn hide"><span class="mui--text-body2 mui--text-light txt">{% trans %}Share <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{{ faicon(icon='share-square', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</a>
   </div>
 {% endmacro %}
 
@@ -107,41 +104,6 @@
 {% endmacro %}
 
 {% macro project_header(project, csrf_form, class='', current_page='project', pinned=true) %}
-  {% if current_auth.user.is_site_editor %}
-    <div class="site-admin">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-sm-12">
-            <a href="#featured-form-modal" rel="modal:open" class="mui--text-light mui--text-subhead"></a>
-            <div class="mui-checkbox">
-              <label class="mui--text-light mui--text-subhead">
-                <input type="checkbox" {% if project.featured %}checked{% endif %} onclick="event.preventDefault(); $('#featured-form-modal').modal()">
-                {% trans %}Featured project{% endtrans %}
-              </label>
-            </div>
-            <div class="modal" id="featured-form-modal">
-              <div class="modal__header">
-                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
-              </div>
-              <div class="modal__body">
-                <form action="{{ project.url_for('toggle_featured') }}" method="post">
-                  {{ csrf_form.hidden_tag() }}
-                  <span class="mui--text-title mui--text-bold mui--text-dark">Confirmation</span>
-                  <button name="transition" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">
-                    {% if project.featured %}
-                      {% trans %}Remove featured{% endtrans %}
-                    {% else %}
-                      {% trans %}Make featured{% endtrans %}
-                    {% endif %}
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  {% endif %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
       {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
@@ -381,8 +343,9 @@
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
+      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead share-btn hide" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-square', icon_size='subhead', css_class=share_icon_css) }}</a>
       <div class="mui-dropdown">
-        <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-square', icon_size='subhead', css_class=share_icon_css) }}</a>
+        <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead share" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-square', icon_size='subhead', css_class=share_icon_css) }}</a>
         {{ share_dropdown(url, title) }}
       </div>
   {%- endif %}
@@ -654,7 +617,7 @@
 
 {% macro profile_admin_buttons(profile) %}
   <div class="mui-dropdown mui--d-inlineblock">
-    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="admin-dropdown">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-action="profile admin dropdown" data-cy="admin-dropdown">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
     <ul class="mui-dropdown__menu mui-dropdown__menu--right">
       {%- if profile.organization %}<li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>{% endif %}
       <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>
@@ -826,7 +789,7 @@
             <div class="comment__header__details user">
               <div class="user__box" v-if="!comment.state">
                 <useravatar :user='comment.user' :addprofilelink=true></useravatar>
-                <div class="mui--d-inlineblock">
+                <div class="mui--d-inlineblock comment__header__details__user">
                   <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ comment.user.fullname }}</h3>
                   <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
                 </div>

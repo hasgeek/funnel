@@ -94,7 +94,8 @@
 
     .bookmark,
     .add-calendar,
-    .share {
+    .share,
+    .share-btn {
       display: flex;
       align-items: center;
       padding: 0 8px;
@@ -114,12 +115,17 @@
         animation: none;
       }
     }
-    .share {
+    .share,
+    .share-btn {
       border-right: none;
+    }
+    .share-btn.hide {
+      display: none;
     }
     .bookmark span.login-txt,
     .add-calendar span.txt,
-    .share span.txt {
+    .share span.txt,
+    .share-btn span.txt {
       padding-right: 5px;
     }
 

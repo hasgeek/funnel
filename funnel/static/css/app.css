@@ -815,6 +815,10 @@ a.loginbutton.hidden,
     width: 50%;
   }
 }
+.share-btn.hide {
+  display: none;
+}
+
 @media (max-width: 767px) {
   #root_footer {
     height: 0;
@@ -1171,9 +1175,7 @@ a.loginbutton.hidden,
     .header__site-title
     .header__site-title__title
     .header__site-title__home__logo {
-    height: 28px;
-    margin-right: 16px;
-    margin-bottom: 0;
+    height: 30px;
   }
   .hg-app
     .header--fixed
@@ -2871,6 +2873,7 @@ a.loginbutton.hidden,
   position: absolute;
   left: -16px;
   line-height: 30px;
+  height: 36px;
 }
 .card__calendar--compact
   .calendar
@@ -2880,6 +2883,7 @@ a.loginbutton.hidden,
   position: absolute;
   right: -16px;
   line-height: 30px;
+  height: 36px;
 }
 
 .card--upcoming {
@@ -3227,7 +3231,8 @@ a.loginbutton.hidden,
 }
 .project-banner .project-banner__footer .bookmark,
 .project-banner .project-banner__footer .add-calendar,
-.project-banner .project-banner__footer .share {
+.project-banner .project-banner__footer .share,
+.project-banner .project-banner__footer .share-btn {
   display: flex;
   align-items: center;
   padding: 0 8px;
@@ -3247,12 +3252,17 @@ a.loginbutton.hidden,
   -webkit-animation: none;
   animation: none;
 }
-.project-banner .project-banner__footer .share {
+.project-banner .project-banner__footer .share,
+.project-banner .project-banner__footer .share-btn {
   border-right: none;
+}
+.project-banner .project-banner__footer .share-btn.hide {
+  display: none;
 }
 .project-banner .project-banner__footer .bookmark span.login-txt,
 .project-banner .project-banner__footer .add-calendar span.txt,
-.project-banner .project-banner__footer .share span.txt {
+.project-banner .project-banner__footer .share span.txt,
+.project-banner .project-banner__footer .share-btn span.txt {
   padding-right: 5px;
 }
 .project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
@@ -4099,25 +4109,34 @@ a.loginbutton.hidden,
 .comment .comment__header {
   display: inline-block;
   width: 100%;
-  margin-bottom: 16px;
 }
 .comment .comment__header button {
-  vertical-align: bottom;
+  vertical-align: top;
+  position: relative;
+  top: 17px;
 }
 .comment .comment__header .mui-btn--nostyle + .mui-btn--nostyle {
   margin-left: 0;
 }
 .comment .comment__header .comment__header__details {
   display: inline-block;
-  min-width: 300px;
+  min-width: 200px;
+  max-width: calc(100% - 40px);
   margin-left: 8px;
 }
+.comment .comment__header .comment__header__details .commenter {
+  margin-right: 8px;
+}
 .comment .comment__header .comment__header__details .badge {
-  margin-left: 8px;
   margin-right: 8px;
 }
 .comment .comment__header .comment__header__details .mui--d-inlineblock {
   vertical-align: top;
+}
+.comment
+  .comment__header
+  .comment__header__details
+  .comment__header__details__user {
   min-height: 40px;
 }
 .comment .comment__body {
@@ -4396,7 +4415,7 @@ a.loginbutton.hidden,
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column {
     position: relative;
-    background-image: url('../img/schedule-box-background.png?1553065764');
+    background-image: url('../img/schedule-box-background.png?1598540764');
     background-size: 20px 10px;
   }
   .schedule-grid

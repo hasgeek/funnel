@@ -69,6 +69,41 @@
 {% block contenthead %}{% endblock %}
 
 {% block baseheadline %}
+  {% if current_auth.user.is_site_editor %}
+    <div class="site-admin">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-sm-12">
+            <a href="#featured-form-modal" rel="modal:open" class="mui--text-light mui--text-subhead"></a>
+            <div class="mui-checkbox">
+              <label class="mui--text-light mui--text-subhead">
+                <input type="checkbox" {% if project.featured %}checked{% endif %} onclick="event.preventDefault(); $('#featured-form-modal').modal()">
+                {% trans %}Featured project{% endtrans %}
+              </label>
+            </div>
+            <div class="modal" id="featured-form-modal">
+              <div class="modal__header">
+                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+              </div>
+              <div class="modal__body">
+                <form action="{{ project.url_for('toggle_featured') }}" method="post">
+                  {{ csrf_form.hidden_tag() }}
+                  <span class="mui--text-title mui--text-bold mui--text-dark">Confirmation</span>
+                  <button name="transition" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">
+                    {% if project.featured %}
+                      {% trans %}Remove featured{% endtrans %}
+                    {% else %}
+                      {% trans %}Make featured{% endtrans %}
+                    {% endif %}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
   {{ project_header(project, csrf_form) }}
 {% endblock %}
 
