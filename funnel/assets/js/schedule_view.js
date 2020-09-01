@@ -125,6 +125,7 @@ const Schedule = {
             backPage
           );
           this.updateMetaTags(pageDetails);
+          Utils.addWebShare();
         },
         showSessionModal(activeSession) {
           const backPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;

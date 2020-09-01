@@ -275,6 +275,25 @@ export const Utils = {
       },
     });
   },
+  addWebShare() {
+    if (navigator.share) {
+      const shareBtn = document.querySelector('.share-btn');
+      if (shareBtn) {
+        $('.share').hide();
+        $('.share-btn').removeClass('hide');
+
+        shareBtn.addEventListener('click', () => {
+          navigator.share({
+            title: document.title,
+            url:
+              (document.querySelector('link[rel=canonical]') &&
+                document.querySelector('link[rel=canonical]').href) ||
+              window.location.href,
+          });
+        });
+      }
+    }
+  },
 };
 
 export const ScrollActiveMenu = {
