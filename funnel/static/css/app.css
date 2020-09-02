@@ -110,7 +110,6 @@
 
 .page-content {
   padding-top: 32px;
-  padding-bottom: 16px;
 }
 
 .page-content--mob-nav {
@@ -821,7 +820,7 @@ a.loginbutton.hidden,
 
 @media (max-width: 767px) {
   #root_footer {
-    height: 0;
+    padding-top: 32px;
   }
 }
 .hg-app .header--fixed {
@@ -1075,7 +1074,6 @@ a.loginbutton.hidden,
 }
 .hg-app .content-wrapper {
   padding-top: 0;
-  padding-bottom: 50px;
 }
 
 @media (max-width: 767px) {
@@ -3603,7 +3601,6 @@ a.loginbutton.hidden,
   margin-top: 16px;
   position: relative;
   outline: none;
-  margin-bottom: 32px;
 }
 
 .proposal-wrapper {
@@ -4174,7 +4171,7 @@ a.loginbutton.hidden,
   padding: 0;
 }
 .schedule-grid .schedule {
-  margin: 32px 0;
+  margin: 0 0 32px;
 }
 .schedule-grid .schedule .schedule__date {
   margin-bottom: 32px;
@@ -4357,6 +4354,9 @@ a.loginbutton.hidden,
 @media (min-width: 768px) {
   .schedule-grid {
     padding: 0 16px;
+  }
+  .schedule-grid .schedule {
+    margin: 32px 0;
   }
   .schedule-grid .schedule .schedule__date {
     padding-left: 0;

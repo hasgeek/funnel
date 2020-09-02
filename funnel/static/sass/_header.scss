@@ -1,6 +1,6 @@
 @media (max-width: 767px) {
   #root_footer {
-    height: 0;
+    padding-top: $mui-grid-padding-double;
   }
 }
 
@@ -147,7 +147,6 @@
   }
   .content-wrapper {
     padding-top: 0;
-    padding-bottom: 50px;
   }
 }
 
