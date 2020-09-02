@@ -11,7 +11,7 @@ class RenderNewUpdateNotification(RenderNotification):
     """Notify crew and participants when the project has a new update."""
 
     aliases = {'document': 'update'}
-
+    emoji_prefix = "📰 "
     reason = __("You are receiving this because you have registered for this project.")
 
     @property
@@ -27,7 +27,7 @@ class RenderNewUpdateNotification(RenderNotification):
         return render_template('notifications/update_new_web.html.jinja2', view=self)
 
     def email_subject(self):
-        return _("📰 {update} ({project})").format(
+        return self.emoji_prefix + _("{update} ({project})").format(
             update=self.update.title, project=self.update.project.joined_title()
         )
 

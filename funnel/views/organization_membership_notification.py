@@ -159,6 +159,8 @@ decision_factors = [
 
 
 class RenderShared:
+    emoji_prefix = "🔑 "
+
     @property
     def actor(self):
         """We're interested in who has the membership, not who granted/revoked it."""
@@ -199,7 +201,7 @@ class RenderShared:
         )
 
     def email_subject(self):
-        return (f"🔑 {self.activity_template()}").format(
+        return self.emoji_prefix + (f"{self.activity_template()}").format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
             actor=self.membership.granted_by.pickername,

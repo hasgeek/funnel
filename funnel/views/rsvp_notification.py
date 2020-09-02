@@ -12,11 +12,7 @@ from .schedule import schedule_ical
 
 
 class RegistrationBase:
-    def tracking_tags(self, transport=None, campaign=None):
-        """Remove utm_source as it will identify the single recipient user."""
-        tags = super().tracking_tags(transport, campaign)
-        tags.pop('utm_source', None)
-        return tags
+    emoji_prefix = "🎟️ "
 
     def email_attachments(self):
         # Attach a vCalendar of schedule, but only if there are sessions.
@@ -51,7 +47,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
         return render_template('notifications/rsvp_yes_web.html.jinja2', view=self)
 
     def email_subject(self):
-        return _("🎟️ Registration confirmation for {project}").format(
+        return self.emoji_prefix + _("Registration confirmation for {project}").format(
             project=self.rsvp.project.joined_title()
         )
 
@@ -85,7 +81,7 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
         return render_template('notifications/rsvp_no_web.html.jinja2', view=self)
 
     def email_subject(self):
-        return _("🎫 Registration cancelled for {project}").format(
+        return self.emoji_prefix + _("Registration cancelled for {project}").format(
             project=self.rsvp.project.joined_title()
         )
 

@@ -11,7 +11,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
     """Notify site admins when a comment report is received."""
 
     aliases = {'document': 'comment', 'fragment': 'report'}
-
+    emoji_prefix = "💩 "
     reason = __("You are receiving this because you are a site admin.")
 
     def web(self):
@@ -20,7 +20,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("💩 A comment has been reported as spam")
+        return self.emoji_prefix + _("A comment has been reported as spam")
 
     def email_content(self):
         return render_template(

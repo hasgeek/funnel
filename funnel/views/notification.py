@@ -47,6 +47,12 @@ class RenderNotification:
             ...
     """
 
+    #: Aliases for document and fragment, to make render methods clearer
+    aliases = {}
+
+    #: Emoji prefix, for transports that support them
+    emoji_prefix = ''
+
     #: Reason specified in email templates. Subclasses MAY override
     reason = __("You are receiving this because you have an account at hasgeek.com.")
 
@@ -61,9 +67,6 @@ class RenderNotification:
     reason_webpush = reason_for
     reason_telegram = reason_for
     reason_whatsapp = reason_for
-
-    #: Aliases for document and fragment, to make render methods clearer
-    aliases = {}
 
     def __init__(self, user_notification):
         self.user_notification = user_notification
@@ -237,7 +240,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms()
+        return self.emoji_prefix + self.sms()
 
     def telegram(self):
         """
@@ -245,7 +248,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms()
+        return self.emoji_prefix + self.sms()
 
     def whatsapp(self):
         """
@@ -253,7 +256,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms()
+        return self.emoji_prefix + self.sms()
 
 
 # --- Dispatch functions ---------------------------------------------------------------
