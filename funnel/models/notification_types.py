@@ -102,7 +102,6 @@ class ProposalSubmittedNotification(DocumentHasProject, Notification):
     document_model = Proposal
     roles = ['creator']
     exclude_actor = False  # This notification is for the actor
-    for_private_recipient = True
 
     # Email is typically fine. Messengers may be too noisy
     default_email = True
