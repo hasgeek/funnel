@@ -32,7 +32,7 @@ class RenderProjectStartingNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("Hi! {project} starts at {time} {url}").format(
+        return _("{project} starts at {time} {url}").format(
             project=self.project.joined_title('>'),
             time=time_filter(self.session.start_at_localized),
             url=self.project.url_for(_external=True),

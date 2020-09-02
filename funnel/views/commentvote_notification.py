@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, url_for
 
 from baseframe import _, __
 
@@ -20,9 +20,14 @@ class RenderCommentReportReceivedNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("Comment reported as spam")
+        return _("💩 A comment has been reported as spam")
 
     def email_content(self):
         return render_template(
             'notifications/comment_report_received_email.html.jinja2', view=self
+        )
+
+    def sms(self):
+        return _("A comment has been reported as spam. {url}").format(
+            url=url_for('siteadmin_review_comment', report=self.report.uuid_b58)
         )

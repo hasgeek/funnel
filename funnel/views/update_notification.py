@@ -35,7 +35,7 @@ class RenderNewUpdateNotification(RenderNotification):
         return render_template('notifications/update_new_email.html.jinja2', view=self)
 
     def sms(self):
-        return _("Hi! Update in {project}: {update} {url}").format(
+        return _("Update in {project}: {update} {url}").format(
             project=self.update.project.joined_title('>'),
             update=self.update.title,
             url=self.update.url_for(_external=True),

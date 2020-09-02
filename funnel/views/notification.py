@@ -225,9 +225,11 @@ class RenderNotification:
         raise NotImplementedError("Subclasses must implement `sms`")
 
     def sms_with_unsubscribe(self):
-        """Add an unsubscribe link to the SMS message."""
-        # SMS templates can't be translated, so the "to stop" is static
-        return self.sms() + f"\r\n\r\n{self.unsubscribe_short_url('sms')} to stop"
+        """Add a template prefix and an unsubscribe link to the SMS message."""
+        # SMS templates can't be translated, so the "Hi!" and "to stop" are static
+        return (
+            "Hi! " + self.sms() + f"\r\n\r\n{self.unsubscribe_short_url('sms')} to stop"
+        )
 
     def webpush(self):
         """

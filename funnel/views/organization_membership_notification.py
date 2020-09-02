@@ -206,7 +206,7 @@ class RenderShared:
         )
 
     def sms(self):
-        return (f"Hi! {self.activity_template()}").format(
+        return (f"{self.activity_template()}").format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
             actor=self.membership.granted_by.pickername,
