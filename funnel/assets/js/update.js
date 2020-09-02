@@ -12,12 +12,13 @@ const Updates = {
     updateTemplate,
     isEditor,
     headerHeight,
+    addReadMore,
   }) {
     Vue.use(VS2);
 
     const updateUI = Vue.component('update', {
       template: updateTemplate,
-      props: ['update', 'iseditor'],
+      props: ['update', 'iseditor', 'addreadmore'],
       data() {
         return {
           truncated: true,
@@ -71,6 +72,7 @@ const Updates = {
           updates: updates.length > 0 ? updates : '',
           isEditor,
           headerHeight,
+          addReadMore,
         };
       },
       mounted() {
@@ -82,6 +84,7 @@ const Updates = {
           );
         }
         Utils.truncate();
+        Utils.addWebShare();
       },
     });
 
