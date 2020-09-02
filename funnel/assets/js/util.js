@@ -283,7 +283,7 @@ export const Utils = {
 
         $('.share-btn').on('click', function () {
           navigator.share({
-            title: $(this).data('url') || document.title,
+            title: $(this).data('title') || document.title,
             url:
               $(this).data('url') ||
               (document.querySelector('link[rel=canonical]') &&
