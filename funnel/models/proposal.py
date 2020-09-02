@@ -120,11 +120,14 @@ class Proposal(
     )
 
     speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    speaker = db.relationship(
-        User,
-        primaryjoin=speaker_id == User.id,
-        lazy='joined',
-        backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
+    speaker = with_roles(
+        db.relationship(
+            User,
+            primaryjoin=speaker_id == User.id,
+            lazy='joined',
+            backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
+        ),
+        grants={'presenter'},
     )
 
     phone = db.Column(db.Unicode(80), nullable=True)
