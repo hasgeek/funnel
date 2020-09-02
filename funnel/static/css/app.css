@@ -4285,7 +4285,7 @@ a.loginbutton.hidden,
   overflow-x: auto;
   position: sticky;
   position: -webkit-sticky;
-  top: 62px;
+  top: 56px;
   order: 1;
   z-index: 4;
   border: none;
