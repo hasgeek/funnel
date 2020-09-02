@@ -58,7 +58,6 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
         if report is None:
             report = cls(user=actor, comment=comment)
             db.session.add(report)
-            db.session.commit()
         return report
 
     @with_roles(grants={'site_editor'})
