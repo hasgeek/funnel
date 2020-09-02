@@ -117,6 +117,7 @@ def send_email(
         (name, email_address), or (c) a pre-formatted email address
     :param str content: HTML content of the message (plain text is auto-generated)
     :param list attachments: List of :class:`EmailAttachment` attachments
+    :param from_email: Email Recipient
     """
     # Parse recipients and convert as needed
     to = [process_recipient(recipient) for recipient in to]
@@ -155,7 +156,7 @@ def send_email(
     # Note that this will only track emails sent by *this app*. However SES events will track statistics
     # across all apps and hence the difference between this counter and SES event counters will be emails
     # sent by other apps.
-    statsd.incr("email_address.ses_email.sent")
+    statsd.incr("email_address.ses_email.sent", count=len(emails))
     for ea in emails:
         ea.mark_sent()
 
