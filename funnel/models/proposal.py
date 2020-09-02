@@ -170,7 +170,7 @@ class Proposal(
         lazy='joined',
         cascade='all',
         single_parent=True,
-        backref=db.backref('proposal', uselist=False),
+        back_populates='proposal',
     )
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)

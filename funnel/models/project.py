@@ -147,7 +147,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         uselist=False,
         cascade='all',
         single_parent=True,
-        backref=db.backref('project', uselist=False),
+        back_populates='project',
     )
 
     parent_id = db.Column(

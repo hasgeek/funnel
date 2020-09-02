@@ -158,7 +158,7 @@ class ProposalCommentNotification(DocumentHasProject, Notification):
     fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
     # fragment if present, document if not.
-    roles = ['presenter', 'replied_to_commenter']  # FIXME: Role may still be 'speaker'
+    roles = ['proposal_presenter', 'replied_to_commenter']
 
 
 class ProjectCommentNotification(DocumentHasProfile, Notification):

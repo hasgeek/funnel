@@ -3,7 +3,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask import current_app
 
 from baseframe import _, __
-from coaster.sqlalchemy import StateManager, cached
+from coaster.sqlalchemy import StateManager, cached, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
@@ -112,6 +112,13 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     settype = db.Column('type', db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
 
+    proposal = with_roles(
+        db.relationship("Proposal", uselist=False, back_populates="commentset"),
+        grants_via={None: {'presenter': 'proposal_presenter'}},
+    )
+
+    project = db.relationship("Project", uselist=False, back_populates="commentset")
+
     __roles__ = {'all': {'read': {'settype', 'count'}}}
 
     __datasets__ = {
@@ -157,10 +164,13 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         backref=db.backref('comments', lazy='dynamic', cascade='all'),
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(
-        Commentset,
-        primaryjoin=commentset_id == Commentset.id,
-        backref=db.backref('comments', cascade='all'),
+    commentset = with_roles(
+        db.relationship(
+            Commentset,
+            primaryjoin=commentset_id == Commentset.id,
+            backref=db.backref('comments', cascade='all'),
+        ),
+        grants_via={None: {'proposal_presenter': 'proposal_presenter'}},
     )
 
     parent_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)
