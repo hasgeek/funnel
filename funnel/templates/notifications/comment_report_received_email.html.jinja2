@@ -1,0 +1,12 @@
+{% extends "notifications/layout_email.html.jinja2" %}
+{% block content -%}
+
+<p>{% trans actor=view.actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
+
+<p>
+    {% trans url=url_for('siteadmin_review_comment', report=view.report.uuid_b58) -%}
+    A comment has been reported as spam. <a href="{{ url }}">Please review</a>.
+    {%- endtrans %}
+</p>
+
+{%- endblock %}

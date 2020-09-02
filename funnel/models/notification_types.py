@@ -1,4 +1,5 @@
 from baseframe import __
+from funnel.models.moderation import CommentModeratorReport
 
 from .commentvote import Comment
 from .notification import Notification, notification_categories
@@ -12,6 +13,7 @@ from .update import Update
 from .user import Organization
 
 __all__ = [
+    'CommentReportReceivedNotification',
     'NewUpdateNotification',
     'ProjectCommentNotification',
     'ProposalCommentNotification',
@@ -270,3 +272,16 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
     fragment_model = OrganizationMembership
     roles = ['subject', 'profile_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
+
+
+class CommentReportReceivedNotification(Notification):
+    """Notification for site editors when a comment is reported as spam"""
+
+    __mapper_args__ = {'polymorphic_identity': 'comment_report_received'}
+
+    category = notification_categories.site_admin
+    title = __("When a comment is reported as spam")
+
+    document_model = Comment
+    fragment_model = CommentModeratorReport
+    roles = ['site_editor']

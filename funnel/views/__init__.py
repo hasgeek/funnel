@@ -9,6 +9,7 @@ from . import (
     auth_oauth,
     auth_resource,
     commentvote,
+    commentvote_notification,
     contact,
     decorators,
     email,
