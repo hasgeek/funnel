@@ -383,13 +383,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     def has_transport_sms(self):
-        # Temporary restriction to exclude Indian phone numbers until SMS templates
-        # are registered
-        return (
-            self.is_active
-            and bool(self.phone)
-            and not self.phone.phone.startswith('+91')
-        )
+        return self.is_active and bool(self.phone)
 
     @with_roles(call={'owner'})
     def has_transport_webpush(self):  # TODO  # pragma: no cover
