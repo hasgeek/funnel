@@ -238,15 +238,6 @@
           }
         });
       });
-
-      caches.keys().then(function(cacheNames) {
-        cacheNames.forEach(function(cacheName) {
-          if(cacheName === 'routes' || cacheName.includes('workbox-precache')) {
-            caches.delete(cacheName);
-          }
-        });
-      });
-
     }
   </script>
   {%- endif -%}
