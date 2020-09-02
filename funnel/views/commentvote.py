@@ -18,6 +18,7 @@ from .. import app, funnelapp
 from ..forms import CommentForm
 from ..models import (
     Comment,
+    CommentModeratorReport,
     CommentReportReceivedNotification,
     Commentset,
     Proposal,
@@ -333,7 +334,9 @@ class CommentView(UrlForView, ModelView):
         csrf_form = forms.Form()
         if request.method == 'POST':
             if csrf_form.validate():
-                report = self.obj.report_spam(actor=current_auth.user)
+                report = CommentModeratorReport.submit(
+                    actor=current_auth.user, comment=self.obj
+                )
                 dispatch_notification(
                     CommentReportReceivedNotification(
                         document=self.obj, fragment=report

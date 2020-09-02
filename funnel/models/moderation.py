@@ -3,7 +3,6 @@ from coaster.sqlalchemy import with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, Comment, SiteMembership, User, UuidMixin, db
-from .helpers import reopen
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
@@ -53,6 +52,15 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
 
         return reports.order_by(db.func.random()).first()
 
+    @classmethod
+    def submit(cls, actor, comment):
+        report = cls.query.filter_by(user=actor, comment=comment).one_or_none()
+        if report is None:
+            report = cls(user=actor, comment=comment)
+            db.session.add(report)
+            db.session.commit()
+        return report
+
     @with_roles(grants={'site_editor'})
     @property
     def users_who_are_site_editors(self):
@@ -61,16 +69,3 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
         ).filter(
             SiteMembership.is_active.is_(True), SiteMembership.is_site_editor.is_(True)
         )
-
-
-@reopen(Comment)
-class Comment:
-    def report_spam(self, actor):
-        report = CommentModeratorReport.query.filter_by(
-            user=actor, comment=self
-        ).one_or_none()
-        if report is None:
-            report = CommentModeratorReport(user=actor, comment=self)
-            db.session.add(report)
-            db.session.commit()
-        return report

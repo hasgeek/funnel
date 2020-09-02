@@ -310,8 +310,7 @@ class AccountView(ClassView):
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
             for comment in comments:
-                comment.report_spam(actor=current_auth.user)
-            db.session.commit()
+                CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
             flash(
                 _("Comment(s) successfully reported as spam"), category='info',
             )
