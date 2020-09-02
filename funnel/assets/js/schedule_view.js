@@ -114,6 +114,9 @@ const Schedule = {
         },
         openModal(sessionHtml, backPage, pageDetails) {
           this.modalHtml = sessionHtml;
+          $('#session-modal').on($.modal.OPEN, function () {
+            Utils.addWebShare();
+          });
           $('#session-modal').modal('show');
           window.history.pushState(
             {
@@ -125,7 +128,6 @@ const Schedule = {
             backPage
           );
           this.updateMetaTags(pageDetails);
-          Utils.addWebShare();
         },
         showSessionModal(activeSession) {
           const backPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
