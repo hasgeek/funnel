@@ -145,7 +145,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     commentset = db.relationship(
         Commentset,
         uselist=False,
-        lazy='joined',
         cascade='all',
         single_parent=True,
         backref=db.backref('project', uselist=False),
@@ -280,6 +279,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'views',
                 'boxoffice_data',
                 'featured_sessions',
+                'forms',
             },
         },
     }
@@ -394,10 +394,22 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def title_suffix(self):
-        """Return the profile's title if the project's title doesn't derive from it."""
+        """
+        Return the profile's title if the project's title doesn't derive from it.
+
+        Used in HTML title tags to render <title>{{ project }} - {{ suffix }}</title>.
+        """
         if not self.title.startswith(self.parent.title):
             return self.profile.title
         return ''
+
+    def joined_title(self, sep='›'):
+        """Return the project's title joined with the profile's title, if divergent."""
+        if self.short_title == self.title:
+            # Project title does not derive from profile title, so use both
+            return f"{self.profile.title} {sep} {self.title}"
+        # Project title extends profile title, so profile title is not needed
+        return self.title
 
     @cached_property
     def datelocation(self):

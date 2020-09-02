@@ -16,7 +16,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm, SavedProjectForm
+from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
 from ..models import Profile, Project, Proposal, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
@@ -166,7 +166,6 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     if featured_project
                     else None
                 ),
-                'project_save_form': SavedProjectForm(),
             }
         else:
             abort(404)  # Reserved profile

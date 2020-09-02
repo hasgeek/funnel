@@ -1,6 +1,16 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
 {% from "baseframe/components.html.jinja2" import faicon, alertbox %}
 
+{% macro project_title(project) %}
+  {%- if project.short_title == project.title -%}
+    {#- Project title is not an extension of profile title, so display profile title too -#}
+    {{ project.profile.title }} › {{ project.title }}
+  {%- else -%}
+    {#- Project title derives from profile title, so profile is not needed. -#}
+    {{ project.title }}
+  {%- endif %}
+{%- endmacro %}
+
 {% macro calendarwidget(calendar, compact=true) %}
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
     <div class="calendar">
@@ -46,9 +56,9 @@
   </div>
 {% endmacro %}
 
-{% macro saveprojectform(project, form, formid='save-form', txt=false) %}
+{% macro saveprojectform(project, formid='save-form', txt=false) %}
   <form id={{formid}} class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
-    {{ form.hidden_tag() }}
+    {{ current_view.SavedProjectForm().hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
         <a class="mui--text-body2"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body2 mui--text-light login-txt">{% trans %}Login{% endtrans %} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}to save{% endtrans %}</span></span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
@@ -71,9 +81,9 @@
   </ul>
 {% endmacro %}
 
-{% macro project_share(project, project_save_form) %}
+{% macro project_share(project) %}
   <div class="project-banner__footer">
-    <div class="bookmark">{{ saveprojectform(project, project_save_form, txt=true) }}</div>
+    <div class="bookmark">{{ saveprojectform(project, txt=true) }}</div>
     {% if project.schedule_state.PUBLISHED %}
       <a class="add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar" data-cy="add-to-calendar"><span class="mui--text-body2 mui--text-light txt">{% trans %}Add to calendar{% endtrans %}</span>{{ faicon(icon='calendar-plus', baseline=false, css_class='mui--text-light') }}</a>
     {% endif %}
@@ -96,7 +106,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro project_header(project, project_save_form, csrf_form, class='', current_page='project', pinned=true) %}
+{% macro project_header(project, csrf_form, class='', current_page='project', pinned=true) %}
   {% if current_auth.user.is_site_editor %}
     <div class="site-admin">
       <div class="mui-container">
@@ -185,7 +195,7 @@
               </div>
             </div>
           {%- endfor %}
-          {{ project_share(project, project_save_form) }}
+          {{ project_share(project) }}
         </div>
       {% else %}
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
@@ -206,7 +216,7 @@
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
             {% endif %}
           </div>
-          {{ project_share(project, project_save_form) }}
+          {{ project_share(project) }}
         </div>
       {% endif %}
       <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
@@ -336,7 +346,7 @@
     <li>
       <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
         <p class="pinned__update__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">{% trans %}Pinned update{% endtrans %}</span></p>
-        <p class="pinned__update__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__update__body__text">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.text }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
+        <p class="pinned__update__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__update__body__text">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.html|firstline }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
       </a>
     </li>
   </ul>
@@ -388,7 +398,7 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, project_save_form=none, include_calendar=true, calendarwidget_compact=true) %}
+{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, save_form_id_prefix='spf_') %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
@@ -402,9 +412,9 @@
       {% endif %}
     </div>
     <div class="card__body">
-      {%- if not current_auth.is_anonymous and project_save_form %}
-        {% set save_form_id = "upcoming_" + project.uuid_b58 %}
-        <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, project_save_form, save_form_id) }}</div>
+      {%- if not current_auth.is_anonymous %}
+        {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
+        <div class="card__body__bookmark {% if not project.calendar_weeks_compact.weeks %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, save_form_id) }}</div>
       {% endif %}
       {%- if include_calendar%}
         {% if calendarwidget_compact and project.schedule_state.PUBLISHED and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
@@ -428,7 +438,7 @@
   </a>
 {% endmacro %}
 
-{% macro featured_section(featured_project, project_save_form) %}
+{% macro featured_section(featured_project) %}
   {% if featured_project %}
     {% with current_sessions = featured_project.current_sessions() if
     featured_project is not none else none %}
@@ -511,7 +521,7 @@
                   {%- if not current_auth.is_anonymous %}
                     {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
                     <div class="card__body__bookmark">
-                      {{ saveprojectform(featured_project, project_save_form, save_form_id) }}
+                      {{ saveprojectform(featured_project, save_form_id) }}
                     </div>
                   {% endif %}
                   {% if featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
@@ -534,7 +544,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro upcoming_section(upcoming_projects, project_save_form) %}
+{% macro upcoming_section(upcoming_projects) %}
   {% if upcoming_projects|length > 0 %}
     <div class="projects-wrapper">
       <div class="mui-container">
@@ -546,7 +556,7 @@
         <ul class="mui-list--unstyled grid upcoming" role="list">
           {% for project in upcoming_projects %}
           <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(project, project_save_form) }}
+            {{ projectcard(project, save_form_id_prefix='upcoming_spf_') }}
           </li>
           {%- endfor -%}
         </ul>
@@ -555,7 +565,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro open_cfp_section(open_cfp_projects, project_save_form) %}
+{% macro open_cfp_section(open_cfp_projects) %}
   {% if open_cfp_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
@@ -568,7 +578,7 @@
           {% for project in open_cfp_projects %}
             <li class="grid__col-xs-12 grid__col-sm-4 grid__col-lg-3 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
               role="listitem">
-              {{ projectcard(project, include_calendar=false) }}
+              {{ projectcard(project, include_calendar=false, save_form_id_prefix='open_spf_') }}
             </li>
           {%- endfor -%}
         </ul>
@@ -582,7 +592,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro all_projects_section(all_projects, project_save_form) %}
+{% macro all_projects_section(all_projects) %}
   {% if all_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
@@ -594,7 +604,7 @@
         <ul class="grid projects" role="list">
           {% for project in all_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(project, project_save_form) }}
+              {{ projectcard(project, save_form_id_prefix='all_spf_') }}
             </li>
           {%- endfor -%}
         </ul>
@@ -860,7 +870,7 @@
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
   <p class="mui--text-headline">{{ project.tagline }}</p>
   <p>
-  {% if project.features.tickets_or_rsvp() %}
+  {% if project.features.tickets_or_rsvp() and project.features.rsvp_unregistered() %}
     <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">
       {%- if project.features.tickets() -%}
         {% if project.boxoffice_data.buy_btn_text -%}
@@ -1045,7 +1055,7 @@
   {% if user and user.avatar %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar }}"/>
   {%- else %}
-    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}">{{ user.fullname|initials }}</div>
+    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}">{{ user.title|initials }}</div>
   {% endif %}
   {% if user.profile_url and add_profile_link%}</a>{% endif %}
 {%- endmacro %}

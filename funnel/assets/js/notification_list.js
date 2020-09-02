@@ -1,4 +1,5 @@
 import Vue from 'vue/dist/vue.min';
+import { Utils } from './util';
 
 const Notification = {
   init({ markReadUrl, divElem }) {
@@ -88,9 +89,10 @@ const Notification = {
               },
               dataType: 'json',
               timeout: window.Hasgeek.config.ajaxTimeout,
-              success: function () {
+              success: function (responseData) {
                 notificationItem.notification.is_read = true;
                 notificationItem.observer.unobserve(notification);
+                Utils.setNotifyIcon(responseData.unread);
               },
             });
           }

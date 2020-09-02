@@ -70,8 +70,8 @@
                         {{ csrf_form.hidden_tag() }}
                         <input type="hidden" name="notification_type" value="{{ type.notification_type }}">
                         <input type="hidden" name="transport" value="{{ transport }}">
-                        <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="switch-input js-toggle-switch"/>
-                        <label class="switch-label mui--pull-right" for="{{ type.notification_type }}-{{ transport }}">
+                        <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="switch-input js-toggle-switch" data-transport="preference-{{ transport }}"/>
+                        <label class="switch-label mui--pull-right {%- if not main_preferences[transport] %} switch-label--disabled{%- endif %}" for="{{ type.notification_type }}-{{ transport }}" data-transport="preference-{{ transport }}">
                         </label>
                       </form>
                     </div>

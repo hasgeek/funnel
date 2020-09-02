@@ -1,10 +1,11 @@
 {% extends "notifications/layout_web.html.jinja2" %}
-{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import project_title %}
+{%- from "baseframe/components.html.jinja2" import faicon %}
 
 {% block content %}
   {%- if is_rollup %}
     <p>
-      {%- trans project=project.title, project_url=project.url_for(), count=proposals|length %}
+      {%- trans project=project_title(project), project_url=project.url_for(), count=proposals|length %}
         Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new proposals:
       {%- endtrans %}
     </p>
@@ -17,7 +18,7 @@
     </ol>
   {%- else %}
     <p>
-      {% trans project=project.title, project_url=project.url_for(), proposal=proposal.title, proposal_url=proposal.url_for(), actor=view.actor.pickername -%}
+      {% trans project=project_title(project), project_url=project.url_for(), proposal=proposal.title, proposal_url=proposal.url_for(), actor=view.actor.pickername -%}
         Your project <a href="{{ project_url }}">{{ project }}</a> has received a new proposal: <a href="{{ proposal_url }}">{{ proposal }}</a> from {{ actor }}.
       {%- endtrans %}
     </p>

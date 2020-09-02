@@ -62,19 +62,22 @@ class AllNotificationsView(ClassView):
             'count': pagination.total,
         }
 
+    def unread_count(self):
+        return UserNotification.query.filter(
+            UserNotification.user == current_auth.user,
+            UserNotification.read_at.is_(None),
+            UserNotification.is_revoked.is_(False),
+        ).count()
+
     @route('count', endpoint='notifications_count')
     @render_with(json=True)
-    def unread_count(self):
+    def unread(self):
         # This view must not have a `@requires_login` decorator as that will insert
         # it as the next page after login
         if current_auth.user:
             return {
                 'status': 'ok',
-                'unread': UserNotification.query.filter(
-                    UserNotification.user == current_auth.user,
-                    UserNotification.read_at.is_(None),
-                    UserNotification.is_revoked.is_(False),
-                ).count(),
+                'unread': self.unread_count(),
             }
         return {'status': 'error', 'error': 'requires_login'}
 
@@ -93,7 +96,7 @@ class AllNotificationsView(ClassView):
             ).one_or_404()
             un.is_read = True
             db.session.commit()
-            return {'status': 'ok'}
+            return {'status': 'ok', 'unread': self.unread_count()}
         return {'status': 'error', 'error': 'csrf'}
 
     @route(
@@ -103,8 +106,9 @@ class AllNotificationsView(ClassView):
     @render_with(json=True)
     def mark_unread(self, eventid):
         # TODO: Use Base58 ids
-        # TODO: Ignore form nonce
-        if forms.Form().validate_on_submit():
+        form = forms.Form()
+        del form.form_nonce
+        if forms.validate_on_submit():
             # TODO: Use query.get((user_id, eventid)) and do manual 404
             un = UserNotification.query.filter(
                 UserNotification.user == current_auth.user,
@@ -112,7 +116,7 @@ class AllNotificationsView(ClassView):
             ).one_or_404()
             un.is_read = False
             db.session.commit()
-            return {'status': 'ok'}
+            return {'status': 'ok', 'unread': self.unread_count()}
         return {'status': 'error', 'error': 'csrf'}
 
 

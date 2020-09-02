@@ -48,12 +48,17 @@ class RenderNotification:
     #: Reason specified in email templates. Subclasses MAY override
     reason = __("You are receiving this because you have an account at hasgeek.com.")
 
-    #: Copies of reason per transport that can be overriden by subclasses
-    reason_email = reason
-    reason_sms = reason
-    reason_webpush = reason
-    reason_telegram = reason
-    reason_whatsapp = reason
+    #: Copies of reason per transport that can be overriden by subclasses using either
+    #: a property or an attribute
+    @property
+    def reason_for(self):
+        return self.reason
+
+    reason_email = reason_for
+    reason_sms = reason_for
+    reason_webpush = reason_for
+    reason_telegram = reason_for
+    reason_whatsapp = reason_for
 
     #: Aliases for document and fragment, to make render methods clearer
     aliases = {}
@@ -177,6 +182,14 @@ class RenderNotification:
         """Render optional attachments to an email notification."""
         return None
 
+    def email_from(self):
+        """The sender of an email."""
+        if self.notification.preference_context:
+            return _("{sender} (via Hasgeek)").format(
+                sender=self.notification.preference_context.title
+            )
+        return _("Hasgeek")
+
     def sms(self):
         """
         Render a short text message. Templates must use a single line with a link.
@@ -270,7 +283,7 @@ def dispatch_notification(*notifications):
 def transport_worker_wrapper(func):
     @wraps(func)
     def inner(user_notification_ids):
-        with app.test_request_context():  # Views may need request.url_root
+        with app.app_context():
             queue = [
                 UserNotification.query.get(identity)
                 for identity in user_notification_ids
@@ -313,6 +326,7 @@ def dispatch_transport_email(user_notification, view):
         to=[(user_notification.user.fullname, str(address))],
         content=content,
         attachments=attachments,
+        from_email=(view.email_from(), 'no-reply@' + app.config['DEFAULT_DOMAIN']),
     )
     statsd.incr(
         'notification.transport',
