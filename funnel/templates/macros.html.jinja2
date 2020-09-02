@@ -891,7 +891,7 @@
                 <li><a class="details__box__control__link mui--text-title" :href="'https://www.linkedin.com/shareArticle?mini=true&url=' + update.urls.view + '&title=' + update.title + '&amp;utm_campaign=share-linkedin'" :data-action="'Share about ' + update.title + 'on linkedin'">Linkedin</a></li>
               </ul>
             </div>
-            <a href="javascript:void(0)" class="mui--text-light share-btn hide"><faicon :icon="'share-alt'" :icon_size="'subhead'"></faicon></a>
+            <a href="javascript:void(0)" class="mui--text-light share-btn hide" :data-title="update.title" :data-url="update.urls.view"><faicon :icon="'share-alt'" :icon_size="'subhead'"></faicon></a>
             <div class="mui-dropdown" v-if="iseditor">
               <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><faicon :icon="'ellipsis-v'" :icon_size="'subhead'"></faicon></a>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">

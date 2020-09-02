@@ -277,15 +277,15 @@ export const Utils = {
   },
   addWebShare() {
     if (navigator.share) {
-      const shareBtn = document.querySelector('.share-btn');
-      if (shareBtn) {
+      if ($('.share-btn').length) {
         $('.share').hide();
         $('.share-btn').removeClass('hide');
 
-        shareBtn.addEventListener('click', () => {
+        $('.share-btn').on('click', function () {
           navigator.share({
-            title: document.title,
+            title: $(this).data('url') || document.title,
             url:
+              $(this).data('url') ||
               (document.querySelector('link[rel=canonical]') &&
                 document.querySelector('link[rel=canonical]').href) ||
               window.location.href,

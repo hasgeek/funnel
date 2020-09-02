@@ -3187,7 +3187,7 @@ a.loginbutton.hidden,
   border-right: solid 1px rgba(121, 129, 139, 0.48);
   line-height: 1;
 }
-.project-banner .project-banner__footer .share-btn {
+.project-banner .project-banner__footer .share-btn.hide {
   display: none;
 }
 .project-banner .project-banner__footer .bookmark {
