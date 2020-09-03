@@ -16,7 +16,7 @@ class RenderProposalReceivedNotification(RenderNotification):
     """Notify the project editor when a new proposal is submitted."""
 
     aliases = {'document': 'project', 'fragment': 'proposal'}
-
+    emoji_prefix = "📥 "
     reason = __("You are receiving this because you are an editor of this project.")
 
     def web(self):
@@ -40,7 +40,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("📥 New proposal in {project}: {proposal}").format(
+        return self.emoji_prefix + _("New proposal in {project}: {proposal}").format(
             proposal=self.proposal, project=self.project.joined_title()
         )
 
@@ -65,7 +65,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
     """Notify the proposer that their proposal has been submitted."""
 
     aliases = {'document': 'proposal'}
-
+    emoji_prefix = "📤 "
     reason = __("You are receiving this because you have submitted this proposal.")
 
     def web(self):
@@ -77,7 +77,9 @@ class RenderProposalSubmittedNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("📤 Proposal submitted to {project}: {proposal}").format(
+        return self.emoji_prefix + _(
+            "Proposal submitted to {project}: {proposal}"
+        ).format(
             project=self.proposal.project.joined_title(), proposal=self.proposal.title,
         )
 

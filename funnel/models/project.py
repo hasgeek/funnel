@@ -31,6 +31,7 @@ from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import (
     RESERVED_NAMES,
     add_search_trigger,
+    reopen,
     valid_name,
     visual_field_delimiter,
 )
@@ -147,7 +148,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         uselist=False,
         cascade='all',
         single_parent=True,
-        backref=db.backref('project', uselist=False),
+        back_populates='project',
     )
 
     parent_id = db.Column(
@@ -1005,64 +1006,61 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 add_search_trigger(Project, 'search_vector')
 
 
-Profile.listed_projects = db.relationship(
-    Project,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        Profile.id == Project.profile_id,
-        Project.parent_id.is_(None),
-        Project.state.PUBLISHED,
-    ),
-)
-
-
-Profile.draft_projects = db.relationship(
-    Project,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        Profile.id == Project.profile_id,
-        # TODO: parent projects are deprecated
-        Project.parent_id.is_(None),
-        db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
-    ),
-)
-
-
-Profile.draft_projects_for = (
-    lambda self, user: (
-        membership.project
-        for membership in user.projects_as_crew_active_memberships.join(
-            Project, Profile
-        ).filter(
-            # Project is attached to this profile
-            Project.profile_id == self.id,
-            # Project is not a sub-project (TODO: Deprecated, remove this)
+@reopen(Profile)
+class Profile:
+    listed_projects = db.relationship(
+        Project,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            Profile.id == Project.profile_id,
             Project.parent_id.is_(None),
-            # Project is in draft state OR has a draft call for proposals
+            Project.state.PUBLISHED,
+        ),
+    )
+    draft_projects = db.relationship(
+        Project,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            Profile.id == Project.profile_id,
+            # TODO: parent projects are deprecated
+            Project.parent_id.is_(None),
             db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
-        )
+        ),
     )
-    if user
-    else ()
-)
 
-Profile.unscheduled_projects_for = (
-    lambda self, user: (
-        membership.project
-        for membership in user.projects_as_crew_active_memberships.join(
-            Project, Profile
-        ).filter(
-            # Project is attached to this profile
-            Project.profile_id == self.id,
-            # Project is not a sub-project (TODO: Deprecated, remove this)
-            Project.parent_id.is_(None),
-            # Project is in draft state OR has a draft call for proposals
-            db.or_(Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS),
-        )
-    )
-    if user
-    else ()
-)
+    def draft_projects_for(self, user):
+        if user:
+            return [
+                membership.project
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project, Profile
+                ).filter(
+                    # Project is attached to this profile
+                    Project.profile_id == self.id,
+                    # Project is not a sub-project (TODO: Deprecated, remove this)
+                    Project.parent_id.is_(None),
+                    # Project is in draft state OR has a draft call for proposals
+                    db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+                )
+            ]
+        return []
+
+    def unscheduled_projects_for(self, user):
+        if user:
+            return [
+                membership.project
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project, Profile
+                ).filter(
+                    # Project is attached to this profile
+                    Project.profile_id == self.id,
+                    # Project is not a sub-project (TODO: Deprecated, remove this)
+                    Project.parent_id.is_(None),
+                    # Project is in draft state OR has a draft call for proposals
+                    db.or_(Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS),
+                )
+            ]
+        return []
 
 
 class ProjectRedirect(TimestampMixin, db.Model):
@@ -1128,6 +1126,14 @@ class ProjectLocation(TimestampMixin, db.Model):
             'primary' if self.primary else 'secondary',
             self.project,
         )
+
+
+@reopen(Commentset)
+class Commentset:
+    project = with_roles(
+        db.relationship(Project, uselist=False, back_populates='commentset'),
+        grants_via={None: {'editor': 'document_subscriber'}},
+    )
 
 
 # Tail imports

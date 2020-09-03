@@ -1,6 +1,8 @@
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from werkzeug.utils import cached_property
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
@@ -8,10 +10,12 @@ from coaster.utils import LabeledEnum
 from . import BaseMixin, UuidMixin, db
 from .user import User
 
-try:
-    from functools import cached_property
-except ImportError:
-    from werkzeug.utils import cached_property
+__all__ = [
+    'MEMBERSHIP_RECORD_TYPE',
+    'MembershipError',
+    'MembershipRevokedError',
+    'MembershipRecordTypeError',
+]
 
 
 class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
@@ -19,6 +23,18 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
     ACCEPT = (1, 'accept', __("Accept"))
     DIRECT_ADD = (2, 'direct_add', __("Direct add"))
     AMEND = (3, 'amend', __("Amend"))
+
+
+class MembershipError(Exception):
+    """Base class for membership errors"""
+
+
+class MembershipRevokedError(MembershipError):
+    pass
+
+
+class MembershipRecordTypeError(MembershipError):
+    pass
 
 
 class ImmutableMembershipMixin(UuidMixin, BaseMixin):
@@ -35,17 +51,28 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
     granted_at = immutable(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow())
+        with_roles(
+            db.Column(
+                db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
+            ),
+            read={'subject', 'editor'},
+        )
     )
     #: End time of membership, ordinarily a mirror of updated_at
-    revoked_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    revoked_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True),
+        read={'subject', 'editor'},
+    )
     #: Record type
     record_type = immutable(
-        db.Column(
-            db.Integer,
-            StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
-            default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
-            nullable=False,
+        with_roles(
+            db.Column(
+                db.Integer,
+                StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
+                default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
+                nullable=False,
+            ),
+            read={'subject', 'editor'},
         )
     )
 
@@ -58,6 +85,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             index=True,
         )
 
+    @with_roles(read={'subject', 'editor'}, grants={'subject'})
     @declared_attr
     def user(cls):
         return db.relationship(User, foreign_keys=[cls.user_id])
@@ -69,6 +97,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
 
+    @with_roles(read={'subject'}, grants={'editor'})
     @declared_attr
     def revoked_by(cls):
         """User who revoked the membership"""
@@ -85,6 +114,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
 
+    @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     def granted_by(cls):
         """User who assigned the membership"""
@@ -103,6 +133,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
         )
 
+    with_roles(is_active, read={'subject'})
+
+    @with_roles(read={'subject', 'editor'})
     @hybrid_property
     def is_invite(self):
         return self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
@@ -139,16 +172,39 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @with_roles(call={'subject', 'editor'})
     def revoke(self, actor):
         if self.revoked_at is not None:
-            raise TypeError("This membership record has already been revoked")
+            raise MembershipRevokedError(
+                "This membership record has already been revoked"
+            )
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
 
     @with_roles(call={'editor'})
     def replace(self, actor, **roles):
         if self.revoked_at is not None:
-            raise TypeError("This membership record has already been revoked")
+            raise MembershipRevokedError(
+                "This membership record has already been revoked"
+            )
         if not set(roles.keys()).issubset(self.__data_columns__):
             raise AttributeError("Unknown role")
+
+        # Perform sanity check. If nothing changed, just return self
+        has_changes = False
+        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
+            # If we existing record is an INVITE, this must be an ACCEPT. This is an
+            # acceptable change
+            has_changes = True
+        else:
+            # If it's not an ACCEPT, are the supplied roles different from existing?
+            for column in roles:
+                if roles[column] != getattr(self, column):
+                    has_changes = True
+        if not has_changes:
+            # Nothing is changing. This is probably a form submit with no changes.
+            # Do nothing and return self
+            return self
+
+        # An actual change? Revoke this record and make a new record
+
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
         new = type(self)(
@@ -156,7 +212,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
 
         # if existing record type is INVITE, replace it with ACCEPT,
-        # else, replace it with AMEND.
+        # else replace it with AMEND
         if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
             new.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
         else:
@@ -173,5 +229,5 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @with_roles(call={'subject'})
     def accept(self, actor):
         if self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE:
-            raise TypeError("This membership record is not an invite")
+            raise MembershipRecordTypeError("This membership record is not an invite")
         return self.replace(actor)

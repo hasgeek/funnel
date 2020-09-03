@@ -12,7 +12,7 @@ class RenderProjectStartingNotification(RenderNotification):
     """Notify crew and participants when the project's schedule is about to start."""
 
     aliases = {'document': 'project', 'fragment': 'session'}
-
+    emoji_prefix = "⏰ "
     reason = __("You are receiving this because you have registered for this project.")
 
     def web(self):
@@ -21,7 +21,7 @@ class RenderProjectStartingNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return _("⏰ {project} starts at {time}").format(
+        return self.emoji_prefix + _("{project} starts at {time}").format(
             project=self.project.joined_title(),
             time=time_filter(self.session.start_at_localized),
         )

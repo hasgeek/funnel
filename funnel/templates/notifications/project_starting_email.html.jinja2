@@ -11,7 +11,7 @@
   {%- endtrans -%}
 </p>
 
-<p class="btn-bar"><a class="btn" href="{{ view.project.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Join now{% endtrans %}</a></p>
+<p class="btn-bar"><a class="btn" href="{{ view.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Join now{% endtrans %}</a></p>
 
 {{ pinned_update(view, view.project) }}
 

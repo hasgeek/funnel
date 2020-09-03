@@ -6,9 +6,10 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from flask import Response, current_app, json, jsonify
 
-from icalendar import Alarm, Calendar, Event, vCalAddress
+from icalendar import Alarm, Calendar, Event, vCalAddress, vText
+from pytz import utc
 
-from baseframe import forms, localize_timezone
+from baseframe import _, forms, localize_timezone
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
@@ -126,7 +127,7 @@ def schedule_data(project, with_slots=True, scheduled_sessions=None):
     return schedule
 
 
-def schedule_ical(project):
+def schedule_ical(project, rsvp=None):
     cal = Calendar()
     cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
     cal.add('version', '2.0')
@@ -140,11 +141,11 @@ def schedule_ical(project):
     cal.add('refresh-interval;value=duration', 'PT12H')
     cal.add('x-published-ttl', 'PT12H')
     for session in project.scheduled_sessions:
-        cal.add_component(session_ical(session))
+        cal.add_component(session_ical(session, rsvp))
     return cal.to_ical()
 
 
-def session_ical(session):
+def session_ical(session, rsvp=None):
     # This function is only called with scheduled sessions.
     # If for some reason it is used somewhere else and called with an unscheduled session,
     # this function should fail.
@@ -154,17 +155,28 @@ def session_ical(session):
     event = Event()
     event.add('summary', session.title)
     organizer = vCalAddress(
-        f"MAILTO:no-reply@{current_app.config['DEFAULT_DOMAIN']}"  # NOQA
+        f'MAILTO:no-reply@{current_app.config["DEFAULT_DOMAIN"]}'  # NOQA
     )
-    organizer.params['cn'] = session.project.profile.title
+    organizer.params['cn'] = vText(session.project.profile.title)
     event['organizer'] = organizer
+    if rsvp:
+        attendee = vCalAddress('MAILTO:' + str(rsvp.user_email()))
+        attendee.params['RSVP'] = vText('TRUE') if rsvp.state.YES else vText('FALSE')
+        attendee.params['cn'] = vText(rsvp.user.fullname)
+        attendee.params['CUTYPE'] = vText('INDIVIDUAL')
+        attendee.params['X-NUM-GUESTS'] = vText('0')
+        event.add('attendee', attendee, encode=0)
     event.add(
         'uid',
         f'session/{session.uuid_b58}@{current_app.config["DEFAULT_DOMAIN"]}',  # NOQA
     )
-    event.add('dtstart', session.start_at_localized)
-    event.add('dtend', session.end_at_localized)
+    # Using localized timestamps will require a `VTIMEZONE` entry in the ics file
+    # Using `session.start_at` without `astimezone` causes it to be localized to
+    # local timezone. We need `astimezone(utc)` to ensure actual UTC timestamps.
+    event.add('dtstart', session.start_at.astimezone(utc))
+    event.add('dtend', session.end_at.astimezone(utc))
     event.add('dtstamp', utcnow())
+    # Strangely, these two don't need localization with `astimezone`
     event.add('created', session.created_at)
     event.add('last-modified', session.updated_at)
     if session.venue_room:
@@ -187,11 +199,12 @@ def session_ical(session):
     alarm = Alarm()
     alarm.add('trigger', timedelta(minutes=-5))
     alarm.add('action', 'display')
-    # FIXME: Needs an i18n-friendly approach
-    desc = session.title
     if session.venue_room:
-        desc += " in " + session.venue_room.title
-    desc += " in 5 minutes"
+        desc = _("{session} in {venue} in 5 minutes").format(
+            session=session.title, venue=session.venue_room.title
+        )
+    else:
+        desc = _("{session} in 5 minutes").format(session=session.title)
     alarm.add('description', desc)
     event.add_component(alarm)
     return event

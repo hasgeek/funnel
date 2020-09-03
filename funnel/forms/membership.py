@@ -26,7 +26,7 @@ class OrganizationMembershipForm(forms.Form):
         choices=[
             (
                 False,
-                __("Admin (can manage projects, but can't add or remove other admins)"),
+                __("Admin (can manage projects, but can’t add or remove other admins)"),
             ),
             (True, __("Owner (can also manage other owners and admins)")),
         ],

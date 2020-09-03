@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from flask import abort, flash, redirect, request, session, url_for
 import itsdangerous.exc
 
-from baseframe import _
+from baseframe import _, __
 from baseframe.forms import render_form, render_message
 from coaster.auth import current_auth
 from coaster.utils import getbool
@@ -12,11 +12,11 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
-    NOTIFICATION_CATEGORY,
     EmailAddress,
     NotificationPreferences,
     User,
     db,
+    notification_categories,
     notification_type_registry,
 )
 from ..serializers import token_serializer
@@ -25,6 +25,16 @@ from .helpers import metarefresh_redirect, retrieve_cached_token
 from .login_session import discard_temp_token, requires_login
 
 # --- Account notifications tab --------------------------------------------------------
+
+unsubscribe_link_expired = __(
+    "This unsubscribe link has expired. However, you can manage your preferences from"
+    " your account page"
+)
+
+unsubscribe_link_invalid = __(
+    "This unsubscribe link is invalid. However, you can manage your preferences from"
+    " your account page"
+)
 
 
 @route('/account/notifications')
@@ -44,27 +54,29 @@ class AccountNotificationView(ClassView):
         main_preferences = current_auth.user.main_notification_preferences
         user_preferences = current_auth.user.notification_preferences
         preferences = {
-            key: {'title': value, 'types': []}
-            for key, value in NOTIFICATION_CATEGORY.items()
+            ncat.priority_id: {'title': ncat.title, 'types': []}
+            for ncat in notification_categories.__dict__.values()
+            if ncat.available_for(current_auth.user)
         }
         commit_new_preferences = False
         for ntype, ncls in notification_type_registry.items():
-            if ntype not in user_preferences:
-                user_preferences[ntype] = NotificationPreferences(
-                    user=current_auth.user, notification_type=ntype
+            if ncls.category.priority_id in preferences:
+                if ntype not in user_preferences:
+                    user_preferences[ntype] = NotificationPreferences(
+                        user=current_auth.user, notification_type=ntype
+                    )
+                    commit_new_preferences = True
+                preferences[ncls.category.priority_id]['types'].append(
+                    {
+                        'notification_type': ntype,
+                        'title': ncls.title,
+                        'description': ncls.description,
+                        'preferences': {
+                            transport: user_preferences[ntype].by_transport(transport)
+                            for transport in platform_transports
+                        },
+                    }
                 )
-                commit_new_preferences = True
-            preferences[ncls.category]['types'].append(
-                {
-                    'notification_type': ntype,
-                    'title': ncls.title,
-                    'description': ncls.description,
-                    'preferences': {
-                        transport: user_preferences[ntype].by_transport(transport)
-                        for transport in platform_transports
-                    },
-                }
-            )
         if commit_new_preferences:
             db.session.commit()
         # Remove empty categories
@@ -147,7 +159,43 @@ class AccountNotificationView(ClassView):
 
     @route(
         'unsubscribe/<token>',
+        methods=['POST'],
+        endpoint='notification_unsubscribe_auto',
+    )
+    def unsubscribe_auto(self, token):
+        """Implement RFC 8058 one-click auto unsubscribe for email transport."""
+        # TODO: Merge this into the other handler. Unsubscribe first, then ask the user
+        # if they'd like to resubscribe
+        try:
+            payload = token_serializer().loads(
+                token, max_age=365 * 24 * 60 * 60,  # Validity 1 year (365 days)
+            )
+        except itsdangerous.exc.SignatureExpired:
+            # Link has expired. It's been over a year!
+            flash(unsubscribe_link_expired, 'error')
+            return redirect(url_for('notification_preferences'), code=303)
+        except itsdangerous.exc.BadData:
+            flash(unsubscribe_link_invalid, 'error')
+            return redirect(url_for('notification_preferences'), code=303)
+
+        user = User.get(buid=payload['buid'])
+        # Check transport again in case this endpoint is extended to other transports
+        if payload['transport'] == 'email' and 'hash' in payload:
+            email_address = EmailAddress.get(email_hash=payload['hash'])
+            email_address.mark_active()
+        user.notification_preferences[payload['notification_type']].set_transport(
+            payload['transport'], False
+        )
+        db.session.commit()
+        # We can't use `render_message` here because the unsubscribe token is still in
+        # the URL
+        flash(_("You have been unsubscribed from this notification type"), 'success')
+        return redirect(url_for('index'), code=303)
+
+    @route(
+        'unsubscribe/<token>',
         defaults={'token_type': 'signed'},
+        methods=['GET'],
         endpoint='notification_unsubscribe',
     )
     @route(
@@ -245,23 +293,11 @@ class AccountNotificationView(ClassView):
             except itsdangerous.exc.SignatureExpired:
                 # Link has expired. It's been over a year!
                 discard_temp_token()
-                flash(
-                    _(
-                        "This unsubscribe link has expired. However, you can manage"
-                        " your preferences from your account page"
-                    ),
-                    'error',
-                )
+                flash(unsubscribe_link_expired, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
             except itsdangerous.exc.BadData:
                 discard_temp_token()
-                flash(
-                    _(
-                        "This unsubscribe link is invalid. However, you can manage your"
-                        " preferences from your account page"
-                    ),
-                    'error',
-                )
+                flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
 
         # --- Cached tokens (SMS)
@@ -272,24 +308,12 @@ class AccountNotificationView(ClassView):
             if not payload:
                 # No payload, meaning invalid token
                 discard_temp_token()
-                flash(
-                    _(
-                        "This unsubscribe link is invalid. However, you can manage your"
-                        " preferences from your account page"
-                    ),
-                    'error',
-                )
+                flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
             if payload['timestamp'] < datetime.utcnow() - timedelta(days=7):
                 # Link older than a week. Expire it
                 discard_temp_token()
-                flash(
-                    _(
-                        "This unsubscribe link has expired. However, you can manage"
-                        " your preferences from your account page"
-                    ),
-                    'error',
-                )
+                flash(unsubscribe_link_expired, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
 
         else:
