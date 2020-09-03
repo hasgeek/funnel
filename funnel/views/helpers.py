@@ -265,7 +265,7 @@ def add_profile_parameter(endpoint, values):
 @app.template_filter('shortlink')
 @funnelapp.template_filter('shortlink')
 @lastuserapp.template_filter('shortlink')
-def shortlink(self, url):
+def shortlink(url):
     """Return a short link suitable for SMS."""
     return url  # TODO
 
