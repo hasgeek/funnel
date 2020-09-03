@@ -29,7 +29,7 @@
     "lint-staged": "^9.3.0",
     "prettier": "^1.18.2",
     "webpack": "^4.28.1",
-    "webpack-cli": "^3.2.1",
+    "webpack-cli": "^3.3.12",
     "workbox-webpack-plugin": "^4.1.1"
   },
   "dependencies": {
