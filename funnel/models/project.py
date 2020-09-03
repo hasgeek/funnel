@@ -404,6 +404,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             return self.profile.title
         return ''
 
+    @with_roles(call={'all'})
     def joined_title(self, sep='›'):
         """Return the project's title joined with the profile's title, if divergent."""
         if self.short_title == self.title:
