@@ -734,6 +734,8 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 Notification.type == self.notification.type,
                 # Same document
                 Notification.document_uuid == self.notification.document_uuid,
+                # Same reason for receiving notification as earlier instance (same role)
+                UserNotification.role == self.role,
                 # Earlier instance is unread
                 UserNotification.read_at.is_(None),
                 # Earlier instance is not revoked
@@ -766,6 +768,8 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                     Notification.type == self.notification.type,
                     # Same document
                     Notification.document_uuid == self.notification.document_uuid,
+                    # Same role as earlier notification,
+                    UserNotification.role == self.role,
                     # Earlier instance is not revoked
                     UserNotification.is_revoked.is_(False),
                     # Earlier instance shares our rollupid
