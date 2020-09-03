@@ -89,6 +89,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
+                'created_at',
+                'updated_at',
                 'title',
                 'project',
                 'speaker',
@@ -255,6 +257,35 @@ class Project:
     @cached_property
     def session_count(self):
         return self.sessions.filter(Session.start_at.isnot(None)).count()
+
+    featured_sessions = with_roles(
+        db.relationship(
+            Session,
+            order_by=Session.start_at.asc(),
+            primaryjoin=db.and_(
+                Session.project_id == Project.id, Session.featured.is_(True)
+            ),
+        ),
+        read={'all'},
+    )
+    scheduled_sessions = with_roles(
+        db.relationship(
+            Session,
+            order_by=Session.start_at.asc(),
+            primaryjoin=db.and_(Session.project_id == Project.id, Session.scheduled),
+        ),
+        read={'all'},
+    )
+    unscheduled_sessions = with_roles(
+        db.relationship(
+            Session,
+            order_by=Session.start_at.asc(),
+            primaryjoin=db.and_(
+                Session.project_id == Project.id, Session.scheduled.isnot(True)
+            ),
+        ),
+        read={'all'},
+    )
 
     sessions_with_video = with_roles(
         db.relationship(
