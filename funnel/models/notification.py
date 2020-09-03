@@ -100,12 +100,15 @@ __all__ = [
     'UserNotification',
     'NotificationFor',
     'notification_type_registry',
+    'notification_web_types',
 ]
 
 # --- Registries -----------------------------------------------------------------------
 
 #: Registry of Notification subclasses, automatically populated
 notification_type_registry = {}
+#: Registry of notification types that allow web renders
+notification_web_types = set()
 
 
 class NotificationCategory(NamedTuple):
@@ -1025,5 +1028,10 @@ auto_init_default(Notification.eventid)
 @event.listens_for(Notification, 'mapper_configured', propagate=True)
 def _register_notification_types(mapper_, cls):
     # Don't register the base class itself, or inactive types
-    if cls is not Notification and cls.active:
-        notification_type_registry[cls.__mapper_args__['polymorphic_identity']] = cls
+    if cls is not Notification:
+        if cls.active:
+            notification_type_registry[
+                cls.__mapper_args__['polymorphic_identity']
+            ] = cls
+        if cls.allow_web:
+            notification_web_types.add(cls.__mapper_args__['polymorphic_identity'])

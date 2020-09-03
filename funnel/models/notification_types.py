@@ -57,6 +57,7 @@ class RegistrationConfirmationNotification(DocumentHasProject, Notification):
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
+    allow_web = False
 
 
 class RegistrationCancellationNotification(DocumentHasProject, Notification):
@@ -72,6 +73,7 @@ class RegistrationCancellationNotification(DocumentHasProject, Notification):
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
+    allow_web = False
 
 
 class NewUpdateNotification(DocumentHasProject, Notification):
