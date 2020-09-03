@@ -53,7 +53,10 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         default=RSVP_STATUS.AWAITING,
         nullable=False,
     )
-    state = StateManager('_state', RSVP_STATUS, doc="RSVP answer")
+    state = with_roles(
+        StateManager('_state', RSVP_STATUS, doc="RSVP answer"),
+        call={'owner', 'project_concierge'},
+    )
 
     __datasets__ = {'primary': {'project', 'user', 'response'}, 'related': {'response'}}
 
@@ -96,6 +99,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
     def rsvp_maybe(self):
         pass
 
+    @with_roles(call={'owner', 'project_concierge'})
     def user_email(self):
         """User's preferred email address for this registration."""
         return self.user.transport_for_email(self.project.profile)
