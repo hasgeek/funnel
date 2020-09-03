@@ -20,7 +20,7 @@ from . import (
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .email_address import EmailAddressMixin
-from .helpers import add_search_trigger, visual_field_delimiter
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import User
@@ -645,3 +645,14 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
         None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal = db.relationship(Proposal)
+
+
+@reopen(Commentset)
+class Commentset:
+    proposal = with_roles(
+        db.relationship(Proposal, uselist=False, back_populates='commentset'),
+        # TODO: Remove creator to subscriber mapping when proposals use memberships
+        grants_via={
+            None: {'presenter': 'document_subscriber', 'creator': 'document_subscriber'}
+        },
+    )

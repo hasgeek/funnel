@@ -112,13 +112,6 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     settype = db.Column('type', db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
 
-    proposal = with_roles(
-        db.relationship("Proposal", uselist=False, back_populates="commentset"),
-        grants_via={None: {'presenter': 'proposal_presenter'}},
-    )
-
-    project = db.relationship("Project", uselist=False, back_populates="commentset")
-
     __roles__ = {'all': {'read': {'settype', 'count'}}}
 
     __datasets__ = {
@@ -132,6 +125,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     @property
     def parent(self):
+        # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         parent = None  # project or proposal object
         if self.project is not None:
             parent = self.project
@@ -159,18 +153,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     _user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('comments', lazy='dynamic', cascade='all'),
+        User, backref=db.backref('comments', lazy='dynamic', cascade='all'),
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
-        db.relationship(
-            Commentset,
-            primaryjoin=commentset_id == Commentset.id,
-            backref=db.backref('comments', cascade='all'),
-        ),
-        grants_via={None: {'proposal_presenter': 'proposal_presenter'}},
+        db.relationship(Commentset, backref=db.backref('comments', cascade='all'),),
+        grants_via={None: {'document_subscriber'}},
     )
 
     parent_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)

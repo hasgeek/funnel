@@ -311,7 +311,7 @@ class AccountView(ClassView):
             )
             for comment in comments:
                 CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
-                db.session.commit()
+            db.session.commit()
             flash(
                 _("Comment(s) successfully reported as spam"), category='info',
             )
