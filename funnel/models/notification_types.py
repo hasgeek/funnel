@@ -53,11 +53,9 @@ class RegistrationConfirmationNotification(DocumentHasProject, Notification):
     description = __("This will prompt a calendar entry in Gmail and other apps")
 
     document_model = Rsvp
-    exclude_actor = False
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
-    allow_web = False
 
 
 class RegistrationCancellationNotification(DocumentHasProject, Notification):
@@ -69,7 +67,6 @@ class RegistrationCancellationNotification(DocumentHasProject, Notification):
     description = __("Confirmation for your records")
 
     document_model = Rsvp
-    exclude_actor = False
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
