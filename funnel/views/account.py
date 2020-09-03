@@ -38,6 +38,7 @@ from ..forms import (
     PasswordPolicyForm,
     PhonePrimaryForm,
     SavedProjectForm,
+    UsernameAvailableForm,
     VerifyEmailForm,
     VerifyPhoneForm,
     supported_locales,
@@ -226,6 +227,23 @@ def password_policy_check():
         },
         400,
     )
+
+
+@app.route('/api/1/account/username', methods=['POST'])
+@render_with(json=True)
+def account_username_availability():
+    form = UsernameAvailableForm(edit_user=current_auth.user)
+    del form.form_nonce
+    if form.validate_on_submit():
+        return {'status': 'ok'}
+    return {
+        'status': 'error',
+        'error_description': (
+            form.username.errors[0]
+            if form.username.errors
+            else list(form.errors.values())[0]
+        ),
+    }
 
 
 @route('/account')
