@@ -166,6 +166,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
+                'uuid',
                 'name',
                 'title',
                 'fullname',
@@ -175,8 +176,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 'status',
                 'avatar',
                 'created_at',
+                'profile',
                 'profile_url',
-            }
+                'urls',
+            },
+            'call': {'views', 'forms', 'features', 'url_for'},
         }
     }
 
@@ -379,13 +383,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     def has_transport_sms(self):
-        # Temporary restriction to exclude Indian phone numbers until SMS templates
-        # are registered
-        return (
-            self.is_active
-            and bool(self.phone)
-            and not self.phone.phone.startswith('+91')
-        )
+        return self.is_active and bool(self.phone)
 
     @with_roles(call={'owner'})
     def has_transport_webpush(self):  # TODO  # pragma: no cover
@@ -764,12 +762,32 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {'name', 'title', 'pickername', 'created_at'},
-            'call': {'views', 'features', 'forms'},
+            'read': {
+                'name',
+                'title',
+                'pickername',
+                'created_at',
+                'profile',
+                'profile_url',
+                'urls',
+            },
+            'call': {'views', 'features', 'forms', 'url_for'},
         }
     }
 
-    __datasets__ = {'related': {'name', 'title', 'pickername', 'created_at'}}
+    __datasets__ = {
+        'primary': {
+            'name',
+            'title',
+            'username',
+            'pickername',
+            'avatar',
+            'created_at',
+            'profile',
+            'profile_url',
+        },
+        'related': {'name', 'title', 'pickername', 'created_at'},
+    }
 
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 

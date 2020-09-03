@@ -33,27 +33,31 @@ How it works:
 5. UserNotification.dispatch is now called from the view. User preferences are obtained
     from the User model along with transport address (email, phone, etc).
 
-6. For each user in the filtered list, a UserNotification db instance is created. A
-    scan is performed for previous instances of UserNotification referring to the
-    same Update object, determined from UserNotification.notification.document_uuid,
-    and those are revoked to remove them from the user's feed.
+6. For each user in the filtered list, a UserNotification db instance is created.
 
-7. A separate view helper class named NewUpdateNotificationRenderView contains methods
-    named `web`, `email`, `sms`, `webpush`, `telegram` and `whatsapp`. These may be
-    called with the UserNotification instance as a parameter, and are expected to return
-    a rendered message. The `web` render is used for the notifications page on the
-    website.
+7. For notifications (not this one) where both a document and a fragment are present,
+    like ProposalReceivedNotication with Project+Proposal, a scan is performed for
+    previous unread instances of UserNotification referring to the same document,
+    determined from UserNotification.notification.document_uuid, and those are revoked
+    to remove them from the user's feed. A rollup is presented instead, showing all
+    freshly submitted proposals.
 
-8. Views are registered to the model, so the dispatch mechanism only needs to call
-    ``user_notification.render.web()`` etc to get the rendered content. The dispatch
-    mechanism then calls the appropriate transport helper (``send_email``, etc) to do
-    the actual sending. The message id returned by these functions is saved to the
-    messageid columns in UserNotification, as record that the notification was sent.
-    If the transport doesn't support message ids, a random non-None value is used.
+8. A separate render view class named RenderNewUpdateNotification contains methods named
+    like `web`, `email`, `sms` and others. These are expected to return a rendered
+    message. The `web` render is used for the notification feed page on the website.
 
-9. The notifications endpoint on the website shows a feed of UserNotification items and
-    handles the ability to mark each as read. This marking is also automatically
-    performed in the links in the rendered templates that were sent out.
+9. Views are registered to the model, so the dispatch mechanism only needs to call
+    ``view.email()`` etc to get the rendered content. The dispatch mechanism then calls
+    the appropriate transport helper (``send_email``, etc) to do the actual sending. The
+    message id returned by these functions is saved to the messageid columns in
+    UserNotification, as record that the notification was sent. If the transport doesn't
+    support message ids, a random non-None value is used. Accurate message ids are only
+    required when user interaction over the same transport is expected, such as reply
+    emails.
+
+10. The notifications endpoint on the website shows a feed of UserNotification items and
+    handles the ability to mark each as read. This marking is not yet automatically
+    performed in the links in the rendered templates that were sent out, but should be.
 
 It is possible to have two separate notifications for the same event. For example, a
 comment replying to another comment will trigger a CommentReplyNotification to the user
@@ -68,6 +72,8 @@ is supported using an unusual primary and foreign key structure the in
 2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
     using ``(eventid, notification_id)``.
 """
+from types import SimpleNamespace
+from typing import Callable, NamedTuple
 from uuid import uuid4
 
 from sqlalchemy import event
@@ -86,10 +92,10 @@ from .user import User
 
 __all__ = [
     'SMS_STATUS',
-    'NOTIFICATION_CATEGORY',
+    'notification_categories',
     'SMSMessage',
     'Notification',
-    'MockNotification',
+    'PreviewNotification',
     'NotificationPreferences',
     'UserNotification',
     'NotificationFor',
@@ -101,6 +107,56 @@ __all__ = [
 #: Registry of Notification subclasses, automatically populated
 notification_type_registry = {}
 
+
+class NotificationCategory(NamedTuple):
+    priority_id: int
+    title: str
+    available_for: Callable[[User], bool]
+
+
+#: Registry of notification categories
+notification_categories = SimpleNamespace(
+    none=NotificationCategory(0, __("Uncategorized"), lambda user: False),
+    account=NotificationCategory(1, __("My account"), lambda user: True),
+    subscriptions=NotificationCategory(
+        2, __("My subscriptions and billing"), lambda user: False
+    ),
+    participant=NotificationCategory(
+        3,
+        __("Projects I am participating in"),
+        # Criteria: User has registered or proposed
+        lambda user: (
+            db.session.query(user.rsvps.exists()).scalar()
+            or db.session.query(user.proposals.exists()).scalar()
+            or db.session.query(user.speaker_at.exists()).scalar()
+            or db.session.query(user.proposal_memberships.exists()).scalar()
+        ),
+    ),
+    project_crew=NotificationCategory(
+        4,
+        __("Projects I am a crew member in"),
+        # Criteria: user has ever been a project crew member
+        lambda user: db.session.query(
+            user.projects_as_crew_memberships.exists()
+        ).scalar(),
+    ),
+    organization_admin=NotificationCategory(
+        5,
+        __("Organizations I manage"),
+        # Criteria: user has ever been an organization admin
+        lambda user: db.session.query(
+            user.organization_admin_memberships.exists()
+        ).scalar(),
+    ),
+    site_admin=NotificationCategory(
+        6,
+        __("As a website administrator"),
+        # Criteria: User has a currently active site membership
+        lambda user: bool(user.active_site_membership),
+    ),
+)
+
+
 # --- Flags ----------------------------------------------------------------------------
 
 
@@ -110,15 +166,6 @@ class SMS_STATUS(LabeledEnum):  # NOQA: N801
     DELIVERED = (2, __("Delivered"))
     FAILED = (3, __("Failed"))
     UNKNOWN = (4, __("Unknown"))
-
-
-class NOTIFICATION_CATEGORY(LabeledEnum):  # NOQA: N801
-    NONE = (0, __("Uncategorized"))
-    ACCOUNT = (1, __("My account"))
-    SUBSCRIPTIONS = (2, __("My subscriptions and billing"))
-    PARTICIPANT = (3, __("Projects I am participating in"))
-    PROJECT_CREW = (4, __("Projects I am a collaborator in"))
-    ORGANIZATION_ADMIN = (5, __("Organizations I manage"))
 
 
 # --- Legacy models --------------------------------------------------------------------
@@ -154,9 +201,13 @@ class Notification(NoIdMixin, db.Model):
 
     __tablename__ = 'notification'
 
+    #: Flag indicating this is an active notification type. Can be False for draft
+    #: and retired notification types to hide them from preferences UI
+    active = True
+
     #: Random identifier for the event that triggered this notification. Event ids can
     #: be shared across notifications, and will be used to enforce a limit of one
-    #: instance of a UserNotification per-event rather than per-notification.
+    #: instance of a UserNotification per-event rather than per-notification
     eventid = db.Column(
         UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
     )
@@ -167,7 +218,7 @@ class Notification(NoIdMixin, db.Model):
     )
 
     #: Default category of notification. Subclasses MUST override
-    category = NOTIFICATION_CATEGORY.NONE
+    category = notification_categories.none
     #: Default description for notification. Subclasses MUST override
     title = __("Unspecified notification type")
     #: Default description for notification. Subclasses MUST override
@@ -183,11 +234,15 @@ class Notification(NoIdMixin, db.Model):
     #: where a user has more than one role on the document.
     roles = []
 
-    #: Exclude triggering actor from receiving notifications? Subclasses may override.
+    #: Exclude triggering actor from receiving notifications? Subclasses may override
     exclude_actor = False
 
+    #: If this notification is typically for a single recipient, views will need to be
+    #: careful about leaking out recipient identifiers such as a utm_source tracking tag
+    for_private_recipient = False
+
     #: The preference context this notification is being served under. Users may have
-    #: customized preferences per profile or project.
+    #: customized preferences per profile or project
     preference_context = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
@@ -199,7 +254,7 @@ class Notification(NoIdMixin, db.Model):
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
-    #: notifications of their own activity.
+    #: notifications of their own activity
     user = db.relationship(User)
 
     #: UUID of document that the notification refers to
@@ -207,7 +262,7 @@ class Notification(NoIdMixin, db.Model):
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
-    #: multiple fragments are collapsed into a single notification.
+    #: multiple fragments are collapsed into a single notification
     fragment_uuid = db.Column(UUIDType(binary=False), nullable=True)
 
     __table_args__ = (
@@ -237,10 +292,6 @@ class Notification(NoIdMixin, db.Model):
         'primary': {'eventid', 'document', 'fragment', 'type', 'user'},
         'related': {'eventid', 'document', 'fragment', 'type'},
     }
-
-    #: Flag indicating this is an active notification type. Can be False for draft
-    #: and retired notification types to hide them from preferences UI.
-    active = True
 
     # Flags to control whether this notification can be delivered over a particular
     # transport. Subclasses can disable these if they consider notifications unsuitable
@@ -400,16 +451,17 @@ class Notification(NoIdMixin, db.Model):
                 yield user_notification
 
 
-class MockNotification:
+class PreviewNotification:
     """
-    Mocks a Notification subclass without instantiating it.
+    Mimics a Notification subclass without instantiating it, for providing a preview.
 
-    To be used with :class:`NotificationFor`, like so::
+    To be used with :class:`NotificationFor`::
 
-        NotificationFor(MockNotification(NotificationType), user)
+        NotificationFor(PreviewNotification(NotificationType), user)
     """
 
     def __init__(self, cls, document, fragment=None):
+        self.eventid = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
         self.document = document
         self.document_uuid = document.uuid
@@ -682,6 +734,8 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 Notification.type == self.notification.type,
                 # Same document
                 Notification.document_uuid == self.notification.document_uuid,
+                # Same reason for receiving notification as earlier instance (same role)
+                UserNotification.role == self.role,
                 # Earlier instance is unread
                 UserNotification.read_at.is_(None),
                 # Earlier instance is not revoked
@@ -714,6 +768,8 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                     Notification.type == self.notification.type,
                     # Same document
                     Notification.document_uuid == self.notification.document_uuid,
+                    # Same role as earlier notification,
+                    UserNotification.role == self.role,
                     # Earlier instance is not revoked
                     UserNotification.is_revoked.is_(False),
                     # Earlier instance shares our rollupid

@@ -16,7 +16,16 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import CommentForm
-from ..models import Comment, Commentset, Proposal, Voteset, db
+from ..models import (
+    Comment,
+    CommentModeratorReport,
+    CommentReportReceivedNotification,
+    Commentset,
+    Proposal,
+    Voteset,
+    db,
+)
+from ..views.notification import dispatch_notification
 from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProposalViewMixin
@@ -325,7 +334,15 @@ class CommentView(UrlForView, ModelView):
         csrf_form = forms.Form()
         if request.method == 'POST':
             if csrf_form.validate():
-                self.obj.report_spam(actor=current_auth.user)
+                report = CommentModeratorReport.submit(
+                    actor=current_auth.user, comment=self.obj
+                )
+                db.session.commit()
+                dispatch_notification(
+                    CommentReportReceivedNotification(
+                        document=self.obj, fragment=report
+                    )
+                )
                 return {
                     'status': 'ok',
                     'message': _("The comment has been reported as spam"),

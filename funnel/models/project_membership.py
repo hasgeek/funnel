@@ -1,16 +1,14 @@
 from sqlalchemy.ext.declarative import declared_attr
 
+from werkzeug.utils import cached_property
+
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
+from .helpers import reopen
 from .membership import ImmutableMembershipMixin
 from .project import Project
 from .user import User
-
-try:
-    from functools import cached_property
-except ImportError:
-    from werkzeug.utils import cached_property
 
 __all__ = ['ProjectCrewMembership', 'project_child_role_map']
 
@@ -134,85 +132,95 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
 
 # Project relationships: all crew, vs specific roles
+@reopen(Project)
+class Project:
+    active_crew_memberships = with_roles(
+        db.relationship(
+            ProjectCrewMembership,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                ProjectCrewMembership.project_id == Project.id,
+                ProjectCrewMembership.is_active,
+            ),
+            viewonly=True,
+        ),
+        grants_via={'user': {'editor', 'concierge', 'usher', 'participant', 'crew'}},
+    )
 
-Project.active_crew_memberships = with_roles(
-    db.relationship(
+    active_editor_memberships = db.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=db.and_(
             ProjectCrewMembership.project_id == Project.id,
             ProjectCrewMembership.is_active,
+            ProjectCrewMembership.is_editor.is_(True),
         ),
         viewonly=True,
-    ),
-    grants_via={'user': {'editor', 'concierge', 'usher', 'participant', 'crew'}},
-)
+    )
 
-Project.active_editor_memberships = db.relationship(
-    ProjectCrewMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectCrewMembership.project_id == Project.id,
-        ProjectCrewMembership.is_active,
-        ProjectCrewMembership.is_editor.is_(True),
-    ),
-    viewonly=True,
-)
+    active_concierge_memberships = db.relationship(
+        ProjectCrewMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProjectCrewMembership.project_id == Project.id,
+            ProjectCrewMembership.is_active,
+            ProjectCrewMembership.is_concierge.is_(True),
+        ),
+        viewonly=True,
+    )
 
-Project.active_concierge_memberships = db.relationship(
-    ProjectCrewMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectCrewMembership.project_id == Project.id,
-        ProjectCrewMembership.is_active,
-        ProjectCrewMembership.is_concierge.is_(True),
-    ),
-    viewonly=True,
-)
+    active_usher_memberships = db.relationship(
+        ProjectCrewMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProjectCrewMembership.project_id == Project.id,
+            ProjectCrewMembership.is_active,
+            ProjectCrewMembership.is_usher.is_(True),
+        ),
+        viewonly=True,
+    )
 
-Project.active_usher_memberships = db.relationship(
-    ProjectCrewMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectCrewMembership.project_id == Project.id,
-        ProjectCrewMembership.is_active,
-        ProjectCrewMembership.is_usher.is_(True),
-    ),
-    viewonly=True,
-)
+    crew = DynamicAssociationProxy('active_crew_memberships', 'user')
+    editors = DynamicAssociationProxy('active_editor_memberships', 'user')
+    concierges = DynamicAssociationProxy('active_concierge_memberships', 'user')
+    ushers = DynamicAssociationProxy('active_usher_memberships', 'user')
 
-Project.crew = DynamicAssociationProxy('active_crew_memberships', 'user')
-Project.editors = DynamicAssociationProxy('active_editor_memberships', 'user')
-Project.concierges = DynamicAssociationProxy('active_concierge_memberships', 'user')
-Project.ushers = DynamicAssociationProxy('active_usher_memberships', 'user')
 
 # Similarly for users (add as needs come up)
-User.projects_as_crew_active_memberships = db.relationship(
-    ProjectCrewMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectCrewMembership.user_id == User.id, ProjectCrewMembership.is_active
-    ),
-    viewonly=True,
-)
+@reopen(User)
+class User:
+    # This relationship is only useful to check if the user has ever been a crew member.
+    # Most operations will want to use one of the active membership relationships.
+    projects_as_crew_memberships = db.relationship(
+        ProjectCrewMembership,
+        lazy='dynamic',
+        foreign_keys=[ProjectCrewMembership.user_id],
+        viewonly=True,
+    )
+    projects_as_crew_active_memberships = db.relationship(
+        ProjectCrewMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProjectCrewMembership.user_id == User.id, ProjectCrewMembership.is_active
+        ),
+        viewonly=True,
+    )
 
+    projects_as_crew = DynamicAssociationProxy(
+        'projects_as_crew_active_memberships', 'project'
+    )
 
-User.projects_as_crew = DynamicAssociationProxy(
-    'projects_as_crew_active_memberships', 'project'
-)
+    projects_as_editor_active_memberships = db.relationship(
+        ProjectCrewMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProjectCrewMembership.user_id == User.id,
+            ProjectCrewMembership.is_active,
+            ProjectCrewMembership.is_editor.is_(True),
+        ),
+        viewonly=True,
+    )
 
-
-User.projects_as_editor_active_memberships = db.relationship(
-    ProjectCrewMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProjectCrewMembership.user_id == User.id,
-        ProjectCrewMembership.is_active,
-        ProjectCrewMembership.is_editor.is_(True),
-    ),
-    viewonly=True,
-)
-
-User.projects_as_editor = DynamicAssociationProxy(
-    'projects_as_editor_active_memberships', 'project'
-)
+    projects_as_editor = DynamicAssociationProxy(
+        'projects_as_editor_active_memberships', 'project'
+    )

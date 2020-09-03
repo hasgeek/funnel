@@ -89,7 +89,7 @@ def process_recipient(recipient):
     return formataddr((realname, email_address))
 
 
-def send_email(subject, to, content, attachments=None, from_email=None):
+def send_email(subject, to, content, attachments=None, from_email=None, headers=None):
     """
     Helper function to send an email.
 
@@ -110,6 +110,7 @@ def send_email(subject, to, content, attachments=None, from_email=None):
         to=to,
         body=body,
         from_email=from_email,
+        headers=headers,
         alternatives=[(html, 'text/html')],
     )
     if attachments:

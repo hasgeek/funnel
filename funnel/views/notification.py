@@ -1,10 +1,12 @@
 from collections import defaultdict
 from datetime import datetime
+from email.utils import formataddr
 from functools import wraps
 from itertools import filterfalse, zip_longest
 from uuid import uuid4
 
 from flask import url_for
+from werkzeug.utils import cached_property
 
 from flask_babelhg import force_locale
 
@@ -45,6 +47,12 @@ class RenderNotification:
             ...
     """
 
+    #: Aliases for document and fragment, to make render methods clearer
+    aliases = {}
+
+    #: Emoji prefix, for transports that support them
+    emoji_prefix = ''
+
     #: Reason specified in email templates. Subclasses MAY override
     reason = __("You are receiving this because you have an account at hasgeek.com.")
 
@@ -60,14 +68,23 @@ class RenderNotification:
     reason_telegram = reason_for
     reason_whatsapp = reason_for
 
-    #: Aliases for document and fragment, to make render methods clearer
-    aliases = {}
-
     def __init__(self, user_notification):
         self.user_notification = user_notification
         self.notification = user_notification.notification
-        self.document = user_notification.notification.document
-        self.fragment = user_notification.notification.fragment
+        self.document = (
+            user_notification.notification.document.access_for(
+                actor=self.user_notification.user
+            )
+            if user_notification.notification.document is not None
+            else None
+        )
+        self.fragment = (
+            user_notification.notification.fragment.access_for(
+                actor=self.user_notification.user
+            )
+            if user_notification.notification.fragment is not None
+            else None
+        )
         if 'document' in self.aliases:
             setattr(self, self.aliases['document'], self.document)
         if 'fragment' in self.aliases:
@@ -86,6 +103,17 @@ class RenderNotification:
             transport, self.notification.preference_context
         )
 
+    def tracking_tags(self, transport=None, campaign=None):
+        tags = {
+            # Tracking notifications unless it's unsubscribe or other specialized link
+            'utm_campaign': campaign or 'notification',
+            # Tracking is mostly an email thing
+            'utm_medium': transport or 'email',
+        }
+        if not self.notification.for_private_recipient:
+            tags['utm_source'] = self.notification.eventid
+        return tags
+
     def unsubscribe_token(self, transport):
         """
         Return a token suitable for use in an unsubscribe link.
@@ -97,12 +125,11 @@ class RenderNotification:
         3. The transport (for attribute to unset), and
         4. The transport hash, for identifying the source.
 
-        The template should wrap this token with ``utm_campaign=unsubscribe`` and
-        ``utm_source={notification.eventid}``. Since tokens are sensitive, the view will
-        strip them out of the URL before rendering the page, using a similar mechanism
-        to that used for account reset.
+        Since tokens are sensitive, the view will strip them out of the URL before
+        rendering the page, using a similar mechanism to that used for password reset.
         """
         # This payload is consumed by :meth:`AccountNotificationView.unsubscribe`
+        # in `views/notification_preferences.py`
         return token_serializer().dumps(
             {
                 'buid': self.user_notification.user.buid,
@@ -118,10 +145,12 @@ class RenderNotification:
             'notification_unsubscribe',
             token=self.unsubscribe_token(transport=transport),
             _external=True,
-            utm_campaign='unsubscribe',
-            utm_medium=transport,
-            utm_source=self.notification.eventid,
+            **self.tracking_tags(transport=transport, campaign='unsubscribe'),
         )
+
+    @cached_property
+    def unsubscribe_url_email(self):
+        return self.unsubscribe_url('email')
 
     def unsubscribe_short_url(self, transport='sms'):
         """Return a short but temporary unsubscribe URL (for SMS)."""
@@ -199,13 +228,10 @@ class RenderNotification:
         raise NotImplementedError("Subclasses must implement `sms`")
 
     def sms_with_unsubscribe(self):
-        """Add an unsubscribe link to the SMS message."""
+        """Add a template prefix and an unsubscribe link to the SMS message."""
+        # SMS templates can't be translated, so the "Hi!" and "to stop" are static
         return (
-            self.sms()
-            + ' '
-            + _("To stop: {unsubscribe}").format(
-                unsubscribe=self.unsubscribe_short_url('sms')
-            )
+            "Hi! " + self.sms() + f"\r\n\r\n{self.unsubscribe_short_url('sms')} to stop"
         )
 
     def webpush(self):
@@ -214,7 +240,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms()
+        return self.emoji_prefix + self.sms()
 
     def telegram(self):
         """
@@ -222,7 +248,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms()
+        return self.emoji_prefix + self.sms()
 
     def whatsapp(self):
         """
@@ -230,7 +256,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.sms()
+        return self.emoji_prefix + self.sms()
 
 
 # --- Dispatch functions ---------------------------------------------------------------
@@ -264,9 +290,19 @@ def dispatch_notification(*notifications):
     for notification in notifications:
         if not isinstance(notification, Notification):
             raise TypeError(f"Not a notification: {notification!r}")
+        if not notification.active:
+            raise TypeError(f"{notification!r} is marked inactive")
         notification.eventid = eventid
         notification.user = current_auth.user
-        db.session.add(notification)
+    if sum(_n.for_private_recipient for _n in notifications) not in (
+        0,  # None are private
+        len(notifications),  # Or all are private
+    ):
+        raise TypeError(
+            "Mixed use of private and non-private notifications."
+            " Either all are private (no event tracking in links) or none are"
+        )
+    db.session.add_all(notifications)
     db.session.commit()
     dispatch_notification_job.queue(
         eventid, [notification.id for notification in notifications]
@@ -327,6 +363,21 @@ def dispatch_transport_email(user_notification, view):
         content=content,
         attachments=attachments,
         from_email=(view.email_from(), 'no-reply@' + app.config['DEFAULT_DOMAIN']),
+        headers={
+            'List-Id': formataddr(
+                (
+                    # formataddr can't handle lazy_gettext strings, so cast to regular
+                    str(user_notification.notification.title),
+                    user_notification.notification.type
+                    + '-notification.'
+                    + app.config['DEFAULT_DOMAIN'],
+                )
+            ),
+            'List-Help': f'<{url_for("notification_preferences")}>',
+            'List-Unsubscribe': f'<{view.unsubscribe_url_email}>',
+            'List-Unsubscribe-Post': 'One-Click',
+            'List-Archive': f'<{url_for("notifications")}>',
+        },
     )
     statsd.incr(
         'notification.transport',

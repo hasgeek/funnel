@@ -1,13 +1,10 @@
 from sqlalchemy.ext.declarative import declared_attr
 
+from werkzeug.utils import cached_property
+
 from . import User, db
+from .helpers import reopen
 from .membership import ImmutableMembershipMixin
-
-try:
-    from functools import cached_property
-except ImportError:
-    from werkzeug.utils import cached_property
-
 
 __all__ = ['SiteMembership']
 
@@ -71,25 +68,30 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         return roles
 
 
-User.active_site_membership = db.relationship(
-    SiteMembership,
-    lazy='select',
-    primaryjoin=db.and_(SiteMembership.user_id == User.id, SiteMembership.is_active),
-    viewonly=True,
-    uselist=False,
-)
+@reopen(User)
+class User:
+    # Singular, as only one can be active
+    active_site_membership = db.relationship(
+        SiteMembership,
+        lazy='select',
+        primaryjoin=db.and_(
+            SiteMembership.user_id == User.id, SiteMembership.is_active
+        ),
+        viewonly=True,
+        uselist=False,
+    )
 
-User.is_comment_moderator = property(
-    lambda self: self.active_site_membership
-    and 'comment_moderator' in self.active_site_membership.offered_roles
-)
+    is_comment_moderator = property(
+        lambda self: self.active_site_membership
+        and 'comment_moderator' in self.active_site_membership.offered_roles
+    )
 
-User.is_user_moderator = property(
-    lambda self: self.active_site_membership
-    and 'user_moderator' in self.active_site_membership.offered_roles
-)
+    is_user_moderator = property(
+        lambda self: self.active_site_membership
+        and 'user_moderator' in self.active_site_membership.offered_roles
+    )
 
-User.is_site_editor = property(
-    lambda self: self.active_site_membership
-    and 'site_editor' in self.active_site_membership.offered_roles
-)
+    is_site_editor = property(
+        lambda self: self.active_site_membership
+        and 'site_editor' in self.active_site_membership.offered_roles
+    )

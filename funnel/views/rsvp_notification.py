@@ -11,8 +11,32 @@ from .notification import RenderNotification
 from .schedule import schedule_ical
 
 
+class RegistrationBase:
+    emoji_prefix = "🎟️ "
+
+    def email_attachments(self):
+        # Attach a vCalendar of schedule, but only if there are sessions.
+        # This will include the user as an attendee with RSVP=TRUE/FALSE.
+        # The mimetype apparently changes how Gmail interprets the file. text/calendar
+        # works for a single session and shows the date, while application/ics shows all
+        # sessions without a single prominent date. Behaviour in other mail clients is
+        # untested at this time.
+        session_count = self.rsvp.project.session_count
+        if session_count:
+            return [
+                email.EmailAttachment(
+                    content=schedule_ical(self.rsvp.project, self.rsvp),
+                    filename='event.ics',
+                    mimetype=(
+                        'text/calendar' if session_count == 1 else 'application/ics'
+                    ),
+                )
+            ]
+        return None
+
+
 @RegistrationConfirmationNotification.renderer
-class RenderRegistrationConfirmationNotification(RenderNotification):
+class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they register."""
 
     aliases = {'document': 'rsvp'}
@@ -23,7 +47,7 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
         return render_template('notifications/rsvp_yes_web.html.jinja2', view=self)
 
     def email_subject(self):
-        return _("🎟️ Registration confirmation for {project}").format(
+        return self.emoji_prefix + _("Registration confirmation for {project}").format(
             project=self.rsvp.project.joined_title()
         )
 
@@ -38,27 +62,15 @@ class RenderRegistrationConfirmationNotification(RenderNotification):
             ),
         )
 
-    def email_attachments(self):
-        # Attach a vCalendar of schedule, but only if there are sessions.
-        if self.rsvp.project.schedule_start_at:
-            return [
-                email.EmailAttachment(
-                    content=schedule_ical(self.rsvp.project),
-                    filename=f'{self.rsvp.project.name}.ics',
-                    mimetype='text/calendar',
-                )
-            ]
-        return None
-
     def sms(self):
-        return _("You have registered for {project}. {url}").format(
+        return _("You have registered for {project} {url}").format(
             project=self.rsvp.project.joined_title('>'),
             url=self.rsvp.project.url_for(_external=True),
         )
 
 
 @RegistrationCancellationNotification.renderer
-class RenderRegistrationCancellationNotification(RenderNotification):
+class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they cancel registration."""
 
     aliases = {'document': 'rsvp'}
@@ -69,7 +81,7 @@ class RenderRegistrationCancellationNotification(RenderNotification):
         return render_template('notifications/rsvp_no_web.html.jinja2', view=self)
 
     def email_subject(self):
-        return _("🎫 Registration cancelled for {project}").format(
+        return self.emoji_prefix + _("Registration cancelled for {project}").format(
             project=self.rsvp.project.joined_title()
         )
 
@@ -85,6 +97,6 @@ class RenderRegistrationCancellationNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("You have cancelled your registration for {project}.").format(
+        return _("You have cancelled your registration for {project}").format(
             project=self.rsvp.project.joined_title('>'),
         )
