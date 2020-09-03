@@ -20,6 +20,7 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..models import (
+    MembershipRevokedError,
     Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
@@ -191,9 +192,21 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                         'form_nonce': membership_form.form_nonce.data,
                     }
 
-                new_membership = previous_membership.replace(
-                    actor=current_auth.user, is_owner=membership_form.is_owner.data
-                )
+                try:
+                    new_membership = previous_membership.replace(
+                        actor=current_auth.user, is_owner=membership_form.is_owner.data
+                    )
+                except MembershipRevokedError:
+                    return (
+                        {
+                            'status': 'error',
+                            'error_description': _(
+                                "This member’s record was edited elsewhere"
+                            ),
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
                 if new_membership != previous_membership:
                     db.session.commit()
                     dispatch_notification(
@@ -501,16 +514,28 @@ class ProjectCrewMembershipView(
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
-                previous_membership.replace(
-                    actor=current_auth.user,
-                    is_editor=membership_form.is_editor.data,
-                    is_concierge=membership_form.is_concierge.data,
-                    is_usher=membership_form.is_usher.data,
-                )
+                try:
+                    previous_membership.replace(
+                        actor=current_auth.user,
+                        is_editor=membership_form.is_editor.data,
+                        is_concierge=membership_form.is_concierge.data,
+                        is_usher=membership_form.is_usher.data,
+                    )
+                except MembershipRevokedError:
+                    return (
+                        {
+                            'status': 'error',
+                            'error_description': _(
+                                "The member’s record was edited elsewhere"
+                            ),
+                            'form_nonce': membership_form.form_nonce.data,
+                        },
+                        400,
+                    )
                 db.session.commit()
                 return {
                     'status': 'ok',
-                    'message': _("The member's roles have been updated"),
+                    'message': _("The member’s roles have been updated"),
                     'memberships': [
                         membership.current_access(
                             datasets=('without_parent', 'related')
