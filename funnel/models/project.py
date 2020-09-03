@@ -212,22 +212,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     )
     all_labels = db.relationship('Label', lazy='dynamic')
 
-    featured_sessions = db.relationship(
-        'Session',
-        order_by='Session.start_at.asc()',
-        primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)',
-    )
-    scheduled_sessions = db.relationship(
-        'Session',
-        order_by='Session.start_at.asc()',
-        primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)',
-    )
-    unscheduled_sessions = db.relationship(
-        'Session',
-        order_by='Session.start_at.asc()',
-        primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)',
-    )
-
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
         db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
@@ -266,7 +250,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'hasjob_embed_limit',
                 'profile',
                 'featured',
-                'featured_sessions',
             },
             'call': {
                 'features',
@@ -279,7 +262,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'view_for',
                 'views',
                 'boxoffice_data',
-                'featured_sessions',
                 'forms',
             },
         },

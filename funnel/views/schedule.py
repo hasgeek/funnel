@@ -190,8 +190,8 @@ def session_ical(session, rsvp=None):
         event.add('location', "\n".join(location))
         if session.venue_room.venue.has_coordinates:
             event.add('geo', session.venue_room.venue.coordinates)
-    if session.description_text:
-        event.add('description', session.description_text)
+    if session.description:
+        event.add('description', session.description.text)
     if session.proposal:
         event.add('url', session.url_for(_external=True))
         if session.proposal.labels:
