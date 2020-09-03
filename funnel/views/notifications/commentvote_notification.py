@@ -3,6 +3,7 @@ from flask import render_template, url_for
 from baseframe import _, __
 
 from ...models import CommentReportReceivedNotification
+from ..helpers import shortlink
 from ..notification import RenderNotification
 
 
@@ -29,5 +30,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 
     def sms(self):
         return _("A comment has been reported as spam. {url}").format(
-            url=url_for('siteadmin_review_comment', report=self.report.uuid_b58)
+            url=shortlink(
+                url_for('siteadmin_review_comment', report=self.report.uuid_b58)
+            )
         )

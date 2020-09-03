@@ -14,6 +14,7 @@ from .user import Organization, User
 
 __all__ = [
     'AccountPasswordNotification',
+    'CommentReplyNotification',
     'CommentReportReceivedNotification',
     'NewUpdateNotification',
     'ProjectCommentNotification',

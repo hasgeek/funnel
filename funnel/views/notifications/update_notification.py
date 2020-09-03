@@ -3,6 +3,7 @@ from flask import render_template
 from baseframe import _, __
 
 from ...models import NewUpdateNotification
+from ..helpers import shortlink
 from ..notification import RenderNotification
 
 
@@ -38,5 +39,5 @@ class RenderNewUpdateNotification(RenderNotification):
         return _("Update in {project}: {update} {url}").format(
             project=self.update.project.joined_title('>'),
             update=self.update.title,
-            url=self.update.url_for(_external=True),
+            url=shortlink(self.update.url_for(_external=True)),
         )

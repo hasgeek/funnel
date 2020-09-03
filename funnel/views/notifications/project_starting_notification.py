@@ -4,6 +4,7 @@ from baseframe import _, __
 from baseframe.filters import time_filter
 
 from ...models import ProjectStartingNotification
+from ..helpers import shortlink
 from ..notification import RenderNotification
 
 
@@ -35,5 +36,5 @@ class RenderProjectStartingNotification(RenderNotification):
         return _("{project} starts at {time} {url}").format(
             project=self.project.joined_title('>'),
             time=time_filter(self.session.start_at_localized),
-            url=self.project.url_for(_external=True),
+            url=shortlink(self.project.url_for(_external=True)),
         )

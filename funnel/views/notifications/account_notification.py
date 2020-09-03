@@ -4,6 +4,7 @@ from baseframe import _
 
 from ... import app
 from ...models import AccountPasswordNotification
+from ..helpers import shortlink
 from ..notification import RenderNotification
 
 
@@ -36,4 +37,7 @@ class RenderAccountPasswordNotification(RenderNotification):
         return _(
             "Your password has been updated. If this was not authorized, reset your"
             " password or contact support at {email}. {reset_url}"
-        ).format(email=app.config['SITE_SUPPORT_EMAIL'], reset_url=url_for('reset'))
+        ).format(
+            email=app.config['SITE_SUPPORT_EMAIL'],
+            reset_url=shortlink(url_for('reset')),
+        )

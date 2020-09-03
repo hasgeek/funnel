@@ -262,6 +262,14 @@ def add_profile_parameter(endpoint, values):
             values['profile'] = g.profile.name if g.profile else None
 
 
+@app.template_filter('shortlink')
+@funnelapp.template_filter('shortlink')
+@lastuserapp.template_filter('shortlink')
+def shortlink(self, url):
+    """Return a short link suitable for SMS."""
+    return url  # TODO
+
+
 # --- Request/response handlers --------------------------------------------------------
 
 

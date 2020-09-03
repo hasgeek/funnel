@@ -201,14 +201,14 @@ class RenderShared:
         )
 
     def email_subject(self):
-        return self.emoji_prefix + (f"{self.activity_template()}").format(
+        return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
             actor=self.membership.granted_by.pickername,
         )
 
     def sms(self):
-        return (f"{self.activity_template()}").format(
+        return self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
             actor=self.membership.granted_by.pickername,

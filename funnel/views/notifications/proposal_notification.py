@@ -8,6 +8,7 @@ from ...models import (
     ProposalSubmittedNotification,
     db,
 )
+from ..helpers import shortlink
 from ..notification import RenderNotification
 
 
@@ -56,7 +57,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         return _("New proposal in {project}: {proposal} {url}").format(
             proposal=self.proposal.title,
             project=self.project.joined_title('>'),
-            url=self.proposal.url_for(_external=True),
+            url=shortlink(self.proposal.url_for(_external=True)),
         )
 
 
@@ -94,5 +95,5 @@ class RenderProposalSubmittedNotification(RenderNotification):
     def sms(self):
         return _("Your proposal has been submitted to {project} {url}").format(
             project=self.proposal.project.joined_title('>'),
-            url=self.proposal.url_for(_external=True),
+            url=shortlink(self.proposal.url_for(_external=True)),
         )

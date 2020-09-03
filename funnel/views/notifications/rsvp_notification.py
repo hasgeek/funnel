@@ -7,6 +7,7 @@ from ...models import (
     RegistrationConfirmationNotification,
 )
 from ...transports import email
+from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
 
@@ -65,7 +66,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
     def sms(self):
         return _("You have registered for {project} {url}").format(
             project=self.rsvp.project.joined_title('>'),
-            url=self.rsvp.project.url_for(_external=True),
+            url=shortlink(self.rsvp.project.url_for(_external=True)),
         )
 
 
