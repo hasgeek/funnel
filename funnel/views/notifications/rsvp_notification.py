@@ -42,7 +42,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 
     aliases = {'document': 'rsvp'}
 
-    reason = __("You are receiving this because you have registered for this project.")
+    reason = __("You are receiving this because you have registered for this project")
 
     def web(self):
         return render_template('notifications/rsvp_yes_web.html.jinja2', view=self)
@@ -76,7 +76,7 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
 
     aliases = {'document': 'rsvp'}
 
-    reason = __("You are receiving this because you had registered for this project.")
+    reason = __("You are receiving this because you had registered for this project")
 
     def web(self):
         return render_template('notifications/rsvp_no_web.html.jinja2', view=self)

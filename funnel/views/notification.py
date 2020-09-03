@@ -54,7 +54,7 @@ class RenderNotification:
     emoji_prefix = ''
 
     #: Reason specified in email templates. Subclasses MAY override
-    reason = __("You are receiving this because you have an account at hasgeek.com.")
+    reason = __("You are receiving this because you have an account at hasgeek.com")
 
     #: Copies of reason per transport that can be overriden by subclasses using either
     #: a property or an attribute

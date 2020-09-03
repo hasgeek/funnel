@@ -220,7 +220,7 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     """Notify organization admins of new admins and role changes."""
 
     aliases = {'document': 'organization', 'fragment': 'membership'}
-    reason = __("You are receiving this because you are an admin of this organization.")
+    reason = __("You are receiving this because you are an admin of this organization")
 
     def activity_template(self, membership=None):
         """
@@ -266,9 +266,7 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     """Notify organization admins of removed admins."""
 
     aliases = {'document': 'organization', 'fragment': 'membership'}
-    reason = __(
-        "You are receiving this because you were an admin of this organization."
-    )
+    reason = __("You are receiving this because you were an admin of this organization")
 
     def activity_template(self, membership=None):
         """Return a single line summary of changes."""

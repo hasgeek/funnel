@@ -14,7 +14,7 @@ class RenderProjectStartingNotification(RenderNotification):
 
     aliases = {'document': 'project', 'fragment': 'session'}
     emoji_prefix = "⏰ "
-    reason = __("You are receiving this because you have registered for this project.")
+    reason = __("You are receiving this because you have registered for this project")
 
     def web(self):
         return render_template(

@@ -13,7 +13,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 
     aliases = {'document': 'comment', 'fragment': 'report'}
     emoji_prefix = "💩 "
-    reason = __("You are receiving this because you are a site admin.")
+    reason = __("You are receiving this because you are a site admin")
 
     def web(self):
         return render_template(

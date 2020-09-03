@@ -18,7 +18,7 @@ class RenderProposalReceivedNotification(RenderNotification):
 
     aliases = {'document': 'project', 'fragment': 'proposal'}
     emoji_prefix = "📥 "
-    reason = __("You are receiving this because you are an editor of this project.")
+    reason = __("You are receiving this because you are an editor of this project")
 
     def web(self):
         proposals = (
@@ -67,7 +67,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
 
     aliases = {'document': 'proposal'}
     emoji_prefix = "📤 "
-    reason = __("You are receiving this because you have submitted this proposal.")
+    reason = __("You are receiving this because you have submitted this proposal")
 
     def web(self):
         return render_template(

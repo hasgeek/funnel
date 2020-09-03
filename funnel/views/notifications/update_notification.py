@@ -13,7 +13,7 @@ class RenderNewUpdateNotification(RenderNotification):
 
     aliases = {'document': 'update'}
     emoji_prefix = "📰 "
-    reason = __("You are receiving this because you have registered for this project.")
+    reason = __("You are receiving this because you have registered for this project")
 
     @property
     def actor(self):
