@@ -197,7 +197,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             },
             'call': {'state', 'commentset', 'view_for', 'url_for'},
         },
-        'replied_to_commenter': {'granted_via': {'parent': 'user'}},
+        'replied_to_commenter': {'granted_via': {'parent': '_user'}},
     }
 
     __datasets__ = {

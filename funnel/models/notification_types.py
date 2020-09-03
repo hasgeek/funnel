@@ -14,9 +14,9 @@ from .user import Organization, User
 
 __all__ = [
     'AccountPasswordNotification',
-    'CommentReplyNotification',
-    'CommentReportReceivedNotification',
     'NewUpdateNotification',
+    'CommentReportReceivedNotification',
+    'CommentReplyNotification',
     'ProjectCommentNotification',
     'ProposalCommentNotification',
     'ProposalReceivedNotification',
@@ -151,7 +151,6 @@ class CommentReplyNotification(Notification):
     """Notification of comment replies."""
 
     __mapper_args__ = {'polymorphic_identity': 'comment_reply'}
-    active = False
 
     category = notification_categories.participant
     title = __("When someone replies to my comment")
@@ -162,34 +161,32 @@ class CommentReplyNotification(Notification):
     roles = ['replied_to_commenter']
 
 
-class ProposalCommentNotification(DocumentHasProject, Notification):
-    """Notification of comments on a proposal."""
-
-    __mapper_args__ = {'polymorphic_identity': 'comment_proposal'}
-    active = False
-
-    category = notification_categories.participant
-    title = __("When my proposal receives a comment")
-    exclude_actor = True
-
-    document_model = Proposal
-    fragment_model = Comment
-    # Note: These roles must be available on Comment, not Proposal. Roles come from
-    # fragment if present, document if not.
-    roles = ['replied_to_commenter', 'document_subscriber']
-
-
 class ProjectCommentNotification(DocumentHasProfile, Notification):
     """Notification of comments on a proposal."""
 
     __mapper_args__ = {'polymorphic_identity': 'comment_project'}
-    active = False
 
     category = notification_categories.project_crew
     title = __("When my project receives a comment")
     exclude_actor = True
 
     document_model = Project
+    fragment_model = Comment
+    # Note: These roles must be available on Comment, not Proposal. Roles come from
+    # fragment if present, document if not.
+    roles = ['replied_to_commenter', 'document_subscriber']
+
+
+class ProposalCommentNotification(DocumentHasProject, Notification):
+    """Notification of comments on a proposal."""
+
+    __mapper_args__ = {'polymorphic_identity': 'comment_proposal'}
+
+    category = notification_categories.participant
+    title = __("When my proposal receives a comment")
+    exclude_actor = True
+
+    document_model = Proposal
     fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
     # fragment if present, document if not.
@@ -289,6 +286,9 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
     fragment_model = OrganizationMembership
     roles = ['subject', 'profile_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
+
+
+# --- Site administrator notifications -------------------------------------------------
 
 
 class CommentReportReceivedNotification(Notification):
