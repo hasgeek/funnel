@@ -37,6 +37,7 @@ from ..forms import (
     PasswordCreateForm,
     PasswordPolicyForm,
     PhonePrimaryForm,
+    SavedProjectForm,
     VerifyEmailForm,
     VerifyPhoneForm,
     supported_locales,
@@ -230,6 +231,7 @@ def password_policy_check():
 @route('/account')
 class AccountView(ClassView):
     current_section = 'account'  # needed for showing active tab
+    SavedProjectForm = SavedProjectForm
 
     @route('', endpoint='account')
     @requires_login

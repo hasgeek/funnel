@@ -21,7 +21,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Updates{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='updates', pinned=false) }}
+  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='updates', pinned=false) }}
 {% endblock %}
 
 {% block basecontent %}
@@ -75,6 +75,7 @@
         updateTemplate: '#update-template',
         isEditor: {{ project.features.post_update()|tojson }},
         headerHeight: headerHeight,
+        addReadMore: true,
       };
 
       window.Hasgeek.UpdatesInit(updateConfig);

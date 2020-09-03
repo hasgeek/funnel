@@ -5,6 +5,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    make_response,
     redirect,
     render_template,
     request,
@@ -18,7 +19,7 @@ from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
 from coaster.utils import getbool
-from coaster.views import get_next_url, render_with, requestargs
+from coaster.views import get_next_url, requestargs
 
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
@@ -283,7 +284,6 @@ def logout():
 @app.route('/account/logout', methods=['POST'])
 @lastuserapp.route('/account/logout', methods=['POST'])
 @requires_login
-@render_with(json=True)
 def account_logout():
     form = LogoutForm(user=current_auth.user)
     if form.validate():
@@ -297,7 +297,9 @@ def account_logout():
         logout_internal()
         db.session.commit()
         flash(_("You are now logged out"), category='info')
-        return redirect(get_next_url(), code=303)
+        return make_response(
+            render_template('logout_browser_data.html.jinja2', next=get_next_url())
+        )
 
     if request_is_xhr():
         return {'status': 'error', 'errors': list(form.errors.values())}

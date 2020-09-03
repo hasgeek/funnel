@@ -1,6 +1,6 @@
 @media (max-width: 767px) {
   #root_footer {
-    height: 0;
+    padding-top: $mui-grid-padding-double;
   }
 }
 
@@ -147,7 +147,6 @@
   }
   .content-wrapper {
     padding-top: 0;
-    padding-bottom: 50px;
   }
 }
 
@@ -231,9 +230,7 @@
             }
 
             .header__site-title__home__logo {
-              height: 28px;
-              margin-right: 16px;
-              margin-bottom: 0;
+              height: 30px;
             }
 
             .header__nav-links--search {
@@ -632,65 +629,6 @@
   .grid__col-12 {
     padding-left: 0;
     padding-right: 0;
-  }
-}
-
-.tabs {
-  display: flex;
-  width: 100%;
-  overflow: auto;
-  align-items: center;
-
-  .tabs__item {
-    padding: $mui-grid-padding;
-    cursor: pointer;
-    position: relative;
-    min-width: 1$mui-grid-padding-double;
-    border: none;
-    border-bottom: 2px solid transparent;
-    margin: 0;
-    text-align: center;
-    cursor: pointer;
-    flex: 0 0 auto;
-  }
-
-  .tabs__item--width {
-    min-width: auto;
-  }
-
-  .tabs__item:hover,
-  .tabs__item:focus {
-    text-decoration: none;
-    outline: none;
-  }
-
-  .tabs__item--active {
-    border-bottom: 2px solid $mui-accent-color;
-  }
-
-  button.tabs__item--active {
-    background: $mui-bg-color-primary;
-  }
-
-  .tabs__item-control {
-    position: fixed;
-    z-index: 1000;
-    background: $mui-bg-color-primary;
-    min-width: auto;
-    top: 0;
-    padding: $mui-grid-padding $mui-grid-padding 6px;
-    align-self: center;
-    box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
-
-    .tabs__item-control__icon {
-      vertical-align: middle;
-    }
-  }
-  .tabs__item-control--prev {
-    left: 0;
-  }
-  .tabs__item-control--next {
-    right: 0;
   }
 }
 

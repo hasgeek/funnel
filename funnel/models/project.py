@@ -280,6 +280,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'views',
                 'boxoffice_data',
                 'featured_sessions',
+                'forms',
             },
         },
     }
