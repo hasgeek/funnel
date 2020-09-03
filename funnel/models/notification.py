@@ -794,7 +794,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """Return all fragments in the rolled up batch as a base query."""
         if not self.notification.fragment_model:
             return None
-        # Return a query
+        # Return a query on the fragment model with the rolled up identifiers
         if not self.rollupid:
             return self.notification.fragment_model.query.filter_by(
                 uuid=self.notification.fragment_uuid
@@ -846,9 +846,12 @@ class NotificationFor(UserNotificationMixin):
         return None
 
     def rolledup_fragments(self):
+        """Returns a query to load the notification fragment."""
         if not self.notification.fragment_model:
             return None
-        return [self.fragment]
+        return self.notification.fragment_model.query.filter_by(
+            uuid=self.notification.fragment_uuid
+        )
 
 
 # --- Notification preferences ---------------------------------------------------------

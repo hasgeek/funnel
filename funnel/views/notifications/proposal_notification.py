@@ -20,24 +20,17 @@ class RenderProposalReceivedNotification(RenderNotification):
     emoji_prefix = "📥 "
     reason = __("You are receiving this because you are an editor of this project")
 
+    fragments_order_by = [Proposal.datetime.desc()]
+    fragments_query_options = [
+        db.load_only(Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid)
+    ]
+
     def web(self):
-        proposals = (
-            self.user_notification.rolledup_fragments()
-            .options(
-                db.load_only(
-                    Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
-                )
-            )
-            .order_by(Proposal.datetime.desc())
-            .all()
-        )
         return render_template(
             'notifications/proposal_received_web.html.jinja2',
             view=self,
             proposal=self.proposal,
             project=self.project,
-            is_rollup=len(proposals) > 1,
-            proposals=proposals,
         )
 
     def email_subject(self):

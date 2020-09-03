@@ -176,6 +176,37 @@ class RenderNotification:
             return 'https://' + unsubscribe_domain + '/' + token
         return url_for('notification_unsubscribe_short', token=token, _external=True)
 
+    @cached_property
+    def fragments_order_by(self):
+        """Provide a list of order_by columns for loading fragments."""
+        return [
+            self.notification.fragment_model.updated_at.desc()
+            if hasattr(self.notification.fragment_model, 'updated_at')
+            else self.notification.fragment_model.created_at.desc()
+        ]
+
+    @property
+    def fragments_query_options(self):
+        """Provide a list of SQLAlchemy options for loading fragments."""
+        return []
+
+    @cached_property
+    def fragments(self):
+        if not self.notification.fragment_model:
+            return []
+
+        query = self.user_notification.rolledup_fragments().order_by(
+            *self.fragments_order_by
+        )
+        if self.fragments_query_options:
+            query = query.options(*self.fragments_query_options)
+
+        return [_f.access_for(actor=self.user_notification.user) for _f in query.all()]
+
+    @cached_property
+    def is_rollup(self):
+        return len(self.fragments) > 1
+
     # --- Overrideable render methods
 
     @property

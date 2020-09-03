@@ -222,6 +222,8 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     aliases = {'document': 'organization', 'fragment': 'membership'}
     reason = __("You are receiving this because you are an admin of this organization")
 
+    fragments_order_by = [OrganizationMembership.granted_at.desc()]
+
     def activity_template(self, membership=None):
         """
         Returns a returns a Python string template with an appropriate message.
@@ -240,17 +242,8 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
                 return df.template
 
     def web(self):
-        memberships = [
-            _m.access_for(actor=self.user_notification.user)
-            for _m in self.user_notification.rolledup_fragments()
-            .order_by(OrganizationMembership.granted_at.desc())
-            .all()
-        ]
         return render_template(
-            'notifications/organization_membership_granted_web.html.jinja2',
-            view=self,
-            memberships=memberships,
-            is_rollup=len(memberships) > 1,  # Required by layout template
+            'notifications/organization_membership_granted_web.html.jinja2', view=self
         )
 
     def email_content(self):
@@ -268,6 +261,8 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     aliases = {'document': 'organization', 'fragment': 'membership'}
     reason = __("You are receiving this because you were an admin of this organization")
 
+    fragments_order_by = [OrganizationMembership.revoked_at.desc()]
+
     def activity_template(self, membership=None):
         """Return a single line summary of changes."""
         if not membership:
@@ -280,17 +275,8 @@ class RenderOrganizationAdminMembershipRevokedNotification(
         return _("{user} was removed as an admin of {organization} by {actor}")
 
     def web(self):
-        memberships = [
-            _m.access_for(actor=self.user_notification.user)
-            for _m in self.user_notification.rolledup_fragments()
-            .order_by(OrganizationMembership.revoked_at.desc())
-            .all()
-        ]
         return render_template(
-            'notifications/organization_membership_revoked_web.html.jinja2',
-            view=self,
-            memberships=memberships,
-            is_rollup=len(memberships) > 1,  # Required by layout template
+            'notifications/organization_membership_revoked_web.html.jinja2', view=self
         )
 
     def email_content(self):
