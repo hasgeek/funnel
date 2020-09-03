@@ -201,7 +201,8 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                         {
                             'status': 'error',
                             'error_description': _(
-                                "This member’s record was edited elsewhere"
+                                "This member’s record was edited elsewhere."
+                                " Please refresh the page"
                             ),
                             'form_nonce': membership_form.form_nonce.data,
                         },
@@ -526,7 +527,8 @@ class ProjectCrewMembershipView(
                         {
                             'status': 'error',
                             'error_description': _(
-                                "The member’s record was edited elsewhere"
+                                "The member’s record was edited elsewhere."
+                                " Please refresh the page"
                             ),
                             'form_nonce': membership_form.form_nonce.data,
                         },
