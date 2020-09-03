@@ -10,9 +10,10 @@ from .proposal import Proposal
 from .rsvp import Rsvp
 from .session import Session
 from .update import Update
-from .user import Organization
+from .user import Organization, User
 
 __all__ = [
+    'AccountPasswordNotification',
     'CommentReportReceivedNotification',
     'NewUpdateNotification',
     'ProjectCommentNotification',
@@ -39,6 +40,23 @@ class DocumentHasProfile:
     @property
     def preference_context(self):
         return self.document.profile
+
+
+# --- Account notifications ------------------------------------------------------------
+
+
+class AccountPasswordNotification(Notification):
+    """Notification when the user's password changes."""
+
+    __mapper_args__ = {'polymorphic_identity': 'user_password_set'}
+    category = notification_categories.account
+    title = __("When my account password changes")
+    description = __("For your safety, in case this was not authorized")
+
+    document_model = User
+    exclude_actor = False
+    roles = ['owner']
+    for_private_recipient = True
 
 
 # --- Project participant notifications ------------------------------------------------

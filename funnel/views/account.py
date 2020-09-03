@@ -45,6 +45,7 @@ from ..forms import (
 )
 from ..models import (
     MODERATOR_REPORT_TYPE,
+    AccountPasswordNotification,
     Comment,
     CommentModeratorReport,
     SMSMessage,
@@ -65,6 +66,7 @@ from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, autoset_timezone_and_locale
 from .login_session import login_internal, logout_internal, requires_login
+from .notification import dispatch_notification
 
 
 def send_phone_verify_code(phoneclaim):
@@ -617,6 +619,7 @@ def change_password():
         login_internal(user, login_service='password')
         db.session.commit()
         flash(_("Your new password has been saved"), category='success')
+        dispatch_notification(AccountPasswordNotification(document=user))
         # If the user was sent here from login because of a weak password, the next
         # URL will be saved in the session. If so, send the user on their way after
         # setting the password, falling back to the account page if there's nowhere
