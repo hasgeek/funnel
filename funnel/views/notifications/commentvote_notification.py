@@ -2,8 +2,8 @@ from flask import render_template, url_for
 
 from baseframe import _, __
 
-from ..models import CommentReportReceivedNotification
-from .notification import RenderNotification
+from ...models import CommentReportReceivedNotification
+from ..notification import RenderNotification
 
 
 @CommentReportReceivedNotification.renderer

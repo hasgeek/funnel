@@ -3,8 +3,8 @@ from flask import render_template
 from baseframe import _, __
 from baseframe.filters import time_filter
 
-from ..models import ProjectStartingNotification
-from .notification import RenderNotification
+from ...models import ProjectStartingNotification
+from ..notification import RenderNotification
 
 
 @ProjectStartingNotification.renderer

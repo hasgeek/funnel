@@ -6,13 +6,13 @@ from flask import Markup, escape, render_template
 
 from baseframe import _, __
 
-from ..models import (
+from ...models import (
     MEMBERSHIP_RECORD_TYPE,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     OrganizationMembership,
 )
-from .notification import RenderNotification
+from ..notification import RenderNotification
 
 
 class DecisionFactor(NamedTuple):

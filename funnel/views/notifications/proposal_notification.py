@@ -2,13 +2,13 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ..models import (
+from ...models import (
     Proposal,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
     db,
 )
-from .notification import RenderNotification
+from ..notification import RenderNotification
 
 
 @ProposalReceivedNotification.renderer

@@ -2,13 +2,13 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ..models import (
+from ...models import (
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
 )
-from ..transports import email
-from .notification import RenderNotification
-from .schedule import schedule_ical
+from ...transports import email
+from ..notification import RenderNotification
+from ..schedule import schedule_ical
 
 
 class RegistrationBase:

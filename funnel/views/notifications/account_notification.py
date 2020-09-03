@@ -2,9 +2,9 @@ from flask import render_template, url_for
 
 from baseframe import _
 
-from .. import app
-from ..models import AccountPasswordNotification
-from .notification import RenderNotification
+from ... import app
+from ...models import AccountPasswordNotification
+from ..notification import RenderNotification
 
 
 @AccountPasswordNotification.renderer

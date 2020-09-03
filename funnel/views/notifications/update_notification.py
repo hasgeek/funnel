@@ -2,8 +2,8 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ..models import NewUpdateNotification
-from .notification import RenderNotification
+from ...models import NewUpdateNotification
+from ..notification import RenderNotification
 
 
 @NewUpdateNotification.renderer
