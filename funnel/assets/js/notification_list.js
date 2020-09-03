@@ -12,10 +12,16 @@ const Notification = {
           next_num: 1,
           waitingForResponse: false,
           markReadUrl: markReadUrl,
+          observer: '',
+          lazyLoader: '',
         };
       },
       methods: {
         fetchResult(page, refresh = false) {
+          if (!refresh) {
+            // Stop observing the lazy loader element
+            notificationApp.observer.unobserve(notificationApp.lazyLoader);
+          }
           if (!notificationApp.waitingForResponse) {
             notificationApp.waitingForResponse = true;
             $.ajax({
@@ -33,6 +39,8 @@ const Notification = {
                   } else {
                     notificationApp.next_num = 0;
                   }
+                  // Start observing the lazy loader element to fetch next page when it comes into viewport
+                  notificationApp.lazyoad();
                 }
                 notificationApp.waitingForResponse = false;
               },
@@ -54,18 +62,19 @@ const Notification = {
           });
         },
         lazyoad() {
-          const lazyLoader = document.querySelector('.js-lazy-loader');
-          if (lazyLoader) {
+          if (this.lazyLoader) {
             this.handleObserver = this.handleObserver.bind(this);
 
             const observer = new IntersectionObserver(this.handleObserver, {
               rootMargin: '0px',
               threshold: 0,
             });
-            observer.observe(lazyLoader);
+            observer.observe(this.lazyLoader);
+            this.observer = observer;
           }
         },
         handleObserver(entries) {
+          console.log('entries', entries);
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               this.fetchResult(notificationApp.next_num);
@@ -112,6 +121,7 @@ const Notification = {
         },
       },
       mounted() {
+        this.lazyLoader = document.querySelector('.js-lazy-loader');
         this.lazyoad();
         window.setInterval(() => {
           this.fetchResult(1, true);

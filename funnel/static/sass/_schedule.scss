@@ -2,7 +2,7 @@
   padding: 0;
 
   .schedule {
-    margin: $mui-grid-padding * 2 0;
+    margin: 0 0 $mui-grid-padding-double;
 
     .schedule__date {
       margin-bottom: $mui-grid-padding-double;
@@ -92,7 +92,7 @@
       overflow-x: auto;
       position: sticky;
       position: -webkit-sticky;
-      top: 62px;
+      top: 56px;
       order: 1;
       z-index: 4;
       border: none;
@@ -162,6 +162,7 @@
     padding: 0 $mui-grid-padding;
 
     .schedule {
+      margin: $mui-grid-padding-double 0;
       .schedule__date {
         padding-left: 0;
       }
