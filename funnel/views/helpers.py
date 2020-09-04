@@ -1,5 +1,6 @@
 from base64 import urlsafe_b64encode
 from datetime import datetime
+from hashlib import blake2b
 from os import urandom
 from urllib.parse import unquote, urljoin, urlsplit
 
@@ -10,6 +11,7 @@ from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
+import pyshorteners
 
 from baseframe import cache, statsd
 
@@ -268,7 +270,18 @@ def add_profile_parameter(endpoint, values):
 @lastuserapp.template_filter('shortlink')
 def shortlink(url):
     """Return a short link suitable for SMS."""
-    return url  # TODO
+    cache_key = 'shortlink/' + blake2b(url.encode(), digest_size=16).hexdigest()
+    shorty = cache.get(cache_key)
+    if shorty:
+        return shorty
+    try:
+        shorty = pyshorteners.Shortener().isgd.short(url)
+        cache.set(cache_key, shorty, timeout=86400)
+    except pyshorteners.exceptions.ShorteningErrorException as e:
+        error = str(e)
+        current_app.logger.error("Shortlink exception %s", error)
+        shorty = url
+    return shorty
 
 
 # --- Request/response handlers --------------------------------------------------------

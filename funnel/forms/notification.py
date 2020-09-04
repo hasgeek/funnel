@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from flask import request
+from flask import request, url_for
 
 from baseframe import __
 import baseframe.forms as forms
@@ -19,6 +19,7 @@ TransportLabels = namedtuple(
     [
         'title',
         'requirement',
+        'requirement_action',
         'unsubscribe_form',
         'unsubscribe_description',
         'switch',
@@ -32,6 +33,7 @@ transport_labels = {
     'email': TransportLabels(
         title=__("Email"),
         requirement=__("To enable, add a verified email address"),
+        requirement_action=lambda: url_for('add_email'),
         unsubscribe_form=__("Notify me by email"),
         unsubscribe_description=__("Uncheck this to disable all email notifications"),
         switch=__("Email notifications"),
@@ -42,9 +44,8 @@ transport_labels = {
     ),
     'sms': TransportLabels(
         title=__("SMS"),
-        # requirement=__("To enable, add a verified phone number"),
-        # Temporary requirement, until SMS templates are registered
-        requirement=__("SMS support is forthcoming"),
+        requirement=__("To enable, add a verified phone number"),
+        requirement_action=lambda: url_for('add_phone'),
         unsubscribe_form=__("Notify me by SMS"),
         unsubscribe_description=__("Uncheck this to disable all SMS notifications"),
         switch=__("SMS notifications"),
@@ -56,6 +57,7 @@ transport_labels = {
     'webpush': TransportLabels(
         title=__("Browser"),
         requirement=__("To enable, allow push notifications in the browser"),
+        requirement_action=lambda: None,
         unsubscribe_form=__("Notify me with browser notifications"),
         unsubscribe_description=__("Uncheck this to disable all browser notifications"),
         switch=__("Push notifications"),
@@ -67,6 +69,7 @@ transport_labels = {
     'telegram': TransportLabels(
         title=__("Telegram"),
         requirement=__("To enable, link your Telegram account"),
+        requirement_action=lambda: None,
         unsubscribe_form=__("Notify me on Telegram"),
         unsubscribe_description=__(
             "Uncheck this to disable all Telegram notifications"
@@ -80,6 +83,7 @@ transport_labels = {
     'whatsapp': TransportLabels(
         title=__("WhatsApp"),
         requirement=__("To enable, add your WhatsApp number"),
+        requirement_action=lambda: url_for('add_phone'),
         unsubscribe_form=__("Notify me on WhatsApp"),
         unsubscribe_description=__(
             "Uncheck this to disable all WhatsApp notifications"

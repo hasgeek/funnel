@@ -103,6 +103,7 @@ class AccountNotificationView(ClassView):
                     'available': current_auth.user.has_transport(transport),
                     'title': transport_labels[transport].title,
                     'requirement': transport_labels[transport].requirement,
+                    'action': transport_labels[transport].requirement_action(),
                     'switch': transport_labels[transport].switch,
                 }
                 for transport, enabled in platform_transports.items()

@@ -33,6 +33,7 @@ progressbar2==3.52.1
 psycopg2==2.8.5
 pycountry==20.7.3
 pyIsEmail==1.3.2
+pyshorteners==1.0.1
 python-dateutil==2.8.1
 pytz==2020.1
 qrcode==6.1
