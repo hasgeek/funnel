@@ -22,13 +22,14 @@ from coaster.views import requestargs
 
 from .. import app, lastuserapp
 from ..forms import PasswordResetForm, PasswordResetRequestForm
-from ..models import User, db
+from ..models import AccountPasswordNotification, User, db
 from ..registry import login_registry
 from ..serializers import token_serializer
 from ..utils import abort_null, mask_email
 from .email import send_password_reset_link
 from .helpers import metarefresh_redirect, validate_rate_limit
 from .login_session import logout_internal
+from .notification import dispatch_notification
 
 
 def str_pw_set_at(user):
@@ -252,6 +253,7 @@ def reset_email_do():
         for counter, user_session in enumerate(user.active_sessions.all()):
             user_session.revoke()
         db.session.commit()
+        dispatch_notification(AccountPasswordNotification(document=user))
         return render_message(
             title=_("Password reset complete"),
             message=_(

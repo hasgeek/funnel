@@ -225,6 +225,7 @@ class Proposal(
                 'title',
                 'user',
                 'speaker',
+                'owner',
                 'speaking',
                 'bio',
                 'abstract',

@@ -333,27 +333,33 @@ class Project:
         """
         # As a rule, start_at is queried with >= and <, end_at with > and <= because
         # they represent inclusive lower and upper bounds.
-        return cls.query.filter(
-            cls.id.in_(
-                db.session.query(db.func.distinct(Session.project_id)).filter(
-                    Session.start_at.isnot(None),
-                    Session.start_at >= timestamp,
-                    Session.start_at < timestamp + within,
-                    Session.project_id.notin_(
-                        db.session.query(db.func.distinct(Session.project_id)).filter(
-                            Session.start_at.isnot(None),
-                            db.or_(
-                                db.and_(
-                                    Session.start_at >= timestamp - gap,
-                                    Session.start_at < timestamp,
+        return (
+            cls.query.filter(
+                cls.id.in_(
+                    db.session.query(db.func.distinct(Session.project_id)).filter(
+                        Session.start_at.isnot(None),
+                        Session.start_at >= timestamp,
+                        Session.start_at < timestamp + within,
+                        Session.project_id.notin_(
+                            db.session.query(
+                                db.func.distinct(Session.project_id)
+                            ).filter(
+                                Session.start_at.isnot(None),
+                                db.or_(
+                                    db.and_(
+                                        Session.start_at >= timestamp - gap,
+                                        Session.start_at < timestamp,
+                                    ),
+                                    db.and_(
+                                        Session.end_at > timestamp - gap,
+                                        Session.end_at <= timestamp,
+                                    ),
                                 ),
-                                db.and_(
-                                    Session.end_at > timestamp - gap,
-                                    Session.end_at <= timestamp,
-                                ),
-                            ),
-                        )
-                    ),
+                            )
+                        ),
+                    )
                 )
             )
+            .join(Session.project)
+            .filter(Project.state.PUBLISHED, Project.schedule_state.PUBLISHED)
         )

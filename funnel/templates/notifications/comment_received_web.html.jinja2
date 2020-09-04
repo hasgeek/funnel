@@ -1,0 +1,38 @@
+{%- extends "notifications/layout_web.html.jinja2" -%}
+{%- block content -%}
+
+  {%- if not view.is_rollup -%}
+
+    <p>{{ view.activity_html() }}</p>
+
+    <blockquote type="cite">{{ view.comment.message }}</blockquote>
+
+    <p><a href="{{ view.comment.url_for() }}">{% trans %}View in context{% endtrans %}</a></p>
+
+  {%- else -%}
+      {%- with commenters=view.commenters, count=view.commenters|length -%}
+      <p>
+        {% if count == 1 -%}
+          {%- trans actor=commenters[0].pickername -%}
+            {{ actor }} left comments.
+          {%- endtrans -%}
+        {%- elif count == 2 -%}
+          {%- trans actor1=commenters[0].pickername, actor2=commenters[1].pickername -%}
+            {{ actor1 }} and {{ actor2 }} left comments.
+          {%- endtrans -%}
+        {%- elif count == 3 -%}
+          {%- trans actor1=commenters[0].pickername, actor2=commenters[1].pickername -%}
+            {{ actor1 }}, {{ actor2 }} and one other left comments.
+          {%- endtrans -%}
+        {%- else %}
+          {%- trans actor1=commenters[0].pickername, actor2=commenters[1].pickername, count=count -%}
+            {{ actor1 }}, {{ actor2 }} and {{ count }} others left comments.
+          {%- endtrans -%}
+        {%- endif %}
+      <a href="{{ view.document_comments_url() }}">{% trans %}See all comments{% endtrans %}</a>
+    </p>
+
+    {%- endwith -%}
+  {%- endif -%}
+
+{%- endblock -%}

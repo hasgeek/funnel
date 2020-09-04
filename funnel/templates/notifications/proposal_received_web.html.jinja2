@@ -3,14 +3,14 @@
 {%- from "baseframe/components.html.jinja2" import faicon %}
 
 {% block content %}
-  {%- if is_rollup %}
+  {%- if view.is_rollup %}
     <p>
-      {%- trans project=project_title(project), project_url=project.url_for(), count=proposals|length %}
+      {%- trans project=project_title(project), project_url=project.url_for(), count=view.fragments|length %}
         Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new proposals:
       {%- endtrans %}
     </p>
     <ol>
-      {%- for proposal in proposals %}
+      {%- for proposal in view.fragments %}
         <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.owner.pickername, age=proposal.datetime|age %}
           <a href="{{ url }}">{{ proposal }}</a> by {{ actor }} <span class="mui--text-body2">{{ age }}</span>
         {% endtrans %}</li>
@@ -26,7 +26,7 @@
 {%- endblock %}
 
 {%- block avatar %}
-  {%- if is_rollup %}
+  {%- if view.is_rollup %}
     <div class="user__box__gravatar user__box__gravatar--initials">{{ faicon(icon='users', icon_size='headline', baseline=false) }}</div>
   {%- else %}
     {%- if view.actor %}{{ useravatar(view.actor) }}{% endif %}
