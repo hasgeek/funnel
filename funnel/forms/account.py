@@ -369,7 +369,7 @@ class NewPhoneForm(forms.RecaptchaForm):
     phone = forms.TelField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
-        description=__("Mobile numbers only at this time, in international format"),
+        description=__("Mobile numbers only, in Indian or international format"),
     )
 
     # Temporarily removed since we only support mobile numbers at this time. When phone
