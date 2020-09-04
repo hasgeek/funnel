@@ -38,3 +38,7 @@
     </div>
   </div>
 {% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('account_saved')) }}" type="text/javascript"></script>
+{% endblock %}
