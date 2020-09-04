@@ -42,5 +42,7 @@ class RenderAccountPasswordNotification(RenderNotification):
             " password or contact support at {email}. {reset_url}"
         ).format(
             email=app.config['SITE_SUPPORT_EMAIL'],
-            reset_url=shortlink(url_for('reset')),
+            reset_url=shortlink(
+                url_for('reset', _external=True, **self.tracking_tags('sms'))
+            ),
         )

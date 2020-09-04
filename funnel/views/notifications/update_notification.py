@@ -39,5 +39,7 @@ class RenderNewUpdateNotification(RenderNotification):
         return _("Update in {project}: {update} {url}").format(
             project=self.update.project.joined_title('>'),
             update=self.update.title,
-            url=shortlink(self.update.url_for(_external=True)),
+            url=shortlink(
+                self.update.url_for(_external=True, **self.tracking_tags('sms'))
+            ),
         )

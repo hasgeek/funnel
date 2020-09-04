@@ -37,7 +37,12 @@ class RenderCommentReportReceivedNotification(RenderNotification):
     def sms(self):
         return _("A comment has been reported as spam. {url}").format(
             url=shortlink(
-                url_for('siteadmin_review_comment', report=self.report.uuid_b58)
+                url_for(
+                    'siteadmin_review_comment',
+                    report=self.report.uuid_b58,
+                    _external=True,
+                    **self.tracking_tags('sms'),
+                )
             )
         )
 
@@ -135,5 +140,7 @@ class CommentNotification(RenderNotification):
         return (
             self.activity_template_inline().format(actor=self.actor.pickername)
             + " "
-            + shortlink(self.comment.url_for(_external=True))
+            + shortlink(
+                self.comment.url_for(_external=True, **self.tracking_tags('sms'))
+            )
         )
