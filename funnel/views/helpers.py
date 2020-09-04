@@ -138,7 +138,8 @@ def validate_rate_limit(
 
     Aborts with HTTP 429 in case the limit has been reached.
 
-    :param str identifier: Identifier for type of request and entity being rate limited
+    :param str resource: Resource being rate limited
+    :param str identifier: Identifier for entity being rate limited
     :param int attempts: Number of attempts allowed
     :param int timeout: Duration in seconds to block after attempts are exhausted
     :param str token: For advanced use, a token to check against for future calls
