@@ -28,8 +28,9 @@ class SesProcessor(SesProcessorAbc):
         `.add` will fail if the address is blocked, while `.get` won't. Why add if we've
         never seen this email address before? Because it may have originated in Hasjob
         or elsewhere in shared infrastructure.
+
         :param address: Email Address
-        :returns Email Address object
+        :returns: EmailAddress object
         """
         email_address = EmailAddress.get(address)
         if not email_address:

@@ -67,8 +67,9 @@ def process_recipient(recipient: EmailRecipient) -> str:
     """
     Processes recipient in any of the given input formats. These could be:
     1. A User object
-    2. A Tuple
-    3. String.
+    2. A tuple of (name, email)
+    3. A pre-formatted string as "Name <email>"
+
     :param recipient: Recipient of an email
     :returns: RFC 2822 formatted string email address
     """
