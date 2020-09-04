@@ -54,6 +54,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
                 'latitude',
                 'longitude',
                 'has_coordinates',
+                'coordinates',
                 'project',
             }
         }
@@ -76,6 +77,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
             'latitude',
             'longitude',
             'has_coordinates',
+            'coordinates',
         },
         'related': {'name', 'title', 'uuid_b58'},
     }
