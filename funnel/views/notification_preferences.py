@@ -168,7 +168,7 @@ class AccountNotificationView(ClassView):
         # if they'd like to resubscribe
         try:
             payload = token_serializer().loads(
-                token, max_age=365 * 24 * 60 * 60,  # Validity 1 year (365 days)
+                token, max_age=365 * 24 * 60 * 60  # Validity 1 year (365 days)
             )
         except itsdangerous.exc.SignatureExpired:
             # Link has expired. It's been over a year!

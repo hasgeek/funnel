@@ -27,8 +27,8 @@ def upgrade():
         sa.Column('id', UUIDType(binary=False), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
-        sa.ForeignKeyConstraint(['comment_id'], ['comment.id'],),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'],),
+        sa.ForeignKeyConstraint(['comment_id'], ['comment.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
         sa.PrimaryKeyConstraint('id'),
     )
     op.create_index(

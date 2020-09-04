@@ -74,7 +74,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
         return self.emoji_prefix + _(
             "Proposal submitted to {project}: {proposal}"
         ).format(
-            project=self.proposal.project.joined_title(), proposal=self.proposal.title,
+            project=self.proposal.project.joined_title(), proposal=self.proposal.title
         )
 
     def email_content(self):
