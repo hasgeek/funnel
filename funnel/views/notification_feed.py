@@ -5,7 +5,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 import baseframe.forms as forms
 
 from .. import app, funnelapp, lastuserapp
-from ..models import Notification, UserNotification, db
+from ..models import Notification, UserNotification, db, notification_web_types
 from .helpers import app_url_for
 from .login_session import requires_login
 
@@ -22,6 +22,7 @@ class AllNotificationsView(ClassView):
         pagination = (
             UserNotification.query.join(Notification)
             .filter(
+                Notification.type.in_(notification_web_types),
                 UserNotification.user == current_auth.user,
                 UserNotification.is_revoked.is_(False),
             )
@@ -33,17 +34,13 @@ class AllNotificationsView(ClassView):
                 {
                     'notification': un.current_access(datasets=('primary', 'related')),
                     'html': un.views.render(),
-                    'document_type': un.notification.document_model.__tablename__
-                    if un.notification.document_model
-                    else None,
+                    'document_type': un.notification.document_type,
                     'document': un.document.current_access(
                         datasets=('primary', 'related')
                     )
                     if un.document
                     else None,
-                    'fragment_type': un.notification.fragment_model.__tablename__
-                    if un.notification.fragment_model
-                    else None,
+                    'fragment_type': un.notification.fragment_type,
                     'fragment': un.fragment.current_access(
                         datasets=('primary', 'related')
                     )

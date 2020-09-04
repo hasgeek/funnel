@@ -2,8 +2,9 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ..models import NewUpdateNotification
-from .notification import RenderNotification
+from ...models import NewUpdateNotification
+from ..helpers import shortlink
+from ..notification import RenderNotification
 
 
 @NewUpdateNotification.renderer
@@ -12,7 +13,7 @@ class RenderNewUpdateNotification(RenderNotification):
 
     aliases = {'document': 'update'}
     emoji_prefix = "📰 "
-    reason = __("You are receiving this because you have registered for this project.")
+    reason = __("You are receiving this because you have registered for this project")
 
     @property
     def actor(self):
@@ -38,5 +39,5 @@ class RenderNewUpdateNotification(RenderNotification):
         return _("Update in {project}: {update} {url}").format(
             project=self.update.project.joined_title('>'),
             update=self.update.title,
-            url=self.update.url_for(_external=True),
+            url=shortlink(self.update.url_for(_external=True)),
         )

@@ -121,6 +121,22 @@ def test_project_starting_at(db_transaction, block_of_sessions):
         for multipler in range(100)
     ]
 
+    # At first nothing will match because the project and its schedule are not published
+    assert (
+        find_projects(starting_times, timedelta(minutes=5), timedelta(minutes=60)) == {}
+    )
+
+    # Publishing the project isn't enough
+    block_of_sessions.project.publish()
+    assert (
+        find_projects(starting_times, timedelta(minutes=5), timedelta(minutes=60)) == {}
+    )
+
+    # Schedule must be published too
+    block_of_sessions.project.publish_schedule()
+
+    # Now it works:
+
     found_projects = find_projects(
         starting_times, timedelta(minutes=5), timedelta(minutes=60)
     )

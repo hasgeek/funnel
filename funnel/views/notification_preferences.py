@@ -21,18 +21,18 @@ from ..models import (
 )
 from ..serializers import token_serializer
 from ..transports import platform_transports
-from .helpers import metarefresh_redirect, retrieve_cached_token
+from .helpers import metarefresh_redirect, retrieve_cached_token, validate_rate_limit
 from .login_session import discard_temp_token, requires_login
 
 # --- Account notifications tab --------------------------------------------------------
 
 unsubscribe_link_expired = __(
-    "This unsubscribe link has expired. However, you can manage your preferences from"
+    "That unsubscribe link has expired. However, you can manage your preferences from"
     " your account page"
 )
 
 unsubscribe_link_invalid = __(
-    "This unsubscribe link is invalid. However, you can manage your preferences from"
+    "That unsubscribe link is invalid. However, you can manage your preferences from"
     " your account page"
 )
 
@@ -302,6 +302,13 @@ class AccountNotificationView(ClassView):
 
         # --- Cached tokens (SMS)
         elif token_type == 'cached':  # nosec
+
+            # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
+            # Some ISPs use carrier-grade NAT and will have a single IP for a very
+            # large number of users, so we have generous limits. 100 unsubscribes per
+            # 10 minutes (600s) per IP address.
+            validate_rate_limit('sms_unsubscribe', request.remote_addr, 100, 600)
+
             payload = retrieve_cached_token(
                 session.get('temp_token') or request.form['token']
             )

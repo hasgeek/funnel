@@ -10,11 +10,13 @@ from .proposal import Proposal
 from .rsvp import Rsvp
 from .session import Session
 from .update import Update
-from .user import Organization
+from .user import Organization, User
 
 __all__ = [
-    'CommentReportReceivedNotification',
+    'AccountPasswordNotification',
     'NewUpdateNotification',
+    'CommentReportReceivedNotification',
+    'CommentReplyNotification',
     'ProjectCommentNotification',
     'ProposalCommentNotification',
     'ProposalReceivedNotification',
@@ -41,6 +43,23 @@ class DocumentHasProfile:
         return self.document.profile
 
 
+# --- Account notifications ------------------------------------------------------------
+
+
+class AccountPasswordNotification(Notification):
+    """Notification when the user's password changes."""
+
+    __mapper_args__ = {'polymorphic_identity': 'user_password_set'}
+    category = notification_categories.account
+    title = __("When my account password changes")
+    description = __("For your safety, in case this was not authorized")
+
+    document_model = User
+    exclude_actor = False
+    roles = ['owner']
+    for_private_recipient = True
+
+
 # --- Project participant notifications ------------------------------------------------
 
 
@@ -53,7 +72,6 @@ class RegistrationConfirmationNotification(DocumentHasProject, Notification):
     description = __("This will prompt a calendar entry in Gmail and other apps")
 
     document_model = Rsvp
-    exclude_actor = False
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
@@ -68,10 +86,10 @@ class RegistrationCancellationNotification(DocumentHasProject, Notification):
     description = __("Confirmation for your records")
 
     document_model = Rsvp
-    exclude_actor = False
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
+    allow_web = False
 
 
 class NewUpdateNotification(DocumentHasProject, Notification):
@@ -133,7 +151,6 @@ class CommentReplyNotification(Notification):
     """Notification of comment replies."""
 
     __mapper_args__ = {'polymorphic_identity': 'comment_reply'}
-    active = False
 
     category = notification_categories.participant
     title = __("When someone replies to my comment")
@@ -144,34 +161,32 @@ class CommentReplyNotification(Notification):
     roles = ['replied_to_commenter']
 
 
-class ProposalCommentNotification(DocumentHasProject, Notification):
-    """Notification of comments on a proposal."""
-
-    __mapper_args__ = {'polymorphic_identity': 'comment_proposal'}
-    active = False
-
-    category = notification_categories.participant
-    title = __("When my proposal receives a comment")
-    exclude_actor = True
-
-    document_model = Proposal
-    fragment_model = Comment
-    # Note: These roles must be available on Comment, not Proposal. Roles come from
-    # fragment if present, document if not.
-    roles = ['replied_to_commenter', 'document_subscriber']
-
-
 class ProjectCommentNotification(DocumentHasProfile, Notification):
-    """Notification of comments on a proposal."""
+    """Notification of comments on a project."""
 
     __mapper_args__ = {'polymorphic_identity': 'comment_project'}
-    active = False
 
     category = notification_categories.project_crew
     title = __("When my project receives a comment")
     exclude_actor = True
 
     document_model = Project
+    fragment_model = Comment
+    # Note: These roles must be available on Comment, not Proposal. Roles come from
+    # fragment if present, document if not.
+    roles = ['replied_to_commenter', 'document_subscriber']
+
+
+class ProposalCommentNotification(DocumentHasProject, Notification):
+    """Notification of comments on a proposal."""
+
+    __mapper_args__ = {'polymorphic_identity': 'comment_proposal'}
+
+    category = notification_categories.participant
+    title = __("When my proposal receives a comment")
+    exclude_actor = True
+
+    document_model = Proposal
     fragment_model = Comment
     # Note: These roles must be available on Comment, not Proposal. Roles come from
     # fragment if present, document if not.
@@ -271,6 +286,9 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
     fragment_model = OrganizationMembership
     roles = ['subject', 'profile_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
+
+
+# --- Site administrator notifications -------------------------------------------------
 
 
 class CommentReportReceivedNotification(Notification):

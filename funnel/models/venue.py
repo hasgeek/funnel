@@ -112,7 +112,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
                 'description',
                 'bgcolor',
                 'seq',
-                'venue_details',
+                'venue',
                 'scoped_name',
                 'uuid_b58',
             }
