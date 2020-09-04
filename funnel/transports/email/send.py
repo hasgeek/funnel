@@ -1,7 +1,7 @@
 """Support functions for sending an email."""
 
 from email.utils import formataddr, getaddresses, parseaddr
-from typing import NamedTuple
+from typing import List, NamedTuple, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -9,6 +9,8 @@ from flask_mailman.message import sanitize_address
 
 from html2text import html2text
 from premailer import transform
+
+from baseframe import statsd
 
 from ... import app, mail
 from ...models import EmailAddress, EmailAddressBlockedError, User
@@ -21,6 +23,9 @@ __all__ = [
     'process_recipient',
     'send_email',
 ]
+
+# Short Type
+EmailRecipient = Union[User, tuple, str]
 
 
 class EmailAttachment(NamedTuple):
@@ -58,7 +63,16 @@ def jsonld_confirm_action(description, url, title):
     }
 
 
-def process_recipient(recipient):
+def process_recipient(recipient: EmailRecipient) -> str:
+    """
+    Processes recipient in any of the given input formats. These could be:
+    1. A User object
+    2. A tuple of (name, email)
+    3. A pre-formatted string as "Name <email>"
+
+    :param recipient: Recipient of an email
+    :returns: RFC 2822 formatted string email address
+    """
     if isinstance(recipient, User):
         formatted = formataddr((recipient.fullname, str(recipient.email)))
     elif isinstance(recipient, tuple):
@@ -89,7 +103,14 @@ def process_recipient(recipient):
     return formataddr((realname, email_address))
 
 
-def send_email(subject, to, content, attachments=None, from_email=None, headers=None):
+def send_email(
+    subject: str,
+    to: List[EmailRecipient],
+    content: str,
+    attachments: List[EmailAttachment] = None,
+    from_email: EmailRecipient = None,
+    headers: dict = None,
+):
     """
     Helper function to send an email.
 
@@ -98,6 +119,8 @@ def send_email(subject, to, content, attachments=None, from_email=None, headers=
         (name, email_address), or (c) a pre-formatted email address
     :param str content: HTML content of the message (plain text is auto-generated)
     :param list attachments: List of :class:`EmailAttachment` attachments
+    :param from_email: Email sender, same format as email recipient
+    :param dict headers: Optional extra email headers (for List-Unsubscribe, etc)
     """
     # Parse recipients and convert as needed
     to = [process_recipient(recipient) for recipient in to]
@@ -130,9 +153,16 @@ def send_email(subject, to, content, attachments=None, from_email=None, headers=
     # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
     # catch that, remove the recipient, and notify the user via the upcoming
     # notification centre. (Raise a TransportRecipientError)
+
     result = mail.send(msg)
-    # After sending, mark the address as having received an email
+
+    # After sending, mark the address as having received an email and also update the statistics counters.
+    # Note that this will only track emails sent by *this app*. However SES events will track statistics
+    # across all apps and hence the difference between this counter and SES event counters will be emails
+    # sent by other apps.
+    statsd.incr("email_address.ses_email.sent", count=len(emails))
     for ea in emails:
         ea.mark_sent()
+
     # FIXME: 'result' is a number. Why? We need message-id
     return result

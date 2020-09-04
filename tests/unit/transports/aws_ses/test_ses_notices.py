@@ -13,6 +13,13 @@ class TestSESNotices:
     # URL
     URL = '/api/1/email/ses_event'
 
+    # Dummy headers. Or else tests will start failing
+    HEADERS = {
+        'x-amz-sns-message-type': 'Not Empty',
+        'x-amz-sns-message-id': 'Some ID',
+        'x-amz-sns-topic-arn': 'Some Topic',
+    }
+
     def test_invalid_method(self, test_client) -> None:
         """GET requests are not allowed."""
         with test_client as c:
@@ -32,7 +39,9 @@ class TestSESNotices:
         with open(os.path.join(self.DATA_DIR, "bad-message.json"), 'r') as file:
             data = file.read()
         with test_client as c:
-            resp: Response = c.post(self.URL, json=json.loads(data))
+            resp: Response = c.post(
+                self.URL, json=json.loads(data), headers=self.HEADERS
+            )
         assert resp.status_code == 400
         data = resp.get_json()
         assert data['status'] == 'error'
@@ -43,7 +52,9 @@ class TestSESNotices:
         with open(os.path.join(self.DATA_DIR, "full-message.json"), 'r') as file:
             data = file.read()
         with test_client as c:
-            resp: Response = c.post(self.URL, json=json.loads(data))
+            resp: Response = c.post(
+                self.URL, json=json.loads(data), headers=self.HEADERS
+            )
         assert resp.status_code == 200
         data = resp.get_json()
         assert data['status'] == 'ok'
@@ -53,7 +64,9 @@ class TestSESNotices:
         with open(os.path.join(self.DATA_DIR, "delivery-message.json"), 'r') as file:
             data = file.read()
         with test_client as c:
-            resp: Response = c.post(self.URL, json=json.loads(data))
+            resp: Response = c.post(
+                self.URL, json=json.loads(data), headers=self.HEADERS
+            )
         assert resp.status_code == 200
         data = resp.get_json()
         assert data['status'] == 'ok'
@@ -64,7 +77,9 @@ class TestSESNotices:
         with open(os.path.join(self.DATA_DIR, "bounce-message.json"), 'r') as file:
             data = file.read()
         with test_client as c:
-            resp: Response = c.post(self.URL, json=json.loads(data))
+            resp: Response = c.post(
+                self.URL, json=json.loads(data), headers=self.HEADERS
+            )
         assert resp.status_code == 200
         data = resp.get_json()
         assert data['status'] == 'ok'
