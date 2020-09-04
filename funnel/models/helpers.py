@@ -204,7 +204,7 @@ def reopen(cls):
             raise TypeError("Reopened class contains unsupported __attributes__")
         for attr, value in list(temp_cls.__dict__.items()):
             # Skip the standard Python attributes, process the rest
-            if attr not in ('__dict__', '__doc__', '__module__', '__weakref__',):
+            if attr not in ('__dict__', '__doc__', '__module__', '__weakref__'):
                 # Refuse to overwrite existing attributes
                 if hasattr(cls, attr):
                     raise AttributeError(f"{cls.__name__} already has attribute {attr}")

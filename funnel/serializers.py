@@ -10,14 +10,14 @@ from . import app
 # Lastuser cookie serializer
 def lastuser_serializer():
     return KeyRotationWrapper(
-        itsdangerous.JSONWebSignatureSerializer, app.config['LASTUSER_SECRET_KEYS'],
+        itsdangerous.JSONWebSignatureSerializer, app.config['LASTUSER_SECRET_KEYS']
     )
 
 
 # Talkfunnel login support
 def talkfunnel_serializer():
     return KeyRotationWrapper(
-        itsdangerous.URLSafeTimedSerializer, app.config['LASTUSER_SECRET_KEYS'],
+        itsdangerous.URLSafeTimedSerializer, app.config['LASTUSER_SECRET_KEYS']
     )
 
 

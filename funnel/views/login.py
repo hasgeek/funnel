@@ -531,7 +531,7 @@ def login_service_postcallback(service, userdata):
     # on another domain. Our redirect chain is provider -> callback -> destination page.
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            metarefresh_redirect(url_for('account_merge', next=login_next)), service,
+            metarefresh_redirect(url_for('account_merge', next=login_next)), service
         )
     else:
         return set_loginmethod_cookie(metarefresh_redirect(login_next), service)

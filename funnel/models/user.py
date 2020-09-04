@@ -669,7 +669,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     #: New user account
     user = db.relationship(
-        User, foreign_keys=[user_id], backref=db.backref('oldids', cascade='all'),
+        User, foreign_keys=[user_id], backref=db.backref('oldids', cascade='all')
     )
 
     def __repr__(self):
@@ -995,7 +995,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     __email_is_exclusive__ = True
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('emails', cascade='all'),)
+    user = db.relationship(User, backref=db.backref('emails', cascade='all'))
 
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
@@ -1085,7 +1085,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     __email_is_exclusive__ = False
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'),)
+    user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'))
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
     # TODO: Remove obsolete blake2b column
     blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
@@ -1284,7 +1284,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
 class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     __tablename__ = 'user_phone_claim'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'),)
+    user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'))
     _phone = db.Column('phone', db.UnicodeText, nullable=False, index=True)
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
     verification_code = db.Column(db.Unicode(4), nullable=False, default=newpin)
@@ -1379,7 +1379,7 @@ class UserExternalId(BaseMixin, db.Model):
     __tablename__ = 'user_externalid'
     __at_username_services__ = []
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('externalids', cascade='all'),)
+    user = db.relationship(User, backref=db.backref('externalids', cascade='all'))
     service = db.Column(db.UnicodeText, nullable=False)
     userid = db.Column(db.UnicodeText, nullable=False)  # Unique id (or obsolete OpenID)
     username = db.Column(db.UnicodeText, nullable=True)  # LinkedIn returns full URLs

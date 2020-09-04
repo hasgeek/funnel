@@ -452,11 +452,11 @@ class ProjectView(
                 return redirect(self.obj.url_for(), code=303)
             else:
                 return render_form(
-                    form=form, title=_(""), submit=_("Save banner"), ajax=True,
+                    form=form, title="", submit=_("Save banner"), ajax=True
                 )
         return render_form(
             form=form,
-            title=_(""),
+            title="",
             submit=_("Save banner"),
             ajax=True,
             template='img_upload_formlayout.html.jinja2',

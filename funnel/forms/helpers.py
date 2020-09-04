@@ -36,7 +36,7 @@ class EmailAddressAvailable:
 
         # Call validator
         is_valid = EmailAddress.validate_for(
-            actor, field.data, check_dns=True, new=self.purpose != 'use',
+            actor, field.data, check_dns=True, new=self.purpose != 'use'
         )
 
         # Interpret code

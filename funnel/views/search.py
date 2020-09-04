@@ -600,7 +600,7 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
             'type': stype,
             'counts': search_counts(squery, profile=self.obj),
             'results': search_results(
-                squery, stype, page=page, per_page=per_page, profile=self.obj,
+                squery, stype, page=page, per_page=per_page, profile=self.obj
             ),
         }
 
@@ -641,7 +641,7 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
             'type': stype,
             'counts': search_counts(squery, project=self.obj),
             'results': search_results(
-                squery, stype, page=page, per_page=per_page, project=self.obj,
+                squery, stype, page=page, per_page=per_page, project=self.obj
             ),
         }
 
