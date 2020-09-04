@@ -804,9 +804,15 @@ def add_phone():
             userphone = UserPhoneClaim(user=current_auth.user, phone=form.phone.data)
             db.session.add(userphone)
         try:
+            current_auth.user.main_notification_preferences.by_sms = (
+                form.enable_notifications.data
+            )
             send_phone_verify_code(userphone)
-            db.session.commit()  # Commit after sending because send_phone_verify_code saves the message sent
-            flash(_("We sent a verification code to your phone number"), 'success')
+            # Commit after sending because send_phone_verify_code saves the message sent
+            db.session.commit()
+            flash(
+                _("A verification code has been sent to your phone number"), 'success'
+            )
             user_data_changed.send(current_auth.user, changes=['phone-claim'])
             return render_redirect(
                 url_for('verify_phone', number=userphone.phone), code=303

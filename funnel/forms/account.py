@@ -1,3 +1,5 @@
+import phonenumbers
+
 from baseframe import _, __
 from coaster.auth import current_auth
 from coaster.utils import nullstr, sorted_timezones
@@ -13,7 +15,6 @@ from ..models import (
     getuser,
     password_policy,
 )
-from ..utils import strip_phone, valid_phone
 from .helpers import EmailAddressAvailable
 
 __all__ = [
@@ -367,11 +368,8 @@ class VerifyEmailForm(forms.Form):
 class NewPhoneForm(forms.RecaptchaForm):
     phone = forms.TelField(
         __("Phone number"),
-        default='+91',
         validators=[forms.validators.DataRequired()],
-        description=__(
-            "Mobile numbers only at this time. Please prefix with '+' and country code."
-        ),
+        description=__("Mobile numbers only at this time, in international format"),
     )
 
     # Temporarily removed since we only support mobile numbers at this time. When phone
@@ -385,30 +383,29 @@ class NewPhoneForm(forms.RecaptchaForm):
     #         (__(u"Work"), __(u"Work")),
     #         (__(u"Other"), __(u"Other"))])
 
-    def validate_phone(self, field):
-        # TODO: Use the phonenumbers library to validate this
+    enable_notifications = forms.BooleanField(
+        __("Send notifications by SMS"),
+        description=__(
+            "Unsubscribe anytime, and control what notifications are sent from the"
+            " Notifications tab under account settings"
+        ),
+        default=True,
+    )
 
-        # Step 1: Remove punctuation in number
-        number = strip_phone(field.data)
-        # Step 2: Check length
-        if len(number) > 16:
-            raise forms.ValidationError(
-                _("This is too long to be a valid phone number")
+    def validate_phone(self, field):
+        # Step 1: Validate number
+        try:
+            # Assume Indian number if no country code is specified
+            # TODO: Guess country from IP address
+            parsed_number = phonenumbers.parse(field.data, 'IN')
+        except phonenumbers.NumberParseException:
+            raise forms.StopValidation(
+                _("This does not appear to be a valid phone number")
             )
-        # Step 3: Validate number format
-        if not valid_phone(number):
-            raise forms.ValidationError(
-                _(
-                    "Invalid phone number (must be in international format with a "
-                    "leading + (plus) symbol)"
-                )
-            )
-        # Step 4: Check if Indian number (startswith('+91'))
-        if number.startswith('+91') and len(number) != 13:
-            raise forms.ValidationError(
-                _("This does not appear to be a valid Indian mobile number")
-            )
-        # Step 5: Check if number has already been claimed
+        number = phonenumbers.format_number(
+            parsed_number, phonenumbers.PhoneNumberFormat.E164
+        )
+        # Step 2: Check if number has already been claimed
         existing = UserPhone.get(phone=number)
         if existing is not None:
             if existing.user == current_auth.user:
@@ -422,6 +419,7 @@ class NewPhoneForm(forms.RecaptchaForm):
         existing = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
         if existing is not None:
             raise forms.ValidationError(_("This phone number is pending verification"))
+        # Step 3: If validations pass, use the reformatted number
         field.data = number  # Save stripped number
 
 
