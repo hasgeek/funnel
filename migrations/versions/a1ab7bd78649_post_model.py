@@ -37,7 +37,7 @@ def upgrade():
         sa.Column('edited_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('voteset_id', sa.Integer(), nullable=False),
         sa.Column('commentset_id', sa.Integer(), nullable=False),
-        sa.Column('search_vector', TSVectorType(), nullable=False,),
+        sa.Column('search_vector', TSVectorType(), nullable=False),
         sa.Column('uuid', UUIDType(binary=False), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -46,13 +46,13 @@ def upgrade():
             'CASE WHEN (profile_id IS NOT NULL) THEN 1 ELSE 0 END + CASE WHEN (project_id IS NOT NULL) THEN 1 ELSE 0 END = 1',
             name='post_owner_check',
         ),
-        sa.ForeignKeyConstraint(['commentset_id'], ['commentset.id'],),
-        sa.ForeignKeyConstraint(['deleted_by_id'], ['user.id'],),
-        sa.ForeignKeyConstraint(['profile_id'], ['profile.id'],),
-        sa.ForeignKeyConstraint(['project_id'], ['project.id'],),
-        sa.ForeignKeyConstraint(['published_by_id'], ['user.id'],),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'],),
-        sa.ForeignKeyConstraint(['voteset_id'], ['voteset.id'],),
+        sa.ForeignKeyConstraint(['commentset_id'], ['commentset.id']),
+        sa.ForeignKeyConstraint(['deleted_by_id'], ['user.id']),
+        sa.ForeignKeyConstraint(['profile_id'], ['profile.id']),
+        sa.ForeignKeyConstraint(['project_id'], ['project.id']),
+        sa.ForeignKeyConstraint(['published_by_id'], ['user.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id']),
+        sa.ForeignKeyConstraint(['voteset_id'], ['voteset.id']),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('uuid'),
     )
@@ -62,7 +62,7 @@ def upgrade():
     op.create_index(op.f('ix_post_profile_id'), 'post', ['profile_id'], unique=False)
     op.create_index(op.f('ix_post_project_id'), 'post', ['project_id'], unique=False)
     op.create_index(
-        op.f('ix_post_published_by_id'), 'post', ['published_by_id'], unique=False,
+        op.f('ix_post_published_by_id'), 'post', ['published_by_id'], unique=False
     )
     op.create_index(op.f('ix_post_user_id'), 'post', ['user_id'], unique=False)
 

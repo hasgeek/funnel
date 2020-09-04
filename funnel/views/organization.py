@@ -133,7 +133,8 @@ OrgView.init_app(app)
 class TeamView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Team
-    route_model_map = {  # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
+    # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
+    route_model_map = {
         'organization': 'organization.name',
         'team': 'buid',
     }

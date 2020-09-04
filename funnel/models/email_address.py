@@ -262,7 +262,7 @@ class EmailAddress(BaseMixin, db.Model):
 
     @hybrid_property
     def is_blocked(self) -> bool:
-        """"
+        """
         Read-only flag indicating this email address is blocked from use. To set this
         flag, call :classmethod:`mark_blocked` using the email address. The flag will be
         simultaneously set on all matching instances.

@@ -428,7 +428,7 @@ def dispatch_transport_sms(user_notification, view):
         user_notification.messageid_sms = 'cancelled'
         return
     user_notification.messageid_sms = sms.send(
-        str(view.transport_for('sms')), view.sms_with_unsubscribe(),
+        str(view.transport_for('sms')), view.sms_with_unsubscribe()
     )
     statsd.incr(
         'notification.transport',

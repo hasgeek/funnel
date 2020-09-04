@@ -34,7 +34,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
         db.SmallInteger, nullable=False, default=MODERATOR_REPORT_TYPE.SPAM
     )
     reported_at = db.Column(
-        db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False,
+        db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False
     )
 
     __datasets__ = {

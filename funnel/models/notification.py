@@ -869,10 +869,10 @@ class NotificationPreferences(BaseMixin, db.Model):
 
     #: Id of user whose preferences are represented here
     user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True,
+        None, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True
     )
     #: User whose preferences are represented here
-    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'},)
+    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
 
     # Notification type, corresponding to Notification.type (a class attribute there)
     # notification_type = '' holds the veto switch to disable a transport entirely

@@ -59,7 +59,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, index=True)
     user = with_roles(
         db.relationship(
-            User, backref=db.backref('updates', lazy='dynamic'), foreign_keys=[user_id],
+            User, backref=db.backref('updates', lazy='dynamic'), foreign_keys=[user_id]
         ),
         read={'all'},
         grants={'creator'},
@@ -69,7 +69,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         None, db.ForeignKey('project.id'), nullable=False, index=True
     )
     project = with_roles(
-        db.relationship(Project, backref=db.backref('updates', lazy='dynamic'),),
+        db.relationship(Project, backref=db.backref('updates', lazy='dynamic')),
         read={'all'},
         grants_via={
             None: {

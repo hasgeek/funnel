@@ -109,7 +109,7 @@ class UnsubscribeForm(forms.Form):
     # but it should be smarter about defaults per category of notification.
 
     main = forms.BooleanField(
-        __("Notify me"), description=__("Uncheck this to disable all notifications"),
+        __("Notify me"), description=__("Uncheck this to disable all notifications")
     )
 
     types = forms.SelectMultipleField(
@@ -179,7 +179,7 @@ class SetNotificationPreferenceForm(forms.Form):
 
     notification_type = forms.SelectField(__("Notification type"))
     transport = forms.SelectField(
-        __("Transport"), validators=[forms.validators.DataRequired()],
+        __("Transport"), validators=[forms.validators.DataRequired()]
     )
     enabled = forms.BooleanField(__("Enable this transport"))
 

@@ -23,7 +23,7 @@ class TestProjectForms(object):
 
                 # Single url
                 form = ProjectLivestreamForm(
-                    MultiDict({'livestream_urls': valid_urls[0]}), meta={'csrf': False},
+                    MultiDict({'livestream_urls': valid_urls[0]}), meta={'csrf': False}
                 )
                 assert form.validate()
 
