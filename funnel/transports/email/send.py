@@ -119,7 +119,8 @@ def send_email(
         (name, email_address), or (c) a pre-formatted email address
     :param str content: HTML content of the message (plain text is auto-generated)
     :param list attachments: List of :class:`EmailAttachment` attachments
-    :param from_email: Email Recipient
+    :param from_email: Email sender, same format as email recipient
+    :param dict headers: Optional extra email headers (for List-Unsubscribe, etc)
     """
     # Parse recipients and convert as needed
     to = [process_recipient(recipient) for recipient in to]
