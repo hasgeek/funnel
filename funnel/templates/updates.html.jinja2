@@ -56,7 +56,7 @@
     $(function() {
       var saveProjectConfig = {
         formId: 'save-form',
-        updateUrl: {{ project.url_for('save')|tojson }}
+        postUrl: {{ project.url_for('save')|tojson }}
       }
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
