@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, namedtuple
 
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
@@ -379,17 +379,22 @@ class AccountView(ClassView):
                 + [report_form.report_type.data]
             )
             # if there is already a report for this comment
-            most_common_two = report_counter.most_common(2)
+            ReportCounter = namedtuple('ReportCounter', ['report_type', 'frequency'])
+
+            most_common_two = [
+                ReportCounter(report_type, frequency)
+                for report_type, frequency in report_counter.most_common(2)
+            ]
             # Possible values of most_common_two -
             # - [(1, 2)] - if both existing and current reports are same or
-            # - [(1, 2), (0, 1), (report_type, frequency)] - multiple conflicting reports
+            # - [(1, 2), (0, 1), (report_type, frequency)] - conflicting reports
             if (
                 len(most_common_two) == 1
-                or most_common_two[0][1] > most_common_two[1][1]
+                or most_common_two[0].frequency > most_common_two[1].frequency
             ):
-                if most_common_two[0][0] == MODERATOR_REPORT_TYPE.SPAM:
+                if most_common_two[0].report_type == MODERATOR_REPORT_TYPE.SPAM:
                     report.comment.mark_spam()
-                elif most_common_two[0][0] == MODERATOR_REPORT_TYPE.OK:
+                elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
                     if report.comment.state.SPAM:
                         report.comment.mark_not_spam()
                 CommentModeratorReport.query.filter_by(comment=report.comment).delete()
