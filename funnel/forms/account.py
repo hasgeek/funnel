@@ -398,7 +398,9 @@ class NewPhoneForm(forms.RecaptchaForm):
             # Assume Indian number if no country code is specified
             # TODO: Guess country from IP address
             parsed_number = phonenumbers.parse(field.data, 'IN')
-        except phonenumbers.NumberParseException:
+            if not phonenumbers.is_valid_number(parsed_number):
+                raise ValueError("Invalid number")
+        except (phonenumbers.NumberParseException, ValueError):
             raise forms.StopValidation(
                 _("This does not appear to be a valid phone number")
             )
