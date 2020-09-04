@@ -30,6 +30,7 @@ class AllNotificationsView(ClassView):
             .paginate(page=page, per_page=per_page, max_per_page=100)
         )
         return {
+            'show_transport_alert': not current_auth.user.has_transport_sms(),
             'notifications': [
                 {
                     'notification': un.current_access(datasets=('primary', 'related')),

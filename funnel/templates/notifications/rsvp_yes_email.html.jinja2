@@ -6,7 +6,7 @@
 <p>{% trans project=project_title(view.rsvp.project) %}You have registered for <b>{{ project }}</b>.{% endtrans %}</p>
 
 {% with next_session_at=view.rsvp.project.next_session_at %}{% if next_session_at -%}
-  <p>{% trans date_and_time=next_session_at|datetime %}The next session in the schedule will begin at {{ date_and_time }}.{% endtrans %}</p>
+  <p>{% trans date_and_time=next_session_at|datetime(view.datetime_format) %}The next session in the schedule starts {{ date_and_time }}.{% endtrans %}</p>
 {%- endif %}{% endwith %}
 
 <p class="btn-bar"><a class="btn" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Project page{% endtrans %}</a></p>

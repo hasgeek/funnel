@@ -11,6 +11,21 @@
 {% block basecontent %}
   <div class="mui-container tab-content">
     <div class="grid">
+
+      {%- if show_transport_alert %}
+        <div class="grid__col-xs-12">
+          <div class="alert alert--info">
+            <p class="alert__text">
+              <a href="{{ url_for('add_phone') }}">
+                {{ faicon(icon='exclamation-circle') }}
+                {% trans %}To receive timely notifications by SMS, add a phone number.{% endtrans %}
+                {{ faicon(icon='arrow-right') }}
+              </a>
+            </p>
+          </div>
+        </div>
+      {% endif -%}
+
       {% raw %}
       <div class="grid__col-xs-12" id="notifications" v-cloak>
         <ul class="mui-list--unstyled">
