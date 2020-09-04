@@ -34,17 +34,13 @@ class AllNotificationsView(ClassView):
                 {
                     'notification': un.current_access(datasets=('primary', 'related')),
                     'html': un.views.render(),
-                    'document_type': un.notification.document_model.__tablename__
-                    if un.notification.document_model
-                    else None,
+                    'document_type': un.notification.document_type,
                     'document': un.document.current_access(
                         datasets=('primary', 'related')
                     )
                     if un.document
                     else None,
-                    'fragment_type': un.notification.fragment_model.__tablename__
-                    if un.notification.fragment_model
-                    else None,
+                    'fragment_type': un.notification.fragment_type,
                     'fragment': un.fragment.current_access(
                         datasets=('primary', 'related')
                     )

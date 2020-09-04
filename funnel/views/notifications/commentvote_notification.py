@@ -58,6 +58,7 @@ class CommentNotification(RenderNotification):
 
     @cached_property
     def commenters(self):
+        """List of unique users from across rolled-up comments. Could be singular."""
         # A set comprehension would have been simpler, but RoleAccessProxy isn't
         # hashable. Else: ``return {_c.user for _c in self.fragments}``
         user_ids = set()
@@ -68,38 +69,38 @@ class CommentNotification(RenderNotification):
                 user_ids.add(comment.user.uuid)
         return users
 
-    @property
-    def document_type(self):
-        return self.notification.document_model.__tablename__
-
     def document_comments_url(self, **kwargs):
-        if self.document_type == 'project':
+        """URL to comments view on the document."""
+        if self.notification.document_type == 'project':
             return self.document.url_for('comments', **kwargs)
-        if self.document_type == 'proposal':
+        if self.notification.document_type == 'proposal':
             return self.document.url_for('view', **kwargs) + '#comments'
         return self.document.url_for('view', **kwargs)
 
     def activity_template_standalone(self, comment=None):
+        """Activity template for standalone use, such as email subject."""
         if comment is None:
             comment = self.comment
-        if self.document_type == 'comment':
+        if self.notification.document_type == 'comment':
             return _("{actor} replied to your comment")
-        if self.document_type == 'project':
+        if self.notification.document_type == 'project':
             return _("{actor} commented on your project")
-        if self.document_type == 'proposal':
+        if self.notification.document_type == 'proposal':
             return _("{actor} commented on your proposal")
 
     def activity_template_inline(self, comment=None):
+        """Activity template for inline use with other content, like SMS with URL."""
         if comment is None:
             comment = self.comment
-        if self.document_type == 'comment':
+        if self.notification.document_type == 'comment':
             return _("{actor} replied to your comment:")
-        if self.document_type == 'project':
+        if self.notification.document_type == 'project':
             return _("{actor} commented on your project:")
-        if self.document_type == 'proposal':
+        if self.notification.document_type == 'proposal':
             return _("{actor} commented on your proposal:")
 
     def activity_html(self, comment=None):
+        """Activity template rendered into HTML, for use in web and email templates."""
         if not comment:
             comment = self.comment
         return Markup(self.activity_template_inline(comment)).format(

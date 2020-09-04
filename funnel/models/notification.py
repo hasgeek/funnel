@@ -292,8 +292,23 @@ class Notification(NoIdMixin, db.Model):
     }
 
     __datasets__ = {
-        'primary': {'eventid', 'document', 'fragment', 'type', 'user'},
-        'related': {'eventid', 'document', 'fragment', 'type'},
+        'primary': {
+            'eventid',
+            'document_type',
+            'fragment_type',
+            'document',
+            'fragment',
+            'type',
+            'user',
+        },
+        'related': {
+            'eventid',
+            'document_type',
+            'fragment_type',
+            'document',
+            'fragment',
+            'type',
+        },
     }
 
     # Flags to control whether this notification can be delivered over a particular
@@ -352,6 +367,16 @@ class Notification(NoIdMixin, db.Model):
     def identity(self):
         """Primary key of this object."""
         return (self.eventid, self.id)
+
+    @with_roles(read={'all'})
+    @classmethodproperty
+    def document_type(cls):  # NOQA: N805
+        return cls.document_model.__tablename__ if cls.document_model else None
+
+    @with_roles(read={'all'})
+    @classmethodproperty
+    def fragment_type(cls):  # NOQA: N805
+        return cls.fragment_model.__tablename__ if cls.fragment_model else None
 
     @cached_property
     def document(self):
@@ -487,27 +512,9 @@ class UserNotificationMixin:
 
     @with_roles(read={'owner'})
     @property
-    def document_type(self):
-        return (
-            self.notification.document_model.__tablename__
-            if self.notification.document_model
-            else None
-        )
-
-    @with_roles(read={'owner'})
-    @property
     def document(self):
         """The document that this notification is for."""
         return self.notification.document
-
-    @with_roles(read={'owner'})
-    @property
-    def fragment_type(self):
-        return (
-            self.notification.fragment_model.__tablename__
-            if self.notification.fragment_model
-            else None
-        )
 
     @with_roles(read={'owner'})
     @property
@@ -610,8 +617,6 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             'is_revoked',
             'rollupid',
             'notification_type',
-            'document_type',
-            'fragment_type',
         },
         'related': {
             'created_at',
@@ -1032,9 +1037,13 @@ auto_init_default(Notification.eventid)
 def _register_notification_types(mapper_, cls):
     # Don't register the base class itself, or inactive types
     if cls is not Notification:
+        # Exclude inactive notifications in the registry. It is used to populate the
+        # user's notification preferences screen.
         if cls.active:
             notification_type_registry[
                 cls.__mapper_args__['polymorphic_identity']
             ] = cls
+        # Include inactive notifications in the web types, as this is used for the web
+        # feed of past notifications, including deprecated (therefore inactive) types
         if cls.allow_web:
             notification_web_types.add(cls.__mapper_args__['polymorphic_identity'])

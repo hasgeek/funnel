@@ -162,7 +162,7 @@ class CommentReplyNotification(Notification):
 
 
 class ProjectCommentNotification(DocumentHasProfile, Notification):
-    """Notification of comments on a proposal."""
+    """Notification of comments on a project."""
 
     __mapper_args__ = {'polymorphic_identity': 'comment_project'}
 
