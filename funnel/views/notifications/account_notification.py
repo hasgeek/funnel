@@ -19,8 +19,8 @@ class RenderAccountPasswordNotification(RenderNotification):
     def actor(self):
         # This notification won't have an actor when dispatched from password reset.
         # i.e., self.notification.user is None. However, password reset is presumably
-        # performed by the owner of the user account, i.e., self.document, we use that
-        # as the actor instead, here via the `user` alias (as specified above).
+        # performed by the owner of the user account, i.e., self.document, so we use
+        # that as the actor instead, here via the `user` alias (as specified above).
         return self.user
 
     def web(self):
