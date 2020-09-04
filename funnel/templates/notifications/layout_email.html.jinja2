@@ -1,0 +1,39 @@
+<html>
+  <head>
+    {% block stylesheet -%}
+      <style type="text/css">
+        .btn, a.btn:link, a.btn:visited {
+          background-color: #428bca;
+          border-radius: 3px;
+          border: 1px solid #357ebd;
+          color: white;
+          margin-bottom: 6px;
+          padding: 6px 12px;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+        .btn-bar {
+          margin-bottom: 2em;
+        }
+      </style>
+    {%- endblock %}
+  </head>
+  <body>
+    {%- block jsonld %}{%- if jsonld %}
+      <script type="application/ld+json">
+        {{ jsonld|tojson }}
+      </script>
+    {%- endif %}{%- endblock %}
+    <div>{% block content %}{% endblock %}</div>
+    <div>{% block footer %}
+      {%- if view %}
+        <hr>
+        <p>
+          {{ view.reason_email }}
+          &bull;
+          <a href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
+        </p>
+      {%- endif %}
+    {% endblock %}</div>
+  </body>
+</html>

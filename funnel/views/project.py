@@ -12,7 +12,7 @@ from flask import (
     request,
 )
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
@@ -30,7 +30,6 @@ from coaster.views import (
 from .. import app, funnelapp
 from ..forms import (
     CfpForm,
-    CommentDeleteForm,
     CommentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
@@ -41,7 +40,6 @@ from ..forms import (
     ProjectScheduleTransitionForm,
     ProjectTransitionForm,
     RsvpTransitionForm,
-    SavedProjectForm,
 )
 from ..models import (
     RSVP_STATUS,
@@ -49,16 +47,17 @@ from ..models import (
     Profile,
     Project,
     Proposal,
+    RegistrationCancellationNotification,
+    RegistrationConfirmationNotification,
     Rsvp,
     SavedProject,
-    Voteset,
     db,
 )
-from ..signals import user_cancelled_project_registration, user_registered_for_project
 from .decorators import legacy_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
+from .notification import dispatch_notification
 from .proposal import proposal_data, proposal_data_flat, proposal_headers
 from .schedule import schedule_data
 
@@ -268,7 +267,6 @@ class ProjectView(
     def view(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
         return {
@@ -278,7 +276,6 @@ class ProjectView(
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form,
         }
 
     @route('proposals')
@@ -286,11 +283,9 @@ class ProjectView(
     @requires_roles({'reader'})
     def view_proposals(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 
@@ -298,11 +293,9 @@ class ProjectView(
     @render_with('session_videos.html.jinja2')
     def session_videos(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 
@@ -578,8 +571,8 @@ class ProjectView(
                 rsvp.rsvp_yes()
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
-                user_registered_for_project.send(
-                    rsvp, project=self.obj, user=current_auth.user
+                dispatch_notification(
+                    RegistrationConfirmationNotification(document=rsvp)
                 )
         else:
             flash(_("There was a problem registering. Please try again"), 'error')
@@ -595,8 +588,8 @@ class ProjectView(
                 rsvp.rsvp_no()
                 db.session.commit()
                 flash(_("Your registration has been cancelled"), 'info')
-                user_cancelled_project_registration.send(
-                    rsvp, project=self.obj, user=current_auth.user
+                dispatch_notification(
+                    RegistrationCancellationNotification(document=rsvp)
                 )
         else:
             flash(
@@ -675,7 +668,8 @@ class ProjectView(
     @requires_login
     @requires_roles({'reader'})
     def save(self):
-        form = SavedProjectForm()
+        form = self.SavedProjectForm()
+        form.form_nonce.data = form.form_nonce.default()
         if form.validate_on_submit():
             proj_save = SavedProject.query.filter_by(
                 user=current_auth.user, project=self.obj
@@ -703,7 +697,6 @@ class ProjectView(
                 },
                 400,
             )
-        return redirect(self.obj.url_for(), code=303)
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('admin.html.jinja2')
@@ -740,39 +733,30 @@ class ProjectView(
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        project_save_form = SavedProjectForm()
         return {
             'project': self.obj,
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2')
+    @render_with('project_comments.html.jinja2', json=True)
     @requires_roles({'reader'})
     def comments(self):
-        project_save_form = SavedProjectForm()
-        comments = (
-            Comment.query.join(Voteset)
-            .filter(
-                Comment.commentset == self.obj.commentset, Comment.parent_id.is_(None)
-            )
-            .order_by(Voteset.count, Comment.created_at.asc())
-            .all()
-        )
-        commentform = CommentForm(model=Comment)
-        delcommentform = CommentDeleteForm()
-        return {
-            'project': self.obj,
-            'project_save_form': project_save_form,
-            'comments': comments,
-            'commentform': commentform,
-            'delcommentform': delcommentform,
-            'csrf_form': forms.Form(),
-        }
+        comments = self.obj.commentset.views.json_comments()
+        if request_is_xhr():
+            return {'comments': comments}
+        else:
+            commentform = CommentForm(model=Comment)
+            return {
+                'project': self.obj,
+                'comments': comments,
+                'commentform': commentform,
+                'delcommentform': forms.Form(),
+                'csrf_form': forms.Form(),
+            }
 
     @route('toggle_featured', methods=['POST'])
     def toggle_featured(self):

@@ -3,13 +3,13 @@
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
-  window.Hasgeek = {};
-  window.Hasgeek.config = {
-    mobileBreakpoint: 768, // this breakpoint switches to desktop UI
-    ajaxTimeout: 30000,
-    retryInterval: 10000,
-    closeModalTimeout: 10000,
-  };
+  window.Hasgeek.config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
+  window.Hasgeek.config.ajaxTimeout = 30000;
+  window.Hasgeek.config.retryInterval = 10000;
+  window.Hasgeek.config.closeModalTimeout = 10000;
+  window.Hasgeek.config.refreshInterval = 60000;
+  window.Hasgeek.config.notificationRefreshInterval = 300000;
+  window.Hasgeek.config.readReceiptTimeout = 5000;
 
   Utils.collapse();
   Utils.smoothScroll();
@@ -19,6 +19,14 @@ $(() => {
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
   Utils.handleModalForm();
+  if ($('.header__nav-links--updates').length) {
+    Utils.updateNotificationStatus();
+    window.setInterval(
+      Utils.updateNotificationStatus,
+      window.Hasgeek.config.notificationRefreshInterval
+    );
+  }
+  Utils.addWebShare();
 
   const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {
@@ -84,6 +92,20 @@ $(() => {
   if ($.cookie('timezone') === null) {
     $.cookie('timezone', jstz.determine().name(), { path: '/' });
   }
+
+  $.ajax({
+    type: 'GET',
+    url: window.Hasgeek.config.notificationCount,
+    dataType: 'json',
+    timeout: window.Hasgeek.config.ajaxTimeout,
+    success: function (responseData) {
+      if (responseData.unread) {
+        $('.header__nav-links--updates').addClass(
+          'header__nav-links--updates--unread'
+        );
+      }
+    },
+  });
 });
 
 if (

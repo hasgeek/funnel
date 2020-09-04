@@ -3,7 +3,6 @@ import hashlib
 
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy_utils import TimezoneType
 
 from werkzeug.utils import cached_property
 
@@ -13,6 +12,7 @@ import phonenumbers
 
 from baseframe import __
 from coaster.sqlalchemy import (
+    RoleMixin,
     add_primary_relationship,
     auto_init_default,
     failsafe_add,
@@ -20,12 +20,14 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
-from . import BaseMixin, TSVectorType, UuidMixin, db
+from . import BaseMixin, LocaleType, TimezoneType, TSVectorType, UuidMixin, db
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import add_search_trigger, valid_username
 
 __all__ = [
     'USER_STATUS',
+    'deleted_user',
+    'removed_user',
     'User',
     'UserOldId',
     'Organization',
@@ -64,25 +66,25 @@ class SharedProfileMixin:
             return
         return Profile.validate_name_candidate(name)
 
-    # TODO: This property is temporary while account and org edit forms have a checkbox
-    # for determining profile visibility. Profile visibility should be controlled
-    # through transitions, not as data in a form.
-
     @property
-    def is_public_profile(self):
+    def has_public_profile(self):
         """Controls the visibility state of a public profile"""
         return self.profile is not None and self.profile.state.PUBLIC
 
-    @is_public_profile.setter
-    def is_public_profile(self, value):
-        if not self.profile:
-            raise ValueError("There is no profile")
-        if value:
-            if not self.profile.state.PUBLIC:
-                self.profile.make_public()
-        else:
-            if self.profile.state.PUBLIC:
-                self.profile.make_private()
+    with_roles(has_public_profile, read={'all'}, write={'owner'})
+
+    @property
+    def avatar(self):
+        return (
+            self.profile.logo_url
+            if self.profile and self.profile.logo_url and self.profile.logo_url.url
+            else ''
+        )
+
+    @with_roles(read={'all'})
+    @property
+    def profile_url(self):
+        return self.profile.url_for() if self.has_public_profile else None
 
 
 class USER_STATUS(LabeledEnum):  # NOQA: N801
@@ -100,7 +102,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
 
-    __datasets__ = {'related': {'fullname', 'username', 'timezone', 'status', 'avatar'}}
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
@@ -116,14 +117,18 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     pw_set_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     #: Expiry date for the password (to prompt user to reset it)
     pw_expires_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    #: User's timezone
+    #: User's preferred/last known timezone
     timezone = with_roles(
         db.Column(TimezoneType(backend='pytz'), nullable=True), read={'owner'}
     )
+    #: Update timezone automatically from browser activity
+    auto_timezone = db.Column(db.Boolean, default=True, nullable=False)
+    #: User's preferred/last known locale
+    locale = with_roles(db.Column(LocaleType, nullable=True), read={'owner'})
+    #: Update locale automatically from browser activity
+    auto_locale = db.Column(db.Boolean, default=True, nullable=False)
     #: User's status (active, suspended, merged, etc)
     status = db.Column(db.SmallInteger, nullable=False, default=USER_STATUS.ACTIVE)
-    #: User avatar (URL to browser-ready image)
-    avatar = with_roles(db.Column(db.UnicodeText, nullable=True), read={'all'})
 
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
@@ -158,6 +163,42 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         db.defer('timezone'),
     ]
 
+    __roles__ = {
+        'all': {
+            'read': {
+                'uuid',
+                'name',
+                'title',
+                'fullname',
+                'username',
+                'pickername',
+                'timezone',
+                'status',
+                'avatar',
+                'created_at',
+                'profile',
+                'profile_url',
+                'urls',
+            },
+            'call': {'views', 'forms', 'features', 'url_for'},
+        }
+    }
+
+    __datasets__ = {
+        'related': {
+            'name',
+            'title',
+            'fullname',
+            'username',
+            'pickername',
+            'timezone',
+            'status',
+            'avatar',
+            'created_at',
+            'profile_url',
+        }
+    }
+
     def __init__(self, password=None, **kwargs):
         self.password = password
         super(User, self).__init__(**kwargs)
@@ -185,7 +226,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     with_roles(name, read={'all'})
     username = name
 
-    @property
+    @hybrid_property
     def is_active(self):
         return self.status == USER_STATUS.ACTIVE
 
@@ -248,6 +289,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             username=self.username or self.buid, fullname=self.fullname
         )
 
+    def __str__(self):
+        return self.pickername
+
     @with_roles(read={'all'})
     @property
     def pickername(self):
@@ -293,7 +337,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # No primary? Maybe there's one that's not set as primary?
         useremail = UserEmail.query.filter_by(user=self).first()
         if useremail:
-            # XXX: Mark at primary. This may or may not be saved depending on
+            # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_email = useremail
             return useremail
@@ -315,7 +359,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # No primary? Maybe there's one that's not set as primary?
         userphone = UserPhone.query.filter_by(user=self).first()
         if userphone:
-            # XXX: Mark at primary. This may or may not be saved depending on
+            # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_phone = userphone
             return userphone
@@ -323,6 +367,77 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # to support the common use case, where the caller will use str(user.phone)
         # to get the phone number as a string.
         return ''
+
+    def is_profile_complete(self):
+        """
+        Return True if profile is complete (fullname, username and one contact are
+        present), False otherwise.
+        """
+        return bool(self.fullname and self.username and self.has_verified_contact_info)
+
+    # --- Transport details
+
+    @with_roles(call={'owner'})
+    def has_transport_email(self):
+        return self.is_active and bool(self.email)
+
+    @with_roles(call={'owner'})
+    def has_transport_sms(self):
+        return self.is_active and bool(self.phone)
+
+    @with_roles(call={'owner'})
+    def has_transport_webpush(self):  # TODO  # pragma: no cover
+        return False
+
+    @with_roles(call={'owner'})
+    def has_transport_telegram(self):  # TODO  # pragma: no cover
+        return False
+
+    @with_roles(call={'owner'})
+    def has_transport_whatsapp(self):  # TODO  # pragma: no cover
+        return False
+
+    @with_roles(call={'owner'})
+    def transport_for_email(self, context):
+        """Return user's preferred email address within a context."""
+        # Per-profile/project customization is a future option
+        return self.email if self.is_active else None
+
+    @with_roles(call={'owner'})
+    def transport_for_sms(self, context):
+        """Return user's preferred phone number within a context."""
+        # Per-profile/project customization is a future option
+        return self.phone if self.is_active else None
+
+    @with_roles(call={'owner'})
+    def transport_for_webpush(self, context):  # TODO  # pragma: no cover
+        return None
+
+    @with_roles(call={'owner'})
+    def transport_for_telegram(self, context):  # TODO  # pragma: no cover
+        return None
+
+    @with_roles(call={'owner'})
+    def transport_for_whatsapp(self, context):  # TODO  # pragma: no cover
+        return None
+
+    @with_roles(call={'owner'})
+    def has_transport(self, transport):
+        """
+        Helper method to call ``self.has_transport_<transport>()``.
+
+        ..note::
+            Because this method does not accept a context, it may return True for a
+            transport that has been muted in that context. This may cause an empty
+            background job to be queued for a notification. Revisit this method when
+            preference contexts are supported.
+        """
+        return getattr(self, 'has_transport_' + transport)()
+
+    @with_roles(call={'owner'})
+    def transport_for(self, transport, context):
+        """Helper method to call ``self.transport_for_<transport>(context)``."""
+        return getattr(self, 'transport_for_' + transport)(context)
 
     def roles_for(self, actor, anchors=()):
         roles = super().roles_for(actor, anchors)
@@ -342,13 +457,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             membership.organization_id
             for membership in self.active_organization_owner_memberships
         ]
-
-    def is_profile_complete(self):
-        """
-        Return True if profile is complete (fullname, username and email are present), False
-        otherwise.
-        """
-        return bool(self.fullname and self.username and self.email)
 
     @classmethod
     def get(cls, username=None, buid=None, userid=None, defercols=False):
@@ -562,6 +670,49 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
         return cls.query.filter_by(id=uuid).one_or_none()
 
 
+class DuckTypeUser(RoleMixin):
+    """User singleton constructor. Ducktypes a regular user object."""
+
+    id = None  # NOQA: A003
+    uuid = userid = buid = uuid_b58 = None
+    username = name = None
+    profile = None
+    email = phone = None
+    is_active = False
+
+    __roles__ = {
+        'all': {
+            'read': {
+                'id',
+                'uuid',
+                'username',
+                'fullname',
+                'pickername',
+                'profile',
+                'is_active',
+            }
+        }
+    }
+
+    __datasets__ = {
+        'related': {'username', 'fullname', 'pickername', 'profile', 'is_active'}
+    }
+
+    #: Make obj.user from a referring object falsy
+    def __bool__(self):
+        return False
+
+    def __init__(self, representation):
+        self.fullname = self.title = self.pickername = representation
+
+    def __str__(self):
+        return self.pickername
+
+
+deleted_user = DuckTypeUser(__("[deleted]"))
+removed_user = DuckTypeUser(__("[removed]"))
+
+
 # --- Organizations and teams -------------------------------------------------
 
 team_membership = db.Table(
@@ -586,8 +737,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
 
-    __datasets__ = {'related': {'name', 'title', 'pickername'}}
-
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
@@ -611,7 +760,34 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         ),
     )
 
-    __roles__ = {'all': {'call': {'views', 'features', 'forms'}}}
+    __roles__ = {
+        'all': {
+            'read': {
+                'name',
+                'title',
+                'pickername',
+                'created_at',
+                'profile',
+                'profile_url',
+                'urls',
+            },
+            'call': {'views', 'features', 'forms', 'url_for'},
+        }
+    }
+
+    __datasets__ = {
+        'primary': {
+            'name',
+            'title',
+            'username',
+            'pickername',
+            'avatar',
+            'created_at',
+            'profile',
+            'profile_url',
+        },
+        'related': {'name', 'title', 'pickername', 'created_at'},
+    }
 
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 
@@ -779,7 +955,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
                 # Unfortunately, we can't work with model instances as in the other
                 # `migrate_user` methods as team_membership is an unmapped table.
                 newuser.teams.append(team)
-            db.session.delete(team)
+            olduser.teams.remove(team)
         return [cls.__table__.name, team_membership.name]
 
     @classmethod
@@ -899,6 +1075,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'),)
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
+    # TODO: Remove obsolete blake2b column
     blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
@@ -999,7 +1176,22 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
 auto_init_default(UserEmailClaim.verification_code)
 
 
-class UserPhone(BaseMixin, db.Model):
+class PhoneHashMixin:
+    """Temporary mixin until blake2b160 is a stored pre-hashed column."""
+
+    # TODO: Add migration to include blake2b160 column and phone_hash comparator
+
+    @property
+    def blake2b160(self):
+        return hashlib.blake2b(self.phone.encode('utf-8'), digest_size=20).digest()
+
+    @property
+    def transport_hash(self):
+        """Identifier for phone number, for notifications framework."""
+        base58.b58encode(self.blake2b160).decode()
+
+
+class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     __tablename__ = 'user_phone'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('phones', cascade='all'))
@@ -1077,7 +1269,7 @@ class UserPhone(BaseMixin, db.Model):
         return [cls.__table__.name, user_phone_primary_table.name]
 
 
-class UserPhoneClaim(BaseMixin, db.Model):
+class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     __tablename__ = 'user_phone_claim'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'),)

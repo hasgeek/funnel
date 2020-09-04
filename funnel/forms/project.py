@@ -95,12 +95,30 @@ class ProjectForm(forms.Form):
 
 class ProjectLivestreamForm(forms.Form):
     livestream_urls = forms.TextListField(
-        __("Livestream URLs. One per line."),
+        __(
+            "Livestream URLs. One per line. Must be on YouTube or Vimeo. "
+            "Must begin with https://"
+        ),
         filters=[forms.filters.strip_each()],
         validators=[
             forms.validators.Optional(),
             forms.validators.ForEach(
-                [forms.validators.URL(), forms.validators.ValidUrl()]
+                [
+                    forms.validators.URL(),
+                    forms.validators.ValidUrl(
+                        allowed_schemes=('https',),
+                        allowed_domains=(
+                            'www.youtube.com',
+                            'youtube.com',
+                            'youtu.be',
+                            'y2u.be',
+                            'www.vimeo.com',
+                            'vimeo.com',
+                        ),
+                        message_schemes=__("A https:// URL is required"),
+                        message_domains=__("Livestream must be on YouTube or Vimeo"),
+                    ),
+                ]
             ),
         ],
     )
@@ -165,12 +183,11 @@ class CfpForm(forms.Form):
     cfp_end_at = forms.DateTimeField(
         __("Proposal submissions close at"),
         validators=[
+            forms.validators.Optional(),
             forms.validators.AllowedIf(
                 'cfp_start_at',
                 message=__("This requires open time for submissions to be specified"),
             ),
-            forms.validators.RequiredIf('cfp_start_at'),
-            forms.validators.Optional(),
             forms.validators.GreaterThanEqualTo(
                 'cfp_start_at', __("Submissions cannot close before they open")
             ),
@@ -218,7 +235,11 @@ class SavedProjectForm(forms.Form):
     save = forms.BooleanField(
         __("Save this project?"), validators=[forms.validators.InputRequired()]
     )
-    description = forms.StringField(__("Note to self"))
+    description = forms.StringField(
+        __("Note to self"),
+        validators=[forms.validators.Optional()],
+        filters=[forms.filters.strip()],
+    )
 
 
 @Rsvp.forms('transition')

@@ -1,12 +1,12 @@
-{% extends "email_layout.html.jinja2" %}
+{% extends "notifications/layout_email.html.jinja2" %}
 {% block content -%}
 
   <p>{% trans project=project.title, actor=actor.pickername %}
     <b>{{ actor }}</b> has removed you as a crew member from <b>{{ project }}</b>.
   {% endtrans %}</p>
 
-  <p>
-    <a class="btn" href="{{ project.url_for('crew', _external=true) }}">{% trans %}See all crew members{% endtrans %}</a>
+  <p class="btn-bar">
+    <a class="btn" href="{{ project.url_for('crew', _external=true, utm_medium='email', utm_campaign='notification') }}">{% trans %}See all crew members{% endtrans %}</a>
   </p>
 
 {%- endblock %}

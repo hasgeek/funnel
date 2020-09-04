@@ -206,16 +206,18 @@ class LoginProvider(object):
 
     def callback(self, *args, **kwargs):
         raise NotImplementedError
-        return {
-            'userid': None,  # Unique user id at this service
-            'username': None,  # Public username. This may change
-            'avatar_url': None,  # URL to avatar image
-            'oauth_token': None,  # OAuth token, for OAuth-based services
-            'oauth_token_secret': None,  # If required
-            'oauth_token_type': None,  # Type of token
-            'email': None,  # Verified email address. Service can be trusted
-            'emailclaim': None,  # Claimed email address. Must be verified
-        }
+
+        # Template for subclasses:
+        # return {
+        #     'userid': None,  # Unique user id at this service
+        #     'username': None,  # Public username. This may change
+        #     'avatar_url': None,  # URL to avatar image
+        #     'oauth_token': None,  # OAuth token, for OAuth-based services
+        #     'oauth_token_secret': None,  # If required
+        #     'oauth_token_type': None,  # Type of token
+        #     'email': None,  # Verified email address. Service can be trusted
+        #     'emailclaim': None,  # Claimed email address. Must be verified
+        # }
 
 
 # Global registries

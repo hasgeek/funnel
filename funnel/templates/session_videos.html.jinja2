@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import project_header %}
+{%- from "macros.html.jinja2" import project_header, video_thumbnail %}
 {% block title %}{% trans %}Videos{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
@@ -20,32 +20,16 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Videos{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form,
-    class='mui--hidden-xs mui--hidden-sm',
-    current_page='videos') }}
+  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='videos') }}
 {% endblock %}
 
 {% block basecontent %}
   <div class="mui-container">
     <div class="page-content page-content--mob-nav">
       <div class="grid project-section" id="videos">
-        <div class="grid__col-xs-12">
-          <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Videos{% endtrans %}</h2>
-        </div>
         {% for session in project.sessions_with_video %}
           <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
-            <div class="video">
-              <a class="video__thumbnail {%- if not session.video.thumbnail %} video__thumnail--novideo{%- endif %}" href="{{ session.url_for() }}"  data-action="view session video">
-                {%- if session.video.thumbnail %}<img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">{%- endif %}
-                <div class="video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
-              </a>
-              <p class="mui--text-subhead video__txt" data-cy="title">{{ session.title }}</p>
-              {%- if session.speaker %}<p class="mui--text-body2 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
-              <div class="mui--text-caption mui--text-light">
-                  {%- if session.video.duration %}<span class="js-video-duration" data-duration="{{ session.video.duration }}"></span>{%- endif %}
-                  {%- if session.video.uploaded_at %}<span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span>{%- endif %}
-              </div>
-            </div>
+            {{ video_thumbnail(session) }}
           </div>
         {% endfor %}
       </div>

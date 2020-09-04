@@ -1,5 +1,6 @@
 import Vue from 'vue/dist/vue.min';
 import { Utils } from './util';
+import { faSvg } from './vue_util';
 
 const Schedule = {
   renderScheduleTable() {
@@ -113,6 +114,9 @@ const Schedule = {
         },
         openModal(sessionHtml, backPage, pageDetails) {
           this.modalHtml = sessionHtml;
+          $('#session-modal').on($.modal.OPEN, function () {
+            Utils.addWebShare();
+          });
           $('#session-modal').modal('show');
           window.history.pushState(
             {
@@ -230,6 +234,7 @@ const Schedule = {
     const scheduleApp = new Vue({
       components: {
         scheduleUI,
+        faSvg,
       },
     });
     scheduleApp.$mount(schedule.config.divElem);

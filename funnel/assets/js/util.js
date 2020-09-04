@@ -209,7 +209,7 @@ export const Utils = {
     return $(`#${formId}`).attr('action');
   },
   updateFormNonce(response) {
-    if (response.form_nonce) {
+    if (response && response.form_nonce) {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
   },
@@ -250,6 +250,47 @@ export const Utils = {
     if (hashId) {
       if ($('a.js-modal-form[data-hash="' + hashId + '"]').length) {
         $('a[data-hash="' + hashId + '"]').click();
+      }
+    }
+  },
+  setNotifyIcon(unread) {
+    if (unread) {
+      $('.header__nav-links--updates').addClass(
+        'header__nav-links--updates--unread'
+      );
+    } else {
+      $('.header__nav-links--updates').removeClass(
+        'header__nav-links--updates--unread'
+      );
+    }
+  },
+  updateNotificationStatus() {
+    $.ajax({
+      type: 'GET',
+      url: window.Hasgeek.config.notificationCount,
+      dataType: 'json',
+      timeout: window.Hasgeek.config.ajaxTimeout,
+      success: function (responseData) {
+        Utils.setNotifyIcon(responseData.unread);
+      },
+    });
+  },
+  addWebShare() {
+    if (navigator.share) {
+      if ($('.share-btn').length) {
+        $('.share').hide();
+        $('.share-btn').removeClass('hide');
+
+        $('.share-btn').on('click', function () {
+          navigator.share({
+            title: $(this).data('title') || document.title,
+            url:
+              $(this).data('url') ||
+              (document.querySelector('link[rel=canonical]') &&
+                document.querySelector('link[rel=canonical]').href) ||
+              window.location.href,
+          });
+        });
       }
     }
   },

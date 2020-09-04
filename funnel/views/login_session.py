@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import wraps
 
 from flask import Response, current_app, flash, redirect, request, session, url_for
@@ -20,9 +20,10 @@ from ..models import (
     db,
     user_session_validity_period,
 )
+from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
-from .helpers import app_url_for, autoset_timezone, get_scheme_netloc
+from .helpers import app_url_for, autoset_timezone_and_locale, get_scheme_netloc
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(
@@ -38,15 +39,11 @@ class LoginManager:
 
     @property
     def autocomplete_endpoint(self):
-        if current_app != app:
-            return app_url_for(app, 'user_autocomplete')
-        return url_for('user_autocomplete')
+        return app_url_for(app, 'user_autocomplete')
 
     @property
     def getuser_endpoint(self):
-        if current_app != app:
-            return app_url_for(app, 'user_get_by_userids')
-        return url_for('user_get_by_userids')
+        return app_url_for(app, 'user_get_by_userids')
 
     @staticmethod
     def _load_user():
@@ -71,7 +68,7 @@ class LoginManager:
                 (
                     lastuser_cookie,
                     lastuser_cookie_headers,
-                ) = current_app.cookie_serializer.loads(
+                ) = lastuser_serializer().loads(
                     request.cookies['lastuser'], return_header=True
                 )
             except itsdangerous.exc.BadSignature:
@@ -191,6 +188,34 @@ def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
     statsd.set('users.active_users', obj.user.id, rate=1)
 
 
+def discard_temp_token():
+    session.pop('temp_token', None)
+    session.pop('temp_token_type', None)
+    session.pop('temp_token_at', None)
+
+
+@app.before_request
+@funnelapp.before_request
+@lastuserapp.before_request
+def clear_expired_temp_token():
+    """
+    Clear temp_token from session if it's not used (user abandoned the attempt).
+
+    This value is set by :func:`funnel.views.account_reset.reset_email` and
+    :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`.
+    """
+    if 'temp_token_at' in session:
+        # Use naive datetime as the session can't handle tz-aware datetimes
+        # Give the user 10 minutes to complete the action. Remove the token if it's
+        # been longer than 10 minutes.
+        if session['temp_token_at'] < datetime.utcnow() - timedelta(minutes=10):
+            discard_temp_token()
+            current_app.logger.info("Cleared expired temp_token from session cookie")
+    elif 'temp_token' in session:
+        # We have a temp token without a timestamp. This shouldn't happen, so remove it
+        session.pop('temp_token')
+
+
 @app.after_request
 @funnelapp.after_request
 @lastuserapp.after_request
@@ -213,7 +238,7 @@ def set_lastuser_cookie(response):
         expires = utcnow() + timedelta(days=365)
         response.set_cookie(
             'lastuser',
-            value=current_app.cookie_serializer.dumps(
+            value=lastuser_serializer().dumps(
                 current_auth.cookie, header_fields={'v': 1}
             ),
             # Keep this cookie for a year.
@@ -429,7 +454,7 @@ def login_internal(user, user_session=None, login_service=None):
     current_auth.cookie['sessionid'] = user_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
-    autoset_timezone(user)
+    autoset_timezone_and_locale(user)
     user_login.send(user)
 
 

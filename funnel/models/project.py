@@ -2,16 +2,16 @@ from collections import OrderedDict, defaultdict
 from datetime import timedelta
 
 from sqlalchemy.ext.orderinglist import ordering_list
-from sqlalchemy_utils import TimezoneType
 
 from flask import current_app
 from werkzeug.utils import cached_property
 
 from babel.dates import format_date
+from flask_babelhg import get_locale
 from isoweek import Week
 from pytz import utc
 
-from baseframe import __, get_locale, localize_timezone
+from baseframe import __, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
@@ -21,6 +21,7 @@ from . import (
     JsonDict,
     MarkdownColumn,
     TimestampMixin,
+    TimezoneType,
     TSVectorType,
     UrlType,
     UuidMixin,
@@ -30,6 +31,7 @@ from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import (
     RESERVED_NAMES,
     add_search_trigger,
+    reopen,
     valid_name,
     visual_field_delimiter,
 )
@@ -144,10 +146,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     commentset = db.relationship(
         Commentset,
         uselist=False,
-        lazy='joined',
         cascade='all',
         single_parent=True,
-        backref=db.backref('project', uselist=False),
+        back_populates='project',
     )
 
     parent_id = db.Column(
@@ -211,22 +212,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     )
     all_labels = db.relationship('Label', lazy='dynamic')
 
-    featured_sessions = db.relationship(
-        'Session',
-        order_by='Session.start_at.asc()',
-        primaryjoin='and_(Session.project_id == Project.id, Session.featured == True)',
-    )
-    scheduled_sessions = db.relationship(
-        'Session',
-        order_by='Session.start_at.asc()',
-        primaryjoin='and_(Session.project_id == Project.id, Session.scheduled)',
-    )
-    unscheduled_sessions = db.relationship(
-        'Session',
-        order_by='Session.start_at.asc()',
-        primaryjoin='and_(Session.project_id == Project.id, Session.scheduled != True)',
-    )
-
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
         db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
@@ -265,7 +250,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'hasjob_embed_limit',
                 'profile',
                 'featured',
-                'featured_sessions',
             },
             'call': {
                 'features',
@@ -278,10 +262,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'view_for',
                 'views',
                 'boxoffice_data',
-                'featured_sessions',
+                'forms',
             },
         },
-        'participant': {'granted_via': {'rsvps': 'user'}},
     }
     # FIXME: Removed temporarily because Project.participants can have multiple records
     # for the same user. Requires resolution in either coaster.sqlalchemy.roles or in
@@ -394,10 +377,23 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def title_suffix(self):
-        """Return the profile's title if the project's title doesn't derive from it."""
+        """
+        Return the profile's title if the project's title doesn't derive from it.
+
+        Used in HTML title tags to render <title>{{ project }} - {{ suffix }}</title>.
+        """
         if not self.title.startswith(self.parent.title):
             return self.profile.title
         return ''
+
+    @with_roles(call={'all'})
+    def joined_title(self, sep='›'):
+        """Return the project's title joined with the profile's title, if divergent."""
+        if self.short_title == self.title:
+            # Project title does not derive from profile title, so use both
+            return f"{self.profile.title} {sep} {self.title}"
+        # Project title extends profile title, so profile title is not needed
+        return self.title
 
     @cached_property
     def datelocation(self):
@@ -526,7 +522,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         cfp_state.PUBLIC,
         lambda project: project.cfp_start_at is not None
         and project.cfp_start_at <= utcnow()
-        and (project.cfp_end_at is None or utcnow() < project.cfp_end_at),
+        and (project.cfp_end_at is None or (utcnow() < project.cfp_end_at)),
         lambda project: db.and_(
             project.cfp_start_at.isnot(None),
             project.cfp_start_at <= db.func.utcnow(),
@@ -702,7 +698,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         weeks = defaultdict(dict)
         today = now.date()
-        for project_date, day_start_at, day_end_at, session_count in session_dates:
+        for project_date, _day_start_at, _day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             if weekobj.week not in weeks:
                 weeks[weekobj.week]['year'] = weekobj.year
@@ -979,68 +975,75 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             user is not None and self.saved_by.filter_by(user=user).first() is not None
         )
 
+    @classmethod
+    def get(cls, profile_project):
+        """Get a project by its URL slug in the form ``<profile>/<project>``."""
+        profile_name, project_name = profile_project.split('/')
+        return (
+            cls.query.join(Profile)
+            .filter(Profile.name == profile_name, Project.name == project_name)
+            .one_or_none()
+        )
+
 
 add_search_trigger(Project, 'search_vector')
 
 
-Profile.listed_projects = db.relationship(
-    Project,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        Profile.id == Project.profile_id,
-        Project.parent_id.is_(None),
-        Project.state.PUBLISHED,
-    ),
-)
-
-
-Profile.draft_projects = db.relationship(
-    Project,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        Profile.id == Project.profile_id,
-        # TODO: parent projects are deprecated
-        Project.parent_id.is_(None),
-        db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
-    ),
-)
-
-
-Profile.draft_projects_for = (
-    lambda self, user: (
-        membership.project
-        for membership in user.projects_as_crew_active_memberships.join(
-            Project, Profile
-        ).filter(
-            # Project is attached to this profile
-            Project.profile_id == self.id,
-            # Project is not a sub-project (TODO: Deprecated, remove this)
+@reopen(Profile)
+class Profile:
+    listed_projects = db.relationship(
+        Project,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            Profile.id == Project.profile_id,
             Project.parent_id.is_(None),
-            # Project is in draft state OR has a draft call for proposals
+            Project.state.PUBLISHED,
+        ),
+    )
+    draft_projects = db.relationship(
+        Project,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            Profile.id == Project.profile_id,
+            # TODO: parent projects are deprecated
+            Project.parent_id.is_(None),
             db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
-        )
+        ),
     )
-    if user
-    else ()
-)
 
-Profile.unscheduled_projects_for = (
-    lambda self, user: (
-        membership.project
-        for membership in user.projects_as_crew_active_memberships.join(
-            Project, Profile
-        ).filter(
-            # Project is attached to this profile
-            Project.profile_id == self.id,
-            # Project is not a sub-project (TODO: Deprecated, remove this)
-            Project.parent_id.is_(None),
-            # Project is in draft state OR has a draft call for proposals
-            db.or_(Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS),
-        )
-    )
-    if user
-    else ()
-)
+    def draft_projects_for(self, user):
+        if user:
+            return [
+                membership.project
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project, Profile
+                ).filter(
+                    # Project is attached to this profile
+                    Project.profile_id == self.id,
+                    # Project is not a sub-project (TODO: Deprecated, remove this)
+                    Project.parent_id.is_(None),
+                    # Project is in draft state OR has a draft call for proposals
+                    db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+                )
+            ]
+        return []
+
+    def unscheduled_projects_for(self, user):
+        if user:
+            return [
+                membership.project
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project, Profile
+                ).filter(
+                    # Project is attached to this profile
+                    Project.profile_id == self.id,
+                    # Project is not a sub-project (TODO: Deprecated, remove this)
+                    Project.parent_id.is_(None),
+                    # Project is in draft state OR has a draft call for proposals
+                    db.or_(Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS),
+                )
+            ]
+        return []
 
 
 class ProjectRedirect(TimestampMixin, db.Model):
@@ -1106,6 +1109,14 @@ class ProjectLocation(TimestampMixin, db.Model):
             'primary' if self.primary else 'secondary',
             self.project,
         )
+
+
+@reopen(Commentset)
+class Commentset:
+    project = with_roles(
+        db.relationship(Project, uselist=False, back_populates='commentset'),
+        grants_via={None: {'editor': 'document_subscriber'}},
+    )
 
 
 # Tail imports

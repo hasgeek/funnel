@@ -85,6 +85,15 @@ def test_db(test_db_structure):
     test_db_structure.session.remove()
 
 
+@pytest.fixture(scope='function')
+def db_transaction(test_db_structure):
+    db.session.begin_nested()
+    yield test_db_structure  # this is where the testing happens!
+    # anything after yield is teardown code
+    test_db_structure.session.rollback()
+    test_db_structure.session.remove()
+
+
 @pytest.fixture(scope='module')
 def create_user(test_db_structure):
     user = User(**TEST_DATA['users']['testuser'])

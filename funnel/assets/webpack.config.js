@@ -62,9 +62,14 @@ module.exports = {
     search: path.resolve(__dirname, 'js/search.js'),
     membership: path.resolve(__dirname, 'js/membership.js'),
     session_videos: path.resolve(__dirname, 'js/session_videos.js'),
-    project_comments: path.resolve(__dirname, 'js/project_comments.js'),
-    post: path.resolve(__dirname, 'js/post.js'),
+    comments: path.resolve(__dirname, 'js/comments.js'),
+    update: path.resolve(__dirname, 'js/update.js'),
     rsvp_list: path.resolve(__dirname, 'js/rsvp_list.js'),
+    notification_list: path.resolve(__dirname, 'js/notification_list.js'),
+    notification_settings: path.resolve(
+      __dirname,
+      'js/notification_settings.js'
+    ),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),

@@ -13,21 +13,21 @@ describe('Test updates feature', function () {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="updates"]').click();
 
-    cy.get('a[data-cy-btn="add-post"]').click();
-    cy.get('#title').type(project.post_title);
+    cy.get('a[data-cy-btn="add-update"]').click();
+    cy.get('#title').type(project.update_title);
     cy.get('#field-body')
       .find('.CodeMirror textarea')
-      .type(project.post_body, { force: true });
+      .type(project.update_body, { force: true });
     cy.get('#is_pinned').click();
     cy.get('button').contains('Save').click();
     cy.get('button').contains('Publish').click();
     cy.location('pathname').should('contain', 'updates');
 
-    cy.get('a[data-cy-btn="add-post"]').click();
-    cy.get('#title').type(project.restricted_post_title);
+    cy.get('a[data-cy-btn="add-update"]').click();
+    cy.get('#title').type(project.restricted_update_title);
     cy.get('#field-body')
       .find('.CodeMirror textarea')
-      .type(project.restricted_post_body, { force: true });
+      .type(project.restricted_update_body, { force: true });
     cy.get('#is_restricted').click();
     cy.get('button').contains('Save').click();
     cy.get('button').contains('Publish').click();
@@ -38,11 +38,11 @@ describe('Test updates feature', function () {
       .find('.card--upcoming')
       .contains(project.title)
       .click({ force: true });
-    cy.get('.pinned__post')
-      .find('.pinned__post__body')
-      .contains(project.post_title);
+    cy.get('.pinned__update')
+      .find('.pinned__update__body')
+      .contains(project.update_title);
     cy.get('a[data-cy-navbar="updates"]').click();
-    cy.get('.post').contains(project.restricted_post_title);
+    cy.get('.update').contains(project.restricted_update_title);
     cy.logout();
 
     cy.login('/', newuser.username, newuser.newpassword);
@@ -50,12 +50,12 @@ describe('Test updates feature', function () {
       .find('.card--upcoming')
       .contains(project.title)
       .click({ force: true });
-    cy.get('.pinned__post')
-      .find('.pinned__post__body')
-      .contains(project.post_title);
+    cy.get('.pinned__update')
+      .find('.pinned__update__body')
+      .contains(project.update_title);
     cy.get('a[data-cy-navbar="updates"]').click();
-    cy.get('.post__content')
-      .contains(project.restricted_post_body)
+    cy.get('.update__content')
+      .contains(project.restricted_update_body)
       .should('not.exist');
     cy.logout();
   });

@@ -157,7 +157,7 @@ class TestUser(TestDatabaseFixture):
         db.session.commit()
         result2 = mr_jones.emails
         assert isinstance(result2, list)
-        result2 == [mr_jones_secondary_email]
+        assert result2 == [mr_jones_secondary_email]
         assert mr_jones_secondary_email.primary is True
 
     def test_user_phone(self):
@@ -173,7 +173,7 @@ class TestUser(TestDatabaseFixture):
         )
         assert isinstance(crusoe.phone, models.UserPhone)
         assert crusoe_phone == crusoe.phone
-        crusoe.phone.primary is True
+        assert crusoe.phone.primary is True
         # scenario 2: when there is a phone but not as primary
         snowball = models.User(username='snowball')
         snowball_phone = models.UserPhone(phone='+918574808032', user=snowball)
@@ -371,10 +371,9 @@ class TestUser(TestDatabaseFixture):
         assert isinstance(lookup_by_usernames, list)
         assert set(lookup_by_usernames) == set(expected_result)
         # scenario 5: when defercols is set to True
-        lookup_by_usernames_defercols = models.User.all(
+        lookup_by_usernames = models.User.all(
             usernames=[crusoe.username, oakley.username], defercols=True
         )
-        lookup_by_usernames_defercols
         assert isinstance(lookup_by_usernames, list)
         assert set(lookup_by_usernames) == set(expected_result)
         # scenario 6: when user.status is active

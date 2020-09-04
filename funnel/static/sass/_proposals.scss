@@ -1,7 +1,7 @@
 .proposal-list-header {
   margin: 1px 0 0;
   width: 100%;
-  background: #eff2f7;
+  background: $mui-bg-color-primary-dark;
   padding: 20px;
 }
 
@@ -10,7 +10,7 @@
   border-spacing: 0;
 
   tbody > tr > td {
-    border: 1px solid #eff2f7;
+    border: 1px solid $mui-bg-color-primary-dark;
     border-top: 0;
 
     .speaker-details {

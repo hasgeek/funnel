@@ -47,11 +47,9 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
 
     UNKNOWN = (0, 'unknown')  # Never mailed
     SENT = (1, 'sent')  # Mail sent, nothing further known
-    ACTIVE = (2, 'active')  # Recipient is interacting with received messages
+    # ACTIVE state (2, 'active') has been removed
     SOFT_FAIL = (3, 'soft_fail')  # Soft fail reported
     HARD_FAIL = (4, 'hard_fail')  # Hard fail reported
-
-    NOT_ACTIVE = {UNKNOWN, SENT, SOFT_FAIL, HARD_FAIL}
 
 
 def canonical_email_representation(email: str) -> List[str]:
@@ -200,7 +198,11 @@ class EmailAddress(BaseMixin, db.Model):
     _delivery_state = db.Column(
         'delivery_state',
         db.Integer,
-        StateManager.check_constraint('delivery_state', EMAIL_DELIVERY_STATE),
+        StateManager.check_constraint(
+            'delivery_state',
+            EMAIL_DELIVERY_STATE,
+            name='email_address_delivery_state_check',
+        ),
         nullable=False,
         default=EMAIL_DELIVERY_STATE.UNKNOWN,
     )
@@ -213,6 +215,8 @@ class EmailAddress(BaseMixin, db.Model):
     delivery_state_at = db.Column(
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
+    #: Timestamp of last known recipient activity resulting from sent mail
+    active_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     #: Is this email address blocked from being used? If so, :attr:`email` should be
     #: null. Blocks apply to the canonical address (without the +sub-address variation),
@@ -299,6 +303,9 @@ class EmailAddress(BaseMixin, db.Model):
         """Public identifier string for email address, usable in URLs."""
         return base58.b58encode(self.blake2b160).decode()
 
+    # Compatibility name for notifications framework
+    transport_hash = email_hash
+
     @with_roles(call={'all'})
     def md5(self) -> Optional[str]:
         """MD5 hash of :property:`email_normalized`, for legacy use only."""
@@ -328,11 +335,11 @@ class EmailAddress(BaseMixin, db.Model):
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
     def is_available_for(self, owner: Any):
-        """Return True if this EmailAddress is available for the given owner"""
+        """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
-                user = getattr(related_obj, related_obj.__email_for__)
-                if user is not None and user != owner:
+                curr_owner = getattr(related_obj, related_obj.__email_for__)
+                if curr_owner is not None and curr_owner != owner:
                     return False
         return True
 
@@ -341,10 +348,9 @@ class EmailAddress(BaseMixin, db.Model):
         """Record fact of an email message being sent to this address."""
         self.delivery_state_at = db.func.utcnow()
 
-    @delivery_state.transition(None, delivery_state.ACTIVE)
     def mark_active(self) -> None:
-        """Record fact of recipient activity."""
-        self.delivery_state_at = db.func.utcnow()
+        """Record timestamp of recipient activity."""
+        self.active_at = db.func.utcnow()
 
     @delivery_state.transition(None, delivery_state.SOFT_FAIL)
     def mark_soft_fail(self) -> None:
@@ -473,7 +479,7 @@ class EmailAddress(BaseMixin, db.Model):
         Create a new :class:`EmailAddress` after validation.
 
         Unlike :meth:`add`, this one requires the email address to not be in an
-        exclusive relationship with another user.
+        exclusive relationship with another owner.
         """
         existing = cls._get_existing(email)
         if existing:
@@ -487,45 +493,73 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def validate_for(cls, owner: Optional[Any], email: str) -> Union[bool, str]:
+    def validate_for(
+        cls,
+        owner: Optional[Any],
+        email: str,
+        check_dns: bool = False,
+        new: bool = False,
+    ) -> Union[bool, str]:
         """
-        Validate whether the specified email address is available to the specified user.
+        Validate whether the email address is available to the given owner.
 
-        Returns False if the address is blocked or in use by another user, True if
+        Returns False if the address is blocked or in use by another owner, True if
         available without issues, or a string value indicating the concern:
 
-        1. 'soft_fail': Known to be soft bouncing, requiring a warning message
-        2. 'hard_fail': Known to be hard bouncing, usually a validation failure
+        1. 'nomx': Email address is available, but has no MX records
+        2. 'not_new': Email address is already attached to owner (if `new` is True)
+        3. 'soft_fail': Known to be soft bouncing, requiring a warning message
+        4. 'hard_fail': Known to be hard bouncing, usually a validation failure
+        5. 'invalid': Available, but failed syntax validation
+
+        :param owner: Proposed owner of this email address (may be None)
+        :param str email: Email address to validate
+        :param bool check_dns: Check for MX records for a new email address
+        :param bool new: Fail validation if email address is already in use
         """
         try:
             existing = cls._get_existing(email)
         except EmailAddressBlockedError:
             return False
         if not existing:
-            if cls.is_valid_email_address(email):
+            diagnosis = cls.is_valid_email_address(
+                email, check_dns=check_dns, diagnose=True
+            )
+            if diagnosis is True:
+                # No problems
                 return True
+            if diagnosis and diagnosis.diagnosis_type == 'NO_MX_RECORD':
+                return 'nomx'
+            return 'invalid'
         # There's an existing? Is it available for this owner?
         if not existing.is_available_for(owner):
             return False
-        if existing.delivery_state.SOFT_FAIL:
+
+        # Any other concerns?
+        if new:
+            return 'not_new'
+        elif existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
         elif existing.delivery_state.HARD_FAIL:
             return 'hard_fail'
         return True
 
     @staticmethod
-    def is_valid_email_address(email: str) -> bool:
+    def is_valid_email_address(email: str, check_dns=False, diagnose=False) -> bool:
         """
         Return True if given email address is syntactically valid.
 
         This implementation will refuse to accept unusual elements such as quoted
         strings, as they are unlikely to appear in real-world use.
+
+        :param bool check_dns: Optionally, check for existence of MX records
+        :param bool diagnose: In case of errors only, return the diagnosis
         """
         if email:
-            return (
-                is_email(email, check_dns=False, diagnose=True).diagnosis_type
-                == 'VALID'
-            )
+            result = is_email(email, check_dns=check_dns, diagnose=True)
+            if result.diagnosis_type in ('VALID', 'NO_NAMESERVERS', 'DNS_TIMEDOUT'):
+                return True
+            return result if diagnose else False
         return False
 
 
@@ -576,9 +610,9 @@ class EmailAddressMixin:
             the object requires the email address to be available to its owner::
 
                 self.email_address = EmailAddress.add(email)
-                self.email_address = EmailAddress.add_for(user, email)
+                self.email_address = EmailAddress.add_for(owner, email)
 
-            Where the user is found from the attribute named in `cls.__email_for__`.
+            Where the owner is found from the attribute named in `cls.__email_for__`.
             """
             if self.email_address:
                 return self.email_address.email
@@ -607,6 +641,11 @@ class EmailAddressMixin:
     def email_address_reference_is_active(self):
         """Subclasses should replace this if they hold inactive references"""
         return True
+
+    @property
+    def transport_hash(self):
+        """Email hash using the compatibility name for notifications framework."""
+        return self.email_address.email_hash
 
 
 auto_init_default(EmailAddress._delivery_state)

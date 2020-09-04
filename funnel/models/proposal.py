@@ -20,7 +20,7 @@ from . import (
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .email_address import EmailAddressMixin
-from .helpers import add_search_trigger, visual_field_delimiter
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import User
@@ -114,17 +114,20 @@ class Proposal(
         db.relationship(
             User,
             primaryjoin=user_id == User.id,
-            backref=db.backref('proposals', cascade='all'),
+            backref=db.backref('proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator'},
     )
 
     speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    speaker = db.relationship(
-        User,
-        primaryjoin=speaker_id == User.id,
-        lazy='joined',
-        backref=db.backref('speaker_at', cascade='all'),
+    speaker = with_roles(
+        db.relationship(
+            User,
+            primaryjoin=speaker_id == User.id,
+            lazy='joined',
+            backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
+        ),
+        grants={'presenter'},
     )
 
     phone = db.Column(db.Unicode(80), nullable=True)
@@ -167,7 +170,7 @@ class Proposal(
         lazy='joined',
         cascade='all',
         single_parent=True,
-        backref=db.backref('proposal', uselist=False),
+        back_populates='proposal',
     )
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
@@ -236,8 +239,9 @@ class Proposal(
                 'coordinates',
                 'session',
                 'project',
+                'datetime',
             },
-            'call': {'url_for'},
+            'call': {'url_for', 'state', 'commentset'},
         },
         'reviewer': {'read': {'email', 'phone'}},
         'project_editor': {'read': {'email', 'phone'}},
@@ -500,7 +504,7 @@ class Proposal(
             if self.speaker == self.user:
                 self.speaker = None  # Reset only if it's currently set to user
 
-    @property
+    @hybrid_property
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
 
@@ -641,3 +645,14 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
         None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal = db.relationship(Proposal)
+
+
+@reopen(Commentset)
+class Commentset:
+    proposal = with_roles(
+        db.relationship(Proposal, uselist=False, back_populates='commentset'),
+        # TODO: Remove creator to subscriber mapping when proposals use memberships
+        grants_via={
+            None: {'presenter': 'document_subscriber', 'creator': 'document_subscriber'}
+        },
+    )

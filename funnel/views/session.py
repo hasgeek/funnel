@@ -15,7 +15,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import SavedProjectForm, SavedSessionForm, SessionForm
+from ..forms import SavedSessionForm, SessionForm
 from ..models import (
     FEEDBACK_AUTH_TYPE,
     Project,
@@ -144,7 +144,6 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
     @render_with('schedule.html.jinja2', json=True)
     def view(self):
-        project_save_form = SavedProjectForm()
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
         )
@@ -178,7 +177,6 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'schedule': schedule_data(
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
-            'project_save_form': project_save_form,
             'csrf_form': forms.Form(),
         }
 

@@ -1,0 +1,11 @@
+{% extends "notifications/layout_email.html.jinja2" %}
+{%- from "macros.html.jinja2" import project_title %}
+{% block content -%}
+
+<p>{% trans actor=view.actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
+
+<p>{% trans project=project_title(project), proposal=proposal.title %}Your project <b>{{ project }}</b> has a new proposal: <b>{{ proposal }}</b>.{% endtrans %}</p>
+
+<p class="btn-bar"><a class="btn" href="{{ proposal.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Proposal page{% endtrans %}</a></p>
+
+{%- endblock %}

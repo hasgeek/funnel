@@ -1,16 +1,13 @@
-from flask import Markup, escape, url_for
-
 from baseframe import _, __
 import baseframe.forms as forms
 
-from ..models import User, UserEmail, UserSession, getuser
-from .account import PasswordStrengthValidator, password_policy
+from ..models import User, UserSession, getuser
+from .account import password_policy
 
 __all__ = [
     'LoginPasswordResetException',
     'LoginPasswordWeakException',
     'LoginForm',
-    'RegisterForm',
     'LogoutForm',
 ]
 
@@ -69,52 +66,6 @@ class LoginForm(forms.Form):
 
         # password_policy.test_password(<password>)['is_weak'] returns True/False
         self.weak_password = password_policy.test_password(field.data)['is_weak']
-
-
-@User.forms('register')
-class RegisterForm(forms.RecaptchaForm):
-    __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
-
-    fullname = forms.StringField(
-        __("Full name"),
-        description=__(
-            "This account is for you as an individual. We’ll make one for your organization later"
-        ),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
-    )
-    email = forms.EmailField(
-        __("Email address"),
-        validators=[forms.validators.DataRequired(), forms.validators.ValidEmail()],
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
-    )
-    password = forms.PasswordField(
-        __("Password"),
-        validators=[
-            forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
-            PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
-        ],
-    )
-    confirm_password = forms.PasswordField(
-        __("Confirm password"),
-        validators=[
-            forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
-            forms.validators.EqualTo('password'),
-        ],
-    )
-
-    def validate_email(self, field):
-        existing = UserEmail.get(email=field.data)
-        if existing is not None:
-            raise forms.ValidationError(
-                Markup(
-                    _(
-                        'This email address is already registered. '
-                        'Do you want to <a href="{loginurl}">login</a> instead?'
-                    ).format(loginurl=escape(url_for('login')))
-                )
-            )
 
 
 @User.forms('logout')

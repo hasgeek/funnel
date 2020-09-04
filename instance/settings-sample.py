@@ -8,12 +8,12 @@ TYPEKIT_CODE = ''
 GA_CODE = ''
 #: Database backend
 SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
-#: Secret key
-SECRET_KEY = 'make this something random'
+#: Secret keys
+SECRET_KEYS = ['make this something random']
 #: Timezone
 TIMEZONE = 'Asia/Kolkata'
-#: Lastuser secret key (for the auth cookie)
-LASTUSER_SECRET_KEY = 'make this something random'
+#: Lastuser secret keys (for the auth cookie)
+LASTUSER_SECRET_KEYS = ['make this something random']
 #: Lastuser cookie domain
 LASTUSER_COOKIE_DOMAIN = '.mydomain.tld'
 #: Used for attribution when shared a proposal on twitter
@@ -82,3 +82,6 @@ SMS_EXOTEL_FROM = ''
 SMS_TWILIO_SID = ''
 SMS_TWILIO_TOKEN = ''
 SMS_TWILIO_FROM = ''
+
+#: Unsubscribe token domain
+UNSUBSCRIBE_DOMAIN = 'bye.li'

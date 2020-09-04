@@ -1,7 +1,8 @@
 from baseframe import __
+from coaster.sqlalchemy import with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Comment, User, UuidMixin, db
+from . import BaseMixin, Comment, SiteMembership, User, UuidMixin, db
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
@@ -36,6 +37,10 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
         db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False,
     )
 
+    __datasets__ = {
+        'primary': {'comment', 'user', 'report_type', 'reported_at', 'uuid'}
+    }
+
     @classmethod
     def get_one(cls, exclude_user=None):
         reports = cls.get_all(exclude_user)
@@ -61,16 +66,19 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
             reports = reports.filter(~cls.comment_id.in_(existing_reported_comments))
         return reports
 
+    @classmethod
+    def submit(cls, actor, comment):
+        report = cls.query.filter_by(user=actor, comment=comment).one_or_none()
+        if report is None:
+            report = cls(user=actor, comment=comment)
+            db.session.add(report)
+        return report
 
-def _report_comment(self, actor):
-    report = CommentModeratorReport.query.filter_by(
-        user=actor, comment=self
-    ).one_or_none()
-    if report is None:
-        report = CommentModeratorReport(user=actor, comment=self)
-        db.session.add(report)
-        db.session.commit()
-    return report
-
-
-Comment.report_spam = _report_comment
+    @with_roles(grants={'site_editor'})
+    @property
+    def users_who_are_site_editors(self):
+        return User.query.join(
+            SiteMembership, SiteMembership.user_id == User.id
+        ).filter(
+            SiteMembership.is_active.is_(True), SiteMembership.is_site_editor.is_(True)
+        )

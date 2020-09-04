@@ -1,0 +1,30 @@
+{% extends "user_profile.html.jinja2" %}
+
+{% block bodytag %}
+  <body class="mui--bg-primary hg-app no-sticky-header page-with-banner">
+{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ profile.url_for() }}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ profile.title }}(proposals page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Proposals{% endtrans %}</span>
+    </div>
+  </div>
+  {{ profile_header(profile,  class='mui--hidden-xs mui--hidden-sm', current_page='proposals') }}
+{% endblock %}
+
+{% block contentwrapper %}
+  <div class="grid" id="tagged-sessions">
+    <div class="grid__col-xs-12">
+      {% if submitted_proposals %}
+        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{{ ngettext("%(num)d proposal", "%(num)d proposals", submitted_proposals|length) }}</p>
+        {{ proposal_list(submitted_proposals) }}
+      {% else %}
+        <p class="mui-panel mui--bg-accent">{% trans %}No proposal submission yet.{% endtrans %}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+{% endblock %}

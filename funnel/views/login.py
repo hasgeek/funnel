@@ -5,6 +5,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    make_response,
     redirect,
     render_template,
     request,
@@ -18,7 +19,7 @@ from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
 from coaster.utils import getbool
-from coaster.views import get_next_url, render_with, requestargs
+from coaster.views import get_next_url, requestargs
 
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
@@ -41,10 +42,11 @@ from ..models import (
     merge_users,
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
+from ..serializers import talkfunnel_serializer
 from ..signals import user_data_changed
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, validate_rate_limit
+from .helpers import app_url_for, metarefresh_redirect, validate_rate_limit
 from .login_session import (
     login_internal,
     logout_internal,
@@ -282,7 +284,6 @@ def logout():
 @app.route('/account/logout', methods=['POST'])
 @lastuserapp.route('/account/logout', methods=['POST'])
 @requires_login
-@render_with(json=True)
 def account_logout():
     form = LogoutForm(user=current_auth.user)
     if form.validate():
@@ -296,7 +297,9 @@ def account_logout():
         logout_internal()
         db.session.commit()
         flash(_("You are now logged out"), category='info')
-        return redirect(get_next_url(), code=303)
+        return make_response(
+            render_template('logout_browser_data.html.jinja2', next=get_next_url())
+        )
 
     if request_is_xhr():
         return {'status': 'error', 'errors': list(form.errors.values())}
@@ -523,12 +526,15 @@ def login_service_postcallback(service, userdata):
     else:
         login_next = next_url
 
+    # Use a meta-refresh redirect because some versions of Firefox and Safari will
+    # not set cookies in a 30x redirect if the first redirect in the sequence originated
+    # on another domain. Our redirect chain is provider -> callback -> destination page.
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            redirect(url_for('account_merge', next=login_next), code=303), service
+            metarefresh_redirect(url_for('account_merge', next=login_next)), service,
         )
     else:
-        return set_loginmethod_cookie(redirect(login_next, code=303), service)
+        return set_loginmethod_cookie(metarefresh_redirect(login_next), service)
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
@@ -614,7 +620,7 @@ def funnelapp_login(cookietest=False):
             message=_("Please enable cookies in your browser."),
         )
     # 2. Nonce has been set. Create a request code
-    request_code = app.login_serializer.dumps({'nonce': session['login_nonce']})
+    request_code = talkfunnel_serializer().dumps({'nonce': session['login_nonce']})
     # 3. Redirect user
     return redirect(app_url_for(app, 'login_talkfunnel', code=request_code))
 
@@ -625,12 +631,12 @@ def funnelapp_login(cookietest=False):
 def login_talkfunnel(code):
     # 2. Verify signature of code
     try:
-        request_code = app.login_serializer.loads(code)
+        request_code = talkfunnel_serializer().loads(code)
     except itsdangerous.exc.BadData:
         current_app.logger.warning("funnelapp login code is bad: %s", code)
         return redirect(url_for('index'))
     # 3. Create token
-    token = app.login_serializer.dumps(
+    token = talkfunnel_serializer().dumps(
         {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
     )
     # 4. Redirect user
@@ -645,30 +651,26 @@ def funnelapp_login_callback(token):
         # Can't proceed if this happens
         current_app.logger.warning("funnelapp is missing an expected login nonce")
         return redirect(url_for('index'), code=303)
+
     # 1. Verify token
     try:
         # Valid up to 30 seconds for slow connections. This is the time gap between
         # `app` returning a redirect response and user agent loading `funnelapp`'s URL
-        request_token = app.login_serializer.loads(token, max_age=30)
+        request_token = talkfunnel_serializer().loads(token, max_age=30)
     except itsdangerous.exc.BadData:
         current_app.logger.warning("funnelapp received bad login token: %s", token)
         flash(_("Your attempt to login failed. Please try again"), 'error')
-        return redirect(url_for('index'), code=303)
+        return metarefresh_redirect(url_for('index'))
     if request_token['nonce'] != nonce:
         current_app.logger.warning(
             "funnelapp received invalid nonce in %r", request_token
         )
         flash(_("If you were attempting to login, please try again"), 'error')
-        return redirect(url_for('index'), code=303)
+        return metarefresh_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
     user_session = UserSession.get(request_token['sessionid'])
-    if not user_session:
-        # No user session? That shouldn't happen. Log it
-        current_app.logger.warning(
-            "User session is unexpectedly invalid in %r", request_token
-        )
-    else:
+    if user_session:
         user = user_session.user
         login_internal(user, user_session)
         db.session.commit()
@@ -676,7 +678,12 @@ def funnelapp_login_callback(token):
         current_app.logger.debug(
             "funnelapp login succeeded for %r, %r", user, user_session
         )
-        return redirect(get_next_url(session=True), code=303)
+        return metarefresh_redirect(get_next_url(session=True))
+
+    # No user session? That shouldn't happen. Log it
+    current_app.logger.warning(
+        "User session is unexpectedly invalid in %r", request_token
+    )
     return redirect(url_for('index'))
 
 
