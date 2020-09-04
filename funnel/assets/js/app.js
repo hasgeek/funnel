@@ -26,6 +26,7 @@ $(() => {
       window.Hasgeek.config.notificationRefreshInterval
     );
   }
+  Utils.addWebShare();
 
   const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {

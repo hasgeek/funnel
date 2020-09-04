@@ -37,6 +37,7 @@ from ..forms import (
     PasswordCreateForm,
     PasswordPolicyForm,
     PhonePrimaryForm,
+    SavedProjectForm,
     VerifyEmailForm,
     VerifyPhoneForm,
     supported_locales,
@@ -44,6 +45,7 @@ from ..forms import (
 )
 from ..models import (
     MODERATOR_REPORT_TYPE,
+    AccountPasswordNotification,
     Comment,
     CommentModeratorReport,
     SMSMessage,
@@ -64,6 +66,7 @@ from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, autoset_timezone_and_locale
 from .login_session import login_internal, logout_internal, requires_login
+from .notification import dispatch_notification
 
 
 def send_phone_verify_code(phoneclaim):
@@ -230,6 +233,7 @@ def password_policy_check():
 @route('/account')
 class AccountView(ClassView):
     current_section = 'account'  # needed for showing active tab
+    SavedProjectForm = SavedProjectForm
 
     @route('', endpoint='account')
     @requires_login
@@ -310,7 +314,7 @@ class AccountView(ClassView):
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
             for comment in comments:
-                comment.report_spam(actor=current_auth.user)
+                CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
             db.session.commit()
             flash(
                 _("Comment(s) successfully reported as spam"), category='info',
@@ -615,6 +619,7 @@ def change_password():
         login_internal(user, login_service='password')
         db.session.commit()
         flash(_("Your new password has been saved"), category='success')
+        dispatch_notification(AccountPasswordNotification(document=user))
         # If the user was sent here from login because of a weak password, the next
         # URL will be saved in the session. If so, send the user on their way after
         # setting the password, falling back to the account page if there's nowhere
@@ -799,9 +804,15 @@ def add_phone():
             userphone = UserPhoneClaim(user=current_auth.user, phone=form.phone.data)
             db.session.add(userphone)
         try:
+            current_auth.user.main_notification_preferences.by_sms = (
+                form.enable_notifications.data
+            )
             send_phone_verify_code(userphone)
-            db.session.commit()  # Commit after sending because send_phone_verify_code saves the message sent
-            flash(_("We sent a verification code to your phone number"), 'success')
+            # Commit after sending because send_phone_verify_code saves the message sent
+            db.session.commit()
+            flash(
+                _("A verification code has been sent to your phone number"), 'success'
+            )
             user_data_changed.send(current_auth.user, changes=['phone-claim'])
             return render_redirect(
                 url_for('verify_phone', number=userphone.phone), code=303

@@ -1,0 +1,14 @@
+{%- extends "notifications/layout_email.html.jinja2" %}
+{%- block content -%}
+
+  <p>
+    {%- trans %}A comment has been reported as spam.{% endtrans -%}
+  </p>
+
+  <p class="btn-bar">
+    <a class="btn" href="{{ url_for('siteadmin_review_comment', report=view.report.uuid_b58) }}">
+      {%- trans %}Review comment{% endtrans -%}
+    </a>
+  </p>
+
+{%- endblock -%}

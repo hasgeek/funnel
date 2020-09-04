@@ -69,8 +69,8 @@ def process_recipient(recipient: EmailRecipient) -> str:
     1. A User object
     2. A Tuple
     3. String.
-    :param recipient: Recipient of an Email Address
-    :returns RFC 2822 compliant Email Address (String)
+    :param recipient: Recipient of an email
+    :returns: RFC 2822 formatted string email address
     """
     if isinstance(recipient, User):
         formatted = formataddr((recipient.fullname, str(recipient.email)))
@@ -108,6 +108,7 @@ def send_email(
     content: str,
     attachments: List[EmailAttachment] = None,
     from_email: EmailRecipient = None,
+    headers: dict = None,
 ):
     """
     Helper function to send an email.
@@ -130,6 +131,7 @@ def send_email(
         to=to,
         body=body,
         from_email=from_email,
+        headers=headers,
         alternatives=[(html, 'text/html')],
     )
     if attachments:

@@ -47,7 +47,7 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
 
     UNKNOWN = (0, 'unknown')  # Never mailed
     SENT = (1, 'sent')  # Mail sent, nothing further known
-    # ACTIVE state has been removed
+    # ACTIVE state (2, 'active') has been removed
     SOFT_FAIL = (3, 'soft_fail')  # Soft fail reported
     HARD_FAIL = (4, 'hard_fail')  # Hard fail reported
 

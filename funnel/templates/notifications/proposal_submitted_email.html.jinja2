@@ -2,10 +2,8 @@
 {%- from "macros.html.jinja2" import project_title %}
 {% block content -%}
 
-<p>{% trans actor=view.actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
-
 <p>{% trans project=project_title(project), proposal=proposal.title %}You have submitted a new proposal <b>{{ proposal }}</b> to the project <b>{{ project }}</b>.{% endtrans %}</p>
 
-<p class="btn-bar"><a class="btn" href="{{ proposal.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}View proposal{% endtrans %}</a></p>
+<p class="btn-bar"><a class="btn" href="{{ proposal.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}View proposal{% endtrans %}</a></p>
 
 {%- endblock %}

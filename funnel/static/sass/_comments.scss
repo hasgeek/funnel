@@ -4,24 +4,30 @@
   .comment__header {
     display: inline-block;
     width: 100%;
-    margin-bottom: $mui-grid-padding;
 
     button {
-      vertical-align: bottom;
+      vertical-align: top;
+      position: relative;
+      top: 17px;
     }
     .mui-btn--nostyle + .mui-btn--nostyle {
       margin-left: 0;
     }
     .comment__header__details {
       display: inline-block;
-      min-width: 300px;
+      min-width: 200px;
+      max-width: calc(100% - 40px);
       margin-left: $mui-grid-padding/2;
+      .commenter {
+        margin-right: $mui-grid-padding/2;
+      }
       .badge {
-        margin-left: $mui-grid-padding/2;
         margin-right: $mui-grid-padding/2;
       }
       .mui--d-inlineblock {
         vertical-align: top;
+      }
+      .comment__header__details__user {
         min-height: 40px;
       }
     }

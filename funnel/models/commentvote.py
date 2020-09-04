@@ -3,7 +3,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask import current_app
 
 from baseframe import _, __
-from coaster.sqlalchemy import StateManager, cached
+from coaster.sqlalchemy import StateManager, cached, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
@@ -125,6 +125,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     @property
     def parent(self):
+        # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         parent = None  # project or proposal object
         if self.project is not None:
             parent = self.project
@@ -152,15 +153,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     _user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('comments', lazy='dynamic', cascade='all'),
+        User, backref=db.backref('comments', lazy='dynamic', cascade='all'),
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(
-        Commentset,
-        primaryjoin=commentset_id == Commentset.id,
-        backref=db.backref('comments', cascade='all'),
+    commentset = with_roles(
+        db.relationship(Commentset, backref=db.backref('comments', cascade='all'),),
+        grants_via={None: {'document_subscriber'}},
     )
 
     parent_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)
@@ -199,7 +197,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             },
             'call': {'state', 'commentset', 'view_for', 'url_for'},
         },
-        'replied_to_commenter': {'granted_via': {'parent': 'user'}},
+        'replied_to_commenter': {'granted_via': {'parent': '_user'}},
     }
 
     __datasets__ = {

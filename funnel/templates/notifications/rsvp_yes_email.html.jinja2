@@ -3,15 +3,13 @@
 {%- from "notifications/macros_email.html.jinja2" import pinned_update -%}
 {%- block content -%}
 
-<p>{% trans actor=view.actor.fullname %}Hi {{ actor }},{% endtrans %}</p>
-
 <p>{% trans project=project_title(view.rsvp.project) %}You have registered for <b>{{ project }}</b>.{% endtrans %}</p>
 
 {% with next_session_at=view.rsvp.project.next_session_at %}{% if next_session_at -%}
   <p>{% trans date_and_time=next_session_at|datetime %}The next session in the schedule will begin at {{ date_and_time }}.{% endtrans %}</p>
 {%- endif %}{% endwith %}
 
-<p class="btn-bar"><a class="btn" href="{{ view.rsvp.project.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{% trans %}Project page{% endtrans %}</a></p>
+<p class="btn-bar"><a class="btn" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Project page{% endtrans %}</a></p>
 
 {{ pinned_update(view, view.rsvp.project) }}
 

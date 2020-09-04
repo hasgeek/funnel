@@ -166,6 +166,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
+                'uuid',
                 'name',
                 'title',
                 'fullname',
@@ -175,12 +176,30 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 'status',
                 'avatar',
                 'created_at',
+                'profile',
                 'profile_url',
-            }
+                'urls',
+            },
+            'call': {'views', 'forms', 'features', 'url_for'},
         }
     }
 
     __datasets__ = {
+        'primary': {
+            'uuid',
+            'name',
+            'title',
+            'fullname',
+            'username',
+            'pickername',
+            'timezone',
+            'status',
+            'avatar',
+            'created_at',
+            'profile',
+            'profile_url',
+            'urls',
+        },
         'related': {
             'name',
             'title',
@@ -192,7 +211,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             'avatar',
             'created_at',
             'profile_url',
-        }
+        },
     }
 
     def __init__(self, password=None, **kwargs):
@@ -379,13 +398,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     def has_transport_sms(self):
-        # Temporary restriction to exclude Indian phone numbers until SMS templates
-        # are registered
-        return (
-            self.is_active
-            and bool(self.phone)
-            and not self.phone.phone.startswith('+91')
-        )
+        return self.is_active and bool(self.phone)
 
     @with_roles(call={'owner'})
     def has_transport_webpush(self):  # TODO  # pragma: no cover
@@ -441,14 +454,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """Helper method to call ``self.transport_for_<transport>(context)``."""
         return getattr(self, 'transport_for_' + transport)(context)
 
-    def roles_for(self, actor, anchors=()):
-        roles = super().roles_for(actor, anchors)
-        if actor == self:
-            # Owner because the user owns their own account
-            roles.add('owner')
-            # Admin because it's relevant in the Profile model
-            roles.add('admin')
-        return roles
+    @with_roles(grants={'owner', 'admin'})
+    @property
+    def _self_is_owner_and_admin_of_self(self):
+        """Helper method for ``roles_for`` and ``actors_with``."""
+        return self
 
     def organizations_as_owner_ids(self):
         """
@@ -764,12 +774,32 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {'name', 'title', 'pickername', 'created_at'},
-            'call': {'views', 'features', 'forms'},
+            'read': {
+                'name',
+                'title',
+                'pickername',
+                'created_at',
+                'profile',
+                'profile_url',
+                'urls',
+            },
+            'call': {'views', 'features', 'forms', 'url_for'},
         }
     }
 
-    __datasets__ = {'related': {'name', 'title', 'pickername', 'created_at'}}
+    __datasets__ = {
+        'primary': {
+            'name',
+            'title',
+            'username',
+            'pickername',
+            'avatar',
+            'created_at',
+            'profile',
+            'profile_url',
+        },
+        'related': {'name', 'title', 'pickername', 'created_at'},
+    }
 
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 

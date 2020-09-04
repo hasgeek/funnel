@@ -5,7 +5,7 @@ from sqlalchemy.sql import case, exists
 from coaster.sqlalchemy import with_roles
 
 from . import BaseScopedNameMixin, TSVectorType, db
-from .helpers import add_search_trigger, visual_field_delimiter
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
@@ -108,7 +108,9 @@ class Label(BaseScopedNameMixin, db.Model):
     )
 
     #: Proposals that this label is attached to
-    proposals = db.relationship(Proposal, secondary=proposal_label, backref='labels')
+    proposals = db.relationship(
+        Proposal, secondary=proposal_label, back_populates='labels'
+    )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
@@ -344,5 +346,12 @@ class ProposalLabelProxy(object):
             return self
 
 
-#: For reading and setting labels from the edit form
-Proposal.formlabels = ProposalLabelProxy()
+@reopen(Proposal)
+class Proposal:
+    #: For reading and setting labels from the edit form
+    formlabels = ProposalLabelProxy()
+
+    labels = with_roles(
+        db.relationship(Label, secondary=proposal_label, back_populates='proposals'),
+        read={'all'},
+    )

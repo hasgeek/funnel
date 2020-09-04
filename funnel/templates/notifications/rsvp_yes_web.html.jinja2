@@ -3,7 +3,7 @@
 {% block content %}
 <p>
   {% trans project=project_title(view.rsvp.project), url=view.rsvp.project.url_for() -%}
-    You registered for <a href="{{ url }}">{{ project }}</a>.
+    You registered for <a href="{{ url }}">{{ project }}</a>
   {%- endtrans %}
 </p>
 {% endblock %}

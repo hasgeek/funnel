@@ -15,6 +15,7 @@ from . import (
 )
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
+from .project_membership import project_child_role_map
 from .proposal import Proposal
 from .venue import VenueRoom
 from .video import VideoMixin
@@ -30,13 +31,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         db.relationship(
             Project, backref=db.backref('sessions', cascade='all', lazy='dynamic')
         ),
-        grants_via={
-            None: {
-                'crew': 'project_crew',
-                'participant': 'project_participant',
-                'editor': 'project_editor',
-            }
-        },
+        grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
     description = MarkdownColumn('description', default='', nullable=False)
@@ -94,6 +89,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
+                'created_at',
+                'updated_at',
                 'title',
                 'project',
                 'speaker',
@@ -256,6 +253,40 @@ class Project:
         read={'all'},
     )
 
+    @with_roles(read={'all'})
+    @cached_property
+    def session_count(self):
+        return self.sessions.filter(Session.start_at.isnot(None)).count()
+
+    featured_sessions = with_roles(
+        db.relationship(
+            Session,
+            order_by=Session.start_at.asc(),
+            primaryjoin=db.and_(
+                Session.project_id == Project.id, Session.featured.is_(True)
+            ),
+        ),
+        read={'all'},
+    )
+    scheduled_sessions = with_roles(
+        db.relationship(
+            Session,
+            order_by=Session.start_at.asc(),
+            primaryjoin=db.and_(Session.project_id == Project.id, Session.scheduled),
+        ),
+        read={'all'},
+    )
+    unscheduled_sessions = with_roles(
+        db.relationship(
+            Session,
+            order_by=Session.start_at.asc(),
+            primaryjoin=db.and_(
+                Session.project_id == Project.id, Session.scheduled.isnot(True)
+            ),
+        ),
+        read={'all'},
+    )
+
     sessions_with_video = with_roles(
         db.relationship(
             Session,
@@ -269,14 +300,10 @@ class Project:
         read={'all'},
     )
 
-    has_sessions_with_video = with_roles(
-        cached_property(
-            lambda self: self.query.session.query(
-                self.sessions_with_video.exists()
-            ).scalar()
-        ),
-        read={'all'},
-    )
+    @with_roles(read={'all'})
+    @cached_property
+    def has_sessions_with_video(self):
+        return self.query.session.query(self.sessions_with_video.exists()).scalar()
 
     def next_session_from(self, timestamp):
         """
@@ -291,32 +318,48 @@ class Project:
         )
 
     @classmethod
-    def starting_at(cls, timestamp, interval, gap):
+    def starting_at(cls, timestamp, within, gap):
         """
         Returns projects that are about to start, for sending notifications.
 
         :param datetime timestamp: The timestamp to look for new sessions at
-        :param timedelta interval: The interval after which this method will be called
-            again. Lookup will be for sessions where timestamp >= start_at < +interval
+        :param timedelta within: Find anything at timestamp + within delta. Lookup will
+            be for sessions where timestamp >= start_at < timestamp+within
         :param timedelta gap: A project will be considered to be starting if it has no
             sessions ending within the gap period before the timestamp
 
         Typical use of this method is from a background worker that calls it at
-        intervals of five minutes with parameters (timestamp, 5m interval, 60m gap).
+        intervals of five minutes with parameters (timestamp, within 5m, 60m gap).
         """
-        return cls.query.filter(
-            cls.id.in_(
-                db.session.query(db.func.distinct(Session.project_id)).filter(
-                    Session.start_at.isnot(None),
-                    Session.start_at >= timestamp,
-                    Session.start_at < timestamp + interval,
-                    Session.project_id.notin_(
-                        db.session.query(db.func.distinct(Session.project_id)).filter(
-                            Session.end_at.isnot(None),
-                            Session.end_at > timestamp - gap,
-                            Session.end_at <= timestamp,
-                        )
-                    ),
+        # As a rule, start_at is queried with >= and <, end_at with > and <= because
+        # they represent inclusive lower and upper bounds.
+        return (
+            cls.query.filter(
+                cls.id.in_(
+                    db.session.query(db.func.distinct(Session.project_id)).filter(
+                        Session.start_at.isnot(None),
+                        Session.start_at >= timestamp,
+                        Session.start_at < timestamp + within,
+                        Session.project_id.notin_(
+                            db.session.query(
+                                db.func.distinct(Session.project_id)
+                            ).filter(
+                                Session.start_at.isnot(None),
+                                db.or_(
+                                    db.and_(
+                                        Session.start_at >= timestamp - gap,
+                                        Session.start_at < timestamp,
+                                    ),
+                                    db.and_(
+                                        Session.end_at > timestamp - gap,
+                                        Session.end_at <= timestamp,
+                                    ),
+                                ),
+                            )
+                        ),
+                    )
                 )
             )
+            .join(Session.project)
+            .filter(Project.state.PUBLISHED, Project.schedule_state.PUBLISHED)
         )

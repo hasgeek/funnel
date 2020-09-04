@@ -49,3 +49,33 @@ known_flask = [
 ]
 default_section = 'THIRDPARTY'
 sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
+
+[tool.curlylint]
+include = '\.jinja2$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | __pycache__
+  | buck-out
+  | build
+  | dist
+  | node_modules
+  | funnel/assets
+)/
+'''
+
+[tool.curlylint.rules]
+# Indent 2 spaces
+indent = 2
+# All role attributes must be valid.
+# See https://www.curlylint.org/docs/rules/aria_role.
+aria_role = true
+# The `alt` attribute must be present.
+# See https://www.curlylint.org/docs/rules/image_alt.
+image_alt = true

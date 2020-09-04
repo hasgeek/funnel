@@ -5,7 +5,6 @@ from sqlalchemy.exc import IntegrityError
 import pytest
 
 from funnel.models import (
-    NOTIFICATION_CATEGORY,
     USER_STATUS,
     Notification,
     NotificationPreferences,
@@ -17,6 +16,7 @@ from funnel.models import (
     Update,
     User,
     UserPhone,
+    notification_categories,
 )
 
 
@@ -32,7 +32,7 @@ def notification_types():
 
         __mapper_args__ = {'polymorphic_identity': 'update_new_test'}
 
-        category = NOTIFICATION_CATEGORY.PARTICIPANT
+        category = notification_categories.participant
         description = "When a project posts an update"
 
         document_model = Update
@@ -43,7 +43,7 @@ def notification_types():
 
         __mapper_args__ = {'polymorphic_identity': 'proposal_received_test'}
 
-        category = NOTIFICATION_CATEGORY.PROJECT_CREW
+        category = notification_categories.project_crew
         description = "When my project receives a new proposal"
 
         document_model = Project

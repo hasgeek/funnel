@@ -23,6 +23,11 @@ repos:
     rev: 19.10b0
     hooks:
       - id: black
+  # Enable after indentation issue is fixed: https://github.com/thibaudcolas/curlylint/issues/6
+  # - repo: https://github.com/thibaudcolas/curlylint
+  #   rev: v0.12.0
+  #   hooks:
+  #     - id: curlylint
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:

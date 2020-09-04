@@ -7,7 +7,7 @@
           Update #{{number}} &bull; Posted by {{ editor }} {{ age }}
         {%- endtrans -%}
       </p>
-      <h2><a href="{{ update.url_for(_external=true, utm_medium='email', utm_campaign='notification', utm_source=view.notification.eventid) }}">{{ update.title }}</a></h2>
+      <h2><a href="{{ update.url_for(_external=true, **view.tracking_tags()) }}">{{ update.title }}</a></h2>
 
       {{ update.body }}
 

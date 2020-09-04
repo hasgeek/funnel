@@ -47,12 +47,6 @@ team_data_changed = app_signals.signal('team-data-changed')
 session_revoked = app_signals.signal('session-revoked')
 
 # Membership signals
-organization_admin_membership_added = app_signals.signal(
-    'organization_admin_membership_added'
-)
-organization_admin_membership_revoked = app_signals.signal(
-    'organization_admin_membership_revoked'
-)
 project_crew_membership_added = app_signals.signal('project_crew_membership_added')
 project_crew_membership_invited = app_signals.signal('project_crew_membership_invited')
 project_crew_membership_revoked = app_signals.signal('project_crew_membership_revoked')

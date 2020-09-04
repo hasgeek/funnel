@@ -13,7 +13,12 @@
           white-space: nowrap;
         }
         .btn-bar {
-          margin-bottom: 2em;
+          margin: 2em 0;
+        }
+        blockquote {
+          margin-left: 0;
+          padding-left: 1em;
+          border-left: 3px solid #ccc;
         }
       </style>
     {%- endblock %}
@@ -30,7 +35,8 @@
         <hr>
         <p>
           {{ view.reason_email }}
-          <a href="{{ view.unsubscribe_url('email') }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
+          &bull;
+          <a href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
         </p>
       {%- endif %}
     {% endblock %}</div>

@@ -15,7 +15,7 @@ def send_email_verify_link(useremail):
         email_hash=useremail.email_address.email_hash,
         secret=useremail.verification_code,
         utm_medium='email',
-        utm_campaign='website',
+        utm_campaign='verify',
     )
     jsonld = jsonld_confirm_action(subject, url, _("Verify email address"))
     content = render_template(
@@ -35,7 +35,7 @@ def send_password_reset_link(email, user, token):
         _external=True,
         token=token,
         utm_medium='email',
-        utm_campaign='website',
+        utm_campaign='reset',
     )
     jsonld = jsonld_view_action(subject, url, _("Reset password"))
     content = render_template(
@@ -45,42 +45,6 @@ def send_password_reset_link(email, user, token):
         jsonld=jsonld,
     )
     send_email(subject, [(user.fullname, email)], content)
-
-
-@signals.organization_admin_membership_added.connect
-def send_email_for_organization_admin_membership_added(
-    sender, organization, membership, actor, user
-):
-    send_email(
-        subject=_("You have been added to {organization} as an admin").format(
-            organization=organization.title
-        ),
-        to=[user],
-        content=render_template(
-            'email_organization_admin_membership_add_notification.html.jinja2',
-            actor=actor,
-            organization=organization,
-            membership=membership,
-        ),
-    )
-
-
-@signals.organization_admin_membership_revoked.connect
-def send_email_for_organization_admin_membership_revoked(
-    sender, organization, membership, actor, user
-):
-    send_email(
-        subject=_("You have been removed from {organization} as an admin").format(
-            organization=organization.title
-        ),
-        to=[user],
-        content=render_template(
-            'email_organization_admin_membership_revoke_notification.html.jinja2',
-            actor=actor,
-            organization=organization,
-            membership=membership,
-        ),
-    )
 
 
 @signals.project_crew_membership_added.connect
