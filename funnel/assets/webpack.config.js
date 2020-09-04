@@ -70,6 +70,7 @@ module.exports = {
       __dirname,
       'js/notification_settings.js'
     ),
+    account_saved: path.resolve(__dirname, 'js/account_saved.js'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),
