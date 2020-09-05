@@ -45,7 +45,8 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 
     reason = __("You are receiving this because you have registered for this project")
 
-    datetime_format = "EEE, dd MMM ''yy, hh:mm a"
+    datetime_format = "EEE, dd MMM yyyy, hh:mm a"
+    datetime_format_sms = "EEE, dd MMM, hh:mm a"
 
     def web(self):
         return render_template('notifications/rsvp_yes_web.html.jinja2', view=self)
@@ -72,7 +73,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             template = _(
                 "You have registered for {project}."
                 " The next session starts {datetime}."
-                " You will get a reminder 10m prior {url}"
+                " You will get a reminder 10m prior. {url}"
             )
         else:
             template = _("You have registered for {project} {url}")
@@ -81,7 +82,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             url=shortlink(
                 self.rsvp.project.url_for(_external=True, **self.tracking_tags('sms'))
             ),
-            datetime=datetime_filter(next_session_at, self.datetime_format),
+            datetime=datetime_filter(next_session_at, self.datetime_format_sms),
         )
 
 
