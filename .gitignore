@@ -42,6 +42,7 @@ instance/settings.py
 # Forbidden secrets
 secrets.dev
 secrets.test
+newrelic.ini
 
 # Local venvs (Idea creates them)
 venv/

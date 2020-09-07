@@ -140,16 +140,13 @@ class TestProject(object):
         invalidate_cached_property(new_project, 'schedule_start_at_localized')
         invalidate_cached_property(new_project, 'schedule_end_at_localized')
 
-        assert (
-            new_project.datelocation
-            == "{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
-                start_date=new_session_a.start_at.strftime("%d"),
-                start_month=new_session_a.start_at.strftime("%b"),
-                end_date=new_session_b.end_at.strftime("%d"),
-                end_month=new_session_b.end_at.strftime("%b"),
-                year=new_session_b.end_at.year,
-                location=new_project.location,
-            )
+        assert new_project.datelocation == "{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
+            start_date=new_session_a.start_at.strftime("%d"),
+            start_month=new_session_a.start_at.strftime("%b"),
+            end_date=new_session_b.end_at.strftime("%d"),
+            end_month=new_session_b.end_at.strftime("%b"),
+            year=new_session_b.end_at.year,
+            location=new_project.location,
         )
 
         # Both sessions are on same day
@@ -202,15 +199,12 @@ class TestProject(object):
         invalidate_cached_property(new_project, 'schedule_start_at_localized')
         invalidate_cached_property(new_project, 'schedule_end_at_localized')
 
-        assert (
-            new_project.datelocation
-            == "{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
-                start_date=new_session_a.start_at.strftime("%d"),
-                start_month=new_session_a.start_at.strftime("%b"),
-                end_date=new_session_b.end_at.strftime("%d"),
-                end_month=new_session_b.end_at.strftime("%b"),
-                start_year=new_session_a.start_at.strftime("%Y"),
-                end_year=new_session_b.end_at.strftime("%Y"),
-                location=new_project.location,
-            )
+        assert new_project.datelocation == "{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
+            start_date=new_session_a.start_at.strftime("%d"),
+            start_month=new_session_a.start_at.strftime("%b"),
+            end_date=new_session_b.end_at.strftime("%d"),
+            end_month=new_session_b.end_at.strftime("%b"),
+            start_year=new_session_a.start_at.strftime("%Y"),
+            end_year=new_session_b.end_at.strftime("%Y"),
+            location=new_project.location,
         )
