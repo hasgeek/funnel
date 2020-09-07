@@ -61,11 +61,16 @@ class AllNotificationsView(ClassView):
         }
 
     def unread_count(self):
-        return UserNotification.query.filter(
-            UserNotification.user == current_auth.user,
-            UserNotification.read_at.is_(None),
-            UserNotification.is_revoked.is_(False),
-        ).count()
+        return (
+            UserNotification.query.join(Notification)
+            .filter(
+                Notification.type.in_(notification_web_types),
+                UserNotification.user == current_auth.user,
+                UserNotification.read_at.is_(None),
+                UserNotification.is_revoked.is_(False),
+            )
+            .count()
+        )
 
     @route('count', endpoint='notifications_count')
     @render_with(json=True)
