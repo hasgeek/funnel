@@ -135,10 +135,11 @@ class VideoMixin:
             copied_data['uploaded_at'] = copied_data['uploaded_at'].isoformat()
         if copied_data['duration'] and not isinstance(copied_data['duration'], int):
             copied_data['duration'] = int(copied_data['duration'])
-        redis_store.hmset(self.video_cache_key, copied_data)
+        redis_store.hset(self.video_cache_key, mapping=copied_data)
 
-        days_to_cache = 2 if self._source_video_exists else 7
-        redis_store.expire(self.video_cache_key, 60 * 60 * 24 * days_to_cache)
+        # if video exists at source, cache for 2 days, if not, for 6 hours
+        hours_to_cache = 2 * 24 if self._source_video_exists else 6
+        redis_store.expire(self.video_cache_key, 60 * 60 * hours_to_cache)
 
     @property
     def video(self):
