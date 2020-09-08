@@ -780,7 +780,7 @@ a.loginbutton.hidden,
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f9fafc;
+  background-color: $mui-bg-color-accent;
   .fa5-icon {
     width: 16px;
     height: 16px;
@@ -885,6 +885,18 @@ a.loginbutton.hidden,
   }
 }
 
-.share-btn.hide {
+.hg-link-btn.mui--hide {
   display: none;
+}
+
+.mui-dropdown__menu--hg-link {
+  max-width: 130px;
+  overflow: hidden;
+  .js-copy-url {
+    padding-left: 90px;
+  }
+}
+
+.mui-dropdown__menu--small {
+  min-width: 100px;
 }

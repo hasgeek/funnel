@@ -719,7 +719,7 @@ a.loginbutton.hidden,
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f9fafc;
+  background-color: #f9f9f9;
 }
 .mui-btn--raised.icon-btn .fa5-icon {
   width: 16px;
@@ -814,8 +814,20 @@ a.loginbutton.hidden,
     width: 50%;
   }
 }
-.share-btn.hide {
+.hg-link-btn.mui--hide {
   display: none;
+}
+
+.mui-dropdown__menu--hg-link {
+  max-width: 130px;
+  overflow: hidden;
+}
+.mui-dropdown__menu--hg-link .js-copy-url {
+  padding-left: 90px;
+}
+
+.mui-dropdown__menu--small {
+  min-width: 100px;
 }
 
 @media (max-width: 767px) {
@@ -1483,7 +1495,7 @@ a.loginbutton.hidden,
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
     0 1px 2px rgba(158, 158, 158, 0.24);
 }
-.sub-navbar .sub-navbar__item:first-child {
+.sub-navbar .sub-navbar__item:nth-child(2) {
   border-top: 1px solid rgba(132, 146, 166, 0.3);
 }
 .sub-navbar .mui-btn {
@@ -2372,7 +2384,7 @@ a.loginbutton.hidden,
 
 .post-form-block {
   border-radius: 16px;
-  background-color: #f9fafc;
+  background-color: #f9f9f9;
   padding: 24px;
   margin-bottom: 32px;
   margin: 16px 0 32px;
@@ -2410,6 +2422,10 @@ a.loginbutton.hidden,
 .card--spotlight .card__calendar {
   padding: 0 0 25px;
 }
+.card--spotlight .card__image-wrapper {
+  border-radius: 0 0 0 20px;
+  overflow: hidden;
+}
 
 @media (min-width: 992px) {
   .card--spotlight {
@@ -2423,6 +2439,7 @@ a.loginbutton.hidden,
     margin: 0;
     padding: 0;
     z-index: 3;
+    border-radius: 0;
   }
   .card--spotlight .card__image-wrapper .card__image {
     position: absolute;
@@ -3177,15 +3194,15 @@ a.loginbutton.hidden,
 }
 .project-banner .project-banner__footer .bookmark,
 .project-banner .project-banner__footer .add-calendar,
-.project-banner .project-banner__footer .share,
-.project-banner .project-banner__footer .share-btn {
+.project-banner .project-banner__footer .project-links,
+.project-banner .project-banner__footer .hg-link-btn {
   display: flex;
   align-items: center;
   padding: 0 8px;
   border-right: solid 1px rgba(121, 129, 139, 0.48);
   line-height: 1;
 }
-.project-banner .project-banner__footer .share-btn.hide {
+.project-banner .project-banner__footer .hg-link-btn.hide {
   display: none;
 }
 .project-banner .project-banner__footer .bookmark {
@@ -3201,14 +3218,14 @@ a.loginbutton.hidden,
   -webkit-animation: none;
   animation: none;
 }
-.project-banner .project-banner__footer .share,
-.project-banner .project-banner__footer .share-btn {
+.project-banner .project-banner__footer .project-links,
+.project-banner .project-banner__footer .hg-link-btn {
   border-right: none;
 }
 .project-banner .project-banner__footer .bookmark span.login-txt,
 .project-banner .project-banner__footer .add-calendar span.txt,
-.project-banner .project-banner__footer .share span.txt,
-.project-banner .project-banner__footer .share-btn span.txt {
+.project-banner .project-banner__footer .project-links span.txt,
+.project-banner .project-banner__footer .hg-link-btn span.txt {
   padding-right: 5px;
 }
 .project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
@@ -3292,6 +3309,9 @@ a.loginbutton.hidden,
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
+.project-banner .project-details__box--ticketbox {
+  margin-bottom: 16px;
+}
 .project-banner .project-details__box--ticketbox .check-icon {
   margin-right: 8px;
 }
@@ -3311,7 +3331,7 @@ a.loginbutton.hidden,
   }
   .project-banner .project-banner__footer .bookmark,
   .project-banner .project-banner__footer .add-calendar,
-  .project-banner .project-banner__footer .share {
+  .project-banner .project-banner__footer .project-links {
     padding: 0 16px;
     text-decoration: none;
   }
@@ -3373,6 +3393,9 @@ a.loginbutton.hidden,
   }
   .project-banner .project-details__box--topmargin {
     margin-top: 42px;
+  }
+  .project-banner .project-details__box--ticketbox {
+    margin-bottom: 0;
   }
 }
 @media (min-width: 992px) and (max-width: 1199px) {
@@ -4072,12 +4095,6 @@ a.loginbutton.hidden,
 .comment .comment__header .comment__header__details .commenter {
   margin-right: 8px;
 }
-.comment .comment__header .comment__header__details .badge {
-  margin-right: 8px;
-}
-.comment .comment__header .comment__header__details .mui--d-inlineblock {
-  vertical-align: top;
-}
 .comment
   .comment__header
   .comment__header__details
@@ -4087,6 +4104,14 @@ a.loginbutton.hidden,
 .comment .comment__body {
   margin: 0 0 0 30px;
 }
+.comment .comment__body .badge {
+  margin-right: 8px;
+  padding: 4px;
+  margin-right: 8px;
+}
+.comment .comment__body .comment__body__badge {
+  margin-bottom: 8px;
+}
 .comment .comment__body img {
   max-width: 100%;
 }
@@ -4094,6 +4119,13 @@ a.loginbutton.hidden,
   border-left: 2px solid #c0ccda;
   margin: 0;
   padding-left: 16px;
+}
+.comment .comment__body .comment__body__links {
+  padding-right: 8px;
+  text-transform: uppercase;
+}
+.comment .comment__body .comment__body__links .fa5-icon {
+  margin-right: 4px;
 }
 
 .slide-enter-active {

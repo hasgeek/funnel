@@ -21,12 +21,6 @@
       .commenter {
         margin-right: $mui-grid-padding/2;
       }
-      .badge {
-        margin-right: $mui-grid-padding/2;
-      }
-      .mui--d-inlineblock {
-        vertical-align: top;
-      }
       .comment__header__details__user {
         min-height: 40px;
       }
@@ -34,6 +28,15 @@
   }
 
   .comment__body {
+    .badge {
+      margin-right: $mui-grid-padding/2;
+      padding: 4px;
+      margin-right: 8px;
+    }
+    .comment__body__badge {
+      margin-bottom: $mui-grid-padding/2;
+    }
+
     margin: 0 0 0 30px;
 
     img {
@@ -44,6 +47,14 @@
       border-left: 2px solid $mui-text-accent;
       margin: 0;
       padding-left: $mui-grid-padding;
+    }
+
+    .comment__body__links {
+      padding-right: $mui-grid-padding/2;
+      text-transform: uppercase;
+      .fa5-icon {
+        margin-right: $mui-grid-padding/4;
+      }
     }
   }
 }

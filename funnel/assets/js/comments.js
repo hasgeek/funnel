@@ -2,7 +2,7 @@ import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
 import * as timeago from 'timeago.js';
 import { Utils } from './util';
-import { userAvatarUI, faSvg } from './vue_util';
+import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
 
 const Comments = {
   init({
@@ -15,6 +15,7 @@ const Comments = {
     loginUrl,
     headerHeight,
   }) {
+    Vue.config.debug = true;
     Vue.use(VS2);
 
     const commentUI = Vue.component('comment', {
@@ -94,6 +95,7 @@ const Comments = {
         commentUI,
         userAvatarUI,
         faSvg,
+        shareDropdown,
       },
       data() {
         return {
