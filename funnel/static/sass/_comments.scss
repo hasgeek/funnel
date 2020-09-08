@@ -28,6 +28,7 @@
   }
 
   .comment__body {
+    margin: 5px 0 0 30px;
     .badge {
       margin-right: $mui-grid-padding/2;
       padding: 4px;
@@ -36,8 +37,6 @@
     .comment__body__badge {
       margin-bottom: $mui-grid-padding/2;
     }
-
-    margin: 0 0 0 30px;
 
     img {
       max-width: 100%;

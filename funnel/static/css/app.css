@@ -7,7 +7,7 @@
 }
 
 .smaller-margin {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .mui-btn--nomargin {
@@ -296,6 +296,7 @@ html.touch .collapsible__body--disable {
   left: 0;
   top: 11px;
   border-radius: 50%;
+  font-size: 16px;
 }
 .user .user__box .user__box__gravatar--initials {
   display: flex;
@@ -304,6 +305,12 @@ html.touch .collapsible__body--disable {
   background-color: #0f73ed;
   color: #ffffff;
   text-transform: uppercase;
+}
+.user .user__box .user__box__header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 40px;
 }
 .user .user__box .user__box__fullname {
   margin: 0;
@@ -327,6 +334,7 @@ html.touch .collapsible__body--disable {
 .user--bigger .user__box .user__box__gravatar {
   width: 80px;
   height: 80px;
+  font-size: 32px;
 }
 
 .user:nth-child(even) .user__box__gravatar--initials {
@@ -828,6 +836,15 @@ a.loginbutton.hidden,
 
 .mui-dropdown__menu--small {
   min-width: 100px;
+}
+
+.circle-icon {
+  display: inline-block;
+  background: #f9f9f9;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  text-align: center;
 }
 
 @media (max-width: 767px) {
@@ -4102,7 +4119,7 @@ a.loginbutton.hidden,
   min-height: 40px;
 }
 .comment .comment__body {
-  margin: 0 0 0 30px;
+  margin: 5px 0 0 30px;
 }
 .comment .comment__body .badge {
   margin-right: 8px;
@@ -4961,6 +4978,15 @@ ul .login-session .mui-btn--nostyle {
 }
 .preference .preference__title {
   width: calc(100% - 45px);
+  margin-bottom: 8px;
+}
+.preference .preference__title .preference__title__header {
+  font-size: 14px;
+  margin-bottom: 0;
+}
+.preference .preference__title .preference__title__subheader {
+  font-size: 12px;
+  margin-bottom: 0;
 }
 
 @media (min-width: 1200px) {
@@ -4976,6 +5002,12 @@ ul .login-session .mui-btn--nostyle {
   .preference .preference__switch .preference__switch__txt {
     float: right;
     padding-right: 16px;
+  }
+  .preference .preference__title .preference__title__header {
+    font-size: 16px;
+  }
+  .preference .preference__title .preference__title__subheader {
+    font-size: 14px;
   }
 }
 .draft-updates {
