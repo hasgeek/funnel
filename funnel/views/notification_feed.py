@@ -75,14 +75,14 @@ class AllNotificationsView(ClassView):
     @route('count', endpoint='notifications_count')
     @render_with(json=True)
     def unread(self):
-        # This view must not have a `@requires_login` decorator as that will insert
+        # This view must NOT have a `@requires_login` decorator as that will insert
         # it as the next page after login
         if current_auth.user:
             return {
                 'status': 'ok',
                 'unread': self.unread_count(),
             }
-        return {'status': 'error', 'error': 'requires_login'}
+        return {'status': 'error', 'error': 'requires_login'}, 400
 
     @route('mark_read/<eventid>', endpoint='notification_mark_read', methods=['POST'])
     @requires_login
@@ -100,7 +100,7 @@ class AllNotificationsView(ClassView):
             un.is_read = True
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
-        return {'status': 'error', 'error': 'csrf'}
+        return {'status': 'error', 'error': 'csrf'}, 400
 
     @route(
         'mark_unread/<eventid>', endpoint='notification_mark_unread', methods=['POST']
@@ -120,7 +120,7 @@ class AllNotificationsView(ClassView):
             un.is_read = False
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
-        return {'status': 'error', 'error': 'csrf'}
+        return {'status': 'error', 'error': 'csrf'}, 400
 
 
 AllNotificationsView.init_app(app)
