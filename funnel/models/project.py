@@ -617,21 +617,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     # def delete(self):
     #     pass
 
-    @db.validates('name')
-    def _validate_name(self, key, value):
-        value = value.strip() if value is not None else None
-        if not value or not valid_name(value):
-            raise ValueError(value)
-
-        if value != self.name and self.name is not None and self.profile is not None:
-            redirect = ProjectRedirect.query.get((self.profile_id, self.name))
-            if redirect is None:
-                redirect = ProjectRedirect(
-                    profile=self.profile, name=self.name, project=self
-                )
-                db.session.add(redirect)
-            else:
-                redirect.project = self
+    @db.validates('name', 'profile')
+    def _validate_and_create_redirect(self, key, value):
+        # TODO: When labels, venues and other resources are relocated from project to
+        # profile, this validator can no longer watch profile change. We'll need a more
+        # elaborate transfer mechanism that remaps resources to equivalent ones in the
+        # new profile.
+        if key == 'name':
+            value = value.strip() if value is not None else None
+        if not value or (key == 'name' and not valid_name(value)):
+            raise ValueError(f"Invalid value for {key}: {value!r}")
+        existing_value = getattr(self, key)
+        if value != existing_value and existing_value is not None:
+            ProjectRedirect.add(self)
         return value
 
     def calendar_weeks(self, leading_weeks=True):
@@ -1075,6 +1073,31 @@ class ProjectRedirect(TimestampMixin, db.Model):
             return {'profile': self.profile.name, 'project': self.project.name}
         else:
             return {}
+
+    @classmethod
+    def add(cls, project, profile=None, name=None):
+        """
+        Add a project redirect in a given profile.
+
+        :param project: The project to create a redirect for
+        :param profile: The profile to place the redirect in, defaulting to existing
+        :param str name: Name to redirect, defaulting to project's existing name
+
+        Typical use is when a project is renamed, to create a redirect from its previous
+        name, or when it's moved between projects, to create a redirect from previous
+        project.
+        """
+        if profile is None:
+            profile = project.profile
+        if name is None:
+            name = project.name
+        redirect = ProjectRedirect.query.get((profile.id, name))
+        if redirect is None:
+            redirect = ProjectRedirect(profile=profile, name=name, project=project)
+            db.session.add(redirect)
+        else:
+            redirect.project = project
+        return redirect
 
     @classmethod
     def migrate_profile(cls, old_profile, new_profile):
