@@ -34,7 +34,7 @@ def test_process_recipient():
     # some regular cases
     assert bool(
         sanitize_address(
-            process_recipient(("Neque porro quisquam", "example@example.com",)), 'utf-8'
+            process_recipient(("Neque porro quisquam", "example@example.com")), 'utf-8'
         )
     )
-    assert process_recipient(("", "example@example.com",)) == 'example@example.com'
+    assert process_recipient(("", "example@example.com")) == 'example@example.com'

@@ -19,8 +19,8 @@ class UpdateForm(forms.Form):
         description=__("Markdown formatting is supported"),
     )
     is_pinned = forms.BooleanField(
-        __("Pin this update above other updates"), default=False,
+        __("Pin this update above other updates"), default=False
     )
     is_restricted = forms.BooleanField(
-        __("Limit visibility to participants only"), default=False,
+        __("Limit visibility to participants only"), default=False
     )

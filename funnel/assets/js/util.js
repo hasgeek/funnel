@@ -398,7 +398,13 @@ export const LazyloadImg = {
     });
   },
 };
-export const SaveProject = function ({ formId, postUrl, config = {} }) {
+export const SaveProject = function ({
+  formId,
+  postUrl = $(`#${formId}`).attr('action'),
+  config = {},
+}) {
+  console.log('postUrl', postUrl);
+
   const onSuccess = function (response) {
     $(`#${formId}`)
       .find('button')

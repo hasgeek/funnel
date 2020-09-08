@@ -185,6 +185,21 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     }
 
     __datasets__ = {
+        'primary': {
+            'uuid',
+            'name',
+            'title',
+            'fullname',
+            'username',
+            'pickername',
+            'timezone',
+            'status',
+            'avatar',
+            'created_at',
+            'profile',
+            'profile_url',
+            'urls',
+        },
         'related': {
             'name',
             'title',
@@ -196,7 +211,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             'avatar',
             'created_at',
             'profile_url',
-        }
+        },
     }
 
     def __init__(self, password=None, **kwargs):
@@ -439,14 +454,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """Helper method to call ``self.transport_for_<transport>(context)``."""
         return getattr(self, 'transport_for_' + transport)(context)
 
-    def roles_for(self, actor, anchors=()):
-        roles = super().roles_for(actor, anchors)
-        if actor == self:
-            # Owner because the user owns their own account
-            roles.add('owner')
-            # Admin because it's relevant in the Profile model
-            roles.add('admin')
-        return roles
+    @with_roles(grants={'owner', 'admin'})
+    @property
+    def _self_is_owner_and_admin_of_self(self):
+        """Helper method for ``roles_for`` and ``actors_with``."""
+        return self
 
     def organizations_as_owner_ids(self):
         """
@@ -657,7 +669,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     #: New user account
     user = db.relationship(
-        User, foreign_keys=[user_id], backref=db.backref('oldids', cascade='all'),
+        User, foreign_keys=[user_id], backref=db.backref('oldids', cascade='all')
     )
 
     def __repr__(self):
@@ -983,7 +995,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     __email_is_exclusive__ = True
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('emails', cascade='all'),)
+    user = db.relationship(User, backref=db.backref('emails', cascade='all'))
 
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
@@ -1073,7 +1085,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     __email_is_exclusive__ = False
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'),)
+    user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'))
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
     # TODO: Remove obsolete blake2b column
     blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
@@ -1272,7 +1284,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
 class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     __tablename__ = 'user_phone_claim'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'),)
+    user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'))
     _phone = db.Column('phone', db.UnicodeText, nullable=False, index=True)
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
     verification_code = db.Column(db.Unicode(4), nullable=False, default=newpin)
@@ -1367,7 +1379,7 @@ class UserExternalId(BaseMixin, db.Model):
     __tablename__ = 'user_externalid'
     __at_username_services__ = []
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('externalids', cascade='all'),)
+    user = db.relationship(User, backref=db.backref('externalids', cascade='all'))
     service = db.Column(db.UnicodeText, nullable=False)
     userid = db.Column(db.UnicodeText, nullable=False)  # Unique id (or obsolete OpenID)
     username = db.Column(db.UnicodeText, nullable=True)  # LinkedIn returns full URLs

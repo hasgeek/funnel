@@ -5,7 +5,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 import baseframe.forms as forms
 
 from .. import app, funnelapp, lastuserapp
-from ..models import Notification, UserNotification, db
+from ..models import Notification, UserNotification, db, notification_web_types
 from .helpers import app_url_for
 from .login_session import requires_login
 
@@ -22,6 +22,7 @@ class AllNotificationsView(ClassView):
         pagination = (
             UserNotification.query.join(Notification)
             .filter(
+                Notification.type.in_(notification_web_types),
                 UserNotification.user == current_auth.user,
                 UserNotification.is_revoked.is_(False),
             )
@@ -29,21 +30,18 @@ class AllNotificationsView(ClassView):
             .paginate(page=page, per_page=per_page, max_per_page=100)
         )
         return {
+            'show_transport_alert': not current_auth.user.has_transport_sms(),
             'notifications': [
                 {
                     'notification': un.current_access(datasets=('primary', 'related')),
                     'html': un.views.render(),
-                    'document_type': un.notification.document_model.__tablename__
-                    if un.notification.document_model
-                    else None,
+                    'document_type': un.notification.document_type,
                     'document': un.document.current_access(
                         datasets=('primary', 'related')
                     )
                     if un.document
                     else None,
-                    'fragment_type': un.notification.fragment_model.__tablename__
-                    if un.notification.fragment_model
-                    else None,
+                    'fragment_type': un.notification.fragment_type,
                     'fragment': un.fragment.current_access(
                         datasets=('primary', 'related')
                     )
@@ -63,23 +61,28 @@ class AllNotificationsView(ClassView):
         }
 
     def unread_count(self):
-        return UserNotification.query.filter(
-            UserNotification.user == current_auth.user,
-            UserNotification.read_at.is_(None),
-            UserNotification.is_revoked.is_(False),
-        ).count()
+        return (
+            UserNotification.query.join(Notification)
+            .filter(
+                Notification.type.in_(notification_web_types),
+                UserNotification.user == current_auth.user,
+                UserNotification.read_at.is_(None),
+                UserNotification.is_revoked.is_(False),
+            )
+            .count()
+        )
 
     @route('count', endpoint='notifications_count')
     @render_with(json=True)
     def unread(self):
-        # This view must not have a `@requires_login` decorator as that will insert
+        # This view must NOT have a `@requires_login` decorator as that will insert
         # it as the next page after login
         if current_auth.user:
             return {
                 'status': 'ok',
                 'unread': self.unread_count(),
             }
-        return {'status': 'error', 'error': 'requires_login'}
+        return {'status': 'error', 'error': 'requires_login'}, 400
 
     @route('mark_read/<eventid>', endpoint='notification_mark_read', methods=['POST'])
     @requires_login
@@ -97,7 +100,7 @@ class AllNotificationsView(ClassView):
             un.is_read = True
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
-        return {'status': 'error', 'error': 'csrf'}
+        return {'status': 'error', 'error': 'csrf'}, 400
 
     @route(
         'mark_unread/<eventid>', endpoint='notification_mark_unread', methods=['POST']
@@ -117,7 +120,7 @@ class AllNotificationsView(ClassView):
             un.is_read = False
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
-        return {'status': 'error', 'error': 'csrf'}
+        return {'status': 'error', 'error': 'csrf'}, 400
 
 
 AllNotificationsView.init_app(app)

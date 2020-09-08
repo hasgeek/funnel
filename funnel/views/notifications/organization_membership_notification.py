@@ -6,13 +6,13 @@ from flask import Markup, escape, render_template
 
 from baseframe import _, __
 
-from ..models import (
+from ...models import (
     MEMBERSHIP_RECORD_TYPE,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     OrganizationMembership,
 )
-from .notification import RenderNotification
+from ..notification import RenderNotification
 
 
 class DecisionFactor(NamedTuple):
@@ -201,14 +201,14 @@ class RenderShared:
         )
 
     def email_subject(self):
-        return self.emoji_prefix + (f"{self.activity_template()}").format(
+        return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
             actor=self.membership.granted_by.pickername,
         )
 
     def sms(self):
-        return (f"{self.activity_template()}").format(
+        return self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
             actor=self.membership.granted_by.pickername,
@@ -220,7 +220,9 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     """Notify organization admins of new admins and role changes."""
 
     aliases = {'document': 'organization', 'fragment': 'membership'}
-    reason = __("You are receiving this because you are an admin of this organization.")
+    reason = __("You are receiving this because you are an admin of this organization")
+
+    fragments_order_by = [OrganizationMembership.granted_at.desc()]
 
     def activity_template(self, membership=None):
         """
@@ -240,17 +242,8 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
                 return df.template
 
     def web(self):
-        memberships = [
-            _m.access_for(actor=self.user_notification.user)
-            for _m in self.user_notification.rolledup_fragments()
-            .order_by(OrganizationMembership.granted_at.desc())
-            .all()
-        ]
         return render_template(
-            'notifications/organization_membership_granted_web.html.jinja2',
-            view=self,
-            memberships=memberships,
-            is_rollup=len(memberships) > 1,  # Required by layout template
+            'notifications/organization_membership_granted_web.html.jinja2', view=self
         )
 
     def email_content(self):
@@ -266,9 +259,9 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     """Notify organization admins of removed admins."""
 
     aliases = {'document': 'organization', 'fragment': 'membership'}
-    reason = __(
-        "You are receiving this because you were an admin of this organization."
-    )
+    reason = __("You are receiving this because you were an admin of this organization")
+
+    fragments_order_by = [OrganizationMembership.revoked_at.desc()]
 
     def activity_template(self, membership=None):
         """Return a single line summary of changes."""
@@ -282,17 +275,8 @@ class RenderOrganizationAdminMembershipRevokedNotification(
         return _("{user} was removed as an admin of {organization} by {actor}")
 
     def web(self):
-        memberships = [
-            _m.access_for(actor=self.user_notification.user)
-            for _m in self.user_notification.rolledup_fragments()
-            .order_by(OrganizationMembership.revoked_at.desc())
-            .all()
-        ]
         return render_template(
-            'notifications/organization_membership_revoked_web.html.jinja2',
-            view=self,
-            memberships=memberships,
-            is_rollup=len(memberships) > 1,  # Required by layout template
+            'notifications/organization_membership_revoked_web.html.jinja2', view=self
         )
 
     def email_content(self):

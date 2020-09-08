@@ -153,11 +153,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     _user = db.relationship(
-        User, backref=db.backref('comments', lazy='dynamic', cascade='all'),
+        User, backref=db.backref('comments', lazy='dynamic', cascade='all')
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
-        db.relationship(Commentset, backref=db.backref('comments', cascade='all'),),
+        db.relationship(Commentset, backref=db.backref('comments', cascade='all')),
         grants_via={None: {'document_subscriber'}},
     )
 
@@ -197,7 +197,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             },
             'call': {'state', 'commentset', 'view_for', 'url_for'},
         },
-        'replied_to_commenter': {'granted_via': {'parent': 'user'}},
+        'replied_to_commenter': {'granted_via': {'parent': '_user'}},
     }
 
     __datasets__ = {
@@ -388,7 +388,7 @@ Commentset.toplevel_comments = db.relationship(
     Comment,
     lazy='dynamic',
     primaryjoin=db.and_(
-        Comment.commentset_id == Commentset.id, Comment.parent_id.is_(None),
+        Comment.commentset_id == Commentset.id, Comment.parent_id.is_(None)
     ),
     viewonly=True,
 )

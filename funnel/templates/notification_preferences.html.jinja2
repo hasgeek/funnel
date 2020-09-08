@@ -50,7 +50,13 @@
                 </form>
                 <p class="preference__switch__txt zero-bottom-margin mui--clearfix">{{ transport_details[transport]['switch'] }}</p>
               {% else %}
-                <p class="preference__switch__txt preference__switch__txt--noswitch">{{ transport_details[transport]['requirement'] }}</p>
+                <p class="preference__switch__txt preference__switch__txt--noswitch">
+                  {%- if transport_details[transport]['action'] -%}
+                    <a href="{{ transport_details[transport]['action'] }}">{{ transport_details[transport]['requirement'] }} {{ faicon('arrow-right') }}</a>
+                  {%- else %}
+                    {{ transport_details[transport]['requirement'] }}
+                  {%- endif -%}
+                </p>
               {% endif %}
             </div>
             {% for key, preference in preferences.items() %}

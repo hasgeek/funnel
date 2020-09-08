@@ -21,18 +21,18 @@ from ..models import (
 )
 from ..serializers import token_serializer
 from ..transports import platform_transports
-from .helpers import metarefresh_redirect, retrieve_cached_token
+from .helpers import metarefresh_redirect, retrieve_cached_token, validate_rate_limit
 from .login_session import discard_temp_token, requires_login
 
 # --- Account notifications tab --------------------------------------------------------
 
 unsubscribe_link_expired = __(
-    "This unsubscribe link has expired. However, you can manage your preferences from"
+    "That unsubscribe link has expired. However, you can manage your preferences from"
     " your account page"
 )
 
 unsubscribe_link_invalid = __(
-    "This unsubscribe link is invalid. However, you can manage your preferences from"
+    "That unsubscribe link is invalid. However, you can manage your preferences from"
     " your account page"
 )
 
@@ -103,6 +103,7 @@ class AccountNotificationView(ClassView):
                     'available': current_auth.user.has_transport(transport),
                     'title': transport_labels[transport].title,
                     'requirement': transport_labels[transport].requirement,
+                    'action': transport_labels[transport].requirement_action(),
                     'switch': transport_labels[transport].switch,
                 }
                 for transport, enabled in platform_transports.items()
@@ -168,7 +169,7 @@ class AccountNotificationView(ClassView):
         # if they'd like to resubscribe
         try:
             payload = token_serializer().loads(
-                token, max_age=365 * 24 * 60 * 60,  # Validity 1 year (365 days)
+                token, max_age=365 * 24 * 60 * 60  # Validity 1 year (365 days)
             )
         except itsdangerous.exc.SignatureExpired:
             # Link has expired. It's been over a year!
@@ -302,6 +303,13 @@ class AccountNotificationView(ClassView):
 
         # --- Cached tokens (SMS)
         elif token_type == 'cached':  # nosec
+
+            # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
+            # Some ISPs use carrier-grade NAT and will have a single IP for a very
+            # large number of users, so we have generous limits. 100 unsubscribes per
+            # 10 minutes (600s) per IP address.
+            validate_rate_limit('sms_unsubscribe', request.remote_addr, 100, 600)
+
             payload = retrieve_cached_token(
                 session.get('temp_token') or request.form['token']
             )

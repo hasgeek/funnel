@@ -27,9 +27,7 @@ def upgrade():
             server_default=sa.sql.expression.true(),
         ),
     )
-    op.add_column(
-        'user', sa.Column('locale', LocaleType(), nullable=True),
-    )
+    op.add_column('user', sa.Column('locale', LocaleType(), nullable=True))
     op.add_column(
         'user',
         sa.Column(

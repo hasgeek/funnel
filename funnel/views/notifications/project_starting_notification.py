@@ -3,8 +3,9 @@ from flask import render_template
 from baseframe import _, __
 from baseframe.filters import time_filter
 
-from ..models import ProjectStartingNotification
-from .notification import RenderNotification
+from ...models import ProjectStartingNotification
+from ..helpers import shortlink
+from ..notification import RenderNotification
 
 
 @ProjectStartingNotification.renderer
@@ -13,7 +14,7 @@ class RenderProjectStartingNotification(RenderNotification):
 
     aliases = {'document': 'project', 'fragment': 'session'}
     emoji_prefix = "⏰ "
-    reason = __("You are receiving this because you have registered for this project.")
+    reason = __("You are receiving this because you have registered for this project")
 
     def web(self):
         return render_template(
@@ -32,8 +33,10 @@ class RenderProjectStartingNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("{project} starts at {time} {url}").format(
+        return _("{project} starts at {time}. {url}").format(
             project=self.project.joined_title('>'),
             time=time_filter(self.session.start_at_localized),
-            url=self.project.url_for(_external=True),
+            url=shortlink(
+                self.project.url_for(_external=True, **self.tracking_tags('sms'))
+            ),
         )

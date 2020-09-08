@@ -1,5 +1,6 @@
 from base64 import urlsafe_b64encode
 from datetime import datetime
+from hashlib import blake2b
 from os import urandom
 from urllib.parse import unquote, urljoin, urlsplit
 
@@ -10,6 +11,7 @@ from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
+import pyshorteners
 
 from baseframe import cache, statsd
 
@@ -138,7 +140,8 @@ def validate_rate_limit(
 
     Aborts with HTTP 429 in case the limit has been reached.
 
-    :param str identifier: Identifier for type of request and entity being rate limited
+    :param str resource: Resource being rate limited
+    :param str identifier: Identifier for entity being rate limited
     :param int attempts: Number of attempts allowed
     :param int timeout: Duration in seconds to block after attempts are exhausted
     :param str token: For advanced use, a token to check against for future calls
@@ -260,6 +263,25 @@ def add_profile_parameter(endpoint, values):
     if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
         if 'profile' not in values:
             values['profile'] = g.profile.name if g.profile else None
+
+
+@app.template_filter('shortlink')
+@funnelapp.template_filter('shortlink')
+@lastuserapp.template_filter('shortlink')
+def shortlink(url):
+    """Return a short link suitable for SMS."""
+    cache_key = 'shortlink/' + blake2b(url.encode(), digest_size=16).hexdigest()
+    shorty = cache.get(cache_key)
+    if shorty:
+        return shorty
+    try:
+        shorty = pyshorteners.Shortener().isgd.short(url)
+        cache.set(cache_key, shorty, timeout=86400)
+    except pyshorteners.exceptions.ShorteningErrorException as e:
+        error = str(e)
+        current_app.logger.error("Shortlink exception %s", error)
+        shorty = url
+    return shorty
 
 
 # --- Request/response handlers --------------------------------------------------------

@@ -54,6 +54,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
                 'latitude',
                 'longitude',
                 'has_coordinates',
+                'coordinates',
                 'project',
             }
         }
@@ -76,6 +77,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
             'latitude',
             'longitude',
             'has_coordinates',
+            'coordinates',
         },
         'related': {'name', 'title', 'uuid_b58'},
     }
@@ -112,7 +114,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
                 'description',
                 'bgcolor',
                 'seq',
-                'venue_details',
+                'venue',
                 'scoped_name',
                 'uuid_b58',
             }

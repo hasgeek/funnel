@@ -3,8 +3,6 @@
 {%- from "notifications/macros_email.html.jinja2" import pinned_update -%}
 {%- block content -%}
 
-<p>{% trans user=view.user_notification.user.fullname %}Hi {{ user }},{% endtrans %}</p>
-
 <p>
   {%- trans project=project_title(view.project), start_time=view.session.start_at_localized|time -%}
     <b>{{ project }}</b> starts at {{ start_time }}.

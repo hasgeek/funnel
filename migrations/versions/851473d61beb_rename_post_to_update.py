@@ -58,7 +58,7 @@ def downgrade():
     op.add_column(
         'post',
         sa.Column(
-            'profile_id', sa.Integer(), sa.ForeignKey('profile.id'), nullable=True,
+            'profile_id', sa.Integer(), sa.ForeignKey('profile.id'), nullable=True
         ),
     )
     op.create_index('ix_post_profile_id', 'post', ['profile_id'], unique=False)

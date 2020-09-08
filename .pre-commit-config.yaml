@@ -14,15 +14,20 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.4.2
+    rev: v5.5.0
     hooks:
       - id: isort
         additional_dependencies:
           - toml
   - repo: https://github.com/ambv/black
-    rev: 19.10b0
+    rev: 20.8b1
     hooks:
       - id: black
+  # Enable after indentation issue is fixed: https://github.com/thibaudcolas/curlylint/issues/6
+  # - repo: https://github.com/thibaudcolas/curlylint
+  #   rev: v0.12.0
+  #   hooks:
+  #     - id: curlylint
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
@@ -72,7 +77,7 @@ repos:
         language_version: python3
         exclude: (^tests|funnel/loginproviders/flask_oauth.py)
   - repo: https://github.com/prettier/prettier
-    rev: 2.0.5
+    rev: 2.1.1
     hooks:
       - id: prettier
         args: ['--single-quote', '--trailing-comma', 'es5']

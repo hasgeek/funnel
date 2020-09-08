@@ -1,14 +1,16 @@
 from flask import render_template
 
 from baseframe import _, __
+from baseframe.filters import datetime_filter
 
-from ..models import (
+from ...models import (
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
 )
-from ..transports import email
-from .notification import RenderNotification
-from .schedule import schedule_ical
+from ...transports import email
+from ..helpers import shortlink
+from ..notification import RenderNotification
+from ..schedule import schedule_ical
 
 
 class RegistrationBase:
@@ -41,7 +43,10 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 
     aliases = {'document': 'rsvp'}
 
-    reason = __("You are receiving this because you have registered for this project.")
+    reason = __("You are receiving this because you have registered for this project")
+
+    datetime_format = "EEE, dd MMM yyyy, hh:mm a"
+    datetime_format_sms = "EEE, dd MMM, hh:mm a"
 
     def web(self):
         return render_template('notifications/rsvp_yes_web.html.jinja2', view=self)
@@ -63,9 +68,21 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
         )
 
     def sms(self):
-        return _("You have registered for {project} {url}").format(
+        next_session_at = self.rsvp.project.next_session_at
+        if next_session_at:
+            template = _(
+                "You have registered for {project}."
+                " The next session starts {datetime}."
+                " You will get a reminder 10m prior. {url}"
+            )
+        else:
+            template = _("You have registered for {project} {url}")
+        return template.format(
             project=self.rsvp.project.joined_title('>'),
-            url=self.rsvp.project.url_for(_external=True),
+            url=shortlink(
+                self.rsvp.project.url_for(_external=True, **self.tracking_tags('sms'))
+            ),
+            datetime=datetime_filter(next_session_at, self.datetime_format_sms),
         )
 
 
@@ -75,7 +92,7 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
 
     aliases = {'document': 'rsvp'}
 
-    reason = __("You are receiving this because you had registered for this project.")
+    reason = __("You are receiving this because you had registered for this project")
 
     def web(self):
         return render_template('notifications/rsvp_no_web.html.jinja2', view=self)
