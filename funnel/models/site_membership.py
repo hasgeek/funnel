@@ -95,3 +95,9 @@ class User:
         lambda self: self.active_site_membership
         and 'site_editor' in self.active_site_membership.offered_roles
     )
+
+    # site_admin means user has one or more of above roles
+    is_site_admin = property(
+        lambda self: self.active_site_membership
+        and 'site_admin' in self.active_site_membership.offered_roles
+    )

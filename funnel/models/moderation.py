@@ -74,11 +74,12 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
             db.session.add(report)
         return report
 
-    @with_roles(grants={'site_editor'})
+    @with_roles(grants={'comment_moderator'})
     @property
-    def users_who_are_site_editors(self):
+    def users_who_are_comment_moderators(self):
         return User.query.join(
             SiteMembership, SiteMembership.user_id == User.id
         ).filter(
-            SiteMembership.is_active.is_(True), SiteMembership.is_site_editor.is_(True)
+            SiteMembership.is_active.is_(True),
+            SiteMembership.is_comment_moderator.is_(True),
         )

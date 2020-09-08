@@ -968,6 +968,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
+        if actor.is_site_admin:
+            roles.add('participant')
         return roles
 
     def is_saved_by(self, user):
