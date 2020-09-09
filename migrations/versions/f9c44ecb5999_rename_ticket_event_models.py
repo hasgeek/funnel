@@ -37,6 +37,7 @@ renamed_columns = [
     ('ticket_event_participant', 'event_id', 'ticket_event_id'),
     ('ticket_event_ticket_type', 'event_id', 'ticket_event_id'),
     ('contact_exchange', 'participant_id', 'ticket_participant_id'),
+    ('sync_ticket', 'participant_id', 'ticket_participant_id'),
 ]
 
 # (table, old, new)
@@ -100,6 +101,11 @@ renamed_constraints = [
         'ticket_event_ticket_type',
         'event_ticket_type_ticket_type_id_fkey',
         'ticket_event_ticket_type_ticket_type_id_fkey',
+    ),
+    (
+        'sync_ticket',
+        'sync_ticket_participant_id_fkey',
+        'sync_ticket_ticket_participant_id_fkey',
     ),
     (
         'contact_exchange',
