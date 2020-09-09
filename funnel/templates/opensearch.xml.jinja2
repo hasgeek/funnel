@@ -5,7 +5,7 @@
   <Url type="text/html" method="get"
        template="{{ url_for('SearchView_search', _external=true) }}?q={searchTerms}"/>
   <Developer>Hasgeek</Developer>
-  <Language>en-us</Language>
+  <Language>{{ get_locale() }}</Language>
   <OutputEncoding>UTF-8</OutputEncoding>
   <InputEncoding>UTF-8</InputEncoding>
 </OpenSearchDescription>

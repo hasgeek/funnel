@@ -1,6 +1,6 @@
 import os.path
 
-from flask import g, jsonify, redirect, render_template, url_for
+from flask import Response, g, jsonify, redirect, render_template, url_for
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -216,7 +216,10 @@ def manifest():
 
 @app.route('/opensearch.xml')
 def opensearch():
-    return render_template('opensearch.xml.jinja2')
+    return Response(
+        render_template('opensearch.xml.jinja2'),
+        mimetype='application/opensearchdescription+xml',
+    )
 
 
 # --- Lastuser legacy routes -----------------------------------------------------------
