@@ -37,6 +37,8 @@ describe('Test comments feature', function () {
     cy.get('.comment__body').contains(project.comment);
     cy.get('.comment__header').contains(user.username);
 
+    cy.get('a[data-cy="comment-menu"]:visible').click();
+    cy.wait(1000);
     cy.get('a[data-cy="edit"]').click();
     cy.wait('@edit-form');
     cy.get('#field-comment_message')
@@ -57,12 +59,17 @@ describe('Test comments feature', function () {
     cy.wait('@reply-comment');
     cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(project.reply_comment);
+    cy.wait(1000);
 
-    cy.get('a[data-cy="delete"]').first().click();
+    cy.get('a[data-cy="comment-menu"]:visible').eq(1).click();
+    cy.wait(1000);
+    cy.get('a[data-cy="delete"]:visible').click();
     cy.wait('@delete-form');
     cy.get('button').contains('Delete').click();
     cy.wait('@delete-comment');
-    cy.get('.comment__body').contains(project.comment).should('not.exist');
+    cy.get('.comment__body')
+      .contains(project.reply_comment)
+      .should('not.exist');
     cy.wait(5000);
     cy.logout();
 

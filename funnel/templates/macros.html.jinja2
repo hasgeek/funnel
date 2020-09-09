@@ -818,7 +818,7 @@
                 </div>
                 <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide right-padding" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon></a>
                 <div class="mui-dropdown" v-if="comment.urls.edit || comment.urls.delete">
-                  <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown"><faicon :icon="'ellipsis-v'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">More</span></a>
+                  <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown"  data-cy="comment-menu"><faicon :icon="'ellipsis-v'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">More</span></a>
                   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--small" data-cy="share-dropdown">
                     <li><a class="mui--text-caption mui--text-light link comment__body__links" data-cy="edit" v-if="comment.urls.edit" @click="fetchForm($event, comment.urls.edit)">Edit</a></li>
                     <li><a class="mui--text-caption mui--text-light link comment__body__links" data-cy="delete" v-if="comment.urls.delete"  @click="fetchForm($event, comment.urls.delete)">Delete</a></li>
