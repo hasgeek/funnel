@@ -267,6 +267,11 @@
                 font-size: 20px;
                 font-weight: 400;
               }
+              .user--standalone {
+                .user__box {
+                  margin-right: 0;
+                }
+              }
             }
 
             .header__site-title__title__settings {
@@ -284,6 +289,7 @@
               align-items: center;
               justify-content: center;
               margin-right: 16px;
+              min-width: 40px;
               .header__nav-links__icon {
                 width: 16px;
                 height: 16px;
@@ -341,7 +347,7 @@
                 font-size: 14px;
               }
             }
-            .header__nav-links .header__nav-links--updates:after {
+            .header__nav-links--updates:after {
               right: 0;
               left: 19px;
             }
