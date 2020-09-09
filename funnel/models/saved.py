@@ -101,3 +101,11 @@ class SavedSession(NoIdMixin, db.Model):
 class User:
     def saved_sessions_in(self, project):
         return self.saved_sessions.join(Session).filter(Session.project == project)
+
+
+@reopen(Project)
+class Project:
+    def is_saved_by(self, user):
+        return (
+            user is not None and self.saved_by.filter_by(user=user).first() is not None
+        )

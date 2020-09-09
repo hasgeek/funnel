@@ -1,9 +1,17 @@
+from collections import OrderedDict, defaultdict
+from datetime import timedelta
+
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from flask_babelhg import get_locale
 from werkzeug.utils import cached_property
+
+from babel.dates import format_date
+from isoweek import Week
 
 from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles
+from coaster.utils import utcnow
 
 from . import (
     BaseScopedIdNameMixin,
@@ -253,6 +261,22 @@ class Project:
         read={'all'},
     )
 
+    @cached_property
+    def schedule_start_at_localized(self):
+        return (
+            localize_timezone(self.schedule_start_at, tz=self.timezone)
+            if self.schedule_start_at
+            else None
+        )
+
+    @cached_property
+    def schedule_end_at_localized(self):
+        return (
+            localize_timezone(self.schedule_end_at, tz=self.timezone)
+            if self.schedule_end_at
+            else None
+        )
+
     @with_roles(read={'all'})
     @cached_property
     def session_count(self):
@@ -363,3 +387,156 @@ class Project:
             .join(Session.project)
             .filter(Project.state.PUBLISHED, Project.schedule_state.PUBLISHED)
         )
+
+    def current_sessions(self):
+        if self.schedule_start_at is None or (
+            self.schedule_start_at > utcnow() + timedelta(minutes=30)
+        ):
+            return
+
+        current_sessions = (
+            self.sessions.outerjoin(VenueRoom)
+            .filter(Session.start_at <= db.func.utcnow() + timedelta(minutes=30))
+            .filter(Session.end_at > db.func.utcnow())
+            .order_by(Session.start_at.asc(), VenueRoom.seq.asc())
+        )
+
+        return {
+            'sessions': [
+                session.current_access(datasets=('without_parent', 'related'))
+                for session in current_sessions
+            ],
+            'rooms': [
+                room.current_access(datasets=('without_parent', 'related'))
+                for room in self.rooms
+            ],
+        }
+
+    def calendar_weeks(self, leading_weeks=True):
+        # session_dates is a list of tuples in this format -
+        # (date, day_start_at, day_end_at, event_count)
+        session_dates = list(
+            db.session.query('date', 'day_start_at', 'day_end_at', 'count')
+            .from_statement(
+                db.text(
+                    '''
+                    SELECT
+                        DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date,
+                        MIN(start_at) as day_start_at,
+                        MAX(end_at) as day_end_at,
+                        COUNT(*) AS count
+                    FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
+                    GROUP BY date ORDER BY date;
+                    '''
+                )
+            )
+            .params(timezone=self.timezone.zone, project_id=self.id)
+        )
+
+        session_dates_dict = {
+            date.date(): {
+                'day_start_at': day_start_at,
+                'day_end_at': day_end_at,
+                'count': count,
+            }
+            for date, day_start_at, day_end_at, count in session_dates
+        }
+
+        # FIXME: This doesn't work. This code needs to be tested in isolation
+        # session_dates = db.session.query(
+        #     db.cast(
+        #         db.func.date_trunc('day', db.func.timezone(self.timezone.zone, Session.start_at)),
+        #         db.Date).label('date'),
+        #     db.func.count().label('count')
+        #     ).filter(
+        #         Session.project == self,
+        #         Session.scheduled
+        #         ).group_by(db.text('date')).order_by(db.text('date'))
+
+        # if the project's week is within next 2 weeks, send current week as well
+        now = utcnow().astimezone(self.timezone)
+        current_week = Week.withdate(now)
+
+        if leading_weeks and self.schedule_start_at is not None:
+            schedule_start_week = Week.withdate(self.schedule_start_at)
+
+            # session_dates is a list of tuples in this format -
+            # (date, day_start_at, day_end_at, event_count)
+            # as these days dont have any event, day_start/end_at are None,
+            # and count is 0.
+            if (
+                schedule_start_week > current_week
+                and (schedule_start_week - current_week) <= 2
+            ):
+                if (schedule_start_week - current_week) == 2:
+                    # add this so that the next week's dates
+                    # are also included in the calendar.
+                    session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
+                session_dates.insert(0, (now, None, None, 0))
+
+        weeks = defaultdict(dict)
+        today = now.date()
+        for project_date, _day_start_at, _day_end_at, session_count in session_dates:
+            weekobj = Week.withdate(project_date)
+            if weekobj.week not in weeks:
+                weeks[weekobj.week]['year'] = weekobj.year
+                # Order is important, and we need dict to count easily
+                weeks[weekobj.week]['dates'] = OrderedDict()
+            for wdate in weekobj.days():
+                weeks[weekobj.week]['dates'].setdefault(wdate, 0)
+                if project_date.date() == wdate:
+                    # If the event is over don't set upcoming for current week
+                    if wdate >= today and weekobj >= current_week and session_count > 0:
+                        weeks[weekobj.week]['upcoming'] = True
+                    weeks[weekobj.week]['dates'][wdate] += session_count
+                    if 'month' not in weeks[weekobj.week]:
+                        weeks[weekobj.week]['month'] = format_date(
+                            wdate, 'MMM', locale=get_locale()
+                        )
+
+        # Extract sorted weeks as a list
+        weeks_list = [v for k, v in sorted(weeks.items())]
+
+        for week in weeks_list:
+            # Convering to JSON messes up dictionary key order even though we used OrderedDict.
+            # This turns the OrderedDict into a list of tuples and JSON preserves that order.
+            week['dates'] = [
+                {
+                    'isoformat': date.isoformat(),
+                    'day': format_date(date, 'd', get_locale()),
+                    'count': count,
+                    'day_start_at': (
+                        session_dates_dict[date]['day_start_at']
+                        .astimezone(self.timezone)
+                        .strftime('%I:%M %p')
+                        if date in session_dates_dict.keys()
+                        else None
+                    ),
+                    'day_end_at': (
+                        session_dates_dict[date]['day_end_at']
+                        .astimezone(self.timezone)
+                        .strftime('%I:%M %p %Z')
+                        if date in session_dates_dict.keys()
+                        else None
+                    ),
+                }
+                for date, count in week['dates'].items()
+            ]
+
+        return {
+            'locale': get_locale(),
+            'weeks': weeks_list,
+            'today': now.date().isoformat(),
+            'days': [
+                format_date(day, 'EEE', locale=get_locale())
+                for day in Week.thisweek().days()
+            ],
+        }
+
+    @cached_property
+    def calendar_weeks_full(self):
+        return self.calendar_weeks(leading_weeks=True)
+
+    @cached_property
+    def calendar_weeks_compact(self):
+        return self.calendar_weeks(leading_weeks=False)

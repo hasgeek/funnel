@@ -657,3 +657,50 @@ class Commentset:
             None: {'presenter': 'document_subscriber', 'creator': 'document_subscriber'}
         },
     )
+
+
+@reopen(Project)
+class Project:
+    @property
+    def proposals_all(self):
+        if self.subprojects:
+            return Proposal.query.filter(
+                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
+            )
+        else:
+            return self.proposals
+
+    @property
+    def proposals_by_state(self):
+        if self.subprojects:
+            basequery = Proposal.query.filter(
+                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
+            )
+        else:
+            basequery = Proposal.query.filter_by(project=self)
+        return Proposal.state.group(
+            basequery.filter(
+                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
+            ).order_by(db.desc('created_at'))
+        )
+
+    @property
+    def proposals_by_confirmation(self):
+        if self.subprojects:
+            basequery = Proposal.query.filter(
+                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
+            )
+        else:
+            basequery = Proposal.query.filter_by(project=self)
+        return {
+            'confirmed': basequery.filter(Proposal.state.CONFIRMED)
+            .order_by(db.desc('created_at'))
+            .all(),
+            'unconfirmed': basequery.filter(
+                ~(Proposal.state.CONFIRMED),
+                ~(Proposal.state.DRAFT),
+                ~(Proposal.state.DELETED),
+            )
+            .order_by(db.desc('created_at'))
+            .all(),
+        }
