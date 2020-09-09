@@ -340,9 +340,9 @@ class UsernameAvailableForm(forms.Form):
 
     def validate_username(self, field):
         if self.edit_user:  # User is setting a username
-            reason = self.edit_user.validate_name_candidate(self.field.data)
+            reason = self.edit_user.validate_name_candidate(field.data)
         else:  # New user is creating an account, so no user object yet
-            reason = Profile.validate_name_candidate(self.field.data)
+            reason = Profile.validate_name_candidate(field.data)
         if not reason:
             return  # Username is available
         raise_username_error(reason)
