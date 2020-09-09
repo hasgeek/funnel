@@ -151,6 +151,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
 
 
 add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')
+with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_parent'})
 
 
 @reopen(Project)

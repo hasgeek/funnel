@@ -266,7 +266,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'read': {
                 'absolute_url',  # From UrlForMixin
                 'name',  # From BaseScopedNameMixin
-                'primary_venue',  # From models/venue.py, add_primary_relationship
                 'short_title',  # From BaseScopedNameMixin
                 'title',  # From BaseScopedNameMixin
                 'urls',  # From UrlForMixin
@@ -289,14 +288,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'primary': {
             'absolute_url',  # From UrlForMixin
             'name',  # From BaseScopedNameMixin
-            'primary_venue',  # From models/venue.py, add_primary_relationship
             'title',  # From BaseScopedNameMixin
             'urls',  # From UrlForMixin
         },
         'without_parent': {
             'absolute_url',  # From UrlForMixin
             'name',  # From BaseScopedNameMixin
-            'primary_venue',  # From models/venue.py, add_primary_relationship
             'title',  # From BaseScopedNameMixin
         },
         'related': {

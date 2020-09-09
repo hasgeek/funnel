@@ -143,7 +143,7 @@ alter table "rsvp" drop constraint "rsvp_state_check";
 
 set check_function_bodies = off;
 
-CREATE OR REPLACE FUNCTION public.project_venue_primary_validate()
+CREATE OR REPLACE FUNCTION project_venue_primary_validate()
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$
@@ -161,7 +161,7 @@ AS $function$
         $function$
 ;
 
-CREATE OR REPLACE FUNCTION public.user_user_email_primary_validate()
+CREATE OR REPLACE FUNCTION user_user_email_primary_validate()
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$
@@ -179,7 +179,7 @@ END;
 $function$
 ;
 
-CREATE OR REPLACE FUNCTION public.user_user_phone_primary_validate()
+CREATE OR REPLACE FUNCTION user_user_phone_primary_validate()
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$
