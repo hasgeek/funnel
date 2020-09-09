@@ -41,11 +41,12 @@ known_flask = [
   'wtforms',
   'webassets',
   'flask_assets',
+  'flask_babelhg',
   'flask_flatpages',
   'flask_mailman',
   'flask_migrate',
   'flask_redis',
-  'flask_rq2'
+  'flask_rq2',
 ]
 default_section = 'THIRDPARTY'
 sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']

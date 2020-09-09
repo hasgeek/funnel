@@ -3,6 +3,7 @@
 import os.path
 
 from flask import Flask
+from flask_babelhg import get_locale
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
@@ -66,6 +67,11 @@ coaster.app.load_config_from_file(lastuserapp, 'lastuserapp.py')
 app.config['LEGACY'] = False
 funnelapp.config['LEGACY'] = True
 lastuserapp.config['LEGACY'] = True
+
+# TODO: Move this into Baseframe
+app.jinja_env.globals['get_locale'] = get_locale
+funnelapp.jinja_env.globals['get_locale'] = get_locale
+lastuserapp.jinja_env.globals['get_locale'] = get_locale
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`
