@@ -78,19 +78,43 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.relationship(
             'Profile', backref=db.backref('projects', cascade='all', lazy='dynamic')
         ),
+        read={'all'},
         # If profile grants an 'admin' role, make it 'profile_admin' here
         grants_via={None: {'admin': 'profile_admin'}},
+        # `profile` only appears in the 'primary' dataset. It must not be included in
+        # 'related' or 'without_parent' as it is the parent
+        datasets={'primary'},
     )
     parent = db.synonym('profile')
-    tagline = db.Column(db.Unicode(250), nullable=False)
-    description = MarkdownColumn('description', default='', nullable=False)
-    instructions = MarkdownColumn('instructions', default='', nullable=True)
+    tagline = with_roles(
+        db.Column(db.Unicode(250), nullable=False),
+        read={'all'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
+    description = with_roles(
+        MarkdownColumn('description', default='', nullable=False), read={'all'}
+    )
+    instructions = with_roles(
+        MarkdownColumn('instructions', default='', nullable=True), read={'all'}
+    )
 
-    location = db.Column(db.Unicode(50), default='', nullable=True)
+    location = with_roles(
+        db.Column(db.Unicode(50), default='', nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
     parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
 
-    website = db.Column(UrlType, nullable=True)
-    timezone = db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc)
+    website = with_roles(
+        db.Column(UrlType, nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
+    timezone = with_roles(
+        db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc),
+        read={'all'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
 
     _state = db.Column(
         'state',
@@ -99,7 +123,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         default=PROJECT_STATE.DRAFT,
         nullable=False,
     )
-    state = StateManager('_state', PROJECT_STATE, doc="Project state")
+    state = with_roles(
+        StateManager('_state', PROJECT_STATE, doc="Project state"), call={'all'}
+    )
     _cfp_state = db.Column(
         'cfp_state',
         db.Integer,
@@ -107,7 +133,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         default=CFP_STATE.NONE,
         nullable=False,
     )
-    cfp_state = StateManager('_cfp_state', CFP_STATE, doc="CfP state")
+    cfp_state = with_roles(
+        StateManager('_cfp_state', CFP_STATE, doc="CfP state"), call={'all'}
+    )
     _schedule_state = db.Column(
         'schedule_state',
         db.Integer,
@@ -115,23 +143,38 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         default=SCHEDULE_STATE.DRAFT,
         nullable=False,
     )
-    schedule_state = StateManager(
-        '_schedule_state', SCHEDULE_STATE, doc="Schedule state"
+    schedule_state = with_roles(
+        StateManager('_schedule_state', SCHEDULE_STATE, doc="Schedule state"),
+        call={'all'},
     )
 
     cfp_start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
-    # Columns for mobile
-    bg_image = db.Column(UrlType, nullable=True)
+    bg_image = with_roles(
+        db.Column(UrlType, nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
     buy_tickets_url = db.Column(UrlType, nullable=True)
 
-    banner_video_url = db.Column(UrlType, nullable=True)
-    boxoffice_data = db.Column(JsonDict, nullable=False, server_default='{}')
+    banner_video_url = with_roles(
+        db.Column(UrlType, nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
+    boxoffice_data = with_roles(
+        db.Column(JsonDict, nullable=False, server_default='{}'),
+        # This is an attribute, but we deliberately use `call` instead of `read` to
+        # block this from dictionary enumeration. FIXME: Break up this dictionary into
+        # individual columns with `all` access for ticket embed id and `concierge`
+        # access for ticket sync access token.
+        call={'all'},
+    )
 
-    hasjob_embed_url = db.Column(UrlType, nullable=True)
-    hasjob_embed_limit = db.Column(db.Integer, default=8)
+    hasjob_embed_url = with_roles(db.Column(UrlType, nullable=True), read={'all'})
+    hasjob_embed_limit = with_roles(db.Column(db.Integer, default=8), read={'all'})
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False)
@@ -154,7 +197,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or profile admins.
-    featured = db.Column(db.Boolean, default=False, nullable=False)
+    featured = with_roles(
+        db.Column(db.Boolean, default=False, nullable=False),
+        read={'all'},
+        write={'site_editor'},
+        datasets={'primary', 'without_parent'},
+    )
 
     search_vector = db.deferred(
         db.Column(
@@ -184,8 +232,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
     )
 
-    livestream_urls = db.Column(
-        db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'
+    livestream_urls = with_roles(
+        db.Column(db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
     )
 
     venues = with_roles(
@@ -214,49 +264,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'urls',
-                'name',
-                'title',
-                'title_inline',
-                'short_title',
-                'title_suffix',
-                'tagline',
-                'datelocation',
-                'timezone',
-                'description',
-                'instructions',
-                'schedule_start_at',
-                'schedule_end_at',
-                'website',
-                'bg_image',
-                'banner_video_url',
-                'absolute_url',
-                'location',
-                'calendar_weeks_full',
-                'calendar_weeks_compact',
-                'primary_venue',
-                'livestream_urls',
-                'schedule_start_at_localized',
-                'schedule_end_at_localized',
-                'cfp_start_at_localized',
-                'cfp_end_at_localized',
-                'hasjob_embed_url',
-                'hasjob_embed_limit',
-                'profile',
-                'featured',
+                'absolute_url',  # From UrlForMixin
+                'name',  # From BaseScopedNameMixin
+                'primary_venue',  # From models/venue.py, add_primary_relationship
+                'short_title',  # From BaseScopedNameMixin
+                'title',  # From BaseScopedNameMixin
+                'urls',  # From UrlForMixin
             },
             'call': {
-                'features',
-                'url_for',
-                'current_sessions',
-                'is_saved_by',
-                'state',
-                'schedule_state',
-                'cfp_state',
-                'view_for',
-                'views',
-                'boxoffice_data',
-                'forms',
+                'features',  # From RegistryMixin
+                'forms',  # From RegistryMixin
+                'url_for',  # From UrlForMixin
+                'view_for',  # From UrlForMixin
+                'views',  # From RegistryMixin
             },
         },
     }
@@ -267,63 +287,22 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     __datasets__ = {
         'primary': {
-            'urls',
-            'name',
-            'title',
-            'title_inline',
-            'tagline',
-            'datelocation',
-            'timezone',
-            'schedule_start_at',
-            'schedule_end_at',
-            'website',
-            'bg_image',
-            'banner_video_url',
-            'absolute_url',
-            'location',
-            'calendar_weeks_full',
-            'calendar_weeks_compact',
-            'primary_venue',
-            'livestream_urls',
-            'schedule_start_at_localized',
-            'schedule_end_at_localized',
-            'cfp_start_at_localized',
-            'cfp_end_at_localized',
-            'featured',
-            'profile',
+            'absolute_url',  # From UrlForMixin
+            'name',  # From BaseScopedNameMixin
+            'primary_venue',  # From models/venue.py, add_primary_relationship
+            'title',  # From BaseScopedNameMixin
+            'urls',  # From UrlForMixin
         },
         'without_parent': {
-            'name',
-            'title',
-            'title_inline',
-            'tagline',
-            'datelocation',
-            'timezone',
-            'schedule_start_at',
-            'schedule_end_at',
-            'website',
-            'bg_image',
-            'banner_video_url',
-            'absolute_url',
-            'location',
-            'calendar_weeks_full',
-            'calendar_weeks_compact',
-            'primary_venue',
-            'livestream_urls',
-            'schedule_start_at_localized',
-            'schedule_end_at_localized',
-            'cfp_start_at_localized',
-            'cfp_end_at_localized',
-            'featured',
+            'absolute_url',  # From UrlForMixin
+            'name',  # From BaseScopedNameMixin
+            'primary_venue',  # From models/venue.py, add_primary_relationship
+            'title',  # From BaseScopedNameMixin
         },
         'related': {
-            'name',
-            'title',
-            'tagline',
-            'datelocation',
-            'timezone',
-            'absolute_url',
-            'location',
+            'absolute_url',  # From UrlForMixin
+            'name',  # From BaseScopedNameMixin
+            'title',  # From BaseScopedNameMixin
         },
     }
 
@@ -515,6 +494,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @property
     def title_inline(self):
         """Suffix a colon if the title does not end in ASCII sentence punctuation"""
@@ -523,6 +503,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 return self.title + ':'
         return self.title
 
+    @with_roles(read={'all'})
     @property
     def title_suffix(self):
         """
@@ -543,6 +524,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         # Project title extends profile title, so profile title is not needed
         return self.title
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
     @cached_property
     def datelocation(self):
         """
@@ -613,6 +595,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             ProjectRedirect.add(self)
         return value
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
     def cfp_start_at_localized(self):
         return (
@@ -621,6 +604,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             else None
         )
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
     def cfp_end_at_localized(self):
         return (

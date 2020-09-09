@@ -1,3 +1,5 @@
+from coaster.sqlalchemy import with_roles
+
 from . import NoIdMixin, db
 from .helpers import reopen
 from .project import Project
@@ -105,6 +107,7 @@ class User:
 
 @reopen(Project)
 class Project:
+    @with_roles(call={'all'})
     def is_saved_by(self, user):
         return (
             user is not None and self.saved_by.filter_by(user=user).first() is not None

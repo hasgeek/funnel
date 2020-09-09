@@ -238,6 +238,7 @@ class Project:
             .correlate_except(Session)
         ),
         read={'all'},
+        datasets={'primary', 'without_parent'},
     )
 
     next_session_at = with_roles(
@@ -259,8 +260,10 @@ class Project:
             .correlate_except(Session)
         ),
         read={'all'},
+        datasets={'primary', 'without_parent'},
     )
 
+    @with_roles(read={'all'})
     @cached_property
     def schedule_start_at_localized(self):
         return (
@@ -269,6 +272,7 @@ class Project:
             else None
         )
 
+    @with_roles(read={'all'})
     @cached_property
     def schedule_end_at_localized(self):
         return (
@@ -388,6 +392,7 @@ class Project:
             .filter(Project.state.PUBLISHED, Project.schedule_state.PUBLISHED)
         )
 
+    @with_roles(call={'all'})
     def current_sessions(self):
         if self.schedule_start_at is None or (
             self.schedule_start_at > utcnow() + timedelta(minutes=30)
@@ -533,10 +538,12 @@ class Project:
             ],
         }
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
     def calendar_weeks_full(self):
         return self.calendar_weeks(leading_weeks=True)
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
     def calendar_weeks_compact(self):
         return self.calendar_weeks(leading_weeks=False)
