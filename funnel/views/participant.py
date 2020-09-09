@@ -227,14 +227,18 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
         form = forms.Form()
         if form.validate_on_submit():
             checked_in = getbool(request.form.get('checkin'))
-            participant_ids = [abort_null(x) for x in request.form.getlist('puuid_b58')]
-            for participant_id in participant_ids:
-                attendee = Attendee.get(self.obj, participant_id)
+            ticket_participant_ids = [
+                abort_null(x) for x in request.form.getlist('puuid_b58')
+            ]
+            for ticket_participant_id in ticket_participant_ids:
+                attendee = Attendee.get(self.obj, ticket_participant_id)
                 attendee.checked_in = checked_in
             db.session.commit()
             if request_is_xhr():
                 return jsonify(
-                    status=True, participant_ids=participant_ids, checked_in=checked_in
+                    status=True,
+                    participant_ids=ticket_participant_ids,
+                    checked_in=checked_in,
                 )
         return redirect(self.obj.url_for('view'), code=303)
 
@@ -264,7 +268,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         participants = (
             Participant.query.join(Attendee)
-            .filter(Attendee.event_id == self.obj.id)
+            .filter(Attendee.ticket_event_id == self.obj.id)
             .filter(Participant.badge_printed == badge_printed)
             .all()
         )
@@ -280,7 +284,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         participants = (
             Participant.query.join(Attendee)
-            .filter(Attendee.event_id == self.obj.id)
+            .filter(Attendee.ticket_event_id == self.obj.id)
             .filter(Participant.badge_printed == badge_printed)
             .all()
         )

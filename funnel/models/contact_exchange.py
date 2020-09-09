@@ -6,8 +6,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from coaster.utils import uuid_to_base58
 
 from . import RoleMixin, TimestampMixin, db
-from .event import Participant
 from .project import Project
+from .sync_ticket import Participant
 from .user import User
 
 __all__ = ['ContactExchange']
@@ -38,9 +38,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         ),
     )
     #: Participant whose contact was scanned
-    participant_id = db.Column(
+    ticket_participant_id = db.Column(
         None,
-        db.ForeignKey('participant.id', ondelete='CASCADE'),
+        db.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
         index=True,
     )
@@ -75,9 +75,11 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user, new_user):
-        participant_ids = {ce.participant_id for ce in new_user.scanned_contacts}
+        ticket_participant_ids = {
+            ce.ticket_participant_id for ce in new_user.scanned_contacts
+        }
         for ce in old_user.scanned_contacts:
-            if ce.participant_id not in participant_ids:
+            if ce.ticket_participant_id not in ticket_participant_ids:
                 ce.user = new_user
             else:
                 # Discard duplicate contact exchange
@@ -91,7 +93,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         query = db.session.query(
             cls.scanned_at, Project.id, Project.uuid, Project.timezone, Project.title
         ).filter(
-            cls.participant_id == Participant.id,
+            cls.ticket_participant_id == Participant.id,
             Participant.project_id == Project.id,
             cls.user == user,
         )
@@ -142,10 +144,10 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         #     project.uuid AS project_uuid,
         #     project.title AS project_title,
         #     project.timezone AS project_timezone
-        #   FROM contact_exchange, participant, project
+        #   FROM contact_exchange, ticket_participant, project
         #   WHERE
-        #     contact_exchange.participant_id = participant.id
-        #     AND participant.project_id = project.id
+        #     contact_exchange.ticket_participant_id = ticket_participant.id
+        #     AND ticket_participant.project_id = project.id
         #     AND contact_exchange.user_id = :user_id
         #   ) AS anon_1
         # GROUP BY id, uuid, title, timezone, date
