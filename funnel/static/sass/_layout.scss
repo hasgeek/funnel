@@ -291,21 +291,27 @@ html.touch .collapsible__body--disable {
 
 .user {
   .user__box {
-    padding: 8px 8px 8px 50px;
+    padding: 8px 0;
     position: relative;
     word-break: break-word;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    .user__box__wrapper {
+      height: 40px;
+    }
 
     .user__box__gravatar {
       width: 40px;
       height: 40px;
       display: inline-block;
-      position: absolute;
-      left: 0;
-      top: 11px;
+      margin-right: 8px;
       border-radius: 50%;
       font-size: 16px;
     }
     .user__box__gravatar--initials {
+      min-width: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -326,6 +332,9 @@ html.touch .collapsible__body--disable {
       margin: 0 0 5px;
     }
   }
+  .user__box--topalign {
+    align-items: start;
+  }
 }
 .user--standalone {
   .user__box {
@@ -341,6 +350,10 @@ html.touch .collapsible__body--disable {
     padding: 12px 8px 8px 89px;
     margin-bottom: 16px;
     height: 100px;
+
+    .user__box__wrapper {
+      height: 80px;
+    }
 
     .user__box__gravatar {
       width: 80px;

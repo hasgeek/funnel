@@ -70,11 +70,11 @@
 
 {% macro share_dropdown(url, title) %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--hg-link" data-cy="share-dropdown">
+    <li><a class="mui--text-body2 js-copy-link" href="javascript:void(0)" data-action="Copy link">Copy link<span class="js-copy-url">{{ url}}</span></a></li>
     <li><a class="mui--text-body2" target="_blank" rel="noopener" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-action="Tweet">Twitter</a></li>
     <li><a class="mui--text-body2" target="_blank" rel="noopener" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-action="Share on facebook">Facebook</a></li>
     <li><a class="mui--text-body2" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-action="Email">Email</a></li>
     <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-action="Share on linkedin">Linkedin</a></li>
-    <li><a class="mui--text-body2 js-copy-link" href="javascript:void(0)" data-action="Copy link">Copy link<span class="js-copy-url">{{ url}}</span></a></li>
   </ul>
 {% endmacro %}
 
@@ -760,9 +760,6 @@
 {% macro comments_tree() %}
   {% raw %}
     <div id="comments-wrapper" v-cloak>
-      <ul class="mui-list--unstyled" v-for="comment in comments">
-        <comment :comment="comment" :isuserparticipant="isuserparticipant"></comment>
-      </ul>
       <div class="ajax-form">
         <component :is="Form"></component>
         <button class="mui-btn mui-btn--raised mui-btn--accent ajax-form_cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
@@ -778,6 +775,9 @@
         </div>
       </a>
       <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">Login to leave a comment</a>
+      <ul class="mui-list--unstyled" v-for="comment in comments">
+        <comment :comment="comment" :isuserparticipant="isuserparticipant"></comment>
+      </ul>
     </div>
     <script type="text/x-template" id="comment-template">
       <li class="comment">
@@ -796,29 +796,31 @@
                   <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ comment.user.fullname }}</h3>
                   <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
                 </div>
+                <div class="comment__header__details__user">
+                  <span class="commenter mui--text-light mui--text-caption" v-if="comment.state && comment.state.DELETED">[deleted]</span>
+                  <span class="commenter mui--text-light mui--text-caption" v-if="comment.state && comment.state.SPAM">[removed]</span>
+                  <span class="badge" v-for="badge in comment.badges">{{ badge }}</span>
+              </div>
               </div>
             </div>
           </div>
           <transition name="slide">
             <div class="comment__body" v-if="!hide">
-              <div class="comment__body__badge">
-                <span class="commenter" v-if="comment.state && comment.state.DELETED">[deleted]</span>
-                <span class="commenter" v-if="comment.state && comment.state.SPAM">[removed]</span>
-                <span class="badge" v-for="badge in comment.badges">{{ badge }}</span>
+              <div v-if="!comment.state" v-html="comment.message.html"></div>
+              <div>
                 <a class="mui--text-caption mui--text-light comment--permalink" :href="'#c-' + comment.uuid_b58">Posted {{ created_at_age }}</a>
                 <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">(edited {{ edited_at_age }})</span>
               </div>
-              <div v-if="!comment.state" v-html="comment.message.html"></div>
               <div>
-                <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)"><faicon :icon="'comment-alt'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
-                <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)"><faicon :icon="'flag-alt'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
+                <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)"><faicon :icon="'comment-alt'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
+                <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)"><faicon :icon="'flag-alt'":baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
                 <div class="mui-dropdown">
-                  <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-square'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
+                  <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-square'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
                   <sharedropdown :url='comment.urls.view' :title='comment.title'></sharedropdown>
                 </div>
-                <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide right-padding" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon></a>
+                <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide right-padding" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :baseline=false :css_class="'mui--align-middle'"></faicon></a>
                 <div class="mui-dropdown" v-if="comment.urls.edit || comment.urls.delete">
-                  <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown"  data-cy="comment-menu"><faicon :icon="'ellipsis-v'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">More</span></a>
+                  <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown"  data-cy="comment-menu"><faicon :icon="'ellipsis-v'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">More</span></a>
                   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--small" data-cy="share-dropdown">
                     <li><a class="mui--text-caption mui--text-light link comment__body__links" data-cy="edit" v-if="comment.urls.edit" @click="fetchForm($event, comment.urls.edit)">Edit</a></li>
                     <li><a class="mui--text-caption mui--text-light link comment__body__links" data-cy="delete" v-if="comment.urls.delete"  @click="fetchForm($event, comment.urls.delete)">Delete</a></li>

@@ -37,6 +37,7 @@ describe('Test comments feature', function () {
     cy.get('.comment__body').contains(project.comment);
     cy.get('.comment__header').contains(user.username);
 
+    cy.wait(2000);
     cy.get('a[data-cy="comment-menu"]:visible').click();
     cy.wait(1000);
     cy.get('a[data-cy="edit"]').click();

@@ -385,13 +385,22 @@
 }
 
 .post-form-block {
-  border-radius: 16px;
+  border-radius: 4px;
   background-color: $mui-bg-color-accent;
-  padding: 24px;
+  padding: $mui-grid-padding/2 $mui-grid-padding;
   margin-bottom: $mui-grid-padding-double;
   margin: 16px 0 32px;
   display: block;
   cursor: pointer;
+  text-decoration: none !important;
+
+  span {
+    height: 40px;
+  }
+
+  .user__box {
+    align-items: start;
+  }
 
   .user__box__gravatar--initials {
     background-color: #e05f25 !important;

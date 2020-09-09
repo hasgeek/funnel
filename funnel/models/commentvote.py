@@ -301,10 +301,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @property
     def absolute_url(self):
-        if self.commentset.proposal:
-            return self.commentset.proposal.absolute_url + '#c' + self.uuid_b58
-        elif self.commentset.project:
-            return self.commentset.project.url_for('comments') + '#c' + self.uuid_b58
+        return self.url_for()
 
     @property
     def title(self):

@@ -23,20 +23,20 @@
       }
       .comment__header__details__user {
         min-height: 40px;
+        margin-right: 8px;
+        .badge {
+          position: relative;
+          top: -2px;
+        }
+      }
+      .user__box {
+        padding-bottom: 0;
       }
     }
   }
 
   .comment__body {
     margin: 5px 0 0 30px;
-    .badge {
-      margin-right: $mui-grid-padding/2;
-      padding: 4px;
-      margin-right: 8px;
-    }
-    .comment__body__badge {
-      margin-bottom: $mui-grid-padding/2;
-    }
 
     img {
       max-width: 100%;
@@ -53,6 +53,11 @@
       text-transform: uppercase;
       .fa5-icon {
         margin-right: $mui-grid-padding/4;
+      }
+    }
+    .ajax-form {
+      .mui--text-title {
+        margin-top: 8px;
       }
     }
   }

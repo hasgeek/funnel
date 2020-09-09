@@ -330,16 +330,20 @@
         height: 35px;
         .header__site-title {
           .header__site-title__title {
-            .header__site-title__home__logo {
-              height: 25px;
+            .header__nav-links {
+              display: flex;
+              align-items: center;
+              .header__site-title__home__logo,
+              .header__nav-links__icon {
+                margin: 0;
+              }
+              .header__nav-links__text {
+                font-size: 14px;
+              }
             }
-            .header__nav-links .header__nav-links__icon {
-              vertical-align: text-top;
-            }
-            .header__nav-links .header__nav-links__text {
-              font-size: 14px;
-              position: relative;
-              top: 5px;
+            .header__nav-links .header__nav-links--updates:after {
+              right: 0;
+              left: 19px;
             }
 
             .search-form {
@@ -527,6 +531,7 @@
       margin: 0 $mui-grid-padding;
       text-decoration: none;
       border-bottom: 2px solid transparent;
+      border-top: none !important;
       transition: border-color 1.5s ease;
       min-width: 0;
       min-height: 0;
