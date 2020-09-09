@@ -618,6 +618,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return geonameid_from_location(self.location) if self.location else set()
 
     def permissions(self, user, inherited=None):
+        # TODO: Remove permission system entirely
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:

@@ -263,7 +263,7 @@ class Project:
         datasets={'primary', 'without_parent'},
     )
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
     def schedule_start_at_localized(self):
         return (
@@ -272,7 +272,7 @@ class Project:
             else None
         )
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
     def schedule_end_at_localized(self):
         return (
