@@ -1286,7 +1286,8 @@ a.loginbutton.hidden,
     .header__site-title__title
     .header__nav-links
     .user--standalone
-    .user__box {
+    .user__box
+    .user__box__gravatar {
     margin-right: 0;
   }
   .hg-app
