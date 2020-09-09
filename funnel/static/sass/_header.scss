@@ -267,10 +267,11 @@
                 font-size: 20px;
                 font-weight: 400;
               }
-              .user--standalone {
-                .user__box .user__box__gravatar {
-                  margin-right: 0;
-                }
+            }
+
+            .header__nav-links.user--standalone {
+              .user__box .user__box__gravatar {
+                margin-right: 0;
               }
             }
 

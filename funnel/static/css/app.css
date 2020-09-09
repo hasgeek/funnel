@@ -1284,8 +1284,7 @@ a.loginbutton.hidden,
     .header__nav
     .header__site-title
     .header__site-title__title
-    .header__nav-links
-    .user--standalone
+    .header__nav-links.user--standalone
     .user__box
     .user__box__gravatar {
     margin-right: 0;
