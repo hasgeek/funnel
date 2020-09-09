@@ -120,7 +120,7 @@
             url: {{ url_for('account_username_availability')|tojson }},
             dataType: 'json',
             data: {
-              'candidate': $(field).val(),
+              'username': $(field).val(),
               'csrf_token': $("meta[name='csrf-token']").attr('content')
             },
             timeout: ajaxTimeout,
@@ -160,7 +160,7 @@
             url: {{ url_for('password_policy_check')|tojson }},
             dataType: 'json',
             data: {
-              'candidate': $(field).val(),
+              'password': $(field).val(),
               'csrf_token': $("meta[name='csrf-token']").attr('content')
             },
             timeout: ajaxTimeout,

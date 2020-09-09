@@ -134,7 +134,7 @@ class RegisterForm(forms.RecaptchaForm):
 
 @User.forms('password_policy')
 class PasswordPolicyForm(forms.Form):
-    candidate = forms.StringField(
+    password = forms.PasswordField(
         __("Password"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
     )

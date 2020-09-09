@@ -130,6 +130,36 @@ def autoset_timezone_and_locale(user):
         )
 
 
+def progressive_rate_limit_validator(token, prev_token):
+    """
+    Validator for validate_rate_limit on autocomplete-type resources.
+
+    Will count progressive keystrokes and backspacing as a single rate limited call, but
+    any edits will be counted as a separate call, incrementing the resource usage count.
+
+    :returns: tuple of (bool, bool): (count_this_call, retain_previous_token)
+    """
+
+    # prev_token will be None on the first call to the validator. Count the first
+    # call, but don't retain the previous token
+    if not prev_token:
+        return (True, False)
+
+    # User is typing, so current token is previous token plus extra chars. Don't
+    # count this as a new call, and keep the longer current token as the reference
+    if token.startswith(prev_token):
+        return (False, False)
+
+    # User is backspacing (current < previous), so keep the previous token as the
+    # reference in case they retype the deleted characters
+    if prev_token.startswith(token):
+        return (False, True)
+
+    # Current token is differing from previous token, meaning this is a new query.
+    # Increment the counter, discard previous token and use current token as ref
+    return (True, False)
+
+
 def validate_rate_limit(
     resource, identifier, attempts, timeout, token=None, validator=None
 ):
@@ -145,11 +175,11 @@ def validate_rate_limit(
     :param int attempts: Number of attempts allowed
     :param int timeout: Duration in seconds to block after attempts are exhausted
     :param str token: For advanced use, a token to check against for future calls
-    :param validator: A validator that receives the token and returns two bools
-        ``(count_this, retain_previous_token)``
+    :param validator: A validator that receives token and previous token, and returns
+        two bools ``(count_this, retain_previous_token)``
 
-    For an example of how the token and validator are used, see the user_autocomplete
-    endpoint in views/auth_resource.py
+    For an example of how the token and validator are used, see
+    :func:`progressive_rate_limit_validator` and its users.
     """
     statsd.set('rate_limit', identifier, rate=1, tags={'resource': resource})
     cache_key = 'rate_limit/v1/%s/%s' % (resource, identifier)
@@ -165,10 +195,10 @@ def validate_rate_limit(
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 429})
         abort(429)
     if validator is not None:
-        result, retain_token = validator(cache_token)
+        do_increment, retain_token = validator(token, cache_token)
         if retain_token:
             token = cache_token
-        if result:
+        if do_increment:
             current_app.logger.debug(
                 "Rate limit +1 (validated with %s, retain %r) for %s/%s",
                 cache_token,
