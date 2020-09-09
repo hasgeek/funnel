@@ -1,4 +1,5 @@
 from . import NoIdMixin, db
+from .helpers import reopen
 from .project import Project
 from .session import Session
 from .user import User
@@ -96,6 +97,7 @@ class SavedSession(NoIdMixin, db.Model):
                 db.session.delete(ss)
 
 
-User.saved_sessions_in = lambda self, project: self.saved_sessions.join(Session).filter(
-    Session.project == project
-)
+@reopen(User)
+class User:
+    def saved_sessions_in(self, project):
+        return self.saved_sessions.join(Session).filter(Session.project == project)

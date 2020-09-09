@@ -45,8 +45,7 @@ event_ticket_type = db.Table(
 )
 
 
-class ScopedNameTitleMixin(BaseScopedNameMixin):
-    # TODO: Move this into coaster?
+class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
     def get(cls, parent, current_name=None, current_title=None):
         if not bool(current_name) ^ bool(current_title):
@@ -68,7 +67,7 @@ class ScopedNameTitleMixin(BaseScopedNameMixin):
         return instance
 
 
-class Event(ScopedNameTitleMixin, db.Model):
+class Event(GetTitleMixin, db.Model):
     """
     A discrete event under a project.
     For instance, a project could be associated with a workshop and a two-day conference.
@@ -101,7 +100,7 @@ class Event(ScopedNameTitleMixin, db.Model):
     )
 
 
-class TicketType(ScopedNameTitleMixin, db.Model):
+class TicketType(GetTitleMixin, db.Model):
     """
     Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
     A ticket type is associated with multiple events.
@@ -127,6 +126,8 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
+
+    # TODO: Rename to SyncParticipant or TicketedParticipant
 
     __tablename__ = 'participant'
     __email_optional__ = False
@@ -262,8 +263,10 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     @classmethod
     def checkin_list(cls, event):
         """
-        Returns participant details along with their associated ticket types as a comma-separated string.
+        Returns participant details along with their associated ticket types as a
+        comma-separated string.
         """
+        # FIXME: Replace with SQLAlchemy objects
         participant_list = (
             db.session.query(
                 'uuid',
@@ -364,8 +367,8 @@ class TicketClient(BaseMixin, db.Model):
                 ticket.participant is not participant
                 or ticket_dict.get('status') == 'cancelled'
             ):
-                # Ensure that the participant of a transferred or cancelled ticket does not have access to
-                # this ticket's events
+                # Ensure that the participant of a transferred or cancelled ticket does
+                # not have access to this ticket's events
                 ticket.participant.remove_events(ticket_type.events)
 
             if ticket_dict.get('status') == 'confirmed':
@@ -387,7 +390,7 @@ class TicketClient(BaseMixin, db.Model):
 
 
 class SyncTicket(BaseMixin, db.Model):
-    """ Model for a ticket that was bought elsewhere. Eg: Explara."""
+    """ Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
 
     __tablename__ = 'sync_ticket'
 
@@ -442,6 +445,5 @@ class SyncTicket(BaseMixin, db.Model):
         return ticket
 
 
-# Import symbols required only in functions at bottom of file to avoid
-# cyclic dependency failures.
+# Tail imports to avoid cyclic dependency errors, for symbols used only in methods
 from .contact_exchange import ContactExchange  # isort:skip

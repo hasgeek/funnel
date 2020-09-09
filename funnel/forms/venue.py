@@ -2,6 +2,7 @@ import gettext
 import re
 
 from flask_babelhg import get_locale
+
 import pycountry
 
 from baseframe import __

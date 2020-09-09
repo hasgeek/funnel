@@ -4,10 +4,10 @@ from datetime import timedelta
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from flask import current_app
+from flask_babelhg import get_locale
 from werkzeug.utils import cached_property
 
 from babel.dates import format_date
-from flask_babelhg import get_locale
 from isoweek import Week
 from pytz import utc
 

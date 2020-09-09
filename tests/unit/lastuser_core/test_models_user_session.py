@@ -67,8 +67,8 @@ class TestUser(TestDatabaseFixture):
             user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36',
             accessed_at=utcnow(),
         )
-        assert isinstance(piglet.active_sessions.all(), list)
-        assert piglet.active_sessions.all() == [piglet_session]
+        assert isinstance(piglet.active_user_sessions.all(), list)
+        assert piglet.active_user_sessions.all() == [piglet_session]
 
     def test_usersession_authenticate(self):
         """Test to verify authenticate method on UserSession"""
