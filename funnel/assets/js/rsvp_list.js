@@ -1,5 +1,5 @@
 $(() => {
-  $('.ticket_participants').footable({
+  $('.participants').footable({
     sorting: {
       enabled: true,
     },
