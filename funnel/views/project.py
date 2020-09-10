@@ -721,7 +721,7 @@ class ProjectView(
         return {
             'profile': self.obj.profile,
             'project': self.obj,
-            'events': self.obj.events,
+            'ticket_events': self.obj.ticket_events,
             'csrf_form': forms.Form(),
         }
 
