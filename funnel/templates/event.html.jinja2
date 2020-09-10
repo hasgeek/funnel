@@ -28,9 +28,9 @@
       <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
-      <h3 class="mui--text-right" id="participants-count">
+      <h3 class="mui--text-right" id="ticket-participants-count">
         {% raw %}
-        <script id="participants-count-template" type="text/ractive">
+        <script id="ticket-participants-count-template" type="text/ractive">
           Checked In: <span class="js-totalcheckin mui--text-title">{{ total_checkedin }}</span> |
           Total: <span class="js-total mui--text-title">{{ total_participants }}</span>
         </script>
@@ -63,7 +63,7 @@
   </div>
   <div class="grid">
     <div class="grid__col-xs-12 mui-table--responsive-wrapper">
-      <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='participants-table'>
+      <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='ticket-participants-table'>
         <thead>
           <tr class="active">
             <th>Name</th>
@@ -73,12 +73,12 @@
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="participants-table-content">
+        <tbody id="ticket-participants-table-content">
           {% raw %}
-          <script id='participant-row' type='text/ractive'>
-          {{#each participants}}
+          <script id='ticket-participant-row' type='text/ractive'>
+          {{#each ticket_participants}}
             <tr id="p-{{ puuid_b58 }}">
-              <td class='js-searchable' data-th="Name" data-cy="participant">{{ fullname }}</td>
+              <td class='js-searchable' data-th="Name" data-cy="ticket-participant">{{ fullname }}</td>
               <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
               <td class='js-searchable' data-th="Email">{{ email }}</td>
               <td class='js-searchable' data-th="Company">{{ company }}</td>
@@ -146,7 +146,7 @@
       eventName: "{{ project.name }}" + "-" + "{{event.title}}".replace(/ /g,'-'),
     };
     eventConfig.search = {
-      tableId: 'participants-table',
+      tableId: 'ticket-participants-table',
       inputId: 'search'
     };
     Hasgeek.EventInit(eventConfig);

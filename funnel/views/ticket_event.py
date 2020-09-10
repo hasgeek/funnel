@@ -156,7 +156,10 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                     badge_printed = getbool(form.data.get('badge_printed'))
                     db.session.query(TicketParticipant).filter(
                         TicketParticipant.id.in_(
-                            [participant.id for participant in self.obj.participants]
+                            [
+                                ticket_participant.id
+                                for ticket_participant in self.obj.ticket_participants
+                            ]
                         )
                     ).update(
                         {'badge_printed': badge_printed}, synchronize_session=False
@@ -253,7 +256,7 @@ class TicketTypeView(UrlForView, ModelView):
     @render_with('ticket_type.html.jinja2')
     @requires_roles({'project_concierge'})
     def view(self):
-        participants = (
+        ticket_participants = (
             TicketParticipant.query.join(SyncTicket)
             .filter(SyncTicket.ticket_type == self.obj)
             .all()
@@ -262,7 +265,7 @@ class TicketTypeView(UrlForView, ModelView):
             'profile': self.obj.project.profile,
             'project': self.obj.project,
             'ticket_type': self.obj,
-            'participants': participants,
+            'ticket_participants': ticket_participants,
         }
 
     @route('edit', methods=['GET', 'POST'])

@@ -44,7 +44,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         primary_key=True,
         index=True,
     )
-    participant = db.relationship(
+    ticket_participant = db.relationship(
         TicketParticipant, backref=db.backref('scanned_contacts', passive_deletes=True)
     )
     #: Datetime at which the scan happened
@@ -58,10 +58,16 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     __roles__ = {
         'owner': {
-            'read': {'user', 'participant', 'scanned_at', 'description', 'archived'},
+            'read': {
+                'user',
+                'ticket_participant',
+                'scanned_at',
+                'description',
+                'archived',
+            },
             'write': {'description', 'archived'},
         },
-        'subject': {'read': {'user', 'participant', 'scanned_at'}},
+        'subject': {'read': {'user', 'ticket_participant', 'scanned_at'}},
     }
 
     def roles_for(self, actor, anchors=()):
@@ -69,7 +75,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         if actor is not None:
             if actor == self.user:
                 roles.add('owner')
-            if actor == self.participant.user:
+            if actor == self.ticket_participant.user:
                 roles.add('subject')
         return roles
 

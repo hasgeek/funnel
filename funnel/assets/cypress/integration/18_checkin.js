@@ -4,7 +4,7 @@ describe('Checkin of attendees', function () {
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
-  const participants = require('../fixtures/participants.json');
+  const ticket_participants = require('../fixtures/ticket_participants.json');
 
   it('Checkin of attendees', function () {
     cy.login('/', concierge.username, concierge.password);
@@ -18,32 +18,36 @@ describe('Checkin of attendees', function () {
     cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
 
-    cy.fixture('participants').then((participants) => {
-      participants.forEach(function (participant) {
-        cy.get('a[data-cy="add-participant"]').click();
-        cy.get('#fullname').type(participant.fullname);
-        cy.get('#email').type(participant.email);
-        cy.get('#phone').type(participant.phone);
-        cy.get('#company').type(participant.company);
-        cy.get('#twitter').type(participant.twitter);
+    cy.fixture('ticket_participants').then((ticket_participants) => {
+      ticket_participants.forEach(function (ticket_participant) {
+        cy.get('a[data-cy="add-ticket-participant"]').click();
+        cy.get('#fullname').type(ticket_participant.fullname);
+        cy.get('#email').type(ticket_participant.email);
+        cy.get('#phone').type(ticket_participant.phone);
+        cy.get('#company').type(ticket_participant.company);
+        cy.get('#twitter').type(ticket_participant.twitter);
         cy.get('#field-events')
           .find('label')
-          .contains(participant.event)
+          .contains(ticket_participant.event)
           .click();
         cy.get('button').contains('Add participant').click();
       });
     });
 
     cy.get('a[data-cy="' + events[0].title + '"]').click();
-    cy.get('td[data-cy="participant"]').contains(participants[0].fullname);
-    cy.get('td[data-cy="participant"]').contains(participants[1].fullname);
+    cy.get('td[data-cy="ticket-participant"]').contains(
+      ticket_participants[0].fullname
+    );
+    cy.get('td[data-cy="ticket-participant"]').contains(
+      ticket_participants[1].fullname
+    );
     cy.checkin(user.username);
     cy.get('a[data-cy="back-to-setup"]').click();
 
     cy.get('a[data-cy="' + events[1].title + '"]').click();
     // Test failing
-    // cy.get('td[data-cy="participant"]')
-    //   .contains(participants[2].fullname)
+    // cy.get('td[data-cy="ticket-participant"]')
+    //   .contains(ticket_participants[2].fullname)
     //   .parent()
     //   .find('a[data-cy="edit-attendee-details"]')
     //   .invoke('removeAttr', 'target')
@@ -51,12 +55,12 @@ describe('Checkin of attendees', function () {
     // cy.url().should('contain', 'edit');
     // cy.get('#email')
     //   .clear()
-    //   .type(participants[1].email);
+    //   .type(ticket_participants[1].email);
     // cy.get('button')
     //   .contains('Save changes')
     //   .click();
 
-    cy.checkin(participants[2].fullname);
+    cy.checkin(ticket_participants[2].fullname);
     cy.get('a[data-cy="back-to-setup"]').click();
   });
 });

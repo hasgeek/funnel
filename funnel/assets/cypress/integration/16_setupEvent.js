@@ -2,7 +2,7 @@ describe('Setup event for checkin', function () {
   const concierge = require('../fixtures/user.json').concierge;
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
-  const participants = require('../fixtures/participants.json');
+  const ticket_participants = require('../fixtures/ticket_participants.json');
 
   it('Setup event for checkin', function () {
     cy.login('/', concierge.username, concierge.password);

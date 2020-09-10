@@ -3,7 +3,7 @@ describe('View participant badge', function () {
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
-  const participants = require('../fixtures/participants.json');
+  const ticket_participants = require('../fixtures/ticket_participants.json');
 
   it('View participant badge', function () {
     cy.login('/', usher.username, usher.password);
@@ -17,9 +17,9 @@ describe('View participant badge', function () {
     cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
     cy.get('a[data-cy="' + events[1].title + '"]').click();
-    var firstname = participants[2].fullname.split(' ')[0];
-    cy.get('td[data-cy="participant"]')
-      .contains(participants[2].fullname)
+    var firstname = ticket_participants[2].fullname.split(' ')[0];
+    cy.get('td[data-cy="ticket-participant"]')
+      .contains(ticket_participants[2].fullname)
       .parent()
       .find('a[data-cy="show-badge"]')
       .invoke('removeAttr', 'target')

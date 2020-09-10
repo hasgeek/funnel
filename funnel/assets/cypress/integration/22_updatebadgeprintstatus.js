@@ -2,12 +2,12 @@ describe('View and update print status of badge', function () {
   const admin = require('../fixtures/user.json').admin;
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
-  const participants = require('../fixtures/participants.json');
+  const ticket_participants = require('../fixtures/ticket_participants.json');
 
   it('View badges to be printed', function () {
     cy.server();
-    cy.route('POST', '**/participants/checkin?*').as('checkin');
-    cy.route('**/participants/json').as('participant-list');
+    cy.route('POST', '**/ticket_participants/checkin?*').as('checkin');
+    cy.route('**/ticket_participants/json').as('ticket-participant-list');
 
     cy.login('/testcypressproject', admin.username, admin.password);
 

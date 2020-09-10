@@ -35,7 +35,7 @@
       <div class="card__footer">
         <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-event">{% trans %}New event{% endtrans %}</a>
         {%- if project.events %}
-          <a href="{{ project.url_for('new_participant') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-participant">{% trans %}Add participant{% endtrans %}</a>
+          <a href="{{ project.url_for('new_participant') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-ticket-participant">{% trans %}Add ticketed participant{% endtrans %}</a>
         {%- endif %}
       </div>
       {%- endif %}

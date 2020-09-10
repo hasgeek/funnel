@@ -46,11 +46,11 @@ describe('Sync tickets from Boxoffice', function () {
     cy.get('button[data-cy="sync-tickets"').click();
 
     cy.get('a[data-cy="' + events[0].title + '"]').click();
-    cy.get('td[data-cy="participant"]').contains(user.username);
+    cy.get('td[data-cy="ticket-participant"]').contains(user.username);
     cy.get('a[data-cy="back-to-setup"]').click();
 
     cy.get('a[data-cy="' + events[1].title + '"]').click();
-    cy.get('td[data-cy="participant"]').contains(user.username);
+    cy.get('td[data-cy="ticket-participant"]').contains(user.username);
     cy.get('a[data-cy="back-to-setup"]').click();
   });
 });

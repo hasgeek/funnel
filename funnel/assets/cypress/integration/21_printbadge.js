@@ -3,12 +3,12 @@ describe('View badges to be printed', function () {
   const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
   const events = require('../fixtures/events.json');
-  const participants = require('../fixtures/participants.json');
+  const ticket_participants = require('../fixtures/ticket_participants.json');
 
   it('View badges to be printed', function () {
     cy.server();
-    cy.route('POST', '**/participants/checkin?*').as('checkin');
-    cy.route('**/participants/json').as('participant-list');
+    cy.route('POST', '**/ticket_participants/checkin?*').as('checkin');
+    cy.route('**/ticket_participants/json').as('ticket-participant-list');
 
     cy.login('/', usher.username, usher.password);
 
@@ -21,8 +21,8 @@ describe('View badges to be printed', function () {
     cy.get('a[data-cy="setup-events"').click();
     cy.location('pathname').should('contain', '/admin');
     cy.get('a[data-cy="' + events[0].title + '"]').click();
-    var firstname1 = participants[0].fullname.split(' ')[0];
-    var firstname2 = participants[1].fullname.split(' ')[0];
+    var firstname1 = ticket_participants[0].fullname.split(' ')[0];
+    var firstname2 = ticket_participants[1].fullname.split(' ')[0];
     cy.get('a[data-cy="badges-to-printed"]')
       .invoke('removeAttr', 'target')
       .click();

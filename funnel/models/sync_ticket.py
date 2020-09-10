@@ -91,7 +91,7 @@ class TicketEvent(GetTitleMixin, db.Model):
     ticket_types = db.relationship(
         'TicketType', secondary=ticket_event_ticket_type, back_populates='events'
     )
-    participants = db.relationship(
+    ticket_participants = db.relationship(
         'TicketParticipant',
         secondary='ticket_event_participant',
         backref='events',
@@ -176,11 +176,14 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     )
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship(User, backref=db.backref('participants', cascade='all'))
+    user = db.relationship(
+        User, backref=db.backref('ticket_participants', cascade='all')
+    )
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(
-            Project, backref=db.backref('participants', lazy='dynamic', cascade='all')
+            Project,
+            backref=db.backref('ticket_participants', lazy='dynamic', cascade='all'),
         ),
         read={'concierge', 'subject', 'scanner'},
         grants_via={None: project_child_role_map},
@@ -238,22 +241,22 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def upsert(cls, current_project, current_email, **fields):
-        participant = cls.get(current_project, current_email)
+        ticket_participant = cls.get(current_project, current_email)
         useremail = UserEmail.get(current_email)
         if useremail:
             user = useremail.user
         else:
             user = None
-        if participant:
-            participant.user = user
-            participant._set_fields(fields)
+        if ticket_participant:
+            ticket_participant.user = user
+            ticket_participant._set_fields(fields)
         else:
             with db.session.no_autoflush:
-                participant = cls(
+                ticket_participant = cls(
                     project=current_project, user=user, email=current_email, **fields
                 )
-            db.session.add(participant)
-        return participant
+            db.session.add(ticket_participant)
+        return ticket_participant
 
     def add_events(self, events):
         for event in events:
@@ -268,11 +271,11 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     @classmethod
     def checkin_list(cls, ticket_event):
         """
-        Returns participant details along with their associated ticket types as a
+        Returns ticket participant details along with their associated ticket types as a
         comma-separated string.
         """
         # FIXME: Replace with SQLAlchemy objects
-        participant_list = (
+        ticket_participant_list = (
             db.session.query(
                 'uuid',
                 'fullname',
@@ -299,7 +302,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             .params(ticket_event_id=ticket_event.id)
             .all()
         )
-        return participant_list
+        return ticket_participant_list
 
 
 class TicketEventParticipant(BaseMixin, db.Model):
@@ -312,7 +315,7 @@ class TicketEventParticipant(BaseMixin, db.Model):
     ticket_participant_id = db.Column(
         None, db.ForeignKey('ticket_participant.id'), nullable=False
     )
-    participant = db.relationship(
+    ticket_participant = db.relationship(
         TicketParticipant, backref=db.backref('attendees', cascade='all')
     )
     ticket_event_id = db.Column(None, db.ForeignKey('ticket_event.id'), nullable=False)
@@ -364,7 +367,7 @@ class TicketClient(BaseMixin, db.Model):
                 self.project, current_title=ticket_dict['ticket_type']
             )
 
-            participant = TicketParticipant.upsert(
+            ticket_participant = TicketParticipant.upsert(
                 self.project,
                 ticket_dict['email'],
                 fullname=ticket_dict['fullname'],
@@ -379,23 +382,23 @@ class TicketClient(BaseMixin, db.Model):
                 self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no')
             )
             if ticket and (
-                ticket.participant is not participant
+                ticket.ticket_participant != ticket_participant
                 or ticket_dict.get('status') == 'cancelled'
             ):
                 # Ensure that the participant of a transferred or cancelled ticket does
                 # not have access to this ticket's events
-                ticket.participant.remove_events(ticket_type.events)
+                ticket.ticket_participant.remove_events(ticket_type.events)
 
             if ticket_dict.get('status') == 'confirmed':
                 ticket = SyncTicket.upsert(
                     self,
                     ticket_dict.get('order_no'),
                     ticket_dict.get('ticket_no'),
-                    participant=participant,
+                    ticket_participant=ticket_participant,
                     ticket_type=ticket_type,
                 )
                 # Ensure that the new or updated participant has access to events
-                ticket.participant.add_events(ticket_type.events)
+                ticket.ticket_participant.add_events(ticket_type.events)
 
     def permissions(self, user, inherited=None):
         perms = super(TicketClient, self).permissions(user, inherited)
@@ -418,7 +421,7 @@ class SyncTicket(BaseMixin, db.Model):
     ticket_participant_id = db.Column(
         None, db.ForeignKey('ticket_participant.id'), nullable=False
     )
-    participant = db.relationship(
+    ticket_participant = db.relationship(
         TicketParticipant,
         backref=db.backref('sync_tickets', cascade='all'),
     )
