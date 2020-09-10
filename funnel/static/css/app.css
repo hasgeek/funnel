@@ -4150,8 +4150,8 @@ a.loginbutton.hidden,
 }
 .comment .comment__header .comment__header__details {
   display: inline-block;
-  min-width: 200px;
-  max-width: calc(100% - 40px);
+  width: 100%;
+  max-width: calc(100% - 44px);
   margin-left: 8px;
 }
 .comment .comment__header .comment__header__details .commenter {
@@ -4163,6 +4163,7 @@ a.loginbutton.hidden,
   .comment__header__details__user {
   min-height: 40px;
   margin-right: 8px;
+  max-width: calc(100% - 100px);
 }
 .comment
   .comment__header
@@ -4196,10 +4197,18 @@ a.loginbutton.hidden,
 .comment .comment__body .ajax-form .mui--text-title {
   margin-top: 8px;
 }
+.comment .comment__body .comment__body {
+  border-left: 1px solid rgba(132, 146, 166, 0.3);
+  padding-left: 10px;
+  margin: 5px 0 0 8px;
+}
 
 @media (min-width: 768px) {
   .comment .comment__body {
     margin: 5px 0 0 30px;
+  }
+  .comment .comment__body .comment__body {
+    padding-left: 25px;
   }
 }
 .slide-enter-active {

@@ -15,8 +15,8 @@
     }
     .comment__header__details {
       display: inline-block;
-      min-width: 200px;
-      max-width: calc(100% - 40px);
+      width: 100%;
+      max-width: calc(100% - 44px);
       margin-left: $mui-grid-padding/2;
       .commenter {
         margin-right: $mui-grid-padding/2;
@@ -24,6 +24,7 @@
       .comment__header__details__user {
         min-height: 40px;
         margin-right: 8px;
+        max-width: calc(100% - 100px);
         .badge {
           position: relative;
           top: -2px;
@@ -60,6 +61,11 @@
         margin-top: 8px;
       }
     }
+    .comment__body {
+      border-left: 1px solid $mui-divider-color;
+      padding-left: 10px;
+      margin: 5px 0 0 8px;
+    }
   }
 }
 
@@ -67,6 +73,10 @@
   .comment {
     .comment__body {
       margin: 5px 0 0 30px;
+
+      .comment__body {
+        padding-left: 25px;
+      }
     }
   }
 }
