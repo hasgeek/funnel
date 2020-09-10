@@ -36,7 +36,7 @@
   }
 
   .comment__body {
-    margin: 5px 0 0 30px;
+    margin: 5px 0 0 5px;
 
     img {
       max-width: 100%;
@@ -59,6 +59,14 @@
       .mui--text-title {
         margin-top: 8px;
       }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .comment {
+    .comment__body {
+      margin: 5px 0 0 30px;
     }
   }
 }
