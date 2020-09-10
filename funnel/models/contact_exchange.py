@@ -6,8 +6,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from coaster.utils import uuid_to_base58
 
 from . import RoleMixin, TimestampMixin, db
-from .event import Participant
 from .project import Project
+from .sync_ticket import TicketParticipant
 from .user import User
 
 __all__ = ['ContactExchange']
@@ -20,7 +20,7 @@ DateCountContacts = namedtuple('DateCountContacts', ['date', 'count', 'contacts'
 
 class ContactExchange(TimestampMixin, RoleMixin, db.Model):
     """
-    Model to track who scanned whose badge, at which event.
+    Model to track who scanned whose badge, in which project.
     """
 
     __tablename__ = 'contact_exchange'
@@ -38,14 +38,14 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         ),
     )
     #: Participant whose contact was scanned
-    participant_id = db.Column(
+    ticket_participant_id = db.Column(
         None,
-        db.ForeignKey('participant.id', ondelete='CASCADE'),
+        db.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
         index=True,
     )
-    participant = db.relationship(
-        Participant, backref=db.backref('scanned_contacts', passive_deletes=True)
+    ticket_participant = db.relationship(
+        TicketParticipant, backref=db.backref('scanned_contacts', passive_deletes=True)
     )
     #: Datetime at which the scan happened
     scanned_at = db.Column(
@@ -58,10 +58,16 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     __roles__ = {
         'owner': {
-            'read': {'user', 'participant', 'scanned_at', 'description', 'archived'},
+            'read': {
+                'user',
+                'ticket_participant',
+                'scanned_at',
+                'description',
+                'archived',
+            },
             'write': {'description', 'archived'},
         },
-        'subject': {'read': {'user', 'participant', 'scanned_at'}},
+        'subject': {'read': {'user', 'ticket_participant', 'scanned_at'}},
     }
 
     def roles_for(self, actor, anchors=()):
@@ -69,15 +75,17 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         if actor is not None:
             if actor == self.user:
                 roles.add('owner')
-            if actor == self.participant.user:
+            if actor == self.ticket_participant.user:
                 roles.add('subject')
         return roles
 
     @classmethod
     def migrate_user(cls, old_user, new_user):
-        participant_ids = {ce.participant_id for ce in new_user.scanned_contacts}
+        ticket_participant_ids = {
+            ce.ticket_participant_id for ce in new_user.scanned_contacts
+        }
         for ce in old_user.scanned_contacts:
-            if ce.participant_id not in participant_ids:
+            if ce.ticket_participant_id not in ticket_participant_ids:
                 ce.user = new_user
             else:
                 # Discard duplicate contact exchange
@@ -91,8 +99,8 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         query = db.session.query(
             cls.scanned_at, Project.id, Project.uuid, Project.timezone, Project.title
         ).filter(
-            cls.participant_id == Participant.id,
-            Participant.project_id == Project.id,
+            cls.ticket_participant_id == TicketParticipant.id,
+            TicketParticipant.project_id == Project.id,
             cls.user == user,
         )
 
@@ -142,10 +150,10 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         #     project.uuid AS project_uuid,
         #     project.title AS project_title,
         #     project.timezone AS project_timezone
-        #   FROM contact_exchange, participant, project
+        #   FROM contact_exchange, ticket_participant, project
         #   WHERE
-        #     contact_exchange.participant_id = participant.id
-        #     AND participant.project_id = project.id
+        #     contact_exchange.ticket_participant_id = ticket_participant.id
+        #     AND ticket_participant.project_id = project.id
         #     AND contact_exchange.user_id = :user_id
         #   ) AS anon_1
         # GROUP BY id, uuid, title, timezone, date
@@ -196,12 +204,12 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         """
         Return contacts for a given user, project and date
         """
-        query = cls.query.join(Participant).filter(
+        query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
             # For safety always use objects instead of column values. The following expression
             # should have been `Participant.project == project`. However, we are using `id` here
             # because `project` may be an instance of ProjectId returned by `grouped_counts_for`
-            Participant.project_id == project.id,
+            TicketParticipant.project_id == project.id,
             db.cast(
                 db.func.date_trunc(
                     'day', db.func.timezone(project.timezone.zone, cls.scanned_at)
@@ -222,10 +230,10 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         """
         Return contacts for a given user and project
         """
-        query = cls.query.join(Participant).filter(
+        query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
             # See explanation for the following expression in `contacts_for_project_and_date`
-            Participant.project_id == project.id,
+            TicketParticipant.project_id == project.id,
         )
         if not archived:
             # If archived == True: return everything (contacts including archived contacts)
@@ -234,4 +242,4 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         return query
 
 
-Participant.scanning_users = association_proxy('scanned_contacts', 'user')
+TicketParticipant.scanning_users = association_proxy('scanned_contacts', 'user')

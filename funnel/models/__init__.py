@@ -35,7 +35,7 @@ from .notification import *  # isort:skip
 from .utils import *  # isort:skip
 from .commentvote import *  # isort:skip
 from .draft import *  # isort:skip
-from .event import *  # isort:skip
+from .sync_ticket import *  # isort:skip
 from .contact_exchange import *  # isort:skip
 from .feedback import *  # isort:skip
 from .label import *  # isort:skip

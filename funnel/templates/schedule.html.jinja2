@@ -7,7 +7,7 @@
 {% block description %}
   {%- if active_session -%}
     {%- if active_session.speaker -%}
-      {% trans title=active_session.title, speaker=active_session.speaker, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+      {% trans title=active_session.title, speaker=active_session.speaker, project=project.title %}{{ title }} by {{ speaker }}, {{ project }}{% endtrans %}
     {%- else -%}
       {{ active_session.title }}, {{ project.title }}
     {%- endif -%}

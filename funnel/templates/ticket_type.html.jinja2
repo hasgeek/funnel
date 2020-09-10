@@ -16,11 +16,11 @@
     </div>
     <div class="grid__col-xs-6">
       <h3 class="mui--text-title mui--text-right">
-        Total: {{participants | length}}
+        Total: {{ticket_participants | length}}
       </h3>
     </div>
     <div class="grid__col-xs-12 mui-table--responsive-wrapper">
-      <table class="mui-table mui-table--bordered mui-table--responsive" id='participants-table'>
+      <table class="mui-table mui-table--bordered mui-table--responsive" id='ticket-participants-table'>
         <thead>
           <tr>
             <th>Name</th>
@@ -29,7 +29,7 @@
           </tr>
         </thead>
         <tbody>
-          {%- for p in participants %}
+          {%- for p in ticket_participants %}
             <tr id="p-{{ p.id }}">
               <td class='js-searchable' data-th="Name">{{ p.fullname }}</td>
               <td class='js-searchable' data-th="Email">{{ p.email }}</td>

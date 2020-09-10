@@ -72,13 +72,13 @@
                     {% for contact in daterow.contacts.all() %}
                       <div class="user">
                         <div class="user__box">
-                          {{ useravatar(contact.participant) }}
+                          {{ useravatar(contact.ticket_participant) }}
                           <div class="mui--clearfix">
                             <div class=" mui--pull-left">
-                              <p class="mui--text-subhead zero-bottom-margin">{{ contact.participant.fullname }}</p>
-                              <p class="mui--text-body2">{{ contact.participant.email }}</p>
+                              <p class="mui--text-subhead zero-bottom-margin">{{ contact.ticket_participant.fullname }}</p>
+                              <p class="mui--text-body2">{{ contact.ticket_participant.email }}</p>
                             </div>
-                            <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{contact.participant.fullname}}', '{{contact.participant.email}}', '{{contact.participant.phone}}', '{{contact.participant.company}}')" download href="" aria-label="download contact">
+                            <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{contact.ticket_participant.fullname}}', '{{contact.ticket_participant.email}}', '{{contact.ticket_participant.phone}}', '{{contact.ticket_participant.company}}')" download href="" aria-label="download contact">
                               {{ faicon(icon='address-card', icon_size='headline') }}
                             </a>
                           </div>

@@ -6,6 +6,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import NoIdMixin, UuidMixin, db
+from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import USER_STATUS, User
@@ -129,43 +130,34 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
             return result
 
 
-Project.active_rsvps = with_roles(
-    property(
-        lambda self: self.rsvps.join(User).filter(Rsvp.state.YES, User.is_active),
-    ),
-    grants_via={Rsvp.user: {'participant'}},
-)
+@reopen(Project)
+class Project:
+    @with_roles(grants_via={Rsvp.user: {'participant'}})
+    @property
+    def active_rsvps(self):
+        return self.rsvps.join(User).filter(Rsvp.state.YES, User.is_active)
 
+    def rsvp_for(self, user, create=False):
+        return Rsvp.get_for(self, user, create)
 
-def _project_rsvp_for(self, user, create=False):
-    return Rsvp.get_for(self, user, create)
+    def rsvps_with(self, status):
+        return self.rsvps.join(User).filter(
+            User.status == USER_STATUS.ACTIVE, Rsvp._state == status
+        )
 
+    def rsvp_counts(self):
+        return dict(
+            db.session.query(Rsvp._state, db.func.count(Rsvp._state))
+            .join(User)
+            .filter(User.status == USER_STATUS.ACTIVE, Rsvp.project == self)
+            .group_by(Rsvp._state)
+            .all()
+        )
 
-def _project_rsvps_with(self, status):
-    return self.rsvps.join(User).filter(
-        User.status == USER_STATUS.ACTIVE, Rsvp._state == status
-    )
-
-
-def _project_rsvp_counts(self):
-    return dict(
-        db.session.query(Rsvp._state, db.func.count(Rsvp._state))
-        .join(User)
-        .filter(User.status == USER_STATUS.ACTIVE, Rsvp.project == self)
-        .group_by(Rsvp._state)
-        .all()
-    )
-
-
-Project.rsvp_for = _project_rsvp_for
-Project.rsvps_with = _project_rsvps_with
-Project.rsvp_counts = _project_rsvp_counts
-
-
-Project.rsvp_count_going = cached_property(
-    lambda self: (
-        self.rsvps.join(User)
-        .filter(User.status == USER_STATUS.ACTIVE, Rsvp.state.YES)
-        .count()
-    )
-)
+    @cached_property
+    def rsvp_count_going(self):
+        return (
+            self.rsvps.join(User)
+            .filter(User.status == USER_STATUS.ACTIVE, Rsvp.state.YES)
+            .count()
+        )

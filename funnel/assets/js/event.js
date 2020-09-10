@@ -15,12 +15,12 @@ const Store = {
 const Queue = function (queueName) {
   this.queueName = queueName;
 
-  // Adds a participantId to queue
-  this.enqueue = function (participantId) {
-    const participantList = Store.read(this.queueName) || [];
-    if (participantList.indexOf(participantId) === -1) {
-      participantList.push(participantId);
-      return Store.add(this.queueName, participantList);
+  // Adds a ticketParticipantId to queue
+  this.enqueue = function (ticketParticipantId) {
+    const ticketParticipantList = Store.read(this.queueName) || [];
+    if (ticketParticipantList.indexOf(ticketParticipantId) === -1) {
+      ticketParticipantList.push(ticketParticipantId);
+      return Store.add(this.queueName, ticketParticipantList);
     }
     return false;
   };
@@ -28,58 +28,66 @@ const Queue = function (queueName) {
   // Reads and returns all items from queue
   // Returns undefined when queue is empty or not defined
   this.readAll = function () {
-    const participantList = Store.read(this.queueName);
-    if (participantList && participantList.length) {
-      return participantList;
+    const ticketParticipantList = Store.read(this.queueName);
+    if (ticketParticipantList && ticketParticipantList.length) {
+      return ticketParticipantList;
     }
     return false;
   };
 
   // Removes item from queue and returns true
   // Returns undefined when item not present in queue
-  this.dequeue = function (participantId) {
-    const participantList = Store.read(this.queueName);
-    const index = participantList ? participantList.indexOf(participantId) : -1;
+  this.dequeue = function (ticketParticipantId) {
+    const ticketParticipantList = Store.read(this.queueName);
+    const index = ticketParticipantList
+      ? ticketParticipantList.indexOf(ticketParticipantId)
+      : -1;
     if (index !== -1) {
       // Remove item from queue and add updated queue to localStorage
-      participantList.splice(index, 1);
-      Store.add(this.queueName, participantList);
-      return participantId;
+      ticketParticipantList.splice(index, 1);
+      Store.add(this.queueName, ticketParticipantList);
+      return ticketParticipantId;
     }
     return false;
   };
 
   /* updateQueue: If participant in "checkin-queue" has already been checked-in
   then it is removed from checkin queue */
-  this.updateQueue = function (participantsHashMap, ParticipantList) {
+  this.updateQueue = function (participantsHashMap, ticketParticipantList) {
     const queue = this;
-    const participantIDs = queue.readAll();
-    const participants = ParticipantList.get('participants');
-    if (participantIDs) {
-      participantIDs.forEach((participantID) => {
+    const ticketParticipantIds = queue.readAll();
+    const ticketParticipants = ticketParticipantList.get('ticket_participants');
+    if (ticketParticipantIds) {
+      ticketParticipantIds.forEach((ticketParticipantId) => {
         if (queue.queueName.indexOf('cancelcheckin-queue') > -1) {
-          if (!participantsHashMap[participantID].checked_in) {
+          if (!participantsHashMap[ticketParticipantId].checked_in) {
             /* Participant's check-in has already been cancelled so remove
             from 'cancelcheckin-queue' */
-            queue.dequeue(participantID);
+            queue.dequeue(ticketParticipantId);
           } else {
             const index = Utils.findLoopIndex(
-              participants,
+              ticketParticipants,
               'puuid_b58',
-              participantID
+              ticketParticipantId
             );
-            ParticipantList.set(`participants.${index}.submitting`, true);
+            ticketParticipantList.set(
+              `ticket_participants.${index}.submitting`,
+              true
+            );
           }
-        } else if (participantsHashMap[participantID].checked_in) {
+        } else if (participantsHashMap[ticketParticipantId].checked_in) {
           // Participant has been checked-in so remove from 'checkin-queue'
-          queue.dequeue(participantID);
+          queue.dequeue(ticketParticipantId);
         } else {
           const index = Utils.findLoopIndex(
-            participants,
+            ticketParticipants,
             'puuid_b58',
-            participantID
+            ticketParticipantId
           );
-          ParticipantList.set(`participants.${index}.submitting`, true);
+          ticketParticipantList.set(
+            `ticket_participants.${index}.submitting`,
+            true
+          );
         }
       });
     }
@@ -87,12 +95,18 @@ const Queue = function (queueName) {
 };
 
 const ParticipantTable = {
-  init({ isConcierge, isUsher, checkinUrl, participantlistUrl, eventName }) {
+  init({
+    isConcierge,
+    isUsher,
+    checkinUrl,
+    participantlistUrl,
+    ticketEventName,
+  }) {
     Ractive.DEBUG = false;
 
     const count = new Ractive({
-      el: '#participants-count',
-      template: '#participants-count-template',
+      el: '#ticket-participants-count',
+      template: '#ticket-participants-count-template',
       data: {
         total_participants: '',
         total_checkedin: '',
@@ -100,13 +114,13 @@ const ParticipantTable = {
     });
 
     const list = new Ractive({
-      el: '#participants-table-content',
-      template: '#participant-row',
+      el: '#ticket-participants-table-content',
+      template: '#ticket-participant-row',
       data: {
-        participants: '',
+        ticket_participants: '',
         checkinUrl,
-        checkinQ: new Queue(`${eventName}-checkin-queue`),
-        cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
+        checkinQ: new Queue(`${ticketEventName}-checkin-queue`),
+        cancelcheckinQ: new Queue(`${ticketEventName}-cancelcheckin-queue`),
         isConcierge,
         isUsher,
         svgIconUrl: window.Hasgeek.config.svgIconUrl,
@@ -119,25 +133,25 @@ const ParticipantTable = {
       },
       handleCheckIn(event, checkin) {
         event.original.preventDefault();
-        const participantID = this.get(`${event.keypath}.puuid_b58`);
+        const ticketParticipantId = this.get(`${event.keypath}.puuid_b58`);
         if (checkin) {
           // Add participant id to checkin queue
-          this.get('checkinQ').enqueue(participantID);
+          this.get('checkinQ').enqueue(ticketParticipantId);
         } else {
-          this.get('cancelcheckinQ').enqueue(participantID);
+          this.get('cancelcheckinQ').enqueue(ticketParticipantId);
         }
         // Show the loader icon
         this.set(`${event.keypath}.submitting`, true);
       },
       handleAbortCheckIn(event, checkin) {
         event.original.preventDefault();
-        const participantID = this.get(`${event.keypath}.puuid_b58`);
+        const ticketParticipantId = this.get(`${event.keypath}.puuid_b58`);
         if (checkin) {
-          this.get('checkinQ').dequeue(participantID);
-          this.get('cancelcheckinQ').enqueue(participantID);
+          this.get('checkinQ').dequeue(ticketParticipantId);
+          this.get('cancelcheckinQ').enqueue(ticketParticipantId);
         } else {
-          this.get('cancelcheckinQ').dequeue(participantID);
-          this.get('checkinQ').enqueue(participantID);
+          this.get('cancelcheckinQ').dequeue(ticketParticipantId);
+          this.get('checkinQ').enqueue(ticketParticipantId);
         }
         // Hide the loader icon
         this.set(`${event.keypath}.submitting`, false);
@@ -153,14 +167,18 @@ const ParticipantTable = {
               total_participants: data.total_participants,
               total_checkedin: data.total_checkedin,
             });
-            list.set('participants', data.participants).then(() => {
-              const participants = Utils.tohashMap(
-                data.participants,
-                'puuid_b58'
-              );
-              list.get('checkinQ').updateQueue(participants, list);
-              list.get('cancelcheckinQ').updateQueue(participants, list);
-            });
+            list
+              .set('ticket_participants', data.ticket_participants)
+              .then(() => {
+                const ticketParticipants = Utils.tohashMap(
+                  data.ticket_participants,
+                  'puuid_b58'
+                );
+                list.get('checkinQ').updateQueue(ticketParticipants, list);
+                list
+                  .get('cancelcheckinQ')
+                  .updateQueue(ticketParticipants, list);
+              });
           },
         });
       },
@@ -173,7 +191,7 @@ const ParticipantTable = {
           ParticipantTable.processQueues(list);
         }, 8000);
 
-        // Get participants data from server every 15 seconds
+        // Get ticket participants data from server every 15 seconds
         setInterval(() => {
           list.updateList();
         }, 15000);
@@ -181,24 +199,24 @@ const ParticipantTable = {
     });
   },
   processQueues(list) {
-    let participantIDs = list.get('checkinQ').readAll();
-    if (participantIDs) {
-      this.postCheckinStatus(participantIDs, true, list);
+    let ticketParticipantIds = list.get('checkinQ').readAll();
+    if (ticketParticipantIds) {
+      this.postCheckinStatus(ticketParticipantIds, true, list);
     }
 
-    participantIDs = list.get('cancelcheckinQ').readAll();
-    if (participantIDs) {
-      this.postCheckinStatus(participantIDs, false, list);
+    ticketParticipantIds = list.get('cancelcheckinQ').readAll();
+    if (ticketParticipantIds) {
+      this.postCheckinStatus(ticketParticipantIds, false, list);
     }
   },
-  postCheckinStatus(participantIDs, action, list) {
-    let participants;
+  postCheckinStatus(ticketParticipantIds, action, list) {
+    let ticketParticipants;
     let checkin = 'f';
     let content;
     let formValues;
-    participants = $.param(
+    ticketParticipants = $.param(
       {
-        puuid_b58: participantIDs,
+        puuid_b58: ticketParticipantIds,
       },
       true
     );
@@ -206,7 +224,7 @@ const ParticipantTable = {
       checkin = 't';
     }
     content = $("meta[name='csrf-token']").attr('content');
-    formValues = `${participants}&checkin=${checkin}&csrf_token=${content}`;
+    formValues = `${ticketParticipants}&checkin=${checkin}&csrf_token=${content}`;
     $.ajax({
       type: 'POST',
       url: list.get('checkinUrl'),
@@ -215,12 +233,12 @@ const ParticipantTable = {
       dataType: 'json',
       success(data) {
         if (data.checked_in) {
-          data.participant_ids.forEach((participantId) => {
-            list.get('checkinQ').dequeue(participantId);
+          data.ticket_participant_ids.forEach((ticketParticipantId) => {
+            list.get('checkinQ').dequeue(ticketParticipantId);
           });
         } else {
-          data.participant_ids.forEach((participantId) => {
-            list.get('cancelcheckinQ').dequeue(participantId);
+          data.ticket_participant_ids.forEach((ticketParticipantId) => {
+            list.get('cancelcheckinQ').dequeue(ticketParticipantId);
           });
         }
       },

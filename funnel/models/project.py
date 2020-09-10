@@ -1,14 +1,8 @@
-from collections import OrderedDict, defaultdict
-from datetime import timedelta
-
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from flask import current_app
 from werkzeug.utils import cached_property
 
-from babel.dates import format_date
-from flask_babelhg import get_locale
-from isoweek import Week
 from pytz import utc
 
 from baseframe import __, localize_timezone
@@ -84,19 +78,43 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.relationship(
             'Profile', backref=db.backref('projects', cascade='all', lazy='dynamic')
         ),
+        read={'all'},
         # If profile grants an 'admin' role, make it 'profile_admin' here
         grants_via={None: {'admin': 'profile_admin'}},
+        # `profile` only appears in the 'primary' dataset. It must not be included in
+        # 'related' or 'without_parent' as it is the parent
+        datasets={'primary'},
     )
     parent = db.synonym('profile')
-    tagline = db.Column(db.Unicode(250), nullable=False)
-    description = MarkdownColumn('description', default='', nullable=False)
-    instructions = MarkdownColumn('instructions', default='', nullable=True)
+    tagline = with_roles(
+        db.Column(db.Unicode(250), nullable=False),
+        read={'all'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
+    description = with_roles(
+        MarkdownColumn('description', default='', nullable=False), read={'all'}
+    )
+    instructions = with_roles(
+        MarkdownColumn('instructions', default='', nullable=True), read={'all'}
+    )
 
-    location = db.Column(db.Unicode(50), default='', nullable=True)
+    location = with_roles(
+        db.Column(db.Unicode(50), default='', nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
     parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
 
-    website = db.Column(UrlType, nullable=True)
-    timezone = db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc)
+    website = with_roles(
+        db.Column(UrlType, nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
+    timezone = with_roles(
+        db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc),
+        read={'all'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
 
     _state = db.Column(
         'state',
@@ -105,7 +123,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         default=PROJECT_STATE.DRAFT,
         nullable=False,
     )
-    state = StateManager('_state', PROJECT_STATE, doc="Project state")
+    state = with_roles(
+        StateManager('_state', PROJECT_STATE, doc="Project state"), call={'all'}
+    )
     _cfp_state = db.Column(
         'cfp_state',
         db.Integer,
@@ -113,7 +133,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         default=CFP_STATE.NONE,
         nullable=False,
     )
-    cfp_state = StateManager('_cfp_state', CFP_STATE, doc="CfP state")
+    cfp_state = with_roles(
+        StateManager('_cfp_state', CFP_STATE, doc="CfP state"), call={'all'}
+    )
     _schedule_state = db.Column(
         'schedule_state',
         db.Integer,
@@ -121,23 +143,38 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         default=SCHEDULE_STATE.DRAFT,
         nullable=False,
     )
-    schedule_state = StateManager(
-        '_schedule_state', SCHEDULE_STATE, doc="Schedule state"
+    schedule_state = with_roles(
+        StateManager('_schedule_state', SCHEDULE_STATE, doc="Schedule state"),
+        call={'all'},
     )
 
     cfp_start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
     cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
-    # Columns for mobile
-    bg_image = db.Column(UrlType, nullable=True)
+    bg_image = with_roles(
+        db.Column(UrlType, nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
     buy_tickets_url = db.Column(UrlType, nullable=True)
 
-    banner_video_url = db.Column(UrlType, nullable=True)
-    boxoffice_data = db.Column(JsonDict, nullable=False, server_default='{}')
+    banner_video_url = with_roles(
+        db.Column(UrlType, nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
+    boxoffice_data = with_roles(
+        db.Column(JsonDict, nullable=False, server_default='{}'),
+        # This is an attribute, but we deliberately use `call` instead of `read` to
+        # block this from dictionary enumeration. FIXME: Break up this dictionary into
+        # individual columns with `all` access for ticket embed id and `concierge`
+        # access for ticket sync access token.
+        call={'all'},
+    )
 
-    hasjob_embed_url = db.Column(UrlType, nullable=True)
-    hasjob_embed_limit = db.Column(db.Integer, default=8)
+    hasjob_embed_url = with_roles(db.Column(UrlType, nullable=True), read={'all'})
+    hasjob_embed_limit = with_roles(db.Column(db.Integer, default=8), read={'all'})
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False)
@@ -160,7 +197,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or profile admins.
-    featured = db.Column(db.Boolean, default=False, nullable=False)
+    featured = with_roles(
+        db.Column(db.Boolean, default=False, nullable=False),
+        read={'all'},
+        write={'site_editor'},
+        datasets={'primary', 'without_parent'},
+    )
 
     search_vector = db.deferred(
         db.Column(
@@ -190,8 +232,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
     )
 
-    livestream_urls = db.Column(
-        db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'
+    livestream_urls = with_roles(
+        db.Column(db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
     )
 
     venues = with_roles(
@@ -220,49 +264,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'urls',
-                'name',
-                'title',
-                'title_inline',
-                'short_title',
-                'title_suffix',
-                'tagline',
-                'datelocation',
-                'timezone',
-                'description',
-                'instructions',
-                'schedule_start_at',
-                'schedule_end_at',
-                'website',
-                'bg_image',
-                'banner_video_url',
-                'absolute_url',
-                'location',
-                'calendar_weeks_full',
-                'calendar_weeks_compact',
-                'primary_venue',
-                'livestream_urls',
-                'schedule_start_at_localized',
-                'schedule_end_at_localized',
-                'cfp_start_at_localized',
-                'cfp_end_at_localized',
-                'hasjob_embed_url',
-                'hasjob_embed_limit',
-                'profile',
-                'featured',
+                'absolute_url',  # From UrlForMixin
+                'name',  # From BaseScopedNameMixin
+                'short_title',  # From BaseScopedNameMixin
+                'title',  # From BaseScopedNameMixin
+                'urls',  # From UrlForMixin
             },
             'call': {
-                'features',
-                'url_for',
-                'current_sessions',
-                'is_saved_by',
-                'state',
-                'schedule_state',
-                'cfp_state',
-                'view_for',
-                'views',
-                'boxoffice_data',
-                'forms',
+                'features',  # From RegistryMixin
+                'forms',  # From RegistryMixin
+                'url_for',  # From UrlForMixin
+                'view_for',  # From UrlForMixin
+                'views',  # From RegistryMixin
             },
         },
     }
@@ -273,174 +286,22 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     __datasets__ = {
         'primary': {
-            'urls',
-            'name',
-            'title',
-            'title_inline',
-            'tagline',
-            'datelocation',
-            'timezone',
-            'schedule_start_at',
-            'schedule_end_at',
-            'website',
-            'bg_image',
-            'banner_video_url',
-            'absolute_url',
-            'location',
-            'calendar_weeks_full',
-            'calendar_weeks_compact',
-            'primary_venue',
-            'livestream_urls',
-            'schedule_start_at_localized',
-            'schedule_end_at_localized',
-            'cfp_start_at_localized',
-            'cfp_end_at_localized',
-            'featured',
-            'profile',
+            'absolute_url',  # From UrlForMixin
+            'name',  # From BaseScopedNameMixin
+            'title',  # From BaseScopedNameMixin
+            'urls',  # From UrlForMixin
         },
         'without_parent': {
-            'name',
-            'title',
-            'title_inline',
-            'tagline',
-            'datelocation',
-            'timezone',
-            'schedule_start_at',
-            'schedule_end_at',
-            'website',
-            'bg_image',
-            'banner_video_url',
-            'absolute_url',
-            'location',
-            'calendar_weeks_full',
-            'calendar_weeks_compact',
-            'primary_venue',
-            'livestream_urls',
-            'schedule_start_at_localized',
-            'schedule_end_at_localized',
-            'cfp_start_at_localized',
-            'cfp_end_at_localized',
-            'featured',
+            'absolute_url',  # From UrlForMixin
+            'name',  # From BaseScopedNameMixin
+            'title',  # From BaseScopedNameMixin
         },
         'related': {
-            'name',
-            'title',
-            'tagline',
-            'datelocation',
-            'timezone',
-            'absolute_url',
-            'location',
+            'absolute_url',  # From UrlForMixin
+            'name',  # From BaseScopedNameMixin
+            'title',  # From BaseScopedNameMixin
         },
     }
-
-    def __init__(self, **kwargs):
-        super(Project, self).__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.PROJECT)
-        self.commentset = Commentset(settype=SET_TYPE.PROJECT)
-        # Add the creator as editor and concierge
-        new_membership = ProjectCrewMembership(
-            parent=self,
-            user=self.user,
-            granted_by=self.user,
-            is_editor=True,
-            is_concierge=True,
-        )
-        db.session.add(new_membership)
-
-    def __repr__(self):
-        return '<Project %s/%s "%s">' % (
-            self.profile.name if self.profile else '(none)',
-            self.name,
-            self.title,
-        )
-
-    @classmethod
-    def migrate_profile(cls, old_profile, new_profile):
-        names = {project.name for project in new_profile.projects}
-        for project in old_profile.projects:
-            if project.name in names:
-                current_app.logger.warning(
-                    "Project %r had a conflicting name in profile migration, "
-                    "so renaming by adding adding random value to name",
-                    project,
-                )
-                project.name += '-' + buid()
-            project.profile = new_profile
-
-    @property
-    def title_inline(self):
-        """Suffix a colon if the title does not end in ASCII sentence punctuation"""
-        if self.title and self.tagline:
-            if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
-                return self.title + ':'
-        return self.title
-
-    @property
-    def title_suffix(self):
-        """
-        Return the profile's title if the project's title doesn't derive from it.
-
-        Used in HTML title tags to render <title>{{ project }} - {{ suffix }}</title>.
-        """
-        if not self.title.startswith(self.parent.title):
-            return self.profile.title
-        return ''
-
-    @with_roles(call={'all'})
-    def joined_title(self, sep='›'):
-        """Return the project's title joined with the profile's title, if divergent."""
-        if self.short_title == self.title:
-            # Project title does not derive from profile title, so use both
-            return f"{self.profile.title} {sep} {self.title}"
-        # Project title extends profile title, so profile title is not needed
-        return self.title
-
-    @cached_property
-    def datelocation(self):
-        """
-        Returns a date + location string for the event, the format depends on project dates
-
-        If it's a single day event
-        > 11 Feb 2018, Bangalore
-
-        If multi-day event in same month
-        > 09–12 Feb 2018, Bangalore
-
-        If multi-day event across months
-        > 27 Feb–02 Mar 2018, Bangalore
-
-        If multi-day event across years
-        > 30 Dec 2018–02 Jan 2019, Bangalore
-
-        ``datelocation_format`` always keeps ``schedule_end_at`` format as ``–DD Mmm YYYY``.
-        Depending on the scenario mentioned below, format for ``schedule_start_at`` changes. Above examples
-        demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
-        Only ``schedule_start_at`` format changes.
-        """
-        daterange = ''
-        if self.schedule_start_at is not None and self.schedule_end_at is not None:
-            schedule_start_at_date = self.schedule_start_at_localized.date()
-            schedule_end_at_date = self.schedule_end_at_localized.date()
-            daterange_format = '{start_date}–{end_date} {year}'
-            if schedule_start_at_date == schedule_end_at_date:
-                # if both dates are same, in case of single day project
-                strf_date = ''
-                daterange_format = '{end_date} {year}'
-            elif schedule_start_at_date.year != schedule_end_at_date.year:
-                # if the start date and end dates are in different years,
-                strf_date = '%d %b %Y'
-            elif schedule_start_at_date.month != schedule_end_at_date.month:
-                # If multi-day event across months
-                strf_date = '%d %b'
-            elif schedule_start_at_date.month == schedule_end_at_date.month:
-                # If multi-day event in same month
-                strf_date = '%d'
-            daterange = daterange_format.format(
-                start_date=schedule_start_at_date.strftime(strf_date),
-                end_date=schedule_end_at_date.strftime('%d %b'),
-                year=schedule_end_at_date.year,
-            )
-        return ', '.join([_f for _f in [daterange, self.location] if _f])
 
     schedule_state.add_conditional_state(
         'PAST',
@@ -543,6 +404,27 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
 
+    def __init__(self, **kwargs):
+        super(Project, self).__init__(**kwargs)
+        self.voteset = Voteset(settype=SET_TYPE.PROJECT)
+        self.commentset = Commentset(settype=SET_TYPE.PROJECT)
+        # Add the creator as editor and concierge
+        new_membership = ProjectCrewMembership(
+            parent=self,
+            user=self.user,
+            granted_by=self.user,
+            is_editor=True,
+            is_concierge=True,
+        )
+        db.session.add(new_membership)
+
+    def __repr__(self):
+        return '<Project %s/%s "%s">' % (
+            self.profile.name if self.profile else '(none)',
+            self.name,
+            self.title,
+        )
+
     @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.OPENABLE,
@@ -609,6 +491,84 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
+    @property
+    def title_inline(self):
+        """Suffix a colon if the title does not end in ASCII sentence punctuation"""
+        if self.title and self.tagline:
+            if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
+                return self.title + ':'
+        return self.title
+
+    @with_roles(read={'all'})
+    @property
+    def title_suffix(self):
+        """
+        Return the profile's title if the project's title doesn't derive from it.
+
+        Used in HTML title tags to render <title>{{ project }} - {{ suffix }}</title>.
+        """
+        if not self.title.startswith(self.parent.title):
+            return self.profile.title
+        return ''
+
+    @with_roles(call={'all'})
+    def joined_title(self, sep='›'):
+        """Return the project's title joined with the profile's title, if divergent."""
+        if self.short_title == self.title:
+            # Project title does not derive from profile title, so use both
+            return f"{self.profile.title} {sep} {self.title}"
+        # Project title extends profile title, so profile title is not needed
+        return self.title
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
+    @cached_property
+    def datelocation(self):
+        """
+        Returns a date + location string for the event, the format depends on project dates
+
+        If it's a single day event
+        > 11 Feb 2018, Bangalore
+
+        If multi-day event in same month
+        > 09–12 Feb 2018, Bangalore
+
+        If multi-day event across months
+        > 27 Feb–02 Mar 2018, Bangalore
+
+        If multi-day event across years
+        > 30 Dec 2018–02 Jan 2019, Bangalore
+
+        ``datelocation_format`` always keeps ``schedule_end_at`` format as ``–DD Mmm YYYY``.
+        Depending on the scenario mentioned below, format for ``schedule_start_at`` changes. Above examples
+        demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
+        Only ``schedule_start_at`` format changes.
+        """
+        daterange = ''
+        if self.schedule_start_at is not None and self.schedule_end_at is not None:
+            schedule_start_at_date = self.schedule_start_at_localized.date()
+            schedule_end_at_date = self.schedule_end_at_localized.date()
+            daterange_format = '{start_date}–{end_date} {year}'
+            if schedule_start_at_date == schedule_end_at_date:
+                # if both dates are same, in case of single day project
+                strf_date = ''
+                daterange_format = '{end_date} {year}'
+            elif schedule_start_at_date.year != schedule_end_at_date.year:
+                # if the start date and end dates are in different years,
+                strf_date = '%d %b %Y'
+            elif schedule_start_at_date.month != schedule_end_at_date.month:
+                # If multi-day event across months
+                strf_date = '%d %b'
+            elif schedule_start_at_date.month == schedule_end_at_date.month:
+                # If multi-day event in same month
+                strf_date = '%d'
+            daterange = daterange_format.format(
+                start_date=schedule_start_at_date.strftime(strf_date),
+                end_date=schedule_end_at_date.strftime('%d %b'),
+                year=schedule_end_at_date.year,
+            )
+        return ', '.join([_f for _f in [daterange, self.location] if _f])
+
     # TODO: Removing Delete feature till we figure out siteadmin feature
     # @with_roles(call={'editor'})
     # @state.transition(
@@ -632,151 +592,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             ProjectRedirect.add(self)
         return value
 
-    def calendar_weeks(self, leading_weeks=True):
-        # session_dates is a list of tuples in this format -
-        # (date, day_start_at, day_end_at, event_count)
-        session_dates = list(
-            db.session.query('date', 'day_start_at', 'day_end_at', 'count')
-            .from_statement(
-                db.text(
-                    '''
-                    SELECT
-                        DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date,
-                        MIN(start_at) as day_start_at,
-                        MAX(end_at) as day_end_at,
-                        COUNT(*) AS count
-                    FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
-                    GROUP BY date ORDER BY date;
-                    '''
-                )
-            )
-            .params(timezone=self.timezone.zone, project_id=self.id)
-        )
-
-        session_dates_dict = {
-            date.date(): {
-                'day_start_at': day_start_at,
-                'day_end_at': day_end_at,
-                'count': count,
-            }
-            for date, day_start_at, day_end_at, count in session_dates
-        }
-
-        # FIXME: This doesn't work. This code needs to be tested in isolation
-        # session_dates = db.session.query(
-        #     db.cast(
-        #         db.func.date_trunc('day', db.func.timezone(self.timezone.zone, Session.start_at)),
-        #         db.Date).label('date'),
-        #     db.func.count().label('count')
-        #     ).filter(
-        #         Session.project == self,
-        #         Session.scheduled
-        #         ).group_by(db.text('date')).order_by(db.text('date'))
-
-        # if the project's week is within next 2 weeks, send current week as well
-        now = utcnow().astimezone(self.timezone)
-        current_week = Week.withdate(now)
-
-        if leading_weeks and self.schedule_start_at is not None:
-            schedule_start_week = Week.withdate(self.schedule_start_at)
-
-            # session_dates is a list of tuples in this format -
-            # (date, day_start_at, day_end_at, event_count)
-            # as these days dont have any event, day_start/end_at are None,
-            # and count is 0.
-            if (
-                schedule_start_week > current_week
-                and (schedule_start_week - current_week) <= 2
-            ):
-                if (schedule_start_week - current_week) == 2:
-                    # add this so that the next week's dates
-                    # are also included in the calendar.
-                    session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
-                session_dates.insert(0, (now, None, None, 0))
-
-        weeks = defaultdict(dict)
-        today = now.date()
-        for project_date, _day_start_at, _day_end_at, session_count in session_dates:
-            weekobj = Week.withdate(project_date)
-            if weekobj.week not in weeks:
-                weeks[weekobj.week]['year'] = weekobj.year
-                # Order is important, and we need dict to count easily
-                weeks[weekobj.week]['dates'] = OrderedDict()
-            for wdate in weekobj.days():
-                weeks[weekobj.week]['dates'].setdefault(wdate, 0)
-                if project_date.date() == wdate:
-                    # If the event is over don't set upcoming for current week
-                    if wdate >= today and weekobj >= current_week and session_count > 0:
-                        weeks[weekobj.week]['upcoming'] = True
-                    weeks[weekobj.week]['dates'][wdate] += session_count
-                    if 'month' not in weeks[weekobj.week]:
-                        weeks[weekobj.week]['month'] = format_date(
-                            wdate, 'MMM', locale=get_locale()
-                        )
-
-        # Extract sorted weeks as a list
-        weeks_list = [v for k, v in sorted(weeks.items())]
-
-        for week in weeks_list:
-            # Convering to JSON messes up dictionary key order even though we used OrderedDict.
-            # This turns the OrderedDict into a list of tuples and JSON preserves that order.
-            week['dates'] = [
-                {
-                    'isoformat': date.isoformat(),
-                    'day': format_date(date, 'd', get_locale()),
-                    'count': count,
-                    'day_start_at': (
-                        session_dates_dict[date]['day_start_at']
-                        .astimezone(self.timezone)
-                        .strftime('%I:%M %p')
-                        if date in session_dates_dict.keys()
-                        else None
-                    ),
-                    'day_end_at': (
-                        session_dates_dict[date]['day_end_at']
-                        .astimezone(self.timezone)
-                        .strftime('%I:%M %p %Z')
-                        if date in session_dates_dict.keys()
-                        else None
-                    ),
-                }
-                for date, count in week['dates'].items()
-            ]
-
-        return {
-            'locale': get_locale(),
-            'weeks': weeks_list,
-            'today': now.date().isoformat(),
-            'days': [
-                format_date(day, 'EEE', locale=get_locale())
-                for day in Week.thisweek().days()
-            ],
-        }
-
-    @cached_property
-    def calendar_weeks_full(self):
-        return self.calendar_weeks(leading_weeks=True)
-
-    @cached_property
-    def calendar_weeks_compact(self):
-        return self.calendar_weeks(leading_weeks=False)
-
-    @cached_property
-    def schedule_start_at_localized(self):
-        return (
-            localize_timezone(self.schedule_start_at, tz=self.timezone)
-            if self.schedule_start_at
-            else None
-        )
-
-    @cached_property
-    def schedule_end_at_localized(self):
-        return (
-            localize_timezone(self.schedule_end_at, tz=self.timezone)
-            if self.schedule_end_at
-            else None
-        )
-
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
     def cfp_start_at_localized(self):
         return (
@@ -785,6 +601,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             else None
         )
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property
     def cfp_end_at_localized(self):
         return (
@@ -793,89 +610,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             else None
         )
 
-    def current_sessions(self):
-        if self.schedule_start_at is None or (
-            self.schedule_start_at > utcnow() + timedelta(minutes=30)
-        ):
-            return
-
-        current_sessions = (
-            self.sessions.outerjoin(VenueRoom)
-            .filter(Session.start_at <= db.func.utcnow() + timedelta(minutes=30))
-            .filter(Session.end_at > db.func.utcnow())
-            .order_by(Session.start_at.asc(), VenueRoom.seq.asc())
-        )
-
-        return {
-            'sessions': [
-                session.current_access(datasets=('without_parent', 'related'))
-                for session in current_sessions
-            ],
-            'rooms': [
-                room.current_access(datasets=('without_parent', 'related'))
-                for room in self.rooms
-            ],
-        }
-
-    @property
-    def rooms(self):
-        return [room for venue in self.venues for room in venue.rooms]
-
-    @property
-    def proposals_all(self):
-        from .proposal import Proposal
-
-        if self.subprojects:
-            return Proposal.query.filter(
-                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-            )
-        else:
-            return self.proposals
-
-    @property
-    def proposals_by_state(self):
-        from .proposal import Proposal
-
-        if self.subprojects:
-            basequery = Proposal.query.filter(
-                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-            )
-        else:
-            basequery = Proposal.query.filter_by(project=self)
-        return Proposal.state.group(
-            basequery.filter(
-                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-            ).order_by(db.desc('created_at'))
-        )
-
-    @property
-    def proposals_by_confirmation(self):
-        from .proposal import Proposal
-
-        if self.subprojects:
-            basequery = Proposal.query.filter(
-                Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
-            )
-        else:
-            basequery = Proposal.query.filter_by(project=self)
-        return {
-            'confirmed': basequery.filter(Proposal.state.CONFIRMED)
-            .order_by(db.desc('created_at'))
-            .all(),
-            'unconfirmed': basequery.filter(
-                ~(Proposal.state.CONFIRMED),
-                ~(Proposal.state.DRAFT),
-                ~(Proposal.state.DELETED),
-            )
-            .order_by(db.desc('created_at'))
-            .all(),
-        }
-
     @cached_property
     def location_geonameid(self):
         return geonameid_from_location(self.location) if self.location else set()
 
     def permissions(self, user, inherited=None):
+        # TODO: Remove permission system entirely
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:
@@ -931,6 +671,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 perms.add('checkin_event')
         return perms
 
+    def roles_for(self, actor=None, anchors=()):
+        roles = super().roles_for(actor, anchors)
+        # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
+        roles.add('reader')
+        return roles
+
     @classmethod
     def all_unsorted(cls, legacy=None):
         """
@@ -962,17 +708,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
         return currently_listed_projects
 
-    def roles_for(self, actor=None, anchors=()):
-        roles = super().roles_for(actor, anchors)
-        # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
-        roles.add('reader')
-        return roles
-
-    def is_saved_by(self, user):
-        return (
-            user is not None and self.saved_by.filter_by(user=user).first() is not None
-        )
-
     @classmethod
     def get(cls, profile_project):
         """Get a project by its URL slug in the form ``<profile>/<project>``."""
@@ -982,6 +717,19 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             .filter(Profile.name == profile_name, Project.name == project_name)
             .one_or_none()
         )
+
+    @classmethod
+    def migrate_profile(cls, old_profile, new_profile):
+        names = {project.name for project in new_profile.projects}
+        for project in old_profile.projects:
+            if project.name in names:
+                current_app.logger.warning(
+                    "Project %r had a conflicting name in profile migration, "
+                    "so renaming by adding adding random value to name",
+                    project,
+                )
+                project.name += '-' + buid()
+            project.profile = new_profile
 
 
 add_search_trigger(Project, 'search_vector')
@@ -1143,6 +891,5 @@ class Commentset:
 
 
 # Tail imports
-from .session import Session  # isort:skip
-from .venue import Venue, VenueRoom  # isort:skip
 from .project_membership import ProjectCrewMembership  # isort:skip
+from .venue import Venue  # isort:skip
