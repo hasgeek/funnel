@@ -33,11 +33,11 @@
           <div class="user__box mui--clearfix">
             {{ useravatar(current_auth.user) }}
             <div class="user__box__header">
-              <h3 class="mui--text-title user__box__fullname">{{ current_auth.user.fullname }}</h3>
+              <p class="mui--text-title user__box__fullname">{{ current_auth.user.fullname }}</p>
               {% if current_auth.user.username %}
-                <h3 class="mui--text-subhead mui--text-light user__box__userid">@{{ current_auth.user.username }}</h3>
+                <p class="mui--text-subhead mui--text-light user__box__userid">@{{ current_auth.user.username }}</p>
               {% else %}
-                <h3 class="mui--text-subhead mui--text-light user__box__userid">{{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}">Add username <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a></h3>
+                <p class="mui--text-subhead mui--text-light user__box__userid">{{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}">Add username <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a></p>
               {%- endif %}
               {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}" data-cy="my-profile">Go to profile <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>{%- endif %}
             </div>

@@ -270,6 +270,7 @@
             }
 
             .header__nav-links.user--standalone {
+              margin-left: $mui-grid-padding;
               .user__box .user__box__gravatar {
                 margin-right: 0;
               }
@@ -289,7 +290,7 @@
               display: flex;
               align-items: center;
               justify-content: center;
-              margin-right: 16px;
+              margin-left: $mui-grid-padding;
               min-width: 40px;
               .header__nav-links__icon {
                 width: 16px;
