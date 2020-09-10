@@ -26,7 +26,7 @@ describe('Checkin of attendees', function () {
         cy.get('#phone').type(ticketParticipant.phone);
         cy.get('#company').type(ticketParticipant.company);
         cy.get('#twitter').type(ticketParticipant.twitter);
-        cy.get('#field-events')
+        cy.get('#field-ticket_events')
           .find('label')
           .contains(ticketParticipant.ticketEvent)
           .click();
