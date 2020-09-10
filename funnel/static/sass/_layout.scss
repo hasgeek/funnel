@@ -7,7 +7,7 @@
 }
 
 .smaller-margin {
-  margin-bottom: $mui-grid-padding/2;
+  margin-bottom: $mui-grid-padding/4;
 }
 
 .mui-btn--nomargin {
@@ -291,20 +291,27 @@ html.touch .collapsible__body--disable {
 
 .user {
   .user__box {
-    padding: 8px 8px 8px 50px;
+    padding: 8px 0;
     position: relative;
     word-break: break-word;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    .user__box__wrapper {
+      height: 40px;
+    }
 
     .user__box__gravatar {
       width: 40px;
       height: 40px;
       display: inline-block;
-      position: absolute;
-      left: 0;
-      top: 11px;
+      margin-right: 8px;
       border-radius: 50%;
+      font-size: 16px;
     }
     .user__box__gravatar--initials {
+      min-width: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -312,12 +319,21 @@ html.touch .collapsible__body--disable {
       color: $mui-text-white;
       text-transform: uppercase;
     }
+    .user__box__header {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 40px;
+    }
     .user__box__fullname {
       margin: 0;
     }
     .user__box__userid {
       margin: 0 0 5px;
     }
+  }
+  .user__box--topalign {
+    align-items: start;
   }
 }
 .user--standalone {
@@ -331,13 +347,18 @@ html.touch .collapsible__body--disable {
 
 .user--bigger {
   .user__box {
-    padding: 12px 8px 8px 89px;
+    padding: 8px 0;
     margin-bottom: 16px;
     height: 100px;
+
+    .user__box__wrapper {
+      height: 80px;
+    }
 
     .user__box__gravatar {
       width: 80px;
       height: 80px;
+      font-size: 32px;
     }
   }
 }
@@ -780,7 +801,7 @@ a.loginbutton.hidden,
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f9fafc;
+  background-color: $mui-bg-color-accent;
   .fa5-icon {
     width: 16px;
     height: 16px;
@@ -885,6 +906,28 @@ a.loginbutton.hidden,
   }
 }
 
-.share-btn.hide {
+.hg-link-btn.mui--hide {
   display: none;
+}
+
+.mui-dropdown__menu--hg-link {
+  max-width: 130px;
+  overflow: hidden;
+  .js-copy-url {
+    padding-left: 90px;
+  }
+}
+
+.mui-dropdown__menu--small {
+  min-width: 100px;
+}
+
+.circle-icon {
+  display: inline-block;
+  background: $mui-bg-color-accent;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  text-align: center;
+  vertical-align: middle;
 }

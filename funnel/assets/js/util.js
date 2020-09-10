@@ -277,11 +277,11 @@ export const Utils = {
   },
   addWebShare() {
     if (navigator.share) {
-      if ($('.share-btn').length) {
-        $('.share').hide();
-        $('.share-btn').removeClass('hide');
+      if ($('.hg-link-btn').length) {
+        $('.project-links').hide();
+        $('.hg-link-btn').removeClass('mui--hide');
 
-        $('.share-btn').on('click', function () {
+        $('.hg-link-btn').on('click', function () {
           navigator.share({
             title: $(this).data('title') || document.title,
             url:
@@ -292,6 +292,18 @@ export const Utils = {
           });
         });
       }
+    } else {
+      $('body').on('click', '.js-copy-link', function (event) {
+        event.preventDefault();
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents($(this).find('.js-copy-url')[0]);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand('copy');
+        window.toastr.success('Link copied');
+        selection.removeAllRanges();
+      });
     }
   },
 };
@@ -403,8 +415,6 @@ export const SaveProject = function ({
   postUrl = $(`#${formId}`).attr('action'),
   config = {},
 }) {
-  console.log('postUrl', postUrl);
-
   const onSuccess = function (response) {
     $(`#${formId}`)
       .find('button')

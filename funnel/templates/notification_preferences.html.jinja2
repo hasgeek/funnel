@@ -66,10 +66,10 @@
                 </div>
                 <div class="card__body">
                   {% for type in preference.types %}
-                    <div class="mui--clearfix top-padding">
+                    <div class="mui--clearfix">
                       <div class="mui--pull-left preference__title">
-                        <p class="mui--text-body2 smaller-margin">{{ type.title }}</p>
-                        <p class="mui--text-caption"><em>{{ type.description }}</em></p>
+                        <p class="preference__title__header">{{ type.title }}</p>
+                        <p class="preference__title__subheader mui--text-light">{{ type.description }}</p>
                       </div>
                       <form method="POST" class="js-autosubmit-form">
                         {{ csrf_form.hidden_tag() }}
