@@ -91,19 +91,19 @@ def ticket_participant_checkin_data(participant, project, event):
         data.update(
             {
                 'badge_url': url_for(
-                    'ParticipantView_badge',
+                    'TicketParticipantView_badge',
                     profile=project.profile.name,
                     project=project.name,
                     participant=puuid_b58,
                 ),
                 'label_badge_url': url_for(
-                    'ParticipantView_label_badge',
+                    'TicketParticipantView_label_badge',
                     profile=project.profile.name,
                     project=project.name,
                     participant=puuid_b58,
                 ),
                 'edit_url': url_for(
-                    'ParticipantView_edit',
+                    'TicketParticipantView_edit',
                     profile=project.profile.name,
                     project=project.name,
                     participant=puuid_b58,
