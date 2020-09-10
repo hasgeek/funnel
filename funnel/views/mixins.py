@@ -234,7 +234,7 @@ class TicketEventViewMixin(object):
     }
 
     def loader(self, profile, project, name):
-        event = (
+        return (
             self.model.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
@@ -243,7 +243,6 @@ class TicketEventViewMixin(object):
             )
             .one_or_404()
         )
-        return event
 
     def after_loader(self):
         g.profile = self.obj.project.profile

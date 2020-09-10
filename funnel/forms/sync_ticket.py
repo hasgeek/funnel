@@ -74,7 +74,7 @@ class TicketTypeForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
     )
-    events = QuerySelectMultipleField(
+    ticket_events = QuerySelectMultipleField(
         __("Events"),
         widget=ListWidget(),
         option_widget=CheckboxInput(),
@@ -124,7 +124,7 @@ class TicketParticipantForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     badge_printed = forms.BooleanField(__("Badge is printed"))
-    events = QuerySelectMultipleField(
+    ticket_events = QuerySelectMultipleField(
         __("Events"),
         widget=ListWidget(),
         option_widget=CheckboxInput(),
@@ -134,7 +134,7 @@ class TicketParticipantForm(forms.Form):
 
     def set_queries(self):
         if self.edit_parent is not None:
-            self.events.query = self.edit_parent.events
+            self.ticket_events.query = self.edit_parent.ticket_events
 
     def validate(self):
         result = super().validate()

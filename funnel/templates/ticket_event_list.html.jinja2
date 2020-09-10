@@ -18,9 +18,9 @@
         </div>
         <div class="card__body">
           <ol class="mui-list--aligned">
-            {%- for event in events %}
+            {%- for ticket_event in ticket_events %}
               <li class="mui--text-title">
-                <a href="{{ event.url_for('scan_badge') }}" aria-label=" {% trans title=event.title %} View {{title}} attendees{% endtrans %}"><strong>{{ event.title }}</strong></a>
+                <a href="{{ ticket_event.url_for('scan_badge') }}" aria-label=" {% trans title=ticket_event.title %} View {{title}} attendees{% endtrans %}"><strong>{{ ticket_event.title }}</strong></a>
               </li>
             {%- endfor %}
           </ol>

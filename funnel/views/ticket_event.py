@@ -30,20 +30,20 @@ from .login_session import requires_login
 from .mixins import ProjectViewMixin, TicketEventViewMixin
 
 
-@Project.views('event')
-@route('/<profile>/<project>/events')
+@Project.views('ticket_event')
+@route('/<profile>/<project>/ticket_event')
 class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('event_list.html.jinja2')
+    @render_with('ticket_event_list.html.jinja2')
     @requires_login
     @requires_roles({'concierge', 'usher'})
-    def events(self):
+    def ticket_events(self):
         return {
             'project': self.obj,
             'profile': self.obj.profile,
-            'events': self.obj.events,
+            'ticket_events': self.obj.ticket_events,
         }
 
     @route('json')
@@ -51,7 +51,9 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     @requires_roles({'editor', 'concierge'})
     def events_json(self):
         return jsonify(
-            events=[{'name': e.name, 'title': e.title} for e in self.obj.events]
+            ticket_events=[
+                {'name': e.name, 'title': e.title} for e in self.obj.ticket_events
+            ]
         )
 
     @route('new', methods=['GET', 'POST'])
@@ -60,11 +62,11 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     def new_event(self):
         form = TicketEventForm()
         if form.validate_on_submit():
-            event = TicketEvent(project=self.obj)
-            form.populate_obj(event)
-            event.make_name()
+            ticket_event = TicketEvent(project=self.obj)
+            form.populate_obj(ticket_event)
+            ticket_event.make_name()
             try:
-                db.session.add(event)
+                db.session.add(ticket_event)
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
@@ -77,7 +79,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     @requires_roles({'concierge'})
     def new_ticket_type(self):
         form = TicketTypeForm()
-        form.events.query = self.obj.events
+        form.ticket_events.query = self.obj.ticket_events
         if form.validate_on_submit():
             ticket_type = TicketType(project=self.obj)
             form.populate_obj(ticket_type)
@@ -113,7 +115,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
         )
 
 
-@route('/<project>/events', subdomain='<profile>')
+@route('/<project>/ticket_event', subdomain='<profile>')
 class FunnelProjectTicketEventView(ProjectTicketEventView):
     pass
 
@@ -123,12 +125,12 @@ FunnelProjectTicketEventView.init_app(funnelapp)
 
 
 @TicketEvent.views('main')
-@route('/<profile>/<project>/event/<name>')
+@route('/<profile>/<project>/ticket_event/<name>')
 class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
 
     @route('', methods=['GET', 'POST'])
-    @render_with('event.html.jinja2')
+    @render_with('ticket_event.html.jinja2')
     @requires_roles({'project_concierge', 'project_usher'})
     def view(self):
         if request.method == 'POST':
@@ -171,7 +173,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                 abort(400)
         return {
             'profile': self.obj.project.profile,
-            'event': self.obj,
+            'ticket_event': self.obj,
             'project': self.obj.project,
             'badge_form': TicketParticipantBadgeForm(model=TicketParticipant),
             'checkin_form': forms.Form(),
@@ -212,11 +214,11 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
         return {
             'profile': self.obj.project.profile,
             'project': self.obj.project,
-            'event': self.obj,
+            'ticket_event': self.obj,
         }
 
 
-@route('/<project>/event/<name>', subdomain='<profile>')
+@route('/<project>/ticket_event/<name>', subdomain='<profile>')
 class FunnelTicketEventView(TicketEventView):
     pass
 
@@ -272,7 +274,7 @@ class TicketTypeView(UrlForView, ModelView):
     @requires_roles({'project_concierge'})
     def edit(self):
         form = TicketTypeForm(obj=self.obj, model=TicketType)
-        form.events.query = self.obj.project.events
+        form.ticket_events.query = self.obj.project.ticket_events
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()

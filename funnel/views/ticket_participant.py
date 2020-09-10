@@ -1,18 +1,11 @@
 from sqlalchemy.exc import IntegrityError
 
-from flask import abort, flash, g, jsonify, redirect, request, url_for
+from flask import flash, g, jsonify, redirect, request, url_for
 
 from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
 from coaster.utils import getbool, uuid_to_base58
-from coaster.views import (
-    ClassView,
-    ModelView,
-    UrlForView,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp
 from ..forms import TicketParticipantForm
@@ -76,7 +69,7 @@ def ticket_participant_data(ticket_participant, project_id, full=False):
     return data
 
 
-def ticket_participant_checkin_data(ticket_participant, project, event):
+def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
     puuid_b58 = uuid_to_base58(ticket_participant.uuid)
     data = {
         'puuid_b58': puuid_b58,
@@ -225,7 +218,7 @@ FunnelTicketParticipantView.init_app(funnelapp)
 
 
 @TicketEvent.views('ticket_participant')
-@route('/<profile>/<project>/event/<name>')
+@route('/<profile>/<project>/ticket_event/<name>')
 class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
 
@@ -308,54 +301,10 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/event/<name>', subdomain='<profile>')
+@route('/<project>/ticket_event/<name>', subdomain='<profile>')
 class FunnelTicketEventParticipantView(TicketEventParticipantView):
     pass
 
 
 TicketEventParticipantView.init_app(app)
 FunnelTicketEventParticipantView.init_app(funnelapp)
-
-
-# FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
-@route('/<profile>/<project>/event/<event>/ticket_participant/<puk>')
-class TicketEventParticipantCheckinView(ClassView):
-    __decorators__ = [requires_login]
-
-    @route('checkin', methods=['POST'])
-    @render_with(json=True)
-    def checkin_puk(self, profile, project, event, puk):
-        # checked_in = getbool(request.form.get('checkin', 't'))
-        # event = (
-        #     Event.query.join(Project, Profile)
-        #     .filter(
-        #         db.func.lower(Profile.name) == db.func.lower(profile),
-        #         Project.name == project,
-        #         Event.name == event,
-        #     )
-        #     .first_or_404()
-        # )
-        # ticket_participant = (
-        #     Participant.query.join(Project, Profile)
-        #     .filter(
-        #         db.func.lower(Profile.name) == db.func.lower(profile),
-        #         Project.name == project,
-        #         Participant.puk == puk,
-        #     )
-        #     .first_or_404()
-        # )
-        # attendee = Attendee.get(event, ticket_participant.uuid_b58)
-        # if not attendee:
-        #     return (
-        #         {'error': 'not_found', 'error_description': "Attendee not found"},
-        #         404,
-        #     )
-        # attendee.checked_in = checked_in
-        # db.session.commit()
-        # return {'attendee': {'fullname': ticket_participant.fullname}}
-
-        # FIXME: This view and badge generation need to be moved to use base58
-        abort(403)
-
-
-TicketEventParticipantCheckinView.init_app(app)

@@ -20,7 +20,7 @@ DateCountContacts = namedtuple('DateCountContacts', ['date', 'count', 'contacts'
 
 class ContactExchange(TimestampMixin, RoleMixin, db.Model):
     """
-    Model to track who scanned whose badge, at which event.
+    Model to track who scanned whose badge, in which project.
     """
 
     __tablename__ = 'contact_exchange'

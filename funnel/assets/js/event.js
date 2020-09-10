@@ -95,7 +95,13 @@ const Queue = function (queueName) {
 };
 
 const ParticipantTable = {
-  init({ isConcierge, isUsher, checkinUrl, participantlistUrl, eventName }) {
+  init({
+    isConcierge,
+    isUsher,
+    checkinUrl,
+    participantlistUrl,
+    ticketEventName,
+  }) {
     Ractive.DEBUG = false;
 
     const count = new Ractive({
@@ -113,8 +119,8 @@ const ParticipantTable = {
       data: {
         ticket_participants: '',
         checkinUrl,
-        checkinQ: new Queue(`${eventName}-checkin-queue`),
-        cancelcheckinQ: new Queue(`${eventName}-cancelcheckin-queue`),
+        checkinQ: new Queue(`${ticketEventName}-checkin-queue`),
+        cancelcheckinQ: new Queue(`${ticketEventName}-cancelcheckin-queue`),
         isConcierge,
         isUsher,
         svgIconUrl: window.Hasgeek.config.svgIconUrl,

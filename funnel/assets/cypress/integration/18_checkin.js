@@ -28,7 +28,7 @@ describe('Checkin of attendees', function () {
         cy.get('#twitter').type(ticketParticipant.twitter);
         cy.get('#field-events')
           .find('label')
-          .contains(ticketParticipant.event)
+          .contains(ticketParticipant.ticketEvent)
           .click();
         cy.get('button').contains('Add participant').click();
       });

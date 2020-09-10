@@ -84,17 +84,17 @@ class TicketEvent(GetTitleMixin, db.Model):
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
-        db.relationship(Project, backref=db.backref('events', cascade='all')),
+        db.relationship(Project, backref=db.backref('ticket_events', cascade='all')),
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
     ticket_types = db.relationship(
-        'TicketType', secondary=ticket_event_ticket_type, back_populates='events'
+        'TicketType', secondary=ticket_event_ticket_type, back_populates='ticket_events'
     )
     ticket_participants = db.relationship(
         'TicketParticipant',
         secondary='ticket_event_participant',
-        backref='events',
+        backref='ticket_events',
         lazy='dynamic',
     )
     badge_template = db.Column(db.Unicode(250), nullable=True)
@@ -119,7 +119,7 @@ class TicketType(GetTitleMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
-    events = db.relationship(
+    ticket_events = db.relationship(
         TicketEvent, secondary=ticket_event_ticket_type, back_populates='ticket_types'
     )
 
@@ -258,15 +258,15 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             db.session.add(ticket_participant)
         return ticket_participant
 
-    def add_events(self, events):
-        for event in events:
-            if event not in self.events:
-                self.events.append(event)
+    def add_events(self, ticket_events):
+        for ticket_event in ticket_events:
+            if ticket_event not in self.ticket_events:
+                self.ticket_events.append(ticket_event)
 
-    def remove_events(self, events):
-        for event in events:
-            if event in self.events:
-                self.events.remove(event)
+    def remove_events(self, ticket_events):
+        for ticket_event in ticket_events:
+            if ticket_event in self.ticket_events:
+                self.ticket_events.remove(ticket_event)
 
     @classmethod
     def checkin_list(cls, ticket_event):
@@ -316,10 +316,13 @@ class TicketEventParticipant(BaseMixin, db.Model):
         None, db.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant = db.relationship(
-        TicketParticipant, backref=db.backref('attendees', cascade='all')
+        TicketParticipant,
+        backref=db.backref('ticket_event_participants', cascade='all'),
     )
     ticket_event_id = db.Column(None, db.ForeignKey('ticket_event.id'), nullable=False)
-    event = db.relationship(TicketEvent, backref=db.backref('attendees', cascade='all'))
+    ticket_event = db.relationship(
+        TicketEvent, backref=db.backref('ticket_event_participants', cascade='all')
+    )
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = (
@@ -333,11 +336,11 @@ class TicketEventParticipant(BaseMixin, db.Model):
     )
 
     @classmethod
-    def get(cls, event, participant_uuid_b58):
+    def get(cls, ticket_event, participant_uuid_b58):
         return (
             cls.query.join(TicketParticipant)
             .filter(
-                TicketEventParticipant.event == event,
+                TicketEventParticipant.ticket_event == ticket_event,
                 TicketParticipant.uuid_b58 == participant_uuid_b58,
             )
             .one_or_none()
@@ -387,7 +390,7 @@ class TicketClient(BaseMixin, db.Model):
             ):
                 # Ensure that the participant of a transferred or cancelled ticket does
                 # not have access to this ticket's events
-                ticket.ticket_participant.remove_events(ticket_type.events)
+                ticket.ticket_participant.remove_events(ticket_type.ticket_events)
 
             if ticket_dict.get('status') == 'confirmed':
                 ticket = SyncTicket.upsert(
@@ -398,7 +401,7 @@ class TicketClient(BaseMixin, db.Model):
                     ticket_type=ticket_type,
                 )
                 # Ensure that the new or updated participant has access to events
-                ticket.ticket_participant.add_events(ticket_type.events)
+                ticket.ticket_participant.add_events(ticket_type.ticket_events)
 
     def permissions(self, user, inherited=None):
         perms = super(TicketClient, self).permissions(user, inherited)
