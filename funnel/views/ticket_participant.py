@@ -17,18 +17,26 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import ParticipantForm
-from ..models import Attendee, Event, Participant, Profile, Project, SyncTicket, db
+from ..forms import TicketParticipantForm
+from ..models import (
+    Profile,
+    Project,
+    SyncTicket,
+    TicketEvent,
+    TicketEventParticipant,
+    TicketParticipant,
+    db,
+)
 from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
 from .decorators import legacy_redirect
 from .helpers import mask_email
 from .login_session import requires_login
-from .mixins import EventViewMixin, ProjectViewMixin
+from .mixins import ProjectViewMixin, TicketEventViewMixin
 
 EventParticipant = namedtuple('EventParticipant', ['event', 'participant'])
 
 
-def participant_badge_data(participants, project):
+def ticket_participant_badge_data(participants, project):
     badges = []
     for participant in participants:
         first_name, last_name = split_name(participant.fullname)
@@ -48,7 +56,7 @@ def participant_badge_data(participants, project):
     return badges
 
 
-def participant_data(participant, project_id, full=False):
+def ticket_participant_data(participant, project_id, full=False):
     data = {
         '_id': participant.id,
         'puk': participant.puk,
@@ -68,7 +76,7 @@ def participant_data(participant, project_id, full=False):
     return data
 
 
-def participant_checkin_data(participant, project, event):
+def ticket_participant_checkin_data(participant, project, event):
     puuid_b58 = uuid_to_base58(participant.uuid)
     data = {
         'puuid_b58': puuid_b58,
@@ -105,9 +113,9 @@ def participant_checkin_data(participant, project, event):
     return data
 
 
-@Project.views('participant')
+@Project.views('ticket_participant')
 @route('/<profile>/<project>/participants')
-class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('json')
@@ -116,7 +124,7 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
     def participants_json(self):
         return jsonify(
             participants=[
-                participant_data(participant, self.obj.id)
+                ticket_participant_data(participant, self.obj.id)
                 for participant in self.obj.participants
             ]
         )
@@ -125,9 +133,9 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'concierge'})
     def new_participant(self):
-        form = ParticipantForm(parent=self.obj)
+        form = TicketParticipantForm(parent=self.obj)
         if form.validate_on_submit():
-            participant = Participant(project=self.obj)
+            participant = TicketParticipant(project=self.obj)
             participant.user = form.user
             with db.session.no_autoflush:
                 form.populate_obj(participant)
@@ -144,20 +152,20 @@ class ProjectParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
 
 @route('/<project>/participants', subdomain='<profile>')
-class FunnelProjectParticipantView(ProjectParticipantView):
+class FunnelProjectTicketParticipantView(ProjectTicketParticipantView):
     pass
 
 
-ProjectParticipantView.init_app(app)
-FunnelProjectParticipantView.init_app(funnelapp)
+ProjectTicketParticipantView.init_app(app)
+FunnelProjectTicketParticipantView.init_app(funnelapp)
 
 
-@Participant.views('main')
+@TicketParticipant.views('main')
 @route('/<profile>/<project>/participant/<participant>')
-class ParticipantView(UrlForView, ModelView):
+class TicketParticipantView(UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
 
-    model = Participant
+    model = TicketParticipant
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
@@ -170,7 +178,7 @@ class ParticipantView(UrlForView, ModelView):
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
-                Participant.uuid_b58 == participant,
+                TicketParticipant.uuid_b58 == participant,
             )
             .first_or_404()
         )
@@ -178,12 +186,12 @@ class ParticipantView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        return super(ParticipantView, self).after_loader()
+        return super(TicketParticipantView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_concierge'})
     def edit(self):
-        form = ParticipantForm(obj=self.obj, parent=self.obj.project)
+        form = TicketParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
             self.obj.user = form.user
             form.populate_obj(self.obj)
@@ -198,27 +206,27 @@ class ParticipantView(UrlForView, ModelView):
     @render_with('badge.html.jinja2')
     @requires_roles({'project_concierge', 'project_usher'})
     def badge(self):
-        return {'badges': participant_badge_data([self.obj], self.obj.project)}
+        return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
 
     @route('label_badge', methods=['GET'])
     @render_with('label_badge.html.jinja2')
     @requires_roles({'project_concierge', 'project_usher'})
     def label_badge(self):
-        return {'badges': participant_badge_data([self.obj], self.obj.project)}
+        return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
 
 
 @route('/<project>/participant/<uuid_b58>', subdomain='<profile>')
-class FunnelParticipantView(ParticipantView):
+class FunnelTicketParticipantView(TicketParticipantView):
     pass
 
 
-ParticipantView.init_app(app)
-FunnelParticipantView.init_app(funnelapp)
+TicketParticipantView.init_app(app)
+FunnelTicketParticipantView.init_app(funnelapp)
 
 
-@Event.views('participant')
+@TicketEvent.views('participant')
 @route('/<profile>/<project>/event/<name>')
-class EventParticipantView(EventViewMixin, UrlForView, ModelView):
+class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
 
     @route('participants/checkin', methods=['GET', 'POST'])
@@ -231,7 +239,7 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
                 abort_null(x) for x in request.form.getlist('puuid_b58')
             ]
             for ticket_participant_id in ticket_participant_ids:
-                attendee = Attendee.get(self.obj, ticket_participant_id)
+                attendee = TicketEventParticipant.get(self.obj, ticket_participant_id)
                 attendee.checked_in = checked_in
             db.session.commit()
             if request_is_xhr():
@@ -248,9 +256,9 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
     def participants_json(self):
         checkin_count = 0
         participants = []
-        for participant in Participant.checkin_list(self.obj):
+        for participant in TicketParticipant.checkin_list(self.obj):
             participants.append(
-                participant_checkin_data(participant, self.obj.project, self.obj)
+                ticket_participant_checkin_data(participant, self.obj.project, self.obj)
             )
             if participant.checked_in:
                 checkin_count += 1
@@ -267,14 +275,14 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
     def badges(self):
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         participants = (
-            Participant.query.join(Attendee)
-            .filter(Attendee.ticket_event_id == self.obj.id)
-            .filter(Participant.badge_printed == badge_printed)
+            TicketParticipant.query.join(TicketEventParticipant)
+            .filter(TicketEventParticipant.ticket_event_id == self.obj.id)
+            .filter(TicketParticipant.badge_printed == badge_printed)
             .all()
         )
         return {
             'badge_template': self.obj.badge_template,
-            'badges': participant_badge_data(participants, self.obj.project),
+            'badges': ticket_participant_badge_data(participants, self.obj.project),
         }
 
     @route('label_badges')
@@ -283,29 +291,29 @@ class EventParticipantView(EventViewMixin, UrlForView, ModelView):
     def label_badges(self):
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         participants = (
-            Participant.query.join(Attendee)
-            .filter(Attendee.ticket_event_id == self.obj.id)
-            .filter(Participant.badge_printed == badge_printed)
+            TicketParticipant.query.join(TicketEventParticipant)
+            .filter(TicketEventParticipant.ticket_event_id == self.obj.id)
+            .filter(TicketParticipant.badge_printed == badge_printed)
             .all()
         )
         return {
             'badge_template': self.obj.badge_template,
-            'badges': participant_badge_data(participants, self.obj.project),
+            'badges': ticket_participant_badge_data(participants, self.obj.project),
         }
 
 
 @route('/<project>/event/<name>', subdomain='<profile>')
-class FunnelEventParticipantView(EventParticipantView):
+class FunnelTicketEventParticipantView(TicketEventParticipantView):
     pass
 
 
-EventParticipantView.init_app(app)
-FunnelEventParticipantView.init_app(funnelapp)
+TicketEventParticipantView.init_app(app)
+FunnelTicketEventParticipantView.init_app(funnelapp)
 
 
 # FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
 @route('/<profile>/<project>/event/<event>/participant/<puk>')
-class EventParticipantCheckinView(ClassView):
+class TicketEventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
 
     @route('checkin', methods=['POST'])
@@ -344,4 +352,4 @@ class EventParticipantCheckinView(ClassView):
         abort(403)
 
 
-EventParticipantCheckinView.init_app(app)
+TicketEventParticipantCheckinView.init_app(app)

@@ -7,7 +7,7 @@ from coaster.utils import uuid_to_base58
 
 from . import RoleMixin, TimestampMixin, db
 from .project import Project
-from .sync_ticket import Participant
+from .sync_ticket import TicketParticipant
 from .user import User
 
 __all__ = ['ContactExchange']
@@ -45,7 +45,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         index=True,
     )
     participant = db.relationship(
-        Participant, backref=db.backref('scanned_contacts', passive_deletes=True)
+        TicketParticipant, backref=db.backref('scanned_contacts', passive_deletes=True)
     )
     #: Datetime at which the scan happened
     scanned_at = db.Column(
@@ -93,8 +93,8 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         query = db.session.query(
             cls.scanned_at, Project.id, Project.uuid, Project.timezone, Project.title
         ).filter(
-            cls.ticket_participant_id == Participant.id,
-            Participant.project_id == Project.id,
+            cls.ticket_participant_id == TicketParticipant.id,
+            TicketParticipant.project_id == Project.id,
             cls.user == user,
         )
 
@@ -198,12 +198,12 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         """
         Return contacts for a given user, project and date
         """
-        query = cls.query.join(Participant).filter(
+        query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
             # For safety always use objects instead of column values. The following expression
             # should have been `Participant.project == project`. However, we are using `id` here
             # because `project` may be an instance of ProjectId returned by `grouped_counts_for`
-            Participant.project_id == project.id,
+            TicketParticipant.project_id == project.id,
             db.cast(
                 db.func.date_trunc(
                     'day', db.func.timezone(project.timezone.zone, cls.scanned_at)
@@ -224,10 +224,10 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         """
         Return contacts for a given user and project
         """
-        query = cls.query.join(Participant).filter(
+        query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
             # See explanation for the following expression in `contacts_for_project_and_date`
-            Participant.project_id == project.id,
+            TicketParticipant.project_id == project.id,
         )
         if not archived:
             # If archived == True: return everything (contacts including archived contacts)
@@ -236,4 +236,4 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         return query
 
 
-Participant.scanning_users = association_proxy('scanned_contacts', 'user')
+TicketParticipant.scanning_users = association_proxy('scanned_contacts', 'user')

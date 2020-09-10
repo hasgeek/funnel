@@ -8,11 +8,11 @@ from .project_membership import project_child_role_map
 from .user import User, UserEmail
 
 __all__ = [
-    'Attendee',
-    'Event',
-    'Participant',
     'SyncTicket',
     'TicketClient',
+    'TicketEvent',
+    'TicketEventParticipant',
+    'TicketParticipant',
     'TicketType',
 ]
 
@@ -69,7 +69,7 @@ class GetTitleMixin(BaseScopedNameMixin):
         return instance
 
 
-class Event(GetTitleMixin, db.Model):
+class TicketEvent(GetTitleMixin, db.Model):
     """
     A discrete event under a project that a ticket grants access to.
 
@@ -92,7 +92,7 @@ class Event(GetTitleMixin, db.Model):
         'TicketType', secondary=ticket_event_ticket_type, back_populates='events'
     )
     participants = db.relationship(
-        'Participant',
+        'TicketParticipant',
         secondary='ticket_event_participant',
         backref='events',
         lazy='dynamic',
@@ -120,7 +120,7 @@ class TicketType(GetTitleMixin, db.Model):
     )
     parent = db.synonym('project')
     events = db.relationship(
-        Event, secondary=ticket_event_ticket_type, back_populates='ticket_types'
+        TicketEvent, secondary=ticket_event_ticket_type, back_populates='ticket_types'
     )
 
     __table_args__ = (
@@ -129,7 +129,7 @@ class TicketType(GetTitleMixin, db.Model):
     )
 
 
-class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
+class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
@@ -197,7 +197,7 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     }
 
     def roles_for(self, actor, anchors=()):
-        roles = super(Participant, self).roles_for(actor, anchors)
+        roles = super(TicketParticipant, self).roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('subject')
         cx = ContactExchange.query.get((actor.id, self.id))
@@ -206,7 +206,7 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         return roles
 
     def permissions(self, user, inherited=None):
-        perms = super(Participant, self).permissions(user, inherited)
+        perms = super(TicketParticipant, self).permissions(user, inherited)
         if self.project is not None:
             return self.project.permissions(user) | perms
         return perms
@@ -302,7 +302,7 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         return participant_list
 
 
-class Attendee(BaseMixin, db.Model):
+class TicketEventParticipant(BaseMixin, db.Model):
     """
     Join model between Participant and Event.
     """
@@ -313,10 +313,10 @@ class Attendee(BaseMixin, db.Model):
         None, db.ForeignKey('ticket_participant.id'), nullable=False
     )
     participant = db.relationship(
-        Participant, backref=db.backref('attendees', cascade='all')
+        TicketParticipant, backref=db.backref('attendees', cascade='all')
     )
     ticket_event_id = db.Column(None, db.ForeignKey('ticket_event.id'), nullable=False)
-    event = db.relationship(Event, backref=db.backref('attendees', cascade='all'))
+    event = db.relationship(TicketEvent, backref=db.backref('attendees', cascade='all'))
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
     __table_args__ = (
@@ -332,9 +332,10 @@ class Attendee(BaseMixin, db.Model):
     @classmethod
     def get(cls, event, participant_uuid_b58):
         return (
-            cls.query.join(Participant)
+            cls.query.join(TicketParticipant)
             .filter(
-                Attendee.event == event, Participant.uuid_b58 == participant_uuid_b58
+                TicketEventParticipant.event == event,
+                TicketParticipant.uuid_b58 == participant_uuid_b58,
             )
             .one_or_none()
         )
@@ -363,7 +364,7 @@ class TicketClient(BaseMixin, db.Model):
                 self.project, current_title=ticket_dict['ticket_type']
             )
 
-            participant = Participant.upsert(
+            participant = TicketParticipant.upsert(
                 self.project,
                 ticket_dict['email'],
                 fullname=ticket_dict['fullname'],
@@ -418,7 +419,7 @@ class SyncTicket(BaseMixin, db.Model):
         None, db.ForeignKey('ticket_participant.id'), nullable=False
     )
     participant = db.relationship(
-        Participant,
+        TicketParticipant,
         backref=db.backref('sync_tickets', cascade='all'),
     )
     ticket_client_id = db.Column(

@@ -8,26 +8,31 @@ from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp
-from ..forms import EventForm, ParticipantBadgeForm, TicketClientForm, TicketTypeForm
+from ..forms import (
+    TicketClientForm,
+    TicketEventForm,
+    TicketParticipantBadgeForm,
+    TicketTypeForm,
+)
 from ..models import (
-    Event,
-    Participant,
     Profile,
     Project,
     SyncTicket,
     TicketClient,
+    TicketEvent,
+    TicketParticipant,
     TicketType,
     db,
 )
 from .decorators import legacy_redirect
 from .jobs import import_tickets
 from .login_session import requires_login
-from .mixins import EventViewMixin, ProjectViewMixin
+from .mixins import ProjectViewMixin, TicketEventViewMixin
 
 
 @Project.views('event')
 @route('/<profile>/<project>/events')
-class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
+class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
@@ -53,9 +58,9 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'concierge'})
     def new_event(self):
-        form = EventForm()
+        form = TicketEventForm()
         if form.validate_on_submit():
-            event = Event(project=self.obj)
+            event = TicketEvent(project=self.obj)
             form.populate_obj(event)
             event.make_name()
             try:
@@ -109,17 +114,17 @@ class ProjectEventView(ProjectViewMixin, UrlForView, ModelView):
 
 
 @route('/<project>/events', subdomain='<profile>')
-class FunnelProjectEventView(ProjectEventView):
+class FunnelProjectTicketEventView(ProjectTicketEventView):
     pass
 
 
-ProjectEventView.init_app(app)
-FunnelProjectEventView.init_app(funnelapp)
+ProjectTicketEventView.init_app(app)
+FunnelProjectTicketEventView.init_app(funnelapp)
 
 
-@Event.views('main')
+@TicketEvent.views('main')
 @route('/<profile>/<project>/event/<name>')
-class EventView(EventViewMixin, UrlForView, ModelView):
+class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
 
     @route('', methods=['GET', 'POST'])
@@ -146,11 +151,11 @@ class EventView(EventViewMixin, UrlForView, ModelView):
                         'info',
                     )
             elif request.form['form.id'] == 'badge_form':
-                form = ParticipantBadgeForm()
+                form = TicketParticipantBadgeForm()
                 if form.validate_on_submit():
                     badge_printed = getbool(form.data.get('badge_printed'))
-                    db.session.query(Participant).filter(
-                        Participant.id.in_(
+                    db.session.query(TicketParticipant).filter(
+                        TicketParticipant.id.in_(
                             [participant.id for participant in self.obj.participants]
                         )
                     ).update(
@@ -165,7 +170,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
             'profile': self.obj.project.profile,
             'event': self.obj,
             'project': self.obj.project,
-            'badge_form': ParticipantBadgeForm(model=Participant),
+            'badge_form': TicketParticipantBadgeForm(model=TicketParticipant),
             'checkin_form': forms.Form(),
             'csrf_form': forms.Form(),
         }
@@ -173,7 +178,7 @@ class EventView(EventViewMixin, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_concierge'})
     def edit(self):
-        form = EventForm(obj=self.obj, model=Event)
+        form = TicketEventForm(obj=self.obj, model=TicketEvent)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -209,12 +214,12 @@ class EventView(EventViewMixin, UrlForView, ModelView):
 
 
 @route('/<project>/event/<name>', subdomain='<profile>')
-class FunnelEventView(EventView):
+class FunnelTicketEventView(TicketEventView):
     pass
 
 
-EventView.init_app(app)
-FunnelEventView.init_app(funnelapp)
+TicketEventView.init_app(app)
+FunnelTicketEventView.init_app(funnelapp)
 
 
 @TicketType.views('main')
@@ -249,7 +254,7 @@ class TicketTypeView(UrlForView, ModelView):
     @requires_roles({'project_concierge'})
     def view(self):
         participants = (
-            Participant.query.join(SyncTicket)
+            TicketParticipant.query.join(SyncTicket)
             .filter(SyncTicket.ticket_type == self.obj)
             .all()
         )

@@ -10,7 +10,6 @@ from coaster.utils import require_one_of
 from ..forms import SavedProjectForm
 from ..models import (
     Draft,
-    Event,
     Profile,
     Project,
     ProjectRedirect,
@@ -18,6 +17,7 @@ from ..models import (
     ProposalRedirect,
     ProposalSuuidRedirect,
     Session,
+    TicketEvent,
     Venue,
     VenueRoom,
     db,
@@ -225,8 +225,8 @@ class VenueRoomViewMixin(object):
         return room
 
 
-class EventViewMixin(object):
-    model = Event
+class TicketEventViewMixin(object):
+    model = TicketEvent
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
@@ -239,7 +239,7 @@ class EventViewMixin(object):
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
-                Event.name == name,
+                TicketEvent.name == name,
             )
             .one_or_404()
         )
@@ -247,7 +247,7 @@ class EventViewMixin(object):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        return super(EventViewMixin, self).after_loader()
+        return super(TicketEventViewMixin, self).after_loader()
 
 
 class DraftViewMixin(object):

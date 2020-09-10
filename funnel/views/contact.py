@@ -13,7 +13,7 @@ from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, funnelapp
-from ..models import ContactExchange, Participant, Project, db
+from ..models import ContactExchange, Project, TicketParticipant, db
 from ..utils import abort_null, format_twitter_handle
 from .helpers import app_url_for
 from .login_session import requires_login
@@ -148,7 +148,7 @@ class ContactView(ClassView):
     @requestargs(('puk', abort_null), ('key', abort_null))
     def connect(self, puk, key):
         """Scan verification"""
-        participant = Participant.query.filter_by(puk=puk, key=key).first()
+        participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
         if not participant:
             return make_response(
                 jsonify(status='error', message="Attendee details not found"), 404

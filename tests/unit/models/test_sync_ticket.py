@@ -4,12 +4,12 @@ from coaster.utils import uuid_b58
 from funnel import app
 from funnel.models import (
     EmailAddress,
-    Event,
     Organization,
-    Participant,
     Project,
     SyncTicket,
     TicketClient,
+    TicketEvent,
+    TicketParticipant,
     TicketType,
     User,
     db,
@@ -25,7 +25,7 @@ from .event_models_fixtures import (
 
 def bulk_upsert(project, event_list):
     for event_dict in event_list:
-        event = Event.upsert(
+        event = TicketEvent.upsert(
             project,
             current_title=event_dict.get('title'),
             title=event_dict.get('title'),
@@ -101,20 +101,20 @@ class TestEventModels(unittest.TestCase):
     def test_import_from_list(self):
         # test bookings
         self.ticket_client.import_from_list(ticket_list)
-        p1 = Participant.query.filter_by(
+        p1 = TicketParticipant.query.filter_by(
             email_address=EmailAddress.get('participant1@gmail.com'),
             project=self.project,
         ).one_or_none()
-        p2 = Participant.query.filter_by(
+        p2 = TicketParticipant.query.filter_by(
             email_address=EmailAddress.get('participant2@gmail.com'),
             project=self.project,
         ).one_or_none()
-        p3 = Participant.query.filter_by(
+        p3 = TicketParticipant.query.filter_by(
             email_address=EmailAddress.get('participant3@gmail.com'),
             project=self.project,
         ).one_or_none()
         self.assertEqual(SyncTicket.query.count(), 3)
-        self.assertEqual(Participant.query.count(), 3)
+        self.assertEqual(TicketParticipant.query.count(), 3)
         self.assertEqual(len(p1.events), 2)
         self.assertEqual(len(p2.events), 1)
         self.assertEqual(len(p3.events), 1)
@@ -127,7 +127,7 @@ class TestEventModels(unittest.TestCase):
 
         # test_transfers
         self.ticket_client.import_from_list(ticket_list3)
-        p4 = Participant.query.filter_by(
+        p4 = TicketParticipant.query.filter_by(
             email_address=EmailAddress.get('participant4@gmail.com'),
             project=self.project,
         ).one_or_none()
