@@ -1,20 +1,15 @@
 import re
 
-from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
-from wtforms.widgets import CheckboxInput, ListWidget
-
 from baseframe import __
 from baseframe.forms.sqlalchemy import AvailableName
 from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
-from ..models import Event, Project, Rsvp, SavedProject, TicketClient
+from ..models import Project, Rsvp, SavedProject
 from .helpers import image_url_validator
 
 __all__ = [
     'CfpForm',
-    'EventForm',
-    'ProjectBoxofficeForm',
     'ProjectCfpTransitionForm',
     'ProjectForm',
     'ProjectLivestreamForm',
@@ -24,13 +19,9 @@ __all__ = [
     'ProjectBannerForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
-    'TicketClientForm',
-    'TicketTypeForm',
 ]
 
 double_quote_re = re.compile(r'["“”]')
-
-BOXOFFICE_DETAILS_PLACEHOLDER = {"org": "hasgeek", "item_collection_id": ""}
 
 
 @Project.forms('main')
@@ -258,62 +249,3 @@ class RsvpTransitionForm(forms.Form):
             (transition_name, getattr(Rsvp, transition_name))
             for transition_name in Rsvp.state.statemanager.transitions
         ]
-
-
-@Event.forms('main')
-class EventForm(forms.Form):
-    title = forms.StringField(
-        __("Title"),
-        validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
-    )
-    badge_template = forms.URLField(
-        __("Badge template URL"),
-        description="URL of background image for the badge",
-        validators=[forms.validators.Optional(), forms.validators.ValidUrl()],
-    )
-
-
-@TicketClient.forms('main')
-class TicketClientForm(forms.Form):
-    name = forms.StringField(
-        __("Name"),
-        validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
-    )
-    clientid = forms.StringField(
-        __("Client id"), validators=[forms.validators.DataRequired()]
-    )
-    client_eventid = forms.StringField(
-        __("Client event id"), validators=[forms.validators.DataRequired()]
-    )
-    client_secret = forms.StringField(
-        __("Client event secret"), validators=[forms.validators.DataRequired()]
-    )
-    client_access_token = forms.StringField(
-        __("Client access token"), validators=[forms.validators.DataRequired()]
-    )
-
-
-@Event.forms('ticket_type')
-class TicketTypeForm(forms.Form):
-    title = forms.StringField(
-        __("Title"),
-        validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
-    )
-    events = QuerySelectMultipleField(
-        __("Events"),
-        widget=ListWidget(),
-        option_widget=CheckboxInput(),
-        allow_blank=True,
-        get_label='title',
-        query_factory=lambda: [],
-    )
-
-
-@Project.forms('boxoffice')
-class ProjectBoxofficeForm(forms.Form):
-    boxoffice_data = forms.JsonField(
-        __("Ticket client details"), default=BOXOFFICE_DETAILS_PLACEHOLDER
-    )

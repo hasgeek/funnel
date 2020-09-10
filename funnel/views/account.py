@@ -680,7 +680,7 @@ def change_password():
         # 1. Log out of the current session
         logout_internal()
         # 2. As a precaution, invalidate all of the user's active sessions
-        for user_session in user.active_sessions.all():
+        for user_session in user.active_user_sessions.all():
             user_session.revoke()
         # 3. Create a new session and continue without disrupting user experience
         login_internal(user, login_service='password')

@@ -637,7 +637,7 @@ class ProjectView(
                 (
                     'Content-Disposition',
                     'attachment;filename="{filename}.csv"'.format(
-                        filename='participants-{project}-{state}'.format(
+                        filename='ticket-participants-{project}-{state}'.format(
                             project=make_name(self.obj.title), state=state
                         )
                     ),
@@ -721,7 +721,7 @@ class ProjectView(
         return {
             'profile': self.obj.profile,
             'project': self.obj,
-            'events': self.obj.events,
+            'ticket_events': self.obj.ticket_events,
             'csrf_form': forms.Form(),
         }
 

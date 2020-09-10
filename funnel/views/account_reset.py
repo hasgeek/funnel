@@ -10,9 +10,9 @@ from flask import (
     session,
     url_for,
 )
+from flask_babelhg import ngettext
 import itsdangerous
 
-from flask_babelhg import ngettext
 from pytz import utc
 
 from baseframe import _
@@ -250,7 +250,7 @@ def reset_email_do():
         session.pop('temp_token_at', None)
         # Invalidate all of the user's active sessions
         counter = None
-        for counter, user_session in enumerate(user.active_sessions.all()):
+        for counter, user_session in enumerate(user.active_user_sessions.all()):
             user_session.revoke()
         db.session.commit()
         dispatch_notification(AccountPasswordNotification(document=user))

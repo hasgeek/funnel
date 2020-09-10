@@ -15,7 +15,7 @@
     <div class="card">
       <div class="card__header">
         <h3 class="mui--text-title">{% trans %}Events{% endtrans %}</h3>
-        {%- if events %}
+        {%- if ticket_events %}
           <p class="mui--text-caption">{% trans %}Select an event for manual check-in of attendees{% endtrans %}</p>
         {%- else %}
           <p class="mui--text-caption">{% trans %}Add events to manage check-in{% endtrans %}</p>
@@ -23,9 +23,9 @@
       </div>
       <div class="card__body">
         <ol class="mui-list--aligned">
-          {%- for event in events %}
+          {%- for ticket_event in ticket_events %}
             <li>
-              <a href="{{ event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ event.title }}" data-action="View {{ event.title }}">{{ event.title }}</a>{%- if project.current_roles.concierge %}&nbsp;<a href="{{ event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}"  data-action="edit {{ event.title }}">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ ticket_event.title }}" data-action="View {{ ticket_event.title }}">{{ ticket_event.title }}</a>{%- if project.current_roles.concierge %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}"  data-action="edit {{ ticket_event.title }}">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -33,9 +33,9 @@
       {%- if project.current_roles.concierge %}
       <div class="mui-divider"></div>
       <div class="card__footer">
-        <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-event">{% trans %}New event{% endtrans %}</a>
-        {%- if project.events %}
-          <a href="{{ project.url_for('new_participant') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-participant">{% trans %}Add participant{% endtrans %}</a>
+        <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-event">{% trans %}New ticketed event{% endtrans %}</a>
+        {%- if project.ticket_events %}
+          <a href="{{ project.url_for('new_participant') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-ticket-participant">{% trans %}Add ticketed participant{% endtrans %}</a>
         {%- endif %}
       </div>
       {%- endif %}

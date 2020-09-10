@@ -25,12 +25,12 @@
       </div>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
-      <h3 class="mui--text-title">{{event.title}}&nbsp;<a href="{{ event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
+      <h3 class="mui--text-title">{{ ticket_event.title }}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
-      <h3 class="mui--text-right" id="participants-count">
+      <h3 class="mui--text-right" id="ticket-participants-count">
         {% raw %}
-        <script id="participants-count-template" type="text/ractive">
+        <script id="ticket-participants-count-template" type="text/ractive">
           Checked In: <span class="js-totalcheckin mui--text-title">{{ total_checkedin }}</span> |
           Total: <span class="js-total mui--text-title">{{ total_participants }}</span>
         </script>
@@ -47,9 +47,9 @@
     </div>
     <div class="grid__col-xs-12 grid__col-md-9">
       <ul class="mui-list--inline">
-        <li><a href="{{ event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
-         <li><a href="{{ event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
-        <li><a href="{{ event.url_for('badges') }}?badge_printed=t" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
+        <li><a href="{{ ticket_event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
+         <li><a href="{{ ticket_event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
+        <li><a href="{{ ticket_event.url_for('badges') }}?badge_printed=t" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
         <li class="badge-print-status-btn">
           <form method="POST" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
@@ -63,7 +63,7 @@
   </div>
   <div class="grid">
     <div class="grid__col-xs-12 mui-table--responsive-wrapper">
-      <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='participants-table'>
+      <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='ticket-participants-table'>
         <thead>
           <tr class="active">
             <th>Name</th>
@@ -73,12 +73,12 @@
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="participants-table-content">
+        <tbody id="ticket-participants-table-content">
           {% raw %}
-          <script id='participant-row' type='text/ractive'>
-          {{#each participants}}
+          <script id='ticket-participant-row' type='text/ractive'>
+          {{#each ticket_participants}}
             <tr id="p-{{ puuid_b58 }}">
-              <td class='js-searchable' data-th="Name" data-cy="participant">{{ fullname }}</td>
+              <td class='js-searchable' data-th="Name" data-cy="ticket-participant">{{ fullname }}</td>
               <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
               <td class='js-searchable' data-th="Email">{{ email }}</td>
               <td class='js-searchable' data-th="Company">{{ company }}</td>
@@ -107,7 +107,7 @@
                   </li>
                   {{#if isConcierge}}
                   <li>
-                    <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" rel="noopener" data-cy="edit-attendee-details">Edit attendee details</a>
+                    <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" rel="noopener" data-cy="edit-attendee-details">Edit participant details</a>
                   </li>
                   {{/if}}
                 </ul>
@@ -137,19 +137,19 @@
     8. There are two check-in counters & both counter's internet is down: They checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.
     8. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in different participants. Verify both counters have the recent check-in status of participants, once internet is up.
     9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
-    var eventConfig = {};
-    eventConfig.checkin = {
+    var ticketEventConfig = {};
+    ticketEventConfig.checkin = {
       isConcierge: {%- if project.current_roles.concierge %} true {% else %} false {%- endif %},
       isUsher: {%- if project.current_roles.usher %} true {% else %} false {%- endif %},
-      checkinUrl: "{{ event.url_for('checkin') }}",
-      participantlistUrl: "{{ event.url_for('participants_json') }}",
-      eventName: "{{ project.name }}" + "-" + "{{event.title}}".replace(/ /g,'-'),
+      checkinUrl: "{{ ticket_event.url_for('checkin') }}",
+      participantlistUrl: "{{ ticket_event.url_for('participants_json') }}",
+      ticketEventName: {{ project.name|tojson }} + "-" + {{ ticket_event.title|tojson }}.replace(/ /g,'-'),
     };
-    eventConfig.search = {
-      tableId: 'participants-table',
+    ticketEventConfig.search = {
+      tableId: 'ticket-participants-table',
       inputId: 'search'
     };
-    Hasgeek.EventInit(eventConfig);
+    Hasgeek.EventInit(ticketEventConfig);
     //If there is no network, display a confirmation dialog when user closes/reloades the page
     window.onbeforeunload = function() {
       if (!navigator.onLine) {

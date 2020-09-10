@@ -2,6 +2,7 @@ import gettext
 import re
 
 from flask_babelhg import get_locale
+
 import pycountry
 
 from baseframe import __
@@ -87,9 +88,9 @@ class VenueRoomForm(forms.Form):
         __("Description"), description=__("An optional note about the room")
     )
     bgcolor = forms.StringField(
-        __("Event Color"),
+        __("Room colour"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
-        description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."),
+        description=__("RGB colour for the room. Enter without the '#'. E.g. CCCCCC."),
         default="CCCCCC",
     )
 

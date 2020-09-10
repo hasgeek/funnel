@@ -8,11 +8,11 @@ from .project_membership import project_child_role_map
 from .user import User, UserEmail
 
 __all__ = [
-    'Attendee',
-    'Event',
-    'Participant',
     'SyncTicket',
     'TicketClient',
+    'TicketEvent',
+    'TicketEventParticipant',
+    'TicketParticipant',
     'TicketType',
 ]
 
@@ -29,10 +29,12 @@ def make_private_key():
     return make_key()[:8]
 
 
-event_ticket_type = db.Table(
-    'event_ticket_type',
+ticket_event_ticket_type = db.Table(
+    'ticket_event_ticket_type',
     db.Model.metadata,
-    db.Column('event_id', None, db.ForeignKey('event.id'), primary_key=True),
+    db.Column(
+        'ticket_event_id', None, db.ForeignKey('ticket_event.id'), primary_key=True
+    ),
     db.Column(
         'ticket_type_id', None, db.ForeignKey('ticket_type.id'), primary_key=True
     ),
@@ -45,8 +47,7 @@ event_ticket_type = db.Table(
 )
 
 
-class ScopedNameTitleMixin(BaseScopedNameMixin):
-    # TODO: Move this into coaster?
+class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
     def get(cls, parent, current_name=None, current_title=None):
         if not bool(current_name) ^ bool(current_title):
@@ -68,30 +69,33 @@ class ScopedNameTitleMixin(BaseScopedNameMixin):
         return instance
 
 
-class Event(ScopedNameTitleMixin, db.Model):
+class TicketEvent(GetTitleMixin, db.Model):
     """
-    A discrete event under a project.
-    For instance, a project could be associated with a workshop and a two-day conference.
-    The workshop constitutes as one event and each day of the conference
-    constitutes as an independent event.
-    This is done to allow distinguishing participants based on
-    on the tickets they have, given a participant may have a ticket
-    for only the workshop or a single day of the conference.
-    An event is associated with multiple ticket types,
-    which helps make the distinction between participants.
+    A discrete event under a project that a ticket grants access to.
+
+    A project may have multiple events, such as a workshop and a two-day conference.
+    The workshop is one discrete event, as is each day of the two-day conference.
+    Tickets and events have a many-to-many relationship within a project. A ticket type
+    may grant access to multiple events and a different ticket type may grant an
+    overlapping set of events.
     """
 
-    __tablename__ = 'event'
+    __tablename__ = 'ticket_event'
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
-        db.relationship(Project, backref=db.backref('events', cascade='all')),
+        db.relationship(Project, backref=db.backref('ticket_events', cascade='all')),
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
-    ticket_types = db.relationship('TicketType', secondary=event_ticket_type)
-    participants = db.relationship(
-        'Participant', secondary='attendee', backref='events', lazy='dynamic'
+    ticket_types = db.relationship(
+        'TicketType', secondary=ticket_event_ticket_type, back_populates='ticket_events'
+    )
+    ticket_participants = db.relationship(
+        'TicketParticipant',
+        secondary='ticket_event_participant',
+        backref='ticket_events',
+        lazy='dynamic',
     )
     badge_template = db.Column(db.Unicode(250), nullable=True)
 
@@ -101,7 +105,7 @@ class Event(ScopedNameTitleMixin, db.Model):
     )
 
 
-class TicketType(ScopedNameTitleMixin, db.Model):
+class TicketType(GetTitleMixin, db.Model):
     """
     Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
     A ticket type is associated with multiple events.
@@ -115,7 +119,9 @@ class TicketType(ScopedNameTitleMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
-    events = db.relationship('Event', secondary=event_ticket_type)
+    ticket_events = db.relationship(
+        TicketEvent, secondary=ticket_event_ticket_type, back_populates='ticket_types'
+    )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
@@ -123,12 +129,12 @@ class TicketType(ScopedNameTitleMixin, db.Model):
     )
 
 
-class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
+class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     """
     Model users participating in one or multiple events.
     """
 
-    __tablename__ = 'participant'
+    __tablename__ = 'ticket_participant'
     __email_optional__ = False
     __email_for__ = 'user'
 
@@ -170,11 +176,14 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     )
     badge_printed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship(User, backref=db.backref('participants', cascade='all'))
+    user = db.relationship(
+        User, backref=db.backref('ticket_participants', cascade='all')
+    )
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(
-            Project, backref=db.backref('participants', lazy='dynamic', cascade='all')
+            Project,
+            backref=db.backref('ticket_participants', lazy='dynamic', cascade='all'),
         ),
         read={'concierge', 'subject', 'scanner'},
         grants_via={None: project_child_role_map},
@@ -191,7 +200,7 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     }
 
     def roles_for(self, actor, anchors=()):
-        roles = super(Participant, self).roles_for(actor, anchors)
+        roles = super(TicketParticipant, self).roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('subject')
         cx = ContactExchange.query.get((actor.id, self.id))
@@ -200,7 +209,7 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         return roles
 
     def permissions(self, user, inherited=None):
-        perms = super(Participant, self).permissions(user, inherited)
+        perms = super(TicketParticipant, self).permissions(user, inherited)
         if self.project is not None:
             return self.project.permissions(user) | perms
         return perms
@@ -232,39 +241,41 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def upsert(cls, current_project, current_email, **fields):
-        participant = cls.get(current_project, current_email)
+        ticket_participant = cls.get(current_project, current_email)
         useremail = UserEmail.get(current_email)
         if useremail:
             user = useremail.user
         else:
             user = None
-        if participant:
-            participant.user = user
-            participant._set_fields(fields)
+        if ticket_participant:
+            ticket_participant.user = user
+            ticket_participant._set_fields(fields)
         else:
             with db.session.no_autoflush:
-                participant = cls(
+                ticket_participant = cls(
                     project=current_project, user=user, email=current_email, **fields
                 )
-            db.session.add(participant)
-        return participant
+            db.session.add(ticket_participant)
+        return ticket_participant
 
-    def add_events(self, events):
-        for event in events:
-            if event not in self.events:
-                self.events.append(event)
+    def add_events(self, ticket_events):
+        for ticket_event in ticket_events:
+            if ticket_event not in self.ticket_events:
+                self.ticket_events.append(ticket_event)
 
-    def remove_events(self, events):
-        for event in events:
-            if event in self.events:
-                self.events.remove(event)
+    def remove_events(self, ticket_events):
+        for ticket_event in ticket_events:
+            if ticket_event in self.ticket_events:
+                self.ticket_events.remove(ticket_event)
 
     @classmethod
-    def checkin_list(cls, event):
+    def checkin_list(cls, ticket_event):
         """
-        Returns participant details along with their associated ticket types as a comma-separated string.
+        Returns ticket participant details along with their associated ticket types as a
+        comma-separated string.
         """
-        participant_list = (
+        # FIXME: Replace with SQLAlchemy objects
+        ticket_participant_list = (
             db.session.query(
                 'uuid',
                 'fullname',
@@ -280,44 +291,57 @@ class Participant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             .from_statement(
                 db.text(
                     '''
-                    SELECT distinct(participant.uuid), participant.fullname, email_address.email, participant.company, participant.twitter, participant.puk, participant.key, attendee.checked_in, participant.badge_printed,
-                    (SELECT string_agg(title, ',') FROM sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.participant_id = participant.id) AS ticket_type_titles
-                    FROM participant INNER JOIN attendee ON participant.id = attendee.participant_id INNER JOIN email_address ON email_address.id = participant.email_address_id LEFT OUTER JOIN sync_ticket ON participant.id = sync_ticket.participant_id
-                    WHERE attendee.event_id = :event_id
-                    ORDER BY participant.fullname
+                    SELECT distinct(ticket_participant.uuid), ticket_participant.fullname, email_address.email, ticket_participant.company, ticket_participant.twitter, ticket_participant.puk, ticket_participant.key, ticket_event_participant.checked_in, ticket_participant.badge_printed,
+                    (SELECT string_agg(title, ',') FROM sync_ticket INNER JOIN ticket_type ON sync_ticket.ticket_type_id = ticket_type.id where sync_ticket.ticket_participant_id = ticket_participant.id) AS ticket_type_titles
+                    FROM ticket_participant INNER JOIN ticket_event_participant ON ticket_participant.id = ticket_event_participant.ticket_participant_id INNER JOIN email_address ON email_address.id = ticket_participant.email_address_id LEFT OUTER JOIN sync_ticket ON ticket_participant.id = sync_ticket.ticket_participant_id
+                    WHERE ticket_event_participant.ticket_event_id = :ticket_event_id
+                    ORDER BY ticket_participant.fullname
                     '''
                 )
             )
-            .params(event_id=event.id)
+            .params(ticket_event_id=ticket_event.id)
             .all()
         )
-        return participant_list
+        return ticket_participant_list
 
 
-class Attendee(BaseMixin, db.Model):
+class TicketEventParticipant(BaseMixin, db.Model):
     """
     Join model between Participant and Event.
-    TODO: #140 - Rename Attendee to EventParticipant
     """
 
-    __tablename__ = 'attendee'
+    __tablename__ = 'ticket_event_participant'
 
-    participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
-    participant = db.relationship(
-        Participant, backref=db.backref('attendees', cascade='all')
+    ticket_participant_id = db.Column(
+        None, db.ForeignKey('ticket_participant.id'), nullable=False
     )
-    event_id = db.Column(None, db.ForeignKey('event.id'), nullable=False)
-    event = db.relationship(Event, backref=db.backref('attendees', cascade='all'))
+    ticket_participant = db.relationship(
+        TicketParticipant,
+        backref=db.backref('ticket_event_participants', cascade='all'),
+    )
+    ticket_event_id = db.Column(None, db.ForeignKey('ticket_event.id'), nullable=False)
+    ticket_event = db.relationship(
+        TicketEvent, backref=db.backref('ticket_event_participants', cascade='all')
+    )
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
-    __table_args__ = (db.UniqueConstraint('event_id', 'participant_id'),)
+    __table_args__ = (
+        # Uses a custom name that is not as per convention because the default name is
+        # too long for PostgreSQL
+        db.UniqueConstraint(
+            'ticket_event_id',
+            'ticket_participant_id',
+            name='ticket_event_participant_event_id_participant_id_key',
+        ),
+    )
 
     @classmethod
-    def get(cls, event, participant_uuid_b58):
+    def get(cls, ticket_event, participant_uuid_b58):
         return (
-            cls.query.join(Participant)
+            cls.query.join(TicketParticipant)
             .filter(
-                Attendee.event == event, Participant.uuid_b58 == participant_uuid_b58
+                TicketEventParticipant.ticket_event == ticket_event,
+                TicketParticipant.uuid_b58 == participant_uuid_b58,
             )
             .one_or_none()
         )
@@ -346,7 +370,7 @@ class TicketClient(BaseMixin, db.Model):
                 self.project, current_title=ticket_dict['ticket_type']
             )
 
-            participant = Participant.upsert(
+            ticket_participant = TicketParticipant.upsert(
                 self.project,
                 ticket_dict['email'],
                 fullname=ticket_dict['fullname'],
@@ -361,23 +385,23 @@ class TicketClient(BaseMixin, db.Model):
                 self, ticket_dict.get('order_no'), ticket_dict.get('ticket_no')
             )
             if ticket and (
-                ticket.participant is not participant
+                ticket.ticket_participant != ticket_participant
                 or ticket_dict.get('status') == 'cancelled'
             ):
-                # Ensure that the participant of a transferred or cancelled ticket does not have access to
-                # this ticket's events
-                ticket.participant.remove_events(ticket_type.events)
+                # Ensure that the participant of a transferred or cancelled ticket does
+                # not have access to this ticket's events
+                ticket.ticket_participant.remove_events(ticket_type.ticket_events)
 
             if ticket_dict.get('status') == 'confirmed':
                 ticket = SyncTicket.upsert(
                     self,
                     ticket_dict.get('order_no'),
                     ticket_dict.get('ticket_no'),
-                    participant=participant,
+                    ticket_participant=ticket_participant,
                     ticket_type=ticket_type,
                 )
                 # Ensure that the new or updated participant has access to events
-                ticket.participant.add_events(ticket_type.events)
+                ticket.ticket_participant.add_events(ticket_type.ticket_events)
 
     def permissions(self, user, inherited=None):
         perms = super(TicketClient, self).permissions(user, inherited)
@@ -387,7 +411,7 @@ class TicketClient(BaseMixin, db.Model):
 
 
 class SyncTicket(BaseMixin, db.Model):
-    """ Model for a ticket that was bought elsewhere. Eg: Explara."""
+    """ Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
 
     __tablename__ = 'sync_ticket'
 
@@ -397,10 +421,11 @@ class SyncTicket(BaseMixin, db.Model):
     ticket_type = db.relationship(
         TicketType, backref=db.backref('sync_tickets', cascade='all')
     )
-    participant_id = db.Column(None, db.ForeignKey('participant.id'), nullable=False)
-    participant = db.relationship(
-        Participant,
-        primaryjoin=participant_id == Participant.id,
+    ticket_participant_id = db.Column(
+        None, db.ForeignKey('ticket_participant.id'), nullable=False
+    )
+    ticket_participant = db.relationship(
+        TicketParticipant,
         backref=db.backref('sync_tickets', cascade='all'),
     )
     ticket_client_id = db.Column(
@@ -442,6 +467,5 @@ class SyncTicket(BaseMixin, db.Model):
         return ticket
 
 
-# Import symbols required only in functions at bottom of file to avoid
-# cyclic dependency failures.
+# Tail imports to avoid cyclic dependency errors, for symbols used only in methods
 from .contact_exchange import ContactExchange  # isort:skip

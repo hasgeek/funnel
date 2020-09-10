@@ -3,8 +3,8 @@ describe('Checkin of attendees', function () {
   const user = require('../fixtures/user.json').user;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
-  const events = require('../fixtures/events.json');
-  const participants = require('../fixtures/participants.json');
+  const ticketEvents = require('../fixtures/ticket_events.json');
+  const ticketParticipants = require('../fixtures/ticket_participants.json');
 
   it('Checkin of attendees', function () {
     cy.login('/', concierge.username, concierge.password);
@@ -15,35 +15,39 @@ describe('Checkin of attendees', function () {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="setup-events"').click();
+    cy.get('a[data-cy="setup-ticket-events"').click();
     cy.location('pathname').should('contain', '/admin');
 
-    cy.fixture('participants').then((participants) => {
-      participants.forEach(function (participant) {
-        cy.get('a[data-cy="add-participant"]').click();
-        cy.get('#fullname').type(participant.fullname);
-        cy.get('#email').type(participant.email);
-        cy.get('#phone').type(participant.phone);
-        cy.get('#company').type(participant.company);
-        cy.get('#twitter').type(participant.twitter);
-        cy.get('#field-events')
+    cy.fixture('ticket_participants').then((ticketParticipants) => {
+      ticketParticipants.forEach(function (ticketParticipant) {
+        cy.get('a[data-cy="add-ticket-participant"]').click();
+        cy.get('#fullname').type(ticketParticipant.fullname);
+        cy.get('#email').type(ticketParticipant.email);
+        cy.get('#phone').type(ticketParticipant.phone);
+        cy.get('#company').type(ticketParticipant.company);
+        cy.get('#twitter').type(ticketParticipant.twitter);
+        cy.get('#field-ticket_events')
           .find('label')
-          .contains(participant.event)
+          .contains(ticketParticipant.ticketEvent)
           .click();
         cy.get('button').contains('Add participant').click();
       });
     });
 
-    cy.get('a[data-cy="' + events[0].title + '"]').click();
-    cy.get('td[data-cy="participant"]').contains(participants[0].fullname);
-    cy.get('td[data-cy="participant"]').contains(participants[1].fullname);
+    cy.get('a[data-cy="' + ticketEvents[0].title + '"]').click();
+    cy.get('td[data-cy="ticket-participant"]').contains(
+      ticketParticipants[0].fullname
+    );
+    cy.get('td[data-cy="ticket-participant"]').contains(
+      ticketParticipants[1].fullname
+    );
     cy.checkin(user.username);
     cy.get('a[data-cy="back-to-setup"]').click();
 
-    cy.get('a[data-cy="' + events[1].title + '"]').click();
+    cy.get('a[data-cy="' + ticketEvents[1].title + '"]').click();
     // Test failing
-    // cy.get('td[data-cy="participant"]')
-    //   .contains(participants[2].fullname)
+    // cy.get('td[data-cy="ticket-participant"]')
+    //   .contains(ticketParticipants[2].fullname)
     //   .parent()
     //   .find('a[data-cy="edit-attendee-details"]')
     //   .invoke('removeAttr', 'target')
@@ -51,12 +55,12 @@ describe('Checkin of attendees', function () {
     // cy.url().should('contain', 'edit');
     // cy.get('#email')
     //   .clear()
-    //   .type(participants[1].email);
+    //   .type(ticketParticipants[1].email);
     // cy.get('button')
     //   .contains('Save changes')
     //   .click();
 
-    cy.checkin(participants[2].fullname);
+    cy.checkin(ticketParticipants[2].fullname);
     cy.get('a[data-cy="back-to-setup"]').click();
   });
 });
