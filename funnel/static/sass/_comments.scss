@@ -6,9 +6,7 @@
     width: 100%;
 
     button {
-      vertical-align: top;
-      position: relative;
-      top: 17px;
+      vertical-align: middle;
     }
     .mui-btn--nostyle + .mui-btn--nostyle {
       margin-left: 0;
@@ -16,18 +14,14 @@
     .comment__header__details {
       display: inline-block;
       width: 100%;
-      max-width: calc(100% - 44px);
-      margin-left: $mui-grid-padding/2;
+      max-width: calc(100% - 36px);
       .commenter {
-        margin-right: $mui-grid-padding/2;
+        margin-right: $mui-grid-padding/4;
       }
       .comment__header__details__user {
         min-height: 40px;
-        margin-right: 8px;
-        max-width: calc(100% - 100px);
         .badge {
-          position: relative;
-          top: -2px;
+          margin-right: 4px;
         }
       }
       .user__box {
@@ -37,14 +31,16 @@
   }
 
   .comment__body {
-    margin: 5px 0 0 5px;
+    border-left: 1px solid $mui-divider-color;
+    padding-left: 12px;
+    margin: 5px 0 0 7px;
 
     img {
       max-width: 100%;
     }
 
     blockquote {
-      border-left: 2px solid $mui-text-accent;
+      border-left: 3px solid $mui-text-accent;
       margin: 0;
       padding-left: $mui-grid-padding;
     }
@@ -61,23 +57,9 @@
         margin-top: 8px;
       }
     }
-    .comment__body {
-      border-left: 1px solid $mui-divider-color;
-      padding-left: 10px;
-      margin: 5px 0 0 8px;
-    }
   }
-}
-
-@media (min-width: 768px) {
-  .comment {
-    .comment__body {
-      margin: 5px 0 0 30px;
-
-      .comment__body {
-        padding-left: 25px;
-      }
-    }
+  .comment__body:hover {
+    border-left: 1px solid $mui-accent-color;
   }
 }
 
