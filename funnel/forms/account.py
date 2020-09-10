@@ -25,6 +25,7 @@ __all__ = [
     'PasswordResetForm',
     'PasswordChangeForm',
     'AccountForm',
+    'UsernameAvailableForm',
     'EmailPrimaryForm',
     'ModeratorReportForm',
     'NewEmailAddressForm',
@@ -133,7 +134,7 @@ class RegisterForm(forms.RecaptchaForm):
 
 @User.forms('password_policy')
 class PasswordPolicyForm(forms.Form):
-    candidate = forms.StringField(
+    password = forms.PasswordField(
         __("Password"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
     )
@@ -249,6 +250,25 @@ class PasswordChangeForm(forms.Form):
             raise forms.ValidationError(_("Incorrect password"))
 
 
+def raise_username_error(reason):
+    if reason == 'blank':
+        raise forms.ValidationError(_("This is required"))
+    if reason == 'long':
+        raise forms.ValidationError(_("This is too long"))
+    if reason == 'invalid':
+        raise forms.ValidationError(
+            _(
+                "Usernames can only have alphabets, numbers and dashes (except at the"
+                " ends)"
+            )
+        )
+    if reason == 'reserved':
+        raise forms.ValidationError(_("This username is reserved"))
+    if reason in ('user', 'org'):
+        raise forms.ValidationError(_("This username has been taken"))
+    raise forms.ValidationError(_("This username is not available"))
+
+
 @User.forms('main')
 class AccountForm(forms.Form):
     fullname = forms.StringField(
@@ -306,19 +326,26 @@ class AccountForm(forms.Form):
         reason = self.edit_obj.validate_name_candidate(field.data)
         if not reason:
             return  # Username is available
-        if reason == 'invalid':
-            raise forms.ValidationError(
-                _(
-                    "Usernames can only have alphabets, numbers and dashes (except at "
-                    "the ends)"
-                )
-            )
-        elif reason == 'reserved':
-            raise forms.ValidationError(_("This username is reserved"))
-        elif reason in ('user', 'org'):
-            raise forms.ValidationError(_("This username has been taken"))
-        else:
-            raise forms.ValidationError(_("This username is not available"))
+        raise_username_error(reason)
+
+
+class UsernameAvailableForm(forms.Form):
+    __expects__ = ('edit_user',)
+
+    username = forms.StringField(
+        __("Username"),
+        validators=[forms.validators.DataRequired(__("This is required"))],
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    )
+
+    def validate_username(self, field):
+        if self.edit_user:  # User is setting a username
+            reason = self.edit_user.validate_name_candidate(field.data)
+        else:  # New user is creating an account, so no user object yet
+            reason = Profile.validate_name_candidate(field.data)
+        if not reason:
+            return  # Username is available
+        raise_username_error(reason)
 
 
 def validate_emailclaim(form, field):

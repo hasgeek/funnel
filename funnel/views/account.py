@@ -38,6 +38,7 @@ from ..forms import (
     PasswordPolicyForm,
     PhonePrimaryForm,
     SavedProjectForm,
+    UsernameAvailableForm,
     VerifyEmailForm,
     VerifyPhoneForm,
     supported_locales,
@@ -64,7 +65,12 @@ from ..signals import user_data_changed
 from ..transports import TransportConnectionError, sms
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, autoset_timezone_and_locale
+from .helpers import (
+    app_url_for,
+    autoset_timezone_and_locale,
+    progressive_rate_limit_validator,
+    validate_rate_limit,
+)
 from .login_session import login_internal, logout_internal, requires_login
 from .notification import dispatch_notification
 
@@ -175,7 +181,7 @@ def user_session_login_service(obj):
         return login_registry[obj.login_service].title
 
 
-@app.route('/api/1/password/policy', methods=['POST'])
+@app.route('/api/1/account/password_policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check():
     policy_form = PasswordPolicyForm()
@@ -199,7 +205,7 @@ def password_policy_check():
                 user_inputs.append(str(phoneclaim))
 
         tested_password = password_policy.test_password(
-            policy_form.candidate.data,
+            policy_form.password.data,
             user_inputs=user_inputs if user_inputs else None,
         )
         return {
@@ -219,15 +225,73 @@ def password_policy_check():
                 'suggestions': tested_password['suggestions'],
             },
         }
-    return (
-        {
-            'status': 'error',
-            'error_code': 'policy_form_error',
-            'error_description': _("Something went wrong. Please reload and try again"),
-            'error_details': policy_form.errors,
-        },
-        400,
+    return {
+        'status': 'error',
+        'error_code': 'policy_form_error',
+        'error_description': _("Something went wrong. Please reload and try again"),
+        'error_details': policy_form.errors,
+    }, 422
+
+
+@app.route('/api/1/account/username_available', methods=['POST'])
+@render_with(json=True)
+def account_username_availability():
+    form = UsernameAvailableForm(edit_user=current_auth.user)
+    del form.form_nonce
+
+    # This view does not use the simpler ``if form.validate()`` construct because
+    # we need to insert the rate limiter _between_ the other validators. This will be
+    # simpler if :func:`validate_rate_limit` is repositioned as a form validator rather
+    # than a view validator.
+    form_validate = form.validate()
+
+    if not form_validate:
+        # If no username is supplied, return a 422 Unprocessable Entity
+        if not form.username.data:
+            return {
+                'status': 'error',
+                'error': 'username_required',
+            }, 422
+
+        # Require CSRF validation to prevent this endpoint from being used by a scraper.
+        # Field will be missing in a test environment, so use hasattr
+        if hasattr(form, 'csrf_token') and form.csrf_token.errors:
+            return {
+                'status': 'error',
+                'error': 'csrf_token',
+            }, 422
+
+    # Allow user or source IP to check for up to 20 usernames every 10 minutes (600s)
+    validate_rate_limit(
+        'account_username_available',
+        current_auth.actor.uuid_b58 if current_auth.actor else request.remote_addr,
+        # 20 username candidates
+        20,
+        # per every 10 minutes (600s)
+        600,
+        # Use a token and validator to count progressive typing and backspacing as a
+        # single rate-limited call
+        token=form.username.data,
+        validator=progressive_rate_limit_validator,
     )
+
+    # Validate form
+    if form_validate:
+        # All okay? Username is available
+        return {'status': 'ok'}
+
+    # If username is supplied but invalid, return HTTP 200 with an error message.
+    # 400/422 is the wrong code as the request is valid and the error is app content
+    return {
+        'status': 'error',
+        'error': 'validation_failure',
+        # Use the first known error as the description
+        'error_description': (
+            str(form.username.errors[0])
+            if form.username.errors
+            else str(list(form.errors.values())[0][0])
+        ),
+    }, 200
 
 
 @route('/account')
