@@ -129,10 +129,9 @@
             },
             success: function (remoteData) {
               waitingForUsernameResponse = false;
+              var fieldWrapper = $(field).closest('.mui-form__controls');
               if (remoteData.status == 'error') {
-                console.log('remoteData', remoteData.error_description)
                 $(field).closest('.mui-form__fields').addClass('has-error');
-                var fieldWrapper = $(field).closest('.mui-form__controls');
                 if ($(fieldWrapper).find('p.mui-form__error').length) {
                   $(fieldWrapper).find('p.mui-form__error').text(remoteData.error_description)
                 } else {
@@ -141,6 +140,7 @@
                 }
               } else {
                 $(field).closest('.mui-form__fields').removeClass('has-error');
+                $(fieldWrapper).find('p.mui-form__error').remove();
               }
             },
             error: function (response) {
