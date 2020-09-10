@@ -1,8 +1,8 @@
 describe('View and update print status of badge', function () {
   const admin = require('../fixtures/user.json').admin;
   const project = require('../fixtures/project.json');
-  const events = require('../fixtures/events.json');
-  const ticket_participants = require('../fixtures/ticket_participants.json');
+  const ticketEvents = require('../fixtures/ticket_events.json');
+  const ticketParticipants = require('../fixtures/ticket_participants.json');
 
   it('View badges to be printed', function () {
     cy.server();
@@ -20,7 +20,7 @@ describe('View and update print status of badge', function () {
 
     cy.get('a[data-cy="setup-ticket-events"').click();
     cy.location('pathname').should('contain', '/admin');
-    cy.get('a[data-cy="' + events[0].title + '"]').click();
+    cy.get('a[data-cy="' + ticketEvents[0].title + '"]').click();
     cy.get('select#badge_printed').select('Printed', { force: true });
     cy.get('#badge-form-submit').click();
     cy.get('a[data-cy="badges-to-printed"]')

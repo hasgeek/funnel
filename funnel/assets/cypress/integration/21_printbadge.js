@@ -2,8 +2,8 @@ describe('View badges to be printed', function () {
   const usher = require('../fixtures/user.json').usher;
   const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
-  const events = require('../fixtures/events.json');
-  const ticket_participants = require('../fixtures/ticket_participants.json');
+  const ticketEvents = require('../fixtures/ticket_events.json');
+  const ticketParticipants = require('../fixtures/ticket_participants.json');
 
   it('View badges to be printed', function () {
     cy.server();
@@ -20,9 +20,9 @@ describe('View badges to be printed', function () {
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="setup-ticket-events"').click();
     cy.location('pathname').should('contain', '/admin');
-    cy.get('a[data-cy="' + events[0].title + '"]').click();
-    var firstname1 = ticket_participants[0].fullname.split(' ')[0];
-    var firstname2 = ticket_participants[1].fullname.split(' ')[0];
+    cy.get('a[data-cy="' + ticketEvents[0].title + '"]').click();
+    var firstname1 = ticketParticipants[0].fullname.split(' ')[0];
+    var firstname2 = ticketParticipants[1].fullname.split(' ')[0];
     cy.get('a[data-cy="badges-to-printed"]')
       .invoke('removeAttr', 'target')
       .click();

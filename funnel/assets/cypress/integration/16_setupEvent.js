@@ -1,8 +1,8 @@
 describe('Setup event for checkin', function () {
   const concierge = require('../fixtures/user.json').concierge;
   const project = require('../fixtures/project.json');
-  const events = require('../fixtures/events.json');
-  const ticket_participants = require('../fixtures/ticket_participants.json');
+  const ticketEvents = require('../fixtures/ticket_events.json');
+  const ticketParticipants = require('../fixtures/ticket_participants.json');
 
   it('Setup event for checkin', function () {
     cy.login('/', concierge.username, concierge.password);
@@ -16,8 +16,8 @@ describe('Setup event for checkin', function () {
     cy.get('a[data-cy="setup-ticket-events"').click();
     cy.location('pathname').should('contain', '/admin');
 
-    cy.fixture('events').then((events) => {
-      events.forEach(function (event) {
+    cy.fixture('ticket_events').then((ticketEvents) => {
+      ticketEvents.forEach(function (event) {
         cy.get('a[data-cy="new-event"]').click();
         cy.get('#title').type(event.title);
         cy.get('#badge_template').type(event.badge_template);
