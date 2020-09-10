@@ -1,11 +1,18 @@
 from sqlalchemy.exc import IntegrityError
 
-from flask import flash, g, jsonify, redirect, request, url_for
+from flask import abort, flash, g, jsonify, redirect, request, url_for
 
 from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
 from coaster.utils import getbool, uuid_to_base58
-from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
+from coaster.views import (
+    ClassView,
+    ModelView,
+    UrlForView,
+    render_with,
+    requires_roles,
+    route,
+)
 
 from .. import app, funnelapp
 from ..forms import TicketParticipantForm
@@ -308,3 +315,46 @@ class FunnelTicketEventParticipantView(TicketEventParticipantView):
 
 TicketEventParticipantView.init_app(app)
 FunnelTicketEventParticipantView.init_app(funnelapp)
+
+
+# FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
+@route('/<profile>/<project>/event/<event>/ticket_participant/<puk>')
+class TicketEventParticipantCheckinView(ClassView):
+    __decorators__ = [requires_login]
+
+    @route('checkin', methods=['POST'])
+    @render_with(json=True)
+    def checkin_puk(self, profile, project, ticket_event, puk):
+        abort(403)
+
+        checked_in = getbool(request.form.get('checkin', 't'))
+        ticket_event = (
+            TicketEvent.query.join(Project, Profile)
+            .filter(
+                db.func.lower(Profile.name) == db.func.lower(profile),
+                Project.name == project,
+                TicketEvent.name == ticket_event,
+            )
+            .first_or_404()
+        )
+        ticket_participant = (
+            TicketParticipant.query.join(Project, Profile)
+            .filter(
+                db.func.lower(Profile.name) == db.func.lower(profile),
+                Project.name == project,
+                TicketParticipant.puk == puk,
+            )
+            .first_or_404()
+        )
+        attendee = TicketEventParticipant.get(ticket_event, ticket_participant.uuid_b58)
+        if not attendee:
+            return (
+                {'error': 'not_found', 'error_description': "Attendee not found"},
+                404,
+            )
+        attendee.checked_in = checked_in
+        db.session.commit()
+        return {'attendee': {'fullname': ticket_participant.fullname}}
+
+
+TicketEventParticipantCheckinView.init_app(app)
