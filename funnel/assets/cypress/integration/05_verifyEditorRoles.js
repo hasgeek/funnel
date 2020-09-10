@@ -17,7 +17,7 @@ describe('Verify roles of editor', function () {
     cy.get('a[data-cy="add-cfp"]').should('exist');
     cy.get('a[data-cy="edit-schedule"]').should('exist');
     cy.get('a[data-cy="manage-labels"]').should('exist');
-    cy.get('a[data-cy="setup-events"]').should('not.exist');
+    cy.get('a[data-cy="setup-ticket-events"]').should('not.exist');
     cy.get('a[data-cy="scan-checkin"]').should('not.exist');
     cy.get('a[data-cy="download-csv"]').should('exist');
     cy.get('a[data-cy="download-json"]').should('exist');

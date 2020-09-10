@@ -14,7 +14,7 @@ describe('View participant badge', function () {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="settings"]').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('a[data-cy="setup-events"').click();
+    cy.get('a[data-cy="setup-ticket-events"').click();
     cy.location('pathname').should('contain', '/admin');
     cy.get('a[data-cy="' + events[1].title + '"]').click();
     var firstname = ticket_participants[2].fullname.split(' ')[0];

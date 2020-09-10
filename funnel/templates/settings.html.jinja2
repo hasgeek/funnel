@@ -118,7 +118,7 @@
                 {% endif %}
                 {% if project.view_for('admin').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('admin') }}" data-cy="setup-events">{% trans %}Setup events for check-in{% endtrans %}</a>
+                    <a href="{{ project.url_for('admin') }}" data-cy="setup-ticket-events">{% trans %}Setup events for check-in{% endtrans %}</a>
                   </li>
                 {% endif %}
                 {% if project.view_for('events').is_available() %}
