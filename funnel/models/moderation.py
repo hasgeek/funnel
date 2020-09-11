@@ -36,7 +36,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
     reported_at = db.Column(
         db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False
     )
-    resolved_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    resolved_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     __datasets__ = {
         'primary': {
