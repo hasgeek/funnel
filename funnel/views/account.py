@@ -463,7 +463,9 @@ class AccountView(ClassView):
                 elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
                     if report.comment.state.SPAM:
                         report.comment.mark_not_spam()
-                CommentModeratorReport.query.filter_by(comment=report.comment).delete()
+                CommentModeratorReport.query.filter_by(comment=report.comment).update(
+                    {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
+                )
             else:
                 # current report is different from existing report and
                 # no report has majority frequency.

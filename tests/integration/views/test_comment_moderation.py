@@ -65,7 +65,12 @@ class TestProjectViews(object):
             comment_refetched = Comment.query.filter_by(id=comment_id).one()
             assert bool(comment_refetched.state.SPAM) is True
             # report will be deleted
-            assert CommentModeratorReport.query.filter_by(id=report1_id).first() is None
+            assert (
+                CommentModeratorReport.query.filter_by(
+                    id=report1_id, resolved_at=None
+                ).first()
+                is None
+            )
 
     def test_comment_report_opposing(
         self,
@@ -172,8 +177,18 @@ class TestProjectViews(object):
             comment3_refetched = Comment.query.filter_by(id=comment3_id).one()
             assert bool(comment3_refetched.state.SPAM) is True
             # the reports will be deleted
-            assert CommentModeratorReport.query.filter_by(id=report3_id).first() is None
-            assert CommentModeratorReport.query.filter_by(id=report4_id).first() is None
+            assert (
+                CommentModeratorReport.query.filter_by(
+                    id=report3_id, resolved_at=None
+                ).first()
+                is None
+            )
+            assert (
+                CommentModeratorReport.query.filter_by(
+                    id=report4_id, resolved_at=None
+                ).first()
+                is None
+            )
 
     def test_comment_report_majority_ok(
         self,
@@ -228,5 +243,15 @@ class TestProjectViews(object):
             comment4_refetched = Comment.query.filter_by(id=comment4_id).one()
             assert bool(comment4_refetched.state.PUBLIC) is True
             # the reports will be deleted
-            assert CommentModeratorReport.query.filter_by(id=report5_id).first() is None
-            assert CommentModeratorReport.query.filter_by(id=report6_id).first() is None
+            assert (
+                CommentModeratorReport.query.filter_by(
+                    id=report5_id, resolved_at=None
+                ).first()
+                is None
+            )
+            assert (
+                CommentModeratorReport.query.filter_by(
+                    id=report6_id, resolved_at=None
+                ).first()
+                is None
+            )
