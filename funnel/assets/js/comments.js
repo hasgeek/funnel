@@ -117,29 +117,24 @@ const Comments = {
       methods: {
         fetchForm(event, url, comment = '') {
           event.preventDefault();
-          if (this.isuserparticipant || this.iscommentmoderator) {
-            $.ajax({
-              type: 'GET',
-              url,
-              timeout: window.Hasgeek.config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
-                app.pauseRefreshComments();
-                const vueFormHtml = data.form;
-                if (comment) {
-                  comment.commentForm = vueFormHtml.replace(
-                    /\bscript\b/g,
-                    'script2'
-                  );
-                } else {
-                  app.commentForm = vueFormHtml.replace(
-                    /\bscript\b/g,
-                    'script2'
-                  );
-                }
-              },
-            });
-          }
+          $.ajax({
+            type: 'GET',
+            url,
+            timeout: window.Hasgeek.config.ajaxTimeout,
+            dataType: 'json',
+            success(data) {
+              app.pauseRefreshComments();
+              const vueFormHtml = data.form;
+              if (comment) {
+                comment.commentForm = vueFormHtml.replace(
+                  /\bscript\b/g,
+                  'script2'
+                );
+              } else {
+                app.commentForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+              }
+            },
+          });
         },
         activateForm(parentApp) {
           const formId = Utils.getElementId(parentApp.commentForm);
