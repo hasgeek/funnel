@@ -59,7 +59,7 @@ Cypress.Commands.add(
       var roleString = role[0].toUpperCase() + role.slice(1);
       cy.get('[data-cy="member"]')
         .contains(username)
-        .parents('.user__box')
+        .parents('.member')
         .find('[data-cy="role"]')
         .contains(roleString);
     } else {
@@ -93,7 +93,7 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
     var roleString = role[0].toUpperCase() + role.slice(1);
     cy.get('[data-cy="member"]')
       .contains(username)
-      .parents('.user__box')
+      .parents('.member')
       .find('[data-cy="role"]')
       .contains(roleString);
   } else {
