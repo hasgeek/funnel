@@ -41,7 +41,7 @@ describe('Adding crew to profile', function () {
     cy.wait('@edit-member');
     cy.get('[data-cy="member"]')
       .contains(admin.username)
-      .parents('.user__box')
+      .parents('.member')
       .find('[data-cy="role"]')
       .contains('Admin');
 
