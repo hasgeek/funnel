@@ -182,6 +182,7 @@ def user_session_login_service(obj):
 
 
 @app.route('/api/1/account/password_policy', methods=['POST'])
+@lastuserapp.route('/api/1/account/password_policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check():
     policy_form = PasswordPolicyForm()
@@ -234,6 +235,7 @@ def password_policy_check():
 
 
 @app.route('/api/1/account/username_available', methods=['POST'])
+@lastuserapp.route('/api/1/account/username_available', methods=['POST'])
 @render_with(json=True)
 def account_username_availability():
     form = UsernameAvailableForm(edit_user=current_auth.user)
