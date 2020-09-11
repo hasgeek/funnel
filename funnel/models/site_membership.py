@@ -81,23 +81,31 @@ class User:
         uselist=False,
     )
 
-    is_comment_moderator = property(
-        lambda self: self.active_site_membership
-        and 'comment_moderator' in self.active_site_membership.offered_roles
-    )
+    @property
+    def is_comment_moderator(self):
+        return (
+            self.active_site_membership
+            and 'comment_moderator' in self.active_site_membership.offered_roles
+        )
 
-    is_user_moderator = property(
-        lambda self: self.active_site_membership
-        and 'user_moderator' in self.active_site_membership.offered_roles
-    )
+    @property
+    def is_user_moderator(self):
+        return (
+            self.active_site_membership
+            and 'user_moderator' in self.active_site_membership.offered_roles
+        )
 
-    is_site_editor = property(
-        lambda self: self.active_site_membership
-        and 'site_editor' in self.active_site_membership.offered_roles
-    )
+    @property
+    def is_site_editor(self):
+        return (
+            self.active_site_membership
+            and 'site_editor' in self.active_site_membership.offered_roles
+        )
 
     # site_admin means user has one or more of above roles
-    is_site_admin = property(
-        lambda self: self.active_site_membership
-        and 'site_admin' in self.active_site_membership.offered_roles
-    )
+    @property
+    def is_site_admin(self):
+        return (
+            self.active_site_membership
+            and 'site_admin' in self.active_site_membership.offered_roles
+        )
