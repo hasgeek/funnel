@@ -776,7 +776,7 @@
       </a>
       <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">Login to leave a comment</a>
       <ul class="mui-list--unstyled" v-for="comment in comments">
-        <comment :comment="comment" :isuserparticipant="isuserparticipant"></comment>
+        <comment :comment="comment" :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
       </ul>
     </div>
     <script type="text/x-template" id="comment-template">
@@ -813,7 +813,7 @@
               </div>
               <div>
                 <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)"><faicon :icon="'comment-alt'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
-                <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant" @click="fetchForm($event, comment.urls.report_spam)"><faicon :icon="'flag-alt'":baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
+                <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="fetchForm($event, comment.urls.report_spam)"><faicon :icon="'flag-alt'":baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
                 <div class="mui-dropdown">
                   <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-square'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
                   <sharedropdown :url='comment.urls.view' :title='comment.title'></sharedropdown>
@@ -833,7 +833,7 @@
                 <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
               </div>
               <ul class="mui-list--unstyled comment--children" v-for="child_comment in comment.replies">
-                <comment :comment="child_comment" :isuserparticipant="isuserparticipant"></comment>
+                <comment :comment="child_comment" :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
               </ul>
             </div>
           </transition>
