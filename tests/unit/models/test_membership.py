@@ -17,7 +17,7 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
 class TestMembership(object):
     def test_site_membership(self, test_db, new_user):
         assert new_user.active_site_membership is None
-        assert new_user.is_site_admin is None
+        assert new_user.is_site_admin is False
 
         sm = SiteMembership(
             user=new_user, is_site_editor=True, is_comment_moderator=True

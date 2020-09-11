@@ -84,21 +84,21 @@ class User:
     @property
     def is_comment_moderator(self):
         return (
-            self.active_site_membership
+            self.active_site_membership is not None
             and 'comment_moderator' in self.active_site_membership.offered_roles
         )
 
     @property
     def is_user_moderator(self):
         return (
-            self.active_site_membership
+            self.active_site_membership is not None
             and 'user_moderator' in self.active_site_membership.offered_roles
         )
 
     @property
     def is_site_editor(self):
         return (
-            self.active_site_membership
+            self.active_site_membership is not None
             and 'site_editor' in self.active_site_membership.offered_roles
         )
 
@@ -106,6 +106,6 @@ class User:
     @property
     def is_site_admin(self):
         return (
-            self.active_site_membership
+            self.active_site_membership is not None
             and 'site_admin' in self.active_site_membership.offered_roles
         )
