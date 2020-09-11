@@ -36,9 +36,17 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
     reported_at = db.Column(
         db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False
     )
+    resolved_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     __datasets__ = {
-        'primary': {'comment', 'user', 'report_type', 'reported_at', 'uuid'}
+        'primary': {
+            'comment',
+            'user',
+            'report_type',
+            'reported_at',
+            'resolved_at',
+            'uuid',
+        }
     }
 
     @classmethod
@@ -54,7 +62,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
         If ``exclude_user`` is provided, exclude all reports for
         the comments that the given user has reviewed/reported.
         """
-        reports = cls.query.filter()
+        reports = cls.query.filter(cls.resolved_at.is_(None))
         if exclude_user is not None:
             # get all comment ids that the given user has already reviewed/reported
             existing_reported_comments = (
@@ -74,11 +82,12 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
             db.session.add(report)
         return report
 
-    @with_roles(grants={'site_editor'})
+    @with_roles(grants={'comment_moderator'})
     @property
-    def users_who_are_site_editors(self):
+    def users_who_are_comment_moderators(self):
         return User.query.join(
             SiteMembership, SiteMembership.user_id == User.id
         ).filter(
-            SiteMembership.is_active.is_(True), SiteMembership.is_site_editor.is_(True)
+            SiteMembership.is_active.is_(True),
+            SiteMembership.is_comment_moderator.is_(True),
         )
