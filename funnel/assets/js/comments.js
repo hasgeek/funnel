@@ -11,16 +11,16 @@ const Comments = {
     commentTemplate,
     isuserloggedin,
     isuserparticipant,
+    iscommentmoderator,
     user,
     loginUrl,
     headerHeight,
   }) {
-    Vue.config.debug = true;
     Vue.use(VS2);
 
     const commentUI = Vue.component('comment', {
       template: commentTemplate,
-      props: ['comment', 'isuserparticipant'],
+      props: ['comment', 'isuserparticipant', 'iscommentmoderator'],
       data() {
         return {
           commentForm: '',
@@ -103,6 +103,7 @@ const Comments = {
           comments: [],
           isuserloggedin,
           isuserparticipant,
+          iscommentmoderator,
           user,
           commentForm: '',
           errorMsg: '',
@@ -116,7 +117,7 @@ const Comments = {
       methods: {
         fetchForm(event, url, comment = '') {
           event.preventDefault();
-          if (this.isuserparticipant) {
+          if (this.isuserparticipant || this.iscommentmoderator) {
             $.ajax({
               type: 'GET',
               url,
