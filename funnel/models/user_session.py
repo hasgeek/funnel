@@ -4,6 +4,7 @@ from coaster.utils import utcnow
 
 from ..signals import session_revoked
 from . import BaseMixin, UuidMixin, db
+from .helpers import reopen
 from .user import User
 
 __all__ = [
@@ -124,13 +125,15 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         return user_session
 
 
-User.active_sessions = db.relationship(
-    UserSession,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        UserSession.user_id == User.id,
-        UserSession.accessed_at > db.func.utcnow() - user_session_validity_period,
-        UserSession.revoked_at.is_(None),
-    ),
-    order_by=UserSession.accessed_at.desc(),
-)
+@reopen(User)
+class User:
+    active_user_sessions = db.relationship(
+        UserSession,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            UserSession.user_id == User.id,
+            UserSession.accessed_at > db.func.utcnow() - user_session_validity_period,
+            UserSession.revoked_at.is_(None),
+        ),
+        order_by=UserSession.accessed_at.desc(),
+    )

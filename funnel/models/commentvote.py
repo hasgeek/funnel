@@ -7,7 +7,7 @@ from coaster.sqlalchemy import StateManager, cached, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
-from .helpers import add_search_trigger
+from .helpers import add_search_trigger, reopen
 from .user import User, deleted_user, removed_user
 
 __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
@@ -301,10 +301,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @property
     def absolute_url(self):
-        if self.commentset.proposal:
-            return self.commentset.proposal.absolute_url + '#c' + self.uuid_b58
-        elif self.commentset.project:
-            return self.commentset.project.url_for('comments') + '#c' + self.uuid_b58
+        return self.url_for()
 
     @property
     def title(self):
@@ -384,11 +381,13 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 add_search_trigger(Comment, 'search_vector')
 
 
-Commentset.toplevel_comments = db.relationship(
-    Comment,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        Comment.commentset_id == Commentset.id, Comment.parent_id.is_(None)
-    ),
-    viewonly=True,
-)
+@reopen(Commentset)
+class Commentset:
+    toplevel_comments = db.relationship(
+        Comment,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            Comment.commentset_id == Commentset.id, Comment.parent_id.is_(None)
+        ),
+        viewonly=True,
+    )

@@ -19,7 +19,7 @@ from ..models import (
 )
 from ..registry import resource_registry
 from ..utils import abort_null
-from .helpers import validate_rate_limit
+from .helpers import progressive_rate_limit_validator, validate_rate_limit
 from .login_session import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
@@ -410,7 +410,8 @@ def user_autocomplete():
 
     validate_rate_limit(
         # As this endpoint accepts client_id+user_session in lieu of login cookie,
-        # we may not have an authenticatd user. Use the user_session's user in that case
+        # we may not have an authenticated user. Use the user_session's user in that
+        # case
         'user_autocomplete',
         current_auth.actor.uuid_b58
         if current_auth.actor
@@ -419,17 +420,10 @@ def user_autocomplete():
         20,
         # Per half hour (60s * 30m = 1800s)
         1800,
-        # Save the query as a token. Validator will receive the previous call's token
+        # Use a token and validator to count progressive typing and backspacing as a
+        # single rate-limited call
         token=q,
-        # Validator has to return two flags: (count_this, retain_previous_token)
-        # prev_q will be None on the first call to the validator
-        validator=lambda prev_q: (True, False)
-        if not prev_q
-        else (False, False)
-        if q.startswith(prev_q or '')  # Progressive typing, use new query as token
-        else (False, True)
-        if (prev_q or '').startswith(q)  # Backspacing, keep prev longer q as token
-        else (True, False),
+        validator=progressive_rate_limit_validator,
     )
     users = User.autocomplete(q)
     result = [

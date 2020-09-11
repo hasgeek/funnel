@@ -6,7 +6,7 @@
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
-    {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+    {% trans title=proposal.title, speaker=proposal.speaker.pickername, project=project.title %}{{ title }} by {{ speaker }}, {{ project }}{% endtrans %}
   {%- else -%}
     {{ proposal.title }}, {{ project.title }}
   {%- endif -%}
@@ -321,7 +321,7 @@
       commentTemplate: '#comment-template',
       isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
       isuserparticipant: {% if current_auth.user and proposal.features.comment_new() -%}true{% else %}false{% endif %},
-      user: {% if current_auth.user -%}{{ current_auth.user.fullname|tojson }}{% else %}''{% endif %},
+      user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
       loginUrl: "{{ url_for('login') }}",
       headerHeight: headerHeight,
     };

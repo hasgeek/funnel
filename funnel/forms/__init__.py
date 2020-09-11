@@ -9,10 +9,10 @@ from .login import *
 from .membership import *
 from .notification import *
 from .organization import *
-from .participant import *
 from .profile import *
 from .project import *
 from .proposal import *
 from .session import *
+from .sync_ticket import *
 from .update import *
 from .venue import *

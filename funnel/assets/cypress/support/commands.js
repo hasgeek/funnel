@@ -102,20 +102,20 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
   cy.wait(6000); // Wait for toastr notice to fade out
 });
 
-Cypress.Commands.add('checkin', (participant) => {
+Cypress.Commands.add('checkin', (ticket_participant) => {
   cy.server();
-  cy.route('POST', '**/participants/checkin').as('checkin');
-  cy.route('**/participants/json').as('participant-list');
+  cy.route('POST', '**/ticket_participants/checkin').as('checkin');
+  cy.route('**/ticket_participants/json').as('ticket-participant-list');
 
-  cy.get('td[data-cy="participant"]')
-    .contains(participant)
+  cy.get('td[data-cy="ticket-participant"]')
+    .contains(ticket_participant)
     .parent()
     .find('button[data-cy="checkin"]')
     .click();
   cy.wait('@checkin', { timeout: 15000 });
-  cy.wait('@participant-list', { timeout: 20000 });
-  cy.wait('@participant-list', { timeout: 20000 });
-  cy.wait('@participant-list', { timeout: 20000 }).then((xhr) => {
+  cy.wait('@ticket-participant-list', { timeout: 20000 });
+  cy.wait('@ticket-participant-list', { timeout: 20000 });
+  cy.wait('@ticket-participant-list', { timeout: 20000 }).then((xhr) => {
     cy.get('button[data-cy="cancel-checkin"]').should('exist');
   });
 });

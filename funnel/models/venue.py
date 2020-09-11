@@ -3,6 +3,7 @@ from sqlalchemy.ext.orderinglist import ordering_list
 from coaster.sqlalchemy import add_primary_relationship, with_roles
 
 from . import BaseScopedNameMixin, CoordinatesMixin, MarkdownColumn, UuidMixin, db
+from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
 
@@ -150,3 +151,11 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
 
 
 add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')
+with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_parent'})
+
+
+@reopen(Project)
+class Project:
+    @property
+    def rooms(self):
+        return [room for venue in self.venues for room in venue.rooms]

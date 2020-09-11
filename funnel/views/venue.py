@@ -44,7 +44,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
             if not self.obj.primary_venue:
                 self.obj.primary_venue = venue
             db.session.commit()
-            flash(_("You have added a new venue to the event"), 'success')
+            flash(_("You have added a new venue to the project"), 'success')
             return render_redirect(self.obj.url_for('venues'), code=303)
         return render_form(
             form=form,

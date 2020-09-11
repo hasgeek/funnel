@@ -6,9 +6,8 @@ from itertools import filterfalse, zip_longest
 from uuid import uuid4
 
 from flask import url_for
-from werkzeug.utils import cached_property
-
 from flask_babelhg import force_locale
+from werkzeug.utils import cached_property
 
 from baseframe import _, __, statsd
 from coaster.auth import current_auth
