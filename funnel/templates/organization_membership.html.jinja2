@@ -34,13 +34,15 @@
   </div>
   {% raw %}
     <script type="text/x-template" id="member-template">
-      <div class="user__box mui--clearfix">
-        <useravatar :user='member.user' :addprofilelink=true></useravatar>
-        <div class="mui--d-inlineblock">
-        <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
-        <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
+      <div class="mui--clearfix">
+        <div class="user__box mui--pull-left">
+          <useravatar :user='member.user' :addprofilelink=true></useravatar>
+          <div class="user__box__header">
+            <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+            <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
+          </div>
         </div>
-        <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles">
+        <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
           <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Owner</li>
           <li v-else class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">Admin</li>
         </ul>
