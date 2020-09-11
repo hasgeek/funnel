@@ -689,6 +689,7 @@ class DuckTypeUser(RoleMixin):
     uuid = userid = buid = uuid_b58 = None
     username = name = None
     profile = None
+    profile_url = None
     email = phone = None
     is_active = False
 
@@ -701,13 +702,21 @@ class DuckTypeUser(RoleMixin):
                 'fullname',
                 'pickername',
                 'profile',
+                'profile_url',
                 'is_active',
             }
         }
     }
 
     __datasets__ = {
-        'related': {'username', 'fullname', 'pickername', 'profile', 'is_active'}
+        'related': {
+            'username',
+            'fullname',
+            'pickername',
+            'profile',
+            'profile_url',
+            'is_active',
+        }
     }
 
     #: Make obj.user from a referring object falsy
