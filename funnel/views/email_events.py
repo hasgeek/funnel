@@ -3,8 +3,6 @@ from typing import List
 
 from flask import request
 
-import requests
-
 from baseframe import statsd
 from coaster.views import render_with
 
@@ -169,20 +167,14 @@ def process_ses_event():
     # Message Type
     m_type = message.get('Type')
 
-    # Subscription confirmation
+    # SNS subscription confirmation
     if m_type == SnsNotificationType.SubscriptionConfirmation.value:
-        resp = requests.get(message.get('SubscribeURL'))
-        if resp.status_code != 200:
-            statsd.incr('email_address.ses_event.rejected')
-            return {'status': 'error', 'error': 'subscription_failed'}, 400
+        app.logger.info("SNS subscription confirmation with message %r", message)
         return {'status': 'ok', 'message': 'subscription_success'}
 
-    # Unsubscribe confirmation
+    # SNS unsubscribe confirmation
     if m_type == SnsNotificationType.UnsubscribeConfirmation.value:
-        resp = requests.get(message.get('UnsubscribeURL'))
-        if resp.status_code != 200:
-            statsd.incr('email_address.ses_event.rejected')
-            return {'status': 'error', 'error': 'unsubscribe_failed'}, 400
+        app.logger.info("SNS unsubscribe confirmation with message %r", message)
         return {'status': 'ok', 'message': 'unsubscribe_success'}
 
     # This is a Notification and we need to process it
