@@ -1,9 +1,11 @@
 import gettext
 import re
 
+from flask_babelhg import get_locale
+
 import pycountry
 
-from baseframe import __, get_locale
+from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
 import baseframe.forms as forms
 
@@ -64,7 +66,7 @@ class VenueForm(forms.Form):
 
     def set_queries(self):
         pycountry_locale = gettext.translation(
-            'iso3166-2', pycountry.LOCALES_DIR, languages=[get_locale()]
+            'iso3166-2', pycountry.LOCALES_DIR, languages=[str(get_locale()), 'en']
         )
         countries = [
             (pycountry_locale.gettext(country.name), country.alpha_2)
@@ -86,9 +88,9 @@ class VenueRoomForm(forms.Form):
         __("Description"), description=__("An optional note about the room")
     )
     bgcolor = forms.StringField(
-        __("Event Color"),
+        __("Room colour"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
-        description=__("RGB Color for the event. Enter without the '#'. E.g. CCCCCC."),
+        description=__("RGB colour for the room. Enter without the '#'. E.g. CCCCCC."),
         default="CCCCCC",
     )
 

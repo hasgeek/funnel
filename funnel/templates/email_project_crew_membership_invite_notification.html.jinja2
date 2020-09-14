@@ -1,12 +1,12 @@
-{% extends "email_layout.html.jinja2" %}
+{% extends "notifications/layout_email.html.jinja2" %}
 {% block content -%}
 
   <p>{% trans project=project.title, actor=actor.pickername %}
     <b>{{ actor }}</b> has invited you to join <b>{{ project }}</b> as a crew member.
   {% endtrans %}</p>
 
-  <p>
-    <a class="btn" href="{{ membership.url_for('invite', _external=true, utm_medium='email', utm_campaign='website') }}">{% trans %}Accept or decline invite{% endtrans %}</a>
+  <p class="btn-bar">
+    <a class="btn" href="{{ membership.url_for('invite', _external=true, utm_medium='email', utm_campaign='notification') }}">{% trans %}Accept or decline invite{% endtrans %}</a>
   </p>
 
 {%- endblock %}

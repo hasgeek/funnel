@@ -15,7 +15,7 @@ from . import (
     db,
 )
 from .commentvote import SET_TYPE
-from .helpers import add_search_trigger, visual_field_delimiter
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 
 __all__ = ['Update']
 
@@ -59,8 +59,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, index=True)
     user = with_roles(
         db.relationship(
-            User, backref=db.backref('updates', lazy='dynamic'), foreign_keys=[user_id],
+            User, backref=db.backref('updates', lazy='dynamic'), foreign_keys=[user_id]
         ),
+        read={'all'},
         grants={'creator'},
     )
 
@@ -68,51 +69,77 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         None, db.ForeignKey('project.id'), nullable=False, index=True
     )
     project = with_roles(
-        db.relationship(Project, backref=db.backref('updates', lazy='dynamic'),),
-        grants_via={None: {'editor': 'editor', 'participant': 'reader'}},
+        db.relationship(Project, backref=db.backref('updates', lazy='dynamic')),
+        read={'all'},
+        grants_via={
+            None: {
+                'editor': {'editor', 'project_editor'},
+                'participant': {'reader', 'project_participant'},
+                'crew': {'reader', 'project_crew'},
+            }
+        },
     )
     parent = db.synonym('project')
 
     body = MarkdownColumn('body', nullable=False)
 
     #: Update number, for Project updates, assigned when the update is published
-    number = db.Column(db.Integer, nullable=True, default=None)
+    number = with_roles(
+        db.Column(db.Integer, nullable=True, default=None), read={'all'}
+    )
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
-    is_pinned = db.Column(db.Boolean, default=False, nullable=False)
+    is_pinned = with_roles(
+        db.Column(db.Boolean, default=False, nullable=False), read={'all'}
+    )
 
     published_by_id = db.Column(
         None, db.ForeignKey('user.id'), nullable=True, index=True
     )
-    published_by = db.relationship(
-        User,
-        backref=db.backref('published_updates', lazy='dynamic'),
-        foreign_keys=[published_by_id],
+    published_by = with_roles(
+        db.relationship(
+            User,
+            backref=db.backref('published_updates', lazy='dynamic'),
+            foreign_keys=[published_by_id],
+        ),
+        read={'all'},
     )
-    published_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    published_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+    )
 
     deleted_by_id = db.Column(None, db.ForeignKey('user.id'), nullable=True, index=True)
-    deleted_by = db.relationship(
-        User,
-        backref=db.backref('deleted_updates', lazy='dynamic'),
-        foreign_keys=[deleted_by_id],
+    deleted_by = with_roles(
+        db.relationship(
+            User,
+            backref=db.backref('deleted_updates', lazy='dynamic'),
+            foreign_keys=[deleted_by_id],
+        ),
+        read={'reader'},
     )
-    deleted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    deleted_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'reader'}
+    )
 
-    edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    edited_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+    )
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = db.relationship(Voteset, uselist=False)
+    voteset = with_roles(db.relationship(Voteset, uselist=False), read={'all'})
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(
-        Commentset,
-        uselist=False,
-        lazy='joined',
-        cascade='all',
-        single_parent=True,
-        backref=db.backref('update', uselist=False),
+    commentset = with_roles(
+        db.relationship(
+            Commentset,
+            uselist=False,
+            lazy='joined',
+            cascade='all',
+            single_parent=True,
+            backref=db.backref('update', uselist=False),
+        ),
+        read={'all'},
     )
 
     search_vector = db.deferred(
@@ -133,21 +160,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {
-                'name',
-                'title',
-                'number',
-                'user',
-                'published_at',
-                'edited_at',
-                'deleted_at',
-                'visibility_label',
-                'state_label',
-                'is_pinned',
-                'is_restricted',
-                'is_currently_restricted',
-                'urls',
-            },
+            'read': {'name', 'title', 'urls'},
             'call': {'features', 'visibility_state', 'state', 'url_for'},
         },
         'reader': {'read': {'body'}},
@@ -169,8 +182,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'is_currently_restricted',
             'visibility_label',
             'state_label',
+            'urls',
         },
-        'related': {'name', 'title'},
+        'related': {'name', 'title', 'urls'},
     }
 
     def __init__(self, **kwargs):
@@ -183,10 +197,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             title=self.title, uuid_b58=self.uuid_b58
         )
 
+    @with_roles(read={'all'})
     @property
     def visibility_label(self):
         return self.visibility_state.label.title
 
+    @with_roles(read={'all'})
     @property
     def state_label(self):
         return self.state.label.title
@@ -208,29 +224,26 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.DRAFT, state.PUBLISHED,
-    )
+    @state.transition(state.DRAFT, state.PUBLISHED)
     def publish(self, actor):
+        first_publishing = False
         self.published_by = actor
         if self.published_at is None:
+            first_publishing = True
             self.published_at = db.func.utcnow()
         if self.number is None:
             self.number = db.select(
                 [db.func.coalesce(db.func.max(Update.number), 0) + 1]
             ).where(Update.project == self.project)
+        return first_publishing
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.PUBLISHED, state.DRAFT,
-    )
+    @state.transition(state.PUBLISHED, state.DRAFT)
     def undo_publish(self):
         pass
 
     @with_roles(call={'creator', 'editor'})
-    @state.transition(
-        None, state.DELETED,
-    )
+    @state.transition(None, state.DELETED)
     def delete(self, actor):
         if self.state.UNPUBLISHED:
             # If it was never published, hard delete it
@@ -241,27 +254,22 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             self.deleted_at = db.func.utcnow()
 
     @with_roles(call={'editor'})
-    @state.transition(
-        state.DELETED, state.DRAFT,
-    )
+    @state.transition(state.DELETED, state.DRAFT)
     def undo_delete(self):
         self.deleted_by = None
         self.deleted_at = None
 
     @with_roles(call={'editor'})
-    @visibility_state.transition(
-        visibility_state.RESTRICTED, visibility_state.PUBLIC,
-    )
+    @visibility_state.transition(visibility_state.RESTRICTED, visibility_state.PUBLIC)
     def make_public(self):
         pass
 
     @with_roles(call={'editor'})
-    @visibility_state.transition(
-        visibility_state.PUBLIC, visibility_state.RESTRICTED,
-    )
+    @visibility_state.transition(visibility_state.PUBLIC, visibility_state.RESTRICTED)
     def make_restricted(self):
         pass
 
+    @with_roles(read={'all'})
     @property
     def is_restricted(self):
         return bool(self.visibility_state.RESTRICTED)
@@ -273,6 +281,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         elif not value and self.visibility_state.RESTRICTED:
             self.make_public()
 
+    @with_roles(read={'all'})
     @property
     def is_currently_restricted(self):
         return self.is_restricted and not self.current_roles.reader
@@ -290,31 +299,26 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
 add_search_trigger(Update, 'search_vector')
 
-Project.published_updates = with_roles(
-    property(
-        lambda self: self.updates.filter(Update.state.PUBLISHED).order_by(
+
+@reopen(Project)
+class Project:
+    @with_roles(read={'all'})
+    @property
+    def published_updates(self):
+        return self.updates.filter(Update.state.PUBLISHED).order_by(
             Update.is_pinned.desc(), Update.published_at.desc()
         )
-    ),
-    read={'all'},
-)
 
+    @with_roles(read={'editor'})
+    @property
+    def draft_updates(self):
+        return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
-Project.draft_updates = with_roles(
-    property(
-        lambda self: self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
-    ),
-    read={'editor'},
-)
-
-
-Project.pinned_update = with_roles(
-    property(
-        lambda self: self.updates.filter(
-            Update.state.PUBLISHED, Update.is_pinned.is_(True)
+    @with_roles(read={'all'})
+    @property
+    def pinned_update(self):
+        return (
+            self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
+            .order_by(Update.published_at.desc())
+            .first()
         )
-        .order_by(Update.published_at.desc())
-        .first()
-    ),
-    read={'all'},
-)

@@ -15,17 +15,17 @@ describe('View crew', function () {
     cy.get('button[data-cy-btn="add-member"]').should('not.exist');
     cy.get('[data-cy="member"]')
       .contains(admin.username)
-      .parents('.user__box')
+      .parents('.member')
       .find('[data-cy="role"]')
       .contains('Editor');
     cy.get('[data-cy="member"]')
       .contains(concierge.username)
-      .parents('.user__box')
+      .parents('.member')
       .find('[data-cy="role"]')
       .contains('Concierge');
     cy.get('[data-cy="member"]')
       .contains(usher.username)
-      .parents('.user__box')
+      .parents('.member')
       .find('[data-cy="role"]')
       .contains('Usher');
     cy.get('[data-cy="member"]').contains(admin.username).click();

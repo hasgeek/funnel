@@ -1,4 +1,7 @@
+from base64 import urlsafe_b64encode
 from datetime import datetime
+from hashlib import blake2b
+from os import urandom
 from urllib.parse import unquote, urljoin, urlsplit
 
 from flask import Response, abort, current_app, g, render_template, request, url_for
@@ -8,10 +11,12 @@ from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
+import pyshorteners
 
 from baseframe import cache, statsd
 
 from .. import app, funnelapp, lastuserapp
+from ..forms import supported_locales
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
 
@@ -104,13 +109,55 @@ def get_scheme_netloc(uri):
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
-def autoset_timezone(user):
-    # Set the user's timezone automatically if available
-    if user.timezone is None or user.timezone not in valid_timezones:
+def autoset_timezone_and_locale(user):
+    # Set the user's timezone and locale automatically if required
+    if (
+        user.auto_timezone
+        or user.timezone is None
+        or str(user.timezone) not in valid_timezones
+    ):
         if request.cookies.get('timezone'):
             timezone = unquote(request.cookies.get('timezone'))
             if timezone in valid_timezones:
                 user.timezone = timezone
+    if (
+        user.auto_locale
+        or user.locale is None
+        or str(user.locale) not in supported_locales
+    ):
+        user.locale = (
+            request.accept_languages.best_match(supported_locales.keys()) or 'en'
+        )
+
+
+def progressive_rate_limit_validator(token, prev_token):
+    """
+    Validator for validate_rate_limit on autocomplete-type resources.
+
+    Will count progressive keystrokes and backspacing as a single rate limited call, but
+    any edits will be counted as a separate call, incrementing the resource usage count.
+
+    :returns: tuple of (bool, bool): (count_this_call, retain_previous_token)
+    """
+
+    # prev_token will be None on the first call to the validator. Count the first
+    # call, but don't retain the previous token
+    if not prev_token:
+        return (True, False)
+
+    # User is typing, so current token is previous token plus extra chars. Don't
+    # count this as a new call, and keep the longer current token as the reference
+    if token.startswith(prev_token):
+        return (False, False)
+
+    # User is backspacing (current < previous), so keep the previous token as the
+    # reference in case they retype the deleted characters
+    if prev_token.startswith(token):
+        return (False, True)
+
+    # Current token is differing from previous token, meaning this is a new query.
+    # Increment the counter, discard previous token and use current token as ref
+    return (True, False)
 
 
 def validate_rate_limit(
@@ -123,15 +170,16 @@ def validate_rate_limit(
 
     Aborts with HTTP 429 in case the limit has been reached.
 
-    :param str identifier: Identifier for type of request and entity being rate limited
+    :param str resource: Resource being rate limited
+    :param str identifier: Identifier for entity being rate limited
     :param int attempts: Number of attempts allowed
     :param int timeout: Duration in seconds to block after attempts are exhausted
     :param str token: For advanced use, a token to check against for future calls
-    :param validator: A validator that receives the token and returns two bools
-        ``(count_this, retain_previous_token)``
+    :param validator: A validator that receives token and previous token, and returns
+        two bools ``(count_this, retain_previous_token)``
 
-    For an example of how the token and validator are used, see the user_autocomplete
-    endpoint in views/auth_resource.py
+    For an example of how the token and validator are used, see
+    :func:`progressive_rate_limit_validator` and its users.
     """
     statsd.set('rate_limit', identifier, rate=1, tags={'resource': resource})
     cache_key = 'rate_limit/v1/%s/%s' % (resource, identifier)
@@ -147,10 +195,10 @@ def validate_rate_limit(
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 429})
         abort(429)
     if validator is not None:
-        result, retain_token = validator(cache_token)
+        do_increment, retain_token = validator(token, cache_token)
         if retain_token:
             token = cache_token
-        if result:
+        if do_increment:
             current_app.logger.debug(
                 "Rate limit +1 (validated with %s, retain %r) for %s/%s",
                 cache_token,
@@ -183,6 +231,43 @@ def validate_rate_limit(
     cache.set(cache_key, (count, token), timeout=timeout)
 
 
+# Text token length in bytes
+# 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities
+TOKEN_BYTES_LEN = 3
+text_token_prefix = 'temp_token/v1/'
+
+
+def make_cached_token(payload, timeout=24 * 60 * 60, reserved=None):
+    """
+    Make a short text token that caches data with a timeout period.
+
+    :param dict payload: Data to save against the token
+    :param int timeout: Timeout period for token in seconds (default 24 hours)
+    :param set reserved: Reserved words that should not be used as token
+    """
+    while True:
+        token = urlsafe_b64encode(urandom(TOKEN_BYTES_LEN)).decode().rstrip('=')
+        if reserved and token in reserved:
+            continue  # Reserved word, try again
+
+        existing = cache.get(text_token_prefix + token)
+        if existing:
+            continue  # Token in use, try again
+
+        break
+
+    cache.set(text_token_prefix + token, payload, timeout=timeout)
+    return token
+
+
+def retrieve_cached_token(token):
+    return cache.get(text_token_prefix + token)
+
+
+def delete_cached_token(token):
+    return cache.delete(text_token_prefix + token)
+
+
 # --- Filters and URL constructors -----------------------------------------------------
 
 
@@ -208,6 +293,25 @@ def add_profile_parameter(endpoint, values):
     if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
         if 'profile' not in values:
             values['profile'] = g.profile.name if g.profile else None
+
+
+@app.template_filter('shortlink')
+@funnelapp.template_filter('shortlink')
+@lastuserapp.template_filter('shortlink')
+def shortlink(url):
+    """Return a short link suitable for SMS."""
+    cache_key = 'shortlink/' + blake2b(url.encode(), digest_size=16).hexdigest()
+    shorty = cache.get(cache_key)
+    if shorty:
+        return shorty
+    try:
+        shorty = pyshorteners.Shortener().isgd.short(url)
+        cache.set(cache_key, shorty, timeout=86400)
+    except pyshorteners.exceptions.ShorteningErrorException as e:
+        error = str(e)
+        current_app.logger.error("Shortlink exception %s", error)
+        shorty = url
+    return shorty
 
 
 # --- Request/response handlers --------------------------------------------------------

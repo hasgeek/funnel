@@ -209,7 +209,7 @@ export const Utils = {
     return $(`#${formId}`).attr('action');
   },
   updateFormNonce(response) {
-    if (response.form_nonce) {
+    if (response && response.form_nonce) {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
   },
@@ -251,6 +251,59 @@ export const Utils = {
       if ($('a.js-modal-form[data-hash="' + hashId + '"]').length) {
         $('a[data-hash="' + hashId + '"]').click();
       }
+    }
+  },
+  setNotifyIcon(unread) {
+    if (unread) {
+      $('.header__nav-links--updates').addClass(
+        'header__nav-links--updates--unread'
+      );
+    } else {
+      $('.header__nav-links--updates').removeClass(
+        'header__nav-links--updates--unread'
+      );
+    }
+  },
+  updateNotificationStatus() {
+    $.ajax({
+      type: 'GET',
+      url: window.Hasgeek.config.notificationCount,
+      dataType: 'json',
+      timeout: window.Hasgeek.config.ajaxTimeout,
+      success: function (responseData) {
+        Utils.setNotifyIcon(responseData.unread);
+      },
+    });
+  },
+  addWebShare() {
+    if (navigator.share) {
+      if ($('.hg-link-btn').length) {
+        $('.project-links').hide();
+        $('.hg-link-btn').removeClass('mui--hide');
+
+        $('.hg-link-btn').on('click', function () {
+          navigator.share({
+            title: $(this).data('title') || document.title,
+            url:
+              $(this).data('url') ||
+              (document.querySelector('link[rel=canonical]') &&
+                document.querySelector('link[rel=canonical]').href) ||
+              window.location.href,
+          });
+        });
+      }
+    } else {
+      $('body').on('click', '.js-copy-link', function (event) {
+        event.preventDefault();
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents($(this).find('.js-copy-url')[0]);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand('copy');
+        window.toastr.success('Link copied');
+        selection.removeAllRanges();
+      });
     }
   },
 };
@@ -357,7 +410,11 @@ export const LazyloadImg = {
     });
   },
 };
-export const SaveProject = function ({ formId, postUrl, config = {} }) {
+export const SaveProject = function ({
+  formId,
+  postUrl = $(`#${formId}`).attr('action'),
+  config = {},
+}) {
   const onSuccess = function (response) {
     $(`#${formId}`)
       .find('button')

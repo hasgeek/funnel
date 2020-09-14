@@ -27,6 +27,11 @@ TEST_DATA = {
             'fullname': "Test User",
             'email': "testuser@example.com",
         },
+        'testuser2': {
+            'name': "testuser2",
+            'fullname': "Test User 2",
+            'email': "testuser2@example.com",
+        },
         'test-org-owner': {
             'name': "test-org-owner",
             'fullname': "Test User 2",
@@ -80,6 +85,15 @@ def test_db(test_db_structure):
     test_db_structure.session.remove()
 
 
+@pytest.fixture(scope='function')
+def db_transaction(test_db_structure):
+    db.session.begin_nested()
+    yield test_db_structure  # this is where the testing happens!
+    # anything after yield is teardown code
+    test_db_structure.session.rollback()
+    test_db_structure.session.remove()
+
+
 @pytest.fixture(scope='module')
 def create_user(test_db_structure):
     user = User(**TEST_DATA['users']['testuser'])
@@ -91,6 +105,20 @@ def create_user(test_db_structure):
 @pytest.fixture(scope='function')
 def new_user(test_db_structure, create_user):
     user = test_db_structure.session.merge(create_user)
+    return user
+
+
+@pytest.fixture(scope='module')
+def create_user2(test_db_structure):
+    user = User(**TEST_DATA['users']['testuser2'])
+    test_db_structure.session.add(user)
+    test_db_structure.session.commit()
+    return user
+
+
+@pytest.fixture(scope='function')
+def new_user2(test_db_structure, create_user2):
+    user = test_db_structure.session.merge(create_user2)
     return user
 
 

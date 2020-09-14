@@ -4,5 +4,8 @@ export FLASK_ENV="TESTING"
 if [ -f secrets.test ]; then
 	source ./secrets.test
 fi
-coverage run -m pytest "$@"
-coverage report -m
+if [ $# -eq 0 ]; then
+    pytest --cov=funnel
+else
+    pytest --no-cov "$@"
+fi

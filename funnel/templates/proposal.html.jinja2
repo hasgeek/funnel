@@ -6,7 +6,7 @@
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}
-    {% trans title=proposal.title, speaker=proposal.speaker.pickername, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+    {% trans title=proposal.title, speaker=proposal.speaker.pickername, project=project.title %}{{ title }} by {{ speaker }}, {{ project }}{% endtrans %}
   {%- else -%}
     {{ proposal.title }}, {{ project.title }}
   {%- endif -%}
@@ -280,7 +280,7 @@
     </section>
 
     <section class="proposal__section">
-      <h3 class="mui--text-headline mui--text-bold">{% trans %}Comments{% endtrans %}</h3>
+      <h3 id="comments" class="mui--text-headline mui--text-bold">{% trans %}Comments{% endtrans %}</h3>
       {{ comments_tree() }}
     </section>
   </div>
@@ -321,7 +321,8 @@
       commentTemplate: '#comment-template',
       isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
       isuserparticipant: {% if current_auth.user and proposal.features.comment_new() -%}true{% else %}false{% endif %},
-      user: {% if current_auth.user -%}{{ current_auth.user.fullname|tojson }}{% else %}''{% endif %},
+      iscommentmoderator: {% if current_auth.user and current_auth.user.is_comment_moderator -%}true{% else %}false{% endif %},
+      user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
       loginUrl: "{{ url_for('login') }}",
       headerHeight: headerHeight,
     };

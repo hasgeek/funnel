@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, namedtuple
 
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
@@ -37,13 +37,19 @@ from ..forms import (
     PasswordCreateForm,
     PasswordPolicyForm,
     PhonePrimaryForm,
+    SavedProjectForm,
+    UsernameAvailableForm,
     VerifyEmailForm,
     VerifyPhoneForm,
+    supported_locales,
+    timezone_identifiers,
 )
 from ..models import (
     MODERATOR_REPORT_TYPE,
+    AccountPasswordNotification,
     Comment,
     CommentModeratorReport,
+    SMSMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -56,11 +62,32 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
+from ..transports import TransportConnectionError, sms
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for
+from .helpers import (
+    app_url_for,
+    autoset_timezone_and_locale,
+    progressive_rate_limit_validator,
+    validate_rate_limit,
+)
 from .login_session import login_internal, logout_internal, requires_login
-from .sms import send_phone_verify_code
+from .notification import dispatch_notification
+
+
+def send_phone_verify_code(phoneclaim):
+    msg = SMSMessage(
+        phone_number=phoneclaim.phone,
+        message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
+            code=phoneclaim.verification_code
+        ),
+    )
+    # Now send this
+    try:
+        msg.transactionid = sms.send(msg.phone_number, msg.message)
+        db.session.add(msg)
+    except TransportConnectionError:
+        flash(_("Unable to send a message right now. Please try again"))
 
 
 def blake2b_b58(text):
@@ -93,6 +120,20 @@ def phones_sorted(obj):
     return items
 
 
+@User.views('locale')
+def user_locale(obj):
+    """Name of user's locale, defaulting to locale identifier."""
+    return supported_locales.get(str(obj.locale) if obj.locale else None, obj.locale)
+
+
+@User.views('timezone')
+def user_timezone(obj):
+    """Human-friendly identifier for user's timezone, defaulting to timezone name."""
+    return timezone_identifiers.get(
+        str(obj.timezone) if obj.timezone else None, obj.timezone
+    )
+
+
 @UserSession.views('user_agent_details')
 def user_agent_details(obj):
     ua = user_agents.parse(obj.user_agent)
@@ -106,9 +147,7 @@ def user_agent_details(obj):
             else str(ua.device.brand or '') + ' ' + str(ua.device.model or '') + ' '
         )
         + ' ('
-        + str(ua.os.family)
-        + ' '
-        + str(ua.os.version_string)
+        + (str(ua.os.family) + ' ' + str(ua.os.version_string)).strip()
         + ')',
     }
 
@@ -142,7 +181,8 @@ def user_session_login_service(obj):
         return login_registry[obj.login_service].title
 
 
-@app.route('/api/1/password/policy', methods=['POST'])
+@app.route('/api/1/account/password_policy', methods=['POST'])
+@lastuserapp.route('/api/1/account/password_policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check():
     policy_form = PasswordPolicyForm()
@@ -166,7 +206,7 @@ def password_policy_check():
                 user_inputs.append(str(phoneclaim))
 
         tested_password = password_policy.test_password(
-            policy_form.candidate.data,
+            policy_form.password.data,
             user_inputs=user_inputs if user_inputs else None,
         )
         return {
@@ -186,20 +226,80 @@ def password_policy_check():
                 'suggestions': tested_password['suggestions'],
             },
         }
-    return (
-        {
-            'status': 'error',
-            'error_code': 'policy_form_error',
-            'error_description': _("Something went wrong. Please reload and try again"),
-            'error_details': policy_form.errors,
-        },
-        400,
+    return {
+        'status': 'error',
+        'error_code': 'policy_form_error',
+        'error_description': _("Something went wrong. Please reload and try again"),
+        'error_details': policy_form.errors,
+    }, 422
+
+
+@app.route('/api/1/account/username_available', methods=['POST'])
+@lastuserapp.route('/api/1/account/username_available', methods=['POST'])
+@render_with(json=True)
+def account_username_availability():
+    form = UsernameAvailableForm(edit_user=current_auth.user)
+    del form.form_nonce
+
+    # This view does not use the simpler ``if form.validate()`` construct because
+    # we need to insert the rate limiter _between_ the other validators. This will be
+    # simpler if :func:`validate_rate_limit` is repositioned as a form validator rather
+    # than a view validator.
+    form_validate = form.validate()
+
+    if not form_validate:
+        # If no username is supplied, return a 422 Unprocessable Entity
+        if not form.username.data:
+            return {
+                'status': 'error',
+                'error': 'username_required',
+            }, 422
+
+        # Require CSRF validation to prevent this endpoint from being used by a scraper.
+        # Field will be missing in a test environment, so use hasattr
+        if hasattr(form, 'csrf_token') and form.csrf_token.errors:
+            return {
+                'status': 'error',
+                'error': 'csrf_token',
+            }, 422
+
+    # Allow user or source IP to check for up to 20 usernames every 10 minutes (600s)
+    validate_rate_limit(
+        'account_username_available',
+        current_auth.actor.uuid_b58 if current_auth.actor else request.remote_addr,
+        # 20 username candidates
+        20,
+        # per every 10 minutes (600s)
+        600,
+        # Use a token and validator to count progressive typing and backspacing as a
+        # single rate-limited call
+        token=form.username.data,
+        validator=progressive_rate_limit_validator,
     )
+
+    # Validate form
+    if form_validate:
+        # All okay? Username is available
+        return {'status': 'ok'}
+
+    # If username is supplied but invalid, return HTTP 200 with an error message.
+    # 400/422 is the wrong code as the request is valid and the error is app content
+    return {
+        'status': 'error',
+        'error': 'validation_failure',
+        # Use the first known error as the description
+        'error_description': (
+            str(form.username.errors[0])
+            if form.username.errors
+            else str(list(form.errors.values())[0][0])
+        ),
+    }, 200
 
 
 @route('/account')
 class AccountView(ClassView):
     current_section = 'account'  # needed for showing active tab
+    SavedProjectForm = SavedProjectForm
 
     @route('', endpoint='account')
     @requires_login
@@ -280,11 +380,9 @@ class AccountView(ClassView):
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
             for comment in comments:
-                comment.report_spam(actor=current_auth.user)
+                CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
             db.session.commit()
-            flash(
-                _("Comment(s) successfully reported as spam"), category='info',
-            )
+            flash(_("Comment(s) successfully reported as spam"), category='info')
         else:
             flash(
                 _("There was a problem marking the comments as spam. Please try again"),
@@ -320,13 +418,20 @@ class AccountView(ClassView):
             return abort(403)
 
         report = CommentModeratorReport.query.filter_by(uuid_b58=report).one_or_404()
+
         if report.user == current_auth.user:
-            flash(_("You cannot review same comment twice"), 'error')
+            flash(_("You cannot review your own report"), 'error')
             return redirect(url_for('siteadmin_review_comments_random'))
 
-        existing_reports = report.comment.moderator_reports.filter(
-            CommentModeratorReport.user != current_auth.user
-        )
+        # get all existing reports for the same comment
+        existing_reports = CommentModeratorReport.get_all(
+            exclude_user=current_auth.user
+        ).filter_by(comment_id=report.comment_id)
+
+        if report not in existing_reports:
+            # current report should be in the existing unreviewed reports
+            flash(_("You cannot review same comment twice"), 'error')
+            return redirect(url_for('siteadmin_review_comments_random'))
 
         report_form = ModeratorReportForm()
         report_form.form_nonce.data = report_form.form_nonce.default()
@@ -340,19 +445,27 @@ class AccountView(ClassView):
                 + [report_form.report_type.data]
             )
             # if there is already a report for this comment
-            most_common_two = report_counter.most_common(2)
+            ReportCounter = namedtuple('ReportCounter', ['report_type', 'frequency'])
+
+            most_common_two = [
+                ReportCounter(report_type, frequency)
+                for report_type, frequency in report_counter.most_common(2)
+            ]
             # Possible values of most_common_two -
             # - [(1, 2)] - if both existing and current reports are same or
-            # - [(1, 2), (0, 1), (report_type, frequency)] - multiple conflicting reports
+            # - [(1, 2), (0, 1), (report_type, frequency)] - conflicting reports
             if (
                 len(most_common_two) == 1
-                or most_common_two[0][1] > most_common_two[1][1]
+                or most_common_two[0].frequency > most_common_two[1].frequency
             ):
-                if most_common_two[0][0] == MODERATOR_REPORT_TYPE.SPAM:
+                if most_common_two[0].report_type == MODERATOR_REPORT_TYPE.SPAM:
                     report.comment.mark_spam()
-                elif most_common_two[0][0] == MODERATOR_REPORT_TYPE.OK:
-                    report.comment.mark_not_spam()
-                CommentModeratorReport.query.filter_by(comment=report.comment).delete()
+                elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
+                    if report.comment.state.SPAM:
+                        report.comment.mark_not_spam()
+                CommentModeratorReport.query.filter_by(comment=report.comment).update(
+                    {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
+                )
             else:
                 # current report is different from existing report and
                 # no report has majority frequency.
@@ -367,15 +480,7 @@ class AccountView(ClassView):
             db.session.commit()
 
             # Redirect to a new report
-            random_report = CommentModeratorReport.get_one(
-                exclude_user=current_auth.user
-            )
-            if random_report is not None:
-                return redirect(
-                    url_for('siteadmin_review_comment', report=random_report.uuid_b58)
-                )
-            else:
-                return redirect(url_for('account'))
+            return redirect(url_for('siteadmin_review_comments_random'))
         else:
             app.logger.debug(report_form.errors)
 
@@ -410,18 +515,6 @@ OtherAppAccountView.init_app(lastuserapp)
     defaults={'newprofile': True},
     endpoint='account_new',
 )
-@lastuserapp.route(
-    '/account/edit',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': False},
-    endpoint='account_edit',
-)
-@lastuserapp.route(
-    '/account/new',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': True},
-    endpoint='account_new',
-)
 @requires_login
 def account_edit(newprofile=False):
     form = AccountForm(obj=current_auth.user)
@@ -434,6 +527,10 @@ def account_edit(newprofile=False):
         current_auth.user.fullname = form.fullname.data
         current_auth.user.username = form.username.data
         current_auth.user.timezone = form.timezone.data
+        current_auth.user.auto_timezone = form.auto_timezone.data
+        current_auth.user.locale = form.locale.data
+        current_auth.user.auto_locale = form.auto_locale.data
+        autoset_timezone_and_locale(current_auth.user)
 
         if newprofile and not current_auth.user.email:
             useremail = UserEmailClaim.get_for(
@@ -468,13 +565,13 @@ def account_edit(newprofile=False):
     if newprofile:
         return render_form(
             form,
-            title=_("Update profile"),
+            title=_("Update account"),
             formid='account_new',
             submit=_("Continue"),
             message=Markup(
                 _(
                     "Hello, <strong>{fullname}</strong>. Please spare a minute to fill"
-                    " out your profile"
+                    " out your account"
                 ).format(fullname=escape(current_auth.user.fullname))
             ),
             ajax=False,
@@ -483,7 +580,7 @@ def account_edit(newprofile=False):
     else:
         return render_form(
             form,
-            title=_("Edit profile"),
+            title=_("Edit account"),
             formid='account_edit',
             submit=_("Save changes"),
             ajax=False,
@@ -587,12 +684,13 @@ def change_password():
         # 1. Log out of the current session
         logout_internal()
         # 2. As a precaution, invalidate all of the user's active sessions
-        for user_session in user.active_sessions.all():
+        for user_session in user.active_user_sessions.all():
             user_session.revoke()
         # 3. Create a new session and continue without disrupting user experience
         login_internal(user, login_service='password')
         db.session.commit()
         flash(_("Your new password has been saved"), category='success')
+        dispatch_notification(AccountPasswordNotification(document=user))
         # If the user was sent here from login because of a weak password, the next
         # URL will be saved in the session. If so, send the user on their way after
         # setting the password, falling back to the account page if there's nowhere
@@ -777,9 +875,15 @@ def add_phone():
             userphone = UserPhoneClaim(user=current_auth.user, phone=form.phone.data)
             db.session.add(userphone)
         try:
+            current_auth.user.main_notification_preferences.by_sms = (
+                form.enable_notifications.data
+            )
             send_phone_verify_code(userphone)
-            db.session.commit()  # Commit after sending because send_phone_verify_code saves the message sent
-            flash(_("We sent a verification code to your phone number"), 'success')
+            # Commit after sending because send_phone_verify_code saves the message sent
+            db.session.commit()
+            flash(
+                _("A verification code has been sent to your phone number"), 'success'
+            )
             user_data_changed.send(current_auth.user, changes=['phone-claim'])
             return render_redirect(
                 url_for('verify_phone', number=userphone.phone), code=303
@@ -935,3 +1039,20 @@ def remove_extid(extid):
 @lastuserapp.route('/profile/email/<email_hash>/verify')
 def verify_email_old(email_hash):
     return redirect(app_url_for(app, 'verify_email', email_hash=email_hash), code=301)
+
+
+# Redirect from Lastuser's account edit page
+@lastuserapp.route(
+    '/account/edit',
+    methods=['GET', 'POST'],
+    defaults={'newprofile': False},
+    endpoint='account_edit',
+)
+@lastuserapp.route(
+    '/account/new',
+    methods=['GET', 'POST'],
+    defaults={'newprofile': True},
+    endpoint='account_new',
+)
+def lastuser_account_edit(newprofile):
+    return redirect(app_url_for(app, 'account_new' if newprofile else 'account_edit'))

@@ -7,9 +7,9 @@ from baseframe import _, forms
 from coaster.auth import current_auth
 from coaster.utils import require_one_of
 
+from ..forms import SavedProjectForm
 from ..models import (
     Draft,
-    Event,
     Profile,
     Project,
     ProjectRedirect,
@@ -17,6 +17,7 @@ from ..models import (
     ProposalRedirect,
     ProposalSuuidRedirect,
     Session,
+    TicketEvent,
     Venue,
     VenueRoom,
     db,
@@ -26,6 +27,7 @@ from ..models import (
 class ProjectViewMixin(object):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
+    SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, session=None):
         proj = (
@@ -68,6 +70,7 @@ class ProjectViewMixin(object):
 class ProfileViewMixin(object):
     model = Profile
     route_model_map = {'profile': 'name'}
+    SavedProjectForm = SavedProjectForm
 
     def loader(self, profile):
         profile = self.model.get(profile)
@@ -153,6 +156,7 @@ class SessionViewMixin(object):
         'project': 'project.name',
         'session': 'url_name_uuid_b58',
     }
+    SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, session):
         session = (
@@ -221,8 +225,8 @@ class VenueRoomViewMixin(object):
         return room
 
 
-class EventViewMixin(object):
-    model = Event
+class TicketEventViewMixin(object):
+    model = TicketEvent
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
@@ -230,20 +234,19 @@ class EventViewMixin(object):
     }
 
     def loader(self, profile, project, name):
-        event = (
+        return (
             self.model.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
-                Event.name == name,
+                TicketEvent.name == name,
             )
             .one_or_404()
         )
-        return event
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        return super(EventViewMixin, self).after_loader()
+        return super(TicketEventViewMixin, self).after_loader()
 
 
 class DraftViewMixin(object):

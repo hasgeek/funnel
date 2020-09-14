@@ -16,7 +16,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm, SavedProjectForm
+from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
 from ..models import Profile, Project, Proposal, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
@@ -166,7 +166,6 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     if featured_project
                     else None
                 ),
-                'project_save_form': SavedProjectForm(),
             }
         else:
             abort(404)  # Reserved profile
@@ -281,11 +280,11 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 return render_redirect(self.obj.url_for(), code=303)
             else:
                 return render_form(
-                    form=form, title=_(""), submit=_("Save logo"), ajax=True,
+                    form=form, title="", submit=_("Save logo"), ajax=True
                 )
         return render_form(
             form=form,
-            title=_(""),
+            title="",
             submit=_("Save logo"),
             ajax=True,
             template='img_upload_formlayout.html.jinja2',
@@ -303,11 +302,11 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 return render_redirect(self.obj.url_for(), code=303)
             else:
                 return render_form(
-                    form=form, title=_(""), submit=_("Save banner"), ajax=True,
+                    form=form, title="", submit=_("Save banner"), ajax=True
                 )
         return render_form(
             form=form,
-            title=_(""),
+            title="",
             submit=_("Save banner"),
             ajax=True,
             template='img_upload_formlayout.html.jinja2',

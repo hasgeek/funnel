@@ -71,8 +71,8 @@ def merge_users(user1, user2):
         db.session.commit()
 
         # 5. Return keep_user.
-        return keep_user
         current_app.logger.info("User merge complete, keeping user %s", keep_user)
+        return keep_user
     else:
         current_app.logger.error("User merge failed, aborting transaction")
         db.session.rollback()

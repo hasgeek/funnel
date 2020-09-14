@@ -13,26 +13,26 @@ from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, funnelapp
-from ..models import ContactExchange, Participant, Project, db
+from ..models import ContactExchange, Project, TicketParticipant, db
 from ..utils import abort_null, format_twitter_handle
 from .helpers import app_url_for
 from .login_session import requires_login
 
 
-def contact_details(participant):
-    if participant:
+def contact_details(ticket_participant):
+    if ticket_participant:
         return {
-            'fullname': participant.fullname,
-            'company': participant.company,
-            'email': participant.email,
-            'twitter': format_twitter_handle(participant.twitter),
-            'phone': participant.phone,
+            'fullname': ticket_participant.fullname,
+            'company': ticket_participant.company,
+            'email': ticket_participant.email,
+            'twitter': format_twitter_handle(ticket_participant.twitter),
+            'phone': ticket_participant.phone,
         }
 
 
 @route('/account/contacts')
 class ContactView(ClassView):
-    current_section = 'contact'
+    current_section = 'account'
 
     def get_project(self, uuid_b58):
         return (
@@ -73,19 +73,19 @@ class ContactView(ClassView):
         )
         for contact in contacts:
             proxy = contact.current_access()
-            participant = proxy.participant
+            ticket_participant = proxy.ticket_participant
             out.writerow(
                 [
                     proxy.scanned_at.astimezone(timezone)
                     .replace(second=0, microsecond=0, tzinfo=None)
                     .isoformat(),  # Strip precision from timestamp
-                    participant.fullname,
-                    participant.email,
-                    participant.phone,
-                    participant.twitter,
-                    participant.job_title,
-                    participant.company,
-                    participant.city,
+                    ticket_participant.fullname,
+                    ticket_participant.email,
+                    ticket_participant.phone,
+                    ticket_participant.twitter,
+                    ticket_participant.job_title,
+                    ticket_participant.company,
+                    ticket_participant.city,
                 ]
             )
 
@@ -148,12 +148,12 @@ class ContactView(ClassView):
     @requestargs(('puk', abort_null), ('key', abort_null))
     def connect(self, puk, key):
         """Scan verification"""
-        participant = Participant.query.filter_by(puk=puk, key=key).first()
-        if not participant:
+        ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
+        if not ticket_participant:
             return make_response(
                 jsonify(status='error', message="Attendee details not found"), 404
             )
-        project = participant.project
+        project = ticket_participant.project
         if project.schedule_end_at:
             if (
                 midnight_to_utc(
@@ -168,14 +168,14 @@ class ContactView(ClassView):
 
             try:
                 contact_exchange = ContactExchange(
-                    user=current_auth.actor, participant=participant
+                    user=current_auth.actor, ticket_participant=ticket_participant
                 )
                 db.session.add(contact_exchange)
                 db.session.commit()
             except IntegrityError:
                 current_app.logger.warning("Contact already scanned")
                 db.session.rollback()
-            return jsonify(contact=contact_details(participant))
+            return jsonify(contact=contact_details(ticket_participant))
         else:
             return make_response(
                 jsonify(status='error', message="Unauthorized contact exchange"), 403

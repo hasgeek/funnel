@@ -7,7 +7,7 @@
 {% block description %}
   {%- if active_session -%}
     {%- if active_session.speaker -%}
-      {% trans title=active_session.title, speaker=active_session.speaker, event=project.title %}{{ title }} by {{ speaker }}, {{ event }}{% endtrans %}
+      {% trans title=active_session.title, speaker=active_session.speaker, project=project.title %}{{ title }} by {{ speaker }}, {{ project }}{% endtrans %}
     {%- else -%}
       {{ active_session.title }}, {{ project.title }}
     {%- endif -%}
@@ -83,9 +83,7 @@
       <a href="{{ project.urls['view'] }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(schedule page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Schedule{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form,
-    class='mui--hidden-xs mui--hidden-sm',
-    current_page='schedule') }}
+  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='schedule') }}
 {% endblock %}
 
 {% block basecontent %}
@@ -112,7 +110,7 @@
                   <h2 class="mui--text-heading schedule__date">{{ schedule.dateStr }}</h2>
                   <div class="mui--bg-accent schedule__table">
                     <div class="schedule__row schedule__row--sticky">
-                      <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><svg class="fa5-icon fa5-icon--subhead test fa5--align-baseline" aria-hidden="true" role="img"><use v-bind:xlink:href="svgIconUrl + '#clock'"></use></svg></p>
+                      <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><faicon :icon="'clock'" :icon_size="'subhead'"></faicon></p>
                       <p class="schedule__row__column schedule__row__column--header" :class="[activeTab == roomkey ? 'js-tab-active' : '']" :style="{width: 'calc(100% - ' + getColumnWidth('header') + 'px)'}" @click="toggleTab(roomkey)" v-for="(room, roomkey, roomindex) in schedule.rooms">{{ room.title }}</p>
                     </div>
 
@@ -170,7 +168,6 @@
 
       var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: {{ project.urls['save']|tojson }}
       }
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);

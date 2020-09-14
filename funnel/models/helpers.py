@@ -11,6 +11,7 @@ from zxcvbn import zxcvbn
 __all__ = [
     'RESERVED_NAMES',
     'password_policy',
+    'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
     'add_search_trigger',
@@ -65,6 +66,8 @@ RESERVED_NAMES = {
     'membership',
     'new',
     'news',
+    'notification',
+    'notifications',
     'org',
     'organization',
     'organizations',
@@ -128,6 +131,91 @@ _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
 visual_field_delimiter = ' ¦ '
+
+
+def add_to_class(cls, name=None):
+    """
+    Decorator to add a new method to a class. Takes an optional attribute name.
+
+    Usage::
+
+        @add_to_class(ExistingClass)
+        def new_method(self, *args):
+            pass
+
+        @add_to_class(ExistingClass, 'new_property')
+        @property
+        def existing_class_new_property(self):
+            pass
+    """
+
+    def decorator(attr):
+        use_name = name or attr.__name__
+        if use_name in cls.__dict__:
+            raise AttributeError(f"{cls.__name__} already has attribute {use_name}")
+        setattr(cls, use_name, attr)
+        return attr
+
+    return decorator
+
+
+def reopen(cls):
+    """
+    Moves the contents of the decorated class into an existing class and returns that.
+
+    Usage::
+
+        @reopen(ExistingClass)
+        class ExistingClass:
+            @property
+            def new_property(self):
+                pass
+
+    This is equivalent to::
+
+        def new_property(self):
+            pass
+
+        ExistingClass.new_property = property(new_property)
+
+    This decorator is syntactic sugar to make class extension visually similar to class
+    definition. It is not for monkey patching. It will refuse to overwrite existing
+    attributes, and will reject a decorated class that contains base classes or a
+    metaclass. If the existing class was processed by a metaclass, the new attributes
+    added to it may not receive the same processing.
+
+    This decorator is intended to aid legibility of bi-directional relationships in
+    SQLAlchemy models, specifically where a basic backref is augmented with methods or
+    properties that do more processing.
+    """
+
+    def decorator(temp_cls):
+        if temp_cls.__bases__ != (object,):
+            raise TypeError("Reopened class cannot add base classes")
+        if temp_cls.__class__ is not type:
+            raise TypeError("Reopened class cannot add a metaclass")
+        if {
+            '__slots__',
+            '__getattribute__',
+            '__getattr__',
+            '__setattr__',
+            '__delattr__',
+        }.intersection(set(temp_cls.__dict__.keys())):
+            raise TypeError("Reopened class contains unsupported __attributes__")
+        for attr, value in list(temp_cls.__dict__.items()):
+            # Skip the standard Python attributes, process the rest
+            if attr not in ('__dict__', '__doc__', '__module__', '__weakref__'):
+                # Refuse to overwrite existing attributes
+                if hasattr(cls, attr):
+                    raise AttributeError(f"{cls.__name__} already has attribute {attr}")
+                # All good? Copy the attribute over...
+                setattr(cls, attr, value)
+                # ...And remove it from the temporary class
+                delattr(temp_cls, attr)
+        # Return the original class. Leave the temporary class to the garbage collector
+        return cls
+
+    return decorator
 
 
 def valid_username(candidate):

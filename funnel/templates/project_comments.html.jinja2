@@ -27,18 +27,13 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Comments{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form,
-    class='mui--hidden-xs mui--hidden-sm',
-    current_page='comments') }}
+  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='comments') }}
 {% endblock %}
 
 {% block basecontent %}
   <div class="mui-container">
     <div class="page-content page-content--mob-nav">
       <div class="grid project-section" id="comments">
-        <div class="grid__col-xs-12">
-          <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Comments{% endtrans %}</h2>
-        </div>
         <div class="grid__col-xs-12">
           {{ comments_tree() }}
         </div>
@@ -60,7 +55,6 @@
     $(function() {
       var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: {{ project.url_for('save')|tojson }}
       }
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
@@ -79,7 +73,8 @@
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
         isuserparticipant: {% if current_auth.user and project.features.comment_new() -%}true{% else %}false{% endif %},
-        user: {% if current_auth.user -%}{{ current_auth.user.fullname|tojson }}{% else %}''{% endif %},
+        iscommentmoderator: {% if current_auth.user and current_auth.user.is_comment_moderator -%}true{% else %}false{% endif %},
+        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
         headerHeight: headerHeight,
       };

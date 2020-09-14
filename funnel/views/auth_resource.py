@@ -19,7 +19,7 @@ from ..models import (
 )
 from ..registry import resource_registry
 from ..utils import abort_null
-from .helpers import validate_rate_limit
+from .helpers import progressive_rate_limit_validator, validate_rate_limit
 from .login_session import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
@@ -27,7 +27,7 @@ from .login_session import (
 )
 
 
-def get_userinfo(user, auth_client, scope=[], user_session=None, get_permissions=True):
+def get_userinfo(user, auth_client, scope=(), user_session=None, get_permissions=True):
 
     if '*' in scope or 'id' in scope or 'id/*' in scope:
         userinfo = {
@@ -166,7 +166,8 @@ def token_verify():
         # Token does not grant access to this resource
         return api_result('error', error='access_denied')
 
-    # All validations passed. Token is valid for this client and scope. Return with information on the token
+    # All validations passed. Token is valid for this client and scope. Return with
+    # information on the token.
     # TODO: Don't return validity. Set the HTTP cache headers instead.
     params = {
         'validity': 120
@@ -215,7 +216,8 @@ def token_get_scope():
     if not client_resources:
         return api_result('error', error='no_access')
 
-    # All validations passed. Token is valid for this client. Return with information on the token
+    # All validations passed. Token is valid for this client. Return with information on
+    # the token.
     # TODO: Don't return validity. Set the HTTP cache headers instead.
     params = {
         'validity': 120
@@ -242,9 +244,7 @@ def token_get_scope():
 @lastuserapp.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
 @requires_user_or_client_login
 def user_get_by_userid():
-    """
-    Returns user or organization with the given userid (Lastuser internal buid)
-    """
+    """Returns user or organization with the given userid (Lastuser internal buid)."""
     buid = abort_null(request.values.get('userid'))
     if not buid:
         return api_result('error', error='no_userid_provided')
@@ -264,20 +264,19 @@ def user_get_by_userid():
             oldids=[o.buid for o in user.oldids],
             olduuids=[o.uuid for o in user.oldids],
         )
-    else:
-        org = Organization.get(buid=buid, defercols=True)
-        if org:
-            return api_result(
-                'ok',
-                _jsonp=True,
-                type='organization',
-                userid=org.buid,
-                buid=org.buid,
-                uuid=org.uuid,
-                name=org.name,
-                title=org.title,
-                label=org.pickername,
-            )
+    org = Organization.get(buid=buid, defercols=True)
+    if org:
+        return api_result(
+            'ok',
+            _jsonp=True,
+            type='organization',
+            userid=org.buid,
+            buid=org.buid,
+            uuid=org.uuid,
+            name=org.name,
+            title=org.title,
+            label=org.pickername,
+        )
     return api_result('error', error='not_found', _jsonp=True)
 
 
@@ -333,9 +332,7 @@ def user_get_by_userids(userid):
 @requires_user_or_client_login
 @requestargs(('name', abort_null))
 def user_get(name):
-    """
-    Returns user with the given username, email address or Twitter id
-    """
+    """Returns user with the given username or email address."""
     if not name:
         return api_result('error', error='no_name_provided')
     user = getuser(name)
@@ -353,8 +350,7 @@ def user_get(name):
             oldids=[o.buid for o in user.oldids],
             olduuids=[o.uuid for o in user.oldids],
         )
-    else:
-        return api_result('error', error='not_found')
+    return api_result('error', error='not_found')
 
 
 @app.route('/api/1/user/getusers', methods=['GET', 'POST'])
@@ -362,16 +358,14 @@ def user_get(name):
 @requires_user_or_client_login
 @requestargs(('name[]', abort_null))
 def user_getall(name):
-    """
-    Returns users with the given username, email address or Twitter id
-    """
+    """Returns users with the given username or email address."""
     names = name
     buids = set()  # Dupe checker
     if not names:
         return api_result('error', error='no_name_provided')
     results = []
-    for name in names:
-        user = getuser(name)
+    for username in names:
+        user = getuser(username)
         if user and user.buid not in buids:
             results.append(
                 {
@@ -390,8 +384,7 @@ def user_getall(name):
             buids.add(user.buid)
     if not results:
         return api_result('error', error='not_found')
-    else:
-        return api_result('ok', results=results)
+    return api_result('ok', results=results)
 
 
 @app.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
@@ -399,7 +392,9 @@ def user_getall(name):
 @requires_client_id_or_user_or_client_login
 def user_autocomplete():
     """
-    Returns users (buid, username, fullname, twitter, github or email) matching the search term.
+    Returns users matching the search term.
+
+    Looks up users by their name, @username, or by full email address.
     """
     q = abort_null(request.values.get('q', ''))
     if not q:
@@ -415,7 +410,8 @@ def user_autocomplete():
 
     validate_rate_limit(
         # As this endpoint accepts client_id+user_session in lieu of login cookie,
-        # we may not have an authenticatd user. Use the user_session's user in that case
+        # we may not have an authenticated user. Use the user_session's user in that
+        # case
         'user_autocomplete',
         current_auth.actor.uuid_b58
         if current_auth.actor
@@ -424,17 +420,10 @@ def user_autocomplete():
         20,
         # Per half hour (60s * 30m = 1800s)
         1800,
-        # Save the query as a token. Validator will receive the previous call's token
+        # Use a token and validator to count progressive typing and backspacing as a
+        # single rate-limited call
         token=q,
-        # Validator has to return two flags: (count_this, retain_previous_token)
-        # prev_q will be None on the first call to the validator
-        validator=lambda prev_q: (True, False)
-        if not prev_q
-        else (False, False)
-        if q.startswith(prev_q or '')  # Progressive typing, use new query as token
-        else (False, True)
-        if (prev_q or '').startswith(q)  # Backspacing, keep prev longer q as token
-        else (True, False),
+        validator=progressive_rate_limit_validator,
     )
     users = User.autocomplete(q)
     result = [
@@ -488,7 +477,7 @@ def login_beacon_json(client_id):
         token = auth_client.authtoken_for(current_auth.user)
     else:
         token = None
-    response = jsonify({'hastoken': True if token else False})
+    response = jsonify({'hastoken': bool(token)})
     response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
     response.headers['Cache-Control'] = 'private, max-age=300'
     return response
@@ -501,9 +490,7 @@ def login_beacon_json(client_id):
 @lastuserapp.route('/api/1/id')
 @resource_registry.resource('id', __("Read your name and basic profile data"))
 def resource_id(authtoken, args, files=None):
-    """
-    Return user's id
-    """
+    """Return user's basic identity."""
     if 'all' in args and getbool(args['all']):
         return get_userinfo(
             authtoken.user,
@@ -511,16 +498,16 @@ def resource_id(authtoken, args, files=None):
             scope=authtoken.effective_scope,
             get_permissions=True,
         )
-    else:
-        return get_userinfo(
-            authtoken.user, authtoken.auth_client, scope=['id'], get_permissions=False
-        )
+    return get_userinfo(
+        authtoken.user, authtoken.auth_client, scope=['id'], get_permissions=False
+    )
 
 
 @app.route('/api/1/session/verify', methods=['POST'])
 @lastuserapp.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(authtoken, args, files=None):
+    """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
     session = UserSession.authenticate(buid=sessionid, silent=True)
     if session and session.user == authtoken.user:
@@ -534,40 +521,33 @@ def session_verify(authtoken, args, files=None):
             'user_uuid': session.user.uuid,
             'sudo': session.has_sudo,
         }
-    else:
-        return {'active': False}
+    return {'active': False}
 
 
 @app.route('/api/1/email')
 @lastuserapp.route('/api/1/email')
 @resource_registry.resource('email', __("Read your email address"))
 def resource_email(authtoken, args, files=None):
-    """
-    Return user's email addresses.
-    """
+    """Return user's email addresses."""
     if 'all' in args and getbool(args['all']):
         return {
             'email': str(authtoken.user.email),
             'all': [str(email) for email in authtoken.user.emails if not email.private],
         }
-    else:
-        return {'email': str(authtoken.user.email)}
+    return {'email': str(authtoken.user.email)}
 
 
 @app.route('/api/1/phone')
 @lastuserapp.route('/api/1/phone')
 @resource_registry.resource('phone', __("Read your phone number"))
 def resource_phone(authtoken, args, files=None):
-    """
-    Return user's phone numbers.
-    """
+    """Return user's phone numbers."""
     if 'all' in args and getbool(args['all']):
         return {
             'phone': str(authtoken.user.phone),
             'all': [str(phone) for phone in authtoken.user.phones],
         }
-    else:
-        return {'phone': str(authtoken.user.phone)}
+    return {'phone': str(authtoken.user.phone)}
 
 
 @app.route('/api/1/user/externalids')
@@ -578,9 +558,7 @@ def resource_phone(authtoken, args, files=None):
     trusted=True,
 )
 def resource_login_providers(authtoken, args, files=None):
-    """
-    Return user's login providers' data.
-    """
+    """Return user's login providers' data."""
     service = abort_null(args.get('service'))
     response = {}
     for extid in authtoken.user.externalids:
@@ -601,9 +579,7 @@ def resource_login_providers(authtoken, args, files=None):
     'organizations', __("Read the organizations you are a member of")
 )
 def resource_organizations(authtoken, args, files=None):
-    """
-    Return user's organizations and teams that they are a member of.
-    """
+    """Return user's organizations and teams that they are a member of."""
     return get_userinfo(
         authtoken.user,
         authtoken.auth_client,
@@ -616,9 +592,7 @@ def resource_organizations(authtoken, args, files=None):
 @lastuserapp.route('/api/1/teams')
 @resource_registry.resource('teams', __("Read the list of teams in your organizations"))
 def resource_teams(authtoken, args, files=None):
-    """
-    Return user's organizations' teams.
-    """
+    """Return user's organizations' teams."""
     return get_userinfo(
         authtoken.user, authtoken.auth_client, scope=['teams'], get_permissions=False
     )

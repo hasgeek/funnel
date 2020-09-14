@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html" import renderfield %}
-{% block title %}{{ event.title }}{% endblock %}
+{% block title %}{{ ticket_event.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
 
@@ -25,7 +25,7 @@
             <p class="mui--text-danger mui--text-subhead page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
-          {{#if video}}<svg class="fa5-icon scanner-wrapper__badge--icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#expand"></use></svg> {{/if}}
+          {{#if video}}<faicon icon='expand' basline=false css_class='scanner-wrapper__badge--icon'></faicon> {{/if}}
           {{#if video}}
           <div>
             <div class="mui-select camera-dropdown">
@@ -44,12 +44,12 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-action="close contact modal" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}" ><svg class="fa5-icon fa5-icon--title fa5--align-baseline" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#times"></use></svg></a>
+            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-action="close contact modal" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><faicon icon='times' icon_size='title' basline=true></faicon></a>
             <h3 class="mui--text-title">Check in status</h3>
           </div>
           <div class="modal__body">
             {{#if scanning}}
-              <h4 class="mui--text-headline mui--align-middle">Scanning <svg class="fa5-icon" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#spinner"></use></svg></h4>
+              <h4 class="mui--text-headline mui--align-middle">Scanning <faicon icon='spinner'></faicon></h4>
             {{elseif attendeeFound}}
               <h4>Hello {{attendeeName}},</h4>
               <p>Thank you for choosing to participate in {{ projectTitle }} and for being a part of this growing community.</p>
@@ -73,14 +73,14 @@
   <script type="text/javascript">
     $(function() {
 
-      var eventConfig = {
-        checkinApiUrl: "{{ url_for('EventParticipantCheckinView_checkin_puk', profile=project.profile.name, project=project.name, event=event.name, puk='puk') }}",
+      var ticketEventConfig = {
+        checkinApiUrl: {{ url_for('TicketEventParticipantCheckinView_checkin_puk', profile=project.profile.name, project=project.name, ticket_event=ticket_event.name, puk='puk')|tojson }},
         wrapperId: 'scan-badge-wrapper',
         templateId: 'scan-badge-template',
         projectTitle:  {{ project.title|tojson }},
-        eventTitle: {{ event.title|tojson }},
+        ticketEventTitle: {{ ticket_event.title|tojson }},
       };
-      window.Hasgeek.BadgeScanInit(eventConfig);
+      window.Hasgeek.BadgeScanInit(ticketEventConfig);
 
     });
   </script>

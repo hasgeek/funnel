@@ -3,6 +3,7 @@
 import os.path
 
 from flask import Flask
+from flask_babelhg import get_locale
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
@@ -41,13 +42,20 @@ assets['schedule-print.css'][version] = 'css/schedule-print.css'
 
 # --- Import rest of the app --------------------------------------------------
 
-from . import models, signals, loginproviders, forms, views  # NOQA  # isort:skip
+from . import (  # NOQA  # isort:skip
+    models,
+    signals,
+    forms,
+    loginproviders,
+    transports,
+    views,
+)
 from .models import db  # isort:skip
 
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
-coaster.app.init_app(funnelapp)
-coaster.app.init_app(lastuserapp)
+coaster.app.init_app(funnelapp, init_logging=False)
+coaster.app.init_app(lastuserapp, init_logging=False)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
@@ -59,6 +67,11 @@ coaster.app.load_config_from_file(lastuserapp, 'lastuserapp.py')
 app.config['LEGACY'] = False
 funnelapp.config['LEGACY'] = True
 lastuserapp.config['LEGACY'] = True
+
+# TODO: Move this into Baseframe
+app.jinja_env.globals['get_locale'] = get_locale
+funnelapp.jinja_env.globals['get_locale'] = get_locale
+lastuserapp.jinja_env.globals['get_locale'] = get_locale
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`
@@ -143,6 +156,8 @@ if 'GEOIP_DB_ASN' in app.config:
     else:
         app.geoip_asn = geoip2.database.Reader(app.config['GEOIP_DB_ASN'])
 
+# Turn on supported notification transports
+transports.init()
 
 # Register JS and CSS assets on both apps
 app.assets.register(
@@ -266,6 +281,14 @@ app.assets.register(
     Bundle(
         assets.require('!jquery.js', 'baseframe-footable.js'),
         output='js/footable.packed.js',
+        filters='uglipyjs',
+    ),
+)
+app.assets.register(
+    'js_footable_paginate',
+    Bundle(
+        assets.require('!jquery.js', 'footable-paginate.js'),
+        output='js/footable_paginate.packed.js',
         filters='uglipyjs',
     ),
 )

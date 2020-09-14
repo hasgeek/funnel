@@ -1,7 +1,8 @@
 from baseframe import __
+from coaster.sqlalchemy import with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Comment, User, UuidMixin, db
+from . import BaseMixin, Comment, SiteMembership, User, UuidMixin, db
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
@@ -33,30 +34,60 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
         db.SmallInteger, nullable=False, default=MODERATOR_REPORT_TYPE.SPAM
     )
     reported_at = db.Column(
-        db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False,
+        db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False
     )
+    resolved_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
+
+    __datasets__ = {
+        'primary': {
+            'comment',
+            'user',
+            'report_type',
+            'reported_at',
+            'resolved_at',
+            'uuid',
+        }
+    }
 
     @classmethod
     def get_one(cls, exclude_user=None):
-        reports = cls.query.filter()
-        if exclude_user is not None:
-            existing_reports = db.session.query(cls.id).filter_by(
-                user_id=exclude_user.id
-            )
-            reports = reports.filter(~cls.id.in_(existing_reports))
-
+        reports = cls.get_all(exclude_user)
         return reports.order_by(db.func.random()).first()
 
+    @classmethod
+    def get_all(cls, exclude_user=None):
+        """
+        Get all reports.
 
-def _report_comment(self, actor):
-    report = CommentModeratorReport.query.filter_by(
-        user=actor, comment=self
-    ).one_or_none()
-    if report is None:
-        report = CommentModeratorReport(user=actor, comment=self)
-        db.session.add(report)
-        db.session.commit()
-    return report
+        If ``exclude_user`` is provided, exclude all reports for
+        the comments that the given user has reviewed/reported.
+        """
+        reports = cls.query.filter(cls.resolved_at.is_(None))
+        if exclude_user is not None:
+            # get all comment ids that the given user has already reviewed/reported
+            existing_reported_comments = (
+                db.session.query(cls.comment_id)
+                .filter_by(user_id=exclude_user.id)
+                .distinct()
+            )
+            # exclude reports for those comments
+            reports = reports.filter(~cls.comment_id.in_(existing_reported_comments))
+        return reports
 
+    @classmethod
+    def submit(cls, actor, comment):
+        report = cls.query.filter_by(user=actor, comment=comment).one_or_none()
+        if report is None:
+            report = cls(user=actor, comment=comment)
+            db.session.add(report)
+        return report
 
-Comment.report_spam = _report_comment
+    @with_roles(grants={'comment_moderator'})
+    @property
+    def users_who_are_comment_moderators(self):
+        return User.query.join(
+            SiteMembership, SiteMembership.user_id == User.id
+        ).filter(
+            SiteMembership.is_active.is_(True),
+            SiteMembership.is_comment_moderator.is_(True),
+        )

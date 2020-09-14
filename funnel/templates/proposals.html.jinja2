@@ -21,9 +21,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline mobile-nav__icon" data-action="Back to the {{ project.title }}(proposal page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Proposals{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form,
-    class='mui--hidden-xs mui--hidden-sm',
-    current_page='proposals') }}
+  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='proposals') }}
 {% endblock %}
 
 {% block basecontent %}
@@ -36,7 +34,7 @@
             <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
             <div class="about__details__description">
               {% if project.view_for('cfp').is_available() -%}
-                <p class="mui--pull-right">
+                <p>
                   <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">
                     {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
                       {% trans %}Open proposal submissions{% endtrans %}
@@ -54,7 +52,7 @@
           {% if project.cfp_state.OPEN -%}
             <div>
               <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}" data-action="Submit a session proposal(header)">{% trans %}Submit a session proposal{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM, YYYY, hh:mm a') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Proposal submission closes on {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {%- elif project.cfp_state.UNAVAILABLE %}
             <div class="mui-d--inlineblock">
@@ -116,7 +114,6 @@
 
       var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: {{ project.url_for('save')|tojson }}
       }
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);

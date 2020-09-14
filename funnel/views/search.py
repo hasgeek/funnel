@@ -278,6 +278,7 @@ search_types = OrderedDict(
                 .filter(
                     Profile.state.PUBLIC,
                     Project.state.PUBLISHED,
+                    Comment.state.PUBLIC,
                     db.or_(Comment.search_vector.match(q), User.search_vector.match(q)),
                 )
                 .order_by(
@@ -292,6 +293,7 @@ search_types = OrderedDict(
                     .filter(
                         Profile.state.PUBLIC,
                         Project.state.PUBLISHED,
+                        Comment.state.PUBLIC,
                         db.or_(
                             Comment.search_vector.match(q), User.search_vector.match(q)
                         ),
@@ -308,6 +310,7 @@ search_types = OrderedDict(
                 .filter(
                     Project.profile == profile,
                     Project.state.PUBLISHED,
+                    Comment.state.PUBLIC,
                     db.or_(Comment.search_vector.match(q), User.search_vector.match(q)),
                 )
                 .order_by(
@@ -321,6 +324,7 @@ search_types = OrderedDict(
                     .filter(
                         Project.profile == profile,
                         Project.state.PUBLISHED,
+                        Comment.state.PUBLIC,
                         db.or_(
                             Comment.search_vector.match(q), User.search_vector.match(q)
                         ),
@@ -335,7 +339,8 @@ search_types = OrderedDict(
                 lambda q, project: Comment.query.join(User, Comment.user)
                 .join(Project, project.commentset_id == Comment.commentset_id)
                 .filter(
-                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q))
+                    Comment.state.PUBLIC,
+                    db.or_(Comment.search_vector.match(q), User.search_vector.match(q)),
                 )
                 .order_by(
                     db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
@@ -346,9 +351,10 @@ search_types = OrderedDict(
                     .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
                     .join(Project, Proposal.project_id == project.id)
                     .filter(
+                        Comment.state.PUBLIC,
                         db.or_(
                             Comment.search_vector.match(q), User.search_vector.match(q)
-                        )
+                        ),
                     )
                     .order_by(
                         db.desc(db.func.ts_rank_cd(Comment.search_vector, q)),
@@ -594,7 +600,7 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
             'type': stype,
             'counts': search_counts(squery, profile=self.obj),
             'results': search_results(
-                squery, stype, page=page, per_page=per_page, profile=self.obj,
+                squery, stype, page=page, per_page=per_page, profile=self.obj
             ),
         }
 
@@ -635,7 +641,7 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
             'type': stype,
             'counts': search_counts(squery, project=self.obj),
             'results': search_results(
-                squery, stype, page=page, per_page=per_page, project=self.obj,
+                squery, stype, page=page, per_page=per_page, project=self.obj
             ),
         }
 

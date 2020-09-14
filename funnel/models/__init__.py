@@ -1,6 +1,6 @@
 # flake8: noqa
 
-from sqlalchemy_utils import TSVectorType
+from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 
 from coaster.db import db
 from coaster.sqlalchemy import (
@@ -35,7 +35,7 @@ from .notification import *  # isort:skip
 from .utils import *  # isort:skip
 from .commentvote import *  # isort:skip
 from .draft import *  # isort:skip
-from .event import *  # isort:skip
+from .sync_ticket import *  # isort:skip
 from .contact_exchange import *  # isort:skip
 from .feedback import *  # isort:skip
 from .label import *  # isort:skip
@@ -53,3 +53,4 @@ from .project_membership import *  # isort:skip
 from .proposal_membership import *  # isort:skip
 from .site_membership import *  # isort:skip
 from .moderation import *  # isort:skip
+from .notification_types import *  # isort:skip

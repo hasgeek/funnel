@@ -196,6 +196,11 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_organization_profile(cls):  # NOQA: N805
         return cls.organization_id.isnot(None)
 
+    @with_roles(read={'all'})
+    @property
+    def is_public(self):
+        return bool(self.state.PUBLIC)
+
     @hybrid_property
     def title(self):
         if self.user:

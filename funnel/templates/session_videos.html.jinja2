@@ -20,18 +20,13 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Videos{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form,
-    class='mui--hidden-xs mui--hidden-sm',
-    current_page='videos') }}
+  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='videos') }}
 {% endblock %}
 
 {% block basecontent %}
   <div class="mui-container">
     <div class="page-content page-content--mob-nav">
       <div class="grid project-section" id="videos">
-        <div class="grid__col-xs-12">
-          <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Videos{% endtrans %}</h2>
-        </div>
         {% for session in project.sessions_with_video %}
           <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
             {{ video_thumbnail(session) }}
@@ -48,8 +43,7 @@
   <script type="text/javascript">
     $(function() {
       var saveProjectConfig = {
-        formId: 'save-form',
-        postUrl: {{ project.url_for('save')|tojson }}
+        formId: 'save-form'
       }
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);

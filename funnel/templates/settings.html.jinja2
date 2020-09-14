@@ -20,9 +20,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline mobile-nav__icon" data-action="Back to the {{ project.title }}(settings page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Settings{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, project_save_form, csrf_form,
-    class='mui--hidden-xs mui--hidden-sm',
-    current_page='settings') }}
+  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='settings') }}
 {% endblock %}
 
 {% block basecontent %}
@@ -120,12 +118,12 @@
                 {% endif %}
                 {% if project.view_for('admin').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('admin') }}" data-cy="setup-events">{% trans %}Setup events for check-in{% endtrans %}</a>
+                    <a href="{{ project.url_for('admin') }}" data-cy="setup-ticket-events">{% trans %}Setup ticketed events for check-in{% endtrans %}</a>
                   </li>
                 {% endif %}
-                {% if project.view_for('events').is_available() %}
+                {% if project.view_for('ticket_events').is_available() %}
                   <li>
-                    <a href="{{ project.url_for('events') }}" data-cy="scan-checkin">{% trans %}Scan badges to check-in{% endtrans %}</a>
+                    <a href="{{ project.url_for('ticket_events') }}" data-cy="scan-checkin">{% trans %}Scan badges to check-in{% endtrans %}</a>
                   </li>
                 {% endif %}
                 {% if project.view_for('rsvp_list').is_available() %}
@@ -156,7 +154,6 @@
     $(function() {
       var saveProjectConfig = {
         formId: 'save-form',
-        postUrl: "{{ project.url_for('save') }}"
       }
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
     });

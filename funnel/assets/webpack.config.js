@@ -65,6 +65,12 @@ module.exports = {
     comments: path.resolve(__dirname, 'js/comments.js'),
     update: path.resolve(__dirname, 'js/update.js'),
     rsvp_list: path.resolve(__dirname, 'js/rsvp_list.js'),
+    notification_list: path.resolve(__dirname, 'js/notification_list.js'),
+    notification_settings: path.resolve(
+      __dirname,
+      'js/notification_settings.js'
+    ),
+    account_saved: path.resolve(__dirname, 'js/account_saved.js'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),

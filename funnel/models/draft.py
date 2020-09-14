@@ -1,8 +1,6 @@
-from sqlalchemy_utils import UUIDType
-
 from werkzeug.datastructures import MultiDict
 
-from . import JsonDict, NoIdMixin, db
+from . import JsonDict, NoIdMixin, UUIDType, db
 
 __all__ = ['Draft']
 

@@ -3,11 +3,11 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask import current_app
 
 from baseframe import _, __
-from coaster.sqlalchemy import StateManager, cached
+from coaster.sqlalchemy import StateManager, cached, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
-from .helpers import add_search_trigger
+from .helpers import add_search_trigger, reopen
 from .user import User, deleted_user, removed_user
 
 __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
@@ -125,6 +125,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     @property
     def parent(self):
+        # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         parent = None  # project or proposal object
         if self.project is not None:
             parent = self.project
@@ -152,15 +153,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     _user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('comments', lazy='dynamic', cascade='all'),
+        User, backref=db.backref('comments', lazy='dynamic', cascade='all')
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(
-        Commentset,
-        primaryjoin=commentset_id == Commentset.id,
-        backref=db.backref('comments', cascade='all'),
+    commentset = with_roles(
+        db.relationship(Commentset, backref=db.backref('comments', cascade='all')),
+        grants_via={None: {'document_subscriber'}},
     )
 
     parent_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)
@@ -198,7 +196,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 'badges',
             },
             'call': {'state', 'commentset', 'view_for', 'url_for'},
-        }
+        },
+        'replied_to_commenter': {'granted_via': {'parent': '_user'}},
     }
 
     __datasets__ = {
@@ -211,6 +210,18 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             'title',
         },
         'json': {
+            'created_at',
+            'edited_at',
+            'absolute_url',
+            'title',
+            'message',
+            'user',
+            'replies',
+            'urls',
+            'badges',
+            'uuid_b58',
+        },
+        'related': {
             'created_at',
             'edited_at',
             'absolute_url',
@@ -246,7 +257,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @property
     def replies(self):
-        return [child.current_access() for child in self.children if child.state.PUBLIC]
+        return [
+            child.current_access(datasets=('json', 'related'))
+            for child in self.children
+            if child.state.PUBLIC
+        ]
 
     @hybrid_property
     def user(self):
@@ -286,10 +301,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @property
     def absolute_url(self):
-        if self.commentset.proposal:
-            return self.commentset.proposal.absolute_url + '#c' + self.uuid_b58
-        elif self.commentset.project:
-            return self.commentset.project.url_for('comments') + '#c' + self.uuid_b58
+        return self.url_for()
 
     @property
     def title(self):
@@ -369,11 +381,13 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 add_search_trigger(Comment, 'search_vector')
 
 
-Commentset.toplevel_comments = db.relationship(
-    Comment,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        Comment.commentset_id == Commentset.id, Comment.parent_id.is_(None),
-    ),
-    viewonly=True,
-)
+@reopen(Commentset)
+class Commentset:
+    toplevel_comments = db.relationship(
+        Comment,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            Comment.commentset_id == Commentset.id, Comment.parent_id.is_(None)
+        ),
+        viewonly=True,
+    )

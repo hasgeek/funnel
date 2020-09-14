@@ -2,6 +2,7 @@ import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
 import * as timeago from 'timeago.js';
 import { Utils } from './util';
+import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
 
 const Comments = {
   init({
@@ -10,6 +11,7 @@ const Comments = {
     commentTemplate,
     isuserloggedin,
     isuserparticipant,
+    iscommentmoderator,
     user,
     loginUrl,
     headerHeight,
@@ -18,7 +20,7 @@ const Comments = {
 
     const commentUI = Vue.component('comment', {
       template: commentTemplate,
-      props: ['comment', 'isuserparticipant'],
+      props: ['comment', 'isuserparticipant', 'iscommentmoderator'],
       data() {
         return {
           commentForm: '',
@@ -91,6 +93,9 @@ const Comments = {
       el: divElem,
       components: {
         commentUI,
+        userAvatarUI,
+        faSvg,
+        shareDropdown,
       },
       data() {
         return {
@@ -98,11 +103,11 @@ const Comments = {
           comments: [],
           isuserloggedin,
           isuserparticipant,
+          iscommentmoderator,
           user,
           commentForm: '',
           errorMsg: '',
           loginUrl,
-          refreshInterval: window.Hasgeek.config.refreshInterval,
           refreshTimer: '',
           headerHeight,
           svgIconUrl: window.Hasgeek.config.svgIconUrl,
@@ -112,29 +117,24 @@ const Comments = {
       methods: {
         fetchForm(event, url, comment = '') {
           event.preventDefault();
-          if (this.isuserparticipant) {
-            $.ajax({
-              type: 'GET',
-              url,
-              timeout: window.Hasgeek.config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
-                app.pauseRefreshComments();
-                const vueFormHtml = data.form;
-                if (comment) {
-                  comment.commentForm = vueFormHtml.replace(
-                    /\bscript\b/g,
-                    'script2'
-                  );
-                } else {
-                  app.commentForm = vueFormHtml.replace(
-                    /\bscript\b/g,
-                    'script2'
-                  );
-                }
-              },
-            });
-          }
+          $.ajax({
+            type: 'GET',
+            url,
+            timeout: window.Hasgeek.config.ajaxTimeout,
+            dataType: 'json',
+            success(data) {
+              app.pauseRefreshComments();
+              const vueFormHtml = data.form;
+              if (comment) {
+                comment.commentForm = vueFormHtml.replace(
+                  /\bscript\b/g,
+                  'script2'
+                );
+              } else {
+                app.commentForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+              }
+            },
+          });
         },
         activateForm(parentApp) {
           const formId = Utils.getElementId(parentApp.commentForm);
@@ -184,7 +184,7 @@ const Comments = {
         refreshCommentsTimer() {
           this.refreshTimer = window.setInterval(
             this.fetchCommentsList,
-            this.refreshInterval
+            window.Hasgeek.config.refreshInterval
           );
         },
         getInitials: window.Baseframe.Utils.getInitials,

@@ -1,13 +1,10 @@
 from sqlalchemy.ext.declarative import declared_attr
 
+from werkzeug.utils import cached_property
+
 from . import User, db
+from .helpers import reopen
 from .membership import ImmutableMembershipMixin
-
-try:
-    from functools import cached_property
-except ImportError:
-    from werkzeug.utils import cached_property
-
 
 __all__ = ['SiteMembership']
 
@@ -71,25 +68,44 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         return roles
 
 
-User.active_site_membership = db.relationship(
-    SiteMembership,
-    lazy='select',
-    primaryjoin=db.and_(SiteMembership.user_id == User.id, SiteMembership.is_active),
-    viewonly=True,
-    uselist=False,
-)
+@reopen(User)
+class User:
+    # Singular, as only one can be active
+    active_site_membership = db.relationship(
+        SiteMembership,
+        lazy='select',
+        primaryjoin=db.and_(
+            SiteMembership.user_id == User.id, SiteMembership.is_active
+        ),
+        viewonly=True,
+        uselist=False,
+    )
 
-User.is_comment_moderator = property(
-    lambda self: self.active_site_membership
-    and 'comment_moderator' in self.active_site_membership.offered_roles
-)
+    @property
+    def is_comment_moderator(self):
+        return (
+            self.active_site_membership is not None
+            and 'comment_moderator' in self.active_site_membership.offered_roles
+        )
 
-User.is_user_moderator = property(
-    lambda self: self.active_site_membership
-    and 'user_moderator' in self.active_site_membership.offered_roles
-)
+    @property
+    def is_user_moderator(self):
+        return (
+            self.active_site_membership is not None
+            and 'user_moderator' in self.active_site_membership.offered_roles
+        )
 
-User.is_site_editor = property(
-    lambda self: self.active_site_membership
-    and 'site_editor' in self.active_site_membership.offered_roles
-)
+    @property
+    def is_site_editor(self):
+        return (
+            self.active_site_membership is not None
+            and 'site_editor' in self.active_site_membership.offered_roles
+        )
+
+    # site_admin means user has one or more of above roles
+    @property
+    def is_site_admin(self):
+        return (
+            self.active_site_membership is not None
+            and 'site_admin' in self.active_site_membership.offered_roles
+        )

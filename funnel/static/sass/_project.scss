@@ -94,12 +94,16 @@
 
     .bookmark,
     .add-calendar,
-    .share {
+    .project-links,
+    .hg-link-btn {
       display: flex;
       align-items: center;
       padding: 0 8px;
       border-right: solid 1px rgba(121, 129, 139, 0.48);
       line-height: 1;
+    }
+    .hg-link-btn.hide {
+      display: none;
     }
     .bookmark {
       padding: 0 8px 0 0;
@@ -114,12 +118,14 @@
         animation: none;
       }
     }
-    .share {
+    .project-links,
+    .hg-link-btn {
       border-right: none;
     }
     .bookmark span.login-txt,
     .add-calendar span.txt,
-    .share span.txt {
+    .project-links span.txt,
+    .hg-link-btn span.txt {
       padding-right: 5px;
     }
 
@@ -189,6 +195,7 @@
     }
   }
   .project-details__box--ticketbox {
+    margin-bottom: $mui-grid-padding;
     .check-icon {
       margin-right: 8px;
     }
@@ -210,7 +217,7 @@
       padding: 0;
       .bookmark,
       .add-calendar,
-      .share {
+      .project-links {
         padding: 0 $mui-grid-padding;
         text-decoration: none;
       }
@@ -280,6 +287,9 @@
     }
     .project-details__box--topmargin {
       margin-top: 42px;
+    }
+    .project-details__box--ticketbox {
+      margin-bottom: 0;
     }
   }
 }
@@ -556,5 +566,4 @@
   margin-top: $mui-grid-padding;
   position: relative;
   outline: none;
-  margin-bottom: $mui-grid-padding-double;
 }

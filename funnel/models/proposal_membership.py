@@ -1,15 +1,14 @@
 from sqlalchemy.ext.declarative import declared_attr
 
+from werkzeug.utils import cached_property
+
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
+from .helpers import reopen
 from .membership import ImmutableMembershipMixin
 from .proposal import Proposal
-
-try:
-    from functools import cached_property
-except ImportError:
-    from werkzeug.utils import cached_property
+from .user import User
 
 __all__ = ['ProposalMembership']
 
@@ -94,41 +93,53 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
 
 
 # Project relationships: all crew, vs specific roles
+@reopen(Proposal)
+class Proposal:
+    active_memberships = with_roles(
+        db.relationship(
+            ProposalMembership,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                ProposalMembership.proposal_id == Proposal.id,
+                ProposalMembership.is_active,
+            ),
+            viewonly=True,
+        ),
+        grants_via={'user': {'reviewer', 'presenter'}},
+    )
 
-Proposal.active_memberships = with_roles(
-    db.relationship(
+    active_reviewer_memberships = db.relationship(
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=db.and_(
-            ProposalMembership.proposal_id == Proposal.id, ProposalMembership.is_active
+            ProposalMembership.proposal_id == Proposal.id,
+            ProposalMembership.is_active,
+            ProposalMembership.is_reviewer.is_(True),
         ),
         viewonly=True,
-    ),
-    grants_via={'user': {'reviewer', 'presenter'}},
-)
+    )
 
-Proposal.active_reviewer_memberships = db.relationship(
-    ProposalMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProposalMembership.proposal_id == Proposal.id,
-        ProposalMembership.is_active,
-        ProposalMembership.is_reviewer.is_(True),
-    ),
-    viewonly=True,
-)
+    active_presenter_memberships = db.relationship(
+        ProposalMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProposalMembership.proposal_id == Proposal.id,
+            ProposalMembership.is_active,
+            ProposalMembership.is_presenter.is_(True),
+        ),
+        viewonly=True,
+    )
 
-Proposal.active_presenter_memberships = db.relationship(
-    ProposalMembership,
-    lazy='dynamic',
-    primaryjoin=db.and_(
-        ProposalMembership.proposal_id == Proposal.id,
-        ProposalMembership.is_active,
-        ProposalMembership.is_presenter.is_(True),
-    ),
-    viewonly=True,
-)
+    members = DynamicAssociationProxy('active_memberships', 'user')
+    reviewers = DynamicAssociationProxy('active_reviewer_memberships', 'user')
+    presenters = DynamicAssociationProxy('active_presenters_memberships', 'user')
 
-Proposal.members = DynamicAssociationProxy('active_memberships', 'user')
-Proposal.reviewers = DynamicAssociationProxy('active_reviewer_memberships', 'user')
-Proposal.presenters = DynamicAssociationProxy('active_presenters_memberships', 'user')
+
+@reopen(User)
+class User:
+    proposal_memberships = db.relationship(
+        ProposalMembership,
+        lazy='dynamic',
+        foreign_keys=[ProposalMembership.user_id],
+        viewonly=True,
+    )

@@ -1,6 +1,5 @@
 import six
 
-import re
 import urllib.parse
 
 from flask import abort, current_app
@@ -10,11 +9,6 @@ import qrcode.image.svg
 import requests
 
 from baseframe import cache
-
-# --- Constants ---------------------------------------------------------------
-
-PHONE_STRIP_RE = re.compile(r'[\t .()\[\]-]+')
-PHONE_VALID_RE = re.compile(r'^\+[0-9]+$')
 
 # --- Utilities ---------------------------------------------------------------
 
@@ -54,14 +48,6 @@ def make_redirect_url(url, use_fragment=False, **params):
     else:
         urlparts[3] = urllib.parse.urlencode(queryparts)
     return urllib.parse.urlunsplit(urlparts)
-
-
-def strip_phone(candidate):
-    return PHONE_STRIP_RE.sub('', candidate)
-
-
-def valid_phone(candidate):
-    return not PHONE_VALID_RE.search(candidate) is None
 
 
 def mask_email(email):

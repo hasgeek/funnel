@@ -16,12 +16,34 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import CommentForm
-from ..models import Comment, Commentset, Proposal, Voteset, db
+from ..models import (
+    Comment,
+    CommentModeratorReport,
+    CommentReplyNotification,
+    CommentReportReceivedNotification,
+    Commentset,
+    Project,
+    ProjectCommentNotification,
+    Proposal,
+    ProposalCommentNotification,
+    Voteset,
+    db,
+)
 from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProposalViewMixin
+from .notification import dispatch_notification
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
+
+
+def comment_notification_type(comment):
+    # FIXME: Move this into a CommentMixin model
+    parent = comment.commentset.parent
+    if isinstance(parent, Project):
+        return ProjectCommentNotification(document=parent, fragment=comment)
+    if isinstance(parent, Proposal):
+        return ProposalCommentNotification(document=parent, fragment=comment)
 
 
 @Comment.views('url')
@@ -144,6 +166,7 @@ class CommentsetView(UrlForView, ModelView):
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
             db.session.commit()
+            dispatch_notification(comment_notification_type(comment))
             return {
                 'status': 'ok',
                 'message': _("Your comment has been posted"),
@@ -208,6 +231,10 @@ class CommentView(UrlForView, ModelView):
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
             db.session.commit()
+            dispatch_notification(
+                CommentReplyNotification(document=comment.parent, fragment=comment),
+                comment_notification_type(comment),
+            )
             return {
                 'status': 'ok',
                 'message': _("Your comment has been posted"),
@@ -325,7 +352,15 @@ class CommentView(UrlForView, ModelView):
         csrf_form = forms.Form()
         if request.method == 'POST':
             if csrf_form.validate():
-                self.obj.report_spam(actor=current_auth.user)
+                report = CommentModeratorReport.submit(
+                    actor=current_auth.user, comment=self.obj
+                )
+                db.session.commit()
+                dispatch_notification(
+                    CommentReportReceivedNotification(
+                        document=self.obj, fragment=report
+                    )
+                )
                 return {
                     'status': 'ok',
                     'message': _("The comment has been reported as spam"),

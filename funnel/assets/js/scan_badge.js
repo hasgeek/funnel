@@ -1,14 +1,21 @@
 import Ractive from 'ractive';
 import jsQR from 'jsqr';
+import { faicon } from './ractive_util';
 
 const badgeScan = {
-  init({ checkinApiUrl, wrapperId, templateId, projectTitle, eventTitle }) {
+  init({
+    checkinApiUrl,
+    wrapperId,
+    templateId,
+    projectTitle,
+    ticketEventTitle,
+  }) {
     const badgeScanComponent = new Ractive({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
       data: {
         projectTitle,
-        eventTitle,
+        ticketEventTitle,
         video: {},
         canvas: '',
         canvasElement: '',
@@ -23,7 +30,7 @@ const badgeScan = {
         selectedCamera: '',
         svgIconUrl: window.Hasgeek.config.svgIconUrl,
       },
-
+      components: { faicon },
       closeModal(event) {
         if (event) event.original.preventDefault();
         $.modal.close();
@@ -201,7 +208,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.Hasgeek.BadgeScanInit = function (eventConfig) {
-    badgeScan.init(eventConfig);
+  window.Hasgeek.BadgeScanInit = function (ticketEventConfig) {
+    badgeScan.init(ticketEventConfig);
   };
 });

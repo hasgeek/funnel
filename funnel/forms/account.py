@@ -1,3 +1,5 @@
+import phonenumbers
+
 from baseframe import _, __
 from coaster.auth import current_auth
 from coaster.utils import nullstr, sorted_timezones
@@ -13,7 +15,6 @@ from ..models import (
     getuser,
     password_policy,
 )
-from ..utils import strip_phone, valid_phone
 from .helpers import EmailAddressAvailable
 
 __all__ = [
@@ -24,6 +25,7 @@ __all__ = [
     'PasswordResetForm',
     'PasswordChangeForm',
     'AccountForm',
+    'UsernameAvailableForm',
     'EmailPrimaryForm',
     'ModeratorReportForm',
     'NewEmailAddressForm',
@@ -31,10 +33,18 @@ __all__ = [
     'PhonePrimaryForm',
     'VerifyEmailForm',
     'VerifyPhoneForm',
+    'supported_locales',
+    'timezone_identifiers',
 ]
 
 
 timezones = sorted_timezones()
+timezone_identifiers = dict(timezones)
+
+supported_locales = {
+    'en': __("English"),
+    'hi': __("Hindi (beta; incomplete)"),
+}
 
 
 class PasswordStrengthValidator:
@@ -124,7 +134,7 @@ class RegisterForm(forms.RecaptchaForm):
 
 @User.forms('password_policy')
 class PasswordPolicyForm(forms.Form):
-    candidate = forms.StringField(
+    password = forms.PasswordField(
         __("Password"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
     )
@@ -240,6 +250,25 @@ class PasswordChangeForm(forms.Form):
             raise forms.ValidationError(_("Incorrect password"))
 
 
+def raise_username_error(reason):
+    if reason == 'blank':
+        raise forms.ValidationError(_("This is required"))
+    if reason == 'long':
+        raise forms.ValidationError(_("This is too long"))
+    if reason == 'invalid':
+        raise forms.ValidationError(
+            _(
+                "Usernames can only have alphabets, numbers and dashes (except at the"
+                " ends)"
+            )
+        )
+    if reason == 'reserved':
+        raise forms.ValidationError(_("This username is reserved"))
+    if reason in ('user', 'org'):
+        raise forms.ValidationError(_("This username has been taken"))
+    raise forms.ValidationError(_("This username is not available"))
+
+
 @User.forms('main')
 class AccountForm(forms.Form):
     fullname = forms.StringField(
@@ -283,25 +312,40 @@ class AccountForm(forms.Form):
         ),
         validators=[forms.validators.DataRequired()],
         choices=timezones,
+        widget_attrs={},
     )
+    auto_timezone = forms.BooleanField(__("Use your device’s timezone"))
+    locale = forms.SelectField(
+        __("Locale"),
+        description=__("Your preferred UI language"),
+        choices=list(supported_locales.items()),
+    )
+    auto_locale = forms.BooleanField(__("Use your device’s language"))
 
     def validate_username(self, field):
         reason = self.edit_obj.validate_name_candidate(field.data)
         if not reason:
             return  # Username is available
-        if reason == 'invalid':
-            raise forms.ValidationError(
-                _(
-                    "Usernames can only have alphabets, numbers and dashes (except at "
-                    "the ends)"
-                )
-            )
-        elif reason == 'reserved':
-            raise forms.ValidationError(_("This username is reserved"))
-        elif reason in ('user', 'org'):
-            raise forms.ValidationError(_("This username has been taken"))
-        else:
-            raise forms.ValidationError(_("This username is not available"))
+        raise_username_error(reason)
+
+
+class UsernameAvailableForm(forms.Form):
+    __expects__ = ('edit_user',)
+
+    username = forms.StringField(
+        __("Username"),
+        validators=[forms.validators.DataRequired(__("This is required"))],
+        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    )
+
+    def validate_username(self, field):
+        if self.edit_user:  # User is setting a username
+            reason = self.edit_user.validate_name_candidate(field.data)
+        else:  # New user is creating an account, so no user object yet
+            reason = Profile.validate_name_candidate(field.data)
+        if not reason:
+            return  # Username is available
+        raise_username_error(reason)
 
 
 def validate_emailclaim(form, field):
@@ -351,11 +395,8 @@ class VerifyEmailForm(forms.Form):
 class NewPhoneForm(forms.RecaptchaForm):
     phone = forms.TelField(
         __("Phone number"),
-        default='+91',
         validators=[forms.validators.DataRequired()],
-        description=__(
-            "Mobile numbers only at this time. Please prefix with '+' and country code."
-        ),
+        description=__("Mobile numbers only, in Indian or international format"),
     )
 
     # Temporarily removed since we only support mobile numbers at this time. When phone
@@ -369,30 +410,31 @@ class NewPhoneForm(forms.RecaptchaForm):
     #         (__(u"Work"), __(u"Work")),
     #         (__(u"Other"), __(u"Other"))])
 
-    def validate_phone(self, field):
-        # TODO: Use the phonenumbers library to validate this
+    enable_notifications = forms.BooleanField(
+        __("Send notifications by SMS"),
+        description=__(
+            "Unsubscribe anytime, and control what notifications are sent from the"
+            " Notifications tab under account settings"
+        ),
+        default=True,
+    )
 
-        # Step 1: Remove punctuation in number
-        number = strip_phone(field.data)
-        # Step 2: Check length
-        if len(number) > 16:
-            raise forms.ValidationError(
-                _("This is too long to be a valid phone number")
+    def validate_phone(self, field):
+        # Step 1: Validate number
+        try:
+            # Assume Indian number if no country code is specified
+            # TODO: Guess country from IP address
+            parsed_number = phonenumbers.parse(field.data, 'IN')
+            if not phonenumbers.is_valid_number(parsed_number):
+                raise ValueError("Invalid number")
+        except (phonenumbers.NumberParseException, ValueError):
+            raise forms.StopValidation(
+                _("This does not appear to be a valid phone number")
             )
-        # Step 3: Validate number format
-        if not valid_phone(number):
-            raise forms.ValidationError(
-                _(
-                    "Invalid phone number (must be in international format with a "
-                    "leading + (plus) symbol)"
-                )
-            )
-        # Step 4: Check if Indian number (startswith('+91'))
-        if number.startswith('+91') and len(number) != 13:
-            raise forms.ValidationError(
-                _("This does not appear to be a valid Indian mobile number")
-            )
-        # Step 5: Check if number has already been claimed
+        number = phonenumbers.format_number(
+            parsed_number, phonenumbers.PhoneNumberFormat.E164
+        )
+        # Step 2: Check if number has already been claimed
         existing = UserPhone.get(phone=number)
         if existing is not None:
             if existing.user == current_auth.user:
@@ -406,6 +448,7 @@ class NewPhoneForm(forms.RecaptchaForm):
         existing = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
         if existing is not None:
             raise forms.ValidationError(_("This phone number is pending verification"))
+        # Step 3: If validations pass, use the reformatted number
         field.data = number  # Save stripped number
 
 
@@ -434,7 +477,7 @@ class VerifyPhoneForm(forms.Form):
 
 class ModeratorReportForm(forms.Form):
     report_type = forms.SelectField(
-        __("Report type"), coerce=int, validators=[forms.validators.DataRequired()]
+        __("Report type"), coerce=int, validators=[forms.validators.InputRequired()]
     )
 
     def set_queries(self):

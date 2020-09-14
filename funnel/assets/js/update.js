@@ -2,6 +2,7 @@ import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
 import * as timeago from 'timeago.js';
 import { Utils } from './util';
+import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
 
 const Updates = {
   init({
@@ -11,12 +12,13 @@ const Updates = {
     updateTemplate,
     isEditor,
     headerHeight,
+    addReadMore,
   }) {
     Vue.use(VS2);
 
     const updateUI = Vue.component('update', {
       template: updateTemplate,
-      props: ['update', 'iseditor'],
+      props: ['update', 'iseditor', 'addreadmore'],
       data() {
         return {
           truncated: true,
@@ -61,6 +63,9 @@ const Updates = {
     const app = new Vue({
       components: {
         updateUI,
+        userAvatarUI,
+        faSvg,
+        shareDropdown,
       },
       data() {
         return {
@@ -68,6 +73,7 @@ const Updates = {
           updates: updates.length > 0 ? updates : '',
           isEditor,
           headerHeight,
+          addReadMore,
         };
       },
       mounted() {

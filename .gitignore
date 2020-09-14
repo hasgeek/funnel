@@ -1,39 +1,64 @@
-*.bz2
+# Cache files
 *.egg-info
-*.gz
-*.packed.css
-*.packed.js
 *.pyc
-*.sql
-*.wpr
 .coverage
-.DS_Store
 .mypy_cache
-.project
-.pydevproject
 .pytest_cache
 .ropeproject
 .sass-cache
-.settings
-.vscode
+.sass-cache
 .webassets-cache
-baseframe-packed.*
-console.py
-error.log
+__pycache__
+
+# MacOS File
+.DS_Store
+
+# Assets and static files
 funnel/assets/cypress/screenshots
 funnel/assets/cypress/videos
 funnel/static/build
 funnel/static/gen
 funnel/static/service-worker.js
 funnel/static/img/fa5-packed.svg
+node_modules
+*.packed.css
+*.packed.js
+.webassets-cache
+baseframe-packed.*
+
+# Log files
+error.log
+error.log.*
 ghostdriver.log
+
+# Instance Files that should not be checked-in.
 instance/development.py
 instance/funnelapp.py
 instance/hasgeekapp.py
 instance/lastuserapp.py
 instance/production.py
 instance/settings.py
-node_modules
+
+# Forbidden secrets
 secrets.dev
 secrets.test
+newrelic.ini
+
+# Local venvs (Idea creates them)
+venv/
+
+# Editors
+.idea/
+.vscode
+.project
+.pydevproject
+.settings
+*.wpr
+.vscode
+
+# Local DBs
+dump.rdb
 test.db
+*.bz2
+*.gz
+*.sql

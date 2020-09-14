@@ -1,6 +1,6 @@
 import os.path
 
-from flask import g, jsonify, redirect, render_template, url_for
+from flask import Response, g, jsonify, redirect, render_template, url_for
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -17,6 +17,7 @@ from .project import project_data
 @route('/')
 class IndexView(ClassView):
     current_section = 'home'
+    SavedProjectForm = SavedProjectForm
 
     @render_with('index.html.jinja2')
     def home(self):
@@ -72,7 +73,6 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'project_save_form': SavedProjectForm(),
         }
 
 
@@ -216,7 +216,10 @@ def manifest():
 
 @app.route('/opensearch.xml')
 def opensearch():
-    return render_template('opensearch.xml.jinja2')
+    return Response(
+        render_template('opensearch.xml.jinja2'),
+        mimetype='application/opensearchdescription+xml',
+    )
 
 
 # --- Lastuser legacy routes -----------------------------------------------------------

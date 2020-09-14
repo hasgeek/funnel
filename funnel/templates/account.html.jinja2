@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, user_avatar %}
+{%- from "macros.html.jinja2" import account_tabs, useravatar %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
@@ -31,11 +31,15 @@
       <div class="grid__col-xs-12">
         <div class="user user--bigger">
           <div class="user__box mui--clearfix">
-            {{ user_avatar(current_auth.user) }}
-            <div class="mui--d-inlineblock">
-              <h3 class="mui--text-title user__box__fullname zero-bottom-margin">{{ current_auth.user.fullname }}</h3>
-              {% if current_auth.user.username %}<h3 class="mui--text-subhead mui--text-light user__box__userid zero-bottom-margin">@{{ current_auth.user.username }}</h3>{%- endif %}
-              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}">Go to your profile {{ faicon(icon='arrow-right', icon_size='caption', baseline=true) }}</a>{%- endif %}
+            {{ useravatar(current_auth.user) }}
+            <div class="user__box__header">
+              <p class="mui--text-title user__box__fullname">{{ current_auth.user.fullname }}</p>
+              {% if current_auth.user.username %}
+                <p class="mui--text-subhead mui--text-light user__box__userid">@{{ current_auth.user.username }}</p>
+              {% else %}
+                <p class="mui--text-subhead mui--text-light user__box__userid">{{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}">Add username <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a></p>
+              {%- endif %}
+              {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}" data-cy="my-profile">Go to profile <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>{%- endif %}
             </div>
           </div>
         </div>
@@ -47,14 +51,19 @@
           </div>
           <div class="card__body card__body--lgtext">
             <p class="mui--text-subhead">
-              {{ faicon(icon='address-card')}}&nbsp;&nbsp;{{ current_auth.user.fullname }}
+              {{ faicon(icon='address-card', css_class='icon-img--smaller')}}{{ current_auth.user.fullname }}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon(icon='user') }}&nbsp;&nbsp;{% if current_auth.user.username %}<a href="{{ current_auth.user.profile.url_for() }}" class="mui--text-subhead" data-cy="my-profile">{{ current_auth.user.username }}</a>{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
+              {{ faicon(icon='user', css_class='icon-img--smaller') }}{% if current_auth.user.username %}{{ current_auth.user.username }}{% else %}<em>{% trans %}(none){% endtrans %}</em>{% endif %}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon('clock') }}&nbsp;&nbsp;{{ current_auth.user.timezone }}
+              {{ faicon('clock', css_class='icon-img--smaller') }}<span class="item">{{ current_auth.user.views.timezone() }}{%if current_auth.user.auto_timezone %} <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>{% endif %}</span>
             </p>
+            {%if current_auth.user.views.locale() %}
+              <p class="mui--text-subhead">
+                {{ faicon('language', css_class='icon-img--smaller') }}<span class="item">{{ current_auth.user.views.locale() }}{%if current_auth.user.auto_locale %} <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>{% endif %}</span>
+              </p>
+            {% endif %}
           </div>
           <div class="mui-divider"></div>
           <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
@@ -70,18 +79,21 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">{% trans %}External IDs <small>(Use any of these to login to your account){% endtrans %}</small></h3>
+            <h3 class="mui--text-title mui--text-bold">{% trans %}External IDs{% endtrans %} <small>{% trans %}(Use any of these to login){% endtrans %}</small></h3>
           </div>
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="mui-list--aligned mui-list--border">
               {% for extid in current_auth.user.externalids %}
                 <li>
-                  {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }}<small class="subitem"><em>{% trans %}Last used{% endtrans %} {{ extid.last_used_at|age }}</em></small></span>
+                  {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }} <small class="subitem"><em>{% trans last_used_at=extid.last_used_at|age %}Last used {{ last_used_at }}{% endtrans %}</em></small></span>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
               {% endfor %}
             </ol>
-            <p>{% trans %}Add External ID{% endtrans %}</p>
+          </div>
+          <div class="mui-divider"></div>
+          <div class="card__body card__body--lgtext mui--text-subhead">
+            <p>{% trans %}Adding an external id will merge any Hasgeek account linked to it{% endtrans %}</p>
             {% for provider in login_registry %}
               <a class="mui-btn mui-btn--small mui-btn--raised login login--smaller login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img icon-img--smaller" alt="{{ login_registry[provider]['title'] }}"/>{{ login_registry[provider]['title'] }}</a>
             {% endfor %}
@@ -200,7 +212,7 @@
             {{ logout_form.hidden_tag() }}
             <div class="card__body">
               <ul class="mui-list--aligned mui-list--unstyled grid-no-left-padding mui-list--border">
-                {%- for user_session in current_auth.user.active_sessions %}
+                {%- for user_session in current_auth.user.active_user_sessions %}
                 {%- with
                     ua=user_session.views.user_agent_details(),
                     login_service=user_session.views.login_service(),
