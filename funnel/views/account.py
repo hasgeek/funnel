@@ -566,6 +566,7 @@ def account_edit(newprofile=False):
         return render_form(
             form,
             title=_("Update account"),
+            # Form with id 'form-account_new' will have username validation(account_formlayout.html.jinja2)
             formid='account_new',
             submit=_("Continue"),
             message=Markup(
@@ -581,6 +582,7 @@ def account_edit(newprofile=False):
         return render_form(
             form,
             title=_("Edit account"),
+            # Form with id 'form-account_edit' will have username validation(account_formlayout.html.jinja2)
             formid='account_edit',
             submit=_("Save changes"),
             ajax=False,
@@ -698,6 +700,7 @@ def change_password():
         return render_redirect(
             get_next_url(session=True, default=url_for('account')), code=303
         )
+    # Form with id 'form-password-change' will have password strength meter on UI
     return render_form(
         form=form,
         title=_("Change password"),
