@@ -5,11 +5,13 @@ from flask import Response, current_app, flash, redirect, request, session, url_
 import itsdangerous
 
 from baseframe import _, statsd
+from baseframe.forms import render_form
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url
 
 from .. import app, funnelapp, lastuserapp
+from ..forms import PasswordForm
 from ..models import (
     AuthClientCredential,
     User,
@@ -333,6 +335,59 @@ def requires_login_no_message(f):
         if not current_auth.is_authenticated:
             session['next'] = get_current_url()
             return redirect(url_for('login'))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def requires_sudo(f):
+    """
+    Decorator to require user to have re-authenticated recently.
+
+    Requires the endpoint to support the POST method, as it renders a password form
+    within the same request, without redirecting the user to a gatekeeping endpoint.
+    """
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        add_auth_attribute('login_required', True)
+        # If the user is not logged in, require login first
+        if not current_auth.is_authenticated:
+            flash(_("You need to be logged in for that page"), 'info')
+            session['next'] = get_current_url()
+            return redirect(url_for('login'))
+        # If the user has not authenticated in some time, ask for the password again
+        if not current_auth.session.has_sudo:
+            # If the user doesn't have a password, ask them to set one first
+            if not current_auth.user.pw_hash:
+                flash(
+                    _(
+                        "This operation requires you to confirm your password. However,"
+                        " your account does not have a password, so you must set one"
+                        " first"
+                    ),
+                    'info',
+                )
+                session['next'] = get_current_url()
+                return redirect(url_for('change_password'))
+            # A future version of this form may accept password or 2FA (U2F or TOTP)
+            form = PasswordForm(edit_user=current_auth.user)
+            if form.validate_on_submit():
+                # User has successfully authenticated. Update their sudo timestamp and
+                # reload the page with a GET request, as the wrapped view may need to
+                # render its own form
+                current_auth.session.set_sudo()
+                db.session.commit()
+                return redirect(request.url, code=303)
+
+            return render_form(
+                form=form,
+                title=_("Confirm with your password to proceed"),
+                formid='password',
+                submit=_("Confirm"),
+                ajax=False,
+                template='account_formlayout.html.jinja2',
+            )
         return f(*args, **kwargs)
 
     return decorated_function

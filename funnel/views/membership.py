@@ -30,7 +30,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 from .mixins import ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
@@ -251,7 +251,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
-    @requires_login
+    @requires_sudo
     @requires_roles({'profile_owner'})
     def delete(self):
         form = Form()
@@ -564,7 +564,7 @@ class ProjectCrewMembershipView(
 
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
-    @requires_login
+    @requires_sudo
     @requires_roles({'profile_admin'})
     def delete(self):
         form = Form()

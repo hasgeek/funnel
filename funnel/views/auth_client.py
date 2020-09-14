@@ -29,7 +29,7 @@ from ..models import (
     User,
     db,
 )
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 
 # --- Routes: client apps -----------------------------------------------------
 
@@ -157,7 +157,7 @@ class AuthClientView(UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_permission('delete')
     def delete(self):
         return render_delete_sqla(
@@ -293,7 +293,7 @@ class AuthClientCredentialView(UrlForView, ModelView):
         return cred
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_permission('delete')
     def delete(self):
         return render_delete_sqla(
@@ -368,7 +368,7 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_permission('assign-permissions')
     def delete(self):
         return render_delete_sqla(
@@ -442,7 +442,7 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_permission('assign-permissions')
     def delete(self):
         return render_delete_sqla(

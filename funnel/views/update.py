@@ -17,7 +17,7 @@ from .. import app, funnelapp
 from ..forms import UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
 from .decorators import legacy_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 from .notification import dispatch_notification
 from .project import ProjectViewMixin
 
@@ -160,6 +160,7 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @render_with(json=True)
+    @requires_sudo
     @requires_roles({'editor'})
     def delete(self):
         form = forms.Form()

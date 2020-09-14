@@ -35,7 +35,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .notification import dispatch_notification
 
@@ -286,7 +286,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_permission('delete-proposal')
     def delete(self):
         return render_delete_sqla(
