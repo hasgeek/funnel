@@ -1,3 +1,4 @@
+from email.utils import parseaddr
 from typing import List
 
 from flask import request
@@ -32,9 +33,12 @@ class SesProcessor(SesProcessorAbc):
         :param address: Email Address
         :returns: EmailAddress object
         """
-        email_address = EmailAddress.get(address)
+        _name, email = parseaddr(address)
+        if not email:
+            raise ValueError(f"Unable to parse email address {address!r}")
+        email_address = EmailAddress.get(email)
         if not email_address:
-            email_address = EmailAddress.add(address)
+            email_address = EmailAddress.add(email)
         return email_address
 
     def bounce(self, ses_event: SesEvent) -> None:
