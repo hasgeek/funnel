@@ -3,6 +3,7 @@ import os
 
 from . import BaseMixin, BaseScopedNameMixin, UuidMixin, db, with_roles
 from .email_address import EmailAddress, EmailAddressMixin
+from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import User, UserEmail
@@ -181,10 +182,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     )
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
-        db.relationship(
-            Project,
-            backref=db.backref('ticket_participants', lazy='dynamic', cascade='all'),
-        ),
+        db.relationship(Project),
         read={'concierge', 'subject', 'scanner'},
         grants_via={None: project_child_role_map},
     )
@@ -465,6 +463,18 @@ class SyncTicket(BaseMixin, db.Model):
             db.session.add(ticket)
 
         return ticket
+
+
+@reopen(Project)
+class Project:
+    # FIXME: RoleMixin expects TicketParticipant.user to be unique per project, meaning
+    # one user can have one participant ticket only. This is not guaranteed by the model
+    # as tickets are unique per email address per ticket type, and (a) one user can have
+    # two email addresses with tickets, or (b) tickets of different ticket types
+    ticket_participants = with_roles(
+        db.relationship(TicketParticipant, lazy='dynamic', cascade='all'),
+        grants_via={'user': {'participant'}},
+    )
 
 
 # Tail imports to avoid cyclic dependency errors, for symbols used only in methods
