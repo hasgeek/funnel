@@ -322,11 +322,8 @@ def requires_login(f):
 
 def requires_login_no_message(f):
     """
-    Decorator to require a login for the given view.
-    Does not display a message asking the user to login.
-    However, if a message received in ``request.args['message']``,
-    it is displayed. This is an insecure channel for client apps
-    to display a helper message.
+    Decorator to require a login for the given view. Does not display a message asking
+    the user to login.
     """
 
     @wraps(f)
