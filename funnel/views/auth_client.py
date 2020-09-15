@@ -95,7 +95,7 @@ AuthClientCreateView.init_app(app)
 
 
 @AuthClient.views('main')
-@route('/apps/<app>')
+@route('/apps/info/<app>')
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
     route_model_map = {'app': 'buid'}
@@ -279,7 +279,7 @@ AuthClientView.init_app(app)
 
 
 @AuthClientCredential.views('main')
-@route('/apps/<app>/cred/<name>')
+@route('/apps/info/<app>/cred/<name>')
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
     route_model_map = {'app': 'auth_client.buid', 'name': 'name'}
@@ -315,7 +315,7 @@ AuthClientCredentialView.init_app(app)
 
 
 @AuthClientUserPermissions.views('main')
-@route('/apps/<app>/perms/u/<user>')
+@route('/apps/info/<app>/perms/u/<user>')
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
     route_model_map = {'app': 'auth_client.buid', 'user': 'user.buid'}
@@ -389,7 +389,7 @@ AuthClientUserPermissionsView.init_app(app)
 
 
 @AuthClientTeamPermissions.views('main')
-@route('/apps/<app>/perms/t/<team>')
+@route('/apps/info/<app>/perms/t/<team>')
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
     route_model_map = {'app': 'auth_client.buid', 'team': 'team.buid'}
