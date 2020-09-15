@@ -14,14 +14,10 @@ from ..transports.sms import TwilioSmsResponse
 
 
 class TwilioMessageValidator:
-    """
-    Validator for Twilio SMS Messages
-    """
+    """ Validator for Twilio SMS Messages """
 
     def __init__(self):
-        """
-        Just setup the Object variables, but it will be used later.
-        """
+        """ Just setup the Object variables, but it will be used later. """
         self.url = None
         self.validator = None
 
@@ -35,7 +31,7 @@ class TwilioMessageValidator:
             self.url = url_for('process_twilio_event', _external=True)
             self.validator = RequestValidator(app.config['SMS_TWILIO_TOKEN'])
 
-        # Let us now validate and reject if signatures mismatch. See this for more details:
+        # Let us now validate and reject if signatures mismatch. See this:
         # https://www.twilio.com/docs/usage/security#validating-requests
         return self.validator.validate(self.url, message, signature)
 
@@ -45,14 +41,12 @@ twilio_validator = TwilioMessageValidator()
 
 
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
-@render_with(json=True)
+@render_with(template=None, json=True)
 def process_twilio_event():
-    """
-    Processes SMS callback events from Twilio
-    """
+    """ Processes SMS callback events from Twilio """
 
-    # Register the fact that we got a Twilio SMS event. If there are too many rejects, then most likely
-    # it is a hack attempt.
+    # Register the fact that we got a Twilio SMS event.
+    # If there are too many rejects, then most likely a hack attempt.
     statsd.incr('sms_message.twilio_event.received')
 
     # Check if we find twilio headers and if not reject it

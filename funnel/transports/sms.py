@@ -48,9 +48,7 @@ class TwilioSmsResponse:
 
 
 class SmsSender:
-    """
-    Manages Sending SMS to different providers.
-    """
+    """ Manages Sending SMS to different providers. """
 
     def __init__(self, callback: bool = True):
         self.twilio_callback = None
@@ -108,7 +106,7 @@ class SmsSender:
 
     def _route_via_twilio(self, phone: str, message: str) -> str:
         """
-        Route the SMS via Twilio. This is done only for messages that can't be delivered by exotel.
+        Route the SMS via Twilio
         :param phone: Phone Number
         :param message: Message to deliver to Phone number.
         :return SMS Message ID

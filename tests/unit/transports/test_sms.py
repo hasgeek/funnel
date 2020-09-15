@@ -7,9 +7,7 @@ from funnel.transports.sms import SmsSender
 
 
 class TestSmsSender:
-    """
-    Tests for SMS Sender
-    """
+    """ Tests for SMS Sender """
 
     # Target Numbers (Test Only). See this
     # https://www.twilio.com/docs/iam/test-credentials
@@ -22,26 +20,20 @@ class TestSmsSender:
     MESSAGE = "Test Message"
 
     def test_twilio_success(self):
-        """
-        Test if Message sending is a success.
-        """
+        """ Test if Message sending is a success. """
         sender = SmsSender(callback=False)
         sid = sender.send(self.TWILIO_CLEAN_TARGET, self.MESSAGE)
         assert sid
 
     def test_twilio_callback(self):
-        """
-        Test if Message sending is a success.
-        """
+        """ Test if Message sending is a success. """
         sender = SmsSender(callback=True)
         sid = sender.send(self.TWILIO_CLEAN_TARGET, self.MESSAGE)
         assert sid
         assert sender.twilio_callback is not None
 
     def test_twilio_failures(self):
-        """
-        Test if message sending is a failure
-        """
+        """ Test if message sending is a failure """
         sender = SmsSender(callback=False)
 
         # Invalid Target
@@ -67,9 +59,7 @@ class TestSmsSender:
 
 
 class TestTwilioCallback:
-    """
-    Tests for Twilio SMS Callback
-    """
+    """ Tests for Twilio SMS Callback """
 
     # Data Directory which contains JSON Files
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -81,9 +71,7 @@ class TestTwilioCallback:
     HEADERS = {'X-Twilio-Signature': 'Random Signature'}
 
     def test_missing_header(self, test_client):
-        """
-        Check for Missing Twilio header and GET Methods.
-        """
+        """ Check for Missing Twilio header and GET Methods. """
 
         # GET requests are not allowed.
         with test_client as c:
@@ -98,9 +86,7 @@ class TestTwilioCallback:
         assert data['status'] == 'error'
 
     def test_missing_json(self, test_client):
-        """
-        Test for Missing JSON Payload
-        """
+        """ Test for Missing JSON Payload """
         with test_client as c:
             resp: Response = c.post(self.URL)
         assert resp.status_code == 400
@@ -108,9 +94,7 @@ class TestTwilioCallback:
         assert data['status'] == 'error'
 
     def test_bad_message(self, test_client):
-        """
-        Test for bad json message
-        """
+        """ Test for bad json message """
         with open(os.path.join(self.data_dir, "twilio_sms.json"), 'r') as file:
             data = file.read()
         with test_client as c:
