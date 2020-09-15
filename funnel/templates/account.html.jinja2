@@ -181,6 +181,27 @@
       </div>
       {%- endwith %}
 
+      {%- if current_auth.user.authtokens.count() %}
+        <div class="grid__col-xs-12">
+          <div class="card">
+            <div class="card__header">
+              <h3 class="mui--text-title mui--text-bold">{% trans %}Connected apps{% endtrans %}</h3>
+            </div>
+            <div class="card__body">
+              <ol class="mui-list--aligned mui-list--border">
+                {% for auth_token in current_auth.user.authtokens %}
+                <li>
+                  <p class="mui--text-body2 separator">
+                    <a href="{{ auth_token.auth_client.url_for() }}" title="{% trans %}App details{% endtrans %}">{{ auth_token.auth_client.title }}</a> &mdash; {{ auth_token.auth_client.description }}
+                  </p>
+                </li>
+                {%- endfor %}
+              </ol>
+            </div>
+          </div>
+        </div>
+      {%- endif %}
+
       <div class="grid__col-xs-12">
         <div class="card">
           <div class="card__header">

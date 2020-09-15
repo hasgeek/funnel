@@ -40,7 +40,7 @@
         <dd class="mui--text-subhead">{{ auth_client.description }}</dd>
         <dt class="mui--text-subhead">{% trans %}Owner{% endtrans %}</dt>
         <dd class="mui--text-subhead">{{ auth_client.owner.pickername }}</dd>
-        <dt class="mui--text-subhead">{% trans %}Type{% endtrans %}</dt">
+        <dt class="mui--text-subhead">{% trans %}OAuth2 Type{% endtrans %}</dt">
         <dd class="mui--text-subhead">{% if auth_client.confidential %}{% trans %}Confidential{% endtrans %}{% else %}{% trans %}Public{% endtrans %}{% endif %}
         <dt class="mui--text-subhead">{% trans %}Website{% endtrans %}</dt>
         <dd class="mui--text-subhead"><a rel="nofollow" href="{{ auth_client.website }}">{{ auth_client.website }}</a></d>
@@ -63,7 +63,7 @@
         <dt class="mui--text-subhead">{% trans %}Allow anyone to login?{% endtrans %}</dt>
         <dd class="mui--text-subhead">{{ auth_client.allow_any_login }}</dd>
         <dt class="mui--text-subhead">{% trans %}Registered date{% endtrans %}</dt>
-        <dd class="mui--text-subhead">{{ auth_client.created_at|datetime }} UTC</dd>
+        <dd class="mui--text-subhead">{{ auth_client.created_at|datetime }}</dd>
         {%- if auth_client.owner_is(current_auth.user) %}
           <dt class="mui--text-subhead">{% trans %}Users{% endtrans %}</dt>
           <dd class="mui--text-subhead">{{ auth_client.authtokens.count() }}</dd>
@@ -71,9 +71,46 @@
       </dl>
     </div>
     </div>
+
+    {%- if current_auth.is_authenticated %}
+      {%- with auth_token=auth_client.authtoken_for(current_auth.user) %}
+        {%- if auth_token %}
+          <div class="grid grid--align-baseline">
+            <div class="grid__col-auto">
+              <div class="card card--limited">
+                <div class="card__header">
+                  <h3 class="mui--text-title">{% trans %}Your access token{% endtrans %}</h3>
+                </div>
+                <div class="card__body">
+                  <dl class="infobox">
+                    <dt class="mui--text-subhead">{% trans %}Created{% endtrans %}</dt>
+                    <dd class="mui--text-subhead">{{ auth_token.created_at|datetime }}</dd>
+                    <dt class="mui--text-subhead">{% trans %}Updated{% endtrans %}</dt>
+                    <dd class="mui--text-subhead">{{ auth_token.updated_at|datetime }}</dd>
+                    <dt class="mui--text-subhead">{% trans %}Last used{% endtrans %}</dt>
+                    <dd class="mui--text-subhead">
+                      {%- if auth_token.last_used -%}
+                        {{ auth_token.last_used|datetime }}
+                      {%- else -%}
+                        {% trans %}Never{% endtrans %}
+                      {%- endif -%}
+                    </dd>
+                  </dl>
+                </div>
+                <div class="mui-divider"></div>
+                <div class="card__footer">
+                  <a href="javascript:alert('TODO')" title="{% trans %}Disconnect{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Disconnect{% endtrans %}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {%- endif %}
+      {%- endwith %}
+    {%- endif %}
+
     {%- if auth_client.owner_is(current_auth.user) %}
       <div class="grid__col--bleed-y">
-        <h2>{% trans %}Access Keys{% endtrans %}</h2>
+        <h2>{% trans %}Access keys{% endtrans %}</h2>
       </div>
       <div class="grid grid--align-baseline">
       {% for cred in auth_client.credentials.values() %}
@@ -89,13 +126,14 @@
                 <dt class="mui--text-subhead">{% trans %}Key{% endtrans %}</dt>
                 <dd class="mui--text-subhead">{{cred.name}}</dd>
                 <dt class="mui--text-subhead">{% trans  %}Created{% endtrans %}</dt>
-                <dd class="mui--text-subhead">{{ cred.created_at|datetime }} UTC</dd>
+                <dd class="mui--text-subhead">{{ cred.created_at|datetime }}</dd>
                 <dt class="mui--text-subhead">{% trans %}Last used{% endtrans %}</dt>
                 {% if cred.accessed_at %}
                   <dd class="mui--text-subhead">{{ cred.accessed_at|age }}</dd>
                 {% else %}
                   <dd class="mui--text-subhead">{% trans %}never{% endtrans %}</dd>
                 {% endif %}
+              </dl>
             </div>
             <div class="mui-divider"></div>
             <div class="card__footer">

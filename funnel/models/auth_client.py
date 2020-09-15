@@ -7,12 +7,14 @@ from sqlalchemy.orm import load_only
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.orm.query import Query as QueryBaseClass
 
+from werkzeug.utils import cached_property
+
 from baseframe import _
 from coaster.utils import buid, newsecret, require_one_of, utcnow
 
 from . import BaseMixin, UuidMixin, db
 from .user import Organization, Team, User
-from .user_session import UserSession
+from .user_session import UserSession, auth_client_user_session
 
 __all__ = [
     'AuthCode',
@@ -102,7 +104,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
     user_sessions = db.relationship(
         UserSession,
         lazy='dynamic',
-        secondary='auth_client_user_session',
+        secondary=auth_client_user_session,
         backref=db.backref('auth_clients', lazy='dynamic'),
     )
 
@@ -408,6 +410,19 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     @property
     def effective_scope(self):
         return sorted(set(self.scope) | set(self.auth_client.scope))
+
+    @cached_property
+    def last_used(self):
+        return (
+            db.session.query(db.func.max(auth_client_user_session.c.accessed_at))
+            .select_from(auth_client_user_session, UserSession)
+            .filter(
+                auth_client_user_session.c.user_session_id == UserSession.id,
+                auth_client_user_session.c.auth_client_id == self.auth_client_id,
+                UserSession.user == self.user,
+            )
+            .scalar()
+        )
 
     def refresh(self):
         """
