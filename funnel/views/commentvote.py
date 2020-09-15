@@ -221,7 +221,7 @@ class CommentView(UrlForView, ModelView):
 
         if commentform.validate_on_submit():
             comment = Comment(
-                parent=self.obj,
+                in_reply_to=self.obj,
                 user=current_auth.user,
                 commentset=self.obj.commentset,
                 message=commentform.message.data,
@@ -232,7 +232,9 @@ class CommentView(UrlForView, ModelView):
             db.session.add(comment)
             db.session.commit()
             dispatch_notification(
-                CommentReplyNotification(document=comment.parent, fragment=comment),
+                CommentReplyNotification(
+                    document=comment.in_reply_to, fragment=comment
+                ),
                 comment_notification_type(comment),
             )
             return {
