@@ -188,7 +188,7 @@
               <h3 class="mui--text-title mui--text-bold">{% trans %}Connected apps{% endtrans %}</h3>
             </div>
             <div class="card__body">
-              <ol class="mui-list--aligned mui-list--border">
+              <ul class="mui-list--aligned mui-list--border grid-no-left-padding">
                 {% for auth_token in current_auth.user.authtokens %}
                   <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
                     <div>
@@ -208,7 +208,7 @@
                     </div>
                   </li>
                 {%- endfor %}
-              </ol>
+              </ul>
             </div>
           </div>
         </div>
