@@ -19,6 +19,7 @@ from .helpers import EmailAddressAvailable
 
 __all__ = [
     'RegisterForm',
+    'PasswordForm',
     'PasswordCreateForm',
     'PasswordPolicyForm',
     'PasswordResetRequestForm',
@@ -130,6 +131,20 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.EqualTo('password'),
         ],
     )
+
+
+@User.forms('password')
+class PasswordForm(forms.Form):
+    __expects__ = ('edit_user',)
+
+    password = forms.PasswordField(
+        __("Password"),
+        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
+    )
+
+    def validate_password(self, field):
+        if not self.edit_user.password_is(field.data):
+            raise forms.ValidationError(_("Incorrect password"))
 
 
 @User.forms('password_policy')

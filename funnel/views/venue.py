@@ -8,7 +8,7 @@ from .. import app, funnelapp
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
 from ..models import Project, Venue, VenueRoom, db
 from .decorators import legacy_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
 
 RESERVED_VENUE = ['new']
@@ -132,7 +132,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_roles({'project_editor'})
     def delete(self):
         return render_delete_sqla(
@@ -203,7 +203,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_roles({'project_editor'})
     def delete(self):
         return render_delete_sqla(

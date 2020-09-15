@@ -89,7 +89,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
     @property
     def has_sudo(self):
-        return self.sudo_enabled_at > utcnow() - timedelta(hours=1)
+        return self.sudo_enabled_at > utcnow() - timedelta(minutes=15)
 
     def set_sudo(self):
         self.sudo_enabled_at = db.func.utcnow()
