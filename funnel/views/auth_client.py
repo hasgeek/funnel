@@ -1,4 +1,4 @@
-from flask import Markup, abort, flash, render_template, request, url_for
+from flask import Markup, abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
@@ -174,6 +174,29 @@ class AuthClientView(UrlForView, ModelView):
                 " resources and permission assignments"
             ).format(title=self.obj.title),
             next=url_for('client_list'),
+        )
+
+    @route('disconnect', methods=['GET', 'POST'])
+    @requires_sudo
+    def disconnect(self):
+        auth_token = self.obj.authtoken_for(current_auth.user)
+        if not auth_token:
+            return redirect(self.obj.url_for())
+
+        return render_delete_sqla(
+            auth_token,
+            db,
+            title=_("Disconnect {app}").format(app=self.obj.title),
+            message=_(
+                "Disconnect application {app}? This will not remove any of your data in"
+                " this app, but will prevent it from accessing any further data from"
+                " your Hasgeek account."
+            ).format(app=self.obj.title),
+            delete_text=_("Disconnect"),
+            success=_("You have disconnected {app} from your account").format(
+                app=self.obj.title
+            ),
+            next=url_for('account'),
         )
 
     @route('cred', methods=['GET', 'POST'])

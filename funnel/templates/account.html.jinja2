@@ -190,11 +190,23 @@
             <div class="card__body">
               <ol class="mui-list--aligned mui-list--border">
                 {% for auth_token in current_auth.user.authtokens %}
-                <li>
-                  <p class="mui--text-body2 separator">
-                    <a href="{{ auth_token.auth_client.url_for() }}" title="{% trans %}App details{% endtrans %}">{{ auth_token.auth_client.title }}</a> &mdash; {{ auth_token.auth_client.description }}
-                  </p>
-                </li>
+                  <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
+                    <div>
+                      <p class="mui--text-body2 separator">
+                        <a href="{{ auth_token.auth_client.website }}" rel="nofollow">{{ auth_token.auth_client.title }}</a> &mdash; {{ auth_token.auth_client.description }}
+                      </p>
+                      <p class="mui--text-light">
+                        {%- if auth_token.last_used %}
+                          {%- trans since=auth_token.created_at|date('dd MMM YYYY'), last_used=auth_token.last_used|age %}Since {{ since }} – last used {{ last_used }}{% endtrans %}
+                        {%- else %}
+                          {%- trans since=auth_token.created_at|date('dd MMM YYYY') %}Since {{ since }}{% endtrans %}
+                        {%- endif %}
+                      </p>
+                    </div>
+                    <div>
+                      <a href="{{ auth_token.auth_client.url_for('disconnect') }}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle mui--text-hyperlink') }}</a>
+                    </div>
+                  </li>
                 {%- endfor %}
               </ol>
             </div>
