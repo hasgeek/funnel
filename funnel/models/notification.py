@@ -83,7 +83,7 @@ from sqlalchemy.orm.collections import column_mapped_collection
 from werkzeug.utils import cached_property
 
 from baseframe import __
-from coaster.sqlalchemy import auto_init_default, with_roles
+from coaster.sqlalchemy import auto_init_default, immutable, with_roles
 from coaster.utils import LabeledEnum, classmethodproperty
 
 from . import BaseMixin, NoIdMixin, UUIDType, db
@@ -177,10 +177,10 @@ class SMS_STATUS(LabeledEnum):  # NOQA: N801
 class SMSMessage(BaseMixin, db.Model):
     __tablename__ = 'sms_message'
     # Phone number that the message was sent to
-    phone_number = db.Column(db.String(15), nullable=False)
-    transactionid = db.Column(db.UnicodeText, unique=True, nullable=True)
+    phone_number = immutable(db.Column(db.String(15), nullable=False))
+    transactionid = immutable(db.Column(db.UnicodeText, unique=True, nullable=True))
     # The message itself
-    message = db.Column(db.UnicodeText, nullable=False)
+    message = immutable(db.Column(db.UnicodeText, nullable=False))
     # Flags
     status = db.Column(db.Integer, default=SMS_STATUS.QUEUED, nullable=False)
     status_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
@@ -211,13 +211,17 @@ class Notification(NoIdMixin, db.Model):
     #: Random identifier for the event that triggered this notification. Event ids can
     #: be shared across notifications, and will be used to enforce a limit of one
     #: instance of a UserNotification per-event rather than per-notification
-    eventid = db.Column(
-        UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+    eventid = immutable(
+        db.Column(
+            UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+        )
     )
 
     #: Notification id
-    id = db.Column(  # NOQA: A003
-        UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+    id = immutable(  # NOQA: A003
+        db.Column(
+            UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+        )
     )
 
     #: Default category of notification. Subclasses MUST override
@@ -249,24 +253,26 @@ class Notification(NoIdMixin, db.Model):
     preference_context = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
-    type = db.Column(db.Unicode, nullable=False)  # NOQA: A003
+    type = immutable(db.Column(db.Unicode, nullable=False))  # NOQA: A003
 
     #: Id of user that triggered this notification
-    user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+    user_id = immutable(
+        db.Column(None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    user = db.relationship(User)
+    user = immutable(db.relationship(User))
 
     #: UUID of document that the notification refers to
-    document_uuid = db.Column(UUIDType(binary=False), nullable=False, index=True)
+    document_uuid = immutable(
+        db.Column(UUIDType(binary=False), nullable=False, index=True)
+    )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
-    fragment_uuid = db.Column(UUIDType(binary=False), nullable=True)
+    fragment_uuid = immutable(db.Column(UUIDType(binary=False), nullable=True))
 
     __table_args__ = (
         # This could have been achieved with a UniqueConstraint on all three columns.
@@ -535,26 +541,36 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     # Primary key is a compound of (user_id, eventid).
 
     #: Id of user being notified
-    user_id = db.Column(
-        None,
-        db.ForeignKey('user.id', ondelete='CASCADE'),
-        primary_key=True,
-        nullable=False,
+    user_id = immutable(
+        db.Column(
+            None,
+            db.ForeignKey('user.id', ondelete='CASCADE'),
+            primary_key=True,
+            nullable=False,
+        )
     )
     #: User being notified (backref defined below, outside the model)
-    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
+    user = with_roles(
+        immutable(db.relationship(User)), read={'owner'}, grants={'owner'}
+    )
 
     #: Random eventid, shared with the Notification instance
     eventid = with_roles(
-        db.Column(UUIDType(binary=False), primary_key=True, nullable=False),
+        immutable(db.Column(UUIDType(binary=False), primary_key=True, nullable=False)),
         read={'owner'},
     )
 
     #: Id of notification that this user received
-    notification_id = db.Column(None, nullable=False)  # fkey in __table_args__ below
+    notification_id = immutable(
+        db.Column(None, nullable=False)
+    )  # fkey in __table_args__ below
     #: Notification that this user received
     notification = with_roles(
-        db.relationship(Notification, backref=db.backref('recipients', lazy='dynamic')),
+        immutable(
+            db.relationship(
+                Notification, backref=db.backref('recipients', lazy='dynamic')
+            )
+        ),
         read={'owner'},
     )
 
@@ -564,7 +580,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     #: Note: This column represents the first instance of a role shifting from being an
     #: entirely in-app symbol (i.e., code refactorable) to being data in the database
     #: (i.e., requiring a data migration alongside a code refactor)
-    role = with_roles(db.Column(db.Unicode, nullable=False), read={'owner'})
+    role = with_roles(immutable(db.Column(db.Unicode, nullable=False)), read={'owner'})
 
     #: Timestamp for when this notification was marked as read
     read_at = with_roles(
@@ -868,15 +884,22 @@ class NotificationPreferences(BaseMixin, db.Model):
     __tablename__ = 'notification_preferences'
 
     #: Id of user whose preferences are represented here
-    user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True
+    user_id = immutable(
+        db.Column(
+            None,
+            db.ForeignKey('user.id', ondelete='CASCADE'),
+            nullable=False,
+            index=True,
+        )
     )
     #: User whose preferences are represented here
-    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
+    user = with_roles(
+        immutable(db.relationship(User)), read={'owner'}, grants={'owner'}
+    )
 
     # Notification type, corresponding to Notification.type (a class attribute there)
     # notification_type = '' holds the veto switch to disable a transport entirely
-    notification_type = db.Column(db.Unicode, nullable=False)
+    notification_type = immutable(db.Column(db.Unicode, nullable=False))
 
     by_email = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
     by_sms = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
