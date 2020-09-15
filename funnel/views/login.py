@@ -171,7 +171,9 @@ def login():
                 ),
                 category='danger',
             )
-            return render_redirect(url_for('reset', username=loginform.username.data))
+            return render_redirect(
+                url_for('reset', username=loginform.username.data), code=303
+            )
         except LoginPasswordWeakException:
             flash(
                 _(
@@ -180,7 +182,9 @@ def login():
                     "new password"
                 )
             )
-            return render_redirect(url_for('reset', username=loginform.username.data))
+            return render_redirect(
+                url_for('reset', username=loginform.username.data), code=303
+            )
     elif request.method == 'POST' and formid in service_forms:
         form = service_forms[formid]['form']
         if form.validate():
@@ -218,24 +222,6 @@ def login():
 logout_errormsg = __("Are you trying to logout? Please try again to confirm")
 
 
-# TODO: Remove this method after funnelapp changes to POST-based logout
-def logout_user():
-    """
-    User-initiated logout
-    """
-    if not request.referrer or (
-        urllib.parse.urlsplit(request.referrer).netloc
-        != urllib.parse.urlsplit(request.url).netloc
-    ):
-        flash(logout_errormsg, 'danger')
-        return redirect(url_for('index'))
-    else:
-        logout_internal()
-        db.session.commit()
-        flash(_("You are now logged out"), category='info')
-        return redirect(get_next_url())
-
-
 def logout_client():
     """
     Client-initiated logout
@@ -251,18 +237,18 @@ def logout_client():
         # No referrer or such client, or request didn't come from the client website.
         # Possible CSRF. Don't logout and don't send them back
         flash(logout_errormsg, 'danger')
-        return redirect(url_for('account'))
+        return redirect(url_for('account'), code=303)
 
     # If there is a next destination, is it in the same domain as the client?
     if 'next' in request.args:
         if not auth_client.host_matches(request.args['next']):
             # Host doesn't match. Assume CSRF and redirect to account without logout
             flash(logout_errormsg, 'danger')
-            return redirect(url_for('account'))
+            return redirect(url_for('account'), code=303)
     # All good. Log them out and send them back
     logout_internal()
     db.session.commit()
-    return redirect(get_next_url(external=True))
+    return redirect(get_next_url(external=True), code=303)
 
 
 @app.route('/logout')
@@ -313,7 +299,7 @@ def account_logout():
 @lastuserapp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_auth.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('index'), code=303)
     form = RegisterForm()
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
@@ -357,7 +343,7 @@ def login_service(service):
         )
         exception_catchall.send(e, message=msg)
         flash(msg, category='danger')
-        return redirect(next_url or get_next_url(referrer=True))
+        return redirect(next_url or get_next_url(referrer=True), code=303)
 
 
 @app.route('/login/<service>/callback', methods=['GET', 'POST'])
@@ -378,9 +364,9 @@ def login_service_callback(service):
         exception_catchall.send(e, message=msg)
         flash(msg, category='danger')
         if current_auth.is_authenticated:
-            return redirect(get_next_url(referrer=False))
+            return redirect(get_next_url(referrer=False), code=303)
         else:
-            return redirect(url_for('login'))
+            return redirect(url_for('login'), code=303)
     return login_service_postcallback(service, userdata)
 
 
@@ -542,11 +528,11 @@ def login_service_postcallback(service, userdata):
 @requires_login
 def account_merge():
     if 'merge_buid' not in session:
-        return redirect(get_next_url(), code=302)
+        return redirect(get_next_url(), code=303)
     other_user = User.get(buid=session['merge_buid'])
     if other_user is None:
         session.pop('merge_buid', None)
-        return redirect(get_next_url(), code=302)
+        return redirect(get_next_url(), code=303)
     form = forms.Form()
     if form.validate_on_submit():
         if 'merge' in request.form:
@@ -694,4 +680,14 @@ def funnelapp_logout():
     # the next request there
 
     # TODO: Change logout to a POST-based mechanism, as in the main app
-    return logout_user()
+    if not request.referrer or (
+        urllib.parse.urlsplit(request.referrer).netloc
+        != urllib.parse.urlsplit(request.url).netloc
+    ):
+        flash(logout_errormsg, 'danger')
+        return redirect(url_for('index'), code=303)
+    else:
+        logout_internal()
+        db.session.commit()
+        flash(_("You are now logged out"), category='info')
+        return redirect(get_next_url(), code=303)
