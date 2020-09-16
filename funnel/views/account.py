@@ -71,7 +71,12 @@ from .helpers import (
     progressive_rate_limit_validator,
     validate_rate_limit,
 )
-from .login_session import login_internal, logout_internal, requires_login
+from .login_session import (
+    login_internal,
+    logout_internal,
+    requires_login,
+    requires_sudo,
+)
 from .notification import dispatch_notification
 
 
@@ -677,8 +682,10 @@ def confirm_email(email_hash, secret):
 def change_password():
     if not current_auth.user.pw_hash:
         form = PasswordCreateForm(edit_user=current_auth.user)
+        title = _("Set password")
     else:
         form = PasswordChangeForm(edit_user=current_auth.user)
+        title = _("Change password")
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
         user = current_auth.user
@@ -703,9 +710,9 @@ def change_password():
     # Form with id 'form-password-change' will have password strength meter on UI
     return render_form(
         form=form,
-        title=_("Change password"),
+        title=title,
         formid='password-change',
-        submit=_("Change password"),
+        submit=title,
         ajax=False,
         template='account_formlayout.html.jinja2',
     )
@@ -786,7 +793,7 @@ def make_phone_primary():
 
 
 @app.route('/account/email/<email_hash>/remove', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 def remove_email(email_hash):
     useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
     if not useremail:
@@ -905,7 +912,7 @@ def add_phone():
 
 
 @app.route('/account/phone/<number>/remove', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 def remove_phone(number):
     userphone = UserPhone.get(phone=number)
     if userphone is None or userphone.user != current_auth.user:
@@ -1002,7 +1009,7 @@ def verify_phone(phoneclaim):
 
 # Userid is a path here because obsolete OpenID ids are URLs (both direct and via Google)
 @app.route('/account/extid/<service>/<path:userid>/remove', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 @load_model(
     UserExternalId,
     {'service': 'service', 'userid': 'userid'},

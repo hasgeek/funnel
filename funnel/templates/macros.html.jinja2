@@ -832,8 +832,8 @@
                 <button class="mui-btn mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
                 <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
               </div>
-              <ul class="mui-list--unstyled comment--children" v-for="child_comment in comment.replies">
-                <comment :comment="child_comment" :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
+              <ul class="mui-list--unstyled comment--children" v-for="reply_comment in comment.current_access_replies">
+                <comment :comment="reply_comment" :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
               </ul>
             </div>
           </transition>

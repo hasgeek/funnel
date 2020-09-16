@@ -9,7 +9,7 @@ from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
 from ..utils import abort_null
 from .decorators import legacy_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin
 
 
@@ -216,7 +216,7 @@ class LabelView(UrlForView, ModelView):
         return redirect(self.obj.project.url_for('labels'), code=303)
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_roles({'project_editor'})
     def delete(self):
         if self.obj.has_proposals:
