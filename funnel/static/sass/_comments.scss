@@ -44,14 +44,6 @@
       margin: 0;
       padding-left: $mui-grid-padding;
     }
-
-    .comment__body__links {
-      padding-right: $mui-grid-padding/2;
-      text-transform: uppercase;
-      .fa5-icon {
-        margin-right: $mui-grid-padding/4;
-      }
-    }
     .ajax-form {
       .mui--text-title {
         margin-top: 8px;
@@ -95,4 +87,16 @@
 .slide-leave-to {
   overflow: hidden;
   max-height: 0;
+}
+
+@media (min-width: 768px) {
+  .comment__body__links.link-icon {
+    font-size: 12px;
+    padding-right: $mui-grid-padding !important;
+    .fa5-icon {
+      width: 12px;
+      height: 12px;
+      margin-right: 8px;
+    }
+  }
 }

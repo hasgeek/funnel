@@ -57,12 +57,12 @@
     {{ current_view.SavedProjectForm().hidden_tag() }}
     <p class="no-jshidden zero-bottom-margin">
       {%- if current_auth.is_anonymous %}
-        <a class="mui--text-body2"  href="{{ url_for('login') }}" data-action="Login to save project"><span class="mui--text-body2 mui--text-light login-txt">{% trans %}Login{% endtrans %} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}to save{% endtrans %}</span></span>{{ faicon(icon='bookmark', css_class='mui--text-light') }}</a>
+        <a class="mui--text-light mui--text-uppercase link-icon"  href="{{ url_for('login') }}" data-action="Login to save project">{{ faicon(icon='bookmark', baseline=true, css_class='mui--text-light') }}{% trans %}Login{% endtrans %} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}to save{% endtrans %}</span></a>
       {%- else %}
         <input type="hidden" name="save" value="">
-        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmark">{% if txt %}<span class="mui--text-body2 mui--text-light txt">{% trans %}Save <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark', icon_size='caption', baseline=false, css_class='mui--text-light') }}
+        <button type="submit" value="true" class="link-icon mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Save {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmark">{% if txt %}<span class="mui--text-light txt mui--text-uppercase">{{ faicon(icon='bookmark', baseline=true, css_class='mui--text-light') }}{% trans %}Save <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmarked">{% if txt %}<span class="mui--text-body2 mui--text-light txt">{% trans %}Unsave <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}{{ faicon(icon='bookmark-solid', icon_size='caption', baseline=false, css_class='bookmarked') }}</button>
+        <button type="submit" value="false" class="link-icon mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-action="Unsave {{project.title}}" onclick="this.form.save.value=this.value" data-cy="bookmarked">{% if txt %}<span class="mui--text-light txt mui--text-uppercase">{{ faicon(icon='bookmark-solid', baseline=true, css_class='bookmarked') }}{% trans %}Unsave <span class="mui--hidden-xs mui--hidden-sm">this project</span>{% endtrans %}</span>{% endif %}</button>
       {%- endif %}
     </p>
   </form>
@@ -82,13 +82,13 @@
   <div class="project-banner__footer">
     <div class="bookmark">{{ saveprojectform(project, txt=true) }}</div>
     {% if project.schedule_state.PUBLISHED %}
-      <a class="add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar" data-cy="add-to-calendar"><span class="mui--text-body2 mui--text-light txt">{% trans %}Add to calendar{% endtrans %}</span>{{ faicon(icon='calendar-plus', baseline=false, css_class='mui--text-light') }}</a>
+      <a class="link-icon add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar" data-cy="add-to-calendar"><span class="mui--text-light txt mui--text-uppercase">{{ faicon(icon='calendar-plus', baseline=true, css_class='mui--text-light') }}{% trans %}Add to calendar{% endtrans %}</span></a>
     {% endif %}
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><span class="mui--text-body2 mui--text-light txt">{% trans %}Share{% endtrans %}</span>{{ faicon(icon='share-square', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</a>
+      <a href="javascript:void(0)" class="link-icon project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><span class="mui--text-light txt mui--text-uppercase">{{ faicon(icon='share-alt-square', baseline=true, css_class='mui--text-light') }}{% trans %}Share{% endtrans %}</span></a>
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
-    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-url="{{ project.url_for(_external=true) }}&amp;utm_campaign=webshare"><span class="mui--text-body2 mui--text-light txt">{% trans %}Share{% endtrans %}</span>{{ faicon(icon='share-alt', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</a>
+    <a href="javascript:void(0)" class="link-icon hg-link-btn mui--hide" data-url="{{ project.url_for(_external=true) }}&amp;utm_campaign=webshare"><span class=" mui--text-light txt mui--text-uppercase">{{ faicon(icon='share-alt', baseline=true, css_class='mui--text-light') }}{% trans %}Share{% endtrans %}</span></a>
   </div>
 {% endmacro %}
 
@@ -348,7 +348,7 @@
     {%- endif %}
       <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-action="Share dropdown" data-cy="share-project" data-url="{{ url }}&amp;utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='subhead', css_class=share_icon_css) }}</a>
       <div class="mui-dropdown">
-        <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-square', icon_size='subhead', css_class=share_icon_css) }}</a>
+        <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='subhead', css_class=share_icon_css) }}</a>
         {{ share_dropdown(url, title) }}
       </div>
   {%- endif %}
@@ -812,15 +812,15 @@
                 <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">(edited {{ edited_at_age }})</span>
               </div>
               <div>
-                <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)"><faicon :icon="'comment-alt'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
-                <a class="mui--text-caption mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="fetchForm($event, comment.urls.report_spam)"><faicon :icon="'flag-alt'":baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
+                <a class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)"><faicon :icon="'comment-alt'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
+                <a class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="fetchForm($event, comment.urls.report_spam)"><faicon :icon="'flag-alt'":baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
                 <div class="mui-dropdown">
-                  <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-square'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
+                  <a href="javascript:void(0)" class="link-icon  mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
                   <sharedropdown :url='comment.urls.view' :title='comment.title'></sharedropdown>
                 </div>
-                <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide right-padding" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :baseline=false :css_class="'mui--align-middle'"></faicon></a>
+                <a href="javascript:void(0)" class="link-icon mui--text-light hg-link-btn mui--hide right-padding" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :baseline=true></faicon></a>
                 <div class="mui-dropdown" v-if="comment.urls.edit || comment.urls.delete">
-                  <a href="javascript:void(0)" class="mui--text-caption mui--text-light link comment__body__links" data-mui-toggle="dropdown"  data-cy="comment-menu"><faicon :icon="'ellipsis-v'" :baseline=false :css_class="'mui--align-middle'"></faicon><span class="mui--hidden-xs mui--hidden-sm">More</span></a>
+                  <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-mui-toggle="dropdown"  data-cy="comment-menu"><faicon :icon="'ellipsis-v'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">More</span></a>
                   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--small" data-cy="share-dropdown">
                     <li><a class="mui--text-caption mui--text-light link comment__body__links" data-cy="edit" v-if="comment.urls.edit" @click="fetchForm($event, comment.urls.edit)">Edit</a></li>
                     <li><a class="mui--text-caption mui--text-light link comment__body__links" data-cy="delete" v-if="comment.urls.delete"  @click="fetchForm($event, comment.urls.delete)">Delete</a></li>
@@ -884,7 +884,7 @@
       <li class="update user" :id="'#update-' + update.uuid_b58">
         <div class="mui--clearfix">
           <div class="mui--pull-left">
-            <ul class="bullet-separated-list mui--text-light mui--text-body2 update__date" v-if="update.number">
+            <ul class="bullet-separated-list--flex mui--text-light mui--text-body2 update__date" v-if="update.number">
               <li><a class="mui--text-uppercase mui--text-light" :href="update.urls.view">Update #{{ update.number }}</a></li>
               <li v-if="age"><a class="mui--text-light" :href="update.urls.view">{{ age }}</a></li>
               <li v-if="update.visibility_label == 'Restricted'">
@@ -895,12 +895,12 @@
               </li>
             </ul>
           </div>
-          <div class="mui--pull-right">
+          <div class="mui--pull-right update__action-btn">
             <div class="mui-dropdown">
-              <a href="javascript:void(0)" class="mui--text-subhead mui--text-light project-links right-padding" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-square'" :icon_size="'subhead'" :baseline=true></faicon></a>
+              <a href="javascript:void(0)" class="mui--text-subhead mui--text-light project-links right-padding" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :icon_size="'subhead'" :baseline=true></faicon></a>
               <sharedropdown :url='update.urls.view' :title='update.title'></sharedropdown>
             </div>
-            <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide right-padding" :data-title="update.title" :data-url="update.urls.view + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :icon_size="'caption'" :baseline=false :css_class="'mui--align-middle'"></faicon></a>
+            <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide right-padding" :data-title="update.title" :data-url="update.urls.view + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :icon_size="'caption'" :baseline=true></faicon></a>
             <div class="mui-dropdown" v-if="iseditor">
               <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown"><faicon :icon="'ellipsis-v'" :icon_size="'subhead'"></faicon></a>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--small" data-cy="share-dropdown">

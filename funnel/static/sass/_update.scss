@@ -6,6 +6,13 @@
   margin: $mui-grid-padding 0 0;
   background: $mui-bg-color-primary;
   color: $mui-text-light;
+  position: relative;
+
+  .update__action-btn {
+    position: absolute;
+    top: 42px;
+    right: 0;
+  }
 
   .update__header {
     margin-bottom: $mui-grid-padding;
@@ -47,6 +54,9 @@
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: #f9f9f9;
+    .update__action-btn {
+      position: static;
+    }
   }
   .update--small {
     padding: $mui-grid-padding/2 $mui-grid-padding;

@@ -390,7 +390,7 @@ html.touch .collapsible__body--disable {
 .animate-btn {
   display: none;
   line-height: 1;
-  font-size: 14px;
+  font-size: inherit;
   text-transform: inherit;
 
   .bookmarked {
@@ -542,7 +542,8 @@ html.touch .collapsible__body--disable {
   vertical-align: text-top;
 }
 
-.icon-img--smaller {
+.icon-img--smaller,
+.fa-icon--margin {
   margin-right: 8px;
 }
 
@@ -821,6 +822,19 @@ a.loginbutton.hidden,
   }
 }
 
+.bullet-separated-list--flex {
+  padding-left: 0;
+  display: flex;
+  list-style: inside;
+  li {
+    padding: 0 4px;
+  }
+  li:first-child {
+    list-style-type: none;
+    padding-left: 0;
+  }
+}
+
 @media (min-width: 768px) {
   .bullet-separated-list {
     padding-left: 0;
@@ -930,4 +944,29 @@ a.loginbutton.hidden,
   border-radius: 50%;
   text-align: center;
   vertical-align: middle;
+}
+
+.link-icon {
+  font-size: 12px;
+  padding-right: $mui-grid-padding/2 !important;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  .fa5-icon {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .link-icon {
+    font-size: 14px;
+    padding-right: $mui-grid-padding !important;
+    .fa5-icon {
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+    }
+  }
 }
