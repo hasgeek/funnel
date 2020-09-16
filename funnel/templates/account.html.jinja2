@@ -113,7 +113,7 @@
               <ol class="mui-list--aligned mui-list--border">
                 {% for useremail in current_auth.user.views.emails_sorted() %}
                 <li>
-                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="form-inline-input"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %} <span title="{% trans %}Primary{% endtrans %}" class="check-mark mui--align-middle">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span> {%- endif -%}
+                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="form-inline-input"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %} <span title="{% trans %}Primary{% endtrans %}"s>{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success") }}</span> {%- endif -%}
                   </label>
                   {%- if has_multiple_verified_contacts %}
                     <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
@@ -153,7 +153,7 @@
                   <li>
                     <input id="userphone-{{loop.index}}" name="phone" value="{{userphone}}" type="radio">&nbsp;
                     <label for="userphone-{{loop.index}}">{{ userphone.formatted() }}</label>
-                    {% if userphone.primary %} <span title="{% trans %}Primary{% endtrans %}" class="check-mark mui--align-middle">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span> {%- endif -%}
+                    {% if userphone.primary %} <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check', icon_size='caption', baseline=true, css_class="mui--text-success") }}</span> {%- endif -%}
                     {%- if has_multiple_verified_contacts %}
                       <a href="{{ url_for('remove_phone', number=userphone.phone) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                     {%- endif %}
@@ -194,7 +194,7 @@
                     <div>
                       <p class="mui--text-body2 separator">
                         <a href="{{ auth_token.auth_client.website }}" rel="nofollow" {%- if auth_token.auth_client.trusted %} title="{% trans %}Made by Hasgeek{% endtrans %}"{% endif %}>{{ auth_token.auth_client.title }}
-                        {% if auth_token.auth_client.trusted %} {{ faicon('badge-check') }} {%- endif -%}
+                        {% if auth_token.auth_client.trusted %} {{ faicon('badge-check-solid') }} {%- endif -%}
                         </a>
                         &mdash; {{ auth_token.auth_client.description }}
                       </p>
@@ -276,7 +276,7 @@
                     </div>
                     <div>
                       {%- if user_session == current_auth.session %}
-                        <span title="{% trans %}Current{% endtrans %}" class="check-mark mui--align-bottom">{{ faicon(icon='check', icon_size='caption', baseline=false) }}</span>
+                        {{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success") }}
                       {%- else %}
                         <button type="submit" name="sessionid" value="{{ user_session.buid }}" title="{% trans %}Logout{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle mui--text-hyperlink') }}</button>
                       {%- endif -%}
