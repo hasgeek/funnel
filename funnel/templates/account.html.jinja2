@@ -181,7 +181,7 @@
       </div>
       {%- endwith %}
 
-      {%- if current_auth.user.authtokens.count() %}
+      {%- if authtokens %}
         <div class="grid__col-xs-12">
           <div class="card">
             <div class="card__header">
@@ -189,11 +189,14 @@
             </div>
             <div class="card__body">
               <ul class="mui-list--aligned mui-list--border grid-no-left-padding">
-                {% for auth_token in current_auth.user.authtokens %}
+                {% for auth_token in authtokens %}
                   <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
                     <div>
                       <p class="mui--text-body2 separator">
-                        <a href="{{ auth_token.auth_client.website }}" rel="nofollow">{{ auth_token.auth_client.title }}</a> &mdash; {{ auth_token.auth_client.description }}
+                        <a href="{{ auth_token.auth_client.website }}" rel="nofollow" {%- if auth_token.auth_client.trusted %} title="{% trans %}Made by Hasgeek{% endtrans %}"{% endif %}>{{ auth_token.auth_client.title }}
+                        {% if auth_token.auth_client.trusted %} {{ faicon('badge-check') }} {%- endif -%}
+                        </a>
+                        &mdash; {{ auth_token.auth_client.description }}
                       </p>
                       <p class="mui--text-light">
                         {%- if auth_token.last_used %}
@@ -204,7 +207,9 @@
                       </p>
                     </div>
                     <div>
-                      <a href="{{ auth_token.auth_client.url_for('disconnect') }}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle mui--text-hyperlink') }}</a>
+                      {%- if not auth_token.auth_client.trusted %}
+                        <a href="{{ auth_token.auth_client.url_for('disconnect') }}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle mui--text-hyperlink') }}</a>
+                      {%- endif %}
                     </div>
                   </li>
                 {%- endfor %}
