@@ -183,6 +183,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'visibility_label',
             'state_label',
             'urls',
+            'uuid_b58',
         },
         'related': {'name', 'title', 'urls'},
     }
