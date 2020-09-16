@@ -45,9 +45,11 @@ export const faSvg = Vue.component('faicon', {
 });
 
 export const shareDropdown = Vue.component('sharedropdown', {
-  template:
-    '<ul class="mui-dropdown__menu mui-dropdown__menu--hg-link" data-cy="share-dropdown"><li><a class="details__box__control__link mui--text-body2 js-copy-link" href="javascript:void(0)" data-action="Copy link">Copy link<span class="js-copy-url">{{ url }}</span></a></li><li><a class="details__box__control__link mui--text-body2" target="_blank" rel="noopener" :href="twitterUrl" :data-url="url" data-via="Hasgeek" :data-text="title" data-action="Tweet">Twitter</a></li><li><a class="details__box__control__link mui--text-body2" target="_blank" rel="noopener" :href="facebookUrl" :data-href="url" data-action="Share on facebook">Facebook</a></li><li><a class="details__box__control__link mui--text-body2" :href="emailUrl" data-action="Share via Email">Email</a></li><li><a class="details__box__control__link mui--text-body2" :href="linkedinUrl" data-action="Share about on linkedin">Linkedin</a></li><ul>',
+  template: `<ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--hg-link" data-cy="share-dropdown"><li><a class="mui--text-body2 js-copy-link" href="javascript:void(0)" data-action="Copy link"><faicon :icon="'copy'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Copy link<span class="js-copy-url">{{ url }}</span></a></li><li><a class="mui--text-body2" target="_blank" rel="noopener" :href="twitterUrl" :data-url="url" data-via="Hasgeek" :data-text="title" data-action="Tweet"><faicon :icon="'twitter'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Twitter</a></li><li><a class="mui--text-body2" target="_blank" rel="noopener" :href="facebookUrl" :data-href="url" data-action="Share on facebook"><faicon :icon="'facebook'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Facebook</a></li><li><a class="mui--text-body2" :href="emailUrl" data-action="Share via Email"><faicon :icon="'envelope'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Email</a></li><li><a class="mui--text-body2" :href="linkedinUrl" data-action="Share about on linkedin"><faicon :icon="'linkedin'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Linkedin</a></li><ul>`,
   props: ['url', 'title'],
+  components: {
+    faSvg,
+  },
   computed: {
     twitterUrl() {
       return `//twitter.com/share?url=${this.url}&amp;via=Hasgeek&amp;text=${this.title}&amp;utm_campaign=share-twitter`;
