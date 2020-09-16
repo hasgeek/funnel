@@ -276,7 +276,7 @@
                     </div>
                     <div>
                       {%- if user_session == current_auth.session %}
-                        {{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success") }}
+                        {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success") }}
                       {%- else %}
                         <button type="submit" name="sessionid" value="{{ user_session.buid }}" title="{% trans %}Logout{% endtrans %}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle mui--text-hyperlink') }}</button>
                       {%- endif -%}
