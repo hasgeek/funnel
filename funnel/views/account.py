@@ -47,6 +47,7 @@ from ..forms import (
 from ..models import (
     MODERATOR_REPORT_TYPE,
     AccountPasswordNotification,
+    AuthClient,
     Comment,
     CommentModeratorReport,
     SMSMessage,
@@ -319,6 +320,12 @@ class AccountView(ClassView):
                 service_forms[service] = provider.get_form()
         return {
             'user': current_auth.user.current_access(),
+            'authtokens': [
+                _at.current_access()
+                for _at in current_auth.user.authtokens.join(AuthClient)
+                .order_by(AuthClient.trusted.desc(), AuthClient.title)
+                .all()
+            ],
             'logout_form': logout_form,
             'primary_email_form': primary_email_form,
             'primary_phone_form': primary_phone_form,

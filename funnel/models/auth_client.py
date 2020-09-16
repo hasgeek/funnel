@@ -7,12 +7,15 @@ from sqlalchemy.orm import load_only
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.orm.query import Query as QueryBaseClass
 
+from werkzeug.utils import cached_property
+
 from baseframe import _
+from coaster.sqlalchemy import with_roles
 from coaster.utils import buid, newsecret, require_one_of, utcnow
 
 from . import BaseMixin, UuidMixin, db
 from .user import Organization, Team, User
-from .user_session import UserSession
+from .user_session import UserSession, auth_client_user_session
 
 __all__ = [
     'AuthCode',
@@ -59,50 +62,83 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
     __scope_null_allowed__ = True
     #: User who owns this client
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('clients', cascade='all'),
+    user = with_roles(
+        db.relationship(
+            User,
+            primaryjoin=user_id == User.id,
+            backref=db.backref('clients', cascade='all'),
+        ),
+        read={'all'},
+        write={'owner'},
+        grants={'owner'},
     )
     #: Organization that owns this client. Only one of this or user must be set
     organization_id = db.Column(None, db.ForeignKey('organization.id'), nullable=True)
-    organization = db.relationship(
-        Organization,
-        primaryjoin=organization_id == Organization.id,
-        backref=db.backref('clients', cascade='all'),
+    organization = with_roles(
+        db.relationship(
+            Organization,
+            primaryjoin=organization_id == Organization.id,
+            backref=db.backref('clients', cascade='all'),
+        ),
+        read={'all'},
+        write={'owner'},
+        grants_via={None: {'owner': 'owner', 'admin': 'owner'}},
     )
     #: Human-readable title
-    title = db.Column(db.Unicode(250), nullable=False)
+    title = with_roles(
+        db.Column(db.Unicode(250), nullable=False), read={'all'}, write={'owner'}
+    )
     #: Long description
-    description = db.Column(db.UnicodeText, nullable=False, default='')
+    description = with_roles(
+        db.Column(db.UnicodeText, nullable=False, default=''),
+        read={'all'},
+        write={'owner'},
+    )
     #: Confidential or public client? Public has no secret key
-    confidential = db.Column(db.Boolean, nullable=False)
+    confidential = with_roles(
+        db.Column(db.Boolean, nullable=False), read={'all'}, write={'owner'}
+    )
     #: Website
-    website = db.Column(db.UnicodeText, nullable=False)
+    website = with_roles(
+        db.Column(db.UnicodeText, nullable=False), read={'all'}, write={'owner'}
+    )
+    # TODO: Remove namespace as resources are deprecated
     #: Namespace: determines inter-app resource access
-    namespace = db.Column(db.UnicodeText, nullable=True, unique=True)
+    namespace = with_roles(
+        db.Column(db.UnicodeText, nullable=True, unique=True),
+        read={'all'},
+        write={'owner'},
+    )
     #: Redirect URIs (one or more)
     _redirect_uris = db.Column(
         'redirect_uri', db.UnicodeText, nullable=True, default=''
     )
     #: Back-end notification URI
-    notification_uri = db.Column(db.UnicodeText, nullable=True, default='')
+    notification_uri = with_roles(
+        db.Column(db.UnicodeText, nullable=True, default=''), rw={'owner'}
+    )
     #: Active flag
     active = db.Column(db.Boolean, nullable=False, default=True)
     #: Allow anyone to login to this app?
-    allow_any_login = db.Column(db.Boolean, nullable=False, default=True)
+    allow_any_login = with_roles(
+        db.Column(db.Boolean, nullable=False, default=True),
+        read={'all'},
+        write={'owner'},
+    )
     #: Trusted flag: trusted clients are authorized to access user data
     #: without user consent, but the user must still login and identify themself.
     #: When a single provider provides multiple services, each can be declared
     #: as a trusted client to provide single sign-in across the services.
     #: However, resources in the scope column (via ScopeMixin) are granted for
     #: any arbitrary user without explicit user authorization.
-    trusted = db.Column(db.Boolean, nullable=False, default=False)
+    trusted = with_roles(
+        db.Column(db.Boolean, nullable=False, default=False), read={'all'}
+    )
 
     user_sessions = db.relationship(
         UserSession,
         lazy='dynamic',
-        secondary='auth_client_user_session',
+        secondary=auth_client_user_session,
         backref=db.backref('auth_clients', lazy='dynamic'),
     )
 
@@ -114,6 +150,13 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             name='auth_client_owner_check',
         ),
     )
+
+    __roles__ = {
+        'all': {
+            'read': {'urls'},
+            'call': {'url_for'},
+        }
+    }
 
     def __repr__(self):
         return '<AuthClient "{title}" {buid}>'.format(title=self.title, buid=self.buid)
@@ -133,6 +176,8 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
     def redirect_uris(self, value):
         self._redirect_uris = '\r\n'.join(value)
 
+    with_roles(redirect_uris, rw={'owner'})
+
     @property
     def redirect_uri(self):
         uris = self.redirect_uris  # Assign to local var to avoid splitting twice
@@ -148,6 +193,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             )
         return False
 
+    @with_roles(read={'all'})
     @property
     def owner(self):
         return self.user or self.organization
@@ -343,17 +389,21 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     )
     #: The session in which this token was issued, null for confidential clients
     user_session_id = db.Column(None, db.ForeignKey('user_session.id'), nullable=True)
-    user_session = db.relationship(
-        UserSession, backref=db.backref('authtokens', lazy='dynamic')
+    user_session = with_roles(
+        db.relationship(UserSession, backref=db.backref('authtokens', lazy='dynamic')),
+        read={'owner'},
     )
     #: The client this authtoken is for
     auth_client_id = db.Column(
         None, db.ForeignKey('auth_client.id'), nullable=False, index=True
     )
-    auth_client = db.relationship(
-        AuthClient,
-        primaryjoin=auth_client_id == AuthClient.id,
-        backref=db.backref('authtokens', lazy='dynamic', cascade='all'),
+    auth_client = with_roles(
+        db.relationship(
+            AuthClient,
+            primaryjoin=auth_client_id == AuthClient.id,
+            backref=db.backref('authtokens', lazy='dynamic', cascade='all'),
+        ),
+        read={'owner'},
     )
     #: The token
     token = db.Column(db.String(22), default=buid, nullable=False, unique=True)
@@ -378,6 +428,8 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         db.UniqueConstraint('user_session_id', 'auth_client_id'),
     )
 
+    __roles__ = {'owner': {'read': {'created_at'}}}
+
     @property
     def user(self):
         if self.user_session:
@@ -389,7 +441,9 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     def user(self, value):
         self._user = value
 
-    user = db.synonym('_user', descriptor=user)
+    user = with_roles(
+        db.synonym('_user', descriptor=user), read={'owner'}, grants={'owner'}
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -408,6 +462,20 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     @property
     def effective_scope(self):
         return sorted(set(self.scope) | set(self.auth_client.scope))
+
+    @with_roles(read={'owner'})
+    @cached_property
+    def last_used(self):
+        return (
+            db.session.query(db.func.max(auth_client_user_session.c.accessed_at))
+            .select_from(auth_client_user_session, UserSession)
+            .filter(
+                auth_client_user_session.c.user_session_id == UserSession.id,
+                auth_client_user_session.c.auth_client_id == self.auth_client_id,
+                UserSession.user == self.user,
+            )
+            .scalar()
+        )
 
     def refresh(self):
         """
