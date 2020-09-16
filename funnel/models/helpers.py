@@ -6,7 +6,12 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 
+from flask import current_app
+
 from zxcvbn import zxcvbn
+import furl
+
+from . import UrlType
 
 __all__ = [
     'RESERVED_NAMES',
@@ -363,3 +368,27 @@ def add_search_trigger(model, column_name):
         'update': update_statement,
         'drop': drop_statement,
     }
+
+
+class ImgeeType(UrlType):
+    def __init__(self, *args, **kwargs):
+        self.imgee_host = furl(current_app.config['IMGEE_HOST']).host
+        super().__init__(*args, **kwargs)
+
+    def process_bind_param(self, value, dialect):
+        if value:
+            parsed = furl(value)
+            if parsed.host != self.imgee_host:
+                raise ValueError(f"Image must be hosted on {self.imgee_host}")
+        return value
+
+    def resize(self, size=()):
+        """
+        Returns image url with `?size=HxW` suffixed to it
+
+        :param size: Height and width to resize the image to, as tuple, e.g. `(120, 120)`
+        """
+        height, width = size
+        if self.url:
+            self.args['size'] = f"{height}x{width}"
+        return self.url

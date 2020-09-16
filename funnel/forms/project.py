@@ -59,7 +59,7 @@ class ProjectForm(forms.Form):
         choices=sorted_timezones(),
         default='UTC',
     )
-    bg_image = forms.URLField(
+    bg_image = forms.ImgeeField(
         __("Banner image URL"),
         description=(
             "From images.hasgeek.com, with 16:9 aspect ratio."
@@ -82,6 +82,10 @@ class ProjectForm(forms.Form):
             raise forms.ValidationError(
                 __("Quotes are not necessary in the location name")
             )
+
+    def set_queries(self):
+        if self.edit_obj is not None:
+            self.bg_image.profile = self.edit_obj.profile.name
 
 
 class ProjectLivestreamForm(forms.Form):
