@@ -1,4 +1,4 @@
-from flask import Markup, abort, flash, render_template, request, url_for
+from flask import Markup, abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
@@ -95,7 +95,7 @@ AuthClientCreateView.init_app(app)
 
 
 @AuthClient.views('main')
-@route('/apps/<app>')
+@route('/apps/info/<app>')
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
     route_model_map = {'app': 'buid'}
@@ -174,6 +174,29 @@ class AuthClientView(UrlForView, ModelView):
                 " resources and permission assignments"
             ).format(title=self.obj.title),
             next=url_for('client_list'),
+        )
+
+    @route('disconnect', methods=['GET', 'POST'])
+    @requires_sudo
+    def disconnect(self):
+        auth_token = self.obj.authtoken_for(current_auth.user)
+        if not auth_token:
+            return redirect(self.obj.url_for())
+
+        return render_delete_sqla(
+            auth_token,
+            db,
+            title=_("Disconnect {app}").format(app=self.obj.title),
+            message=_(
+                "Disconnect application {app}? This will not remove any of your data in"
+                " this app, but will prevent it from accessing any further data from"
+                " your Hasgeek account."
+            ).format(app=self.obj.title),
+            delete_text=_("Disconnect"),
+            success=_("You have disconnected {app} from your account").format(
+                app=self.obj.title
+            ),
+            next=url_for('account'),
         )
 
     @route('cred', methods=['GET', 'POST'])
@@ -279,7 +302,7 @@ AuthClientView.init_app(app)
 
 
 @AuthClientCredential.views('main')
-@route('/apps/<app>/cred/<name>')
+@route('/apps/info/<app>/cred/<name>')
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
     route_model_map = {'app': 'auth_client.buid', 'name': 'name'}
@@ -315,7 +338,7 @@ AuthClientCredentialView.init_app(app)
 
 
 @AuthClientUserPermissions.views('main')
-@route('/apps/<app>/perms/u/<user>')
+@route('/apps/info/<app>/perms/u/<user>')
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
     route_model_map = {'app': 'auth_client.buid', 'user': 'user.buid'}
@@ -389,7 +412,7 @@ AuthClientUserPermissionsView.init_app(app)
 
 
 @AuthClientTeamPermissions.views('main')
-@route('/apps/<app>/perms/t/<team>')
+@route('/apps/info/<app>/perms/t/<team>')
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
     route_model_map = {'app': 'auth_client.buid', 'team': 'team.buid'}
