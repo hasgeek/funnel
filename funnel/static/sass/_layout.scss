@@ -24,11 +24,11 @@
 }
 
 .top-padding {
-  padding-top: $mui-grid-padding;
+  padding-top: $mui-grid-padding !important;
 }
 
 .bottom-padding {
-  padding-bottom: $mui-grid-padding;
+  padding-bottom: $mui-grid-padding !important;
 }
 
 .grid-no-left-padding {

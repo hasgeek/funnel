@@ -24,11 +24,11 @@
 }
 
 .top-padding {
-  padding-top: 16px;
+  padding-top: 16px !important;
 }
 
 .bottom-padding {
-  padding-bottom: 16px;
+  padding-bottom: 16px !important;
 }
 
 .grid-no-left-padding {
@@ -4990,47 +4990,35 @@ body > .proposal-box.ui-draggable {
   color: rgba(0, 0, 0, 0.54);
 }
 
-ul .login-session {
-  padding: 15px 0;
-}
-ul .login-session .login-session__heading {
+.login-session .login-session__heading {
   font-size: 14px;
   line-height: 24px;
   margin: 0;
 }
-ul .login-session .login-session__body {
+.login-session .login-session__body {
   font-size: 12px;
   line-height: 24px;
   margin: 0;
 }
-ul .login-session .mui-btn--nostyle {
+.login-session .mui-btn--nostyle {
   line-height: 1;
 }
 
 @media (min-width: 768px) {
-  ul .login-session .login-session__heading {
+  .login-session .login-session__heading {
     font-size: 16px;
     line-height: 24px;
     margin: 0;
   }
-  ul .login-session .login-session__body {
+  .login-session .login-session__body {
     font-size: 14px;
     line-height: 24px;
     margin: 0;
   }
 }
-.check-mark {
-  background: #53b783;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  color: #ffffff;
-  display: inline-block;
-}
-.check-mark .fa5-icon {
+.input-align-icon {
   position: relative;
-  top: -3px;
-  right: -2px;
+  top: 3px;
 }
 
 .preference {
