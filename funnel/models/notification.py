@@ -588,12 +588,13 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         read={'owner'},
     )
 
-    #: Whether the notification has been revoked. This can happen if:
+    #: Timestamp when/if the notification is revoked. This can happen if:
     #: 1. The action that caused the notification has been undone (future use), or
     #: 2. A new notification has been raised for the same document and this user was
     #:    a recipient of the new notification.
-    is_revoked = with_roles(
-        db.Column(db.Boolean, default=False, nullable=False, index=True), read={'owner'}
+    revoked_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        read={'owner'},
     )
 
     #: When a roll-up is performed, record an identifier for the items rolled up
@@ -670,6 +671,25 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         return cls.read_at.isnot(None)
 
     with_roles(is_read, rw={'owner'})
+
+    @hybrid_property
+    def is_revoked(self):
+        """Whether this notification has been marked as revoked."""
+        return self.revoked_at is not None
+
+    @is_revoked.setter
+    def is_revoked(self, value):
+        if value:
+            if not self.revoked_at:
+                self.revoked_at = db.func.utcnow()
+        else:
+            self.revoked_at = None
+
+    @is_revoked.expression
+    def is_revoked(cls):  # NOQA: N805
+        return cls.revoked_at.isnot(None)
+
+    with_roles(is_revoked, rw={'owner'})
 
     # --- Dispatch helper methods ------------------------------------------------------
 
@@ -763,7 +783,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 # Earlier instance is unread
                 UserNotification.read_at.is_(None),
                 # Earlier instance is not revoked
-                UserNotification.is_revoked.is_(False),
+                UserNotification.revoked_at.is_(None),
                 # Earlier instance has a rollupid
                 UserNotification.rollupid.isnot(None),
             )
@@ -795,7 +815,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                     # Same role as earlier notification,
                     UserNotification.role == self.role,
                     # Earlier instance is not revoked
-                    UserNotification.is_revoked.is_(False),
+                    UserNotification.revoked_at.is_(None),
                     # Earlier instance shares our rollupid
                     UserNotification.rollupid == self.rollupid,
                 )
@@ -803,7 +823,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                     db.load_only(
                         UserNotification.user_id,
                         UserNotification.eventid,
-                        UserNotification.is_revoked,
+                        UserNotification.revoked_at,
                         UserNotification.rollupid,
                     )
                 )
@@ -845,7 +865,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 class NotificationFor(UserNotificationMixin):
     """View-only wrapper to mimic :class:`UserNotification`."""
 
-    identity = read_at = None
+    identity = read_at = revoked_at = None
     is_revoked = is_read = False
 
     def __init__(self, notification, user):

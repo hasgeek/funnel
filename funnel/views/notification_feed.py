@@ -24,7 +24,7 @@ class AllNotificationsView(ClassView):
             .filter(
                 Notification.type.in_(notification_web_types),
                 UserNotification.user == current_auth.user,
-                UserNotification.is_revoked.is_(False),
+                UserNotification.revoked_at.is_(None),
             )
             .order_by(Notification.created_at.desc())
             .paginate(page=page, per_page=per_page, max_per_page=100)
@@ -67,7 +67,7 @@ class AllNotificationsView(ClassView):
                 Notification.type.in_(notification_web_types),
                 UserNotification.user == current_auth.user,
                 UserNotification.read_at.is_(None),
-                UserNotification.is_revoked.is_(False),
+                UserNotification.revoked_at.is_(None),
             )
             .count()
         )
