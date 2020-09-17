@@ -6,8 +6,7 @@ from baseframe import _, __
 from ...models import (
     CommentReplyNotification,
     CommentReportReceivedNotification,
-    ProjectCommentNotification,
-    ProposalCommentNotification,
+    NewCommentNotification,
 )
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -48,8 +47,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 
 
 @CommentReplyNotification.renderer
-@ProjectCommentNotification.renderer
-@ProposalCommentNotification.renderer
+@NewCommentNotification.renderer
 class CommentNotification(RenderNotification):
     """Render comment notifications for various document types."""
 
@@ -74,34 +72,40 @@ class CommentNotification(RenderNotification):
                 user_ids.add(comment.user.uuid)
         return users
 
+    @property
+    def document_type(self):
+        if self.notification.document_type == 'comment':
+            return 'comment'
+        return self.document.parent_type
+
     def document_comments_url(self, **kwargs):
         """URL to comments view on the document."""
-        if self.notification.document_type == 'project':
-            return self.document.url_for('comments', **kwargs)
-        if self.notification.document_type == 'proposal':
-            return self.document.url_for('view', **kwargs) + '#comments'
+        if self.document_type == 'project':
+            return self.document.parent.url_for('comments', **kwargs)
+        if self.document_type == 'proposal':
+            return self.document.parent.url_for('view', **kwargs) + '#comments'
         return self.document.url_for('view', **kwargs)
 
     def activity_template_standalone(self, comment=None):
         """Activity template for standalone use, such as email subject."""
         if comment is None:
             comment = self.comment
-        if self.notification.document_type == 'comment':
+        if self.document_type == 'comment':
             return _("{actor} replied to your comment")
-        if self.notification.document_type == 'project':
+        if self.document_type == 'project':
             return _("{actor} commented on your project")
-        if self.notification.document_type == 'proposal':
+        if self.document_type == 'proposal':
             return _("{actor} commented on your proposal")
 
     def activity_template_inline(self, comment=None):
         """Activity template for inline use with other content, like SMS with URL."""
         if comment is None:
             comment = self.comment
-        if self.notification.document_type == 'comment':
+        if self.document_type == 'comment':
             return _("{actor} replied to your comment:")
-        if self.notification.document_type == 'project':
+        if self.document_type == 'project':
             return _("{actor} commented on your project:")
-        if self.notification.document_type == 'proposal':
+        if self.document_type == 'proposal':
             return _("{actor} commented on your proposal:")
 
     def activity_html(self, comment=None):

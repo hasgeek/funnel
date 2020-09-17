@@ -1,7 +1,7 @@
 from baseframe import __
 from funnel.models.moderation import CommentModeratorReport
 
-from .commentvote import Comment
+from .commentvote import Comment, Commentset
 from .notification import Notification, notification_categories
 from .organization_membership import OrganizationMembership
 from .project import Project
@@ -17,8 +17,7 @@ __all__ = [
     'NewUpdateNotification',
     'CommentReportReceivedNotification',
     'CommentReplyNotification',
-    'ProjectCommentNotification',
-    'ProposalCommentNotification',
+    'NewCommentNotification',
     'ProposalReceivedNotification',
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
@@ -161,35 +160,17 @@ class CommentReplyNotification(Notification):
     roles = ['replied_to_commenter']
 
 
-class ProjectCommentNotification(DocumentHasProfile, Notification):
-    """Notification of comments on a project."""
+class NewCommentNotification(Notification):
+    """Notification of new comment."""
 
-    __mapper_args__ = {'polymorphic_identity': 'comment_project'}
+    __mapper_args__ = {'polymorphic_identity': 'comment_new'}
 
     category = notification_categories.project_crew
-    title = __("When my project receives a comment")
+    title = __("When my project or proposal receives a comment")
     exclude_actor = True
 
-    document_model = Project
+    document_model = Commentset
     fragment_model = Comment
-    # Note: These roles must be available on Comment, not Proposal. Roles come from
-    # fragment if present, document if not.
-    roles = ['replied_to_commenter', 'document_subscriber']
-
-
-class ProposalCommentNotification(DocumentHasProject, Notification):
-    """Notification of comments on a proposal."""
-
-    __mapper_args__ = {'polymorphic_identity': 'comment_proposal'}
-
-    category = notification_categories.participant
-    title = __("When my proposal receives a comment")
-    exclude_actor = True
-
-    document_model = Proposal
-    fragment_model = Comment
-    # Note: These roles must be available on Comment, not Proposal. Roles come from
-    # fragment if present, document if not.
     roles = ['replied_to_commenter', 'document_subscriber']
 
 
