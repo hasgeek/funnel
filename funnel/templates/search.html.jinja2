@@ -68,7 +68,7 @@
                                             </p>
                                           {{/each}}
                                           {{#if obj.calendar_weeks_compact.weeks.length > 1 }}
-                                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right"><faicon icon='chevron-right' icon_size='caption' basline=false></faicon></p>
+                                            <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right"><faicon icon='chevron-right' icon_size='caption' baseline=false></faicon></p>
                                           {{/if}}
                                         </div>
                                       </div>
@@ -80,10 +80,10 @@
                             <div class="card__body__title js-truncate {{#if !obj.calendar_weeks_full.weeks.length }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}:</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
                             <p class="mui--text-subhead card__body__location">
                             {{#if obj.location }}
-                              <faicon icon='map-marker-alt' icon_size='caption' basline=false></faicon> {{ obj.location }}
+                              <faicon icon='map-marker-alt' icon_size='caption' baseline=false></faicon> {{ obj.location }}
                             {{/if}}
                             </p>
-                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
+                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
                           </div>
                         </a>
                       {{elseif result == 'profile'}}
@@ -100,7 +100,7 @@
                           </div>
                           <div class="card__body">
                             <div class="card__body__title js-truncate card__body__title--smaller" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{{ obj.description.html }}}</span></div>
-                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
+                            <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
                           </div>
                         </a>
                       {{elseif result == 'session'}}
@@ -114,7 +114,7 @@
                               </h3>
                             </div>
                           </div>
-                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
+                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
                         </div>
                       {{elseif result == 'proposal'}}
                         <div>
@@ -130,7 +130,7 @@
                               </h3>
                             </div>
                           </div>
-                          <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
+                          <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
                         </div>
                       {{elseif result == 'comment'}}
                         <div>
@@ -141,7 +141,7 @@
                               <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}(edited {{ formatDate(obj.created_at) }}) {{/if}}</p>
                             </div>
                           </div>
-                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' basline=false></faicon> {{{ snippet_html }}}</p>
+                          <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
                         </div>
                       {{/if}}
                     </div>
