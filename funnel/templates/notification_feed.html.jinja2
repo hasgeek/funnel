@@ -45,7 +45,7 @@
   <script type="text/javascript">
     $(function() {
       var notificationConfig = {
-        markReadUrl: {{ url_for('notification_mark_read', eventid='eventid')|tojson }},
+        markReadUrl: {{ url_for('notification_mark_read', eventid_b58='eventid_b58')|tojson }},
         divElem: '#notifications',
       };
 

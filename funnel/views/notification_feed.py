@@ -1,11 +1,11 @@
-from flask import redirect
+from flask import abort, redirect
 
 from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 import baseframe.forms as forms
 
 from .. import app, funnelapp, lastuserapp
-from ..models import Notification, UserNotification, db, notification_web_types
+from ..models import UserNotification, db
 from .helpers import app_url_for
 from .login_session import requires_login
 
@@ -19,15 +19,8 @@ class AllNotificationsView(ClassView):
     @render_with('notification_feed.html.jinja2', json=True)
     @requestargs(('page', int), ('per_page', int))
     def view(self, page=1, per_page=10):
-        pagination = (
-            UserNotification.query.join(Notification)
-            .filter(
-                Notification.type.in_(notification_web_types),
-                UserNotification.user == current_auth.user,
-                UserNotification.revoked_at.is_(None),
-            )
-            .order_by(Notification.created_at.desc())
-            .paginate(page=page, per_page=per_page, max_per_page=100)
+        pagination = UserNotification.web_notifications_for(current_auth.user).paginate(
+            page=page, per_page=per_page, max_per_page=100
         )
         return {
             'show_transport_alert': not current_auth.user.has_transport_sms(),
@@ -61,16 +54,7 @@ class AllNotificationsView(ClassView):
         }
 
     def unread_count(self):
-        return (
-            UserNotification.query.join(Notification)
-            .filter(
-                Notification.type.in_(notification_web_types),
-                UserNotification.user == current_auth.user,
-                UserNotification.read_at.is_(None),
-                UserNotification.revoked_at.is_(None),
-            )
-            .count()
-        )
+        UserNotification.unread_count_for(current_auth.user)
 
     @route('count', endpoint='notifications_count')
     @render_with(json=True)
@@ -84,39 +68,37 @@ class AllNotificationsView(ClassView):
             }
         return {'status': 'error', 'error': 'requires_login'}, 400
 
-    @route('mark_read/<eventid>', endpoint='notification_mark_read', methods=['POST'])
+    @route(
+        'mark_read/<eventid_b58>', endpoint='notification_mark_read', methods=['POST']
+    )
     @requires_login
     @render_with(json=True)
-    def mark_read(self, eventid):
-        # TODO: Use Base58 ids
+    def mark_read(self, eventid_b58):
         form = forms.Form()
         del form.form_nonce
         if form.validate_on_submit():
-            # TODO: Use query.get((user_id, eventid)) and do manual 404
-            un = UserNotification.query.filter(
-                UserNotification.user == current_auth.user,
-                UserNotification.eventid == eventid,
-            ).one_or_404()
+            un = UserNotification.get_for(current_auth.user, eventid_b58)
+            if not un:
+                abort(404)
             un.is_read = True
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}
         return {'status': 'error', 'error': 'csrf'}, 400
 
     @route(
-        'mark_unread/<eventid>', endpoint='notification_mark_unread', methods=['POST']
+        'mark_unread/<eventid_b58>',
+        endpoint='notification_mark_unread',
+        methods=['POST'],
     )
     @requires_login
     @render_with(json=True)
-    def mark_unread(self, eventid):
-        # TODO: Use Base58 ids
+    def mark_unread(self, eventid_b58):
         form = forms.Form()
         del form.form_nonce
         if forms.validate_on_submit():
-            # TODO: Use query.get((user_id, eventid)) and do manual 404
-            un = UserNotification.query.filter(
-                UserNotification.user == current_auth.user,
-                UserNotification.eventid == eventid,
-            ).one_or_404()
+            un = UserNotification.get_for(current_auth.user, eventid_b58)
+            if not un:
+                abort(404)
             un.is_read = False
             db.session.commit()
             return {'status': 'ok', 'unread': self.unread_count()}

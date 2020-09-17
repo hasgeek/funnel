@@ -83,8 +83,18 @@ from sqlalchemy.orm.collections import column_mapped_collection
 from werkzeug.utils import cached_property
 
 from baseframe import __
-from coaster.sqlalchemy import auto_init_default, immutable, with_roles
-from coaster.utils import LabeledEnum, classmethodproperty
+from coaster.sqlalchemy import (
+    SqlUuidB58Comparator,
+    auto_init_default,
+    immutable,
+    with_roles,
+)
+from coaster.utils import (
+    LabeledEnum,
+    classmethodproperty,
+    uuid_from_base58,
+    uuid_to_base58,
+)
 
 from . import BaseMixin, NoIdMixin, UUIDType, db
 from .helpers import reopen
@@ -300,6 +310,7 @@ class Notification(NoIdMixin, db.Model):
     __datasets__ = {
         'primary': {
             'eventid',
+            'eventid_b58',
             'document_type',
             'fragment_type',
             'document',
@@ -309,6 +320,7 @@ class Notification(NoIdMixin, db.Model):
         },
         'related': {
             'eventid',
+            'eventid_b58',
             'document_type',
             'fragment_type',
             'document',
@@ -373,6 +385,19 @@ class Notification(NoIdMixin, db.Model):
     def identity(self):
         """Primary key of this object."""
         return (self.eventid, self.id)
+
+    @hybrid_property
+    def eventid_b58(self):
+        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
+        return uuid_to_base58(self.eventid)
+
+    @eventid_b58.setter
+    def eventid_b58(self, value):
+        self.eventid = uuid_from_base58(value)
+
+    @eventid_b58.comparator
+    def eventid_b58(cls):  # NOQA: N805
+        return SqlUuidB58Comparator(cls.eventid)
 
     @with_roles(read={'all'})
     @classmethodproperty
@@ -495,7 +520,7 @@ class PreviewNotification:
     """
 
     def __init__(self, cls, document, fragment=None):
-        self.eventid = self.id = 'preview'  # May need to be a UUID
+        self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
         self.document = document
         self.document_uuid = document.uuid
@@ -628,6 +653,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         'primary': {
             'created_at',
             'eventid',
+            'eventid_b58',
             'role',
             'read_at',
             'is_read',
@@ -638,6 +664,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         'related': {
             'created_at',
             'eventid',
+            'eventid_b58',
             'role',
             'read_at',
             'is_read',
@@ -652,6 +679,21 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     def identity(self):
         """Primary key of this object."""
         return (self.user_id, self.eventid)
+
+    @hybrid_property
+    def eventid_b58(self):
+        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
+        return uuid_to_base58(self.eventid)
+
+    @eventid_b58.setter
+    def eventid_b58(self, value):
+        self.eventid = uuid_from_base58(value)
+
+    @eventid_b58.comparator
+    def eventid_b58(cls):  # NOQA: N805
+        return SqlUuidB58Comparator(cls.eventid)
+
+    with_roles(eventid_b58, read={'owner'})
 
     @hybrid_property
     def is_read(self):
@@ -847,6 +889,38 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 .join(UserNotification.notification)
                 .filter(UserNotification.rollupid == self.rollupid)
             )
+        )
+
+    @classmethod
+    def get_for(cls, user, eventid_b58):
+        """
+        Helper method to retrieve a UserNotification using SQLAlchemy session cache.
+        """
+        return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
+
+    @classmethod
+    def web_notifications_for(cls, user):
+        return (
+            UserNotification.query.join(Notification)
+            .filter(
+                Notification.type.in_(notification_web_types),
+                UserNotification.user == user,
+                UserNotification.revoked_at.is_(None),
+            )
+            .order_by(Notification.created_at.desc())
+        )
+
+    @classmethod
+    def unread_count_for(cls, user):
+        return (
+            UserNotification.query.join(Notification)
+            .filter(
+                Notification.type.in_(notification_web_types),
+                UserNotification.user == user,
+                UserNotification.read_at.is_(None),
+                UserNotification.revoked_at.is_(None),
+            )
+            .count()
         )
 
     @classmethod

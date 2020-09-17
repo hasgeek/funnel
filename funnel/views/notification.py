@@ -110,7 +110,7 @@ class RenderNotification:
             'utm_medium': transport or 'email',
         }
         if not self.notification.for_private_recipient:
-            tags['utm_source'] = self.notification.eventid
+            tags['utm_source'] = self.notification.eventid_b58
         return tags
 
     def unsubscribe_token(self, transport):
@@ -163,7 +163,7 @@ class RenderNotification:
                 'notification_type': self.notification.type,
                 'transport': transport,
                 'hash': self.transport_for(transport).transport_hash,
-                'eventid': self.notification.eventid,
+                'eventid_b58': self.notification.eventid_b58,
                 'timestamp': datetime.utcnow(),  # Naive timestamp
             },
             timeout=14 * 24 * 60 * 60,  # Reserve generated token for 14 days
