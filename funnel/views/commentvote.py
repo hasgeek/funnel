@@ -22,10 +22,8 @@ from ..models import (
     CommentReplyNotification,
     CommentReportReceivedNotification,
     Commentset,
-    Project,
-    ProjectCommentNotification,
+    NewCommentNotification,
     Proposal,
-    ProposalCommentNotification,
     Voteset,
     db,
 )
@@ -35,15 +33,6 @@ from .mixins import ProposalViewMixin
 from .notification import dispatch_notification
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
-
-
-def comment_notification_type(comment):
-    # FIXME: Move this into a CommentMixin model
-    parent = comment.commentset.parent
-    if isinstance(parent, Project):
-        return ProjectCommentNotification(document=parent, fragment=comment)
-    if isinstance(parent, Proposal):
-        return ProposalCommentNotification(document=parent, fragment=comment)
 
 
 @Comment.views('url')
@@ -166,7 +155,9 @@ class CommentsetView(UrlForView, ModelView):
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
             db.session.commit()
-            dispatch_notification(comment_notification_type(comment))
+            dispatch_notification(
+                NewCommentNotification(document=comment.commentset, fragment=comment)
+            )
             return {
                 'status': 'ok',
                 'message': _("Your comment has been posted"),
@@ -235,7 +226,7 @@ class CommentView(UrlForView, ModelView):
                 CommentReplyNotification(
                     document=comment.in_reply_to, fragment=comment
                 ),
-                comment_notification_type(comment),
+                NewCommentNotification(document=comment.commentset, fragment=comment),
             )
             return {
                 'status': 'ok',
