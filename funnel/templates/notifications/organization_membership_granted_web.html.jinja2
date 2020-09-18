@@ -2,7 +2,7 @@
 
 {%- block content -%}
   {%- if view.is_rollup -%}
-    <ol>
+    <ol class="mui-list--aligned">
       {%- for membership in view.fragments -%}
         <li>{{ view.activity_html(membership) }} <span class="mui--text-body2">{{ membership.granted_at|age }}</span></li>
       {%- endfor %}
