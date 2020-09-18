@@ -920,22 +920,6 @@ a.loginbutton.hidden,
   }
 }
 
-.hg-link-btn.mui--hide {
-  display: none;
-}
-
-.mui-dropdown__menu--hg-link {
-  max-width: 130px;
-  overflow: hidden;
-  .js-copy-url {
-    padding-left: 90px;
-  }
-}
-
-.mui-dropdown__menu--small {
-  min-width: 100px;
-}
-
 .circle-icon {
   display: inline-block;
   background: $mui-bg-color-accent;
@@ -948,9 +932,10 @@ a.loginbutton.hidden,
 
 .link-icon {
   font-size: 12px;
-  padding-right: $mui-grid-padding/2 !important;
+  font-weight: normal;
+  padding: 0 $mui-grid-padding/2 $mui-grid-padding/2;
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: capitalize;
   text-decoration: none !important;
   .fa5-icon {
     width: 12px;
@@ -962,11 +947,32 @@ a.loginbutton.hidden,
 @media (min-width: 768px) {
   .link-icon {
     font-size: 14px;
-    padding-right: $mui-grid-padding !important;
     .fa5-icon {
       width: 14px;
       height: 14px;
       margin-right: 8px;
     }
   }
+}
+
+.mui-dropdown__menu {
+  margin-top: 8px;
+}
+
+.mui-dropdown__menu--hg-link {
+  max-width: 105px;
+  min-width: 105px;
+  z-index: 1003;
+  overflow: hidden;
+  margin-top: 0;
+  > li > a {
+    color: $mui-text-light;
+  }
+  .js-copy-url {
+    padding-left: 90px;
+  }
+}
+
+.mui-dropdown__menu--small {
+  min-width: auto;
 }

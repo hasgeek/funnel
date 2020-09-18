@@ -847,22 +847,6 @@ a.loginbutton.hidden,
     width: 50%;
   }
 }
-.hg-link-btn.mui--hide {
-  display: none;
-}
-
-.mui-dropdown__menu--hg-link {
-  max-width: 130px;
-  overflow: hidden;
-}
-.mui-dropdown__menu--hg-link .js-copy-url {
-  padding-left: 90px;
-}
-
-.mui-dropdown__menu--small {
-  min-width: 100px;
-}
-
 .circle-icon {
   display: inline-block;
   background: #f9f9f9;
@@ -875,9 +859,10 @@ a.loginbutton.hidden,
 
 .link-icon {
   font-size: 12px;
-  padding-right: 8px !important;
+  font-weight: normal;
+  padding: 0 8px 8px;
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: capitalize;
   text-decoration: none !important;
 }
 .link-icon .fa5-icon {
@@ -889,7 +874,6 @@ a.loginbutton.hidden,
 @media (min-width: 768px) {
   .link-icon {
     font-size: 14px;
-    padding-right: 16px !important;
   }
   .link-icon .fa5-icon {
     width: 14px;
@@ -897,6 +881,28 @@ a.loginbutton.hidden,
     margin-right: 8px;
   }
 }
+.mui-dropdown__menu {
+  margin-top: 8px;
+}
+
+.mui-dropdown__menu--hg-link {
+  max-width: 105px;
+  min-width: 105px;
+  z-index: 1003;
+  overflow: hidden;
+  margin-top: 0;
+}
+.mui-dropdown__menu--hg-link > li > a {
+  color: #4d5763;
+}
+.mui-dropdown__menu--hg-link .js-copy-url {
+  padding-left: 90px;
+}
+
+.mui-dropdown__menu--small {
+  min-width: auto;
+}
+
 @media (max-width: 767px) {
   #root_footer {
     padding-top: 32px;
@@ -3305,9 +3311,6 @@ a.loginbutton.hidden,
 .project-banner .project-banner__footer .bookmark a {
   text-decoration: none !important;
 }
-.project-banner .project-banner__footer .link-icon {
-  padding-right: 0;
-}
 .project-banner .project-banner__footer .hg-link-btn.hide {
   display: none;
 }
@@ -3325,10 +3328,6 @@ a.loginbutton.hidden,
 }
 .project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
   margin: 0;
-}
-.project-banner .project-banner__footer .mui-dropdown__menu {
-  min-width: auto;
-  z-index: 1003;
 }
 .project-banner .project-details__box {
   margin-top: 16px;
@@ -3381,13 +3380,6 @@ a.loginbutton.hidden,
 .project-banner .project-details__box .project-venue {
   margin: 10px 0;
 }
-.project-banner .project-details__box .add-calendar {
-  position: absolute;
-  right: 45px;
-  top: 0;
-  font-size: 16px;
-  font-variant: all-small-caps;
-}
 .project-banner .project-details__box .propose {
   margin: 8px 0 0;
 }
@@ -3424,6 +3416,10 @@ a.loginbutton.hidden,
   .project-banner .project-banner__footer {
     padding: 0;
     justify-content: unset;
+  }
+  .project-banner .project-banner__footer .project-links,
+  .project-banner .project-banner__footer .hg-link-btn {
+    padding-right: 24px !important;
   }
   .project-banner .project-details__box .propose .propose__txt {
     font-size: 14px;
@@ -4246,7 +4242,6 @@ a.loginbutton.hidden,
 @media (min-width: 768px) {
   .comment__body__links.link-icon {
     font-size: 12px;
-    padding-right: 16px !important;
   }
   .comment__body__links.link-icon .fa5-icon {
     width: 12px;
@@ -5084,9 +5079,7 @@ body > .proposal-box.ui-draggable {
   position: relative;
 }
 .update .update__action-btn {
-  position: absolute;
-  top: 42px;
-  right: 0;
+  float: right;
 }
 .update .update__header {
   margin-bottom: 16px;
@@ -5111,6 +5104,13 @@ body > .proposal-box.ui-draggable {
   margin: 0;
 }
 
+@media (max-width: 767px) {
+  .update .update__action-btn .mui-dropdown__menu {
+    right: 0;
+    left: unset;
+    border-radius: 16px 0 16px 16px;
+  }
+}
 @media (min-width: 768px) {
   .pinned {
     top: 110px;
@@ -5123,6 +5123,9 @@ body > .proposal-box.ui-draggable {
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: #f9f9f9;
+  }
+  .update .update__heading {
+    float: left;
   }
   .update .update__action-btn {
     position: static;

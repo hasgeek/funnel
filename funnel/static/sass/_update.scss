@@ -9,9 +9,7 @@
   position: relative;
 
   .update__action-btn {
-    position: absolute;
-    top: 42px;
-    right: 0;
+    float: right;
   }
 
   .update__header {
@@ -43,6 +41,18 @@
   }
 }
 
+@media (max-width: 767px) {
+  .update {
+    .update__action-btn {
+      .mui-dropdown__menu {
+        right: 0;
+        left: unset;
+        border-radius: 16px 0 16px 16px;
+      }
+    }
+  }
+}
+
 @media (min-width: 768px) {
   .pinned {
     top: 110px;
@@ -54,6 +64,9 @@
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: $mui-bg-color-accent;
+    .update__heading {
+      float: left;
+    }
     .update__action-btn {
       position: static;
     }

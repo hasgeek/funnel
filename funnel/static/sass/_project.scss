@@ -96,9 +96,6 @@
     .bookmark a {
       text-decoration: none !important;
     }
-    .link-icon {
-      padding-right: 0;
-    }
     .hg-link-btn.hide {
       display: none;
     }
@@ -118,10 +115,6 @@
     }
     .mui-btn--nostyle + .mui-btn--nostyle {
       margin: 0;
-    }
-    .mui-dropdown__menu {
-      min-width: auto;
-      z-index: 1003;
     }
   }
 
@@ -156,13 +149,6 @@
     }
     .project-venue {
       margin: 10px 0;
-    }
-    .add-calendar {
-      position: absolute;
-      right: 45px;
-      top: 0;
-      font-size: 16px;
-      font-variant: all-small-caps;
     }
     .propose {
       margin: 8px 0 0;
@@ -203,6 +189,10 @@
     .project-banner__footer {
       padding: 0;
       justify-content: unset;
+      .project-links,
+      .hg-link-btn {
+        padding-right: 24px !important;
+      }
     }
     .project-details__box {
       .propose {
