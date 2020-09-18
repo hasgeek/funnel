@@ -1,5 +1,6 @@
 describe('Confirm proposal', function () {
   const editor = require('../fixtures/user.json').editor;
+  const member = require('../fixtures/user.json').user;
   const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
@@ -56,5 +57,12 @@ describe('Confirm proposal', function () {
     var cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(proposal.comment);
     cy.get(`${cid} .comment__header`).contains(editor.username);
+    cy.visit('/');
+    cy.logout();
+    cy.wait(1000);
+    cy.login('/' + profile.title, member.username, member.password);
+    cy.visit('/updates')
+    cy.wait(1000);
+    cy.contains('You submitted');
   });
 });
