@@ -58,5 +58,11 @@ describe('Test updates feature', function () {
       .contains(project.restricted_update_body)
       .should('not.exist');
     cy.logout();
+
+    cy.wait(2000);
+    cy.login('/', user.username, user.password);
+    cy.visit('/updates')
+    cy.wait(1000);
+    cy.contains('posted an update in');
   });
 });
