@@ -165,7 +165,7 @@ class NewCommentNotification(Notification):
 
     __mapper_args__ = {'polymorphic_identity': 'comment_new'}
 
-    category = notification_categories.project_crew
+    category = notification_categories.participant
     title = __("When my project or proposal receives a comment")
     exclude_actor = True
 
