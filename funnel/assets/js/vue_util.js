@@ -1,4 +1,5 @@
 import Vue from 'vue/dist/vue.min';
+import { Utils } from './util';
 
 export const userAvatarUI = Vue.component('useravatar', {
   template:
@@ -63,5 +64,8 @@ export const shareDropdown = Vue.component('sharedropdown', {
     linkedinUrl() {
       return `https://www.linkedin.com/shareArticle?mini=true&url=${this.url}&title=${this.title}&amp;utm_campaign=share-linkedin`;
     },
+  },
+  mounted() {
+    Utils.addWebShare();
   },
 });
