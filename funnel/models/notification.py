@@ -83,8 +83,18 @@ from sqlalchemy.orm.collections import column_mapped_collection
 from werkzeug.utils import cached_property
 
 from baseframe import __
-from coaster.sqlalchemy import auto_init_default, with_roles
-from coaster.utils import LabeledEnum, classmethodproperty
+from coaster.sqlalchemy import (
+    SqlUuidB58Comparator,
+    auto_init_default,
+    immutable,
+    with_roles,
+)
+from coaster.utils import (
+    LabeledEnum,
+    classmethodproperty,
+    uuid_from_base58,
+    uuid_to_base58,
+)
 
 from . import BaseMixin, NoIdMixin, UUIDType, db
 from .helpers import reopen
@@ -177,10 +187,10 @@ class SMS_STATUS(LabeledEnum):  # NOQA: N801
 class SMSMessage(BaseMixin, db.Model):
     __tablename__ = 'sms_message'
     # Phone number that the message was sent to
-    phone_number = db.Column(db.String(15), nullable=False)
-    transactionid = db.Column(db.UnicodeText, unique=True, nullable=True)
+    phone_number = immutable(db.Column(db.String(15), nullable=False))
+    transactionid = immutable(db.Column(db.UnicodeText, unique=True, nullable=True))
     # The message itself
-    message = db.Column(db.UnicodeText, nullable=False)
+    message = immutable(db.Column(db.UnicodeText, nullable=False))
     # Flags
     status = db.Column(db.Integer, default=SMS_STATUS.QUEUED, nullable=False)
     status_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
@@ -211,13 +221,17 @@ class Notification(NoIdMixin, db.Model):
     #: Random identifier for the event that triggered this notification. Event ids can
     #: be shared across notifications, and will be used to enforce a limit of one
     #: instance of a UserNotification per-event rather than per-notification
-    eventid = db.Column(
-        UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+    eventid = immutable(
+        db.Column(
+            UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+        )
     )
 
     #: Notification id
-    id = db.Column(  # NOQA: A003
-        UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+    id = immutable(  # NOQA: A003
+        db.Column(
+            UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+        )
     )
 
     #: Default category of notification. Subclasses MUST override
@@ -249,24 +263,26 @@ class Notification(NoIdMixin, db.Model):
     preference_context = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
-    type = db.Column(db.Unicode, nullable=False)  # NOQA: A003
+    type = immutable(db.Column(db.Unicode, nullable=False))  # NOQA: A003
 
     #: Id of user that triggered this notification
-    user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+    user_id = immutable(
+        db.Column(None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    user = db.relationship(User)
+    user = immutable(db.relationship(User))
 
     #: UUID of document that the notification refers to
-    document_uuid = db.Column(UUIDType(binary=False), nullable=False, index=True)
+    document_uuid = immutable(
+        db.Column(UUIDType(binary=False), nullable=False, index=True)
+    )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
-    fragment_uuid = db.Column(UUIDType(binary=False), nullable=True)
+    fragment_uuid = immutable(db.Column(UUIDType(binary=False), nullable=True))
 
     __table_args__ = (
         # This could have been achieved with a UniqueConstraint on all three columns.
@@ -294,6 +310,7 @@ class Notification(NoIdMixin, db.Model):
     __datasets__ = {
         'primary': {
             'eventid',
+            'eventid_b58',
             'document_type',
             'fragment_type',
             'document',
@@ -303,6 +320,7 @@ class Notification(NoIdMixin, db.Model):
         },
         'related': {
             'eventid',
+            'eventid_b58',
             'document_type',
             'fragment_type',
             'document',
@@ -367,6 +385,19 @@ class Notification(NoIdMixin, db.Model):
     def identity(self):
         """Primary key of this object."""
         return (self.eventid, self.id)
+
+    @hybrid_property
+    def eventid_b58(self):
+        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
+        return uuid_to_base58(self.eventid)
+
+    @eventid_b58.setter
+    def eventid_b58(self, value):
+        self.eventid = uuid_from_base58(value)
+
+    @eventid_b58.comparator
+    def eventid_b58(cls):  # NOQA: N805
+        return SqlUuidB58Comparator(cls.eventid)
 
     @with_roles(read={'all'})
     @classmethodproperty
@@ -489,7 +520,7 @@ class PreviewNotification:
     """
 
     def __init__(self, cls, document, fragment=None):
-        self.eventid = self.id = 'preview'  # May need to be a UUID
+        self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
         self.document = document
         self.document_uuid = document.uuid
@@ -535,26 +566,36 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     # Primary key is a compound of (user_id, eventid).
 
     #: Id of user being notified
-    user_id = db.Column(
-        None,
-        db.ForeignKey('user.id', ondelete='CASCADE'),
-        primary_key=True,
-        nullable=False,
+    user_id = immutable(
+        db.Column(
+            None,
+            db.ForeignKey('user.id', ondelete='CASCADE'),
+            primary_key=True,
+            nullable=False,
+        )
     )
     #: User being notified (backref defined below, outside the model)
-    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
+    user = with_roles(
+        immutable(db.relationship(User)), read={'owner'}, grants={'owner'}
+    )
 
     #: Random eventid, shared with the Notification instance
     eventid = with_roles(
-        db.Column(UUIDType(binary=False), primary_key=True, nullable=False),
+        immutable(db.Column(UUIDType(binary=False), primary_key=True, nullable=False)),
         read={'owner'},
     )
 
     #: Id of notification that this user received
-    notification_id = db.Column(None, nullable=False)  # fkey in __table_args__ below
+    notification_id = immutable(
+        db.Column(None, nullable=False)
+    )  # fkey in __table_args__ below
     #: Notification that this user received
     notification = with_roles(
-        db.relationship(Notification, backref=db.backref('recipients', lazy='dynamic')),
+        immutable(
+            db.relationship(
+                Notification, backref=db.backref('recipients', lazy='dynamic')
+            )
+        ),
         read={'owner'},
     )
 
@@ -564,7 +605,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     #: Note: This column represents the first instance of a role shifting from being an
     #: entirely in-app symbol (i.e., code refactorable) to being data in the database
     #: (i.e., requiring a data migration alongside a code refactor)
-    role = with_roles(db.Column(db.Unicode, nullable=False), read={'owner'})
+    role = with_roles(immutable(db.Column(db.Unicode, nullable=False)), read={'owner'})
 
     #: Timestamp for when this notification was marked as read
     read_at = with_roles(
@@ -572,12 +613,13 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         read={'owner'},
     )
 
-    #: Whether the notification has been revoked. This can happen if:
+    #: Timestamp when/if the notification is revoked. This can happen if:
     #: 1. The action that caused the notification has been undone (future use), or
     #: 2. A new notification has been raised for the same document and this user was
     #:    a recipient of the new notification.
-    is_revoked = with_roles(
-        db.Column(db.Boolean, default=False, nullable=False, index=True), read={'owner'}
+    revoked_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        read={'owner'},
     )
 
     #: When a roll-up is performed, record an identifier for the items rolled up
@@ -611,6 +653,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         'primary': {
             'created_at',
             'eventid',
+            'eventid_b58',
             'role',
             'read_at',
             'is_read',
@@ -621,6 +664,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         'related': {
             'created_at',
             'eventid',
+            'eventid_b58',
             'role',
             'read_at',
             'is_read',
@@ -635,6 +679,21 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     def identity(self):
         """Primary key of this object."""
         return (self.user_id, self.eventid)
+
+    @hybrid_property
+    def eventid_b58(self):
+        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
+        return uuid_to_base58(self.eventid)
+
+    @eventid_b58.setter
+    def eventid_b58(self, value):
+        self.eventid = uuid_from_base58(value)
+
+    @eventid_b58.comparator
+    def eventid_b58(cls):  # NOQA: N805
+        return SqlUuidB58Comparator(cls.eventid)
+
+    with_roles(eventid_b58, read={'owner'})
 
     @hybrid_property
     def is_read(self):
@@ -654,6 +713,25 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         return cls.read_at.isnot(None)
 
     with_roles(is_read, rw={'owner'})
+
+    @hybrid_property
+    def is_revoked(self):
+        """Whether this notification has been marked as revoked."""
+        return self.revoked_at is not None
+
+    @is_revoked.setter
+    def is_revoked(self, value):
+        if value:
+            if not self.revoked_at:
+                self.revoked_at = db.func.utcnow()
+        else:
+            self.revoked_at = None
+
+    @is_revoked.expression
+    def is_revoked(cls):  # NOQA: N805
+        return cls.revoked_at.isnot(None)
+
+    with_roles(is_revoked, rw={'owner'})
 
     # --- Dispatch helper methods ------------------------------------------------------
 
@@ -747,7 +825,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 # Earlier instance is unread
                 UserNotification.read_at.is_(None),
                 # Earlier instance is not revoked
-                UserNotification.is_revoked.is_(False),
+                UserNotification.revoked_at.is_(None),
                 # Earlier instance has a rollupid
                 UserNotification.rollupid.isnot(None),
             )
@@ -779,7 +857,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                     # Same role as earlier notification,
                     UserNotification.role == self.role,
                     # Earlier instance is not revoked
-                    UserNotification.is_revoked.is_(False),
+                    UserNotification.revoked_at.is_(None),
                     # Earlier instance shares our rollupid
                     UserNotification.rollupid == self.rollupid,
                 )
@@ -787,7 +865,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                     db.load_only(
                         UserNotification.user_id,
                         UserNotification.eventid,
-                        UserNotification.is_revoked,
+                        UserNotification.revoked_at,
                         UserNotification.rollupid,
                     )
                 )
@@ -814,6 +892,38 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         )
 
     @classmethod
+    def get_for(cls, user, eventid_b58):
+        """
+        Helper method to retrieve a UserNotification using SQLAlchemy session cache.
+        """
+        return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
+
+    @classmethod
+    def web_notifications_for(cls, user):
+        return (
+            UserNotification.query.join(Notification)
+            .filter(
+                Notification.type.in_(notification_web_types),
+                UserNotification.user == user,
+                UserNotification.revoked_at.is_(None),
+            )
+            .order_by(Notification.created_at.desc())
+        )
+
+    @classmethod
+    def unread_count_for(cls, user):
+        return (
+            UserNotification.query.join(Notification)
+            .filter(
+                Notification.type.in_(notification_web_types),
+                UserNotification.user == user,
+                UserNotification.read_at.is_(None),
+                UserNotification.revoked_at.is_(None),
+            )
+            .count()
+        )
+
+    @classmethod
     def migrate_user(cls, old_user, new_user):
         for user_notification in cls.query.filter_by(user_id=old_user.id).all():
             existing = cls.query.get((new_user.id, user_notification.eventid))
@@ -829,7 +939,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 class NotificationFor(UserNotificationMixin):
     """View-only wrapper to mimic :class:`UserNotification`."""
 
-    identity = read_at = None
+    identity = read_at = revoked_at = None
     is_revoked = is_read = False
 
     def __init__(self, notification, user):
@@ -868,15 +978,22 @@ class NotificationPreferences(BaseMixin, db.Model):
     __tablename__ = 'notification_preferences'
 
     #: Id of user whose preferences are represented here
-    user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True
+    user_id = immutable(
+        db.Column(
+            None,
+            db.ForeignKey('user.id', ondelete='CASCADE'),
+            nullable=False,
+            index=True,
+        )
     )
     #: User whose preferences are represented here
-    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
+    user = with_roles(
+        immutable(db.relationship(User)), read={'owner'}, grants={'owner'}
+    )
 
     # Notification type, corresponding to Notification.type (a class attribute there)
     # notification_type = '' holds the veto switch to disable a transport entirely
-    notification_type = db.Column(db.Unicode, nullable=False)
+    notification_type = immutable(db.Column(db.Unicode, nullable=False))
 
     by_email = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
     by_sms = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})

@@ -29,6 +29,7 @@ class COMMENT_STATE(LabeledEnum):  # NOQA: N801
 
 
 # What is this Voteset or Commentset attached to?
+# TODO: Deprecated, doesn't help as much as we thought it would
 class SET_TYPE:  # NOQA: N801
     PROJECT = 0
     PROPOSAL = 2
@@ -112,7 +113,12 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     settype = db.Column('type', db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
 
-    __roles__ = {'all': {'read': {'settype', 'count'}}}
+    __roles__ = {
+        'all': {
+            'read': {'settype', 'count', 'project', 'proposal'},
+            'call': {'url_for'},
+        }
+    }
 
     __datasets__ = {
         'primary': {'settype', 'count'},
@@ -123,6 +129,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         super(Commentset, self).__init__(**kwargs)
         self.count = 0
 
+    @with_roles(read={'all'})
     @property
     def parent(self):
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
@@ -132,6 +139,14 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         elif self.proposal is not None:
             parent = self.proposal
         return parent
+
+    @with_roles(read={'all'})
+    @property
+    def parent_type(self):
+        parent = self.parent
+        if parent:
+            return parent.__tablename__
+        return None
 
     def permissions(self, user, inherited=None):
         perms = super().permissions(user, inherited)
