@@ -3417,6 +3417,7 @@ a.loginbutton.hidden,
     padding: 0;
     justify-content: unset;
   }
+  .project-banner .project-banner__footer .bookmark,
   .project-banner .project-banner__footer .project-links,
   .project-banner .project-banner__footer .hg-link-btn {
     padding-right: 24px !important;
