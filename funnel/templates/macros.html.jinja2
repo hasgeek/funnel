@@ -815,7 +815,7 @@
                 <a class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)"><faicon :icon="'comment-alt'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
                 <a class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="fetchForm($event, comment.urls.report_spam)"><faicon :icon="'flag-alt'":baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
                 <div class="mui-dropdown">
-                  <a href="javascript:void(0)" class="link-icon  mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
+                  <a href="javascript:void(0)" class="link-icon project-links mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
                   <sharedropdown :url='comment.urls.view' :title='comment.title'></sharedropdown>
                 </div>
                 <a href="javascript:void(0)" class="link-icon mui--text-light hg-link-btn mui--hide right-padding" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :baseline=true></faicon></a>
