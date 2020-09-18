@@ -49,6 +49,10 @@ commentset = table(
 
 
 def upgrade():
+    # UPDATE notification SET type=:type, document_uuid=commentset.uuid
+    # FROM project, commentset
+    # WHERE notification.type = :type_1 AND notification.document_uuid = project.uuid
+    # AND project.commentset_id = commentset.id
     op.execute(
         notification.update()
         .values(type='comment_new', document_uuid=commentset.c.uuid)
