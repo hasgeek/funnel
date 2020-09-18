@@ -8,8 +8,8 @@ from sqlalchemy.dialects.postgresql.base import (
 
 from flask import current_app
 
+from furl import furl
 from zxcvbn import zxcvbn
-import furl
 
 from . import UrlType
 
@@ -23,6 +23,7 @@ __all__ = [
     'password_policy',
     'valid_name',
     'valid_username',
+    'ImgeeType',
 ]
 
 
@@ -370,25 +371,30 @@ def add_search_trigger(model, column_name):
     }
 
 
+class ImageFurl(furl):
+    def resize(self, height, width):
+        """
+        Returns image url with `?size=HxW` suffixed to it
+
+        :param height: Height to resize the image to
+        :param width: Width to resize the image to
+        """
+        if self.url:
+            self.args['size'] = f"{height}x{width}"
+        return self
+
+
 class ImgeeType(UrlType):
+    url_parser = ImageFurl
+
     def __init__(self, *args, **kwargs):
         self.imgee_host = furl(current_app.config['IMGEE_HOST']).host
         super().__init__(*args, **kwargs)
 
     def process_bind_param(self, value, dialect):
+        value = super(UrlType, self).process_bind_param(value, dialect)
         if value:
             parsed = furl(value)
             if parsed.host != self.imgee_host:
                 raise ValueError(f"Image must be hosted on {self.imgee_host}")
         return value
-
-    def resize(self, size=()):
-        """
-        Returns image url with `?size=HxW` suffixed to it
-
-        :param size: Height and width to resize the image to, as tuple, e.g. `(120, 120)`
-        """
-        height, width = size
-        if self.url:
-            self.args['size'] = f"{height}x{width}"
-        return self.url

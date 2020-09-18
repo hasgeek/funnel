@@ -1,3 +1,5 @@
+from sqlalchemy.exc import StatementError
+
 import pytest
 
 from funnel.models.helpers import add_to_class, reopen, valid_name, valid_username
@@ -142,3 +144,24 @@ def test_add_to_class():
         @add_to_class(ReferenceClass, 'foobar')
         def new_foobar(self):
             pass
+
+
+def test_imgeetype(test_client, test_db):
+    valid_url = "https://images.example.com/embed/file/randomimagehash"
+    invalid_url = "https://example.com/embed/file/randomimagehash"
+
+    m1 = test_db.MyImageModel(
+        image_url=invalid_url,
+    )
+    test_db.session.add(m1)
+    with pytest.raises(StatementError):
+        test_db.session.commit()
+    test_db.session.rollback()
+
+    m2 = test_db.MyImageModel(
+        image_url=valid_url,
+    )
+    test_db.session.add(m2)
+    test_db.session.commit()
+    assert m2.image_url.url == valid_url
+    assert m2.image_url.resize(120, 100).url == valid_url + "?size=120x100"
