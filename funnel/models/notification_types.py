@@ -146,6 +146,20 @@ class ProjectStartingNotification(DocumentHasProfile, Notification):
 # --- Comment notifications ------------------------------------------------------------
 
 
+class NewCommentNotification(Notification):
+    """Notification of new comment."""
+
+    __mapper_args__ = {'polymorphic_identity': 'comment_new'}
+
+    category = notification_categories.participant
+    title = __("When there is a new comment on a project or proposal I’m in")
+    exclude_actor = True
+
+    document_model = Commentset
+    fragment_model = Comment
+    roles = ['replied_to_commenter', 'document_subscriber']
+
+
 class CommentReplyNotification(Notification):
     """Notification of comment replies."""
 
@@ -158,20 +172,6 @@ class CommentReplyNotification(Notification):
     document_model = Comment  # Parent comment (being replied to)
     fragment_model = Comment  # Child comment (the reply that triggered notification)
     roles = ['replied_to_commenter']
-
-
-class NewCommentNotification(Notification):
-    """Notification of new comment."""
-
-    __mapper_args__ = {'polymorphic_identity': 'comment_new'}
-
-    category = notification_categories.participant
-    title = __("When my project or proposal receives a comment")
-    exclude_actor = True
-
-    document_model = Commentset
-    fragment_model = Comment
-    roles = ['replied_to_commenter', 'document_subscriber']
 
 
 # --- Project crew notifications -------------------------------------------------------
