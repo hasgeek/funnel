@@ -1,4 +1,4 @@
-from flask import Markup, abort, escape, flash, redirect, request
+from flask import Markup, abort, escape, flash, jsonify, redirect, request
 
 from bleach import linkify
 
@@ -206,11 +206,11 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('proposal.html.jinja2', json=True)
+    @render_with('proposal.html.jinja2')
     @requires_permission('view')
     def view(self):
         if request_is_xhr():
-            return {'comments': self.obj.commentset.views.json_comments()}
+            return jsonify({'comments': self.obj.commentset.views.json_comments()})
 
         commentform = CommentForm(model=Comment)
 
