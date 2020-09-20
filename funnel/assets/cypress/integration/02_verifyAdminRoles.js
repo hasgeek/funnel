@@ -28,7 +28,7 @@ describe('Profile admin roles', function () {
     cy.get('[data-cy="member"]').contains(owner.username).click();
     cy.get('#member-form', { timeout: 10000 }).should('not.be.visible');
     cy.wait(1000);
-    cy.visit('/updates')
+    cy.visit('/updates');
     cy.contains('Your role was changed to admin of');
   });
 });
