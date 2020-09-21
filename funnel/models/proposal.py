@@ -423,6 +423,17 @@ class Proposal(
     def cancel(self):
         pass
 
+    @with_roles(call={'creator'})
+    @state.transition(
+        state.CANCELLED,
+        state.SUBMITTED,
+        title=__("Undo cancel"),
+        message=__("This proposal's cancellation has been reversed"),
+        type='success',
+    )
+    def undo_cancel(self):
+        pass
+
     @with_roles(call={'project_editor', 'reviewer'})
     @state.transition(
         state.SUBMITTED,
