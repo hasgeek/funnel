@@ -3,8 +3,6 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from flask import url_for
-
 from dataclasses_json import config, dataclass_json
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
@@ -47,7 +45,7 @@ class TwilioSmsResponse:
     api_version: Optional[str] = field(metadata=config(field_name='ApiVersion'))
 
 
-def send(phone_number: str, message: str, callback: bool = False) -> str:
+def send(phone_number: str, message: str, callback: bool = True) -> str:
     """
     Send the message to a given phone number based on internal rules.
 
@@ -110,16 +108,14 @@ def _route_via_twilio(phone: str, message: str, callback: bool = False) -> str:
     token = app.config['SMS_TWILIO_TOKEN']
     sender = app.config['SMS_TWILIO_FROM']
 
+    # Call back if needed.
+    url_callback = None
+    if callback:
+        url_callback = app.config['SMS_TWILIO_CALLBACK']
+
     # Send (This uses the routing API to deliver SMS via a Low Latency Location).
     # See https://www.twilio.com/docs/global-infrastructure/edge-locations
     client = Client(account, token)
-
-    # We need a callback url, if it was not generated already.
-    if (not _route_via_twilio.url_callback) and callback:
-        with app.app_context():
-            _route_via_twilio.url_callback = url_for(
-                'process_twilio_event', _external=True
-            )
 
     # Error evaluation is needed as API may fail for a variety of reasons.
     try:
@@ -127,13 +123,8 @@ def _route_via_twilio(phone: str, message: str, callback: bool = False) -> str:
             from_=sender,
             to=phone,
             body=message,
-            status_callback=_route_via_twilio.url_callback,
+            status_callback=url_callback,
         )
         return msg.sid
     except TwilioRestException as e:
         raise TransportTransactionError("Twilio API Error", e.code, e.msg)
-
-
-# Function attribute for Twilio and Exotel callback.
-_route_via_twilio.url_callback = None
-_route_via_exotel.url_callback = None
