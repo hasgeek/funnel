@@ -27,7 +27,7 @@ class ProfileForm(OrganizationForm):
         description=__("This message will be shown on the profile page"),
     )
     logo_url = forms.ImgeeField(
-        label='Profile image URL',
+        label=__("Profile image URL"),
         description=__(
             "From images.hasgeek.com, with 1:1 aspect ratio."
             " Should be < 30 kB in size"

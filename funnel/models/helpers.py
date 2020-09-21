@@ -388,13 +388,13 @@ class ImgeeType(UrlType):
     url_parser = ImageFurl
 
     def __init__(self, *args, **kwargs):
-        self.imgee_host = furl(current_app.config['IMGEE_HOST']).host
+        self.imgee_host = self.url_parser(current_app.config['IMGEE_HOST']).host
         super().__init__(*args, **kwargs)
 
     def process_bind_param(self, value, dialect):
         value = super(UrlType, self).process_bind_param(value, dialect)
         if value:
-            parsed = furl(value)
+            parsed = self.url_parser(value)
             if parsed.host != self.imgee_host:
                 raise ValueError(f"Image must be hosted on {self.imgee_host}")
         return value
