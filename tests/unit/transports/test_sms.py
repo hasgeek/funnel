@@ -63,7 +63,10 @@ class TestTwilioCallback:
     URL = 'api/1/sms/twilio_event'
 
     # Dummy headers. Or else tests will start failing
-    HEADERS = {'X-Twilio-Signature': 'Random Signature'}
+    HEADERS = {
+        'X-Twilio-Signature': 'Random Signature',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
 
     def test_missing_header(self, test_client):
         """ Check for Missing Twilio header and GET Methods. """
