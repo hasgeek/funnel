@@ -17,7 +17,7 @@ from .base import (
     TransportTransactionError,
 )
 
-__all__ = ['send', 'SmsSender', 'TwilioSmsResponse']
+__all__ = ['send', 'TwilioSmsResponse']
 
 
 @dataclass_json
@@ -47,101 +47,93 @@ class TwilioSmsResponse:
     api_version: Optional[str] = field(metadata=config(field_name='ApiVersion'))
 
 
-class SmsSender:
-    """ Manages Sending SMS to different providers. """
+def send(phone_number: str, message: str, callback: bool = False) -> str:
+    """
+    Send the message to a given phone number based on internal rules.
 
-    def __init__(self, callback: bool = True):
-        self.twilio_callback = None
-        self.exotel_callback = None
-        self.callback = callback
+    :param phone_number: Phone Number
+    :param message: Message to deliver to Phone number.
+    :param callback: URL Callback for status updates
+    :return: SMS Message ID
+    """
+    if phone_number.startswith('+91'):
+        return _route_via_exotel(phone_number, message)
+    elif phone_number.startswith('+'):
+        return _route_via_twilio(phone_number, message, callback)
+    raise TransportRecipientError("No service provider available for this recipient")
 
-    def send(self, phone_number: str, message: str) -> str:
-        """
-        Send the message to a given phone number based on internal rules.
-        :param phone_number: Phone Number
-        :param message: Message to deliver to Phone number.
-        :return SMS Message ID
-        """
-        if phone_number.startswith('+91'):
-            return self._route_via_exotel(phone_number, message)
-        elif phone_number.startswith('+'):
-            return self._route_via_twilio(phone_number, message)
-        raise TransportRecipientError(
-            "No service provider available for this recipient"
+
+def _route_via_exotel(phone_number: str, message: str) -> str:
+    """
+    Route the SMS via Twilio. This is done only for messages that can't be delivered by exotel.
+
+    :param phone_number: Phone Number
+    :param message: Message to deliver to Phone number.
+    :return: SMS Message ID
+    """
+    sid = app.config['SMS_EXOTEL_SID']
+    token = app.config['SMS_EXOTEL_TOKEN']
+    try:
+        r = requests.post(
+            'https://twilix.exotel.in/v1/Accounts/{sid}/Sms/send.json'.format(sid=sid),
+            auth=(sid, token),
+            data={
+                'From': app.config['SMS_EXOTEL_FROM'],
+                'To': phone_number,
+                'Body': message,
+            },
         )
+        if r.status_code in (200, 201):
+            # All good
+            jsonresponse = r.json()
+            if isinstance(jsonresponse, (list, tuple)) and jsonresponse:
+                transactionid = jsonresponse[0].get('SMSMessage', {}).get('Sid')
+            else:
+                transactionid = jsonresponse.get('SMSMessage', {}).get('Sid')
+            return transactionid
+        raise TransportTransactionError("Exotel API error", r.status_code, r.text)
+    except requests.ConnectionError:
+        raise TransportConnectionError("Exotel not reachable")
 
-    @staticmethod
-    def _route_via_exotel(phone_number: str, message: str) -> str:
-        """
-        Route the SMS via Twilio. This is done only for messages that can't be delivered by exotel.
-        :param phone_number: Phone Number
-        :param message: Message to deliver to Phone number.
-        :return SMS Message ID
-        """
-        sid = app.config['SMS_EXOTEL_SID']
-        token = app.config['SMS_EXOTEL_TOKEN']
-        try:
-            r = requests.post(
-                'https://twilix.exotel.in/v1/Accounts/{sid}/Sms/send.json'.format(
-                    sid=sid
-                ),
-                auth=(sid, token),
-                data={
-                    'From': app.config['SMS_EXOTEL_FROM'],
-                    'To': phone_number,
-                    'Body': message,
-                },
+
+def _route_via_twilio(phone: str, message: str, callback: bool = False) -> str:
+    """
+    Route the SMS via Twilio
+
+    :param phone: Phone Number
+    :param message: Message to deliver to Phone number.
+    :param callback: URL Callback for status updates
+    :return: SMS Message ID
+    """
+    # Get SID, Token and From (these are required to make any calls)
+    account = app.config['SMS_TWILIO_SID']
+    token = app.config['SMS_TWILIO_TOKEN']
+    sender = app.config['SMS_TWILIO_FROM']
+
+    # Send (This uses the routing API to deliver SMS via a Low Latency Location).
+    # See https://www.twilio.com/docs/global-infrastructure/edge-locations
+    client = Client(account, token)
+
+    # We need a callback url, if it was not generated already.
+    if (not _route_via_twilio.url_callback) and callback:
+        with app.app_context():
+            _route_via_twilio.twilio_callback = url_for(
+                'process_twilio_event', _external=True
             )
-            if r.status_code in (200, 201):
-                # All good
-                jsonresponse = r.json()
-                if isinstance(jsonresponse, (list, tuple)) and jsonresponse:
-                    transactionid = jsonresponse[0].get('SMSMessage', {}).get('Sid')
-                else:
-                    transactionid = jsonresponse.get('SMSMessage', {}).get('Sid')
-                return transactionid
-            raise TransportTransactionError("Exotel API error", r.status_code, r.text)
-        except requests.ConnectionError:
-            raise TransportConnectionError("Exotel not reachable")
 
-    def _route_via_twilio(self, phone: str, message: str) -> str:
-        """
-        Route the SMS via Twilio
-        :param phone: Phone Number
-        :param message: Message to deliver to Phone number.
-        :return SMS Message ID
-        """
-        # Get SID, Token and From (these are required to make any calls)
-        account = app.config['SMS_TWILIO_SID']
-        token = app.config['SMS_TWILIO_TOKEN']
-        sender = app.config['SMS_TWILIO_FROM']
-
-        # Send (This uses the routing API to deliver SMS via a Low Latency Location).
-        # See https://www.twilio.com/docs/global-infrastructure/edge-locations
-        client = Client(account, token)
-
-        # We need a callback url, if it was not generated already.
-        if (not self.twilio_callback) and self.callback:
-            with app.app_context():
-                self.twilio_callback = url_for('process_twilio_event', _external=True)
-
-        # Error evaluation is needed as API may fail for a variety of reasons.
-        try:
-            msg = client.messages.create(
-                from_=sender,
-                to=phone,
-                body=message,
-                status_callback=self.twilio_callback,
-            )
-            return msg.sid
-        except TwilioRestException as e:
-            raise TransportTransactionError("Twilio API Error", e.code, e.msg)
+    # Error evaluation is needed as API may fail for a variety of reasons.
+    try:
+        msg = client.messages.create(
+            from_=sender,
+            to=phone,
+            body=message,
+            status_callback=_route_via_twilio.twilio_callback,
+        )
+        return msg.sid
+    except TwilioRestException as e:
+        raise TransportTransactionError("Twilio API Error", e.code, e.msg)
 
 
-# Global singleton
-sms_sender = SmsSender()
-
-
-def send(phone_number: str, message: str) -> str:
-    """Send a message to a phone number and return the transaction id."""
-    return sms_sender.send(phone_number, message)
+# Function attribute for Twilio and Exotel callback.
+_route_via_twilio.url_callback = None
+_route_via_exotel.url_callback = None

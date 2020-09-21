@@ -3,7 +3,7 @@ import os
 from flask import Response
 
 from funnel.transports.base import TransportTransactionError
-from funnel.transports.sms import SmsSender
+from funnel.transports.sms import send
 
 
 class TestSmsSender:
@@ -21,38 +21,34 @@ class TestSmsSender:
 
     def test_twilio_success(self):
         """ Test if Message sending is a success. """
-        sender = SmsSender(callback=False)
-        sid = sender.send(self.TWILIO_CLEAN_TARGET, self.MESSAGE)
+        sid = send(self.TWILIO_CLEAN_TARGET, self.MESSAGE, callback=False)
         assert sid
 
     def test_twilio_callback(self):
         """ Test if Message sending is a success. """
-        sender = SmsSender(callback=True)
-        sid = sender.send(self.TWILIO_CLEAN_TARGET, self.MESSAGE)
+        sid = send(self.TWILIO_CLEAN_TARGET, self.MESSAGE, callback=True)
         assert sid
-        assert sender.twilio_callback is not None
 
     def test_twilio_failures(self):
         """ Test if message sending is a failure """
-        sender = SmsSender(callback=False)
 
         # Invalid Target
         try:
-            sender.send(self.TWILIO_INVALID_TARGET, self.MESSAGE)
+            send(self.TWILIO_INVALID_TARGET, self.MESSAGE, callback=False)
             assert False
         except TransportTransactionError:
             assert True
 
         # Cant route
         try:
-            sender.send(self.TWILIO_CANT_ROUTE, self.MESSAGE)
+            send(self.TWILIO_CANT_ROUTE, self.MESSAGE, callback=False)
             assert False
         except TransportTransactionError:
             assert True
 
         # No SMS Service
         try:
-            sender.send(self.TWILIO_NO_SMS_SERVICE, self.MESSAGE)
+            send(self.TWILIO_NO_SMS_SERVICE, self.MESSAGE, callback=False)
             assert False
         except TransportTransactionError:
             assert True
