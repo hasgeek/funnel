@@ -117,7 +117,7 @@ def _route_via_twilio(phone: str, message: str, callback: bool = False) -> str:
     # We need a callback url, if it was not generated already.
     if (not _route_via_twilio.url_callback) and callback:
         with app.app_context():
-            _route_via_twilio.twilio_callback = url_for(
+            _route_via_twilio.url_callback = url_for(
                 'process_twilio_event', _external=True
             )
 
@@ -127,7 +127,7 @@ def _route_via_twilio(phone: str, message: str, callback: bool = False) -> str:
             from_=sender,
             to=phone,
             body=message,
-            status_callback=_route_via_twilio.twilio_callback,
+            status_callback=_route_via_twilio.url_callback,
         )
         return msg.sid
     except TwilioRestException as e:
