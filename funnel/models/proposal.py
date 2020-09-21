@@ -426,7 +426,7 @@ class Proposal(
     @with_roles(call={'creator'})
     @state.transition(
         state.CANCELLED,
-        state.DRAFT,
+        state.SUBMITTED,
         title=__("Undo Cancel"),
         message=__("This proposal has been made a draft"),
         type='success',
