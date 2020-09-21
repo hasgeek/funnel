@@ -15,7 +15,7 @@ from .base import (
     TransportTransactionError,
 )
 
-__all__ = ['send', 'TwilioSmsResponse']
+__all__ = ['send', 'TwilioSmsResponse', 'send_via_exotel', 'send_via_twilio']
 
 
 @dataclass_json
@@ -55,15 +55,15 @@ def send(phone_number: str, message: str, callback: bool = True) -> str:
     :return: SMS Message ID
     """
     if phone_number.startswith('+91'):
-        return _route_via_exotel(phone_number, message)
+        return send_via_exotel(phone_number, message)
     elif phone_number.startswith('+'):
-        return _route_via_twilio(phone_number, message, callback)
+        return send_via_twilio(phone_number, message, callback)
     raise TransportRecipientError("No service provider available for this recipient")
 
 
-def _route_via_exotel(phone_number: str, message: str) -> str:
+def send_via_exotel(phone_number: str, message: str) -> str:
     """
-    Route the SMS via Twilio. This is done only for messages that can't be delivered by exotel.
+    Route the SMS via Exotel. This is done only for messages that can't be delivered by Twilio.
 
     :param phone_number: Phone Number
     :param message: Message to deliver to Phone number.
@@ -94,7 +94,7 @@ def _route_via_exotel(phone_number: str, message: str) -> str:
         raise TransportConnectionError("Exotel not reachable")
 
 
-def _route_via_twilio(phone: str, message: str, callback: bool = False) -> str:
+def send_via_twilio(phone: str, message: str, callback: bool = True) -> str:
     """
     Route the SMS via Twilio
 
