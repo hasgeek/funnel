@@ -47,11 +47,14 @@ def init():
 
     # We need to set Callback URL for SMS notifications here as there are two different providers
     # (Exotel and Twilio) and both of them need different URLs as the schema is very different.
-    app.config['SMS_TWILIO_CALLBACK'] = url_for(
-        'process_twilio_event', _external=True, _method="POST"
-    )
-    app.config['SMS_EXOTEL_CALLBACK'] = url_for(
-        'process_exotel_event', _external=True, _method="POST"
-    )
+    with app.app_context():
+        app.config['SMS_TWILIO_CALLBACK'] = url_for(
+            'process_twilio_event', _external=True, _method="POST"
+        )
+
+        # FiXME: Only for reference. Will be gone by next commit when exotel support is added.
+        app.config['SMS_EXOTEL_CALLBACK'] = url_for(
+            'process_exotel_event', _external=True, _method="POST"
+        )
 
     # Other transports are not supported yet
