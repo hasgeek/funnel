@@ -22,13 +22,13 @@ def test_twilio_success():
     assert sid
 
 
-def test_twilio_callback(self):
+def test_twilio_callback():
     """ Test if Message sending is a success. """
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=True)
     assert sid
 
 
-def test_twilio_failures(self):
+def test_twilio_failures():
     """ Test if message sending is a failure """
 
     # Invalid Target
