@@ -44,18 +44,18 @@ def process_twilio_event():
 
     # Register the fact that we got a Twilio SMS event.
     # If there are too many rejects, then most likely a hack attempt.
-    statsd.incr('sms_message.twilio_event.received')
+    statsd.incr('phone_number.sms.twilio_event.received')
 
     # Check if we find twilio headers and if not reject it
     signature = request.headers.get('X-Twilio-Signature')
     if not signature:
-        statsd.incr('sms_message.twilio_event.rejected')
+        statsd.incr('phone_number.sms.twilio_event.rejected')
         return {'status': 'error', 'error': 'missing_signature'}, 400
 
     # Get the JSON message
     message = request.get_json(force=True, silent=True)
     if not message:
-        statsd.incr('sms_address.twilio_event.rejected')
+        statsd.incr('phone_number.sms.twilio_event.rejected')
         return {'status': 'error', 'error': 'not_json'}, 400
 
     # Needs conversion to Dict
@@ -63,7 +63,7 @@ def process_twilio_event():
     sms_response: TwilioSmsResponse = TwilioSmsResponse.from_dict(payload)
     if not _twilio_message_check(signature, payload):
         app.logger.info("Twilio event: %r", message)
-        statsd.incr('sms_address.twilio_event.rejected')
+        statsd.incr('phone_number.sms.twilio_event.rejected')
         return {'status': 'error', 'error': 'invalid_signature'}, 400
 
     # noinspection PyArgumentList

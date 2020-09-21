@@ -5,53 +5,52 @@ from flask import Response
 from funnel.transports.base import TransportTransactionError
 from funnel.transports.sms import send
 
+# Target Numbers (Test Only). See this
+# https://www.twilio.com/docs/iam/test-credentials
+TWILIO_CLEAN_TARGET = "+15005550010"
+TWILIO_INVALID_TARGET = "+15005550001"
+TWILIO_CANT_ROUTE = "+15005550002"
+TWILIO_NO_SMS_SERVICE = "+15005550009"
 
-class TestSmsSender:
-    """ Tests for SMS Sender """
+# Dummy Message
+MESSAGE = "Test Message"
 
-    # Target Numbers (Test Only). See this
-    # https://www.twilio.com/docs/iam/test-credentials
-    TWILIO_CLEAN_TARGET = "+15005550010"
-    TWILIO_INVALID_TARGET = "+15005550001"
-    TWILIO_CANT_ROUTE = "+15005550002"
-    TWILIO_NO_SMS_SERVICE = "+15005550009"
 
-    # Dummy Message
-    MESSAGE = "Test Message"
+def test_twilio_success():
+    """ Test if Message sending is a success. """
+    sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=False)
+    assert sid
 
-    def test_twilio_success(self):
-        """ Test if Message sending is a success. """
-        sid = send(self.TWILIO_CLEAN_TARGET, self.MESSAGE, callback=False)
-        assert sid
 
-    def test_twilio_callback(self):
-        """ Test if Message sending is a success. """
-        sid = send(self.TWILIO_CLEAN_TARGET, self.MESSAGE, callback=True)
-        assert sid
+def test_twilio_callback(self):
+    """ Test if Message sending is a success. """
+    sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=True)
+    assert sid
 
-    def test_twilio_failures(self):
-        """ Test if message sending is a failure """
 
-        # Invalid Target
-        try:
-            send(self.TWILIO_INVALID_TARGET, self.MESSAGE, callback=False)
-            assert False
-        except TransportTransactionError:
-            assert True
+def test_twilio_failures(self):
+    """ Test if message sending is a failure """
 
-        # Cant route
-        try:
-            send(self.TWILIO_CANT_ROUTE, self.MESSAGE, callback=False)
-            assert False
-        except TransportTransactionError:
-            assert True
+    # Invalid Target
+    try:
+        send(TWILIO_INVALID_TARGET, MESSAGE, callback=False)
+        assert False
+    except TransportTransactionError:
+        assert True
 
-        # No SMS Service
-        try:
-            send(self.TWILIO_NO_SMS_SERVICE, self.MESSAGE, callback=False)
-            assert False
-        except TransportTransactionError:
-            assert True
+    # Cant route
+    try:
+        send(TWILIO_CANT_ROUTE, MESSAGE, callback=False)
+        assert False
+    except TransportTransactionError:
+        assert True
+
+    # No SMS Service
+    try:
+        send(TWILIO_NO_SMS_SERVICE, MESSAGE, callback=False)
+        assert False
+    except TransportTransactionError:
+        assert True
 
 
 class TestTwilioCallback:
