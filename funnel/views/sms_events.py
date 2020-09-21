@@ -1,3 +1,5 @@
+import json
+
 from flask import request
 
 from twilio.request_validator import RequestValidator
@@ -26,7 +28,7 @@ def process_twilio_event():
         return {'status': 'error', 'error': 'missing_signature'}, 400
 
     # Get the JSON message
-    message = request.get_json(force=True, silent=True)
+    message = request.get_json(force=True)
     if not message:
         statsd.incr('phone_number.sms.twilio_event.rejected')
         return {'status': 'error', 'error': 'not_json'}, 400
@@ -36,9 +38,9 @@ def process_twilio_event():
     url_callback = app.config['SMS_TWILIO_CALLBACK']
 
     # Needs conversion to Dict
-    # payload = json.loads(message)
-    sms_response: TwilioSmsResponse = TwilioSmsResponse.from_dict(message)
-    if not validator.validate(url_callback, message, signature):
+    payload = json.loads(message)
+    sms_response: TwilioSmsResponse = TwilioSmsResponse.from_dict(payload)
+    if not validator.validate(url_callback, payload, signature):
         app.logger.info("Twilio event: %r", message)
         statsd.incr('phone_number.sms.twilio_event.rejected')
         return {'status': 'error', 'error': 'invalid_signature'}, 400
