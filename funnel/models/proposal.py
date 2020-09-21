@@ -427,8 +427,8 @@ class Proposal(
     @state.transition(
         state.CANCELLED,
         state.SUBMITTED,
-        title=__("Undo Cancel"),
-        message=__("This proposal has been submitted"),
+        title=__("Undo cancel"),
+        message=__("This proposal's cancellation has been reversed"),
         type='success',
     )
     def undo_cancel(self):
