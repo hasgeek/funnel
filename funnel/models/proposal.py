@@ -428,7 +428,7 @@ class Proposal(
         state.CANCELLED,
         state.SUBMITTED,
         title=__("Undo Cancel"),
-        message=__("This proposal has been made a draft"),
+        message=__("This proposal has been submitted"),
         type='success',
     )
     def undo_cancel(self):
