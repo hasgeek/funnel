@@ -903,6 +903,15 @@ a.loginbutton.hidden,
   min-width: auto;
 }
 
+.emoticon {
+  height: 300px;
+}
+
+@media (min-width: 768px) {
+  .emoticon {
+    height: 400px;
+  }
+}
 @media (max-width: 767px) {
   #root_footer {
     padding-top: 32px;

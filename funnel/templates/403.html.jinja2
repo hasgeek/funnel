@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}403 Forbidden{% endblock %}
+
+{% block content %}
+  <div>
+    <img src="{{ url_for('static', filename='img/error-403.svg') }}" class="emoticon"/>
+    <p class="mui--text-light mui--text-subhead">{% trans %}Unauthorized{% endtrans %}</p>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <p class="mui--text-center">{% trans %}You are not authroized to view this page{% endtrans %}</p>
+{% endblock %}

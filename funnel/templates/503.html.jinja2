@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}503 Service Unavailable{% endblock %}
+
+{% block content %}
+  <div>
+    <img src="{{ url_for('static', filename='img/error-503.svg') }}" class="emoticon"/>
+    <p class="mui--text-light mui--text-subhead">{% trans %}Yikes! Server went away{% endtrans %}</p>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <p class="mui--text-center">{% trans %}}There seems to be a problem connecting to the server{% endtrans %}</p>
+{% endblock %}

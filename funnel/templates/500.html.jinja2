@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}500 Internal Server Error{% endblock %}
+
+{% block top_title %}
+  <div>
+    <img src="{{ url_for('static', filename='img/error-500.svg') }}" class="emoticon"/>
+    <p class="mui--text-light mui--text-subhead">{% trans %}Server bombed!{% endtrans %}</p>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <p class="mui--text-center">{% trans %}Internal server error{% endtrans %}</p>
+{% endblock %}

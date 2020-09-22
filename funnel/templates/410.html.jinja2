@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}410 Page now gone{% endblock %}
+
+{% block content %}
+  <div>
+    <img src="{{ url_for('static', filename='img/error-410.svg') }}" class="emoticon"/>
+    <p class="mui--text-light mui--text-subhead">{% trans %}This page is no more{% endtrans %}</p>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <p class="mui--text-center">{% trans %}The page you are looking for has been deleted{% endtrans %}</p>
+{% endblock %}

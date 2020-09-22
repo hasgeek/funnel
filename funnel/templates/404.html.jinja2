@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}404 Not found{% endblock %}
+
+{% block top_title %}
+  <div class="mui--text-center">
+    <img src="{{ url_for('static', filename='img/error-404.svg') }}" class="emoticon"/>
+    <p class="mui--text-light mui--text-subhead">{% trans %}Not found{% endtrans %}</p>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <p class="mui--text-center">{% trans %}The page you were looking for does not exist{% endtrans %}</p>
+{% endblock %}
