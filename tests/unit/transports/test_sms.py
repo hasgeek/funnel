@@ -1,7 +1,3 @@
-import os
-
-from flask import Response
-
 from funnel.transports.base import TransportRecipientError
 from funnel.transports.sms import send
 
@@ -51,52 +47,3 @@ def test_twilio_failures(test_client):
         assert False
     except TransportRecipientError:
         assert True
-
-
-# Data Directory which contains JSON Files
-data_dir = os.path.join(os.path.dirname(__file__), 'data')
-
-# URL
-URL = '/api/1/sms/twilio_event'
-
-# Dummy headers. Or else tests will start failing
-HEADERS = {
-    'X-Twilio-Signature': "Random Signature",
-    'Content-Type': 'application/x-www-form-urlencoded',
-}
-
-
-def test_missing_header(test_client):
-    """Check for missing Twilio header and GET methods."""
-
-    # GET requests are not allowed.
-    with test_client as c:
-        resp: Response = c.get(URL)
-    assert resp.status_code == 405
-
-    # Missing Twilio headers
-    with test_client as c:
-        resp: Response = c.post(URL)
-        data = resp.get_json()
-    assert resp.status_code == 422
-    assert data['status'] == 'error'
-
-
-def test_missing_json(test_client):
-    """Test for Missing JSON payload."""
-    with test_client as c:
-        resp: Response = c.post(URL)
-    assert resp.status_code == 422
-    data = resp.get_json()
-    assert data['status'] == 'error'
-
-
-def test_bad_message(test_client):
-    """Test for bad JSON message."""
-    with open(os.path.join(data_dir, 'twilio_sms.json'), 'r') as file:
-        data = file.read()
-    with test_client as c:
-        resp: Response = c.post(URL, data=data, headers=HEADERS)
-    assert resp.status_code == 422
-    data = resp.get_json()
-    assert data['status'] == 'error'

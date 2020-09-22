@@ -1,11 +1,8 @@
 """Support functions for sending a short text message."""
 
-from dataclasses import dataclass, field
-from typing import Optional
 
 from flask import url_for
 
-from dataclasses_json import config, dataclass_json
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 import requests
@@ -19,35 +16,7 @@ from .base import (
     TransportTransactionError,
 )
 
-__all__ = ['TwilioSmsResponse', 'send_via_exotel', 'send_via_twilio', 'send']
-
-
-@dataclass_json
-@dataclass
-class TwilioSmsResponse:
-    """
-    SMS status message sent by Twilio during a callback.
-
-    Described at: https://www.twilio.com/docs/sms/send-messages
-
-    * sms_sid: Response ID of the SMS.
-    * status:  These could be any of queued, failed, sent, delivered, undelivered
-    * msg_status: Same values as status
-    * to: Destination Phone number
-    * msg_sid: Same values as sms_sid
-    * account_sid: Sending Account ID
-    * sender: Sending Phone number
-    * api_version: API Version
-    """
-
-    sms_sid: str = field(metadata=config(field_name='SmsSid'))
-    status: str = field(metadata=config(field_name='SmsStatus'))
-    msg_status: Optional[str] = field(metadata=config(field_name='MessageStatus'))
-    to: str = field(metadata=config(field_name='To'))
-    msg_sid: Optional[str] = field(metadata=config(field_name='MessageSid'))
-    account_sid: str = field(metadata=config(field_name='AccountSid'))
-    sender: str = field(metadata=config(field_name='From'))
-    api_version: Optional[str] = field(metadata=config(field_name='ApiVersion'))
+__all__ = ['send_via_exotel', 'send_via_twilio', 'send']
 
 
 def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:

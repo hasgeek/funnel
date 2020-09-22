@@ -50,6 +50,7 @@ from ..models import (
     AuthClient,
     Comment,
     CommentModeratorReport,
+    SMSMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -878,19 +879,22 @@ def add_phone():
         current_auth.user.main_notification_preferences.by_sms = (
             form.enable_notifications.data
         )
+        msg = SMSMessage(
+            phone_number=userphone.phone,
+            message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
+                code=userphone.verification_code
+            ),
+        )
         try:
-            sms.send(
-                userphone.phone,
-                current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
-                    code=userphone.verification_code
-                ),
-            )
+            # Now send this
+            msg.transactionid = sms.send(msg.phone_number, msg.message)
         except TransportRecipientError as e:
             flash(str(e), 'error')
         except TransportConnectionError:
             flash(_("Unable to send a message right now. Try again later"), 'error')
         else:
             # Commit only if an SMS could be sent
+            db.session.add(msg)
             db.session.commit()
             flash(
                 _("A verification code has been sent to your phone number"), 'success'

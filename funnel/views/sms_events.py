@@ -7,7 +7,6 @@ from coaster.views import render_with
 
 from .. import app
 from ..models import SMS_STATUS, SMSMessage, db
-from ..transports.sms import TwilioSmsResponse
 
 
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
@@ -25,39 +24,48 @@ def process_twilio_event():
         statsd.incr('phone_number.sms.twilio_event.rejected')
         return {'status': 'error', 'error': 'missing_signature'}, 422
 
-    # Get the JSON message
-    payload = request.get_json(force=True)
-    if not payload:
-        statsd.incr('phone_number.sms.twilio_event.rejected')
-        return {'status': 'error', 'error': 'not_json'}, 422
-
     # Create Request Validator
     validator = RequestValidator(app.config['SMS_TWILIO_TOKEN'])
-
-    sms_response: TwilioSmsResponse = TwilioSmsResponse.from_dict(payload)
-    if not validator.validate(request.base_url, payload, signature):
-        app.logger.info("Twilio event: %r", payload)
+    if not validator.validate(
+        request.url, request.form, request.headers.get('X-Twilio-Signature', '')
+    ):
         statsd.incr('phone_number.sms.twilio_event.rejected')
         return {'status': 'error', 'error': 'invalid_signature'}, 422
 
-    # FIXME: This code segment needs to change and re-written once Phone Number model is in place.
+    # FIXME: This code segment needs to change and re-written once Phone Number model is
+    # in place.
     # noinspection PyArgumentList
-    sms_db_model: SMSMessage = SMSMessage(phone_number=sms_response.sender)
-    sms_db_model.transactionid = sms_response.sms_sid
-    if sms_response.msg_status == 'queued':
-        sms_db_model.status = SMS_STATUS.QUEUED
-    elif sms_response.msg_status == 'failed':
-        sms_db_model.status = SMS_STATUS.FAILED
-    elif sms_response.msg_status == 'delivered':
-        sms_db_model.status = SMS_STATUS.DELIVERED
-    elif sms_response.msg_status == 'sent':
-        sms_db_model.status = SMS_STATUS.PENDING
-    else:
-        sms_db_model.status = SMS_STATUS.UNKNOWN
 
+    sms_message = SMSMessage.query.filter_by(
+        transactionid=request.form['MessageSid']
+    ).one_or_none()
+    if sms_message is None:
+        sms_message = SMSMessage(
+            phone_number=request.form['To'],
+            transactionid=request.form['MessageSid'],
+            message=request.form['Body'],
+        )
+        db.session.add(sms_message)
+
+    sms_message.status_at = db.func.utcnow()
+
+    if request.form['MessageStatus'] == 'queued':
+        sms_message.status = SMS_STATUS.QUEUED
+    elif request.form['MessageStatus'] == 'failed':
+        sms_message.status = SMS_STATUS.FAILED
+    elif request.form['MessageStatus'] == 'delivered':
+        sms_message.status = SMS_STATUS.DELIVERED
+    elif request.form['MessageStatus'] == 'sent':
+        sms_message.status = SMS_STATUS.PENDING
+    else:
+        sms_message.status = SMS_STATUS.UNKNOWN
     # Done
     db.session.commit()
-    app.logger.info("Twilio event for phone: %s processed", sms_response.sender)
+    app.logger.info(
+        "Twilio event for phone: %s %s",
+        request.form['To'],
+        request.form['MessageStatus'],
+    )
     return {'status': 'ok', 'message': 'sms_notification_processed'}
 
 
