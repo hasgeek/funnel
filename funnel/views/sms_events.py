@@ -1,5 +1,3 @@
-import json
-
 from flask import request
 
 from twilio.request_validator import RequestValidator
@@ -15,7 +13,7 @@ from ..transports.sms import TwilioSmsResponse
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
 @render_with(template=None, json=True)
 def process_twilio_event():
-    """ Processes SMS callback events from Twilio """
+    """Process SMS callback event from Twilio."""
 
     # Register the fact that we got a Twilio SMS event.
     # If there are too many rejects, then most likely a hack attempt.
@@ -25,25 +23,22 @@ def process_twilio_event():
     signature = request.headers.get('X-Twilio-Signature')
     if not signature:
         statsd.incr('phone_number.sms.twilio_event.rejected')
-        return {'status': 'error', 'error': 'missing_signature'}, 400
+        return {'status': 'error', 'error': 'missing_signature'}, 422
 
     # Get the JSON message
-    message = request.get_json(force=True)
-    if not message:
+    payload = request.get_json(force=True)
+    if not payload:
         statsd.incr('phone_number.sms.twilio_event.rejected')
-        return {'status': 'error', 'error': 'not_json'}, 400
+        return {'status': 'error', 'error': 'not_json'}, 422
 
     # Create Request Validator
     validator = RequestValidator(app.config['SMS_TWILIO_TOKEN'])
-    url_callback = app.config['SMS_TWILIO_CALLBACK']
 
-    # Needs conversion to Dict
-    payload = json.loads(message)
     sms_response: TwilioSmsResponse = TwilioSmsResponse.from_dict(payload)
-    if not validator.validate(url_callback, payload, signature):
-        app.logger.info("Twilio event: %r", message)
+    if not validator.validate(request.base_url, payload, signature):
+        app.logger.info("Twilio event: %r", payload)
         statsd.incr('phone_number.sms.twilio_event.rejected')
-        return {'status': 'error', 'error': 'invalid_signature'}, 400
+        return {'status': 'error', 'error': 'invalid_signature'}, 422
 
     # FIXME: This code segment needs to change and re-written once Phone Number model is in place.
     # noinspection PyArgumentList
@@ -67,7 +62,8 @@ def process_twilio_event():
 
 
 # FIXME: Dummy function. Will be fixed in subsequent checkins.
-@app.route('/api/1/sms/exotel_event', methods=['POST'])
+@app.route('/api/1/sms/exotel_event/<secret_token>', methods=['POST'])
 @render_with(template=None, json=True)
-def process_exotel_event():
+def process_exotel_event(secret_token):
+    """Process SMS callback event from Exotel."""
     return {'status': 'ok', 'message': 'sms_notification_processed'}

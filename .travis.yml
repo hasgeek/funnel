@@ -9,7 +9,7 @@ addons:
       - postgresql-client-12
       - postgresql-12-hll
 
-# The "secure" values are Secrets which encode the variables Specified below
+# The "secure" values are secrets which encode these variables
 # SMS_TWILIO_SID   (Test Account ID for Twilio for tests to pass)
 # SMS_TWILIO_TOKEN (Test Account Password for Twilio for tests to pass)
 # SMS_TWILIO_FROM  (Test From Number for Twilio for tests to pass)

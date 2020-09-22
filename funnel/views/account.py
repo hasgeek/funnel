@@ -50,7 +50,6 @@ from ..models import (
     AuthClient,
     Comment,
     CommentModeratorReport,
-    SMSMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -63,7 +62,7 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
-from ..transports import TransportConnectionError, sms
+from ..transports import TransportConnectionError, TransportRecipientError, sms
 from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import (
@@ -79,21 +78,6 @@ from .login_session import (
     requires_sudo,
 )
 from .notification import dispatch_notification
-
-
-def send_phone_verify_code(phoneclaim):
-    msg = SMSMessage(
-        phone_number=phoneclaim.phone,
-        message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
-            code=phoneclaim.verification_code
-        ),
-    )
-    # Now send this
-    try:
-        msg.transactionid = sms.send(msg.phone_number, msg.message)
-        db.session.add(msg)
-    except TransportConnectionError:
-        flash(_("Unable to send a message right now. Please try again"))
 
 
 def blake2b_b58(text):
@@ -891,12 +875,22 @@ def add_phone():
         if userphone is None:
             userphone = UserPhoneClaim(user=current_auth.user, phone=form.phone.data)
             db.session.add(userphone)
+        current_auth.user.main_notification_preferences.by_sms = (
+            form.enable_notifications.data
+        )
         try:
-            current_auth.user.main_notification_preferences.by_sms = (
-                form.enable_notifications.data
+            sms.send(
+                userphone.phone,
+                current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
+                    code=userphone.verification_code
+                ),
             )
-            send_phone_verify_code(userphone)
-            # Commit after sending because send_phone_verify_code saves the message sent
+        except TransportRecipientError as e:
+            flash(str(e), 'error')
+        except TransportConnectionError:
+            flash(_("Unable to send a message right now. Try again later"), 'error')
+        else:
+            # Commit only if an SMS could be sent
             db.session.commit()
             flash(
                 _("A verification code has been sent to your phone number"), 'success'
@@ -905,9 +899,6 @@ def add_phone():
             return render_redirect(
                 url_for('verify_phone', number=userphone.phone), code=303
             )
-        except ValueError as e:
-            db.session.rollback()
-            form.phone.errors.append(str(e))
     return render_form(
         form=form,
         title=_("Add a phone number"),
