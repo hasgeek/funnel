@@ -58,9 +58,9 @@
                   <ul class="mui-list--unstyled mui-list--border">
                     {%- for user, teams in people %}
                       <li class="user">
-                        <div class="user__box mui--clearfix">
+                        <div class="user__box">
                           {{ useravatar(user) }}
-                          <div class="mui--d-inlineblock">
+                          <div class="user__box__header">
                             <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
                             <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>
                           </div>

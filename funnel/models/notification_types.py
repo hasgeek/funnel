@@ -1,7 +1,7 @@
 from baseframe import __
 from funnel.models.moderation import CommentModeratorReport
 
-from .commentvote import Comment
+from .commentvote import Comment, Commentset
 from .notification import Notification, notification_categories
 from .organization_membership import OrganizationMembership
 from .project import Project
@@ -17,8 +17,7 @@ __all__ = [
     'NewUpdateNotification',
     'CommentReportReceivedNotification',
     'CommentReplyNotification',
-    'ProjectCommentNotification',
-    'ProposalCommentNotification',
+    'NewCommentNotification',
     'ProposalReceivedNotification',
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
@@ -147,6 +146,20 @@ class ProjectStartingNotification(DocumentHasProfile, Notification):
 # --- Comment notifications ------------------------------------------------------------
 
 
+class NewCommentNotification(Notification):
+    """Notification of new comment."""
+
+    __mapper_args__ = {'polymorphic_identity': 'comment_new'}
+
+    category = notification_categories.participant
+    title = __("When there is a new comment on a project or proposal I’m in")
+    exclude_actor = True
+
+    document_model = Commentset
+    fragment_model = Comment
+    roles = ['replied_to_commenter', 'document_subscriber']
+
+
 class CommentReplyNotification(Notification):
     """Notification of comment replies."""
 
@@ -159,38 +172,6 @@ class CommentReplyNotification(Notification):
     document_model = Comment  # Parent comment (being replied to)
     fragment_model = Comment  # Child comment (the reply that triggered notification)
     roles = ['replied_to_commenter']
-
-
-class ProjectCommentNotification(DocumentHasProfile, Notification):
-    """Notification of comments on a project."""
-
-    __mapper_args__ = {'polymorphic_identity': 'comment_project'}
-
-    category = notification_categories.project_crew
-    title = __("When my project receives a comment")
-    exclude_actor = True
-
-    document_model = Project
-    fragment_model = Comment
-    # Note: These roles must be available on Comment, not Proposal. Roles come from
-    # fragment if present, document if not.
-    roles = ['replied_to_commenter', 'document_subscriber']
-
-
-class ProposalCommentNotification(DocumentHasProject, Notification):
-    """Notification of comments on a proposal."""
-
-    __mapper_args__ = {'polymorphic_identity': 'comment_proposal'}
-
-    category = notification_categories.participant
-    title = __("When my proposal receives a comment")
-    exclude_actor = True
-
-    document_model = Proposal
-    fragment_model = Comment
-    # Note: These roles must be available on Comment, not Proposal. Roles come from
-    # fragment if present, document if not.
-    roles = ['replied_to_commenter', 'document_subscriber']
 
 
 # --- Project crew notifications -------------------------------------------------------
@@ -292,7 +273,7 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
 
 
 class CommentReportReceivedNotification(Notification):
-    """Notification for site editors when a comment is reported as spam"""
+    """Notification for comment moderators when a comment is reported as spam"""
 
     __mapper_args__ = {'polymorphic_identity': 'comment_report_received'}
 
@@ -301,4 +282,4 @@ class CommentReportReceivedNotification(Notification):
 
     document_model = Comment
     fragment_model = CommentModeratorReport
-    roles = ['site_editor']
+    roles = ['comment_moderator']

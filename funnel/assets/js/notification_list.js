@@ -50,14 +50,16 @@ const Notification = {
         addNotifications(notifications, refresh) {
           notifications.forEach((notice) => {
             if (
-              !notificationApp.eventids.includes(notice.notification.eventid)
+              !notificationApp.eventids.includes(
+                notice.notification.eventid_b58
+              )
             ) {
               if (refresh) {
                 notificationApp.notifications.unshift(notice);
               } else {
                 notificationApp.notifications.push(notice);
               }
-              notificationApp.eventids.push(notice.notification.eventid);
+              notificationApp.eventids.push(notice.notification.eventid_b58);
             }
           });
         },
@@ -87,8 +89,8 @@ const Notification = {
               $(notification).attr('data-index')
             ];
             let url = this.markReadUrl.replace(
-              'eventid',
-              notificationItem.notification.eventid
+              'eventid_b58',
+              notificationItem.notification.eventid_b58
             );
             $.ajax({
               type: 'POST',

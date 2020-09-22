@@ -21,7 +21,7 @@ describe('Adding crew', function () {
     cy.get('a[data-cy-navbar="crew"]').click();
     cy.get('[data-cy="member"]')
       .contains(admin.username)
-      .parents('.user__box')
+      .parents('.member')
       .find('[data-cy="role"]')
       .contains('Editor');
 

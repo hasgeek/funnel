@@ -11,16 +11,16 @@ const Comments = {
     commentTemplate,
     isuserloggedin,
     isuserparticipant,
+    iscommentmoderator,
     user,
     loginUrl,
     headerHeight,
   }) {
-    Vue.config.debug = true;
     Vue.use(VS2);
 
     const commentUI = Vue.component('comment', {
       template: commentTemplate,
-      props: ['comment', 'isuserparticipant'],
+      props: ['comment', 'isuserparticipant', 'iscommentmoderator'],
       data() {
         return {
           commentForm: '',
@@ -103,6 +103,7 @@ const Comments = {
           comments: [],
           isuserloggedin,
           isuserparticipant,
+          iscommentmoderator,
           user,
           commentForm: '',
           errorMsg: '',
@@ -116,29 +117,24 @@ const Comments = {
       methods: {
         fetchForm(event, url, comment = '') {
           event.preventDefault();
-          if (this.isuserparticipant) {
-            $.ajax({
-              type: 'GET',
-              url,
-              timeout: window.Hasgeek.config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
-                app.pauseRefreshComments();
-                const vueFormHtml = data.form;
-                if (comment) {
-                  comment.commentForm = vueFormHtml.replace(
-                    /\bscript\b/g,
-                    'script2'
-                  );
-                } else {
-                  app.commentForm = vueFormHtml.replace(
-                    /\bscript\b/g,
-                    'script2'
-                  );
-                }
-              },
-            });
-          }
+          $.ajax({
+            type: 'GET',
+            url,
+            timeout: window.Hasgeek.config.ajaxTimeout,
+            dataType: 'json',
+            success(data) {
+              app.pauseRefreshComments();
+              const vueFormHtml = data.form;
+              if (comment) {
+                comment.commentForm = vueFormHtml.replace(
+                  /\bscript\b/g,
+                  'script2'
+                );
+              } else {
+                app.commentForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+              }
+            },
+          });
         },
         activateForm(parentApp) {
           const formId = Utils.getElementId(parentApp.commentForm);

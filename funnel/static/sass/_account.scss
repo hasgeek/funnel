@@ -1,6 +1,4 @@
-ul .login-session {
-  padding: 15px 0;
-
+.login-session {
   .login-session__heading {
     font-size: 14px;
     line-height: 24px;
@@ -19,7 +17,7 @@ ul .login-session {
 }
 
 @media (min-width: 768px) {
-  ul .login-session {
+  .login-session {
     .login-session__heading {
       font-size: 16px;
       line-height: 24px;
@@ -34,18 +32,9 @@ ul .login-session {
   }
 }
 
-.check-mark {
-  background: $mui-success-color;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  color: $mui-text-white;
-  display: inline-block;
-  .fa5-icon {
-    position: relative;
-    top: -3px;
-    right: -2px;
-  }
+.input-align-icon {
+  position: relative;
+  top: 3px;
 }
 
 .preference {

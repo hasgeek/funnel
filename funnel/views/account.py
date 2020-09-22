@@ -47,6 +47,7 @@ from ..forms import (
 from ..models import (
     MODERATOR_REPORT_TYPE,
     AccountPasswordNotification,
+    AuthClient,
     Comment,
     CommentModeratorReport,
     SMSMessage,
@@ -71,7 +72,12 @@ from .helpers import (
     progressive_rate_limit_validator,
     validate_rate_limit,
 )
-from .login_session import login_internal, logout_internal, requires_login
+from .login_session import (
+    login_internal,
+    logout_internal,
+    requires_login,
+    requires_sudo,
+)
 from .notification import dispatch_notification
 
 
@@ -182,6 +188,7 @@ def user_session_login_service(obj):
 
 
 @app.route('/api/1/account/password_policy', methods=['POST'])
+@lastuserapp.route('/api/1/account/password_policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check():
     policy_form = PasswordPolicyForm()
@@ -234,6 +241,7 @@ def password_policy_check():
 
 
 @app.route('/api/1/account/username_available', methods=['POST'])
+@lastuserapp.route('/api/1/account/username_available', methods=['POST'])
 @render_with(json=True)
 def account_username_availability():
     form = UsernameAvailableForm(edit_user=current_auth.user)
@@ -312,6 +320,12 @@ class AccountView(ClassView):
                 service_forms[service] = provider.get_form()
         return {
             'user': current_auth.user.current_access(),
+            'authtokens': [
+                _at.current_access()
+                for _at in current_auth.user.authtokens.join(AuthClient)
+                .order_by(AuthClient.trusted.desc(), AuthClient.title)
+                .all()
+            ],
             'logout_form': logout_form,
             'primary_email_form': primary_email_form,
             'primary_phone_form': primary_phone_form,
@@ -461,7 +475,9 @@ class AccountView(ClassView):
                 elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
                     if report.comment.state.SPAM:
                         report.comment.mark_not_spam()
-                CommentModeratorReport.query.filter_by(comment=report.comment).delete()
+                CommentModeratorReport.query.filter_by(comment=report.comment).update(
+                    {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
+                )
             else:
                 # current report is different from existing report and
                 # no report has majority frequency.
@@ -562,6 +578,7 @@ def account_edit(newprofile=False):
         return render_form(
             form,
             title=_("Update account"),
+            # Form with id 'form-account_new' will have username validation(account_formlayout.html.jinja2)
             formid='account_new',
             submit=_("Continue"),
             message=Markup(
@@ -577,6 +594,7 @@ def account_edit(newprofile=False):
         return render_form(
             form,
             title=_("Edit account"),
+            # Form with id 'form-account_edit' will have username validation(account_formlayout.html.jinja2)
             formid='account_edit',
             submit=_("Save changes"),
             ajax=False,
@@ -671,8 +689,10 @@ def confirm_email(email_hash, secret):
 def change_password():
     if not current_auth.user.pw_hash:
         form = PasswordCreateForm(edit_user=current_auth.user)
+        title = _("Set password")
     else:
         form = PasswordChangeForm(edit_user=current_auth.user)
+        title = _("Change password")
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
         user = current_auth.user
@@ -694,11 +714,12 @@ def change_password():
         return render_redirect(
             get_next_url(session=True, default=url_for('account')), code=303
         )
+    # Form with id 'form-password-change' will have password strength meter on UI
     return render_form(
         form=form,
-        title=_("Change password"),
+        title=title,
         formid='password-change',
-        submit=_("Change password"),
+        submit=title,
         ajax=False,
         template='account_formlayout.html.jinja2',
     )
@@ -779,7 +800,7 @@ def make_phone_primary():
 
 
 @app.route('/account/email/<email_hash>/remove', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 def remove_email(email_hash):
     useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
     if not useremail:
@@ -898,7 +919,7 @@ def add_phone():
 
 
 @app.route('/account/phone/<number>/remove', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 def remove_phone(number):
     userphone = UserPhone.get(phone=number)
     if userphone is None or userphone.user != current_auth.user:
@@ -995,7 +1016,7 @@ def verify_phone(phoneclaim):
 
 # Userid is a path here because obsolete OpenID ids are URLs (both direct and via Google)
 @app.route('/account/extid/<service>/<path:userid>/remove', methods=['GET', 'POST'])
-@requires_login
+@requires_sudo
 @load_model(
     UserExternalId,
     {'service': 'service', 'userid': 'userid'},

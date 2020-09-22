@@ -86,6 +86,7 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
         'badge_printed': ticket_participant.badge_printed,
         'checked_in': ticket_participant.checked_in,
         'ticket_type_titles': ticket_participant.ticket_type_titles,
+        'has_user': ticket_participant.has_user,
     }
     if not {'concierge', 'usher'}.isdisjoint(project.current_roles):
         data.update(
