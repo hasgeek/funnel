@@ -565,19 +565,17 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     # Primary key is a compound of (user_id, eventid).
 
-    #: Id of user being notified
-    user_id = immutable(
-        db.Column(
-            None,
-            db.ForeignKey('user.id', ondelete='CASCADE'),
-            primary_key=True,
-            nullable=False,
-        )
+    #: Id of user being notified (not immutable, to support account merge)
+    user_id = db.Column(
+        None,
+        db.ForeignKey('user.id', ondelete='CASCADE'),
+        primary_key=True,
+        nullable=False,
     )
+
     #: User being notified (backref defined below, outside the model)
-    user = with_roles(
-        immutable(db.relationship(User)), read={'owner'}, grants={'owner'}
-    )
+    #: (not immutable, to support account merge)
+    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
 
     #: Random eventid, shared with the Notification instance
     eventid = with_roles(
