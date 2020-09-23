@@ -66,9 +66,8 @@ describe('Test comments feature', function () {
 
     /*
 
-    The test for deleting comments has been temporarily removed as it
-    interferes with the comment notification test. It will be added back i
-    after a backend fix is deployed.
+    The test for deleting comments has been disabled as it
+    interferes with the comment notification test. To be added back later.
 
     cy.get('a[data-cy="comment-menu"]:visible').eq(1).click();
     cy.wait(1000);
