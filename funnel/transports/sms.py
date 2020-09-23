@@ -2,6 +2,7 @@
 
 
 from flask import url_for
+import itsdangerous.exc
 
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
@@ -10,13 +11,39 @@ import requests
 from baseframe import _
 
 from .. import app
+from ..serializers import token_serializer
 from .base import (
     TransportConnectionError,
     TransportRecipientError,
     TransportTransactionError,
 )
 
-__all__ = ['send_via_exotel', 'send_via_twilio', 'send']
+__all__ = ['validate_exotel_token', 'send_via_exotel', 'send_via_twilio', 'send']
+
+
+def make_exotel_token(transactionid: str):
+    """Used by :func:`send_via_exotel` to construct a callback URL with a token."""
+    return token_serializer().dumps({'transactionid': transactionid})
+
+
+def validate_exotel_token(token: str, transactionid: str):
+    """Used by the callback view handler to verify the URL security token."""
+    try:
+        # Allow 7 days validity for the callback token
+        payload = token_serializer().loads(token, max_age=86400 * 7)
+    except itsdangerous.exc.SignatureExpired:
+        # Token has expired
+        app.logger.warning("Received expired Exotel token: %s", token)
+        return False
+    except itsdangerous.exc.BadData:
+        # Token is invalid
+        app.logger.debug("Received invalid Exotel token: %s", token)
+        return False
+    if payload.get('transactionid') != transactionid:
+        # Token is for the wrong transactionid (possible reuse of tokens)
+        app.logger.warning("Received mismatched Exotel token: %s", token)
+        return False
+    return True
 
 
 def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
