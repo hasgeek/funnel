@@ -94,6 +94,6 @@ describe('Test comments feature', function () {
     cy.logout();
     cy.login('/', editor.username, editor.password);
     cy.visit('/updates');
-    cy.contains('commented on your project:');
+    cy.contains('left comments');
   });
 });
