@@ -350,9 +350,9 @@ class AccountView(ClassView):
         ):
             return abort(403)
 
-        comments = Comment.query.filter(~(Comment.state.REMOVED)).order_by(
-            Comment.created_at.desc()
-        )
+        comments = Comment.query.filter(
+            ~Comment.state.REMOVED, ~Comment.state.VERIFIED
+        ).order_by(Comment.created_at.desc())
         if query:
             comments = comments.join(User).filter(
                 db.or_(
