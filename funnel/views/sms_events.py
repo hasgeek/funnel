@@ -33,7 +33,7 @@ def process_twilio_event():
         statsd.incr('phone_number.sms.twilio_event.rejected')
         return {'status': 'error', 'error': 'invalid_signature'}, 422
 
-    # FIXME: This code segment needs to change and re-written once Phone Number model is
+    # This code segment needs to change and re-written once Phone Number model is
     # in place.
     sms_message = SMSMessage.query.filter_by(
         transactionid=request.form['MessageSid']
@@ -82,10 +82,10 @@ def process_exotel_event(secret_token: str):
         statsd.incr('phone_number.sms.exotel_event.rejected')
         return {'status': 'error', 'error': 'invalid_signature'}, 422
 
-    # FIXME: This code segment needs to change and re-written once Phone Number model is
-    # in place. The Message parameter has to be '' because exotel does not send back the
-    # message as per the API model but the DB model expects it and we get a exception, if
-    # we don't fix it.
+    # This code segment needs to change and re-written once Phone Number model is
+    # in place. The Message parameter has to be '' because exotel does not send
+    # back the message as per the API model but the DB model expects it
+    # and we get a exception, otherwise.
 
     # There are only 3 parameters in the callback as per the documentation
     # https://developer.exotel.com/api/#send-sms

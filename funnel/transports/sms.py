@@ -42,8 +42,8 @@ def validate_exotel_token(token: str):
         app.logger.debug("Received invalid Exotel token: %s", token)
         return False
     if not payload.get('transactionid'):
-        # We expect the token to have a transaction ID, even though it is fully random. No
-        # need to check the validity of it.
+        # We expect the token to have a transaction ID, even though it is
+        # fully random. No need to check the validity of it.
         app.logger.warning("Signed Payload without transaction Id: %s", token)
         return False
     return True
