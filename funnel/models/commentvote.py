@@ -18,13 +18,15 @@ __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
 
 class COMMENT_STATE(LabeledEnum):  # NOQA: N801
     # If you add any new state, you need to add a migration to modify the check constraint
-    PUBLIC = (0, 'public', __("Public"))
+    SUBMITTED = (0, 'submitted', __("Submitted"))
     SCREENED = (1, 'screened', __("Screened"))
     HIDDEN = (2, 'hidden', __("Hidden"))
     SPAM = (3, 'spam', __("Spam"))
     # Deleted state for when there are replies to be preserved
     DELETED = (4, 'deleted', __("Deleted"))
+    VERIFIED = (5, 'verified', __("Verified"))
 
+    PUBLIC = {SUBMITTED, VERIFIED}
     REMOVED = {SPAM, DELETED}
 
 
@@ -187,7 +189,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'state',
         db.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
-        default=COMMENT_STATE.PUBLIC,
+        default=COMMENT_STATE.SUBMITTED,
         nullable=False,
     )
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment.")
@@ -339,7 +341,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         Mark this comment as spam.
         """
 
-    @state.transition(state.SPAM, state.PUBLIC)
+    @state.transition(state.SPAM, state.VERIFIED)
     def mark_not_spam(self):
         """
         Mark this comment as not a spam.
