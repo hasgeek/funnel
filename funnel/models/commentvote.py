@@ -28,6 +28,7 @@ class COMMENT_STATE(LabeledEnum):  # NOQA: N801
 
     PUBLIC = {SUBMITTED, VERIFIED}
     REMOVED = {SPAM, DELETED}
+    REPORTABLE = {SUBMITTED, SCREENED, HIDDEN}
 
 
 # What is this Voteset or Commentset attached to?
