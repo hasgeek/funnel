@@ -341,7 +341,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         Mark this comment as spam.
         """
 
-    @state.transition(state.SPAM, state.VERIFIED)
+    @state.transition(None, state.VERIFIED)
     def mark_not_spam(self):
         """
         Mark this comment as not a spam.
