@@ -7,6 +7,7 @@ from coaster.views import render_with
 
 from .. import app
 from ..models import SMS_STATUS, SMSMessage, db
+from ..transports.sms import validate_exotel_token
 
 
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
@@ -69,9 +70,51 @@ def process_twilio_event():
     return {'status': 'ok', 'message': 'sms_notification_processed'}
 
 
-# FIXME: Dummy function. Will be fixed in subsequent checkins.
 @app.route('/api/1/sms/exotel_event/<secret_token>', methods=['POST'])
 @render_with(template=None, json=True)
-def process_exotel_event(secret_token):
+def process_exotel_event(secret_token: str):
     """Process SMS callback event from Exotel."""
+
+    # Register the fact that we got a Exotel SMS event.
+    # If there are too many rejects, then most likely a hack attempt.
+    statsd.incr('phone_number.sms.exotel_event.received')
+
+    # We just need to verify the token first.
+    if not validate_exotel_token(secret_token):
+        statsd.incr('phone_number.sms.exotel_event.rejected')
+        return {'status': 'error', 'error': 'invalid_signature'}, 422
+
+    # There are only 3 parameters in the callback as per the documentation
+    # https://developer.exotel.com/api/#send-sms
+    # SmsSid - The Sid (unique id) of the SMS that you got in response to your request
+    # To - Mobile number to which SMS was sent
+    # Status - one of: queued, sending, submitted, sent, failed_dnd, failed
+    sms_message = SMSMessage.query.filter_by(
+        transactionid=request.form['SmsSid']
+    ).one_or_none()
+    if sms_message is None:
+        sms_message = SMSMessage(
+            phone_number=request.form['To'], transactionid=request.form['SmsSid']
+        )
+        db.session.add(sms_message)
+
+    sms_message.status_at = db.func.utcnow()
+
+    if request.form['Status'] == 'queued':
+        sms_message.status = SMS_STATUS.QUEUED
+    elif request.form['Status'] == 'failed' or request.form['Status'] == 'failed_dnd':
+        sms_message.status = SMS_STATUS.FAILED
+    elif request.form['Status'] == 'sent':
+        sms_message.status = SMS_STATUS.DELIVERED
+    elif request.form['Status'] == 'sending' or request.form['Status'] == 'submitted':
+        sms_message.status = SMS_STATUS.PENDING
+    else:
+        sms_message.status = SMS_STATUS.UNKNOWN
+    # Done
+    db.session.commit()
+    app.logger.info(
+        "Exotel event for phone: %s %s",
+        request.form['To'],
+        request.form['Status'],
+    )
     return {'status': 'ok', 'message': 'sms_notification_processed'}

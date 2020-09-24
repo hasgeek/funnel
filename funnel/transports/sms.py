@@ -1,6 +1,8 @@
 """Support functions for sending a short text message."""
 
 
+import uuid
+
 from flask import url_for
 import itsdangerous.exc
 
@@ -26,7 +28,7 @@ def make_exotel_token(transactionid: str):
     return token_serializer().dumps({'transactionid': transactionid})
 
 
-def validate_exotel_token(token: str, transactionid: str):
+def validate_exotel_token(token: str):
     """Used by the callback view handler to verify the URL security token."""
     try:
         # Allow 7 days validity for the callback token
@@ -39,9 +41,10 @@ def validate_exotel_token(token: str, transactionid: str):
         # Token is invalid
         app.logger.debug("Received invalid Exotel token: %s", token)
         return False
-    if payload.get('transactionid') != transactionid:
-        # Token is for the wrong transactionid (possible reuse of tokens)
-        app.logger.warning("Received mismatched Exotel token: %s", token)
+    if not payload.get('transactionid'):
+        # We expect the token to have a transaction ID, even though it is fully random. No
+        # need to check the validity of it.
+        app.logger.warning("Signed Payload without transaction Id: %s", token)
         return False
     return True
 
@@ -57,15 +60,17 @@ def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
     """
     sid = app.config['SMS_EXOTEL_SID']
     token = app.config['SMS_EXOTEL_TOKEN']
+    payload = {'From': app.config['SMS_EXOTEL_FROM'], 'To': phone, 'Body': message}
+    if callback:
+        nonce = make_exotel_token(str(uuid.uuid1()))
+        payload['StatusCallback'] = url_for(
+            'process_external_event', _external=True, _method='POST', secret_token=nonce
+        )
     try:
         r = requests.post(
             'https://twilix.exotel.in/v1/Accounts/{sid}/Sms/send.json'.format(sid=sid),
             auth=(sid, token),
-            data={
-                'From': app.config['SMS_EXOTEL_FROM'],
-                'To': phone,
-                'Body': message,
-            },
+            data=payload,
         )
         if r.status_code in (200, 201):
             # All good
