@@ -64,7 +64,7 @@ def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
     if callback:
         nonce = make_exotel_token(str(uuid.uuid1()))
         payload['StatusCallback'] = url_for(
-            'process_external_event', _external=True, _method='POST', secret_token=nonce
+            'process_exotel_event', _external=True, _method='POST', secret_token=nonce
         )
     try:
         r = requests.post(
