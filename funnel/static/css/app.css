@@ -2387,9 +2387,10 @@ a.loginbutton.hidden,
     background: #ffffff;
     top: 0;
     left: 0;
-    height: 100%;
-    padding: 16px;
     right: 0;
+    bottom: 0;
+    padding: 16px;
+    overflow: scroll;
   }
 }
 .modal__body--form .mui-tabs__bar {
@@ -2472,6 +2473,26 @@ a.loginbutton.hidden,
   border: solid 1px rgba(77, 87, 99, 0.13);
   background-color: #ffffff;
   cursor: pointer;
+}
+
+.img-upload-modal .imgee-button {
+  display: none;
+}
+.img-upload-modal .modal__body .modal {
+  padding: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.img-upload-modal .modal__body .modal .modal__header .modal__close {
+  display: none;
+}
+.img-upload-modal .modal__body .modal .modal__body {
+  max-height: 350px;
+}
+.img-upload-modal .modal__body .modal .modal__body .popup {
+  background-color: #ffffff !important;
 }
 
 .card--spotlight {

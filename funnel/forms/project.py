@@ -60,7 +60,7 @@ class ProjectForm(forms.Form):
         default='UTC',
     )
     bg_image = forms.ImgeeField(
-        __("Banner image URL"),
+        __("Banner image"),
         description=(
             "From images.hasgeek.com, with 16:9 aspect ratio."
             " Should be < 100 kB in size"
@@ -144,8 +144,8 @@ class ProjectNameForm(forms.Form):
 
 
 class ProjectBannerForm(forms.Form):
-    bg_image = forms.URLField(
-        __("Banner image URL"),
+    bg_image = forms.ImgeeField(
+        __("Banner image"),
         description=__(
             "From images.hasgeek.com, with 16:9 aspect ratio."
             " Should be < 100 kB in size"
@@ -156,6 +156,11 @@ class ProjectBannerForm(forms.Form):
             image_url_validator(),
         ],
     )
+
+    def set_queries(self):
+        self.bg_image.widget_type = 'modal'
+        if self.edit_obj:
+            self.bg_image.profile = self.edit_obj.profile.name
 
 
 @Project.forms('cfp')

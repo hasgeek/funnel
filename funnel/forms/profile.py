@@ -27,7 +27,7 @@ class ProfileForm(OrganizationForm):
         description=__("This message will be shown on the profile page"),
     )
     logo_url = forms.ImgeeField(
-        label=__("Profile image URL"),
+        label=__("Profile image"),
         description=__(
             "From images.hasgeek.com, with 1:1 aspect ratio."
             " Should be < 30 kB in size"
@@ -82,8 +82,8 @@ class ProfileTransitionForm(forms.Form):
 
 @Profile.forms('logo')
 class ProfileLogoForm(forms.Form):
-    logo_url = forms.URLField(
-        __("Profile image URL"),
+    logo_url = forms.ImgeeField(
+        __("Profile image"),
         description=__(
             "From images.hasgeek.com, with 1:1 aspect ratio."
             " Should be < 30 kB in size"
@@ -95,11 +95,16 @@ class ProfileLogoForm(forms.Form):
         ],
     )
 
+    def set_queries(self):
+        self.logo_url.widget_type = 'modal'
+        if self.edit_obj:
+            self.logo_url.profile = self.edit_obj.name
+
 
 @Profile.forms('banner_image')
 class ProfileBannerForm(forms.Form):
-    banner_image_url = forms.URLField(
-        __("Banner image URL"),
+    banner_image_url = forms.ImgeeField(
+        __("Banner image"),
         description=__(
             "From images.hasgeek.com, with 8:3 aspect ratio."
             " Should be < 100 kB in size"
@@ -110,3 +115,8 @@ class ProfileBannerForm(forms.Form):
             image_url_validator(),
         ],
     )
+
+    def set_queries(self):
+        self.banner_image_url.widget_type = 'modal'
+        if self.edit_obj:
+            self.banner_image_url.profile = self.edit_obj.name
