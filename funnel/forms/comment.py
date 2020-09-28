@@ -1,4 +1,3 @@
-from baseframe import __
 import baseframe.forms as forms
 
 from ..models import Comment
@@ -9,7 +8,7 @@ __all__ = ['CommentForm']
 @Comment.forms('main')
 class CommentForm(forms.Form):
     message = forms.MarkdownField(
-        __("Comment"),
+        "",
         id="comment_message",
         validators=[forms.validators.DataRequired()],
     )

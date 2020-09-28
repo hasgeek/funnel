@@ -279,10 +279,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             },
         },
     }
-    # FIXME: Removed temporarily because Project.participants can have multiple records
-    # for the same user. Requires resolution in either coaster.sqlalchemy.roles or in
-    # the data model here in Funnel:
-    # __roles__['participant']['granted_via]['participants'] = 'user'
 
     __datasets__ = {
         'primary': {
@@ -675,8 +671,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
-        if actor is not None and actor.is_site_admin:
-            roles.add('participant')
         return roles
 
     @classmethod

@@ -1,5 +1,6 @@
 import Ractive from 'ractive';
 import { Utils, TableSearch } from './util';
+import { faicon } from './ractive_util';
 
 const Store = {
   // Local storage can only save strings, so value is converted into strings and stored.
@@ -131,6 +132,7 @@ const ParticipantTable = {
           return checkinUrl;
         },
       },
+      components: { faicon },
       handleCheckIn(event, checkin) {
         event.original.preventDefault();
         const ticketParticipantId = this.get(`${event.keypath}.puuid_b58`);

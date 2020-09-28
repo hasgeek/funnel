@@ -171,7 +171,8 @@ def process_ses_event():
 
     # Subscription confirmation
     if m_type == SnsNotificationType.SubscriptionConfirmation.value:
-        resp = requests.get(message.get('SubscribeURL'))
+        # We must confirm the subscription request
+        resp = requests.get(message['SubscribeURL'])
         if resp.status_code != 200:
             statsd.incr('email_address.ses_event.rejected')
             return {'status': 'error', 'error': 'subscription_failed'}, 400
@@ -179,11 +180,14 @@ def process_ses_event():
 
     # Unsubscribe confirmation
     if m_type == SnsNotificationType.UnsubscribeConfirmation.value:
-        resp = requests.get(message.get('UnsubscribeURL'))
+        # We don't want to unsubscribe, so request a resubscribe. Unsubscribe requests
+        # are typically in response to server errors. If an actual unsubscribe is
+        # required, this code must be disabled, or the server must be taken offline
+        resp = requests.get(message['SubscribeURL'])
         if resp.status_code != 200:
             statsd.incr('email_address.ses_event.rejected')
-            return {'status': 'error', 'error': 'unsubscribe_failed'}, 400
-        return {'status': 'ok', 'message': 'unsubscribe_success'}
+            return {'status': 'error', 'error': 'resubscribe_failed'}, 400
+        return {'status': 'ok', 'message': 'resubscribe_success'}
 
     # This is a Notification and we need to process it
     if m_type == SnsNotificationType.Notification.value:

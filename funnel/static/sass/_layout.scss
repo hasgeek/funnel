@@ -24,11 +24,11 @@
 }
 
 .top-padding {
-  padding-top: $mui-grid-padding;
+  padding-top: $mui-grid-padding !important;
 }
 
 .bottom-padding {
-  padding-bottom: $mui-grid-padding;
+  padding-bottom: $mui-grid-padding !important;
 }
 
 .grid-no-left-padding {
@@ -390,7 +390,7 @@ html.touch .collapsible__body--disable {
 .animate-btn {
   display: none;
   line-height: 1;
-  font-size: 14px;
+  font-size: inherit;
   text-transform: inherit;
 
   .bookmarked {
@@ -542,7 +542,8 @@ html.touch .collapsible__body--disable {
   vertical-align: text-top;
 }
 
-.icon-img--smaller {
+.icon-img--smaller,
+.fa-icon--margin {
   margin-right: 8px;
 }
 
@@ -821,6 +822,19 @@ a.loginbutton.hidden,
   }
 }
 
+.bullet-separated-list--flex {
+  padding-left: 0;
+  display: flex;
+  list-style: inside;
+  li {
+    padding: 0 4px;
+  }
+  li:first-child {
+    list-style-type: none;
+    padding-left: 0;
+  }
+}
+
 @media (min-width: 768px) {
   .bullet-separated-list {
     padding-left: 0;
@@ -906,22 +920,6 @@ a.loginbutton.hidden,
   }
 }
 
-.hg-link-btn.mui--hide {
-  display: none;
-}
-
-.mui-dropdown__menu--hg-link {
-  max-width: 130px;
-  overflow: hidden;
-  .js-copy-url {
-    padding-left: 90px;
-  }
-}
-
-.mui-dropdown__menu--small {
-  min-width: 100px;
-}
-
 .circle-icon {
   display: inline-block;
   background: $mui-bg-color-accent;
@@ -930,4 +928,51 @@ a.loginbutton.hidden,
   border-radius: 50%;
   text-align: center;
   vertical-align: middle;
+}
+
+.link-icon {
+  font-size: 12px;
+  font-weight: normal;
+  padding: 0 $mui-grid-padding/2 $mui-grid-padding/2;
+  line-height: 1;
+  text-transform: capitalize;
+  text-decoration: none !important;
+  .fa5-icon {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .link-icon {
+    font-size: 14px;
+    .fa5-icon {
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+    }
+  }
+}
+
+.mui-dropdown__menu {
+  margin-top: 8px;
+}
+
+.mui-dropdown__menu--hg-link {
+  max-width: 105px;
+  min-width: 105px;
+  z-index: 1003;
+  overflow: hidden;
+  margin-top: 0;
+  > li > a {
+    color: $mui-text-light;
+  }
+  .js-copy-url {
+    padding-left: 90px;
+  }
+}
+
+.mui-dropdown__menu--small {
+  min-width: auto;
 }

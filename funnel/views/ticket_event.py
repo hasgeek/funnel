@@ -26,7 +26,7 @@ from ..models import (
 )
 from .decorators import legacy_redirect
 from .jobs import import_tickets
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, TicketEventViewMixin
 
 
@@ -192,6 +192,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
         return render_form(form=form, title=_("Edit event"), submit=_("Save changes"))
 
     @route('delete', methods=['GET', 'POST'])
+    @requires_sudo
     @requires_roles({'project_concierge'})
     def delete(self):
         return render_delete_sqla(
@@ -285,6 +286,7 @@ class TicketTypeView(UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
+    @requires_sudo
     @requires_roles({'project_concierge'})
     def delete(self):
         return render_delete_sqla(
@@ -351,6 +353,7 @@ class TicketClientView(UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
+    @requires_sudo
     @requires_roles({'project_concierge'})
     def delete(self):
         return render_delete_sqla(

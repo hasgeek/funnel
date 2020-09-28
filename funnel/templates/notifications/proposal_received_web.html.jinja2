@@ -9,7 +9,7 @@
         Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new proposals:
       {%- endtrans %}
     </p>
-    <ol>
+    <ol class="mui-list--aligned">
       {%- for proposal in view.fragments %}
         <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.owner.pickername, age=proposal.datetime|age %}
           <a href="{{ url }}">{{ proposal }}</a> by {{ actor }} <span class="mui--text-body2">{{ age }}</span>

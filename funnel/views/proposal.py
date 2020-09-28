@@ -1,4 +1,4 @@
-from flask import Markup, abort, escape, flash, redirect, request
+from flask import Markup, abort, escape, flash, jsonify, redirect, request
 
 from bleach import linkify
 
@@ -35,7 +35,7 @@ from ..models import (
     db,
 )
 from .decorators import legacy_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .notification import dispatch_notification
 
@@ -206,11 +206,11 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('proposal.html.jinja2', json=True)
+    @render_with('proposal.html.jinja2')
     @requires_permission('view')
     def view(self):
         if request_is_xhr():
-            return {'comments': self.obj.commentset.views.json_comments()}
+            return jsonify({'comments': self.obj.commentset.views.json_comments()})
 
         commentform = CommentForm(model=Comment)
 
@@ -286,7 +286,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @requires_login
+    @requires_sudo
     @requires_permission('delete-proposal')
     def delete(self):
         return render_delete_sqla(

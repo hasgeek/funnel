@@ -16,7 +16,7 @@ from .. import app
 from ..forms import OrganizationForm, TeamForm
 from ..models import Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
-from .login_session import requires_login
+from .login_session import requires_login, requires_sudo
 
 # --- Routes: Organizations ---------------------------------------------------
 
@@ -84,6 +84,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
+    @requires_sudo
     @requires_roles({'owner'})
     def delete(self):
         if request.method == 'POST':
@@ -164,6 +165,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
+    @requires_sudo
     @requires_roles({'admin'})
     def delete(self):
         if request.method == 'POST':

@@ -1,5 +1,5 @@
 from baseframe import __
-from coaster.sqlalchemy import StateManager, with_roles
+from coaster.sqlalchemy import StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -183,6 +183,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'visibility_label',
             'state_label',
             'urls',
+            'uuid_b58',
         },
         'related': {'name', 'title', 'urls'},
     }
@@ -298,6 +299,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
 
 add_search_trigger(Update, 'search_vector')
+auto_init_default(Update._visibility_state)
+auto_init_default(Update._state)
 
 
 @reopen(Project)
