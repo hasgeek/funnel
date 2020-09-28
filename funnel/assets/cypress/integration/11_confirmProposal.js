@@ -9,6 +9,7 @@ describe('Confirm proposal', function () {
   it('Confirm proposal', function () {
     cy.server();
     cy.route('GET', '**/new').as('get-form');
+    cy.route('GET', '**/updates/*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
 
     cy.login('/' + profile.title, editor.username, editor.password);
@@ -62,7 +63,8 @@ describe('Confirm proposal', function () {
     cy.wait(1000);
     cy.login('/' + profile.title, member.username, member.password);
     cy.visit('/updates');
-    cy.wait(1000);
-    cy.contains('You submitted');
+    cy.wait('@fetch-updates');
+    cy.contains(proposal.title);
+    cy.contains(proposal.comment);
   });
 });
