@@ -7,6 +7,7 @@ describe('Test comments feature', function () {
   it('Post comment on project page', function () {
     cy.server();
     cy.route('GET', '**/new').as('get-form');
+    cy.route('GET', '**/updates/*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
     cy.route('GET', '**/edit').as('edit-form');
     cy.route('POST', '**/edit').as('edit-comment');
@@ -94,6 +95,7 @@ describe('Test comments feature', function () {
     cy.logout();
     cy.login('/', editor.username, editor.password);
     cy.visit('/updates');
+    cy.wait('@fetch-updates');
     cy.contains('left comments');
   });
 });
