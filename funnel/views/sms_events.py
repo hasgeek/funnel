@@ -78,7 +78,7 @@ def process_exotel_event(secret_token: str):
     statsd.incr('phone_number.sms.exotel_event.received')
 
     # We just need to verify the token first.
-    if not validate_exotel_token(secret_token):
+    if not validate_exotel_token(secret_token, request.form.get('To')):
         statsd.incr('phone_number.sms.exotel_event.rejected')
         return {'status': 'error', 'error': 'invalid_signature'}, 422
 

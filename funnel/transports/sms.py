@@ -1,8 +1,6 @@
 """Support functions for sending a short text message."""
 
 
-import uuid
-
 from flask import url_for
 import itsdangerous.exc
 
@@ -23,12 +21,12 @@ from .base import (
 __all__ = ['validate_exotel_token', 'send_via_exotel', 'send_via_twilio', 'send']
 
 
-def make_exotel_token(transactionid: str):
+def make_exotel_token(to: str):
     """Used by :func:`send_via_exotel` to construct a callback URL with a token."""
-    return token_serializer().dumps({'transactionid': transactionid})
+    return token_serializer().dumps({'to': to})
 
 
-def validate_exotel_token(token: str):
+def validate_exotel_token(token: str, to: str):
     """Used by the callback view handler to verify the URL security token."""
     try:
         # Allow 7 days validity for the callback token
@@ -41,10 +39,13 @@ def validate_exotel_token(token: str):
         # Token is invalid
         app.logger.debug("Received invalid Exotel token: %s", token)
         return False
-    if not payload.get('transactionid'):
-        # We expect the token to have a transaction ID, even though it is
-        # fully random. No need to check the validity of it.
-        app.logger.warning("Signed Payload without transaction Id: %s", token)
+
+    phone = payload.get('to')
+    if not phone:
+        app.logger.warning("Signed Payload without Phone number: %s", token)
+        return False
+    if phone != to:
+        app.logger.warning("Signed Payload Phone number does not match : %s", token)
         return False
     return True
 
@@ -62,9 +63,11 @@ def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
     token = app.config['SMS_EXOTEL_TOKEN']
     payload = {'From': app.config['SMS_EXOTEL_FROM'], 'To': phone, 'Body': message}
     if callback:
-        nonce = make_exotel_token(str(uuid.uuid1()))
         payload['StatusCallback'] = url_for(
-            'process_exotel_event', _external=True, _method='POST', secret_token=nonce
+            'process_exotel_event',
+            _external=True,
+            _method='POST',
+            secret_token=make_exotel_token(phone),
         )
     try:
         r = requests.post(
