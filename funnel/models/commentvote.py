@@ -29,6 +29,7 @@ class COMMENT_STATE(LabeledEnum):  # NOQA: N801
     PUBLIC = {SUBMITTED, VERIFIED}
     REMOVED = {SPAM, DELETED}
     REPORTABLE = {SUBMITTED, SCREENED, HIDDEN}
+    VERIFIABLE = {SUBMITTED, SCREENED, HIDDEN, SPAM}
 
 
 # What is this Voteset or Commentset attached to?
@@ -342,7 +343,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         Mark this comment as spam.
         """
 
-    @state.transition(None, state.VERIFIED)
+    @state.transition(state.VERIFIABLE, state.VERIFIED)
     def mark_not_spam(self):
         """
         Mark this comment as not a spam.

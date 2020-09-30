@@ -473,7 +473,8 @@ class AccountView(ClassView):
                 if most_common_two[0].report_type == MODERATOR_REPORT_TYPE.SPAM:
                     report.comment.mark_spam()
                 elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
-                    report.comment.mark_not_spam()
+                    if not report.comment.state.DELETED:
+                        report.comment.mark_not_spam()
                 CommentModeratorReport.query.filter_by(comment=report.comment).update(
                     {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
                 )
