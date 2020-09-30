@@ -181,7 +181,12 @@ def validate_rate_limit(
     For an example of how the token and validator are used, see
     :func:`progressive_rate_limit_validator` and its users.
     """
-    statsd.set('rate_limit', identifier, rate=1, tags={'resource': resource})
+    statsd.set(
+        'rate_limit',
+        blake2b(identifier.encode(), digest_size=32).hexdigest(),
+        rate=1,
+        tags={'resource': resource},
+    )
     cache_key = 'rate_limit/v1/%s/%s' % (resource, identifier)
     cache_value = cache.get(cache_key)
     if cache_value is None:
