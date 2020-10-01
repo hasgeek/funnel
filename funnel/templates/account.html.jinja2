@@ -131,7 +131,7 @@
             <div class="mui-divider"></div>
             <div class="card__footer card__footer--smallerbtn">
               {% if current_auth.user.emails %}
-                <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary mui--hide js-enable-button" type="submit" title="Set as primary email">{% trans %}Set as primary{% endtrans %}</button>
+                <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary js-enable-button" type="submit" title="Set as primary email" disabled>{% trans %}Set as primary{% endtrans %}</button>
               {% endif %}
               <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('add_email') }}" title="Add an email address">{% trans %}Add an email address{% endtrans %}</a>
               <span class="loading mui--hide"></span>
@@ -173,7 +173,7 @@
             <div class="mui-divider"></div>
             <div class="card__footer card__footer--smallerbtn">
               {% if current_auth.user.phones %}
-                <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary mui--hide js-enable-button" type="submit">{% trans %}Set as primary{% endtrans %}</button>
+                <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary js-enable-button" type="submit" disabled>{% trans %}Set as primary{% endtrans %}</button>
               {% endif %}
               <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('add_phone') }}">{% trans %}Add a mobile number{% endtrans %}</a>
               <span class="loading mui--hide"></span>
@@ -300,7 +300,7 @@
   <script type="text/javascript">
     $(function() {
       $("#email-primary-form input[type='radio'], #phone-primary-form input[type='radio']").on('change', function() {
-        $(this).parents('form').find('.js-enable-button').removeClass('mui--hide');
+        $(this).parents('form').find('.js-enable-button').attr('disabled', false);
       });
     });
   </script>
