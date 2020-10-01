@@ -19,7 +19,7 @@ Flask-Redis==0.4.0
 Flask-RQ2==18.3
 Flask-SQLAlchemy==2.4.4
 Flask-WTF==0.14.3
-geoip2==4.0.2
+geoip2==4.1.0
 html2text==2020.1.16
 icalendar==4.0.6
 idna==2.10
