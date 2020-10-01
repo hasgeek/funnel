@@ -47,7 +47,7 @@ TEST_DATA = {
 # Scope: session
 # These fixtures are run before every test session
 
-# TODO: Replace all `scope='module'` with `scope='session'` when lastuser tests have
+# TODO: Replace all `scope='module'` with `scope='session'` when last user tests have
 # been migrated to pytest. Currently they do a db.drop_all(), breaking the
 # test_db_structure fixture
 
