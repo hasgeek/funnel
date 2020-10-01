@@ -2534,6 +2534,7 @@ a.loginbutton.hidden,
 }
 .img-upload-modal .modal__body .modal .modal__body {
   max-height: 350px;
+  overflow: scroll;
 }
 .img-upload-modal .modal__body .modal .modal__body .popup {
   background-color: #ffffff !important;

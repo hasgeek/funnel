@@ -434,6 +434,7 @@
       }
       .modal__body {
         max-height: 350px;
+        overflow: scroll;
         .popup {
           background-color: $mui-bg-color-primary !important;
         }
