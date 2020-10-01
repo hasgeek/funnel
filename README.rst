@@ -17,3 +17,5 @@ Our workflow assumes this code is for use on a single production website. Using 
 We aim to have our source code useful to the larger community. Several key components are delegated to the Coaster library, available under the BSD license. Requests for liberal licensing of other components are also welcome. Please file an issue ticket.
 
 This repository uses Travis CI for test automation and has dependencies scanned by PyUp.io.
+
+Thanks for Reading, Keep Coding.
