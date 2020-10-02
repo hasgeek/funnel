@@ -1,4 +1,4 @@
-Hasgeek
+Hasgeek - An Amazing Template
 =======
 
 Code for Hasgeek.com at https://hasgeek.com/
