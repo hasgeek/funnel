@@ -207,7 +207,10 @@ const Schedule = {
           } else {
             // Scroll page to schedule table
             Utils.animateScrollTo(
-              $(schedule.config.parentContainer).offset().top
+              $(schedule.config.parentContainer)
+                .find('.schedule__date')
+                .last()
+                .offset().top - this.headerHeight
             );
           }
 
