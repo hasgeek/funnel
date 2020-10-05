@@ -333,6 +333,11 @@ class AccountView(ClassView):
             'login_registry': login_registry,
         }
 
+    @route('sudo', endpoint='account_sudo', methods=['GET', 'POST'])
+    @requires_sudo
+    def sudo(self):
+        return redirect(get_next_url(), code=303)
+
     @route('saved', endpoint='saved')
     @requires_login
     @render_with('account_saved.html.jinja2')
