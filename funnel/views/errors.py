@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from flask import current_app, redirect, request
-from werkzeug.routing import MethodNotAllowed, NotFound, RequestRedirect
+from werkzeug.routing import RequestRedirect
 import werkzeug.exceptions as exceptions
 
 from coaster.views import render_with
@@ -32,7 +32,7 @@ def error404(e):
                         redirect_url + '?' + request.query_string.decode('utf-8')
                     )
                 return redirect(redirect_url)
-        except (NotFound, RequestRedirect, MethodNotAllowed):
+        except (exceptions.NotFound, RequestRedirect, exceptions.MethodNotAllowed):
             pass
     return {'error': "404 Not Found"}, 404
 

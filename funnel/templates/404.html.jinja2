@@ -4,10 +4,10 @@
 {% block top_title %}
   <div class="mui--text-center">
     <img src="{{ url_for('static', filename='img/error-404.svg') }}" class="emoticon"/>
-    <p class="mui--text-light mui--text-subhead">{% trans %}Not found{% endtrans %}</p>
+    <h1 class="mui--text-light mui--text-display1">{% trans %}Not found{% endtrans %}</h1>
   </div>
 {% endblock %}
 
 {% block content %}
-  <p class="mui--text-center">{% trans %}The page you are looking for does not exist{% endtrans %}</p>
+  <p class="mui--text-subhead mui--text-center">{% trans %}The page you are looking for does not exist{% endtrans %}</p>
 {% endblock %}
