@@ -4,10 +4,10 @@
 {% block top_title %}
   <div>
     <img src="{{ url_for('static', filename='img/error-500.svg') }}" class="emoticon"/>
-    <p class="mui--text-light mui--text-subhead">{% trans %}Server bombed!{% endtrans %}</p>
+    <p class="mui--text-light mui--text-subhead">{% trans %}Internal server error{% endtrans %}</p>
   </div>
 {% endblock %}
 
 {% block content %}
-  <p class="mui--text-center">{% trans %}Internal server error{% endtrans %}</p>
+  <p class="mui--text-center">{% trans %}Our support team has been notified and will look into this. Try again later{% endtrans %}</p>
 {% endblock %}

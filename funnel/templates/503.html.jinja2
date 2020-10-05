@@ -4,10 +4,10 @@
 {% block content %}
   <div>
     <img src="{{ url_for('static', filename='img/error-503.svg') }}" class="emoticon"/>
-    <p class="mui--text-light mui--text-subhead">{% trans %}Yikes! Server went away{% endtrans %}</p>
+    <p class="mui--text-light mui--text-subhead">{% trans %}Website down for maintenance{% endtrans %}</p>
   </div>
 {% endblock %}
 
 {% block content %}
-  <p class="mui--text-center">{% trans %}}There seems to be a problem connecting to the server{% endtrans %}</p>
+  <p class="mui--text-center">{% trans %}We should be back in a few seconds. If it is taking longer, write to us at <a href="mailto:support@hasgeek.com">support@hasgeek.com</a> for updates.{% endtrans %}</p>
 {% endblock %}
