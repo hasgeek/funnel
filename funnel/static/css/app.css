@@ -2533,7 +2533,7 @@ a.loginbutton.hidden,
   display: none;
 }
 .img-upload-modal .modal__body .modal .modal__body {
-  max-height: 350px;
+  max-height: calc(100vh - 300px);
   overflow: scroll;
 }
 .img-upload-modal .modal__body .modal .modal__body .popup {

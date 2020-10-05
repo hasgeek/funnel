@@ -433,7 +433,7 @@
         }
       }
       .modal__body {
-        max-height: 350px;
+        max-height: calc(100vh - 300px);
         overflow: scroll;
         .popup {
           background-color: $mui-bg-color-primary !important;
