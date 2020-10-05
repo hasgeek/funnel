@@ -406,9 +406,10 @@ class EmailAddress(BaseMixin, db.Model):
                 return
             blake2b160 = email_blake2b160_hash(email)
         elif email_hash:
-            blake2b160 = base58.b58decode(email_hash)
-        else:
-            pass
+            try:
+                blake2b160 = base58.b58decode(email_hash)
+            except Exception:
+                pass
 
         return cls.blake2b160 == blake2b160
 
