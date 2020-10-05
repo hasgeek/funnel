@@ -2321,13 +2321,13 @@ a.loginbutton.hidden,
   z-index: 1001;
 }
 
-.modal-form {
+.modal--form {
   min-width: 100%;
   min-height: 325px;
   height: 100%;
   border-radius: 0;
 }
-.modal-form .modal-form__action-box {
+.modal--form .modal--form__action-box {
   padding: 20px;
   position: absolute;
   bottom: 0;
@@ -2337,17 +2337,17 @@ a.loginbutton.hidden,
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   z-index: 1002;
 }
-.modal-form .modal-form__action-box--revoke {
+.modal--form .modal--form__action-box--revoke {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   padding: 20px;
 }
-.modal-form .modal-form__action-box--revoke .mui-btn.mui-btn--nostyle {
+.modal--form .modal--form__action-box--revoke .mui-btn.mui-btn--nostyle {
   text-transform: none;
 }
-.modal-form .mui-form .form-actions {
+.modal--form .mui-form .form-actions {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -2355,13 +2355,13 @@ a.loginbutton.hidden,
   z-index: 1003;
 }
 
-.modal-form.modal-form--edit .modal-form__action-box,
-.modal-form.modal-form--edit .mui-form .form-actions {
+.modal--form.modal--form--edit .modal--form__action-box,
+.modal--form.modal--form--edit .mui-form .form-actions {
   bottom: 65px;
 }
 
 @media (min-width: 768px) {
-  .jquery-modal.blocker.current .modal.modal-form {
+  .jquery-modal.blocker.current .modal.modal--form {
     min-width: 50%;
     min-height: 80%;
     height: auto;
@@ -2519,7 +2519,7 @@ a.loginbutton.hidden,
   cursor: pointer;
 }
 
-.img-upload-modal .imgee-button {
+.img-upload-modal .imgee__button {
   display: none;
 }
 .img-upload-modal .modal__body .modal {
@@ -4990,21 +4990,21 @@ body > .proposal-box.ui-draggable {
   opacity: 0;
 }
 
-.modal-form #field-user {
+.modal--form #field-user {
   margin-bottom: 32px;
 }
 
-.modal-form--edit .select2.select2-container {
+.modal--form--edit .select2.select2-container {
   display: none !important;
 }
-.modal-form--edit .select2-hidden-accessible {
+.modal--form--edit .select2-hidden-accessible {
   background-color: #eee;
   cursor: not-allowed;
   height: 32px !important;
   position: relative !important;
 }
-.modal-form--edit .mui-select:focus > label,
-.modal-form--edit .mui-select > select:focus ~ label {
+.modal--form--edit .mui-select:focus > label,
+.modal--form--edit .mui-select > select:focus ~ label {
   color: rgba(0, 0, 0, 0.54);
 }
 

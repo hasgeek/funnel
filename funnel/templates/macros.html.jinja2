@@ -1112,16 +1112,16 @@
           <p class="mui--text-body2 mui--text-bold mui--text-center zero-bottom-margin">No members found</p>
           <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">Members you add will appear here…</p>
         </div>
-        <div id="member-form" class="modal modal-form" :class="[activeMember ? 'modal-form--edit' : '']">
+        <div id="member-form" class="modal modal--form" :class="[activeMember ? 'modal--form--edit' : '']">
           <a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close"  data-action="close modal">
             <faicon :icon="'times'" :icon_size="'title'"></faicon>
           </a>
           <component :is="Form"></component>
-          <div class="modal-form__action-box mui--bg-accent">
+          <div class="modal--form__action-box mui--bg-accent">
             <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
             <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">Cancel</button>
           </div>
-          <div v-if="activeMember" class="modal-form__action-box--revoke mui--text-center">
+          <div v-if="activeMember" class="modal--form__action-box--revoke mui--text-center">
             <button @click="fetchForm($event, deleteURL)" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-light mui--text-bold" data-cy-btn="revoke">Remove this member</button>
           </div>
         </div>
