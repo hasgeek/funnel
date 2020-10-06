@@ -4429,7 +4429,7 @@ a.loginbutton.hidden,
   .schedule
   .schedule__row--sticky
   .schedule__row__column--header.js-tab-active {
-  border-bottom: 2px solid #f9f9f9;
+  border-bottom: 2px solid #f06a5e;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--time {
   display: none;
