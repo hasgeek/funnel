@@ -4,7 +4,7 @@ from baseframe import _, __
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import EmailAddress
+from ..models import EmailAddress, UserEmailClaim
 
 
 class EmailAddressAvailable:
@@ -63,14 +63,7 @@ class EmailAddressAvailable:
                     " spam. Please ask your tech person to add MX to DNS."
                 )
             )
-        elif is_valid == 'not_new' and self.purpose == 'register':
-            raise forms.validators.StopValidation(
-                _(
-                    "You or someone else has made an account with this email address"
-                    " but not confirmed it. Do you need to reset your password?"
-                )
-            )
-        elif is_valid == 'not_new' and self.purpose == 'claim':
+        elif is_valid == 'not_new':
             raise forms.validators.StopValidation(
                 _("You have already registered this email address")
             )
@@ -91,6 +84,22 @@ class EmailAddressAvailable:
                     " in error, please email us at support@hasgeek.com"
                 )
             )
+        elif is_valid is not True:
+            current_app.logger.error(
+                "Unknown email address validation code: %r", is_valid
+            )
+
+        if is_valid and self.purpose == 'register':
+            # One last check: is there an existing claim? If so, stop the user from
+            # making a dupe account
+            if UserEmailClaim.all(email=field.data).notempty():
+                raise forms.validators.StopValidation(
+                    _(
+                        "You or someone else has made an account with this email"
+                        " address but has not confirmed it. Do you need to reset your"
+                        " password?"
+                    )
+                )
 
 
 def image_url_validator():
