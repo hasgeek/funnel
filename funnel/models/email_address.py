@@ -334,6 +334,14 @@ class EmailAddress(BaseMixin, db.Model):
         self.email = email
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
+    def is_exclusive(self):
+        """Return True if this EmailAddress is in an exclusive relationship."""
+        return any(
+            related_obj
+            for backref_name in self.__exclusive_backrefs__
+            for related_obj in getattr(self, backref_name)
+        )
+
     def is_available_for(self, owner: Any):
         """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
@@ -533,12 +541,17 @@ class EmailAddress(BaseMixin, db.Model):
             return 'invalid'
         # There's an existing? Is it available for this owner?
         if not existing.is_available_for(owner):
+            # Not available, so return False
             return False
 
-        # Any other concerns?
+        # Available. Any other concerns?
         if new:
-            return 'not_new'
-        elif existing.delivery_state.SOFT_FAIL:
+            # Caller is asking to confirm this is not already belonging to this owner
+            if existing.is_exclusive():
+                # It's in an exclusive relationship, and we're already determined it's
+                # available to this owner, so it must be exclusive to them
+                return 'not_new'
+        if existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
         elif existing.delivery_state.HARD_FAIL:
             return 'hard_fail'
