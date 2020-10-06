@@ -1,8 +1,8 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}410 Page now gone{% endblock %}
 
-{% block content %}
-  <div>
+{% block top_title %}
+  <div class="mui--text-center">
     <img src="{{ url_for('static', filename='img/error-410.svg') }}" class="emoticon"/>
     <h1 class="mui--text-light mui--text-display1">{% trans %}This is gone{% endtrans %}</h1>
   </div>

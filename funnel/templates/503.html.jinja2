@@ -1,13 +1,13 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}Website down for maintenance{% endblock %}
 
-{% block content %}
-  <div>
+{% block top_title %}
+  <div class="mui--text-center">
     <img src="{{ url_for('static', filename='img/error-503.svg') }}" class="emoticon"/>
     <h1 class="mui--text-light mui--text-display1">{% trans %}Website down for maintenance{% endtrans %}</h1>
   </div>
 {% endblock %}
 
 {% block content %}
-  <p class="mui--text-subhead mui--text-center">{% trans %}We should be back in a few seconds. If it is taking longer, write to us at <a href="mailto:support@hasgeek.com">support@hasgeek.com</a> for updates.{% endtrans %}</p>
+  <p class="mui--text-subhead mui--text-center">{% trans %}We should be back in a few seconds. If it is taking longer, write to us at <a href="mailto:{{ config['SITE_SUPPORT_EMAIL'] }}">{{ config['SITE_SUPPORT_EMAIL'] }}</a> for updates.{% endtrans %}</p>
 {% endblock %}
