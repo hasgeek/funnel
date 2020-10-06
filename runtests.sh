@@ -7,5 +7,5 @@ fi
 if [ $# -eq 0 ]; then
     pytest --cov=funnel
 else
-    pytest --no-cov "$@"
+    pytest "$@"
 fi

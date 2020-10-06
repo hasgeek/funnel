@@ -676,6 +676,19 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert EmailAddress.validate_for(anon_user, 'invalid') == 'invalid'
 
 
+def test_email_address_existing_but_unused_validate_for(email_models, clean_mixin_db):
+    """An unused but existing email address should be available to claim."""
+    db = clean_mixin_db
+    models = email_models
+    user = models.EmailUser()
+    email_address = EmailAddress.add('unclaimed@example.com')
+    db.session.add_all([user, email_address])
+    db.session.commit()
+
+    assert EmailAddress.validate_for(user, 'unclaimed@example.com', new=True) is True
+    assert EmailAddress.validate_for(user, 'unclaimed@example.com') is True
+
+
 def test_email_address_validate_for_check_dns(email_models, clean_mixin_db):
     """Validate_for with check_dns=True. Separate test as DNS lookup may fail."""
     db = clean_mixin_db
