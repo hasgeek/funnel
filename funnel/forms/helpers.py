@@ -81,8 +81,8 @@ class EmailAddressAvailable:
             raise forms.validators.StopValidation(
                 _(
                     "This email address is no longer valid. If you believe this to be"
-                    " in error, please email us at support@hasgeek.com"
-                )
+                    " incorrect, email {support} asking for the address to be activated"
+                ).format(support=current_app.config['SITE_SUPPORT_EMAIL'])
             )
         elif is_valid is not True:
             current_app.logger.error(
