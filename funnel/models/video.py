@@ -161,38 +161,47 @@ class VideoMixin:
                 }
                 if self.video_source == 'youtube':
                     video_url = f'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={self.video_id}&key={app.config["YOUTUBE_API_KEY"]}'
-                    try:
-                        youtube_video = requests.get(video_url).json()
-                        if not youtube_video or 'items' not in youtube_video:
-                            raise VideoException(
-                                "Unable to fetch data, please check the youtube url or API key"
-                            )
-                        elif not youtube_video['items']:
-                            # Response has zero item for our given video ID.
-                            # This will happen if the video has been removed from YouTube.
-                            self._source_video_exists = False
-                        else:
-                            youtube_video = youtube_video['items'][0]
+                    youtube_resp = requests.get(video_url)
+                    if youtube_resp.status_code == 200:
+                        try:
+                            youtube_video = youtube_resp.json()
+                            if not youtube_video or 'items' not in youtube_video:
+                                raise VideoException(
+                                    "Unable to fetch data, please check the youtube url or API key"
+                                )
+                            elif not youtube_video['items']:
+                                # Response has zero item for our given video ID.
+                                # This will happen if the video has been removed from YouTube.
+                                self._source_video_exists = False
+                            else:
+                                youtube_video = youtube_video['items'][0]
 
-                            data['duration'] = parse_duration(
-                                youtube_video['contentDetails']['duration']
-                            ).total_seconds()
-                            data['uploaded_at'] = parse_isoformat(
-                                youtube_video['snippet']['publishedAt'], naive=False
+                                data['duration'] = parse_duration(
+                                    youtube_video['contentDetails']['duration']
+                                ).total_seconds()
+                                data['uploaded_at'] = parse_isoformat(
+                                    youtube_video['snippet']['publishedAt'], naive=False
+                                )
+                                data['thumbnail'] = youtube_video['snippet'][
+                                    'thumbnails'
+                                ]['medium']['url']
+                        except JSONDecodeError as e:
+                            app.logger.error(
+                                "%s: Unable to parse JSON response while calling '%s'",
+                                e.msg,
+                                video_url,
                             )
-                            data['thumbnail'] = youtube_video['snippet']['thumbnails'][
-                                'medium'
-                            ]['url']
-                    except JSONDecodeError as e:
+                    else:
                         app.logger.error(
-                            "%s: Unable to parse JSON response while calling '%s'",
-                            e.msg,
+                            "HTTP %s: YouTube API request failed for url '%s'",
+                            youtube_resp.status_code,
                             video_url,
                         )
                 elif self.video_source == 'vimeo':
                     video_url = f'https://vimeo.com/api/v2/video/{self.video_id}.json'
-                    try:
-                        vimeo_video = requests.get(video_url).json()[0]
+                    vimeo_resp = requests.get(video_url)
+                    if vimeo_resp.status_code == 200:
+                        vimeo_video = vimeo_resp.json()[0]
 
                         data['duration'] = vimeo_video['duration']
                         # Vimeo returns naive datetime, we will add utc timezone to it
@@ -200,15 +209,12 @@ class VideoMixin:
                             vimeo_video['upload_date'], delimiter=' '
                         ).replace(tzinfo=utc)
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
-                    except JSONDecodeError as e:
-                        # Video doesn't exist on Vimeo anymore.
-                        # Not setting this for YouTube because YT returns an empty
-                        # list in case of a video that doesn't exist. Vimeo throws
-                        # HTTP errors instead.
+                    else:
+                        # Video doesn't exist on Vimeo anymore
                         self._source_video_exists = False
                         app.logger.error(
-                            "%s: Unable to parse JSON response while calling '%s'",
-                            e.msg,
+                            "HTTP %s: Vimeo API request failed for url '%s'",
+                            vimeo_resp.status_code,
                             video_url,
                         )
                 self._video_cache = data  # using _video_cache setter to set cache
