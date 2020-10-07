@@ -1096,8 +1096,6 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'))
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
-    # TODO: Remove obsolete blake2b column
-    blake2b = db.Column(db.LargeBinary, nullable=False, index=True)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
@@ -1142,21 +1140,15 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
                 db.session.delete(claim)
 
     @classmethod
-    def get_for(cls, user, email=None, blake2b160=None, blake2b=None, email_hash=None):
+    def get_for(cls, user, email=None, blake2b160=None, email_hash=None):
         """
         Return a UserEmailClaim with matching email address for the given user.
 
         :param User user: User who claimed this email address
         :param str email: Email address to look up
         :param bytes blake2b160: 160-bit blake2b of email address to look up
-        :param bytes blake2b: 128-bit blake2b of email address to look up (deprecated)
         :param str email_hash: Base58 rendering of 160-bit blake2b hash
         """
-        require_one_of(
-            email=email, blake2b160=blake2b160, email_hash=email_hash, blake2b=blake2b
-        )
-        if blake2b:
-            return cls.query.filter_by(blake2b=blake2b, user=user).one_or_none()
         return (
             cls.query.join(EmailAddress)
             .filter(
@@ -1169,12 +1161,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         )
 
     @classmethod
-    def get_by(cls, verification_code, blake2b=None, blake2b160=None, email_hash=None):
-        require_one_of(blake2b=blake2b, blake2b160=blake2b160, email_hash=email_hash)
-        if blake2b:
-            return cls.query.filter_by(
-                blake2b=blake2b, verification_code=verification_code
-            ).one_or_none()
+    def get_by(cls, verification_code, blake2b160=None, email_hash=None):
         return (
             cls.query.join(EmailAddress)
             .filter(
