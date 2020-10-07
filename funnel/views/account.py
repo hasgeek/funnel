@@ -335,7 +335,7 @@ class AccountView(ClassView):
         ):
             return abort(403)
 
-        comments = Comment.query.filter(~(Comment.state.REMOVED)).order_by(
+        comments = Comment.query.filter(Comment.state.REPORTABLE).order_by(
             Comment.created_at.desc()
         )
         if query:
@@ -458,7 +458,7 @@ class AccountView(ClassView):
                 if most_common_two[0].report_type == MODERATOR_REPORT_TYPE.SPAM:
                     report.comment.mark_spam()
                 elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
-                    if report.comment.state.SPAM:
+                    if not report.comment.state.DELETED:
                         report.comment.mark_not_spam()
                 CommentModeratorReport.query.filter_by(comment=report.comment).update(
                     {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
