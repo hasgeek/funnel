@@ -96,6 +96,6 @@ describe('Test comments feature', function () {
     cy.login('/', editor.username, editor.password);
     cy.visit('/updates');
     cy.wait('@fetch-updates');
-    cy.contains('left comments');
+    cy.get('[data-cy="notification-box"]').contains(project.title);
   });
 });

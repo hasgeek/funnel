@@ -64,7 +64,7 @@ describe('Confirm proposal', function () {
     cy.login('/' + profile.title, member.username, member.password);
     cy.visit('/updates');
     cy.wait('@fetch-updates');
-    cy.contains(proposal.title);
-    cy.contains(proposal.comment);
+    cy.get('[data-cy="notification-box"]').contains(proposal.title);
+    cy.get('[data-cy="notification-box"]').contains(proposal.comment);
   });
 });

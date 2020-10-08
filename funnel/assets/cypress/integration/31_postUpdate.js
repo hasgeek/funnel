@@ -63,6 +63,6 @@ describe('Test updates feature', function () {
     cy.login('/', user.username, user.password);
     cy.visit('/updates');
     cy.wait(1000);
-    cy.contains('posted an update in');
+    cy.get('[data-cy="notification-box"]').contains(project.update_title);
   });
 });
