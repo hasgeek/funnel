@@ -40,12 +40,9 @@ def validate_exotel_token(token: str, to: str):
         app.logger.debug("Received invalid Exotel token: %s", token)
         return False
 
-    phone = payload.get('to')
-    if not phone:
-        app.logger.warning("Signed Payload without Phone number: %s", token)
-        return False
+    phone = payload['to']
     if phone != to:
-        app.logger.warning("Signed Payload Phone number does not match : %s", token)
+        app.logger.warning("Signed payload phone number does not match : %s", token)
         return False
     return True
 
