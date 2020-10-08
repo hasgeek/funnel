@@ -26,7 +26,7 @@ idna==2.10
 itsdangerous==1.1.0
 jsmin==2.2.2
 oauth2client==4.1.3
-passlib==1.7.2
+passlib==1.7.3
 phonenumbers==8.12.10
 premailer==3.7.0
 progressbar2==3.53.1
