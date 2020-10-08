@@ -1,10 +1,10 @@
 {%- from "macros.html.jinja2" import useravatar %}
 {%- block update %}
   <div class="user">
-    <div class="user__box user__box--topalign" data-cy="notification-box">
+    <div class="user__box user__box--topalign">
       {% block avatar %}{% if view.actor %}{{ useravatar(view.actor) }}{% endif %}{% endblock %}
       <div class="user__box__header">
-        <div class="mui--text-subhead">{% block content %}{% trans %}(This template is missing content){% endtrans %}{% endblock %}</div>
+        <div class="mui--text-subhead" data-cy="notification-box">{% block content %}{% trans %}(This template is missing content){% endtrans %}{% endblock %}</div>
         {% if not view.is_rollup %}<p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>{% endif %}
       </div>
     </div>
