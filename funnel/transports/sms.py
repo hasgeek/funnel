@@ -42,7 +42,9 @@ def validate_exotel_token(token: str, to: str):
 
     phone = payload['to']
     if phone != to:
-        app.logger.warning("Signed payload phone number does not match : %s", token)
+        app.logger.warning(
+            "Received Exotel callback token for a mismatched phone number"
+        )
         return False
     return True
 
@@ -80,17 +82,17 @@ def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
             else:
                 transactionid = jsonresponse.get('SMSMessage', {}).get('Sid')
             return transactionid
-        raise TransportTransactionError("Exotel API error", r.status_code, r.text)
+        raise TransportTransactionError(_("Exotel API error"), r.status_code, r.text)
     except requests.ConnectionError:
-        raise TransportConnectionError("Exotel not reachable")
+        raise TransportConnectionError(_("Exotel not reachable"))
 
 
 def send_via_twilio(phone: str, message: str, callback: bool = True) -> str:
     """
     Send the SMS via Twilio, for international phone numbers.
 
-    :param phone: Phone Number
-    :param message: Message to deliver to Phone number
+    :param phone: Phone number
+    :param message: Message to deliver to phone number
     :param callback: Whether to request a status callback
     :return: Transaction id
     """
@@ -119,19 +121,30 @@ def send_via_twilio(phone: str, message: str, callback: bool = True) -> str:
     except TwilioRestException as e:
         # Error codes from
         # https://www.twilio.com/docs/iam/test-credentials#test-sms-messages-parameters-To
+        # https://support.twilio.com/hc/en-us/articles/223181868-Troubleshooting-Undelivered-Twilio-SMS-Messages
+        # https://www.twilio.com/docs/api/errors#2-anchor
         if e.code == 21211:
             raise TransportRecipientError(_("This phone number is invalid"))
-        if e.code in (21612, 21408):
+        if e.code == 21408:
+            app.logger.error("Twilio unsupported country (21408) for %s", phone)
             raise TransportRecipientError(
-                _("This phone number is unsupported at this time")
+                _("Hasgeek cannot send messages to phone numbers in this country")
             )
         if e.code == 21610:
             raise TransportRecipientError(_("This phone number has been blocked"))
+        if e.code == 21612:
+            app.logger.error("Twilio unsupported carrier (21612) for %s", phone)
+            raise TransportRecipientError(
+                _("This phone number is unsupported at this time")
+            )
         if e.code == 21614:
             raise TransportRecipientError(
                 _("This phone number cannot receive SMS messages")
             )
-        raise TransportTransactionError("Twilio API Error", e.code, e.msg)
+        app.logger.error("Unhandled Twilio error %d: %s", e.code, e.msg)
+        raise TransportTransactionError(
+            _("Hasgeek was unable to send a message to this phone number")
+        )
 
 
 senders_by_prefix = [('+91', send_via_exotel), ('+', send_via_twilio)]
@@ -149,4 +162,4 @@ def send(phone: str, message: str, callback: bool = True) -> str:
     for prefix, sender in senders_by_prefix:
         if phone.startswith(prefix):
             return sender(phone, message, callback)
-    raise TransportRecipientError("No service provider available for this recipient")
+    raise TransportRecipientError(_("No service provider available for this recipient"))
