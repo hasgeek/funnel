@@ -240,7 +240,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 {
                     'title': p.title,
                     'datetime': date_filter(
-                        p.schedule_start_at_localized, format='dd MMM yyyy'
+                        p.schedule_end_at_localized, format='dd MMM yyyy'
                     ),
                     'venue': p.primary_venue.city if p.primary_venue else p.location,
                     'url': p.url_for(),
