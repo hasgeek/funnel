@@ -52,7 +52,7 @@ class SesProcessor(SesProcessorAbc):
         statsd.incr(
             'email_address.event',
             count=len(ses_event.bounce.bounced_recipients),
-            tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'bounce'},
+            tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'bounced'},
         )
 
     def delayed(self, ses_event: SesEvent) -> None:
@@ -124,12 +124,12 @@ class SesProcessor(SesProcessorAbc):
             email_address.mark_active()
             statsd.incr(
                 'email_address.event',
-                tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'open'},
+                tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'opened'},
             )
         else:
             statsd.incr(
                 'email_address.event',
-                tags={'engine': 'aws_ses', 'stage': 'dropped', 'event': 'open'},
+                tags={'engine': 'aws_ses', 'stage': 'dropped', 'event': 'opened'},
             )
 
     def click(self, ses_event: SesEvent) -> None:
@@ -141,13 +141,13 @@ class SesProcessor(SesProcessorAbc):
             statsd.incr(
                 'email_address.event',
                 count=len(ses_event.mail.destination),
-                tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'click'},
+                tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'clicked'},
             )
         else:
             statsd.incr(
                 'email_address.event',
                 count=len(ses_event.mail.destination),
-                tags={'engine': 'aws_ses', 'stage': 'dropped', 'event': 'click'},
+                tags={'engine': 'aws_ses', 'stage': 'dropped', 'event': 'clicked'},
             )
 
 
