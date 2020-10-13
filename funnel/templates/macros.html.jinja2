@@ -760,28 +760,48 @@
 {% macro comments_tree() %}
   {% raw %}
     <div id="comments-wrapper" v-cloak>
-      <div class="ajax-form">
-        <component :is="Form"></component>
-        <button class="mui-btn mui-btn--raised mui-btn--accent ajax-form_cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
-        <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
-      </div>
+      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">Login to leave a comment</a>
       <p class="mui-panel mui--bg-accent" v-if="isuserloggedin && !isuserparticipant">You need to be a participant to comment.</p>
-      <a class="post-form-block" @click="fetchForm($event, newCommentUrl)" aria-label="Post comment" data-cy="post-comment" v-if="isuserparticipant && !commentForm">
-        <div class="user">
+      <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="showmodal">
+        <div class="mobile-nav mui--z1">
+          <span aria-label="Close" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeModal()"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
+        </div>
+      </div>
+      <div class="post-form-block comment-new-block" @click="showNewCommentForm($event, 'comment_message')" aria-label="Post comment" data-cy="post-comment" v-if="isuserparticipant && !commentForm">
+        <a class="post-form mui--hidden-xs mui--hidden-sm">Post a comment...</a>
+        <div class="user mui--hidden-xs mui--hidden-sm">
           <div class="user__box">
             <useravatar :user='user' :addprofilelink=false></useravatar>
-            <input type="text" placeholder="Post comment…" />
           </div>
         </div>
-      </a>
-      <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">Login to leave a comment</a>
-      <ul class="mui-list--unstyled" v-for="comment in comments">
-        <comment :comment="comment" :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
+        <a class="mui--text-title mui--hidden-md mui--hidden-lg mui--hidden-xl"><faicon :icon="'plus'" :icon_size="'subhead'"></faicon>  New comment</a>
+      </div>
+      <div class="ajax-form" :class="[showmodal ? 'ajax-form--mob' : '']" v-if="commentForm">
+        <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('new-comment-form', newCommentUrl,  COMMENTACTIONS.NEW)" id="new-comment-form">
+          <div class="mui-form__fields">
+            <textarea id="comment_message" name="message" required="required" class="field-comment_message" v-model="textarea"></textarea>
+          </div>
+          <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea"><faicon :icon="'paper-plane'" :icon_size="'subhead'" css_class="mui--text-hyperlink"></faicon></button>
+          <div class="user" v-else>
+            <div class="user__box">
+              <useravatar :user='user' :addprofilelink=false></useravatar>
+            </div>
+          </div>
+        </form>
+        <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+      </div>
+      <ul class="mui-list--unstyled comment-wrapper" v-for="comment in comments">
+        <comment :comment="comment" :user='user' :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
       </ul>
     </div>
     <script type="text/x-template" id="comment-template">
-      <li class="comment">
-        <div :id="'#c-' + comment.uuid_b58">
+      <li class="comment" :class="[formOpened ? 'comment--modal' : '']">
+        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="formOpened">
+          <div class="mobile-nav mui--z1">
+            <span aria-label="Close" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
+          </div>
+        </div>
+        <div :id="'c-' + comment.uuid_b58">
           <div class="comment__header">
             <button class="mui-btn mui-btn--nostyle" aria-label="Hide comment" aria-expanded="true" v-if="!hide" @click="collapse(true)">
               <faicon :icon="'caret-circle-up'" :icon_size="'subhead'"></faicon>
@@ -812,8 +832,8 @@
                 <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">(edited {{ edited_at_age }})</span>
               </div>
               <div>
-                <a class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="fetchForm($event, comment.urls.reply)"><faicon :icon="'comment-alt'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
-                <a class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="fetchForm($event, comment.urls.report_spam)"><faicon :icon="'flag-alt'":baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
+                <a class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="activateSubForm($event, COMMENTACTIONS.REPLY, 'reply-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'comment-alt'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
+                <a class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="activateSubForm($event, COMMENTACTIONS.REPORTSPAM)"><faicon :icon="'flag-alt'":baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
                 <div class="mui-dropdown">
                   <a href="javascript:void(0)" class="link-icon project-links mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
                   <sharedropdown :url='comment.urls.view' :title='comment.title'></sharedropdown>
@@ -822,18 +842,57 @@
                 <div class="mui-dropdown" v-if="comment.urls.edit || comment.urls.delete">
                   <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-mui-toggle="dropdown"  data-cy="comment-menu"><faicon :icon="'ellipsis-v'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">More</span></a>
                   <ul class="mui-dropdown__menu mui-dropdown__menu--hg-link mui-dropdown__menu--small" data-cy="share-dropdown">
-                    <li><a class="mui--text-body2 comment__body__links" data-cy="edit" v-if="comment.urls.edit" @click="fetchForm($event, comment.urls.edit)"><faicon :icon="'edit'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'" ></faicon> Edit</a></li>
-                    <li><a class="mui--text-body2 comment__body__links" data-cy="delete" v-if="comment.urls.delete"  @click="fetchForm($event, comment.urls.delete)"><faicon :icon="'trash-alt'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon> Delete</a></li>
+                    <li><a class="mui--text-body2 comment__body__links" data-cy="edit" v-if="comment.urls.edit" @click="activateSubForm($event, COMMENTACTIONS.EDIT, 'edit-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'edit'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'" ></faicon> Edit</a></li>
+                    <li><a class="mui--text-body2 comment__body__links" data-cy="delete" v-if="comment.urls.delete"  @click="activateSubForm($event, COMMENTACTIONS.DELETE)"><faicon :icon="'trash-alt'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon> Delete</a></li>
                   </ul>
                 </div>
               </div>
-              <div class="ajax-form ">
-                <component :is="Form"></component>
-                <button class="mui-btn mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeForm($event)" v-if="commentForm">Cancel</button>
+              <div class="ajax-form" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="replyForm">
+                <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('reply-comment-form-' + comment.uuid_b58, comment.urls.reply, COMMENTACTIONS.REPLY)" :id="'reply-comment-form-' + comment.uuid_b58">
+                  <div class="mui-form__fields">
+                    <textarea :id="'reply-comment-textarea-' + comment.uuid_b58" name="message" required="required" class="field-comment_message" v-model="reply"></textarea>
+                  </div>
+                  <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="reply"><faicon :icon="'paper-plane'" :icon_size="'subhead'" css_class="mui--text-hyperlink"></faicon></button>
+                  <div class="user" v-else>
+                    <div class="user__box">
+                      <useravatar :user='user' :addprofilelink=false></useravatar>
+                    </div>
+                  </div>
+                </form>
+                <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+              </div>
+              <div class="ajax-form" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="editForm">
+                <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('edit-comment-form-' + comment.uuid_b58, comment.urls.edit, COMMENTACTIONS.EDIT)" :id="'edit-comment-form-' + comment.uuid_b58">
+                  <div class="mui-form__fields">
+                    <textarea :id="'edit-comment-textarea-' + comment.uuid_b58" name="message" required="required" class="field-comment_message" v-model="textarea"></textarea>
+                  </div>
+                  <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea"><faicon :icon="'paper-plane'" :icon_size="'subhead'" css_class="mui--text-hyperlink"></faicon></button>
+                  <div class="user" v-else>
+                    <div class="user__box">
+                      <useravatar :user='user' :addprofilelink=false></useravatar>
+                    </div>
+                  </div>
+                </form>
+                <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+              </div>
+              <div class="ajax-form ajax-form--block" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="deleteForm">
+                <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('delete-comment-form-' + comment.uuid_b58, comment.urls.delete, 2)" :id="'delete-comment-form-' + comment.uuid_b58">
+                  <p class="ajax-form__title">Delete this comment?</p>
+                  <button type="submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Confirm</button>
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeAllForms($event, 'deleteForm')">Cancel</button>
+                </form>
+                <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+              </div>
+              <div class="ajax-form ajax-form--block" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="spamForm">
+                <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('spam-comment-form-' + comment.uuid_b58, comment.urls.report_spam, 3)" :id="'spam-comment-form-' + comment.uuid_b58">
+                  <p class="ajax-form__title">Do you want to mark this comment as spam?</p>
+                  <button type="submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Confirm</button>
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeAllForms($event, 'spamForm')">Cancel</button>
+                </form>
                 <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
               </div>
               <ul class="mui-list--unstyled comment--children" v-for="reply_comment in comment.current_access_replies">
-                <comment :comment="reply_comment" :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
+                <comment :comment="reply_comment" :user='user' :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
               </ul>
             </div>
           </transition>
