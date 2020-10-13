@@ -1,0 +1,11 @@
+{% from "baseframe/components.html.jinja2" import faicon %}
+{% from "baseframe/mui/forms.html.jinja2" import renderform, ajaxform, widget_ext_scripts, widgetscripts %}
+<div class="modal__inner img-upload-modal">
+  <div class="modal__header">
+    <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times',  icon_size='title') }}</a>
+  </div>
+  <ul class="mui-list--unstyled mui-list--border mui-list--aligned grid-no-left-padding zero-bottom-margin">
+    <li class="top-padding bottom-padding"><a href="{{ edit_logo_url }}" class="mui--text-subhead mui--text-dark nounderline" rel="modal:open" data-hash="edit_logo">{{ faicon(icon='upload', baseline=true, css_class='icon-img--smaller') }} Upload/Select from Image gallery</a></li>
+    <li class="top-padding bottom-padding"><a href="{{ delete_logo_url }}" class="mui--text-subhead mui--text-dark nounderline" rel="modal:open" data-hash="edit_logo">{{ faicon(icon='trash-alt', baseline=true, css_class='icon-img--smaller') }} Remove photo</a></li>
+  </ul>
+</div>

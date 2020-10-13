@@ -417,8 +417,11 @@
 }
 
 .img-upload-modal {
-  .imgee__button {
-    display: none;
+  .imgee {
+    .imgee__button,
+    .imgee__url-holder {
+      display: none;
+    }
   }
   .modal__body {
     .modal {

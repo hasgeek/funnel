@@ -2519,7 +2519,8 @@ a.loginbutton.hidden,
   cursor: pointer;
 }
 
-.img-upload-modal .imgee__button {
+.img-upload-modal .imgee .imgee__button,
+.img-upload-modal .imgee .imgee__url-holder {
   display: none;
 }
 .img-upload-modal .modal__body .modal {
