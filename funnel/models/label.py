@@ -2,6 +2,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
 
+from baseframe import __
 from coaster.sqlalchemy import with_roles
 
 from . import BaseScopedNameMixin, TSVectorType, db
@@ -160,7 +161,7 @@ class Label(BaseScopedNameMixin, db.Model):
     @restricted.setter
     def restricted(self, value):
         if self.main_label:
-            raise ValueError("This flag must be set on the parent")
+            raise ValueError(__("This flag must be set on the parent"))
         self._restricted = value
 
     @restricted.expression
@@ -221,7 +222,7 @@ class Label(BaseScopedNameMixin, db.Model):
     @required.setter
     def required(self, value):
         if value and not self.has_options:
-            raise ValueError("Labels without options cannot be mandatory")
+            raise ValueError(__("Labels without options cannot be mandatory"))
         self._required = value
 
     @property
@@ -247,7 +248,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     def apply_to(self, proposal):
         if self.has_options:
-            raise ValueError("This label requires one of its options to be used")
+            raise ValueError(__("This label requires one of its options to be used"))
         if self in proposal.labels:
             return
 
@@ -266,7 +267,7 @@ class Label(BaseScopedNameMixin, db.Model):
 
     def remove_from(self, proposal):
         if self.has_options:
-            raise ValueError("This label requires one of its options to be removed")
+            raise ValueError(__("This label requires one of its options to be removed"))
         if self in proposal.labels:
             proposal.labels.remove(self)
 
@@ -317,13 +318,13 @@ class ProposalLabelProxyWrapper(object):
                 if label in self._obj.labels:
                     self._obj.labels.remove(label)
             else:
-                raise ValueError("This label can only be set to True or False")
+                raise ValueError(__("This label can only be set to True or False"))
         else:
             option_label = Label.query.filter_by(
                 main_label=label, _archived=False, name=value
             ).one_or_none()
             if not option_label:
-                raise ValueError("Invalid option for this label")
+                raise ValueError(__("Invalid option for this label"))
 
             # Scan for conflicting labels and remove them. Iterate over a copy
             # to allow mutation of the source list during iteration
