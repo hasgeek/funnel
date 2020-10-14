@@ -102,7 +102,7 @@
             <div class="gallery mui-tabs__bar">
               {% with seq = 1 %}
                 {% if proposal.session and proposal.session.video and proposal.session.video.url %}
-                  <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Session video</h3>
+                  <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">{% trans %}Session video{% endtrans %}</h3>
                   <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
                     <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
                       <img src="{{ proposal.session.video.thumbnail }}" class="img-responsive" data-cy="session-video-thumbnail">
@@ -112,7 +112,7 @@
                   </div>
                   {% set seq = seq + 1 %}
                 {% endif %}
-                <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">Proposal video</h3>
+                <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">{% trans %}Proposal video{% endtrans %}</h3>
                 {% if proposal.video %}
                   <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
                     <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
