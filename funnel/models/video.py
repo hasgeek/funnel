@@ -4,6 +4,7 @@ from pytz import utc
 from simplejson import JSONDecodeError
 import requests
 
+from baseframe import __
 from coaster.utils import parse_duration, parse_isoformat
 
 from .. import app, redis_store
@@ -20,7 +21,7 @@ def parse_video_url(video_url):
 
     parsed = urllib.parse.urlparse(video_url)
     if parsed.netloc is None:
-        raise ValueError("Invalid video URL")
+        raise ValueError(__("Invalid video URL"))
 
     if parsed.netloc in ['youtube.com', 'www.youtube.com', 'm.youtube.com']:
         if parsed.path == '/watch':
