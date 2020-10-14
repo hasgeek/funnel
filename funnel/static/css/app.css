@@ -2523,6 +2523,9 @@ a.loginbutton.hidden,
 .img-upload-modal .imgee .imgee__url-holder {
   display: none;
 }
+.img-upload-modal .modal__body .mui-form__fields {
+  margin: 0;
+}
 .img-upload-modal .modal__body .modal {
   padding: 0 !important;
   max-width: 100% !important;

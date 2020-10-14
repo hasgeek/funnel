@@ -424,6 +424,9 @@
     }
   }
   .modal__body {
+    .mui-form__fields {
+      margin: 0;
+    }
     .modal {
       padding: 0 !important;
       max-width: 100% !important;
