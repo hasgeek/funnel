@@ -13,7 +13,7 @@ from flask import (
 )
 
 from baseframe import _, forms, request_is_xhr
-from baseframe.forms import Form, render_form, render_redirect
+from baseframe.forms import render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
@@ -442,12 +442,12 @@ class ProjectView(
     @route('update_banner', methods=['GET', 'POST'])
     @requires_roles({'editor'})
     def update_banner(self):
+        form = ProjectBannerForm()
         edit_logo_url = self.obj.url_for('edit_banner')
-        delete_logo_url = self.obj.url_for('delete_banner')
         return render_template(
             'update_logo_modal.html.jinja2',
             edit_logo_url=edit_logo_url,
-            delete_logo_url=delete_logo_url,
+            form=form,
         )
 
     @route('edit_banner', methods=['GET', 'POST'])
@@ -469,22 +469,6 @@ class ProjectView(
             form=form,
             title="",
             submit=_("Save banner"),
-            ajax=True,
-            template='img_upload_formlayout.html.jinja2',
-        )
-
-    @route('delete_banner', methods=['GET', 'POST'])
-    @requires_roles({'editor'})
-    def delete_banner(self):
-        form = Form()
-        if request.method == 'POST':
-            pass
-            # Remove the logo
-        return render_form(
-            form=form,
-            title='',
-            message=_("Remove banner?"),
-            submit=_("Remove"),
             ajax=True,
             template='img_upload_formlayout.html.jinja2',
         )
