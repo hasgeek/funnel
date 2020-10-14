@@ -179,7 +179,7 @@
                   {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit="Transfer", style='horiz') }}
                   <hr class="mui-divider">
                 {%- endif %}
-                <p class="mui--text-subhead">Change status of proposal</p>
+                <p class="mui--text-subhead">{% trans %}Change status of proposal{% endtrans %}</p>
                 <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
                   {{ transition_form.hidden_tag() }}
                   <p class="btn-group" data-cy="proposal-status">
