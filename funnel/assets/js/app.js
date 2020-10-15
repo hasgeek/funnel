@@ -10,6 +10,7 @@ $(() => {
   window.Hasgeek.config.refreshInterval = 60000;
   window.Hasgeek.config.notificationRefreshInterval = 300000;
   window.Hasgeek.config.readReceiptTimeout = 5000;
+  window.Hasgeek.config.saveEditorContentTimeout = 300;
 
   Utils.collapse();
   Utils.smoothScroll();

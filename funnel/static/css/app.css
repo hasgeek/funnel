@@ -2496,11 +2496,13 @@ a.loginbutton.hidden,
 .ajax-form .mui-form .mui-form__fields .CodeMirror-focused {
   border: 1px solid #4a90e2;
 }
-.ajax-form .mui-btn--raised.icon-btn {
-  margin: 0;
+.ajax-form .icon-btn {
+  min-width: 40px;
+  margin: 0 0 0 8px;
 }
 .ajax-form .user {
   display: inline-block;
+  margin-left: 8px;
 }
 .ajax-form .user .user__box {
   align-items: start;
@@ -2536,6 +2538,7 @@ a.loginbutton.hidden,
   }
   .ajax-form.ajax-form--mob .user {
     padding-right: 16px;
+    margin-right: 0;
   }
 
   .ajax-form--block.ajax-form--mob {
@@ -2588,6 +2591,34 @@ a.loginbutton.hidden,
 }
 .post-form-block .user .user__box .user__box__gravatar--initials {
   background-color: #0f73ed !important;
+}
+
+.update-form-block {
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  padding: 8px 16px;
+  margin-bottom: 32px;
+  margin: 16px 0 32px;
+  display: block;
+  cursor: pointer;
+  text-decoration: none !important;
+}
+.update-form-block span {
+  height: 40px;
+}
+.update-form-block .user__box {
+  align-items: start;
+}
+.update-form-block .user__box__gravatar--initials {
+  background-color: #0f73ed !important;
+}
+.update-form-block input {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 2px;
+  border: solid 1px rgba(77, 87, 99, 0.13);
+  background-color: #fff;
+  cursor: pointer;
 }
 
 .card--spotlight {

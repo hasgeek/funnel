@@ -21,8 +21,8 @@ const Comments = {
       REPLY: 0,
       EDIT: 1,
       DELETE: 2,
-      NEWCOMMENT: 3,
-      REPORTSPAM: 4,
+      REPORTSPAM: 3,
+      NEWCOMMENT: 4,
     };
 
     Vue.mixin({
@@ -63,12 +63,15 @@ const Comments = {
         },
         closeAllForms(event) {
           if (event) event.preventDefault();
-          console.log('closeAllForms');
           this.formOpened = false;
           this.replyForm = false;
           this.editForm = false;
           this.deleteForm = false;
           this.spamForm = false;
+          this.$parent.pauseRefreshComments();
+        },
+        pauseRefreshComments() {
+          this.$parent.pauseRefreshComments();
         },
         activateSubForm(event, action, textareaId = '') {
           event.preventDefault();
@@ -92,7 +95,6 @@ const Comments = {
           }
         },
         handleFormSubmit(action) {
-          console.log('handleFormSubmit');
           if (action === this.COMMENTACTIONS.REPLY) {
             this.reply = '';
           } else if (action === this.COMMENTACTIONS.EDIT) {
@@ -161,7 +163,6 @@ const Comments = {
           this.activateForm(this.COMMENTACTIONS.NEW, textareaId);
         },
         activateForm(action, textareaId, parentApp = app) {
-          console.log('textareaId', textareaId);
           if (textareaId) {
             this.$nextTick(() => {
               let editor = window.CodeMirror.fromTextArea(
@@ -176,25 +177,25 @@ const Comments = {
                   if (action === parentApp.COMMENTACTIONS.REPLY) {
                     parentApp.reply = editor.getValue();
                   } else {
-                    console.log('else');
                     parentApp.textarea = editor.getValue();
                   }
-                }, 300);
+                }, window.Hasgeek.config.saveEditorContentTimeout);
               });
             });
           }
           this.pauseRefreshComments();
         },
-        closeModal() {
+        closeModal(event) {
+          if (event) event.preventDefault();
           this.commentForm = false;
           this.formTitle = '';
           this.showmodal = false;
+          this.refreshCommentsTimer();
         },
         submitCommentForm(formId, postUrl, action, parentApp = app) {
           let commentContent = $(`#${formId}`)
             .find('textarea[name="message"]')
             .val();
-          console.log('commentContent', commentContent);
           $.ajax({
             url: postUrl,
             type: 'POST',
@@ -204,7 +205,6 @@ const Comments = {
             },
             dataType: 'json',
             success(responseData) {
-              console.log('responseData', responseData);
               // New comment submit
               if (action === parentApp.COMMENTACTIONS.NEW) {
                 parentApp.errorMsg = '';
@@ -220,7 +220,6 @@ const Comments = {
               app.refreshCommentsTimer();
             },
             error(response) {
-              console.log('error', response);
               parentApp.errorMsg = Utils.formErrorHandler(formId, response);
             },
           });
@@ -237,12 +236,6 @@ const Comments = {
               app.updateCommentsList(data.comments);
             },
           });
-        },
-        closeForm(event) {
-          event.preventDefault();
-          this.commentForm = '';
-          this.errorMsg = '';
-          this.refreshCommentsTimer();
         },
         pauseRefreshComments() {
           clearTimeout(this.refreshTimer);

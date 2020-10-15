@@ -764,7 +764,7 @@
       <p class="mui-panel mui--bg-accent" v-if="isuserloggedin && !isuserparticipant">You need to be a participant to comment.</p>
       <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="showmodal">
         <div class="mobile-nav mui--z1">
-          <span aria-label="Close" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeModal()"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
+          <span aria-label="Close" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeModal($event)"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
         </div>
       </div>
       <div class="post-form-block comment-new-block" @click="showNewCommentForm($event, 'comment_message')" aria-label="Post comment" data-cy="post-comment" v-if="isuserparticipant && !commentForm">
@@ -781,12 +781,13 @@
           <div class="mui-form__fields">
             <textarea id="comment_message" name="message" required="required" class="field-comment_message" v-model="textarea"></textarea>
           </div>
-          <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea"><faicon :icon="'paper-plane'" :icon_size="'subhead'" css_class="mui--text-hyperlink"></faicon></button>
+          <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea"><faicon :icon="'paper-plane'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
           <div class="user" v-else>
             <div class="user__box">
               <useravatar :user='user' :addprofilelink=false></useravatar>
             </div>
           </div>
+          <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent icon-btn mui--hidden-xs mui--hidden-sm" @click="closeModal($event)"><faicon :icon="'times'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
         </form>
         <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
       </div>
@@ -858,6 +859,7 @@
                       <useravatar :user='user' :addprofilelink=false></useravatar>
                     </div>
                   </div>
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent icon-btn mui--hidden-xs mui--hidden-sm" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
                 </form>
                 <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
               </div>

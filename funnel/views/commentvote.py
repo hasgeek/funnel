@@ -47,7 +47,7 @@ def comment_url(obj):
 @Commentset.views('json_comments')
 def commentset_json(obj):
     toplevel_comments = obj.toplevel_comments.join(Voteset).order_by(
-        Voteset.count, Comment.created_at.asc()
+        Voteset.count, Comment.created_at.desc()
     )
     return [
         comment.current_access(datasets=('json', 'related'))
