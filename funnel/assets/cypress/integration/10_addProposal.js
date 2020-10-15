@@ -65,6 +65,6 @@ describe('Add a new proposal', function () {
     cy.login('/' + profile.title, editor.username, editor.password);
     cy.visit('/updates');
     cy.wait('@fetch-updates');
-    cy.contains('has received a new proposal');
+    cy.get('[data-cy="notification-box"]').contains(proposal.title);
   });
 });

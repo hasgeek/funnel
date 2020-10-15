@@ -31,6 +31,7 @@ from . import (
     schedule,
     search,
     session,
+    sms_events,
     ticket_event,
     ticket_participant,
     update,

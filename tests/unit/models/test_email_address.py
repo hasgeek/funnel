@@ -285,6 +285,12 @@ def test_email_address_get(clean_db):
     assert EmailAddress.get('unknown@example.com') is None
 
 
+def test_email_address_invalid_hash_raises_error(clean_db):
+    """Retrieving an email address with an invalid hash will raise ValueError"""
+    with pytest.raises(ValueError):
+        EmailAddress.get(email_hash='invalid')
+
+
 def test_email_address_get_canonical(clean_db):
     """EmailAddress.get_canonical returns all matching records"""
     db = clean_db
