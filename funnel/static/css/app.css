@@ -1718,7 +1718,7 @@ a.loginbutton.hidden,
 }
 .mobile-nav .mobile-nav__icon {
   display: inline-block;
-  padding: 16px 32px 16px 20px;
+  padding: 16px;
 }
 .mobile-nav .mobile-nav__headline {
   font-size: 20px;
@@ -4224,7 +4224,7 @@ a.loginbutton.hidden,
 @media (max-width: 767px) {
   .comment-new-block {
     position: fixed;
-    top: 16px;
+    top: 13px;
     right: 16px;
     z-index: 1000;
   }
