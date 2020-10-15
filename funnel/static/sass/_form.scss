@@ -359,7 +359,7 @@
   .mui-form {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     margin: 0;
     .mui-form__fields {
       display: inline-block;
@@ -412,10 +412,13 @@
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
     background-color: $mui-bg-color-accent;
     z-index: 1001;
-    .mui-form .mui-form__fields .CodeMirror {
-      border: none;
-      border-radius: 0;
-      background: $mui-bg-color-accent;
+    .mui-form {
+      align-items: center;
+      .mui-form__fields .CodeMirror {
+        border: none;
+        border-radius: 0;
+        background: $mui-bg-color-accent;
+      }
     }
     .mui-btn--raised.icon-btn {
       border-radius: 0;
@@ -451,7 +454,7 @@
 .post-form-block {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   .post-form {
     cursor: pointer;
     text-decoration: none !important;

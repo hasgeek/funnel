@@ -787,7 +787,7 @@
               <useravatar :user='user' :addprofilelink=false></useravatar>
             </div>
           </div>
-          <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent icon-btn mui--hidden-xs mui--hidden-sm" @click="closeModal($event)"><faicon :icon="'times'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
+          <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary icon-btn mui--hidden-xs mui--hidden-sm" @click="closeModal($event)"><faicon :icon="'times'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
         </form>
         <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
       </div>
@@ -859,7 +859,7 @@
                       <useravatar :user='user' :addprofilelink=false></useravatar>
                     </div>
                   </div>
-                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent icon-btn mui--hidden-xs mui--hidden-sm" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary icon-btn mui--hidden-xs mui--hidden-sm" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
                 </form>
                 <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
               </div>
@@ -874,6 +874,7 @@
                       <useravatar :user='user' :addprofilelink=false></useravatar>
                     </div>
                   </div>
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary icon-btn mui--hidden-xs mui--hidden-sm" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
                 </form>
                 <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
               </div>
