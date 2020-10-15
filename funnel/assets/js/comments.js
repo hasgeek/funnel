@@ -181,6 +181,7 @@ const Comments = {
                   }
                 }, window.Hasgeek.config.saveEditorContentTimeout);
               });
+              editor.focus();
             });
           }
           this.pauseRefreshComments();
