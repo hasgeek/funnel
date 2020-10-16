@@ -259,6 +259,10 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         ).one_or_none()
 
     @classmethod
+    def all_public(cls):
+        return cls.query.filter(cls.state.PUBLIC)
+
+    @classmethod
     def validate_name_candidate(cls, name):
         """
         Check if a name is available, returning one of several error codes, or None if

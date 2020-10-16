@@ -1,0 +1,278 @@
+from datetime import datetime, timedelta
+from enum import Enum
+from functools import wraps
+from typing import Any, Callable, NamedTuple, Optional, Tuple, TypeVar, Union, cast
+
+from flask import Response, abort, render_template, url_for
+
+from dateutil.relativedelta import relativedelta
+from dateutil.rrule import DAILY, MONTHLY, rrule
+from pytz import utc
+
+from baseframe import cache
+from coaster.utils import utcnow
+from coaster.views import ClassView, route
+
+from .. import app
+from ..models import Profile, Project, Proposal, Session, Update
+from .index import policy_pages
+
+# --- Sitemap models -------------------------------------------------------------------
+
+# https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators
+F = TypeVar('F', bound=Callable[..., Any])
+
+# The earliest date in Hasgeek's production database is 26 May 2011 (from Lastuser).
+# We use 1 May here as we're only interested in the month. Hasjob's dataset starts
+# earlier, from 14 Mar 2011, but this sitemap does not apply to Hasjob
+earliest_date = datetime(2011, 5, 1, tzinfo=utc)
+
+
+class ChangeFreq(str, Enum):
+    always = 'always'
+    hourly = 'hourly'
+    daily = 'daily'
+    weekly = 'weekly'
+    monthly = 'monthly'
+    yearly = 'yearly'
+    never = 'never'
+
+    # This method supports rendering in templates without using `.value`
+    def __str__(self) -> str:
+        return self.value
+
+
+class SitemapIndex(NamedTuple):
+    loc: str
+    lastmod: Optional[datetime] = None
+
+
+class SitemapPage(NamedTuple):
+    loc: str
+    lastmod: Optional[datetime] = None
+    changefreq: Optional[ChangeFreq] = None
+    priority: Optional[float] = None
+
+
+# --- Helper functions -----------------------------------------------------------------
+
+
+def is_xml(f: F) -> F:
+    @wraps(f)
+    def wrapper(*args, **kwargs) -> Response:
+        return Response(f(*args, **kwargs), mimetype='text/xml')
+
+    return cast(F, wrapper)
+
+
+def all_sitemap_days(until: datetime) -> list:
+    if until.tzinfo != utc:
+        raise ValueError("UTC timezone required")
+    days = list(
+        rrule(
+            freq=DAILY,
+            dtstart=(until - timedelta(days=15)).replace(
+                day=1, hour=0, minute=0, second=0, microsecond=0
+            ),
+            until=until,
+        )
+    )
+    days.reverse()
+    return days
+
+
+def all_sitemap_months(until: datetime) -> list:
+    months = list(
+        rrule(
+            freq=MONTHLY,
+            dtstart=earliest_date,
+            until=until
+            - timedelta(days=15)
+            - relativedelta(months=1, hour=0, minute=0, second=0, microsecond=0),
+        )
+    )
+    months.reverse()
+    return months
+
+
+# --- Views ----------------------------------------------------------------------------
+
+
+@route('/')
+class SitemapView(ClassView):
+    @staticmethod
+    def validate_daterange(
+        year: Union[str, int], month: Union[str, int], day: Union[str, int]
+    ) -> Tuple[datetime, datetime]:
+        try:
+            year = int(year)
+            month = int(month)
+            if day:
+                day = int(day)
+        except ValueError:
+            abort(404)
+        now = utcnow()
+        if month < 1 or month > 12:
+            abort(404)
+        if (year, month) < (earliest_date.year, earliest_date.month):
+            abort(404)
+        if (year, month) > (now.year, now.month):
+            abort(404)
+        if day and (year, month, day) > (now.year, now.month, now.day):
+            abort(404)
+
+        # Now make a date range
+        if not day:
+            dtstart = datetime(year, month, 1, tzinfo=utc)
+            dtend = dtstart + relativedelta(months=1)
+        else:
+            try:
+                dtstart = datetime(year, month, day, tzinfo=utc)
+            except ValueError:
+                # Invalid day
+                abort(404)
+            dtend = dtstart + timedelta(days=1)
+        return dtstart, dtend
+
+    @route('sitemap.xml')
+    @is_xml
+    @cache.cached(timeout=3600)
+    def index(self):
+        now = utcnow()
+        sitemaps = (
+            [SitemapIndex(url_for('SitemapView_static', _external=True))]
+            + [
+                SitemapIndex(
+                    url_for(
+                        'SitemapView_by_date',
+                        # strftime is required for zero padded numbers (month and day)
+                        year=date.strftime('%Y'),
+                        month=date.strftime('%m'),
+                        day=date.strftime('%d'),
+                        _external=True,
+                    ),
+                    lastmod=min(now, date + timedelta(days=1)),
+                )
+                for date in all_sitemap_days(now)
+            ]
+            + [
+                SitemapIndex(
+                    url_for(
+                        'SitemapView_by_date',
+                        year=date.strftime('%Y'),
+                        month=date.strftime('%m'),
+                        _external=True,
+                    ),
+                    lastmod=date + relativedelta(months=1),
+                )
+                for date in all_sitemap_months(now)
+            ]
+        )
+        return render_template(
+            'sitemapindex.xml.jinja2',
+            sitemaps=sitemaps,
+        )
+
+    @route('sitemap-static.xml')
+    @is_xml
+    @cache.cached(timeout=3600)
+    def static(self):
+        pages = [
+            SitemapPage(
+                url_for('index', _external=True),
+                changefreq=ChangeFreq.hourly,
+                priority=1.0,
+            ),
+            SitemapPage(url_for('about', _external=True), priority=0.7),
+            SitemapPage(url_for('contact', _external=True), priority=0.6),
+            SitemapPage(url_for('policy', _external=True), priority=0.7),
+        ] + [
+            SitemapPage(url_for('policy', path=page.path, _external=True))
+            for page in policy_pages
+        ]
+        return render_template('sitemap.xml.jinja2', sitemap=pages)
+
+    # The following routes can't use `int:` prefix as that strips zero padding
+
+    @route('sitemap-<year>-<month>.xml', defaults={'day': None})
+    @route('sitemap-<year>-<month>-<day>.xml')
+    @is_xml
+    @cache.cached(timeout=3600)
+    def by_date(self, year, month, day):
+        dtstart, dtend = self.validate_daterange(year, month, day)
+        age = utcnow() - dtend
+        if age < timedelta(days=1):  # Past day
+            changefreq = ChangeFreq.hourly
+        elif age < timedelta(days=7):  # Past week
+            changefreq = ChangeFreq.daily
+        elif age < timedelta(weeks=4):  # Past month
+            changefreq = ChangeFreq.weekly
+        elif age < timedelta(weeks=12):  # Past three months
+            changefreq = ChangeFreq.monthly
+        else:
+            changefreq = ChangeFreq.yearly
+
+        pages = (
+            [
+                SitemapPage(
+                    profile.urls['view'],
+                    lastmod=profile.updated_at.replace(microsecond=0),
+                    changefreq=changefreq,
+                )
+                for profile in Profile.all_public().filter(
+                    Profile.updated_at >= dtstart, Profile.updated_at < dtend
+                )
+            ]
+            + [
+                SitemapPage(
+                    project_url,
+                    lastmod=project.updated_at.replace(microsecond=0),
+                    changefreq=changefreq,
+                )
+                for project in Project.all_unsorted().filter(
+                    Project.updated_at >= dtstart, Project.updated_at < dtend
+                )
+                for project_url in [
+                    project.urls['view'],
+                    project.urls['comments'],
+                    project.urls['session_videos'],
+                    project.urls['view_proposals'],
+                    project.urls['schedule'],
+                    project.urls['crew'],
+                ]
+            ]
+            + [
+                SitemapPage(
+                    update.urls['view'],
+                    lastmod=update.updated_at.replace(microsecond=0),
+                    changefreq=changefreq,
+                )
+                for update in Update.all_published_public().filter(
+                    Update.published_at >= dtstart, Update.published_at < dtend
+                )
+            ]
+            + [
+                SitemapPage(
+                    proposal.urls['view'],
+                    lastmod=proposal.updated_at.replace(microsecond=0),
+                    changefreq=changefreq,
+                )
+                for proposal in Proposal.all_public().filter(
+                    Proposal.updated_at >= dtstart, Proposal.updated_at < dtend
+                )
+            ]
+            + [
+                SitemapPage(
+                    session.urls['view'],
+                    lastmod=session.updated_at.replace(microsecond=0),
+                    changefreq=changefreq,
+                )
+                for session in Session.all_public().filter(
+                    Session.updated_at >= dtstart, Session.updated_at < dtend
+                )
+            ]
+        )
+        return render_template('sitemap.xml.jinja2', sitemap=pages)
+
+
+SitemapView.init_app(app)

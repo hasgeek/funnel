@@ -12,16 +12,13 @@
       <div class="sticky-admin-panel">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title">{% trans %}Site Policies{% endtrans %}</h3>
+            <h3 class="mui--text-title">{% trans %}Site policies{% endtrans %}</h3>
           </div>
           <div class="card__body">
             <ul class="mui-list--aligned mui-list--unstyled">
-              <li><p><a href="/about/policy/terms">{% trans %}Terms of service{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/adtos">{% trans %}Sponsorship &amp; advertising{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/privacy">{% trans %}Privacy policy{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/refunds">{% trans %}Cancellation &amp; refund policy{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/community">{% trans %}Community guidelines{% endtrans %}</a></p></li>
-              <li><p><a href="/about/policy/code">{% trans %}Code of conduct{% endtrans %}</a></p></li>
+              {%- for page in index %}
+                <li><p><a href="/about/{{ page.path }}">{{ page.title }}</a></p></li>
+              {%- endfor%}
             </ul>
           </div>
         </div>
