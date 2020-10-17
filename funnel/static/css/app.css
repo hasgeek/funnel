@@ -903,6 +903,15 @@ a.loginbutton.hidden,
   min-width: auto;
 }
 
+.emoticon {
+  height: 300px;
+}
+
+@media (min-width: 768px) {
+  .emoticon {
+    height: 400px;
+  }
+}
 @media (max-width: 767px) {
   #root_footer {
     padding-top: 32px;
@@ -4455,7 +4464,7 @@ a.loginbutton.hidden,
   .schedule
   .schedule__row--sticky
   .schedule__row__column--header.js-tab-active {
-  border-bottom: 2px solid #f9f9f9;
+  border-bottom: 2px solid #f06a5e;
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--time {
   display: none;

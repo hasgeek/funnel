@@ -285,6 +285,12 @@ def test_email_address_get(clean_db):
     assert EmailAddress.get('unknown@example.com') is None
 
 
+def test_email_address_invalid_hash_raises_error(clean_db):
+    """Retrieving an email address with an invalid hash will raise ValueError"""
+    with pytest.raises(ValueError):
+        EmailAddress.get(email_hash='invalid')
+
+
 def test_email_address_get_canonical(clean_db):
     """EmailAddress.get_canonical returns all matching records"""
     db = clean_db
@@ -674,6 +680,19 @@ def test_email_address_validate_for(email_models, clean_mixin_db):
     assert EmailAddress.validate_for(user1, 'invalid') == 'invalid'
     assert EmailAddress.validate_for(user2, 'invalid') == 'invalid'
     assert EmailAddress.validate_for(anon_user, 'invalid') == 'invalid'
+
+
+def test_email_address_existing_but_unused_validate_for(email_models, clean_mixin_db):
+    """An unused but existing email address should be available to claim."""
+    db = clean_mixin_db
+    models = email_models
+    user = models.EmailUser()
+    email_address = EmailAddress.add('unclaimed@example.com')
+    db.session.add_all([user, email_address])
+    db.session.commit()
+
+    assert EmailAddress.validate_for(user, 'unclaimed@example.com', new=True) is True
+    assert EmailAddress.validate_for(user, 'unclaimed@example.com') is True
 
 
 def test_email_address_validate_for_check_dns(email_models, clean_mixin_db):

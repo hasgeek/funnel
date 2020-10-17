@@ -976,3 +976,13 @@ a.loginbutton.hidden,
 .mui-dropdown__menu--small {
   min-width: auto;
 }
+
+.emoticon {
+  height: 300px;
+}
+
+@media (min-width: 768px) {
+  .emoticon {
+    height: 400px;
+  }
+}
