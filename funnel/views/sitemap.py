@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 from enum import Enum
-from functools import wraps
-from typing import Any, Callable, NamedTuple, Optional, Tuple, TypeVar, Union, cast
+from typing import NamedTuple, Optional, Tuple, Union
 
-from flask import Response, abort, render_template, url_for
+from flask import abort, render_template, url_for
 
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import DAILY, MONTHLY, rrule
@@ -14,7 +13,8 @@ from coaster.utils import utcnow
 from coaster.views import ClassView, route
 
 from .. import app, executor
-from ..models import Profile, Project, Proposal, Session, Update, db
+from ..models import Profile, Project, Proposal, Session, Update
+from .decorators import remove_db_session, xml_response
 from .index import policy_pages
 
 # --- Sitemap models -------------------------------------------------------------------
@@ -49,23 +49,10 @@ class SitemapPage(NamedTuple):
 # --- Helper functions -----------------------------------------------------------------
 
 
-# https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators
-F = TypeVar('F', bound=Callable[..., Any])
-
 # The earliest date in Hasgeek's production database is 26 May 2011 (from Lastuser).
 # We use 1 May here as we're only interested in the month. Hasjob's dataset starts
 # earlier, from 14 Mar 2011, but this sitemap does not apply to Hasjob
 earliest_date = datetime(2011, 5, 1, tzinfo=utc)
-
-
-def is_xml(f: F) -> F:
-    """Wrap the view result in a :class:`Response` with XML mimetype."""
-
-    @wraps(f)
-    def wrapper(*args, **kwargs) -> Response:
-        return Response(f(*args, **kwargs), mimetype='application/xml')
-
-    return cast(F, wrapper)
 
 
 def all_sitemap_days(until: datetime) -> list:
@@ -100,33 +87,45 @@ def all_sitemap_months(until: datetime) -> list:
     return months
 
 
-def cleanup_session(f: F) -> F:
-    """
-    Remove the database session after calling the wrapped function.
+def validate_daterange(
+    year: Union[str, int], month: Union[str, int], day: Optional[Union[str, int]]
+) -> Tuple[datetime, datetime]:
+    try:
+        year = int(year)
+        month = int(month)
+        if day is not None:
+            day = int(day)
+    except ValueError:
+        abort(404)
+    now = utcnow()
+    if month < 1 or month > 12:
+        abort(404)
+    if (year, month) < (earliest_date.year, earliest_date.month):
+        abort(404)
+    if (year, month) > (now.year, now.month):
+        abort(404)
+    if day and (year, month, day) > (now.year, now.month, now.day):
+        abort(404)
 
-    A transaction error in a background job will affect future queries, so the
-    transaction must be rolled back.
-
-    Required until this underlying issue is resolved:
-    https://github.com/dchevell/flask-executor/issues/15
-    """
-
-    @wraps(f)
-    def wrapper(*args, **kwargs) -> Response:
+    # Now make a date range
+    if not day:
+        dtstart = datetime(year, month, 1, tzinfo=utc)
+        dtend = dtstart + relativedelta(months=1)
+    else:
         try:
-            result = f(*args, **kwargs)
-        finally:
-            db.session.remove()
-        return result
-
-    return cast(F, wrapper)
+            dtstart = datetime(year, month, day, tzinfo=utc)
+        except ValueError:
+            # Invalid day
+            abort(404)
+        dtend = dtstart + timedelta(days=1)
+    return dtstart, dtend
 
 
 # --- Model queries --------------------------------------------------------------------
 
 
 @executor.job
-@cleanup_session
+@remove_db_session
 def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -141,7 +140,7 @@ def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 
 @executor.job
-@cleanup_session
+@remove_db_session
 def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -164,7 +163,7 @@ def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 
 @executor.job
-@cleanup_session
+@remove_db_session
 def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -179,7 +178,7 @@ def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> 
 
 
 @executor.job
-@cleanup_session
+@remove_db_session
 def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -194,7 +193,7 @@ def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -
 
 
 @executor.job
-@cleanup_session
+@remove_db_session
 def query_session(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -213,42 +212,8 @@ def query_session(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 @route('/')
 class SitemapView(ClassView):
-    @staticmethod
-    def validate_daterange(
-        year: Union[str, int], month: Union[str, int], day: Optional[Union[str, int]]
-    ) -> Tuple[datetime, datetime]:
-        try:
-            year = int(year)
-            month = int(month)
-            if day:
-                day = int(day)
-        except ValueError:
-            abort(404)
-        now = utcnow()
-        if month < 1 or month > 12:
-            abort(404)
-        if (year, month) < (earliest_date.year, earliest_date.month):
-            abort(404)
-        if (year, month) > (now.year, now.month):
-            abort(404)
-        if day and (year, month, day) > (now.year, now.month, now.day):
-            abort(404)
-
-        # Now make a date range
-        if not day:
-            dtstart = datetime(year, month, 1, tzinfo=utc)
-            dtend = dtstart + relativedelta(months=1)
-        else:
-            try:
-                dtstart = datetime(year, month, day, tzinfo=utc)
-            except ValueError:
-                # Invalid day
-                abort(404)
-            dtend = dtstart + timedelta(days=1)
-        return dtstart, dtend
-
     @route('sitemap.xml')
-    @is_xml
+    @xml_response
     @cache.cached(timeout=3600)
     def index(self) -> str:
         now = utcnow()
@@ -287,7 +252,7 @@ class SitemapView(ClassView):
         )
 
     @route('sitemap-static.xml')
-    @is_xml
+    @xml_response
     @cache.cached(timeout=3600)
     def static(self) -> str:
         pages = [
@@ -309,10 +274,10 @@ class SitemapView(ClassView):
 
     @route('sitemap-<year>-<month>.xml', defaults={'day': None})
     @route('sitemap-<year>-<month>-<day>.xml')
-    @is_xml
-    # @cache.cached(timeout=3600)
+    @xml_response
+    @cache.cached(timeout=3600)
     def by_date(self, year: str, month: str, day: Optional[str]) -> str:
-        dtstart, dtend = self.validate_daterange(year, month, day)
+        dtstart, dtend = validate_daterange(year, month, day)
         age = utcnow() - dtend
         if age < timedelta(days=1):  # Past day
             changefreq = ChangeFreq.hourly
