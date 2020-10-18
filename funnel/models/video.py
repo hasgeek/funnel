@@ -209,8 +209,10 @@ class VideoMixin:
                             vimeo_video['upload_date'], delimiter=' '
                         ).replace(tzinfo=utc)
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
-                    else:
+                    elif vimeo_resp.status_code == 404:
                         # Video doesn't exist on Vimeo anymore
+                        self._source_video_exists = False
+                    else:
                         self._source_video_exists = False
                         app.logger.error(
                             "HTTP %s: Vimeo API request failed for url '%s'",
