@@ -4,13 +4,13 @@ import os.path
 
 from flask import Flask
 from flask_babelhg import get_locale
+from flask_executor import Executor
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 
-from flask_executor import Executor
 import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe

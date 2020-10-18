@@ -42,6 +42,7 @@ known_flask = [
   'webassets',
   'flask_assets',
   'flask_babelhg',
+  'flask_executor',
   'flask_flatpages',
   'flask_mailman',
   'flask_migrate',
