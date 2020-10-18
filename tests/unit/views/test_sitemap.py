@@ -8,11 +8,18 @@ import pytest
 
 from coaster.utils import utcnow
 from funnel.views.sitemap import (
+    ChangeFreq,
     all_sitemap_days,
     all_sitemap_months,
     earliest_date,
     validate_daterange,
 )
+
+
+def test_string_changefreq():
+    """ChangeFreq enum can be cast to and compared with str"""
+    assert ChangeFreq.daily == 'daily'
+    assert str(ChangeFreq.daily) == 'daily'
 
 
 def test_dates_have_timezone():
@@ -138,7 +145,8 @@ def test_validate_daterange():
         datetime(2015, 12, 1, tzinfo=utc),
     )
 
-    # However, dates prior to earliest date or later than present day are not accepted
+    # However, invalid dates and dates prior to earliest date or later than present day
+    # are not accepted
 
     earlier_month = earliest_date - relativedelta(months=1)
     earlier_day = earliest_date - relativedelta(days=1)
@@ -157,6 +165,21 @@ def test_validate_daterange():
     with pytest.raises(NotFound):
         validate_daterange(later_day.year, later_day.month, later_day.day)
 
+    with pytest.raises(NotFound):
+        validate_daterange('2015', '00', '05')
+
+    with pytest.raises(NotFound):
+        validate_daterange('2015', '00', None)
+
+    with pytest.raises(NotFound):
+        validate_daterange('2015', '13', '05')
+
+    with pytest.raises(NotFound):
+        validate_daterange('2015', '13', None)
+
+    with pytest.raises(NotFound):
+        validate_daterange('2015', '11', '31')
+
     # Similarly, non-integer values are not accepted
 
     with pytest.raises(NotFound):
@@ -173,3 +196,28 @@ def test_validate_daterange():
 
     with pytest.raises(NotFound):
         validate_daterange('2015', '11', 'invalid')
+
+
+def test_sitemap(test_client, test_db_structure):
+    """Test sitemap endpoints (no content checks)."""
+    expected_content_type = 'application/xml; charset=utf-8'
+
+    rv = test_client.get('/sitemap.xml')
+    assert rv.status_code == 200
+    assert rv.content_type == expected_content_type
+    assert b'/sitemap-static.xml' in rv.data
+
+    rv = test_client.get('/sitemap-static.xml')
+    assert rv.status_code == 200
+    assert rv.content_type == expected_content_type
+
+    rv = test_client.get('/sitemap-2015-11.xml')
+    assert rv.status_code == 200
+    assert rv.content_type == expected_content_type
+
+    rv = test_client.get('/sitemap-2015-11-05.xml')
+    assert rv.status_code == 200
+    assert rv.content_type == expected_content_type
+
+    rv = test_client.get('/sitemap-2010-12.xml')
+    assert rv.status_code == 404

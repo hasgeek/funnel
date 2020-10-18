@@ -1,6 +1,7 @@
 from os import environ
 
 TESTING = True
+CACHE_TYPE = 'null'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
