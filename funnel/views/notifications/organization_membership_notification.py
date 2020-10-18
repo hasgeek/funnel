@@ -16,7 +16,7 @@ from ..notification import RenderNotification
 
 
 class DecisionFactor(NamedTuple):
-    """Evaluation criteria for the content of notification"""
+    """Evaluation criteria for the content of notification (for grants/edits only)"""
 
     template: str
     is_subject: bool = False
@@ -167,6 +167,11 @@ class RenderShared:
         return self.membership.user
 
     @property
+    def membership_actor(self):
+        """The actual actor who granted or revoked, for the template."""
+        raise NotImplementedError("Subclass must override")
+
+    @property
     def record_type(self):
         """Helper method for templates to analyse membership record type."""
         # There are four record types: invite, accept, direct_add, amend
@@ -190,42 +195,28 @@ class RenderShared:
                     title=escape(self.organization.pickername),
                 )
             ),
-            actor=(
-                (
-                    Markup(
-                        '<a href="{url}">{name}</a>'.format(
-                            url=escape(membership.granted_by.profile_url),
-                            name=escape(membership.granted_by.pickername),
-                        )
-                    )
-                    if membership.granted_by.profile_url
-                    else escape(membership.granted_by.pickername)
+            actor=Markup(
+                '<a href="{url}">{name}</a>'.format(
+                    url=escape(self.membership_actor.profile_url),
+                    name=escape(self.membership_actor.pickername),
                 )
-                if membership.granted_by
-                else None
-            ),
+            )
+            if self.membership_actor.profile_url
+            else escape(self.membership_actor.pickername),
         )
 
     def email_subject(self):
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=(
-                self.membership.granted_by.pickername
-                if self.membership.granted_by
-                else None
-            ),
+            actor=self.membership_actor.pickername,
         )
 
     def sms(self):
         return self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=(
-                self.membership.granted_by.pickername
-                if self.membership.granted_by
-                else None
-            ),
+            actor=self.membership_actor.pickername,
         )
 
 
@@ -237,6 +228,11 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     reason = __("You are receiving this because you are an admin of this organization")
 
     fragments_order_by = [OrganizationMembership.granted_at.desc()]
+
+    @property
+    def membership_actor(self):
+        """The actual actor who granted (or edited) the membership, for the template."""
+        return self.membership.granted_by
 
     def activity_template(self, membership=None):
         """
@@ -276,6 +272,11 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     reason = __("You are receiving this because you were an admin of this organization")
 
     fragments_order_by = [OrganizationMembership.revoked_at.desc()]
+
+    @property
+    def membership_actor(self):
+        """The actor who revoked the membership, for the template."""
+        return self.membership.revoked_by
 
     def activity_template(self, membership=None):
         """Return a single line summary of changes."""
