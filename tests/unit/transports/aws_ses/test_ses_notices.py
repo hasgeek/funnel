@@ -30,7 +30,7 @@ class TestSESNotices:
         """Test empty JSON."""
         with test_client as c:
             resp: Response = c.post(self.URL)
-        assert resp.status_code == 400
+        assert resp.status_code == 422
         data = resp.get_json()
         assert data['status'] == 'error'
 
@@ -42,7 +42,7 @@ class TestSESNotices:
             resp: Response = c.post(
                 self.URL, json=json.loads(data), headers=self.HEADERS
             )
-        assert resp.status_code == 400
+        assert resp.status_code == 422
         data = resp.get_json()
         assert data['status'] == 'error'
         assert data['message'] == ['Signature mismatch']
