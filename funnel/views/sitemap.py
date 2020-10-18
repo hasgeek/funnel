@@ -19,14 +19,6 @@ from .index import policy_pages
 
 # --- Sitemap models -------------------------------------------------------------------
 
-# https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators
-F = TypeVar('F', bound=Callable[..., Any])
-
-# The earliest date in Hasgeek's production database is 26 May 2011 (from Lastuser).
-# We use 1 May here as we're only interested in the month. Hasjob's dataset starts
-# earlier, from 14 Mar 2011, but this sitemap does not apply to Hasjob
-earliest_date = datetime(2011, 5, 1, tzinfo=utc)
-
 
 class ChangeFreq(str, Enum):
     always = 'always'
@@ -55,6 +47,15 @@ class SitemapPage(NamedTuple):
 
 
 # --- Helper functions -----------------------------------------------------------------
+
+
+# https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators
+F = TypeVar('F', bound=Callable[..., Any])
+
+# The earliest date in Hasgeek's production database is 26 May 2011 (from Lastuser).
+# We use 1 May here as we're only interested in the month. Hasjob's dataset starts
+# earlier, from 14 Mar 2011, but this sitemap does not apply to Hasjob
+earliest_date = datetime(2011, 5, 1, tzinfo=utc)
 
 
 def is_xml(f: F) -> F:
