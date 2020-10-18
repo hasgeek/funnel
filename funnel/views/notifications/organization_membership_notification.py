@@ -190,28 +190,42 @@ class RenderShared:
                     title=escape(self.organization.pickername),
                 )
             ),
-            actor=Markup(
-                '<a href="{url}">{name}</a>'.format(
-                    url=escape(membership.granted_by.profile_url),
-                    name=escape(membership.granted_by.pickername),
+            actor=(
+                (
+                    Markup(
+                        '<a href="{url}">{name}</a>'.format(
+                            url=escape(membership.granted_by.profile_url),
+                            name=escape(membership.granted_by.pickername),
+                        )
+                    )
+                    if membership.granted_by.profile_url
+                    else escape(membership.granted_by.pickername)
                 )
-            )
-            if membership.granted_by.profile_url
-            else escape(membership.granted_by.pickername),
+                if membership.granted_by
+                else None
+            ),
         )
 
     def email_subject(self):
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=self.membership.granted_by.pickername,
+            actor=(
+                self.membership.granted_by.pickername
+                if self.membership.granted_by
+                else None
+            ),
         )
 
     def sms(self):
         return self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=self.membership.granted_by.pickername,
+            actor=(
+                self.membership.granted_by.pickername
+                if self.membership.granted_by
+                else None
+            ),
         )
 
 
