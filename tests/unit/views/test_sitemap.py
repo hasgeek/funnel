@@ -1,10 +1,18 @@
 from datetime import datetime
 
+from werkzeug.exceptions import NotFound
+
+from dateutil.relativedelta import relativedelta
 from pytz import utc
 import pytest
 
 from coaster.utils import utcnow
-from funnel.views.sitemap import all_sitemap_days, all_sitemap_months, earliest_date
+from funnel.views.sitemap import (
+    all_sitemap_days,
+    all_sitemap_months,
+    earliest_date,
+    validate_daterange,
+)
 
 
 def test_dates_have_timezone():
@@ -95,3 +103,73 @@ def test_all_sitemap_months_days():
     assert days[-1] == datetime(2020, 10, 1, tzinfo=utc)
     assert months[0] == datetime(2020, 9, 1, tzinfo=utc)
     assert months[-1] == earliest_date
+
+
+def test_validate_daterange():
+    """Test the values that validate_dayrange accepts."""
+
+    # String dates are accepted
+    assert validate_daterange('2015', '11', '05') == (
+        datetime(2015, 11, 5, tzinfo=utc),
+        datetime(2015, 11, 6, tzinfo=utc),
+    )
+
+    # Integer dates are fine too
+    assert validate_daterange(2015, 11, 5) == (
+        datetime(2015, 11, 5, tzinfo=utc),
+        datetime(2015, 11, 6, tzinfo=utc),
+    )
+
+    # Zero padding is fine, as long as int(x) will accept it
+    assert validate_daterange('2015', '11', '00005') == (
+        datetime(2015, 11, 5, tzinfo=utc),
+        datetime(2015, 11, 6, tzinfo=utc),
+    )
+
+    # Day is optional, and date range is then for the full month
+    assert validate_daterange('2015', '11', None) == (
+        datetime(2015, 11, 1, tzinfo=utc),
+        datetime(2015, 12, 1, tzinfo=utc),
+    )
+
+    # Same with int year/month
+    assert validate_daterange(2015, 11, None) == (
+        datetime(2015, 11, 1, tzinfo=utc),
+        datetime(2015, 12, 1, tzinfo=utc),
+    )
+
+    # However, dates prior to earliest date or later than present day are not accepted
+
+    earlier_month = earliest_date - relativedelta(months=1)
+    earlier_day = earliest_date - relativedelta(days=1)
+    later_month = utcnow() + relativedelta(months=1)
+    later_day = utcnow() + relativedelta(days=1)
+
+    with pytest.raises(NotFound):
+        validate_daterange(earlier_month.year, earlier_month.month, None)
+
+    with pytest.raises(NotFound):
+        validate_daterange(earlier_day.year, earlier_day.month, earlier_day.day)
+
+    with pytest.raises(NotFound):
+        validate_daterange(later_month.year, later_month.month, None)
+
+    with pytest.raises(NotFound):
+        validate_daterange(later_day.year, later_day.month, later_day.day)
+
+    # Similarly, non-integer values are not accepted
+
+    with pytest.raises(NotFound):
+        validate_daterange('invalid', '11', '05')
+
+    with pytest.raises(NotFound):
+        validate_daterange('invalid', '11', None)
+
+    with pytest.raises(NotFound):
+        validate_daterange('2015', 'invalid', '05')
+
+    with pytest.raises(NotFound):
+        validate_daterange('2015', 'invalid', None)
+
+    with pytest.raises(NotFound):
+        validate_daterange('2015', '11', 'invalid')

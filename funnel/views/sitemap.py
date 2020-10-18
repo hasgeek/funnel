@@ -90,6 +90,15 @@ def all_sitemap_months(until: datetime) -> list:
 def validate_daterange(
     year: Union[str, int], month: Union[str, int], day: Optional[Union[str, int]]
 ) -> Tuple[datetime, datetime]:
+    """
+    Validates year, month and day as provided to a view, and returns a date range.
+
+    Aborts with 404 if the values are not numeric, don't represent a valid date, or
+    fall out of the bounds of earliest date to present day.
+
+    If a day is provided, the resulting date range is for that day to the next, in UTC.
+    If a day is not provided, the range is for the entire month.
+    """
     try:
         year = int(year)
         month = int(month)
