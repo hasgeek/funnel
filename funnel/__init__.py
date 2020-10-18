@@ -10,6 +10,7 @@ from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 
+from flask_executor import Executor
 import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe
@@ -26,7 +27,7 @@ mail = Mail()
 pages = FlatPages()
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
-
+executor = Executor()
 
 # --- Assets ------------------------------------------------------------------
 
@@ -97,6 +98,8 @@ redis_store.init_app(app)
 rq.init_app(app)
 rq.init_app(funnelapp)
 rq.init_app(lastuserapp)
+
+executor.init_app(app)
 
 baseframe.init_app(
     app,

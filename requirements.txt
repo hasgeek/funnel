@@ -10,6 +10,7 @@ cryptography==3.1.1
 dataclasses-json==0.5.2
 Flask==1.1.2
 Flask-Assets==2.0
+Flask-Executor==0.9.3
 git+https://github.com/hasgeek/Flask-FlatPages.git#egg=Flask-FlatPages
 git+https://github.com/hasgeek/flask-lastuser.git#egg=Flask-Lastuser
 Flask-Mailman==0.1.5

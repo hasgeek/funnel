@@ -13,8 +13,8 @@ from baseframe import cache
 from coaster.utils import utcnow
 from coaster.views import ClassView, route
 
-from .. import app
-from ..models import Profile, Project, Proposal, Session, Update
+from .. import app, executor
+from ..models import Profile, Project, Proposal, Session, Update, db
 from .index import policy_pages
 
 # --- Sitemap models -------------------------------------------------------------------
@@ -58,14 +58,17 @@ class SitemapPage(NamedTuple):
 
 
 def is_xml(f: F) -> F:
+    """Wrap the view result in a :class:`Response` with XML mimetype."""
+
     @wraps(f)
     def wrapper(*args, **kwargs) -> Response:
-        return Response(f(*args, **kwargs), mimetype='text/xml')
+        return Response(f(*args, **kwargs), mimetype='application/xml')
 
     return cast(F, wrapper)
 
 
 def all_sitemap_days(until: datetime) -> list:
+    """Return recent days, for links in the sitemap index."""
     if until.tzinfo != utc:
         raise ValueError("UTC timezone required")
     days = list(
@@ -82,6 +85,7 @@ def all_sitemap_days(until: datetime) -> list:
 
 
 def all_sitemap_months(until: datetime) -> list:
+    """Return all months from the earliest date, minus the recent days."""
     months = list(
         rrule(
             freq=MONTHLY,
@@ -95,6 +99,114 @@ def all_sitemap_months(until: datetime) -> list:
     return months
 
 
+def cleanup_session(f: F) -> F:
+    """
+    Remove the database session after calling the wrapped function.
+
+    A transaction error in a background job will affect future queries, so the
+    transaction must be rolled back.
+
+    Required until this underlying issue is resolved:
+    https://github.com/dchevell/flask-executor/issues/15
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs) -> Response:
+        try:
+            result = f(*args, **kwargs)
+        finally:
+            db.session.remove()
+        return result
+
+    return cast(F, wrapper)
+
+
+# --- Model queries --------------------------------------------------------------------
+
+
+@executor.job
+@cleanup_session
+def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+    return [
+        SitemapPage(
+            profile.urls['view'],
+            lastmod=profile.updated_at.replace(second=0, microsecond=0),
+            changefreq=changefreq,
+        )
+        for profile in Profile.all_public()
+        .filter(Profile.updated_at >= dtstart, Profile.updated_at < dtend)
+        .order_by(Profile.updated_at.desc())
+    ]
+
+
+@executor.job
+@cleanup_session
+def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+    return [
+        SitemapPage(
+            project_url,
+            lastmod=project.updated_at.replace(second=0, microsecond=0),
+            changefreq=changefreq,
+        )
+        for project in Project.all_unsorted()
+        .filter(Project.updated_at >= dtstart, Project.updated_at < dtend)
+        .order_by(Project.updated_at.desc())
+        for project_url in [
+            project.urls['view'],
+            project.urls['comments'],
+            project.urls['session_videos'],
+            project.urls['view_proposals'],
+            project.urls['schedule'],
+            project.urls['crew'],
+        ]
+    ]
+
+
+@executor.job
+@cleanup_session
+def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+    return [
+        SitemapPage(
+            update.urls['view'],
+            lastmod=update.updated_at.replace(second=0, microsecond=0),
+            changefreq=changefreq,
+        )
+        for update in Update.all_published_public()
+        .filter(Update.published_at >= dtstart, Update.published_at < dtend)
+        .order_by(Update.published_at.desc())
+    ]
+
+
+@executor.job
+@cleanup_session
+def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+    return [
+        SitemapPage(
+            proposal.urls['view'],
+            lastmod=proposal.updated_at.replace(second=0, microsecond=0),
+            changefreq=changefreq,
+        )
+        for proposal in Proposal.all_public()
+        .filter(Proposal.updated_at >= dtstart, Proposal.updated_at < dtend)
+        .order_by(Proposal.updated_at.desc())
+    ]
+
+
+@executor.job
+@cleanup_session
+def query_session(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
+    return [
+        SitemapPage(
+            session.urls['view'],
+            lastmod=session.updated_at.replace(second=0, microsecond=0),
+            changefreq=changefreq,
+        )
+        for session in Session.all_public()
+        .filter(Session.updated_at >= dtstart, Session.updated_at < dtend)
+        .order_by(Session.updated_at.desc())
+    ]
+
+
 # --- Views ----------------------------------------------------------------------------
 
 
@@ -102,7 +214,7 @@ def all_sitemap_months(until: datetime) -> list:
 class SitemapView(ClassView):
     @staticmethod
     def validate_daterange(
-        year: Union[str, int], month: Union[str, int], day: Union[str, int]
+        year: Union[str, int], month: Union[str, int], day: Optional[Union[str, int]]
     ) -> Tuple[datetime, datetime]:
         try:
             year = int(year)
@@ -137,7 +249,7 @@ class SitemapView(ClassView):
     @route('sitemap.xml')
     @is_xml
     @cache.cached(timeout=3600)
-    def index(self):
+    def index(self) -> str:
         now = utcnow()
         sitemaps = (
             [SitemapIndex(url_for('SitemapView_static', _external=True))]
@@ -176,7 +288,7 @@ class SitemapView(ClassView):
     @route('sitemap-static.xml')
     @is_xml
     @cache.cached(timeout=3600)
-    def static(self):
+    def static(self) -> str:
         pages = [
             SitemapPage(
                 url_for('index', _external=True),
@@ -197,8 +309,8 @@ class SitemapView(ClassView):
     @route('sitemap-<year>-<month>.xml', defaults={'day': None})
     @route('sitemap-<year>-<month>-<day>.xml')
     @is_xml
-    @cache.cached(timeout=3600)
-    def by_date(self, year, month, day):
+    # @cache.cached(timeout=3600)
+    def by_date(self, year: str, month: str, day: Optional[str]) -> str:
         dtstart, dtend = self.validate_daterange(year, month, day)
         age = utcnow() - dtend
         if age < timedelta(days=1):  # Past day
@@ -212,67 +324,21 @@ class SitemapView(ClassView):
         else:
             changefreq = ChangeFreq.yearly
 
-        pages = (
-            [
-                SitemapPage(
-                    profile.urls['view'],
-                    lastmod=profile.updated_at.replace(microsecond=0),
-                    changefreq=changefreq,
-                )
-                for profile in Profile.all_public().filter(
-                    Profile.updated_at >= dtstart, Profile.updated_at < dtend
-                )
-            ]
-            + [
-                SitemapPage(
-                    project_url,
-                    lastmod=project.updated_at.replace(microsecond=0),
-                    changefreq=changefreq,
-                )
-                for project in Project.all_unsorted().filter(
-                    Project.updated_at >= dtstart, Project.updated_at < dtend
-                )
-                for project_url in [
-                    project.urls['view'],
-                    project.urls['comments'],
-                    project.urls['session_videos'],
-                    project.urls['view_proposals'],
-                    project.urls['schedule'],
-                    project.urls['crew'],
-                ]
-            ]
-            + [
-                SitemapPage(
-                    update.urls['view'],
-                    lastmod=update.updated_at.replace(microsecond=0),
-                    changefreq=changefreq,
-                )
-                for update in Update.all_published_public().filter(
-                    Update.published_at >= dtstart, Update.published_at < dtend
-                )
-            ]
-            + [
-                SitemapPage(
-                    proposal.urls['view'],
-                    lastmod=proposal.updated_at.replace(microsecond=0),
-                    changefreq=changefreq,
-                )
-                for proposal in Proposal.all_public().filter(
-                    Proposal.updated_at >= dtstart, Proposal.updated_at < dtend
-                )
-            ]
-            + [
-                SitemapPage(
-                    session.urls['view'],
-                    lastmod=session.updated_at.replace(microsecond=0),
-                    changefreq=changefreq,
-                )
-                for session in Session.all_public().filter(
-                    Session.updated_at >= dtstart, Session.updated_at < dtend
-                )
-            ]
-        )
-        return render_template('sitemap.xml.jinja2', sitemap=pages)
+        jobs = [
+            query_profile.submit(dtstart, dtend, changefreq),
+            query_project.submit(dtstart, dtend, changefreq),
+            query_update.submit(dtstart, dtend, changefreq),
+            query_proposal.submit(dtstart, dtend, changefreq),
+            query_session.submit(dtstart, dtend, changefreq),
+        ]
+        sitemap = [
+            link
+            for query_results in (job.result() for job in jobs)
+            for link in query_results
+        ]
+        # Sort pages by lastmod, in descending order
+        sitemap.sort(key=lambda page: page.lastmod, reverse=True)
+        return render_template('sitemap.xml.jinja2', sitemap=sitemap)
 
 
 SitemapView.init_app(app)
