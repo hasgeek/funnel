@@ -213,6 +213,7 @@ class VideoMixin:
                         # Video doesn't exist on Vimeo anymore
                         self._source_video_exists = False
                     else:
+                        # Vimeo API down or returning unexpected values
                         self._source_video_exists = False
                         app.logger.error(
                             "HTTP %s: Vimeo API request failed for url '%s'",
