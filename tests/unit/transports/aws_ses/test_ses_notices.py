@@ -30,26 +30,26 @@ class TestSESNotices:
         """Test empty JSON."""
         with test_client as c:
             resp: Response = c.post(self.URL)
-        assert resp.status_code == 400
+        assert resp.status_code == 422
         data = resp.get_json()
         assert data['status'] == 'error'
 
     def test_bad_message(self, test_client) -> None:
         """Test bad signature message."""
-        with open(os.path.join(self.DATA_DIR, "bad-message.json"), 'r') as file:
+        with open(os.path.join(self.DATA_DIR, 'bad-message.json'), 'r') as file:
             data = file.read()
         with test_client as c:
             resp: Response = c.post(
                 self.URL, json=json.loads(data), headers=self.HEADERS
             )
-        assert resp.status_code == 400
+        assert resp.status_code == 422
         data = resp.get_json()
         assert data['status'] == 'error'
-        assert data['message'] == ['Signature mismatch']
+        assert data['error'] == 'validation_failure'
 
     def test_complaint_message(self, test_client, test_db_structure):
         """Test Complaint message."""
-        with open(os.path.join(self.DATA_DIR, "full-message.json"), 'r') as file:
+        with open(os.path.join(self.DATA_DIR, 'full-message.json'), 'r') as file:
             data = file.read()
         with test_client as c:
             resp: Response = c.post(
@@ -61,7 +61,7 @@ class TestSESNotices:
 
     def test_delivery_message(self, test_client, test_db_structure):
         """Test Delivery message."""
-        with open(os.path.join(self.DATA_DIR, "delivery-message.json"), 'r') as file:
+        with open(os.path.join(self.DATA_DIR, 'delivery-message.json'), 'r') as file:
             data = file.read()
         with test_client as c:
             resp: Response = c.post(
@@ -74,7 +74,7 @@ class TestSESNotices:
 
     def test_bounce_message(self, test_client, test_db_structure):
         """Test Bounce message."""
-        with open(os.path.join(self.DATA_DIR, "bounce-message.json"), 'r') as file:
+        with open(os.path.join(self.DATA_DIR, 'bounce-message.json'), 'r') as file:
             data = file.read()
         with test_client as c:
             resp: Response = c.post(

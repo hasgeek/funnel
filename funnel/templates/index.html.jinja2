@@ -43,6 +43,12 @@
   <body class="homepage mui--bg-accent hg-app">
 {% endblock %}
 
+{% block description -%}
+  {% trans %}Explore your passions with communities of like-minded geeks.{% endtrans %}
+  {%- if featured_project %} {% trans %}Spotlight:{% endtrans %} {{ featured_project.title_inline }} {{ featured_project.tagline }}
+  {%- endif %}
+{%- endblock %}
+
 {% block contenthead %}
 {% endblock %}
 

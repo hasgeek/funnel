@@ -297,6 +297,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
         return roles
 
+    @classmethod
+    def all_published_public(cls):
+        return cls.query.join(Project).filter(
+            Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
+        )
+
 
 add_search_trigger(Update, 'search_vector')
 auto_init_default(Update._visibility_state)

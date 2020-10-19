@@ -57,6 +57,15 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
     REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
 
     # Groups
+    PUBLIC = {  # States visible to the public
+        SUBMITTED,
+        CONFIRMED,
+        WAITLISTED,
+        REJECTED,
+        CANCELLED,
+        AWAITING_DETAILS,
+        UNDER_EVALUATION,
+    }
     CONFIRMABLE = {
         WAITLISTED,
         UNDER_EVALUATION,
@@ -586,6 +595,10 @@ class Proposal(
             roles.add('commenter')
 
         return roles
+
+    @classmethod
+    def all_public(cls):
+        return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
 
 add_search_trigger(Proposal, 'search_vector')
