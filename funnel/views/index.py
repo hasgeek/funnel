@@ -241,6 +241,11 @@ def opensearch():
     )
 
 
+@app.route('/robots.txt')
+def robotstxt():
+    return Response(render_template('robots.txt.jinja2'), mimetype='text/plain')
+
+
 # --- Lastuser legacy routes -----------------------------------------------------------
 
 
