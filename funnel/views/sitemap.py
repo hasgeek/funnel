@@ -249,7 +249,7 @@ class SitemapView(ClassView):
     @route('sitemap.xml')
     @xml_response
     @cache.cached(timeout=3600)
-    def index(self) -> str:
+    def index(self) -> str:  # skipcq: PYL-R0201
         now = utcnow()
         sitemaps = (
             [SitemapIndex(url_for('SitemapView_static', _external=True))]
@@ -288,7 +288,7 @@ class SitemapView(ClassView):
     @route('sitemap-static.xml')
     @xml_response
     @cache.cached(timeout=3600)
-    def static(self) -> str:
+    def static(self) -> str:  # skipcq: PYL-R0201
         pages = [
             SitemapPage(
                 url_for('index', _external=True),
@@ -310,7 +310,9 @@ class SitemapView(ClassView):
     @route('sitemap-<year>-<month>-<day>.xml')
     @xml_response
     @cache.cached(timeout=3600)
-    def by_date(self, year: str, month: str, day: Optional[str]) -> str:
+    def by_date(
+        self, year: str, month: str, day: Optional[str]
+    ) -> str:  # skipcq: PYL-R0201
         dtstart, dtend = validate_daterange(year, month, day)
         age = utcnow() - dtend
         changefreq = changefreq_for_age(age)
