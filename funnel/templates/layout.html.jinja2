@@ -68,7 +68,7 @@
     {%- if config['LEGACY'] -%}
       {%- if g.profile -%}
         <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}" data-action="Home">
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
         </a>
         {{ faicon(icon='chevron-right', icon_size='subhead') }}
         <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
@@ -82,13 +82,13 @@
         {%- endif %}
       {%- else -%}
         <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
           {{ config['SITE_TITLE'] }}
         </a>
       {%- endif %}
     {%- else -%}
       <a href="{{ url_for('index') }}" class="header__site-title__title__home mui--hidden-xs mui--hidden-sm" data-cy="home-desktop" data-action="Home" aria-label="Home">
-        <img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>
+        <img src="/static/img/hg-logo.svg" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
       </a>
       <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %} </a>
       <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-action="Home">
