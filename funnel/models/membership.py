@@ -97,7 +97,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
 
-    @with_roles(read={'subject'}, grants={'editor'})
+    @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     def revoked_by(cls):
         """User who revoked the membership"""
