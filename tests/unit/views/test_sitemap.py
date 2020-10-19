@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from werkzeug.exceptions import NotFound
 
@@ -11,6 +11,7 @@ from funnel.views.sitemap import (
     ChangeFreq,
     all_sitemap_days,
     all_sitemap_months,
+    changefreq_for_age,
     earliest_date,
     validate_daterange,
 )
@@ -113,7 +114,7 @@ def test_all_sitemap_months_days():
 
 
 def test_validate_daterange():
-    """Test the values that validate_dayrange accepts."""
+    """Test the values that validate_dayrange accepts"""
 
     # String dates are accepted
     assert validate_daterange('2015', '11', '05') == (
@@ -198,8 +199,23 @@ def test_validate_daterange():
         validate_daterange('2015', '11', 'invalid')
 
 
+def test_changefreq_for_age():
+    """Test that changefreq is age-appropriate"""
+    # Less than a day
+    assert changefreq_for_age(timedelta(hours=1)) == ChangeFreq.hourly
+    assert changefreq_for_age(timedelta(hours=10)) == ChangeFreq.hourly
+    # Less than a week
+    assert changefreq_for_age(timedelta(hours=40)) == ChangeFreq.daily
+    # Less than a month
+    assert changefreq_for_age(timedelta(days=15)) == ChangeFreq.weekly
+    # Less than a quarter
+    assert changefreq_for_age(timedelta(days=30)) == ChangeFreq.monthly
+    # More than a quarter
+    assert changefreq_for_age(timedelta(days=180)) == ChangeFreq.yearly
+
+
 def test_sitemap(test_client, test_db_structure):
-    """Test sitemap endpoints (no content checks)."""
+    """Test sitemap endpoints (caveat: no content checks)"""
     expected_content_type = 'application/xml; charset=utf-8'
 
     rv = test_client.get('/sitemap.xml')

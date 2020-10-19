@@ -130,6 +130,31 @@ def validate_daterange(
     return dtstart, dtend
 
 
+def changefreq_for_age(age: timedelta) -> ChangeFreq:
+    """
+    Provide a simple heuristic for the likelihood of a document being changed:
+
+    If it changed within a given period, it may change again within the same period.
+    Longer periods imply lesser chance of change.
+
+    This simple mechanism is not content-aware and should not be considered a reliable
+    indicator. It operates on the assumption that documents will be tweaked with
+    repeated edits, first at a high rate, and then at a reducing rate as they mature.
+
+    :param timedelta age: Age of the last change
+    """
+    if age < timedelta(days=1):  # Past day
+        return ChangeFreq.hourly
+    if age < timedelta(days=7):  # Past week
+        return ChangeFreq.daily
+    if age < timedelta(weeks=4):  # Past month
+        return ChangeFreq.weekly
+    if age < timedelta(weeks=12):  # Past three months
+        return ChangeFreq.monthly
+    # Longer? It's not likely to change much then
+    return ChangeFreq.yearly
+
+
 # --- Model queries --------------------------------------------------------------------
 
 
@@ -288,16 +313,7 @@ class SitemapView(ClassView):
     def by_date(self, year: str, month: str, day: Optional[str]) -> str:
         dtstart, dtend = validate_daterange(year, month, day)
         age = utcnow() - dtend
-        if age < timedelta(days=1):  # Past day
-            changefreq = ChangeFreq.hourly
-        elif age < timedelta(days=7):  # Past week
-            changefreq = ChangeFreq.daily
-        elif age < timedelta(weeks=4):  # Past month
-            changefreq = ChangeFreq.weekly
-        elif age < timedelta(weeks=12):  # Past three months
-            changefreq = ChangeFreq.monthly
-        else:
-            changefreq = ChangeFreq.yearly
+        changefreq = changefreq_for_age(age)
 
         jobs = [
             query_profile.submit(dtstart, dtend, changefreq),
