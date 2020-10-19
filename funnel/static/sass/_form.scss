@@ -354,7 +354,7 @@
   position: relative;
   clear: both;
   width: 100%;
-  margin: 8px 0 0;
+  margin: 0;
 
   .mui-form {
     display: flex;
@@ -413,7 +413,6 @@
     background-color: $mui-bg-color-accent;
     z-index: 1001;
     .mui-form {
-      align-items: center;
       .mui-form__fields .CodeMirror {
         border: none;
         border-radius: 0;
@@ -423,8 +422,10 @@
     .mui-btn--raised.icon-btn {
       border-radius: 0;
       box-shadow: none;
+      padding-bottom: 16px;
     }
     .user {
+      padding-bottom: $mui-grid-padding/2;
       padding-right: $mui-grid-padding;
       margin-right: 0;
     }

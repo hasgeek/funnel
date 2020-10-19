@@ -1558,14 +1558,8 @@ a.loginbutton.hidden,
   height: 18px;
 }
 
-.header__site-title__home__logo--margin {
-  margin-right: 10px;
-}
-
 .header__site-title__home__logo--funnel {
   width: 18px;
-  position: relative;
-  top: -2px;
 }
 
 @media (min-width: 768px) {
@@ -2474,7 +2468,7 @@ a.loginbutton.hidden,
   position: relative;
   clear: both;
   width: 100%;
-  margin: 8px 0 0;
+  margin: 0;
 }
 .ajax-form .mui-form {
   display: flex;
@@ -2531,9 +2525,6 @@ a.loginbutton.hidden,
     background-color: #f9f9f9;
     z-index: 1001;
   }
-  .ajax-form.ajax-form--mob .mui-form {
-    align-items: center;
-  }
   .ajax-form.ajax-form--mob .mui-form .mui-form__fields .CodeMirror {
     border: none;
     border-radius: 0;
@@ -2542,8 +2533,10 @@ a.loginbutton.hidden,
   .ajax-form.ajax-form--mob .mui-btn--raised.icon-btn {
     border-radius: 0;
     box-shadow: none;
+    padding-bottom: 16px;
   }
   .ajax-form.ajax-form--mob .user {
+    padding-bottom: 8px;
     padding-right: 16px;
     margin-right: 0;
   }
