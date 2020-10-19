@@ -372,7 +372,7 @@ def add_search_trigger(model, column_name):
 
 
 class ImageFurl(furl):
-    def resize(self, height, width):
+    def resize(self, width, height):
         """
         Returns image url with `?size=HxW` suffixed to it
 
@@ -380,7 +380,7 @@ class ImageFurl(furl):
         :param width: Width to resize the image to
         """
         if self.url:
-            self.args['size'] = f"{height}x{width}"
+            self.args['size'] = f'{width}x{height}'
         return self
 
 
