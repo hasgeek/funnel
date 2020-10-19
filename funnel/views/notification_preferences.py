@@ -352,7 +352,7 @@ class AccountNotificationView(ClassView):
         # request as it may be triggered by link previews (for transports other than
         # email, or when an email is copy-pasted into a messenger app).
         form = UnsubscribeForm(
-            edit_user=user,
+            obj=user,
             transport=payload['transport'],
             notification_type=payload['notification_type'],
         )
@@ -365,7 +365,7 @@ class AccountNotificationView(ClassView):
             form.token_type.data = session['temp_token_type']
             discard_temp_token()
         if form.validate_on_submit():
-            form.save_to_user()
+            form.populate_obj(user)
             db.session.commit()
             return render_message(
                 title=_("Preferences saved"),
