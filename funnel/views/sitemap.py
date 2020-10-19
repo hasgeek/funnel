@@ -310,9 +310,9 @@ class SitemapView(ClassView):
     @route('sitemap-<year>-<month>-<day>.xml')
     @xml_response
     @cache.cached(timeout=3600)
-    def by_date(
+    def by_date(  # skipcq: PYL-R0201
         self, year: str, month: str, day: Optional[str]
-    ) -> str:  # skipcq: PYL-R0201
+    ) -> str:
         dtstart, dtend = validate_daterange(year, month, day)
         age = utcnow() - dtend
         changefreq = changefreq_for_age(age)
