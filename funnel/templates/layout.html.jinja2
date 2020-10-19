@@ -18,6 +18,7 @@
   <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
 {%- endblock %}
 
+{# The profile's description is used on all pages within a profile, unless the template overrides this -#}
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
 {%- block image_src %}

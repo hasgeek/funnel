@@ -222,6 +222,12 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         self.start_at = None
         self.end_at = None
 
+    @classmethod
+    def all_public(cls):
+        return cls.query.join(Project).filter(
+            Project.state.PUBLISHED, Project.schedule_state.PUBLISHED, cls.scheduled
+        )
+
 
 add_search_trigger(Session, 'search_vector')
 
