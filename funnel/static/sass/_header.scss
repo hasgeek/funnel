@@ -151,6 +151,9 @@
 }
 
 @media (max-width: 767px) {
+  .hg-app .header--fixed.header--lowzindex {
+    z-index: 1;
+  }
   .hg-app.no-sticky-header {
     .header--fixed {
       display: none;

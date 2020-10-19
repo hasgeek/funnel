@@ -11,7 +11,6 @@ const Updates = {
     divElem,
     updateTemplate,
     isEditor,
-    headerHeight,
     addReadMore,
   }) {
     Vue.use(VS2);
@@ -72,11 +71,12 @@ const Updates = {
           draft: draft.length > 0 ? draft : '',
           updates: updates.length > 0 ? updates : '',
           isEditor,
-          headerHeight,
+          headerHeight: '',
           addReadMore,
         };
       },
       mounted() {
+        this.headerHeight = Utils.getPageHeaderHeight();
         if (window.location.hash) {
           Utils.animateScrollTo(
             document
@@ -85,6 +85,10 @@ const Updates = {
           );
         }
         Utils.truncate();
+
+        $(window).resize(() => {
+          this.headerHeight = Utils.getPageHeaderHeight();
+        });
       },
     });
 

@@ -21,8 +21,6 @@ const Schedule = {
           height: $(window).height(),
           modalHtml: '',
           headerHeight: '',
-          mobileHeader: schedule.config.mobileHeader,
-          desktopHeader: schedule.config.desktopHeader,
           pageDetails: {
             url: window.location.href,
             title: `Schedule – ${schedule.config.projectTitle}`,
@@ -160,12 +158,9 @@ const Schedule = {
           event.preventDefault();
           Utils.animateScrollTo($(`#${id}`).offset().top - this.headerHeight);
         },
-        getHeaderHeight() {
-          if (this.width < window.Hasgeek.config.mobileBreakpoint) {
-            this.headerHeight = this.mobileHeader;
-          } else {
-            this.headerHeight = this.desktopHeader;
-          }
+        getHeight() {
+          this.headerHeight =
+            Utils.getPageHeaderHeight() + $('.schedule__row--sticky').height();
         },
         handleBrowserResize() {
           $(window).resize(() => {
@@ -175,11 +170,11 @@ const Schedule = {
             if (this.width < window.Hasgeek.config.mobileBreakpoint) {
               this.view = 'agenda';
             }
-            this.getHeaderHeight();
+            this.getHeight();
           });
         },
         animateWindowScrollWithHeader() {
-          this.getHeaderHeight();
+          this.getHeight();
           this.pathName = window.location.pathname;
           const scrollPos = JSON.parse(
             window.sessionStorage.getItem('scrollPos')

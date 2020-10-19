@@ -60,20 +60,12 @@
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
 
-      var headerHeight;
-      if($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
-        headerHeight = $('.mobile-nav').height();
-      } else {
-        headerHeight = $('header').height() + $('nav').height();
-      }
-
       var updateConfig = {
         draft: {% if draft_updates -%} {{ draft_updates|tojson }} {%- else -%} [] {%- endif %},
         updates: {% if published_updates -%} {{ published_updates|tojson }} {%- else -%} [] {%- endif %},
         divElem: "#updates-wrapper",
         updateTemplate: '#update-template',
         isEditor: {{ project.features.post_update()|tojson }},
-        headerHeight: headerHeight,
         addReadMore: true,
       };
 

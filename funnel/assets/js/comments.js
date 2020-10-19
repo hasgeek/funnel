@@ -13,7 +13,6 @@ const Comments = {
     iscommentmoderator,
     user,
     loginUrl,
-    headerHeight,
   }) {
     Vue.config.devtools = true;
 
@@ -63,15 +62,18 @@ const Comments = {
         },
         closeAllForms(event) {
           if (event) event.preventDefault();
-          this.formOpened = false;
-          this.replyForm = false;
-          this.editForm = false;
-          this.deleteForm = false;
-          this.spamForm = false;
-          this.$parent.pauseRefreshComments();
+          if (this.formOpened) {
+            this.formOpened = false;
+            this.replyForm = false;
+            this.editForm = false;
+            this.deleteForm = false;
+            this.spamForm = false;
+            $('#js-header').removeClass('header--lowzindex');
+            this.$parent.refreshCommentsTimer();
+          }
         },
-        pauseRefreshComments() {
-          this.$parent.pauseRefreshComments();
+        refreshCommentsTimer() {
+          this.$parent.refreshCommentsTimer();
         },
         activateSubForm(event, action, textareaId = '') {
           event.preventDefault();
@@ -123,6 +125,11 @@ const Comments = {
         this.$root.$on('closeCommentForms', () => {
           this.closeAllForms();
         });
+        this.$root.$on('clickedOutside', () => {
+          if (!this.reply) {
+            this.closeAllForms();
+          }
+        });
       },
     });
 
@@ -147,11 +154,12 @@ const Comments = {
           errorMsg: '',
           loginUrl,
           refreshTimer: '',
-          headerHeight,
+          headerHeight: '',
           svgIconUrl: window.Hasgeek.config.svgIconUrl,
           initialLoad: true,
           showmodal: false,
           formTitle: 'New comment',
+          scrollTo: '',
         };
       },
       methods: {
@@ -163,6 +171,7 @@ const Comments = {
           this.activateForm(this.COMMENTACTIONS.NEW, textareaId);
         },
         activateForm(action, textareaId, parentApp = app) {
+          $('#js-header').addClass('header--lowzindex');
           if (textareaId) {
             this.$nextTick(() => {
               let editor = window.CodeMirror.fromTextArea(
@@ -186,12 +195,15 @@ const Comments = {
           }
           this.pauseRefreshComments();
         },
-        closeModal(event) {
+        closeNewCommentForm(event) {
           if (event) event.preventDefault();
-          this.commentForm = false;
-          this.formTitle = '';
-          this.showmodal = false;
-          this.refreshCommentsTimer();
+          if (this.commentForm) {
+            this.commentForm = false;
+            this.formTitle = '';
+            this.showmodal = false;
+            $('#js-header').removeClass('header--lowzindex');
+            this.refreshCommentsTimer();
+          }
         },
         submitCommentForm(formId, postUrl, action, parentApp = app) {
           let commentContent = $(`#${formId}`)
@@ -210,13 +222,16 @@ const Comments = {
               if (action === parentApp.COMMENTACTIONS.NEW) {
                 parentApp.errorMsg = '';
                 parentApp.textarea = '';
-                parentApp.closeModal();
+                parentApp.closeNewCommentForm();
               } else {
                 parentApp.handleFormSubmit(action);
               }
               if (responseData.comments) {
                 app.updateCommentsList(responseData.comments);
                 window.toastr.success(responseData.message);
+              }
+              if (responseData.comment) {
+                app.scrollTo = `#c-${responseData.comment.uuid_b58}`;
               }
               app.refreshCommentsTimer();
             },
@@ -252,15 +267,42 @@ const Comments = {
       mounted() {
         this.fetchCommentsList();
         this.refreshCommentsTimer();
+        this.headerHeight = Utils.getPageHeaderHeight();
+
+        let newFormElem = $('.post-form-block');
+        $('body').on('click', (e) => {
+          if (
+            !newFormElem.find(e.target).length &&
+            !$(e.target).parents('.js-comment-form').length
+          ) {
+            this.$root.$emit('clickedOutside');
+          }
+        });
+
+        this.$root.$on('clickedOutside', () => {
+          if (!this.textarea) {
+            this.closeNewCommentForm();
+          }
+        });
+
+        $(window).resize(() => {
+          this.headerHeight = Utils.getPageHeaderHeight();
+        });
       },
       updated() {
         if (this.initialLoad && window.location.hash) {
           Utils.animateScrollTo(
-            document
-              .getElementById(window.location.hash)
-              .getBoundingClientRect().top - this.headerHeight
+            $(window.location.hash).offset().top - this.headerHeight
           );
           this.initialLoad = false;
+        }
+        if (this.scrollTo) {
+          if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+            Utils.animateScrollTo(
+              $(this.scrollTo).offset().top - this.headerHeight
+            );
+          }
+          this.scrollTo = '';
         }
       },
     });

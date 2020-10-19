@@ -5,6 +5,13 @@
     right: 16px;
     z-index: 1000;
   }
+  .proposal__section .comment-new-block {
+    position: relative;
+    float: right;
+    top: -18px;
+    right: 0;
+    height: 0;
+  }
 }
 
 .comment {
@@ -62,7 +69,7 @@
 @media (max-width: 767px) {
   .comment--modal {
     position: fixed;
-    top: 57px;
+    top: 56px;
     bottom: 0;
     left: 0;
     right: 0;

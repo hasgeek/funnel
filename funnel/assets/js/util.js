@@ -281,7 +281,8 @@ export const Utils = {
         $('.project-links').hide();
         $('.hg-link-btn').removeClass('mui--hide');
 
-        $('.hg-link-btn').on('click', function () {
+        $('.hg-link-btn').on('click', function (event) {
+          event.preventDefault();
           navigator.share({
             title: $(this).data('title') || document.title,
             url:
@@ -305,6 +306,15 @@ export const Utils = {
         selection.removeAllRanges();
       });
     }
+  },
+  getPageHeaderHeight() {
+    let headerHeight;
+    if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+      headerHeight = $('.mobile-nav').height();
+    } else {
+      headerHeight = $('header').height() + $('nav').height();
+    }
+    return headerHeight;
   },
 };
 
