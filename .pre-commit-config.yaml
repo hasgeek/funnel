@@ -60,6 +60,7 @@ repos:
   #   rev: v0.790
   #   hooks:
   #     - id: mypy
+  #       additional_dependencies: [sqlalchemy-stubs==3.2.0]
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
     hooks:
