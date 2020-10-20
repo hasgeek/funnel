@@ -609,7 +609,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
     )
 
     # Only one assignment per user and client
-    __table_args__ = (db.UniqueConstraint('user_id', 'auth_client_id'), {})
+    __table_args__ = (db.UniqueConstraint('user_id', 'auth_client_id'),)
 
     # Used by auth_client_info.html
     @property
@@ -678,7 +678,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     )
 
     # Only one assignment per team and client
-    __table_args__ = (db.UniqueConstraint('team_id', 'auth_client_id'), {})
+    __table_args__ = (db.UniqueConstraint('team_id', 'auth_client_id'),)
 
     # Used by auth_client_info.html
     @property
