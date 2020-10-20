@@ -471,8 +471,8 @@ class SyncTicket(BaseMixin, db.Model):
 class Project:  # type: ignore[no-redef]
     # FIXME: RoleMixin expects TicketParticipant.user to be unique per project, meaning
     # one user can have one participant ticket only. This is not guaranteed by the model
-    # as tickets are unique per email address per ticket type, and (a) one user can have
-    # two email addresses with tickets, or (b) tickets of different ticket types
+    # as tickets are unique per email address per ticket type, and one user can have
+    # (a) two email addresses with tickets, or (b) tickets of different types
     ticket_participants = with_roles(
         db.relationship(TicketParticipant, lazy='dynamic', cascade='all'),
         grants_via={'user': {'participant'}},
