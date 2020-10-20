@@ -106,7 +106,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
-    fullname = with_roles(
+    fullname: db.Column = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
     )

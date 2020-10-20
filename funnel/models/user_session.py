@@ -33,7 +33,7 @@ user_session_validity_period = timedelta(days=365)
 
 #: When a user logs into an client app, the user's session is logged against
 #: the client app in this table
-auth_client_user_session = db.Table(
+auth_client_user_session: db.Table = db.Table(
     'auth_client_user_session',
     db.Model.metadata,
     db.Column(

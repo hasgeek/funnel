@@ -75,7 +75,7 @@ is supported using an unusual primary and foreign key structure the in
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Callable, Dict, NamedTuple, Sequence, Set, Type
+from typing import Callable, Dict, NamedTuple, Optional, Sequence, Set, Type
 from uuid import uuid4
 
 from sqlalchemy import event
@@ -98,7 +98,7 @@ from coaster.utils import (
     uuid_to_base58,
 )
 
-from . import BaseMixin, NoIdMixin, UUIDType, db
+from . import BaseMixin, NoIdMixin, UuidMixin, UUIDType, db
 from .helpers import reopen
 from .user import User
 
@@ -244,10 +244,10 @@ class Notification(NoIdMixin, db.Model):
     description = ''
 
     #: Subclasses may set this to aid loading of :attr:`document`
-    document_model = None
+    document_model: UuidMixin
 
     #: Subclasses may set this to aid loading of :attr:`fragment`
-    fragment_model = None
+    fragment_model: Optional[UuidMixin] = None
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document.

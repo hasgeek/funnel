@@ -32,6 +32,7 @@ class TestSesEventJson:
         assert obj.mail.headers
         assert obj.mail.sending_accountid
         assert obj.mail.source_arn
+        assert obj.delivery
         assert obj.delivery.timestamp
         assert obj.delivery.recipients
         assert obj.delivery.reporting_mta

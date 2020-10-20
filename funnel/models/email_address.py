@@ -602,7 +602,7 @@ class EmailAddressMixin:
     #: This class has a unique constraint on the fkey to EmailAddress
     __email_unique__ = False
     #: A relationship from this model is for the (single) owner at this attr
-    __email_for__ = None
+    __email_for__: Optional[str] = None
     #: If `__email_for__` is specified and this flag is True, the email address is
     #: considered exclusive to this owner and may not be used by any other owner
     __email_is_exclusive__ = False

@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
 
-from dataclasses_json import config, dataclass_json
+from dataclasses_json import DataClassJsonMixin, config
 
 __all__ = [
     'SesBounce',
@@ -17,18 +17,16 @@ __all__ = [
 ]
 
 
-@dataclass_json
 @dataclass
-class SesMailHeaders:
+class SesMailHeaders(DataClassJsonMixin):
     """Mail Headers have name/value pairs."""
 
     name: str
     value: str
 
 
-@dataclass_json
 @dataclass
-class SesCommonMailHeaders:
+class SesCommonMailHeaders(DataClassJsonMixin):
     """Json object for common mail headers."""
 
     from_address: List[str] = field(metadata=config(field_name='from'))
@@ -37,9 +35,8 @@ class SesCommonMailHeaders:
     messageid: str = field(metadata=config(field_name='messageId'))
 
 
-@dataclass_json
 @dataclass
-class SesMail:
+class SesMail(DataClassJsonMixin):
     """
     The JSON object that contains information about a mail object.
 
@@ -69,9 +66,8 @@ class SesMail:
     tags: Dict[str, List[str]]
 
 
-@dataclass_json
 @dataclass
-class SesIndividualRecipient:
+class SesIndividualRecipient(DataClassJsonMixin):
     """
     Individual recipient for whom the email message bounced.
 
@@ -89,9 +85,8 @@ class SesIndividualRecipient:
     )
 
 
-@dataclass_json
 @dataclass
-class SesBounce:
+class SesBounce(DataClassJsonMixin):
     """
     The JSON object that contains information about a Bounce event.
 
@@ -128,9 +123,8 @@ class SesBounce:
         return self.bounce_type == 'Permanent'
 
 
-@dataclass_json
 @dataclass
-class SesComplaint:
+class SesComplaint(DataClassJsonMixin):
     """
     The JSON object that contains information about a Complaint event.
 
@@ -171,9 +165,8 @@ class SesComplaint:
     )
 
 
-@dataclass_json
 @dataclass
-class SesDelivery:
+class SesDelivery(DataClassJsonMixin):
     """
     The JSON object that contains information about a Delivery event.
 
@@ -191,15 +184,13 @@ class SesDelivery:
     reporting_mta: str = field(metadata=config(field_name='reportingMTA'))
 
 
-@dataclass_json
 @dataclass
-class SesSend:
+class SesSend(DataClassJsonMixin):
     """ The JSON object that contains information about a Send event. Has no data."""
 
 
-@dataclass_json
 @dataclass
-class SesReject:
+class SesReject(DataClassJsonMixin):
     """
     The JSON object that contains information about a Reject event.
 
@@ -210,9 +201,8 @@ class SesReject:
     reason: str
 
 
-@dataclass_json
 @dataclass
-class SesOpen:
+class SesOpen(DataClassJsonMixin):
     """
     The JSON object that contains information about a Open event.
 
@@ -226,9 +216,8 @@ class SesOpen:
     user_agent: str = field(metadata=config(field_name='userAgent'))
 
 
-@dataclass_json
 @dataclass
-class SesClick:
+class SesClick(DataClassJsonMixin):
     """
     The JSON object that contains information about a Click event.
 
@@ -248,9 +237,8 @@ class SesClick:
     )
 
 
-@dataclass_json
 @dataclass
-class SesRenderFailure:
+class SesRenderFailure(DataClassJsonMixin):
     """
     The JSON object that contains information about Rendering Failure event.
 
@@ -262,9 +250,8 @@ class SesRenderFailure:
     error_message: str = field(metadata=config(field_name='errorMessage'))
 
 
-@dataclass_json
 @dataclass
-class SesDeliveryDelay:
+class SesDeliveryDelay(DataClassJsonMixin):
     """
     The JSON object that contains information about a DeliveryDelay event.
 
@@ -309,9 +296,8 @@ class SesEvents(Enum):
     DELAY = 'DeliveryDelay'
 
 
-@dataclass_json
 @dataclass
-class SesEvent:
+class SesEvent(DataClassJsonMixin):
     """
     SES Event object JSON which contains the following.
 

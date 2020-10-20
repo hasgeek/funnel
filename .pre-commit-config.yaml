@@ -55,12 +55,11 @@ repos:
       - id: no-commit-to-branch
       - id: requirements-txt-fixer
       - id: trailing-whitespace
-  # Fix issues before enabling mypy
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v0.790
-  #   hooks:
-  #     - id: mypy
-  #       additional_dependencies: [sqlalchemy-stubs==3.2.0]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.790
+    hooks:
+      - id: mypy
+        additional_dependencies: [sqlalchemy-stubs==0.3]
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
     hooks:

@@ -31,8 +31,8 @@ class TestSESNotices:
         with test_client as c:
             resp: Response = c.post(self.URL)
         assert resp.status_code == 422
-        data = resp.get_json()
-        assert data['status'] == 'error'
+        rdata = resp.get_json()
+        assert rdata['status'] == 'error'
 
     def test_bad_message(self, test_client) -> None:
         """Test bad signature message."""
@@ -43,9 +43,9 @@ class TestSESNotices:
                 self.URL, json=json.loads(data), headers=self.HEADERS
             )
         assert resp.status_code == 422
-        data = resp.get_json()
-        assert data['status'] == 'error'
-        assert data['error'] == 'validation_failure'
+        rdata = resp.get_json()
+        assert rdata['status'] == 'error'
+        assert rdata['error'] == 'validation_failure'
 
     def test_complaint_message(self, test_client, test_db_structure):
         """Test Complaint message."""
@@ -56,8 +56,8 @@ class TestSESNotices:
                 self.URL, json=json.loads(data), headers=self.HEADERS
             )
         assert resp.status_code == 200
-        data = resp.get_json()
-        assert data['status'] == 'ok'
+        rdata = resp.get_json()
+        assert rdata['status'] == 'ok'
 
     def test_delivery_message(self, test_client, test_db_structure):
         """Test Delivery message."""
@@ -68,8 +68,8 @@ class TestSESNotices:
                 self.URL, json=json.loads(data), headers=self.HEADERS
             )
         assert resp.status_code == 200
-        data = resp.get_json()
-        assert data['status'] == 'ok'
+        rdata = resp.get_json()
+        assert rdata['status'] == 'ok'
         test_db_structure.session.commit()
 
     def test_bounce_message(self, test_client, test_db_structure):
@@ -81,6 +81,6 @@ class TestSESNotices:
                 self.URL, json=json.loads(data), headers=self.HEADERS
             )
         assert resp.status_code == 200
-        data = resp.get_json()
-        assert data['status'] == 'ok'
+        rdata = resp.get_json()
+        assert rdata['status'] == 'ok'
         test_db_structure.session.commit()
