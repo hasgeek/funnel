@@ -1716,7 +1716,7 @@ a.loginbutton.hidden,
 }
 .mobile-nav .mobile-nav__icon {
   display: inline-block;
-  padding: 16px;
+  padding: 16px 8px 16px 16px;
 }
 .mobile-nav .mobile-nav__headline {
   font-size: 20px;
@@ -2485,8 +2485,8 @@ a.loginbutton.hidden,
 .ajax-form .mui-form .mui-form__fields .CodeMirror {
   border: 1px solid #0f73ed;
   border-radius: 16px 16px 0 16px;
-  min-height: 56px;
-  padding: 8px;
+  min-height: 16px;
+  padding: 16px;
 }
 .ajax-form .mui-form .mui-form__fields .CodeMirror ~ .CodeMirror {
   display: none;
@@ -2570,8 +2570,8 @@ a.loginbutton.hidden,
   color: #4d5763;
   font-size: 16px;
   border-radius: 16px 16px 0 16px;
-  background-color: #f9f9f9;
-  padding: 16px;
+  background-color: #f1f1f1;
+  padding: 21px 16px;
   margin: 0;
   display: inline-block;
   width: calc(100% - 48px);
@@ -2595,7 +2595,7 @@ a.loginbutton.hidden,
 
 .update-form-block {
   border-radius: 4px;
-  background-color: #f9f9f9;
+  background-color: #f1f1f1;
   padding: 8px 16px;
   margin-bottom: 32px;
   margin: 16px 0 32px;
@@ -4253,14 +4253,18 @@ a.loginbutton.hidden,
 }
 
 @media (max-width: 767px) {
-  .comment-new-block {
+  .post-form-block {
     position: fixed;
-    top: 13px;
+    top: 16px;
     right: 16px;
     z-index: 1000;
   }
+  .post-form-block .comment-new-mobile {
+    font-size: 20px;
+    line-height: 1;
+  }
 
-  .proposal__section .comment-new-block {
+  .proposal__section .post-form-block {
     position: relative;
     float: right;
     top: -18px;
@@ -4307,8 +4311,7 @@ a.loginbutton.hidden,
 }
 .comment .comment__body {
   border-left: 1px solid rgba(132, 146, 166, 0.3);
-  padding-left: 12px;
-  margin: 5px 0 0 7px;
+  margin: 0 0 0 7px;
 }
 .comment .comment__body img {
   max-width: 100%;
@@ -4316,7 +4319,12 @@ a.loginbutton.hidden,
 .comment .comment__body blockquote {
   border-left: 3px solid #c0ccda;
   margin: 0;
-  padding-left: 16px;
+  padding: 8px 0 0 8px;
+}
+.comment .comment__body .comment__body__inner,
+.comment .comment__body .comment--children {
+  padding-left: 8px;
+  word-break: break-word;
 }
 .comment .comment__body:hover {
   border-left: 1px solid #f06a5e;
@@ -4334,6 +4342,9 @@ a.loginbutton.hidden,
     padding: 8px 16px 56px;
     margin: 0;
     overflow-y: scroll;
+  }
+  .comment--modal > .comment__body > .comment__body__inner {
+    background-color: #e1eefd;
   }
 }
 .slide-enter-active {

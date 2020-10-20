@@ -14,8 +14,6 @@ const Comments = {
     user,
     loginUrl,
   }) {
-    Vue.config.devtools = true;
-
     const COMMENTACTIONS = {
       REPLY: 0,
       EDIT: 1,
@@ -269,10 +267,10 @@ const Comments = {
         this.refreshCommentsTimer();
         this.headerHeight = Utils.getPageHeaderHeight();
 
-        let newFormElem = $('.post-form-block');
         $('body').on('click', (e) => {
           if (
-            !newFormElem.find(e.target).length &&
+            $('.js-new-comment-form')[0] !== e.target &&
+            !$('.js-new-comment-form').find(e.target).length &&
             !$(e.target).parents('.js-comment-form').length
           ) {
             this.$root.$emit('clickedOutside');

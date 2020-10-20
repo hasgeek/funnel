@@ -114,9 +114,6 @@ const Schedule = {
         },
         openModal(sessionHtml, backPage, pageDetails) {
           this.modalHtml = sessionHtml;
-          $('#session-modal').on($.modal.OPEN, function () {
-            Utils.addWebShare();
-          });
           $('#session-modal').modal('show');
           window.history.pushState(
             {

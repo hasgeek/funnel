@@ -764,33 +764,31 @@
       <p class="mui-panel mui--bg-accent" v-if="isuserloggedin && !isuserparticipant">You need to be a participant to comment.</p>
       <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="showmodal">
         <div class="mobile-nav mui--z1">
-          <span aria-label="Close" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
+          <span aria-label="Close" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
         </div>
       </div>
-      <div class="js-new-comment-form">
-        <div class="post-form-block comment-new-block" :class="[commentForm ? 'mui--hide' : '']" @click="showNewCommentForm($event, 'comment_message')" aria-label="Post comment" data-cy="post-comment" v-if="isuserparticipant">
-          <a class="post-form mui--hidden-xs mui--hidden-sm">Post a comment...</a>
-          <div class="user mui--hidden-xs mui--hidden-sm">
+      <a href="javascript:void(0)" class="post-form-block nounderline js-new-comment-form" :class="[commentForm ? 'mui--hide' : '']" @click="showNewCommentForm($event, 'comment_message')" aria-label="Post comment" data-cy="post-comment" v-if="isuserparticipant" role="button">
+        <span class="post-form mui--hidden-xs mui--hidden-sm">Post a comment...</span>
+        <div class="user mui--hidden-xs mui--hidden-sm">
+          <div class="user__box">
+            <useravatar :user='user' :addprofilelink=false></useravatar>
+          </div>
+        </div>
+        <span class="comment-new-mobile mui--text-hyperlink mui--hidden-md mui--hidden-lg mui--hidden-xl"><faicon :icon="'comment-alt'" :icon_size="'subhead'" :css_class="'fa-icon--margin'"></faicon>New comment</span>
+      </a>
+      <div class="ajax-form" :class="[showmodal ? 'ajax-form--mob' : '']" v-if="commentForm">
+        <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('new-comment-form', newCommentUrl,  COMMENTACTIONS.NEW)" id="new-comment-form">
+          <div class="mui-form__fields">
+            <textarea id="comment_message" name="message" required="required" class="field-comment_message" v-model="textarea"></textarea>
+          </div>
+          <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea"><faicon :icon="'paper-plane'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
+          <div class="user" v-else>
             <div class="user__box">
               <useravatar :user='user' :addprofilelink=false></useravatar>
             </div>
           </div>
-          <a class="mui--text-title mui--hidden-md mui--hidden-lg mui--hidden-xl"><faicon :icon="'plus'" :icon_size="'subhead'"></faicon>  New comment</a>
-        </div>
-        <div class="ajax-form" :class="[showmodal ? 'ajax-form--mob' : '']" v-if="commentForm">
-          <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('new-comment-form', newCommentUrl,  COMMENTACTIONS.NEW)" id="new-comment-form">
-            <div class="mui-form__fields">
-              <textarea id="comment_message" name="message" required="required" class="field-comment_message" v-model="textarea"></textarea>
-            </div>
-            <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea"><faicon :icon="'paper-plane'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
-            <div class="user" v-else>
-              <div class="user__box">
-                <useravatar :user='user' :addprofilelink=false></useravatar>
-              </div>
-            </div>
-          </form>
-          <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
-        </div>
+        </form>
+        <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
       </div>
       <ul class="mui-list--unstyled comment-wrapper" v-for="comment in comments">
         <comment :comment="comment" :user='user' :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
@@ -800,52 +798,50 @@
       <li class="comment" :class="[formOpened ? 'comment--modal' : '']"  :id="'c-' + comment.uuid_b58">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="formOpened">
           <div class="mobile-nav mui--z1">
-            <span aria-label="Close" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
+            <span aria-label="Close" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
           </div>
         </div>
-        <div>
-          <div class="comment__header">
-            <button class="mui-btn mui-btn--nostyle" aria-label="Hide comment" aria-expanded="true" v-if="!hide" @click="collapse(true)">
-              <faicon :icon="'caret-circle-up'" :icon_size="'subhead'"></faicon>
-            </button>
-            <button class="mui-btn mui-btn--nostyle" aria-expanded="false" aria-label="Collapse comment" v-else @click="collapse(false)">
-              <faicon :icon="'caret-circle-down'" :icon_size="'subhead'"></faicon>
-            </button>
-            <div class="comment__header__details user">
-              <div class="user__box" v-if="!comment.state">
-                <useravatar :user='comment.user' :addprofilelink=true></useravatar>
-                <div class="user__box__header comment__header__details__user">
-                  <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">
-                    <span class="commenter">{{ comment.user.fullname }}</span>
-                    <span class="badge" v-for="badge in comment.badges">{{ badge }}</span>
-                    <span class="commenter mui--text-light mui--text-caption" v-if="comment.state && comment.state.DELETED">[deleted]</span>
-                    <span class="commenter mui--text-light mui--text-caption" v-if="comment.state && comment.state.SPAM">[removed]</span>
-                  </h3>
-                  <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
-                </div>
+        <div class="comment__header">
+          <button class="mui-btn mui-btn--nostyle" aria-label="Hide comment" aria-expanded="true" v-if="!hide" @click="collapse(true)">
+            <faicon :icon="'caret-circle-up'" :icon_size="'subhead'"></faicon>
+          </button>
+          <button class="mui-btn mui-btn--nostyle" aria-expanded="false" aria-label="Collapse comment" v-else @click="collapse(false)">
+            <faicon :icon="'caret-circle-down'" :icon_size="'subhead'"></faicon>
+          </button>
+          <div class="comment__header__details user">
+            <div class="user__box" v-if="!comment.state">
+              <useravatar :user='comment.user' :addprofilelink=true></useravatar>
+              <div class="user__box__header comment__header__details__user">
+                <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">
+                  <span class="commenter">{{ comment.user.fullname }}</span>
+                  <span class="badge" v-for="badge in comment.badges">{{ badge }}</span>
+                  <span class="commenter mui--text-light mui--text-caption" v-if="comment.state && comment.state.DELETED">[deleted]</span>
+                  <span class="commenter mui--text-light mui--text-caption" v-if="comment.state && comment.state.SPAM">[removed]</span>
+                </h3>
+                <h3 v-if="comment.user.username" class="mui--text-caption user__box__userid"><span>@{{ comment.user.username }}</span></h3>
               </div>
             </div>
           </div>
-          <transition name="slide">
-            <div class="comment__body" v-if="!hide">
+        </div>
+        <transition name="slide">
+          <div class="comment__body" v-if="!hide">
+            <div class="comment__body__inner">
               <div v-if="!comment.state" v-html="comment.message.html"></div>
-              <div>
-                <a class="mui--text-caption mui--text-light comment--permalink" :href="'#c-' + comment.uuid_b58">Posted {{ created_at_age }}</a>
-                <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">(edited {{ edited_at_age }})</span>
-              </div>
+              <a class="mui--text-caption mui--text-light comment--permalink hg-link-btn" :href="'#c-' + comment.uuid_b58">Posted {{ created_at_age }}</a>
+              <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">(edited {{ edited_at_age }})</span>
               <div class="js-comment-form">
-                <a class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="activateSubForm($event, COMMENTACTIONS.REPLY, 'reply-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'comment-alt'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
-                <a class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="activateSubForm($event, COMMENTACTIONS.REPORTSPAM)"><faicon :icon="'flag-alt'":baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
+                <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="activateSubForm($event, COMMENTACTIONS.REPLY, 'reply-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'comment-alt'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Reply</span></a>
+                <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="activateSubForm($event, COMMENTACTIONS.REPORTSPAM)"><faicon :icon="'flag-alt'":baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Report</span></a>
                 <div class="mui-dropdown">
                   <a href="javascript:void(0)" class="link-icon project-links mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">Share</span></a>
                   <sharedropdown :url='comment.urls.view' :title='comment.title'></sharedropdown>
                 </div>
-                <a href="javascript:void(0)" class="link-icon mui--text-light hg-link-btn mui--hide right-padding" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :baseline=true></faicon></a>
+                <a href="javascript:void(0)" class="link-icon mui--text-light hg-link-btn right-padding" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'" :data-text=comment.message.text><faicon :icon="'share-alt'" :baseline=true></faicon></a>
                 <div class="mui-dropdown" v-if="comment.urls.edit || comment.urls.delete">
                   <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-mui-toggle="dropdown"  data-cy="comment-menu"><faicon :icon="'ellipsis-v'" :baseline=true></faicon><span class="mui--hidden-xs mui--hidden-sm">More</span></a>
                   <ul class="mui-dropdown__menu mui-dropdown__menu--hg-link mui-dropdown__menu--small" data-cy="share-dropdown">
-                    <li><a class="mui--text-body2 comment__body__links" data-cy="edit" v-if="comment.urls.edit" @click="activateSubForm($event, COMMENTACTIONS.EDIT, 'edit-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'edit'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'" ></faicon> Edit</a></li>
-                    <li><a class="mui--text-body2 comment__body__links" data-cy="delete" v-if="comment.urls.delete"  @click="activateSubForm($event, COMMENTACTIONS.DELETE)"><faicon :icon="'trash-alt'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon> Delete</a></li>
+                    <li><a href="javascript:void(0)" class="mui--text-body2 comment__body__links" data-cy="edit" v-if="comment.urls.edit" @click="activateSubForm($event, COMMENTACTIONS.EDIT, 'edit-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'edit'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'" ></faicon> Edit</a></li>
+                    <li><a href="javascript:void(0)" class="mui--text-body2 comment__body__links" data-cy="delete" v-if="comment.urls.delete"  @click="activateSubForm($event, COMMENTACTIONS.DELETE)"><faicon :icon="'trash-alt'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon> Delete</a></li>
                   </ul>
                 </div>
                 <div class="ajax-form" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="replyForm">
@@ -893,12 +889,12 @@
                   <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
                 </div>
               </div>
-              <ul class="mui-list--unstyled comment--children" v-for="reply_comment in comment.current_access_replies">
-                <comment :comment="reply_comment" :user='user' :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
-              </ul>
             </div>
-          </transition>
-        </div>
+            <ul class="mui-list--unstyled comment--children" v-for="reply_comment in comment.current_access_replies">
+              <comment :comment="reply_comment" :user='user' :isuserparticipant="isuserparticipant" :iscommentmoderator="iscommentmoderator"></comment>
+            </ul>
+          </div>
+        </transition>
       </li>
     </script>
   {% endraw %}
