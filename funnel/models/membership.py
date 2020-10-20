@@ -82,7 +82,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     user_id: db.Column
 
     @declared_attr  # type: ignore[no-redef]
-    def user_id(cls):
+    def user_id(cls):  # skipcq: PYL-E0102
         return db.Column(
             None,
             db.ForeignKey('user.id', ondelete='CASCADE'),

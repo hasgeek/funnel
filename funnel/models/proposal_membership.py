@@ -94,7 +94,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
 
 # Project relationships: all crew, vs specific roles
 @reopen(Proposal)
-class Proposal:  # type: ignore[no-redef]
+class Proposal:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     active_memberships = with_roles(
         db.relationship(
             ProposalMembership,
@@ -136,7 +136,7 @@ class Proposal:  # type: ignore[no-redef]
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]
+class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     proposal_memberships = db.relationship(
         ProposalMembership,
         lazy='dynamic',

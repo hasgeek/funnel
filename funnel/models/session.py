@@ -233,7 +233,7 @@ add_search_trigger(Session, 'search_vector')
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     # Project schedule column expressions
     # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(

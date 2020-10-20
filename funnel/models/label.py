@@ -347,7 +347,7 @@ class ProposalLabelProxy(object):
 
 
 @reopen(Proposal)
-class Proposal:  # type: ignore[no-redef]
+class Proposal:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     #: For reading and setting labels from the edit form
     formlabels = ProposalLabelProxy()
 

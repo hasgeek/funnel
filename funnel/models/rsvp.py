@@ -131,7 +131,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     @with_roles(grants_via={Rsvp.user: {'participant'}})  # type: ignore[misc]
     @property
     def active_rsvps(self):

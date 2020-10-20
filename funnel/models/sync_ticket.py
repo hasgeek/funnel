@@ -468,7 +468,7 @@ class SyncTicket(BaseMixin, db.Model):
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     # FIXME: RoleMixin expects TicketParticipant.user to be unique per project, meaning
     # one user can have one participant ticket only. This is not guaranteed by the model
     # as tickets are unique per email address per ticket type, and one user can have

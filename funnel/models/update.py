@@ -310,7 +310,7 @@ auto_init_default(Update._state)
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def published_updates(self):
