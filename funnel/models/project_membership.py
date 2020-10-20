@@ -1,3 +1,5 @@
+from typing import Dict
+
 from sqlalchemy.ext.declarative import declared_attr
 
 from werkzeug.utils import cached_property
@@ -13,7 +15,7 @@ from .user import User
 __all__ = ['ProjectCrewMembership', 'project_child_role_map']
 
 # Roles in a project and their remapped names in objects attached to a project
-project_child_role_map = {
+project_child_role_map: Dict[str, str] = {
     'editor': 'project_editor',
     'concierge': 'project_concierge',
     'usher': 'project_usher',

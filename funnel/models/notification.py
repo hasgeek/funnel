@@ -72,8 +72,10 @@ is supported using an unusual primary and foreign key structure the in
 2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
     using ``(eventid, notification_id)``.
 """
+from __future__ import annotations
+
 from types import SimpleNamespace
-from typing import Callable, NamedTuple
+from typing import Callable, Dict, NamedTuple, Sequence, Set, Type
 from uuid import uuid4
 
 from sqlalchemy import event
@@ -116,9 +118,9 @@ __all__ = [
 # --- Registries -----------------------------------------------------------------------
 
 #: Registry of Notification subclasses, automatically populated
-notification_type_registry = {}
+notification_type_registry: Dict[str, Notification] = {}
 #: Registry of notification types that allow web renders
-notification_web_types = set()
+notification_web_types: Set[Notification] = set()
 
 
 class NotificationCategory(NamedTuple):
@@ -128,7 +130,7 @@ class NotificationCategory(NamedTuple):
 
 
 #: Registry of notification categories
-notification_categories = SimpleNamespace(
+notification_categories: SimpleNamespace = SimpleNamespace(
     none=NotificationCategory(0, __("Uncategorized"), lambda user: False),
     account=NotificationCategory(1, __("My account"), lambda user: True),
     subscriptions=NotificationCategory(
@@ -235,7 +237,7 @@ class Notification(NoIdMixin, db.Model):
     )
 
     #: Default category of notification. Subclasses MUST override
-    category = notification_categories.none
+    category: NotificationCategory = notification_categories.none
     #: Default description for notification. Subclasses MUST override
     title = __("Unspecified notification type")
     #: Default description for notification. Subclasses MUST override
@@ -249,7 +251,7 @@ class Notification(NoIdMixin, db.Model):
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document.
-    roles = []
+    roles: Sequence[str] = []
 
     #: Exclude triggering actor from receiving notifications? Subclasses may override
     exclude_actor = False
@@ -260,7 +262,7 @@ class Notification(NoIdMixin, db.Model):
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per profile or project
-    preference_context = None
+    preference_context: db.Model = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type = immutable(db.Column(db.Unicode, nullable=False))  # NOQA: A003
@@ -363,8 +365,8 @@ class Notification(NoIdMixin, db.Model):
     #: an error report will be logged for the user or site administrator. TODO
     ignore_transport_errors = False
 
-    #: Registry of per-class renderers
-    renderers = {}  # Registry of {cls_type: CustomNotificationView}
+    #: Registry of per-class renderers ``{cls_type: CustomNotificationView}``
+    renderers: Dict[str, Type] = {}  # Can't import RenderNotification from views here
 
     def __init__(self, document=None, fragment=None, **kwargs):
         if document:

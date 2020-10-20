@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import List
 import hashlib
 
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -1370,7 +1371,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
 
 class UserExternalId(BaseMixin, db.Model):
     __tablename__ = 'user_externalid'
-    __at_username_services__ = []
+    __at_username_services__: List[str] = []
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('externalids', cascade='all'))
     service = db.Column(db.UnicodeText, nullable=False)

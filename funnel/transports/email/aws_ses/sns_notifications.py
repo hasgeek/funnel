@@ -1,5 +1,5 @@
 from enum import Enum, IntFlag
-from typing import Dict, List, Pattern
+from typing import Dict, Pattern, Sequence, cast
 import base64
 import re
 
@@ -79,14 +79,15 @@ class SnsValidator:
 
     def __init__(
         self,
-        topics: List[str] = (),
+        topics: Sequence[str] = (),
         cert_regex: Pattern[str] = CERT_URL_REGEX,
         sig_version: str = SIGNATURE_VERSION,
     ):
         self.topics = topics
         self.cert_regex = cert_regex
         self.sig_version = sig_version
-        self.public_keys = {}  # Cache of public keys (per Python process)
+        #: Cache of public keys (per Python process)
+        self.public_keys: Dict[str, RSAPublicKey] = {}
 
     def _check_topics(self, message: Dict[str, str]):
         topic = message.get('TopicArn')
@@ -117,7 +118,7 @@ class SnsValidator:
         :param message: SNS Message
         :return: Plain text for creating the signature on the client side
         """
-        keys = ()
+        keys: Sequence[str] = ()
         m_type = message.get('Type')
         if m_type in (
             SnsNotificationType.SubscriptionConfirmation.value,
@@ -162,13 +163,13 @@ class SnsValidator:
         :param message: SNS Message
         :return: Public Key
         """
-        url = message.get('SigningCertURL')
+        url = message['SigningCertURL']
         public_key = self.public_keys.get(url)
         if not public_key:
             try:
                 pem = requests.get(url).content
                 cert = x509.load_pem_x509_certificate(pem, default_backend())
-                public_key = cert.public_key()
+                public_key = cast(RSAPublicKey, cert.public_key())
                 self.public_keys[url] = public_key
             except requests.exceptions.RequestException as exc:
                 raise SnsSignatureFailureException(exc)
@@ -182,7 +183,7 @@ class SnsValidator:
         """
         public_key = self._get_public_key(message)
         plaintext = self._get_text_to_sign(message).encode()
-        signature = base64.b64decode(message.get('Signature'))
+        signature = base64.b64decode(message.get('Signature', ''))
         try:
             public_key.verify(signature, plaintext, PKCS1v15(), SHA1())  # nosec
         except InvalidSignature:

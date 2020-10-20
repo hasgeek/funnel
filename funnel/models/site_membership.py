@@ -75,7 +75,8 @@ class User:  # type: ignore[no-redef]
         SiteMembership,
         lazy='select',
         primaryjoin=db.and_(
-            SiteMembership.user_id == User.id, SiteMembership.is_active
+            SiteMembership.user_id == User.id,
+            SiteMembership.is_active,
         ),
         viewonly=True,
         uselist=False,

@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -44,13 +46,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     __uuid_primary_key__ = True
     #: List of columns that will be copied into a new row when a membership is amended
-    __data_columns__ = ()
+    __data_columns__: Iterable[str] = ()
     #: Parent column (override as synonym of 'profile_id' or 'project_id' in the subclasses)
     parent_id = None
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
-    granted_at = immutable(
+    granted_at: db.Column = immutable(
         with_roles(
             db.Column(
                 db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
@@ -76,7 +78,10 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
     )
 
-    @declared_attr
+    # mypy type declaration
+    user_id: db.Column
+
+    @declared_attr  # type: ignore[no-redef]
     def user_id(cls):
         return db.Column(
             None,

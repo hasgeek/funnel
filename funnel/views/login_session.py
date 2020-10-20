@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from functools import wraps
+from typing import Type
 
 from flask import Response, current_app, flash, redirect, request, session, url_for
 import itsdangerous
@@ -35,6 +36,10 @@ user_session_validity_period_total_seconds = int(
 
 class LoginManager:
     """Compatibility login manager that resembles Flask-Lastuser."""
+
+    # For compatibility with baseframe.forms.fields.UserSelectFieldBase
+    usermanager: Type
+    usermodel = User
 
     # Flag for Baseframe to avoid attempting API calls
     is_master_data_source = True
@@ -146,7 +151,6 @@ class LoginManager:
 
 # For compatibility with baseframe.forms.fields.UserSelectFieldBase
 LoginManager.usermanager = LoginManager
-LoginManager.usermodel = User
 
 
 @UserSession.views('mark_accessed')

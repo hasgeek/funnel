@@ -315,7 +315,8 @@ class Project:  # type: ignore[no-redef]
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=db.and_(
-                Session.project_id == Project.id, Session.scheduled.isnot(True)
+                Session.project_id == Project.id,
+                Session.scheduled.isnot(True),  # type: ignore[attr-defined]
             ),
         ),
         read={'all'},

@@ -79,8 +79,12 @@ def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
             jsonresponse = r.json()
             if isinstance(jsonresponse, (list, tuple)) and jsonresponse:
                 transactionid = jsonresponse[0].get('SMSMessage', {}).get('Sid')
-            else:
+            elif isinstance(jsonresponse, dict):
                 transactionid = jsonresponse.get('SMSMessage', {}).get('Sid')
+            else:
+                raise TransportTransactionError(
+                    _("Unparseable response from Exotel"), r.text
+                )
             return transactionid
         raise TransportTransactionError(_("Exotel API error"), r.status_code, r.text)
     except requests.ConnectionError:

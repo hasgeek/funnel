@@ -118,7 +118,7 @@ class Organization:  # type: ignore[no-redef]
         primaryjoin=db.and_(
             db.remote(OrganizationMembership.organization_id) == Organization.id,
             OrganizationMembership.is_invite,
-            ~OrganizationMembership.is_active,
+            ~OrganizationMembership.is_active,  # type: ignore[operator]
         ),
         viewonly=True,
     )
@@ -165,7 +165,7 @@ class User:  # type: ignore[no-redef]
         primaryjoin=db.and_(
             db.remote(OrganizationMembership.user_id) == User.id,
             OrganizationMembership.is_invite,
-            ~OrganizationMembership.is_active,
+            ~OrganizationMembership.is_active,  # type: ignore[operator]
         ),
         viewonly=True,
     )

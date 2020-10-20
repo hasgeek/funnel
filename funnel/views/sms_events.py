@@ -100,7 +100,7 @@ def process_exotel_event(secret_token: str):
     statsd.incr('phone_number.event', tags={'engine': 'exotel', 'stage': 'received'})
 
     # We need to verify the token first.
-    if not validate_exotel_token(secret_token, request.form.get('To')):
+    if not validate_exotel_token(secret_token, request.form.get('To', '')):
         statsd.incr(
             'phone_number.event',
             tags={

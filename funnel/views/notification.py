@@ -3,6 +3,7 @@ from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
 from itertools import filterfalse, zip_longest
+from typing import Dict
 from uuid import uuid4
 
 from flask import url_for
@@ -47,7 +48,9 @@ class RenderNotification:
     """
 
     #: Aliases for document and fragment, to make render methods clearer
-    aliases = {}
+    aliases: Dict[str, str] = {}
+    # XXX: Replace type after moving to Python 3.8:
+    # Dict[Literal['document', 'fragment'], str]
 
     #: Emoji prefix, for transports that support them
     emoji_prefix = ''
