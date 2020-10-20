@@ -487,7 +487,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
-    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})  # type: ignore
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})  # type: ignore[misc]
     @property
     def title_inline(self):
         """Suffix a colon if the title does not end in ASCII sentence punctuation"""
@@ -496,7 +496,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 return self.title + ':'
         return self.title
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def title_suffix(self):
         """
@@ -732,7 +732,7 @@ add_search_trigger(Project, 'search_vector')
 
 
 @reopen(Profile)
-class Profile:
+class Profile:  # type: ignore[no-redef]
     listed_projects = db.relationship(
         Project,
         lazy='dynamic',
@@ -879,7 +879,7 @@ class ProjectLocation(TimestampMixin, db.Model):
 
 
 @reopen(Commentset)
-class Commentset:
+class Commentset:  # type: ignore[no-redef]
     project = with_roles(
         db.relationship(Project, uselist=False, back_populates='commentset'),
         grants_via={None: {'editor': 'document_subscriber'}},

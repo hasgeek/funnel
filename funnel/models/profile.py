@@ -184,7 +184,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_user_profile(self):
         return self.user_id is not None
 
-    @is_user_profile.expression
+    @is_user_profile.expression  # type: ignore[no-redef]
     def is_user_profile(cls):  # NOQA: N805
         return cls.user_id.isnot(None)
 
@@ -192,11 +192,11 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_organization_profile(self):
         return self.organization_id is not None
 
-    @is_organization_profile.expression
+    @is_organization_profile.expression  # type: ignore[no-redef]
     def is_organization_profile(cls):  # NOQA: N805
         return cls.organization_id.isnot(None)
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_public(self):
         return bool(self.state.PUBLIC)
@@ -210,7 +210,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             return ''
 
-    @title.setter
+    @title.setter  # type: ignore[no-redef]
     def title(self, value):
         if self.user:
             self.user.fullname = value
@@ -219,7 +219,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             raise ValueError("Reserved profiles do not have titles")
 
-    @title.expression
+    @title.expression  # type: ignore[no-redef]
     def title(cls):  # NOQA: N805
         return db.case(
             [

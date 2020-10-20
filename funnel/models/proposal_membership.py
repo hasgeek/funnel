@@ -94,7 +94,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
 
 # Project relationships: all crew, vs specific roles
 @reopen(Proposal)
-class Proposal:
+class Proposal:  # type: ignore[no-redef]
     active_memberships = with_roles(
         db.relationship(
             ProposalMembership,
@@ -136,7 +136,7 @@ class Proposal:
 
 
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]
     proposal_memberships = db.relationship(
         ProposalMembership,
         lazy='dynamic',

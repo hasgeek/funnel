@@ -391,11 +391,11 @@ class Notification(NoIdMixin, db.Model):
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter
+    @eventid_b58.setter  # type: ignore[no-redef]
     def eventid_b58(self, value):
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator
+    @eventid_b58.comparator  # type: ignore[no-redef]
     def eventid_b58(cls):  # NOQA: N805
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -536,18 +536,18 @@ class UserNotificationMixin:
     Contains helper methods for :class:`UserNotification` and :class:`NotificationFor`.
     """
 
-    @with_roles(read={'owner'})  # type: ignore
+    @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def notification_type(self):
         return self.notification.type
 
-    @with_roles(read={'owner'})  # type: ignore
+    @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def document(self):
         """The document that this notification is for."""
         return self.notification.document
 
-    @with_roles(read={'owner'})  # type: ignore
+    @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def fragment(self):
         """The fragment within this document that this notification is for."""
@@ -683,11 +683,11 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter
+    @eventid_b58.setter  # type: ignore[no-redef]
     def eventid_b58(self, value):
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator
+    @eventid_b58.comparator  # type: ignore[no-redef]
     def eventid_b58(cls):  # NOQA: N805
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -698,7 +698,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """Whether this notification has been marked as read."""
         return self.read_at is not None
 
-    @is_read.setter
+    @is_read.setter  # type: ignore[no-redef]
     def is_read(self, value):
         if value:
             if not self.read_at:
@@ -706,7 +706,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         else:
             self.read_at = None
 
-    @is_read.expression
+    @is_read.expression  # type: ignore[no-redef]
     def is_read(cls):  # NOQA: N805
         return cls.read_at.isnot(None)
 
@@ -717,7 +717,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
-    @is_revoked.setter
+    @is_revoked.setter  # type: ignore[no-redef]
     def is_revoked(self, value):
         if value:
             if not self.revoked_at:
@@ -725,7 +725,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         else:
             self.revoked_at = None
 
-    @is_revoked.expression
+    @is_revoked.expression  # type: ignore[no-redef]
     def is_revoked(cls):  # NOQA: N805
         return cls.revoked_at.isnot(None)
 
@@ -1099,7 +1099,7 @@ class NotificationPreferences(BaseMixin, db.Model):
 
 
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]
     all_notifications = with_roles(
         db.relationship(
             UserNotification,

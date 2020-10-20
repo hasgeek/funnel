@@ -127,7 +127,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             and self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
         )
 
-    @is_active.expression
+    @is_active.expression  # type: ignore[no-redef]
     def is_active(cls):  # NOQA: N805
         return db.and_(
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE

@@ -157,13 +157,13 @@ class Label(BaseScopedNameMixin, db.Model):
     def restricted(self):
         return self.main_label._restricted if self.main_label else self._restricted
 
-    @restricted.setter
+    @restricted.setter  # type: ignore[no-redef]
     def restricted(self, value):
         if self.main_label:
             raise ValueError("This flag must be set on the parent")
         self._restricted = value
 
-    @restricted.expression
+    @restricted.expression  # type: ignore[no-redef]
     def restricted(cls):  # NOQA: N805
         return case(
             [
@@ -183,11 +183,11 @@ class Label(BaseScopedNameMixin, db.Model):
             self.main_label._archived if self.main_label else False
         )
 
-    @archived.setter
+    @archived.setter  # type: ignore[no-redef]
     def archived(self, value):
         self._archived = value
 
-    @archived.expression
+    @archived.expression  # type: ignore[no-redef]
     def archived(cls):  # NOQA: N805
         return case(
             [
@@ -206,7 +206,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def has_options(self):
         return bool(self.options)
 
-    @has_options.expression
+    @has_options.expression  # type: ignore[no-redef]
     def has_options(cls):  # NOQA: N805
         return exists().where(Label.main_label_id == cls.id)
 
@@ -218,7 +218,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def required(self):
         return self._required if self.has_options else False
 
-    @required.setter
+    @required.setter  # type: ignore[no-redef]
     def required(self, value):
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
@@ -347,7 +347,7 @@ class ProposalLabelProxy(object):
 
 
 @reopen(Proposal)
-class Proposal:
+class Proposal:  # type: ignore[no-redef]
     #: For reading and setting labels from the edit form
     formlabels = ProposalLabelProxy()
 

@@ -82,7 +82,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
             db.session.add(report)
         return report
 
-    @with_roles(grants={'comment_moderator'})  # type: ignore
+    @with_roles(grants={'comment_moderator'})  # type: ignore[misc]
     @property
     def users_who_are_comment_moderators(self):
         return User.query.join(

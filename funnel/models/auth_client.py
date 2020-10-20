@@ -193,7 +193,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             )
         return False
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def owner(self):
         return self.user or self.organization

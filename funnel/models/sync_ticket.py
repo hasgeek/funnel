@@ -212,17 +212,17 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             return self.project.permissions(user) | perms
         return perms
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def avatar(self):
         return self.user.avatar if self.user else ''
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def has_public_profile(self):
         return self.user.has_public_profile if self.user else False
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self):
         return (
@@ -468,7 +468,7 @@ class SyncTicket(BaseMixin, db.Model):
 
 
 @reopen(Project)
-class Project:
+class Project:  # type: ignore[no-redef]
     # FIXME: RoleMixin expects TicketParticipant.user to be unique per project, meaning
     # one user can have one participant ticket only. This is not guaranteed by the model
     # as tickets are unique per email address per ticket type, and (a) one user can have

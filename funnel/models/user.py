@@ -81,7 +81,7 @@ class SharedProfileMixin:
             else ''
         )
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self):
         return self.profile.url_for() if self.has_public_profile else None
@@ -223,7 +223,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if self.profile:
             return self.profile.name
 
-    @name.setter
+    @name.setter  # type: ignore[no-redef]
     def name(self, value):
         if not value:
             if self.profile is not None:
@@ -234,7 +234,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             else:
                 self.profile = Profile(name=value, user=self, uuid=self.uuid)
 
-    @name.expression
+    @name.expression  # type: ignore[no-redef]
     def name(cls):  # NOQA: N805
         return db.select([Profile.name]).where(Profile.user_id == cls.id).label('name')
 
@@ -307,7 +307,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def __str__(self):
         return self.pickername
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pickername(self):
         if self.username:
@@ -454,7 +454,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """Helper method to call ``self.transport_for_<transport>(context)``."""
         return getattr(self, 'transport_for_' + transport)(context)
 
-    @with_roles(grants={'owner', 'admin'})  # type: ignore
+    @with_roles(grants={'owner', 'admin'})  # type: ignore[misc]
     @property
     def _self_is_owner_and_admin_of_self(self):
         """Helper method for ``roles_for`` and ``actors_with``."""
@@ -825,7 +825,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if self.profile:
             return self.profile.name
 
-    @name.setter
+    @name.setter  # type: ignore[no-redef]
     def name(self, value):
         if not value:
             if self.profile is not None:
@@ -836,7 +836,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             else:
                 self.profile = Profile(name=value, organization=self, uuid=self.uuid)
 
-    @name.expression
+    @name.expression  # type: ignore[no-redef]
     def name(cls):  # NOQA: N805
         return (
             db.select([Profile.name])
@@ -851,7 +851,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             name=self.name or self.buid, title=self.title
         )
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pickername(self):
         if self.name:

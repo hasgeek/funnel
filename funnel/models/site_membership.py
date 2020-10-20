@@ -69,7 +69,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
 
 
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]
     # Singular, as only one can be active
     active_site_membership = db.relationship(
         SiteMembership,

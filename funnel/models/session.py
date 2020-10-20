@@ -182,7 +182,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         # A session is scheduled only when both start and end fields have a value
         return self.start_at is not None and self.end_at is not None
 
-    @scheduled.expression
+    @scheduled.expression  # type: ignore[no-redef]
     def scheduled(self):
         return (self.start_at.isnot(None)) & (self.end_at.isnot(None))
 
@@ -233,7 +233,7 @@ add_search_trigger(Session, 'search_vector')
 
 
 @reopen(Project)
-class Project:
+class Project:  # type: ignore[no-redef]
     # Project schedule column expressions
     # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(

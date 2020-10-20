@@ -86,7 +86,7 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
 # Add active membership relationships to Organization and User
 # Organization.active_memberships is a future possibility. For now just admin and owner
 @reopen(Organization)
-class Organization:
+class Organization:  # type: ignore[no-redef]
     active_admin_memberships = with_roles(
         db.relationship(
             OrganizationMembership,
@@ -130,7 +130,7 @@ class Organization:
 # User.active_organization_memberships is a future possibility.
 # For now just admin and owner
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]
     organization_admin_memberships = db.relationship(
         OrganizationMembership,
         lazy='dynamic',

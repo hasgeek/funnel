@@ -633,7 +633,7 @@ class ProposalRedirect(TimestampMixin, db.Model):
         """
         return str(self.url_id)
 
-    @url_id_name.comparator
+    @url_id_name.comparator  # type: ignore[no-redef]
     def url_id_name(cls):  # NOQA: N805
         return SqlSplitIdComparator(cls.url_id, splitindex=0)
 
@@ -673,7 +673,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
 
 
 @reopen(Commentset)
-class Commentset:
+class Commentset:  # type: ignore[no-redef]
     proposal = with_roles(
         db.relationship(Proposal, uselist=False, back_populates='commentset'),
         # TODO: Remove creator to subscriber mapping when proposals use memberships
@@ -684,7 +684,7 @@ class Commentset:
 
 
 @reopen(Project)
-class Project:
+class Project:  # type: ignore[no-redef]
     @property
     def proposals_all(self):
         if self.subprojects:

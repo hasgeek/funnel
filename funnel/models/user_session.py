@@ -126,7 +126,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
 
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]
     active_user_sessions = db.relationship(
         UserSession,
         lazy='dynamic',

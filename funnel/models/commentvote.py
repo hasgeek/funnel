@@ -133,7 +133,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         super(Commentset, self).__init__(**kwargs)
         self.count = 0
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def parent(self):
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
@@ -144,7 +144,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             parent = self.proposal
         return parent
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def parent_type(self):
         parent = self.parent
@@ -239,7 +239,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         super(Comment, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
 
-    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore
+    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
     def current_access_replies(self):
         return [
@@ -258,11 +258,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             else self._user
         )
 
-    @user.setter
+    @user.setter  # type: ignore[no-redef]
     def user(self, value):
         self._user = value
 
-    @user.expression
+    @user.expression  # type: ignore[no-redef]
     def user(cls):  # NOQA: N805
         return cls._user
 
@@ -278,22 +278,22 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             else self._message
         )
 
-    @message.setter
+    @message.setter  # type: ignore[no-redef]
     def message(self, value):
         self._message = value
 
-    @message.expression
+    @message.expression  # type: ignore[no-redef]
     def message(cls):  # NOQA: N805
         return cls._message
 
     with_roles(message, read={'all'}, datasets={'primary', 'related', 'json'})
 
-    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore
+    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property
     def absolute_url(self):
         return self.url_for()
 
-    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore
+    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property
     def title(self):
         obj = self.commentset.parent
@@ -304,7 +304,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         else:
             return _("{user} commented").format(user=self.user.pickername)
 
-    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore
+    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
     def badges(self):
         badges = set()
@@ -375,7 +375,7 @@ add_search_trigger(Comment, 'search_vector')
 
 
 @reopen(Commentset)
-class Commentset:
+class Commentset:  # type: ignore[no-redef]
     toplevel_comments = db.relationship(
         Comment,
         lazy='dynamic',

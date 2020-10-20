@@ -198,12 +198,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             title=self.title, uuid_b58=self.uuid_b58
         )
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def visibility_label(self):
         return self.visibility_state.label.title
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def state_label(self):
         return self.state.label.title
@@ -270,7 +270,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     def make_restricted(self):
         pass
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_restricted(self):
         return bool(self.visibility_state.RESTRICTED)
@@ -282,7 +282,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         elif not value and self.visibility_state.RESTRICTED:
             self.make_public()
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_currently_restricted(self):
         return self.is_restricted and not self.current_roles.reader
@@ -310,20 +310,20 @@ auto_init_default(Update._state)
 
 
 @reopen(Project)
-class Project:
-    @with_roles(read={'all'})  # type: ignore
+class Project:  # type: ignore[no-redef]
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def published_updates(self):
         return self.updates.filter(Update.state.PUBLISHED).order_by(
             Update.is_pinned.desc(), Update.published_at.desc()
         )
 
-    @with_roles(read={'editor'})  # type: ignore
+    @with_roles(read={'editor'})  # type: ignore[misc]
     @property
     def draft_updates(self):
         return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
-    @with_roles(read={'all'})  # type: ignore
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pinned_update(self):
         return (

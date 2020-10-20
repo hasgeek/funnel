@@ -133,7 +133,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
 # Project relationships: all crew, vs specific roles
 @reopen(Project)
-class Project:
+class Project:  # type: ignore[no-redef]
     active_crew_memberships = with_roles(
         db.relationship(
             ProjectCrewMembership,
@@ -188,7 +188,7 @@ class Project:
 
 # Similarly for users (add as needs come up)
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
     projects_as_crew_memberships = db.relationship(
