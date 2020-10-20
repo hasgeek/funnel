@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, List, Optional, Set, Union, cast
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -12,10 +12,17 @@ from sqlalchemy.orm.attributes import NO_VALUE
 from werkzeug.utils import cached_property
 
 from pyisemail import is_email
+from pyisemail.diagnosis import BaseDiagnosis
 import base58
 import idna
 
-from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
+from coaster.sqlalchemy import (
+    Query,
+    StateManager,
+    auto_init_default,
+    immutable,
+    with_roles,
+)
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
@@ -168,10 +175,11 @@ class EmailAddress(BaseMixin, db.Model):
     __tablename__ = 'email_address'
 
     #: Backrefs to this model from other models, populated by :class:`EmailAddressMixin`
-    __backrefs__ = set()
+    #: Contains the name of the relationship in the :class:`EmailAddress` model
+    __backrefs__: Set[str] = set()
     #: These backrefs claim exclusive use of the email address for their linked owner.
     #: See :class:`EmailAddressMixin` for implementation detail
-    __exclusive_backrefs__ = set()
+    __exclusive_backrefs__: Set[str] = set()
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
@@ -182,9 +190,9 @@ class EmailAddress(BaseMixin, db.Model):
 
     # email_normalized is defined below
 
-    #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if email
-    #: is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the
-    #: name, we're only storing 20 bytes
+    #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if
+    #: email is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite
+    #: the name, we're only storing 20 bytes
     blake2b160 = immutable(db.Column(db.LargeBinary, nullable=False, unique=True))
 
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
@@ -332,7 +340,9 @@ class EmailAddress(BaseMixin, db.Model):
         # are immutable once set, so there are no content validators for them.
         self.blake2b160 = email_blake2b160_hash(email)
         self.email = email
-        self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
+        self.blake2b160_canonical = email_blake2b160_hash(
+            cast(str, self.email_canonical)
+        )
 
     def is_exclusive(self):
         """Return True if this EmailAddress is in an exclusive relationship."""
@@ -437,7 +447,7 @@ class EmailAddress(BaseMixin, db.Model):
     @classmethod
     def get_canonical(
         cls, email: str, is_blocked: Optional[bool] = None
-    ) -> Iterable[EmailAddress]:
+    ) -> Query[EmailAddress]:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
 
@@ -458,7 +468,7 @@ class EmailAddress(BaseMixin, db.Model):
         Internal method used by :meth:`add`, :meth:`add_for` and :meth:`validate_for`.
         """
         if not cls.is_valid_email_address(email):
-            return
+            return None
         if cls.get_canonical(email, is_blocked=True).notempty():
             raise EmailAddressBlockedError("Email address is blocked")
         return EmailAddress.get(email)
@@ -536,7 +546,7 @@ class EmailAddress(BaseMixin, db.Model):
             if diagnosis is True:
                 # No problems
                 return True
-            if diagnosis and diagnosis.diagnosis_type == 'NO_MX_RECORD':
+            if cast(BaseDiagnosis, diagnosis).diagnosis_type == 'NO_MX_RECORD':
                 return 'nomx'
             return 'invalid'
         # There's an existing? Is it available for this owner?
@@ -558,7 +568,9 @@ class EmailAddress(BaseMixin, db.Model):
         return True
 
     @staticmethod
-    def is_valid_email_address(email: str, check_dns=False, diagnose=False) -> bool:
+    def is_valid_email_address(
+        email: str, check_dns=False, diagnose=False
+    ) -> Union[bool, BaseDiagnosis]:
         """
         Return True if given email address is syntactically valid.
 
