@@ -81,7 +81,7 @@ class SharedProfileMixin:
             else ''
         )
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore
     @property
     def profile_url(self):
         return self.profile.url_for() if self.has_public_profile else None
@@ -307,7 +307,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def __str__(self):
         return self.pickername
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore
     @property
     def pickername(self):
         if self.username:
@@ -454,7 +454,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """Helper method to call ``self.transport_for_<transport>(context)``."""
         return getattr(self, 'transport_for_' + transport)(context)
 
-    @with_roles(grants={'owner', 'admin'})
+    @with_roles(grants={'owner', 'admin'})  # type: ignore
     @property
     def _self_is_owner_and_admin_of_self(self):
         """Helper method for ``roles_for`` and ``actors_with``."""
@@ -851,7 +851,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             name=self.name or self.buid, title=self.title
         )
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore
     @property
     def pickername(self):
         if self.name:

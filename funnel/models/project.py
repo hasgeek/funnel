@@ -487,7 +487,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
-    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})  # type: ignore
     @property
     def title_inline(self):
         """Suffix a colon if the title does not end in ASCII sentence punctuation"""
@@ -496,7 +496,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 return self.title + ':'
         return self.title
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore
     @property
     def title_suffix(self):
         """

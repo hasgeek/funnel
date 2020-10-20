@@ -212,17 +212,17 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             return self.project.permissions(user) | perms
         return perms
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore
     @property
     def avatar(self):
         return self.user.avatar if self.user else ''
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore
     @property
     def has_public_profile(self):
         return self.user.has_public_profile if self.user else False
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore
     @property
     def profile_url(self):
         return (

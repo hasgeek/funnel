@@ -536,18 +536,18 @@ class UserNotificationMixin:
     Contains helper methods for :class:`UserNotification` and :class:`NotificationFor`.
     """
 
-    @with_roles(read={'owner'})
+    @with_roles(read={'owner'})  # type: ignore
     @property
     def notification_type(self):
         return self.notification.type
 
-    @with_roles(read={'owner'})
+    @with_roles(read={'owner'})  # type: ignore
     @property
     def document(self):
         """The document that this notification is for."""
         return self.notification.document
 
-    @with_roles(read={'owner'})
+    @with_roles(read={'owner'})  # type: ignore
     @property
     def fragment(self):
         """The fragment within this document that this notification is for."""
