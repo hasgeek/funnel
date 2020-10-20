@@ -777,11 +777,11 @@
         <span class="comment-new-mobile mui--text-hyperlink mui--hidden-md mui--hidden-lg mui--hidden-xl"><faicon :icon="'comment-alt'" :icon_size="'subhead'" :css_class="'fa-icon--margin'"></faicon>New comment</span>
       </a>
       <div class="ajax-form" :class="[showmodal ? 'ajax-form--mob' : '']" v-if="commentForm">
-        <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('new-comment-form', newCommentUrl,  COMMENTACTIONS.NEW)" id="new-comment-form">
+        <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('new-comment-form', newCommentUrl,  COMMENTACTIONS.NEW)" id="new-comment-form" data-cy="new-form">
           <div class="mui-form__fields">
             <textarea id="comment_message" name="message" required="required" class="field-comment_message" v-model="textarea"></textarea>
           </div>
-          <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea"><faicon :icon="'paper-plane'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
+          <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea" data-cy="submit-comment"><faicon :icon="'paper-plane'" :icon_size="'subhead'" :baseline=false :css_class="'mui--text-hyperlink'"></faicon></button>
           <div class="user" v-else>
             <div class="user__box">
               <useravatar :user='user' :addprofilelink=false></useravatar>
@@ -845,11 +845,11 @@
                   </ul>
                 </div>
                 <div class="ajax-form" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="replyForm">
-                  <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('reply-comment-form-' + comment.uuid_b58, comment.urls.reply, COMMENTACTIONS.REPLY)" :id="'reply-comment-form-' + comment.uuid_b58">
+                  <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('reply-comment-form-' + comment.uuid_b58, comment.urls.reply, COMMENTACTIONS.REPLY)" :id="'reply-comment-form-' + comment.uuid_b58" data-cy="reply-form">
                     <div class="mui-form__fields">
                       <textarea :id="'reply-comment-textarea-' + comment.uuid_b58" name="message" required="required" class="field-comment_message" v-model="reply"></textarea>
                     </div>
-                    <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="reply"><faicon :icon="'paper-plane'" :icon_size="'subhead'" css_class="mui--text-hyperlink"></faicon></button>
+                    <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="reply" data-cy="reply-comment"><faicon :icon="'paper-plane'" :icon_size="'subhead'" css_class="mui--text-hyperlink"></faicon></button>
                     <div class="user" v-else>
                       <div class="user__box">
                         <useravatar :user='user' :addprofilelink=false></useravatar>
@@ -859,11 +859,11 @@
                   <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
                 </div>
                 <div class="ajax-form" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="editForm">
-                  <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('edit-comment-form-' + comment.uuid_b58, comment.urls.edit, COMMENTACTIONS.EDIT)" :id="'edit-comment-form-' + comment.uuid_b58">
+                  <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('edit-comment-form-' + comment.uuid_b58, comment.urls.edit, COMMENTACTIONS.EDIT)" :id="'edit-comment-form-' + comment.uuid_b58" data-cy="edit-form">
                     <div class="mui-form__fields">
                       <textarea :id="'edit-comment-textarea-' + comment.uuid_b58" name="message" required="required" class="field-comment_message" v-model="textarea"></textarea>
                     </div>
-                    <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea"><faicon :icon="'paper-plane'" :icon_size="'subhead'" css_class="mui--text-hyperlink"></faicon></button>
+                    <button type="submit" class="mui-btn mui-btn--raised mui-btn--primary icon-btn" v-if="textarea" data-cy="edit-comment"><faicon :icon="'paper-plane'" :icon_size="'subhead'" css_class="mui--text-hyperlink"></faicon></button>
                     <div class="user" v-else>
                       <div class="user__box">
                         <useravatar :user='user' :addprofilelink=false></useravatar>
@@ -873,7 +873,7 @@
                   <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
                 </div>
                 <div class="ajax-form ajax-form--block" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="deleteForm">
-                  <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('delete-comment-form-' + comment.uuid_b58, comment.urls.delete, 2)" :id="'delete-comment-form-' + comment.uuid_b58">
+                  <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('delete-comment-form-' + comment.uuid_b58, comment.urls.delete, 2)" :id="'delete-comment-form-' + comment.uuid_b58" data-cy="delete-form">
                     <p class="ajax-form__title">Delete this comment?</p>
                     <button type="submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Confirm</button>
                     <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeAllForms($event, 'deleteForm')">Cancel</button>
