@@ -255,8 +255,8 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'profile_owner'})
     def delete(self):
         form = Form()
-        if request.method == 'POST':
-            if form.validate_on_submit():
+        if form.is_submitted():
+            if form.validate():
                 previous_membership = self.obj
                 if previous_membership.user == current_auth.user:
                     return {
@@ -508,16 +508,16 @@ class ProjectCrewMembershipView(
     @requires_roles({'profile_admin'})
     def edit(self):
         previous_membership = self.obj
-        membership_form = ProjectCrewMembershipForm(obj=previous_membership)
+        form = ProjectCrewMembershipForm(obj=previous_membership)
 
-        if request.method == 'POST':
-            if membership_form.validate_on_submit():
+        if form.is_submitted():
+            if form.validate():
                 try:
                     previous_membership.replace(
                         actor=current_auth.user,
-                        is_editor=membership_form.is_editor.data,
-                        is_concierge=membership_form.is_concierge.data,
-                        is_usher=membership_form.is_usher.data,
+                        is_editor=form.is_editor.data,
+                        is_concierge=form.is_concierge.data,
+                        is_usher=form.is_usher.data,
                     )
                 except MembershipRevokedError:
                     return (
@@ -527,7 +527,7 @@ class ProjectCrewMembershipView(
                                 "The member’s record was edited elsewhere."
                                 " Please refresh the page"
                             ),
-                            'form_nonce': membership_form.form_nonce.data,
+                            'form_nonce': form.form_nonce.data,
                         },
                         400,
                     )
@@ -547,14 +547,14 @@ class ProjectCrewMembershipView(
                     {
                         'status': 'error',
                         'error_description': _("Please pick one or more roles"),
-                        'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data,
+                        'errors': form.errors,
+                        'form_nonce': form.form_nonce.data,
                     },
                     400,
                 )
 
         membership_form_html = render_form(
-            form=membership_form,
+            form=form,
             title='',
             submit=u'Edit membership',
             ajax=False,
