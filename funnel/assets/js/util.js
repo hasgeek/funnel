@@ -190,7 +190,9 @@ export const Utils = {
         response.status === 422 &&
         response.responseJSON.error === 'requires_sudo'
       ) {
-        window.location.href = `${window.Hasgeek.config.accountSudo}?next=${window.location.href}`;
+        window.location.href = `${
+          window.Hasgeek.config.accountSudo
+        }?next=${encodeURIComponent(window.location.href)}`;
       } else {
         errorMsg = response.responseJSON.error_description;
       }
