@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional, Set
+
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from werkzeug.utils import cached_property
@@ -555,7 +559,7 @@ class Proposal(
     def votes_count(self):
         return len(self.voteset.votes)
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
             perms.update(('vote_proposal', 'new_comment', 'vote_comment'))

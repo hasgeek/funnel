@@ -75,7 +75,7 @@ is supported using an unusual primary and foreign key structure the in
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Callable, Dict, NamedTuple, Optional, Sequence, Set, Type
+from typing import Callable, Dict, Iterable, NamedTuple, Optional, Sequence, Set, Type
 from uuid import uuid4
 
 from sqlalchemy import event
@@ -921,7 +921,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         )
 
     @classmethod
-    def migrate_user(cls, old_user, new_user):
+    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
         for user_notification in cls.query.filter_by(user_id=old_user.id).all():
             existing = cls.query.get((new_user.id, user_notification.eventid))
             # TODO: Instead of dropping old_user's dupe notifications, check which of
@@ -931,6 +931,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 db.session.delete(user_notification)
             else:
                 user_notification.user_id = new_user.id
+        return None
 
 
 class NotificationFor(UserNotificationMixin):
@@ -1080,12 +1081,13 @@ class NotificationPreferences(BaseMixin, db.Model):
         return notification_type_registry.get(self.notification_type)
 
     @classmethod
-    def migrate_user(cls, old_user, new_user):
+    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
         for ntype, prefs in list(old_user.notification_preferences.items()):
             if ntype not in new_user.notification_preferences:
                 prefs.user = new_user
             else:
                 db.session.delete(prefs)
+        return None
 
     @db.validates('notification_type')
     def _valid_notification_type(self, key, value):

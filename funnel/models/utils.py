@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional, Set
+
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from flask import current_app
@@ -19,7 +23,7 @@ class IncompleteUserMigration(Exception):
     """Could not migrate users because of data conflicts."""
 
 
-def getuser(name):
+def getuser(name: str) -> Optional[User]:
     if '@' in name:
         # TODO: This should have used UserExternalId.__at_username_services__,
         # but this bit has traditionally been for Twitter only. Fix pending.
@@ -42,11 +46,11 @@ def getuser(name):
         return User.get(username=name)
 
 
-def getextid(service, userid):
+def getextid(service: str, userid: str) -> Optional[UserExternalId]:
     return UserExternalId.get(service=service, userid=userid)
 
 
-def merge_users(user1, user2):
+def merge_users(user1: User, user2: User) -> Optional[User]:
     """Merge two user accounts and return the new user account."""
     current_app.logger.info("Preparing to merge users %s and %s", user1, user2)
     # Always keep the older account and merge from the newer account
@@ -69,12 +73,15 @@ def merge_users(user1, user2):
         # 5. Return keep_user.
         current_app.logger.info("User merge complete, keeping user %s", keep_user)
         return keep_user
-    else:
-        current_app.logger.error("User merge failed, aborting transaction")
-        db.session.rollback()
+
+    current_app.logger.error("User merge failed, aborting transaction")
+    db.session.rollback()
+    return None
 
 
-def do_migrate_instances(old_instance, new_instance, helper_method=None):
+def do_migrate_instances(
+    old_instance: db.Model, new_instance: db.Model, helper_method: Optional[str] = None
+) -> bool:
     """
     Migrate references to old instance of any model to provided new instance.
 
@@ -92,7 +99,7 @@ def do_migrate_instances(old_instance, new_instance, helper_method=None):
     session = old_instance.query.session
 
     # Keep track of all migrated tables
-    migrated_tables = set()
+    migrated_tables: Set[str] = set()
     safe_to_remove_instance = True
 
     def do_migrate_table(table):

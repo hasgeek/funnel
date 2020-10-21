@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Iterable, Optional
+
 from flask import current_app
 from werkzeug.utils import cached_property
 
@@ -106,7 +110,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         return self.user.transport_for_email(self.project.profile)
 
     @classmethod
-    def migrate_user(cls, old_user, new_user):
+    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
         project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
         for rsvp in old_user.rsvps:
             if rsvp.project_id not in project_ids:
@@ -119,6 +123,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
                     rsvp.project,
                 )
                 db.session.delete(rsvp)
+        return None
 
     @classmethod
     def get_for(cls, project, user, create=False):

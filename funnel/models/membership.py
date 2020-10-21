@@ -1,4 +1,6 @@
-from typing import Iterable
+from __future__ import annotations
+
+from typing import Any, Dict, Iterable, Set
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -166,14 +168,14 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             )
 
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set:
         """Roles offered by this membership record."""
         return set()
 
     # Subclasses must gate these methods in __roles__
 
     @with_roles(call={'subject', 'editor'})
-    def revoke(self, actor):
+    def revoke(self, actor: User) -> None:
         if self.revoked_at is not None:
             raise MembershipRevokedError(
                 "This membership record has already been revoked"
@@ -182,7 +184,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         self.revoked_by = actor
 
     @with_roles(call={'editor'})
-    def replace(self, actor, **roles):
+    def replace(self, actor: User, **roles: Dict[str, Any]) -> ImmutableMembershipMixin:
         if self.revoked_at is not None:
             raise MembershipRevokedError(
                 "This membership record has already been revoked"
@@ -214,10 +216,10 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             user=self.user, parent_id=self.parent_id, granted_by=self.granted_by
         )
 
-        # if existing record type is INVITE, replace it with ACCEPT,
+        # if existing record type is INVITE, refuse to process
         # else replace it with AMEND
         if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
-            new.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
+            raise MembershipRecordTypeError("Invite must be revoked, not replaced")
         else:
             new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
 
@@ -230,7 +232,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         return new
 
     @with_roles(call={'subject'})
-    def accept(self, actor):
+    def accept(self, actor: User) -> ImmutableMembershipMixin:
         if self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE:
             raise MembershipRecordTypeError("This membership record is not an invite")
         return self.replace(actor)

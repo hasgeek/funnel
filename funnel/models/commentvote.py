@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Iterable, Optional, Set
+
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from flask import current_app
@@ -96,7 +100,7 @@ class Vote(NoIdMixin, db.Model):
     votedown = db.Column(db.Boolean, default=False, nullable=False)
 
     @classmethod
-    def migrate_user(cls, old_user, new_user):
+    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
         votesets = {vote.voteset for vote in new_user.votes}
         for vote in list(old_user.votes):
             if vote.voteset not in votesets:
@@ -110,6 +114,7 @@ class Vote(NoIdMixin, db.Model):
                     vote.voteset_id,
                 )
                 db.session.delete(vote)
+        return None
 
 
 class Commentset(UuidMixin, BaseMixin, db.Model):
@@ -152,7 +157,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             return parent.__tablename__
         return None
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         perms = super().permissions(user, inherited)
         if user is not None:
             perms.add('new_comment')
@@ -346,7 +351,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def sorted_replies(self):
         return sorted(self.replies, key=lambda comment: comment.voteset.count)
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         perms = super(Comment, self).permissions(user, inherited)
         perms.add('view')
         if user is not None:

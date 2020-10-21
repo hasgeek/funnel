@@ -1,7 +1,10 @@
 """Resource registry."""
 
+from __future__ import annotations
+
 from collections import OrderedDict
 from functools import wraps
+from typing import List, Optional
 import re
 
 from flask import Response, abort, jsonify, request
@@ -18,21 +21,27 @@ auth_bearer_re = re.compile('^Bearer ([a-zA-Z0-9_.~+/-]+=*)$')
 class ResourceRegistry(OrderedDict):
     """Dictionary of resources."""
 
-    def resource(self, name, description=None, trusted=False, scope=None):
+    def resource(
+        self,
+        name: str,
+        description: Optional[str] = None,
+        trusted: bool = False,
+        scope: str = None,
+    ):
         """
         Decorate a resource function.
 
-        :param unicode name: Name of the resource
-        :param unicode description: User-friendly description
+        :param str name: Name of the resource
+        :param str description: User-friendly description
         :param bool trusted: Restrict access to trusted clients?
-        :param unicode scope: Grant access via this other resource name (which must also exist)
+        :param str scope: Grant access via this other resource name (which must also exist)
         """
         usescope = scope or name
         if '*' in usescope or ' ' in usescope:
             # Don't allow resources to be declared with '*' or ' ' in the name
             raise ValueError(usescope)
 
-        def resource_auth_error(message):
+        def resource_auth_error(message: str):
             return Response(
                 message,
                 401,
@@ -126,19 +135,19 @@ class ResourceRegistry(OrderedDict):
 class LoginProviderRegistry(OrderedDict):
     """Registry of login providers."""
 
-    def at_username_services(self):
+    def at_username_services(self) -> List[str]:
         """Return services which typically use ``@username`` addressing."""
         return [key for key in self if self[key].at_username]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: LoginProvider):
         """Make a registry entry."""
-        retval = super(LoginProviderRegistry, self).__setitem__(key, value)
+        retval = super().__setitem__(key, value)
         UserExternalId.__at_username_services__ = self.at_username_services()
         return retval
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str):
         """Remove a registry entry."""
-        retval = super(LoginProviderRegistry, self).__delitem__(key)
+        retval = super().__delitem__(key)
         UserExternalId.__at_username_services__ = self.at_username_services()
         return retval
 
@@ -177,8 +186,9 @@ class LoginProvider(object):
         false, it will only be available to be added in the user's profile page. Use
         this for multiple instances of the same external service with differing access
         permissions (for example, with Twitter).
-    :param priority: (default False). Is this service high priority? If False, it'll be
-        hidden behind a show more link.
+    :param bool priority: (default False). Is this service high priority? If False,
+        it'll be hidden behind a show more link.
+    :param str icon: URL to icon for login provider.
     """
 
     #: URL to icon for the login button
@@ -188,7 +198,15 @@ class LoginProvider(object):
     #: This service's usernames are typically used for addressing with @username
     at_username = False
 
-    def __init__(self, name, title, at_login=True, priority=False, icon=None, **kwargs):
+    def __init__(
+        self,
+        name: str,
+        title: str,
+        at_login: bool = True,
+        priority: bool = False,
+        icon: Optional[str] = None,
+        **kwargs,
+    ):
         self.name = name
         self.title = title
         self.at_login = at_login

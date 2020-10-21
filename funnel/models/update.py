@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Iterable, Optional, Set
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
@@ -288,7 +292,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     def is_currently_restricted(self):
         return self.is_restricted and not self.current_roles.reader
 
-    def roles_for(self, actor=None, anchors=()):
+    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
             # Everyone gets reader role when the post is not restricted.

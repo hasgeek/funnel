@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from collections import namedtuple
 from itertools import groupby
+from typing import Iterable, Optional, Set
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
@@ -68,7 +71,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         'subject': {'read': {'user', 'ticket_participant', 'scanned_at'}},
     }
 
-    def roles_for(self, actor, anchors=()):
+    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super(ContactExchange, self).roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
@@ -78,7 +81,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         return roles
 
     @classmethod
-    def migrate_user(cls, old_user, new_user):
+    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
         ticket_participant_ids = {
             ce.ticket_participant_id for ce in new_user.scanned_contacts
         }
@@ -88,6 +91,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             else:
                 # Discard duplicate contact exchange
                 db.session.delete(ce)
+        return None
 
     @classmethod
     def grouped_counts_for(cls, user, archived=False):

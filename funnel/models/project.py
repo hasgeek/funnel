@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional, Set
+
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from flask import current_app
@@ -609,7 +613,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def location_geonameid(self):
         return geonameid_from_location(self.location) if self.location else set()
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         # TODO: Remove permission system entirely
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
