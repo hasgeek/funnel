@@ -209,10 +209,11 @@
   {%- endassets -%}
   <script type="text/javascript">
     $(document).ready(function() {
-        window.Hasgeek = {};
-        window.Hasgeek.config = {};
+      window.Hasgeek = {};
+      window.Hasgeek.config = {};
       window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
       window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
+      window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
     });
   </script>
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>

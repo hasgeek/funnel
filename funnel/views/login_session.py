@@ -6,6 +6,7 @@ from flask import (
     current_app,
     flash,
     jsonify,
+    make_response,
     redirect,
     render_template,
     request,
@@ -401,12 +402,15 @@ def requires_sudo(f):
 
                     # TODO: Remove this line before merging PR
                     app.logger.debug("Raising requires_sudo error over JSON")
-                    return jsonify(
-                        status='error',
-                        error='requires_sudo',
-                        error_description=_(
-                            "This request must be confirmed with your password"
+                    return make_response(
+                        jsonify(
+                            status='error',
+                            error='requires_sudo',
+                            error_description=_(
+                                "This request must be confirmed with your password"
+                            ),
                         ),
+                        422,
                     )
                 else:
                     # TODO: Remove this line before merging PR

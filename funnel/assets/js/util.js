@@ -186,8 +186,13 @@ export const Utils = {
       if (response.status === 500) {
         errorMsg =
           'An internal server error occurred. Our support team has been notified and will investigate.';
+      } else if (
+        response.status === 422 &&
+        response.responseJSON.error === 'requires_sudo'
+      ) {
+        window.location.href = `${window.Hasgeek.config.accountSudo}?next=${window.location.href}`;
       } else {
-        errorMsg = JSON.parse(response.responseText).error_description;
+        errorMsg = response.responseJSON.error_description;
       }
     } else {
       errorMsg = 'Unable to connect. Please reload and try again.';
