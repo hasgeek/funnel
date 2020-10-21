@@ -195,11 +195,7 @@ class LoginProvider(object):
         self.priority = priority
         self.icon = icon
 
-    def get_form(self):
-        """Return form data with three keys: next, error and form."""
-        return {'next': None, 'error': None, 'form': None}
-
-    def do(self, callback_url, form=None):
+    def do(self, callback_url: str):
         raise NotImplementedError
 
     def callback(self, *args, **kwargs):
