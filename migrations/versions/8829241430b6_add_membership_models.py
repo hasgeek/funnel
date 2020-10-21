@@ -1,4 +1,4 @@
-"""Add membership models
+"""Add membership models.
 
 Revision ID: 8829241430b6
 Revises: 41b3af7e4449

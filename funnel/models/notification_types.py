@@ -273,7 +273,7 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
 
 
 class CommentReportReceivedNotification(Notification):
-    """Notification for comment moderators when a comment is reported as spam"""
+    """Notification for comment moderators when a comment is reported as spam."""
 
     __mapper_args__ = {'polymorphic_identity': 'comment_report_received'}
 

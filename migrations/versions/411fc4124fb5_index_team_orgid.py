@@ -1,4 +1,4 @@
-"""Index Team.orgid
+"""Index Team.orgid.
 
 Revision ID: 411fc4124fb5
 Revises: 436114dffa00

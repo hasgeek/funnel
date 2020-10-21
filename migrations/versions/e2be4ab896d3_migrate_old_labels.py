@@ -1,4 +1,4 @@
-"""migrate old labels
+"""Migrate old labels.
 
 Revision ID: e2be4ab896d3
 Revises: 0b25df40d307

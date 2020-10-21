@@ -5,9 +5,7 @@ from .test_db import TestDatabaseFixture
 
 class TestTeam(TestDatabaseFixture):
     def test_team_get(self):
-        """
-        Test for retrieving a Team with matching buid.
-        """
+        """Test for retrieving a Team with matching buid."""
         dachshunds = self.fixtures.dachshunds
         dachshunds_buid = dachshunds.buid
         result_with_buid = models.Team.get(buid=dachshunds_buid)
@@ -17,9 +15,7 @@ class TestTeam(TestDatabaseFixture):
             models.Team.get()
 
     def test_team_pickername(self):
-        """
-        Test for verifying team's pickername
-        """
+        """Test for verifying team's pickername."""
         dachshunds = self.fixtures.dachshunds
         title = dachshunds.title
         pickername = dachshunds.pickername
@@ -27,9 +23,7 @@ class TestTeam(TestDatabaseFixture):
         self.assertEqual(title, pickername)
 
     def test_team_permissions(self):
-        """
-        Test for retrieving permissions for owner of a team
-        """
+        """Test for retrieving permissions for owner of a team."""
         crusoe = self.fixtures.crusoe
         dachshunds = self.fixtures.dachshunds
         permissions_expected = ['edit', 'delete']

@@ -147,11 +147,9 @@ class TestLabelArchiveView(object):
 
 
 class TestLabelDeleteView(object):
-    """
-    Separate class because the ``new_label`` fixture has a class scope.
-    If we delete it in any other test classes, it'll mess with other
-    tests in those classes.
-    """
+    # Separate class because the ``new_label`` fixture has a class scope.
+    # If we delete it in any other test classes, it'll mess with other
+    # tests in those classes.
 
     def test_main_label_delete(self, test_client, test_db, new_user, new_label):
         with test_client.session_transaction() as session:

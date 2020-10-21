@@ -1,4 +1,4 @@
-"""drop old state from project model
+"""Drop old state from project model.
 
 Revision ID: 347c236041d3
 Revises: 4b80fb451c8e

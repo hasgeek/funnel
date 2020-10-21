@@ -1,4 +1,4 @@
-"""Move Participant to EmailAddressMixin
+"""Move Participant to EmailAddressMixin.
 
 Revision ID: e3b3ccbca3b9
 Revises: ae075a249493

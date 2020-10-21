@@ -1,4 +1,4 @@
-"""profile banner image url
+"""profile banner image url.
 
 Revision ID: b6d0edac3e20
 Revises: e3b3ccbca3b9

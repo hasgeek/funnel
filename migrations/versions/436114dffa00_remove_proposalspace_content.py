@@ -1,4 +1,4 @@
-"""Remove ProposalSpace.content
+"""Remove ProposalSpace.content.
 
 Revision ID: 436114dffa00
 Revises: f8204bcd438

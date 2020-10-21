@@ -19,9 +19,7 @@ DateCountContacts = namedtuple('DateCountContacts', ['date', 'count', 'contacts'
 
 
 class ContactExchange(TimestampMixin, RoleMixin, db.Model):
-    """
-    Model to track who scanned whose badge, in which project.
-    """
+    """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
     #: User who scanned this contact
@@ -93,9 +91,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     @classmethod
     def grouped_counts_for(cls, user, archived=False):
-        """
-        Return count of contacts grouped by project and date
-        """
+        """Return count of contacts grouped by project and date."""
         query = db.session.query(
             cls.scanned_at, Project.id, Project.uuid, Project.timezone, Project.title
         ).filter(
@@ -201,9 +197,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     @classmethod
     def contacts_for_project_and_date(cls, user, project, date, archived=False):
-        """
-        Return contacts for a given user, project and date
-        """
+        """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
             # For safety always use objects instead of column values. The following expression
@@ -227,9 +221,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     @classmethod
     def contacts_for_project(cls, user, project, archived=False):
-        """
-        Return contacts for a given user and project
-        """
+        """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
             # See explanation for the following expression in `contacts_for_project_and_date`

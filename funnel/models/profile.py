@@ -27,7 +27,10 @@ class PROFILE_STATE(LabeledEnum):  # NOQA: N801
 # from the linked User or Organization
 class Profile(UuidMixin, BaseMixin, db.Model):
     """
-    Profiles are the public-facing pages for the User and Organization models.
+    Public-facing profiles for :class:`User` and :class:`Organization` models.
+
+    Profiles hold the account name in a shared namespace between these models (aka
+    "username"), and also host projects and other future document types.
     """
 
     __tablename__ = 'profile'
@@ -162,6 +165,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     }
 
     def __repr__(self):
+        """Represent :class:`Profile` as a string."""
         return f'<Profile "{self.name}">'
 
     @property
@@ -184,7 +188,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_user_profile(self):
         return self.user_id is not None
 
-    @is_user_profile.expression
+    @is_user_profile.expression  # type: ignore[no-redef]
     def is_user_profile(cls):  # NOQA: N805
         return cls.user_id.isnot(None)
 
@@ -192,11 +196,11 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_organization_profile(self):
         return self.organization_id is not None
 
-    @is_organization_profile.expression
+    @is_organization_profile.expression  # type: ignore[no-redef]
     def is_organization_profile(cls):  # NOQA: N805
         return cls.organization_id.isnot(None)
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_public(self):
         return bool(self.state.PUBLIC)
@@ -210,7 +214,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             return ''
 
-    @title.setter
+    @title.setter  # type: ignore[no-redef]
     def title(self, value):
         if self.user:
             self.user.fullname = value
@@ -219,7 +223,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             raise ValueError("Reserved profiles do not have titles")
 
-    @title.expression
+    @title.expression  # type: ignore[no-redef]
     def title(cls):  # NOQA: N805
         return db.case(
             [
@@ -265,8 +269,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     @classmethod
     def validate_name_candidate(cls, name):
         """
-        Check if a name is available, returning one of several error codes, or None if
-        all is okay:
+        Validate an account name candidate.
+
+        Returns one of several error codes, or `None` if all is okay:
 
         * ``blank``: No name supplied
         * ``invalid``: Invalid characters in name

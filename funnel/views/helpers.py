@@ -132,14 +132,13 @@ def autoset_timezone_and_locale(user):
 
 def progressive_rate_limit_validator(token, prev_token):
     """
-    Validator for validate_rate_limit on autocomplete-type resources.
+    Validate for :func:`validate_rate_limit` on autocomplete-type resources.
 
     Will count progressive keystrokes and backspacing as a single rate limited call, but
     any edits will be counted as a separate call, incrementing the resource usage count.
 
     :returns: tuple of (bool, bool): (count_this_call, retain_previous_token)
     """
-
     # prev_token will be None on the first call to the validator. Count the first
     # call, but don't retain the previous token
     if not prev_token:
@@ -164,9 +163,11 @@ def validate_rate_limit(
     resource, identifier, attempts, timeout, token=None, validator=None
 ):
     """
+    Validate a rate limit on API-endpoint resources.
+
     Confirm the rate limit has not been reached for the given string identifier, number
-    of attempts, and timeout period. Uses a simple limiter: once the number of attempts
-    is reached, no further attempts can be made for timeout seconds.
+    of allowed attempts, and timeout period. Uses a simple limiter: once the number of
+    attempts is reached, no further attempts can be made for timeout seconds.
 
     Aborts with HTTP 429 in case the limit has been reached.
 

@@ -1,4 +1,4 @@
-"""Add proposal_suuid_redirect
+"""Add proposal_suuid_redirect.
 
 Revision ID: e2b28adfa135
 Revises: 41a4531be082

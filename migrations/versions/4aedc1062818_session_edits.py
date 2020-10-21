@@ -1,4 +1,4 @@
-"""Session edits
+"""Session edits.
 
 Revision ID: 4aedc1062818
 Revises: 55097480a655

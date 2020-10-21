@@ -14,9 +14,7 @@ __all__ = ['ProposalMembership']
 
 
 class ProposalMembership(ImmutableMembershipMixin, db.Model):
-    """
-    Users can be presenters or reviewers on proposals.
-    """
+    """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
 
@@ -72,6 +70,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
 
     @declared_attr
     def __table_args__(cls):
+        """Table arguments."""
         args = list(super().__table_args__)
         args.append(
             db.CheckConstraint(
@@ -83,7 +82,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record"""
+        """Roles offered by this membership record."""
         roles = set()
         if self.is_reviewer:
             roles.add('reviewer')
@@ -94,7 +93,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
 
 # Project relationships: all crew, vs specific roles
 @reopen(Proposal)
-class Proposal:
+class Proposal:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     active_memberships = with_roles(
         db.relationship(
             ProposalMembership,
@@ -136,7 +135,7 @@ class Proposal:
 
 
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     proposal_memberships = db.relationship(
         ProposalMembership,
         lazy='dynamic',

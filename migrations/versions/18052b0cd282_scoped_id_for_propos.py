@@ -1,4 +1,4 @@
-"""Scoped id for proposals
+"""Scoped id for proposals.
 
 Revision ID: 18052b0cd282
 Revises: 140c9b68d65b

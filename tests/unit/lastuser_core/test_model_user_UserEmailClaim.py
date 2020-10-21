@@ -18,9 +18,7 @@ class TestUserEmailClaim(TestDatabaseFixture):
         ) in (repr(result))
 
     def test_useremailclaim_permissions(self):
-        """
-        Test for verifying whether user has verify permission on a UserEmailClaim instance
-        """
+        """Test that user has verify permission on a UserEmailClaim instance."""
         crusoe = self.fixtures.crusoe
         email = 'crusoe@batdogs.ca'
         email_claim = models.UserEmailClaim(user=crusoe, email=email)
@@ -33,10 +31,7 @@ class TestUserEmailClaim(TestDatabaseFixture):
         self.assertCountEqual(permissions_expected, permissions_received)
 
     def test_useremailclaim_get(self):
-        """
-        Test for retrieving a UserEmailClaim instance given a user
-        """
-
+        """Test for retrieving a UserEmailClaim instance given a user."""
         katnis = models.User(username='katnis', fullname='Katnis Everdeen')
         email = 'katnis@hungergames.org'
         email_claim = models.UserEmailClaim(user=katnis, email=email)
@@ -48,9 +43,7 @@ class TestUserEmailClaim(TestDatabaseFixture):
         self.assertEqual(result.user, katnis)
 
     def test_useremailclaim_all(self):
-        """
-        Test for retrieving all UserEmailClaim instances given an email address
-        """
+        """Test for retrieving all UserEmailClaim instances given an email address."""
         gail = models.User(username='gail', fullname='Gail Hawthorne')
         peeta = models.User(username='peeta', fullname='Peeta Mallark')
         email = 'gail@district7.gov'
@@ -63,9 +56,7 @@ class TestUserEmailClaim(TestDatabaseFixture):
         self.assertCountEqual(set(result), {claim_by_gail, claim_by_peeta})
 
     def test_useremailclaim_email(self):
-        """
-        Test for verifying UserEmailClaim email property
-        """
+        """Test for verifying UserEmailClaim email property."""
         effie = models.User(username='effie', fullname='Miss. Effie Trinket')
         email = 'effie@hungergames.org'
         claim_by_effie = models.UserEmailClaim(user=effie, email=email)

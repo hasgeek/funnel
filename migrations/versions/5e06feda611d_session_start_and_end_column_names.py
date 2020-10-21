@@ -1,4 +1,4 @@
-"""Session start and end column names
+"""Session start and end column names.
 
 Revision ID: 5e06feda611d
 Revises: b61a489d34a4

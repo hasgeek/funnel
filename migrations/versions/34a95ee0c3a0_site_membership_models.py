@@ -1,4 +1,4 @@
-"""site membership models
+"""Site membership models.
 
 Revision ID: 34a95ee0c3a0
 Revises: 887db555cca9

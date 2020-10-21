@@ -1,4 +1,4 @@
-"""Remove password reset request model
+"""Remove password reset request model.
 
 Revision ID: dcd0870c24cc
 Revises: 0d462811a07f

@@ -1,6 +1,4 @@
-"""
-Resource registry
-"""
+"""Resource registry."""
 
 from collections import OrderedDict
 from functools import wraps
@@ -18,13 +16,11 @@ auth_bearer_re = re.compile('^Bearer ([a-zA-Z0-9_.~+/-]+=*)$')
 
 
 class ResourceRegistry(OrderedDict):
-    """
-    Dictionary of resources
-    """
+    """Dictionary of resources."""
 
     def resource(self, name, description=None, trusted=False, scope=None):
         """
-        Decorator for resource functions.
+        Decorate a resource function.
 
         :param unicode name: Name of the resource
         :param unicode description: User-friendly description
@@ -128,40 +124,43 @@ class ResourceRegistry(OrderedDict):
 
 
 class LoginProviderRegistry(OrderedDict):
-    """Registry of login providers"""
+    """Registry of login providers."""
 
     def at_username_services(self):
-        """Services which typically use @username addressing"""
+        """Return services which typically use ``@username`` addressing."""
         return [key for key in self if self[key].at_username]
 
     def __setitem__(self, key, value):
+        """Make a registry entry."""
         retval = super(LoginProviderRegistry, self).__setitem__(key, value)
         UserExternalId.__at_username_services__ = self.at_username_services()
         return retval
 
     def __delitem__(self, key):
+        """Remove a registry entry."""
         retval = super(LoginProviderRegistry, self).__delitem__(key)
         UserExternalId.__at_username_services__ = self.at_username_services()
         return retval
 
 
 class LoginError(Exception):
-    """External service login failure"""
+    """External service login failure."""
 
 
 class LoginInitError(Exception):
-    """External service login failure (during init)"""
+    """External service login failure (during init)."""
 
 
 class LoginCallbackError(Exception):
-    """External service login failure (during callback)"""
+    """External service login failure (during callback)."""
 
 
 class LoginProvider(object):
     """
-    Base class for login providers. Each implementation provides
-    two methods: :meth:`do` and :meth:`callback`. :meth:`do` is called
-    when the user chooses to login with the specified provider.
+    Base class for login providers.
+
+    Each implementation provides two methods: :meth:`do` and :meth:`callback`.
+    :meth:`do` is called when the user chooses to login with the specified provider.
     :meth:`callback` is called with the response from the provider.
 
     Both :meth:`do` and :meth:`callback` are called as part of a Flask
@@ -174,11 +173,12 @@ class LoginProvider(object):
 
     :param name: Name of the service (stored in the database)
     :param title: Title (shown to user)
-    :param at_login: (default True). Is this service available to the user for login? If false, it
-      will only be available to be added in the user's profile page. Use this for multiple instances
-      of the same external service with differing access permissions (for example, with Twitter).
-    :param priority: (default False). Is this service high priority? If False, it'll be hidden behind
-      a show more link.
+    :param at_login: (default True). Is this service available to the user for login? If
+        false, it will only be available to be added in the user's profile page. Use
+        this for multiple instances of the same external service with differing access
+        permissions (for example, with Twitter).
+    :param priority: (default False). Is this service high priority? If False, it'll be
+        hidden behind a show more link.
     """
 
     #: URL to icon for the login button
@@ -196,9 +196,7 @@ class LoginProvider(object):
         self.icon = icon
 
     def get_form(self):
-        """
-        Returns form data, with three keys, next, error and form.
-        """
+        """Return form data with three keys: next, error and form."""
         return {'next': None, 'error': None, 'form': None}
 
     def do(self, callback_url, form=None):

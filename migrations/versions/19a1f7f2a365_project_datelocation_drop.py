@@ -1,4 +1,4 @@
-"""project datelocation drop
+"""Project datelocation drop.
 
 Revision ID: 19a1f7f2a365
 Revises: 9a0d8fa7da29

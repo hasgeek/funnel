@@ -1,4 +1,4 @@
-"""RSVP
+"""RSVP.
 
 Revision ID: 14d1424b47
 Revises: 1c496c114b6

@@ -5,16 +5,8 @@ from .test_db import TestDatabaseFixture
 
 
 class TestUserOldId(TestDatabaseFixture):
-    def setUp(self):
-        """
-        setUp for testing UserOldId model
-        """
-        super(TestUserOldId, self).setUp()
-
     def test_useroldid_get(self):
-        """
-        Test for verifying creation and retrieval of UserOldId instance
-        """
+        """Test for verifying creation and retrieval of UserOldId instance."""
         crusoe = self.fixtures.crusoe
         bathound = models.User(username="bathound", fullname="Bathound")
         db.session.add(bathound)

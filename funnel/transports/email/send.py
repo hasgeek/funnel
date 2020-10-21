@@ -1,7 +1,7 @@
 """Support functions for sending an email."""
 
 from email.utils import formataddr, getaddresses, parseaddr
-from typing import List, NamedTuple, Union
+from typing import List, NamedTuple, Optional, Tuple, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 # Short Type
-EmailRecipient = Union[User, tuple, str]
+EmailRecipient = Union[User, Tuple[Optional[str], str], str]
 
 
 class EmailAttachment(NamedTuple):
@@ -65,7 +65,10 @@ def jsonld_confirm_action(description, url, title):
 
 def process_recipient(recipient: EmailRecipient) -> str:
     """
-    Processes recipient in any of the given input formats. These could be:
+    Process recipient in any of the given input formats.
+
+    These could be:
+
     1. A User object
     2. A tuple of (name, email)
     3. A pre-formatted string as "Name <email>"
@@ -112,7 +115,7 @@ def send_email(
     headers: dict = None,
 ):
     """
-    Helper function to send an email.
+    Send an email.
 
     :param str subject: Subject line of email message
     :param list to: List of recipients. May contain (a) User objects, (b) tuple of

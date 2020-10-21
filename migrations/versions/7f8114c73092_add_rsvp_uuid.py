@@ -1,4 +1,4 @@
-"""Add Rsvp.uuid
+"""Add Rsvp.uuid.
 
 Revision ID: 7f8114c73092
 Revises: 931be3605dc4

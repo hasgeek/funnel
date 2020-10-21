@@ -1,4 +1,4 @@
-"""Record UserSession.login_service
+"""Record UserSession.login_service.
 
 Revision ID: e4f17fe2cce8
 Revises: b6d0edac3e20

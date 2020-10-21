@@ -1,4 +1,4 @@
-"""ProposalSpace image and color
+"""ProposalSpace image and color.
 
 Revision ID: 14d7082476c0
 Revises: 577689971aa0

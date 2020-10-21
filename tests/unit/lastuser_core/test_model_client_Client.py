@@ -7,36 +7,27 @@ from .test_db import TestDatabaseFixture
 
 class TestClient(TestDatabaseFixture):
     def test_client_secret_is(self):
-        """
-        Test for checking if Client's secret is a ClientCredential
-        """
+        """Test for checking if Client's secret is a ClientCredential."""
         auth_client = self.fixtures.auth_client
         credentials = models.AuthClientCredential.new(auth_client)
         self.assertTrue(auth_client.secret_is(credentials[1], credentials[0].name))
 
     def test_client_host_matches(self):
-        """
-        Test for verifying client's host_matches method is able to
-        split the referrer URL correctly
-        """
+        """Test that AuthClient.host_matches works with same-site referrer URL."""
         auth_client = self.fixtures.auth_client
         auth_client.redirect_uris = ["http://hasjob.dev:5000"]
         referrer = "http://hasjob.dev:5000/logout"
         self.assertTrue(auth_client.host_matches(referrer))
 
     def test_client_owner(self):
-        """
-        Test if client's owner is said Organization
-        """
+        """Test if client's owner is said Organization."""
         owner = self.fixtures.auth_client.owner
         batdog = self.fixtures.batdog
         self.assertIsInstance(owner, models.Organization)
         self.assertEqual(owner, batdog)
 
     def test_client_owner_is(self):
-        """
-        Test if client's owner is a user
-        """
+        """Test if client's owner is a user."""
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
         with self.assertRaises(AttributeError):
@@ -45,12 +36,7 @@ class TestClient(TestDatabaseFixture):
         self.assertFalse(auth_client.owner_is(None))
 
     def test_client_permissions(self):
-        """
-        Test for adding default view permission to client
-        and if given user is owner of client, then add
-        'edit', 'delete', 'assign-permissions' and 'new-resource'
-        permissions.
-        """
+        """Test that the owner of an AuthClient has appropriate permissions."""
         crusoe = self.fixtures.crusoe
         auth_client = self.fixtures.auth_client
         permissions_expected_to_be_added = [
@@ -68,9 +54,7 @@ class TestClient(TestDatabaseFixture):
         self.assertCountEqual(permissions_expected_to_be_added, permissions_received)
 
     def test_client_authtoken_for(self):
-        """
-        Test for retrieving authtoken for this user and client (only confidential clients)
-        """
+        """Test for retrieving authtoken for confidential auth clients."""
         # scenario 1: for a client that has confidential=True
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
@@ -113,9 +97,7 @@ class TestClient(TestDatabaseFixture):
         assert "Lord Varys" == result.user.fullname
 
     def test_client_get(self):
-        """
-        Test for verifying Client's get method
-        """
+        """Test for verifying AuthClient's get method."""
         auth_client = self.fixtures.auth_client
         batdog = self.fixtures.batdog
         key = auth_client.buid

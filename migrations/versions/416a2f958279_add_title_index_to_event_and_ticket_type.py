@@ -1,4 +1,4 @@
-"""add title index to event and ticket type
+"""Add title index to event and ticket type.
 
 Revision ID: 416a2f958279
 Revises: 2d55f804a4ed

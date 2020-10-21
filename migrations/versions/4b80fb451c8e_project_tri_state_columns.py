@@ -1,4 +1,4 @@
-"""Project tri-state columns
+"""Project tri-state columns.
 
 Revision ID: 4b80fb451c8e
 Revises: e3bf172763bc

@@ -9,10 +9,7 @@ from .test_db import TestDatabaseFixture
 
 class TestAuthToken(TestDatabaseFixture):
     def test_authtoken_init(self):
-        """
-        Test for verifying creation of AuthToken instance
-        note: Only one authtoken per user and client
-        """
+        """Test for verifying creation of AuthToken instance."""
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
         result = models.AuthToken(
@@ -33,9 +30,7 @@ class TestAuthToken(TestDatabaseFixture):
         self.assertNotEqual(existing_secret, auth_token.secret)
 
     def test_authtoken_is_valid(self):
-        """
-        Test for verifying if AuthToken's token is valid
-        """
+        """Test for verifying if AuthToken's token is valid."""
         auth_client = self.fixtures.auth_client
         # scenario 1: when validity is unlimited (0)
         tomriddle = models.User(username='voldemort', fullname='Tom Riddle')
@@ -74,9 +69,7 @@ class TestAuthToken(TestDatabaseFixture):
         self.assertFalse(cedric_token.is_valid())
 
     def test_authtoken_get(self):
-        """
-        Test for retreiving a AuthToken instance given a token
-        """
+        """Test for retreiving a AuthToken instance given a token."""
         specialdachs = self.fixtures.specialdachs
         oakley = self.fixtures.oakley
         scope = ['id']
@@ -94,9 +87,7 @@ class TestAuthToken(TestDatabaseFixture):
         self.assertEqual(result.auth_client, dachsadv)
 
     def test_authtoken_all(self):
-        """
-        Test for retreiving all AuthToken instances for given users
-        """
+        """Test for retreiving all AuthToken instances for given users."""
         auth_client = self.fixtures.auth_client
 
         # scenario 1: When users passed are an instance of Query class
@@ -173,9 +164,7 @@ class TestAuthToken(TestDatabaseFixture):
         self.assertListEqual(result5, [])
 
     def test_authtoken_user(self):
-        """
-        Test for checking AuthToken's user property
-        """
+        """Test for checking AuthToken's user property."""
         crusoe = self.fixtures.crusoe
         auth_client = self.fixtures.auth_client
 
@@ -239,9 +228,7 @@ class TestAuthToken(TestDatabaseFixture):
     #     self.assertCountEqual(scope_received, scope_expected)
 
     def test_authtoken_algorithm(self):
-        """
-        Test for checking AuthToken's algorithm property
-        """
+        """Test for checking AuthToken's algorithm property."""
         snape = models.User(username='snape', fullname='Professor Severus Snape')
         valid_algorithm = 'hmac-sha-1'
         auth_token = models.AuthToken(user=snape)

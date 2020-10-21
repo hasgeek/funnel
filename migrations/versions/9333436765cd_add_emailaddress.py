@@ -1,4 +1,4 @@
-"""Add EmailAddress
+"""Add EmailAddress.
 
 Revision ID: 9333436765cd
 Revises: 79719ee38228

@@ -1,4 +1,4 @@
-"""migrating preview_video to video field
+"""Migrating preview_video to video field.
 
 Revision ID: 41b3af7e4449
 Revises: 530c22761e27

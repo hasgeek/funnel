@@ -1,4 +1,4 @@
-"""Match old to new user and team columns
+"""Match old to new user and team columns.
 
 Revision ID: 542fd8471e84
 Revises: 382cde270594

@@ -8,9 +8,7 @@ from .fixtures import Fixtures
 class TestDatabaseFixture(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        """
-        Initialize a test DB and call to make fixtures.
-        """
+        """Initialize a test DB and call to make fixtures."""
         cls.app = app
         db.create_all()
         cls.fixtures = Fixtures()
@@ -19,9 +17,7 @@ class TestDatabaseFixture(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """
-        Remove test session and tables.
-        """
+        """Remove test session and tables."""
         db.drop_all()
         db.session.remove()
 

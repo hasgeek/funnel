@@ -8,9 +8,7 @@ from .test_db import TestDatabaseFixture
 
 class TestUserExternalId(TestDatabaseFixture):
     def test_userexternalid(self):
-        """
-        Test for creating an instance of UserExternalId
-        """
+        """Test for creating an instance of UserExternalId."""
         crusoe = self.fixtures.crusoe
         service = 'google'
         oauth_token = '196461869-pPh2cPTnlqGHcJBcyQ4CR407d1j5LY4OdbhNQuvX'  # NOQA: S105
@@ -29,10 +27,7 @@ class TestUserExternalId(TestDatabaseFixture):
         ) in repr(result)
 
     def test_userexternalid_get(self):
-        """
-        Test for retrieving a UserExternalId instance given a
-        serverice and userid or username
-        """
+        """Retrieve a UserExternalId given a service and userid or username."""
         service = 'twitter'
         # scenario 1: when neither userid nor username is passed
         with self.assertRaises(TypeError):

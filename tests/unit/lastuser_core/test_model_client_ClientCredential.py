@@ -5,15 +5,10 @@ from .test_db import TestDatabaseFixture
 
 class TestClientCredential(TestDatabaseFixture):
     def setUp(self):
-        """
-        setUp for testing ClientCredential model
-        """
         super(TestClientCredential, self).setUp()
 
     def test_clientcredential_new(self):
-        """
-        Test for ClientCredential model's new()
-        """
+        """Test for ClientCredential model's new()."""
         auth_client = self.fixtures.auth_client
         cred, _secret = models.AuthClientCredential.new(auth_client)
         assert cred.auth_client == auth_client
@@ -22,9 +17,7 @@ class TestClientCredential(TestDatabaseFixture):
         assert client_secret.startswith('blake2b$32$')
 
     def test_clientcredential_get(self):
-        """
-        Test for ClientCredential model's get()
-        """
+        """Test for ClientCredential model's get()."""
         auth_client = self.fixtures.auth_client
         cred, _secret = models.AuthClientCredential.new(auth_client)
         name = cred.name
@@ -33,18 +26,14 @@ class TestClientCredential(TestDatabaseFixture):
         assert cred == get_credentials
 
     def test_clientcredential_secret_is(self):
-        """
-        Test for checking if clientcredential's secret is a SHA256 string (64 characters) prepended with 'sha256$'
-        """
+        """Test for checking if clientcredential's secret is valid."""
         auth_client = self.fixtures.auth_client
         cred, secret = models.AuthClientCredential.new(auth_client)
         assert cred.secret_is(secret)
         assert len(secret) in (43, 44)
 
     def test_clientcredential_upgrade_hash(self):
-        """
-        Test for transparent upgrade of client credential hash type
-        """
+        """Test for transparent upgrade of client credential hash type."""
         secret = 'D2axSjtbbWDkRFmSDXGpNSB9ypfqE1ekYD3YP37J85yJ'
         secret_sha256 = (
             'sha256$45c879362ed45b3f92a7ea3c1e53ecab0dd79c61cb357e6eb0de6d64408ea25c'

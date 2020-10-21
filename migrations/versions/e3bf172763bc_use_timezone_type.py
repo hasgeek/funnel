@@ -1,4 +1,4 @@
-"""Use timezone type
+"""Use timezone type.
 
 Revision ID: e3bf172763bc
 Revises: 94ce3a9b7a3a

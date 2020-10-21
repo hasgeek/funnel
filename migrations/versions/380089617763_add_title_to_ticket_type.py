@@ -1,4 +1,4 @@
-"""add_title_to_ticket_type
+"""Add title to ticket_type.
 
 Revision ID: 380089617763
 Revises: 39eed1e99156

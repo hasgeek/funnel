@@ -108,8 +108,9 @@ class TicketEvent(GetTitleMixin, db.Model):
 
 class TicketType(GetTitleMixin, db.Model):
     """
-    Models different types of tickets. Eg: Early Geek, Super Early Geek, Workshop A.
-    A ticket type is associated with multiple events.
+    A ticket type that can grant access to multiple events within a project.
+
+    Eg: Early Geek, Super Early Geek, Workshop A, B, C.
     """
 
     __tablename__ = 'ticket_type'
@@ -131,9 +132,7 @@ class TicketType(GetTitleMixin, db.Model):
 
 
 class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
-    """
-    Model users participating in one or multiple events.
-    """
+    """A participant in one or more events, synced from an external ticket source."""
 
     __tablename__ = 'ticket_participant'
     __email_optional__ = False
@@ -212,17 +211,17 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             return self.project.permissions(user) | perms
         return perms
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def avatar(self):
         return self.user.avatar if self.user else ''
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def has_public_profile(self):
         return self.user.has_public_profile if self.user else False
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self):
         return (
@@ -269,8 +268,11 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     @classmethod
     def checkin_list(cls, ticket_event):
         """
-        Returns ticket participant details along with their associated ticket types as a
-        comma-separated string.
+        Return ticket participant details as a comma separated string.
+
+        Also includes associated ticket types.
+
+        FIXME: This is bad design and should be replaced with a saner mechanism.
         """
         query = (
             db.session.query(
@@ -306,9 +308,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
 
 
 class TicketEventParticipant(BaseMixin, db.Model):
-    """
-    Join model between Participant and Event.
-    """
+    """Join model between :class:`TicketParticipant` and :class:`TicketEvent`."""
 
     __tablename__ = 'ticket_event_participant'
 
@@ -361,10 +361,7 @@ class TicketClient(BaseMixin, db.Model):
     )
 
     def import_from_list(self, ticket_list):
-        """
-        Batch upserts the tickets and its associated ticket types and participants.
-        Cancels the tickets in cancel_list.
-        """
+        """Batch upsert tickets and their associated ticket types and participants."""
         for ticket_dict in ticket_list:
             ticket_type = TicketType.upsert(
                 self.project, current_title=ticket_dict['ticket_type']
@@ -411,7 +408,7 @@ class TicketClient(BaseMixin, db.Model):
 
 
 class SyncTicket(BaseMixin, db.Model):
-    """ Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
+    """Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
 
     __tablename__ = 'sync_ticket'
 
@@ -445,6 +442,8 @@ class SyncTicket(BaseMixin, db.Model):
     @classmethod
     def upsert(cls, ticket_client, order_no, ticket_no, **fields):
         """
+        Update or insert ticket details.
+
         Returns a tuple containing the upserted ticket, and the participant the ticket
         was previously associated with or None if there was no earlier participant.
         """
@@ -468,11 +467,11 @@ class SyncTicket(BaseMixin, db.Model):
 
 
 @reopen(Project)
-class Project:
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     # FIXME: RoleMixin expects TicketParticipant.user to be unique per project, meaning
     # one user can have one participant ticket only. This is not guaranteed by the model
-    # as tickets are unique per email address per ticket type, and (a) one user can have
-    # two email addresses with tickets, or (b) tickets of different ticket types
+    # as tickets are unique per email address per ticket type, and one user can have
+    # (a) two email addresses with tickets, or (b) tickets of different types
     ticket_participants = with_roles(
         db.relationship(TicketParticipant, lazy='dynamic', cascade='all'),
         grants_via={'user': {'participant'}},

@@ -1,4 +1,4 @@
-"""add labels
+"""Add labels.
 
 # Revision ID: 0b25df40d307
 # Revises: ef93d256a8cf

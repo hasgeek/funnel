@@ -12,9 +12,10 @@ F = TypeVar('F', bound=Callable[..., Any])
 
 def legacy_redirect(f: F) -> F:
     """
-    Redirects legacy profiles to ``funnelapp`` and other profiles to ``app``, based on
-    the value of ``Profile.legacy``. This flag is True for profiles originally served
-    from talkfunnel.com that are still pending migration to hasgeek.com (due end-2020).
+    Redirect legacy profiles to ``funnelapp`` and other profiles to ``app``.
+
+    Uses ``Profile.legacy``. This flag is True for profiles originally served from
+    talkfunnel.com that are still pending migration to hasgeek.com (due end-2020).
 
     Ref: https://github.com/hasgeek/funnel/issues/230 (last item in checklist)
     """

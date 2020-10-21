@@ -1,4 +1,4 @@
-"""Fix column settings
+"""Fix column settings.
 
 Revision ID: b553db89a76e
 Revises: ccfad4d5e383

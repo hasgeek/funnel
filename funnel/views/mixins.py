@@ -252,16 +252,15 @@ class TicketEventViewMixin(object):
 class DraftViewMixin(object):
     def get_draft(self, obj=None):
         """
-        Returns the draft object for `obj`. Defaults to `self.obj`.
+        Return the draft object for `obj`. Defaults to `self.obj`.
+
         `obj` is needed in case of multi-model views.
         """
         obj = obj if obj is not None else self.obj
         return Draft.query.get((self.model.__tablename__, obj.uuid))
 
     def delete_draft(self, obj=None):
-        """
-        Deletes draft for `obj`, or `self.obj` if `obj` is `None`.
-        """
+        """Delete draft for `obj`, or `self.obj` if `obj` is `None`."""
         draft = self.get_draft(obj)
         if draft is not None:
             db.session.delete(draft)
@@ -270,7 +269,9 @@ class DraftViewMixin(object):
 
     def get_draft_data(self, obj=None):
         """
-        Returns a tuple of the current draft revision and the formdata needed to initialize forms
+        Return a tuple of draft data.
+
+        Contains the current draft revision and the formdata needed to initialize forms.
         """
         draft = self.get_draft(obj)
         if draft is not None:
@@ -279,9 +280,7 @@ class DraftViewMixin(object):
             return None, None
 
     def autosave_post(self, obj=None):
-        """
-        Handles autosave POST requests
-        """
+        """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:
             # as form.autosave is true, the form should have `form.revision` field even if it's empty

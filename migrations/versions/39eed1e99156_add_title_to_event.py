@@ -1,4 +1,4 @@
-"""add_title_to_event
+"""Add title to event.
 
 Revision ID: 39eed1e99156
 Revises: 4083b7bd0cc8

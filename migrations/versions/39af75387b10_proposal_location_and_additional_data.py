@@ -1,4 +1,4 @@
-"""Proposal location and additional data
+"""Proposal location and additional data.
 
 Revision ID: 39af75387b10
 Revises: 50f58275fc1c

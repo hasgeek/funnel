@@ -1,4 +1,4 @@
-"""post model
+"""Post model.
 
 Revision ID: a1ab7bd78649
 Revises: b6d0edac3e20

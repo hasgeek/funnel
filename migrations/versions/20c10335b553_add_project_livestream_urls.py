@@ -1,4 +1,4 @@
-"""add project livestream urls
+"""Add project livestream urls.
 
 Revision ID: 20c10335b553
 Revises: c11dc931b903

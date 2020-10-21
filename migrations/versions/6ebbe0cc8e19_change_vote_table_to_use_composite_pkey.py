@@ -1,4 +1,4 @@
-"""Change Vote table to use composite pkey
+"""Change Vote table to use composite pkey.
 
 Revision ID: 6ebbe0cc8e19
 Revises: 7ee3c83f713f
