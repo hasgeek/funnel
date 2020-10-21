@@ -62,10 +62,9 @@ const Comments = {
           if (event) event.preventDefault();
           if (this.formOpened) {
             this.formOpened = false;
-            this.replyForm = false;
-            this.editForm = false;
-            this.deleteForm = false;
-            this.spamForm = false;
+            this.formAction.forEach((commentForm) => {
+              this[commentForm.form] = false;
+            });
             $('#js-header').removeClass('header--lowzindex');
             this.$parent.refreshCommentsTimer();
           }

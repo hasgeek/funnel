@@ -306,6 +306,12 @@ export const Utils = {
       });
     }
   },
+  enableWebShare() {
+    if (navigator.share) {
+      $('.project-links').hide();
+      $('.hg-link-btn').removeClass('mui--hide');
+    }
+  },
   getPageHeaderHeight() {
     let headerHeight;
     if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
