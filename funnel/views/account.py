@@ -1074,3 +1074,15 @@ def verify_email_old(email_hash):
 )
 def lastuser_account_edit(newprofile):
     return redirect(app_url_for(app, 'account_new' if newprofile else 'account_edit'))
+
+
+# --- Compatibility routes -------------------------------------------------------------
+
+
+@funnelapp.route('/account/sudo', endpoint='account_sudo')
+@lastuserapp.route('/account/sudo', endpoint='account_sudo')
+def otherapp_account_sudo():
+    next_url = request.args.get('next')
+    if next_url:
+        return redirect(app_url_for(app, 'account_sudo', next=next_url))
+    return redirect(app_url_for(app, 'account_sudo'))
