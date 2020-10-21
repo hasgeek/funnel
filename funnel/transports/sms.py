@@ -21,7 +21,7 @@ from .base import (
 __all__ = ['validate_exotel_token', 'send_via_exotel', 'send_via_twilio', 'send']
 
 
-def make_exotel_token(to: str):
+def make_exotel_token(to: str) -> str:
     """
     Create a signed token for Exotel using the phone number as a verification key.
 
@@ -30,7 +30,7 @@ def make_exotel_token(to: str):
     return token_serializer().dumps({'to': to})
 
 
-def validate_exotel_token(token: str, to: str):
+def validate_exotel_token(token: str, to: str) -> bool:
     """Verify the Exotel token created using :func:`make_exotel_token`."""
     try:
         # Allow 7 days validity for the callback token
