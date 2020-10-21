@@ -289,7 +289,7 @@ export const Utils = {
             (document.querySelector('link[rel=canonical]') &&
               document.querySelector('link[rel=canonical]').href) ||
             window.location.href,
-          text: $(this).data('title') || '',
+          text: $(this).data('text') || '',
         });
       });
     } else {
