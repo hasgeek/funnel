@@ -2,11 +2,22 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import Type
 
-from flask import Response, current_app, flash, redirect, request, session, url_for
+from flask import (
+    Response,
+    current_app,
+    flash,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 import itsdangerous
 
-from baseframe import _, statsd
-from baseframe.forms import render_form
+from baseframe import _, request_is_xhr, statsd
+from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url
@@ -354,7 +365,7 @@ def requires_sudo(f):
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
             session['next'] = get_current_url()
-            return redirect(url_for('login'))
+            return render_redirect(url_for('login'))
         # If the user has not authenticated in some time, ask for the password again
         if not current_auth.session.has_sudo:
             # If the user doesn't have a password, ask them to set one first
@@ -368,7 +379,7 @@ def requires_sudo(f):
                     'info',
                 )
                 session['next'] = get_current_url()
-                return redirect(url_for('change_password'))
+                return render_redirect(url_for('change_password'))
             # A future version of this form may accept password or 2FA (U2F or TOTP)
             form = PasswordForm(edit_user=current_auth.user)
             if form.validate_on_submit():
@@ -377,7 +388,36 @@ def requires_sudo(f):
                 # render its own form
                 current_auth.session.set_sudo()
                 db.session.commit()
-                return redirect(request.url, code=303)
+                continue_url = session.pop('next', request.url)
+                return redirect(continue_url, code=303)
+
+            if request_is_xhr():
+                # We can't render a form if it's an XHR request, so we need to ask for
+                # the page to be loaded afresh
+                if request.accept_mimetypes.best == 'application/json':
+                    # A JSON-only endpoint can't render a form, so we have to redirect
+                    # the browser to the account_sudo endpoint, asking it to redirect
+                    # back here after getting the user's password. That will be:
+                    # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
+                    # identifier should be included to reload to the same dialog the
+                    # user was sent away from.
+
+                    # TODO: Remove this line before merging PR
+                    app.logger.debug("Raising requires_sudo error over JSON")
+                    return make_response(
+                        jsonify(
+                            status='error',
+                            error='requires_sudo',
+                            error_description=_(
+                                "This request must be confirmed with your password"
+                            ),
+                        ),
+                        422,
+                    )
+                else:
+                    # TODO: Remove this line before merging PR
+                    app.logger.debug("Redirecting user to this page for requires_sudo")
+                    return render_template('redirect.html.jinja2', url=request.url)
 
             return render_form(
                 form=form,
