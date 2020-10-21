@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import List
 import hashlib
 
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -41,9 +42,7 @@ __all__ = [
 
 
 class SharedProfileMixin:
-    """
-    Common methods between User and Organization to link to Profile
-    """
+    """Common methods between User and Organization to link to Profile."""
 
     # The `name` property in User and Organization is not over here because
     # of what seems to be a SQLAlchemy bug: we can't override the expression
@@ -68,7 +67,7 @@ class SharedProfileMixin:
 
     @property
     def has_public_profile(self):
-        """Controls the visibility state of a public profile"""
+        """Return the visibility state of a public profile."""
         return self.profile is not None and self.profile.state.PUBLIC
 
     with_roles(has_public_profile, read={'all'}, write={'owner'})
@@ -81,7 +80,7 @@ class SharedProfileMixin:
             else ''
         )
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self):
         return self.profile.url_for() if self.has_public_profile else None
@@ -105,7 +104,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     # XXX: Deprecated, still here for Baseframe compatibility
     userid = db.synonym('buid')
     #: The user's fullname
-    fullname = with_roles(
+    fullname: db.Column = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
     )
@@ -223,7 +222,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if self.profile:
             return self.profile.name
 
-    @name.setter
+    @name.setter  # type: ignore[no-redef]
     def name(self, value):
         if not value:
             if self.profile is not None:
@@ -234,7 +233,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             else:
                 self.profile = Profile(name=value, user=self, uuid=self.uuid)
 
-    @name.expression
+    @name.expression  # type: ignore[no-redef]
     def name(cls):  # NOQA: N805
         return db.select([Profile.name]).where(Profile.user_id == cls.id).label('name')
 
@@ -247,14 +246,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @cached_property
     def verified_contact_count(self):
-        count = 0
-        count += len(self.emails)
-        count += len(self.phones)
-        return count
+        return len(self.emails) + len(self.phones)
 
     @property
     def has_verified_contact_info(self):
-        return self.verified_contact_count > 0
+        return bool(self.emails) or bool(self.phones)
 
     def merged_user(self):
         if self.status == USER_STATUS.MERGED:
@@ -276,7 +272,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     password = property(fset=_set_password)
 
     def password_has_expired(self):
-        """True if password expiry timestamp has passed."""
+        """Verify if password expiry timestamp has passed."""
         return (
             self.pw_hash is not None
             and self.pw_expires_at is not None
@@ -300,14 +296,16 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return False
 
     def __repr__(self):
+        """Represent :class:`User` as a string."""
         return '<User {username} "{fullname}">'.format(
             username=self.username or self.buid, fullname=self.fullname
         )
 
     def __str__(self):
+        """Return picker name for user."""
         return self.pickername
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pickername(self):
         if self.username:
@@ -342,9 +340,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @with_roles(read={'owner'})
     @cached_property
     def email(self):
-        """
-        Returns primary email address for user.
-        """
+        """Return primary email address for user."""
         # Look for a primary address
         useremail = self.primary_email
         if useremail:
@@ -364,9 +360,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @with_roles(read={'owner'})
     @cached_property
     def phone(self):
-        """
-        Returns primary phone number for user.
-        """
+        """Return primary phone number for user."""
         # Look for a primary phone number
         userphone = self.primary_phone
         if userphone:
@@ -384,10 +378,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return ''
 
     def is_profile_complete(self):
-        """
-        Return True if profile is complete (fullname, username and one contact are
-        present), False otherwise.
-        """
+        """Verify if profile is complete (fullname, username and contacts present)."""
         return bool(self.fullname and self.username and self.has_verified_contact_info)
 
     # --- Transport details
@@ -439,6 +430,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @with_roles(call={'owner'})
     def has_transport(self, transport):
         """
+        Verify if user has a given transport.
+
         Helper method to call ``self.has_transport_<transport>()``.
 
         ..note::
@@ -451,19 +444,29 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     def transport_for(self, transport, context):
-        """Helper method to call ``self.transport_for_<transport>(context)``."""
+        """
+        Get transport address for a given transport and context.
+
+        Helper method to call ``self.transport_for_<transport>(context)``.
+        """
         return getattr(self, 'transport_for_' + transport)(context)
 
-    @with_roles(grants={'owner', 'admin'})
+    @with_roles(grants={'owner', 'admin'})  # type: ignore[misc]
     @property
     def _self_is_owner_and_admin_of_self(self):
-        """Helper method for ``roles_for`` and ``actors_with``."""
+        """
+        Return self.
+
+        Helper method for :meth:`roles_for` and :meth:`actors_with` to assert that the
+        user is owner and admin of their own account.
+        """
         return self
 
     def organizations_as_owner_ids(self):
         """
-        Return the database ids of the organizations this user is an owner of. This is
-        used for database queries.
+        Return the database ids of the organizations this user is an owner of.
+
+        This is used for database queries.
         """
         return [
             membership.organization_id
@@ -546,6 +549,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def autocomplete(cls, query):
         """
         Return users whose names begin with the query, for autocomplete widgets.
+
         Looks up users by fullname, username, external ids and email addresses.
 
         :param str query: Letters to start matching with
@@ -673,6 +677,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
     )
 
     def __repr__(self):
+        """Represent :class:`UserOldId` as a string."""
         return '<UserOldId {buid} of {user}>'.format(
             buid=self.buid, user=repr(self.user)[1:-1]
         )
@@ -825,7 +830,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if self.profile:
             return self.profile.name
 
-    @name.setter
+    @name.setter  # type: ignore[no-redef]
     def name(self, value):
         if not value:
             if self.profile is not None:
@@ -836,7 +841,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             else:
                 self.profile = Profile(name=value, organization=self, uuid=self.uuid)
 
-    @name.expression
+    @name.expression  # type: ignore[no-redef]
     def name(cls):  # NOQA: N805
         return (
             db.select([Profile.name])
@@ -847,11 +852,12 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     with_roles(name, read={'all'})
 
     def __repr__(self):
+        """Represent :class:`Organization` as a string."""
         return '<Organization {name} "{title}">'.format(
             name=self.name or self.buid, title=self.title
         )
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pickername(self):
         if self.name:
@@ -953,6 +959,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
     is_public = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
+        """Represent :class:`Team` as a string."""
         return '<Team {team} of {organization}>'.format(
             team=self.title, organization=repr(self.organization)[1:-1]
         )
@@ -1016,11 +1023,13 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
         super().__init__(user=user, **kwargs)
 
     def __repr__(self):
+        """Represent :class:`UserEmail` as a string."""
         return '<UserEmail {email} of {user}>'.format(
             email=self.email, user=repr(self.user)[1:-1]
         )
 
     def __str__(self):
+        """Email address as a string."""
         return self.email
 
     @property
@@ -1057,7 +1066,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     @classmethod
     def get_for(cls, user, email=None, blake2b160=None, email_hash=None):
         """
-        Return a UserEmail with matching email or hash if it belongs to the given user
+        Return a UserEmail with matching email or hash if it belongs to the given user.
 
         :param User user: User to look up for
         :param str email: Email address to look up
@@ -1116,11 +1125,13 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         return base58.b58encode(self.blake2b)
 
     def __repr__(self):
+        """Represent :class:`UserEmailClaim` as a string."""
         return '<UserEmailClaim {email} of {user}>'.format(
             email=self.email, user=repr(self.user)[1:-1]
         )
 
     def __str__(self):
+        """Return email as a string."""
         return self.email
 
     def permissions(self, user, inherited=None):
@@ -1195,7 +1206,7 @@ class PhoneHashMixin:
 
     @property
     def transport_hash(self):
-        """Identifier for phone number, for notifications framework."""
+        """Return hash of phone number, for notifications framework."""
         base58.b58encode(self.blake2b160).decode()
 
 
@@ -1220,11 +1231,13 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     phone = db.synonym('_phone', descriptor=phone)
 
     def __repr__(self):
+        """Represent :class:`UserPhone` as a string."""
         return '<UserPhone {phone} of {user}>'.format(
             phone=self.phone, user=repr(self.user)[1:-1]
         )
 
     def __str__(self):
+        """Return phone number as a string."""
         return self.phone
 
     def parsed(self):
@@ -1259,7 +1272,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     @classmethod
     def get_for(cls, user, phone):
         """
-        Return a UserPhone with matching phone number if it belongs to the given user
+        Return a UserPhone with matching phone number if it belongs to the given user.
 
         :param User user: User to check against
         :param str phone: Phone number to lookup (must be an exact match)
@@ -1303,11 +1316,13 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     phone = db.synonym('_phone', descriptor=phone)
 
     def __repr__(self):
+        """Represent :class:`UserPhoneClaim` as a string."""
         return '<UserPhoneClaim {phone} of {user}>'.format(
             phone=self.phone, user=repr(self.user)[1:-1]
         )
 
     def __str__(self):
+        """Return phone number as a string."""
         return self.phone
 
     def parsed(self):
@@ -1359,7 +1374,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
 
     @classmethod
     def delete_expired(cls):
-        """Delete expired phone claims"""
+        """Delete expired phone claims."""
         # Delete if:
         # 1. The claim is > 1 hour old
         # 2. Too many unsuccessful verification attempts
@@ -1373,7 +1388,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
 
 class UserExternalId(BaseMixin, db.Model):
     __tablename__ = 'user_externalid'
-    __at_username_services__ = []
+    __at_username_services__: List[str] = []
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('externalids', cascade='all'))
     service = db.Column(db.UnicodeText, nullable=False)
@@ -1397,6 +1412,7 @@ class UserExternalId(BaseMixin, db.Model):
     )
 
     def __repr__(self):
+        """Represent :class:`UserExternalId` as a string."""
         return '<UserExternalId {service}:{username} of {user}>'.format(
             service=self.service, username=self.username, user=repr(self.user)[1:-1]
         )

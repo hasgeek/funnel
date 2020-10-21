@@ -8,9 +8,7 @@ from .test_db import TestDatabaseFixture
 
 class TestModels(TestDatabaseFixture):
     def test_merge_users(self):
-        """
-        Test to verify merger of user accounts and return new user
-        """
+        """Test to verify merger of user accounts and return new user."""
         # Scenario 1: if first user's created_at date is older than second user's
         # created_at
         crusoe = self.fixtures.crusoe
@@ -42,9 +40,7 @@ class TestModels(TestDatabaseFixture):
             self.assertEqual(subramanian.status, 2)
 
     def test_getuser(self):
-        """
-        Test for retrieving username by prepending @
-        """
+        """Test for retrieving username by prepending @."""
         # scenario 1: with @ starting in name and extid
         crusoe = self.fixtures.crusoe
         service_twitter = 'twitter'
@@ -103,9 +99,7 @@ class TestModels(TestDatabaseFixture):
         self.assertIsNone(result6)
 
     def test_getextid(self):
-        """
-        Test for retrieving user given service and userid
-        """
+        """Test for retrieving user given service and userid."""
         crusoe = self.fixtures.crusoe
         email = crusoe.email.email
         service_facebook = 'facebook'

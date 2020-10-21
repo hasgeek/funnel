@@ -1,4 +1,4 @@
-"""Create Lastuser tables
+"""Create Lastuser tables.
 
 Revision ID: 382cde270594
 Revises: 09562978e3de

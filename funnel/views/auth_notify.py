@@ -39,11 +39,7 @@ def notify_session_revoked(session):
 
 @user_data_changed.connect
 def notify_user_data_changed(user, changes):
-    """
-    Look for changes that need to be notified to client apps,
-    then look for apps that have user data and accept notifications,
-    and then notify them.
-    """
+    """Send notifications to trusted auth clients about relevant user data changes."""
     if user_changes_to_notify & set(changes):
         # We have changes that apps need to hear about
         for token in user.authtokens:
@@ -96,8 +92,10 @@ def notify_user_data_changed(user, changes):
 @org_data_changed.connect
 def notify_org_data_changed(org, user, changes, team=None):
     """
-    Like :func:`notify_user_data_changed`, except we'll also look at
-    all other owners of this org to find apps that need to be notified.
+    Send notifications to trusted auth clients about org data changes.
+
+    Like :func:`notify_user_data_changed`, except also looks at all other owners of this
+    org to find apps that need to be notified.
     """
     client_users = {}
     for token in AuthToken.all(users=org.admin_users):
@@ -132,9 +130,7 @@ def notify_org_data_changed(org, user, changes, team=None):
 
 @team_data_changed.connect
 def notify_team_data_changed(team, user, changes):
-    """
-    Pass-through function that calls :func:`notify_org_data_changed`.
-    """
+    """Notify :func:`notify_org_data_changed` for changes to the team."""
     notify_org_data_changed(
         team.organization, user=user, changes=['team-' + c for c in changes], team=team
     )

@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from flask import get_flashed_messages, jsonify, redirect, render_template, request
 
 from baseframe import _, forms
@@ -25,10 +27,8 @@ class ScopeException(Exception):
     pass
 
 
-def verifyscope(scope, auth_client):
-    """
-    Verify if requested scope is valid for this client. Scope must be a list.
-    """
+def verifyscope(scope: Iterable, auth_client: AuthClient):
+    """Verify if requested scope is valid for this client."""
     internal_resources = []  # Names of internal resources
     full_client_access = []  # Clients linked to namespace:* scope
 
@@ -118,16 +118,15 @@ def verifyscope(scope, auth_client):
 
 
 def oauth_auth_403(reason):
-    """
-    Returns 403 errors for /auth
-    """
+    """Return 403 errors for /auth."""
     return render_template('oauth_403.html.jinja2', reason=reason), 403
 
 
 def oauth_make_auth_code(auth_client, scope, redirect_uri):
     """
-    Make an auth code for a given client. Caller must commit
-    the database session for this to work.
+    Make an auth code for a given auth client.
+
+    Caller must commit the database session for this to work.
     """
     authcode = AuthCode(
         user=current_auth.user,
@@ -143,17 +142,17 @@ def oauth_make_auth_code(auth_client, scope, redirect_uri):
 
 def clear_flashed_messages():
     """
-    Clear pending flashed messages. This is useful when redirecting the user to a
-    remote site where they cannot see the messages. If they return much later,
-    they could be confused by a message for an action they do not recall.
+    Clear pending flashed messages.
+
+    This is useful when redirecting the user to a remote site where they cannot see the
+    messages. If they return much later, they could be confused by a message for an
+    action they do not recall.
     """
     list(get_flashed_messages())
 
 
 def oauth_auth_success(auth_client, redirect_uri, state, code, token=None):
-    """
-    Commit session and redirect to OAuth redirect URI
-    """
+    """Commit session and redirect to OAuth redirect URI."""
     clear_flashed_messages()
     db.session.commit()
     if auth_client.confidential:
@@ -192,9 +191,7 @@ def oauth_auth_success(auth_client, redirect_uri, state, code, token=None):
 def oauth_auth_error(
     redirect_uri, state, error, error_description=None, error_uri=None
 ):
-    """
-    Auth request resulted in an error. Return to client.
-    """
+    """Return to auth client indicating that auth request resulted in an error."""
     params = {'error': error}
     if state is not None:
         params['state'] = state
@@ -214,9 +211,7 @@ def oauth_auth_error(
 @lastuserapp.route('/auth', methods=['GET', 'POST'])
 @requires_login_no_message
 def oauth_authorize():
-    """
-    OAuth2 server -- authorization endpoint
-    """
+    """Provide authorization endpoint for OAuth2 server."""
     form = forms.Form()
 
     response_type = request.args.get('response_type')
@@ -438,9 +433,7 @@ def oauth_token_success(token, **params):
 @lastuserapp.route('/token', methods=['POST'])
 @requires_client_login
 def oauth_token():
-    """
-    OAuth2 server -- token endpoint (confidential clients only)
-    """
+    """Provide token endpoint for OAuth2 server."""
     # Always required parameters
     grant_type = abort_null(request.form.get('grant_type'))
     auth_client = current_auth.auth_client  # Provided by @requires_client_login

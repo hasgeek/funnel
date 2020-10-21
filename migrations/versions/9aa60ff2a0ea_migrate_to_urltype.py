@@ -1,4 +1,4 @@
-"""migrate to urltype
+"""Migrate to urltype.
 
 Revision ID: 9aa60ff2a0ea
 Revises: 38394aa411d0

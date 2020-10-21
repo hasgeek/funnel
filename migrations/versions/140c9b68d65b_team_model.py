@@ -1,4 +1,4 @@
-"""Team model
+"""Team model.
 
 Revision ID: 140c9b68d65b
 Revises: 1bb2df0df8e2

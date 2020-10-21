@@ -1,4 +1,4 @@
-"""comment moderator report resolved_at
+"""Comment moderator report resolved_at.
 
 Revision ID: a42398081979
 Revises: 2d2797b91909

@@ -1,4 +1,4 @@
-"""add participant uuid field
+"""Add participant uuid field.
 
 Revision ID: 321b11b6a413
 Revises: 664141d5ec56

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from functools import wraps
+from typing import Type
 
 from flask import (
     Response,
@@ -47,6 +48,10 @@ user_session_validity_period_total_seconds = int(
 class LoginManager:
     """Compatibility login manager that resembles Flask-Lastuser."""
 
+    # For compatibility with baseframe.forms.fields.UserSelectFieldBase
+    usermanager: Type
+    usermodel = User
+
     # Flag for Baseframe to avoid attempting API calls
     is_master_data_source = True
 
@@ -60,10 +65,7 @@ class LoginManager:
 
     @staticmethod
     def _load_user():
-        """
-        If there's a buid in the session, retrieve the user object and add
-        to the request namespace object g.
-        """
+        """Load the user object to `current_auth` if there's a buid in the session."""
         add_auth_attribute('user', None)
         add_auth_attribute('session', None)
 
@@ -157,7 +159,6 @@ class LoginManager:
 
 # For compatibility with baseframe.forms.fields.UserSelectFieldBase
 LoginManager.usermanager = LoginManager
-LoginManager.usermodel = User
 
 
 @UserSession.views('mark_accessed')
@@ -317,7 +318,7 @@ def update_user_session_timestamp(response):
 
 
 def requires_login(f):
-    """Decorator to require a login for the given view."""
+    """Decorate a view to require login."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -333,8 +334,9 @@ def requires_login(f):
 
 def requires_login_no_message(f):
     """
-    Decorator to require a login for the given view. Does not display a message asking
-    the user to login.
+    Decorate a view to require login, without displaying a friendly message.
+
+    Used on views where the user is informed in advance that login is required.
     """
 
     @wraps(f)
@@ -350,7 +352,7 @@ def requires_login_no_message(f):
 
 def requires_sudo(f):
     """
-    Decorator to require user to have re-authenticated recently.
+    Decorate a view to require user to have re-authenticated recently.
 
     Requires the endpoint to support the POST method, as it renders a password form
     within the same request, without redirecting the user to a gatekeeping endpoint.
@@ -454,7 +456,7 @@ def _client_login_inner():
 
 
 def requires_client_login(f):
-    """Decorator to require a client login via HTTP Basic Authorization."""
+    """Decorate a view to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -468,7 +470,9 @@ def requires_client_login(f):
 
 def requires_user_or_client_login(f):
     """
-    Decorator to require a user or client login (user by cookie, client by HTTP Basic).
+    Decorate a view to require a user or client login.
+
+    User login should be via an auth cookie, client login via HTTP Basic Authentication.
     """
 
     @wraps(f)
@@ -488,8 +492,10 @@ def requires_user_or_client_login(f):
 
 def requires_client_id_or_user_or_client_login(f):
     """
-    Decorator to require a client_id and session or a user or client login
-    (client_id and session in the request args, user by cookie, client by HTTP Basic).
+    Decorate view to require a client_id and session, or a user, or client login.
+
+    Looks for `client_id` and session in the request args, user in an auth cookie, or
+    client via HTTP Basic Authentication.
     """
 
     @wraps(f)
@@ -535,8 +541,9 @@ def requires_client_id_or_user_or_client_login(f):
 
 def login_internal(user, user_session=None, login_service=None):
     """
-    Login a user and create a session. If the login is from funnelapp, reuse the
-    existing session.
+    Login a user and create a session.
+
+    If the login is from funnelapp, reuse the existing session.
     """
     add_auth_attribute('user', user)
     if not user_session or user_session.user != user:

@@ -1,4 +1,4 @@
-"""Featured project flag
+"""Featured project flag.
 
 Revision ID: ea20c403b240
 Revises: c38fa391613f

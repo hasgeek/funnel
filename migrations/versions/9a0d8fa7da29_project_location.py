@@ -1,4 +1,4 @@
-"""project location
+"""Project location.
 
 Revision ID: 9a0d8fa7da29
 Revises: eec2fad0f3e9

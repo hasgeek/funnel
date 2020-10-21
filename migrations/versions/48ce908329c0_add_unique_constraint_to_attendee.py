@@ -1,4 +1,4 @@
-"""add_unique_constraint_to_attendee
+"""Add unique constraint to attendee.
 
 Revision ID: 48ce908329c0
 Revises: 2d73dbe935dc

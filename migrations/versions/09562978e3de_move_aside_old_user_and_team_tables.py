@@ -1,4 +1,4 @@
-"""Move aside old user and team tables
+"""Move aside old user and team tables.
 
 Revision ID: 09562978e3de
 Revises: 321b11b6a413

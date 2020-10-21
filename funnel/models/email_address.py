@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, List, Optional, Set, Union, cast
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -12,10 +12,17 @@ from sqlalchemy.orm.attributes import NO_VALUE
 from werkzeug.utils import cached_property
 
 from pyisemail import is_email
+from pyisemail.diagnosis import BaseDiagnosis
 import base58
 import idna
 
-from coaster.sqlalchemy import StateManager, auto_init_default, immutable, with_roles
+from coaster.sqlalchemy import (
+    Query,
+    StateManager,
+    auto_init_default,
+    immutable,
+    with_roles,
+)
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
@@ -115,24 +122,22 @@ def email_normalized(email: str) -> str:
 
 
 def email_blake2b160_hash(email: str) -> bytes:
-    """
-    Returns an BLAKE2b hash of the given email address using digest size 20 (160 bits).
-    """
+    """BLAKE2b hash of the given email address using digest size 20 (160 bits)."""
     return hashlib.blake2b(
         email_normalized(email).encode('utf-8'), digest_size=20
     ).digest()
 
 
 class EmailAddressError(ValueError):
-    """Base class for EmailAddress exceptions"""
+    """Base class for EmailAddress exceptions."""
 
 
 class EmailAddressBlockedError(EmailAddressError):
-    """Email address is blocked from use"""
+    """Email address is blocked from use."""
 
 
 class EmailAddressInUseError(EmailAddressError):
-    """Email address is in use by another owner"""
+    """Email address is in use by another owner."""
 
 
 class EmailAddress(BaseMixin, db.Model):
@@ -168,10 +173,11 @@ class EmailAddress(BaseMixin, db.Model):
     __tablename__ = 'email_address'
 
     #: Backrefs to this model from other models, populated by :class:`EmailAddressMixin`
-    __backrefs__ = set()
+    #: Contains the name of the relationship in the :class:`EmailAddress` model
+    __backrefs__: Set[str] = set()
     #: These backrefs claim exclusive use of the email address for their linked owner.
     #: See :class:`EmailAddressMixin` for implementation detail
-    __exclusive_backrefs__ = set()
+    __exclusive_backrefs__: Set[str] = set()
 
     #: The email address, centrepiece of this model. Case preserving.
     #: Validated by the :func:`_validate_email` event handler
@@ -182,9 +188,9 @@ class EmailAddress(BaseMixin, db.Model):
 
     # email_normalized is defined below
 
-    #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if email
-    #: is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the
-    #: name, we're only storing 20 bytes
+    #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if
+    #: email is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite
+    #: the name, we're only storing 20 bytes
     blake2b160 = immutable(db.Column(db.LargeBinary, nullable=False, unique=True))
 
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
@@ -263,23 +269,22 @@ class EmailAddress(BaseMixin, db.Model):
     @hybrid_property
     def is_blocked(self) -> bool:
         """
-        Read-only flag indicating this email address is blocked from use. To set this
-        flag, call :classmethod:`mark_blocked` using the email address. The flag will be
-        simultaneously set on all matching instances.
+        Read-only flag indicating this email address is blocked from use.
+
+        To set this flag, call :classmethod:`mark_blocked` using the email address. The
+        flag will be simultaneously set on all matching instances.
         """
         return self._is_blocked
 
     @hybrid_property
     def domain(self) -> Optional[str]:
-        """The domain of the email, stored for quick lookup of related addresses."""
+        """Domain of the email, stored for quick lookup of related addresses."""
         return self._domain
 
     # This should not use `cached_property` as email is partially mutable
     @property
     def email_normalized(self) -> Optional[str]:
-        """
-        Normalized representation of the email address, for hashing.
-        """
+        """Return normalized representation of the email address, for hashing."""
         return email_normalized(self.email) if self.email else None
 
     # This should not use `cached_property` as email is partially mutable
@@ -332,6 +337,8 @@ class EmailAddress(BaseMixin, db.Model):
         # are immutable once set, so there are no content validators for them.
         self.blake2b160 = email_blake2b160_hash(email)
         self.email = email
+        # email_canonical is set by `email`'s validator
+        assert self.email_canonical is not None  # nosec
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
     def is_exclusive(self):
@@ -371,7 +378,7 @@ class EmailAddress(BaseMixin, db.Model):
         self.delivery_state_at = db.func.utcnow()
 
     def refcount(self) -> int:
-        """Returns count of references to this EmailAddress instance"""
+        """Count of references to this :class:`EmailAddress` instance."""
         # obj.email_address_reference_is_active is a bool, but int(bool) is 0 or 1
         return sum(
             sum(
@@ -437,7 +444,7 @@ class EmailAddress(BaseMixin, db.Model):
     @classmethod
     def get_canonical(
         cls, email: str, is_blocked: Optional[bool] = None
-    ) -> Iterable[EmailAddress]:
+    ) -> Query[EmailAddress]:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
 
@@ -455,10 +462,12 @@ class EmailAddress(BaseMixin, db.Model):
     @classmethod
     def _get_existing(cls, email: str) -> Optional[EmailAddress]:
         """
+        Get an existing :class:`EmailAddress` instance.
+
         Internal method used by :meth:`add`, :meth:`add_for` and :meth:`validate_for`.
         """
         if not cls.is_valid_email_address(email):
-            return
+            return None
         if cls.get_canonical(email, is_blocked=True).notempty():
             raise EmailAddressBlockedError("Email address is blocked")
         return EmailAddress.get(email)
@@ -536,7 +545,8 @@ class EmailAddress(BaseMixin, db.Model):
             if diagnosis is True:
                 # No problems
                 return True
-            if diagnosis and diagnosis.diagnosis_type == 'NO_MX_RECORD':
+            # get_canonical won't return False when diagnose=True. Tell mypy:
+            if cast(BaseDiagnosis, diagnosis).diagnosis_type == 'NO_MX_RECORD':
                 return 'nomx'
             return 'invalid'
         # There's an existing? Is it available for this owner?
@@ -558,7 +568,9 @@ class EmailAddress(BaseMixin, db.Model):
         return True
 
     @staticmethod
-    def is_valid_email_address(email: str, check_dns=False, diagnose=False) -> bool:
+    def is_valid_email_address(
+        email: str, check_dns=False, diagnose=False
+    ) -> Union[bool, BaseDiagnosis]:
         """
         Return True if given email address is syntactically valid.
 
@@ -590,7 +602,7 @@ class EmailAddressMixin:
     #: This class has a unique constraint on the fkey to EmailAddress
     __email_unique__ = False
     #: A relationship from this model is for the (single) owner at this attr
-    __email_for__ = None
+    __email_for__: Optional[str] = None
     #: If `__email_for__` is specified and this flag is True, the email address is
     #: considered exclusive to this owner and may not be used by any other owner
     __email_is_exclusive__ = False
@@ -652,7 +664,12 @@ class EmailAddressMixin:
 
     @property
     def email_address_reference_is_active(self):
-        """Subclasses should replace this if they hold inactive references"""
+        """
+        Assert that the reference to an email address is valid, requiring it to be kept.
+
+        Subclasses should override to return `False` if they hold inactive references
+        and approve of the email address being forgotten.
+        """
         return True
 
     @property

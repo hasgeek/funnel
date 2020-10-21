@@ -1,4 +1,4 @@
-"""Complement email md5sum with blake2b
+"""Complement email md5sum with blake2b.
 
 Revision ID: 047ebdac558b
 Revises: f58bd7c54f9b

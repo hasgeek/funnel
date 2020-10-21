@@ -1,4 +1,4 @@
-"""naming fixes
+"""Naming fixes.
 
 Revision ID: 2d73dbe935dc
 Revises: 380089617763

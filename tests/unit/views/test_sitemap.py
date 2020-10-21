@@ -18,13 +18,13 @@ from funnel.views.sitemap import (
 
 
 def test_string_changefreq():
-    """ChangeFreq enum can be cast to and compared with str"""
+    """The ChangeFreq enum can be cast to and compared with str."""
     assert ChangeFreq.daily == 'daily'
     assert str(ChangeFreq.daily) == 'daily'
 
 
 def test_dates_have_timezone():
-    """Sitemap month and date functions require UTC timestamps"""
+    """Sitemap month and date functions require UTC timestamps."""
     aware_now = utcnow()
     naive_now = aware_now.replace(tzinfo=None)
 
@@ -45,7 +45,7 @@ def test_dates_have_timezone():
 
 
 def test_all_sitemap_months_days():
-    """The sitemap months and days ranges are contiguous"""
+    """The sitemap months and days ranges are contiguous."""
     # Test dates 14, 15, 16 & 17, at midnight and noon, to see month/day rollover
 
     until = datetime(2020, 10, 14, tzinfo=utc)
@@ -114,8 +114,7 @@ def test_all_sitemap_months_days():
 
 
 def test_validate_daterange():
-    """Test the values that validate_dayrange accepts"""
-
+    """Test the values that validate_dayrange accepts."""
     # String dates are accepted
     assert validate_daterange('2015', '11', '05') == (
         datetime(2015, 11, 5, tzinfo=utc),
@@ -200,7 +199,7 @@ def test_validate_daterange():
 
 
 def test_changefreq_for_age():
-    """Test that changefreq is age-appropriate"""
+    """Test that changefreq is age-appropriate."""
     # Less than a day
     assert changefreq_for_age(timedelta(hours=1)) == ChangeFreq.hourly
     assert changefreq_for_age(timedelta(hours=10)) == ChangeFreq.hourly
@@ -215,7 +214,7 @@ def test_changefreq_for_age():
 
 
 def test_sitemap(test_client, test_db_structure):
-    """Test sitemap endpoints (caveat: no content checks)"""
+    """Test sitemap endpoints (caveat: no content checks)."""
     expected_content_type = 'application/xml; charset=utf-8'
 
     rv = test_client.get('/sitemap.xml')

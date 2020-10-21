@@ -1,4 +1,4 @@
-"""profile website field
+"""Profile website field.
 
 Revision ID: 80b09cfb38c6
 Revises: 99e5e7b54104

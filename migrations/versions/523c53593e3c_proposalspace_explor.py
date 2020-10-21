@@ -1,4 +1,4 @@
-"""ProposalSpace explore URL
+"""ProposalSpace explore URL.
 
 Revision ID: 523c53593e3c
 Revises: 14d7082476c0

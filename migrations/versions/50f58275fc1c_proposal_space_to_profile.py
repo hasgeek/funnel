@@ -1,4 +1,4 @@
-"""Proposal space to profile
+"""Proposal space to profile.
 
 Revision ID: 50f58275fc1c
 Revises: 50a8f43b4e5f

@@ -1,4 +1,4 @@
-"""Proposal.status
+"""Proposal status.
 
 Revision ID: 3c47ba103724
 Revises: 6f98e24760d

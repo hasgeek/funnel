@@ -28,7 +28,7 @@ def send_email_verify_link(useremail):
 
 
 def send_password_reset_link(email, user, token):
-    """Mail a password reset link to the user"""
+    """Mail a password reset link to the user."""
     subject = _("Reset your password")
     url = url_for(
         'reset_email',

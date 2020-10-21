@@ -1,4 +1,4 @@
-"""add cascade to project model fks
+"""Add cascade to project model fks.
 
 Revision ID: ef93d256a8cf
 Revises: 347c236041d3

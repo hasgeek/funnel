@@ -244,7 +244,7 @@ def token_get_scope():
 @lastuserapp.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
 @requires_user_or_client_login
 def user_get_by_userid():
-    """Returns user or organization with the given userid (Lastuser internal buid)."""
+    """Return user or organization with the given userid (Lastuser internal buid)."""
     buid = abort_null(request.values.get('userid'))
     if not buid:
         return api_result('error', error='no_userid_provided')
@@ -286,7 +286,8 @@ def user_get_by_userid():
 @requestargs(('userid[]', abort_null))
 def user_get_by_userids(userid):
     """
-    Returns users and organizations with the given userids (Lastuser internal userid).
+    Return users and organizations with the given userids (Lastuser internal userid).
+
     This is identical to get_by_userid but accepts multiple userids and returns a list
     of matching users and organizations
     """
@@ -332,7 +333,7 @@ def user_get_by_userids(userid):
 @requires_user_or_client_login
 @requestargs(('name', abort_null))
 def user_get(name):
-    """Returns user with the given username or email address."""
+    """Return user with the given username or email address."""
     if not name:
         return api_result('error', error='no_name_provided')
     user = getuser(name)
@@ -358,7 +359,7 @@ def user_get(name):
 @requires_user_or_client_login
 @requestargs(('name[]', abort_null))
 def user_getall(name):
-    """Returns users with the given username or email address."""
+    """Return users with the given username or email address."""
     names = name
     buids = set()  # Dupe checker
     if not names:
@@ -392,7 +393,7 @@ def user_getall(name):
 @requires_client_id_or_user_or_client_login
 def user_autocomplete():
     """
-    Returns users matching the search term.
+    Return users matching the search term.
 
     Looks up users by their name, @username, or by full email address.
     """

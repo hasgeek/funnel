@@ -61,7 +61,9 @@ proposal_headers = [
 
 def proposal_data(proposal):
     """
-    Return proposal data suitable for a JSON dump. Request helper, not to be used standalone.
+    Return proposal data suitable for a JSON dump.
+
+    Request helper, not to be used standalone.
     """
     return dict(
         [

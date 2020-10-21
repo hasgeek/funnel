@@ -1,4 +1,4 @@
-"""Migrate email addresses
+"""Migrate email addresses.
 
 Revision ID: ae075a249493
 Revises: 9333436765cd

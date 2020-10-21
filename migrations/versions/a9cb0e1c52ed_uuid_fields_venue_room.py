@@ -1,4 +1,4 @@
-"""uuid fields venue_room
+"""Uuid fields venue_room.
 
 Revision ID: a9cb0e1c52ed
 Revises: e417a13e136d

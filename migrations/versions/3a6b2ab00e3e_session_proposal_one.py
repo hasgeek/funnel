@@ -1,4 +1,4 @@
-"""Make session:proposal 1:1
+"""Make session:proposal 1:1.
 
 Revision ID: 3a6b2ab00e3e
 Revises: 4dbf686f4380

@@ -314,6 +314,7 @@ class Proposal(
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
 
     def __repr__(self):
+        """Represent :class:`Proposal` as a string."""
         return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
             proposal=self.title, project=self.project.title, user=self.owner.fullname
         )
@@ -495,18 +496,14 @@ class Proposal(
 
     @with_roles(call={'project_editor', 'reviewer'})
     def move_to(self, project):
-        """
-        Move to a new project and reset the url_id
-        """
+        """Move to a new project and reset :attr:`url_id`."""
         self.project = project
         self.url_id = None
         self.make_id()
 
     @with_roles(call={'project_editor', 'reviewer'})
     def transfer_to(self, user):
-        """
-        Transfer the proposal to a new user and speaker
-        """
+        """Transfer the proposal to a new user and speaker."""
         self.speaker = user
 
     @property
@@ -531,10 +528,7 @@ class Proposal(
 
     @cached_property
     def has_outstation_speaker(self):
-        """
-        Returns True iff the location can be geocoded and is found to be different
-        compared to the project's location.
-        """
+        """Verify if geocoded proposal location field differs from project location."""
         geonameid = geonameid_from_location(self.location)
         return bool(geonameid) and self.project.location_geonameid.isdisjoint(geonameid)
 
@@ -626,20 +620,22 @@ class ProposalRedirect(TimestampMixin, db.Model):
     @hybrid_property
     def url_id_name(self):
         """
-        Returns a URL name that is just :attr:`url_id`. This property is also
-        available as :attr:`url_name` for legacy reasons. This property will
-        likely never be called directly on an instance. It exists for the SQL
-        comparator that will be called to load the instance.
+        Return :attr:`url_id` as a string.
+
+        This property is also available as :attr:`url_name` for legacy reasons. This
+        property will likely never be called directly on an instance. It exists for the
+        SQL comparator that will be called to load the instance.
         """
         return str(self.url_id)
 
-    @url_id_name.comparator
+    @url_id_name.comparator  # type: ignore[no-redef]
     def url_id_name(cls):  # NOQA: N805
         return SqlSplitIdComparator(cls.url_id, splitindex=0)
 
     url_name = url_id_name  # Legacy name
 
     def __repr__(self):
+        """Represent :class:`ProposalRedirect` as a string."""
         return '<ProposalRedirect %s/%s/%s: %s/%s/%s>' % (
             self.project.profile.name,
             self.project.name,
@@ -661,7 +657,7 @@ class ProposalRedirect(TimestampMixin, db.Model):
 
 
 class ProposalSuuidRedirect(BaseMixin, db.Model):
-    """Holds Proposal SUUIDs from before when they were deprecated"""
+    """Holds Proposal SUUIDs from before when they were deprecated."""
 
     __tablename__ = 'proposal_suuid_redirect'
 
@@ -673,7 +669,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
 
 
 @reopen(Commentset)
-class Commentset:
+class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     proposal = with_roles(
         db.relationship(Proposal, uselist=False, back_populates='commentset'),
         # TODO: Remove creator to subscriber mapping when proposals use memberships
@@ -684,7 +680,7 @@ class Commentset:
 
 
 @reopen(Project)
-class Project:
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     @property
     def proposals_all(self):
         if self.subprojects:

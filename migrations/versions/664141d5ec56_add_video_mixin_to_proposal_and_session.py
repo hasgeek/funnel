@@ -1,4 +1,4 @@
-"""add video mixin to proposal and session
+"""Add video mixin to proposal and session.
 
 Revision ID: 664141d5ec56
 Revises: 20c10335b553

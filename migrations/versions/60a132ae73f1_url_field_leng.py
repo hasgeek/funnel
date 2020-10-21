@@ -1,4 +1,4 @@
-"""url field leng
+"""Url field length.
 
 Revision ID: 60a132ae73f1
 Revises: d6b1904bea0e

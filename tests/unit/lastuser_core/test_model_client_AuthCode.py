@@ -6,7 +6,7 @@ from .test_db import TestDatabaseFixture
 
 class TestAuthCode(TestDatabaseFixture):
     def test_authcode_init(self):
-        """Test to verify creation of AuthCode instance"""
+        """Test to verify creation of AuthCode instance."""
         crusoe = self.fixtures.crusoe
         auth_client = self.fixtures.auth_client
         auth_code = models.AuthCode(
@@ -24,7 +24,7 @@ class TestAuthCode(TestDatabaseFixture):
         self.assertEqual(result.user, crusoe)
 
     def test_authcode_is_valid(self):
-        """Test to verify if a AuthCode instance is valid"""
+        """Test to verify if a AuthCode instance is valid."""
         oakley = self.fixtures.oakley
         auth_client = self.fixtures.auth_client
         auth_code = models.AuthCode(

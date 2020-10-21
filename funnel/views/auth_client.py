@@ -51,9 +51,7 @@ def client_list_all():
 
 
 def available_client_owners():
-    """
-    Return a list of possible client owners for the current user.
-    """
+    """Return a list of possible client owners for the current user."""
     choices = []
     choices.append((current_auth.user.buid, current_auth.user.pickername))
     for org in current_auth.user.organizations_as_owner:

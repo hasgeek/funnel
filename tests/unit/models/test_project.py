@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
-from werkzeug.utils import invalidate_cached_property
+# FIXME: For unknown reasons, mypy thinks this attribute does not exist
+from werkzeug.utils import invalidate_cached_property  # type: ignore[attr-defined]
 
 import pytest
 

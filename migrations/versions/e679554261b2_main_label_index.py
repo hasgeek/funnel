@@ -1,4 +1,4 @@
-"""Main label index
+"""Main label index.
 
 Revision ID: e679554261b2
 Revises: e2be4ab896d3

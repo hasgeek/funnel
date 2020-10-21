@@ -1,4 +1,4 @@
-"""add_checkin_team_to_proposal_space
+"""Add checkin_team to proposal space.
 
 Revision ID: 71f961809275
 Revises: 90cc904ece17

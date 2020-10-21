@@ -34,7 +34,7 @@ DEFAULT_MAIL_SENDER = ('Bill Gate', 'test@example.com')
 # Required for Flask-Mail to work.
 MAIL_DEFAULT_SENDER = DEFAULT_MAIL_SENDER
 #: Logging: recipients of error emails
-ADMINS = []
+ADMINS = []  # type: ignore[var-annotated]  # Remove this comment when editing
 #: Log file
 LOGFILE = 'error.log'
 

@@ -1,4 +1,4 @@
-"""Team org UUID
+"""Team org UUID.
 
 Revision ID: 69c2ced88981
 Revises: b34aa62af7fc

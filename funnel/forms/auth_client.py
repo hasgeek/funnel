@@ -25,9 +25,7 @@ __all__ = [
 
 @AuthClient.forms('main')
 class AuthClientForm(forms.Form):
-    """
-    Register a new OAuth client application
-    """
+    """Register a new OAuth client application."""
 
     title = forms.StringField(
         __("Application title"),
@@ -177,9 +175,7 @@ class AuthClientForm(forms.Form):
 
 @AuthClientCredential.forms('main')
 class AuthClientCredentialForm(forms.Form):
-    """
-    Generate new client credentials
-    """
+    """Generate new client credentials."""
 
     title = forms.StringField(
         __("What’s this for?"),
@@ -204,9 +200,7 @@ def permission_validator(form, field):
 @AuthClient.forms('permissions_user')
 @AuthClientUserPermissions.forms('assign')
 class UserPermissionAssignForm(forms.Form):
-    """
-    Assign permissions to a user
-    """
+    """Assign permissions to a user."""
 
     user = forms.UserSelectField(
         __("User"),
@@ -222,9 +216,7 @@ class UserPermissionAssignForm(forms.Form):
 @AuthClient.forms('permissions_team')
 @AuthClientTeamPermissions.forms('assign')
 class TeamPermissionAssignForm(forms.Form):
-    """
-    Assign permissions to a team
-    """
+    """Assign permissions to a team."""
 
     team_id = forms.RadioField(
         __("Team"),
@@ -246,8 +238,6 @@ class TeamPermissionAssignForm(forms.Form):
 @AuthClientUserPermissions.forms('edit')
 @AuthClientTeamPermissions.forms('edit')
 class AuthClientPermissionEditForm(forms.Form):
-    """
-    Edit a user or team's permissions
-    """
+    """Edit a user or team's permissions."""
 
     perms = forms.StringField(__("Permissions"), validators=[permission_validator])

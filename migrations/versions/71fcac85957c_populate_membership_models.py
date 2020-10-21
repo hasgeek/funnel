@@ -1,4 +1,4 @@
-"""Populate membership models
+"""Populate membership models.
 
 Revision ID: 71fcac85957c
 Revises: 8829241430b6

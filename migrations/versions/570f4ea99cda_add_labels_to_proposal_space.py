@@ -1,4 +1,4 @@
-"""add labels to proposal space
+"""Add labels to proposal space.
 
 Revision ID: 570f4ea99cda
 Revises: 3b189f2e5c56

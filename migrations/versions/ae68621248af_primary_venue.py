@@ -1,4 +1,4 @@
-"""Primary venue
+"""Primary venue.
 
 Revision ID: ae68621248af
 Revises: 2441cb4f44d4

@@ -1,4 +1,4 @@
-"""removed date, date_upto from project
+"""Removed date, date_upto from project.
 
 Revision ID: c11dc931b903
 Revises: 56ba15eff9ad

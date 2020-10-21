@@ -1,4 +1,4 @@
-"""post model field name fix
+"""Post model field name fix.
 
 Revision ID: 6d3599c52873
 Revises: a1ab7bd78649

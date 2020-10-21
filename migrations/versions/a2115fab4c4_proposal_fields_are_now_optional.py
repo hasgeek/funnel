@@ -1,4 +1,4 @@
-"""Proposal fields are now optional
+"""Proposal fields are now optional.
 
 Revision ID: a2115fab4c4
 Revises: 39af75387b10

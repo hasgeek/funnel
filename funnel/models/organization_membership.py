@@ -13,6 +13,7 @@ __all__ = ['OrganizationMembership']
 class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     """
     A user can be an administrator of an organization and optionally an owner.
+
     Owners can manage other administrators. This model may introduce non-admin
     memberships in a future iteration by replacing :attr:`is_owner` with
     :attr:`member_level` or distinct role flags as in :class:`ProjectMembership`.
@@ -76,7 +77,7 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record"""
+        """Roles offered by this membership record."""
         roles = {'admin'}
         if self.is_owner:
             roles.add('owner')
@@ -86,7 +87,7 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
 # Add active membership relationships to Organization and User
 # Organization.active_memberships is a future possibility. For now just admin and owner
 @reopen(Organization)
-class Organization:
+class Organization:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     active_admin_memberships = with_roles(
         db.relationship(
             OrganizationMembership,
@@ -118,7 +119,7 @@ class Organization:
         primaryjoin=db.and_(
             db.remote(OrganizationMembership.organization_id) == Organization.id,
             OrganizationMembership.is_invite,
-            ~OrganizationMembership.is_active,
+            ~OrganizationMembership.is_active,  # type: ignore[operator]
         ),
         viewonly=True,
     )
@@ -130,7 +131,7 @@ class Organization:
 # User.active_organization_memberships is a future possibility.
 # For now just admin and owner
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     organization_admin_memberships = db.relationship(
         OrganizationMembership,
         lazy='dynamic',
@@ -165,7 +166,7 @@ class User:
         primaryjoin=db.and_(
             db.remote(OrganizationMembership.user_id) == User.id,
             OrganizationMembership.is_invite,
-            ~OrganizationMembership.is_active,
+            ~OrganizationMembership.is_active,  # type: ignore[operator]
         ),
         viewonly=True,
     )

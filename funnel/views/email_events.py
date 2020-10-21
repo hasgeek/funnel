@@ -25,7 +25,9 @@ class SesProcessor(SesProcessorAbc):
     @staticmethod
     def _email_address(address: str) -> EmailAddress:
         """
-        `EmailAddress.add` does an implicit `.get`, but we call `.get` first because
+        Get or add an email address.
+
+        `EmailAddress.add` does an implicit `.get`, but we call `.get` directly because
         `.add` will fail if the address is blocked, while `.get` won't. Why add if we've
         never seen this email address before? Because it may have originated in Hasjob
         or elsewhere in shared infrastructure.
@@ -42,6 +44,7 @@ class SesProcessor(SesProcessorAbc):
         return email_address
 
     def bounce(self, ses_event: SesEvent) -> None:
+        assert ses_event.bounce is not None  # nosec
         for bounced in ses_event.bounce.bounced_recipients:
             email_address = self._email_address(bounced.email)
             if ses_event.bounce.is_hard_bounce:
@@ -56,6 +59,7 @@ class SesProcessor(SesProcessorAbc):
         )
 
     def delayed(self, ses_event: SesEvent) -> None:
+        assert ses_event.delivery_delay is not None  # nosec
         for failed in ses_event.delivery_delay.delayed_recipients:
             email_address = self._email_address(failed.email)
             email_address.mark_soft_fail()
@@ -73,6 +77,7 @@ class SesProcessor(SesProcessorAbc):
         # address from further use. Since this is a serious outcome, we can only do this
         # when there was a single recipient to the original email.
         # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-complaint-object
+        assert ses_event.complaint is not None  # nosec
         if len(ses_event.complaint.complained_recipients) == 1:
             for complained in ses_event.complaint.complained_recipients:
                 if ses_event.complaint.complaint_feedback_type == 'not-spam':
@@ -107,6 +112,7 @@ class SesProcessor(SesProcessorAbc):
         # Recipients here are strings and not structures. Unusual, but reflected in
         # the documentation.
         # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-send
+        assert ses_event.delivery is not None  # nosec
         for sent in ses_event.delivery.recipients:
             email_address = self._email_address(sent)
             email_address.mark_sent()
@@ -170,11 +176,10 @@ sns_headers: List[str] = [
 @render_with(json=True)
 def process_ses_event():
     """
-    Processes SES Events from AWS.
+    Process SES Events from AWS.
 
     The events are sent based on the configuration set of the outgoing email.
     """
-
     # Register the fact that we got an SES event. If there are too many rejections,
     # then it is a hack or DoS attempt.
     statsd.incr('email_address.event', tags={'engine': 'aws_ses', 'stage': 'received'})

@@ -1,4 +1,4 @@
-"""ClientCredential needs variable length hashes
+"""ClientCredential needs variable length hashes.
 
 Revision ID: f58bd7c54f9b
 Revises: 073e7961d5df
