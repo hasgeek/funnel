@@ -1,4 +1,4 @@
-"""Contact exchange cascades
+"""Contact exchange cascades.
 
 Revision ID: 252f9a705901
 Revises: 034863dbaac2

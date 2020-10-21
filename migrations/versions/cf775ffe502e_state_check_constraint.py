@@ -1,4 +1,4 @@
-"""state check constraint
+"""State check constraint.
 
 Revision ID: cf775ffe502e
 Revises: d576f55f9eba

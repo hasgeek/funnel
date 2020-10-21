@@ -12,9 +12,8 @@ from ..models import USER_STATUS, User, db
 
 
 def requires_dashboard(f):
-    """
-    Decorator to require a login for the given view.
-    """
+    """Decorate a view to require dashboard access privilege."""
+    # FIXME: Replace this with SiteMembership
 
     @wraps(f)
     def decorated_function(*args, **kwargs):

@@ -1,4 +1,4 @@
-"""Add User.locale and auto timezone
+"""Add User.locale and auto timezone.
 
 Revision ID: 7f6f417dad02
 Revises: 80b09cfb38c6

@@ -1,4 +1,4 @@
-"""Contact exchange model change
+"""Contact exchange model change.
 
 Revision ID: c38fa391613f
 Revises: 4b7fe9b25c6c

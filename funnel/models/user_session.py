@@ -85,6 +85,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
     )
 
     def __repr__(self):
+        """Represent :class:`UserSession` as a string."""
         return f'<UserSession {self.buid}>'
 
     @property

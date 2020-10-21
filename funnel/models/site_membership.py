@@ -10,9 +10,7 @@ __all__ = ['SiteMembership']
 
 
 class SiteMembership(ImmutableMembershipMixin, db.Model):
-    """
-    Users can be site admin with different rights.
-    """
+    """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
 
@@ -42,6 +40,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
 
     @declared_attr
     def __table_args__(cls):
+        """Table arguments."""
         args = list(super().__table_args__)
         args.append(
             db.CheckConstraint(
@@ -57,7 +56,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record"""
+        """Roles offered by this membership record."""
         roles = {'site_admin'}
         if self.is_comment_moderator:
             roles.add('comment_moderator')

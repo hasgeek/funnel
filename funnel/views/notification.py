@@ -213,7 +213,7 @@ class RenderNotification:
 
     @property
     def actor(self):
-        """The actor that prompted this notification. May be overriden."""
+        """Actor that prompted this notification. May be overriden."""
         return self.notification.user
 
     def web(self):
@@ -245,7 +245,7 @@ class RenderNotification:
         return None
 
     def email_from(self):
-        """The sender of an email."""
+        """Sender of an email."""
         if self.notification.preference_context:
             return _("{sender} (via Hasgeek)").format(
                 sender=self.notification.preference_context.title
@@ -309,7 +309,9 @@ class RenderNotification:
 
 def dispatch_notification(*notifications):
     """
-    Dispatches one or more notifications. Usage::
+    Dispatch one or more notifications.
+
+    Usage::
 
         dispatch_notification(
             MyNotification(document=doc, fragment=None),

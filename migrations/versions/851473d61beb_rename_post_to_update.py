@@ -1,4 +1,4 @@
-"""Rename Post to Update
+"""Rename Post to Update.
 
 Revision ID: 851473d61beb
 Revises: dcd0870c24cc

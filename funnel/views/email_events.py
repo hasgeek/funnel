@@ -25,7 +25,9 @@ class SesProcessor(SesProcessorAbc):
     @staticmethod
     def _email_address(address: str) -> EmailAddress:
         """
-        `EmailAddress.add` does an implicit `.get`, but we call `.get` first because
+        Get or add an email address.
+
+        `EmailAddress.add` does an implicit `.get`, but we call `.get` directly because
         `.add` will fail if the address is blocked, while `.get` won't. Why add if we've
         never seen this email address before? Because it may have originated in Hasjob
         or elsewhere in shared infrastructure.
@@ -174,11 +176,10 @@ sns_headers: List[str] = [
 @render_with(json=True)
 def process_ses_event():
     """
-    Processes SES Events from AWS.
+    Process SES Events from AWS.
 
     The events are sent based on the configuration set of the outgoing email.
     """
-
     # Register the fact that we got an SES event. If there are too many rejections,
     # then it is a hack or DoS attempt.
     statsd.incr('email_address.event', tags={'engine': 'aws_ses', 'stage': 'received'})

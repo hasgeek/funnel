@@ -5,7 +5,7 @@ from flask import Response
 
 
 class TestSESNotices:
-    """ Tests SES Notices """
+    """Tests SES Notices."""
 
     # Data Directory which contains JSON Files
     DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')

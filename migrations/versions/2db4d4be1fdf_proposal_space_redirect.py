@@ -1,4 +1,4 @@
-"""Proposal space redirect
+"""Proposal space redirect.
 
 Revision ID: 2db4d4be1fdf
 Revises: a2115fab4c4

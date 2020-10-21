@@ -1,4 +1,4 @@
-"""Schema sync
+"""Schema sync.
 
 Revision ID: 2d2797b91909
 Revises: f9c44ecb5999

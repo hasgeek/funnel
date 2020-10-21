@@ -70,6 +70,7 @@ repos:
           - flake8-blind-except
           - flake8-builtins
           - flake8-comprehensions
+          - flake8-docstrings
           - flake8-isort
           - flake8-logging-format
           - flake8-mutable

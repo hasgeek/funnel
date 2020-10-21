@@ -1,4 +1,4 @@
-"""Added venue, room details
+"""Added venue, room details.
 
 Revision ID: 1925329c798a
 Revises: 316aaa757c8c

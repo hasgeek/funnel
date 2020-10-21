@@ -1,4 +1,4 @@
-"""Added session
+"""Added session.
 
 Revision ID: 1fcee2e6280
 Revises: 1925329c798a

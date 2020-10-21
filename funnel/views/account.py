@@ -82,7 +82,7 @@ from .notification import dispatch_notification
 
 @User.views()
 def emails_sorted(obj):
-    """Sorted list of email addresses, for account page UI"""
+    """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
     items = sorted(obj.emails, key=lambda i: (i != primary, i.email))
     return items
@@ -90,7 +90,7 @@ def emails_sorted(obj):
 
 @User.views()
 def phones_sorted(obj):
-    """Sorted list of email addresses, for account page UI"""
+    """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
     items = sorted(obj.phones, key=lambda i: (i != primary, i.phone))
     return items
@@ -820,9 +820,10 @@ def remove_email(email_hash):
 @requires_login
 def verify_email(email_hash):
     """
-    If the user has a pending email verification but has lost the email, allow them to
-    send themselves another verification email. This endpoint is only linked to from
-    the account page under the list of email addresses pending verification.
+    Allow user to resend an email verification link to themselves if original is lost.
+
+    This endpoint is only linked to from the account page under the list of email
+    addresses pending verification.
     """
     try:
         useremail = UserEmail.get(email_hash=email_hash)

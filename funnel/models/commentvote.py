@@ -320,9 +320,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @state.transition(None, state.DELETED)
     def delete(self):
-        """
-        Delete this comment.
-        """
+        """Delete this comment."""
         if len(self.replies) > 0:
             self.user = None
             self.message = ''
@@ -339,15 +337,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @state.transition(None, state.SPAM)
     def mark_spam(self):
-        """
-        Mark this comment as spam.
-        """
+        """Mark this comment as spam."""
 
     @state.transition(state.VERIFIABLE, state.VERIFIED)
     def mark_not_spam(self):
-        """
-        Mark this comment as not a spam.
-        """
+        """Mark this comment as not spam."""
 
     def sorted_replies(self):
         return sorted(self.replies, key=lambda comment: comment.voteset.count)

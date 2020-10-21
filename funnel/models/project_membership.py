@@ -25,9 +25,7 @@ project_child_role_map: Dict[str, str] = {
 
 
 class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
-    """
-    Users can be crew members of projects, with specified access rights.
-    """
+    """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_crew_membership'
 
@@ -97,6 +95,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     @declared_attr
     def __table_args__(cls):
+        """Table arguments."""
         args = list(super().__table_args__)
         args.append(
             db.CheckConstraint(
@@ -112,7 +111,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record"""
+        """Roles offered by this membership record."""
         roles = set()
         if self.is_editor:
             roles.add('editor')

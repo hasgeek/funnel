@@ -341,9 +341,7 @@ class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         return self.query.session.query(self.sessions_with_video.exists()).scalar()
 
     def next_session_from(self, timestamp):
-        """
-        Find the next session in this project starting at or after given timestamp.
-        """
+        """Find the next session in this project from given timestamp."""
         return (
             self.sessions.filter(
                 Session.start_at.isnot(None), Session.start_at >= timestamp
@@ -355,7 +353,7 @@ class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     @classmethod
     def starting_at(cls, timestamp, within, gap):
         """
-        Returns projects that are about to start, for sending notifications.
+        Return projects that are about to start, for sending notifications.
 
         :param datetime timestamp: The timestamp to look for new sessions at
         :param timedelta within: Find anything at timestamp + within delta. Lookup will

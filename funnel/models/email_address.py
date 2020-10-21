@@ -122,24 +122,22 @@ def email_normalized(email: str) -> str:
 
 
 def email_blake2b160_hash(email: str) -> bytes:
-    """
-    Returns an BLAKE2b hash of the given email address using digest size 20 (160 bits).
-    """
+    """BLAKE2b hash of the given email address using digest size 20 (160 bits)."""
     return hashlib.blake2b(
         email_normalized(email).encode('utf-8'), digest_size=20
     ).digest()
 
 
 class EmailAddressError(ValueError):
-    """Base class for EmailAddress exceptions"""
+    """Base class for EmailAddress exceptions."""
 
 
 class EmailAddressBlockedError(EmailAddressError):
-    """Email address is blocked from use"""
+    """Email address is blocked from use."""
 
 
 class EmailAddressInUseError(EmailAddressError):
-    """Email address is in use by another owner"""
+    """Email address is in use by another owner."""
 
 
 class EmailAddress(BaseMixin, db.Model):
@@ -271,23 +269,22 @@ class EmailAddress(BaseMixin, db.Model):
     @hybrid_property
     def is_blocked(self) -> bool:
         """
-        Read-only flag indicating this email address is blocked from use. To set this
-        flag, call :classmethod:`mark_blocked` using the email address. The flag will be
-        simultaneously set on all matching instances.
+        Read-only flag indicating this email address is blocked from use.
+
+        To set this flag, call :classmethod:`mark_blocked` using the email address. The
+        flag will be simultaneously set on all matching instances.
         """
         return self._is_blocked
 
     @hybrid_property
     def domain(self) -> Optional[str]:
-        """The domain of the email, stored for quick lookup of related addresses."""
+        """Domain of the email, stored for quick lookup of related addresses."""
         return self._domain
 
     # This should not use `cached_property` as email is partially mutable
     @property
     def email_normalized(self) -> Optional[str]:
-        """
-        Normalized representation of the email address, for hashing.
-        """
+        """Return normalized representation of the email address, for hashing."""
         return email_normalized(self.email) if self.email else None
 
     # This should not use `cached_property` as email is partially mutable
@@ -381,7 +378,7 @@ class EmailAddress(BaseMixin, db.Model):
         self.delivery_state_at = db.func.utcnow()
 
     def refcount(self) -> int:
-        """Returns count of references to this EmailAddress instance"""
+        """Count of references to this :class:`EmailAddress` instance."""
         # obj.email_address_reference_is_active is a bool, but int(bool) is 0 or 1
         return sum(
             sum(
@@ -465,6 +462,8 @@ class EmailAddress(BaseMixin, db.Model):
     @classmethod
     def _get_existing(cls, email: str) -> Optional[EmailAddress]:
         """
+        Get an existing :class:`EmailAddress` instance.
+
         Internal method used by :meth:`add`, :meth:`add_for` and :meth:`validate_for`.
         """
         if not cls.is_valid_email_address(email):
@@ -665,7 +664,12 @@ class EmailAddressMixin:
 
     @property
     def email_address_reference_is_active(self):
-        """Subclasses should replace this if they hold inactive references"""
+        """
+        Assert that the reference to an email address is valid, requiring it to be kept.
+
+        Subclasses should override to return `False` if they hold inactive references
+        and approve of the email address being forgotten.
+        """
         return True
 
     @property

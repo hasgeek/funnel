@@ -25,7 +25,6 @@ __all__ = [
 
 def proposal_label_form(project, proposal):
     """Return a label form for the given project and proposal."""
-
     if not project.labels:
         return
 
@@ -61,9 +60,7 @@ def proposal_label_form(project, proposal):
 
 
 def proposal_label_admin_form(project, proposal):
-    """
-    Returns a label form to use in admin panel for given project and proposal
-    """
+    """Return a label form to use in admin panel for given project and proposal."""
 
     class ProposalLabelAdminForm(forms.Form):
         pass
@@ -247,11 +244,9 @@ class ProposalTransitionForm(forms.Form):
     )
 
     def set_queries(self):
-        """
-        value: transition method name
-        label: transition object itself
-        We need the whole object to get the additional metadata in templates
-        """
+        # value: transition method name
+        # label: transition object itself
+        # We need the whole object to get the additional metadata in templates
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 

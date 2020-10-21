@@ -1,4 +1,4 @@
-"""Setup user_notification cascade
+"""Setup user_notification cascade.
 
 Revision ID: b7fa6df99855
 Revises: 7f8114c73092

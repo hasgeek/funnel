@@ -6,9 +6,7 @@ from .test_db import TestDatabaseFixture
 
 class TestUserClientPermissions(TestDatabaseFixture):
     def test_userclientpermissions(self):
-        """
-        Test for verifying creation of UserClientPermissions instance
-        """
+        """Test for verifying creation of UserClientPermissions instance."""
         gustav = models.User(username='gustav')
         auth_client = self.fixtures.auth_client
         access_permissions = 'siteadmin'
@@ -20,10 +18,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
         self.assertIsInstance(result, models.AuthClientUserPermissions)
 
     def test_userclientpermissions_migrate_user(self):
-        """
-        Test for migrating users and transfering their
-        client permissions
-        """
+        """Test for migrating users and transfering their client permissions."""
         # scenario 1: when *only* olduser has UserClientPermissions instance
         old_crusoe = self.fixtures.crusoe
         new_crusoe = models.User(username='chef-crusoe')
@@ -62,9 +57,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
         self.assertEqual(expected_access_permissions, received_access_permissions)
 
     def test_userclientpermissions_pickername(self):
-        """
-        Test for UserClientPermissions' pickername
-        """
+        """Test for UserClientPermissions' pickername."""
         finnick = models.User(username='finnick', fullname="Finnick Odair")
         district4 = models.AuthClient(title="District 4")
         access_permissions = 'siteadmin'
@@ -74,9 +67,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
         self.assertEqual(result.pickername, finnick.pickername)
 
     def test_userclientpermissions_buid(self):
-        """
-        Test for UserClientPermissions' buid
-        """
+        """Test for UserClientPermissions' buid."""
         beetee = models.User(username='beetee', fullname="Beetee")
         district3 = models.AuthClient(title='District 3')
         access_permissions = 'siteadmin'

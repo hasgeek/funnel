@@ -1,4 +1,4 @@
-"""Set null constraint
+"""Set null constraint.
 
 Revision ID: 1c496c114b6
 Revises: 7cd383925de

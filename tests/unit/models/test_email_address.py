@@ -39,7 +39,7 @@ def refcount_data():
 
 
 def test_email_normalized():
-    """Normalized email addresses are lowercase, with IDN encoded into punycode"""
+    """Normalized email addresses are lowercase, with IDN encoded into punycode."""
     assert email_normalized('example@example.com') == 'example@example.com'
     assert email_normalized('Example@Example.com') == 'example@example.com'
     assert email_normalized('Example+Extra@Example.com') == 'example+extra@example.com'
@@ -53,7 +53,7 @@ def test_email_normalized():
 
 
 def test_email_hash_stability():
-    """Safety test to ensure email_blakeb160_hash doesn't change spec"""
+    """Safety test to ensure email_blakeb160_hash doesn't change spec."""
     ehash = email_blake2b160_hash
     assert ehash('example@example.com') == hash_map['example@example.com']
     # email_hash explicitly uses the normalized form (but not the canonical form)
@@ -64,7 +64,7 @@ def test_email_hash_stability():
 
 
 def test_canonical_email_representation():
-    """Test canonical email representation"""
+    """Test canonical email representation."""
     cemail = canonical_email_representation
     assert cemail('example@example.com') == ['example@example.com']
     assert cemail('EXAMPLE@EXAMPLE.COM') == ['example@example.com']
@@ -96,8 +96,7 @@ def test_canonical_email_representation():
 
 
 def test_email_address_init():
-    """EmailAddress instances can be created using a string email address"""
-
+    """`EmailAddress` instances can be created using a string email address."""
     # Ordinary use constructor passes without incident
     ea1 = EmailAddress('example@example.com')
     assert ea1.email == 'example@example.com'
@@ -144,7 +143,7 @@ def test_email_address_init():
 
 
 def test_email_address_init_error():
-    """EmailAddress constructor will reject various forms of bad input"""
+    """`EmailAddress` constructor will reject various forms of bad input."""
     with pytest.raises(ValueError):
         # Must be a string
         EmailAddress(None)
@@ -160,7 +159,7 @@ def test_email_address_init_error():
 
 
 def test_email_address_mutability():
-    """EmailAddress can be mutated to change casing or delete the address only"""
+    """`EmailAddress` can be mutated to change casing or delete the address only."""
     ea = EmailAddress('example@example.com')
     assert ea.email == 'example@example.com'
     assert ea.domain == 'example.com'
@@ -209,7 +208,7 @@ def test_email_address_mutability():
 
 
 def test_email_address_md5():
-    """EmailAddress has an MD5 method for legacy applications"""
+    """`EmailAddress` has an MD5 method for legacy applications."""
     ea = EmailAddress('example@example.com')
     assert ea.md5() == '23463b99b62a72f26ed677cc556c44e8'
     ea.email = None
@@ -217,7 +216,7 @@ def test_email_address_md5():
 
 
 def test_email_address_is_blocked_flag():
-    """EmailAddress has a read-only is_blocked flag that is normally False"""
+    """`EmailAddress` has a read-only is_blocked flag that is normally False."""
     ea = EmailAddress('example@example.com')
     assert ea.is_blocked is False
     with pytest.raises(AttributeError):
@@ -226,7 +225,7 @@ def test_email_address_is_blocked_flag():
 
 @pytest.fixture(scope='function')
 def clean_db(test_db_structure):
-    """Fixture that removes all EmailAddress instances after a test"""
+    """Fixture that removes all EmailAddress instances after a test."""
     yield test_db_structure
     test_db_structure.session.rollback()
     EmailAddress.query.delete(synchronize_session=False)
@@ -234,7 +233,7 @@ def clean_db(test_db_structure):
 
 
 def test_email_address_can_commit(clean_db):
-    """An EmailAddress can be committed to db"""
+    """An EmailAddress can be committed to db."""
     db = clean_db
     ea = EmailAddress('example@example.com')
     db.session.add(ea)
@@ -242,7 +241,7 @@ def test_email_address_can_commit(clean_db):
 
 
 def test_email_address_conflict_integrity_error(clean_db):
-    """A conflicting EmailAddress cannot be committed to db"""
+    """A conflicting EmailAddress cannot be committed to db."""
     db = clean_db
     ea1 = EmailAddress('example@example.com')
     db.session.add(ea1)
@@ -261,7 +260,7 @@ def test_email_address_conflict_integrity_error(clean_db):
 
 
 def test_email_address_get(clean_db):
-    """Email addresses can be loaded using EmailAddress.get"""
+    """Email addresses can be loaded using EmailAddress.get."""
     db = clean_db
     ea1 = EmailAddress('example@example.com')
     ea2 = EmailAddress('example+extra@example.com')
@@ -286,13 +285,13 @@ def test_email_address_get(clean_db):
 
 
 def test_email_address_invalid_hash_raises_error(clean_db):
-    """Retrieving an email address with an invalid hash will raise ValueError"""
+    """Retrieving an email address with an invalid hash will raise ValueError."""
     with pytest.raises(ValueError):
         EmailAddress.get(email_hash='invalid')
 
 
 def test_email_address_get_canonical(clean_db):
-    """EmailAddress.get_canonical returns all matching records"""
+    """EmailAddress.get_canonical returns all matching records."""
     db = clean_db
     ea1 = EmailAddress('example@example.com')
     ea2 = EmailAddress('example+extra@example.com')
@@ -304,7 +303,7 @@ def test_email_address_get_canonical(clean_db):
 
 
 def test_email_address_add(clean_db):
-    """Using EmailAddress.add will auto-add to session and return existing instances"""
+    """Using EmailAddress.add will auto-add to session and return existing instances."""
     ea1 = EmailAddress.add('example@example.com')
     assert isinstance(ea1, EmailAddress)
     assert ea1.email == 'example@example.com'
@@ -341,7 +340,7 @@ def test_email_address_add(clean_db):
 
 
 def test_email_address_blocked(clean_db):
-    """A blocked email address cannot be used via EmailAddress.add"""
+    """A blocked email address cannot be used via EmailAddress.add."""
     ea1 = EmailAddress.add('example@example.com')
     ea2 = EmailAddress.add('example+extra@example.com')
     ea3 = EmailAddress.add('other@example.com')
@@ -357,7 +356,7 @@ def test_email_address_blocked(clean_db):
 
 
 def test_email_address_delivery_state(clean_db):
-    """An email address can have the last known delivery state set on it"""
+    """An email address can have the last known delivery state set on it."""
     db = clean_db
     ea = EmailAddress.add('example@example.com')
     assert ea.delivery_state.UNKNOWN
@@ -399,12 +398,12 @@ def test_email_address_delivery_state(clean_db):
 @pytest.fixture(scope='session')
 def email_models():
     class EmailUser(BaseMixin, db.Model):
-        """Test model representing a user account"""
+        """Test model representing a user account."""
 
         __tablename__ = 'emailuser'
 
     class EmailLink(EmailAddressMixin, BaseMixin, db.Model):
-        """Test model connecting EmailUser to EmailAddress"""
+        """Test model connecting EmailUser to EmailAddress."""
 
         __email_optional__ = False
         __email_unique__ = True
@@ -415,10 +414,10 @@ def email_models():
         emailuser = db.relationship(EmailUser)
 
     class EmailDocument(EmailAddressMixin, BaseMixin, db.Model):
-        """Test model unaffiliated to a user that has an email address attached"""
+        """Test model unaffiliated to a user that has an email address attached."""
 
     class EmailLinkedDocument(EmailAddressMixin, BaseMixin, db.Model):
-        """Test model that accepts an optional user and an optional email"""
+        """Test model that accepts an optional user and an optional email."""
 
         __email_for__ = 'emailuser'
 
@@ -431,7 +430,7 @@ def email_models():
 
 @pytest.fixture(scope='function')
 def clean_mixin_db(email_models, clean_db):
-    """Fixture that removes all test model instances"""
+    """Fixture that removes all test model instances."""
     yield clean_db
     clean_db.session.rollback()
     email_models.EmailDocument.query.delete(synchronize_session=False)
@@ -441,7 +440,7 @@ def clean_mixin_db(email_models, clean_db):
 
 
 def test_email_address_mixin(email_models, clean_mixin_db):
-    """The EmailAddressMixin class adds safety checks for using an email address"""
+    """The EmailAddressMixin class adds safety checks for using an email address."""
     db = clean_mixin_db
     models = email_models
 
@@ -576,7 +575,7 @@ def test_email_address_mixin(email_models, clean_mixin_db):
 
 
 def test_email_address_refcount_drop(email_models, clean_mixin_db, refcount_data):
-    """Test that EmailAddress.refcount drop events are fired"""
+    """Test that EmailAddress.refcount drop events are fired."""
     db = clean_mixin_db
     models = email_models
 
@@ -616,7 +615,7 @@ def test_email_address_refcount_drop(email_models, clean_mixin_db, refcount_data
 
 
 def test_email_address_validate_for(email_models, clean_mixin_db):
-    """EmailAddress.validate_for can be used to determine availability"""
+    """EmailAddress.validate_for can be used to determine availability."""
     db = clean_mixin_db
     models = email_models
 

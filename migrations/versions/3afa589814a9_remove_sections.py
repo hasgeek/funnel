@@ -1,4 +1,4 @@
-"""Remove sections
+"""Remove sections.
 
 Revision ID: 3afa589814a9
 Revises: 1b8fc63c0fb0

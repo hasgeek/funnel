@@ -390,7 +390,7 @@ class Notification(NoIdMixin, db.Model):
 
     @hybrid_property
     def eventid_b58(self):
-        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
+        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
     @eventid_b58.setter  # type: ignore[no-redef]
@@ -439,7 +439,7 @@ class Notification(NoIdMixin, db.Model):
     @classmethod
     def renderer(cls, view):
         """
-        Decorator for view class containing render methods.
+        Register a view class containing render methods.
 
         Usage in views::
 
@@ -459,7 +459,7 @@ class Notification(NoIdMixin, db.Model):
 
     @classmethod
     def allow_transport(cls, transport):
-        """Helper method to return ``cls.allow_<transport>``."""
+        """Return ``cls.allow_<transport>``."""
         return getattr(cls, 'allow_' + transport)
 
     def dispatch(self):
@@ -530,13 +530,12 @@ class PreviewNotification:
         self.fragment_uuid = fragment.uuid
 
     def __getattr__(self, attr):
+        """Get an attribute."""
         return getattr(self.cls, attr)
 
 
 class UserNotificationMixin:
-    """
-    Contains helper methods for :class:`UserNotification` and :class:`NotificationFor`.
-    """
+    """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
 
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
@@ -546,13 +545,13 @@ class UserNotificationMixin:
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def document(self):
-        """The document that this notification is for."""
+        """Document that this notification is for."""
         return self.notification.document
 
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def fragment(self):
-        """The fragment within this document that this notification is for."""
+        """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
 
@@ -682,7 +681,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @hybrid_property
     def eventid_b58(self):
-        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
+        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
     @eventid_b58.setter  # type: ignore[no-redef]
@@ -893,9 +892,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @classmethod
     def get_for(cls, user, eventid_b58):
-        """
-        Helper method to retrieve a UserNotification using SQLAlchemy session cache.
-        """
+        """Retrieve a :class:`UserNotification` using SQLAlchemy session cache."""
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
@@ -961,7 +958,7 @@ class NotificationFor(UserNotificationMixin):
         return None
 
     def rolledup_fragments(self):
-        """Returns a query to load the notification fragment."""
+        """Return a query to load the notification fragment."""
         if not self.notification.fragment_model:
             return None
         return self.notification.fragment_model.query.filter_by(
@@ -973,7 +970,7 @@ class NotificationFor(UserNotificationMixin):
 
 
 class NotificationPreferences(BaseMixin, db.Model):
-    """Holds a user's preferences for a particular Notification type"""
+    """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'
 
@@ -1019,6 +1016,7 @@ class NotificationPreferences(BaseMixin, db.Model):
             self.set_defaults()
 
     def __repr__(self):
+        """Represent :class:`NotificationPreferences` as a string."""
         return (
             f'NotificationPreferences('
             f'notification_type={self.notification_type!r}, user={self.user!r}'
@@ -1026,9 +1024,7 @@ class NotificationPreferences(BaseMixin, db.Model):
         )
 
     def set_defaults(self):
-        """
-        Set defaults based on notification type's defaults, and previous user prefs.
-        """
+        """Set defaults based on the type's defaults, and previous user prefs."""
         transport_attrs = (
             ('by_email', 'default_email'),
             ('by_sms', 'default_sms'),
@@ -1067,17 +1063,17 @@ class NotificationPreferences(BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     def by_transport(self, transport):
-        """Helper method to return ``self.by_<transport>``."""
+        """Return ``self.by_<transport>``."""
         return getattr(self, 'by_' + transport)
 
     @with_roles(call={'owner'})
     def set_transport(self, transport, value):
-        """Helper method to set a preference for a transport."""
+        """Set a preference for a transport."""
         setattr(self, 'by_' + transport, value)
 
     @cached_property
     def type_cls(self):
-        """Return the Notification subclass corresponding to self.notification_type"""
+        """Return the Notification subclass corresponding to self.notification_type."""
         # Use `registry.get(type)` instead of `registry[type]` because the user may have
         # saved preferences for a discontinued notification type. These should ideally
         # be dropped in migrations, but it's possible for the data to be outdated.

@@ -227,9 +227,10 @@ class Label(BaseScopedNameMixin, db.Model):
     @property
     def icon(self):
         """
-        Returns an icon for displaying the label in space-constrained UI.
+        Return an icon for displaying the label in space-constrained UI.
+
         If an emoji icon has been specified, use it. If not, create initials
-        from the title (up to 3). If the label is a single word, returns the
+        from the title (up to 3). If the label is a single word, return the
         first three characters.
         """
         result = self.icon_emoji
@@ -240,6 +241,7 @@ class Label(BaseScopedNameMixin, db.Model):
         return result
 
     def __repr__(self):
+        """Represent :class:`Label` as a string."""
         if self.main_label:
             return "<Label %s/%s>" % (self.main_label.name, self.name)
         else:
@@ -279,6 +281,7 @@ class ProposalLabelProxyWrapper(object):
         object.__setattr__(self, '_obj', obj)
 
     def __getattr__(self, name):
+        """Get an attribute."""
         # What this does:
         # 1. Check if the project has this label (including archived labels). If not, raise error
         # 2. If this is not a parent label:
@@ -301,6 +304,7 @@ class ProposalLabelProxyWrapper(object):
         return label_options[0].name if len(label_options) > 0 else None
 
     def __setattr__(self, name, value):
+        """Set an attribute."""
         label = Label.query.filter(
             Label.name == name,
             Label.project == self._obj.project,
@@ -340,6 +344,7 @@ class ProposalLabelProxyWrapper(object):
 
 class ProposalLabelProxy(object):
     def __get__(self, obj, cls=None):
+        """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)
         else:

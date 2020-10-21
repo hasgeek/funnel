@@ -27,7 +27,10 @@ class PROFILE_STATE(LabeledEnum):  # NOQA: N801
 # from the linked User or Organization
 class Profile(UuidMixin, BaseMixin, db.Model):
     """
-    Profiles are the public-facing pages for the User and Organization models.
+    Public-facing profiles for :class:`User` and :class:`Organization` models.
+
+    Profiles hold the account name in a shared namespace between these models (aka
+    "username"), and also host projects and other future document types.
     """
 
     __tablename__ = 'profile'
@@ -162,6 +165,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     }
 
     def __repr__(self):
+        """Represent :class:`Profile` as a string."""
         return f'<Profile "{self.name}">'
 
     @property
@@ -265,8 +269,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     @classmethod
     def validate_name_candidate(cls, name):
         """
-        Check if a name is available, returning one of several error codes, or None if
-        all is okay:
+        Validate an account name candidate.
+
+        Returns one of several error codes, or `None` if all is okay:
 
         * ``blank``: No name supplied
         * ``invalid``: Invalid characters in name

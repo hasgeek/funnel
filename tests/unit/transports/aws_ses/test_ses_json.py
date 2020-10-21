@@ -17,7 +17,8 @@ class TestSesEventJson:
 
     def test_delivery(self) -> None:
         """
-        Checks if the Data classes are parsed correctly.
+        Check if the Data classes are parsed correctly.
+
         :return: None
         """
         with open(os.path.join(self.data_dir, "delivery.json"), 'r') as file:
@@ -40,10 +41,7 @@ class TestSesEventJson:
         assert obj.delivery.processing_time
 
     def test_bounce(self) -> None:
-        """
-        Checks if Data classes for bounce is parsed correctly
-        :return: None
-        """
+        """Check if Data classes for bounce is parsed correctly."""
         with open(os.path.join(self.data_dir, "bounce.json"), 'r') as file:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
@@ -56,10 +54,7 @@ class TestSesEventJson:
         assert obj.bounce.reporting_mta
 
     def test_complaint(self) -> None:
-        """
-        Checks if Data classes for complaint is parsed correctly
-        :return: None
-        """
+        """Check if Data classes for complaint is parsed correctly."""
         with open(os.path.join(self.data_dir, "complaint.json"), 'r') as file:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
@@ -72,10 +67,7 @@ class TestSesEventJson:
         assert obj.complaint.user_agent == "Amazon SES Mailbox Simulator"
 
     def test_signature_good_message(self) -> None:
-        """
-        Checks if Signature Verification works.
-        :return None:
-        """
+        """Check if Signature Verification works."""
         with open(os.path.join(self.data_dir, "full-message.json"), 'r') as file:
             data = file.read()
 
@@ -92,10 +84,7 @@ class TestSesEventJson:
         validator.check(message, SnsValidatorChecks.TOPIC)
 
     def test_signature_bad_message(self) -> None:
-        """
-        Checks if Signature Verification works.
-        :return None:
-        """
+        """Checks if Signature Verification works."""
         with open(os.path.join(self.data_dir, "bad-message.json"), 'r') as file:
             data = file.read()
 

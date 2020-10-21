@@ -14,7 +14,6 @@ from ..transports.sms import validate_exotel_token
 @render_with(json=True)
 def process_twilio_event():
     """Process SMS callback event from Twilio."""
-
     # Register the fact that we got a Twilio SMS event.
     # If there are too many rejects, then most likely a hack attempt.
     statsd.incr('phone_number.event', tags={'engine': 'twilio', 'stage': 'received'})
@@ -94,7 +93,6 @@ def process_twilio_event():
 @render_with(json=True)
 def process_exotel_event(secret_token: str):
     """Process SMS callback event from Exotel."""
-
     # Register the fact that we got a Exotel SMS event.
     # If there are too many rejects, then most likely a hack attempt.
     statsd.incr('phone_number.event', tags={'engine': 'exotel', 'stage': 'received'})

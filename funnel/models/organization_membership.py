@@ -13,6 +13,7 @@ __all__ = ['OrganizationMembership']
 class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     """
     A user can be an administrator of an organization and optionally an owner.
+
     Owners can manage other administrators. This model may introduce non-admin
     memberships in a future iteration by replacing :attr:`is_owner` with
     :attr:`member_level` or distinct role flags as in :class:`ProjectMembership`.
@@ -76,7 +77,7 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record"""
+        """Roles offered by this membership record."""
         roles = {'admin'}
         if self.is_owner:
             roles.add('owner')

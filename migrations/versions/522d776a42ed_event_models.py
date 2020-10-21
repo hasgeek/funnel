@@ -1,4 +1,4 @@
-"""event_models
+"""Event models.
 
 Revision ID: 522d776a42ed
 Revises: 447728ca6d2e

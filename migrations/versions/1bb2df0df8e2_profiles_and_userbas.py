@@ -1,4 +1,4 @@
-"""Profiles and UserBase2
+"""Profiles and UserBase2.
 
 Revision ID: 1bb2df0df8e2
 Revises: 523c53593e3c

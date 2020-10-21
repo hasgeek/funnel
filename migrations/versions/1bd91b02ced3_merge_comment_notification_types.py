@@ -1,4 +1,4 @@
-"""Merge comment notification types
+"""Merge comment notification types.
 
 Revision ID: 1bd91b02ced3
 Revises: 4845fd12dbfd

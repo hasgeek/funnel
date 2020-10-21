@@ -16,12 +16,13 @@ from baseframe import cache
 def abort_null(text):
     """
     Abort request if text contains null characters.
+
     Throws HTTP (400) Bad Request if text is tainted, returns text otherwise.
     """
     if text is not None:
         if '\x00' in text:
             abort(400)
-        return text
+    return text
 
 
 def make_redirect_url(url, use_fragment=False, **params):
@@ -52,7 +53,7 @@ def make_redirect_url(url, use_fragment=False, **params):
 
 def mask_email(email):
     """
-    Masks an email address
+    Mask an email address.
 
     >>> mask_email(u'foobar@example.com')
     u'f****@e****'
@@ -143,7 +144,7 @@ def split_name(fullname):
 
 # TODO: Added tests for this
 def make_qrcode(data):
-    """Make a QR code in-memory and return the raw svg"""
+    """Make a QR code in-memory and return the raw SVG."""
     factory = qrcode.image.svg.SvgPathImage
     stream = six.BytesIO()
     img = qrcode.make(data, image_factory=factory)

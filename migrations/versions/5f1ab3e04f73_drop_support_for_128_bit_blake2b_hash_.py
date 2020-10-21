@@ -1,4 +1,4 @@
-"""Drop support for 128-bit blake2b hash in email
+"""Drop support for 128-bit blake2b hash in email.
 
 Revision ID: 5f1ab3e04f73
 Revises: 3847982f1472

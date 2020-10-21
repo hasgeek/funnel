@@ -1,4 +1,4 @@
-"""Saved projects and sessions
+"""Saved projects and sessions.
 
 Revision ID: 56ba15eff9ad
 Revises: 5e06feda611d

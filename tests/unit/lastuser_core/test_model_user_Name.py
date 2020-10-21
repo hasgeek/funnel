@@ -8,9 +8,7 @@ from .test_db import TestDatabaseFixture
 
 class TestName(TestDatabaseFixture):
     def test_is_available_name(self):
-        """
-        Names are only available if valid and unused
-        """
+        """Names are only available if valid and unused."""
         assert models.Profile.is_available_name('invalid_name') is False
         # 'piglet' is a name taken in the fixtures
         piglet = models.User.get(username='piglet')
@@ -21,9 +19,7 @@ class TestName(TestDatabaseFixture):
         assert models.Profile.is_available_name('peppa') is True
 
     def test_validate_name_candidate(self):
-        """
-        The name validator returns error codes as expected
-        """
+        """The name validator returns error codes as expected."""
         assert models.Profile.validate_name_candidate(None) == 'blank'
         assert models.Profile.validate_name_candidate('') == 'blank'
         assert models.Profile.validate_name_candidate('invalid_name') == 'invalid'
@@ -40,9 +36,7 @@ class TestName(TestDatabaseFixture):
         assert models.Profile.validate_name_candidate('batdog') == 'org'
 
     def test_reserved_name(self):
-        """
-        Names can be reserved, with no user or organization
-        """
+        """Names can be reserved, with no user or organization."""
         reserved_name = models.Profile(name='reserved-name', reserved=True)
         db.session.add(reserved_name)
         db.session.commit()
@@ -64,18 +58,14 @@ class TestName(TestDatabaseFixture):
         assert retrieved_name is reserved_name
 
     def test_unassigned_name(self):
-        """
-        Names must be assigned to a user or organization if not reserved
-        """
+        """Names must be assigned to a user or organization if not reserved."""
         unassigned_name = models.Profile(name='unassigned')
         db.session.add(unassigned_name)
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
     def test_double_assigned_name(self):
-        """
-        Names cannot be assigned to both a user and an organization simultaneously
-        """
+        """Names cannot be assigned to a user and an organization simultaneously."""
         user = models.User(username="double-assigned", fullname="User")
         org = models.Organization(
             name="double-assigned", title="Organization", owner=self.fixtures.piglet
@@ -85,9 +75,7 @@ class TestName(TestDatabaseFixture):
             db.session.commit()
 
     def test_user_two_names(self):
-        """
-        A user cannot have two names
-        """
+        """A user cannot have two names."""
         piglet = self.fixtures.piglet
         db.session.add(piglet)
         assert piglet.profile.name == 'piglet'
@@ -97,9 +85,7 @@ class TestName(TestDatabaseFixture):
             db.session.commit()
 
     def test_org_two_names(self):
-        """
-        An organization cannot have two names
-        """
+        """An organization cannot have two names."""
         batdog = self.fixtures.batdog
         db.session.add(batdog)
         assert batdog.profile.name == 'batdog'
@@ -109,9 +95,7 @@ class TestName(TestDatabaseFixture):
             db.session.commit()
 
     def test_remove_name(self):
-        """
-        Removing a name from a user or org also removes it from the Name table
-        """
+        """Removing a name from a user or org also removes it from the Name table."""
         # assert self.fixtures.oakley.username == 'oakley'
         # assert models.Profile.get('oakley') is not None
         # self.fixtures.oakley.username = None
@@ -127,6 +111,7 @@ class TestName(TestDatabaseFixture):
         # FIXME: Need clarity on how this works
 
     def test_name_transfer(self):
+        """Merging user accounts will transfer the name."""
         assert self.fixtures.nameless.username is None
         assert models.User.get(username='newname') is None
         newname = models.User(name='newname', fullname="New Name")

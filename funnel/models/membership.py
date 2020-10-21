@@ -28,7 +28,7 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
 
 
 class MembershipError(Exception):
-    """Base class for membership errors"""
+    """Base class for membership errors."""
 
 
 class MembershipRevokedError(MembershipError):
@@ -40,9 +40,7 @@ class MembershipRecordTypeError(MembershipError):
 
 
 class ImmutableMembershipMixin(UuidMixin, BaseMixin):
-    """
-    Support class for immutable memberships
-    """
+    """Support class for immutable memberships."""
 
     __uuid_primary_key__ = True
     #: List of columns that will be copied into a new row when a membership is amended
@@ -97,7 +95,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @declared_attr
     def revoked_by_id(cls):
-        """Id of user who revoked the membership"""
+        """Id of user who revoked the membership."""
         return db.Column(
             None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
@@ -105,7 +103,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     def revoked_by(cls):
-        """User who revoked the membership"""
+        """User who revoked the membership."""
         return db.relationship(User, foreign_keys=[cls.revoked_by_id])
 
     @declared_attr
@@ -122,7 +120,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     def granted_by(cls):
-        """User who assigned the membership"""
+        """User who assigned the membership."""
         return db.relationship(User, foreign_keys=[cls.granted_by_id])
 
     @hybrid_property
@@ -169,7 +167,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record"""
+        """Roles offered by this membership record."""
         return set()
 
     # Subclasses must gate these methods in __roles__

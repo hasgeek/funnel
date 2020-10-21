@@ -64,7 +64,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
     @with_roles(read={'owner', 'project_concierge'})  # type: ignore[misc]
     @property
     def response(self):
-        """Return state as a raw value"""
+        """Return RSVP response as a raw value."""
         return self._state
 
     @with_roles(call={'owner'})

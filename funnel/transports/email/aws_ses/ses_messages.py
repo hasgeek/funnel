@@ -115,6 +115,7 @@ class SesBounce(DataClassJsonMixin):
     def is_hard_bounce(self) -> bool:
         """
         Check if Bounce message is a hard bounce.
+
         If you receive this type of bounce, you should remove the
         recipient's email address from your mailing list.
 
@@ -186,7 +187,7 @@ class SesDelivery(DataClassJsonMixin):
 
 @dataclass
 class SesSend(DataClassJsonMixin):
-    """ The JSON object that contains information about a Send event. Has no data."""
+    """The JSON object that contains information about a Send event. Has no data."""
 
 
 @dataclass

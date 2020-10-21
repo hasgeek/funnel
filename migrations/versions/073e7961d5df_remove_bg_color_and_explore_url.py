@@ -1,4 +1,4 @@
-"""remove bg_color and explore_url
+"""Remove bg_color and explore_url.
 
 Revision ID: 073e7961d5df
 Revises: 34a95ee0c3a0

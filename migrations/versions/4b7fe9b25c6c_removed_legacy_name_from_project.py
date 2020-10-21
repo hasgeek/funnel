@@ -1,4 +1,4 @@
-"""removed legacy_name from project
+"""Removed legacy_name from project.
 
 Revision ID: 4b7fe9b25c6c
 Revises: 252f9a705901

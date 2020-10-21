@@ -415,6 +415,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.session.add(new_membership)
 
     def __repr__(self):
+        """Represent :class:`Project` as a string."""
         return '<Project %s/%s "%s">' % (
             self.profile.name if self.profile else '(none)',
             self.name,
@@ -490,7 +491,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})  # type: ignore[misc]
     @property
     def title_inline(self):
-        """Suffix a colon if the title does not end in ASCII sentence punctuation"""
+        """Suffix a colon if the title does not end in ASCII sentence punctuation."""
         if self.title and self.tagline:
             if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
                 return self.title + ':'
@@ -521,25 +522,23 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cached_property
     def datelocation(self):
         """
-        Returns a date + location string for the event, the format depends on project dates
+        Return a date and location string for the project.
 
-        If it's a single day event
-        > 11 Feb 2018, Bangalore
+        The format depends on project dates:
 
-        If multi-day event in same month
-        > 09–12 Feb 2018, Bangalore
+        1. If it's a single day event:
+            > 11 Feb 2018, Bangalore
 
-        If multi-day event across months
-        > 27 Feb–02 Mar 2018, Bangalore
+        2. If multi-day event in same month:
+            > 09–12 Feb 2018, Bangalore
 
-        If multi-day event across years
-        > 30 Dec 2018–02 Jan 2019, Bangalore
+        3. If multi-day event across months:
+            > 27 Feb–02 Mar 2018, Bangalore
 
-        ``datelocation_format`` always keeps ``schedule_end_at`` format as ``–DD Mmm YYYY``.
-        Depending on the scenario mentioned below, format for ``schedule_start_at`` changes. Above examples
-        demonstrate the same. All the possible outputs end with ``–DD Mmm YYYY, Venue``.
-        Only ``schedule_start_at`` format changes.
+        4. If multi-day event across years:
+            > 30 Dec 2018–02 Jan 2019, Bangalore
         """
+        # FIXME: Replace strftime with Babel formatting
         daterange = ''
         if self.schedule_start_at is not None and self.schedule_end_at is not None:
             schedule_start_at_date = self.schedule_start_at_localized.date()
@@ -675,9 +674,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @classmethod
     def all_unsorted(cls, legacy=None):
-        """
-        Return currently active events, not sorted.
-        """
+        """Return query of all published projects, without ordering criteria."""
         projects = cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
         if legacy is not None:
             projects = projects.join(Profile).filter(Profile.legacy == legacy)
@@ -685,9 +682,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @classmethod  # NOQA: A003
     def all(cls, legacy=None):  # NOQA: A003
-        """
-        Return currently active events, sorted by date.
-        """
+        """Return all published projects, ordered by date."""
         return cls.all_unsorted(legacy).order_by(cls.schedule_start_at.desc())
 
     @classmethod
@@ -806,6 +801,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
     project = db.relationship(Project, backref='redirects')
 
     def __repr__(self):
+        """Represent :class:`ProjectRedirect` as a string."""
         return '<ProjectRedirect %s/%s: %s>' % (
             self.profile.name,
             self.name,
@@ -846,8 +842,10 @@ class ProjectRedirect(TimestampMixin, db.Model):
     @classmethod
     def migrate_profile(cls, old_profile, new_profile):
         """
-        There's no point trying to migrate redirects when merging profiles,`
-        so discard them.
+        Discard redirects when migrating profiles.
+
+        Since there is no profile redirect, all project redirects will also be
+        unreachable and are no longer relevant.
         """
         names = {pr.name for pr in new_profile.project_redirects}
         for pr in old_profile.project_redirects:
@@ -871,6 +869,7 @@ class ProjectLocation(TimestampMixin, db.Model):
     primary = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
+        """Represent :class:`ProjectLocation` as a string."""
         return '<ProjectLocation %d %s for project %s>' % (
             self.geonameid,
             'primary' if self.primary else 'secondary',

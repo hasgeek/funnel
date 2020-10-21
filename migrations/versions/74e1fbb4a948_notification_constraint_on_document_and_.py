@@ -1,4 +1,4 @@
-"""Notification constraint on document and fragment
+"""Notification constraint on document and fragment.
 
 Revision ID: 74e1fbb4a948
 Revises: c47007758ee6

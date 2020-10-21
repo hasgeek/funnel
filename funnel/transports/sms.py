@@ -22,12 +22,16 @@ __all__ = ['validate_exotel_token', 'send_via_exotel', 'send_via_twilio', 'send'
 
 
 def make_exotel_token(to: str):
-    """Used by :func:`send_via_exotel` to construct a callback URL with a token."""
+    """
+    Create a signed token for Exotel using the phone number as a verification key.
+
+    Used by :func:`send_via_exotel` to construct a callback URL with a token.
+    """
     return token_serializer().dumps({'to': to})
 
 
 def validate_exotel_token(token: str, to: str):
-    """Used by the callback view handler to verify the URL security token."""
+    """Verify the Exotel token created using :func:`make_exotel_token`."""
     try:
         # Allow 7 days validity for the callback token
         payload = token_serializer().loads(token, max_age=86400 * 7)
@@ -156,7 +160,7 @@ senders_by_prefix = [('+91', send_via_exotel), ('+', send_via_twilio)]
 
 def send(phone: str, message: str, callback: bool = True) -> str:
     """
-    Send an SMS message to a given phone number and return a transaction id
+    Send an SMS message to a given phone number and return a transaction id.
 
     :param phone_number: Phone number
     :param message: Message to deliver to phone number

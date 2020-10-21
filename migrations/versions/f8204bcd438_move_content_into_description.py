@@ -1,4 +1,4 @@
-"""Move content into description
+"""Move content into description.
 
 Revision ID: f8204bcd438
 Revises: 55b1ef63bee

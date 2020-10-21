@@ -1,4 +1,4 @@
-"""room bgcolor default
+"""Room bgcolor default.
 
 Revision ID: 58588eba8cb8
 Revises: 31253f116e1e

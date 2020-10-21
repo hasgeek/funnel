@@ -1,4 +1,4 @@
-"""drop user avatar field
+"""Drop user avatar field.
 
 Revision ID: 99e5e7b54104
 Revises: ea1ea3b0ff95

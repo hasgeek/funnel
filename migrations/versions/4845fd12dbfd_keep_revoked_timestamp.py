@@ -1,4 +1,4 @@
-"""Keep revoked timestamp
+"""Keep revoked timestamp.
 
 Revision ID: 4845fd12dbfd
 Revises: abfda6e2f41d

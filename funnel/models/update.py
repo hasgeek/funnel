@@ -194,6 +194,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         self.commentset = Commentset(settype=SET_TYPE.UPDATE)
 
     def __repr__(self):
+        """Represent :class:`Update` as a string."""
         return '<Update "{title}" {uuid_b58}>'.format(
             title=self.title, uuid_b58=self.uuid_b58
         )

@@ -5,7 +5,15 @@ import csv
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import Response, current_app, jsonify, make_response, redirect, request
+from flask import (
+    Response,
+    current_app,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+)
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -45,7 +53,7 @@ class ContactView(ClassView):
     @requires_login
     @render_with('contacts.html.jinja2')
     def contacts(self):
-        """Grouped list of contacts"""
+        """Return contacts grouped by project and date."""
         archived = getbool(request.args.get('archived'))
         return {
             'contacts': ContactExchange.grouped_counts_for(
@@ -54,9 +62,7 @@ class ContactView(ClassView):
         }
 
     def contacts_to_csv(self, contacts, timezone, filename):
-        """
-        Returns a CSV of given contacts
-        """
+        """Return a CSV of given contacts."""
         outfile = six.StringIO()
         out = csv.writer(outfile)
         out.writerow(
@@ -104,7 +110,7 @@ class ContactView(ClassView):
     @route('<uuid_b58>/<datestr>.csv', endpoint='contacts_project_date_csv')
     @requires_login
     def project_date_csv(self, uuid_b58, datestr):
-        """Contacts for a given project and date in CSV format"""
+        """Return contacts for a given project and date in CSV format."""
         archived = getbool(request.args.get('archived'))
         project = self.get_project(uuid_b58)
         date = datetime.strptime(datestr, '%Y-%m-%d').date()
@@ -123,7 +129,7 @@ class ContactView(ClassView):
     @route('<uuid_b58>.csv', endpoint='contacts_project_csv')
     @requires_login
     def project_csv(self, uuid_b58):
-        """Contacts for a given project in CSV format"""
+        """Return contacts for a given project in CSV format."""
         archived = getbool(request.args.get('archived'))
         project = self.get_project(uuid_b58)
 
@@ -138,16 +144,15 @@ class ContactView(ClassView):
 
     @route('scan', endpoint='scan_contact')
     @requires_login
-    @render_with('scan_contact.html.jinja2')
     def scan(self):
-        """Scan a badge"""
-        return {}
+        """Scan a badge."""
+        return render_template('scan_contact.html.jinja2')
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login
     @requestargs(('puk', abort_null), ('key', abort_null))
     def connect(self, puk, key):
-        """Scan verification"""
+        """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
         if not ticket_participant:
             return make_response(
@@ -177,8 +182,9 @@ class ContactView(ClassView):
                 db.session.rollback()
             return jsonify(contact=contact_details(ticket_participant))
         else:
+            # FIXME: when status='error', the message should be in `error_description`.
             return make_response(
-                jsonify(status='error', message="Unauthorized contact exchange"), 403
+                jsonify(status='error', message=_("Unauthorized contact exchange")), 403
             )
 
 

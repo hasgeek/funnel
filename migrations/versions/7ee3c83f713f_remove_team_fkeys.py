@@ -1,4 +1,4 @@
-"""Remove team fkeys
+"""Remove team fkeys.
 
 Revision ID: 7ee3c83f713f
 Revises: 71fcac85957c

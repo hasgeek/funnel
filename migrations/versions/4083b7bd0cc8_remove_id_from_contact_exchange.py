@@ -1,4 +1,5 @@
-"""remove_id_from_contact_exchange_use_composite_primary_key
+"""Remove id from contact_exchange, use composite primary key.
+
 Revision ID: 4083b7bd0cc8
 Revises: 22fb4e1e3139
 Create Date: 2015-07-06 17:42:40.175382

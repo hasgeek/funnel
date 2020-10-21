@@ -1,4 +1,4 @@
-"""Correct database and model inconsistencies
+"""Correct database and model inconsistencies.
 
 Revision ID: 488077138ee4
 Revises: 2cbfbcca4737

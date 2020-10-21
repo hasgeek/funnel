@@ -1,4 +1,4 @@
-"""Added location to proposal
+"""Added location to proposal.
 
 Revision ID: 4dbf686f4380
 Revises: 1fcee2e6280

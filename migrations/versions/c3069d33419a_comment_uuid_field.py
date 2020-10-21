@@ -1,4 +1,4 @@
-"""comment uuid field
+"""Comment uuid field.
 
 Revision ID: c3069d33419a
 Revises: 69c2ced88981

@@ -156,6 +156,8 @@ class SnsValidator:
 
     def _get_public_key(self, message: Dict[str, str]) -> RSAPublicKey:
         """
+        Get the public key using an internal per-process cache.
+
         Every message has a signing URL which has a PEM file. We need to get the public
         key of the PEM. To avoid getting it for every message, we can cache it
         internally.
@@ -177,7 +179,8 @@ class SnsValidator:
 
     def _check_signature(self, message: Dict[str, str]):
         """
-        Checks Signature by comparing the message with the Signature
+        Check Signature by comparing the message with the Signature.
+
         :param message:  Message
         :return: None if Signature matches, throws if Mismatch
         """
@@ -195,7 +198,7 @@ class SnsValidator:
         checks: SnsValidatorChecks = SnsValidatorChecks.ALL,
     ) -> None:
         """
-        Checks the given message against specified checks.
+        Check the given message against specified checks.
 
         :param message: Given Message
         :param checks:  List of Checks to apply

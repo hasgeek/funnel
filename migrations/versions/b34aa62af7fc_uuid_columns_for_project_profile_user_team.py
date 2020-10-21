@@ -1,4 +1,4 @@
-"""UUID columns for Project, Profile, User, Team
+"""UUID columns for Project, Profile, User, Team.
 
 Revision ID: b34aa62af7fc
 Revises: 19a1f7f2a365

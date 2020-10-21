@@ -1,4 +1,4 @@
-"""Legacy profile flag
+"""Legacy profile flag.
 
 Revision ID: 2441cb4f44d4
 Revises: d62b392b0f25
