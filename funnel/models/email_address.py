@@ -340,9 +340,9 @@ class EmailAddress(BaseMixin, db.Model):
         # are immutable once set, so there are no content validators for them.
         self.blake2b160 = email_blake2b160_hash(email)
         self.email = email
-        self.blake2b160_canonical = email_blake2b160_hash(
-            cast(str, self.email_canonical)
-        )
+        # email_canonical is set by `email`'s validator
+        assert self.email_canonical is not None  # nosec
+        self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
     def is_exclusive(self):
         """Return True if this EmailAddress is in an exclusive relationship."""
@@ -546,6 +546,7 @@ class EmailAddress(BaseMixin, db.Model):
             if diagnosis is True:
                 # No problems
                 return True
+            # get_canonical won't return False when diagnose=True. Tell mypy:
             if cast(BaseDiagnosis, diagnosis).diagnosis_type == 'NO_MX_RECORD':
                 return 'nomx'
             return 'invalid'

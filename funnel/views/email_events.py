@@ -1,5 +1,5 @@
 from email.utils import parseaddr
-from typing import List, cast
+from typing import List
 
 from flask import request
 
@@ -11,10 +11,6 @@ from coaster.views import render_with
 from .. import app
 from ..models import EmailAddress, db
 from ..transports.email.aws_ses import (
-    SesBounce,
-    SesComplaint,
-    SesDelivery,
-    SesDeliveryDelay,
     SesEvent,
     SesProcessorAbc,
     SnsNotificationType,
@@ -46,29 +42,29 @@ class SesProcessor(SesProcessorAbc):
         return email_address
 
     def bounce(self, ses_event: SesEvent) -> None:
-        ses_event_bounce = cast(SesBounce, ses_event.bounce)
-        for bounced in ses_event_bounce.bounced_recipients:
+        assert ses_event.bounce is not None  # nosec
+        for bounced in ses_event.bounce.bounced_recipients:
             email_address = self._email_address(bounced.email)
-            if ses_event_bounce.is_hard_bounce:
+            if ses_event.bounce.is_hard_bounce:
                 email_address.mark_hard_fail()
             else:
                 email_address.mark_soft_fail()
 
         statsd.incr(
             'email_address.event',
-            count=len(ses_event_bounce.bounced_recipients),
+            count=len(ses_event.bounce.bounced_recipients),
             tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'bounced'},
         )
 
     def delayed(self, ses_event: SesEvent) -> None:
-        ses_event_delivery_delay = cast(SesDeliveryDelay, ses_event.delivery_delay)
-        for failed in ses_event_delivery_delay.delayed_recipients:
+        assert ses_event.delivery_delay is not None  # nosec
+        for failed in ses_event.delivery_delay.delayed_recipients:
             email_address = self._email_address(failed.email)
             email_address.mark_soft_fail()
 
         statsd.incr(
             'email_address.event',
-            count=len(ses_event_delivery_delay.delayed_recipients),
+            count=len(ses_event.delivery_delay.delayed_recipients),
             tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'delayed'},
         )
 
@@ -79,13 +75,13 @@ class SesProcessor(SesProcessorAbc):
         # address from further use. Since this is a serious outcome, we can only do this
         # when there was a single recipient to the original email.
         # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-complaint-object
-        ses_event_complaint = cast(SesComplaint, ses_event.complaint)
-        if len(ses_event_complaint.complained_recipients) == 1:
-            for complained in ses_event_complaint.complained_recipients:
-                if ses_event_complaint.complaint_feedback_type == 'not-spam':
+        assert ses_event.complaint is not None  # nosec
+        if len(ses_event.complaint.complained_recipients) == 1:
+            for complained in ses_event.complaint.complained_recipients:
+                if ses_event.complaint.complaint_feedback_type == 'not-spam':
                     email_address = self._email_address(complained.email)
                     email_address.mark_active()
-                elif ses_event_complaint.complaint_feedback_type == 'abuse':
+                elif ses_event.complaint.complaint_feedback_type == 'abuse':
                     EmailAddress.mark_blocked(complained.email)
                 else:
                     # TODO: Process 'auth-failure', 'fraud', 'other', 'virus'
@@ -96,7 +92,7 @@ class SesProcessor(SesProcessorAbc):
                         'engine': 'aws_ses',
                         'stage': 'processed',
                         'event': 'complaint',
-                        'feedback_type': ses_event_complaint.complaint_feedback_type,
+                        'feedback_type': ses_event.complaint.complaint_feedback_type,
                     },
                 )
         else:
@@ -106,7 +102,7 @@ class SesProcessor(SesProcessorAbc):
                     'engine': 'aws_ses',
                     'stage': 'dropped',
                     'event': 'complaint',
-                    'feedback_type': ses_event_complaint.complaint_feedback_type,
+                    'feedback_type': ses_event.complaint.complaint_feedback_type,
                 },
             )
 
@@ -114,13 +110,13 @@ class SesProcessor(SesProcessorAbc):
         # Recipients here are strings and not structures. Unusual, but reflected in
         # the documentation.
         # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-send
-        ses_event_delivery = cast(SesDelivery, ses_event.delivery)
-        for sent in ses_event_delivery.recipients:
+        assert ses_event.delivery is not None  # nosec
+        for sent in ses_event.delivery.recipients:
             email_address = self._email_address(sent)
             email_address.mark_sent()
         statsd.incr(
             'email_address.event',
-            count=ses_event_delivery.recipients,
+            count=ses_event.delivery.recipients,
             tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'delivered'},
         )
 
