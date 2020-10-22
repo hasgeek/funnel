@@ -5,7 +5,7 @@ from flask_babelhg import get_locale
 
 import pycountry
 
-from baseframe import __
+from baseframe import _, __
 from baseframe.forms.sqlalchemy import QuerySelectField
 import baseframe.forms as forms
 
@@ -96,7 +96,7 @@ class VenueRoomForm(forms.Form):
 
     def validate_bgcolor(self, field):
         if not valid_color_re.match(field.data):
-            raise forms.ValidationError("Please enter a valid color code")
+            raise forms.ValidationError(_("Please enter a valid color code"))
 
 
 @Venue.forms('primary')

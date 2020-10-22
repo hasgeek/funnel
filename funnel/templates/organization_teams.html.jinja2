@@ -28,7 +28,7 @@
         {%- if team.client_permissions %}
           <div class="mui-divider"></div>
           <div class="card__body">
-            <h4><strong>Linked apps</strong></h4>
+            <h4><strong>{% trans %}Linked apps{% endtrans %}</strong></h4>
             <ul class="mui-list--aligned mui--text-subhead">
               {%- for perm_assign in team.client_permissions %}
                 <li><a href="{{ perm_assign.auth_client.urls['view'] }}">{{ perm_assign.auth_client.title }}</a></li>
