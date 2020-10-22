@@ -161,8 +161,6 @@
         active_session: '',
         projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
         pageDescription: {{ g.profile.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
-        mobileHeader: $('.mobile-nav').height() + $('.schedule__row--sticky').height(),
-        desktopHeader: $('.header').height() + $('.sub-navbar').height() + $('.schedule__row--sticky').height(),
       };
       {%- if active_session -%}
         scheduleConfig['active_session'] = {{ active_session|tojson }};

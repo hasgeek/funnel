@@ -308,13 +308,6 @@
     }
     window.Hasgeek.ProposalInit(proposalConfig);
 
-    var headerHeight;
-    if($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
-      headerHeight = $('.mobile-nav').height();
-    } else {
-      headerHeight = $('header').height() + $('nav').height();
-    }
-
     var commentsConfig = {
       newCommentUrl: "{{ proposal.commentset.url_for('new_comment') }}",
       divElem: "#comments-wrapper",
@@ -324,7 +317,6 @@
       iscommentmoderator: {% if current_auth.user and current_auth.user.is_comment_moderator -%}true{% else %}false{% endif %},
       user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
       loginUrl: "{{ url_for('login') }}",
-      headerHeight: headerHeight,
     };
 
     window.Hasgeek.Comments(commentsConfig);
