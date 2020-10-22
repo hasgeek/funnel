@@ -1,4 +1,4 @@
-"""add ticket client
+"""Add ticket client.
 
 Revision ID: 22fb4e1e3139
 Revises: 40c4ad7c0909

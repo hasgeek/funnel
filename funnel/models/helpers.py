@@ -141,7 +141,7 @@ visual_field_delimiter = ' ¦ '
 
 def add_to_class(cls, name=None):
     """
-    Decorator to add a new method to a class. Takes an optional attribute name.
+    Add a new method to a class via a decorator. Takes an optional attribute name.
 
     Usage::
 
@@ -167,7 +167,7 @@ def add_to_class(cls, name=None):
 
 def reopen(cls):
     """
-    Moves the contents of the decorated class into an existing class and returns that.
+    Move the contents of the decorated class into an existing class and return it.
 
     Usage::
 
@@ -226,22 +226,24 @@ def reopen(cls):
 
 def valid_username(candidate):
     """
-    Check if a username is valid. Letters, numbers and non-terminal hyphens only.
+    Check if a username is valid.
+
+    Letters, numbers and non-terminal hyphens only.
     """
     return not _username_valid_re.search(candidate) is None
 
 
 def valid_name(candidate):
     """
-    Check if a name is valid. Lowercase letters, numbers and non-terminal hyphens only.
+    Check if a name is valid.
+
+    Lowercase letters, numbers and non-terminal hyphens only.
     """
     return not _name_valid_re.search(candidate) is None
 
 
 def pgquote(identifier):
-    """
-    Adds double quotes to the given identifier if required (PostgreSQL only).
-    """
+    """Add double quotes to the given identifier if required (PostgreSQL only)."""
     return (
         ('"%s"' % identifier) if identifier in POSTGRESQL_RESERVED_WORDS else identifier
     )
@@ -249,7 +251,9 @@ def pgquote(identifier):
 
 def add_search_trigger(model, column_name):
     """
-    Adds a search trigger and returns SQL for use in migrations. Typical use::
+    Add a search trigger and returns SQL for use in migrations.
+
+    Typical use::
 
         class MyModel(db.Model):
             ...

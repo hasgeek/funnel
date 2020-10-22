@@ -37,7 +37,7 @@
             text-align: left;
             color: $mui-primary-color;
             position: relative;
-            background-color: #e1eefd;
+            background-color: $mui-primary-color-lighter;
             text-decoration: none;
             display: none;
           }
@@ -151,6 +151,9 @@
 }
 
 @media (max-width: 767px) {
+  .hg-app .header--fixed.header--lowzindex {
+    z-index: 1;
+  }
   .hg-app.no-sticky-header {
     .header--fixed {
       display: none;
@@ -431,14 +434,8 @@
   height: 18px;
 }
 
-.header__site-title__home__logo--margin {
-  margin-right: 10px;
-}
-
 .header__site-title__home__logo--funnel {
   width: 18px;
-  position: relative;
-  top: -2px;
 }
 
 @media (min-width: 768px) {
@@ -617,7 +614,8 @@
 
   .mobile-nav__icon {
     display: inline-block;
-    padding: $mui-grid-padding $mui-grid-padding-double $mui-grid-padding 20px;
+    padding: $mui-grid-padding $mui-grid-padding/2 $mui-grid-padding
+      $mui-grid-padding;
   }
   .mobile-nav__headline {
     font-size: 20px;

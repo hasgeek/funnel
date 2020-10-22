@@ -1,4 +1,4 @@
-"""Subspaces
+"""Subspaces.
 
 Revision ID: 7cd383925de
 Revises: 21a7dfe8ab4d

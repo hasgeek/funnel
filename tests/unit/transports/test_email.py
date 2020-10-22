@@ -5,8 +5,12 @@ from funnel.transports.email import process_recipient
 
 def test_process_recipient():
     """
-    Process recipient produces output that Flask-Mailman's sanitize_address won't raise
-    ValueError on.
+    Test whether process_recipient produces output compatible with sanitize_address.
+
+    `sanitize_address` behaves differently between Python versions, making
+    testing tricky, so `process_recipient` tests its output against `sanitize_address`
+    before returning it. It will always work in a given Python version, but this test
+    can't assert the exact output. FIXME: Needs a consistent implementation and test.
     """
     assert bool(
         sanitize_address(

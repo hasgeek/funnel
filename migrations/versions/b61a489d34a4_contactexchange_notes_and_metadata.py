@@ -1,4 +1,4 @@
-"""ContactExchange notes and metadata
+"""ContactExchange notes and metadata.
 
 Revision ID: b61a489d34a4
 Revises: 1829e53eba75

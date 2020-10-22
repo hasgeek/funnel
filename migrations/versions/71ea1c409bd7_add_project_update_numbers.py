@@ -1,4 +1,4 @@
-"""Add Project update numbers
+"""Add Project update numbers.
 
 Revision ID: 71ea1c409bd7
 Revises: 6d3599c52873

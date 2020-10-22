@@ -1,4 +1,4 @@
-"""Merge account_name into profile
+"""Merge account_name into profile.
 
 Revision ID: e8665a81606d
 Revises: d50c3d8e3f33

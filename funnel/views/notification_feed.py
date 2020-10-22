@@ -54,7 +54,7 @@ class AllNotificationsView(ClassView):
         }
 
     def unread_count(self):
-        UserNotification.unread_count_for(current_auth.user)
+        return UserNotification.unread_count_for(current_auth.user)
 
     @route('count', endpoint='notifications_count')
     @render_with(json=True)

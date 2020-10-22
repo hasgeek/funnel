@@ -1,8 +1,9 @@
+from typing import NamedTuple
 import os.path
 
 from flask import Response, g, jsonify, redirect, render_template, url_for
 
-from baseframe import _
+from baseframe import _, __
 from baseframe.filters import date_filter
 from coaster.auth import current_auth
 from coaster.views import ClassView, jsonp, load_model, render_with, requestargs, route
@@ -12,6 +13,21 @@ from ..forms import SavedProjectForm
 from ..models import Project, Proposal, db
 from .helpers import app_url_for
 from .project import project_data
+
+
+class PolicyPage(NamedTuple):
+    path: str
+    title: str
+
+
+policy_pages = [
+    PolicyPage('policy/terms', __("Terms of service")),
+    PolicyPage('policy/adtos', __("Sponsorship & advertising")),
+    PolicyPage('policy/privacy', __("Privacy policy")),
+    PolicyPage('policy/refunds', __("Cancellation & refund policy")),
+    PolicyPage('policy/community', __("Community guidelines")),
+    PolicyPage('policy/code', __("Code of conduct")),
+]
 
 
 @route('/')
@@ -119,7 +135,7 @@ def past_projects_json(page=1, per_page=10):
             {
                 'title': p.title,
                 'datetime': date_filter(
-                    p.schedule_start_at_localized, format='dd MMM yyyy'
+                    p.schedule_end_at_localized, format='dd MMM yyyy'
                 ),
                 'venue': p.primary_venue.city if p.primary_venue else p.location,
                 'url': p.url_for(),
@@ -160,11 +176,14 @@ def contact(path):
     )
 
 
-@app.route('/about/policy', defaults={'path': 'policy/index'})
+# Trailing slash in `/about/policy/` is required for relative links in `index.md`
+@app.route('/about/policy/', defaults={'path': 'policy/index'})
 @app.route('/about/<path:path>')
 def policy(path):
     return render_template(
-        'policy.html.jinja2', page=pages.get_or_404(os.path.join('about', path))
+        'policy.html.jinja2',
+        index=policy_pages,
+        page=pages.get_or_404(os.path.join('about', path)),
     )
 
 
@@ -220,6 +239,11 @@ def opensearch():
         render_template('opensearch.xml.jinja2'),
         mimetype='application/opensearchdescription+xml',
     )
+
+
+@app.route('/robots.txt')
+def robotstxt():
+    return Response(render_template('robots.txt.jinja2'), mimetype='text/plain')
 
 
 # --- Lastuser legacy routes -----------------------------------------------------------

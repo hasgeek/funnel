@@ -1,4 +1,4 @@
-"""Proposal video blogpost
+"""Proposal video blogpost.
 
 Revision ID: 1195a2789872
 Revises: 3c47ba103724

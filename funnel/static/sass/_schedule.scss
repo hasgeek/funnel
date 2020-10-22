@@ -114,7 +114,7 @@
       }
 
       .schedule__row__column--header.js-tab-active {
-        border-bottom: 2px solid $mui-bg-color-accent;
+        border-bottom: 2px solid $mui-accent-color;
       }
 
       .schedule__row__column--time {
@@ -288,6 +288,7 @@
 .jquery-modal.blocker.current .session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
+  width: 100%;
 
   .modal__header {
     padding: $mui-grid-padding $mui-grid-padding 5px;

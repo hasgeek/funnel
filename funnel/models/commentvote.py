@@ -18,14 +18,18 @@ __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
 
 class COMMENT_STATE(LabeledEnum):  # NOQA: N801
     # If you add any new state, you need to add a migration to modify the check constraint
-    PUBLIC = (0, 'public', __("Public"))
+    SUBMITTED = (0, 'submitted', __("Submitted"))
     SCREENED = (1, 'screened', __("Screened"))
     HIDDEN = (2, 'hidden', __("Hidden"))
     SPAM = (3, 'spam', __("Spam"))
     # Deleted state for when there are replies to be preserved
     DELETED = (4, 'deleted', __("Deleted"))
+    VERIFIED = (5, 'verified', __("Verified"))
 
+    PUBLIC = {SUBMITTED, VERIFIED}
     REMOVED = {SPAM, DELETED}
+    REPORTABLE = {SUBMITTED, SCREENED, HIDDEN}
+    VERIFIABLE = {SUBMITTED, SCREENED, HIDDEN, SPAM}
 
 
 # What is this Voteset or Commentset attached to?
@@ -129,7 +133,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         super(Commentset, self).__init__(**kwargs)
         self.count = 0
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def parent(self):
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
@@ -140,7 +144,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             parent = self.proposal
         return parent
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def parent_type(self):
         parent = self.parent
@@ -187,7 +191,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'state',
         db.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
-        default=COMMENT_STATE.PUBLIC,
+        default=COMMENT_STATE.SUBMITTED,
         nullable=False,
     )
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment.")
@@ -235,7 +239,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         super(Comment, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
 
-    @with_roles(read={'all'}, datasets={'related', 'json'})
+    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
     def current_access_replies(self):
         return [
@@ -254,11 +258,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             else self._user
         )
 
-    @user.setter
+    @user.setter  # type: ignore[no-redef]
     def user(self, value):
         self._user = value
 
-    @user.expression
+    @user.expression  # type: ignore[no-redef]
     def user(cls):  # NOQA: N805
         return cls._user
 
@@ -274,22 +278,22 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             else self._message
         )
 
-    @message.setter
+    @message.setter  # type: ignore[no-redef]
     def message(self, value):
         self._message = value
 
-    @message.expression
+    @message.expression  # type: ignore[no-redef]
     def message(cls):  # NOQA: N805
         return cls._message
 
     with_roles(message, read={'all'}, datasets={'primary', 'related', 'json'})
 
-    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})
+    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property
     def absolute_url(self):
         return self.url_for()
 
-    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})
+    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property
     def title(self):
         obj = self.commentset.parent
@@ -300,7 +304,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         else:
             return _("{user} commented").format(user=self.user.pickername)
 
-    @with_roles(read={'all'}, datasets={'related', 'json'})
+    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
     def badges(self):
         badges = set()
@@ -316,9 +320,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @state.transition(None, state.DELETED)
     def delete(self):
-        """
-        Delete this comment.
-        """
+        """Delete this comment."""
         if len(self.replies) > 0:
             self.user = None
             self.message = ''
@@ -335,15 +337,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @state.transition(None, state.SPAM)
     def mark_spam(self):
-        """
-        Mark this comment as spam.
-        """
+        """Mark this comment as spam."""
 
-    @state.transition(state.SPAM, state.PUBLIC)
+    @state.transition(state.VERIFIABLE, state.VERIFIED)
     def mark_not_spam(self):
-        """
-        Mark this comment as not a spam.
-        """
+        """Mark this comment as not spam."""
 
     def sorted_replies(self):
         return sorted(self.replies, key=lambda comment: comment.voteset.count)
@@ -371,7 +369,7 @@ add_search_trigger(Comment, 'search_vector')
 
 
 @reopen(Commentset)
-class Commentset:
+class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     toplevel_comments = db.relationship(
         Comment,
         lazy='dynamic',

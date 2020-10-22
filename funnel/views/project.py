@@ -660,18 +660,14 @@ class ProjectView(
     @requires_login
     @requires_roles({'concierge'})
     def rsvp_list_yes_csv(self):
-        """
-        Returns a CSV of given contacts
-        """
+        """Return a CSV of RSVP participants who answered Yes."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.YES)
 
     @route('rsvp_list/maybe.csv')
     @requires_login
     @requires_roles({'concierge'})
     def rsvp_list_maybe_csv(self):
-        """
-        Returns a CSV of given contacts
-        """
+        """Return a CSV of RSVP participants who answered Maybe."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
 
     @route('save', methods=['POST'])

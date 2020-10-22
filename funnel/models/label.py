@@ -157,13 +157,13 @@ class Label(BaseScopedNameMixin, db.Model):
     def restricted(self):
         return self.main_label._restricted if self.main_label else self._restricted
 
-    @restricted.setter
+    @restricted.setter  # type: ignore[no-redef]
     def restricted(self, value):
         if self.main_label:
             raise ValueError("This flag must be set on the parent")
         self._restricted = value
 
-    @restricted.expression
+    @restricted.expression  # type: ignore[no-redef]
     def restricted(cls):  # NOQA: N805
         return case(
             [
@@ -183,11 +183,11 @@ class Label(BaseScopedNameMixin, db.Model):
             self.main_label._archived if self.main_label else False
         )
 
-    @archived.setter
+    @archived.setter  # type: ignore[no-redef]
     def archived(self, value):
         self._archived = value
 
-    @archived.expression
+    @archived.expression  # type: ignore[no-redef]
     def archived(cls):  # NOQA: N805
         return case(
             [
@@ -206,7 +206,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def has_options(self):
         return bool(self.options)
 
-    @has_options.expression
+    @has_options.expression  # type: ignore[no-redef]
     def has_options(cls):  # NOQA: N805
         return exists().where(Label.main_label_id == cls.id)
 
@@ -218,7 +218,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def required(self):
         return self._required if self.has_options else False
 
-    @required.setter
+    @required.setter  # type: ignore[no-redef]
     def required(self, value):
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
@@ -227,9 +227,10 @@ class Label(BaseScopedNameMixin, db.Model):
     @property
     def icon(self):
         """
-        Returns an icon for displaying the label in space-constrained UI.
+        Return an icon for displaying the label in space-constrained UI.
+
         If an emoji icon has been specified, use it. If not, create initials
-        from the title (up to 3). If the label is a single word, returns the
+        from the title (up to 3). If the label is a single word, return the
         first three characters.
         """
         result = self.icon_emoji
@@ -240,6 +241,7 @@ class Label(BaseScopedNameMixin, db.Model):
         return result
 
     def __repr__(self):
+        """Represent :class:`Label` as a string."""
         if self.main_label:
             return "<Label %s/%s>" % (self.main_label.name, self.name)
         else:
@@ -279,6 +281,7 @@ class ProposalLabelProxyWrapper(object):
         object.__setattr__(self, '_obj', obj)
 
     def __getattr__(self, name):
+        """Get an attribute."""
         # What this does:
         # 1. Check if the project has this label (including archived labels). If not, raise error
         # 2. If this is not a parent label:
@@ -301,6 +304,7 @@ class ProposalLabelProxyWrapper(object):
         return label_options[0].name if len(label_options) > 0 else None
 
     def __setattr__(self, name, value):
+        """Set an attribute."""
         label = Label.query.filter(
             Label.name == name,
             Label.project == self._obj.project,
@@ -340,6 +344,7 @@ class ProposalLabelProxyWrapper(object):
 
 class ProposalLabelProxy(object):
     def __get__(self, obj, cls=None):
+        """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)
         else:
@@ -347,7 +352,7 @@ class ProposalLabelProxy(object):
 
 
 @reopen(Proposal)
-class Proposal:
+class Proposal:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     #: For reading and setting labels from the edit form
     formlabels = ProposalLabelProxy()
 

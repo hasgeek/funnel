@@ -1,4 +1,4 @@
-"""add inherit sections to proposal space
+"""Add inherit sections to proposal space.
 
 Revision ID: 3b189f2e5c56
 Revises: 416a2f958279

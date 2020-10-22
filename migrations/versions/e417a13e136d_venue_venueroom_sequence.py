@@ -1,4 +1,4 @@
-"""added sequence to venue and venue_room
+"""Added sequence to venue and venue_room.
 
 Revision ID: e417a13e136d
 Revises: c3069d33419a

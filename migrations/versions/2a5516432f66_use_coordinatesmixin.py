@@ -1,4 +1,4 @@
-"""Use CoordinatesMixin
+"""Use CoordinatesMixin.
 
 Revision ID: 2a5516432f66
 Revises: 2db4d4be1fdf

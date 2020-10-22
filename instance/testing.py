@@ -1,6 +1,7 @@
 from os import environ
 
 TESTING = True
+CACHE_TYPE = 'null'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
@@ -24,7 +25,6 @@ RECAPTCHA_PUBLIC_KEY = environ.get('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = environ.get('RECAPTCHA_PRIVATE_KEY')
 RECAPTCHA_OPTIONS = ''
 WTF_CSRF_ENABLED = False
-WTF_CSRF_METHODS = {}
 
 YOUTUBE_API_KEY = environ.get('YOUTUBE_API_KEY', '')
 

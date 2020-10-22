@@ -1,4 +1,4 @@
-"""logo url banner url hasjob embed
+"""Logo url banner url hasjob embed.
 
 Revision ID: 70ffbc1bcf88
 Revises: b553db89a76e

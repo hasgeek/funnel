@@ -1,4 +1,4 @@
-"""proposal instructions
+"""Proposal instructions.
 
 Revision ID: d576f55f9eba
 Revises: f80ab5d0e11e

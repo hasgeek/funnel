@@ -42,6 +42,7 @@ known_flask = [
   'webassets',
   'flask_assets',
   'flask_babelhg',
+  'flask_executor',
   'flask_flatpages',
   'flask_mailman',
   'flask_migrate',
@@ -50,6 +51,10 @@ known_flask = [
 ]
 default_section = 'THIRDPARTY'
 sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
+
+[tool.pytest.ini_options]
+norecursedirs = 'tests/integration/*'
+addopts = '--cov-report=term-missing'
 
 [tool.curlylint]
 include = '\.jinja2$'

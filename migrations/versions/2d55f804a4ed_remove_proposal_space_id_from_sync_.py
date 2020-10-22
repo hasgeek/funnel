@@ -1,4 +1,4 @@
-"""remove proposal_space_id from sync_ticket
+"""Remove proposal_space_id from sync_ticket.
 
 Revision ID: 2d55f804a4ed
 Revises: 48ce908329c0

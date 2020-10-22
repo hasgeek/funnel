@@ -66,6 +66,6 @@ export const shareDropdown = Vue.component('sharedropdown', {
     },
   },
   mounted() {
-    Utils.addWebShare();
+    Utils.enableWebShare();
   },
 });

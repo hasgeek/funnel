@@ -2,7 +2,6 @@ from collections import Counter, namedtuple
 
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
-import base58
 import geoip2.errors
 import user_agents
 
@@ -63,7 +62,7 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
-from ..transports import TransportConnectionError, sms
+from ..transports import TransportConnectionError, TransportRecipientError, sms
 from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import (
@@ -81,38 +80,9 @@ from .login_session import (
 from .notification import dispatch_notification
 
 
-def send_phone_verify_code(phoneclaim):
-    msg = SMSMessage(
-        phone_number=phoneclaim.phone,
-        message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
-            code=phoneclaim.verification_code
-        ),
-    )
-    # Now send this
-    try:
-        msg.transactionid = sms.send(msg.phone_number, msg.message)
-        db.session.add(msg)
-    except TransportConnectionError:
-        flash(_("Unable to send a message right now. Please try again"))
-
-
-def blake2b_b58(text):
-    """
-    Determine if given text is a 128 or 160-bit BLAKE2b hash (rendered in UUID58).
-
-    Returns a dict that can be passed as kwargs to model loader. This function is
-    temporary until the switch to email_hash-based lookup in a few days (in June 2020).
-    """
-    try:
-        hash_bytes = base58.b58decode(text.encode())
-        return {('blake2b' if len(hash_bytes) == 16 else 'blake2b160'): hash_bytes}
-    except ValueError:
-        abort(400)  # Parameter isn't valid Base58
-
-
 @User.views()
 def emails_sorted(obj):
-    """Sorted list of email addresses, for account page UI"""
+    """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
     items = sorted(obj.emails, key=lambda i: (i != primary, i.email))
     return items
@@ -120,7 +90,7 @@ def emails_sorted(obj):
 
 @User.views()
 def phones_sorted(obj):
-    """Sorted list of email addresses, for account page UI"""
+    """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
     items = sorted(obj.phones, key=lambda i: (i != primary, i.phone))
     return items
@@ -333,6 +303,11 @@ class AccountView(ClassView):
             'login_registry': login_registry,
         }
 
+    @route('sudo', endpoint='account_sudo', methods=['GET', 'POST'])
+    @requires_sudo
+    def sudo(self):
+        return redirect(get_next_url(), code=303)
+
     @route('saved', endpoint='saved')
     @requires_login
     @render_with('account_saved.html.jinja2')
@@ -350,7 +325,7 @@ class AccountView(ClassView):
         ):
             return abort(403)
 
-        comments = Comment.query.filter(~(Comment.state.REMOVED)).order_by(
+        comments = Comment.query.filter(Comment.state.REPORTABLE).order_by(
             Comment.created_at.desc()
         )
         if query:
@@ -473,7 +448,7 @@ class AccountView(ClassView):
                 if most_common_two[0].report_type == MODERATOR_REPORT_TYPE.SPAM:
                     report.comment.mark_spam()
                 elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
-                    if report.comment.state.SPAM:
+                    if not report.comment.state.DELETED:
                         report.comment.mark_not_spam()
                 CommentModeratorReport.query.filter_by(comment=report.comment).update(
                     {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
@@ -607,8 +582,12 @@ def account_edit(newprofile=False):
 @lastuserapp.route('/confirm/<email_hash>/<secret>')
 @requires_login
 def confirm_email(email_hash, secret):
-    kwargs = blake2b_b58(email_hash)
-    emailclaim = UserEmailClaim.get_by(verification_code=secret, **kwargs)
+    try:
+        emailclaim = UserEmailClaim.get_by(
+            verification_code=secret, email_hash=email_hash
+        )
+    except ValueError:
+        abort(404)
     if emailclaim is not None:
         emailclaim.email_address.mark_active()
         if 'verify' in emailclaim.permissions(current_auth.user):
@@ -802,13 +781,16 @@ def make_phone_primary():
 @app.route('/account/email/<email_hash>/remove', methods=['GET', 'POST'])
 @requires_sudo
 def remove_email(email_hash):
-    useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
-    if not useremail:
-        useremail = UserEmailClaim.get_for(
-            user=current_auth.user, email_hash=email_hash
-        )
+    try:
+        useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
+        if not useremail:
+            useremail = UserEmailClaim.get_for(
+                user=current_auth.user, email_hash=email_hash
+            )
         if not useremail:
             abort(404)
+    except ValueError:
+        abort(404)
     if (
         isinstance(useremail, UserEmail)
         and current_auth.user.verified_contact_count == 1
@@ -843,11 +825,15 @@ def remove_email(email_hash):
 @requires_login
 def verify_email(email_hash):
     """
-    If the user has a pending email verification but has lost the email, allow them to
-    send themselves another verification email. This endpoint is only linked to from
-    the account page under the list of email addresses pending verification.
+    Allow user to resend an email verification link to themselves if original is lost.
+
+    This endpoint is only linked to from the account page under the list of email
+    addresses pending verification.
     """
-    useremail = UserEmail.get(email_hash=email_hash)
+    try:
+        useremail = UserEmail.get(email_hash=email_hash)
+    except ValueError:
+        abort(404)
     if useremail and useremail.user == current_auth.user:
         # If an email address is already verified (this should not happen unless the
         # user followed a stale link), tell them it's done -- but only if the email
@@ -857,7 +843,12 @@ def verify_email(email_hash):
         return render_redirect(url_for('account'), code=303)
 
     # Get the existing email claim that we're resending a verification link for
-    emailclaim = UserEmailClaim.get_for(user=current_auth.user, email_hash=email_hash)
+    try:
+        emailclaim = UserEmailClaim.get_for(
+            user=current_auth.user, email_hash=email_hash
+        )
+    except ValueError:
+        abort(404)
     if not emailclaim:
         abort(404)
     verify_form = VerifyEmailForm()
@@ -891,12 +882,25 @@ def add_phone():
         if userphone is None:
             userphone = UserPhoneClaim(user=current_auth.user, phone=form.phone.data)
             db.session.add(userphone)
+        current_auth.user.main_notification_preferences.by_sms = (
+            form.enable_notifications.data
+        )
+        msg = SMSMessage(
+            phone_number=userphone.phone,
+            message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
+                code=userphone.verification_code
+            ),
+        )
         try:
-            current_auth.user.main_notification_preferences.by_sms = (
-                form.enable_notifications.data
-            )
-            send_phone_verify_code(userphone)
-            # Commit after sending because send_phone_verify_code saves the message sent
+            # Now send this
+            msg.transactionid = sms.send(msg.phone_number, msg.message)
+        except TransportRecipientError as e:
+            flash(str(e), 'error')
+        except TransportConnectionError:
+            flash(_("Unable to send a message right now. Try again later"), 'error')
+        else:
+            # Commit only if an SMS could be sent
+            db.session.add(msg)
             db.session.commit()
             flash(
                 _("A verification code has been sent to your phone number"), 'success'
@@ -905,9 +909,6 @@ def add_phone():
             return render_redirect(
                 url_for('verify_phone', number=userphone.phone), code=303
             )
-        except ValueError as e:
-            db.session.rollback()
-            form.phone.errors.append(str(e))
     return render_form(
         form=form,
         title=_("Add a phone number"),
@@ -1073,3 +1074,15 @@ def verify_email_old(email_hash):
 )
 def lastuser_account_edit(newprofile):
     return redirect(app_url_for(app, 'account_new' if newprofile else 'account_edit'))
+
+
+# --- Compatibility routes -------------------------------------------------------------
+
+
+@funnelapp.route('/account/sudo', endpoint='account_sudo')
+@lastuserapp.route('/account/sudo', endpoint='account_sudo')
+def otherapp_account_sudo():
+    next_url = request.args.get('next')
+    if next_url:
+        return redirect(app_url_for(app, 'account_sudo', next=next_url))
+    return redirect(app_url_for(app, 'account_sudo'))

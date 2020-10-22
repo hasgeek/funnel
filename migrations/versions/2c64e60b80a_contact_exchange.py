@@ -1,4 +1,4 @@
-"""contact_exchange
+"""Contact exchange.
 
 Revision ID: 2c64e60b80a
 Revises: 522d776a42ed

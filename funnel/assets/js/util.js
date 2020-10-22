@@ -186,8 +186,15 @@ export const Utils = {
       if (response.status === 500) {
         errorMsg =
           'An internal server error occurred. Our support team has been notified and will investigate.';
+      } else if (
+        response.status === 422 &&
+        response.responseJSON.error === 'requires_sudo'
+      ) {
+        window.location.href = `${
+          window.Hasgeek.config.accountSudo
+        }?next=${encodeURIComponent(window.location.href)}`;
       } else {
-        errorMsg = JSON.parse(response.responseText).error_description;
+        errorMsg = response.responseJSON.error_description;
       }
     } else {
       errorMsg = 'Unable to connect. Please reload and try again.';
@@ -277,21 +284,21 @@ export const Utils = {
   },
   addWebShare() {
     if (navigator.share) {
-      if ($('.hg-link-btn').length) {
-        $('.project-links').hide();
-        $('.hg-link-btn').removeClass('mui--hide');
+      $('.project-links').hide();
+      $('.hg-link-btn').removeClass('mui--hide');
 
-        $('.hg-link-btn').on('click', function () {
-          navigator.share({
-            title: $(this).data('title') || document.title,
-            url:
-              $(this).data('url') ||
-              (document.querySelector('link[rel=canonical]') &&
-                document.querySelector('link[rel=canonical]').href) ||
-              window.location.href,
-          });
+      $('body').on('click', '.hg-link-btn', function (event) {
+        event.preventDefault();
+        navigator.share({
+          title: $(this).data('title') || document.title,
+          url:
+            $(this).data('url') ||
+            (document.querySelector('link[rel=canonical]') &&
+              document.querySelector('link[rel=canonical]').href) ||
+            window.location.href,
+          text: $(this).data('text') || '',
         });
-      }
+      });
     } else {
       $('body').on('click', '.js-copy-link', function (event) {
         event.preventDefault();
@@ -305,6 +312,21 @@ export const Utils = {
         selection.removeAllRanges();
       });
     }
+  },
+  enableWebShare() {
+    if (navigator.share) {
+      $('.project-links').hide();
+      $('.hg-link-btn').removeClass('mui--hide');
+    }
+  },
+  getPageHeaderHeight() {
+    let headerHeight;
+    if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+      headerHeight = $('.mobile-nav').height();
+    } else {
+      headerHeight = $('header').height() + $('nav').height();
+    }
+    return headerHeight;
   },
 };
 

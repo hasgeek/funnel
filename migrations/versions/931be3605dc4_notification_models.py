@@ -1,4 +1,4 @@
-"""Notification models
+"""Notification models.
 
 Revision ID: 931be3605dc4
 Revises: 7f6f417dad02

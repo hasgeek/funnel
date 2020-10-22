@@ -10,8 +10,7 @@ from funnel.views.helpers import app_url_for, cleanurl_filter
 
 
 def test_app_url_for():
-    """Test that app_url_for works cross-app and in-app"""
-
+    """Test that app_url_for works cross-app and in-app."""
     # App context is not necessary to use app_url_for
     url = app_url_for(app, 'index')
     assert url is not None
@@ -46,6 +45,7 @@ def test_app_url_for():
 
 
 def test_urlclean_filter():
+    """The cleanurl filter produces compact browser-like URLs."""
     assert (
         cleanurl_filter(furl("https://example.com/some/path/?query=value"))
         == "example.com/some/path"

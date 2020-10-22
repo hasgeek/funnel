@@ -1,4 +1,4 @@
-"""Space content
+"""Space content.
 
 Revision ID: 577689971aa0
 Revises: 1195a2789872

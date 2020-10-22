@@ -1,4 +1,4 @@
-"""coaster_models
+"""Coaster models.
 
 Revision ID: 316aaa757c8c
 Revises: 9d513be1a96

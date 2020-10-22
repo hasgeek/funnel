@@ -114,9 +114,6 @@ const Schedule = {
         },
         openModal(sessionHtml, backPage, pageDetails) {
           this.modalHtml = sessionHtml;
-          $('#session-modal').on($.modal.OPEN, function () {
-            Utils.addWebShare();
-          });
           $('#session-modal').modal('show');
           window.history.pushState(
             {
@@ -158,6 +155,10 @@ const Schedule = {
           event.preventDefault();
           Utils.animateScrollTo($(`#${id}`).offset().top - this.headerHeight);
         },
+        getHeight() {
+          this.headerHeight =
+            Utils.getPageHeaderHeight() + $('.schedule__row--sticky').height();
+        },
         handleBrowserResize() {
           $(window).resize(() => {
             this.width = $(window).width();
@@ -166,10 +167,11 @@ const Schedule = {
             if (this.width < window.Hasgeek.config.mobileBreakpoint) {
               this.view = 'agenda';
             }
+            this.getHeight();
           });
         },
         animateWindowScrollWithHeader() {
-          this.headerHeight = 2 * $('.schedule__row--sticky').height();
+          this.getHeight();
           this.pathName = window.location.pathname;
           const scrollPos = JSON.parse(
             window.sessionStorage.getItem('scrollPos')
@@ -204,10 +206,19 @@ const Schedule = {
           ) {
             // Scroll page to last viewed position
             Utils.animateScrollTo(scrollPos.scrollPosY);
-          } else {
-            // Scroll page to schedule table
+          } else if ($('.schedule__date--upcoming').length) {
+            // Scroll to the upcoming schedule
             Utils.animateScrollTo(
-              $(schedule.config.parentContainer).offset().top
+              $('.schedule__date--upcoming').first().offset().top -
+                this.headerHeight
+            );
+          } else {
+            // Scroll to the last schedule
+            Utils.animateScrollTo(
+              $(schedule.config.parentContainer)
+                .find('.schedule__date')
+                .last()
+                .offset().top - this.headerHeight
             );
           }
 
@@ -269,6 +280,7 @@ const Schedule = {
     this.config.eventDayhashes = {};
     this.config.schedule.forEach((day, index) => {
       day.dateStr = this.Utils.getDateString(day.start_at);
+      day.upcoming = new Date(day.dateStr) >= new Date(this.config.currentDate);
       day.startTime = this.Utils.getTime(day.start_at);
       day.endTime = this.Utils.getTime(day.end_at);
       day.rooms = JSON.parse(JSON.stringify(this.config.rooms));
@@ -313,6 +325,7 @@ const Schedule = {
         self.addDefaultRoom(venue);
       }
     });
+    this.config.currentDate = this.Utils.getDateString(new Date());
 
     this.Utils.setTimeZone(this.config.timeZone);
 

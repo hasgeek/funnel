@@ -1,4 +1,4 @@
-"""change_constraint_ticket_no
+"""Change constraint ticket_no.
 
 Revision ID: 40c4ad7c0909
 Revises: 2c64e60b80a

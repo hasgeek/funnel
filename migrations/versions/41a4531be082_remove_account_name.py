@@ -1,4 +1,4 @@
-"""Remove account_name
+"""Remove account_name.
 
 Revision ID: 41a4531be082
 Revises: e8665a81606d

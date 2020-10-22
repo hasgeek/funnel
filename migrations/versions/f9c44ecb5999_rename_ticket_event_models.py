@@ -1,4 +1,4 @@
-"""Rename ticket event models
+"""Rename ticket event models.
 
 Revision ID: f9c44ecb5999
 Revises: 74e1fbb4a948

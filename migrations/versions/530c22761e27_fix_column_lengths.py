@@ -1,4 +1,4 @@
-"""Fix column lengths
+"""Fix column lengths.
 
 Revision ID: 530c22761e27
 Revises: e2b28adfa135

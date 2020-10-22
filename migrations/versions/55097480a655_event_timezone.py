@@ -1,4 +1,4 @@
-"""Event timezone
+"""Event timezone.
 
 Revision ID: 55097480a655
 Revises: 3a6b2ab00e3e

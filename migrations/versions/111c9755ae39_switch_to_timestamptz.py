@@ -1,4 +1,4 @@
-"""Switch to timestamptz
+"""Switch to timestamptz.
 
 Revision ID: 111c9755ae39
 Revises: e679554261b2

@@ -1,5 +1,6 @@
 describe('Confirm proposal', function () {
   const editor = require('../fixtures/user.json').editor;
+  const member = require('../fixtures/user.json').user;
   const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
@@ -7,7 +8,7 @@ describe('Confirm proposal', function () {
 
   it('Confirm proposal', function () {
     cy.server();
-    cy.route('GET', '**/new').as('get-form');
+    cy.route('GET', '**/updates/*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
 
     cy.login('/' + profile.title, editor.username, editor.password);
@@ -46,15 +47,22 @@ describe('Confirm proposal', function () {
     cy.get('[data-cy-proposal-status="Confirmed"]').should('exist');
 
     cy.get('[data-cy="post-comment"]').click();
-    cy.wait('@get-form');
-    cy.get('#field-comment_message')
+    cy.get('[data-cy="new-form"]')
       .find('.CodeMirror textarea')
       .type(proposal.comment, { force: true });
     cy.wait(1000);
-    cy.get('button').contains('Post comment').click();
+    cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();
     cy.wait('@post-comment');
     var cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(proposal.comment);
     cy.get(`${cid} .comment__header`).contains(editor.username);
+    cy.visit('/');
+    cy.logout();
+    cy.wait(1000);
+    cy.login('/' + profile.title, member.username, member.password);
+    cy.visit('/updates');
+    cy.wait('@fetch-updates');
+    cy.get('[data-cy="notification-box"]').contains(proposal.title);
+    cy.get('[data-cy="notification-box"]').contains(proposal.comment);
   });
 });

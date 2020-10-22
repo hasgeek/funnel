@@ -1,4 +1,4 @@
-"""Remove and rename obsolete columns
+"""Remove and rename obsolete columns.
 
 Revision ID: 1b8fc63c0fb0
 Revises: ea20c403b240

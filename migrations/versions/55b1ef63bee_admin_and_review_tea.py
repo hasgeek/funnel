@@ -1,4 +1,4 @@
-"""Admin and review teams
+"""Admin and review teams.
 
 Revision ID: 55b1ef63bee
 Revises: 18052b0cd282

@@ -1,4 +1,4 @@
-"""moderator report models
+"""Moderator report models.
 
 Revision ID: 79719ee38228
 Revises: 047ebdac558b

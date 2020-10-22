@@ -70,6 +70,9 @@ const Membership = {
                 app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
                 $('#member-form').modal('show');
               },
+              error(response) {
+                Utils.getResponseError(response);
+              },
             });
           }
         },

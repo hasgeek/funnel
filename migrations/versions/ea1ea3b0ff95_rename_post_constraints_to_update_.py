@@ -1,4 +1,4 @@
-"""Rename Post constraints to Update constraints
+"""Rename Post constraints to Update constraints.
 
 Revision ID: ea1ea3b0ff95
 Revises: 851473d61beb

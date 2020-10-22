@@ -1,4 +1,4 @@
-"""add session featured field
+"""Add session featured field.
 
 Revision ID: d6b1904bea0e
 Revises: 70ffbc1bcf88

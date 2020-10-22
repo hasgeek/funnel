@@ -18,6 +18,7 @@
   <link rel="preconnect" crossorigin href="{{ url_for('static', filename='') }}">
 {%- endblock %}
 
+{# The profile's description is used on all pages within a profile, unless the template overrides this -#}
 {% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
 
 {%- block image_src %}
@@ -53,7 +54,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="#e3e1e1" />
   <meta name="apple-mobile-web-app-title" content="js" />
-  <link rel="icon" sizes="192x192" href="{{ url_for('static', filename='img/android-chrome-192x192.png', v=2, _external=true) }}" />
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png', v=2, _external=true) }}" />
   {%- endif -%}
   {% block pageheaders %}{% endblock %}
@@ -67,7 +67,7 @@
     {%- if config['LEGACY'] -%}
       {%- if g.profile -%}
         <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}" data-action="Home">
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--funnel"/>
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
         </a>
         {{ faicon(icon='chevron-right', icon_size='subhead') }}
         <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
@@ -81,7 +81,7 @@
         {%- endif %}
       {%- else -%}
         <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__logo header__site-title__logo--margin header__site-title__logo--funnel"/>
+          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
           {{ config['SITE_TITLE'] }}
         </a>
       {%- endif %}
@@ -209,10 +209,11 @@
   {%- endassets -%}
   <script type="text/javascript">
     $(document).ready(function() {
-        window.Hasgeek = {};
-        window.Hasgeek.config = {};
+      window.Hasgeek = {};
+      window.Hasgeek.config = {};
       window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
       window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
+      window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
     });
   </script>
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>

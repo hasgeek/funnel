@@ -194,16 +194,17 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         self.commentset = Commentset(settype=SET_TYPE.UPDATE)
 
     def __repr__(self):
+        """Represent :class:`Update` as a string."""
         return '<Update "{title}" {uuid_b58}>'.format(
             title=self.title, uuid_b58=self.uuid_b58
         )
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def visibility_label(self):
         return self.visibility_state.label.title
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def state_label(self):
         return self.state.label.title
@@ -270,7 +271,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     def make_restricted(self):
         pass
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_restricted(self):
         return bool(self.visibility_state.RESTRICTED)
@@ -282,7 +283,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         elif not value and self.visibility_state.RESTRICTED:
             self.make_public()
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_currently_restricted(self):
         return self.is_restricted and not self.current_roles.reader
@@ -297,6 +298,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
         return roles
 
+    @classmethod
+    def all_published_public(cls):
+        return cls.query.join(Project).filter(
+            Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
+        )
+
 
 add_search_trigger(Update, 'search_vector')
 auto_init_default(Update._visibility_state)
@@ -304,20 +311,20 @@ auto_init_default(Update._state)
 
 
 @reopen(Project)
-class Project:
-    @with_roles(read={'all'})
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def published_updates(self):
         return self.updates.filter(Update.state.PUBLISHED).order_by(
             Update.is_pinned.desc(), Update.published_at.desc()
         )
 
-    @with_roles(read={'editor'})
+    @with_roles(read={'editor'})  # type: ignore[misc]
     @property
     def draft_updates(self):
         return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pinned_update(self):
         return (

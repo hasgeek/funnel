@@ -1,4 +1,4 @@
-"""Remove UserGroup model
+"""Remove UserGroup model.
 
 Revision ID: 38394aa411d0
 Revises: e3bf172763bc

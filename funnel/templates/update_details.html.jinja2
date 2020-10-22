@@ -41,12 +41,6 @@
   <script src="{{ url_for('static', filename=asset_path('update')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var headerHeight;
-      if($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
-        headerHeight = $('.mobile-nav').height();
-      } else {
-        headerHeight = $('header').height() + $('nav').height();
-      }
 
       var updateConfig = {
         draft: [],
@@ -54,7 +48,6 @@
         divElem: "#updates-wrapper",
         updateTemplate: '#update-template',
         isEditor: {{ project.features.post_update()|tojson }},
-        headerHeight: headerHeight,
         addReadMore: false,
       };
 

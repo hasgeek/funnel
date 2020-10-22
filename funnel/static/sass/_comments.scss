@@ -1,3 +1,23 @@
+@media (max-width: 767px) {
+  .post-form-block {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    .comment-new-mobile {
+      font-size: 20px;
+      line-height: 1;
+    }
+  }
+  .proposal__section .post-form-block {
+    position: relative;
+    float: right;
+    top: -18px;
+    right: 0;
+    height: 0;
+  }
+}
+
 .comment {
   margin: $mui-grid-padding 0 0;
 
@@ -32,8 +52,7 @@
 
   .comment__body {
     border-left: 1px solid $mui-divider-color;
-    padding-left: 12px;
-    margin: 5px 0 0 7px;
+    margin: 0 0 0 7px;
 
     img {
       max-width: 100%;
@@ -42,16 +61,35 @@
     blockquote {
       border-left: 3px solid $mui-text-accent;
       margin: 0;
-      padding-left: $mui-grid-padding;
+      padding: $mui-grid-padding/2 0 0 $mui-grid-padding/2;
     }
-    .ajax-form {
-      .mui--text-title {
-        margin-top: 8px;
-      }
+    .comment__body__inner,
+    .comment--children {
+      padding-left: $mui-grid-padding/2;
+      word-break: break-word;
     }
   }
   .comment__body:hover {
     border-left: 1px solid $mui-accent-color;
+  }
+}
+
+@media (max-width: 767px) {
+  .comment--modal {
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1002;
+    background: $mui-bg-color-primary;
+    padding: $mui-grid-padding/2 $mui-grid-padding 56px;
+    margin: 0;
+    overflow-y: scroll;
+
+    > .comment__body > .comment__body__inner {
+      background-color: $mui-primary-color-lighter;
+    }
   }
 }
 

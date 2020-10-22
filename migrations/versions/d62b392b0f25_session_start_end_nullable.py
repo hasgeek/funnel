@@ -1,4 +1,4 @@
-"""session's start end fields are nullable
+"""Session's start end fields are nullable.
 
 Revision ID: d62b392b0f25
 Revises: d6b1904bea0e

@@ -1,4 +1,4 @@
-"""Remove organization.description
+"""Remove organization.description.
 
 Revision ID: 222b78a8508d
 Revises: 6ebbe0cc8e19

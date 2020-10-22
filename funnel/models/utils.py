@@ -16,9 +16,7 @@ __all__ = ['getuser', 'getextid', 'merge_users', 'IncompleteUserMigration']
 
 
 class IncompleteUserMigration(Exception):
-    """
-    Could not migrate users because of data conflicts.
-    """
+    """Could not migrate users because of data conflicts."""
 
 
 def getuser(name):
@@ -49,9 +47,7 @@ def getextid(service, userid):
 
 
 def merge_users(user1, user2):
-    """
-    Merge two user accounts and return the new user account.
-    """
+    """Merge two user accounts and return the new user account."""
     current_app.logger.info("Preparing to merge users %s and %s", user1, user2)
     # Always keep the older account and merge from the newer account
     if user1.created_at < user2.created_at:
@@ -80,11 +76,11 @@ def merge_users(user1, user2):
 
 def do_migrate_instances(old_instance, new_instance, helper_method=None):
     """
-    Migrate references to old instance of any model to provided new instance. The model
-    must derive from :class:`db.Model` and must have a single primary key column named
-    ``id`` (typically provided by :class:`BaseMixin`).
-    """
+    Migrate references to old instance of any model to provided new instance.
 
+    The model must derive from :class:`db.Model` and must have a single primary key
+    column named ``id`` (typically provided by :class:`BaseMixin`).
+    """
     if old_instance == new_instance:
         raise ValueError("Old and new are the same")
 
