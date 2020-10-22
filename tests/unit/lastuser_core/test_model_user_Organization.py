@@ -69,14 +69,6 @@ class TestOrganization(TestDatabaseFixture):
         self.assertIsInstance(all_by_buids_with_defercols, list)
         self.assertCountEqual(all_by_buids_with_defercols, orglist)
 
-    def test_organization_valid_name(self):
-        """Test for checking if given is a valid organization name."""
-        hufflepuffs = models.Organization(
-            name='hufflepuffs', title='Huffle Puffs', owner=self.fixtures.crusoe
-        )
-        self.assertFalse(hufflepuffs.is_valid_name('#$%#%___2836273untitled'))
-        self.assertTrue(hufflepuffs.is_valid_name('hufflepuffs'))
-
     def test_organization_pickername(self):
         """Test for checking Organization's pickername."""
         # scenario 1: when only title is given

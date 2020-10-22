@@ -220,8 +220,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         # else replace it with AMEND
         if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
             raise MembershipRecordTypeError("Invite must be revoked, not replaced")
-        else:
-            new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
+        new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
 
         for column in self.__data_columns__:
             if column in roles:

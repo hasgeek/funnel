@@ -34,7 +34,8 @@ class ResourceRegistry(OrderedDict):
         :param str name: Name of the resource
         :param str description: User-friendly description
         :param bool trusted: Restrict access to trusted clients?
-        :param str scope: Grant access via this other resource name (which must also exist)
+        :param str scope: Grant access via this other resource name (which must also
+            exist)
         """
         usescope = scope or name
         if '*' in usescope or ' ' in usescope:

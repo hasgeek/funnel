@@ -28,7 +28,7 @@ from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
 from . import BaseMixin, LocaleType, TimezoneType, TSVectorType, UuidMixin, db
 from .email_address import EmailAddress, EmailAddressMixin
-from .helpers import add_search_trigger, valid_username
+from .helpers import add_search_trigger
 
 __all__ = [
     'USER_STATUS',
@@ -58,14 +58,6 @@ class SharedProfileMixin:
 
     name: str
     profile: Optional[Profile]
-
-    def is_valid_name(self, value: str) -> bool:
-        if not valid_username(value):
-            return False
-        existing = Profile.get(value)
-        if existing and existing.owner != self:
-            return False
-        return True
 
     def validate_name_candidate(self, name: str) -> Optional[str]:
         if name and self.name and name.lower() == self.name.lower():
@@ -336,7 +328,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         self,
         email: str,
         primary: bool = False,
-        type: Optional[str] = None,  # NOQA: A002
+        type: Optional[str] = None,  # NOQA: A002  # skipcq: PYL-W0622
         private: bool = False,
     ) -> UserEmail:
         useremail = UserEmail(user=self, email=email, type=type, private=private)
@@ -966,6 +958,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         names: Iterable[str] = None,
         defercols: bool = False,
     ) -> List[Organization]:
+        """Get all organizations with matching `buids` and `names`."""
         orgs = []
         if buids:
             query = cls.query.filter(cls.buid.in_(buids))

@@ -14,7 +14,8 @@ from werkzeug.utils import cached_property
 
 from baseframe import _
 from coaster.sqlalchemy import with_roles
-from coaster.utils import buid, newsecret, require_one_of, utcnow
+from coaster.utils import buid as make_buid
+from coaster.utils import newsecret, require_one_of, utcnow
 
 from . import BaseMixin, UuidMixin, db
 from .user import Organization, Team, User
@@ -295,7 +296,7 @@ class AuthClientCredential(BaseMixin, db.Model):
     )
 
     #: OAuth client key
-    name = db.Column(db.String(22), nullable=False, unique=True, default=buid)
+    name = db.Column(db.String(22), nullable=False, unique=True, default=make_buid)
     #: User description for this credential
     title = db.Column(db.Unicode(250), nullable=False, default='')
     #: OAuth client secret, hashed
@@ -336,7 +337,7 @@ class AuthClientCredential(BaseMixin, db.Model):
 
         :param auth_client: The client for which a name/secret pair is being generated
         """
-        cred = cls(auth_client=auth_client, name=buid())
+        cred = cls(auth_client=auth_client, name=make_buid())
         db.session.add(cred)
         secret = newsecret()
         cred.secret_hash = (
@@ -414,7 +415,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         read={'owner'},
     )
     #: The token
-    token = db.Column(db.String(22), default=buid, nullable=False, unique=True)
+    token = db.Column(db.String(22), default=make_buid, nullable=False, unique=True)
     #: The token's type
     token_type = db.Column(
         db.String(250), default='bearer', nullable=False
@@ -455,9 +456,9 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.token = buid()
+        self.token = make_buid()
         if self._user:
-            self.refresh_token = buid()
+            self.refresh_token = make_buid()
         self.secret = newsecret()
 
     def __repr__(self):
@@ -489,7 +490,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     def refresh(self) -> None:
         """Create a new token while retaining the refresh token."""
         if self.refresh_token is not None:
-            self.token = buid()
+            self.token = make_buid()
             self.secret = newsecret()
 
     @property
@@ -626,12 +627,12 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
 
     # Used by auth_client_info.html
     @property
-    def pickername(self):
+    def pickername(self) -> str:
         return self.user.pickername
 
     # Used by auth_client_info.html for url_for
     @property
-    def buid(self):
+    def buid(self) -> str:
         return self.user.buid
 
     @classmethod
