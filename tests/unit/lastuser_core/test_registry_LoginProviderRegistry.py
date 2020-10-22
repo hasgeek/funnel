@@ -6,10 +6,7 @@ from funnel.registry import LoginProviderRegistry, login_registry
 
 class TestLoginProviderRegistry(unittest.TestCase):
     def test_loginproviderregistry(self):
-        """
-        Test for verifying creation of LoginProviderRegistry
-        instance.
-        """
+        """Test for verifying creation of LoginProviderRegistry instance."""
         # A LoginProviderRegistry instance is created (based on
         # configuration provided) when init_for is called during
         # creation of app instance. To test and verify this correctly

@@ -1,4 +1,4 @@
-"""Remove unused proposal.data
+"""Remove unused proposal.data.
 
 Revision ID: 752dee4ae101
 Revises: 3afa589814a9

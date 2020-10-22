@@ -29,8 +29,8 @@ class ChangeFreq(str, Enum):
     yearly = 'yearly'
     never = 'never'
 
-    # This method supports rendering in templates without using `.value`
     def __str__(self) -> str:
+        """Render enum to string without using `.value` in templates."""
         return self.value
 
 
@@ -91,7 +91,7 @@ def validate_daterange(
     year: Union[str, int], month: Union[str, int], day: Optional[Union[str, int]]
 ) -> Tuple[datetime, datetime]:
     """
-    Validates year, month and day as provided to a view, and returns a date range.
+    Validate year, month and day as provided to a view, and return a date range.
 
     Aborts with 404 if the values are not numeric, don't represent a valid date, or
     fall out of the bounds of earliest date to present day.
@@ -132,7 +132,7 @@ def validate_daterange(
 
 def changefreq_for_age(age: timedelta) -> ChangeFreq:
     """
-    Provide a simple heuristic for the likelihood of a document being changed:
+    Provide a simple heuristic for the likelihood of a document being changed.
 
     If it changed within a given period, it may change again within the same period.
     Longer periods imply lesser chance of change.

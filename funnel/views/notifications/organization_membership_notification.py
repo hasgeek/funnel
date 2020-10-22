@@ -16,7 +16,7 @@ from ..notification import RenderNotification
 
 
 class DecisionFactor(NamedTuple):
-    """Evaluation criteria for the content of notification (for grants/edits only)"""
+    """Evaluation criteria for the content of notification (for grants/edits only)."""
 
     template: str
     is_subject: bool = False
@@ -168,12 +168,12 @@ class RenderShared:
 
     @property
     def membership_actor(self):
-        """The actual actor who granted or revoked, for the template."""
+        """Actor who granted or revoked, for the template."""
         raise NotImplementedError("Subclass must override")
 
     @property
     def record_type(self):
-        """Helper method for templates to analyse membership record type."""
+        """Membership record type as a string, for templates."""
         # There are four record types: invite, accept, direct_add, amend
         return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name
 
@@ -231,12 +231,12 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
 
     @property
     def membership_actor(self):
-        """The actual actor who granted (or edited) the membership, for the template."""
+        """Actual actor who granted (or edited) the membership, for the template."""
         return self.membership.granted_by
 
     def activity_template(self, membership=None):
         """
-        Returns a returns a Python string template with an appropriate message.
+        Return a Python string template with an appropriate message.
 
         Accepts an optional membership object for use in rollups.
         """
@@ -275,7 +275,7 @@ class RenderOrganizationAdminMembershipRevokedNotification(
 
     @property
     def membership_actor(self):
-        """The actor who revoked the membership, for the template."""
+        """Actual actor who revoked the membership, for the template."""
         return self.membership.revoked_by
 
     def activity_template(self, membership=None):

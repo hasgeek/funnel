@@ -56,7 +56,7 @@ class CommentNotification(RenderNotification):
 
     @property
     def actor(self):
-        """The actor who commented."""
+        """Actor who commented."""
         return self.comment.user
 
     @cached_property

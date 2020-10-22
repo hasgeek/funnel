@@ -34,7 +34,6 @@ def test_twilio_callback(test_client):
 
 def test_twilio_failures(test_client):
     """Test if message sending is a failure."""
-
     # Invalid Target
     try:
         send(TWILIO_INVALID_TARGET, MESSAGE, callback=False)
@@ -58,8 +57,7 @@ def test_twilio_failures(test_client):
 
 
 def test_exotel_nonce(test_client, test_db_structure):
-    """ Test if the exotel nonce works as expected"""
-
+    """Test if the exotel nonce works as expected."""
     # The random case.
     token = make_exotel_token(EXOTEL_TO)
     valid = validate_exotel_token(token, EXOTEL_TO)
@@ -82,8 +80,7 @@ def test_exotel_nonce(test_client, test_db_structure):
 
 
 def test_exotel_send_error(test_client):
-    """ Only tests if url_for works and usually fails otherwise, which is OK"""
-
+    """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
     try:
         with patch.object(requests, 'post') as mock_method:

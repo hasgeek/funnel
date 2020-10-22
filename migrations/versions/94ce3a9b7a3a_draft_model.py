@@ -1,4 +1,4 @@
-"""draft model
+"""Draft model.
 
 Revision ID: 94ce3a9b7a3a
 Revises: c3069d33419a

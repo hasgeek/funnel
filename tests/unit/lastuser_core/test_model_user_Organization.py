@@ -6,9 +6,7 @@ from .test_db import TestDatabaseFixture
 
 class TestOrganization(TestDatabaseFixture):
     def test_organization_init(self):
-        """
-        Test for initializing a Organization instance
-        """
+        """Test for initializing a Organization instance."""
         name = 'dachshunited'
         title = 'Dachshunds United'
         dachsunited = models.Organization(
@@ -19,9 +17,7 @@ class TestOrganization(TestDatabaseFixture):
         self.assertEqual(dachsunited.name, name)
 
     def test_organization_get(self):
-        """
-        Test for retrieving an organization
-        """
+        """Test for retrieving an organization."""
         name = 'spew'
         title = 'S.P.E.W'
         spew = models.Organization(name=name, title=title, owner=self.fixtures.crusoe)
@@ -45,9 +41,7 @@ class TestOrganization(TestDatabaseFixture):
         assert title == get_by_name_with_defercols.title
 
     def test_organization_all(self):
-        """
-        Test for getting all organizations (takes buid or name optionally)
-        """
+        """Test for getting all organizations (takes buid or name optionally)."""
         gryffindor = models.Organization(name='gryffindor', owner=self.fixtures.crusoe)
         ravenclaw = models.Organization(name='ravenclaw', owner=self.fixtures.crusoe)
         db.session.add(gryffindor)
@@ -76,9 +70,7 @@ class TestOrganization(TestDatabaseFixture):
         self.assertCountEqual(all_by_buids_with_defercols, orglist)
 
     def test_organization_valid_name(self):
-        """
-        Test for checking if given is a valid organization name
-        """
+        """Test for checking if given is a valid organization name."""
         hufflepuffs = models.Organization(
             name='hufflepuffs', title='Huffle Puffs', owner=self.fixtures.crusoe
         )
@@ -86,9 +78,7 @@ class TestOrganization(TestDatabaseFixture):
         self.assertTrue(hufflepuffs.is_valid_name('hufflepuffs'))
 
     def test_organization_pickername(self):
-        """
-        Test for checking Organization's pickername
-        """
+        """Test for checking Organization's pickername."""
         # scenario 1: when only title is given
         abnegation = models.Organization(title="Abnegation", owner=self.fixtures.crusoe)
         self.assertIsInstance(abnegation.pickername, str)
@@ -108,10 +98,7 @@ class TestOrganization(TestDatabaseFixture):
         )
 
     def test_organization_name(self):
-        """
-        Test for retrieving Organization's name
-        name is a setter method
-        """
+        """Test for retrieving and setting an Organization's name."""
         insurgent = models.Organization(title='Insurgent', owner=self.fixtures.crusoe)
         with self.assertRaises(ValueError):
             insurgent.name = '35453496*%&^$%^'

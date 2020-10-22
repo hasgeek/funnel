@@ -1,11 +1,23 @@
 from datetime import datetime, timedelta
 from functools import wraps
+from typing import Type
 
-from flask import Response, current_app, flash, redirect, request, session, url_for
+from flask import (
+    Response,
+    current_app,
+    flash,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 import itsdangerous
 
-from baseframe import _, statsd
-from baseframe.forms import render_form
+from baseframe import _, request_is_xhr, statsd
+from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url
@@ -36,6 +48,10 @@ user_session_validity_period_total_seconds = int(
 class LoginManager:
     """Compatibility login manager that resembles Flask-Lastuser."""
 
+    # For compatibility with baseframe.forms.fields.UserSelectFieldBase
+    usermanager: Type
+    usermodel = User
+
     # Flag for Baseframe to avoid attempting API calls
     is_master_data_source = True
 
@@ -49,10 +65,7 @@ class LoginManager:
 
     @staticmethod
     def _load_user():
-        """
-        If there's a buid in the session, retrieve the user object and add
-        to the request namespace object g.
-        """
+        """Load the user object to `current_auth` if there's a buid in the session."""
         add_auth_attribute('user', None)
         add_auth_attribute('session', None)
 
@@ -146,7 +159,6 @@ class LoginManager:
 
 # For compatibility with baseframe.forms.fields.UserSelectFieldBase
 LoginManager.usermanager = LoginManager
-LoginManager.usermodel = User
 
 
 @UserSession.views('mark_accessed')
@@ -306,7 +318,7 @@ def update_user_session_timestamp(response):
 
 
 def requires_login(f):
-    """Decorator to require a login for the given view."""
+    """Decorate a view to require login."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -322,8 +334,9 @@ def requires_login(f):
 
 def requires_login_no_message(f):
     """
-    Decorator to require a login for the given view. Does not display a message asking
-    the user to login.
+    Decorate a view to require login, without displaying a friendly message.
+
+    Used on views where the user is informed in advance that login is required.
     """
 
     @wraps(f)
@@ -339,7 +352,7 @@ def requires_login_no_message(f):
 
 def requires_sudo(f):
     """
-    Decorator to require user to have re-authenticated recently.
+    Decorate a view to require user to have re-authenticated recently.
 
     Requires the endpoint to support the POST method, as it renders a password form
     within the same request, without redirecting the user to a gatekeeping endpoint.
@@ -352,7 +365,7 @@ def requires_sudo(f):
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
             session['next'] = get_current_url()
-            return redirect(url_for('login'))
+            return render_redirect(url_for('login'))
         # If the user has not authenticated in some time, ask for the password again
         if not current_auth.session.has_sudo:
             # If the user doesn't have a password, ask them to set one first
@@ -366,7 +379,7 @@ def requires_sudo(f):
                     'info',
                 )
                 session['next'] = get_current_url()
-                return redirect(url_for('change_password'))
+                return render_redirect(url_for('change_password'))
             # A future version of this form may accept password or 2FA (U2F or TOTP)
             form = PasswordForm(edit_user=current_auth.user)
             if form.validate_on_submit():
@@ -375,7 +388,36 @@ def requires_sudo(f):
                 # render its own form
                 current_auth.session.set_sudo()
                 db.session.commit()
-                return redirect(request.url, code=303)
+                continue_url = session.pop('next', request.url)
+                return redirect(continue_url, code=303)
+
+            if request_is_xhr():
+                # We can't render a form if it's an XHR request, so we need to ask for
+                # the page to be loaded afresh
+                if request.accept_mimetypes.best == 'application/json':
+                    # A JSON-only endpoint can't render a form, so we have to redirect
+                    # the browser to the account_sudo endpoint, asking it to redirect
+                    # back here after getting the user's password. That will be:
+                    # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
+                    # identifier should be included to reload to the same dialog the
+                    # user was sent away from.
+
+                    # TODO: Remove this line before merging PR
+                    app.logger.debug("Raising requires_sudo error over JSON")
+                    return make_response(
+                        jsonify(
+                            status='error',
+                            error='requires_sudo',
+                            error_description=_(
+                                "This request must be confirmed with your password"
+                            ),
+                        ),
+                        422,
+                    )
+                else:
+                    # TODO: Remove this line before merging PR
+                    app.logger.debug("Redirecting user to this page for requires_sudo")
+                    return render_template('redirect.html.jinja2', url=request.url)
 
             return render_form(
                 form=form,
@@ -414,7 +456,7 @@ def _client_login_inner():
 
 
 def requires_client_login(f):
-    """Decorator to require a client login via HTTP Basic Authorization."""
+    """Decorate a view to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -428,7 +470,9 @@ def requires_client_login(f):
 
 def requires_user_or_client_login(f):
     """
-    Decorator to require a user or client login (user by cookie, client by HTTP Basic).
+    Decorate a view to require a user or client login.
+
+    User login should be via an auth cookie, client login via HTTP Basic Authentication.
     """
 
     @wraps(f)
@@ -448,8 +492,10 @@ def requires_user_or_client_login(f):
 
 def requires_client_id_or_user_or_client_login(f):
     """
-    Decorator to require a client_id and session or a user or client login
-    (client_id and session in the request args, user by cookie, client by HTTP Basic).
+    Decorate view to require a client_id and session, or a user, or client login.
+
+    Looks for `client_id` and session in the request args, user in an auth cookie, or
+    client via HTTP Basic Authentication.
     """
 
     @wraps(f)
@@ -495,8 +541,9 @@ def requires_client_id_or_user_or_client_login(f):
 
 def login_internal(user, user_session=None, login_service=None):
     """
-    Login a user and create a session. If the login is from funnelapp, reuse the
-    existing session.
+    Login a user and create a session.
+
+    If the login is from funnelapp, reuse the existing session.
     """
     add_auth_attribute('user', user)
     if not user_session or user_session.user != user:

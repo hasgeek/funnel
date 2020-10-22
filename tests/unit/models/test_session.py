@@ -1,4 +1,4 @@
-"""Test sessions"""
+"""Test sessions."""
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 

@@ -1,4 +1,4 @@
-"""venue uuid field
+"""Venue uuid field.
 
 Revision ID: eec2fad0f3e9
 Revises: ae68621248af

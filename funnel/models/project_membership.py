@@ -1,3 +1,5 @@
+from typing import Dict
+
 from sqlalchemy.ext.declarative import declared_attr
 
 from werkzeug.utils import cached_property
@@ -13,7 +15,7 @@ from .user import User
 __all__ = ['ProjectCrewMembership', 'project_child_role_map']
 
 # Roles in a project and their remapped names in objects attached to a project
-project_child_role_map = {
+project_child_role_map: Dict[str, str] = {
     'editor': 'project_editor',
     'concierge': 'project_concierge',
     'usher': 'project_usher',
@@ -23,9 +25,7 @@ project_child_role_map = {
 
 
 class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
-    """
-    Users can be crew members of projects, with specified access rights.
-    """
+    """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_crew_membership'
 
@@ -95,6 +95,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     @declared_attr
     def __table_args__(cls):
+        """Table arguments."""
         args = list(super().__table_args__)
         args.append(
             db.CheckConstraint(
@@ -110,7 +111,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record"""
+        """Roles offered by this membership record."""
         roles = set()
         if self.is_editor:
             roles.add('editor')
@@ -133,7 +134,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
 # Project relationships: all crew, vs specific roles
 @reopen(Project)
-class Project:
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     active_crew_memberships = with_roles(
         db.relationship(
             ProjectCrewMembership,
@@ -188,7 +189,7 @@ class Project:
 
 # Similarly for users (add as needs come up)
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
     projects_as_crew_memberships = db.relationship(

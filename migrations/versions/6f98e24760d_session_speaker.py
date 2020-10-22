@@ -1,4 +1,4 @@
-"""session speaker
+"""Session speaker.
 
 Revision ID: 6f98e24760d
 Revises: 58588eba8cb8

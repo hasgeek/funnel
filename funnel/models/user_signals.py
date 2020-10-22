@@ -1,4 +1,4 @@
-"""Signals for user/org models"""
+"""Signals for user/org models."""
 
 from sqlalchemy import event
 

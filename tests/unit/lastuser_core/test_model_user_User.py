@@ -13,9 +13,7 @@ from .test_db import TestDatabaseFixture
 
 class TestUser(TestDatabaseFixture):
     def test_user(self):
-        """
-        Test for creation of user object from User model
-        """
+        """Test for creation of user object from User model."""
         user = models.User(username='lena', fullname="Lena Audrey Dachshund")
         db.session.add_all([user])
         db.session.commit()
@@ -25,9 +23,7 @@ class TestUser(TestDatabaseFixture):
         assert user.fullname == "Lena Audrey Dachshund"
 
     def test_user_is_valid_name(self):
-        """
-        Test to check if given is a valid username associated with the user
-        """
+        """Test to check if given is a valid username associated with the user."""
         crusoe = models.User.get(username='crusoe')
         # scenario 1: not a valid username
         number_one = models.User(username='number1', fullname='Number One')
@@ -42,9 +38,7 @@ class TestUser(TestDatabaseFixture):
         assert crusoe.is_valid_name(batdog.name) is False
 
     def test_user_pickername(self):
-        """
-        Test to verify fullname and username (if any)
-        """
+        """Test to verify fullname and username (if any)."""
         # scenario 1: when username exists
         crusoe = models.User.get(username='crusoe')
         result = crusoe.pickername
@@ -60,8 +54,9 @@ class TestUser(TestDatabaseFixture):
 
     def test_user_is_profile_complete(self):
         """
-        Test to check if user profile is complete that is fullname, username
-        and email are present
+        Test to check if user profile is complete.
+
+        That is fullname, username and email are present.
         """
         crusoe = models.User.get(username='crusoe')
         assert crusoe.is_profile_complete() is True
@@ -71,36 +66,28 @@ class TestUser(TestDatabaseFixture):
         assert lena.is_profile_complete() is False
 
     def test_user_organization_owned(self):
-        """
-        Test for verifying organizations a user is a owner of
-        """
+        """Test for verifying organizations a user is a owner of."""
         crusoe = models.User.get(username='crusoe')
         batdog = models.Organization.get(name='batdog')
         result = crusoe.organizations_as_owner
         assert list(result) == [batdog]
 
     def test_user_organizations_as_owner(self):
-        """
-        Test for verifying list of organizations this user is an owner of
-        """
+        """Test for verifying list of organizations this user is an owner of."""
         oakley = models.User.get(username='oakley')
         specialdachs = models.Organization.get(name='specialdachs')
         result = oakley.organizations_as_owner
         assert list(result) == [specialdachs]
 
     def test_user_username(self):
-        """
-        Test to retrieve User property username
-        """
+        """Test to retrieve User property username."""
         crusoe = models.User.get(username='crusoe')
         result = crusoe.username
         assert isinstance(result, str)
         assert crusoe.username == result
 
     def test_user_email(self):
-        """
-        Test to retrieve UserEmail property email
-        """
+        """Test to retrieve UserEmail property email."""
         # scenario 1: when there is primary email address
         crusoe = models.User.get(username='crusoe')
         assert isinstance(crusoe.email, models.UserEmail)
@@ -121,9 +108,7 @@ class TestUser(TestDatabaseFixture):
         assert clover.email == ''
 
     def test_user_del_email(self):
-        """
-        Test to delete email address for a user
-        """
+        """Test to delete email address for a user."""
         mr_jones = models.User(username='mrjones')
         mr_jones_primary_email = models.UserEmail(
             email='mrjones@animalfarm.co.uk', user=mr_jones, primary=True
@@ -161,9 +146,7 @@ class TestUser(TestDatabaseFixture):
         assert mr_jones_secondary_email.primary is True
 
     def test_user_phone(self):
-        """
-        Test to retrieve UserPhone property phone
-        """
+        """Test to retrieve UserPhone property phone."""
         # scenario 1: when there is a phone set as primary
         crusoe = models.User.get(username='crusoe')
         crusoe_phone = (
@@ -187,9 +170,7 @@ class TestUser(TestDatabaseFixture):
         assert piglet.phone == ''
 
     def test_user_password(self):
-        """
-        Test to set user password
-        """
+        """Test to set user password."""
         # Scenario 1: Set None as password
         castle = models.User(username='castle', fullname='Rick Castle')
         castle.password = None
@@ -205,9 +186,7 @@ class TestUser(TestDatabaseFixture):
         assert result.pw_expires_at > result.pw_set_at
 
     def test_user_password_has_expired(self):
-        """
-        Test to check if password for a user has expired
-        """
+        """Test to check if password for a user has expired."""
         alexis = models.User(username='alexis', fullname='Alexis Castle')
         alexis.password = 'unfortunateincidents'
         alexis.pw_expires_at = utcnow() + timedelta(0, 0, 1)
@@ -218,9 +197,7 @@ class TestUser(TestDatabaseFixture):
         assert alexis.password_has_expired() is True
 
     def test_user_password_is(self):
-        """
-        Test to retrieve hashed password for a user
-        """
+        """Test to retrieve hashed password for a user."""
         # scenario 1: no password been set
         oldmajor = models.User(username='oldmajor')
         assert oldmajor.password_is('oinkoink') is False
@@ -231,9 +208,7 @@ class TestUser(TestDatabaseFixture):
         assert dumbeldore.password_is(dumbeldore_password) is True
 
     def test_password_hash_upgrade(self):
-        """
-        Test for password hash upgrade
-        """
+        """Test for password hash upgrade."""
         # pw_hash contains bcrypt.hash('password')
         weaksauce = models.User(
             fullname="Weak Password",
@@ -252,7 +227,8 @@ class TestUser(TestDatabaseFixture):
 
     def test_user_is_active(self):
         """
-        Test for user's ACTIVE status
+        Test for user's ACTIVE status.
+
         where ACTIVE = 0 indicates a Regular, active user
         """
         crusoe = models.User.get(username='crusoe')
@@ -263,9 +239,10 @@ class TestUser(TestDatabaseFixture):
 
     def test_user_autocomplete(self):
         """
-        Test for User's autocomplete method: queries valid users defined
-        in fixtures, as well as input that should not return a response.
+        Test for User's autocomplete method.
 
+        Queries valid users defined in fixtures, as well as input that should not return
+        a response.
         """
         crusoe = models.User.get(username='crusoe')
         oakley = models.User.get(username='oakley')
@@ -283,9 +260,7 @@ class TestUser(TestDatabaseFixture):
         assert models.User.autocomplete('[[]]') == []
 
     def test_user_merged_user(self):
-        """
-        Test for checking if user had a old id
-        """
+        """Test for checking if user had a old id."""
         # ## Merge a user onto an older user ###
         crusoe = models.User.get(username='crusoe')
         crusoe2 = models.User(username="crusoe2", fullname="Crusoe2")
@@ -304,9 +279,7 @@ class TestUser(TestDatabaseFixture):
             assert set(crusoe.oldids) == set(merged_user.oldids)
 
     def test_user_get(self):
-        """
-        Test for User's get method
-        """
+        """Test for User's get method."""
         # scenario 1: if both username and buid not passed
         with pytest.raises(TypeError):
             models.User.get()
@@ -345,9 +318,7 @@ class TestUser(TestDatabaseFixture):
             assert lookup_by_buid_merged.username == piglet.username
 
     def test_user_all(self):
-        """
-        Test for User's all method
-        """
+        """Test for User's all method."""
         # scenario 1: when neither buids or usernames are passed
         with pytest.raises(Exception):
             models.User.all()
@@ -397,9 +368,7 @@ class TestUser(TestDatabaseFixture):
             assert lookup_by_buid_merged[0].username == jykll.username
 
     def test_user_add_email(self):
-        """
-        Test to add email address for a user
-        """
+        """Test to add email address for a user."""
         # scenario 1: if primary flag is True and user has no existing email
         mr_whymper = models.User(username='whymper')
         whymper_email = 'whmmm@animalfarm.co.uk'
@@ -419,9 +388,7 @@ class TestUser(TestDatabaseFixture):
         assert crusoe_result.email == crusoe_existing_email
 
     def test_make_email_primary(self):
-        """
-        Test to make an email primary for a user
-        """
+        """Test to make an email primary for a user."""
         mr_whymper = models.User(username='whymmper')
         whymper_email = 'whmmmm@animalfarm.co.uk'
         whymper_result = mr_whymper.add_email(whymper_email)

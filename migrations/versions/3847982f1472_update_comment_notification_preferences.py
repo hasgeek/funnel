@@ -1,4 +1,4 @@
-"""Update comment notification preferences
+"""Update comment notification preferences.
 
 Revision ID: 3847982f1472
 Revises: 1bd91b02ced3

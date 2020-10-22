@@ -1,4 +1,4 @@
-"""Drop old user and team columns
+"""Drop old user and team columns.
 
 Revision ID: 62d770006955
 Revises: 542fd8471e84

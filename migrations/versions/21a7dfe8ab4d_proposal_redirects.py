@@ -1,4 +1,4 @@
-"""Proposal redirects
+"""Proposal redirects.
 
 Revision ID: 21a7dfe8ab4d
 Revises: 2a5516432f66

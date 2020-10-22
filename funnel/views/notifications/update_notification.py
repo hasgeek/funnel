@@ -18,6 +18,8 @@ class RenderNewUpdateNotification(RenderNotification):
     @property
     def actor(self):
         """
+        Return author of the update.
+
         Updates may be written by one user and published by another. The notification's
         default actor is the publisher as they caused it to be dispatched, but in this
         case the actor of interest is the author of the update.

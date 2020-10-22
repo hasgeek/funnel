@@ -11,12 +11,12 @@ from .test_db import TestDatabaseFixture
 
 class TestUser(TestDatabaseFixture):
     def test_usersession_init(self):
-        """Test to verify the creation of UserSession instance"""
+        """Test to verify the creation of UserSession instance."""
         result = models.UserSession()
         assert isinstance(result, models.UserSession)
 
     def test_usersession_has_sudo(self):
-        """Test to set sudo and test if UserSession instance has_sudo """
+        """Test to set sudo and test if UserSession instance has_sudo."""
         crusoe = self.fixtures.crusoe
         another_user_session = models.UserSession(
             user=crusoe,
@@ -30,7 +30,7 @@ class TestUser(TestDatabaseFixture):
         assert another_user_session.has_sudo is True
 
     def test_usersession_revoke(self):
-        """Test to revoke on UserSession instance"""
+        """Test to revoke on UserSession instance."""
         crusoe = self.fixtures.crusoe
         yet_another_usersession = models.UserSession(
             user=crusoe,
@@ -43,7 +43,7 @@ class TestUser(TestDatabaseFixture):
         assert result.revoked_at is not None
 
     def test_usersession_get(self):
-        """Test for verifying UserSession's get method"""
+        """Test for verifying UserSession's get method."""
         oakley = self.fixtures.oakley
         oakley_buid = buid()
         oakley_session = models.UserSession(
@@ -58,7 +58,7 @@ class TestUser(TestDatabaseFixture):
         assert result.user_id == oakley.id
 
     def test_usersession_active_sessions(self):
-        "Test for verifying UserSession's active_sessions"
+        """Test for verifying UserSession's active_sessions."""
         piglet = self.fixtures.piglet
         piglet_session = models.UserSession(
             user=piglet,
@@ -71,7 +71,7 @@ class TestUser(TestDatabaseFixture):
         assert piglet.active_user_sessions.all() == [piglet_session]
 
     def test_usersession_authenticate(self):
-        """Test to verify authenticate method on UserSession"""
+        """Test to verify authenticate method on UserSession."""
         chandler = models.User(username='chandler', fullname='Chandler Bing')
         chandler_session = models.UserSession(
             user=chandler,

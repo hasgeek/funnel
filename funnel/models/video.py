@@ -104,8 +104,8 @@ def make_video_url(video_source, video_id):
 
 
 class VideoMixin:
-    video_id = db.Column(db.UnicodeText, nullable=True)
-    video_source = db.Column(db.UnicodeText, nullable=True)
+    video_id: db.Column = db.Column(db.UnicodeText, nullable=True)
+    video_source: db.Column = db.Column(db.UnicodeText, nullable=True)
 
     # We'll assume that the video exists at the source.
     # We'll get to know whether it actually exists when

@@ -182,7 +182,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         # A session is scheduled only when both start and end fields have a value
         return self.start_at is not None and self.end_at is not None
 
-    @scheduled.expression
+    @scheduled.expression  # type: ignore[no-redef]
     def scheduled(self):
         return (self.start_at.isnot(None)) & (self.end_at.isnot(None))
 
@@ -233,7 +233,7 @@ add_search_trigger(Session, 'search_vector')
 
 
 @reopen(Project)
-class Project:
+class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     # Project schedule column expressions
     # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(
@@ -315,7 +315,8 @@ class Project:
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=db.and_(
-                Session.project_id == Project.id, Session.scheduled.isnot(True)
+                Session.project_id == Project.id,
+                Session.scheduled.isnot(True),  # type: ignore[attr-defined]
             ),
         ),
         read={'all'},
@@ -340,9 +341,7 @@ class Project:
         return self.query.session.query(self.sessions_with_video.exists()).scalar()
 
     def next_session_from(self, timestamp):
-        """
-        Find the next session in this project starting at or after given timestamp.
-        """
+        """Find the next session in this project from given timestamp."""
         return (
             self.sessions.filter(
                 Session.start_at.isnot(None), Session.start_at >= timestamp
@@ -354,7 +353,7 @@ class Project:
     @classmethod
     def starting_at(cls, timestamp, within, gap):
         """
-        Returns projects that are about to start, for sending notifications.
+        Return projects that are about to start, for sending notifications.
 
         :param datetime timestamp: The timestamp to look for new sessions at
         :param timedelta within: Find anything at timestamp + within delta. Lookup will

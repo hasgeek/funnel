@@ -1,4 +1,4 @@
-"""Rename to comment.in_reply_to
+"""Rename to comment.in_reply_to.
 
 Revision ID: abfda6e2f41d
 Revises: a42398081979

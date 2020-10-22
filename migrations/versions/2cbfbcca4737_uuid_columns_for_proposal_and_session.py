@@ -1,4 +1,4 @@
-"""UUID columns for Proposal and Session
+"""UUID columns for Proposal and Session.
 
 Revision ID: 2cbfbcca4737
 Revises: cd8d073d7557

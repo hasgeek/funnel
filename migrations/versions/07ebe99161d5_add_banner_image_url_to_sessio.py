@@ -1,4 +1,4 @@
-"""add banner_image_url field to session
+"""Add banner_image_url field to session.
 
 Revision ID: 07ebe99161d5
 Revises: 60a132ae73f1

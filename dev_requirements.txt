@@ -10,4 +10,5 @@ flake8-print==3.1.4
 isort==5.5.4
 pep8-naming==0.11.1
 pre-commit==2.7.1
+sqlalchemy-stubs==0.3
 toml==0.10.1

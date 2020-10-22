@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -26,7 +28,7 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
 
 
 class MembershipError(Exception):
-    """Base class for membership errors"""
+    """Base class for membership errors."""
 
 
 class MembershipRevokedError(MembershipError):
@@ -38,19 +40,17 @@ class MembershipRecordTypeError(MembershipError):
 
 
 class ImmutableMembershipMixin(UuidMixin, BaseMixin):
-    """
-    Support class for immutable memberships
-    """
+    """Support class for immutable memberships."""
 
     __uuid_primary_key__ = True
     #: List of columns that will be copied into a new row when a membership is amended
-    __data_columns__ = ()
+    __data_columns__: Iterable[str] = ()
     #: Parent column (override as synonym of 'profile_id' or 'project_id' in the subclasses)
     parent_id = None
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
-    granted_at = immutable(
+    granted_at: db.Column = immutable(
         with_roles(
             db.Column(
                 db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
@@ -76,8 +76,11 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
     )
 
-    @declared_attr
-    def user_id(cls):
+    # mypy type declaration
+    user_id: db.Column
+
+    @declared_attr  # type: ignore[no-redef]
+    def user_id(cls):  # skipcq: PYL-E0102
         return db.Column(
             None,
             db.ForeignKey('user.id', ondelete='CASCADE'),
@@ -92,7 +95,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @declared_attr
     def revoked_by_id(cls):
-        """Id of user who revoked the membership"""
+        """Id of user who revoked the membership."""
         return db.Column(
             None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
@@ -100,7 +103,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     def revoked_by(cls):
-        """User who revoked the membership"""
+        """User who revoked the membership."""
         return db.relationship(User, foreign_keys=[cls.revoked_by_id])
 
     @declared_attr
@@ -117,7 +120,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     def granted_by(cls):
-        """User who assigned the membership"""
+        """User who assigned the membership."""
         return db.relationship(User, foreign_keys=[cls.granted_by_id])
 
     @hybrid_property
@@ -127,7 +130,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             and self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
         )
 
-    @is_active.expression
+    @is_active.expression  # type: ignore[no-redef]
     def is_active(cls):  # NOQA: N805
         return db.and_(
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
@@ -164,7 +167,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record"""
+        """Roles offered by this membership record."""
         return set()
 
     # Subclasses must gate these methods in __roles__

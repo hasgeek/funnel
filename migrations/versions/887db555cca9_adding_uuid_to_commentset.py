@@ -1,4 +1,4 @@
-"""adding uuid to commentset
+"""Adding uuid to commentset.
 
 Revision ID: 887db555cca9
 Revises: 222b78a8508d

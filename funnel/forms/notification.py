@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from flask import request, url_for
+from flask import url_for
 
 from baseframe import __
 import baseframe.forms as forms
@@ -99,7 +99,7 @@ transport_labels = {
 
 @User.forms('unsubscribe')
 class UnsubscribeForm(forms.Form):
-    __expects__ = ('edit_user', 'transport', 'notification_type')
+    __expects__ = ('transport', 'notification_type')
 
     # To consider: Replace the field's ListWidget with a GroupedListWidget, and show all
     # known notifications by category, not just the ones the user has received a
@@ -147,32 +147,32 @@ class UnsubscribeForm(forms.Form):
                 + (" 👈" if ntype == self.notification_type else ''),
             )
             for ntype in notification_type_registry
-            if ntype in self.edit_user.notification_preferences
+            if ntype in self.edit_obj.notification_preferences
             and notification_type_registry[ntype].allow_transport(self.transport)
         ]  # Sorted by definition order. Usable until we introduce grouping
 
-        if request.method == 'GET':
-            # Populate data with all notification types for which the user has the
-            # current transport enabled
-            self.main.data = self.edit_user.main_notification_preferences.by_transport(
-                self.transport
-            )
-            self.types.data = [
-                ntype
-                for ntype, user_prefs in self.edit_user.notification_preferences.items()
-                if user_prefs.by_transport(self.transport)
-            ]
+    def get_main(self, obj):
+        return obj.main_notification_preferences.by_transport(self.transport)
 
-    def save_to_user(self):
+    def get_types(self, obj):
+        # Populate data with all notification types for which the user has the
+        # current transport enabled
+        return [
+            ntype
+            for ntype, user_prefs in obj.notification_preferences.items()
+            if user_prefs.by_transport(self.transport)
+        ]
+
+    def set_main(self, obj):
+        obj.main_notification_preferences.set_transport(self.transport, self.main.data)
+
+    def set_types(self, obj):
         # self.types.data will only contain the enabled preferences. Therefore, iterate
         # through all choices and toggle true or false based on whether it's in the
-        # enabled list. This uses dict access instead of .get because set_queries
-        # also populates from this list.
-        self.edit_user.main_notification_preferences.set_transport(
-            self.transport, self.main.data
-        )
+        # enabled list. This uses dict access instead of .get because the rows are known
+        # to exist (set_queries loaded from this source).
         for ntype, _title in self.types.choices:
-            self.edit_user.notification_preferences[ntype].set_transport(
+            obj.notification_preferences[ntype].set_transport(
                 self.transport, ntype in self.types.data
             )
 

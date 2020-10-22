@@ -223,9 +223,7 @@ logout_errormsg = __("Are you trying to logout? Please try again to confirm")
 
 
 def logout_client():
-    """
-    Client-initiated logout
-    """
+    """Process auth client-initiated logout."""
     cred = AuthClientCredential.get(abort_null(request.args['client_id']))
     auth_client = cred.auth_client if cred else None
 
@@ -325,9 +323,7 @@ def register():
 @app.route('/login/<service>', methods=['GET', 'POST'])
 @lastuserapp.route('/login/<service>', methods=['GET', 'POST'])
 def login_service(service):
-    """
-    Handle login with a registered service.
-    """
+    """Handle login with a registered service."""
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
@@ -349,9 +345,7 @@ def login_service(service):
 @app.route('/login/<service>/callback', methods=['GET', 'POST'])
 @lastuserapp.route('/login/<service>/callback', methods=['GET', 'POST'])
 def login_service_callback(service):
-    """
-    Callback handler for a login service.
-    """
+    """Handle callback from a login service."""
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
@@ -371,9 +365,7 @@ def login_service_callback(service):
 
 
 def get_user_extid(service, userdata):
-    """
-    Retrieves a 'user', 'extid' and 'useremail' from the given service and userdata.
-    """
+    """Retrieve user, extid and email from the given service and userdata."""
     provider = login_registry[service]
     extid = getextid(service=service, userid=userdata['userid'])
 
@@ -409,8 +401,10 @@ def get_user_extid(service, userdata):
 
 def login_service_postcallback(service, userdata):
     """
+    Process callback from a login provider.
+
     Called from :func:`login_service_callback` after receiving data from the upstream
-    login service
+    login service.
     """
     # 1. Check whether we have an existing UserExternalId
     user, extid, useremail = get_user_extid(service, userdata)

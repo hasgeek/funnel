@@ -33,7 +33,7 @@ user_session_validity_period = timedelta(days=365)
 
 #: When a user logs into an client app, the user's session is logged against
 #: the client app in this table
-auth_client_user_session = db.Table(
+auth_client_user_session: db.Table = db.Table(
     'auth_client_user_session',
     db.Model.metadata,
     db.Column(
@@ -85,6 +85,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
     )
 
     def __repr__(self):
+        """Represent :class:`UserSession` as a string."""
         return f'<UserSession {self.buid}>'
 
     @property
@@ -126,7 +127,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
 
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     active_user_sessions = db.relationship(
         UserSession,
         lazy='dynamic',

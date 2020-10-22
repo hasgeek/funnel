@@ -72,8 +72,10 @@ is supported using an unusual primary and foreign key structure the in
 2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
     using ``(eventid, notification_id)``.
 """
+from __future__ import annotations
+
 from types import SimpleNamespace
-from typing import Callable, NamedTuple
+from typing import Callable, Dict, NamedTuple, Optional, Sequence, Set, Type
 from uuid import uuid4
 
 from sqlalchemy import event
@@ -96,7 +98,7 @@ from coaster.utils import (
     uuid_to_base58,
 )
 
-from . import BaseMixin, NoIdMixin, UUIDType, db
+from . import BaseMixin, NoIdMixin, UuidMixin, UUIDType, db
 from .helpers import reopen
 from .user import User
 
@@ -116,9 +118,9 @@ __all__ = [
 # --- Registries -----------------------------------------------------------------------
 
 #: Registry of Notification subclasses, automatically populated
-notification_type_registry = {}
+notification_type_registry: Dict[str, Notification] = {}
 #: Registry of notification types that allow web renders
-notification_web_types = set()
+notification_web_types: Set[Notification] = set()
 
 
 class NotificationCategory(NamedTuple):
@@ -128,7 +130,7 @@ class NotificationCategory(NamedTuple):
 
 
 #: Registry of notification categories
-notification_categories = SimpleNamespace(
+notification_categories: SimpleNamespace = SimpleNamespace(
     none=NotificationCategory(0, __("Uncategorized"), lambda user: False),
     account=NotificationCategory(1, __("My account"), lambda user: True),
     subscriptions=NotificationCategory(
@@ -235,21 +237,21 @@ class Notification(NoIdMixin, db.Model):
     )
 
     #: Default category of notification. Subclasses MUST override
-    category = notification_categories.none
+    category: NotificationCategory = notification_categories.none
     #: Default description for notification. Subclasses MUST override
     title = __("Unspecified notification type")
     #: Default description for notification. Subclasses MUST override
     description = ''
 
     #: Subclasses may set this to aid loading of :attr:`document`
-    document_model = None
+    document_model: UuidMixin
 
     #: Subclasses may set this to aid loading of :attr:`fragment`
-    fragment_model = None
+    fragment_model: Optional[UuidMixin] = None
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document.
-    roles = []
+    roles: Sequence[str] = []
 
     #: Exclude triggering actor from receiving notifications? Subclasses may override
     exclude_actor = False
@@ -260,7 +262,7 @@ class Notification(NoIdMixin, db.Model):
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per profile or project
-    preference_context = None
+    preference_context: db.Model = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type = immutable(db.Column(db.Unicode, nullable=False))  # NOQA: A003
@@ -363,8 +365,8 @@ class Notification(NoIdMixin, db.Model):
     #: an error report will be logged for the user or site administrator. TODO
     ignore_transport_errors = False
 
-    #: Registry of per-class renderers
-    renderers = {}  # Registry of {cls_type: CustomNotificationView}
+    #: Registry of per-class renderers ``{cls_type: CustomNotificationView}``
+    renderers: Dict[str, Type] = {}  # Can't import RenderNotification from views here
 
     def __init__(self, document=None, fragment=None, **kwargs):
         if document:
@@ -388,14 +390,14 @@ class Notification(NoIdMixin, db.Model):
 
     @hybrid_property
     def eventid_b58(self):
-        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
+        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter
+    @eventid_b58.setter  # type: ignore[no-redef]
     def eventid_b58(self, value):
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator
+    @eventid_b58.comparator  # type: ignore[no-redef]
     def eventid_b58(cls):  # NOQA: N805
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -437,7 +439,7 @@ class Notification(NoIdMixin, db.Model):
     @classmethod
     def renderer(cls, view):
         """
-        Decorator for view class containing render methods.
+        Register a view class containing render methods.
 
         Usage in views::
 
@@ -457,7 +459,7 @@ class Notification(NoIdMixin, db.Model):
 
     @classmethod
     def allow_transport(cls, transport):
-        """Helper method to return ``cls.allow_<transport>``."""
+        """Return ``cls.allow_<transport>``."""
         return getattr(cls, 'allow_' + transport)
 
     def dispatch(self):
@@ -528,29 +530,28 @@ class PreviewNotification:
         self.fragment_uuid = fragment.uuid
 
     def __getattr__(self, attr):
+        """Get an attribute."""
         return getattr(self.cls, attr)
 
 
 class UserNotificationMixin:
-    """
-    Contains helper methods for :class:`UserNotification` and :class:`NotificationFor`.
-    """
+    """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
 
-    @with_roles(read={'owner'})
+    @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def notification_type(self):
         return self.notification.type
 
-    @with_roles(read={'owner'})
+    @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def document(self):
-        """The document that this notification is for."""
+        """Document that this notification is for."""
         return self.notification.document
 
-    @with_roles(read={'owner'})
+    @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def fragment(self):
-        """The fragment within this document that this notification is for."""
+        """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
 
@@ -680,14 +681,14 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @hybrid_property
     def eventid_b58(self):
-        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet"""
+        """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter
+    @eventid_b58.setter  # type: ignore[no-redef]
     def eventid_b58(self, value):
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator
+    @eventid_b58.comparator  # type: ignore[no-redef]
     def eventid_b58(cls):  # NOQA: N805
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -698,7 +699,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """Whether this notification has been marked as read."""
         return self.read_at is not None
 
-    @is_read.setter
+    @is_read.setter  # type: ignore[no-redef]
     def is_read(self, value):
         if value:
             if not self.read_at:
@@ -706,7 +707,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         else:
             self.read_at = None
 
-    @is_read.expression
+    @is_read.expression  # type: ignore[no-redef]
     def is_read(cls):  # NOQA: N805
         return cls.read_at.isnot(None)
 
@@ -717,7 +718,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
-    @is_revoked.setter
+    @is_revoked.setter  # type: ignore[no-redef]
     def is_revoked(self, value):
         if value:
             if not self.revoked_at:
@@ -725,7 +726,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         else:
             self.revoked_at = None
 
-    @is_revoked.expression
+    @is_revoked.expression  # type: ignore[no-redef]
     def is_revoked(cls):  # NOQA: N805
         return cls.revoked_at.isnot(None)
 
@@ -891,9 +892,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @classmethod
     def get_for(cls, user, eventid_b58):
-        """
-        Helper method to retrieve a UserNotification using SQLAlchemy session cache.
-        """
+        """Retrieve a :class:`UserNotification` using SQLAlchemy session cache."""
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
@@ -959,7 +958,7 @@ class NotificationFor(UserNotificationMixin):
         return None
 
     def rolledup_fragments(self):
-        """Returns a query to load the notification fragment."""
+        """Return a query to load the notification fragment."""
         if not self.notification.fragment_model:
             return None
         return self.notification.fragment_model.query.filter_by(
@@ -971,7 +970,7 @@ class NotificationFor(UserNotificationMixin):
 
 
 class NotificationPreferences(BaseMixin, db.Model):
-    """Holds a user's preferences for a particular Notification type"""
+    """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'
 
@@ -1017,6 +1016,7 @@ class NotificationPreferences(BaseMixin, db.Model):
             self.set_defaults()
 
     def __repr__(self):
+        """Represent :class:`NotificationPreferences` as a string."""
         return (
             f'NotificationPreferences('
             f'notification_type={self.notification_type!r}, user={self.user!r}'
@@ -1024,9 +1024,7 @@ class NotificationPreferences(BaseMixin, db.Model):
         )
 
     def set_defaults(self):
-        """
-        Set defaults based on notification type's defaults, and previous user prefs.
-        """
+        """Set defaults based on the type's defaults, and previous user prefs."""
         transport_attrs = (
             ('by_email', 'default_email'),
             ('by_sms', 'default_sms'),
@@ -1065,17 +1063,17 @@ class NotificationPreferences(BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     def by_transport(self, transport):
-        """Helper method to return ``self.by_<transport>``."""
+        """Return ``self.by_<transport>``."""
         return getattr(self, 'by_' + transport)
 
     @with_roles(call={'owner'})
     def set_transport(self, transport, value):
-        """Helper method to set a preference for a transport."""
+        """Set a preference for a transport."""
         setattr(self, 'by_' + transport, value)
 
     @cached_property
     def type_cls(self):
-        """Return the Notification subclass corresponding to self.notification_type"""
+        """Return the Notification subclass corresponding to self.notification_type."""
         # Use `registry.get(type)` instead of `registry[type]` because the user may have
         # saved preferences for a discontinued notification type. These should ideally
         # be dropped in migrations, but it's possible for the data to be outdated.
@@ -1099,7 +1097,7 @@ class NotificationPreferences(BaseMixin, db.Model):
 
 
 @reopen(User)
-class User:
+class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     all_notifications = with_roles(
         db.relationship(
             UserNotification,

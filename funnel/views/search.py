@@ -405,7 +405,7 @@ def clean_matched_text(text):
 
 # @cache.memoize(timeout=300)
 def search_counts(squery, profile=None, project=None):
-    """Return counts of search results"""
+    """Return counts of search results."""
     if project:
         return [
             {
@@ -445,7 +445,7 @@ def search_counts(squery, profile=None, project=None):
 
 # @cache.memoize(timeout=300)
 def search_results(squery, stype, page=1, per_page=20, profile=None, project=None):
-    """Return search results"""
+    """Return search results."""
     # Pick up model data for the given type string
     st = search_types[stype]
     regconfig = st.model.search_vector.type.options.get('regconfig', 'english')

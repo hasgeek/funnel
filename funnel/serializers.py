@@ -1,4 +1,4 @@
-"""Encryption primitives"""
+"""Encryption serializers."""
 
 import itsdangerous
 

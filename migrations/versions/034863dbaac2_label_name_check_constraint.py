@@ -1,4 +1,4 @@
-"""Label.name check constraint
+"""Label.name check constraint.
 
 Revision ID: 034863dbaac2
 Revises: 111c9755ae39

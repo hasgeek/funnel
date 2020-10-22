@@ -1,4 +1,4 @@
-"""add_badge_template_to_event
+"""Add badge_template to event.
 
 Revision ID: 90cc904ece17
 Revises: cf775ffe502e

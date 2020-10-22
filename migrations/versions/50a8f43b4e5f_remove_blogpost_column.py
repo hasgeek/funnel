@@ -1,4 +1,4 @@
-"""Remove blogpost column
+"""Remove blogpost column.
 
 Revision ID: 50a8f43b4e5f
 Revises: 411fc4124fb5

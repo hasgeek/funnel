@@ -52,7 +52,7 @@ data_sources = {
 
 @manager.command
 def dbconfig():
-    """Show required database configuration"""
+    """Show required database configuration."""
     print(  # NOQA: T001
         '''
 -- Pipe this into psql as a super user. Example:
@@ -71,14 +71,14 @@ periodic = Manager(usage="Periodic tasks from cron (with recommended intervals)"
 
 @periodic.command
 def phoneclaims():
-    """Sweep phone claims to close all unclaimed beyond expiry period (10m)"""
+    """Sweep phone claims to close all unclaimed beyond expiry period (10m)."""
     models.UserPhoneClaim.delete_expired()
     db.session.commit()
 
 
 @periodic.command
 def project_starting_alert():
-    """Send notifications for projects that are about to start schedule. (5m)"""
+    """Send notifications for projects that are about to start schedule (5m)."""
     with app.app_context():
         # Rollback to the most recent 5 minute interval, to account for startup delay
         # for periodic job processes.
@@ -115,7 +115,7 @@ def project_starting_alert():
 
 @periodic.command
 def growthstats():
-    """Publish growth statistics to Telegram (midnight)"""
+    """Publish growth statistics to Telegram (midnight)."""
     if not app.config.get('TELEGRAM_STATS_BOT_TOKEN') or not app.config.get(
         'TELEGRAM_STATS_CHAT_ID'
     ):

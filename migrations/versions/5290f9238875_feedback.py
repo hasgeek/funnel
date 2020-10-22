@@ -1,4 +1,4 @@
-"""feedback
+"""Feedback.
 
 Revision ID: 5290f9238875
 Revises: 4b630fb42760

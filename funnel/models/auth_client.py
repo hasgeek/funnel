@@ -56,7 +56,7 @@ class ScopeMixin(object):
 
 
 class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
-    """OAuth client applications"""
+    """OAuth client application."""
 
     __tablename__ = 'auth_client'
     __scope_null_allowed__ = True
@@ -159,12 +159,11 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
     }
 
     def __repr__(self):
+        """Represent :class:`AuthClient` as a string."""
         return '<AuthClient "{title}" {buid}>'.format(title=self.title, buid=self.buid)
 
     def secret_is(self, candidate, name):
-        """
-        Check if the provided client secret is valid.
-        """
+        """Check if the provided client secret is valid."""
         credential = self.credentials[name]
         return credential.secret_is(candidate)
 
@@ -193,7 +192,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             )
         return False
 
-    @with_roles(read={'all'})
+    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def owner(self):
         return self.user or self.organization
@@ -323,8 +322,10 @@ class AuthClientCredential(BaseMixin, db.Model):
     @classmethod
     def new(cls, auth_client):
         """
-        Create a new client credential and return (cred, secret). The secret is not
-        saved in plaintext, so this is the last time it will be available.
+        Create a new client credential and return (cred, secret).
+
+        The secret is not saved in plaintext, so this is the last time it will be
+        available.
 
         :param auth_client: The client for which a name/secret pair is being generated
         """
@@ -345,7 +346,7 @@ class AuthClientCredential(BaseMixin, db.Model):
 
 
 class AuthCode(ScopeMixin, BaseMixin, db.Model):
-    """Short-lived authorization tokens"""
+    """Short-lived authorization tokens."""
 
     __tablename__ = 'auth_code'
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
@@ -377,7 +378,7 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):
 
 
 class AuthToken(ScopeMixin, BaseMixin, db.Model):
-    """Access tokens for access to data"""
+    """Access tokens for access to data."""
 
     __tablename__ = 'auth_token'
     # Null for client-only tokens and public clients (user is identified via user_session.user there)
@@ -453,6 +454,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         self.secret = newsecret()
 
     def __repr__(self):
+        """Represent :class:`AuthToken` as a string."""
         return '<AuthToken {token} of {auth_client} {user}>'.format(
             token=self.token,
             auth_client=repr(self.auth_client)[1:-1],
@@ -478,9 +480,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         )
 
     def refresh(self):
-        """
-        Create a new token while retaining the refresh token.
-        """
+        """Create a new token while retaining the refresh token."""
         if self.refresh_token is not None:
             self.token = buid()
             self.secret = newsecret()
@@ -556,9 +556,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
 
     @classmethod  # NOQA: A003
     def all(cls, users):  # NOQA: A003
-        """
-        Return all AuthToken for the specified users.
-        """
+        """Return all AuthToken for the specified users."""
         query = cls.query.options(
             db.joinedload(cls.auth_client).load_only('id', '_scope')
         )
@@ -609,7 +607,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
     )
 
     # Only one assignment per user and client
-    __table_args__ = (db.UniqueConstraint('user_id', 'auth_client_id'), {})
+    __table_args__ = (db.UniqueConstraint('user_id', 'auth_client_id'),)
 
     # Used by auth_client_info.html
     @property
@@ -678,7 +676,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     )
 
     # Only one assignment per team and client
-    __table_args__ = (db.UniqueConstraint('team_id', 'auth_client_id'), {})
+    __table_args__ = (db.UniqueConstraint('team_id', 'auth_client_id'),)
 
     # Used by auth_client_info.html
     @property

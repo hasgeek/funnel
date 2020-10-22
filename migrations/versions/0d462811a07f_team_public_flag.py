@@ -1,4 +1,4 @@
-"""Team.public flag
+"""Team.public flag.
 
 Revision ID: 0d462811a07f
 Revises: 71ea1c409bd7

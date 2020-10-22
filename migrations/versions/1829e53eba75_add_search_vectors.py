@@ -1,4 +1,4 @@
-"""Add search vectors
+"""Add search vectors.
 
 Revision ID: 1829e53eba75
 Revises: 752dee4ae101

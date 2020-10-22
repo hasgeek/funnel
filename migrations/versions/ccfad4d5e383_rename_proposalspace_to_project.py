@@ -1,4 +1,4 @@
-"""Rename ProposalSpace to Project
+"""Rename ProposalSpace to Project.
 
 Revision ID: ccfad4d5e383
 Revises: 488077138ee4

@@ -1,4 +1,4 @@
-"""Add email_address.active_at
+"""Add email_address.active_at.
 
 Revision ID: c47007758ee6
 Revises: b7fa6df99855
