@@ -1,12 +1,12 @@
 {% extends 'siteadmin_layout.html.jinja2' %}
 
 {% block top_title %}
-<h1 class="mui--text-display1"><strong>Review comments</strong></h1>
+<h1 class="mui--text-display1"><strong>{% trans %}Review comments{% endtrans %}</strong></h1>
 {% endblock %}
 
 {% block admincontentblock %}
 <div class="mui-panel">
-  <p>This comment has been reported as <strong>spam</strong>.</p>
+  <p>{% trans %}This comment has been reported as <strong>spam</strong>.{% endtrans %}</p>
   <form action="{{ url_for('siteadmin_review_comment', report=report.uuid_b58) }}" method="post">
     {{ report_form.hidden_tag() }}
     {% for value, title in report_form.report_type.choices %}
