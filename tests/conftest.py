@@ -56,6 +56,8 @@ TEST_DATA = {
 @pytest.fixture(scope='module')
 def test_client():
     app.config['IMGEE_HOST'] = 'https://images.example.com'
+    app.config['IMAGE_URL_DOMAINS'] = ('images.example.com',)
+    app.config['IMAGE_URL_SCHEMES'] = ('https',)
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
     testing_client = app.test_client()

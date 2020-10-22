@@ -28,10 +28,6 @@ class ProfileForm(OrganizationForm):
     )
     logo_url = forms.ImgeeField(
         label=__("Profile image"),
-        description=__(
-            "From images.hasgeek.com, with 1:1 aspect ratio."
-            " Should be < 30 kB in size"
-        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -84,10 +80,6 @@ class ProfileTransitionForm(forms.Form):
 class ProfileLogoForm(forms.Form):
     logo_url = forms.ImgeeField(
         __("Profile image"),
-        description=__(
-            "From images.hasgeek.com, with 1:1 aspect ratio."
-            " Should be < 30 kB in size"
-        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -105,10 +97,6 @@ class ProfileLogoForm(forms.Form):
 class ProfileBannerForm(forms.Form):
     banner_image_url = forms.ImgeeField(
         __("Banner image"),
-        description=__(
-            "From images.hasgeek.com, with 8:3 aspect ratio."
-            " Should be < 100 kB in size"
-        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),

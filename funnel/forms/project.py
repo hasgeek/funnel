@@ -61,10 +61,6 @@ class ProjectForm(forms.Form):
     )
     bg_image = forms.ImgeeField(
         __("Banner image"),
-        description=(
-            "From images.hasgeek.com, with 16:9 aspect ratio."
-            " Should be < 100 kB in size"
-        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -146,10 +142,6 @@ class ProjectNameForm(forms.Form):
 class ProjectBannerForm(forms.Form):
     bg_image = forms.ImgeeField(
         __("Banner image"),
-        description=__(
-            "From images.hasgeek.com, with 16:9 aspect ratio."
-            " Should be < 100 kB in size"
-        ),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),

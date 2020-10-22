@@ -376,7 +376,7 @@ def add_search_trigger(model, column_name):
 
 
 class ImageFurl(furl):
-    def resize(self, height, width):
+    def resize(self, width, height):
         """
         Returns image url with `?size=HxW` suffixed to it
 
@@ -384,21 +384,25 @@ class ImageFurl(furl):
         :param width: Width to resize the image to
         """
         if self.url:
-            self.args['size'] = f"{height}x{width}"
+            self.args['size'] = f'{width}x{height}'
         return self
 
 
 class ImgeeType(UrlType):
     url_parser = ImageFurl
 
-    def __init__(self, *args, **kwargs):
-        self.imgee_host = self.url_parser(current_app.config['IMGEE_HOST']).host
-        super().__init__(*args, **kwargs)
-
     def process_bind_param(self, value, dialect):
         value = super(UrlType, self).process_bind_param(value, dialect)
         if value:
+            allowed_domains = current_app.config.get('IMAGE_URL_DOMAINS', [])
+            allowed_schemes = current_app.config.get('IMAGE_URL_SCHEMES', [])
             parsed = self.url_parser(value)
-            if parsed.host != self.imgee_host:
-                raise ValueError(f"Image must be hosted on {self.imgee_host}")
+            if allowed_domains and parsed.host not in allowed_domains:
+                raise ValueError(
+                    "Image must be hosted on {hosts}".format(
+                        hosts=' or '.join(allowed_domains)
+                    )
+                )
+            if allowed_schemes and parsed.scheme not in allowed_schemes:
+                raise ValueError("Invalid scheme for the URL")
         return value
