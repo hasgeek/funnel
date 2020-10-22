@@ -76,7 +76,6 @@ const Notification = {
           }
         },
         handleObserver(entries) {
-          console.log('entries', entries);
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               this.fetchResult(notificationApp.next_num);

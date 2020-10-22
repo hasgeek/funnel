@@ -288,6 +288,7 @@
 .jquery-modal.blocker.current .session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
+  width: 100%;
 
   .modal__header {
     padding: $mui-grid-padding $mui-grid-padding 5px;

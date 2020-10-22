@@ -47,7 +47,7 @@ def comment_url(obj):
 @Commentset.views('json_comments')
 def commentset_json(obj):
     toplevel_comments = obj.toplevel_comments.join(Voteset).order_by(
-        Voteset.count, Comment.created_at.asc()
+        Voteset.count, Comment.created_at.desc()
     )
     return [
         comment.current_access(datasets=('json', 'related'))
@@ -162,6 +162,7 @@ class CommentsetView(UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("Your comment has been posted"),
                 'comments': self.obj.views.json_comments(),
+                'comment': comment.current_access(datasets=('json', 'related')),
             }
         commentform_html = render_form(
             form=commentform,
@@ -232,6 +233,7 @@ class CommentView(UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("Your comment has been posted"),
                 'comments': self.obj.commentset.views.json_comments(),
+                'comment': comment.current_access(datasets=('json', 'related')),
             }
 
         commentform_html = render_form(
@@ -257,6 +259,7 @@ class CommentView(UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("Your comment has been edited"),
                 'comments': self.obj.commentset.views.json_comments(),
+                'comment': self.obj.current_access(datasets=('json', 'related')),
             }
         commentform_html = render_form(
             form=commentform,

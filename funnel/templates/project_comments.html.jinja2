@@ -24,7 +24,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Comments{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='subhead') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Comments{% endtrans %}</span>
     </div>
   </div>
   {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='comments') }}
@@ -59,13 +59,6 @@
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
 
-      var headerHeight;
-      if($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
-        headerHeight = $('.mobile-nav').height();
-      } else {
-        headerHeight = $('header').height() + $('nav').height();
-      }
-
       var commentsConfig = {
         newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
         comments: [],
@@ -76,7 +69,6 @@
         iscommentmoderator: {% if current_auth.user and current_auth.user.is_comment_moderator -%}true{% else %}false{% endif %},
         user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
-        headerHeight: headerHeight,
       };
 
       window.Hasgeek.Comments(commentsConfig);

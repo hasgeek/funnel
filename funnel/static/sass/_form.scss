@@ -353,47 +353,149 @@
 .ajax-form {
   position: relative;
   clear: both;
+  width: 100%;
+  margin: 0;
 
-  .mui-form--margins {
+  .mui-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
     margin: 0;
+    .mui-form__fields {
+      display: inline-block;
+      width: calc(100% - 48px);
+      margin: 0;
+      padding: 0;
+      .CodeMirror {
+        border: 1px solid $mui-primary-color;
+        border-radius: 16px 16px 0 16px;
+        min-height: 16px;
+        padding: 16px;
+      }
+      .CodeMirror ~ .CodeMirror {
+        display: none;
+      }
+      .CodeMirror-focused {
+        border: 1px solid #4a90e2;
+      }
+    }
   }
-  .CodeMirror {
-    border: 1px solid #c0ccda;
-    min-height: 60px;
+  .icon-btn {
+    min-width: 40px;
+    margin: 0 0 0 8px;
   }
-  .CodeMirror ~ .CodeMirror {
-    display: none;
-  }
-  .CodeMirror-focused {
-    border: 1px solid #4a90e2;
-  }
-  .mui-form__fields {
-    margin-bottom: 0;
-  }
-  .mui-form.form-actions {
+  .user {
     display: inline-block;
-    float: left;
-    margin-right: 10px;
+    margin-left: 8px;
+
+    .user__box {
+      align-items: start;
+      padding: 0;
+      span {
+        height: 40px;
+      }
+      .user__box__gravatar {
+        margin: 0;
+      }
+      .user__box__gravatar--initials {
+        background-color: $mui-primary-color !important;
+      }
+    }
   }
-  .ajax-form__cancelbtn {
-    display: inline-block;
-    vertical-align: top;
-    margin: 0;
-    position: relative;
-    top: 7px;
+}
+
+@media (max-width: 767px) {
+  .ajax-form.ajax-form--mob {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
+    background-color: $mui-bg-color-accent;
+    z-index: 1001;
+    .mui-form {
+      .mui-form__fields .CodeMirror {
+        border: none;
+        border-radius: 0;
+        background: $mui-bg-color-accent;
+      }
+    }
+    .mui-btn--raised.icon-btn {
+      border-radius: 0;
+      box-shadow: none;
+      padding-bottom: 16px;
+    }
+    .user {
+      padding-bottom: $mui-grid-padding/2;
+      padding-right: $mui-grid-padding;
+      margin-right: 0;
+    }
+  }
+  .ajax-form--block.ajax-form--mob {
+    padding: $mui-grid-padding;
+    .mui-form {
+      display: block;
+      .ajax-form__title {
+        margin: 0;
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .ajax-form--block {
+    .mui-form {
+      justify-content: flex-start;
+      .ajax-form__title {
+        margin-right: 8px;
+      }
+    }
   }
 }
 
 .post-form-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  .post-form {
+    cursor: pointer;
+    text-decoration: none !important;
+    color: $mui-text-light;
+    font-size: 16px;
+    border-radius: 16px 16px 0 16px;
+    background-color: $mui-bg-color-primary-dark;
+    padding: 21px 16px;
+    margin: 0;
+    display: inline-block;
+    width: calc(100% - 48px);
+  }
+  .user {
+    display: inline-block;
+
+    .user__box {
+      align-items: start;
+      padding: 0;
+      span {
+        height: 40px;
+      }
+      .user__box__gravatar {
+        margin: 0;
+      }
+      .user__box__gravatar--initials {
+        background-color: $mui-primary-color !important;
+      }
+    }
+  }
+}
+
+.update-form-block {
   border-radius: 4px;
-  background-color: $mui-bg-color-accent;
-  padding: $mui-grid-padding/2 $mui-grid-padding;
-  margin-bottom: $mui-grid-padding-double;
+  background-color: $mui-bg-color-primary-dark;
+  padding: 8px 16px;
+  margin-bottom: 32px;
   margin: 16px 0 32px;
   display: block;
   cursor: pointer;
   text-decoration: none !important;
-
   span {
     height: 40px;
   }
@@ -403,14 +505,15 @@
   }
 
   .user__box__gravatar--initials {
-    background-color: $mui-primary-color !important;
+    background-color: #0f73ed !important;
   }
+
   input {
     width: 100%;
     padding: 10px 16px;
     border-radius: 2px;
     border: solid 1px rgba(77, 87, 99, 0.13);
-    background-color: #ffffff;
+    background-color: #fff;
     cursor: pointer;
   }
 }

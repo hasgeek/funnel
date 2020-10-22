@@ -284,21 +284,21 @@ export const Utils = {
   },
   addWebShare() {
     if (navigator.share) {
-      if ($('.hg-link-btn').length) {
-        $('.project-links').hide();
-        $('.hg-link-btn').removeClass('mui--hide');
+      $('.project-links').hide();
+      $('.hg-link-btn').removeClass('mui--hide');
 
-        $('.hg-link-btn').on('click', function () {
-          navigator.share({
-            title: $(this).data('title') || document.title,
-            url:
-              $(this).data('url') ||
-              (document.querySelector('link[rel=canonical]') &&
-                document.querySelector('link[rel=canonical]').href) ||
-              window.location.href,
-          });
+      $('body').on('click', '.hg-link-btn', function (event) {
+        event.preventDefault();
+        navigator.share({
+          title: $(this).data('title') || document.title,
+          url:
+            $(this).data('url') ||
+            (document.querySelector('link[rel=canonical]') &&
+              document.querySelector('link[rel=canonical]').href) ||
+            window.location.href,
+          text: $(this).data('text') || '',
         });
-      }
+      });
     } else {
       $('body').on('click', '.js-copy-link', function (event) {
         event.preventDefault();
@@ -312,6 +312,21 @@ export const Utils = {
         selection.removeAllRanges();
       });
     }
+  },
+  enableWebShare() {
+    if (navigator.share) {
+      $('.project-links').hide();
+      $('.hg-link-btn').removeClass('mui--hide');
+    }
+  },
+  getPageHeaderHeight() {
+    let headerHeight;
+    if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+      headerHeight = $('.mobile-nav').height();
+    } else {
+      headerHeight = $('header').height() + $('nav').height();
+    }
+    return headerHeight;
   },
 };
 
