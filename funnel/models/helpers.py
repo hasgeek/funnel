@@ -1,4 +1,5 @@
 from textwrap import dedent
+from typing import Set
 import re
 
 from sqlalchemy import DDL, event
@@ -27,7 +28,7 @@ __all__ = [
 ]
 
 
-RESERVED_NAMES = {
+RESERVED_NAMES: Set[str] = {
     '_baseframe',
     'about',
     'account',
@@ -378,10 +379,10 @@ def add_search_trigger(model, column_name):
 class ImageFurl(furl):
     def resize(self, width, height):
         """
-        Returns image url with `?size=HxW` suffixed to it
+        Return image url with `?size=WxH` suffixed to it.
 
-        :param height: Height to resize the image to
         :param width: Width to resize the image to
+        :param height: Height to resize the image to
         """
         if self.url:
             self.args['size'] = f'{width}x{height}'
