@@ -268,6 +268,17 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ajax=False,
         )
 
+    @route('update_logo', methods=['GET', 'POST'])
+    @render_with('update_logo_modal.html.jinja2')
+    @requires_roles({'admin'})
+    def update_logo(self):
+        form = ProfileLogoForm()
+        edit_logo_url = self.obj.url_for('edit_logo_url')
+        return {
+            'edit_logo_url': edit_logo_url,
+            'form': form,
+        }
+
     @route('edit_logo', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_logo_url(self):
@@ -289,6 +300,17 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ajax=True,
             template='img_upload_formlayout.html.jinja2',
         )
+
+    @route('update_banner', methods=['GET', 'POST'])
+    @render_with('update_logo_modal.html.jinja2')
+    @requires_roles({'admin'})
+    def update_banner(self):
+        form = ProfileBannerForm()
+        edit_logo_url = self.obj.url_for('edit_banner_image_url')
+        return {
+            'edit_logo_url': edit_logo_url,
+            'form': form,
+        }
 
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})

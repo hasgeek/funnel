@@ -114,13 +114,13 @@
   opacity: 0;
 }
 
-.modal-form {
+.modal--form {
   #field-user {
     margin-bottom: 32px;
   }
 }
 
-.modal-form--edit {
+.modal--form--edit {
   .select2.select2-container {
     display: none !important;
   }

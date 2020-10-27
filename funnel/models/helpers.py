@@ -1,4 +1,5 @@
 from textwrap import dedent
+from typing import Set
 import re
 
 from sqlalchemy import DDL, event
@@ -6,7 +7,12 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 
+from flask import current_app
+
+from furl import furl
 from zxcvbn import zxcvbn
+
+from . import UrlType
 
 __all__ = [
     'RESERVED_NAMES',
@@ -18,10 +24,11 @@ __all__ = [
     'password_policy',
     'valid_name',
     'valid_username',
+    'ImgeeType',
 ]
 
 
-RESERVED_NAMES = {
+RESERVED_NAMES: Set[str] = {
     '_baseframe',
     'about',
     'account',
@@ -367,3 +374,36 @@ def add_search_trigger(model, column_name):
         'update': update_statement,
         'drop': drop_statement,
     }
+
+
+class ImageFurl(furl):
+    def resize(self, width, height):
+        """
+        Return image url with `?size=WxH` suffixed to it.
+
+        :param width: Width to resize the image to
+        :param height: Height to resize the image to
+        """
+        if self.url:
+            self.args['size'] = f'{width}x{height}'
+        return self
+
+
+class ImgeeType(UrlType):
+    url_parser = ImageFurl
+
+    def process_bind_param(self, value, dialect):
+        value = super(UrlType, self).process_bind_param(value, dialect)
+        if value:
+            allowed_domains = current_app.config.get('IMAGE_URL_DOMAINS', [])
+            allowed_schemes = current_app.config.get('IMAGE_URL_SCHEMES', [])
+            parsed = self.url_parser(value)
+            if allowed_domains and parsed.host not in allowed_domains:
+                raise ValueError(
+                    "Image must be hosted on {hosts}".format(
+                        hosts=' or '.join(allowed_domains)
+                    )
+                )
+            if allowed_schemes and parsed.scheme not in allowed_schemes:
+                raise ValueError("Invalid scheme for the URL")
+        return value
