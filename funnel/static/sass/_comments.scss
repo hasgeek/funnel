@@ -26,7 +26,7 @@
     width: 100%;
 
     button {
-      vertical-align: middle;
+      vertical-align: bottom;
     }
     .mui-btn--nostyle + .mui-btn--nostyle {
       margin-left: 0;
@@ -67,6 +67,15 @@
     .comment--children {
       padding-left: $mui-grid-padding/2;
       word-break: break-word;
+    }
+    .js-comment-form {
+      > .comment__body__links.link-icon:first-child {
+        padding-left: 0;
+      }
+      .comment__body__links.link-icon .fa5-icon--aligntop {
+        position: relative;
+        top: -1px;
+      }
     }
   }
   .comment__body:hover {
@@ -134,6 +143,7 @@
       width: 12px;
       height: 12px;
       margin-right: 8px;
+      vertical-align: middle;
     }
   }
 }
