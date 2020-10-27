@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Set
+from typing import Iterable, Optional, Set
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -577,7 +577,7 @@ class Proposal(
                     perms.add('decline-proposal')  # Decline speaking
         return perms
 
-    def roles_for(self, actor=None, anchors=()):
+    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super(Proposal, self).roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:
