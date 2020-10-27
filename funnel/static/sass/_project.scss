@@ -91,10 +91,12 @@
     align-items: baseline;
     margin: $mui-grid-padding 0 0;
     padding: 0 $mui-grid-padding;
-    justify-content: space-between;
 
-    .bookmark a {
-      text-decoration: none !important;
+    .bookmark {
+      padding-right: 8px;
+      a {
+        text-decoration: none !important;
+      }
     }
     .hg-link-btn.hide {
       display: none;

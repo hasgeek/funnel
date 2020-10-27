@@ -59,12 +59,8 @@ class ProjectForm(forms.Form):
         choices=sorted_timezones(),
         default='UTC',
     )
-    bg_image = forms.URLField(
-        __("Banner image URL"),
-        description=(
-            "From images.hasgeek.com, with 16:9 aspect ratio."
-            " Should be < 100 kB in size"
-        ),
+    bg_image = forms.ImgeeField(
+        __("Banner image"),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -82,6 +78,10 @@ class ProjectForm(forms.Form):
             raise forms.ValidationError(
                 __("Quotes are not necessary in the location name")
             )
+
+    def set_queries(self):
+        if self.edit_obj is not None:
+            self.bg_image.profile = self.edit_obj.profile.name
 
 
 class ProjectLivestreamForm(forms.Form):
@@ -140,18 +140,19 @@ class ProjectNameForm(forms.Form):
 
 
 class ProjectBannerForm(forms.Form):
-    bg_image = forms.URLField(
-        __("Banner image URL"),
-        description=__(
-            "From images.hasgeek.com, with 16:9 aspect ratio."
-            " Should be < 100 kB in size"
-        ),
+    bg_image = forms.ImgeeField(
+        __("Banner image"),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
     )
+
+    def set_queries(self):
+        self.bg_image.widget_type = 'modal'
+        if self.edit_obj:
+            self.bg_image.profile = self.edit_obj.profile.name
 
 
 @Project.forms('cfp')

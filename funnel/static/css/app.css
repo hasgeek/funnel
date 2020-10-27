@@ -730,8 +730,8 @@ a.loginbutton.hidden,
   }
 }
 .mui-btn--raised.icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   vertical-align: middle;
   margin: auto;
@@ -1171,6 +1171,10 @@ a.loginbutton.hidden,
 }
 
 @media (max-width: 767px) {
+  .hg-app .header--fixed.header--lowzindex {
+    z-index: 1;
+  }
+
   .hg-app.no-sticky-header .header--fixed {
     display: none;
   }
@@ -1554,14 +1558,8 @@ a.loginbutton.hidden,
   height: 18px;
 }
 
-.header__site-title__home__logo--margin {
-  margin-right: 10px;
-}
-
 .header__site-title__home__logo--funnel {
   width: 18px;
-  position: relative;
-  top: -2px;
 }
 
 @media (min-width: 768px) {
@@ -1718,7 +1716,7 @@ a.loginbutton.hidden,
 }
 .mobile-nav .mobile-nav__icon {
   display: inline-block;
-  padding: 16px 32px 16px 20px;
+  padding: 16px 8px 16px 16px;
 }
 .mobile-nav .mobile-nav__headline {
   font-size: 20px;
@@ -2330,13 +2328,13 @@ a.loginbutton.hidden,
   z-index: 1001;
 }
 
-.modal-form {
+.modal--form {
   min-width: 100%;
   min-height: 325px;
   height: 100%;
   border-radius: 0;
 }
-.modal-form .modal-form__action-box {
+.modal--form .modal--form__action-box {
   padding: 20px;
   position: absolute;
   bottom: 0;
@@ -2346,17 +2344,17 @@ a.loginbutton.hidden,
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   z-index: 1002;
 }
-.modal-form .modal-form__action-box--revoke {
+.modal--form .modal--form__action-box--revoke {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   padding: 20px;
 }
-.modal-form .modal-form__action-box--revoke .mui-btn.mui-btn--nostyle {
+.modal--form .modal--form__action-box--revoke .mui-btn.mui-btn--nostyle {
   text-transform: none;
 }
-.modal-form .mui-form .form-actions {
+.modal--form .mui-form .form-actions {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -2364,13 +2362,13 @@ a.loginbutton.hidden,
   z-index: 1003;
 }
 
-.modal-form.modal-form--edit .modal-form__action-box,
-.modal-form.modal-form--edit .mui-form .form-actions {
+.modal--form.modal--form--edit .modal--form__action-box,
+.modal--form.modal--form--edit .mui-form .form-actions {
   bottom: 65px;
 }
 
 @media (min-width: 768px) {
-  .jquery-modal.blocker.current .modal.modal-form {
+  .jquery-modal.blocker.current .modal.modal--form {
     min-width: 50%;
     min-height: 80%;
     height: auto;
@@ -2440,9 +2438,10 @@ a.loginbutton.hidden,
     background: #ffffff;
     top: 0;
     left: 0;
-    height: 100%;
-    padding: 16px;
     right: 0;
+    bottom: 0;
+    padding: 16px;
+    overflow: scroll;
   }
 }
 .modal__body--form .mui-tabs__bar {
@@ -2469,39 +2468,135 @@ a.loginbutton.hidden,
 .ajax-form {
   position: relative;
   clear: both;
-}
-.ajax-form .mui-form--margins {
+  width: 100%;
   margin: 0;
 }
-.ajax-form .CodeMirror {
-  border: 1px solid #c0ccda;
-  min-height: 60px;
+.ajax-form .mui-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 0;
 }
-.ajax-form .CodeMirror ~ .CodeMirror {
+.ajax-form .mui-form .mui-form__fields {
+  display: inline-block;
+  width: calc(100% - 48px);
+  margin: 0;
+  padding: 0;
+}
+.ajax-form .mui-form .mui-form__fields .CodeMirror {
+  border: 1px solid #0f73ed;
+  border-radius: 16px 16px 0 16px;
+  min-height: 16px;
+  padding: 16px;
+}
+.ajax-form .mui-form .mui-form__fields .CodeMirror ~ .CodeMirror {
   display: none;
 }
-.ajax-form .CodeMirror-focused {
+.ajax-form .mui-form .mui-form__fields .CodeMirror-focused {
   border: 1px solid #4a90e2;
 }
-.ajax-form .mui-form__fields {
-  margin-bottom: 0;
+.ajax-form .icon-btn {
+  min-width: 40px;
+  margin: 0 0 0 8px;
 }
-.ajax-form .mui-form.form-actions {
+.ajax-form .user {
   display: inline-block;
-  float: left;
-  margin-right: 10px;
+  margin-left: 8px;
 }
-.ajax-form .ajax-form__cancelbtn {
-  display: inline-block;
-  vertical-align: top;
+.ajax-form .user .user__box {
+  align-items: start;
+  padding: 0;
+}
+.ajax-form .user .user__box span {
+  height: 40px;
+}
+.ajax-form .user .user__box .user__box__gravatar {
   margin: 0;
-  position: relative;
-  top: 7px;
+}
+.ajax-form .user .user__box .user__box__gravatar--initials {
+  background-color: #0f73ed !important;
 }
 
+@media (max-width: 767px) {
+  .ajax-form.ajax-form--mob {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
+    background-color: #f9f9f9;
+    z-index: 1001;
+  }
+  .ajax-form.ajax-form--mob .mui-form .mui-form__fields .CodeMirror {
+    border: none;
+    border-radius: 0;
+    background: #f9f9f9;
+  }
+  .ajax-form.ajax-form--mob .mui-btn--raised.icon-btn {
+    border-radius: 0;
+    box-shadow: none;
+    padding-bottom: 16px;
+  }
+  .ajax-form.ajax-form--mob .user {
+    padding-bottom: 8px;
+    padding-right: 16px;
+    margin-right: 0;
+  }
+
+  .ajax-form--block.ajax-form--mob {
+    padding: 16px;
+  }
+  .ajax-form--block.ajax-form--mob .mui-form {
+    display: block;
+  }
+  .ajax-form--block.ajax-form--mob .mui-form .ajax-form__title {
+    margin: 0;
+  }
+}
+@media (min-width: 768px) {
+  .ajax-form--block .mui-form {
+    justify-content: flex-start;
+  }
+  .ajax-form--block .mui-form .ajax-form__title {
+    margin-right: 8px;
+  }
+}
 .post-form-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.post-form-block .post-form {
+  cursor: pointer;
+  text-decoration: none !important;
+  color: #4d5763;
+  font-size: 16px;
+  border-radius: 16px 16px 0 16px;
+  background-color: #f1f1f1;
+  padding: 21px 16px;
+  margin: 0;
+  display: inline-block;
+  width: calc(100% - 48px);
+}
+.post-form-block .user {
+  display: inline-block;
+}
+.post-form-block .user .user__box {
+  align-items: start;
+  padding: 0;
+}
+.post-form-block .user .user__box span {
+  height: 40px;
+}
+.post-form-block .user .user__box .user__box__gravatar {
+  margin: 0;
+}
+.post-form-block .user .user__box .user__box__gravatar--initials {
+  background-color: #0f73ed !important;
+}
+
+.update-form-block {
   border-radius: 4px;
-  background-color: #f9f9f9;
+  background-color: #f1f1f1;
   padding: 8px 16px;
   margin-bottom: 32px;
   margin: 16px 0 32px;
@@ -2509,22 +2604,47 @@ a.loginbutton.hidden,
   cursor: pointer;
   text-decoration: none !important;
 }
-.post-form-block span {
+.update-form-block span {
   height: 40px;
 }
-.post-form-block .user__box {
+.update-form-block .user__box {
   align-items: start;
 }
-.post-form-block .user__box__gravatar--initials {
+.update-form-block .user__box__gravatar--initials {
   background-color: #0f73ed !important;
 }
-.post-form-block input {
+.update-form-block input {
   width: 100%;
   padding: 10px 16px;
   border-radius: 2px;
   border: solid 1px rgba(77, 87, 99, 0.13);
-  background-color: #ffffff;
+  background-color: #fff;
   cursor: pointer;
+}
+
+.img-upload-modal .imgee .imgee__button,
+.img-upload-modal .imgee .imgee__url-holder {
+  display: none;
+}
+.img-upload-modal .modal__body .mui-form__fields {
+  margin: 0;
+}
+.img-upload-modal .modal__body .modal {
+  padding: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.img-upload-modal .modal__body .modal .modal__header .modal__close {
+  display: none;
+}
+.img-upload-modal .modal__body .modal .modal__body {
+  max-height: calc(100vh - 160px);
+  overflow: scroll;
+}
+.img-upload-modal .modal__body .modal .modal__body .popup {
+  background-color: #ffffff !important;
 }
 
 .card--spotlight {
@@ -3315,7 +3435,9 @@ a.loginbutton.hidden,
   align-items: baseline;
   margin: 16px 0 0;
   padding: 0 16px;
-  justify-content: space-between;
+}
+.project-banner .project-banner__footer .bookmark {
+  padding-right: 8px;
 }
 .project-banner .project-banner__footer .bookmark a {
   text-decoration: none !important;
@@ -4158,6 +4280,26 @@ a.loginbutton.hidden,
   margin-bottom: 3px;
 }
 
+@media (max-width: 767px) {
+  .post-form-block {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+  }
+  .post-form-block .comment-new-mobile {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .proposal__section .post-form-block {
+    position: relative;
+    float: right;
+    top: -18px;
+    right: 0;
+    height: 0;
+  }
+}
 .comment {
   margin: 16px 0 0;
 }
@@ -4166,7 +4308,7 @@ a.loginbutton.hidden,
   width: 100%;
 }
 .comment .comment__header button {
-  vertical-align: middle;
+  vertical-align: bottom;
 }
 .comment .comment__header .mui-btn--nostyle + .mui-btn--nostyle {
   margin-left: 0;
@@ -4197,8 +4339,7 @@ a.loginbutton.hidden,
 }
 .comment .comment__body {
   border-left: 1px solid rgba(132, 146, 166, 0.3);
-  padding-left: 12px;
-  margin: 5px 0 0 7px;
+  margin: 0 0 0 7px;
 }
 .comment .comment__body img {
   max-width: 100%;
@@ -4206,15 +4347,48 @@ a.loginbutton.hidden,
 .comment .comment__body blockquote {
   border-left: 3px solid #c0ccda;
   margin: 0;
-  padding-left: 16px;
+  padding: 8px 0 0 8px;
 }
-.comment .comment__body .ajax-form .mui--text-title {
-  margin-top: 8px;
+.comment .comment__body .comment__body__inner,
+.comment .comment__body .comment--children {
+  padding-left: 8px;
+  word-break: break-word;
+}
+.comment
+  .comment__body
+  .js-comment-form
+  > .comment__body__links.link-icon:first-child {
+  padding-left: 0;
+}
+.comment
+  .comment__body
+  .js-comment-form
+  .comment__body__links.link-icon
+  .fa5-icon--aligntop {
+  position: relative;
+  top: -1px;
 }
 .comment .comment__body:hover {
   border-left: 1px solid #f06a5e;
 }
 
+@media (max-width: 767px) {
+  .comment--modal {
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1002;
+    background: #ffffff;
+    padding: 8px 16px 56px;
+    margin: 0;
+    overflow-y: scroll;
+  }
+  .comment--modal > .comment__body > .comment__body__inner {
+    background-color: #e1eefd;
+  }
+}
 .slide-enter-active {
   -moz-transition-duration: 0.3s;
   -webkit-transition-duration: 0.3s;
@@ -4257,6 +4431,7 @@ a.loginbutton.hidden,
     width: 12px;
     height: 12px;
     margin-right: 8px;
+    vertical-align: middle;
   }
 }
 .proposal-list-header {
@@ -4624,6 +4799,7 @@ a.loginbutton.hidden,
 .jquery-modal.blocker.current .session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
+  width: 100%;
 }
 .jquery-modal.blocker.current .session-modal--nopadding .modal__header {
   padding: 16px 16px 5px;
@@ -4977,21 +5153,21 @@ body > .proposal-box.ui-draggable {
   opacity: 0;
 }
 
-.modal-form #field-user {
+.modal--form #field-user {
   margin-bottom: 32px;
 }
 
-.modal-form--edit .select2.select2-container {
+.modal--form--edit .select2.select2-container {
   display: none !important;
 }
-.modal-form--edit .select2-hidden-accessible {
+.modal--form--edit .select2-hidden-accessible {
   background-color: #eee;
   cursor: not-allowed;
   height: 32px !important;
   position: relative !important;
 }
-.modal-form--edit .mui-select:focus > label,
-.modal-form--edit .mui-select > select:focus ~ label {
+.modal--form--edit .mui-select:focus > label,
+.modal--form--edit .mui-select > select:focus ~ label {
   color: rgba(0, 0, 0, 0.54);
 }
 

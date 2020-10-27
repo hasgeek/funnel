@@ -7,6 +7,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -439,6 +440,17 @@ class ProjectView(
                         autosave=True,
                     )
 
+    @route('update_banner', methods=['GET', 'POST'])
+    @render_with('update_logo_modal.html.jinja2')
+    @requires_roles({'editor'})
+    def update_banner(self):
+        form = ProjectBannerForm()
+        edit_logo_url = self.obj.url_for('edit_banner')
+        return {
+            'edit_logo_url': edit_logo_url,
+            'form': form,
+        }
+
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
@@ -738,12 +750,12 @@ class ProjectView(
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2', json=True)
+    @render_with('project_comments.html.jinja2')
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
         if request_is_xhr():
-            return {'comments': comments}
+            return jsonify({'comments': comments})
         else:
             commentform = CommentForm(model=Comment)
             return {

@@ -9,7 +9,7 @@ describe('Responding yes to attend a project', function () {
     cy.login('/testcypressproject', user.username, user.password);
 
     cy.get('.upcoming')
-      .find('.card--upcoming')
+      .find('.card')
       .contains(project.title)
       .click({ force: true });
     cy.location('pathname').should('contain', project.url);
