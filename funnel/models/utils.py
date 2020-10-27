@@ -6,6 +6,7 @@ from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from flask import current_app
 
+from ..typing import OptionalMigratedTables
 from .user import (
     USER_STATUS,
     User,
@@ -169,7 +170,9 @@ def do_migrate_instances(
         if model != old_instance.__class__:
             if helper_method and hasattr(model, helper_method):
                 try:
-                    result = getattr(model, helper_method)(old_instance, new_instance)
+                    result: OptionalMigratedTables = getattr(model, helper_method)(
+                        old_instance, new_instance
+                    )
                     session.flush()
                     if isinstance(result, (list, tuple, set)):
                         migrated_tables.update(result)

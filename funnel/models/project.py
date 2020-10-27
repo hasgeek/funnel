@@ -13,6 +13,7 @@ from baseframe import __, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
+from ..typing import OptionalMigratedTables
 from ..utils import geonameid_from_location
 from . import (
     BaseScopedNameMixin,
@@ -714,7 +715,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     @classmethod
-    def migrate_profile(cls, old_profile, new_profile):
+    def migrate_profile(
+        cls, old_profile: Profile, new_profile: Profile
+    ) -> OptionalMigratedTables:
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
@@ -725,6 +728,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 )
                 project.name += '-' + buid()
             project.profile = new_profile
+        return None
 
 
 add_search_trigger(Project, 'search_vector')
@@ -844,7 +848,9 @@ class ProjectRedirect(TimestampMixin, db.Model):
         return redirect
 
     @classmethod
-    def migrate_profile(cls, old_profile, new_profile):
+    def migrate_profile(
+        cls, old_profile: Profile, new_profile: Profile
+    ) -> OptionalMigratedTables:
         """
         Discard redirects when migrating profiles.
 
@@ -859,6 +865,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
                 # Discard project redirect since the name is already taken by another
                 # redirect in the new profile
                 db.session.delete(pr)
+        return None
 
 
 class ProjectLocation(TimestampMixin, db.Model):

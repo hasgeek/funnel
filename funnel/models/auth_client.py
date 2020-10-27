@@ -17,6 +17,7 @@ from coaster.sqlalchemy import with_roles
 from coaster.utils import buid as make_buid
 from coaster.utils import newsecret, require_one_of, utcnow
 
+from ..typing import OptionalMigratedTables
 from . import BaseMixin, UuidMixin, db
 from .user import Organization, Team, User
 from .user_session import UserSession, auth_client_user_session
@@ -533,7 +534,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         return True
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         if not old_user or not new_user:
             return None  # Don't mess with client-only tokens
         oldtokens = cls.query.filter_by(user=old_user).all()
@@ -664,7 +665,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
         return self.user.buid
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         for operm in old_user.client_permissions:
             merge_performed = False
             for nperm in new_user.client_permissions:

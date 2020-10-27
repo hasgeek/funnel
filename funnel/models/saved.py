@@ -4,6 +4,7 @@ from typing import Iterable, Optional, Set
 
 from coaster.sqlalchemy import with_roles
 
+from ..typing import OptionalMigratedTables
 from . import NoIdMixin, db
 from .helpers import reopen
 from .project import Project
@@ -47,7 +48,7 @@ class SavedProject(NoIdMixin, db.Model):
         return roles
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         project_ids = {sp.project_id for sp in new_user.saved_projects}
         for sp in old_user.saved_projects:
             if sp.project_id not in project_ids:
@@ -93,7 +94,7 @@ class SavedSession(NoIdMixin, db.Model):
         return roles
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         project_ids = {ss.project_id for ss in new_user.saved_sessions}
         for ss in old_user.saved_sessions:
             if ss.project_id not in project_ids:

@@ -1,5 +1,5 @@
 from textwrap import dedent
-from typing import Dict, Iterable, Optional, Set, Type, TypeVar
+from typing import Dict, Iterable, Optional, Set, Type
 import re
 
 from sqlalchemy import DDL, event
@@ -12,6 +12,7 @@ from flask import current_app
 from furl import furl
 from zxcvbn import zxcvbn
 
+from ..typing import T
 from . import UrlType, db
 
 __all__ = [
@@ -26,8 +27,6 @@ __all__ = [
     'valid_username',
     'ImgeeType',
 ]
-
-T = TypeVar('T')
 
 RESERVED_NAMES: Set[str] = {
     '_baseframe',

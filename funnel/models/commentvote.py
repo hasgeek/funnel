@@ -10,6 +10,7 @@ from baseframe import _, __
 from coaster.sqlalchemy import StateManager, cached, with_roles
 from coaster.utils import LabeledEnum
 
+from ..typing import OptionalMigratedTables
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger, reopen
 from .user import User, deleted_user, removed_user
@@ -100,7 +101,7 @@ class Vote(NoIdMixin, db.Model):
     votedown = db.Column(db.Boolean, default=False, nullable=False)
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         votesets = {vote.voteset for vote in new_user.votes}
         for vote in list(old_user.votes):
             if vote.voteset not in votesets:

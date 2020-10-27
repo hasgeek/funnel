@@ -26,6 +26,7 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
+from ..typing import OptionalMigratedTables
 from . import BaseMixin, LocaleType, TimezoneType, TSVectorType, UuidMixin, db
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import add_search_trigger
@@ -1250,7 +1251,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
         )
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         primary_email = old_user.primary_email
         for useremail in list(old_user.emails):
             useremail.user = new_user
@@ -1306,7 +1307,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         return perms
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         emails = {claim.email for claim in new_user.emailclaims}
         for claim in list(old_user.emailclaims):
             if claim.email not in emails:
@@ -1524,7 +1525,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
         return cls.query.filter_by(user=user, phone=phone).one_or_none()
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         primary_phone = old_user.primary_phone
         for userphone in list(old_user.phones):
             userphone.user = new_user
@@ -1578,7 +1579,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
         )
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         phones = {claim.email for claim in new_user.phoneclaims}
         for claim in list(old_user.phoneclaims):
             if claim.phone not in phones:

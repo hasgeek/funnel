@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional
-
 from flask import current_app
 from werkzeug.utils import cached_property
 
@@ -9,6 +7,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
+from ..typing import OptionalMigratedTables
 from . import NoIdMixin, UuidMixin, db
 from .helpers import reopen
 from .project import Project
@@ -110,7 +109,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         return self.user.transport_for_email(self.project.profile)
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
         for rsvp in old_user.rsvps:
             if rsvp.project_id not in project_ids:

@@ -8,6 +8,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from coaster.utils import uuid_to_base58
 
+from ..typing import OptionalMigratedTables
 from . import RoleMixin, TimestampMixin, db
 from .project import Project
 from .sync_ticket import TicketParticipant
@@ -81,7 +82,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         return roles
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         ticket_participant_ids = {
             ce.ticket_participant_id for ce in new_user.scanned_contacts
         }

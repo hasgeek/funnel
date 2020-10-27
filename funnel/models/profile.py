@@ -8,6 +8,7 @@ from baseframe import __
 from coaster.sqlalchemy import Query, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
+from ..typing import OptionalMigratedTables
 from . import BaseMixin, MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
 from .helpers import (
     RESERVED_NAMES,
@@ -325,7 +326,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         return value
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> Optional[Iterable[str]]:
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         if old_user.profile and not new_user.profile:
             # New user doesn't have a profile. Simply transfer ownership.
             new_user.profile = old_user.profile
