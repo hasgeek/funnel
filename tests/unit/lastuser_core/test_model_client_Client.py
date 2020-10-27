@@ -105,7 +105,7 @@ class TestClient(TestDatabaseFixture):
         with self.assertRaises(TypeError):
             models.AuthClient.get()
         # scenario 2: when given key
-        result1 = models.AuthClient.get(key)
+        result1 = models.AuthClient.get(buid=key)
         self.assertIsInstance(result1, models.AuthClient)
         self.assertEqual(result1.buid, key)
         self.assertEqual(result1.owner, batdog)

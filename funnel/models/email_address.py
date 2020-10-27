@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Set, Union, cast
+from typing import Any, List, Optional, Set, Union, cast, overload
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -402,9 +402,36 @@ class EmailAddress(BaseMixin, db.Model):
             obj.email = None
             obj._is_blocked = True
 
+    @overload
+    @classmethod
+    def get_filter(cls, *, email: str) -> Optional[BinaryExpression]:
+        ...
+
+    @overload
+    @classmethod
+    def get_filter(cls, *, blake2b160: bytes) -> BinaryExpression:
+        ...
+
+    @overload
+    @classmethod
+    def get_filter(cls, *, email_hash: str) -> BinaryExpression:
+        ...
+
+    @overload
     @classmethod
     def get_filter(
         cls,
+        *,
+        email: Optional[str],
+        blake2b160: Optional[bytes],
+        email_hash: Optional[str],
+    ) -> Optional[BinaryExpression]:
+        ...
+
+    @classmethod
+    def get_filter(
+        cls,
+        *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
@@ -426,10 +453,37 @@ class EmailAddress(BaseMixin, db.Model):
 
         return cls.blake2b160 == blake2b160
 
+    @overload
+    @classmethod
+    def get(
+        cls,
+        email: str,
+    ) -> Optional[EmailAddress]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        blake2b160: bytes,
+    ) -> Optional[EmailAddress]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        email_hash: str,
+    ) -> Optional[EmailAddress]:
+        ...
+
     @classmethod
     def get(
         cls,
         email: Optional[str] = None,
+        *,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
     ) -> Optional[EmailAddress]:
@@ -439,7 +493,7 @@ class EmailAddress(BaseMixin, db.Model):
         Internally converts an email-based lookup into a hash-based lookup.
         """
         return cls.query.filter(
-            cls.get_filter(email, blake2b160, email_hash)
+            cls.get_filter(email=email, blake2b160=blake2b160, email_hash=email_hash)
         ).one_or_none()
 
     @classmethod

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Iterable, List, Optional, Set, Union, cast
+from typing import Iterable, List, Optional, Set, Union, cast, overload
 from uuid import UUID
 import hashlib
 
@@ -491,9 +491,40 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             for membership in self.active_organization_owner_memberships
         ]
 
+    @overload
     @classmethod
     def get(
         cls,
+        *,
+        username: str,
+        defercols: bool = False,
+    ) -> Optional[User]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        buid: str,
+        defercols: bool = False,
+    ) -> Optional[User]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        userid: str,
+        defercols: bool = False,
+    ) -> Optional[User]:
+        ...
+
+    @classmethod
+    def get(
+        cls,
+        *,
         username: Optional[str] = None,
         buid: Optional[str] = None,
         userid: Optional[str] = None,
@@ -923,9 +954,30 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             perms.add('delete')
         return perms
 
+    @overload
     @classmethod
     def get(
         cls,
+        *,
+        name: str,
+        defercols: bool = False,
+    ) -> Optional[Organization]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        buid: str,
+        defercols: bool = False,
+    ) -> Optional[Organization]:
+        ...
+
+    @classmethod
+    def get(
+        cls,
+        *,
         name: Optional[str] = None,
         buid: Optional[str] = None,
         defercols: bool = False,
@@ -1087,9 +1139,37 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
             if self.user.primary_email == self:
                 self.user.primary_email = None
 
+    @overload
     @classmethod
     def get(
         cls,
+        *,
+        email: str,
+    ) -> Optional[UserEmail]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        blake2b160: bytes,
+    ) -> Optional[UserEmail]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        email_hash: str,
+    ) -> Optional[UserEmail]:
+        ...
+
+    @classmethod
+    def get(
+        cls,
+        *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
@@ -1111,10 +1191,41 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
             .one_or_none()
         )
 
+    @overload
     @classmethod
     def get_for(
         cls,
         user: User,
+        *,
+        email: str,
+    ) -> Optional[UserEmail]:
+        ...
+
+    @overload
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
+        blake2b160: bytes,
+    ) -> Optional[UserEmail]:
+        ...
+
+    @overload
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
+        email_hash: str,
+    ) -> Optional[UserEmail]:
+        ...
+
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
@@ -1205,10 +1316,41 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
                 db.session.delete(claim)
         return None
 
+    @overload
     @classmethod
     def get_for(
         cls,
         user: User,
+        *,
+        email: str,
+    ) -> Optional[UserEmailClaim]:
+        ...
+
+    @overload
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
+        blake2b160: bytes,
+    ) -> Optional[UserEmailClaim]:
+        ...
+
+    @overload
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
+        email_hash: str,
+    ) -> Optional[UserEmailClaim]:
+        ...
+
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
@@ -1232,10 +1374,42 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
             .one_or_none()
         )
 
+    @overload
     @classmethod
     def get_by(
         cls,
         verification_code: str,
+        *,
+        email: str,
+    ) -> Optional[UserEmailClaim]:
+        ...
+
+    @overload
+    @classmethod
+    def get_by(
+        cls,
+        verification_code: str,
+        *,
+        blake2b160: bytes,
+    ) -> Optional[UserEmailClaim]:
+        ...
+
+    @overload
+    @classmethod
+    def get_by(
+        cls,
+        verification_code: str,
+        *,
+        email_hash: str,
+    ) -> Optional[UserEmailClaim]:
+        ...
+
+    @classmethod
+    def get_by(
+        cls,
+        verification_code: str,
+        *,
+        email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
     ) -> Optional[UserEmailClaim]:
@@ -1243,7 +1417,9 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
             cls.query.join(EmailAddress)
             .filter(
                 cls.verification_code == verification_code,
-                EmailAddress.get_filter(blake2b160=blake2b160, email_hash=email_hash),
+                EmailAddress.get_filter(
+                    email=email, blake2b160=blake2b160, email_hash=email_hash
+                ),
             )
             .one_or_none()
         )
@@ -1486,9 +1662,33 @@ class UserExternalId(BaseMixin, db.Model):
             service=self.service, username=self.username, user=repr(self.user)[1:-1]
         )
 
+    @overload
     @classmethod
     def get(
-        cls, service: str, userid: Optional[str] = None, username: Optional[str] = None
+        cls,
+        service: str,
+        *,
+        userid: str,
+    ) -> Optional[UserExternalId]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        service: str,
+        *,
+        username: str,
+    ) -> Optional[UserExternalId]:
+        ...
+
+    @classmethod
+    def get(
+        cls,
+        service: str,
+        *,
+        userid: Optional[str] = None,
+        username: Optional[str] = None,
     ) -> Optional[UserExternalId]:
         """
         Return a UserExternalId with the given service and userid or username.

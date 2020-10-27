@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
-from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple, Union, overload
 import urllib.parse
 
 from sqlalchemy.ext.declarative import declared_attr
@@ -218,7 +218,9 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             perms.add('new-resource')
         return perms
 
-    def authtoken_for(self, user: User, user_session: Optional[UserSession] = None):
+    def authtoken_for(
+        self, user: User, user_session: Optional[UserSession] = None
+    ) -> Optional[AuthToken]:
         """
         Return the authtoken for this user and client.
 
@@ -228,8 +230,9 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             return AuthToken.get_for(auth_client=self, user=user)
         elif user_session and user_session.user == user:
             return AuthToken.get_for(auth_client=self, user_session=user_session)
+        return None
 
-    def allow_login_for(self, actor: User):
+    def allow_login_for(self, actor: User) -> bool:
         if self.allow_any_login:
             return True
         if self.user:
@@ -240,8 +243,20 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
                 return True
         return False
 
+    @overload
     @classmethod
-    def get(cls, buid: str = None, namespace: str = None):
+    def get(cls, *, buid: str) -> Optional[AuthClient]:
+        ...
+
+    @overload
+    @classmethod
+    def get(cls, *, namespace: str) -> Optional[AuthClient]:
+        ...
+
+    @classmethod
+    def get(
+        cls, *, buid: Optional[str] = None, namespace: Optional[str] = None
+    ) -> Optional[AuthClient]:
         """
         Return a AuthClient identified by its client buid or namespace. Only returns active clients.
 
@@ -553,10 +568,23 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         )
         return query.one_or_none()
 
+    @overload
+    @classmethod
+    def get_for(cls, auth_client: AuthClient, *, user: User) -> Optional[AuthToken]:
+        ...
+
+    @overload
+    @classmethod
+    def get_for(
+        cls, auth_client: AuthClient, *, user_session: UserSession
+    ) -> Optional[AuthToken]:
+        ...
+
     @classmethod
     def get_for(
         cls,
-        auth_client: AuthToken,
+        auth_client: AuthClient,
+        *,
         user: Optional[User] = None,
         user_session: Optional[UserSession] = None,
     ) -> Optional[AuthToken]:
