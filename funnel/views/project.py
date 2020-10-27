@@ -7,6 +7,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -738,12 +739,12 @@ class ProjectView(
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2', json=True)
+    @render_with('project_comments.html.jinja2')
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
         if request_is_xhr():
-            return {'comments': comments}
+            return jsonify({'comments': comments})
         else:
             commentform = CommentForm(model=Comment)
             return {
