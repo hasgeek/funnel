@@ -1,6 +1,6 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 {% from "baseframe/mui/forms.html.jinja2" import renderform, ajaxform, widget_ext_scripts, widgetscripts %}
-<div class="modal__inner">
+<div class="modal__inner img-upload-modal">
   {% block content %}
     <div class="modal__header">
       <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times', icon_size='title') }}</a>
@@ -13,16 +13,7 @@
     {%- endif %}
     <div class="modal__body modal__body--form">
       {% block modalform %}
-        <div role="tabpanel">
-          <ul class="mui-tabs__bar" role="tablist">
-            <li role="presentation" class="mui--is-active">
-              <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-1">Link</a>
-            </li>
-          </ul>
-          <div role="tabpanel" class="mui-tabs__pane mui--is-active" id="pane-justified-1">
-            {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action) }}
-          </div>
-        </div>
+        {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action) }}
       {% endblock %}
     </div>
     {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
