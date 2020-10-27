@@ -3435,7 +3435,9 @@ a.loginbutton.hidden,
   align-items: baseline;
   margin: 16px 0 0;
   padding: 0 16px;
-  justify-content: space-between;
+}
+.project-banner .project-banner__footer .bookmark {
+  padding-right: 8px;
 }
 .project-banner .project-banner__footer .bookmark a {
   text-decoration: none !important;
@@ -4306,7 +4308,7 @@ a.loginbutton.hidden,
   width: 100%;
 }
 .comment .comment__header button {
-  vertical-align: middle;
+  vertical-align: bottom;
 }
 .comment .comment__header .mui-btn--nostyle + .mui-btn--nostyle {
   margin-left: 0;
@@ -4351,6 +4353,20 @@ a.loginbutton.hidden,
 .comment .comment__body .comment--children {
   padding-left: 8px;
   word-break: break-word;
+}
+.comment
+  .comment__body
+  .js-comment-form
+  > .comment__body__links.link-icon:first-child {
+  padding-left: 0;
+}
+.comment
+  .comment__body
+  .js-comment-form
+  .comment__body__links.link-icon
+  .fa5-icon--aligntop {
+  position: relative;
+  top: -1px;
 }
 .comment .comment__body:hover {
   border-left: 1px solid #f06a5e;
@@ -4415,6 +4431,7 @@ a.loginbutton.hidden,
     width: 12px;
     height: 12px;
     margin-right: 8px;
+    vertical-align: middle;
   }
 }
 .proposal-list-header {
