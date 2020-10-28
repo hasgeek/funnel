@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Optional
 
 from flask import abort, flash, redirect, request, session, url_for
 import itsdangerous.exc
@@ -21,6 +22,7 @@ from ..models import (
 )
 from ..serializers import token_serializer
 from ..transports import platform_transports
+from ..typing import RenderWith
 from .helpers import metarefresh_redirect, retrieve_cached_token, validate_rate_limit
 from .login_session import discard_temp_token, requires_login
 
@@ -50,7 +52,7 @@ class AccountNotificationView(ClassView):
     @route('', endpoint='notification_preferences')
     @requires_login
     @render_with('notification_preferences.html.jinja2')
-    def notification_preferences(self):
+    def notification_preferences(self) -> RenderWith:
         main_preferences = current_auth.user.main_notification_preferences
         user_preferences = current_auth.user.notification_preferences
         preferences = {
@@ -115,7 +117,7 @@ class AccountNotificationView(ClassView):
     @route('set', endpoint='set_notification_preference', methods=['POST'])
     @requires_login
     @render_with(json=True)
-    def set_notification_preference(self):
+    def set_notification_preference(self) -> RenderWith:
         """Set one notification preference."""
         form = SetNotificationPreferenceForm()
         del form.form_nonce
@@ -163,7 +165,7 @@ class AccountNotificationView(ClassView):
         methods=['POST'],
         endpoint='notification_unsubscribe_auto',
     )
-    def unsubscribe_auto(self, token):
+    def unsubscribe_auto(self, token: str):
         """Implement RFC 8058 one-click auto unsubscribe for email transport."""
         # TODO: Merge this into the other handler. Unsubscribe first, then ask the user
         # if they'd like to resubscribe
@@ -180,10 +182,24 @@ class AccountNotificationView(ClassView):
             return redirect(url_for('notification_preferences'), code=303)
 
         user = User.get(buid=payload['buid'])
+        if not user:
+            app.logger.error(
+                "Auto unsubscribe view cannot find user with buid %s", payload['buid']
+            )
+            # We can't use `render_message` here because the unsubscribe token is still
+            # in the URL
+            flash(_("This unsubscribe link is for a non-existent user"), 'error')
+            return redirect(url_for('index'), code=303)
         # Check transport again in case this endpoint is extended to other transports
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
-            email_address.mark_active()
+            if not email_address:
+                app.logger.error(
+                    "Auto unsubscribe view cannot find email address with hash %s",
+                    payload['hash'],
+                )
+            else:
+                email_address.mark_active()
         user.notification_preferences[payload['notification_type']].set_transport(
             payload['transport'], False
         )
@@ -212,7 +228,9 @@ class AccountNotificationView(ClassView):
         endpoint='notification_unsubscribe_do',
     )
     @requestargs(('cookietest', getbool))
-    def unsubscribe(self, token, token_type, cookietest=False):
+    def unsubscribe(
+        self, token: str, token_type: Optional[str], cookietest: bool = False
+    ):
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.
 
@@ -342,10 +360,24 @@ class AccountNotificationView(ClassView):
         # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
         user = User.get(buid=payload['buid'])
+        if not user:
+            app.logger.error(
+                "Unsubscribe view cannot find user with buid %s", payload['buid']
+            )
+            return render_message(
+                title=_("Unknown user account"),
+                message=_("This unsubscribe link is for a non-existent user"),
+            )
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
-            email_address.mark_active()
-            db.session.commit()
+            if not email_address:
+                app.logger.error(
+                    "Unsubscribe view cannot find email address with hash %s",
+                    payload['hash'],
+                )
+            else:
+                email_address.mark_active()
+                db.session.commit()
         # TODO: Add active status for phone numbers and check here
 
         # Step 7. Ask the user to confirm unsubscribe. Do not unsubscribe on a GET

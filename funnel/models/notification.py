@@ -532,7 +532,7 @@ class PreviewNotification:
         self.fragment = fragment
         self.fragment_uuid = fragment.uuid
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str):
         """Get an attribute."""
         return getattr(self.cls, attr)
 
@@ -540,20 +540,22 @@ class PreviewNotification:
 class UserNotificationMixin:
     """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
 
+    notification: Notification
+
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
-    def notification_type(self):
+    def notification_type(self) -> str:
         return self.notification.type
 
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
-    def document(self):
+    def document(self) -> Optional[db.Model]:
         """Document that this notification is for."""
         return self.notification.document
 
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
-    def fragment(self):
+    def fragment(self) -> Optional[db.Model]:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
