@@ -1,7 +1,10 @@
+from types import SimpleNamespace
+
 from sqlalchemy.exc import StatementError
 
 import pytest
 
+from funnel.models import ImgeeType, db
 from funnel.models.helpers import add_to_class, reopen, valid_name, valid_username
 
 
@@ -146,11 +149,21 @@ def test_add_to_class():
             pass
 
 
-def test_imgeetype(test_client, test_db):
+@pytest.fixture(scope='session')
+def image_models():
+    class MyImageModel(db.Model):
+        id = db.Column(db.Integer, primary_key=True)  # NOQA: A003
+        image_url = db.Column(ImgeeType)
+
+    db.create_all()
+    return SimpleNamespace(**locals())
+
+
+def test_imgeetype(test_client, test_db, image_models):
     valid_url = "https://images.example.com/embed/file/randomimagehash"
     invalid_url = "https://example.com/embed/file/randomimagehash"
 
-    m1 = test_db.MyImageModel(
+    m1 = image_models.MyImageModel(
         image_url=invalid_url,
     )
     test_db.session.add(m1)
@@ -158,7 +171,7 @@ def test_imgeetype(test_client, test_db):
         test_db.session.commit()
     test_db.session.rollback()
 
-    m2 = test_db.MyImageModel(
+    m2 = image_models.MyImageModel(
         image_url=valid_url,
     )
     test_db.session.add(m2)
