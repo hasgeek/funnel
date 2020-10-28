@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import Iterable, Optional, Set
 
+from sqlalchemy.orm import Query as BaseQuery
+
 from baseframe import __
-from coaster.sqlalchemy import StateManager, auto_init_default, with_roles
+from coaster.sqlalchemy import Query, StateManager, auto_init_default, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -197,7 +199,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         self.voteset = Voteset(settype=SET_TYPE.UPDATE)
         self.commentset = Commentset(settype=SET_TYPE.UPDATE)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Update` as a string."""
         return '<Update "{title}" {uuid_b58}>'.format(
             title=self.title, uuid_b58=self.uuid_b58
@@ -205,12 +207,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def visibility_label(self):
+    def visibility_label(self) -> str:
         return self.visibility_state.label.title
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def state_label(self):
+    def state_label(self) -> str:
         return self.state.label.title
 
     state.add_conditional_state(
@@ -231,7 +233,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @state.transition(state.DRAFT, state.PUBLISHED)
-    def publish(self, actor):
+    def publish(self, actor: User) -> bool:
         first_publishing = False
         self.published_by = actor
         if self.published_at is None:
@@ -245,12 +247,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @state.transition(state.PUBLISHED, state.DRAFT)
-    def undo_publish(self):
+    def undo_publish(self) -> None:
         pass
 
     @with_roles(call={'creator', 'editor'})
     @state.transition(None, state.DELETED)
-    def delete(self, actor):
+    def delete(self, actor: User) -> None:
         if self.state.UNPUBLISHED:
             # If it was never published, hard delete it
             db.session.delete(self)
@@ -261,27 +263,27 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(call={'editor'})
     @state.transition(state.DELETED, state.DRAFT)
-    def undo_delete(self):
+    def undo_delete(self) -> None:
         self.deleted_by = None
         self.deleted_at = None
 
     @with_roles(call={'editor'})
     @visibility_state.transition(visibility_state.RESTRICTED, visibility_state.PUBLIC)
-    def make_public(self):
+    def make_public(self) -> None:
         pass
 
     @with_roles(call={'editor'})
     @visibility_state.transition(visibility_state.PUBLIC, visibility_state.RESTRICTED)
-    def make_restricted(self):
+    def make_restricted(self) -> None:
         pass
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def is_restricted(self):
+    def is_restricted(self) -> bool:
         return bool(self.visibility_state.RESTRICTED)
 
     @is_restricted.setter
-    def is_restricted(self, value):
+    def is_restricted(self, value: bool) -> None:
         if value and self.visibility_state.PUBLIC:
             self.make_restricted()
         elif not value and self.visibility_state.RESTRICTED:
@@ -289,7 +291,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def is_currently_restricted(self):
+    def is_currently_restricted(self) -> bool:
         return self.is_restricted and not self.current_roles.reader
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
@@ -303,7 +305,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         return roles
 
     @classmethod
-    def all_published_public(cls):
+    def all_published_public(cls) -> Query:
         return cls.query.join(Project).filter(
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )
@@ -316,21 +318,23 @@ auto_init_default(Update._state)
 
 @reopen(Project)
 class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+    updates: BaseQuery
+
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def published_updates(self):
+    def published_updates(self) -> BaseQuery:
         return self.updates.filter(Update.state.PUBLISHED).order_by(
             Update.is_pinned.desc(), Update.published_at.desc()
         )
 
     @with_roles(read={'editor'})  # type: ignore[misc]
     @property
-    def draft_updates(self):
+    def draft_updates(self) -> BaseQuery:
         return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def pinned_update(self):
+    def pinned_update(self) -> Optional[Update]:
         return (
             self.updates.filter(Update.state.PUBLISHED, Update.is_pinned.is_(True))
             .order_by(Update.published_at.desc())
