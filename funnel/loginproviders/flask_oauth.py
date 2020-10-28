@@ -1,3 +1,5 @@
+# type: ignore
+# flake8: noqa
 """
     flask_oauth
     ~~~~~~~~~~~
