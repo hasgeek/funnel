@@ -177,3 +177,5 @@ def test_imgeetype(test_client, test_db, image_models):
     test_db.session.commit()
     assert m2.image_url.url == valid_url
     assert m2.image_url.resize(120, 100).url == valid_url + "?size=120x100"
+    # Confirm resizing did not mutate the URL
+    assert m2.image_url.url == valid_url
