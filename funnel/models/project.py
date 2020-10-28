@@ -405,7 +405,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super(Project, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROJECT)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)

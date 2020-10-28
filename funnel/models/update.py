@@ -192,7 +192,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         'related': {'name', 'title', 'urls'},
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.UPDATE)
         self.commentset = Commentset(settype=SET_TYPE.UPDATE)

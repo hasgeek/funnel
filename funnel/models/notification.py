@@ -369,12 +369,14 @@ class Notification(NoIdMixin, db.Model):
     #: Registry of per-class renderers ``{cls_type: CustomNotificationView}``
     renderers: Dict[str, Type] = {}  # Can't import RenderNotification from views here
 
-    def __init__(self, document=None, fragment=None, **kwargs):
+    def __init__(self, document=None, fragment=None, **kwargs) -> None:
         if document:
             if not isinstance(document, self.document_model):
                 raise TypeError(f"{document!r} is not of type {self.document_model!r}")
             kwargs['document_uuid'] = document.uuid
         if fragment:
+            if self.fragment_model is None:
+                raise TypeError(f"{self.__class__} is not expecting a fragment")
             if not isinstance(fragment, self.fragment_model):
                 raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
             kwargs['fragment_uuid'] = fragment.uuid
@@ -522,7 +524,7 @@ class PreviewNotification:
         NotificationFor(PreviewNotification(NotificationType), user)
     """
 
-    def __init__(self, cls, document, fragment=None):
+    def __init__(self, cls, document, fragment=None) -> None:
         self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
         self.document = document
@@ -941,7 +943,7 @@ class NotificationFor(UserNotificationMixin):
     identity = read_at = revoked_at = None
     is_revoked = is_read = False
 
-    def __init__(self, notification, user):
+    def __init__(self, notification, user) -> None:
         self.notification = notification
         self.eventid = notification.eventid
         self.notification_id = notification.id
@@ -1012,7 +1014,7 @@ class NotificationPreferences(BaseMixin, db.Model):
         }
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if self.user:
             self.set_defaults()

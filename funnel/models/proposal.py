@@ -312,7 +312,7 @@ class Proposal(
         'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super(Proposal, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)

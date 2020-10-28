@@ -470,7 +470,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         db.synonym('_user', descriptor=user), read={'owner'}, grants={'owner'}
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.token = make_buid()
         if self._user:

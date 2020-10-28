@@ -12,7 +12,7 @@ __all__ = ['Boxoffice']
 class Boxoffice(object):
     """Interface that enables data retrieval from Boxoffice."""
 
-    def __init__(self, access_token, base_url=None):
+    def __init__(self, access_token, base_url=None) -> None:
         self.access_token = access_token
         if not base_url:
             self.base_url = current_app.config['BOXOFFICE_SERVER']

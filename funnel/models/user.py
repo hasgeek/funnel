@@ -221,7 +221,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     primary_email: Optional[UserEmail]
     primary_phone: Optional[UserPhone]
 
-    def __init__(self, password: str = None, **kwargs):
+    def __init__(self, password: str = None, **kwargs) -> None:
         self.password = password
         super(User, self).__init__(**kwargs)
 
@@ -789,7 +789,7 @@ class DuckTypeUser(RoleMixin):
     def __bool__(self) -> bool:
         return False
 
-    def __init__(self, representation: str):
+    def __init__(self, representation: str) -> None:
         self.fullname = self.title = self.pickername = representation
 
     def __str__(self) -> str:
@@ -878,7 +878,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 
-    def __init__(self, owner: User, *args, **kwargs):
+    def __init__(self, owner: User, *args, **kwargs) -> None:
         super(Organization, self).__init__(*args, **kwargs)
         db.session.add(
             OrganizationMembership(
@@ -1112,7 +1112,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
 
-    def __init__(self, user: User, **kwargs):
+    def __init__(self, user: User, **kwargs) -> None:
         email = kwargs.pop('email', None)
         if email:
             kwargs['email_address'] = EmailAddress.add_for(user, email)
@@ -1276,7 +1276,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint('user_id', 'email_address_id'),)
 
-    def __init__(self, user: User, **kwargs):
+    def __init__(self, user: User, **kwargs) -> None:
         email = kwargs.pop('email', None)
         if email:
             kwargs['email_address'] = EmailAddress.add_for(user, email)
@@ -1464,7 +1464,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
 
-    def __init__(self, phone, **kwargs):
+    def __init__(self, phone, **kwargs) -> None:
         super(UserPhone, self).__init__(**kwargs)
         self._phone = phone
 
@@ -1548,7 +1548,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
 
     __table_args__ = (db.UniqueConstraint('user_id', 'phone'),)
 
-    def __init__(self, phone, **kwargs):
+    def __init__(self, phone, **kwargs) -> None:
         super(UserPhoneClaim, self).__init__(**kwargs)
         self.verification_code = newpin()
         self._phone = phone

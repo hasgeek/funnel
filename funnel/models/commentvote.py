@@ -54,7 +54,7 @@ class Voteset(BaseMixin, db.Model):
     settype = db.Column('type', db.Integer, nullable=True)
     count = cached(db.Column(db.Integer, default=0, nullable=False))
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super(Voteset, self).__init__(**kwargs)
         self.count = 0
 
@@ -241,7 +241,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         db.Index('ix_comment_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super(Comment, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
 
