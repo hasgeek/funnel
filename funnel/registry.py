@@ -207,7 +207,7 @@ class LoginProvider(object):
         priority: bool = False,
         icon: Optional[str] = None,
         **kwargs,
-    ):
+    ) -> None:
         self.name = name
         self.title = title
         self.at_login = at_login

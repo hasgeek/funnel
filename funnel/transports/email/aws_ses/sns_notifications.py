@@ -82,7 +82,7 @@ class SnsValidator:
         topics: Sequence[str] = (),
         cert_regex: Pattern[str] = CERT_URL_REGEX,
         sig_version: str = SIGNATURE_VERSION,
-    ):
+    ) -> None:
         self.topics = topics
         self.cert_regex = cert_regex
         self.sig_version = sig_version
