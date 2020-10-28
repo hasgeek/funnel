@@ -1144,7 +1144,6 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     @classmethod
     def get(
         cls,
-        *,
         email: str,
     ) -> Optional[UserEmail]:
         ...
@@ -1170,8 +1169,8 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     @classmethod
     def get(
         cls,
-        *,
         email: Optional[str] = None,
+        *,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
     ) -> Optional[UserEmail]:
