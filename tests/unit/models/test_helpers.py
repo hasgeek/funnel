@@ -155,7 +155,6 @@ def image_models():
         id = db.Column(db.Integer, primary_key=True)  # NOQA: A003
         image_url = db.Column(ImgeeType)
 
-    db.create_all()
     return SimpleNamespace(**locals())
 
 
