@@ -1,5 +1,5 @@
 from textwrap import dedent
-from typing import Dict, Iterable, Optional, Set, Type
+from typing import Dict, Iterable, Optional, Set, Type, Union
 import re
 
 from sqlalchemy import DDL, event
@@ -109,11 +109,13 @@ RESERVED_NAMES: Set[str] = {
 
 
 class PasswordPolicy:
-    def __init__(self, min_length: int, min_score: int):
+    def __init__(self, min_length: int, min_score: int) -> None:
         self.min_length = min_length
         self.min_score = min_score
 
-    def test_password(self, password: str, user_inputs: Optional[Iterable] = None):
+    def test_password(
+        self, password: str, user_inputs: Optional[Iterable] = None
+    ) -> Dict[str, Union[bool, str]]:
         result = zxcvbn(password, user_inputs)
         return {
             'is_weak': (
@@ -382,8 +384,8 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
     }
 
 
-class ImageFurl(furl):
-    def resize(self, width, height):
+class ImgeeFurl(furl):
+    def resize(self, width: int, height: int) -> furl:
         """
         Return image url with `?size=WxH` suffixed to it.
 
@@ -391,12 +393,14 @@ class ImageFurl(furl):
         :param height: Height to resize the image to
         """
         if self.url:
-            self.args['size'] = f'{width}x{height}'
+            copy = self.copy()
+            copy.args['size'] = f'{width}x{height}'
+            return copy
         return self
 
 
 class ImgeeType(UrlType):
-    url_parser = ImageFurl
+    url_parser = ImgeeFurl
 
     def process_bind_param(self, value, dialect):
         value = super(UrlType, self).process_bind_param(value, dialect)
