@@ -36,6 +36,7 @@ __all__ = [
     'deleted_user',
     'removed_user',
     'User',
+    'DuckTypeUser',
     'UserOldId',
     'Organization',
     'Team',
@@ -787,12 +788,14 @@ class DuckTypeUser(RoleMixin):
 
     #: Make obj.user from a referring object falsy
     def __bool__(self) -> bool:
+        """Represent boolean state."""
         return False
 
     def __init__(self, representation: str) -> None:
         self.fullname = self.title = self.pickername = representation
 
     def __str__(self) -> str:
+        """Represent user account as a string."""
         return self.pickername
 
 

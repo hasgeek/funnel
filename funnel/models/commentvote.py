@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, List, Optional, Set, Union
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from flask import current_app
+from flask import Markup, current_app
 
 from baseframe import _, __
-from coaster.sqlalchemy import StateManager, cached, with_roles
+from coaster.sqlalchemy import RoleAccessProxy, StateManager, cached, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
 from .helpers import add_search_trigger, reopen
-from .user import User, deleted_user, removed_user
+from .user import DuckTypeUser, User, deleted_user, removed_user
 
 __all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
 
@@ -58,7 +58,7 @@ class Voteset(BaseMixin, db.Model):
         super(Voteset, self).__init__(**kwargs)
         self.count = 0
 
-    def vote(self, user, votedown=False):
+    def vote(self, user: User, votedown: bool = False) -> Vote:
         voteob = Vote.query.filter_by(user=user, voteset=self).first()
         if not voteob:
             voteob = Vote(user=user, voteset=self, votedown=votedown)
@@ -70,13 +70,13 @@ class Voteset(BaseMixin, db.Model):
             voteob.votedown = votedown
         return voteob
 
-    def cancelvote(self, user):
+    def cancelvote(self, user: User) -> None:
         voteob = Vote.query.filter_by(user=user, voteset=self).first()
         if voteob:
             self.count += 1 if voteob.votedown else -1
             db.session.delete(voteob)
 
-    def getvote(self, user):
+    def getvote(self, user: User) -> Optional[Vote]:
         return Vote.query.filter_by(user=user, voteset=self).first()
 
 
@@ -135,13 +135,13 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         'related': {'uuid_b58', 'url_name_uuid_b58'},
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super(Commentset, self).__init__(**kwargs)
         self.count = 0
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def parent(self):
+    def parent(self) -> Optional[db.Model]:
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         parent = None  # project or proposal object
         if self.project is not None:
@@ -152,7 +152,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def parent_type(self):
+    def parent_type(self) -> Optional[str]:
         parent = self.parent
         if parent:
             return parent.__tablename__
@@ -247,15 +247,17 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
-    def current_access_replies(self):
+    def current_access_replies(self) -> List[RoleAccessProxy]:
         return [
             reply.current_access(datasets=('json', 'related'))
             for reply in self.replies
             if reply.state.PUBLIC
         ]
 
-    @hybrid_property
-    def user(self):
+    user: Union[User, DuckTypeUser]
+
+    @hybrid_property  # type: ignore[no-redef]
+    def user(self) -> Union[User, DuckTypeUser]:
         return (
             deleted_user
             if self.state.DELETED
@@ -265,7 +267,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         )
 
     @user.setter  # type: ignore[no-redef]
-    def user(self, value):
+    def user(self, value: Optional[User]) -> None:
         self._user = value
 
     @user.expression  # type: ignore[no-redef]
@@ -274,8 +276,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json'})
 
-    @hybrid_property
-    def message(self):
+    message: Union[str, Markup]
+
+    @hybrid_property  # type: ignore[no-redef]
+    def message(self) -> Union[str, Markup]:
         return (
             _('[deleted]')
             if self.state.DELETED
@@ -285,7 +289,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         )
 
     @message.setter  # type: ignore[no-redef]
-    def message(self, value):
+    def message(self, value: str) -> None:
         self._message = value
 
     @message.expression  # type: ignore[no-redef]
@@ -296,23 +300,22 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property
-    def absolute_url(self):
+    def absolute_url(self) -> str:
         return self.url_for()
 
     @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property
-    def title(self):
+    def title(self) -> str:
         obj = self.commentset.parent
         if obj:
             return _("{user} commented on {obj}").format(
                 user=self.user.pickername, obj=obj.title
             )
-        else:
-            return _("{user} commented").format(user=self.user.pickername)
+        return _("{user} commented").format(user=self.user.pickername)
 
     @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
-    def badges(self):
+    def badges(self) -> Set[str]:
         badges = set()
         if self.commentset.project is not None:
             if 'crew' in self.commentset.project.roles_for(self._user):
@@ -325,10 +328,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         return badges
 
     @state.transition(None, state.DELETED)
-    def delete(self):
+    def delete(self) -> None:
         """Delete this comment."""
         if len(self.replies) > 0:
-            self.user = None
+            self.user = None  # type: ignore[assignment]
             self.message = ''
         else:
             if self.in_reply_to and self.in_reply_to.state.DELETED:
@@ -342,14 +345,14 @@ class Comment(UuidMixin, BaseMixin, db.Model):
                 db.session.delete(self)
 
     @state.transition(None, state.SPAM)
-    def mark_spam(self):
+    def mark_spam(self) -> None:
         """Mark this comment as spam."""
 
     @state.transition(state.VERIFIABLE, state.VERIFIED)
-    def mark_not_spam(self):
+    def mark_not_spam(self) -> None:
         """Mark this comment as not spam."""
 
-    def sorted_replies(self):
+    def sorted_replies(self) -> List[Comment]:
         return sorted(self.replies, key=lambda comment: comment.voteset.count)
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
