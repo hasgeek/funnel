@@ -3,6 +3,7 @@ from flask import render_template
 from baseframe import _, __
 
 from ...models import (
+    Project,
     Proposal,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
@@ -16,6 +17,8 @@ from ..notification import RenderNotification
 class RenderProposalReceivedNotification(RenderNotification):
     """Notify the project editor when a new proposal is submitted."""
 
+    project: Project
+    proposal: Proposal
     aliases = {'document': 'project', 'fragment': 'proposal'}
     emoji_prefix = "📥 "
     reason = __("You are receiving this because you are an editor of this project")
@@ -60,6 +63,7 @@ class RenderProposalReceivedNotification(RenderNotification):
 class RenderProposalSubmittedNotification(RenderNotification):
     """Notify the proposer that their proposal has been submitted."""
 
+    proposal: Proposal
     aliases = {'document': 'proposal'}
     emoji_prefix = "📤 "
     reason = __("You are receiving this because you have submitted this proposal")
