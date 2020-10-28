@@ -2,7 +2,6 @@ import pytest
 
 from funnel import app
 from funnel.models import (
-    ImgeeType,
     Label,
     Organization,
     OrganizationMembership,
@@ -74,12 +73,6 @@ def test_client():
 
 @pytest.fixture(scope='module')
 def test_db_structure(test_client):
-    class MyImageModel(db.Model):
-        id = db.Column(db.Integer, primary_key=True)  # NOQA: A003
-        image_url = db.Column(ImgeeType)
-
-    db.MyImageModel = MyImageModel
-
     # Create all database tables
     db.create_all()
     yield db
