@@ -666,7 +666,7 @@
             {% endif %}
           </div>
           {%- if profile.current_roles.admin %}
-            <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" title="{% trans %}Add cover photo url{% endtrans %}" aria-label="{% trans %}Add cover photo url{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">Add cover photo url</span></a>
+            <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" title="{% trans %}Add cover photo{% endtrans %}" aria-label="{% trans %}Add cover photo{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">Add cover photo</span></a>
           {% endif %}
           <div class="profile__logo">
             {%- if profile.logo_url.url %}

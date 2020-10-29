@@ -16,8 +16,9 @@ describe('Profile admin roles', function () {
     cy.get('button').contains('Save changes').click();
     // cy.get('[data-cy="add-banner"]').click();
     // cy.get('#banner_image_url').type(profile.banner_url);
-    cy.get('button').contains('Save banner').click();
+    // cy.get('button').contains('Save banner').click();
     // cy.get('img[data-cy="profile-banner-img"]').should('be.visible');
+    cy.get('[data-cy="add-banner"]').should('exist');
 
     cy.get('a[data-cy="admin-dropdown"]:visible').click();
     cy.wait(1000);
