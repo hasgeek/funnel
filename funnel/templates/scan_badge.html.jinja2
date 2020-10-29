@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
+{%- from "js/badge.js" import scan_checkin_template %}
 {% from "baseframe/forms.html" import renderfield %}
 {% block title %}{{ ticket_event.title }}{% endblock %}
 {% block pageheaders %}
@@ -17,62 +18,13 @@
 {%- endblock %}
 
 {% block basecontent %}
-  <div id="scan-badge-wrapper">
-    {% raw %}
-      <script id='scan-badge-template' type='text/ractive'>
-        <div class="scanner-wrapper scanner-wrapper--center">
-          {{#if error}}
-            <p class="mui--text-danger mui--text-subhead page-content">{{ error }}</p>
-          {{/if}}
-          <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
-          {{#if video}}<faicon icon='expand' baseline=false css_class='scanner-wrapper__badge--icon'></faicon> {{/if}}
-          {{#if video}}
-          <div>
-            <div class="mui-select camera-dropdown">
-              <select value='{{selectedCamera}}' class="mui--d-inlineblock">
-                <option value=''>Select camera</option>
-                {{#cameras}}
-                  <option value='{{value}}'>{{label}}</option>
-                {{/cameras}}
-              </select>
-            </div>
-            <p><button type="button" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="switchCamera(event)">Switch camera</button></p>
-          </div>
-          {{/if}}
-        </div>
-
-        {{#if showModal}}
-        <div id="status-msg" class="modal" tabindex="-1" role="dialog">
-          <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-action="close contact modal" on-click="closeModal(event)" aria-label="{% trans %}Close{% endtrans %}"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
-            <h3 class="mui--text-title">Check in status</h3>
-          </div>
-          <div class="modal__body">
-            {{#if scanning}}
-              <h4 class="mui--text-headline mui--align-middle">Scanning <faicon icon='spinner'></faicon></h4>
-            {{elseif attendeeFound}}
-              <h4>Hello {{attendeeName}},</h4>
-              <p>Thank you for choosing to participate in {{ projectTitle }} and for being a part of this growing community.</p>
-              <p>Hasgeek</p>
-            {{else}}
-              <h4>Attendee details not found</h4>
-            {{/if}}
-            <div class="mui--text-right modal__body__btn">
-              <a href="javascript:void(0);"  data-target="close modal" on-click="closeModal(event)" class="mui-btn mui-btn--flat mui-btn--accent">Close</a>
-            </div>
-          </div>
-        </div>
-        {{/if}}
-      </script>
-    {% endraw %}
-  </div>
+  {{ scan_checkin_template() }}
 {% endblock %}
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('scan_badge')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-
       var ticketEventConfig = {
         checkinApiUrl: {{ url_for('TicketEventParticipantCheckinView_checkin_puk', profile=project.profile.name, project=project.name, ticket_event=ticket_event.name, puk='puk')|tojson }},
         wrapperId: 'scan-badge-wrapper',

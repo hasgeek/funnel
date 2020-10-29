@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
+{%- from "js/event_checkin.js" import checkin_count, participant_list %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}{% trans %}Setup events{% endtrans %}{% endblock %}
@@ -28,14 +29,7 @@
       <h3 class="mui--text-title">{{ ticket_event.title }}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
-      <h3 class="mui--text-right" id="ticket-participants-count">
-        {% raw %}
-        <script id="ticket-participants-count-template" type="text/ractive">
-          Checked In: <span class="js-totalcheckin mui--text-title">{{ total_checkedin }}</span> |
-          Total: <span class="js-total mui--text-title">{{ total_participants }}</span>
-        </script>
-        {% endraw %}
-      </h3>
+      {{ checkin_count() }}
     </div>
     <div class="grid__col-xs-12 grid__col-md-3">
       <form class="search-participant mui-form mui-form--margins">
@@ -73,50 +67,7 @@
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="ticket-participants-table-content">
-          {% raw %}
-          <script id='ticket-participant-row' type='text/ractive'>
-          {{#each ticket_participants}}
-            <tr id="p-{{ puuid_b58 }}">
-              <td class='js-searchable' data-th="Name" data-cy="ticket-participant">{{#if has_user }}<faicon icon='user-check' icon_size='subhead' baseline=true css_class='mui--text-success fa-icon--margin'></faicon>{{/if}}{{ fullname }}</td>
-              <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
-              <td class='js-searchable' data-th="Email">{{ email }}</td>
-              <td class='js-searchable' data-th="Company">{{ company }}</td>
-              <td class='buttongrp-column'>
-                <ul class="mui-list--unstyled">
-                  {{#if isUsher || isConcierge}}
-                  <li>
-                    <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-badge">Show badge</a>
-                  </li>
-                  <li>
-                    <a href="{{ label_badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-label-badge">Show Label Badge</a>
-                  </li>
-                  {{/if}}
-                  <li>
-                    <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ puuid_b58 }}">
-                      <div style="display:none;">
-                        <input id="csrf_token" name="csrf_token" value="{{ getCsrfToken() }}" type="hidden">
-                      </div>
-                      <input type="hidden" name="puuid_b58" value="{{ puuid_b58 }}">
-                      {{#if checked_in}}
-                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="Cancel check-in" data-cy="cancel-checkin">Cancel Check-in  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
-                      {{else}}
-                        <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="Check-in" data-cy="checkin">Check-in {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
-                      {{/if}}
-                    </form>
-                  </li>
-                  {{#if isConcierge}}
-                  <li>
-                    <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" rel="noopener" data-cy="edit-attendee-details">Edit participant details</a>
-                  </li>
-                  {{/if}}
-                </ul>
-              </td>
-            </tr>
-          {{/each}}
-          </script>
-          {% endraw %}
-        </tbody>
+        {{ participant_list() }}
       </table>
     </div>
   </div>

@@ -1,0 +1,128 @@
+{% macro membership_template() %}
+  {% raw %}
+    <div id="manage-membership" v-cloak>
+      <div class="membership-wrapper" v-if="ready">
+        <div class="mui--clearfix">
+          <div class="btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
+            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="{{ gettext('Add new member') }}" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</p></button>
+          </div>
+          <div class="membership-wrapper--half" v-if="members">
+            <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
+              <div class="mui-textfield">
+                <input class="field-search mui--text-light" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
+                <faicon :icon="'search'" :baseline=false :css_class="'search-form__icon'"></faicon>
+              </div>
+            </form>
+          </div>
+        </div>
+         <hr class="separator">
+        <div v-if="members">
+          <div class="mui--clearfix membership-wrapper__filter">
+            <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">{{ gettext('members') }}</span><span v-else>{{ gettext('member') }}</span></p>
+            <div class="mui--pull-right">
+               <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Name') }}</button>
+                <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Role') }}</button>
+            </div>
+          </div>
+          <div v-if="view == 'role'" class="membership-wrapper__members">
+            <div v-for="role in roles">
+              <p class="mui--text-subhead membership-wrapper__members__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }}
+                <faicon :icon="'angle-right'" :icon_size="'title'" :css_class="'mui--pull-right collapsible__icon'" v-if="!role.showMembers"></faicon>
+                <faicon :icon="'angle-down'" :icon_size="'title'" :css_class="'mui--pull-right collapsible__icon'" v-else></faicon>
+              </p>
+              <transition name="slide-fade">
+                <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
+                  <div v-if="isUserProfileAdmin">
+                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" aria-label="{{ gettext('Edit') }}" role="dialog" v-if="member[role.roleKey]">
+                      <member :member="member"></member>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user membership-wrapper__members__list--viewonly" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" :aria-label="member.user.fullname" v-if="member[role.roleKey]">
+                      <member :member="member"></member>
+                    </div>
+                  </div>
+                </div>
+              </transition>
+            </div>
+          </div>
+          <div v-if="view == 'name'" class="membership-wrapper__members">
+            <div v-if="isUserProfileAdmin">
+              <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" aria-label="{{ gettext('Edit') }}" role="dialog">
+                <member :member="member"></member>
+              </div>
+            </div>
+            <div v-else>
+              <div class="membership-wrapper__members__list membership-wrapper__members__list--viewonly user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" :aria-label="member.user.fullname">
+                <member :member="member"></member>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="no-member" v-else>
+          <p class="mui--text-center">
+            <faicon :icon="'user-friends'" :css_class="'no-member__icon'"></faicon>
+          </p>
+          <p class="mui--text-body2 mui--text-bold mui--text-center zero-bottom-margin">{{ gettext('No members found') }}</p>
+          <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">{{ gettext('Members you add will appear here…') }}</p>
+        </div>
+        <div id="member-form" class="modal modal--form" :class="[activeMember ? 'modal--form--edit' : '']">
+          <a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{{ gettext('Close') }}'" rel="modal:close"  data-action="close modal">
+            <faicon :icon="'times'" :icon_size="'title'"></faicon>
+          </a>
+          <component :is="Form"></component>
+          <div class="modal--form__action-box mui--bg-accent">
+            <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
+            <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">{{ gettext('Cancel') }}</button>
+          </div>
+          <div v-if="activeMember" class="modal--form__action-box--revoke mui--text-center">
+            <button @click="fetchForm($event, deleteURL)" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-light mui--text-bold" data-cy-btn="revoke">{{ gettext('Remove this member') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endraw %}
+{%- endmacro %}
+
+{% macro profile_member_template() %}
+  {% raw %}
+    <script type="text/x-template" id="member-template">
+      <div class="member mui--clearfix">
+        <div class="user__box mui--pull-left">
+          <useravatar :user='member.user' :addprofilelink=true></useravatar>
+          <div class="user__box__header">
+            <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+            <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
+          </div>
+        </div>
+        <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
+          <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Owner') }}</li>
+          <li v-else class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Admin') }}</li>
+        </ul>
+      </div>
+    </script>
+  {% endraw %}
+{%- endmacro %}
+
+{% macro project_member_template() %}
+  {% raw %}
+    <script type="text/x-template" id="member-template">
+      <div class="member mui--clearfix">
+        <div class="user__box mui--pull-left">
+          <img class="user__box__gravatar" :src="member.user.avatar" v-if="member.user.avatar"/>
+          <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(member.user.fullname) }}</div>
+          <div class="user__box__header">
+            <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+            <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
+          </div>
+        </div>
+        <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
+          <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Editor') }}</li>
+          <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Concierge') }}</li>
+          <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Usher') }}</li>
+          <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">{{ ngettext('+ %(num)d more role', '+ %(num)d more roles', rolesCount(member), {num:rolesCount(member)}) }}</li>
+        </ul>
+      </div>
+    </script>
+  {% endraw %}
+{%- endmacro %}

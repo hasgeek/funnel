@@ -111,6 +111,8 @@ const ParticipantTable = {
       data: {
         total_participants: '',
         total_checkedin: '',
+        gettext: window.babel.gettext,
+        ngettext: window.babel.ngettext,
       },
     });
 
@@ -131,6 +133,8 @@ const ParticipantTable = {
         getCheckinUrl() {
           return checkinUrl;
         },
+        gettext: window.babel.gettext,
+        ngettext: window.babel.ngettext,
       },
       components: { faicon },
       handleCheckIn(event, checkin) {

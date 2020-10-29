@@ -204,6 +204,7 @@
 {%- endblock %}
 
 {% block layoutscripts %}
+  <script src="{{ url_for('babel_catalog') }}"></script>
   {% assets "js_jquerytruncate" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
