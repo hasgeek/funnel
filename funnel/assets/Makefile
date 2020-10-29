@@ -8,4 +8,5 @@ assetsonly:
 	npm run build
 
 babel:
-	find ../translations -iname '*.po' | xargs -I % sh -c './node_modules/.bin/po2json --pretty % `dirname %`/`basename % .po`.json'
+	mkdir -p ../static/translations
+	find ../translations -iname '*.po' | xargs -I % sh -c './node_modules/.bin/po2json --pretty % ../static/translations/`basename % .po`.json'
