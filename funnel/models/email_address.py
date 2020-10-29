@@ -650,6 +650,9 @@ class EmailAddressMixin:
     implements archived rows, such as in memberships.
     """
 
+    # Provided by subclasses
+    __tablename__: str
+
     #: This class has an optional dependency on EmailAddress
     __email_optional__: bool = True
     #: This class has a unique constraint on the fkey to EmailAddress
@@ -660,7 +663,9 @@ class EmailAddressMixin:
     #: considered exclusive to this owner and may not be used by any other owner
     __email_is_exclusive__: bool = False
 
-    @declared_attr
+    email_address_id: int
+
+    @declared_attr  # type: ignore[no-redef]
     def email_address_id(cls):
         return db.Column(
             None,
@@ -670,7 +675,9 @@ class EmailAddressMixin:
             index=not cls.__email_unique__,
         )
 
-    @declared_attr
+    email_address: Optional[EmailAddress]
+
+    @declared_attr  # type: ignore[no-redef]
     def email_address(cls):
         backref_name = 'used_in_' + cls.__tablename__
         EmailAddress.__backrefs__.add(backref_name)
@@ -678,7 +685,9 @@ class EmailAddressMixin:
             EmailAddress.__exclusive_backrefs__.add(backref_name)
         return db.relationship(EmailAddress, backref=backref_name)
 
-    @declared_attr
+    email: Optional[str]
+
+    @declared_attr  # type: ignore[no-redef]
     def email(cls):
         def email_get(self):
             """
@@ -716,7 +725,7 @@ class EmailAddressMixin:
         return property(fget=email_get, fset=email_set)
 
     @property
-    def email_address_reference_is_active(self):
+    def email_address_reference_is_active(self) -> bool:
         """
         Assert that the reference to an email address is valid, requiring it to be kept.
 
@@ -726,9 +735,9 @@ class EmailAddressMixin:
         return True
 
     @property
-    def transport_hash(self) -> str:
+    def transport_hash(self) -> Optional[str]:
         """Email hash using the compatibility name for notifications framework."""
-        return self.email_address.email_hash
+        return self.email_address.email_hash if self.email_address else None
 
 
 auto_init_default(EmailAddress._delivery_state)

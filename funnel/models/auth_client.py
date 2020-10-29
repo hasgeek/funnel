@@ -35,29 +35,35 @@ __all__ = [
 class ScopeMixin(object):
     __scope_null_allowed__ = False
 
-    @declared_attr
+    _scope: str
+
+    @declared_attr  # type: ignore[no-redef]
     def _scope(cls):
         return db.Column('scope', db.UnicodeText, nullable=cls.__scope_null_allowed__)
 
-    def _scope_get(self) -> Tuple:
-        if not self._scope:
-            return ()
-        else:
-            return tuple(sorted(self._scope.split()))
+    scope: Iterable[str]
 
-    def _scope_set(self, value: Union[str, Iterable]) -> None:
-        if isinstance(value, str):
-            value = [value]
-        self._scope = ' '.join(sorted(t.strip() for t in value if t))
-
-    @declared_attr
+    @declared_attr  # type: ignore[no-redef]
     def scope(cls):
-        return db.synonym('_scope', descriptor=property(cls._scope_get, cls._scope_set))
+        @property  # type: ignore[misc]  # Ignore complaint about non-method property
+        def scope(self) -> Tuple[str, ...]:
+            if not self._scope:
+                return ()
+            else:
+                return tuple(sorted(self._scope.split()))
+
+        @scope.setter
+        def scope(self, value: Union[str, Iterable]) -> None:
+            if isinstance(value, str):
+                value = [value]
+            self._scope = ' '.join(sorted(t.strip() for t in value if t))
+
+        return db.synonym('_scope', descriptor=scope)
 
     def add_scope(self, additional: Union[str, Iterable]) -> None:
         if isinstance(additional, str):
             additional = [additional]
-        self.scope = list(set(self.scope).union(set(additional)))
+        self.scope = set(self.scope).union(set(additional))
 
 
 class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):

@@ -1109,6 +1109,10 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     __email_for__ = 'user'
     __email_is_exclusive__ = True
 
+    # Tell mypy that these are not optional
+    email_address: EmailAddress
+    email: str
+
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('emails', cascade='all'))
 
@@ -1269,6 +1273,10 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     __email_unique__ = False
     __email_for__ = 'user'
     __email_is_exclusive__ = False
+
+    # Tell mypy that these are not optional
+    email_address: EmailAddress
+    email: str
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, backref=db.backref('emailclaims', cascade='all'))

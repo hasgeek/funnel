@@ -103,7 +103,7 @@ class TestClient(TestDatabaseFixture):
         key = auth_client.buid
         # scenario 1: when no key or namespace
         with self.assertRaises(TypeError):
-            models.AuthClient.get()
+            models.AuthClient.get()  # type: ignore[call-overload]
         # scenario 2: when given key
         result1 = models.AuthClient.get(buid=key)
         self.assertIsInstance(result1, models.AuthClient)
