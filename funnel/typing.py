@@ -15,9 +15,12 @@ OptionalMigratedTables = Optional[Union[List[str], Tuple[str], Set[str]]]
 RenderWithDict = Dict[str, Any]
 
 #: Return type for @render_with decorated views
-RenderWith = Union[
+ReturnRenderWith = Union[
     RenderWithDict,  # A dict
     Tuple[RenderWithDict, int],  # Dict + status code
     Tuple[RenderWithDict, int, Dict[str, str]],  # Dict + status code + headers
     Response,  # Fully formed Response object
 ]
+
+#: Return type for Flask views
+ReturnView = Union[str, Tuple[str, int], Tuple[str, int, Dict[str, str]], Response]

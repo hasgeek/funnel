@@ -22,7 +22,7 @@ from ..models import (
 )
 from ..serializers import token_serializer
 from ..transports import platform_transports
-from ..typing import RenderWith
+from ..typing import ReturnRenderWith
 from .helpers import metarefresh_redirect, retrieve_cached_token, validate_rate_limit
 from .login_session import discard_temp_token, requires_login
 
@@ -52,7 +52,7 @@ class AccountNotificationView(ClassView):
     @route('', endpoint='notification_preferences')
     @requires_login
     @render_with('notification_preferences.html.jinja2')
-    def notification_preferences(self) -> RenderWith:
+    def notification_preferences(self) -> ReturnRenderWith:
         main_preferences = current_auth.user.main_notification_preferences
         user_preferences = current_auth.user.notification_preferences
         preferences = {
@@ -117,7 +117,7 @@ class AccountNotificationView(ClassView):
     @route('set', endpoint='set_notification_preference', methods=['POST'])
     @requires_login
     @render_with(json=True)
-    def set_notification_preference(self) -> RenderWith:
+    def set_notification_preference(self) -> ReturnRenderWith:
         """Set one notification preference."""
         form = SetNotificationPreferenceForm()
         del form.form_nonce
