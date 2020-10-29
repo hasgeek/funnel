@@ -15,15 +15,11 @@ describe('Project', function () {
     cy.get('#field-description')
       .find('.CodeMirror textarea')
       .type(project.description, { force: true });
-    // cy.get('#bg_image').type(project.bg_image);
     cy.get('button').contains('Create project').click();
-    cy.location('pathname').should('contain', project.url);
 
+    cy.location('pathname').should('contain', project.url);
     cy.title().should('include', project.title);
-    // cy.get('img[data-cy="bg_image"]').should(
-    //   'have.attr',
-    //   'src',
-    //   project.bg_image
-    // );
+    // TODO: After imgee merger, add tests to upload and select image
+    cy.get('[data-cy="add-project-banner"]').should('exist');
   });
 });

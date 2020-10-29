@@ -3390,13 +3390,6 @@ a.loginbutton.hidden,
   margin: 0;
   padding: 0;
 }
-.project-banner
-  .livestream-box
-  .project-banner__box
-  .project-banner__box__add-btn {
-  right: 16px;
-  bottom: 16px;
-}
 .project-banner .project-banner__box {
   padding: 0;
   position: relative;
