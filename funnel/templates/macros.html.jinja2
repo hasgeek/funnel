@@ -100,7 +100,7 @@
 
 {% macro banner_edit_btn(project) %}
   {% if project.view_for('update_banner').is_available() %}
-    <a href="{{ project.url_for('update_banner') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn project-banner__box__add-btn--second js-modal-form" aria-label="{% trans %}Update banner image{% endtrans %}" rel="modal:open" data-hash="edit_banner">{{ faicon(icon='camera', baseline=false) }}</a>
+    <a href="{{ project.url_for('update_banner') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn project-banner__box__add-btn--second js-modal-form" data-cy="add-project-banner" aria-label="{% trans %}Update banner image{% endtrans %}" rel="modal:open" data-action="add-project-banner">{{ faicon(icon='camera', baseline=false) }}</a>
   {% endif %}
 {% endmacro %}
 
@@ -149,6 +149,7 @@
             <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
               <div class="project-banner__box">
                 {{ livestream_edit_btn(project) }}
+                {{ banner_edit_btn(project) }}
                 <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
                   <p class="video_txt">
                     {{ faicon(icon='video', icon_size='display1') }}<br>
@@ -164,6 +165,7 @@
         <div class="grid__col-sm-12 grid__col-md-8 project-banner__box">
           <div class="embed-video-wrapper">
             {{ livestream_edit_btn(project) }}
+            {{ banner_edit_btn(project) }}
             {% if project.banner_video_url.url %}
               <div class="embed-video-wrapper js-embed-video" data-video-src="{{ project.banner_video_url }}">
                 <p class="video_txt">
@@ -172,10 +174,8 @@
                 </p>
               </div>
             {%- elif project.bg_image.url %}
-              {{ banner_edit_btn(project) }}
               <img class="project-banner__box__image" src="{{ project.bg_image }}" alt="{{ project.title }}" data-cy="bg_image"/>
             {%- else %}
-              {{ banner_edit_btn(project) }}
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
             {% endif %}
           </div>
