@@ -100,7 +100,7 @@
 
 {% macro banner_edit_btn(project) %}
   {% if project.view_for('update_banner').is_available() %}
-    <a href="{{ project.url_for('update_banner') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn project-banner__box__add-btn--second js-modal-form" aria-label="{% trans %}Update banner image{% endtrans %}" rel="modal:open" data-hash="edit_banner">{{ faicon(icon='camera', baseline=false) }}</a>
+    <a href="{{ project.url_for('update_banner') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn project-banner__box__add-btn--second js-modal-form" data-cy="add-project-banner" aria-label="{% trans %}Update banner image{% endtrans %}" rel="modal:open" data-action="add-project-banner">{{ faicon(icon='camera', baseline=false) }}</a>
   {% endif %}
 {% endmacro %}
 
@@ -666,7 +666,7 @@
             {% endif %}
           </div>
           {%- if profile.current_roles.admin %}
-            <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" title="{% trans %}Add cover photo{% endtrans %}" aria-label="{% trans %}Add cover photo{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">Add cover photo</span></a>
+            <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" title="{% trans %}Add cover photo url{% endtrans %}" aria-label="{% trans %}Add cover photo url{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">Add cover photo url</span></a>
           {% endif %}
           <div class="profile__logo">
             {%- if profile.logo_url.url %}

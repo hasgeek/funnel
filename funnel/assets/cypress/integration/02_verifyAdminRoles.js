@@ -12,12 +12,8 @@ describe('Profile admin roles', function () {
     cy.get('#field-description')
       .find('.CodeMirror textarea')
       .type(profile.description, { force: true });
-    // cy.get('#logo_url').type(profile.logo_url);
     cy.get('button').contains('Save changes').click();
-    // cy.get('[data-cy="add-banner"]').click();
-    // cy.get('#banner_image_url').type(profile.banner_url);
-    // cy.get('button').contains('Save banner').click();
-    // cy.get('img[data-cy="profile-banner-img"]').should('be.visible');
+    // TODO: After imgee merger, add tests to upload and select image
     cy.get('[data-cy="add-banner"]').should('exist');
 
     cy.get('a[data-cy="admin-dropdown"]:visible').click();
