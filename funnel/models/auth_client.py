@@ -520,7 +520,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         return self._algorithm
 
     @algorithm.setter
-    def algorithm(self, value: str):
+    def algorithm(self, value: Optional[str]):
         if value is None:
             self._algorithm = None
             self.secret = None

@@ -27,7 +27,9 @@ def abort_null(text: Optional[str]) -> Optional[str]:
     return text
 
 
-def make_redirect_url(url: str, use_fragment: bool = False, **params: str) -> str:
+def make_redirect_url(
+    url: str, use_fragment: bool = False, **params: Optional[str]
+) -> str:
     """
     Make a redirect URL.
 

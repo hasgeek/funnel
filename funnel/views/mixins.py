@@ -1,3 +1,4 @@
+from typing import Optional, Tuple, Type, Union
 from uuid import uuid4
 
 from flask import abort, g, redirect, request
@@ -18,10 +19,12 @@ from ..models import (
     ProposalSuuidRedirect,
     Session,
     TicketEvent,
+    UuidMixin,
     Venue,
     VenueRoom,
     db,
 )
+from ..typing import ReturnRenderWith
 
 
 class ProjectViewMixin(object):
@@ -250,7 +253,10 @@ class TicketEventViewMixin(object):
 
 
 class DraftViewMixin(object):
-    def get_draft(self, obj=None):
+    obj: UuidMixin
+    model: Type[UuidMixin]
+
+    def get_draft(self, obj: Optional[UuidMixin] = None) -> Optional[Draft]:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
@@ -267,7 +273,9 @@ class DraftViewMixin(object):
         else:
             raise ValueError(_("There is no draft for the given object."))
 
-    def get_draft_data(self, obj=None):
+    def get_draft_data(
+        self, obj: Optional[UuidMixin] = None
+    ) -> Union[Tuple[None, None], Tuple[int, dict]]:
         """
         Return a tuple of draft data.
 
@@ -279,7 +287,7 @@ class DraftViewMixin(object):
         else:
             return None, None
 
-    def autosave_post(self, obj=None):
+    def autosave_post(self, obj: Optional[UuidMixin] = None) -> ReturnRenderWith:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:
@@ -296,7 +304,7 @@ class DraftViewMixin(object):
         # CSRF check
         form = forms.Form()
         if form.validate_on_submit():
-            incoming_data = MultiDict(request.form.items(multi=True))
+            incoming_data: MultiDict = MultiDict(request.form.items(multi=True))
             client_revision = incoming_data.pop('form.revision')
             incoming_data.pop('csrf_token', None)
             incoming_data.pop('form_nonce', None)
@@ -332,7 +340,7 @@ class DraftViewMixin(object):
                             existing[key] = incoming_data[key]
                     draft.formdata = existing
                     draft.revision = uuid4()
-            elif draft is None and client_revision:
+            elif client_revision:  # Implicit: draft is None
                 # The form contains a revision ID but no draft exists.
                 # Somebody is making autosave requests with an invalid draft ID.
                 return (
@@ -346,7 +354,7 @@ class DraftViewMixin(object):
                     400,
                 )
             else:
-                # no draft exists, create one
+                # no draft exists and no client revision, so create a draft
                 draft = Draft(
                     table=Project.__tablename__,
                     table_row_id=obj.uuid,

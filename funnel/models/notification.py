@@ -76,6 +76,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 from typing import (
+    Any,
     Callable,
     Dict,
     Generator,
@@ -734,7 +735,9 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     with_roles(is_read, rw={'owner'})
 
-    @hybrid_property
+    is_revoked: bool
+
+    @hybrid_property  # type: ignore[no-redef]
     def is_revoked(self) -> bool:
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
@@ -1111,7 +1114,7 @@ class NotificationPreferences(BaseMixin, db.Model):
         return None
 
     @db.validates('notification_type')
-    def _valid_notification_type(self, key: str, value: str) -> str:
+    def _valid_notification_type(self, key: str, value: Any) -> str:
         if value == '':  # Special-cased name for main preferences
             return value
         if value is None or value not in notification_type_registry:

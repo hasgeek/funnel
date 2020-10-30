@@ -58,7 +58,7 @@ class SharedProfileMixin:
     # are only fully setup when module loading is finished.
     # Doc: https://docs.sqlalchemy.org/en/latest/orm/extensions/hybrid.html#reusing-hybrid-properties-across-subclasses
 
-    name: str
+    name: Optional[str]
     profile: Optional[Profile]
 
     def validate_name_candidate(self, name: str) -> Optional[str]:
@@ -226,7 +226,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         self.password = password
         super(User, self).__init__(**kwargs)
 
-    @hybrid_property
+    name: Optional[str]
+
+    @hybrid_property  # type: ignore[no-redef]
     def name(self) -> Optional[str]:
         if self.profile:
             return self.profile.name
@@ -889,7 +891,9 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         )
 
-    @hybrid_property
+    name: Optional[str]
+
+    @hybrid_property  # type: ignore[no-redef]
     def name(self) -> Optional[str]:
         if self.profile:
             return self.profile.name
@@ -922,13 +926,13 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             name=self.name or self.buid, title=self.title
         )
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pickername(self) -> str:
         if self.name:
             return '{title} (@{name})'.format(title=self.title, name=self.name)
-        else:
-            return self.title
+        return self.title
+
+    with_roles(pickername, read={'all'})
 
     def people(self) -> Query:
         """Return a list of users from across the public teams they are in."""

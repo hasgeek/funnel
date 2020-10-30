@@ -746,7 +746,7 @@ auto_init_default(EmailAddress._is_blocked)
 
 
 @event.listens_for(EmailAddress.email, 'set')
-def _validate_email(target, value: Optional[str], old_value, initiator):
+def _validate_email(target, value: Any, old_value: Any, initiator):
     # First: check if value is acceptable and email attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
