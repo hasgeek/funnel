@@ -73,6 +73,8 @@ SES_NOTIFICATION_TOPICS = [  # nosec
     'arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com'
 ]
 
+IMGEE_HOST = 'imgee.travis.local:3002'
+
 # Needed for unit tests, but will break Cypress tests
 # Must be added to a fixture for unit tests
 # RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
