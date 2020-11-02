@@ -102,7 +102,7 @@ class ProposalViewMixin(object):
             )
             if proposal is None:
                 if request.method == 'GET':
-                    redirect = (
+                    return (
                         ProposalSuuidRedirect.query.join(Proposal)
                         .filter(
                             ProposalSuuidRedirect.suuid
@@ -110,7 +110,6 @@ class ProposalViewMixin(object):
                         )
                         .first_or_404()
                     )
-                    return redirect
                 else:
                     abort(404)
         else:

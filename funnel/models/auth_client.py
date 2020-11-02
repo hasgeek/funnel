@@ -49,8 +49,7 @@ class ScopeMixin(object):
         def scope(self) -> Tuple[str, ...]:
             if not self._scope:
                 return ()
-            else:
-                return tuple(sorted(self._scope.split()))
+            return tuple(sorted(self._scope.split()))
 
         @scope.setter
         def scope(self, value: Optional[Union[str, Iterable]]) -> None:
