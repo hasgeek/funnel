@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Dict, Optional, Tuple, Union, cast
 import urllib.parse
 
 from pytz import utc
@@ -14,7 +18,7 @@ class VideoException(Exception):
     pass
 
 
-def parse_video_url(video_url):
+def parse_video_url(video_url: str) -> Tuple[str, str]:
     video_source = 'raw'
     video_id = video_url
 
@@ -92,7 +96,7 @@ def parse_video_url(video_url):
     return video_source, video_id
 
 
-def make_video_url(video_source, video_id):
+def make_video_url(video_source: str, video_id: str) -> str:
     if video_source == 'youtube':
         return f'https://www.youtube.com/watch?v={video_id}'
     elif video_source == 'vimeo':
@@ -101,6 +105,7 @@ def make_video_url(video_source, video_id):
         return f'https://drive.google.com/file/d/{video_id}/view'
     elif video_source == 'raw':
         return video_id
+    raise ValueError("Unknown video source")
 
 
 class VideoMixin:
@@ -113,14 +118,13 @@ class VideoMixin:
     _source_video_exists = True
 
     @property
-    def video_cache_key(self):
+    def video_cache_key(self) -> str:
         if self.video_source and self.video_id:
             return 'video_cache/' + self.video_source + '/' + self.video_id
-        else:
-            raise VideoException("No video source or ID to create a cache key")
+        raise VideoException("No video source or ID to create a cache key")
 
     @property
-    def _video_cache(self):
+    def _video_cache(self) -> Dict[str, Union[str, int, datetime]]:
         data = redis_store.hgetall(self.video_cache_key)
         if data:
             if 'uploaded_at' in data and data['uploaded_at']:
@@ -130,7 +134,7 @@ class VideoMixin:
         return data
 
     @_video_cache.setter
-    def _video_cache(self, data):
+    def _video_cache(self, data: dict):
         copied_data = data.copy()
         if copied_data['uploaded_at']:
             copied_data['uploaded_at'] = copied_data['uploaded_at'].isoformat()
@@ -142,8 +146,10 @@ class VideoMixin:
         hours_to_cache = 2 * 24 if self._source_video_exists else 6
         redis_store.expire(self.video_cache_key, 60 * 60 * hours_to_cache)
 
+    # TODO: Create a dataclass for data
+
     @property
-    def video(self):
+    def video(self) -> Optional[Dict[str, Union[str, int, datetime]]]:
         data = None
         if self.video_source and self.video_id:
             # Check for cached data
@@ -153,8 +159,8 @@ class VideoMixin:
                 data = {
                     'source': self.video_source,
                     'id': self.video_id,
-                    'url': self.video_url,
-                    'embeddable_url': self.embeddable_video_url,
+                    'url': cast(str, self.video_url),
+                    'embeddable_url': cast(str, self.embeddable_video_url),
                     'duration': 0,
                     'uploaded_at': '',
                     'thumbnail': '',
@@ -224,13 +230,13 @@ class VideoMixin:
         return data
 
     @property
-    def video_url(self):
+    def video_url(self) -> Optional[str]:
         if self.video_source and self.video_id:
             return make_video_url(self.video_source, self.video_id)
         return None
 
     @video_url.setter
-    def video_url(self, value):
+    def video_url(self, value: str):
         if not value:
             if (
                 self.video_id
@@ -243,7 +249,7 @@ class VideoMixin:
             self.video_source, self.video_id = parse_video_url(value)
 
     @property
-    def embeddable_video_url(self):
+    def embeddable_video_url(self) -> Optional[str]:
         if self.video_source:
             if self.video_source == 'youtube':
                 return f'https://videoken.com/embed/?videoID={self.video_id}&wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=1&enablejsapi=1&version=3'

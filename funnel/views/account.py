@@ -284,10 +284,6 @@ class AccountView(ClassView):
         logout_form = LogoutForm(user=current_auth.user)
         primary_email_form = EmailPrimaryForm()
         primary_phone_form = PhonePrimaryForm()
-        service_forms = {}
-        for service, provider in login_registry.items():
-            if provider.at_login and provider.form is not None:
-                service_forms[service] = provider.get_form()
         return {
             'user': current_auth.user.current_access(),
             'authtokens': [
@@ -299,7 +295,6 @@ class AccountView(ClassView):
             'logout_form': logout_form,
             'primary_email_form': primary_email_form,
             'primary_phone_form': primary_phone_form,
-            'service_forms': service_forms,
             'login_registry': login_registry,
         }
 

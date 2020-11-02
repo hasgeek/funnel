@@ -4,6 +4,8 @@ from werkzeug.utils import cached_property
 from baseframe import _, __
 
 from ...models import (
+    Comment,
+    CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
     NewCommentNotification,
@@ -16,6 +18,8 @@ from ..notification import RenderNotification
 class RenderCommentReportReceivedNotification(RenderNotification):
     """Notify site admins when a comment report is received."""
 
+    comment: Comment
+    report: CommentModeratorReport
     aliases = {'document': 'comment', 'fragment': 'report'}
     emoji_prefix = "💩 "
     reason = __("You are receiving this because you are a site admin")
@@ -51,6 +55,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
 class CommentNotification(RenderNotification):
     """Render comment notifications for various document types."""
 
+    comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
 

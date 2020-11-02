@@ -1,9 +1,14 @@
+from __future__ import annotations
+
+from typing import Iterable, List, Optional, Set, Union
+
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from baseframe import __
-from coaster.sqlalchemy import StateManager, with_roles
+from coaster.sqlalchemy import Query, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
+from ..typing import OptionalMigratedTables
 from . import BaseMixin, MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
 from .helpers import (
     RESERVED_NAMES,
@@ -169,11 +174,11 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         return f'<Profile "{self.name}">'
 
     @property
-    def owner(self):
+    def owner(self) -> Union[User, Organization]:
         return self.user or self.organization
 
     @owner.setter
-    def owner(self, value):
+    def owner(self, value: Union[User, Organization]) -> None:
         if isinstance(value, User):
             self.user = value
             self.organization = None
@@ -185,7 +190,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         self.reserved = False
 
     @hybrid_property
-    def is_user_profile(self):
+    def is_user_profile(self) -> bool:
         return self.user_id is not None
 
     @is_user_profile.expression  # type: ignore[no-redef]
@@ -193,7 +198,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         return cls.user_id.isnot(None)
 
     @hybrid_property
-    def is_organization_profile(self):
+    def is_organization_profile(self) -> bool:
         return self.organization_id is not None
 
     @is_organization_profile.expression  # type: ignore[no-redef]
@@ -202,11 +207,11 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def is_public(self):
+    def is_public(self) -> bool:
         return bool(self.state.PUBLIC)
 
     @hybrid_property
-    def title(self):
+    def title(self) -> str:
         if self.user:
             return self.user.fullname
         elif self.organization:
@@ -215,7 +220,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return ''
 
     @title.setter  # type: ignore[no-redef]
-    def title(self, value):
+    def title(self, value: str) -> None:
         if self.user:
             self.user.fullname = value
         elif self.organization:
@@ -247,7 +252,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             else_='',
         )
 
-    def roles_for(self, actor, anchors=()):
+    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)
         else:
@@ -257,26 +262,26 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         return roles
 
     @classmethod
-    def get(cls, name):
+    def get(cls, name: str) -> Optional[Profile]:
         return cls.query.filter(
             db.func.lower(Profile.name) == db.func.lower(name)
         ).one_or_none()
 
     @classmethod
-    def all_public(cls):
+    def all_public(cls) -> Query:
         return cls.query.filter(cls.state.PUBLIC)
 
     @classmethod
-    def validate_name_candidate(cls, name):
+    def validate_name_candidate(cls, name: str) -> Optional[str]:
         """
         Validate an account name candidate.
 
         Returns one of several error codes, or `None` if all is okay:
 
         * ``blank``: No name supplied
+        * ``reserved``: Name is reserved
         * ``invalid``: Invalid characters in name
         * ``long``: Name is longer than allowed size
-        * ``reserved``: Name is reserved
         * ``user``: Name is assigned to a user
         * ``org``: Name is assigned to an organization
         """
@@ -304,13 +309,14 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 return 'user'
             elif existing.organization_id:
                 return 'org'
+        return None
 
     @classmethod
-    def is_available_name(cls, name):
+    def is_available_name(cls, name: str) -> bool:
         return cls.validate_name_candidate(name) is None
 
     @db.validates('name')
-    def validate_name(self, key, value):
+    def validate_name(self, key: str, value: str):
         if value.lower() in self.reserved_names or not valid_username(value):
             raise ValueError("Invalid account name: " + value)
         # We don't check for existence in the db since this validator only
@@ -320,7 +326,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         return value
 
     @classmethod
-    def migrate_user(cls, old_user, new_user):
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         if old_user.profile and not new_user.profile:
             # New user doesn't have a profile. Simply transfer ownership.
             new_user.profile = old_user.profile
@@ -331,15 +337,16 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             )
             if done:
                 db.session.delete(old_user.profile)
+        return None
 
     @property
-    def teams(self):
+    def teams(self) -> List:
         if self.organization:
             return self.organization.teams
         else:
             return []
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         perms = super(Profile, self).permissions(user, inherited)
         perms.add('view')
         if 'admin' in self.roles_for(user):
@@ -351,12 +358,12 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     @state.transition(None, state.PUBLIC, title=__("Make public"))
-    def make_public(self):
+    def make_public(self) -> None:
         pass
 
     @with_roles(call={'owner'})
     @state.transition(None, state.PRIVATE, title=__("Make private"))
-    def make_private(self):
+    def make_private(self) -> None:
         pass
 
 

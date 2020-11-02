@@ -2,7 +2,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import NewUpdateNotification
+from ...models import NewUpdateNotification, Update
 from ..helpers import shortlink
 from ..notification import RenderNotification
 
@@ -11,6 +11,7 @@ from ..notification import RenderNotification
 class RenderNewUpdateNotification(RenderNotification):
     """Notify crew and participants when the project has a new update."""
 
+    update: Update
     aliases = {'document': 'update'}
     emoji_prefix = "📰 "
     reason = __("You are receiving this because you have registered for this project")

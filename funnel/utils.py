@@ -1,5 +1,7 @@
-import six
+from __future__ import annotations
 
+from typing import List, Optional, Set
+import io
 import urllib.parse
 
 from flask import abort, current_app
@@ -13,7 +15,7 @@ from baseframe import cache
 # --- Utilities ---------------------------------------------------------------
 
 
-def abort_null(text):
+def abort_null(text: Optional[str]) -> Optional[str]:
     """
     Abort request if text contains null characters.
 
@@ -25,7 +27,15 @@ def abort_null(text):
     return text
 
 
-def make_redirect_url(url, use_fragment=False, **params):
+def make_redirect_url(
+    url: str, use_fragment: bool = False, **params: Optional[str]
+) -> str:
+    """
+    Make a redirect URL.
+
+    :param bool use_fragments: Insert parameters into the fragment rather than the query
+        component of the URL. This is required for OAuth2 public clients
+    """
     urlparts = list(urllib.parse.urlsplit(url))
     # URL parts:
     # 0: scheme
@@ -37,13 +47,6 @@ def make_redirect_url(url, use_fragment=False, **params):
         urlparts[4] if use_fragment else urlparts[3], keep_blank_values=True
     )
     queryparts.extend([(k, v) for k, v in params.items() if v is not None])
-    queryparts = [
-        (
-            key.encode('utf-8') if isinstance(key, str) else key,
-            value.encode('utf-8') if isinstance(value, str) else value,
-        )
-        for key, value in queryparts
-    ]
     if use_fragment:
         urlparts[4] = urllib.parse.urlencode(queryparts)
     else:
@@ -51,7 +54,7 @@ def make_redirect_url(url, use_fragment=False, **params):
     return urllib.parse.urlunsplit(urlparts)
 
 
-def mask_email(email):
+def mask_email(email: str) -> str:
     """
     Mask an email address.
 
@@ -67,7 +70,7 @@ def mask_email(email):
 
 
 @cache.memoize(timeout=86400)
-def geonameid_from_location(text):
+def geonameid_from_location(text: str) -> Set[int]:
     """
     Convert location string into a set of matching geonameids.
 
@@ -94,7 +97,7 @@ def geonameid_from_location(text):
     return set()
 
 
-def extract_twitter_handle(handle):
+def extract_twitter_handle(handle: str) -> Optional[str]:
     """
     Extract a twitter handle from a user input.
 
@@ -125,11 +128,11 @@ def extract_twitter_handle(handle):
     )
 
 
-def format_twitter_handle(handle):
+def format_twitter_handle(handle: str) -> str:
     return "@{handle}".format(handle=handle) if handle else ""
 
 
-def split_name(fullname):
+def split_name(fullname: str) -> List:
     """
     Split a given fullname into a first name and remaining names.
 
@@ -143,10 +146,10 @@ def split_name(fullname):
 
 
 # TODO: Added tests for this
-def make_qrcode(data):
+def make_qrcode(data: str) -> str:
     """Make a QR code in-memory and return the raw SVG."""
     factory = qrcode.image.svg.SvgPathImage
-    stream = six.BytesIO()
+    stream = io.BytesIO()
     img = qrcode.make(data, image_factory=factory)
     img.save(stream)
     qrcode_svg = stream.getvalue()

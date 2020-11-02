@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Iterable, Optional, Set
+
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from werkzeug.utils import cached_property
@@ -308,7 +312,7 @@ class Proposal(
         'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super(Proposal, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
@@ -555,7 +559,7 @@ class Proposal(
     def votes_count(self):
         return len(self.voteset.votes)
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         perms = super(Proposal, self).permissions(user, inherited)
         if user is not None:
             perms.update(('vote_proposal', 'new_comment', 'vote_comment'))
@@ -573,7 +577,7 @@ class Proposal(
                     perms.add('decline-proposal')  # Decline speaking
         return perms
 
-    def roles_for(self, actor=None, anchors=()):
+    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super(Proposal, self).roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:

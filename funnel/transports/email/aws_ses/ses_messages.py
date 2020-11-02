@@ -342,7 +342,7 @@ class SesEvent(DataClassJsonMixin):
 class SesProcessorAbc(ABC):
     """Abstract Base class for Message Processor."""
 
-    def process(self, ses_event: SesEvent):
+    def process(self, ses_event: SesEvent) -> None:
         """
         Process SES Event by calling the appropriate methods.
 

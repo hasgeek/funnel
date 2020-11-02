@@ -1,4 +1,5 @@
 import base58
+import pytest
 
 from funnel.models.email_address import email_blake2b160_hash
 import funnel.models as models
@@ -11,7 +12,7 @@ class TestUserEmail(TestDatabaseFixture):
         """Test for verifying creation of UserEmail object."""
         oakley = self.fixtures.oakley
         oakley_new_email = models.user.UserEmail(user=oakley, email='oakley@batdog.ca')
-        self.assertIsInstance(oakley_new_email, models.user.UserEmail)
+        assert isinstance(oakley_new_email, models.user.UserEmail)
 
     def test_useremail_get(self):
         """Test for `UserEmail.get` against email, blake2b160 digest and hex hash."""
@@ -21,23 +22,23 @@ class TestUserEmail(TestDatabaseFixture):
         email_hash = base58.b58encode(blake2b160)
 
         # scenario 1: when no parameters are passed
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             models.UserEmail.get()
 
         # scenario 2: when email is passed
         get_by_email = models.UserEmail.get(email=email)
-        self.assertIsInstance(get_by_email, models.UserEmail)
-        self.assertEqual(get_by_email.user, crusoe)
+        assert isinstance(get_by_email, models.UserEmail)
+        assert get_by_email.user == crusoe
 
         # scenario 3: when blake2b160 is passed
         get_by_b2hash = models.UserEmail.get(blake2b160=blake2b160)
-        self.assertIsInstance(get_by_b2hash, models.UserEmail)
-        self.assertEqual(get_by_b2hash.user, crusoe)
+        assert isinstance(get_by_b2hash, models.UserEmail)
+        assert get_by_b2hash.user == crusoe
 
         # secnario 4: when email_hash is passed
         get_by_email_hash = models.UserEmail.get(email_hash=email_hash)
-        self.assertIsInstance(get_by_email_hash, models.UserEmail)
-        self.assertEqual(get_by_email_hash.user, crusoe)
+        assert isinstance(get_by_email_hash, models.UserEmail)
+        assert get_by_email_hash.user == crusoe
 
     def test_useremail_str(self):
         """Test for verifying email is returned in unicode format."""
@@ -50,5 +51,5 @@ class TestUserEmail(TestDatabaseFixture):
         email = 'oakley@batdogs.ca'
         oakley_new_email = models.UserEmail(user=oakley, email=email)
         result = oakley_new_email.email
-        self.assertIsInstance(result, str)
-        self.assertEqual(email, result)
+        assert isinstance(result, str)
+        assert email == result

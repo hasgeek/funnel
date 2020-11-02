@@ -4,9 +4,6 @@ from .test_db import TestDatabaseFixture
 
 
 class TestClientCredential(TestDatabaseFixture):
-    def setUp(self):
-        super(TestClientCredential, self).setUp()
-
     def test_clientcredential_new(self):
         """Test for ClientCredential model's new()."""
         auth_client = self.fixtures.auth_client

@@ -19,7 +19,7 @@ class EmailAddressAvailable:
     :param purpose: One of 'use', 'claim', 'register'
     """
 
-    def __init__(self, purpose):
+    def __init__(self, purpose) -> None:
         if purpose not in ('use', 'claim', 'register'):
             raise ValueError("Invalid purpose")
         self.purpose = purpose

@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Iterable, Optional, Set
 import base64
 import os
 
@@ -196,16 +199,17 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         'scanner': {'read': {'email'}},
     }
 
-    def roles_for(self, actor, anchors=()):
+    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super(TicketParticipant, self).roles_for(actor, anchors)
-        if actor is not None and actor == self.user:
-            roles.add('subject')
-        cx = ContactExchange.query.get((actor.id, self.id))
-        if cx is not None:
-            roles.add('scanner')
+        if actor is not None:
+            if actor == self.user:
+                roles.add('subject')
+            cx = ContactExchange.query.get((actor.id, self.id))
+            if cx is not None:
+                roles.add('scanner')
         return roles
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         perms = super(TicketParticipant, self).permissions(user, inherited)
         if self.project is not None:
             return self.project.permissions(user) | perms
@@ -400,7 +404,7 @@ class TicketClient(BaseMixin, db.Model):
                 # Ensure that the new or updated participant has access to events
                 ticket.ticket_participant.add_events(ticket_type.ticket_events)
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         perms = super(TicketClient, self).permissions(user, inherited)
         if self.project is not None:
             return self.project.permissions(user) | perms
