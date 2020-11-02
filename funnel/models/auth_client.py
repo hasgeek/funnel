@@ -53,10 +53,18 @@ class ScopeMixin(object):
                 return tuple(sorted(self._scope.split()))
 
         @scope.setter
-        def scope(self, value: Union[str, Iterable]) -> None:
+        def scope(self, value: Optional[Union[str, Iterable]]) -> None:
+            if value is None:
+                if self.__scope_null_allowed__:
+                    self._scope = None
+                    return
+                raise ValueError("Scope cannot be None")
             if isinstance(value, str):
-                value = [value]
-            self._scope = ' '.join(sorted(t.strip() for t in value if t))
+                value = value.split()
+            use_scope = ' '.join(sorted(t.strip() for t in value if t))
+            if not use_scope and not self.__scope_null_allowed__:
+                raise ValueError("Scope can't be empty")
+            self._scope = use_scope or None
 
         return db.synonym('_scope', descriptor=scope)
 
