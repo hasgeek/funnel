@@ -70,7 +70,7 @@ class RenderNotification:
     reason_telegram = reason_for
     reason_whatsapp = reason_for
 
-    def __init__(self, user_notification):
+    def __init__(self, user_notification: UserNotification) -> None:
         self.user_notification = user_notification
         self.notification = user_notification.notification
         self.document = (

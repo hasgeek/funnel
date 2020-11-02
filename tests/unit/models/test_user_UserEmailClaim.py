@@ -11,8 +11,8 @@ class TestUserEmailClaim(TestDatabaseFixture):
         result = models.UserEmailClaim(user=crusoe, email=new_email)
         db.session.add(result)
         db.session.commit()
-        self.assertIsInstance(result, models.UserEmailClaim)
-        self.assertEqual(crusoe, result.user)
+        assert isinstance(result, models.UserEmailClaim)
+        assert crusoe == result.user
         assert '<UserEmailClaim {email} of {user}>'.format(
             email=new_email, user=repr(crusoe)[1:-1]
         ) in (repr(result))
@@ -22,13 +22,9 @@ class TestUserEmailClaim(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         email = 'crusoe@batdogs.ca'
         email_claim = models.UserEmailClaim(user=crusoe, email=email)
-        permissions_expected = ['verify']
-        result = email_claim.permissions(crusoe)
-        self.assertIsInstance(result, set)
-        permissions_received = []
-        for each in result:
-            permissions_received.append(each)
-        self.assertCountEqual(permissions_expected, permissions_received)
+        permissions_expected = {'verify'}
+        permissions_received = email_claim.permissions(crusoe)
+        assert permissions_expected == permissions_received
 
     def test_useremailclaim_get(self):
         """Test for retrieving a UserEmailClaim instance given a user."""
@@ -38,9 +34,9 @@ class TestUserEmailClaim(TestDatabaseFixture):
         db.session.add(email_claim)
         db.session.commit()
         result = models.UserEmailClaim.get_for(user=katnis, email=email)
-        self.assertIsInstance(result, models.UserEmailClaim)
-        self.assertEqual(result.email, email)
-        self.assertEqual(result.user, katnis)
+        assert isinstance(result, models.UserEmailClaim)
+        assert result.email == email
+        assert result.user == katnis
 
     def test_useremailclaim_all(self):
         """Test for retrieving all UserEmailClaim instances given an email address."""
@@ -53,12 +49,12 @@ class TestUserEmailClaim(TestDatabaseFixture):
         db.session.add(claim_by_peeta)
         db.session.commit()
         result = models.UserEmailClaim.all(email)
-        self.assertCountEqual(set(result), {claim_by_gail, claim_by_peeta})
+        assert set(result) == {claim_by_gail, claim_by_peeta}
 
     def test_useremailclaim_email(self):
         """Test for verifying UserEmailClaim email property."""
         effie = models.User(username='effie', fullname='Miss. Effie Trinket')
         email = 'effie@hungergames.org'
         claim_by_effie = models.UserEmailClaim(user=effie, email=email)
-        self.assertIsInstance(claim_by_effie.email, str)
-        self.assertEqual(claim_by_effie.email, email)
+        assert isinstance(claim_by_effie.email, str)
+        assert claim_by_effie.email == email

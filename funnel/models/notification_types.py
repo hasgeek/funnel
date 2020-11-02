@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from baseframe import __
 from funnel.models.moderation import CommentModeratorReport
 
+from . import db
 from .commentvote import Comment, Commentset
 from .notification import Notification, notification_categories
 from .organization_membership import OrganizationMembership
+from .profile import Profile
 from .project import Project
 from .project_membership import ProjectCrewMembership
 from .proposal import Proposal
@@ -31,14 +35,18 @@ __all__ = [
 
 
 class DocumentHasProject:
+    document: db.Model
+
     @property
-    def preference_context(self):
+    def preference_context(self) -> Profile:
         return self.document.project.profile
 
 
 class DocumentHasProfile:
+    document: db.Model
+
     @property
-    def preference_context(self):
+    def preference_context(self) -> Profile:
         return self.document.profile
 
 
@@ -53,7 +61,7 @@ class AccountPasswordNotification(Notification):
     title = __("When my account password changes")
     description = __("For your safety, in case this was not authorized")
 
-    document_model = User
+    document: User
     exclude_actor = False
     roles = ['owner']
     for_private_recipient = True
@@ -70,7 +78,7 @@ class RegistrationConfirmationNotification(DocumentHasProject, Notification):
     title = __("When I register for a project")
     description = __("This will prompt a calendar entry in Gmail and other apps")
 
-    document_model = Rsvp
+    document: Rsvp
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
@@ -84,7 +92,7 @@ class RegistrationCancellationNotification(DocumentHasProject, Notification):
     title = __("When I cancel my registration")
     description = __("Confirmation for your records")
 
-    document_model = Rsvp
+    document: Rsvp
     roles = ['owner']
     exclude_actor = False  # This is a notification to the actor
     for_private_recipient = True
@@ -102,7 +110,7 @@ class NewUpdateNotification(DocumentHasProject, Notification):
         "Typically contains critical information such as video conference links"
     )
 
-    document_model = Update
+    document: Update
     roles = ['project_crew', 'project_participant']
     exclude_actor = False  # Send to everyone including the actor
 
@@ -116,7 +124,7 @@ class ProposalSubmittedNotification(DocumentHasProject, Notification):
     title = __("When I submit a proposal")
     description = __("Confirmation for your records")
 
-    document_model = Proposal
+    document: Proposal
     roles = ['creator']
     exclude_actor = False  # This notification is for the actor
 
@@ -137,8 +145,8 @@ class ProjectStartingNotification(DocumentHasProfile, Notification):
     title = __("When a project I’ve registered for is about to start")
     description = __("You will be notified 5-10 minutes before the starting time")
 
-    document_model = Project
-    fragment_model = Session
+    document: Project
+    fragment: Session
     roles = ['project_crew', 'project_participant']
     # This is a notification triggered without an actor
 
@@ -155,8 +163,8 @@ class NewCommentNotification(Notification):
     title = __("When there is a new comment on a project or proposal I’m in")
     exclude_actor = True
 
-    document_model = Commentset
-    fragment_model = Comment
+    document: Commentset
+    fragment: Comment
     roles = ['replied_to_commenter', 'document_subscriber']
 
 
@@ -169,8 +177,8 @@ class CommentReplyNotification(Notification):
     title = __("When someone replies to my comment")
     exclude_actor = True
 
-    document_model = Comment  # Parent comment (being replied to)
-    fragment_model = Comment  # Child comment (the reply that triggered notification)
+    document: Comment  # Parent comment (being replied to)
+    fragment: Comment  # Child comment (the reply that triggered notification)
     roles = ['replied_to_commenter']
 
 
@@ -187,8 +195,8 @@ class ProjectCrewMembershipNotification(DocumentHasProject, Notification):
     title = __("When a project crew member is added, or roles change")
     description = __("Crew members have access to the project’s controls")
 
-    document_model = Project
-    fragment_model = ProjectCrewMembership
+    document: Project
+    fragment: ProjectCrewMembership
     roles = ['subject', 'project_crew']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
@@ -202,8 +210,8 @@ class ProjectCrewMembershipRevokedNotification(DocumentHasProject, Notification)
     category = notification_categories.project_crew
     title = __("When a project crew member is removed, including me")
 
-    document_model = Project
-    fragment_model = ProjectCrewMembership
+    document: Project
+    fragment: ProjectCrewMembership
     roles = ['subject', 'project_crew']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
@@ -216,8 +224,8 @@ class ProposalReceivedNotification(DocumentHasProfile, Notification):
     category = notification_categories.project_crew
     title = __("When my project receives a new proposal")
 
-    document_model = Project
-    fragment_model = Proposal
+    document: Project
+    fragment: Proposal
     roles = ['project_editor']
     exclude_actor = True  # Don't notify editor of proposal they submitted
 
@@ -231,8 +239,8 @@ class RegistrationReceivedNotification(DocumentHasProfile, Notification):
     category = notification_categories.project_crew
     title = __("When someone registers for my project")
 
-    document_model = Project
-    fragment_model = Rsvp
+    document: Project
+    fragment: Rsvp
     roles = ['project_concierge']
     exclude_actor = True
 
@@ -249,8 +257,8 @@ class OrganizationAdminMembershipNotification(DocumentHasProfile, Notification):
     title = __("When organization admins change")
     description = __("Organization admins control all projects under the organization")
 
-    document_model = Organization
-    fragment_model = OrganizationMembership
+    document: Organization
+    fragment: OrganizationMembership
     roles = ['subject', 'profile_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
@@ -263,8 +271,8 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
     category = notification_categories.organization_admin
     title = __("When an organization admin is removed, including me")
 
-    document_model = Organization
-    fragment_model = OrganizationMembership
+    document: Organization
+    fragment: OrganizationMembership
     roles = ['subject', 'profile_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
@@ -280,6 +288,6 @@ class CommentReportReceivedNotification(Notification):
     category = notification_categories.site_admin
     title = __("When a comment is reported as spam")
 
-    document_model = Comment
-    fragment_model = CommentModeratorReport
+    document: Comment
+    fragment: CommentModeratorReport
     roles = ['comment_moderator']

@@ -8,9 +8,11 @@ from baseframe import _, __
 
 from ...models import (
     MEMBERSHIP_RECORD_TYPE,
+    Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     OrganizationMembership,
+    User,
 )
 from ..notification import RenderNotification
 
@@ -159,25 +161,30 @@ decision_factors = [
 
 
 class RenderShared:
+    organization: Organization
+    membership: OrganizationMembership
     emoji_prefix = "🔑 "
 
-    @property
-    def actor(self):
-        """We're interested in who has the membership, not who granted/revoked it."""
-        return self.membership.user
+    def activity_template(self, membership: OrganizationMembership = None) -> str:
+        ...
 
     @property
-    def membership_actor(self):
+    def membership_actor(self) -> User:
         """Actor who granted or revoked, for the template."""
-        raise NotImplementedError("Subclass must override")
+        ...
+
+    @property
+    def actor(self) -> User:
+        """We're interested in who has the membership, not who granted/revoked it."""
+        return self.membership.user
 
     @property
     def record_type(self):
         """Membership record type as a string, for templates."""
         # There are four record types: invite, accept, direct_add, amend
-        return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name
+        return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name  # type: ignore[misc]
 
-    def activity_html(self, membership=None):
+    def activity_html(self, membership: OrganizationMembership = None) -> Markup:
         if not membership:
             membership = self.membership
         return Markup(self.activity_template(membership)).format(
@@ -205,14 +212,14 @@ class RenderShared:
             else escape(self.membership_actor.pickername),
         )
 
-    def email_subject(self):
+    def email_subject(self) -> str:
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
             actor=self.membership_actor.pickername,
         )
 
-    def sms(self):
+    def sms(self) -> str:
         return self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
@@ -230,11 +237,11 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     fragments_order_by = [OrganizationMembership.granted_at.desc()]
 
     @property
-    def membership_actor(self):
+    def membership_actor(self) -> User:
         """Actual actor who granted (or edited) the membership, for the template."""
         return self.membership.granted_by
 
-    def activity_template(self, membership=None):
+    def activity_template(self, membership: OrganizationMembership = None) -> str:
         """
         Return a Python string template with an appropriate message.
 
@@ -250,13 +257,14 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
                 membership,
             ):
                 return df.template
+        raise ValueError("No suitable template found for membership record")
 
-    def web(self):
+    def web(self) -> str:
         return render_template(
             'notifications/organization_membership_granted_web.html.jinja2', view=self
         )
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template(
             'notifications/organization_membership_granted_email.html.jinja2', view=self
         )
@@ -274,11 +282,11 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     fragments_order_by = [OrganizationMembership.revoked_at.desc()]
 
     @property
-    def membership_actor(self):
+    def membership_actor(self) -> User:
         """Actual actor who revoked the membership, for the template."""
         return self.membership.revoked_by
 
-    def activity_template(self, membership=None):
+    def activity_template(self, membership: OrganizationMembership = None) -> str:
         """Return a single line summary of changes."""
         if not membership:
             membership = self.membership
@@ -289,12 +297,12 @@ class RenderOrganizationAdminMembershipRevokedNotification(
             return _("You were removed as an admin of {organization} by {actor}")
         return _("{user} was removed as an admin of {organization} by {actor}")
 
-    def web(self):
+    def web(self) -> str:
         return render_template(
             'notifications/organization_membership_revoked_web.html.jinja2', view=self
         )
 
-    def email_content(self):
+    def email_content(self) -> str:
         return render_template(
             'notifications/organization_membership_revoked_email.html.jinja2', view=self
         )

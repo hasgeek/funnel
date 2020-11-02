@@ -8,14 +8,14 @@ class FlaskrTestCase(unittest.TestCase):
         # scenario 1: straight forward splitting
         result = make_redirect_url('http://example.com/?foo=bar', foo='baz')
         expected_result = 'http://example.com/?foo=bar&foo=baz'
-        self.assertEqual(result, expected_result)
+        assert result == expected_result
 
         # scenario 2: with use_fragment set as True
         result = make_redirect_url(
             'http://example.com/?foo=bar', use_fragment=True, foo='baz'
         )
         expected_result = 'http://example.com/?foo=bar#foo=baz'
-        self.assertEqual(result, expected_result)
+        assert result == expected_result
 
     def test_mask_email(self):
-        self.assertEqual(mask_email('foobar@example.com'), 'f****@e****')
+        assert mask_email('foobar@example.com') == 'f****@e****'

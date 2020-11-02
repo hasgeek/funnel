@@ -1,3 +1,4 @@
+# type: ignore
 """Move Participant to EmailAddressMixin.
 
 Revision ID: e3b3ccbca3b9

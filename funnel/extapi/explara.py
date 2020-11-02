@@ -16,7 +16,7 @@ class ExplaraAPI(object):
     Reference : https://developers.explara.com/api-document
     """
 
-    def __init__(self, access_token):
+    def __init__(self, access_token) -> None:
         self.access_token = access_token
         self.headers = {'Authorization': 'Bearer ' + self.access_token}
         self.base_url = 'https://www.explara.com/api/e/{0}'

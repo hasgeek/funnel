@@ -22,21 +22,6 @@ class TestUser(TestDatabaseFixture):
         assert user.username == 'lena'
         assert user.fullname == "Lena Audrey Dachshund"
 
-    def test_user_is_valid_name(self):
-        """Test to check if given is a valid username associated with the user."""
-        crusoe = models.User.get(username='crusoe')
-        # scenario 1: not a valid username
-        number_one = models.User(username='number1', fullname='Number One')
-        assert number_one.is_valid_name('Number1') is True  # Mixed case is now allowed
-        assert number_one.is_valid_name('Number_1') is False  # Underscores are not
-        # scenario 2: a valid username but not the username of instance passed
-        assert crusoe.is_valid_name("oakley") is False
-        # scenario 3: a existing username
-        crusoe.is_valid_name("crusoe") is True
-        # scenario 4: a existing org
-        batdog = models.Organization.get(name='batdog')
-        assert crusoe.is_valid_name(batdog.name) is False
-
     def test_user_pickername(self):
         """Test to verify fullname and username (if any)."""
         # scenario 1: when username exists

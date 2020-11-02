@@ -82,14 +82,14 @@ class SnsValidator:
         topics: Sequence[str] = (),
         cert_regex: Pattern[str] = CERT_URL_REGEX,
         sig_version: str = SIGNATURE_VERSION,
-    ):
+    ) -> None:
         self.topics = topics
         self.cert_regex = cert_regex
         self.sig_version = sig_version
         #: Cache of public keys (per Python process)
         self.public_keys: Dict[str, RSAPublicKey] = {}
 
-    def _check_topics(self, message: Dict[str, str]):
+    def _check_topics(self, message: Dict[str, str]) -> None:
         topic = message.get('TopicArn')
         if not topic:
             raise SnsTopicException("No Topic")
@@ -177,7 +177,7 @@ class SnsValidator:
                 raise SnsSignatureFailureException(exc)
         return public_key
 
-    def _check_signature(self, message: Dict[str, str]):
+    def _check_signature(self, message: Dict[str, str]) -> None:
         """
         Check Signature by comparing the message with the Signature.
 

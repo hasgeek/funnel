@@ -6,6 +6,7 @@ from baseframe.filters import datetime_filter
 from ...models import (
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
+    Rsvp,
 )
 from ...transports import email
 from ..helpers import shortlink
@@ -41,6 +42,7 @@ class RegistrationBase:
 class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they register."""
 
+    rsvp: Rsvp
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you have registered for this project")
@@ -90,6 +92,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they cancel registration."""
 
+    rsvp: Rsvp
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you had registered for this project")

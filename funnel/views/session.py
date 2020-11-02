@@ -24,6 +24,7 @@ from ..models import (
     Session,
     db,
 )
+from ..typing import ReturnRenderWith
 from ..utils import abort_null
 from .decorators import legacy_redirect
 from .helpers import localize_date
@@ -268,7 +269,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with(json=True)
     @requires_login
     @requires_permission('view')
-    def save(self):
+    def save(self) -> ReturnRenderWith:
         form = SavedSessionForm()
         if form.validate_on_submit():
             session_save = SavedSession.query.filter_by(
@@ -286,18 +287,16 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     db.session.delete(session_save)
                     db.session.commit()
             return {'status': 'ok'}
-        else:
-            return (
-                {
-                    'status': 'error',
-                    'error': 'session_save_form_invalid',
-                    'error_description': _(
-                        "Something went wrong, please reload and try again"
-                    ),
-                },
-                400,
-            )
-        return redirect(self.obj.url_for(), code=303)
+        return (
+            {
+                'status': 'error',
+                'error': 'session_save_form_invalid',
+                'error_description': _(
+                    "Something went wrong, please reload and try again"
+                ),
+            },
+            400,
+        )
 
 
 @route('/<project>/schedule/<session>', subdomain='<profile>')

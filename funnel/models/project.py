@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional, Set
+
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from flask import current_app
@@ -9,6 +13,7 @@ from baseframe import __, localize_timezone
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
+from ..typing import OptionalMigratedTables
 from ..utils import geonameid_from_location
 from . import (
     BaseScopedNameMixin,
@@ -400,7 +405,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super(Project, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROJECT)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
@@ -609,7 +614,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def location_geonameid(self):
         return geonameid_from_location(self.location) if self.location else set()
 
-    def permissions(self, user, inherited=None):
+    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         # TODO: Remove permission system entirely
         perms = super(Project, self).permissions(user, inherited)
         perms.add('view')
@@ -710,7 +715,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     @classmethod
-    def migrate_profile(cls, old_profile, new_profile):
+    def migrate_profile(
+        cls, old_profile: Profile, new_profile: Profile
+    ) -> OptionalMigratedTables:
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
@@ -721,6 +728,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 )
                 project.name += '-' + buid()
             project.profile = new_profile
+        return None
 
 
 add_search_trigger(Project, 'search_vector')
@@ -840,7 +848,9 @@ class ProjectRedirect(TimestampMixin, db.Model):
         return redirect
 
     @classmethod
-    def migrate_profile(cls, old_profile, new_profile):
+    def migrate_profile(
+        cls, old_profile: Profile, new_profile: Profile
+    ) -> OptionalMigratedTables:
         """
         Discard redirects when migrating profiles.
 
@@ -855,6 +865,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
                 # Discard project redirect since the name is already taken by another
                 # redirect in the new profile
                 db.session.delete(pr)
+        return None
 
 
 class ProjectLocation(TimestampMixin, db.Model):

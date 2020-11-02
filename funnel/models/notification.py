@@ -75,11 +75,25 @@ is supported using an unusual primary and foreign key structure the in
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Callable, Dict, NamedTuple, Optional, Sequence, Set, Type
-from uuid import uuid4
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
+    get_type_hints,
+)
+from uuid import UUID, uuid4
 
 from sqlalchemy import event
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Query as BaseQuery
 from sqlalchemy.orm.collections import column_mapped_collection
 
 from werkzeug.utils import cached_property
@@ -91,16 +105,13 @@ from coaster.sqlalchemy import (
     immutable,
     with_roles,
 )
-from coaster.utils import (
-    LabeledEnum,
-    classmethodproperty,
-    uuid_from_base58,
-    uuid_to_base58,
-)
+from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
+from .. import models  # For locals() namespace, to discover models from type defn
+from ..typing import OptionalMigratedTables, T
 from . import BaseMixin, NoIdMixin, UuidMixin, UUIDType, db
 from .helpers import reopen
-from .user import User
+from .user import User, UserEmail, UserPhone
 
 __all__ = [
     'SMS_STATUS',
@@ -243,11 +254,22 @@ class Notification(NoIdMixin, db.Model):
     #: Default description for notification. Subclasses MUST override
     description = ''
 
-    #: Subclasses may set this to aid loading of :attr:`document`
-    document_model: UuidMixin
+    #: Subclasses must set document type to aid loading of :attr:`document`
+    document: UuidMixin
 
-    #: Subclasses may set this to aid loading of :attr:`fragment`
-    fragment_model: Optional[UuidMixin] = None
+    #: Subclasses must set fragment type to aid loading of :attr:`fragment`
+    fragment: Optional[UuidMixin]
+
+    #: Document model is auto-populated from the document type
+    document_model: UuidMixin
+    #: Document type is auto-populated from the document model
+    document_type: str
+
+    #: Fragment model is auto-populated from the fragment type
+    fragment_model: Optional[UuidMixin]
+
+    #: Fragment type is auto-populated from the fragment model
+    fragment_type: Optional[str]
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document.
@@ -309,6 +331,12 @@ class Notification(NoIdMixin, db.Model):
         'with_polymorphic': '*',
     }
 
+    __roles__ = {
+        'all': {
+            'read': {'document_type', 'fragment_type'},
+        }
+    }
+
     __datasets__ = {
         'primary': {
             'eventid',
@@ -365,54 +393,46 @@ class Notification(NoIdMixin, db.Model):
     #: an error report will be logged for the user or site administrator. TODO
     ignore_transport_errors = False
 
-    #: Registry of per-class renderers ``{cls_type: CustomNotificationView}``
+    #: Registry of per-class renderers ``{cls_type(): CustomNotificationView}``
     renderers: Dict[str, Type] = {}  # Can't import RenderNotification from views here
 
-    def __init__(self, document=None, fragment=None, **kwargs):
+    def __init__(self, document=None, fragment=None, **kwargs) -> None:
         if document:
             if not isinstance(document, self.document_model):
                 raise TypeError(f"{document!r} is not of type {self.document_model!r}")
             kwargs['document_uuid'] = document.uuid
         if fragment:
+            if self.fragment_model is None:
+                raise TypeError(f"{self.__class__} is not expecting a fragment")
             if not isinstance(fragment, self.fragment_model):
                 raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
             kwargs['fragment_uuid'] = fragment.uuid
         super().__init__(**kwargs)
 
-    @classmethodproperty
-    def cls_type(cls):  # NOQA: N805
+    @classmethod
+    def cls_type(cls) -> str:
         return cls.__mapper_args__['polymorphic_identity']
 
     @property
-    def identity(self):
+    def identity(self) -> Tuple[UUID, UUID]:
         """Primary key of this object."""
         return (self.eventid, self.id)
 
     @hybrid_property
-    def eventid_b58(self):
+    def eventid_b58(self) -> str:
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
     @eventid_b58.setter  # type: ignore[no-redef]
-    def eventid_b58(self, value):
+    def eventid_b58(self, value: str) -> None:
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator  # type: ignore[no-redef]
     def eventid_b58(cls):  # NOQA: N805
         return SqlUuidB58Comparator(cls.eventid)
 
-    @with_roles(read={'all'})
-    @classmethodproperty
-    def document_type(cls):  # NOQA: N805
-        return cls.document_model.__tablename__ if cls.document_model else None
-
-    @with_roles(read={'all'})
-    @classmethodproperty
-    def fragment_type(cls):  # NOQA: N805
-        return cls.fragment_model.__tablename__ if cls.fragment_model else None
-
-    @cached_property
-    def document(self):
+    @cached_property  # type: ignore[no-redef]
+    def document(self):  # type: ignore
         """
         Retrieve the document referenced by this Notification, if any.
 
@@ -420,24 +440,24 @@ class Notification(NoIdMixin, db.Model):
         key constraint enforcing a link. The proper way to do this is by having a
         secondary table for each type of document.
         """
-        if self.document_model and self.document_uuid:
+        if self.document_uuid and self.document_model:
             return self.document_model.query.filter_by(uuid=self.document_uuid).one()
         return None
 
-    @cached_property
-    def fragment(self):
+    @cached_property  # type: ignore[no-redef]
+    def fragment(self):  # type: ignore
         """
         Retrieve the fragment within a document referenced by this Notification, if any.
 
         This assumes the underlying object won't disappear, as there is no SQL foreign
         key constraint enforcing a link.
         """
-        if self.fragment_model and self.fragment_uuid:
+        if self.fragment_uuid and self.fragment_model:
             return self.fragment_model.query.filter_by(uuid=self.fragment_uuid).one()
         return None
 
     @classmethod
-    def renderer(cls, view):
+    def renderer(cls, view: Type[T]) -> Type[T]:
         """
         Register a view class containing render methods.
 
@@ -450,19 +470,19 @@ class Notification(NoIdMixin, db.Model):
             class MyNotificationView(NotificationView):
                 ...
         """
-        if cls.cls_type in cls.renderers:
+        if cls.cls_type() in cls.renderers:
             raise TypeError(
-                f"A renderer has already been registered for {cls.cls_type}"
+                f"A renderer has already been registered for {cls.cls_type()}"
             )
-        cls.renderers[cls.cls_type] = view
+        cls.renderers[cls.cls_type()] = view
         return view
 
     @classmethod
-    def allow_transport(cls, transport):
+    def allow_transport(cls, transport) -> bool:
         """Return ``cls.allow_<transport>``."""
         return getattr(cls, 'allow_' + transport)
 
-    def dispatch(self):
+    def dispatch(self) -> Generator[UserNotification, None, None]:
         """
         Create :class:`UserNotification` instances and yield in an iterator.
 
@@ -521,7 +541,7 @@ class PreviewNotification:
         NotificationFor(PreviewNotification(NotificationType), user)
     """
 
-    def __init__(self, cls, document, fragment=None):
+    def __init__(self, cls, document, fragment=None) -> None:
         self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
         self.document = document
@@ -529,7 +549,7 @@ class PreviewNotification:
         self.fragment = fragment
         self.fragment_uuid = fragment.uuid
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str):
         """Get an attribute."""
         return getattr(self.cls, attr)
 
@@ -537,20 +557,22 @@ class PreviewNotification:
 class UserNotificationMixin:
     """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
 
+    notification: Notification
+
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
-    def notification_type(self):
+    def notification_type(self) -> str:
         return self.notification.type
 
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
-    def document(self):
+    def document(self) -> Optional[db.Model]:
         """Document that this notification is for."""
         return self.notification.document
 
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
-    def fragment(self):
+    def fragment(self) -> Optional[db.Model]:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
@@ -675,17 +697,17 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     # --- User notification properties -------------------------------------------------
 
     @property
-    def identity(self):
+    def identity(self) -> Tuple[int, UUID]:
         """Primary key of this object."""
         return (self.user_id, self.eventid)
 
     @hybrid_property
-    def eventid_b58(self):
+    def eventid_b58(self) -> str:
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
     @eventid_b58.setter  # type: ignore[no-redef]
-    def eventid_b58(self, value):
+    def eventid_b58(self, value: str):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator  # type: ignore[no-redef]
@@ -695,12 +717,12 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     with_roles(eventid_b58, read={'owner'})
 
     @hybrid_property
-    def is_read(self):
+    def is_read(self) -> bool:
         """Whether this notification has been marked as read."""
         return self.read_at is not None
 
     @is_read.setter  # type: ignore[no-redef]
-    def is_read(self, value):
+    def is_read(self, value: bool) -> None:
         if value:
             if not self.read_at:
                 self.read_at = db.func.utcnow()
@@ -713,13 +735,15 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     with_roles(is_read, rw={'owner'})
 
-    @hybrid_property
-    def is_revoked(self):
+    is_revoked: bool
+
+    @hybrid_property  # type: ignore[no-redef]
+    def is_revoked(self) -> bool:
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
     @is_revoked.setter  # type: ignore[no-redef]
-    def is_revoked(self, value):
+    def is_revoked(self, value: bool) -> None:
         if value:
             if not self.revoked_at:
                 self.revoked_at = db.func.utcnow()
@@ -734,7 +758,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     # --- Dispatch helper methods ------------------------------------------------------
 
-    def user_preferences(self):
+    def user_preferences(self) -> NotificationPreferences:
         """Return the user's notification preferences for this notification type."""
         prefs = self.user.notification_preferences.get(self.notification_type)
         if not prefs:
@@ -745,7 +769,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             self.user.notification_preferences[self.notification_type] = prefs
         return prefs
 
-    def has_transport(self, transport):
+    def has_transport(self, transport: str) -> bool:
         """
         Return whether the requested transport is an option.
 
@@ -768,7 +792,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             and self.user.has_transport(transport)
         )
 
-    def transport_for(self, transport):
+    def transport_for(self, transport: str) -> Optional[Union[UserEmail, UserPhone]]:
         """
         Return transport address for the requested transport.
 
@@ -791,7 +815,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             )
         return None
 
-    def rollup_previous(self):
+    def rollup_previous(self) -> None:
         """
         Rollup prior instances of :class:`UserNotification` against the same document.
 
@@ -872,7 +896,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 previous.is_revoked = True
                 previous.rollupid = self.rollupid
 
-    def rolledup_fragments(self):
+    def rolledup_fragments(self) -> Optional[BaseQuery]:
         """Return all fragments in the rolled up batch as a base query."""
         if not self.notification.fragment_model:
             return None
@@ -891,12 +915,12 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         )
 
     @classmethod
-    def get_for(cls, user, eventid_b58):
+    def get_for(cls, user: User, eventid_b58: str) -> Optional[UserNotification]:
         """Retrieve a :class:`UserNotification` using SQLAlchemy session cache."""
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
-    def web_notifications_for(cls, user):
+    def web_notifications_for(cls, user: User) -> BaseQuery:
         return (
             UserNotification.query.join(Notification)
             .filter(
@@ -908,7 +932,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         )
 
     @classmethod
-    def unread_count_for(cls, user):
+    def unread_count_for(cls, user: User) -> int:
         return (
             UserNotification.query.join(Notification)
             .filter(
@@ -921,7 +945,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         )
 
     @classmethod
-    def migrate_user(cls, old_user, new_user):
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         for user_notification in cls.query.filter_by(user_id=old_user.id).all():
             existing = cls.query.get((new_user.id, user_notification.eventid))
             # TODO: Instead of dropping old_user's dupe notifications, check which of
@@ -931,6 +955,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 db.session.delete(user_notification)
             else:
                 user_notification.user_id = new_user.id
+        return None
 
 
 class NotificationFor(UserNotificationMixin):
@@ -939,7 +964,7 @@ class NotificationFor(UserNotificationMixin):
     identity = read_at = revoked_at = None
     is_revoked = is_read = False
 
-    def __init__(self, notification, user):
+    def __init__(self, notification, user) -> None:
         self.notification = notification
         self.eventid = notification.eventid
         self.notification_id = notification.id
@@ -948,7 +973,7 @@ class NotificationFor(UserNotificationMixin):
         self.user_id = user.id
 
     @property
-    def role(self):
+    def role(self) -> Optional[str]:
         """User's primary matching role for this notification."""
         if self.document and self.user:
             roles = self.document.roles_for(self.user)
@@ -957,7 +982,7 @@ class NotificationFor(UserNotificationMixin):
                     return role
         return None
 
-    def rolledup_fragments(self):
+    def rolledup_fragments(self) -> Optional[BaseQuery]:
         """Return a query to load the notification fragment."""
         if not self.notification.fragment_model:
             return None
@@ -1010,12 +1035,12 @@ class NotificationPreferences(BaseMixin, db.Model):
         }
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if self.user:
             self.set_defaults()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`NotificationPreferences` as a string."""
         return (
             f'NotificationPreferences('
@@ -1023,7 +1048,7 @@ class NotificationPreferences(BaseMixin, db.Model):
             f')'
         )
 
-    def set_defaults(self):
+    def set_defaults(self) -> None:
         """Set defaults based on the type's defaults, and previous user prefs."""
         transport_attrs = (
             ('by_email', 'default_email'),
@@ -1062,17 +1087,17 @@ class NotificationPreferences(BaseMixin, db.Model):
                     )
 
     @with_roles(call={'owner'})
-    def by_transport(self, transport):
+    def by_transport(self, transport: str) -> bool:
         """Return ``self.by_<transport>``."""
         return getattr(self, 'by_' + transport)
 
     @with_roles(call={'owner'})
-    def set_transport(self, transport, value):
+    def set_transport(self, transport: str, value: bool) -> None:
         """Set a preference for a transport."""
         setattr(self, 'by_' + transport, value)
 
     @cached_property
-    def type_cls(self):
+    def type_cls(self) -> Optional[Notification]:
         """Return the Notification subclass corresponding to self.notification_type."""
         # Use `registry.get(type)` instead of `registry[type]` because the user may have
         # saved preferences for a discontinued notification type. These should ideally
@@ -1080,15 +1105,16 @@ class NotificationPreferences(BaseMixin, db.Model):
         return notification_type_registry.get(self.notification_type)
 
     @classmethod
-    def migrate_user(cls, old_user, new_user):
+    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         for ntype, prefs in list(old_user.notification_preferences.items()):
             if ntype not in new_user.notification_preferences:
                 prefs.user = new_user
             else:
                 db.session.delete(prefs)
+        return None
 
     @db.validates('notification_type')
-    def _valid_notification_type(self, key, value):
+    def _valid_notification_type(self, key: str, value: Any) -> str:
         if value == '':  # Special-cased name for main preferences
             return value
         if value is None or value not in notification_type_registry:
@@ -1125,7 +1151,7 @@ class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     )
 
     @property
-    def main_notification_preferences(self):
+    def main_notification_preferences(self) -> NotificationPreferences:
         if not self._main_notification_preferences:
             self._main_notification_preferences = NotificationPreferences(
                 user=self,
@@ -1147,9 +1173,38 @@ auto_init_default(Notification.eventid)
 
 
 @event.listens_for(Notification, 'mapper_configured', propagate=True)
-def _register_notification_types(mapper_, cls):
+def _register_notification_types(mapper_, cls) -> None:
     # Don't register the base class itself, or inactive types
     if cls is not Notification:
+        # Tell mypy what type of class we're processing
+        assert issubclass(cls, Notification)  # nosec
+
+        # Populate cls with helper attributes
+
+        type_hints = get_type_hints(cls, localns=vars(models))
+        cls.document_model = (
+            type_hints['document']
+            if isinstance(type_hints['document'], type)
+            and issubclass(type_hints['document'], db.Model)
+            else None
+        )
+        cls.document_type = (
+            cls.document_model.__tablename__  # type: ignore[attr-defined]
+            if cls.document_model
+            else None
+        )
+        cls.fragment_model = (
+            type_hints['fragment']
+            if isinstance(type_hints['fragment'], type)
+            and issubclass(type_hints['fragment'], db.Model)
+            else None
+        )
+        cls.fragment_type = (
+            cls.fragment_model.__tablename__  # type: ignore[attr-defined]
+            if cls.fragment_model
+            else None
+        )
+
         # Exclude inactive notifications in the registry. It is used to populate the
         # user's notification preferences screen.
         if cls.active:

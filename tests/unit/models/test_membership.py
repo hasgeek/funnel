@@ -25,8 +25,10 @@ class TestMembership(object):
         test_db.session.add(sm)
         test_db.session.commit()
 
+        # mypy doesn't understand how these properties have changed their value, so
+        # we ask mypy to ignore it
         assert new_user.is_site_admin is True
-        assert new_user.is_comment_moderator is True
+        assert new_user.is_comment_moderator is True  # type: ignore[unreachable]
         assert new_user.is_site_editor is True
         assert new_user.is_user_moderator is False
 

@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Iterable, Optional, Set
 
 from sqlalchemy.ext.declarative import declared_attr
 
@@ -123,7 +123,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         roles.add('participant')
         return roles
 
-    def roles_for(self, actor=None, anchors=()):
+    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super(ProjectCrewMembership, self).roles_for(actor, anchors)
         if 'editor' in self.project.roles_for(actor, anchors):
             roles.add('project_editor')

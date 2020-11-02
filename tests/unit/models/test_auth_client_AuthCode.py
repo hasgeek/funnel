@@ -19,9 +19,9 @@ class TestAuthCode(TestDatabaseFixture):
         db.session.add(auth_code)
         db.session.commit()
         result = models.AuthCode.all_for(user=crusoe).one_or_none()
-        self.assertIsInstance(result, models.AuthCode)
-        self.assertEqual(result.auth_client, auth_client)
-        self.assertEqual(result.user, crusoe)
+        assert isinstance(result, models.AuthCode)
+        assert result.auth_client == auth_client
+        assert result.user == crusoe
 
     def test_authcode_is_valid(self):
         """Test to verify if a AuthCode instance is valid."""
@@ -39,10 +39,10 @@ class TestAuthCode(TestDatabaseFixture):
 
         # Scenario 1: When code has not been used
         unused_code_status = models.AuthCode.all_for(user=oakley).one().is_valid()
-        self.assertFalse(unused_code_status)
+        assert not unused_code_status
 
         # Scenario 2: When code has been used
         auth_code.used = False
         db.session.commit()
         used_code_status = models.AuthCode.all_for(user=oakley).one().is_valid()
-        self.assertTrue(used_code_status)
+        assert used_code_status
