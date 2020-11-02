@@ -17,11 +17,11 @@ class TestModels(TestDatabaseFixture):
         db.session.commit()
         with self.app.test_request_context('/'):
             merged = models.merge_users(crusoe, bathound)
-            self.assertEqual(merged, crusoe)
-            self.assertIsInstance(merged, models.User)
+            assert merged == crusoe
+            assert isinstance(merged, models.User)
             # because the logic is to merge into older account
-            self.assertEqual(crusoe.status, 0)
-            self.assertEqual(bathound.status, 2)
+            assert crusoe.status == 0
+            assert bathound.status == 2
 
         # Scenario 2: if second user's created_at date is older than first user's
         # created_at
@@ -33,11 +33,11 @@ class TestModels(TestDatabaseFixture):
         db.session.commit()
         with self.app.test_request_context('/'):
             merged = models.merge_users(subramanian, tyrion)
-            self.assertEqual(merged, tyrion)
-            self.assertIsInstance(merged, models.User)
+            assert merged == tyrion
+            assert isinstance(merged, models.User)
             # because the logic is to merge into older account
-            self.assertEqual(tyrion.status, 0)
-            self.assertEqual(subramanian.status, 2)
+            assert tyrion.status == 0
+            assert subramanian.status == 2
 
     def test_getuser(self):
         """Test for retrieving username by prepending @."""
@@ -57,8 +57,8 @@ class TestModels(TestDatabaseFixture):
         db.session.add(externalid)
         db.session.commit()
         result1 = models.getuser('@crusoe')
-        self.assertIsInstance(result1, models.User)
-        self.assertEqual(result1, crusoe)
+        assert isinstance(result1, models.User)
+        assert result1 == crusoe
 
         # scenario 2: with @ in name and not extid
         d_email = 'd@dothraki.vly'
@@ -69,10 +69,10 @@ class TestModels(TestDatabaseFixture):
         db.session.add_all([daenerys, daenerys_email])
         db.session.commit()
         result2 = models.getuser(d_email)
-        self.assertIsInstance(result2, models.User)
-        self.assertEqual(result2, daenerys)
+        assert isinstance(result2, models.User)
+        assert result2 == daenerys
         result3 = models.getuser('@daenerys')
-        self.assertIsNone(result3)
+        assert result3 is None
 
         # scenario 3: with no @ starting in name, check by UserEmailClaim
         j_email = 'jonsnow@nightswatch.co.uk'
@@ -81,22 +81,22 @@ class TestModels(TestDatabaseFixture):
         db.session.add_all([jonsnow, jonsnow_email_claimed])
         db.session.commit()
         result4 = models.getuser(j_email)
-        self.assertIsInstance(result4, models.User)
-        self.assertEqual(result4, jonsnow)
+        assert isinstance(result4, models.User)
+        assert result4 == jonsnow
 
         # scenario 5: with no @ anywhere in name, fetch username
         arya = models.User(username='arya', fullname="Arya Stark")
         db.session.add(arya)
         db.session.commit()
         result5 = models.getuser('arya')
-        self.assertEqual(result5, arya)
+        assert result5 == arya
 
         # scenario 6: with no starting with @ name and no UserEmailClaim or UserEmail
         cersei = models.User(username='cersei', fullname="Cersei Lannister")
         db.session.add(cersei)
         db.session.commit()
         result6 = models.getuser('cersei@thelannisters.co.uk')
-        self.assertIsNone(result6)
+        assert result6 is None
 
     def test_getextid(self):
         """Test for retrieving user given service and userid."""
@@ -116,7 +116,7 @@ class TestModels(TestDatabaseFixture):
         db.session.add(externalid)
         db.session.commit()
         result = models.getextid(service_facebook, userid=email)
-        self.assertIsInstance(result, models.UserExternalId)
+        assert isinstance(result, models.UserExternalId)
         assert '<UserExternalId {service}:{username} of {user}>'.format(
             service=service_facebook, username=email, user=repr(crusoe)[1:-1]
         ) in repr(result)

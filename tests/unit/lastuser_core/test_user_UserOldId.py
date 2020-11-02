@@ -18,5 +18,5 @@ class TestUserOldId(TestDatabaseFixture):
             else:
                 other = crusoe
             query_for_olduser = models.UserOldId.get(other.uuid)
-            self.assertIsInstance(query_for_olduser, models.UserOldId)
-            self.assertEqual(query_for_olduser.olduser, other)
+            assert isinstance(query_for_olduser, models.UserOldId)
+            assert query_for_olduser.olduser == other

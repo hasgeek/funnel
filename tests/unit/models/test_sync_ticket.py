@@ -113,17 +113,17 @@ class TestEventModels(unittest.TestCase):
             email_address=EmailAddress.get('participant3@gmail.com'),
             project=self.project,
         ).one_or_none()
-        self.assertEqual(SyncTicket.query.count(), 3)
-        self.assertEqual(TicketParticipant.query.count(), 3)
-        self.assertEqual(len(p1.ticket_events), 2)
-        self.assertEqual(len(p2.ticket_events), 1)
-        self.assertEqual(len(p3.ticket_events), 1)
+        assert SyncTicket.query.count() == 3
+        assert TicketParticipant.query.count() == 3
+        assert len(p1.ticket_events) == 2
+        assert len(p2.ticket_events) == 1
+        assert len(p3.ticket_events) == 1
 
         # test cancellations
         self.ticket_client.import_from_list(ticket_list2)
-        self.assertEqual(len(p1.ticket_events), 2)
-        self.assertEqual(len(p2.ticket_events), 0)
-        self.assertEqual(len(p3.ticket_events), 1)
+        assert len(p1.ticket_events) == 2
+        assert len(p2.ticket_events) == 0
+        assert len(p3.ticket_events) == 1
 
         # test_transfers
         self.ticket_client.import_from_list(ticket_list3)
@@ -131,7 +131,7 @@ class TestEventModels(unittest.TestCase):
             email_address=EmailAddress.get('participant4@gmail.com'),
             project=self.project,
         ).one_or_none()
-        self.assertEqual(len(p1.ticket_events), 2)
-        self.assertEqual(len(p2.ticket_events), 0)
-        self.assertEqual(len(p3.ticket_events), 0)
-        self.assertEqual(len(p4.ticket_events), 1)
+        assert len(p1.ticket_events) == 2
+        assert len(p2.ticket_events) == 0
+        assert len(p3.ticket_events) == 0
+        assert len(p4.ticket_events) == 1

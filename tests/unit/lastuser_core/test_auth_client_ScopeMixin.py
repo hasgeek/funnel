@@ -19,7 +19,7 @@ class TestScopeMixin(TestDatabaseFixture):
         )
         db.session.add_all([ginny, ginny_token])
         db.session.commit()
-        self.assertEqual(ginny_token.scope, (scope,))
+        assert ginny_token.scope == (scope,)
 
     def test_scopemixin_add_scope(self):
         """Test for adding scope to a ScopeMixin inherited class instance."""
@@ -32,7 +32,7 @@ class TestScopeMixin(TestDatabaseFixture):
         )
         db.session.add_all([neville, neville_token])
         neville_token.add_scope(scope2)
-        self.assertEqual(neville_token.scope, (scope2, scope1))
+        assert neville_token.scope == (scope2, scope1)
 
     def test_authcode_scope_null(self):
         """`AuthCode` can't have empty scope."""

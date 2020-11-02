@@ -1,3 +1,5 @@
+import pytest
+
 from coaster.utils import utcnow
 from funnel import db
 import funnel.models as models
@@ -10,48 +12,44 @@ class TestClient(TestDatabaseFixture):
         """Test for checking if Client's secret is a ClientCredential."""
         auth_client = self.fixtures.auth_client
         credentials = models.AuthClientCredential.new(auth_client)
-        self.assertTrue(auth_client.secret_is(credentials[1], credentials[0].name))
+        assert auth_client.secret_is(credentials[1], credentials[0].name)
 
     def test_client_host_matches(self):
         """Test that AuthClient.host_matches works with same-site referrer URL."""
         auth_client = self.fixtures.auth_client
         auth_client.redirect_uris = ["http://hasjob.dev:5000"]
         referrer = "http://hasjob.dev:5000/logout"
-        self.assertTrue(auth_client.host_matches(referrer))
+        assert auth_client.host_matches(referrer)
 
     def test_client_owner(self):
         """Test if client's owner is said Organization."""
         owner = self.fixtures.auth_client.owner
         batdog = self.fixtures.batdog
-        self.assertIsInstance(owner, models.Organization)
-        self.assertEqual(owner, batdog)
+        assert isinstance(owner, models.Organization)
+        assert owner == batdog
 
     def test_client_owner_is(self):
         """Test if client's owner is a user."""
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
-        with self.assertRaises(AttributeError):
-            self.assertFalse(auth_client.owner_is(self.fixtures.batdog))
-        self.assertTrue(auth_client.owner_is(crusoe))
-        self.assertFalse(auth_client.owner_is(None))
+        with pytest.raises(AttributeError):
+            assert not auth_client.owner_is(self.fixtures.batdog)
+        assert auth_client.owner_is(crusoe)
+        assert not auth_client.owner_is(None)
 
     def test_client_permissions(self):
         """Test that the owner of an AuthClient has appropriate permissions."""
         crusoe = self.fixtures.crusoe
         auth_client = self.fixtures.auth_client
-        permissions_expected_to_be_added = [
+        permissions_expected = {
             'view',
             'edit',
             'delete',
             'assign-permissions',
             'new-resource',
-        ]
-        permissions_received = []
-        result = auth_client.permissions(crusoe)
-        self.assertIsInstance(result, set)
-        for each in result:
-            permissions_received.append(each)
-        self.assertCountEqual(permissions_expected_to_be_added, permissions_received)
+        }
+        permissions_received = auth_client.permissions(crusoe)
+        assert permissions_expected == permissions_received
 
     def test_client_authtoken_for(self):
         """Test for retrieving authtoken for confidential auth clients."""
@@ -63,8 +61,8 @@ class TestClient(TestDatabaseFixture):
             auth_client=auth_client, user=crusoe, scope='id', validity=0
         )
         result = auth_client.authtoken_for(user=crusoe)
-        self.assertEqual(client_token, result)
-        self.assertIsInstance(result, models.AuthToken)
+        assert client_token == result
+        assert isinstance(result, models.AuthToken)
         assert result.user == crusoe
 
         # scenario 2: for a client that has confidential=False
@@ -93,7 +91,7 @@ class TestClient(TestDatabaseFixture):
         )
         db.session.commit()
         result = house_lannisters.authtoken_for(varys, user_session=varys_session)
-        self.assertIsInstance(result, models.AuthToken)
+        assert isinstance(result, models.AuthToken)
         assert "Lord Varys" == result.user.fullname
 
     def test_client_get(self):
@@ -102,16 +100,16 @@ class TestClient(TestDatabaseFixture):
         batdog = self.fixtures.batdog
         key = auth_client.buid
         # scenario 1: when no key or namespace
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             models.AuthClient.get()  # type: ignore[call-overload]
         # scenario 2: when given key
         result1 = models.AuthClient.get(buid=key)
-        self.assertIsInstance(result1, models.AuthClient)
-        self.assertEqual(result1.buid, key)
-        self.assertEqual(result1.owner, batdog)
+        assert isinstance(result1, models.AuthClient)
+        assert result1.buid == key
+        assert result1.owner == batdog
         # scenario 3: when given namespace
         namespace = 'fun.batdogadventures.com'
         result2 = models.AuthClient.get(namespace=namespace)
-        self.assertIsInstance(result2, models.AuthClient)
-        self.assertEqual(result2.namespace, namespace)
-        self.assertEqual(result2.owner, batdog)
+        assert isinstance(result2, models.AuthClient)
+        assert result2.namespace == namespace
+        assert result2.owner == batdog

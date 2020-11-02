@@ -1,5 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 
+import pytest
+
 from funnel import db
 import funnel.models as models
 
@@ -61,7 +63,7 @@ class TestName(TestDatabaseFixture):
         """Names must be assigned to a user or organization if not reserved."""
         unassigned_name = models.Profile(name='unassigned')
         db.session.add(unassigned_name)
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             db.session.commit()
 
     def test_double_assigned_name(self):
@@ -71,7 +73,7 @@ class TestName(TestDatabaseFixture):
             name="double-assigned", title="Organization", owner=self.fixtures.piglet
         )
         db.session.add_all([user, org])
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             db.session.commit()
 
     def test_user_two_names(self):
@@ -81,7 +83,7 @@ class TestName(TestDatabaseFixture):
         assert piglet.profile.name == 'piglet'
         peppa = models.Profile(name='peppa', user=piglet)
         db.session.add(peppa)
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             db.session.commit()
 
     def test_org_two_names(self):
@@ -91,7 +93,7 @@ class TestName(TestDatabaseFixture):
         assert batdog.profile.name == 'batdog'
         bathound = models.Profile(name='bathound', organization=batdog)
         db.session.add(bathound)
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             db.session.commit()
 
     def test_remove_name(self):

@@ -9,8 +9,8 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         """Test for creation of UserPhoneClaim instance."""
         phone = '9123456780'
         result = models.UserPhoneClaim(phone)
-        self.assertIsInstance(result, models.UserPhoneClaim)
-        self.assertEqual(result.phone, phone)
+        assert isinstance(result, models.UserPhoneClaim)
+        assert result.phone == phone
 
     def test_userphoneclaim_all(self):
         """Test for retrieving all instances of UserPhoneClaim given a phone number."""
@@ -22,8 +22,7 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         db.session.add(claim_by_crusoe, claim_by_oakley)
         db.session.commit()
         result = models.UserPhoneClaim.all(phone)
-        self.assertIsInstance(result, list)
-        self.assertCountEqual(result, [claim_by_crusoe, claim_by_oakley])
+        assert set(result) == {claim_by_crusoe, claim_by_oakley}
 
     def test_userphoneclaim_get(self):
         """Retrieve UserPhoneClaim instances given phone number and a user."""
@@ -33,9 +32,9 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         db.session.add(phone_claim)
         db.session.commit()
         result = models.UserPhoneClaim.get_for(user=snow, phone=phone)
-        self.assertIsInstance(result, models.UserPhoneClaim)
-        self.assertEqual(result.phone, phone)
-        self.assertEqual(result.user, snow)
+        assert isinstance(result, models.UserPhoneClaim)
+        assert result.phone == phone
+        assert result.user == snow
 
     def test_userphoneclaim_unicode(self):
         """Test for verifying that UserPhoneClaim instance returns phone as string."""
@@ -45,7 +44,7 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         db.session.add(phone_claim)
         db.session.commit()
         result = str(models.UserPhoneClaim(phone=phone))
-        self.assertIsInstance(result, str)
+        assert isinstance(result, str)
         assert phone in result
 
     def test_userphoneclaim_permissions(self):
@@ -53,10 +52,6 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         coin = models.User(username='coin', fullname='President Alma Coin')
         phone = '9191919191'
         phone_claim = models.UserPhoneClaim(phone=phone, user=coin)
-        permissions_expected = ['verify']
-        result = phone_claim.permissions(coin)
-        self.assertIsInstance(result, set)
-        permissions_received = []
-        for each in result:
-            permissions_received.append(each)
-        self.assertCountEqual(permissions_expected, permissions_received)
+        permissions_expected = {'verify'}
+        permissions_received = phone_claim.permissions(coin)
+        assert permissions_expected == permissions_received

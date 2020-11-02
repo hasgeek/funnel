@@ -1,3 +1,5 @@
+import pytest
+
 from funnel import db
 import funnel.models as models
 
@@ -12,9 +14,9 @@ class TestOrganization(TestDatabaseFixture):
         dachsunited = models.Organization(
             name=name, title=title, owner=self.fixtures.crusoe
         )
-        self.assertIsInstance(dachsunited, models.Organization)
-        self.assertEqual(dachsunited.title, title)
-        self.assertEqual(dachsunited.name, name)
+        assert isinstance(dachsunited, models.Organization)
+        assert dachsunited.title == title
+        assert dachsunited.name == name
 
     def test_organization_get(self):
         """Test for retrieving an organization."""
@@ -24,20 +26,20 @@ class TestOrganization(TestDatabaseFixture):
         db.session.add(spew)
         db.session.commit()
         # scenario 1: when neither name or buid are passed
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             models.Organization.get()
         # scenario 2: when buid is passed
         buid = spew.buid
         get_by_buid = models.Organization.get(buid=buid)
-        self.assertIsInstance(get_by_buid, models.Organization)
+        assert isinstance(get_by_buid, models.Organization)
         assert title == get_by_buid.title
         # scenario 3: when username is passed
         get_by_name = models.Organization.get(name=name)
-        self.assertIsInstance(get_by_name, models.Organization)
+        assert isinstance(get_by_name, models.Organization)
         assert title == get_by_name.title
         # scenario 4: when defercols is set to True
         get_by_name_with_defercols = models.Organization.get(name=name, defercols=True)
-        self.assertIsInstance(get_by_name_with_defercols, models.Organization)
+        assert isinstance(get_by_name_with_defercols, models.Organization)
         assert title == get_by_name_with_defercols.title
 
     def test_organization_all(self):
@@ -48,33 +50,31 @@ class TestOrganization(TestDatabaseFixture):
         db.session.add(ravenclaw)
         db.session.commit()
         # scenario 1: when neither buids nor names are given
-        self.assertEqual(models.Organization.all(), [])
+        assert models.Organization.all() == []
         # scenario 2: when buids are passed
-        orglist = [gryffindor, ravenclaw]
-        orgids = [gryffindor.buid, ravenclaw.buid]
-        all_by_buids = models.Organization.all(buids=orgids)
-        self.assertIsInstance(all_by_buids, list)
-        self.assertCountEqual(all_by_buids, orglist)
+        orglist = {gryffindor, ravenclaw}
+        all_by_buids = models.Organization.all(buids=[_org.buid for _org in orglist])
+        assert set(all_by_buids) == orglist
         # scenario 3: when org names are passed
-        names = [gryffindor.name, ravenclaw.name]
-        all_by_names = models.Organization.all(names=names)
-        self.assertIsInstance(all_by_names, list)
-        self.assertCountEqual(all_by_names, orglist)
+        all_by_names = models.Organization.all(names=[_org.name for _org in orglist])
+        assert set(all_by_names) == orglist
         # scenario 4: when defercols is set to True for names
-        all_by_names_with_defercols = models.Organization.all(names=names)
-        self.assertIsInstance(all_by_names_with_defercols, list)
-        self.assertCountEqual(all_by_names_with_defercols, orglist)
+        all_by_names_with_defercols = models.Organization.all(
+            names=[_org.name for _org in orglist]
+        )
+        assert set(all_by_names_with_defercols) == orglist
         # scenario 5: when defercols is set to True for buids
-        all_by_buids_with_defercols = models.Organization.all(buids=orgids)
-        self.assertIsInstance(all_by_buids_with_defercols, list)
-        self.assertCountEqual(all_by_buids_with_defercols, orglist)
+        all_by_buids_with_defercols = models.Organization.all(
+            buids=[_org.buid for _org in orglist]
+        )
+        assert set(all_by_buids_with_defercols) == orglist
 
     def test_organization_pickername(self):
         """Test for checking Organization's pickername."""
         # scenario 1: when only title is given
         abnegation = models.Organization(title="Abnegation", owner=self.fixtures.crusoe)
-        self.assertIsInstance(abnegation.pickername, str)
-        self.assertEqual(abnegation.pickername, abnegation.title)
+        assert isinstance(abnegation.pickername, str)
+        assert abnegation.pickername == abnegation.title
 
         # scenario 2: when both name and title are given
         name = 'cullens'
@@ -83,7 +83,7 @@ class TestOrganization(TestDatabaseFixture):
         olympic_coven.name = name
         db.session.add(olympic_coven)
         db.session.commit()
-        self.assertIsInstance(olympic_coven.pickername, str)
+        assert isinstance(olympic_coven.pickername, str)
         assert (
             '{title} (@{name})'.format(title=title, name=name)
             in olympic_coven.pickername
@@ -92,11 +92,11 @@ class TestOrganization(TestDatabaseFixture):
     def test_organization_name(self):
         """Test for retrieving and setting an Organization's name."""
         insurgent = models.Organization(title='Insurgent', owner=self.fixtures.crusoe)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             insurgent.name = '35453496*%&^$%^'
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             insurgent.name = '-Insurgent'
         insurgent.name = 'insurgent'
-        self.assertEqual(insurgent.name, 'insurgent')
+        assert insurgent.name == 'insurgent'
         insurgent.name = 'Insurgent'
-        self.assertEqual(insurgent.name, 'Insurgent')
+        assert insurgent.name == 'Insurgent'
