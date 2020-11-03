@@ -29,8 +29,8 @@ const badgeScan = {
         cameras: [],
         selectedCamera: '',
         svgIconUrl: window.Hasgeek.config.svgIconUrl,
-        gettext: window.babel.gettext,
-        ngettext: window.babel.ngettext,
+        gettext: window.gettext,
+        ngettext: window.ngettext,
       },
       components: { faicon },
       closeModal(event) {

@@ -36,8 +36,8 @@ const Search = {
           return date.substr(-2);
         },
         getInitials: window.Baseframe.Utils.getInitials,
-        gettext: window.babel.gettext,
-        ngettext: window.babel.ngettext,
+        gettext: window.gettext,
+        ngettext: window.ngettext,
       },
       components: { useravatar, faicon },
       getQueryString(paramName) {
