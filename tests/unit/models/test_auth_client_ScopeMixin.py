@@ -35,7 +35,7 @@ class TestScopeMixin(TestDatabaseFixture):
         assert neville_token.scope == (scope2, scope1)
 
     def test_authcode_scope_null(self):
-        """`AuthCode` can't have empty scope."""
+        """`AuthCode` can't have null scope but can have empty scope."""
         # Scope can't be None or empty
         with pytest.raises(ValueError):
             models.AuthCode(
@@ -44,20 +44,23 @@ class TestScopeMixin(TestDatabaseFixture):
                 redirect_uri='http://localhost/',
                 scope=None,
             )
-        with pytest.raises(ValueError):
-            models.AuthCode(
-                auth_client=self.fixtures.auth_client,
-                user=self.fixtures.crusoe,
-                redirect_uri='http://localhost/',
-                scope='',
-            )
-        with pytest.raises(ValueError):
-            models.AuthCode(
-                auth_client=self.fixtures.auth_client,
-                user=self.fixtures.crusoe,
-                redirect_uri='http://localhost/',
-                scope=[],
-            )
+        # Empty scope is fine
+        auth_code = models.AuthCode(
+            auth_client=self.fixtures.auth_client,
+            user=self.fixtures.crusoe,
+            redirect_uri='http://localhost/',
+            scope='',
+        )
+        assert auth_code.scope == ()
+        assert auth_code._scope == ''
+        auth_code = models.AuthCode(
+            auth_client=self.fixtures.auth_client,
+            user=self.fixtures.crusoe,
+            redirect_uri='http://localhost/',
+            scope=[],
+        )
+        assert auth_code.scope == ()
+        assert auth_code._scope == ''
         # Committing with default None causes IntegrityError
         db.session.add(
             models.AuthCode(
@@ -71,7 +74,7 @@ class TestScopeMixin(TestDatabaseFixture):
             db.session.commit()
 
     def test_authtoken_scope_null(self):
-        """`AuthToken` can't have empty scope."""
+        """`AuthToken` can't have null scope but can have empty scope."""
         # Scope can't be None or empty
         with pytest.raises(ValueError):
             models.AuthToken(
@@ -79,18 +82,21 @@ class TestScopeMixin(TestDatabaseFixture):
                 user=self.fixtures.crusoe,
                 scope=None,
             )
-        with pytest.raises(ValueError):
-            models.AuthToken(
-                auth_client=self.fixtures.auth_client,
-                user=self.fixtures.crusoe,
-                scope='',
-            )
-        with pytest.raises(ValueError):
-            models.AuthToken(
-                auth_client=self.fixtures.auth_client,
-                user=self.fixtures.crusoe,
-                scope=[],
-            )
+        # Empty scope is fine
+        auth_token = models.AuthToken(
+            auth_client=self.fixtures.auth_client,
+            user=self.fixtures.crusoe,
+            scope='',
+        )
+        assert auth_token.scope == ()
+        assert auth_token._scope == ''
+        auth_token = models.AuthToken(
+            auth_client=self.fixtures.auth_client,
+            user=self.fixtures.crusoe,
+            scope=[],
+        )
+        assert auth_token.scope == ()
+        assert auth_token._scope == ''
         # Committing with default None causes IntegrityError
         db.session.add(
             models.AuthToken(

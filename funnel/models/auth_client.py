@@ -60,10 +60,9 @@ class ScopeMixin(object):
                 raise ValueError("Scope cannot be None")
             if isinstance(value, str):
                 value = value.split()
-            use_scope = ' '.join(sorted(t.strip() for t in value if t))
-            if not use_scope and not self.__scope_null_allowed__:
-                raise ValueError("Scope can't be empty")
-            self._scope = use_scope or None
+            self._scope = ' '.join(sorted(t.strip() for t in value if t))
+            if not self._scope and self.__scope_null_allowed__:
+                self._scope = None
 
         return db.synonym('_scope', descriptor=scope)
 
