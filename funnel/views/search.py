@@ -596,7 +596,7 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
         ):
             return {'type': None, 'counts': search_counts(squery, profile=self.obj)}
         return {
-            'profile': self.obj.current_access(),
+            'profile': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
             'counts': search_counts(squery, profile=self.obj),
             'results': search_results(
@@ -637,7 +637,7 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
         ):
             return {'type': None, 'counts': search_counts(squery, project=self.obj)}
         return {
-            'project': self.obj.current_access(),
+            'project': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
             'counts': search_counts(squery, project=self.obj),
             'results': search_results(
