@@ -4,11 +4,9 @@ import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 import i18n from 'gettext.js';
 
 $(() => {
-  window.i18n = i18n;
-  // Instantiate i18n in browser context
-  window.i18n = window.i18n();
-  window.gettext = window.i18n.gettext.bind(window.i18n);
-  window.ngettext = window.i18n.ngettext.bind(window.i18n);
+  window.Hasgeek.config.availableLanguages = {
+    hi: 'hi_IN',
+  };
   window.Hasgeek.config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
   window.Hasgeek.config.ajaxTimeout = 30000;
   window.Hasgeek.config.retryInterval = 10000;
@@ -17,6 +15,9 @@ $(() => {
   window.Hasgeek.config.notificationRefreshInterval = 300000;
   window.Hasgeek.config.readReceiptTimeout = 5000;
   window.Hasgeek.config.saveEditorContentTimeout = 300;
+
+  window.i18n = i18n;
+  Utils.loadLangTranslations();
 
   Utils.collapse();
   Utils.smoothScroll();

@@ -328,6 +328,36 @@ export const Utils = {
     }
     return headerHeight;
   },
+  loadLangTranslations() {
+    // Instantiate i18n with browser context
+    window.i18n = window.i18n();
+    let lang =
+      window.navigator.userLanguage ||
+      window.navigator.language ||
+      window.navigator.browserLanguage ||
+      window.navigator.userLanguage ||
+      window.navigator.systemLanguage;
+    let langShortForm = lang.substring(0, 2);
+    let translatedLang =
+      window.Hasgeek.config.availableLanguages[langShortForm];
+    if (translatedLang) {
+      $.ajax({
+        type: 'GET',
+        url: Utils.getTranslationFileUrl(translatedLang),
+        async: false,
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          window.i18n.loadJSON(responseData, 'messages');
+          window.i18n.setLocale(translatedLang);
+        },
+      });
+    }
+    window.gettext = window.i18n.gettext.bind(window.i18n);
+    window.ngettext = window.i18n.ngettext.bind(window.i18n);
+  },
+  getTranslationFileUrl(langCode) {
+    return `/static/translations/${langCode}/messages.json`;
+  },
 };
 
 export const ScrollActiveMenu = {

@@ -69,7 +69,7 @@
             <div class="comment__body__inner">
               <div v-if="!comment.state" v-html="comment.message.html"></div>
               <a class="mui--text-caption mui--text-light comment--permalink hg-link-btn" :href="'#c-' + comment.uuid_b58">Posted {{ created_at_age }}</a>
-              <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">({{ gettext('edited %(date)s', {date:edited_at_age}) }})</span>
+              <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">({{ gettext('edited %1', {date:edited_at_age}) }})</span>
               <div class="js-comment-form">
                 <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="activateSubForm($event, COMMENTACTIONS.REPLY, 'reply-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'comment-alt'" :baseline=false></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Reply') }}</span></a>
                 <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="activateSubForm($event, COMMENTACTIONS.REPORTSPAM)"><faicon :icon="'flag-alt'":baseline=false></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Report') }}</span></a>

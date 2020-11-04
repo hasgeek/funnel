@@ -15,7 +15,8 @@
             </form>
           </div>
         </div>
-         <hr class="separator">
+        <hr class="separator">
+        <p>Email {{ gettext('Email') }}</p>
         <div v-if="members">
           <div class="mui--clearfix membership-wrapper__filter">
             <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">{{ gettext('members') }}</span><span v-else>{{ gettext('member') }}</span></p>
@@ -120,7 +121,7 @@
           <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Editor') }}</li>
           <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Concierge') }}</li>
           <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Usher') }}</li>
-          <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">{{ ngettext('+ %(num)d more role', '+ %(num)d more roles', rolesCount(member), {num:rolesCount(member)}) }}</li>
+          <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">{{ ngettext('+ %1 more role', '+ %1 more roles', rolesCount(member)) }}</li>
         </ul>
       </div>
     </script>
