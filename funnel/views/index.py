@@ -22,9 +22,9 @@ class PolicyPage(NamedTuple):
 
 policy_pages = [
     PolicyPage('policy/terms', __("Terms of service")),
-    PolicyPage('policy/adtos', __("Sponsorship & advertising")),
+    PolicyPage('policy/adtos', __("Sponsorship &amp; advertising")),
     PolicyPage('policy/privacy', __("Privacy policy")),
-    PolicyPage('policy/refunds', __("Cancellation & refund policy")),
+    PolicyPage('policy/refunds', __("Cancellation &amp; refund policy")),
     PolicyPage('policy/community', __("Community guidelines")),
     PolicyPage('policy/code', __("Code of conduct")),
 ]
