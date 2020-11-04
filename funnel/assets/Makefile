@@ -8,9 +8,10 @@ assetsonly:
 	npm run build
 
 source_dir = ../translations
-target_dir = ../static/translations/
+target_dir = ../static/translations
+baseframe_dir := $(shell python ../../manage.py baseframe_translations_path)
 
 babel:
-	mkdir -p $(target_dir)
-	ls $(source_dir) | grep _ | xargs -I % sh -c 'mkdir -p $(target_dir)/% && ./node_modules/.bin/po2json --pretty $(source_dir)/%/LC_MESSAGES/messages.po $(target_dir)/%/messages.json'
-	# List locales ----^^^^^^ (e.g. hi_IN)
+	@mkdir -p $(target_dir)
+	ls $(source_dir) | egrep '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c 'mkdir -p $(target_dir)/% && ./node_modules/.bin/po2json --pretty $(source_dir)/%/LC_MESSAGES/messages.po $(target_dir)/%/messages.json'
+	ls $(source_dir) | egrep '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c './node_modules/.bin/po2json --pretty $(baseframe_dir)/%/LC_MESSAGES/messages.po $(target_dir)/%/baseframe.json'
