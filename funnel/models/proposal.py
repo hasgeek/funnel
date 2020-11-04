@@ -344,7 +344,7 @@ class Proposal(
         'SCHEDULED',
         state.CONFIRMED,
         lambda proposal: proposal.session is not None and proposal.session.scheduled,
-        label=('scheduled', __("Confirmed & Scheduled")),
+        label=('scheduled', __("Confirmed &amp; scheduled")),
     )
 
     @with_roles(call={'creator'})
