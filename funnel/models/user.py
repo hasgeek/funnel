@@ -237,8 +237,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     name: Optional[str]
 
-    @hybrid_property  # type: ignore[no-redef]  # skipcq: PYL-E0102
-    def name(self) -> Optional[str]:
+    @hybrid_property  # type: ignore[no-redef]
+    def name(self) -> Optional[str]:  # skipcq: PYL-E0102
         if self.profile:
             return self.profile.name
         return None
@@ -905,8 +905,8 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     name: Optional[str]
 
-    @hybrid_property  # type: ignore[no-redef]  # skipcq: PYL-E0102
-    def name(self) -> Optional[str]:
+    @hybrid_property  # type: ignore[no-redef]
+    def name(self) -> Optional[str]:  # skipcq: PYL-E0102
         if self.profile:
             return self.profile.name
         return None
