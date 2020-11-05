@@ -8,6 +8,7 @@ from funnel.models import SiteMembership
 
 
 def invalidate_cache(user):
+    """Remove cached properties."""
     for attr in (
         'is_site_admin',
         'is_comment_moderator',

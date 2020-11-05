@@ -94,8 +94,10 @@ class SharedProfileMixin:
 
 
 class USER_STATE(LabeledEnum):  # NOQA: N801
+    """State codes for user accounts."""
+
     #: Regular, active user
-    ACTIVE = (0, __("Active"))
+    ACTIVE = (0, __("Active"))  # XXX: Using 0 in a state code is a legacy mistake
     #: Suspended account (cause and explanation not included here)
     SUSPENDED = (1, __("Suspended"))
     #: Merged into another user
@@ -235,7 +237,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     name: Optional[str]
 
-    @hybrid_property  # type: ignore[no-redef]
+    @hybrid_property  # type: ignore[no-redef]  # skipcq: PYL-E0102
     def name(self) -> Optional[str]:
         if self.profile:
             return self.profile.name
@@ -732,7 +734,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return []
 
 
-auto_init_default(User._state)
+auto_init_default(User._state)  # skipcq: PYL-W0212
 add_search_trigger(User, 'search_vector')
 
 
@@ -903,7 +905,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     name: Optional[str]
 
-    @hybrid_property  # type: ignore[no-redef]
+    @hybrid_property  # type: ignore[no-redef]  # skipcq: PYL-E0102
     def name(self) -> Optional[str]:
         if self.profile:
             return self.profile.name

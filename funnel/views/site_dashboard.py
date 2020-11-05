@@ -29,6 +29,7 @@ def requires_dashboard(f):
 @app.route('/dashboard')
 @requires_dashboard
 def dashboard():
+    """Render dashboard landing page."""
     user_count = User.active_user_count()
     mau = (
         db.session.query(db.func.count(db.func.distinct(UserSession.user_id)))
@@ -47,6 +48,7 @@ def dashboard():
 @app.route('/dashboard/data/users_by_month.csv')
 @requires_dashboard
 def dashboard_data_users_by_month():
+    """Render CSV of registered users by month."""
     users_by_month = (
         db.session.query(
             db.func.date_trunc('month', User.created_at).label('month'),
@@ -69,6 +71,7 @@ def dashboard_data_users_by_month():
 @app.route('/dashboard/data/users_by_client.csv')
 @requires_dashboard
 def dashboard_data_users_by_client():
+    """Render CSV of active user counts per time period and auth client."""
     client_users = defaultdict(
         lambda: {
             'counts': {

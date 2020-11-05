@@ -449,6 +449,7 @@ class ProjectView(
     @requires_login
     @requires_roles({'profile_admin'})
     def delete(self):
+        """Delete project if safe to do so."""
         if not self.obj.is_safe_to_delete():
             return render_message(
                 title=_("This project has proposals"),

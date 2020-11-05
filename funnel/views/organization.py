@@ -28,6 +28,7 @@ from .login_session import requires_login, requires_sudo
 
 @Organization.views('people_and_teams')
 def people_and_teams(obj):
+    """Extract a list of users from the org's public teams."""
     # This depends on user.teams not using lazy='dynamic'. When that changes, we will
     # need a different approach to match users to teams. Comparison is by id rather
     # than by object because teams are loaded separately in the two queries, and
@@ -46,12 +47,15 @@ def people_and_teams(obj):
 @Organization.views('main')
 @route('/<organization>')
 class OrgView(UrlChangeCheck, UrlForView, ModelView):
+    """Views for organizations."""
+
     __decorators__ = [requires_login]
     model = Organization
     # Map <organization> in URL to attribute `name`, for `url_for` automation
     route_model_map = {'organization': 'name'}
 
     def loader(self, organization=None):
+        """Load an organization if the view requires it."""
         if organization:
             obj = Organization.get(name=organization)
             if not obj:
@@ -61,6 +65,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     # The /new root URL is intentional
     @route('/new', methods=['GET', 'POST'])
     def new(self):
+        """Create a new organization."""
         if not current_auth.user.has_verified_contact_info:
             flash(
                 _(
@@ -92,6 +97,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @requires_sudo
     @requires_roles({'owner'})
     def delete(self):
+        """Delete organization if safe to do so."""
         if self.obj.profile.is_protected:
             return render_message(
                 title=_("Protected profile"),
@@ -130,11 +136,13 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @route('teams')
     @requires_roles({'admin'})
     def teams(self):
+        """Render list of teams."""
         return render_template('organization_teams.html.jinja2', org=self.obj)
 
     @route('teams/new', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def new_team(self):
+        """Create a new team."""
         form = TeamForm()
         if form.validate_on_submit():
             team = Team(organization=self.obj)
@@ -154,6 +162,8 @@ OrgView.init_app(app)
 @Team.views('main')
 @route('/<organization>/teams/<team>')
 class TeamView(UrlChangeCheck, UrlForView, ModelView):
+    """Views for teams in organizations."""
+
     __decorators__ = [requires_login]
     model = Team
     # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
@@ -163,6 +173,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     }
 
     def loader(self, organization, team):
+        """Load a team."""
         obj = Team.get(buid=team, with_parent=True)
         if not obj or obj.organization.name != organization:
             abort(404)
@@ -171,6 +182,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit(self):
+        """Edit team."""
         form = TeamForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -190,6 +202,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     @requires_sudo
     @requires_roles({'admin'})
     def delete(self):
+        """Delete team."""
         if request.method == 'POST':
             team_data_changed.send(self.obj, changes=['delete'], user=current_auth.user)
         return render_delete_sqla(

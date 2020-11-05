@@ -145,7 +145,9 @@ class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         return Rsvp.get_for(self, user, create)
 
     def rsvps_with(self, status):
-        return self.rsvps.join(User).filter(User.state.ACTIVE, Rsvp._state == status)
+        return self.rsvps.join(User).filter(
+            User.state.ACTIVE, Rsvp._state == status  # skipcq: PYL-W0212
+        )
 
     def rsvp_counts(self):
         return dict(
