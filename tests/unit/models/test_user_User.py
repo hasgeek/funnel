@@ -210,18 +210,6 @@ class TestUser(TestDatabaseFixture):
         # Transparent upgrade to Argon2 after a successful password validation
         assert weaksauce.pw_hash.startswith('$argon2id$')
 
-    def test_user_is_active(self):
-        """
-        Test for user's ACTIVE status.
-
-        where ACTIVE = 0 indicates a Regular, active user
-        """
-        crusoe = models.User.get(username='crusoe')
-        assert crusoe.status == 0
-        oakley = models.User.get(username='oakley')
-        oakley.status = 1
-        assert oakley.status == 1
-
     def test_user_autocomplete(self):
         """
         Test for User's autocomplete method.
@@ -257,8 +245,8 @@ class TestUser(TestDatabaseFixture):
             # ## DONE ###
             assert isinstance(merged_user, models.User)
             # because the logic is to merge into older account so merge status set on newer account
-            assert crusoe.status == 0
-            assert crusoe2.status == 2
+            assert crusoe.state.ACTIVE
+            assert crusoe2.state.MERGED
             assert merged_user.username == "crusoe"
             assert isinstance(merged_user.oldids, InstrumentedList)
             assert set(crusoe.oldids) == set(merged_user.oldids)
@@ -282,15 +270,14 @@ class TestUser(TestDatabaseFixture):
         lookup_by_username = models.User.get(username="crusoe", defercols=True)
         assert isinstance(lookup_by_username, models.User)
         assert lookup_by_username.username == "crusoe"
-        # scenario 5: when user.status is active
+        # scenario 5: when user.state.ACTIVE
         lector = models.User()
-        lector.status = models.USER_STATUS.ACTIVE
+        assert lector.state.ACTIVE
         db.session.add(lector)
         db.session.commit()
         lookup_by_buid_status = models.User.get(buid=lector.buid)
-        assert isinstance(lookup_by_buid_status, models.User)
-        assert lookup_by_buid_status.status == lector.status
-        # scenario 6 : when user.status is USER_STATUS.MERGED
+        assert lookup_by_buid_status == lector
+        # scenario 6 : when user.state.MERGED
         piglet = models.User.get(username='piglet')
         piggy = models.User(username='piggy')
         db.session.add(piggy)
@@ -332,15 +319,15 @@ class TestUser(TestDatabaseFixture):
         )
         assert isinstance(lookup_by_usernames, list)
         assert set(lookup_by_usernames) == set(expected_result)
-        # scenario 6: when user.status is active
+        # scenario 6: when user.state.ACTIVE
         hannibal = models.User(username='hannibal')
-        hannibal.status = models.USER_STATUS.ACTIVE
+        assert hannibal.state.ACTIVE
         db.session.add(hannibal)
         db.session.commit()
-        lookup_by_buid_status = models.User.all(usernames=[hannibal.username])
-        assert isinstance(lookup_by_buid_status, list)
-        assert lookup_by_buid_status[0].status == hannibal.status
-        # scenario 7 : when user.status is USER_STATUS.MERGED
+        lookup_by_usernames = models.User.all(usernames=[hannibal.username])
+        assert len(lookup_by_usernames) == 1
+        assert lookup_by_usernames[0] == hannibal
+        # scenario 7 : when user.state.MERGED
         jykll = models.User()
         hyde = models.User()
         db.session.add_all([jykll, hyde])

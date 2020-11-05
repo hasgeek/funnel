@@ -1,14 +1,17 @@
 from collections import defaultdict
+from datetime import timedelta
 from functools import wraps
 from io import StringIO
 import csv
+
+from sqlalchemy.dialects.postgresql import INTERVAL
 
 from flask import abort, current_app, render_template
 
 from coaster.auth import current_auth
 
 from .. import app
-from ..models import USER_STATUS, User, db
+from ..models import AuthClient, User, UserSession, auth_client_user_session, db
 
 
 def requires_dashboard(f):
@@ -34,19 +37,13 @@ def requires_dashboard(f):
 def dashboard():
     user_count = User.active_user_count()
     mau = (
-        db.session.query('mau')
-        .from_statement(
-            db.text(
-                '''
-                SELECT COUNT(DISTINCT(user_session.user_id)) AS mau
-                FROM user_session, "user"
-                WHERE user_session.user_id = "user".id
-                    AND "user".status = :status
-                    AND user_session.accessed_at >= NOW() - INTERVAL '30 days'
-                '''
-            )
+        db.session.query(db.func.count(db.func.distinct(UserSession.user_id)))
+        .select_from(UserSession)
+        .join(User, UserSession.user)
+        .filter(
+            User.state.ACTIVE,
+            UserSession.accessed_at > db.func.utcnow() - timedelta(days=30),
         )
-        .params(status=USER_STATUS.ACTIVE)
         .scalar()
     )
 
@@ -57,20 +54,14 @@ def dashboard():
 @requires_dashboard
 def dashboard_data_users_by_month():
     users_by_month = (
-        db.session.query('month', 'count')
-        .from_statement(
-            db.text(
-                '''
-                SELECT date_trunc('month', "user".created_at) AS month,
-                    count(*) AS count
-                FROM "user"
-                WHERE status=:status
-                GROUP BY month
-                ORDER BY month
-                '''
-            )
+        db.session.query(
+            db.func.date_trunc('month', User.created_at).label('month'),
+            db.func.count().label('count'),
         )
-        .params(status=USER_STATUS.ACTIVE)
+        .select_from(User)
+        .filter(User.state.ACTIVE)
+        .group_by('month')
+        .order_by('month')
     )
 
     outfile = StringIO()
@@ -107,34 +98,38 @@ def dashboard_data_users_by_client():
         ('halfyear', '6 months'),
         ('year', '1 year'),
     ):
-        clients = (
-            db.session.query('auth_client_id', 'count', 'title', 'website')
-            .from_statement(
-                db.text(
-                    '''
-                    SELECT client_users.auth_client_id AS auth_client_id,
-                    count(*) AS count, auth_client.title AS title,
-                    auth_client.website AS website
-                    FROM (
-                        SELECT user_session.user_id,
-                        auth_client_user_session.auth_client_id FROM user_session,
-                        auth_client_user_session, "user"
-                        WHERE user_session.user_id = "user".id
-                        AND auth_client_user_session.user_session_id = user_session.id
-                        AND "user".status = :status
-                        AND auth_client_user_session.accessed_at >=
-                        (NOW() AT TIME ZONE 'UTC') - INTERVAL :interval
-                        GROUP BY auth_client_user_session.auth_client_id,
-                        user_session.user_id
-                    ) AS client_users, auth_client
-                    WHERE auth_client.id = client_users.auth_client_id
-                    GROUP BY client_users.auth_client_id, auth_client.title,
-                    auth_client.website
-                    ORDER BY count DESC
-                    '''
-                )
+        query_client_users = (
+            db.session.query(
+                UserSession.user_id.label('user_id'),
+                auth_client_user_session.c.auth_client_id.label('auth_client_id'),
             )
-            .params(status=USER_STATUS.ACTIVE, interval=interval)
+            .select_from(UserSession, auth_client_user_session, User)
+            .filter(
+                UserSession.user_id == User.id,
+                auth_client_user_session.c.user_session_id == UserSession.id,
+                User.state.ACTIVE,
+                auth_client_user_session.c.accessed_at
+                >= db.func.utcnow() - db.func.cast(interval, INTERVAL),
+            )
+            .group_by(auth_client_user_session.c.auth_client_id, UserSession.user_id)
+            .subquery()
+        )
+
+        clients = (
+            db.session.query(
+                query_client_users.c.auth_client_id.label('auth_client_id'),
+                db.func.count().label('count'),
+                AuthClient.title.label('title'),
+                AuthClient.website.label('website'),
+            )
+            .select_from(query_client_users, AuthClient)
+            .filter(AuthClient.id == query_client_users.c.auth_client_id)
+            .group_by(
+                query_client_users.c.auth_client_id,
+                AuthClient.title,
+                AuthClient.website,
+            )
+            .order_by(db.text('count DESC'))
             .all()
         )
         for row in clients:

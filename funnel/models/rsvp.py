@@ -12,7 +12,7 @@ from . import NoIdMixin, UuidMixin, db
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import USER_STATUS, User
+from .user import User
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
@@ -139,29 +139,23 @@ class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     @with_roles(grants_via={Rsvp.user: {'participant'}})  # type: ignore[misc]
     @property
     def active_rsvps(self):
-        return self.rsvps.join(User).filter(Rsvp.state.YES, User.is_active)
+        return self.rsvps.join(User).filter(Rsvp.state.YES, User.state.ACTIVE)
 
     def rsvp_for(self, user, create=False):
         return Rsvp.get_for(self, user, create)
 
     def rsvps_with(self, status):
-        return self.rsvps.join(User).filter(
-            User.status == USER_STATUS.ACTIVE, Rsvp._state == status
-        )
+        return self.rsvps.join(User).filter(User.state.ACTIVE, Rsvp._state == status)
 
     def rsvp_counts(self):
         return dict(
             db.session.query(Rsvp._state, db.func.count(Rsvp._state))
             .join(User)
-            .filter(User.status == USER_STATUS.ACTIVE, Rsvp.project == self)
+            .filter(User.state.ACTIVE, Rsvp.project == self)
             .group_by(Rsvp._state)
             .all()
         )
 
     @cached_property
     def rsvp_count_going(self):
-        return (
-            self.rsvps.join(User)
-            .filter(User.status == USER_STATUS.ACTIVE, Rsvp.state.YES)
-            .count()
-        )
+        return self.rsvps.join(User).filter(User.state.ACTIVE, Rsvp.state.YES).count()

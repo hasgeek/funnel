@@ -19,6 +19,7 @@ from baseframe import __
 from coaster.sqlalchemy import (
     Query,
     RoleMixin,
+    StateManager,
     add_primary_relationship,
     auto_init_default,
     failsafe_add,
@@ -32,7 +33,7 @@ from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import add_search_trigger
 
 __all__ = [
-    'USER_STATUS',
+    'USER_STATE',
     'deleted_user',
     'removed_user',
     'User',
@@ -92,15 +93,17 @@ class SharedProfileMixin:
         )
 
 
-class USER_STATUS(LabeledEnum):  # NOQA: N801
+class USER_STATE(LabeledEnum):  # NOQA: N801
     #: Regular, active user
-    ACTIVE = (0, 'active', __("Active"))
-    #: Suspended account
-    SUSPENDED = (1, 'suspended', __("Suspended"))
+    ACTIVE = (0, __("Active"))
+    #: Suspended account (cause and explanation not included here)
+    SUSPENDED = (1, __("Suspended"))
     #: Merged into another user
-    MERGED = (2, 'merged', __("Merged"))
+    MERGED = (2, __("Merged"))
     #: Invited to make an account, doesn't have one yet
-    INVITED = (3, 'invited', __("Invited"))
+    INVITED = (3, __("Invited"))
+    #: Permanently deleted account
+    DELETED = (4, __("Deleted"))
 
 
 class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
@@ -132,9 +135,16 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     locale = with_roles(db.Column(LocaleType, nullable=True), read={'owner'})
     #: Update locale automatically from browser activity
     auto_locale = db.Column(db.Boolean, default=True, nullable=False)
-    #: User's status (active, suspended, merged, etc)
-    status = db.Column(db.SmallInteger, nullable=False, default=USER_STATUS.ACTIVE)
-
+    #: User's status (active, suspended, merged, deleted)
+    _state = db.Column(
+        'state',
+        db.SmallInteger,
+        StateManager.check_constraint('state', USER_STATE),
+        nullable=False,
+        default=USER_STATE.ACTIVE,
+    )
+    #: User account state
+    state = StateManager('_state', USER_STATE, doc="User account state")
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
 
@@ -252,10 +262,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     with_roles(name, read={'all'})
     username = name
 
-    @hybrid_property
-    def is_active(self) -> bool:
-        return self.status == USER_STATUS.ACTIVE
-
     @cached_property
     def verified_contact_count(self) -> int:
         return len(self.emails) + len(self.phones)
@@ -265,7 +271,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return bool(self.emails) or bool(self.phones)
 
     def merged_user(self) -> User:
-        if self.status == USER_STATUS.MERGED:
+        if self.state.MERGED:
             # If our state is MERGED, there _must_ be a corresponding UserOldId record
             return cast(UserOldId, UserOldId.get(self.uuid)).user
         else:
@@ -405,11 +411,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'owner'})
     def has_transport_email(self) -> bool:
-        return self.is_active and bool(self.email)
+        return self.state.ACTIVE and bool(self.email)
 
     @with_roles(call={'owner'})
     def has_transport_sms(self) -> bool:
-        return self.is_active and bool(self.phone)
+        return self.state.ACTIVE and bool(self.phone)
 
     @with_roles(call={'owner'})
     def has_transport_webpush(self) -> bool:  # TODO  # pragma: no cover
@@ -427,13 +433,13 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def transport_for_email(self, context) -> Optional[UserEmail]:
         """Return user's preferred email address within a context."""
         # Per-profile/project customization is a future option
-        return cast(UserEmail, self.email) if self.is_active and self.email else None
+        return cast(UserEmail, self.email) if self.state.ACTIVE and self.email else None
 
     @with_roles(call={'owner'})
     def transport_for_sms(self, context) -> Optional[UserPhone]:
         """Return user's preferred phone number within a context."""
         # Per-profile/project customization is a future option
-        return cast(UserPhone, self.phone) if self.is_active and self.phone else None
+        return cast(UserPhone, self.phone) if self.state.ACTIVE and self.phone else None
 
     @with_roles(call={'owner'})
     def transport_for_webpush(self, context):  # TODO  # pragma: no cover
@@ -494,6 +500,15 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             membership.organization_id
             for membership in self.active_organization_owner_memberships
         ]
+
+    @state.transition(state.ACTIVE, state.MERGED)
+    def mark_merged_into(self, other_user):
+        """Mark account as merged into another account."""
+        db.session.add(UserOldId(id=self.uuid, user=other_user))
+
+    @state.transition(state.ACTIVE, state.SUSPENDED)
+    def mark_suspended(self):
+        """Mark account as suspended on support request."""
 
     @overload
     @classmethod
@@ -556,9 +571,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if defercols:
             query = query.options(*cls._defercols)
         user = query.one_or_none()
-        if user and user.status == USER_STATUS.MERGED:
+        if user and user.state.MERGED:
             user = user.merged_user()
-        if user and user.is_active:
+        if user and user.state.ACTIVE:
             return user
         return None
 
@@ -605,7 +620,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             query = query.options(*cls._defercols)
         for user in query.all():
             user = user.merged_user()
-            if user.is_active:
+            if user.state.ACTIVE:
                 users.add(user)
         return list(users)
 
@@ -639,7 +654,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         base_users = (
             cls.query.join(Profile)
             .filter(
-                cls.status == USER_STATUS.ACTIVE,
+                cls.state.ACTIVE,
                 db.or_(
                     db.func.lower(cls.fullname).like(db.func.lower(like_query)),
                     db.func.lower(Profile.name).like(db.func.lower(like_query)),
@@ -660,7 +675,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 # Query 1: @query -> User.username
                 cls.query.join(Profile)
                 .filter(
-                    cls.status == USER_STATUS.ACTIVE,
+                    cls.state.ACTIVE,
                     db.func.lower(Profile.name).like(db.func.lower(like_query[1:])),
                 )
                 .options(*cls._defercols)
@@ -669,7 +684,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                     # Query 2: @query -> UserExternalId.username
                     cls.query.join(UserExternalId)
                     .filter(
-                        cls.status == USER_STATUS.ACTIVE,
+                        cls.state.ACTIVE,
                         UserExternalId.service.in_(
                             UserExternalId.__at_username_services__
                         ),
@@ -681,7 +696,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                     .limit(20),
                     # Query 3: like_query -> User.fullname
                     cls.query.filter(
-                        cls.status == USER_STATUS.ACTIVE,
+                        cls.state.ACTIVE,
                         db.func.lower(cls.fullname).like(db.func.lower(like_query)),
                     )
                     .options(*cls._defercols)
@@ -699,7 +714,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                     UserEmail.user_id == cls.id,
                     UserEmail.email_address_id == EmailAddress.id,
                     EmailAddress.get_filter(email=query),
-                    cls.status == USER_STATUS.ACTIVE,
+                    cls.state.ACTIVE,
                 )
                 .options(*cls._defercols)
                 .limit(20)
@@ -713,13 +728,14 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def active_user_count(cls) -> int:
-        return cls.query.filter_by(status=USER_STATUS.ACTIVE).count()
+        return cls.query.filter(cls.state.ACTIVE).count()
 
     #: FIXME: Temporary values for Baseframe compatibility
     def organization_links(self) -> List:
         return []
 
 
+auto_init_default(User._state)
 add_search_trigger(User, 'search_vector')
 
 
@@ -760,7 +776,6 @@ class DuckTypeUser(RoleMixin):
     profile = None
     profile_url = None
     email = phone = None
-    is_active = False
 
     __roles__ = {
         'all': {
@@ -772,7 +787,6 @@ class DuckTypeUser(RoleMixin):
                 'pickername',
                 'profile',
                 'profile_url',
-                'is_active',
             }
         }
     }
@@ -784,7 +798,6 @@ class DuckTypeUser(RoleMixin):
             'pickername',
             'profile',
             'profile_url',
-            'is_active',
         }
     }
 
