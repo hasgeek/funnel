@@ -5,7 +5,7 @@ from typing import Iterable, List, Optional, Set, Union
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from baseframe import __
-from coaster.sqlalchemy import Query, StateManager, with_roles
+from coaster.sqlalchemy import Query, StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
@@ -100,6 +100,20 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 
+    # These two flags are read-only. There is no provision for writing to them within
+    # the app:
+
+    #: Protected profiles cannot be deleted
+    is_protected = with_roles(
+        immutable(db.Column(db.Boolean, default=False, nullable=False)),
+        read={'owner', 'admin'},
+    )
+    #: Verified profiles get a public badge
+    is_verified = with_roles(
+        immutable(db.Column(db.Boolean, default=False, nullable=False, index=True)),
+        read={'all'},
+    )
+
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
@@ -165,8 +179,17 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             'user',
             'organization',
             'owner',
+            'is_verified',
         },
-        'related': {'urls', 'uuid_b58', 'name', 'title', 'description', 'logo_url'},
+        'related': {
+            'urls',
+            'uuid_b58',
+            'name',
+            'title',
+            'description',
+            'logo_url',
+            'is_verified',
+        },
     }
 
     def __repr__(self):

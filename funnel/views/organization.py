@@ -1,7 +1,12 @@
 from flask import abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
-from baseframe.forms import render_delete_sqla, render_form, render_redirect
+from baseframe.forms import (
+    render_delete_sqla,
+    render_form,
+    render_message,
+    render_redirect,
+)
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -87,6 +92,13 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @requires_sudo
     @requires_roles({'owner'})
     def delete(self):
+        if self.obj.profile.is_protected:
+            return render_message(
+                title=_("Protected profile"),
+                message=_(
+                    "This organization has a protected profile and cannot be deleted."
+                ),
+            )
         if request.method == 'POST':
             # FIXME: Find a better way to do this
             org_data_changed.send(self.obj, changes=['delete'], user=current_auth.user)
