@@ -81,30 +81,30 @@ class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         uselist=False,
     )
 
-    @property
-    def is_comment_moderator(self):
+    @cached_property
+    def is_comment_moderator(self) -> bool:
         return (
             self.active_site_membership is not None
             and 'comment_moderator' in self.active_site_membership.offered_roles
         )
 
-    @property
-    def is_user_moderator(self):
+    @cached_property
+    def is_user_moderator(self) -> bool:
         return (
             self.active_site_membership is not None
             and 'user_moderator' in self.active_site_membership.offered_roles
         )
 
-    @property
-    def is_site_editor(self):
+    @cached_property
+    def is_site_editor(self) -> bool:
         return (
             self.active_site_membership is not None
             and 'site_editor' in self.active_site_membership.offered_roles
         )
 
     # site_admin means user has one or more of above roles
-    @property
-    def is_site_admin(self):
+    @cached_property
+    def is_site_admin(self) -> bool:
         return (
             self.active_site_membership is not None
             and 'site_admin' in self.active_site_membership.offered_roles
