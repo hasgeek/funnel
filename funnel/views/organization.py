@@ -99,6 +99,15 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                     "This organization has a protected profile and cannot be deleted."
                 ),
             )
+        if not self.obj.profile.is_safe_to_delete():
+            return render_message(
+                title=_("This organization has projects"),
+                message=_(
+                    "Projects must be deleted or transferred before the organization"
+                    " can be deleted."
+                ),
+            )
+
         if request.method == 'POST':
             # FIXME: Find a better way to do this
             org_data_changed.send(self.obj, changes=['delete'], user=current_auth.user)
@@ -115,6 +124,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                 "You have deleted organization ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
             next=url_for('account'),
+            cancel_url=self.obj.profile.url_for(),
         )
 
     @route('teams')

@@ -389,5 +389,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def make_private(self) -> None:
         pass
 
+    def is_safe_to_delete(self) -> bool:
+        """Return True if profile is not protected and has no projects."""
+        return self.is_protected is False and self.projects.count() == 0
+
 
 add_search_trigger(Profile, 'search_vector')

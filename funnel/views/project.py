@@ -14,7 +14,12 @@ from flask import (
 )
 
 from baseframe import _, forms, request_is_xhr
-from baseframe.forms import render_form, render_redirect
+from baseframe.forms import (
+    render_delete_sqla,
+    render_form,
+    render_message,
+    render_redirect,
+)
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
@@ -439,6 +444,33 @@ class ProjectView(
                         submit=_("Save changes"),
                         autosave=True,
                     )
+
+    @route('delete', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'profile_admin'})
+    def delete(self):
+        if not self.obj.is_safe_to_delete():
+            return render_message(
+                title=_("This project has proposals"),
+                message=_(
+                    "Proposals must be deleted or transferred before the project"
+                    " can be deleted."
+                ),
+            )
+        return render_delete_sqla(
+            self.obj,
+            db,
+            title=_("Confirm delete"),
+            message=_(
+                "Delete project ‘{title}’? This will delete everything in the project."
+                " This operation is permanent and cannot be undone."
+            ).format(title=self.obj.title),
+            success=_(
+                "You have deleted project ‘{title}’ and all its associated content"
+            ).format(title=self.obj.title),
+            next=self.obj.profile.url_for(),
+            cancel_url=self.obj.url_for(),
+        )
 
     @route('update_banner', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
