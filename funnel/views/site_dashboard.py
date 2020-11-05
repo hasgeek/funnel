@@ -6,7 +6,7 @@ import csv
 
 from sqlalchemy.dialects.postgresql import INTERVAL
 
-from flask import abort, current_app, render_template
+from flask import abort, render_template
 
 from coaster.auth import current_auth
 
@@ -16,16 +16,10 @@ from ..models import AuthClient, User, UserSession, auth_client_user_session, db
 
 def requires_dashboard(f):
     """Decorate a view to require dashboard access privilege."""
-    # FIXME: Replace this with SiteMembership
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if (
-            not current_auth.is_authenticated
-            or current_auth.user.buid
-            # TODO: Replace this with site membership
-            not in current_app.config.get('DASHBOARD_USERS', [])
-        ):
+        if not current_auth.user or not current_auth.user.is_site_admin:
             abort(403)
         return f(*args, **kwargs)
 
