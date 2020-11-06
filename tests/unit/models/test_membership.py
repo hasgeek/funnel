@@ -4,7 +4,7 @@ import pytest
 
 from baseframe import __
 from coaster.utils import LabeledEnum
-from funnel.models import ProjectCrewMembership, SiteMembership
+from funnel.models import ProjectCrewMembership
 
 
 class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
@@ -15,23 +15,6 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
 
 
 class TestMembership(object):
-    def test_site_membership(self, test_db, new_user):
-        assert new_user.active_site_membership is None
-        assert new_user.is_site_admin is False
-
-        sm = SiteMembership(
-            user=new_user, is_site_editor=True, is_comment_moderator=True
-        )
-        test_db.session.add(sm)
-        test_db.session.commit()
-
-        # mypy doesn't understand how these properties have changed their value, so
-        # we ask mypy to ignore it
-        assert new_user.is_site_admin is True
-        assert new_user.is_comment_moderator is True  # type: ignore[unreachable]
-        assert new_user.is_site_editor is True
-        assert new_user.is_user_moderator is False
-
     def test_crew_membership(self, test_db, new_user, new_user_owner, new_project):
         # new_user is profile admin
         assert 'admin' in new_project.profile.roles_for(new_user_owner)
