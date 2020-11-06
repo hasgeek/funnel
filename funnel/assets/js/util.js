@@ -352,8 +352,10 @@ export const Utils = {
         },
       });
     }
-    window.gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
+    window.gettext = function (msgid, ...args) {
+      return window.ngettext.apply(this, [msgid, msgid, 1].concat(args));
+    };
   },
   getTranslationFileUrl(langCode) {
     return `/static/translations/${langCode}/messages.json`;

@@ -16,7 +16,6 @@
           </div>
         </div>
         <hr class="separator">
-        <p>Email {{ gettext('Email') }}</p>
         <div v-if="members">
           <div class="mui--clearfix membership-wrapper__filter">
             <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">{{ gettext('members') }}</span><span v-else>{{ gettext('member') }}</span></p>
