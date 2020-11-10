@@ -1,5 +1,3 @@
-from typing import Dict
-
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 import geoip2.errors
@@ -13,15 +11,7 @@ from baseframe.forms import (
     render_redirect,
 )
 from coaster.auth import current_auth
-from coaster.views import (
-    ClassView,
-    ModelView,
-    UrlForView,
-    get_next_url,
-    load_model,
-    render_with,
-    route,
-)
+from coaster.views import ClassView, get_next_url, render_with, route
 
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
@@ -268,13 +258,10 @@ def account_username_availability():
 
 
 @route('/account')
-class AccountView(UrlForView, ModelView):
+class AccountView(ClassView):
     """Account management views."""
 
     __decorators__ = [requires_login]
-    model = User
-    route_model_map: Dict[str, str] = {}
-    obj: User
 
     current_section = 'account'  # needed for showing active tab
     SavedProjectForm = SavedProjectForm
@@ -285,14 +272,14 @@ class AccountView(UrlForView, ModelView):
     @route('', endpoint='account')
     @render_with('account.html.jinja2')
     def account(self) -> ReturnRenderWith:
-        logout_form = LogoutForm(user=self.obj)
+        logout_form = LogoutForm(user=current_auth.user)
         primary_email_form = EmailPrimaryForm()
         primary_phone_form = PhonePrimaryForm()
         return {
-            'user': self.obj.current_access(),
+            'user': current_auth.user.current_access(),
             'authtokens': [
                 _at.current_access()
-                for _at in self.obj.authtokens.join(AuthClient)
+                for _at in current_auth.user.authtokens.join(AuthClient)
                 .order_by(AuthClient.trusted.desc(), AuthClient.title)
                 .all()
             ],
@@ -310,7 +297,7 @@ class AccountView(UrlForView, ModelView):
     @route('saved', endpoint='saved')
     @render_with('account_saved.html.jinja2')
     def saved(self) -> ReturnRenderWith:
-        return {'saved_projects': self.obj.saved_projects}
+        return {'saved_projects': current_auth.user.saved_projects}
 
     @route(
         'edit',
@@ -325,29 +312,35 @@ class AccountView(UrlForView, ModelView):
         endpoint='account_new',
     )
     def account_edit(self, newprofile: bool = False) -> ReturnView:
-        form = AccountForm(obj=self.obj)
-        form.edit_user = self.obj
-        if self.obj.email or newprofile is False:
+        form = AccountForm(obj=current_auth.user)
+        form.edit_user = current_auth.user
+        if current_auth.user.email or newprofile is False:
             del form.email
 
         if form.validate_on_submit():
             # Can't auto-populate here because user.email is read-only
-            self.obj.fullname = form.fullname.data
-            self.obj.username = form.username.data
-            self.obj.timezone = form.timezone.data
-            self.obj.auto_timezone = form.auto_timezone.data
-            self.obj.locale = form.locale.data
-            self.obj.auto_locale = form.auto_locale.data
-            autoset_timezone_and_locale(self.obj)
+            current_auth.user.fullname = form.fullname.data
+            current_auth.user.username = form.username.data
+            current_auth.user.timezone = form.timezone.data
+            current_auth.user.auto_timezone = form.auto_timezone.data
+            current_auth.user.locale = form.locale.data
+            current_auth.user.auto_locale = form.auto_locale.data
+            autoset_timezone_and_locale(current_auth.user)
 
-            if newprofile and not self.obj.email:
-                useremail = UserEmailClaim.get_for(user=self.obj, email=form.email.data)
+            if newprofile and not current_auth.user.email:
+                useremail = UserEmailClaim.get_for(
+                    user=current_auth.user, email=form.email.data
+                )
                 if useremail is None:
-                    useremail = UserEmailClaim(user=self.obj, email=form.email.data)
+                    useremail = UserEmailClaim(
+                        user=current_auth.user, email=form.email.data
+                    )
                     db.session.add(useremail)
                 send_email_verify_link(useremail)
                 db.session.commit()
-                user_data_changed.send(self.obj, changes=['profile', 'email-claim'])
+                user_data_changed.send(
+                    current_auth.user, changes=['profile', 'email-claim']
+                )
                 flash(
                     _(
                         "Your profile has been updated. We sent you an email to confirm"
@@ -357,7 +350,7 @@ class AccountView(UrlForView, ModelView):
                 )
             else:
                 db.session.commit()
-                user_data_changed.send(self.obj, changes=['profile'])
+                user_data_changed.send(current_auth.user, changes=['profile'])
                 flash(_("Your profile has been updated"), category='success')
 
             if newprofile:
@@ -375,7 +368,7 @@ class AccountView(UrlForView, ModelView):
                     _(
                         "Hello, <strong>{fullname}</strong>. Please spare a minute to fill"
                         " out your account"
-                    ).format(fullname=escape(self.obj.fullname))
+                    ).format(fullname=escape(current_auth.user.fullname))
                 ),
                 ajax=False,
                 template='account_formlayout.html.jinja2',
@@ -398,18 +391,18 @@ class AccountView(UrlForView, ModelView):
             emailclaim = UserEmailClaim.get_by(
                 verification_code=secret, email_hash=email_hash
             )
-        except ValueError:
+        except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
         if emailclaim is not None:
             emailclaim.email_address.mark_active()
-            if 'verify' in emailclaim.permissions(self.obj):
+            if emailclaim.user == current_auth.user:
                 existing = UserEmail.get(email=emailclaim.email)
                 if existing is not None:
                     claimed_email = emailclaim.email
                     claimed_user = emailclaim.user
                     db.session.delete(emailclaim)
                     db.session.commit()
-                    if claimed_user != self.obj:
+                    if claimed_user != current_auth.user:
                         return render_message(
                             title=_("Email address already claimed"),
                             message=Markup(
@@ -441,7 +434,7 @@ class AccountView(UrlForView, ModelView):
                 for emailclaim in UserEmailClaim.all(useremail.email):
                     db.session.delete(emailclaim)
                 db.session.commit()
-                user_data_changed.send(self.obj, changes=['email'])
+                user_data_changed.send(current_auth.user, changes=['email'])
                 return render_message(
                     title=_("Email address verified"),
                     message=Markup(
@@ -473,15 +466,15 @@ class AccountView(UrlForView, ModelView):
 
     @route('password', methods=['GET', 'POST'], endpoint='change_password')
     def change_password(self) -> ReturnView:
-        if not self.obj.pw_hash:
-            form = PasswordCreateForm(edit_user=self.obj)
+        if not current_auth.user.pw_hash:
+            form = PasswordCreateForm(edit_user=current_auth.user)
             title = _("Set password")
         else:
-            form = PasswordChangeForm(edit_user=self.obj)
+            form = PasswordChangeForm(edit_user=current_auth.user)
             title = _("Change password")
         if form.validate_on_submit():
             current_app.logger.info("Password strength %f", form.password_strength)
-            user = self.obj
+            user = current_auth.user
             user.password = form.password.data
             # 1. Log out of the current session
             logout_internal()
@@ -514,16 +507,18 @@ class AccountView(UrlForView, ModelView):
     def add_email(self) -> ReturnView:
         form = NewEmailAddressForm()
         if form.validate_on_submit():
-            useremail = UserEmailClaim.get_for(user=self.obj, email=form.email.data)
+            useremail = UserEmailClaim.get_for(
+                user=current_auth.user, email=form.email.data
+            )
             if useremail is None:
                 useremail = UserEmailClaim(
-                    user=self.obj, email=form.email.data, type=form.type.data
+                    user=current_auth.user, email=form.email.data, type=form.type.data
                 )
                 db.session.add(useremail)
             send_email_verify_link(useremail)
             db.session.commit()
             flash(_("We sent you an email to confirm your address"), 'success')
-            user_data_changed.send(self.obj, changes=['email-claim'])
+            user_data_changed.send(current_auth.user, changes=['email-claim'])
             return render_redirect(url_for('account'), code=303)
         return render_form(
             form=form,
@@ -538,14 +533,16 @@ class AccountView(UrlForView, ModelView):
     def make_email_primary(self) -> ReturnView:
         form = EmailPrimaryForm()
         if form.validate_on_submit():
-            useremail = UserEmail.get_for(user=self.obj, email=form.email.data)
+            useremail = UserEmail.get_for(user=current_auth.user, email=form.email.data)
             if useremail is not None:
                 if useremail.primary:
                     flash(_("This is already your primary email address"), 'info')
                 else:
-                    self.obj.primary_email = useremail
+                    current_auth.user.primary_email = useremail
                     db.session.commit()
-                    user_data_changed.send(self.obj, changes=['email-update-primary'])
+                    user_data_changed.send(
+                        current_auth.user, changes=['email-update-primary']
+                    )
                     flash(_("Your primary email address has been updated"), 'success')
             else:
                 flash(
@@ -559,14 +556,16 @@ class AccountView(UrlForView, ModelView):
     def make_phone_primary(self) -> ReturnView:
         form = PhonePrimaryForm()
         if form.validate_on_submit():
-            userphone = UserPhone.get_for(user=self.obj, phone=form.phone.data)
+            userphone = UserPhone.get_for(user=current_auth.user, phone=form.phone.data)
             if userphone is not None:
                 if userphone.primary:
                     flash(_("This is already your primary phone number"), 'info')
                 else:
-                    self.obj.primary_phone = userphone
+                    current_auth.user.primary_phone = userphone
                     db.session.commit()
-                    user_data_changed.send(self.obj, changes=['phone-update-primary'])
+                    user_data_changed.send(
+                        current_auth.user, changes=['phone-update-primary']
+                    )
                     flash(_("Your primary phone number has been updated"), 'success')
             else:
                 flash(
@@ -583,14 +582,19 @@ class AccountView(UrlForView, ModelView):
     )
     def remove_email(self, email_hash: str) -> ReturnView:
         try:
-            useremail = UserEmail.get_for(user=self.obj, email_hash=email_hash)
+            useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
             if not useremail:
-                useremail = UserEmailClaim.get_for(user=self.obj, email_hash=email_hash)
+                useremail = UserEmailClaim.get_for(
+                    user=current_auth.user, email_hash=email_hash
+                )
             if not useremail:
                 abort(404)
-        except ValueError:
+        except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
-        if isinstance(useremail, UserEmail) and self.obj.verified_contact_count == 1:
+        if (
+            isinstance(useremail, UserEmail)
+            and current_auth.user.verified_contact_count == 1
+        ):
             flash(
                 _(
                     "Your account requires at least one verified email address or phone"
@@ -601,7 +605,7 @@ class AccountView(UrlForView, ModelView):
             return render_redirect(url_for('account'), code=303)
         if request.method == 'POST':
             # FIXME: Confirm validation success
-            user_data_changed.send(self.obj, changes=['email-delete'])
+            user_data_changed.send(current_auth.user, changes=['email-delete'])
         return render_delete_sqla(
             useremail,
             db,
@@ -630,9 +634,9 @@ class AccountView(UrlForView, ModelView):
         """
         try:
             useremail = UserEmail.get(email_hash=email_hash)
-        except ValueError:
+        except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
-        if useremail and useremail.user == self.obj:
+        if useremail and useremail.user == current_auth.user:
             # If an email address is already verified (this should not happen unless the
             # user followed a stale link), tell them it's done -- but only if the email
             # address belongs to this user, to prevent this endpoint from being used as
@@ -642,8 +646,10 @@ class AccountView(UrlForView, ModelView):
 
         # Get the existing email claim that we're resending a verification link for
         try:
-            emailclaim = UserEmailClaim.get_for(user=self.obj, email_hash=email_hash)
-        except ValueError:
+            emailclaim = UserEmailClaim.get_for(
+                user=current_auth.user, email_hash=email_hash
+            )
+        except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
         if not emailclaim:
             abort(404)
@@ -670,11 +676,15 @@ class AccountView(UrlForView, ModelView):
     def add_phone(self) -> ReturnView:
         form = NewPhoneForm()
         if form.validate_on_submit():
-            userphone = UserPhoneClaim.get_for(user=self.obj, phone=form.phone.data)
+            userphone = UserPhoneClaim.get_for(
+                user=current_auth.user, phone=form.phone.data
+            )
             if userphone is None:
-                userphone = UserPhoneClaim(user=self.obj, phone=form.phone.data)
+                userphone = UserPhoneClaim(
+                    user=current_auth.user, phone=form.phone.data
+                )
                 db.session.add(userphone)
-            self.obj.main_notification_preferences.by_sms = (
+            current_auth.user.main_notification_preferences.by_sms = (
                 form.enable_notifications.data
             )
             msg = SMSMessage(
@@ -698,7 +708,7 @@ class AccountView(UrlForView, ModelView):
                     _("A verification code has been sent to your phone number"),
                     'success',
                 )
-                user_data_changed.send(self.obj, changes=['phone-claim'])
+                user_data_changed.send(current_auth.user, changes=['phone-claim'])
                 return render_redirect(
                     url_for('verify_phone', number=userphone.phone), code=303
                 )
@@ -711,16 +721,12 @@ class AccountView(UrlForView, ModelView):
             template='account_formlayout.html.jinja2',
         )
 
-    @route(
-        'phone/<number>/remove',
-        methods=['GET', 'POST'],
-        endpoint='remove_phone',
-    )
+    @route('phone/<number>/remove', methods=['GET', 'POST'], endpoint='remove_phone')
     @requires_sudo
     def remove_phone(self, number: str) -> ReturnView:
         userphone = UserPhone.get(phone=number)
-        if userphone is None or userphone.user != self.obj:
-            userphone = UserPhoneClaim.get_for(user=self.obj, phone=number)
+        if userphone is None or userphone.user != current_auth.user:
+            userphone = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
             if not userphone:
                 abort(404)
             if userphone.verification_expired:
@@ -736,7 +742,7 @@ class AccountView(UrlForView, ModelView):
                 return render_redirect(url_for('account'), code=303)
             if (
                 isinstance(userphone, UserPhone)
-                and self.obj.verified_contact_count == 1
+                and current_auth.user.verified_contact_count == 1
             ):
                 flash(
                     _(
@@ -749,7 +755,7 @@ class AccountView(UrlForView, ModelView):
 
         if request.method == 'POST':
             # FIXME: Confirm validation success
-            user_data_changed.send(self.obj, changes=['phone-delete'])
+            user_data_changed.send(current_auth.user, changes=['phone-delete'])
         return render_delete_sqla(
             userphone,
             db,
@@ -764,20 +770,18 @@ class AccountView(UrlForView, ModelView):
             delete_text=_("Remove"),
         )
 
-    @route(
-        'phone/<number>/verify',
-        methods=['GET', 'POST'],
-        endpoint='verify_phone',
-    )
-    @load_model(UserPhoneClaim, {'phone': 'number'}, 'phoneclaim', permission='verify')
-    def verify_phone(self, phoneclaim: UserPhoneClaim) -> ReturnView:
+    @route('phone/<number>/verify', methods=['GET', 'POST'], endpoint='verify_phone')
+    def verify_phone(self, number: str) -> ReturnView:
+        phoneclaim = UserPhoneClaim.query.filter_by(
+            user=current_auth.user, phone=number
+        ).one_or_404()
         if phoneclaim.verification_expired:
             flash(
                 _("You provided an incorrect verification code too many times"),
                 'danger',
             )
-            # Block attempts to verify this number, but also keep the claim so that a new
-            # claim cannot be made. A periodic sweep to delete old claims is needed.
+            # Block attempts to verify this number, but also keep the claim so that a
+            # new claim cannot be made. A periodic sweep to delete old claims is needed.
             return render_redirect(url_for('account'), code=303)
 
         form = VerifyPhoneForm()
@@ -785,16 +789,16 @@ class AccountView(UrlForView, ModelView):
         if form.validate_on_submit():
             if UserPhone.get(phoneclaim.phone) is None:
                 # If there are no existing phone numbers, this will be a primary
-                primary = not self.obj.phones
+                primary = not current_auth.user.phones
                 userphone = UserPhone(
-                    user=self.obj, phone=phoneclaim.phone, gets_text=True
+                    user=current_auth.user, phone=phoneclaim.phone, gets_text=True
                 )
                 userphone.primary = primary
                 db.session.add(userphone)
                 db.session.delete(phoneclaim)
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
-                user_data_changed.send(self.obj, changes=['phone'])
+                user_data_changed.send(current_auth.user, changes=['phone'])
                 return render_redirect(url_for('account'), code=303)
             db.session.delete(phoneclaim)
             db.session.commit()
@@ -802,7 +806,7 @@ class AccountView(UrlForView, ModelView):
                 _("This phone number has already been claimed by another user"),
                 'danger',
             )
-        elif request.method == 'POST':
+        elif form.is_submitted():
             phoneclaim.verification_attempts += 1
             db.session.commit()
         return render_form(
@@ -822,13 +826,10 @@ class AccountView(UrlForView, ModelView):
         endpoint='remove_extid',
     )
     @requires_sudo
-    @load_model(
-        UserExternalId,
-        {'service': 'service', 'userid': 'userid'},
-        'extid',
-        permission='delete_extid',
-    )
-    def remove_extid(self, extid: UserExternalId) -> ReturnView:
+    def remove_extid(self, service: str, userid: str) -> ReturnView:
+        extid = UserExternalId.query.filter_by(
+            user=current_auth.user, service=service, userid=userid
+        ).one_or_404()
         return render_delete_sqla(
             extid,
             db,
