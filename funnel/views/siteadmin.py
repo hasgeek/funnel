@@ -80,13 +80,15 @@ def requires_comment_moderator(f):
 
 @route('/siteadmin')
 class SiteadminView(ClassView):
+    """Site administrator views."""
+
     __decorators__ = [requires_login]
     current_section = 'siteadmin'  # needed for showing active tab
 
     @route('', endpoint='siteadmin')
     @requires_siteadmin
     def dashboard(self) -> ReturnView:
-        """Render dashboard landing page."""
+        """Render siteadmin dashboard landing page."""
         user_count = User.active_user_count()
         mau = (
             db.session.query(db.func.count(db.func.distinct(UserSession.user_id)))
@@ -221,6 +223,7 @@ class SiteadminView(ClassView):
     def comments(
         self, query: str = '', page: Optional[int] = None, per_page: int = 100
     ) -> ReturnRenderWith:
+        """Render a list of all comments matching a query."""
         comments = Comment.query.filter(Comment.state.REPORTABLE).order_by(
             Comment.created_at.desc()
         )
@@ -235,6 +238,7 @@ class SiteadminView(ClassView):
         pagination = comments.paginate(page=page, per_page=per_page)
 
         return {
+            'title': _("Comments"),
             'query': query,
             'comments': pagination.items,
             'total_comments': pagination.total,
@@ -250,8 +254,11 @@ class SiteadminView(ClassView):
     )
     @requires_comment_moderator
     def markspam(self) -> ReturnResponse:
+        """Mark comments as spam."""
         comment_spam_form = Form()
         comment_spam_form.form_nonce.data = comment_spam_form.form_nonce.default()
+        # TODO: Create a CommentReportForm that has a QuerySelectMultiField on Comment.
+        # Avoid request.form.getlist('comment_id') here
         if comment_spam_form.validate_on_submit():
             comments = Comment.query.filter(
                 Comment.uuid_b58.in_(request.form.getlist('comment_id'))
@@ -271,14 +278,14 @@ class SiteadminView(ClassView):
     @route('comments/review', endpoint='siteadmin_review_comments_random')
     @requires_comment_moderator
     def review_random_comment(self) -> ReturnResponse:
+        """Evaluate an existing comment spam report, selected at random."""
         random_report = CommentModeratorReport.get_one(exclude_user=current_auth.user)
         if random_report is not None:
             return redirect(
                 url_for('siteadmin_review_comment', report=random_report.uuid_b58)
             )
-        else:
-            flash(_("There are no comment reports to review at this time"), 'error')
-            return redirect(url_for('siteadmin_comments'))
+        flash(_("There are no comment reports to review at this time"), 'error')
+        return redirect(url_for('siteadmin_comments'))
 
     @route(
         'comments/review/<report>',
@@ -288,6 +295,7 @@ class SiteadminView(ClassView):
     @requires_comment_moderator
     @render_with('siteadmin_review_comment.html.jinja2')
     def review_comment(self, report: str) -> ReturnRenderWith:
+        """Evaluate an existing comment spam report."""
         comment_report: CommentModeratorReport = CommentModeratorReport.query.filter_by(
             uuid_b58=report
         ).one_or_404()
@@ -354,8 +362,8 @@ class SiteadminView(ClassView):
 
             # Redirect to a new report
             return redirect(url_for('siteadmin_review_comments_random'))
-        else:
-            app.logger.debug(report_form.errors)
+
+        app.logger.debug(report_form.errors)
 
         return {
             'report': report,

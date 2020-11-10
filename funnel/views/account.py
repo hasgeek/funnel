@@ -269,6 +269,8 @@ def account_username_availability():
 
 @route('/account')
 class AccountView(UrlForView, ModelView):
+    """Account management views."""
+
     __decorators__ = [requires_login]
     model = User
     route_model_map: Dict[str, str] = {}
@@ -360,8 +362,7 @@ class AccountView(UrlForView, ModelView):
 
             if newprofile:
                 return render_redirect(get_next_url(), code=303)
-            else:
-                return render_redirect(url_for('account'), code=303)
+            return render_redirect(url_for('account'), code=303)
         if newprofile:
             return render_form(
                 form,
@@ -379,17 +380,16 @@ class AccountView(UrlForView, ModelView):
                 ajax=False,
                 template='account_formlayout.html.jinja2',
             )
-        else:
-            return render_form(
-                form,
-                title=_("Edit account"),
-                # Form with id 'form-account_edit' will have username validation
-                # in account_formlayout.html.jinja2
-                formid='account_edit',
-                submit=_("Save changes"),
-                ajax=False,
-                template='account_formlayout.html.jinja2',
-            )
+        return render_form(
+            form,
+            title=_("Edit account"),
+            # Form with id 'form-account_edit' will have username validation
+            # in account_formlayout.html.jinja2
+            formid='account_edit',
+            submit=_("Save changes"),
+            ajax=False,
+            template='account_formlayout.html.jinja2',
+        )
 
     # FIXME: Don't modify db on GET. Autosubmit via JS and process on POST
     @route('confirm/<email_hash>/<secret>', endpoint='confirm_email')
@@ -419,23 +419,22 @@ class AccountView(UrlForView, ModelView):
                                 ).format(email=escape(claimed_email))
                             ),
                         )
-                    else:
-                        return render_message(
-                            title=_("Email address already verified"),
-                            message=Markup(
-                                _(
-                                    "Hello <strong>{fullname}</strong>! Your email address"
-                                    " <code>{email}</code> has already been verified"
-                                ).format(
-                                    fullname=escape(claimed_user.fullname),
-                                    email=escape(claimed_email),
-                                )
-                            ),
-                        )
+                    return render_message(
+                        title=_("Email address already verified"),
+                        message=Markup(
+                            _(
+                                "Hello <strong>{fullname}</strong>! Your email address"
+                                " <code>{email}</code> has already been verified"
+                            ).format(
+                                fullname=escape(claimed_user.fullname),
+                                email=escape(claimed_email),
+                            )
+                        ),
+                    )
 
                 useremail = emailclaim.user.add_email(
                     emailclaim.email,
-                    primary=emailclaim.user.email is None,
+                    primary=not emailclaim.user.emails,
                     type=emailclaim.type,
                     private=emailclaim.private,
                 )
@@ -455,26 +454,24 @@ class AccountView(UrlForView, ModelView):
                         )
                     ),
                 )
-            else:
-                return render_message(
-                    title=_("This was not for you"),
-                    message=_(
-                        "You’ve opened an email verification link that was meant for"
-                        " another user. If you are managing multiple accounts, please login"
-                        " with the correct account and open the link again."
-                    ),
-                    code=403,
-                )
-        else:
             return render_message(
-                title=_("Expired confirmation link"),
+                title=_("This was not for you"),
                 message=_(
-                    "The confirmation link you clicked on is either invalid or has expired."
+                    "You’ve opened an email verification link that was meant for"
+                    " another user. If you are managing multiple accounts, please login"
+                    " with the correct account and open the link again."
                 ),
-                code=404,
+                code=403,
             )
+        return render_message(
+            title=_("Expired confirmation link"),
+            message=_(
+                "The confirmation link you clicked on is either invalid or has expired."
+            ),
+            code=404,
+        )
 
-    @route('/account/password', methods=['GET', 'POST'], endpoint='change_password')
+    @route('password', methods=['GET', 'POST'], endpoint='change_password')
     def change_password(self) -> ReturnView:
         if not self.obj.pw_hash:
             form = PasswordCreateForm(edit_user=self.obj)
@@ -513,7 +510,7 @@ class AccountView(UrlForView, ModelView):
             template='account_formlayout.html.jinja2',
         )
 
-    @route('/account/email/new', methods=['GET', 'POST'], endpoint='add_email')
+    @route('email/new', methods=['GET', 'POST'], endpoint='add_email')
     def add_email(self) -> ReturnView:
         form = NewEmailAddressForm()
         if form.validate_on_submit():
@@ -537,9 +534,7 @@ class AccountView(UrlForView, ModelView):
             template='account_formlayout.html.jinja2',
         )
 
-    @route(
-        '/account/email/makeprimary', methods=['POST'], endpoint='make_email_primary'
-    )
+    @route('email/makeprimary', methods=['POST'], endpoint='make_email_primary')
     def make_email_primary(self) -> ReturnView:
         form = EmailPrimaryForm()
         if form.validate_on_submit():
@@ -560,9 +555,7 @@ class AccountView(UrlForView, ModelView):
             flash(_("Please select an email address"), 'danger')
         return render_redirect(url_for('account'), code=303)
 
-    @route(
-        '/account/phone/makeprimary', methods=['POST'], endpoint='make_phone_primary'
-    )
+    @route('phone/makeprimary', methods=['POST'], endpoint='make_phone_primary')
     def make_phone_primary(self) -> ReturnView:
         form = PhonePrimaryForm()
         if form.validate_on_submit():
@@ -584,7 +577,7 @@ class AccountView(UrlForView, ModelView):
         return render_redirect(url_for('account'), code=303)
 
     @route(
-        '/account/email/<email_hash>/remove',
+        'email/<email_hash>/remove',
         methods=['GET', 'POST'],
         endpoint='remove_email',
     )
@@ -624,13 +617,13 @@ class AccountView(UrlForView, ModelView):
         )
 
     @route(
-        '/account/email/<email_hash>/verify',
+        'email/<email_hash>/verify',
         methods=['GET', 'POST'],
         endpoint='verify_email',
     )
     def verify_email(self, email_hash: str) -> ReturnView:
         """
-        Allow user to resend an email verification link to themselves if original is lost.
+        Allow user to resend an email verification link if original is lost.
 
         This endpoint is only linked to from the account page under the list of email
         addresses pending verification.
@@ -642,8 +635,8 @@ class AccountView(UrlForView, ModelView):
         if useremail and useremail.user == self.obj:
             # If an email address is already verified (this should not happen unless the
             # user followed a stale link), tell them it's done -- but only if the email
-            # address belongs to this user, to prevent this endpoint from being used as a
-            # probe for email addresses in the database.
+            # address belongs to this user, to prevent this endpoint from being used as
+            # a probe for email addresses in the database.
             flash(_("This email address is already verified"), 'danger')
             return render_redirect(url_for('account'), code=303)
 
@@ -673,7 +666,7 @@ class AccountView(UrlForView, ModelView):
             template='account_formlayout.html.jinja2',
         )
 
-    @route('/account/phone/new', methods=['GET', 'POST'], endpoint='add_phone')
+    @route('phone/new', methods=['GET', 'POST'], endpoint='add_phone')
     def add_phone(self) -> ReturnView:
         form = NewPhoneForm()
         if form.validate_on_submit():
@@ -719,7 +712,7 @@ class AccountView(UrlForView, ModelView):
         )
 
     @route(
-        '/account/phone/<number>/remove',
+        'phone/<number>/remove',
         methods=['GET', 'POST'],
         endpoint='remove_phone',
     )
@@ -772,7 +765,7 @@ class AccountView(UrlForView, ModelView):
         )
 
     @route(
-        '/account/phone/<number>/verify',
+        'phone/<number>/verify',
         methods=['GET', 'POST'],
         endpoint='verify_phone',
     )
@@ -791,10 +784,8 @@ class AccountView(UrlForView, ModelView):
         form.phoneclaim = phoneclaim
         if form.validate_on_submit():
             if UserPhone.get(phoneclaim.phone) is None:
-                if not self.obj.phones:
-                    primary = True
-                else:
-                    primary = False
+                # If there are no existing phone numbers, this will be a primary
+                primary = not self.obj.phones
                 userphone = UserPhone(
                     user=self.obj, phone=phoneclaim.phone, gets_text=True
                 )
@@ -805,13 +796,12 @@ class AccountView(UrlForView, ModelView):
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(self.obj, changes=['phone'])
                 return render_redirect(url_for('account'), code=303)
-            else:
-                db.session.delete(phoneclaim)
-                db.session.commit()
-                flash(
-                    _("This phone number has already been claimed by another user"),
-                    'danger',
-                )
+            db.session.delete(phoneclaim)
+            db.session.commit()
+            flash(
+                _("This phone number has already been claimed by another user"),
+                'danger',
+            )
         elif request.method == 'POST':
             phoneclaim.verification_attempts += 1
             db.session.commit()
@@ -824,9 +814,10 @@ class AccountView(UrlForView, ModelView):
             template='account_formlayout.html.jinja2',
         )
 
-    # Userid is a path here because obsolete OpenID ids are URLs (both direct and via Google)
+    # Userid is a path here because obsolete OpenID ids are URLs (both direct and via
+    # Google's pre-OAuth2 OpenID protocol)
     @route(
-        '/account/extid/<service>/<path:userid>/remove',
+        'extid/<service>/<path:userid>/remove',
         methods=['GET', 'POST'],
         endpoint='remove_extid',
     )
@@ -838,17 +829,6 @@ class AccountView(UrlForView, ModelView):
         permission='delete_extid',
     )
     def remove_extid(self, extid: UserExternalId) -> ReturnView:
-        num_extids = len(self.obj.externalids)
-        has_pw_hash = bool(self.obj.pw_hash)
-        if not has_pw_hash and num_extids == 1:
-            flash(
-                _(
-                    "You do not have a password set. So you must have at least one external"
-                    " ID enabled."
-                ),
-                'danger',
-            )
-            return render_redirect(url_for('account'), code=303)
         return render_delete_sqla(
             extid,
             db,
@@ -868,6 +848,8 @@ class AccountView(UrlForView, ModelView):
 
 @route('/account')
 class OtherAppAccountView(ClassView):
+    """Redirect /account from Talkfunnel to Hasgeek."""
+
     @route('', endpoint='account')
     @requires_login
     def account(self) -> ReturnResponse:

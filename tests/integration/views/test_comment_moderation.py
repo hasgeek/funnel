@@ -9,7 +9,7 @@ from funnel.models import (
 )
 
 
-class TestProjectViews(object):
+class TestProjectViews:
     def test_comment_report_same(
         self,
         test_client,
