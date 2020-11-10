@@ -330,7 +330,6 @@ export const Utils = {
   },
   loadLangTranslations() {
     // Instantiate i18n with browser context
-    window.i18n = window.i18n();
     let lang =
       window.navigator.userLanguage ||
       window.navigator.language ||
@@ -347,15 +346,13 @@ export const Utils = {
         async: false,
         timeout: window.Hasgeek.config.ajaxTimeout,
         success: function (responseData) {
-          window.i18n.loadJSON(responseData, 'messages');
-          window.i18n.setLocale(translatedLang);
+          window.i18n = new window.Hasgeek.Gettext(responseData);
         },
       });
     }
+
+    window.gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
-    window.gettext = function (msgid, ...args) {
-      return window.ngettext.apply(this, [msgid, msgid, 1].concat(args));
-    };
   },
   getTranslationFileUrl(langCode) {
     return `/static/translations/${langCode}/messages.json`;
