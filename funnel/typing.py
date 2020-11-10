@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Set, Tuple, TypeVar, Union
 
-from flask import Response
+from werkzeug.wrappers import Response  # Base class for Flask Response
 
 #: Type used to indicate that a decorator returns its decorated attribute
 T = TypeVar('T')
@@ -24,3 +24,6 @@ ReturnRenderWith = Union[
 
 #: Return type for Flask views
 ReturnView = Union[str, Tuple[str, int], Tuple[str, int, Dict[str, str]], Response]
+
+#: Return type for Response objects
+ReturnResponse = Response

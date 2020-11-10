@@ -30,7 +30,7 @@ from . import (
     schedule,
     search,
     session,
-    site_dashboard,
+    siteadmin,
     sitemap,
     sms_events,
     ticket_event,

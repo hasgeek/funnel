@@ -59,7 +59,7 @@ class TestProjectViews(object):
                 follow_redirects=True,
             )
             assert (
-                "There is no comment report no review at this moment"
+                "There are no comment reports to review at this time"
                 in resp_post.data.decode('utf-8')
             )
             comment_refetched = Comment.query.filter_by(id=comment_id).one()
@@ -109,7 +109,7 @@ class TestProjectViews(object):
                 follow_redirects=True,
             )
             assert (
-                "There is no comment report no review at this moment"
+                "There are no comment reports to review at this time"
                 in resp_post.data.decode('utf-8')
             )
             comment2_refetched = Comment.query.filter_by(id=comment2_id).one()
@@ -171,7 +171,7 @@ class TestProjectViews(object):
                 follow_redirects=True,
             )
             assert (
-                "There is no comment report no review at this moment"
+                "There are no comment reports to review at this time"
                 in resp_post.data.decode('utf-8')
             )
             comment3_refetched = Comment.query.filter_by(id=comment3_id).one()
@@ -237,7 +237,7 @@ class TestProjectViews(object):
                 follow_redirects=True,
             )
             assert (
-                "There is no comment report no review at this moment"
+                "There are no comment reports to review at this time"
                 in resp_post.data.decode('utf-8')
             )
             comment4_refetched = Comment.query.filter_by(id=comment4_id).one()
