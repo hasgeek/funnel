@@ -127,5 +127,5 @@ class TestName(TestDatabaseFixture):
 
             assert merged is not newname
             assert merged is self.fixtures.nameless
-            assert newname.status == models.USER_STATUS.MERGED
+            assert newname.state.MERGED
             assert merged.username == 'newname'

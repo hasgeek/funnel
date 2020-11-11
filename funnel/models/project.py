@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Set
+from typing import Iterable, Optional, Set
 
 from sqlalchemy.ext.orderinglist import ordering_list
 
@@ -671,11 +671,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 perms.add('checkin_event')
         return perms
 
-    def roles_for(self, actor=None, anchors=()):
+    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
         return roles
+
+    def is_safe_to_delete(self) -> bool:
+        """Return True if project has no proposals."""
+        return self.proposals.count() == 0
 
     @classmethod
     def all_unsorted(cls, legacy=None):

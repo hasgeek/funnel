@@ -90,6 +90,7 @@ RESERVED_NAMES: Set[str] = {
     'register',
     'reset',
     'search',
+    'siteadmin',
     'smtp',
     'static',
     'ticket',

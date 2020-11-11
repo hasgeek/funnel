@@ -56,7 +56,13 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record."""
+        """
+        Roles offered by this membership record.
+
+        This property will typically not be used, as the ``User.is_*`` properties
+        directly test the role columns. This property exists solely to satisfy the
+        :attr:`offered_roles` membership ducktype.
+        """
         roles = {'site_admin'}
         if self.is_comment_moderator:
             roles.add('comment_moderator')
@@ -81,31 +87,28 @@ class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         uselist=False,
     )
 
-    @property
-    def is_comment_moderator(self):
+    @cached_property
+    def is_comment_moderator(self) -> bool:
         return (
             self.active_site_membership is not None
-            and 'comment_moderator' in self.active_site_membership.offered_roles
+            and self.active_site_membership.is_comment_moderator
         )
 
-    @property
-    def is_user_moderator(self):
+    @cached_property
+    def is_user_moderator(self) -> bool:
         return (
             self.active_site_membership is not None
-            and 'user_moderator' in self.active_site_membership.offered_roles
+            and self.active_site_membership.is_user_moderator
         )
 
-    @property
-    def is_site_editor(self):
+    @cached_property
+    def is_site_editor(self) -> bool:
         return (
             self.active_site_membership is not None
-            and 'site_editor' in self.active_site_membership.offered_roles
+            and self.active_site_membership.is_site_editor
         )
 
     # site_admin means user has one or more of above roles
-    @property
-    def is_site_admin(self):
-        return (
-            self.active_site_membership is not None
-            and 'site_admin' in self.active_site_membership.offered_roles
-        )
+    @cached_property
+    def is_site_admin(self) -> bool:
+        return self.active_site_membership is not None
