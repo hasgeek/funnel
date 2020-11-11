@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {%- from "macros.html.jinja2" import project_header %}
-{%- from "js/membership.js" import membership_template, project_member_template %}
+{%- from "js/membership.js.jinja2" import membership_template, project_member_template %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{% trans %}Crew{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}

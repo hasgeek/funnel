@@ -4,7 +4,7 @@
     "messages": {
       "": {
         "domain": "messages",
-        "plural_forms": "nplurals=2; plural=(n != 1)",
+        "plural_forms": "nplurals=2; plural=n>1",
         "lang": "hi_IN"
       },
       "now": [null, ""],
@@ -79,13 +79,6 @@
       "Loading...": [null, ""],
       "Select or upload image": [null, ""],
       "Close": [null, ""],
-      "This is not a valid emoji.": [null, ""],
-      "This domain is not a public email domain.": [null, ""],
-      "This domain is a public email domain.": [null, ""],
-      "Toggle menu": [null, ""],
-      "My account": [null, ""],
-      "My profile": [null, ""],
-      "Apps": [null, ""],
       "URL": [null, ""],
       "Emoji": [null, ""],
       "Content": [null, ""],

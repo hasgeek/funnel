@@ -3,7 +3,7 @@
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import embed_video_player, video_action_bar, comments_tree,  project_mini_header %}
-{%- from "js/comments.js" import comments_tree %}
+{%- from "js/comments.js.jinja2" import comments_tree %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}
   {%- if proposal.speaker -%}

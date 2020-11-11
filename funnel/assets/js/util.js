@@ -330,12 +330,7 @@ export const Utils = {
   },
   loadLangTranslations() {
     // Instantiate i18n with browser context
-    let lang =
-      window.navigator.userLanguage ||
-      window.navigator.language ||
-      window.navigator.browserLanguage ||
-      window.navigator.userLanguage ||
-      window.navigator.systemLanguage;
+    let lang = document.documentElement.lang;
     let langShortForm = lang.substring(0, 2);
     let translatedLang =
       window.Hasgeek.config.availableLanguages[langShortForm];

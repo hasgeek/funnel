@@ -2,7 +2,7 @@
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, widgetscripts %}
 {%- from "macros.html.jinja2" import project_header, updates_template, useravatar %}
-{%- from "js/update.js" import updates_template %}
+{%- from "js/update.js.jinja2" import updates_template %}
 {% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 

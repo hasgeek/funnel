@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "js/event_checkin.js" import checkin_count, participant_list %}
+{%- from "js/event_checkin.js.jinja2" import checkin_count, participant_list %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}{% trans %}Setup events{% endtrans %}{% endblock %}

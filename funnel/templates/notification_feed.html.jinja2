@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "js/notification.js" import notification_template %}
+{%- from "js/notification.js.jinja2" import notification_template %}
 
 {% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
 

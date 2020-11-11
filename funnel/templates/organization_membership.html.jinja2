@@ -2,7 +2,7 @@
 {% block title %}{{ profile.title }}{% endblock %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import profile_header %}
-{%- from "js/membership.js" import membership_template, profile_member_template %}
+{%- from "js/membership.js.jinja2" import membership_template, profile_member_template %}
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}

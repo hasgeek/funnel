@@ -7,14 +7,13 @@
             <p class="mui--text-danger mui--text-subhead page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
-          {{#if video}}<faicon icon='expand' baseline=false css_class='scanner-wrapper__badge--icon'></faicon> {{/if}}
-          {{#if video}}
+          {{#if video}}<faicon icon='expand' baseline=false css_class='scanner-wrapper__badge--icon'></faicon>
           <div>
             <div class="mui-select camera-dropdown">
-              <select value='{{selectedCamera}}' class="mui--d-inlineblock">
-                <option value=''>{{ gettext('Select camera') }}</option>
+              <select value="{{selectedCamera}}" class="mui--d-inlineblock">
+                <option value="">{{ gettext('Select camera') }}</option>
                 {{#cameras}}
-                  <option value='{{value}}'>{{label}}</option>
+                <option value='{{value}}'>{{label}}</option>
                 {{/cameras}}
               </select>
             </div>

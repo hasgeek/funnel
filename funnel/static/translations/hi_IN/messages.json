@@ -1027,8 +1027,6 @@
         null,
         ""
       ],
-      "Hasgeek": [null, ""],
-      "Search Hasgeek for projects, discussions and more": [null, ""],
       "Back to the profile": [null, ""],
       "Teams": [null, ""],
       "New team": [null, ""],
@@ -1109,6 +1107,7 @@
       "(No venues)": [null, ""],
       "(No rooms)": [null, ""],
       "Add room": [null, ""],
+      "Select camera": [null, ""],
       "Switch camera": [null, ""],
       "Check in status": [null, ""],
       "Scanning": [null, ""],
@@ -1117,6 +1116,7 @@
         null,
         ""
       ],
+      "Hasgeek": [null, ""],
       "Attendee details not found": [null, ""],
       "Login to leave a comment": [null, ""],
       "You need to be a participant to comment.": [null, ""],

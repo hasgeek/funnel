@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-10 09:35+0530\n"
+"POT-Creation-Date: 2020-11-11 16:14+0530\n"
 "PO-Revision-Date: 2020-04-06 12:40+0530\n"
 "Last-Translator: \n"
 "Language: hi_IN\n"
@@ -276,7 +276,7 @@ msgstr ""
 
 #: funnel/forms/auth_client.py:41 funnel/templates/auth_client.html.jinja2:41
 #: funnel/templates/auth_client_index.html.jinja2:16
-#: funnel/templates/js/membership.js:99
+#: funnel/templates/js/membership.js.jinja2:99
 #: funnel/templates/oauth_authorize.html.jinja2:19
 msgid "Owner"
 msgstr ""
@@ -519,7 +519,7 @@ msgstr ""
 msgid "Owner (can also manage other owners and admins)"
 msgstr ""
 
-#: funnel/forms/membership.py:45 funnel/templates/js/membership.js:120
+#: funnel/forms/membership.py:45 funnel/templates/js/membership.js.jinja2:120
 msgid "Editor"
 msgstr ""
 
@@ -527,7 +527,7 @@ msgstr ""
 msgid "Can edit project details, proposal guidelines, schedule, labels and venues"
 msgstr ""
 
-#: funnel/forms/membership.py:52 funnel/templates/js/membership.js:121
+#: funnel/forms/membership.py:52 funnel/templates/js/membership.js.jinja2:121
 msgid "Concierge"
 msgstr ""
 
@@ -535,7 +535,7 @@ msgstr ""
 msgid "Can manage participants and see contact info"
 msgstr ""
 
-#: funnel/forms/membership.py:57 funnel/templates/js/membership.js:122
+#: funnel/forms/membership.py:57 funnel/templates/js/membership.js.jinja2:122
 msgid "Usher"
 msgstr ""
 
@@ -1199,7 +1199,7 @@ msgid "Badge template URL"
 msgstr "बैज टेम्पलेट यूआरएल"
 
 #: funnel/forms/sync_ticket.py:52 funnel/forms/venue.py:22
-#: funnel/forms/venue.py:82 funnel/templates/js/membership.js:23
+#: funnel/forms/venue.py:82 funnel/templates/js/membership.js.jinja2:23
 msgid "Name"
 msgstr "नाम"
 
@@ -1473,7 +1473,8 @@ msgid "Uncategorized"
 msgstr ""
 
 #: funnel/models/notification.py:135 funnel/templates/account.html.jinja2:6
-#: funnel/templates/account_saved.html.jinja2:6 funnel/templates/js/badge.js:97
+#: funnel/templates/account_saved.html.jinja2:6
+#: funnel/templates/js/badge.js.jinja2:96
 #: funnel/templates/notification_preferences.html.jinja2:6
 msgid "My account"
 msgstr ""
@@ -1637,7 +1638,7 @@ msgstr ""
 #: funnel/models/project.py:42 funnel/models/project.py:59
 #: funnel/models/project.py:365 funnel/models/proposal.py:40
 #: funnel/models/proposal.py:350 funnel/models/update.py:24
-#: funnel/templates/js/update.js:5
+#: funnel/templates/js/update.js.jinja2:5
 msgid "Draft"
 msgstr "प्रारूप"
 
@@ -1833,7 +1834,7 @@ msgid "This proposal has been rejected"
 msgstr "इस प्रस्ताव को अस्वीकार कर दिया गया है"
 
 #: funnel/models/proposal.py:429 funnel/templates/delete.html.jinja2:12
-#: funnel/templates/js/membership.js:76
+#: funnel/templates/js/membership.js.jinja2:76
 msgid "Cancel"
 msgstr "रद्द करें"
 
@@ -1859,7 +1860,8 @@ msgstr "इस प्रस्ताव को मूल्यांकन क�
 
 #: funnel/models/proposal.py:473 funnel/templates/auth_client.html.jinja2:17
 #: funnel/templates/auth_client.html.jinja2:172
-#: funnel/templates/delete.html.jinja2:11 funnel/templates/js/comments.js:85
+#: funnel/templates/delete.html.jinja2:11
+#: funnel/templates/js/comments.js.jinja2:85
 #: funnel/templates/organization_teams.html.jinja2:42
 #: funnel/views/commentvote.py:294 funnel/views/update.py:186
 msgid "Delete"
@@ -2033,7 +2035,7 @@ msgstr ""
 #: funnel/templates/admin.html.jinja2:28 funnel/templates/admin.html.jinja2:55
 #: funnel/templates/admin.html.jinja2:77
 #: funnel/templates/auth_client.html.jinja2:171
-#: funnel/templates/js/comments.js:84
+#: funnel/templates/js/comments.js.jinja2:84
 #: funnel/templates/organization_teams.html.jinja2:41
 #: funnel/templates/ticket_event.html.jinja2:29
 msgid "Edit"
@@ -2603,7 +2605,8 @@ msgstr ""
 msgid "Unsave <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>"
 msgstr ""
 
-#: funnel/templates/js/comments.js:77 funnel/templates/macros.html.jinja2:85
+#: funnel/templates/js/comments.js.jinja2:77
+#: funnel/templates/macros.html.jinja2:85
 #: funnel/templates/macros.html.jinja2:88
 msgid "Share"
 msgstr ""
@@ -2758,7 +2761,8 @@ msgstr ""
 msgid "Pinned update"
 msgstr ""
 
-#: funnel/templates/js/update.js:65 funnel/templates/macros.html.jinja2:314
+#: funnel/templates/js/update.js.jinja2:65
+#: funnel/templates/macros.html.jinja2:314
 msgid "This update is for participants only"
 msgstr ""
 
@@ -3038,15 +3042,6 @@ msgstr ""
 msgid ""
 "This page cannot be loaded at the moment. You may be offline, or your ad "
 "blocker may be blocking this page."
-msgstr ""
-
-#: funnel/templates/js/badge.js:38 funnel/templates/opensearch.xml.jinja2:3
-#: funnel/views/notification.py:253
-msgid "Hasgeek"
-msgstr ""
-
-#: funnel/templates/opensearch.xml.jinja2:4
-msgid "Search Hasgeek for projects, discussions and more"
 msgstr ""
 
 #: funnel/templates/organization_membership.html.jinja2:20
@@ -3376,130 +3371,139 @@ msgstr ""
 msgid "Add room"
 msgstr ""
 
-#: funnel/templates/js/badge.js:21
+#: funnel/templates/js/badge.js.jinja2:14
+msgid "Select camera"
+msgstr ""
+
+#: funnel/templates/js/badge.js.jinja2:20
 msgid "Switch camera"
 msgstr ""
 
-#: funnel/templates/js/badge.js:30
+#: funnel/templates/js/badge.js.jinja2:29
 msgid "Check in status"
 msgstr ""
 
-#: funnel/templates/js/badge.js:34 funnel/templates/js/badge.js:71
+#: funnel/templates/js/badge.js.jinja2:33
+#: funnel/templates/js/badge.js.jinja2:70
 msgid "Scanning"
 msgstr ""
 
-#: funnel/templates/js/badge.js:36
+#: funnel/templates/js/badge.js.jinja2:35
 msgid "Hello"
 msgstr ""
 
-#: funnel/templates/js/badge.js:37
+#: funnel/templates/js/badge.js.jinja2:36
 #, python-format
 msgid ""
 "Thank you for choosing to participate in  %(title)s and for being a part "
 "of this growing community."
 msgstr ""
 
-#: funnel/templates/js/badge.js:40
+#: funnel/templates/js/badge.js.jinja2:37 funnel/views/notification.py:253
+msgid "Hasgeek"
+msgstr ""
+
+#: funnel/templates/js/badge.js.jinja2:39
 msgid "Attendee details not found"
 msgstr ""
 
-#: funnel/templates/js/comments.js:4
+#: funnel/templates/js/comments.js.jinja2:4
 msgid "Login to leave a comment"
 msgstr ""
 
-#: funnel/templates/js/comments.js:5
+#: funnel/templates/js/comments.js.jinja2:5
 msgid "You need to be a participant to comment."
 msgstr ""
 
-#: funnel/templates/js/comments.js:12
+#: funnel/templates/js/comments.js.jinja2:12
 msgid "Post a comment..."
 msgstr ""
 
-#: funnel/templates/js/comments.js:18
+#: funnel/templates/js/comments.js.jinja2:18
 msgid "New comment"
 msgstr ""
 
-#: funnel/templates/js/comments.js:72
+#: funnel/templates/js/comments.js.jinja2:72
 msgid "edited %1"
 msgstr ""
 
-#: funnel/templates/js/comments.js:74
+#: funnel/templates/js/comments.js.jinja2:74
 msgid "Reply"
 msgstr ""
 
-#: funnel/templates/js/comments.js:75
+#: funnel/templates/js/comments.js.jinja2:75
 msgid "Report"
 msgstr ""
 
-#: funnel/templates/js/comments.js:82
+#: funnel/templates/js/comments.js.jinja2:82
 msgid "More"
 msgstr ""
 
-#: funnel/templates/js/event_checkin.js:26
+#: funnel/templates/js/event_checkin.js.jinja2:26
 msgid "Show badge"
 msgstr ""
 
-#: funnel/templates/js/event_checkin.js:29
+#: funnel/templates/js/event_checkin.js.jinja2:29
 msgid "Show label badge"
 msgstr ""
 
-#: funnel/templates/js/event_checkin.js:47
+#: funnel/templates/js/event_checkin.js.jinja2:47
 msgid "Edit participant details"
 msgstr ""
 
-#: funnel/templates/js/membership.js:7
+#: funnel/templates/js/membership.js.jinja2:7
 msgid "Add new member"
 msgstr ""
 
-#: funnel/templates/js/membership.js:21
+#: funnel/templates/js/membership.js.jinja2:21
 msgid "members"
 msgstr ""
 
-#: funnel/templates/js/membership.js:21
+#: funnel/templates/js/membership.js.jinja2:21
 msgid "member"
 msgstr ""
 
-#: funnel/templates/js/membership.js:24
+#: funnel/templates/js/membership.js.jinja2:24
 msgid "Role"
 msgstr ""
 
-#: funnel/templates/js/membership.js:66
+#: funnel/templates/js/membership.js.jinja2:66
 msgid "No members found"
 msgstr ""
 
-#: funnel/templates/js/membership.js:67
+#: funnel/templates/js/membership.js.jinja2:67
 msgid "Members you add will appear here…"
 msgstr ""
 
-#: funnel/templates/js/membership.js:79
+#: funnel/templates/js/membership.js.jinja2:79
 msgid "Remove this member"
 msgstr ""
 
-#: funnel/templates/js/membership.js:100
+#: funnel/templates/js/membership.js.jinja2:100
 msgid "Admin"
 msgstr ""
 
-#: funnel/templates/js/membership.js:123
+#: funnel/templates/js/membership.js.jinja2:123
 msgid "+ %1 more role"
 msgstr ""
 
-#: funnel/templates/js/schedule.js:7
+#: funnel/templates/js/schedule.js.jinja2:7
 msgid "Agenda view"
 msgstr ""
 
-#: funnel/templates/js/schedule.js:8
+#: funnel/templates/js/schedule.js.jinja2:8
 msgid "Calender view"
 msgstr ""
 
-#: funnel/templates/js/update.js:20
+#: funnel/templates/js/update.js.jinja2:20
 msgid "Update"
 msgstr ""
 
-#: funnel/templates/js/update.js:58
+#: funnel/templates/js/update.js.jinja2:58
 msgid "Read more"
 msgstr ""
 
-#: funnel/templates/js/update.js:59
+#: funnel/templates/js/update.js.jinja2:59
 msgid "Hide"
 msgstr ""
 
@@ -5798,4 +5802,10 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "%1 proposal"
+#~ msgstr ""
+
+#~ msgid "Search Hasgeek for projects, discussions and more"
+#~ msgstr ""
+
+#~ msgid "Select camera"
 #~ msgstr ""
