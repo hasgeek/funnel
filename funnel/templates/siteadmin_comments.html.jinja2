@@ -20,11 +20,19 @@
 </form>
 
 <p>
-  {%- trans total_comments=total_comments, query=query %}
-    Only {{ total_comments }} comment for "{{ query }}"
-  {% pluralize total_comments %}
-    Total {{ total_comments }} comments for "{{ query }}"
-  {% endtrans -%}
+  {%- if query %}
+    {%- trans total_comments=total_comments, query=query %}
+      Only {{ total_comments }} comment for "{{ query }}"
+    {%- pluralize total_comments %}
+      Total {{ total_comments }} comments for "{{ query }}"
+    {%- endtrans -%}
+  {% else %}
+    {%- trans total_comments=total_comments %}
+      Only {{ total_comments }} comment
+    {%- pluralize total_comments %}
+      Total {{ total_comments }} comments
+    {%- endtrans -%}
+  {%- endif %}
 </p>
 
 <form

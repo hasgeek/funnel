@@ -5,7 +5,6 @@ from sqlalchemy.exc import IntegrityError
 import pytest
 
 from funnel.models import (
-    USER_STATUS,
     Notification,
     NotificationPreferences,
     Organization,
@@ -109,7 +108,7 @@ def project_fixtures(test_db_structure, test_client):
     rsvp_n.rsvp_no()
     rsvp_suspended = Rsvp(project=project, user=user_suspended)
     rsvp_suspended.rsvp_yes()
-    user_suspended.status = USER_STATUS.SUSPENDED
+    user_suspended.mark_suspended()
     db.session.add_all([rsvp_y, rsvp_n, rsvp_suspended])
     db.session.commit()
 
