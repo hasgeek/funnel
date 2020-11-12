@@ -62,7 +62,12 @@
 {% block sidedrawer -%}
 {%- endblock %}
 
-{% block header -%}
+{% macro search_keyword() %}
+  <li class="js-search-keyword">{{ faicon(icon='history', css_class='mui--text-light right-margin') }}keyword-replace<span class="mui--pull-right js-clear-search-keyword">{{ faicon(icon='times') }}</span></li>
+{% endmacro %}
+
+
+{% block headerbox -%}
   {% macro site_title() %}
     {%- if config['LEGACY'] -%}
       {%- if g.profile -%}
@@ -93,17 +98,22 @@
       <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-action="Home">
         {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
       </a>
-      <form action="/search" class="search-form js-search-form">
+      <form action="/search" class="search-form js-search-form" autocomplete="off">
         <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">
         {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
-        <input type="text" name="type" value="project" hidden>
+        <ul class="search-form__dropdown js-search-dropdown">
+          {%- if g.profile -%}<li><input type="radio" name="search-domain" id="search-profile" class="right-margin" value="/{{ g.profile.name }}/search"><label for="search-profile">Local search (../{{ g.profile.name }})</label></li>{%- endif %}
+          {%- if project -%}<li><input type="radio" name="search-domain" id="search-project" class="right-margin" value="/{{ g.profile.name }}/{{ project.name }}/search"><label for="search-project">Local search (../{{ g.profile.name }}/{{ project.name }})</label></li>{%- endif %}
+          <li class="search-form__dropdown__item--border"><input type="radio" name="search-domain" id="search-global" class="right-margin" value="/search" checked="checked"><label for="search-global">Global search</label></li>
+        </ul>
         <button type="submit" class="search-form__submit"></button>
       </form>
-      <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-action="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
       {% if not current_auth.is_anonymous -%}
+        <a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-action="Comments">{{ faicon(icon='comment-alt', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>
         <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
         <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-action="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
         <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
+          <a href="javascript:void(0)" class="header__nav-links header__nav-links--right js-comments-button"aria-label="{% trans %}Comments{% endtrans %}" data-action="Comments">{{ faicon(icon='comment-alt', css_class='header__nav-links__icon') }}</a>
           <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
           <a href="{{ url_for('account') }}" class="header__nav-links header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Account{% endtrans %}" data-action="Account" data-cy="my-account">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
           {% if current_auth.user.profile %}
@@ -123,11 +133,40 @@
     {%- endif %}
   {% endmacro %}
 
-  {%- if config['LEGACY'] -%}
-    {{ hgtopnav(site_title=site_title()) }}
-  {%- else %}
-    {{ hgtopnav(site_title=site_title(), site_links=[], auth=false, network=false) }}
-  {%- endif %}
+  <header class="header header--fixed mui--z1" id="js-header">
+    <div class="mui-container">
+      {%- if config['LEGACY'] -%}
+        {{ hgtopnav(site_title=site_title()) }}
+      {%- else %}
+        {{ hgtopnav(site_title=site_title(), site_links=[], auth=false, network=false) }}
+      {%- endif %}
+    </div>
+  </header>
+  <div class="comments-sidebar" id="js-comments-dropdown">
+    <span class="js-close-comments mui--pull-right right-padding top-padding">{{ faicon(icon='times', baseline=false, css_class='fa-icon--margin mui--align-bottom') }}</span>
+    <h3 class="mui--text-subhead left-padding top-padding bottom-padding zero-bottom-margin zero-top-margin">{{ faicon(icon='comment-alt', css_class='fa-icon--margin') }}<span>{% trans %}Comments{% endtrans %}</span></h3>
+    <hr class="zero-bottom-margin zero-top-margin">
+    {% raw %}
+      <div id="header-comments-list" v-cloak>
+        <ul class="comments-list" v-for="comment in comments">
+          <li class="user">
+            <div class="user__box">
+              <img :src="comment.user.avatar" class="user__box__gravatar" v-if="comment.user.avatar">
+              <div class="user__box__gravatar user__box__gravatar--initials" v-else>
+                <svg class="fa5-icon fa5-icon--headline fa5--align-baseline mui--text-light" aria-hidden="true" role="img">
+                  <use v-bind:xlink:href="svgIconUrl + '#users'"></use>
+                </svg>
+              </div>
+              <div class="user__box__header comment__details">
+                <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin"><span class="mui--text-bold">{{ comment.user.fullname }}</span><span class="mui--pull-right">{{ formated_created_at(comment.created_at) }}</span></h3>
+                <h3 class="mui--text-caption mui--text-light user__box__subcontent"><span class="truncated-text">{{ comment.message.text }}</span> <span class="badge badge--round badge--round-smaller mui--pull-right">2</span></h3>
+              <div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    {% endraw %}
+  </div>
 {%- endblock %}
 
 {% block bodytag %}
@@ -240,6 +279,171 @@
         });
       });
     }
+  </script>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
+  <script>
+    Vue.config.devtools = true
+    const Comments = {
+      init({
+        commentUrl,
+        divElem,
+      }) {
+        const app = new Vue({
+          el: divElem,
+          data() {
+            return {
+              commentUrl,
+              comments: [],
+              errorMsg: '',
+              refreshTimer: '',
+              svgIconUrl: window.Hasgeek.config.svgIconUrl,
+              now: new Date(),
+            };
+          },
+          methods: {
+            updateCommentsList(commentsList) {
+              this.comments = commentsList.length > 0 ? commentsList : '';
+            },
+            fetchCommentsList() {
+              let app = this;
+              $.ajax({
+                type: 'GET',
+                url: app.commentUrl,
+                timeout: window.Hasgeek.config.ajaxTimeout,
+                dataType: 'json',
+                success(data) {
+                  app.updateCommentsList(data.comments);
+                },
+              });
+            },
+            pauseRefreshComments() {
+              clearTimeout(this.refreshTimer);
+            },
+            refreshCommentsTimer() {
+              this.refreshTimer = window.setInterval(
+                this.fetchCommentsList,
+                window.Hasgeek.config.refreshInterval
+              );
+            },
+            formated_created_at(created_at) {
+              return timeago.format(created_at);
+            }
+          },
+          mounted() {
+            this.fetchCommentsList();
+            this.refreshCommentsTimer();
+          },
+        });
+      },
+    };
+
+    $(() => {
+      window.Hasgeek.Comments = function (config) {
+        Comments.init(config);
+      };
+    });
+
+    $(() => {
+      var commentsConfig = {
+        // For testing purpose
+        commentUrl: "/cashlessconsumer/payment-fintech-deepdives/comments",
+        divElem: "#header-comments-list",
+      };
+      window.Hasgeek.Comments(commentsConfig);
+    });
+  </script>
+
+  <script type="text/javascript">
+    const Store = {
+      // Local storage can only save strings, so value is converted into strings and stored.
+      add(key, value) {
+        return localStorage.setItem(key, JSON.stringify(value));
+      },
+      // Reads from LocalStorage.
+      read(key) {
+        return JSON.parse(localStorage.getItem(key));
+      },
+    };
+
+    var searchKeys = Store.read('search-keys');
+
+    if(searchKeys && searchKeys.length > 0) {
+      var autocompleteHtml = {{ search_keyword()|tojson }};
+      var KeywordHtml;
+      searchKeys.forEach(function(keyword) {
+        KeywordHtml = autocompleteHtml.replace('keyword-replace', keyword);
+        $('.js-search-dropdown').append(KeywordHtml);
+      });
+
+      $('.js-search-keyword').on('click', function (e) {
+        e.preventDefault();
+        $('.js-search-field').val($(this).text());
+      });
+
+      $('.js-clear-search-keyword').on('click', function (e) {
+        e.stopPropagation();
+        var keyword = $(this).parents('.js-search-keyword').text();
+        var autocompleteList = Store.read('search-keys');
+        autocompleteList.splice(autocompleteList.indexOf(keyword), 1);
+        Store.add('search-keys', autocompleteList);
+        $(this).parent('.js-search-keyword').remove();
+      });
+    }
+
+    $('.js-comments-button').on('click', function (e) {
+      e.stopPropagation();
+      $('#js-comments-dropdown').addClass('open');
+    });
+
+    $('.js-close-comments').on('click', function (e) {
+      e.stopPropagation();
+      $('#js-comments-dropdown').removeClass('open');
+    });
+
+    $('body').on('click', function (e) {
+      if (
+        $('#js-comments-dropdown').hasClass('open') &&
+        !$(e.target).is('#js-comments-button') &&
+        !$.contains($('#js-comments-dropdown')[0], e.target)
+      ) {
+        $('#js-comments-dropdown').removeClass('open');
+      }
+    });
+
+    $('.js-search-field').on('click', function(e) {
+      e.preventDefault();
+      $(this).addClass('search-form__field--selected');
+      $('.js-search-dropdown').addClass('search-form__dropdown--show');
+    });
+
+    $('body').on('click', function (e) {
+      if (
+        $('.js-search-dropdown').hasClass('search-form__dropdown--show') &&
+        !$(e.target).is('.js-search-field') &&
+        !$.contains($('.js-search-dropdown')[0], e.target)
+      ) {
+        $('.js-search-field').removeClass('search-form__field--selected');
+        $('.js-search-dropdown').removeClass('search-form__dropdown--show');
+      }
+    });
+
+    $('input[type=radio][name=search-domain]').change(function() {
+       $('.js-search-form').attr('action', this.value);
+    });
+
+    $('.js-search-form').on('submit', function() {
+      var searchKeys = Store.read('search-keys');
+      var keyword = $('.js-search-field').val();
+      if(!searchKeys) {
+        searchKeys = [];
+      }
+      if(searchKeys.indexOf(keyword) === -1) {
+        searchKeys.push(keyword);
+      }
+      Store.add('search-keys', searchKeys);
+    });
   </script>
   {%- endif -%}
   {% block footerscripts %}{% endblock %}

@@ -25,7 +25,7 @@
                 <div class="grid__col-12">
                   <div class="tabs" id="scrollable-tabs">
                     {{#each tabs}}
-                      <p class="tabs__item mui--text-body2 mui--text-light mui--text-uppercase {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="count-chip mui--text-caption">{{ count }}</span></p>
+                      <p class="tabs__item mui--text-body2 {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }}<span class="badge badge--round badge--tab {{#if activeTab == type}}badge--primary{{/if}}">{{ count }}</span></p>
                     {{/each}}
                   </div>
                 </div>
