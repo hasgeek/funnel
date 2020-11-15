@@ -1,17 +1,17 @@
 # Hindi translations for Funnel.
 # Copyright (C) 2020 Hasgeek
 # This file is distributed under the same license as the Funnel project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# Hasgeek <webmaster@hasgeek.com>, 2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
 "POT-Creation-Date: 2020-11-15 18:30+0530\n"
 "PO-Revision-Date: 2020-11-15 20:22+0530\n"
-"Last-Translator: \n"
+"Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
-"Language-Team: hi <LL@li.org>\n"
+"Language-Team: hi <webmaster@hasgeek.com>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
