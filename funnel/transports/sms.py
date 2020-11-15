@@ -64,7 +64,12 @@ def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
     """
     sid = app.config['SMS_EXOTEL_SID']
     token = app.config['SMS_EXOTEL_TOKEN']
-    payload = {'From': app.config['SMS_EXOTEL_FROM'], 'To': phone, 'Body': message}
+    payload = {
+        'From': app.config['SMS_EXOTEL_FROM'],
+        'To': phone,
+        'Body': message,
+        'DltEntityId': app.config['SMS_EXOTEL_DLT_ID'],
+    }
     if callback:
         payload['StatusCallback'] = url_for(
             'process_exotel_event',
