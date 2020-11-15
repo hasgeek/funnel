@@ -78,6 +78,7 @@ SMS_SMSGUPSHUP_PASS = ''  # nosec
 SMS_EXOTEL_SID = ''  # nosec
 SMS_EXOTEL_TOKEN = ''  # nosec
 SMS_EXOTEL_FROM = ''  # nosec
+SMS_EXOTEL_DLT_ID = ''  # nosec
 #: Twilio support for non-indian numbers
 SMS_TWILIO_SID = ''  # nosec
 SMS_TWILIO_TOKEN = ''  # nosec
