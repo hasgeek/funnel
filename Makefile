@@ -6,5 +6,6 @@ build:
 
 babel:
 	pybabel extract -F babel.cfg -k _ -k __ -k ngettext -o funnel/translations/messages.pot .
-	pybabel update -i funnel/translations/messages.pot -d funnel/translations
+	pybabel update -N -i funnel/translations/messages.pot -d funnel/translations
+	pybabel compile -f -d funnel/translations
 	cd funnel/assets; make babel
