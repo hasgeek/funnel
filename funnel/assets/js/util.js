@@ -1,3 +1,5 @@
+import Gettext from './gettext';
+
 /* global ga */
 export const Utils = {
   // convert array of objects into hashmap
@@ -341,13 +343,15 @@ export const Utils = {
         async: false,
         timeout: window.Hasgeek.config.ajaxTimeout,
         success: function (responseData) {
-          window.i18n = new window.Hasgeek.Gettext(responseData);
+          window.i18n = new Gettext(responseData);
         },
       });
+    } else {
+      window.i18n = new Gettext();
     }
-
     window.gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
+    console.log('loadLangTranslations');
   },
   getTranslationFileUrl(langCode) {
     return `/static/translations/${langCode}/messages.json`;

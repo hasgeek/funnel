@@ -59,17 +59,20 @@
 var sprintf = require('sprintf-js').sprintf,
   vsprintf = require('sprintf-js').vsprintf;
 
-class Gettext {
-  constructor(messagesJson) {
-    this.domain = messagesJson.domain;
-    this.config = messagesJson.locale_data.messages[''];
-    delete messagesJson.locale_data.messages[''];
-    this.catalog = messagesJson.locale_data.messages;
-  }
+const Gettext = function (messagesJson) {
+  let config = {
+    domain: 'messages',
+    locale_data: {
+      messages: {},
+    },
+  };
+  config = messagesJson || config;
+  this.domain = config.domain;
+  this.catalog = config.locale_data.messages;
 
-  gettext(msgid, ...args) {
+  this.gettext = function (msgid, ...args) {
     if (msgid in this.catalog) {
-      var msgidCatalog = this.catalog[msgid];
+      let msgidCatalog = this.catalog[msgid];
 
       if (msgidCatalog.length < 2) {
         console.error(
@@ -82,11 +85,11 @@ class Gettext {
     } else {
       return msgid;
     }
-  }
+  };
 
-  ngettext(msgid, msgidPlural, num, ...args) {
+  this.ngettext = function (msgid, msgidPlural, num, ...args) {
     if (msgid in this.catalog) {
-      var msgidCatalog = this.catalog[msgid];
+      let msgidCatalog = this.catalog[msgid];
 
       if (msgidCatalog.length < 3) {
         console.error(
@@ -98,7 +101,7 @@ class Gettext {
         console.error("Plural forms don't match");
       }
 
-      var msgstr = '';
+      let msgstr = '';
       if (num <= 1) {
         msgstr = sprintf(msgidCatalog[1], { num: num });
       } else {
@@ -108,9 +111,7 @@ class Gettext {
     } else {
       return msgid;
     }
-  }
-}
+  };
+};
 
-$(() => {
-  window.Hasgeek.Gettext = Gettext;
-});
+module.exports = Gettext;

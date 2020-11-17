@@ -1,11 +1,9 @@
 import { Utils } from './util';
-import Ractive from 'ractive';
-import { useravatar, faicon } from './ractive_util';
+import { ractiveApp } from './ractive_util';
 
 const Search = {
   init(config) {
-    Ractive.DEBUG = false;
-    const widget = new Ractive({
+    const widget = new ractiveApp({
       el: '#search-wrapper',
       template: '#search-template',
       data: {
@@ -15,7 +13,6 @@ const Search = {
         pagePath: window.location.pathname,
         queryString: '',
         defaultImage: config.defaultImage,
-        svgIconUrl: window.Hasgeek.config.svgIconUrl,
         formatTime(date) {
           const d = new Date(date);
           return d.toLocaleTimeString('default', {
@@ -35,11 +32,7 @@ const Search = {
         dateString(date) {
           return date.substr(-2);
         },
-        getInitials: window.Baseframe.Utils.getInitials,
-        gettext: window.gettext,
-        ngettext: window.ngettext,
       },
-      components: { useravatar, faicon },
       getQueryString(paramName) {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has(paramName)) {

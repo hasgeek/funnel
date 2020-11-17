@@ -1,11 +1,10 @@
-import Ractive from 'ractive';
 import jsQR from 'jsqr';
 import vCardsJS from 'vcards-js';
-import { faicon } from './ractive_util';
+import { ractiveApp } from './ractive_util';
 
 const badgeScan = {
   init({ getContactApiUrl, wrapperId, templateId }) {
-    const badgeScanComponent = new Ractive({
+    const badgeScanComponent = new ractiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
       data: {
@@ -17,9 +16,6 @@ const badgeScan = {
         showModal: false,
         errorMsg: '',
         contacts: [],
-        svgIconUrl: window.Hasgeek.config.svgIconUrl,
-        gettext: window.gettext,
-        ngettext: window.ngettext,
       },
       closeModal(event) {
         event.original.preventDefault();
@@ -27,7 +23,6 @@ const badgeScan = {
         this.set('showModal', false);
         this.startRenderFrameLoop();
       },
-      components: { faicon },
       downloadContact(event) {
         const contact = badgeScanComponent.get(event.keypath);
         const vCard = vCardsJS();

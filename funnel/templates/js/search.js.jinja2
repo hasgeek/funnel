@@ -121,7 +121,7 @@
                         <useravatar user={{obj.user}}></useravatar>
                         <div class="user__box__header comment__header__details__user">
                           <h2 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{ obj.title }}</a></h2>
-                          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}({{ gettext('edited %1', formatDate(obj.edited_at)) }}) {{/if}}</p>
+                          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}({{ gettext('edited %s', formatDate(obj.edited_at)) }}) {{/if}}</p>
                         </div>
                       </div>
                       <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>

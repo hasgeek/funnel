@@ -1,7 +1,6 @@
 /* global jstz, Pace */
 
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
-import Gettext from './gettext';
 
 $(() => {
   window.Hasgeek.config.availableLanguages = {
@@ -16,7 +15,6 @@ $(() => {
   window.Hasgeek.config.readReceiptTimeout = 5000;
   window.Hasgeek.config.saveEditorContentTimeout = 300;
 
-  window.Gettext = Gettext;
   Utils.loadLangTranslations();
 
   Utils.collapse();

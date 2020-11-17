@@ -1,6 +1,5 @@
-import Ractive from 'ractive';
 import jsQR from 'jsqr';
-import { faicon } from './ractive_util';
+import { ractiveApp } from './ractive_util';
 
 const badgeScan = {
   init({
@@ -10,7 +9,7 @@ const badgeScan = {
     projectTitle,
     ticketEventTitle,
   }) {
-    const badgeScanComponent = new Ractive({
+    const badgeScanComponent = new ractiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
       data: {
@@ -28,11 +27,7 @@ const badgeScan = {
         facingMode: true,
         cameras: [],
         selectedCamera: '',
-        svgIconUrl: window.Hasgeek.config.svgIconUrl,
-        gettext: window.gettext,
-        ngettext: window.ngettext,
       },
-      components: { faicon },
       closeModal(event) {
         if (event) event.original.preventDefault();
         $.modal.close();
