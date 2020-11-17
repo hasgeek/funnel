@@ -1,4 +1,5 @@
 from flask import render_template
+from flask_babelhg import get_locale
 
 from baseframe import _, __
 from baseframe.filters import datetime_filter
@@ -6,6 +7,7 @@ from baseframe.filters import datetime_filter
 from ...models import (
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
+    Rsvp,
 )
 from ...transports import email
 from ..helpers import shortlink
@@ -41,6 +43,7 @@ class RegistrationBase:
 class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they register."""
 
+    rsvp: Rsvp
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you have registered for this project")
@@ -82,7 +85,9 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             url=shortlink(
                 self.rsvp.project.url_for(_external=True, **self.tracking_tags('sms'))
             ),
-            datetime=datetime_filter(next_session_at, self.datetime_format_sms),
+            datetime=datetime_filter(
+                next_session_at, self.datetime_format_sms, locale=get_locale()
+            ),
         )
 
 
@@ -90,6 +95,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they cancel registration."""
 
+    rsvp: Rsvp
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you had registered for this project")

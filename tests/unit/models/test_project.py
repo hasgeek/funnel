@@ -70,7 +70,9 @@ def test_project_dates(test_db, new_project):
     assert new_project.datelocation == "Test Location"
 
     # let's add some sessions
-    start_time_a = datetime(2019, 6, 12, 12, 15, 0).replace(tzinfo=new_project.timezone)
+    start_time_a = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 6, 12, 12, 15, 0))
+    )
     end_time_a = start_time_a + timedelta(hours=3)
     new_session_a = Session(
         name="test-session-a",
@@ -124,17 +126,17 @@ def test_project_dates(test_db, new_project):
     )
 
     # The sessions are in different months
-    new_session_a.start_at = datetime(2019, 6, 28, 12, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_a.start_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 6, 28, 12, 15, 0))
     )
-    new_session_a.end_at = datetime(2019, 6, 28, 14, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_a.end_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 6, 28, 14, 15, 0))
     )
-    new_session_b.start_at = datetime(2019, 7, 1, 12, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_b.start_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 7, 1, 12, 15, 0))
     )
-    new_session_b.end_at = datetime(2019, 7, 1, 14, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_b.end_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 7, 1, 14, 15, 0))
     )
     test_db.session.commit()
 
@@ -153,17 +155,17 @@ def test_project_dates(test_db, new_project):
     )
 
     # Both sessions are on same day
-    new_session_a.start_at = datetime(2019, 6, 28, 12, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_a.start_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 6, 28, 12, 15, 0))
     )
-    new_session_a.end_at = datetime(2019, 6, 28, 14, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_a.end_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 6, 28, 14, 15, 0))
     )
-    new_session_b.start_at = datetime(2019, 6, 28, 12, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_b.start_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 6, 28, 12, 15, 0))
     )
-    new_session_b.end_at = datetime(2019, 6, 28, 14, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_b.end_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 6, 28, 14, 15, 0))
     )
     test_db.session.commit()
 
@@ -183,17 +185,17 @@ def test_project_dates(test_db, new_project):
     )
 
     # The sessions are in different years
-    new_session_a.start_at = datetime(2018, 12, 28, 12, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_a.start_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2018, 12, 28, 12, 15, 0))
     )
-    new_session_a.end_at = datetime(2018, 12, 28, 14, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_a.end_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2018, 12, 28, 14, 15, 0))
     )
-    new_session_b.start_at = datetime(2019, 1, 1, 12, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_b.start_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 1, 1, 12, 15, 0))
     )
-    new_session_b.end_at = datetime(2019, 1, 1, 14, 15, 0).replace(
-        tzinfo=new_project.timezone
+    new_session_b.end_at = new_project.timezone.normalize(
+        new_project.timezone.localize(datetime(2019, 1, 1, 14, 15, 0))
     )
     test_db.session.commit()
 

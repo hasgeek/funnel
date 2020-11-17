@@ -1,9 +1,11 @@
+from typing import Dict
+
 from .. import app
 
 #: List of available transports as platform capabilities. Each is turned on by
 #: :func:`init` if the necessary functionality and config exist. Views may consult this
 #: when exposing transport availability to users.
-platform_transports = {
+platform_transports: Dict[str, bool] = {
     'email': False,
     'sms': False,
     'webpush': False,
@@ -36,6 +38,7 @@ def init():
         for var in (
             'SMS_EXOTEL_SID',
             'SMS_EXOTEL_TOKEN',
+            'SMS_EXOTEL_DLT_ID',
             'SMS_TWILIO_SID',
             'SMS_TWILIO_TOKEN',
             'SMS_TWILIO_FROM',

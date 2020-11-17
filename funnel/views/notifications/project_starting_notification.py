@@ -3,7 +3,7 @@ from flask import render_template
 from baseframe import _, __
 from baseframe.filters import time_filter
 
-from ...models import ProjectStartingNotification
+from ...models import Project, ProjectStartingNotification, Session
 from ..helpers import shortlink
 from ..notification import RenderNotification
 
@@ -12,6 +12,8 @@ from ..notification import RenderNotification
 class RenderProjectStartingNotification(RenderNotification):
     """Notify crew and participants when the project's schedule is about to start."""
 
+    project: Project
+    session: Session
     aliases = {'document': 'project', 'fragment': 'session'}
     emoji_prefix = "⏰ "
     reason = __("You are receiving this because you have registered for this project")

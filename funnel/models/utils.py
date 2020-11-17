@@ -1,16 +1,13 @@
+from __future__ import annotations
+
+from typing import Optional, Set
+
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from flask import current_app
 
-from .user import (
-    USER_STATUS,
-    User,
-    UserEmail,
-    UserEmailClaim,
-    UserExternalId,
-    UserOldId,
-    db,
-)
+from ..typing import OptionalMigratedTables
+from .user import User, UserEmail, UserEmailClaim, UserExternalId, db
 
 __all__ = ['getuser', 'getextid', 'merge_users', 'IncompleteUserMigration']
 
@@ -19,34 +16,34 @@ class IncompleteUserMigration(Exception):
     """Could not migrate users because of data conflicts."""
 
 
-def getuser(name):
+def getuser(name: str) -> Optional[User]:
     if '@' in name:
         # TODO: This should have used UserExternalId.__at_username_services__,
         # but this bit has traditionally been for Twitter only. Fix pending.
         if name.startswith('@'):
             extid = UserExternalId.get(service='twitter', username=name[1:])
-            if extid and extid.user.is_active:
+            if extid and extid.user.state.ACTIVE:
                 return extid.user
             else:
                 return None
         else:
             useremail = UserEmail.get(email=name)
-            if useremail and useremail.user is not None and useremail.user.is_active:
+            if useremail and useremail.user is not None and useremail.user.state.ACTIVE:
                 return useremail.user
             # No verified email id. Look for an unverified id; return first found
             result = UserEmailClaim.all(email=name).first()
-            if result and result.user.is_active:
+            if result and result.user.state.ACTIVE:
                 return result.user
             return None
     else:
         return User.get(username=name)
 
 
-def getextid(service, userid):
+def getextid(service: str, userid: str) -> Optional[UserExternalId]:
     return UserExternalId.get(service=service, userid=userid)
 
 
-def merge_users(user1, user2):
+def merge_users(user1: User, user2: User) -> Optional[User]:
     """Merge two user accounts and return the new user account."""
     current_app.logger.info("Preparing to merge users %s and %s", user1, user2)
     # Always keep the older account and merge from the newer account
@@ -59,22 +56,23 @@ def merge_users(user1, user2):
     # keep_user.
     safe = do_migrate_instances(merge_user, keep_user, 'migrate_user')
     if safe:
-        # 2. Add merge_user's uuid to olduserids. Commit session.
-        db.session.add(UserOldId(id=merge_user.uuid, user=keep_user))
-        # 3. Mark merge_user as merged. Commit session.
-        merge_user.status = USER_STATUS.MERGED
-        # 4. Commit all of this
+        # 2. Add merge_user's uuid to olduserids and mark user as merged
+        merge_user.mark_merged_into(keep_user)
+        # 3. Commit all of this
         db.session.commit()
 
-        # 5. Return keep_user.
+        # 4. Return keep_user.
         current_app.logger.info("User merge complete, keeping user %s", keep_user)
         return keep_user
-    else:
-        current_app.logger.error("User merge failed, aborting transaction")
-        db.session.rollback()
+
+    current_app.logger.error("User merge failed, aborting transaction")
+    db.session.rollback()
+    return None
 
 
-def do_migrate_instances(old_instance, new_instance, helper_method=None):
+def do_migrate_instances(
+    old_instance: db.Model, new_instance: db.Model, helper_method: Optional[str] = None
+) -> bool:
     """
     Migrate references to old instance of any model to provided new instance.
 
@@ -92,7 +90,7 @@ def do_migrate_instances(old_instance, new_instance, helper_method=None):
     session = old_instance.query.session
 
     # Keep track of all migrated tables
-    migrated_tables = set()
+    migrated_tables: Set[str] = set()
     safe_to_remove_instance = True
 
     def do_migrate_table(table):
@@ -162,7 +160,9 @@ def do_migrate_instances(old_instance, new_instance, helper_method=None):
         if model != old_instance.__class__:
             if helper_method and hasattr(model, helper_method):
                 try:
-                    result = getattr(model, helper_method)(old_instance, new_instance)
+                    result: OptionalMigratedTables = getattr(model, helper_method)(
+                        old_instance, new_instance
+                    )
                     session.flush()
                     if isinstance(result, (list, tuple, set)):
                         migrated_tables.update(result)

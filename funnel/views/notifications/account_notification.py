@@ -3,7 +3,7 @@ from flask import render_template, url_for
 from baseframe import _
 
 from ... import app
-from ...models import AccountPasswordNotification
+from ...models import AccountPasswordNotification, User
 from ..helpers import shortlink
 from ..notification import RenderNotification
 
@@ -12,6 +12,7 @@ from ..notification import RenderNotification
 class RenderAccountPasswordNotification(RenderNotification):
     """Notify user when their password is changed."""
 
+    user: User
     aliases = {'document': 'user'}
     emoji_prefix = "⚠️ "
 

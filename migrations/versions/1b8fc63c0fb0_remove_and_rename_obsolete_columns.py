@@ -1,3 +1,4 @@
+# type: ignore
 """Remove and rename obsolete columns.
 
 Revision ID: 1b8fc63c0fb0

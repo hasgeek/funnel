@@ -20,7 +20,7 @@ class LinkedInProvider(LoginProvider):
 
     def __init__(
         self, name, title, key, secret, at_login=True, priority=False, icon=None
-    ):
+    ) -> None:
         self.name = name
         self.title = title
         self.at_login = at_login

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Set, Union, cast
+from typing import Any, List, Optional, Set, Union, cast, overload
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -8,6 +8,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm.attributes import NO_VALUE
+from sqlalchemy.sql.expression import BinaryExpression
 
 from werkzeug.utils import cached_property
 
@@ -341,7 +342,7 @@ class EmailAddress(BaseMixin, db.Model):
         assert self.email_canonical is not None  # nosec
         self.blake2b160_canonical = email_blake2b160_hash(self.email_canonical)
 
-    def is_exclusive(self):
+    def is_exclusive(self) -> bool:
         """Return True if this EmailAddress is in an exclusive relationship."""
         return any(
             related_obj
@@ -349,7 +350,7 @@ class EmailAddress(BaseMixin, db.Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: Any):
+    def is_available_for(self, owner: Any) -> bool:
         """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -401,13 +402,40 @@ class EmailAddress(BaseMixin, db.Model):
             obj.email = None
             obj._is_blocked = True
 
+    @overload
+    @classmethod
+    def get_filter(cls, *, email: str) -> Optional[BinaryExpression]:
+        ...
+
+    @overload
+    @classmethod
+    def get_filter(cls, *, blake2b160: bytes) -> BinaryExpression:
+        ...
+
+    @overload
+    @classmethod
+    def get_filter(cls, *, email_hash: str) -> BinaryExpression:
+        ...
+
+    @overload
     @classmethod
     def get_filter(
         cls,
+        *,
+        email: Optional[str],
+        blake2b160: Optional[bytes],
+        email_hash: Optional[str],
+    ) -> Optional[BinaryExpression]:
+        ...
+
+    @classmethod
+    def get_filter(
+        cls,
+        *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
-    ):
+    ) -> Optional[BinaryExpression]:
         """
         Get an filter condition for retriving an EmailAddress.
 
@@ -418,17 +446,44 @@ class EmailAddress(BaseMixin, db.Model):
         require_one_of(email=email, blake2b160=blake2b160, email_hash=email_hash)
         if email:
             if not cls.is_valid_email_address(email):
-                return
+                return None
             blake2b160 = email_blake2b160_hash(email)
         elif email_hash:
             blake2b160 = base58.b58decode(email_hash)
 
         return cls.blake2b160 == blake2b160
 
+    @overload
+    @classmethod
+    def get(
+        cls,
+        email: str,
+    ) -> Optional[EmailAddress]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        blake2b160: bytes,
+    ) -> Optional[EmailAddress]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        email_hash: str,
+    ) -> Optional[EmailAddress]:
+        ...
+
     @classmethod
     def get(
         cls,
         email: Optional[str] = None,
+        *,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
     ) -> Optional[EmailAddress]:
@@ -438,13 +493,11 @@ class EmailAddress(BaseMixin, db.Model):
         Internally converts an email-based lookup into a hash-based lookup.
         """
         return cls.query.filter(
-            cls.get_filter(email, blake2b160, email_hash)
+            cls.get_filter(email=email, blake2b160=blake2b160, email_hash=email_hash)
         ).one_or_none()
 
     @classmethod
-    def get_canonical(
-        cls, email: str, is_blocked: Optional[bool] = None
-    ) -> Query[EmailAddress]:
+    def get_canonical(cls, email: str, is_blocked: Optional[bool] = None) -> Query:
         """
         Get :class:`EmailAddress` instances matching the canonical representation.
 
@@ -569,7 +622,7 @@ class EmailAddress(BaseMixin, db.Model):
 
     @staticmethod
     def is_valid_email_address(
-        email: str, check_dns=False, diagnose=False
+        email: str, check_dns: bool = False, diagnose: bool = False
     ) -> Union[bool, BaseDiagnosis]:
         """
         Return True if given email address is syntactically valid.
@@ -597,17 +650,22 @@ class EmailAddressMixin:
     implements archived rows, such as in memberships.
     """
 
+    # Provided by subclasses
+    __tablename__: str
+
     #: This class has an optional dependency on EmailAddress
-    __email_optional__ = True
+    __email_optional__: bool = True
     #: This class has a unique constraint on the fkey to EmailAddress
-    __email_unique__ = False
+    __email_unique__: bool = False
     #: A relationship from this model is for the (single) owner at this attr
     __email_for__: Optional[str] = None
     #: If `__email_for__` is specified and this flag is True, the email address is
     #: considered exclusive to this owner and may not be used by any other owner
-    __email_is_exclusive__ = False
+    __email_is_exclusive__: bool = False
 
-    @declared_attr
+    email_address_id: int
+
+    @declared_attr  # type: ignore[no-redef]
     def email_address_id(cls):
         return db.Column(
             None,
@@ -617,7 +675,9 @@ class EmailAddressMixin:
             index=not cls.__email_unique__,
         )
 
-    @declared_attr
+    email_address: Optional[EmailAddress]
+
+    @declared_attr  # type: ignore[no-redef]
     def email_address(cls):
         backref_name = 'used_in_' + cls.__tablename__
         EmailAddress.__backrefs__.add(backref_name)
@@ -625,7 +685,9 @@ class EmailAddressMixin:
             EmailAddress.__exclusive_backrefs__.add(backref_name)
         return db.relationship(EmailAddress, backref=backref_name)
 
-    @declared_attr
+    email: Optional[str]
+
+    @declared_attr  # type: ignore[no-redef]
     def email(cls):
         def email_get(self):
             """
@@ -663,7 +725,7 @@ class EmailAddressMixin:
         return property(fget=email_get, fset=email_set)
 
     @property
-    def email_address_reference_is_active(self):
+    def email_address_reference_is_active(self) -> bool:
         """
         Assert that the reference to an email address is valid, requiring it to be kept.
 
@@ -673,9 +735,9 @@ class EmailAddressMixin:
         return True
 
     @property
-    def transport_hash(self):
+    def transport_hash(self) -> Optional[str]:
         """Email hash using the compatibility name for notifications framework."""
-        return self.email_address.email_hash
+        return self.email_address.email_hash if self.email_address else None
 
 
 auto_init_default(EmailAddress._delivery_state)
@@ -684,7 +746,7 @@ auto_init_default(EmailAddress._is_blocked)
 
 
 @event.listens_for(EmailAddress.email, 'set')
-def _validate_email(target, value, old_value, initiator):
+def _validate_email(target, value: Any, old_value: Any, initiator):
     # First: check if value is acceptable and email attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
@@ -738,13 +800,15 @@ def _send_refcount_event_before_delete(mapper, connection, target):
 
 
 @event.listens_for(mapper, 'after_configured')
-def _setup_refcount_events():
+def _setup_refcount_events() -> None:
     for backref_name in EmailAddress.__backrefs__:
         attr = getattr(EmailAddress, backref_name)
         event.listen(attr, 'remove', _send_refcount_event_remove)
 
 
-def _email_address_mixin_set_validator(target, value, old_value, initiator):
+def _email_address_mixin_set_validator(
+    target, value: Optional[EmailAddress], old_value, initiator
+) -> None:
     if value != old_value and target.__email_for__:
         if value is not None:
             if value.is_blocked:
@@ -754,6 +818,6 @@ def _email_address_mixin_set_validator(target, value, old_value, initiator):
 
 
 @event.listens_for(EmailAddressMixin, 'mapper_configured', propagate=True)
-def _email_address_mixin_configure_events(mapper_, cls):
+def _email_address_mixin_configure_events(mapper_, cls: db.Model):
     event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

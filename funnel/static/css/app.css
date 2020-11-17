@@ -2647,6 +2647,36 @@ a.loginbutton.hidden,
   background-color: #ffffff !important;
 }
 
+.card--banner {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  transition: 200ms linear;
+  -webkit-transition: 200ms linear;
+}
+.card--banner .card__body {
+  padding: 16px;
+}
+.card--banner .card__body .card__body__logo {
+  margin: auto;
+  width: 100%;
+  text-align: center;
+}
+.card--banner .card__body .card__body__logo img {
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .card--banner .card__body .card__body__logo {
+    float: right;
+    width: 15%;
+    text-align: right;
+  }
+  .card--banner .card__body .card__body__content {
+    float: left;
+    width: 85%;
+  }
+}
 .card--spotlight {
   border-radius: 16px 16px 0 16px;
   overflow: hidden;
@@ -2669,6 +2699,9 @@ a.loginbutton.hidden,
 .card--spotlight .card__image-wrapper {
   border-radius: 0 0 0 20px;
   overflow: hidden;
+}
+.card--spotlight .card__body__logo {
+  margin: auto;
 }
 
 @media (min-width: 992px) {
@@ -3389,13 +3422,6 @@ a.loginbutton.hidden,
 .project-banner .livestream-box {
   margin: 0;
   padding: 0;
-}
-.project-banner
-  .livestream-box
-  .project-banner__box
-  .project-banner__box__add-btn {
-  right: 16px;
-  bottom: 16px;
 }
 .project-banner .project-banner__box {
   padding: 0;

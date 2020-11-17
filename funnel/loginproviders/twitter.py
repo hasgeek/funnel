@@ -11,7 +11,7 @@ from tweepy import TweepError
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginInitError, LoginProvider
-from .flask_oauth import OAuth, OAuthException  # OAuth 1.0a
+from .flask_oauth import OAuth, OAuthException  # type: ignore[attr-defined]
 
 __all__ = ['TwitterProvider']
 
@@ -30,9 +30,9 @@ def twitter_exception_handler(f):
         ) as e:
             raise LoginCallbackError(e)
         except KeyError:
-            # XXX: Twitter sometimes returns a 404 with no Content-Type header. This causes a
-            # KeyError in the Flask-OAuth library. Catching the KeyError here is a kludge.
-            # We need to get Flask-OAuth fixed or stop using it.
+            # XXX: Twitter sometimes returns a 404 with no Content-Type header. This
+            # causes a KeyError in the Flask-OAuth library. Catching the KeyError here
+            # is a kludge. We need to get Flask-OAuth fixed or stop using it.
             raise LoginCallbackError(
                 _("Twitter had an intermittent error. Please try again")
             )
@@ -54,7 +54,7 @@ class TwitterProvider(LoginProvider):
         at_login=True,
         priority=True,
         icon=None,
-    ):
+    ) -> None:
         self.name = name
         self.title = title
         self.at_login = at_login
@@ -77,7 +77,7 @@ class TwitterProvider(LoginProvider):
 
         twitter.tokengetter(lambda token=None: None)  # We have no use for tokengetter
 
-        self.callback = twitter_exception_handler(
+        self.callback = twitter_exception_handler(  # type: ignore[assignment]
             twitter.authorized_handler(self.unwrapped_callback)
         )
         self.twitter = twitter
@@ -88,7 +88,8 @@ class TwitterProvider(LoginProvider):
         except (OAuthException, BadStatusLine, SSLError, socket_error, gaierror) as e:
             raise LoginInitError(e)
         except KeyError:
-            # As above, the lack of a Content-Type header in a 404 response breaks Flask-OAuth. Catch it.
+            # As above, the lack of a Content-Type header in a 404 response breaks
+            # Flask-OAuth. Catch it.
             raise LoginInitError(
                 _("Twitter had an intermittent error. Please try again")
             )

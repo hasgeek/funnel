@@ -1,5 +1,5 @@
 from textwrap import dedent
-from typing import Set
+from typing import Dict, Iterable, Optional, Set, Type, Union
 import re
 
 from sqlalchemy import DDL, event
@@ -12,7 +12,8 @@ from flask import current_app
 from furl import furl
 from zxcvbn import zxcvbn
 
-from . import UrlType
+from ..typing import T
+from . import UrlType, db
 
 __all__ = [
     'RESERVED_NAMES',
@@ -26,7 +27,6 @@ __all__ = [
     'valid_username',
     'ImgeeType',
 ]
-
 
 RESERVED_NAMES: Set[str] = {
     '_baseframe',
@@ -90,6 +90,7 @@ RESERVED_NAMES: Set[str] = {
     'register',
     'reset',
     'search',
+    'siteadmin',
     'smtp',
     'static',
     'ticket',
@@ -109,11 +110,13 @@ RESERVED_NAMES: Set[str] = {
 
 
 class PasswordPolicy:
-    def __init__(self, min_length, min_score):
+    def __init__(self, min_length: int, min_score: int) -> None:
         self.min_length = min_length
         self.min_score = min_score
 
-    def test_password(self, password, user_inputs=None):
+    def test_password(
+        self, password: str, user_inputs: Optional[Iterable] = None
+    ) -> Dict[str, Union[bool, str]]:
         result = zxcvbn(password, user_inputs)
         return {
             'is_weak': (
@@ -140,7 +143,7 @@ _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 visual_field_delimiter = ' ¦ '
 
 
-def add_to_class(cls, name=None):
+def add_to_class(cls: Type, name: Optional[str] = None):
     """
     Add a new method to a class via a decorator. Takes an optional attribute name.
 
@@ -166,7 +169,7 @@ def add_to_class(cls, name=None):
     return decorator
 
 
-def reopen(cls):
+def reopen(cls: Type[T]):
     """
     Move the contents of the decorated class into an existing class and return it.
 
@@ -196,7 +199,7 @@ def reopen(cls):
     properties that do more processing.
     """
 
-    def decorator(temp_cls):
+    def decorator(temp_cls: Type) -> Type[T]:
         if temp_cls.__bases__ != (object,):
             raise TypeError("Reopened class cannot add base classes")
         if temp_cls.__class__ is not type:
@@ -225,7 +228,7 @@ def reopen(cls):
     return decorator
 
 
-def valid_username(candidate):
+def valid_username(candidate: str) -> bool:
     """
     Check if a username is valid.
 
@@ -234,7 +237,7 @@ def valid_username(candidate):
     return not _username_valid_re.search(candidate) is None
 
 
-def valid_name(candidate):
+def valid_name(candidate: str) -> bool:
     """
     Check if a name is valid.
 
@@ -243,14 +246,14 @@ def valid_name(candidate):
     return not _name_valid_re.search(candidate) is None
 
 
-def pgquote(identifier):
+def pgquote(identifier: str) -> str:
     """Add double quotes to the given identifier if required (PostgreSQL only)."""
     return (
         ('"%s"' % identifier) if identifier in POSTGRESQL_RESERVED_WORDS else identifier
     )
 
 
-def add_search_trigger(model, column_name):
+def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
 
@@ -357,16 +360,22 @@ def add_search_trigger(model, column_name):
         )
     )
 
+    # FIXME: `DDL().execute_if` accepts a string dialect, but sqlalchemy-stubs
+    # incorrectly declares the type as `Optional[Dialect]`
+    # https://github.com/dropbox/sqlalchemy-stubs/issues/181
+
     event.listen(
         model.__table__,
         'after_create',
-        DDL(trigger_function).execute_if(dialect='postgresql'),
+        DDL(trigger_function).execute_if(
+            dialect='postgresql'  # type: ignore[arg-type]
+        ),
     )
 
     event.listen(
         model.__table__,
         'before_drop',
-        DDL(drop_statement).execute_if(dialect='postgresql'),
+        DDL(drop_statement).execute_if(dialect='postgresql'),  # type: ignore[arg-type]
     )
 
     return {
@@ -376,8 +385,8 @@ def add_search_trigger(model, column_name):
     }
 
 
-class ImageFurl(furl):
-    def resize(self, width, height):
+class ImgeeFurl(furl):
+    def resize(self, width: int, height: int) -> furl:
         """
         Return image url with `?size=WxH` suffixed to it.
 
@@ -385,12 +394,14 @@ class ImageFurl(furl):
         :param height: Height to resize the image to
         """
         if self.url:
-            self.args['size'] = f'{width}x{height}'
+            copy = self.copy()
+            copy.args['size'] = f'{width}x{height}'
+            return copy
         return self
 
 
 class ImgeeType(UrlType):
-    url_parser = ImageFurl
+    url_parser = ImgeeFurl
 
     def process_bind_param(self, value, dialect):
         value = super(UrlType, self).process_bind_param(value, dialect)

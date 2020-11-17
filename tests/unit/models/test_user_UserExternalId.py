@@ -1,5 +1,7 @@
 from os import environ
 
+import pytest
+
 from funnel import db
 import funnel.models as models
 
@@ -21,7 +23,7 @@ class TestUserExternalId(TestDatabaseFixture):
             oauth_token=oauth_token,
             oauth_token_type=oauth_token_type,
         )
-        self.assertIsInstance(result, models.UserExternalId)
+        assert isinstance(result, models.UserExternalId)
         assert '<UserExternalId {service}:{username} of {user}>'.format(
             service=service, username=crusoe.email.email, user=repr(crusoe)[1:-1]
         ) in repr(result)
@@ -30,7 +32,7 @@ class TestUserExternalId(TestDatabaseFixture):
         """Retrieve a UserExternalId given a service and userid or username."""
         service = 'twitter'
         # scenario 1: when neither userid nor username is passed
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             models.UserExternalId.get(service)
 
         crusoe = self.fixtures.crusoe
@@ -50,7 +52,7 @@ class TestUserExternalId(TestDatabaseFixture):
         get_by_userid = models.UserExternalId.get(
             service=service, userid=crusoe.email.email
         )
-        self.assertIsInstance(get_by_userid, models.UserExternalId)
+        assert isinstance(get_by_userid, models.UserExternalId)
         assert '<UserExternalId {service}:{username} of {user}>'.format(
             service=service, username=crusoe.email.email, user=repr(crusoe)[1:-1]
         ) in repr(get_by_userid)
@@ -58,7 +60,7 @@ class TestUserExternalId(TestDatabaseFixture):
         get_by_username = models.UserExternalId.get(
             service=service, username=crusoe.email.email
         )
-        self.assertIsInstance(get_by_username, models.UserExternalId)
+        assert isinstance(get_by_username, models.UserExternalId)
         assert '<UserExternalId {service}:{username} of {user}>'.format(
             service=service, username=crusoe.email.email, user=repr(crusoe)[1:-1]
         ) in repr(get_by_username)

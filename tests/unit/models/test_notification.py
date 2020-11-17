@@ -5,10 +5,10 @@ from sqlalchemy.exc import IntegrityError
 import pytest
 
 from funnel.models import (
-    USER_STATUS,
     Notification,
     NotificationPreferences,
     Organization,
+    Profile,
     Project,
     ProjectCrewMembership,
     Proposal,
@@ -16,6 +16,7 @@ from funnel.models import (
     Update,
     User,
     UserPhone,
+    db,
     notification_categories,
 )
 
@@ -23,8 +24,10 @@ from funnel.models import (
 @pytest.fixture(scope='session')
 def notification_types():
     class ProjectIsParent:
+        document: db.Model
+
         @property
-        def preference_context(self):
+        def preference_context(self) -> Profile:
             return self.document.project.profile
 
     class TestNewUpdateNotification(ProjectIsParent, Notification):
@@ -35,7 +38,7 @@ def notification_types():
         category = notification_categories.participant
         description = "When a project posts an update"
 
-        document_model = Update
+        document: Update
         roles = ['project_crew', 'project_participant']
 
     class TestProposalReceivedNotification(ProjectIsParent, Notification):
@@ -46,8 +49,8 @@ def notification_types():
         category = notification_categories.project_crew
         description = "When my project receives a new proposal"
 
-        document_model = Project
-        fragment_model = Proposal
+        document: Project
+        fragment: Proposal
         roles = ['project_editor']
 
     return SimpleNamespace(**locals())
@@ -105,7 +108,7 @@ def project_fixtures(test_db_structure, test_client):
     rsvp_n.rsvp_no()
     rsvp_suspended = Rsvp(project=project, user=user_suspended)
     rsvp_suspended.rsvp_yes()
-    user_suspended.status = USER_STATUS.SUSPENDED
+    user_suspended.mark_suspended()
     db.session.add_all([rsvp_y, rsvp_n, rsvp_suspended])
     db.session.commit()
 
@@ -268,7 +271,7 @@ def test_user_notification_preferences(notification_types, db_transaction):
     assert user.notification_preferences == {}
     np = NotificationPreferences(
         user=user,
-        notification_type=notification_types.TestNewUpdateNotification.cls_type,
+        notification_type=notification_types.TestNewUpdateNotification.cls_type(),
     )
     db.session.add(np)
     db.session.commit()
@@ -285,7 +288,7 @@ def test_user_notification_preferences(notification_types, db_transaction):
         db.session.add(
             NotificationPreferences(
                 user=user,
-                notification_type=notification_types.TestNewUpdateNotification.cls_type,
+                notification_type=notification_types.TestNewUpdateNotification.cls_type(),
             )
         )
         db.session.commit()
@@ -298,7 +301,7 @@ def test_user_notification_preferences(notification_types, db_transaction):
     # Preferences can be set for other notification types though
     np2 = NotificationPreferences(
         user=user,
-        notification_type=notification_types.TestProposalReceivedNotification.cls_type,
+        notification_type=notification_types.TestProposalReceivedNotification.cls_type(),
     )
     db.session.add(np2)
     db.session.commit()

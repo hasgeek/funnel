@@ -46,25 +46,25 @@ DEBUG = True
 SMS_VERIFICATION_TEMPLATE = "Hello from Hasgeek. Your verification code is {code}."
 
 #: Twitter integration
-OAUTH_TWITTER_KEY = ''
-OAUTH_TWITTER_SECRET = ''
+OAUTH_TWITTER_KEY = ''  # nosec
+OAUTH_TWITTER_SECRET = ''  # nosec
 
 #: GitHub integration
-OAUTH_GITHUB_KEY = ''
-OAUTH_GITHUB_SECRET = ''
+OAUTH_GITHUB_KEY = ''  # nosec
+OAUTH_GITHUB_SECRET = ''  # nosec
 
 #: Google integration. Get an app here: https://console.developers.google.com/
-OAUTH_GOOGLE_KEY = ''
-OAUTH_GOOGLE_SECRET = ''
+OAUTH_GOOGLE_KEY = ''  # nosec
+OAUTH_GOOGLE_SECRET = ''  # nosec
 #: Default is ['email', 'profile']
-OAUTH_GOOGLE_SCOPE = ['email', 'profile']
+OAUTH_GOOGLE_SCOPE = ['email', 'profile']  # nosec
 
 #: LinkedIn integration
-OAUTH_LINKEDIN_KEY = ''
-OAUTH_LINKEDIN_SECRET = ''
+OAUTH_LINKEDIN_KEY = ''  # nosec
+OAUTH_LINKEDIN_SECRET = ''  # nosec
 
 #: Recaptcha for the registration form
-RECAPTCHA_USE_SSL = True
+RECAPTCHA_USE_SSL = True  # nosec
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 RECAPTCHA_OPTIONS = ''
@@ -72,16 +72,19 @@ RECAPTCHA_OPTIONS = ''
 #: SMS gateways
 #: SMSGupShup support is deprecated
 SMS_SMSGUPSHUP_MASK = ''
-SMS_SMSGUPSHUP_USER = ''
-SMS_SMSGUPSHUP_PASS = ''
+SMS_SMSGUPSHUP_USER = ''  # nosec
+SMS_SMSGUPSHUP_PASS = ''  # nosec
 #: Exotel support is active
-SMS_EXOTEL_SID = ''
-SMS_EXOTEL_TOKEN = ''
-SMS_EXOTEL_FROM = ''
+SMS_EXOTEL_SID = ''  # nosec
+SMS_EXOTEL_TOKEN = ''  # nosec
+SMS_EXOTEL_FROM = ''  # nosec
+SMS_EXOTEL_DLT_ID = ''  # nosec
 #: Twilio support for non-indian numbers
-SMS_TWILIO_SID = ''
-SMS_TWILIO_TOKEN = ''
-SMS_TWILIO_FROM = ''
+SMS_TWILIO_SID = ''  # nosec
+SMS_TWILIO_TOKEN = ''  # nosec
+SMS_TWILIO_FROM = ''  # nosec
 
 #: Unsubscribe token domain
 UNSUBSCRIBE_DOMAIN = 'bye.li'
+
+IMGEE_HOST = ''

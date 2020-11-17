@@ -84,11 +84,6 @@ def login():
         session['next'] = get_next_url(referrer=True)
 
     loginform = LoginForm()
-    service_forms = {}
-    for service, provider in login_registry.items():
-        if provider.at_login and provider.form is not None:
-            service_forms[service] = provider.get_form()
-
     loginmethod = None
     if request.method == 'GET':
         loginmethod = request.cookies.get('login')
@@ -185,10 +180,6 @@ def login():
             return render_redirect(
                 url_for('reset', username=loginform.username.data), code=303
             )
-    elif request.method == 'POST' and formid in service_forms:
-        form = service_forms[formid]['form']
-        if form.validate():
-            return set_loginmethod_cookie(login_registry[formid].do(form=form), formid)
     elif request.method == 'POST':
         abort(500)
     iframe_block = {'X-Frame-Options': 'SAMEORIGIN'}
@@ -208,7 +199,6 @@ def login():
                 'login.html.jinja2',
                 loginform=loginform,
                 lastused=loginmethod,
-                service_forms=service_forms,
                 login_registry=login_registry,
                 formid='passwordlogin',
                 ref_id='form-passwordlogin',

@@ -62,6 +62,7 @@ GA_CODE = environ.get('GA_CODE')
 SMS_EXOTEL_SID = environ.get('SMS_EXOTEL_SID')
 SMS_EXOTEL_TOKEN = environ.get('SMS_EXOTEL_TOKEN')
 SMS_EXOTEL_FROM = environ.get('SMS_EXOTEL_FROM')
+SMS_EXOTEL_DLT_ID = environ.get('SMS_EXOTEL_DLT_ID')
 
 #: Twilio support for non-indian numbers
 SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
@@ -72,6 +73,8 @@ SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
 SES_NOTIFICATION_TOPICS = [  # nosec
     'arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com'
 ]
+
+IMGEE_HOST = 'imgee.travis.local:3002'
 
 # Needed for unit tests, but will break Cypress tests
 # Must be added to a fixture for unit tests

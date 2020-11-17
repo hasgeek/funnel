@@ -67,4 +67,4 @@ class TestLabels(object):
         new_label.archived = True
         test_db.session.commit()
         assert new_label._archived is True
-        assert new_label.archived is True
+        assert new_label.archived is True  # type: ignore[unreachable]

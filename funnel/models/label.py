@@ -277,7 +277,7 @@ add_search_trigger(Label, 'search_vector')
 
 
 class ProposalLabelProxyWrapper(object):
-    def __init__(self, obj):
+    def __init__(self, obj) -> None:
         object.__setattr__(self, '_obj', obj)
 
     def __getattr__(self, name):

@@ -1,7 +1,7 @@
 """Support functions for sending an email."""
 
 from email.utils import formataddr, getaddresses, parseaddr
-from typing import List, NamedTuple, Optional, Tuple, Union
+from typing import Any, Dict, List, NamedTuple, Optional, Tuple, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -36,7 +36,7 @@ class EmailAttachment(NamedTuple):
     mimetype: str
 
 
-def jsonld_view_action(description, url, title):
+def jsonld_view_action(description: str, url: str, title: str) -> Dict[str, Any]:
     return {
         "@context": "http://schema.org",
         "@type": "EmailMessage",
@@ -50,7 +50,7 @@ def jsonld_view_action(description, url, title):
     }
 
 
-def jsonld_confirm_action(description, url, title):
+def jsonld_confirm_action(description: str, url: str, title: str) -> Dict[str, Any]:
     return {
         "@context": "http://schema.org",
         "@type": "EmailMessage",
@@ -113,7 +113,7 @@ def send_email(
     attachments: List[EmailAttachment] = None,
     from_email: EmailRecipient = None,
     headers: dict = None,
-):
+) -> str:
     """
     Send an email.
 
@@ -168,4 +168,4 @@ def send_email(
         ea.mark_sent()
 
     # FIXME: 'result' is a number. Why? We need message-id
-    return result
+    return str(result)

@@ -16,9 +16,7 @@
 {% block contentwrapper %}
   <div class="grid" id="tagged-sessions">
     <div class="grid__col-xs-12">
-      {% if participated_projects %}
-        <p class="mui-text--body2 zero-bottom-margin bottom-padding">{{ ngettext("%(num)d project participated in", "%(num)d projects participated in", participated_projects|length) }}</p>
-      {% else %}
+      {% if not participated_projects %}
         <p class="mui-panel mui--bg-accent">{% trans %}No participation yet.{% endtrans %}</p>
       {% endif %}
     </div>

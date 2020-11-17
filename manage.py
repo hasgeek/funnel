@@ -32,7 +32,7 @@ data_sources = {
         models.auth_client_user_session.c.accessed_at,
     ),
     "New users": DataSource(
-        models.User.query.filter(models.User.status == models.USER_STATUS.ACTIVE),
+        models.User.query.filter(models.User.state.ACTIVE),
         models.User.created_at,
     ),
     "RSVPs": DataSource(

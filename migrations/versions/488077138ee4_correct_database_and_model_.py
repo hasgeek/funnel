@@ -1,3 +1,4 @@
+# type: ignore
 """Correct database and model inconsistencies.
 
 Revision ID: 488077138ee4
