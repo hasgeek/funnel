@@ -38,6 +38,7 @@
     "leaflet": "^1.7.1",
     "po2json": "^0.4.5",
     "ractive": "^0.8.0",
+    "sprintf-js": "^1.1.2",
     "timeago.js": "^4.0.2",
     "vcards-js": "^2.10.0",
     "vue": "^2.6.12",

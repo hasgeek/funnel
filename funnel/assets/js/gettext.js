@@ -56,6 +56,9 @@
 //   "msgstr[1]",  // in case of plural
 // ],
 
+var sprintf = require('sprintf-js').sprintf,
+  vsprintf = require('sprintf-js').vsprintf;
+
 class Gettext {
   constructor(messagesJson) {
     this.domain = messagesJson.domain;
@@ -75,19 +78,13 @@ class Gettext {
       }
       // in case of gettext() first element is empty because it's the msgid_plural,
       // and the second element is the translated msgstr
-      var msgstr = msgidCatalog[1];
-      if (args.length > 0) {
-        for (var i = 0; i < args.length; i = i + 1) {
-          msgstr = msgstr.replace('%d', args[i]);
-        }
-      }
-      return msgstr;
+      return vsprintf(msgidCatalog[1], args);
     } else {
       return msgid;
     }
   }
 
-  ngettext(msgid, msgidPlural, num) {
+  ngettext(msgid, msgidPlural, num, ...args) {
     if (msgid in this.catalog) {
       var msgidCatalog = this.catalog[msgid];
 
@@ -101,11 +98,13 @@ class Gettext {
         console.error("Plural forms don't match");
       }
 
+      var msgstr = '';
       if (num <= 1) {
-        return msgidCatalog[1].replace('%d', num);
+        msgstr = sprintf(msgidCatalog[1], { num: num });
       } else {
-        return msgidCatalog[2].replace('%d', num);
+        msgstr = sprintf(msgidCatalog[2], { num: num });
       }
+      return vsprintf(msgstr, args);
     } else {
       return msgid;
     }
