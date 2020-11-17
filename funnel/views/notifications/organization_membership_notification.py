@@ -168,8 +168,9 @@ class RenderShared:
     def activity_template(self, membership: OrganizationMembership = None) -> str:
         ...
 
-    @property
-    def membership_actor(self) -> User:
+    def membership_actor(
+        self, membership: OrganizationMembership = None
+    ) -> Optional[User]:
         """Actor who granted or revoked, for the template."""
         ...
 
@@ -187,6 +188,7 @@ class RenderShared:
     def activity_html(self, membership: OrganizationMembership = None) -> Markup:
         if not membership:
             membership = self.membership
+        actor = self.membership_actor(membership)
         return Markup(self.activity_template(membership)).format(
             user=Markup(
                 '<a href="{url}">{name}</a>'.format(
@@ -202,28 +204,34 @@ class RenderShared:
                     title=escape(self.organization.pickername),
                 )
             ),
-            actor=Markup(
-                '<a href="{url}">{name}</a>'.format(
-                    url=escape(self.membership_actor.profile_url),
-                    name=escape(self.membership_actor.pickername),
+            actor=(
+                Markup(
+                    '<a href="{url}">{name}</a>'.format(
+                        url=escape(actor.profile_url),
+                        name=escape(actor.pickername),
+                    )
                 )
+                if actor.profile_url
+                else escape(actor.pickername)
             )
-            if self.membership_actor.profile_url
-            else escape(self.membership_actor.pickername),
+            if actor
+            else _("(unknown)"),
         )
 
     def email_subject(self) -> str:
+        actor = self.membership_actor()
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=self.membership_actor.pickername,
+            actor=(actor.pickername if actor else _("(unknown)")),
         )
 
     def sms(self) -> str:
+        actor = self.membership_actor()
         return self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=self.membership_actor.pickername,
+            actor=(actor.pickername if actor else _("(unknown)")),
         )
 
 
@@ -236,11 +244,11 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
 
     fragments_order_by = [OrganizationMembership.granted_at.desc()]
 
-    @property
-    def membership_actor(self) -> User:
+    def membership_actor(
+        self, membership: OrganizationMembership = None
+    ) -> Optional[User]:
         """Actual actor who granted (or edited) the membership, for the template."""
-        # Fallback to subject in case granted_by is not set
-        return self.membership.granted_by or self.membership.user
+        return (membership or self.membership).granted_by
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
         """
@@ -282,11 +290,11 @@ class RenderOrganizationAdminMembershipRevokedNotification(
 
     fragments_order_by = [OrganizationMembership.revoked_at.desc()]
 
-    @property
-    def membership_actor(self) -> User:
+    def membership_actor(
+        self, membership: OrganizationMembership = None
+    ) -> Optional[User]:
         """Actual actor who revoked the membership, for the template."""
-        # Fallback to subject in case revoked_by is not available.
-        return self.membership.revoked_by or self.membership.user
+        return (membership or self.membership).revoked_by
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
         """Return a single line summary of changes."""
