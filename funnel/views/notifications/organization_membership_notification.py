@@ -239,7 +239,8 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     @property
     def membership_actor(self) -> User:
         """Actual actor who granted (or edited) the membership, for the template."""
-        return self.membership.granted_by
+        # Fallback to subject in case granted_by is not set
+        return self.membership.granted_by or self.membership.user
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
         """
@@ -284,7 +285,8 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     @property
     def membership_actor(self) -> User:
         """Actual actor who revoked the membership, for the template."""
-        return self.membership.revoked_by
+        # Fallback to subject in case revoked_by is not available.
+        return self.membership.revoked_by or self.membership.user
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
         """Return a single line summary of changes."""
