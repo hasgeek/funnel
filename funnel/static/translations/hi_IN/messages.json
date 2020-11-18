@@ -1583,6 +1583,7 @@
         "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
       ],
       "Scan badges to check-in": [null, "चेक-इन के लिए बैच स्कैन करें"],
+      "Downloads": [null, ""],
       "Download JSON": [null, "JSON डाउनलोड करें"],
       "JSON": [null, "JSON"],
       "View schedule JSON": [null, "कार्यक्रम की JSON फाइल देखें"],
@@ -1635,10 +1636,10 @@
         ""
       ],
       "Attendee details not found": [null, ""],
-      "Today": [null, "आज"],
-      "Tomorrow": [null, "कल"],
-      "Day after": [null, "परसों"],
-      "In %d days": [null, "%d दिनों में"],
+      "Today": [null, ""],
+      "Tomorrow": [null, ""],
+      "Day after": [null, ""],
+      "In %d days": [null, ""],
       "Login to leave a comment": [null, ""],
       "You need to be a participant to comment.": [null, ""],
       "Post a comment...": [null, ""],
