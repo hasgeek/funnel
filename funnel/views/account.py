@@ -15,6 +15,7 @@ from coaster.views import ClassView, get_next_url, render_with, route
 
 from .. import app, funnelapp, lastuserapp
 from ..forms import (
+    AccountDeleteForm,
     AccountForm,
     EmailPrimaryForm,
     LogoutForm,
@@ -844,6 +845,56 @@ class AccountView(ClassView):
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
+        )
+
+    @route('delete', methods=['GET', 'POST'], endpoint='account_delete')
+    @requires_sudo
+    def delete(self):
+        # Perform sanity checks: can this user account be deleted?
+        if current_auth.user.profile:
+            # 1. Is this account protected?
+            if current_auth.user.profile.is_protected:
+                return render_message(
+                    title=_("This account is protected"),
+                    message=_("Protected accounts cannot be deleted."),
+                )
+            # 2: Does this account's profile have projects or other documents?
+            if not current_auth.user.profile.is_safe_to_delete():
+                return render_message(
+                    title=_("This account has projects"),
+                    message=_(
+                        "Projects are collaborative spaces involving other users."
+                        " Projects must be transferred to a new owner before the"
+                        " account can be deleted."
+                    ),
+                )
+        # 3. Does this user have any single-owner organizations? Ask for transfers
+        for org in current_auth.user.organizations_as_owner:
+            if list(org.owner_users) == [current_auth.user]:
+                # TODO: List organizations for the user's benefit
+                return render_message(
+                    title=_("This account has organizations without co-owners"),
+                    message=_(
+                        "Organizations must be deleted or transferred to other"
+                        " owners before the account can be deleted."
+                    ),
+                )
+        # If everything okay, ask user to confirm and then proceed
+        form = AccountDeleteForm()
+        if form.validate_on_submit():
+            # Go ahead, delete
+            current_auth.user.do_delete()
+            db.session.commit()
+            flash(_("TODO: Your account has been deleted"), 'success')
+            logout_internal()
+            return redirect(url_for('index'))
+        return render_form(
+            form=form,
+            title=_("You are about to delete your account permanently"),
+            submit=("Delete account"),
+            ajax=False,
+            template='account_formlayout.html.jinja2',
+            cancel_url=url_for('account'),
         )
 
 

@@ -142,3 +142,14 @@ class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         foreign_keys=[ProposalMembership.user_id],
         viewonly=True,
     )
+    proposal_active_memberships = (
+        db.relationship(
+            ProposalMembership,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                ProposalMembership.user_id == User.id,
+                ProposalMembership.is_active,
+            ),
+            viewonly=True,
+        ),
+    )

@@ -507,7 +507,44 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @state.transition(state.ACTIVE, state.SUSPENDED)
     def mark_suspended(self):
-        """Mark account as suspended on support request."""
+        """Mark account as suspended on support or moderator request."""
+
+    @state.transition(state.ACTIVE, state.DELETED)
+    def do_delete(self):
+        """Delete user account."""
+        # 1. Delete profile
+        if self.profile:
+            if not self.profile.is_safe_to_delete():
+                raise ValueError("Profile cannot be deleted")
+            else:
+                db.session.delete(self.profile)
+        # FIXME: Ask for auth clients to be transferred
+        # 2. Delete contact information
+        for contact_source in (
+            self.emails,
+            self.emailclaims,
+            self.phones,
+            self.phoneclaims,
+            self.externalids,
+        ):
+            for contact in contact_source:
+                db.session.delete(contact)
+        # 3. Revoke all active memberships
+        for membership_source in (
+            self.active_organization_admin_memberships,
+            self.projects_as_crew_active_memberships,
+            self.proposal_active_memberships,
+        ):
+            for membership in membership_source:
+                membership.revoke(actor=self)
+        if self.active_site_membership:
+            self.active_site_membership.revoke(actor=self)
+
+        # 6. Revoke auth tokens
+
+        # 5. Clear fullname and stored password hash
+        self.fullname = ''
+        self.password = None
 
     @overload
     @classmethod

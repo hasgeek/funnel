@@ -77,6 +77,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
 
     __tablename__ = 'auth_client'
     __scope_null_allowed__ = True
+    # TODO: merge columns into a profile_id column
     #: User who owns this client
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = with_roles(
