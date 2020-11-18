@@ -5,10 +5,10 @@
       <p class="mui-panel mui--bg-accent" v-if="isuserloggedin && !isuserparticipant">{{ gettext('You need to be a participant to comment.') }}</p>
       <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="showmodal">
         <div class="mobile-nav mui--z1">
-          <span aria-label="{{ gettext('Close') }}" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
+          <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
         </div>
       </div>
-      <a href="javascript:void(0)" class="post-form-block nounderline js-new-comment-form" :class="[commentForm ? 'mui--hide' : '']" @click="showNewCommentForm($event, 'comment_message')" aria-label="{{ gettext('Post comment') }}" data-cy="post-comment" v-if="isuserparticipant" role="button">
+      <a href="javascript:void(0)" class="post-form-block nounderline js-new-comment-form" :class="[commentForm ? 'mui--hide' : '']" @click="showNewCommentForm($event, 'comment_message')" :aria-label="gettext('Post comment')" data-cy="post-comment" v-if="isuserparticipant" role="button">
         <span class="post-form mui--hidden-xs mui--hidden-sm">{{ gettext('Post a comment...') }}</span>
         <div class="user mui--hidden-xs mui--hidden-sm">
           <div class="user__box">
@@ -39,14 +39,14 @@
       <li class="comment" :class="[formOpened ? 'comment--modal' : '']"  :id="'c-' + comment.uuid_b58">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="formOpened">
           <div class="mobile-nav mui--z1">
-            <span aria-label="{{ gettext('Close') }}" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
+            <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
           </div>
         </div>
         <div class="comment__header">
-          <button class="mui-btn mui-btn--nostyle" aria-label="{{ gettext('Hide comment') }}" aria-expanded="true" v-if="!hide" @click="collapse(true)">
+          <button class="mui-btn mui-btn--nostyle" :aria-label="gettext('Hide comment')" aria-expanded="true" v-if="!hide" @click="collapse(true)">
             <faicon :icon="'caret-circle-up'" :icon_size="'subhead'"></faicon>
           </button>
-          <button class="mui-btn mui-btn--nostyle" aria-expanded="false" aria-label="{{ gettext('Collapse comment') }}" v-else @click="collapse(false)">
+          <button class="mui-btn mui-btn--nostyle" aria-expanded="false" :aria-label="gettext('Collapse comment')" v-else @click="collapse(false)">
             <faicon :icon="'caret-circle-down'" :icon_size="'subhead'"></faicon>
           </button>
           <div class="comment__header__details user">
@@ -69,7 +69,7 @@
             <div class="comment__body__inner">
               <div v-if="!comment.state" v-html="comment.message.html"></div>
               <a class="mui--text-caption mui--text-light comment--permalink hg-link-btn" :href="'#c-' + comment.uuid_b58">Posted {{ created_at_age }}</a>
-              <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">({{ gettext('edited %1', {date:edited_at_age}) }})</span>
+              <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">({{ gettext('edited %s', date:edited_at_age) }})</span>
               <div class="js-comment-form">
                 <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserparticipant"  @click="activateSubForm($event, COMMENTACTIONS.REPLY, 'reply-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'comment-alt'" :baseline=false></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Reply') }}</span></a>
                 <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserparticipant || iscommentmoderator" @click="activateSubForm($event, COMMENTACTIONS.REPORTSPAM)"><faicon :icon="'flag-alt'":baseline=false></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Report') }}</span></a>

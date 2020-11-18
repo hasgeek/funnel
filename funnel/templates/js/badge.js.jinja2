@@ -32,7 +32,7 @@
             {{#if scanning}}
               <h4 class="mui--text-headline mui--align-middle">{{ gettext('Scanning') }} <faicon icon='spinner'></faicon></h4>
             {{elseif attendeeFound}}
-              <h4>{{ gettext('Hello', {{attendeeName}}) }},</h4>
+              <h4>{{ gettext('Hello %s', attendeeName) }},</h4>
               <p>{{ gettext('Thank you for choosing to participate in  %(title)s and for being a part of this growing community.', {title:projectTitle}) }}</p>
               <p>{{ gettext('Hasgeek') }}</p>
             {{else}}

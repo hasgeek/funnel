@@ -4,12 +4,12 @@
       <div class="membership-wrapper" v-if="ready">
         <div class="mui--clearfix">
           <div class="btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
-            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" aria-label="{{ gettext('Add new member') }}" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</p></button>
+            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" :aria-label="gettext('Add new member')" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</p></button>
           </div>
           <div class="membership-wrapper--half" v-if="members">
             <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
               <div class="mui-textfield">
-                <input class="field-search mui--text-light" type="text" name="key" value="" placeholder="Search member…" v-model="search" @input="onChange"/>
+                <input class="field-search mui--text-light" type="text" name="key" value="" :placeholder="gettext('Search member…')" v-model="search" @input="onChange"/>
                 <faicon :icon="'search'" :baseline=false :css_class="'search-form__icon'"></faicon>
               </div>
             </form>
@@ -33,7 +33,7 @@
               <transition name="slide-fade">
                 <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
                   <div v-if="isUserProfileAdmin">
-                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" aria-label="{{ gettext('Edit') }}" role="dialog" v-if="member[role.roleKey]">
+                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="gettext('Edit')" role="dialog" v-if="member[role.roleKey]">
                       <member :member="member"></member>
                     </div>
                   </div>
@@ -48,7 +48,7 @@
           </div>
           <div v-if="view == 'name'" class="membership-wrapper__members">
             <div v-if="isUserProfileAdmin">
-              <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" aria-label="{{ gettext('Edit') }}" role="dialog">
+              <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" :aria-label=" gettext('Edit')" role="dialog">
                 <member :member="member"></member>
               </div>
             </div>
@@ -67,7 +67,7 @@
           <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">{{ gettext('Members you add will appear here…') }}</p>
         </div>
         <div id="member-form" class="modal modal--form" :class="[activeMember ? 'modal--form--edit' : '']">
-          <a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{{ gettext('Close') }}'" rel="modal:close"  data-action="close modal">
+          <a class="modal__close mui--text-dark" href="javascript:void(0);" :aria-label="gettext('Close')" rel="modal:close"  data-action="close modal">
             <faicon :icon="'times'" :icon_size="'title'"></faicon>
           </a>
           <component :is="Form"></component>

@@ -392,7 +392,7 @@
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
         {% endif %}
-        <h3 class="card__body__title mui--text-subhead {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
+        <h3 class="card__body__title mui--text-subhead {% if not project.calendar_weeks_compact.weeks %} card__body__title--smaller {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate-readmore" data-truncate-lines="2">{{ project.tagline }}</span></h3>
         <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</p>
       {% else %}
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>

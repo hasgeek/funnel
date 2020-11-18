@@ -100,6 +100,9 @@ export const Utils = {
     }
   },
   truncate() {
+    let readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${window.gettext(
+      'read more'
+    )}</span>`;
     $('.js-truncate').each(function () {
       let linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
@@ -111,8 +114,7 @@ export const Utils = {
       let linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
         lines: linesLimit,
-        fill:
-          '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
+        fill: readMoreTxt,
       });
     });
 
@@ -168,13 +170,13 @@ export const Utils = {
       let eventDay = Date.parse(eventDate);
       // Find the difference between event and today's date in UTC
       let counting = Math.round((eventDay - today) / singleDay);
-      let dayText = ['Today', 'Tomorrow', 'Day after'];
+      // Defined these strings in project_countdown macro in calendar_snippet.js.jinja2
+      let dayText = ['Today', 'Tomorrow', 'Day after', 'In %d days'];
       // Show number of days on the widget only if it is less than 32 days
       if (counting >= 0 && counting < 3) {
-        monthElem.text(dayText[counting]);
+        monthElem.text(window.gettext(dayText[counting]));
       } else if (counting > 2 && counting < 32) {
-        let daysRemainingTxt = `In ${counting} days`;
-        monthElem.text(daysRemainingTxt);
+        monthElem.text(window.gettext(dayText[3], counting));
       }
     });
   },
@@ -184,10 +186,12 @@ export const Utils = {
   getResponseError(response) {
     let errorMsg = '';
 
+    // Add server error strings for translations in server_error.js.jinja2
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg =
-          'An internal server error occurred. Our support team has been notified and will investigate.';
+        errorMsg = window.gettext(
+          'An internal server error occurred. Our support team has been notified and will investigate.'
+        );
       } else if (
         response.status === 422 &&
         response.responseJSON.error === 'requires_sudo'
@@ -199,7 +203,9 @@ export const Utils = {
         errorMsg = response.responseJSON.error_description;
       }
     } else {
-      errorMsg = 'Unable to connect. Please reload and try again.';
+      errorMsg = window.gettext(
+        'Unable to connect. Please reload and try again.'
+      );
     }
     return errorMsg;
   },
@@ -351,7 +357,6 @@ export const Utils = {
     }
     window.gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
-    console.log('loadLangTranslations');
   },
   getTranslationFileUrl(langCode) {
     return `/static/translations/${langCode}/messages.json`;
@@ -480,7 +485,9 @@ export const SaveProject = function ({
           $(this).addClass('animate-btn--show');
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
-            window.toastr.success('Project added to Account > My saves');
+            window.toastr.success(
+              window.gettext('Project added to Account > My saves')
+            );
           }
         }
       });
