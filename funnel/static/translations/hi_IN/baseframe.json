@@ -13,7 +13,7 @@
       "a minute ago": [null, "एक मिनट पहले"],
       "%(num)s minutes ago": [null, "%(num)s मिनट पहले"],
       "an hour ago": [null, "एक घंटा पहले"],
-      "%(num)s hours ago": [null, "%(num)s घंटा पहले"],
+      "%(num)s hours ago": [null, "%(num)s घंटो पहले"],
       "a day ago": [null, "एक दिन पहले"],
       "%(num)s days ago": [null, "%(num)s दिन पहले"],
       "a month ago": [null, "एक महीने पहले"],
