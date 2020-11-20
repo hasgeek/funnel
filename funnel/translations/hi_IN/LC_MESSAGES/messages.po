@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-20 10:29+0530\n"
+"POT-Creation-Date: 2020-11-20 14:20+0530\n"
 "PO-Revision-Date: 2020-11-15 20:22+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -949,6 +949,7 @@ msgid "One line description of the project"
 msgstr "प्रोजेक्ट का संक्षिप्त विवरण"
 
 #: funnel/forms/project.py:41 funnel/forms/venue.py:62
+#: funnel/views/index.py:131 funnel/views/profile.py:234
 msgid "Location"
 msgstr "स्थान"
 
@@ -2864,6 +2865,12 @@ msgstr "इस प्रोजेक्ट को फिलहाल प्र�
 msgid "Edit url"
 msgstr "URL संपादित करें"
 
+#: funnel/templates/macros.html.jinja2:143
+#: funnel/templates/macros.html.jinja2:420
+#: funnel/templates/macros.html.jinja2:446
+msgid "Livestream"
+msgstr "लाइवस्ट्रीम"
+
 #: funnel/templates/macros.html.jinja2:156
 #: funnel/templates/macros.html.jinja2:173
 #: funnel/templates/macros.html.jinja2:327
@@ -3039,16 +3046,9 @@ msgstr "जमा करने की सुविधा %(date)s को बं�
 msgid "Live schedule"
 msgstr "लाइव कार्यक्रम"
 
-#: funnel/templates/macros.html.jinja2:420
-#: funnel/templates/macros.html.jinja2:446
-msgid "Livestream"
-msgstr "लाइवस्ट्रीम"
-
 #: funnel/templates/macros.html.jinja2:422
-msgid ""
-"Livestream and\n"
-"              schedule"
-msgstr "लाइवस्ट्रीम और\\"
+msgid "Livestream and schedule"
+msgstr ""
 
 #: funnel/templates/macros.html.jinja2:442
 #, python-format
@@ -4910,6 +4910,18 @@ msgstr "कम्यूनिटी दिशा-निर्देश"
 #: funnel/views/index.py:29
 msgid "Code of conduct"
 msgstr "आचार संहिता"
+
+#: funnel/views/index.py:130 funnel/views/profile.py:233
+msgid "Past projects"
+msgstr ""
+
+#: funnel/views/index.py:131 funnel/views/profile.py:234
+msgid "Date"
+msgstr ""
+
+#: funnel/views/index.py:131 funnel/views/profile.py:234
+msgid "Project"
+msgstr ""
 
 #: funnel/views/index.py:207
 msgid "Discussion spaces for geeks"
