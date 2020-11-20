@@ -204,9 +204,6 @@
 {%- endblock %}
 
 {% block layoutscripts %}
-  {% assets "js_jquerytruncate" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script type="text/javascript">
     window.Hasgeek = {};
     window.Hasgeek.config = {};
@@ -214,6 +211,9 @@
     window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
     window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
   </script>
+  {% assets "js_jquerytruncate" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
   {%- if not config['LEGACY'] -%}
   <script type="text/javascript">

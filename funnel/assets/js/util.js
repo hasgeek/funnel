@@ -1,4 +1,7 @@
 import Gettext from './gettext';
+import * as timeago from 'timeago.js';
+/*eslint camelcase: ["error", {allow: ["hi_IN"]}]*/
+import hi_IN from 'timeago.js/lib/lang/hi_IN';
 
 /* global ga */
 export const Utils = {
@@ -336,18 +339,27 @@ export const Utils = {
     }
     return headerHeight;
   },
-  loadLangTranslations() {
+  getLocale() {
     // Instantiate i18n with browser context
     let lang = document.documentElement.lang;
     let langShortForm = lang.substring(0, 2);
-    let translatedLang =
+    window.Hasgeek.config.locale =
       window.Hasgeek.config.availableLanguages[langShortForm];
+    return window.Hasgeek.config.locale;
+  },
+  loadLangTranslations() {
+    Utils.getLocale();
 
     window.i18n = new Gettext({
-      translatedLang: translatedLang,
+      translatedLang: window.Hasgeek.config.locale,
     });
     window.gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
+  },
+  getTimeago() {
+    // en_US and zh_CN are built in timeago, other languages requires to be registered.
+    timeago.register('hi_IN', hi_IN);
+    return timeago;
   },
 };
 

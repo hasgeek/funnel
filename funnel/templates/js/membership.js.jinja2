@@ -120,7 +120,7 @@
           <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Editor') }}</li>
           <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Concierge') }}</li>
           <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Usher') }}</li>
-          <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">{{ ngettext('+ %1 more role', '+ %1 more roles', rolesCount(member)) }}</li>
+          <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0">{{ ngettext('+ %d more role', '+ %d more roles', rolesCount(member)) }}</li>
         </ul>
       </div>
     </script>

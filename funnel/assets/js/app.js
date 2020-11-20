@@ -4,6 +4,7 @@ import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
   window.Hasgeek.config.availableLanguages = {
+    en: 'en_IN',
     hi: 'hi_IN',
   };
   window.Hasgeek.config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
