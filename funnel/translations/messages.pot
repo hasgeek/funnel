@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-11-20 10:29+0530\n"
+"POT-Creation-Date: 2020-11-20 14:20+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -894,6 +894,7 @@ msgid "One line description of the project"
 msgstr ""
 
 #: funnel/forms/project.py:41 funnel/forms/venue.py:62
+#: funnel/views/index.py:131 funnel/views/profile.py:234
 msgid "Location"
 msgstr ""
 
@@ -2728,6 +2729,12 @@ msgstr ""
 msgid "Edit url"
 msgstr ""
 
+#: funnel/templates/macros.html.jinja2:143
+#: funnel/templates/macros.html.jinja2:420
+#: funnel/templates/macros.html.jinja2:446
+msgid "Livestream"
+msgstr ""
+
 #: funnel/templates/macros.html.jinja2:156
 #: funnel/templates/macros.html.jinja2:173
 #: funnel/templates/macros.html.jinja2:327
@@ -2900,15 +2907,8 @@ msgstr ""
 msgid "Live schedule"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:420
-#: funnel/templates/macros.html.jinja2:446
-msgid "Livestream"
-msgstr ""
-
 #: funnel/templates/macros.html.jinja2:422
-msgid ""
-"Livestream and\n"
-"              schedule"
+msgid "Livestream and schedule"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:442
@@ -4690,6 +4690,18 @@ msgstr ""
 
 #: funnel/views/index.py:29
 msgid "Code of conduct"
+msgstr ""
+
+#: funnel/views/index.py:130 funnel/views/profile.py:233
+msgid "Past projects"
+msgstr ""
+
+#: funnel/views/index.py:131 funnel/views/profile.py:234
+msgid "Date"
+msgstr ""
+
+#: funnel/views/index.py:131 funnel/views/profile.py:234
+msgid "Project"
 msgstr ""
 
 #: funnel/views/index.py:207

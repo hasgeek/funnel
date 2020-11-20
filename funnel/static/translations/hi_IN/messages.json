@@ -1351,6 +1351,7 @@
         "इस प्रोजेक्ट को फिलहाल प्रकाशित नहीं किया गया है"
       ],
       "Edit url": [null, "URL संपादित करें"],
+      "Livestream": [null, "लाइवस्ट्रीम"],
       "Preview video": [null, "प्रीव्यू वीडियो"],
       "Get tickets": [null, "टिकट पाएं"],
       "Register": [null, "रजिस्टर करें"],
@@ -1402,8 +1403,7 @@
         "जमा करने की सुविधा %(date)s को बंद हो जाएगी"
       ],
       "Live schedule": [null, "लाइव कार्यक्रम"],
-      "Livestream": [null, "लाइवस्ट्रीम"],
-      "Livestream and\n              schedule": [null, "लाइवस्ट्रीम और\\"],
+      "Livestream and schedule": [null, ""],
       "Session starts at %(session)s": [null, "सेशन %(session)s शुरू होगा"],
       "Watch livestream": [null, "लाइवस्ट्रीम देखें"],
       "Spotlight": [null, "झलकियां"],
@@ -2274,6 +2274,9 @@
       "Cancellation &amp; refund policy": [null, ""],
       "Community guidelines": [null, "कम्यूनिटी दिशा-निर्देश"],
       "Code of conduct": [null, "आचार संहिता"],
+      "Past projects": [null, ""],
+      "Date": [null, ""],
+      "Project": [null, ""],
       "Discussion spaces for geeks": [null, "लोगों के लिए चर्चा की जगह"],
       "Internet": [null, "इंटरनेट"],
       "Online": [null, "ऑनलाइन"],

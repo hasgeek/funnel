@@ -140,7 +140,7 @@
           <ul class="mui-tabs__bar project-banner__box" role="tablist">
             {%- for stream in project.livestream_urls %}
               <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-                <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}">Livestream {{loop.index}}</a>
+                <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}">{% trans %}Livestream{% endtrans %} {{loop.index}}</a>
               </li>
             {%- endfor %}
           </ul>
@@ -414,13 +414,13 @@
         <div class="grid">
           <div class="grid__col-12">
             <h2 class="mui--text-headline mui--text-bold project-headline">
-              {% if not featured_project.livestream_urls and
-              current_sessions.sessions|length > 0 %} {% trans %}Live schedule{%
-              endtrans %} {% elif featured_project.livestream_urls and not
-              current_sessions.sessions|length > 0 %} {% trans %}Livestream{%
-              endtrans %} {% elif featured_project.livestream_urls and
-              current_sessions.sessions|length > 0 %} {% trans %}Livestream and
-              schedule{% endtrans %} {% endif %}
+              {% if not featured_project.livestream_urls and current_sessions.sessions|length > 0 %}
+                {% trans %}Live schedule{% endtrans %}
+              {% elif featured_project.livestream_urls and not current_sessions.sessions|length > 0 %}
+                {% trans %}Livestream{% endtrans %}
+              {% elif featured_project.livestream_urls and current_sessions.sessions|length > 0 %}
+                {% trans %}Livestream and schedule{% endtrans %}
+              {% endif %}
             </h2>
           </div>
           <div class="grid__col-xs-12">
