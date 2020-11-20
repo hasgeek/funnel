@@ -1632,7 +1632,7 @@ a.loginbutton.hidden,
     position: sticky;
     top: 50px;
     order: 1;
-    z-index: 5;
+    z-index: 2;
   }
 
   .sub-navbar {
@@ -1645,14 +1645,15 @@ a.loginbutton.hidden,
   .sub-navbar .sub-navbar__item {
     display: inline-block;
     flex-shrink: 0;
-    padding: 16px;
+    padding: 32px 16px;
     margin: 0 16px;
     text-decoration: none;
-    border-bottom: 2px solid transparent;
+    border-bottom: 4px solid transparent;
     border-top: none !important;
     transition: border-color 1.5s ease;
     min-width: 0;
     min-height: 0;
+    font-weight: bold;
   }
   .sub-navbar .sub-navbar__item:first-child {
     margin: 0 16px 0 0;
@@ -1666,7 +1667,9 @@ a.loginbutton.hidden,
   .sub-navbar .sub-navbar__item:hover,
   .sub-navbar .sub-navbar__item:active,
   .sub-navbar .sub-navbar__item--active {
-    border-bottom: 2px solid #0f73ed;
+    border-bottom: 4px solid #0f73ed;
+    color: #0f73ed;
+    border-radius: 2px;
   }
 }
 @media (min-device-width: 768px) and (max-device-width: 1199px) and (orientation: landscape) {
@@ -1923,7 +1926,7 @@ a.loginbutton.hidden,
 }
 .profile .profile__banner .profile__banner__box {
   position: relative;
-  padding-bottom: 75%;
+  padding-bottom: 33.3%;
 }
 .profile .profile__banner .profile__banner__box .profile__banner__box__img {
   position: absolute;
@@ -2059,7 +2062,7 @@ a.loginbutton.hidden,
     padding: 0 16px;
   }
   .profile .profile__banner .profile__banner__box {
-    padding-bottom: 37.5%;
+    padding-bottom: 33.3%;
   }
   .profile .profile__banner .profile__banner__upload {
     border-radius: 0;
@@ -2651,30 +2654,50 @@ a.loginbutton.hidden,
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
-  transition: 200ms linear;
-  -webkit-transition: 200ms linear;
+  background: url(https://imgee.s3.amazonaws.com/imgee/52d60802afe74f96b6b944cbcefac67e.png);
+  background-size: cover;
+  background-position: center;
 }
 .card--banner .card__body {
   padding: 16px;
 }
+.card--banner .card__body .card__body__content {
+  color: #fff;
+}
 .card--banner .card__body .card__body__logo {
-  margin: auto;
   width: 100%;
   text-align: center;
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
 }
 .card--banner .card__body .card__body__logo img {
-  max-width: 100%;
+  width: 60px;
+}
+.card--banner .card__body .card__body__logo .caption {
+  max-width: 153px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
 }
 
 @media (min-width: 768px) {
-  .card--banner .card__body .card__body__logo {
-    float: right;
-    width: 15%;
-    text-align: right;
+  .card--banner .card__body {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
   }
   .card--banner .card__body .card__body__content {
     float: left;
-    width: 85%;
+    width: 55%;
+    color: #fff;
+  }
+  .card--banner .card__body .card__body__logo {
+    float: right;
+    width: 40%;
+  }
+  .card--banner .card__body .card__body__logo img {
+    margin-bottom: 8px;
   }
 }
 .card--spotlight {

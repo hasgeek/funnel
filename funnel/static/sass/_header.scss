@@ -519,7 +519,7 @@
     position: sticky;
     top: 50px;
     order: 1;
-    z-index: 5;
+    z-index: 2;
   }
 
   .sub-navbar {
@@ -532,14 +532,15 @@
     .sub-navbar__item {
       display: inline-block;
       flex-shrink: 0;
-      padding: $mui-grid-padding;
+      padding: $mui-grid-padding-double $mui-grid-padding;
       margin: 0 $mui-grid-padding;
       text-decoration: none;
-      border-bottom: 2px solid transparent;
+      border-bottom: 4px solid transparent;
       border-top: none !important;
       transition: border-color 1.5s ease;
       min-width: 0;
       min-height: 0;
+      font-weight: bold;
     }
 
     .sub-navbar__item:first-child {
@@ -557,7 +558,9 @@
     .sub-navbar__item:hover,
     .sub-navbar__item:active,
     .sub-navbar__item--active {
-      border-bottom: 2px solid $mui-primary-color;
+      border-bottom: 4px solid $mui-primary-color;
+      color: $mui-primary-color;
+      border-radius: 2px;
     }
   }
 }

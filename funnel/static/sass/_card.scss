@@ -2,16 +2,28 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
-  transition: 200ms linear;
-  -webkit-transition: 200ms linear;
+  background: url(https://imgee.s3.amazonaws.com/imgee/52d60802afe74f96b6b944cbcefac67e.png);
+  background-size: cover;
+  background-position: center;
   .card__body {
     padding: $mui-grid-padding;
+    .card__body__content {
+      color: #fff;
+    }
     .card__body__logo {
-      margin: auto;
       width: 100%;
       text-align: center;
+      background: #fff;
+      padding: 16px;
+      border-radius: 16px;
       img {
-        max-width: 100%;
+        width: 60px;
+      }
+      .caption {
+        max-width: 153px;
+        margin: auto;
+        display: flex;
+        justify-content: space-between;
       }
     }
   }
@@ -20,14 +32,20 @@
 @media (min-width: 768px) {
   .card--banner {
     .card__body {
-      .card__body__logo {
-        float: right;
-        width: 15%;
-        text-align: right;
-      }
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
       .card__body__content {
         float: left;
-        width: 85%;
+        width: 55%;
+        color: #fff;
+      }
+      .card__body__logo {
+        float: right;
+        width: 40%;
+        img {
+          margin-bottom: 8px;
+        }
       }
     }
   }
