@@ -342,24 +342,12 @@ export const Utils = {
     let langShortForm = lang.substring(0, 2);
     let translatedLang =
       window.Hasgeek.config.availableLanguages[langShortForm];
-    if (translatedLang) {
-      $.ajax({
-        type: 'GET',
-        url: Utils.getTranslationFileUrl(translatedLang),
-        async: false,
-        timeout: window.Hasgeek.config.ajaxTimeout,
-        success: function (responseData) {
-          window.i18n = new Gettext(responseData);
-        },
-      });
-    } else {
-      window.i18n = new Gettext();
-    }
+
+    window.i18n = new Gettext({
+      translatedLang: translatedLang,
+    });
     window.gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
-  },
-  getTranslationFileUrl(langCode) {
-    return `/static/translations/${langCode}/messages.json`;
   },
 };
 

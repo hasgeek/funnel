@@ -59,16 +59,42 @@
 var sprintf = require('sprintf-js').sprintf,
   vsprintf = require('sprintf-js').vsprintf;
 
-const Gettext = function (messagesJson) {
-  let config = {
-    domain: 'messages',
-    locale_data: {
-      messages: {},
-    },
+const Gettext = function (config) {
+  this.getTranslationFileUrl = function (langCode) {
+    return `/static/translations/${langCode}/messages.json`;
   };
-  config = messagesJson || config;
-  this.domain = config.domain;
-  this.catalog = config.locale_data.messages;
+
+  this.getBaseframeTranslationFileUrl = function (langCode) {
+    return `/static/translations/${langCode}/baseframe.json`;
+  };
+
+  if (config !== undefined && config.translatedLang !== undefined) {
+    var catalog = {};
+    var domain = 'messages';
+
+    $.ajax({
+      type: 'GET',
+      url: this.getTranslationFileUrl(config.translatedLang),
+      async: false,
+      timeout: window.Hasgeek.config.ajaxTimeout,
+      success: function (responseData) {
+        domain = responseData.domain;
+        catalog = responseData.locale_data.messages;
+      },
+    });
+    $.ajax({
+      type: 'GET',
+      url: this.getBaseframeTranslationFileUrl(config.translatedLang),
+      async: false,
+      timeout: window.Hasgeek.config.ajaxTimeout,
+      success: function (responseData) {
+        catalog = Object.assign(catalog, responseData.locale_data.messages);
+      },
+    });
+
+    this.domain = domain;
+    this.catalog = catalog;
+  }
 
   this.gettext = function (msgid, ...args) {
     if (msgid in this.catalog) {
