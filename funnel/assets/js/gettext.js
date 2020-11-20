@@ -83,7 +83,7 @@ const Gettext = function (messagesJson) {
       // and the second element is the translated msgstr
       return vsprintf(msgidCatalog[1], args);
     } else {
-      return msgid;
+      return vsprintf(msgid, args);
     }
   };
 
@@ -109,7 +109,7 @@ const Gettext = function (messagesJson) {
       }
       return vsprintf(msgstr, args);
     } else {
-      return msgid;
+      return vsprintf(msgid, args);
     }
   };
 };
