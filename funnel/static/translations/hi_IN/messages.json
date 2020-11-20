@@ -1306,6 +1306,22 @@
         ""
       ],
       "Get started": [null, ""],
+      "Manage labels": [null, "लेबल संपादित करें"],
+      "Create new label": [null, ""],
+      "(No labels)": [null, ""],
+      "Archive": [null, ""],
+      "Save": [null, "सेव करें"],
+      "Please review the indicated issues": [
+        null,
+        "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
+      ],
+      "What’s this about?": [null, ""],
+      "Search the site": [null, ""],
+      "Search…": [null, ""],
+      "Search": [null, "खोजें"],
+      "Updates": [null, "जानकारियां"],
+      "Account": [null, "अकाउंट"],
+      "Login": [null, "लॉगिन"],
       "or use your password instead": [
         null,
         "या फिर अपने पासवर्ड का उपयोग करें"
@@ -1313,7 +1329,6 @@
       "Don’t have an account?": [null, "अकाउंट नहीं है?"],
       "Sign up with email": [null, "ईमेल के ज़रिए साइन अप करें"],
       "Logging out...": [null, "लॉग आउट हो रहा है..."],
-      "Login": [null, "लॉगिन"],
       "to save": [null, "सेव करने के लिए"],
       "Save <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>": [
         null,
@@ -1366,7 +1381,6 @@
       "About": [null, "परिचय"],
       "Talks": [null, "टॉक"],
       "Jobs": [null, "नौकरियां"],
-      "Updates": [null, "जानकारियां"],
       "Comments": [null, "कमेंट"],
       "Video": [null, "वीडियो"],
       "Proposals": [null, "प्रस्ताव"],
@@ -1379,7 +1393,6 @@
       ],
       "Edit proposal video": [null, "प्रस्ताव का वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
-      "Account": [null, "अकाउंट"],
       "Notifications": [null, "नोटिफिकेशन"],
       "My saves": [null, "मेरी सेव की गई चीज़ें"],
       "Scan badge": [null, "बैच स्कैन करें"],
@@ -1525,17 +1538,43 @@
         "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं."
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
+      "Featured project": [null, ""],
+      "Remove featured": [null, ""],
+      "Make featured": [null, ""],
+      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
+      "Edit details": [null, ""],
+      "Related events": [null, ""],
+      "View Schedule": [null, ""],
+      "Related jobs": [null, ""],
+      "Update venue": [null, ""],
+      "Loading...": [null, "लोड हो रहा है..."],
       "Add proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
       ],
-      "Please review the indicated issues": [
-        null,
-        "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
-      ],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
-      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
+      "Participants": [null, ""],
+      "%(title)s by %(speaker)s, %(project)s": [null, ""],
+      "Edit proposal": [null, ""],
+      "Submitted by": [null, ""],
+      "via": [null, ""],
+      "proposing": [null, ""],
+      "on": [null, ""],
+      "This is a proposal requesting for someone to speak on this topic.\n            If you’d like to speak, leave a comment.": [
+        null,
+        ""
+      ],
+      "Your proposal doesn't have a preview video!": [null, ""],
+      "Add preview video link": [null, ""],
+      "Session video": [null, ""],
+      "Proposal video": [null, ""],
+      "Status: %(status)s": [null, "स्थिति: %(status)s"],
+      "View proposal in schedule": [null, ""],
+      "Change status of proposal": [null, ""],
+      "Add session video": [null, "सेशन की वीडियो जोड़ें"],
+      "Add proposal video": [null, ""],
+      "This section is empty.": [null, ""],
       "Modify proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची को बदलें"
@@ -1544,11 +1583,15 @@
       "proposals": [null, "प्रस्ताव"],
       "Confirmed sessions": [null, "निर्धारित सेशन"],
       "Unconfirmed proposals": [null, "अनिर्धारित प्रस्ताव"],
-      "Loading...": [null, "लोड हो रहा है..."],
+      "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
+      "Select date": [null, ""],
+      "Select a date to add sessions": [null, ""],
+      "Unscheduled proposals": [null, ""],
+      "Revert": [null, ""],
+      "Save session": [null, ""],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
       "Download": [null, "डाउनलोड करें"],
       "Add to Google Calendar": [null, "Google Calendar में जोड़ें"],
-      "Search": [null, "खोजें"],
       "Videos": [null, "वीडियो"],
       "This session has not been scheduled yet.": [
         null,
@@ -1558,13 +1601,11 @@
         null,
         "सेशन के साथ जुड़ी कोई वीडियो नहीं है"
       ],
-      "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Open proposal for this session": [
         null,
         "इस सेशन के लिए प्रस्ताव प्रक्रिया खोलें"
       ],
       "Speaker Bio": [null, "स्पीकर की जानकारी"],
-      "Status: %(status)s": [null, "स्थिति: %(status)s"],
       "Proposal submission status: %(status)s": [
         null,
         "प्रस्ताव जमा करने की स्थिति: %(status)s"
@@ -1576,8 +1617,6 @@
         "लाइवस्ट्रीम URLs जोड़ें या संपादित करें"
       ],
       "Manage venues": [null, "ईवेंट के स्थानों को संपादित करें"],
-      "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
-      "Manage labels": [null, "लेबल संपादित करें"],
       "Setup ticketed events for check-in": [
         null,
         "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
@@ -2466,7 +2505,6 @@
       ],
       "Create new team": [null, "नई टीम बनाएं"],
       "Edit team: {title}": [null, "टीम संपादित करें: {title}"],
-      "Save": [null, "सेव करें"],
       "Delete team {title}?": [null, "{title} टीम मिटाएं?"],
       "You have deleted team ‘{team}’ from organization ‘{org}’": [
         null,
@@ -2924,6 +2962,7 @@
         null,
         "{user} को {actor} द्वारा {organization} का एडमिन बना दिया गया था"
       ],
+      "(unknown)": [null, ""],
       "You are receiving this because you are an admin of this organization": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस संगठन के एडमिन हैं"
