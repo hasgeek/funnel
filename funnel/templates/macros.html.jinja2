@@ -729,7 +729,7 @@
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
           {% if profile.features.new_project() %}
-            <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
+            <p class="mui--d-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
           {% elif profile.features.make_public() %}
             <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
           {% endif %}

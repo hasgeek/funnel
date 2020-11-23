@@ -2019,6 +2019,13 @@ a.loginbutton.hidden,
   margin-right: 8px;
 }
 
+.profile-create-btn--mobile {
+  width: calc(100% - 58px);
+}
+.profile-create-btn--mobile .mui-btn {
+  width: 100%;
+}
+
 .profile-dropdown-btn {
   background-color: #f1f1f1;
   padding: 6px 16px;
@@ -3669,8 +3676,6 @@ a.loginbutton.hidden,
 .pinned {
   position: sticky;
   top: 65px;
-  box-shadow: crimson;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.17);
   background: #ffffff;
   z-index: 5;
   display: none;
@@ -3680,7 +3685,7 @@ a.loginbutton.hidden,
   display: inline-block;
   width: 100%;
   padding: 8px 0;
-  border-bottom: solid 1px rgba(121, 129, 139, 0.16);
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 .pinned .pinned__update__heading {
   margin-bottom: 0;

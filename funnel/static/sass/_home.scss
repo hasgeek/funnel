@@ -234,6 +234,13 @@
   margin-right: 8px;
 }
 
+.profile-create-btn--mobile {
+  width: calc(100% - 58px);
+  .mui-btn {
+    width: 100%;
+  }
+}
+
 .profile-dropdown-btn {
   background-color: $mui-bg-color-primary-dark;
   padding: 6px 16px;
