@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-23 09:49+0530\n"
+"POT-Creation-Date: 2020-11-23 15:12+0530\n"
 "PO-Revision-Date: 2020-11-15 20:22+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -3790,23 +3790,6 @@ msgstr ""
 msgid "Attendee details not found"
 msgstr ""
 
-#: funnel/templates/js/calendar_snippet.js.jinja2:3
-msgid "Today"
-msgstr ""
-
-#: funnel/templates/js/calendar_snippet.js.jinja2:4
-msgid "Tomorrow"
-msgstr ""
-
-#: funnel/templates/js/calendar_snippet.js.jinja2:5
-msgid "Day after"
-msgstr ""
-
-#: funnel/templates/js/calendar_snippet.js.jinja2:6
-#, python-format
-msgid "In %d days"
-msgstr ""
-
 #: funnel/templates/js/comments.js.jinja2:4
 msgid "Login to leave a comment"
 msgstr ""
@@ -3889,12 +3872,9 @@ msgstr ""
 msgid "+ %d more role"
 msgstr ""
 
-#: funnel/templates/js/messages.js.jinja2:3
-msgid "Project added to Account > My saves"
-msgstr ""
-
-#: funnel/templates/js/messages.js.jinja2:4
-msgid "read more"
+#: funnel/templates/js/membership.js.jinja2:124
+#, python-format
+msgid "+ %d more roles"
 msgstr ""
 
 #: funnel/templates/js/schedule.js.jinja2:7
@@ -3905,14 +3885,39 @@ msgstr ""
 msgid "Calender view"
 msgstr ""
 
-#: funnel/templates/js/server_error.js.jinja2:3
+#: funnel/templates/js/translations_only.js.jinja2:3
 msgid ""
 "An internal server error occurred. Our support team has been notified and"
 " will investigate."
 msgstr ""
 
-#: funnel/templates/js/server_error.js.jinja2:4
-msgid "Unable to connect. Please reload and try again."
+#: funnel/templates/js/translations_only.js.jinja2:5
+msgid "Unable to connect. Check connection and tap to reload."
+msgstr ""
+
+#: funnel/templates/js/translations_only.js.jinja2:7
+msgid "Project added to Account > My saves"
+msgstr ""
+
+#: funnel/templates/js/translations_only.js.jinja2:9
+msgid "read more"
+msgstr ""
+
+#: funnel/templates/js/translations_only.js.jinja2:11
+msgid "Today"
+msgstr ""
+
+#: funnel/templates/js/translations_only.js.jinja2:13
+msgid "Tomorrow"
+msgstr ""
+
+#: funnel/templates/js/translations_only.js.jinja2:15
+msgid "Day after"
+msgstr ""
+
+#: funnel/templates/js/translations_only.js.jinja2:17
+#, python-format
+msgid "In %d days"
 msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:20
@@ -6160,4 +6165,7 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 #~ msgstr ""
 
 #~ msgid "+ %1 more role"
+#~ msgstr ""
+
+#~ msgid "Unable to connect. Please reload and try again."
 #~ msgstr ""
