@@ -1,7 +1,9 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {%- from "macros.html.jinja2" import project_header %}
+{%- from "js/schedule.js.jinja2" import schedule_template %}
 {% from "baseframe/components.html.jinja2" import faicon %}
+
 {% block title %}{%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}{% endblock %}
 
 {% block description %}
@@ -97,45 +99,7 @@
           <div class="schedule-table-container" id="project-schedule-table">
             <schedule></schedule>
           </div>
-          {% raw %}
-            <script type="text/x-template" id="scheduletemplate">
-              <div>
-                <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
-                  <div class="tabs">
-                    <button class="tabs__item" :class="(view === 'agenda') ? 'tabs__item--active' : ''" @click="toggleView($event, 'agenda')">Agenda view</button>
-                    <button class="tabs__item" :class="(view === 'calendar') ? 'tabs__item--active' : ''" @click="toggleView($event, 'calendar')">Calender view</button>
-                  </div>
-                </div>
-                <div class="schedule" v-for="schedule in schedules">
-                  <h2 class="mui--text-heading schedule__date" :class="[schedule.upcoming ? 'schedule__date--upcoming' : '']">{{ schedule.dateStr }}</h2>
-                  <div class="mui--bg-accent schedule__table">
-                    <div class="schedule__row schedule__row--sticky">
-                      <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><faicon :icon="'clock'" :icon_size="'subhead'"></faicon></p>
-                      <p class="schedule__row__column schedule__row__column--header" :class="[activeTab == roomkey ? 'js-tab-active' : '']" :style="{width: 'calc(100% - ' + getColumnWidth('header') + 'px)'}" @click="toggleTab(roomkey)" v-for="(room, roomkey, roomindex) in schedule.rooms" v-if="room.title">{{ room.title }}</p>
-                    </div>
-
-                    <div class="schedule__row" :class="[view == 'calendar' ? 'schedule__row--calendar' : '', hasActiveRoom(session) ? 'js-active' : '',  view === 'agenda' && !session.showLabel ? 'schedule__row--hide': '']" :style="(view == 'calendar') ? {height: rowHeight + 'px'} : ''" v-for="(session, key, index)  in schedule.sessions">
-                        <a :href="'#t' + key" :id="'t' + key" class="schedule__row__column schedule__row__column--time schedule__row__column--time--pointer" :style="{minWidth: timeSlotWidth + 'px'}" @click="disableScroll($event, 't' + key)" v-if="(view === 'calendar' && session.showLabel)">{{ getTimeStr(key) }}</a>
-                        <p class="schedule__row__column schedule__row__column--time" :style="{minWidth: timeSlotWidth + 'px'}" v-else-if="(view === 'calendar')"></p>
-                      <div class="schedule__row__column" :id="(view === 'agenda') ? 't' + key : ''" :class="['schedule__row__column--' + rowWidth, room.talk ? 'schedule__row__column--talks' : '', room.talk ? roomkey : '', room.talk && activeTab == roomkey ? 'js-active': '']" @click="showSessionModal(room.talk)"  :style="(getColumnWidth('content') > 0) ? {width: 'calc(100% - ' + getColumnWidth('content') + 'px)'} : {width: '100%'}" v-for="(room, roomkey, roomindex) in session.rooms">
-                        <div class="schedule__row__column__content" :class="[view === 'calendar' ? 'schedule__row__column__content--calendar schedule__row__column__content--overflow' : '']" :style="(view == 'calendar') ? {height: getColumnHeight(room.talk.duration, rowHeight) + 'px'} : ''" :id="room.talk.url_name_uuid_b58" v-if="room.talk">
-                          <p class="mui--text-body2 schedule__row__column__content__title__duration">{{ getTimeStr(room.talk.startTime) }}–{{ getTimeStr(room.talk.endTime) }}</p>
-                            <div class="schedule__row__column__content__title">
-                              <p class="mui--text-subhead schedule__row__column__content__title__heading" v-if="room.talk.title">{{ room.talk.title }}</p>
-                              <p class="mui--text-caption mui--text-light schedule__row__column__content__title__speaker" v-if="room.talk.speaker">{{ room.talk.speaker }}</p>
-                              <div class="schedule__row__column__content__description mui--text-body2" v-html="removeImg(room.talk.description.html)" v-if="view == 'calendar' && room.talk.description.html"></div>
-                            </div>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div id="session-modal" class="session-modal session-modal--nopadding" v-html="modalHtml">
-                </div>
-              </div>
-            </script>
-          {% endraw %}
+            {{ schedule_template() }}
         </div>
       </div>
     </div>

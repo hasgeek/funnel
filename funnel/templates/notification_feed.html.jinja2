@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "js/notification.js.jinja2" import notification_template %}
 
 {% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
 
@@ -11,7 +12,6 @@
 {% block basecontent %}
   <div class="mui-container tab-content">
     <div class="grid">
-
       {%- if show_transport_alert %}
         <div class="grid__col-xs-12">
           <div class="alert alert--info">
@@ -25,17 +25,7 @@
           </div>
         </div>
       {% endif -%}
-
-      {% raw %}
-      <div class="grid__col-xs-12" id="notifications" v-cloak>
-        <ul class="mui-list--unstyled">
-          <li class="update update--small" v-for="(notification, index) in notifications" :class="[!notification.notification.is_read ? 'update--unread' : 'update--read']" data-visible-time='' :ref="'notification-'+index" :data-index='index'>
-            <div v-html=notification.html></div>
-          </li>
-        </ul>
-        <p class="js-lazy-loader loading" v-if="next_num"></p>
-      </div>
-      {% endraw %}
+      {{ notification_template() }}
     </div>
   </div>
 {% endblock %}

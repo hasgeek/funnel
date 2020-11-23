@@ -1,6 +1,5 @@
-import Ractive from 'ractive';
 import { Utils, TableSearch } from './util';
-import { faicon } from './ractive_util';
+import { ractiveApp } from './ractive_util';
 
 const Store = {
   // Local storage can only save strings, so value is converted into strings and stored.
@@ -103,9 +102,7 @@ const ParticipantTable = {
     participantlistUrl,
     ticketEventName,
   }) {
-    Ractive.DEBUG = false;
-
-    const count = new Ractive({
+    const count = new ractiveApp({
       el: '#ticket-participants-count',
       template: '#ticket-participants-count-template',
       data: {
@@ -114,7 +111,7 @@ const ParticipantTable = {
       },
     });
 
-    const list = new Ractive({
+    const list = new ractiveApp({
       el: '#ticket-participants-table-content',
       template: '#ticket-participant-row',
       data: {
@@ -124,7 +121,6 @@ const ParticipantTable = {
         cancelcheckinQ: new Queue(`${ticketEventName}-cancelcheckin-queue`),
         isConcierge,
         isUsher,
-        svgIconUrl: window.Hasgeek.config.svgIconUrl,
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');
         },
@@ -132,7 +128,6 @@ const ParticipantTable = {
           return checkinUrl;
         },
       },
-      components: { faicon },
       handleCheckIn(event, checkin) {
         event.original.preventDefault();
         const ticketParticipantId = this.get(`${event.keypath}.puuid_b58`);
