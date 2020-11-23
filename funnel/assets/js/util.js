@@ -2,6 +2,7 @@ import Gettext from './gettext';
 import * as timeago from 'timeago.js';
 /*eslint camelcase: ["error", {allow: ["hi_IN"]}]*/
 import hi_IN from 'timeago.js/lib/lang/hi_IN';
+// Strings used in window.gettext fn are in  templates/js/translations_only.js.jinja2
 
 /* global ga */
 export const Utils = {
@@ -207,7 +208,7 @@ export const Utils = {
       }
     } else {
       errorMsg = window.gettext(
-        'Unable to connect. Please reload and try again.'
+        'Unable to connect. Check connection and tap to reload.'
       );
     }
     return errorMsg;
