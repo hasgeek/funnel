@@ -954,7 +954,7 @@
       "Shortlisted": [null, "चयनित"],
       "Shortlisted for rehearsal": [null, "रिहर्सल के लिए चयनित"],
       "Rehearsal ongoing": [null, "रिहर्सल जारी"],
-      "Confirmed &amp; scheduled": [null, ""],
+      "Confirmed &amp; scheduled": [null, "पुष्टि और अनुसूचित की गई"],
       "This proposal has been withdrawn": [
         null,
         "इस प्रस्ताव को निवर्तित कर दिया गया"
@@ -1012,7 +1012,7 @@
       "Your response has been saved": [null, "आपकी प्रतिक्रिया सेव कर दी गई"],
       "Restricted": [null, "वर्जित"],
       "Unpublished": [null, "अप्रकाशित"],
-      "Active": [null, "सक्रीय"],
+      "Active": [null, "सक्रिय"],
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
@@ -1126,7 +1126,7 @@
       "Close": [null, "बंद करें"],
       "Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.": [
         null,
-        "लॉगिन के लिए कूकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कूकीज़ को सक्षम करें और इस पेज को फिर से लोड करें."
+        "लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें."
       ],
       "Merge accounts": [null, "अकाउंट जोड़ें"],
       "Name:</strong> %(name)s": [null, "नाम:</strong> %(name)s"],
@@ -1183,7 +1183,7 @@
       "Confidential": [null, "कॉन्फिडेंशियल"],
       "Website": [null, "वेबसाइट"],
       "Namespace": [null, "नेमस्पेस"],
-      "Active?": [null, "सक्रीय है?"],
+      "Active?": [null, "सक्रिय है?"],
       "Allow anyone to login?": [null, "लॉगिन की किसी को अनुमति दें?"],
       "Registered date": [null, "स्थापित डेट"],
       "Your access token": [null, "आपका एक्सेस टोकन"],
@@ -1217,7 +1217,7 @@
       "Access key for": [null, "इसके लिए एक्सेस की (कुंजी)"],
       "Client secret": [null, "क्लाइंट सीक्रेट"],
       "Return to client app info": [null, "क्लाइंट ऐप की जानकारी पर वापस जाएं"],
-      "Application list": [null, "एप्लीकेशन लिस्ट"],
+      "Application list": [null, "ऐप्लिकेशन लिस्ट"],
       "New application": [null, "नया एप्लीकेशन"],
       "No applications have been registered": [
         null,
@@ -1495,7 +1495,7 @@
         null,
         "एक एप्लीकेशन आपके डेटा को एक्सेस करने का अनुरोध करा रहा है."
       ],
-      "Application name": [null, "एप्लीकेशन का नाम"],
+      "Application name": [null, "ऐप्लिकेशन का नाम"],
       "Access scope": [null, "एक्सेस की सीमा"],
       "Full access to all your data in %(title)s (%(website)s)": [
         null,
@@ -1549,7 +1549,7 @@
       "Related events": [null, ""],
       "View Schedule": [null, ""],
       "Related jobs": [null, ""],
-      "Update venue": [null, ""],
+      "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
       "Loading...": [null, "लोड हो रहा है..."],
       "Add proposal guidelines and timing": [
         null,
@@ -1557,7 +1557,7 @@
       ],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
-      "Participants": [null, ""],
+      "Participants": [null, "प्रतिभागी"],
       "%(title)s by %(speaker)s, %(project)s": [null, ""],
       "Edit proposal": [null, ""],
       "Submitted by": [null, ""],
@@ -1633,8 +1633,14 @@
       "or use your email instead": [null, "या फिर अपने ईमेल का उपयोग करें"],
       "Already have an account?": [null, "पहले से कोई अकाउंट है?"],
       "Query": [null, "सवाल"],
-      "\n      Only %(total_comments)s comment for \"%(query)s\"": [null, ""],
-      "\n      Only %(total_comments)s comment": [null, ""],
+      "\n      Only %(total_comments)s comment for \"%(query)s\"": [
+        null,
+        "\"%(query)s\" के लिए केवल %(total_comments)s कमेंट"
+      ],
+      "\n      Only %(total_comments)s comment": [
+        null,
+        "केवल %(total_comments)s कमेंट"
+      ],
       "Comment": [null, "कमेंट"],
       "No comment available": [null, "कोई कमेंट मौजूद नहीं है"],
       "Review comments": [null, "कमेंट की समीक्षा करें"],
@@ -1663,44 +1669,53 @@
         "फिलहाल कोई सेशन टैग किया हुआ नहीं है."
       ],
       "No participation yet.": [null, "अब तक कहीं हिस्सा नहीं लिया गया है."],
-      "No proposals submitted.": [null, ""],
+      "No proposals submitted.": [null, "कोई प्रस्ताव जमा नहीं है।"],
       "Venues": [null, "ईवेंट का स्थान"],
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
       "Add room": [null, "रूम जोड़ें"],
-      "Select camera": [null, ""],
-      "Switch camera": [null, ""],
-      "Check in status": [null, ""],
-      "Scanning": [null, ""],
+      "Select camera": [null, "कैमरा चुनें"],
+      "Switch camera": [null, "कैमरा बदलें"],
+      "Check in status": [null, "स्थिति की जांच करें"],
+      "Scanning": [null, "स्कैन हो रहा है"],
       "Hello %s": [null, ""],
       "Thank you for choosing to participate in  %(title)s and for being a part of this growing community.": [
         null,
-        ""
+        " %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद।"
       ],
-      "Attendee details not found": [null, ""],
-      "Login to leave a comment": [null, ""],
-      "You need to be a participant to comment.": [null, ""],
-      "Post a comment...": [null, ""],
-      "New comment": [null, ""],
+      "Attendee details not found": [null, "प्रतिभागी की जानकारी नहीं मिली"],
+      "Login to leave a comment": [null, "कमेंट करने के लिए लॉगिन करें"],
+      "You need to be a participant to comment.": [
+        null,
+        "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है।"
+      ],
+      "Post a comment...": [null, "एक कमेंट पोस्ट करें..."],
+      "New comment": [null, "नया कमेंट"],
       "edited %s": [null, ""],
-      "Reply": [null, ""],
-      "Report": [null, ""],
-      "More": [null, ""],
-      "Show badge": [null, ""],
-      "Show label badge": [null, ""],
-      "Edit participant details": [null, ""],
-      "Add new member": [null, ""],
-      "members": [null, ""],
-      "member": [null, ""],
-      "Role": [null, ""],
-      "No members found": [null, ""],
-      "Members you add will appear here…": [null, ""],
-      "Remove this member": [null, ""],
-      "Admin": [null, ""],
+      "Reply": [null, "जवाब दें"],
+      "Report": [null, "रिपोर्ट करें"],
+      "More": [null, "अधिक"],
+      "Show badge": [null, "बैज दिखाएं"],
+      "Show label badge": [null, "लेबल बैज दिखाएं"],
+      "Edit participant details": [
+        null,
+        "प्रतिभागी की जानकारी को संपादित करें"
+      ],
+      "Add new member": [null, "नया सदस्य जोड़ें"],
+      "members": [null, "सदस्य"],
+      "member": [null, "सदस्य"],
+      "Role": [null, "भूमिका"],
+      "No members found": [null, "कोई सदस्य नहीं पाया गया"],
+      "Members you add will appear here…": [
+        null,
+        "आपके द्वारा जोड़े गए सदस्य यहां दिखाई देंगे..."
+      ],
+      "Remove this member": [null, "इस सदस्य को हटाएं"],
+      "Admin": [null, "एडमिन"],
       "+ %d more role": [null, ""],
       "+ %d more roles": [null, ""],
-      "Agenda view": [null, ""],
-      "Calender view": [null, ""],
+      "Agenda view": [null, "एजेंडा देखें"],
+      "Calender view": [null, "कैलेंडर देखें"],
       "An internal server error occurred. Our support team has been notified and will investigate.": [
         null,
         ""
@@ -1712,9 +1727,9 @@
       "Tomorrow": [null, ""],
       "Day after": [null, ""],
       "In %d days": [null, ""],
-      "Update": [null, ""],
-      "Read more": [null, ""],
-      "Hide": [null, ""],
+      "Update": [null, "अपडेट करें"],
+      "Read more": [null, "अधिक पढ़ें"],
+      "Hide": [null, "छिपाएं"],
       "You wrote:": [null, "आपने लिखा:"],
       "View comment": [null, "कमेंट देखें"],
       "View in context": [null, "संदर्भ के साथ देखें"],
@@ -1881,7 +1896,7 @@
       "Update account": [null, "खाता अपडेट करें"],
       "Hello, <strong>{fullname}</strong>. Please spare a minute to fill out your account": [
         null,
-        "हेलो, <strong> {fullname} </ strong>. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय दें"
+        "हेलो, <strong>{fullname}</ strong>. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय दें"
       ],
       "Edit account": [null, "खाता संपादित करें"],
       "Save changes": [null, "परिवर्तनों को सेव करें"],
@@ -2273,9 +2288,9 @@
         "आपको दल के सदस्य के रूप में {project} से हटा दिया गया है"
       ],
       "Terms of service": [null, "सेवा की शर्तें"],
-      "Sponsorship &amp; advertising": [null, ""],
+      "Sponsorship &amp; advertising": [null, "प्रायोजन और विज्ञापन"],
       "Privacy policy": [null, "गोपनीयता नीति"],
-      "Cancellation &amp; refund policy": [null, ""],
+      "Cancellation &amp; refund policy": [null, "रद्दीकरण और घन वापसी नीति"],
       "Community guidelines": [null, "कम्यूनिटी दिशा-निर्देश"],
       "Code of conduct": [null, "आचार संहिता"],
       "Past projects": [null, ""],
@@ -2465,7 +2480,10 @@
         null,
         "वो सदस्यता समाप्त वाली लिंक अमान्य है. हालांकि, आप अपनी प्राथमिकताएं अपने खाते से प्रबंधित कर सकते हैं"
       ],
-      "This unsubscribe link is for a non-existent user": [null, ""],
+      "This unsubscribe link is for a non-existent user": [
+        null,
+        "यह सदस्यता समाप्त लिंक एक गैर-मौजूद यूजर के लिए है"
+      ],
       "You have been unsubscribed from this notification type": [
         null,
         "आपको इस प्रकार की नोटिफिकेशन की सदस्यता से हटा दिया गया है"
@@ -2478,7 +2496,7 @@
         null,
         "यह सदस्यता समाप्त वाली लिंक किसी और के खाते के लिए है. इस लिंक का उपयोग करने के लिए कृपया किसी गुप्त/निजी ब्राउज़िंग सेशन का उपयोग करें या लॉग आउट हो जाएं."
       ],
-      "Unknown user account": [null, ""],
+      "Unknown user account": [null, "अज्ञात यूजर खाता"],
       "Preferences saved": [null, "प्राथमिकताएं सहेजी गईं"],
       "Your notification preferences have been updated": [
         null,
@@ -2492,15 +2510,18 @@
       ],
       "Create a new organization": [null, "एक नया संगठन बनाएं"],
       "Next": [null, "आगे"],
-      "Protected profile": [null, ""],
+      "Protected profile": [null, "संरक्षित प्रोफाइल"],
       "This organization has a protected profile and cannot be deleted.": [
         null,
-        ""
+        "इस संगठन की एक संरक्षित प्रोफाइल है और इसे हटाया नहीं जा सकता है।"
       ],
-      "This organization has projects": [null, ""],
+      "This organization has projects": [
+        null,
+        "इस संगठन के पास कुछ प्रोजेक्ट है"
+      ],
       "Projects must be deleted or transferred before the organization can be deleted.": [
         null,
-        ""
+        "संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना चाहिए।"
       ],
       "Delete organization ‘{title}’? This will delete everything including projects, proposals and videos. This operation is permanent and cannot be undone.": [
         null,
@@ -2620,18 +2641,18 @@
       "Create project": [null, "प्रोजेक्ट बनाएं"],
       "Customize the URL": [null, "URL कस्टमाइज़ करें"],
       "Edit project": [null, "प्रोजेक्ट संपादित करें"],
-      "This project has proposals": [null, ""],
+      "This project has proposals": [null, "इस प्रोजेक्ट के कुछ प्रस्ताव हैं"],
       "Proposals must be deleted or transferred before the project can be deleted.": [
         null,
-        ""
+        "संगठन मिटाए जाने से पहले प्रस्तावों को हटाया या स्थानांतरित किया जाना चाहिए।"
       ],
       "Delete project ‘{title}’? This will delete everything in the project. This operation is permanent and cannot be undone.": [
         null,
-        ""
+        "'{title}' प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा। ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता।"
       ],
       "You have deleted project ‘{title}’ and all its associated content": [
         null,
-        ""
+        "आपने '{title}' प्रोजेक्ट और उससे जुड़ी सारी सामग्री हटा दी है"
       ],
       "Edit ticket client details": [null, "टिकट क्लाइंट विवरण संपादित करें"],
       "Invalid transition for this project": [
@@ -2741,7 +2762,10 @@
         null,
         "कमेंटों को स्पैम के रूप में चिह्नित करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
       ],
-      "There are no comment reports to review at this time": [null, ""],
+      "There are no comment reports to review at this time": [
+        null,
+        "इस समय समीक्षा करने के लिए कोई कमेंट रिपोर्ट नहीं है"
+      ],
       "You cannot review your own report": [
         null,
         "आप अपने रिपोर्ट की समीक्षा नहीं कर सकते"
@@ -2867,11 +2891,11 @@
       ],
       "A comment has been reported as spam": [
         null,
-        "एक टिप्पणी को स्पैम के रूप में रिपोर्ट किया गया है"
+        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है"
       ],
       "A comment has been reported as spam. {url}": [
         null,
-        "एक टिप्पणी को स्पैम के रूप में रिपोर्ट किया गया है. {url}"
+        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है. {url}"
       ],
       "{actor} replied to your comment": [
         null,
