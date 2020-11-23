@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-20 14:20+0530\n"
+"POT-Creation-Date: 2020-11-23 09:49+0530\n"
 "PO-Revision-Date: 2020-11-15 20:22+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -607,6 +607,7 @@ msgid "Please make a choice"
 msgstr "कृपया कोई विकल्प चुनें"
 
 #: funnel/forms/notification.py:34 funnel/forms/sync_ticket.py:97
+#: funnel/templates/macros.html.jinja2:74
 msgid "Email"
 msgstr "ईमेल"
 
@@ -1314,6 +1315,7 @@ msgid "Job title"
 msgstr "पेशे का नाम"
 
 #: funnel/forms/sync_ticket.py:122 funnel/loginproviders/init_app.py:26
+#: funnel/templates/macros.html.jinja2:75
 msgid "Twitter"
 msgstr "Twitter"
 
@@ -1939,7 +1941,7 @@ msgstr "इस प्रस्ताव को मूल्यांकन क�
 #: funnel/models/proposal.py:477 funnel/templates/auth_client.html.jinja2:17
 #: funnel/templates/auth_client.html.jinja2:172
 #: funnel/templates/delete.html.jinja2:11
-#: funnel/templates/js/comments.js.jinja2:85
+#: funnel/templates/js/comments.js.jinja2:90
 #: funnel/templates/labels.html.jinja2:46
 #: funnel/templates/organization_teams.html.jinja2:42
 #: funnel/templates/proposal.html.jinja2:170 funnel/views/commentvote.py:294
@@ -2132,7 +2134,7 @@ msgstr "इस डिवाइस से"
 #: funnel/templates/admin.html.jinja2:28 funnel/templates/admin.html.jinja2:55
 #: funnel/templates/admin.html.jinja2:77
 #: funnel/templates/auth_client.html.jinja2:171
-#: funnel/templates/js/comments.js.jinja2:84
+#: funnel/templates/js/comments.js.jinja2:89
 #: funnel/templates/labels.html.jinja2:42
 #: funnel/templates/organization_teams.html.jinja2:41
 #: funnel/templates/ticket_event.html.jinja2:29
@@ -2833,7 +2835,19 @@ msgstr ""
 "<span class=\"mui--hidden-xs mui--hidden-sm\">इस प्रोजेक्ट</span> को सेव "
 "न करें"
 
-#: funnel/templates/js/comments.js.jinja2:77
+#: funnel/templates/macros.html.jinja2:73
+msgid "Copy link"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:76
+msgid "Facebook"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:77
+msgid "Linkedin"
+msgstr ""
+
+#: funnel/templates/js/comments.js.jinja2:82
 #: funnel/templates/macros.html.jinja2:85
 #: funnel/templates/macros.html.jinja2:88
 msgid "Share"
@@ -3809,20 +3823,20 @@ msgstr ""
 msgid "New comment"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:72
+#: funnel/templates/js/comments.js.jinja2:77
 #, python-format
 msgid "edited %s"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:74
+#: funnel/templates/js/comments.js.jinja2:79
 msgid "Reply"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:75
+#: funnel/templates/js/comments.js.jinja2:80
 msgid "Report"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:82
+#: funnel/templates/js/comments.js.jinja2:87
 msgid "More"
 msgstr ""
 
@@ -3871,7 +3885,8 @@ msgid "Admin"
 msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:123
-msgid "+ %1 more role"
+#, python-format
+msgid "+ %d more role"
 msgstr ""
 
 #: funnel/templates/js/messages.js.jinja2:3
@@ -6142,4 +6157,7 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 #~ msgid ""
 #~ ") }}</span>\n"
 #~ "    <span>{{ gettext("
+#~ msgstr ""
+
+#~ msgid "+ %1 more role"
 #~ msgstr ""

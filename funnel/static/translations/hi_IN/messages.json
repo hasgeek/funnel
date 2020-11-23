@@ -1338,6 +1338,9 @@
         null,
         "<span class=\"mui--hidden-xs mui--hidden-sm\">इस प्रोजेक्ट</span> को सेव न करें"
       ],
+      "Copy link": [null, ""],
+      "Facebook": [null, ""],
+      "Linkedin": [null, ""],
       "Share": [null, "साझा करें"],
       "Add to calendar": [null, "कैलेंडर में जोड़ें"],
       "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
@@ -1698,7 +1701,7 @@
       "Members you add will appear here…": [null, ""],
       "Remove this member": [null, ""],
       "Admin": [null, ""],
-      "+ %1 more role": [null, ""],
+      "+ %d more role": [null, ""],
       "Project added to Account > My saves": [null, ""],
       "read more": [null, ""],
       "Agenda view": [null, ""],
