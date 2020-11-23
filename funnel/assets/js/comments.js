@@ -1,5 +1,4 @@
 import Vue from 'vue/dist/vue.min';
-import * as timeago from 'timeago.js';
 import { Utils } from './util';
 import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
 
@@ -106,14 +105,23 @@ const Comments = {
       computed: {
         created_at_age() {
           return this.now && this.comment.created_at
-            ? timeago.format(this.comment.created_at)
+            ? this.timeago.format(
+                this.comment.created_at,
+                window.Hasgeek.config.locale
+              )
             : '';
         },
         edited_at_age() {
           return this.now && this.comment.edited_at
-            ? timeago.format(this.comment.edited_at)
+            ? this.timeago.format(
+                this.comment.edited_at,
+                window.Hasgeek.config.locale
+              )
             : '';
         },
+      },
+      created() {
+        this.timeago = Utils.getTimeago();
       },
       mounted() {
         window.setInterval(() => {
