@@ -139,6 +139,28 @@
   font-size: 12px;
 }
 
+.badge--round {
+  border-radius: 50%;
+  width: 25px;
+  line-height: 25px;
+  padding: 0;
+}
+
+.badge--round-smaller {
+  width: 16px;
+  line-height: 16px;
+}
+
+.badge--tab {
+  margin-left: 4px;
+  color: #4d5763;
+  background: #ffffff;
+}
+
+.badge--primary {
+  color: #0f73ed;
+}
+
 .select2-inline {
   display: inline-block;
   margin-right: 5px;
