@@ -532,7 +532,7 @@
     .sub-navbar__item {
       display: inline-block;
       flex-shrink: 0;
-      padding: $mui-grid-padding-double $mui-grid-padding;
+      padding: 24px $mui-grid-padding;
       margin: 0 $mui-grid-padding;
       text-decoration: none;
       border-bottom: 4px solid transparent;
@@ -560,7 +560,6 @@
     .sub-navbar__item--active {
       border-bottom: 4px solid $mui-primary-color;
       color: $mui-primary-color;
-      border-radius: 2px;
     }
   }
 }
