@@ -87,3 +87,4 @@ repos:
     hooks:
       - id: prettier
         args: ['--single-quote', '--trailing-comma', 'es5']
+        exclude: funnel/templates/js/

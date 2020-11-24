@@ -1,6 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import account_tabs %}
+{%- from "js/badge.js.jinja2" import scan_badge_template %}
 
 {% block title %}{% trans %}Scan badge{% endtrans %}{% endblock %}
 
@@ -33,86 +34,13 @@
 {%- endblock %}
 
 {% block basecontent %}
-  {% raw %}
-    <div id="scan-badge-wrapper">
-      <script id='scan-badge-template' type='text/ractive'>
-        <div class="scanner-wrapper">
-          {{#if error}}
-            <p class="mui--text-subhead mui--text-danger page-content">{{ error }}</p>
-          {{/if}}
-          <video id="qrreader" class="scanner-wrapper__camera"></video>
-          {{#if video}}<faicon icon='expand' baseline=false css_class='scanner-wrapper__badge--icon'></faicon>{{/if}}
-        </div>
-        {{#if showModal}}
-        <div id="status-msg" class="modal" tabindex="-1" role="dialog">
-          <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-action="close modal"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
-          </div>
-          <div class="modal__body">
-            {{#if scanning}}
-              <h4 class="mui--text-headlin mui--align-middle">Scanning <faicon icon='times' icon_size='title' baseline=true></faicon></h4>
-            {{elseif contactFound}}
-              <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=' icon-img--smaller'></faicon>{{ contact.fullname }}</h3>
-              <p class="mui--text-subhead"><faicon icon='envelope' css_class=' icon-img--smaller'></faicon>{{ contact.email }}</p>
-              {{#if contact.phone }}
-                <p class="mui--text-subhead"><faicon icon='phone-alt' css_class=' icon-img--smaller'></faicon>{{ contact.phone }}</p>
-              {{/if}}
-              {{#if contact.twitter }}
-                <p class="mui--text-subhead"><faicon icon='twitter-square' css_class=' icon-img--smaller'></faicon>{{ contact.twitter }}</p>
-              {{/if}}
-              {{#if contact.company }}
-                <p class="mui--text-subhead"><faicon icon='briefcase' css_class=' icon-img--smaller'></faicon>{{ contact.company }}</p>
-              {{/if}}
-              <p class="mui--text-body2"><i>This contact has been added to contacts tab in the account page</i></p>
-            {{else}}
-              <h4 class="mui--text-danger">{{ errorMsg }}</h4>
-            {{/if}}
-            <div class="mui--text-right modal__body__btn">
-              <a href="javascript:void(0);" on-click="closeModal(event)" class="mui-btn mui-btn--flat mui-btn--accent">Close</a>
-            </div>
-          </div>
-        </div>
-        {{/if}}
-        <div class="scanned-contacts mui--hidden-xs mui--hidden-sm mui--hidden-md">
-          <div class="mui--clearfix">
-            <h2 class="mui--text-title mui--pull-left">Recently scanned contacts</h2>
-            <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right">My account</a>
-          </div>
-          {{#each contacts:i}}
-            <div class="card mui--z2 contact-card card--small">
-              <div class="card__body mui--clearfix">
-                <div>
-                  <div class="mui--clearfix">
-                    <div class="mui--pull-left contact-card__details">
-                      <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=' icon-img--smaller'></faicon>{{ contacts[i].fullname }}</h3>
-                      <p class="mui--text-subhead"><faicon icon='envelope' css_class=' icon-img--smaller'></faicon>{{ contacts[i].email }}</p>
-                      {{#if contacts[i].phone }}
-                        <p class="mui--text-subhead"><faicon icon='phone-alt' css_class=' icon-img--smaller'></faicon>{{ contacts[i].phone }}</p>
-                      {{/if}}
-                      {{#if contacts[i].twitter }}
-                        <p class="mui--text-subhead"><faicon icon='twitter-sqaure' css_class=' icon-img--smaller'></faicon>{{ contacts[i].twitter }}</p>
-                      {{/if}}
-                      {{#if contacts[i].company }}
-                        <p class="mui--text-subhead"><faicon icon='briefcase' css_class=' icon-img--smaller'></faicon>{{ contacts[i].company }}</p>
-                      {{/if}}
-                    </div>
-                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="download contact"><faicon icon='address-card' icon_size='headline' baseline=false css_class='mui--align-middle'></faicon></a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          {{/each}}
-        </div>
-      </script>
-    </div>
-  {% endraw %}
+  {{ scan_badge_template() }}
 {% endblock %}
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('scan_contact')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-
       var scanConfig = {
         getContactApiUrl: "{{ url_for('scan_connect') }}",
         wrapperId: 'scan-badge-wrapper',

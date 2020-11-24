@@ -1,0 +1,12 @@
+{% macro notification_template() %}
+  {% raw %}
+  <div class="grid__col-xs-12" id="notifications" v-cloak>
+    <ul class="mui-list--unstyled">
+      <li class="update update--small" v-for="(notification, index) in notifications" :class="[!notification.notification.is_read ? 'update--unread' : 'update--read']" data-visible-time='' :ref="'notification-'+index" :data-index='index'>
+        <div v-html=notification.html></div>
+      </li>
+    </ul>
+    <p class="js-lazy-loader loading" v-if="next_num"></p>
+  </div>
+  {% endraw %}
+{%- endmacro %}
