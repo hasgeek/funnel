@@ -1,4 +1,5 @@
 from flask import render_template
+from flask_babelhg import get_locale
 
 from baseframe import _, __
 from baseframe.filters import datetime_filter
@@ -84,7 +85,9 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             url=shortlink(
                 self.rsvp.project.url_for(_external=True, **self.tracking_tags('sms'))
             ),
-            datetime=datetime_filter(next_session_at, self.datetime_format_sms),
+            datetime=datetime_filter(
+                next_session_at, self.datetime_format_sms, locale=get_locale()
+            ),
         )
 
 

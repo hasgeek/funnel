@@ -38,6 +38,7 @@ def init():
         for var in (
             'SMS_EXOTEL_SID',
             'SMS_EXOTEL_TOKEN',
+            'SMS_EXOTEL_DLT_ID',
             'SMS_TWILIO_SID',
             'SMS_TWILIO_TOKEN',
             'SMS_TWILIO_FROM',

@@ -1,7 +1,8 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ config['SITE_TITLE'] }}{% endblock %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section, past_projects_section %}
+{%- from "macros.html.jinja2" import calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section %}
+{%- from "js/past_projects.js.jinja2" import past_projects_section %}
 
 
 {%- block pageheaders %}
@@ -56,6 +57,29 @@
 {% endblock %}
 
 {% block basecontent %}
+  <!-- Privacy tech survey banner -->
+  <div class="projects-wrapper">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <div class="card card--banner">
+            <div class="card__body mui--clearfix">
+              <div class="card__body__logo">
+                <img src="https://images.hasgeek.com/embed/file/9764d1b67f5b4a73aec24293db510ecf?size=80">
+              </div>
+              <div class="card__body__content">
+                <h2 class="mui--text-headline mui--text-bold zero-top-margin">{% trans %}Answer this survey on privacy and technology{% endtrans %}</h2>
+                <p>{% trans %}What is the state of privacy enhancing technologies, data security, and compliance, in the Indian tech industry?{% endtrans %}</p>
+                <p>{% trans %}This survey, conducted by Hasgeek, in partnership with Omidyar Network India, is aimed at broadly understanding privacy concerns and practices among middle and senior management inside tech organizations, and how factors such as regulated nature of certain businesses, compliance requirements, etc impact the development of privacy enhancing technologies.{% endtrans %}</p>
+                <p>{% trans %}Hasgeek invites you to participate in this survey, as a senior tech practitioner and leader in your organization. There are 32 questions in all and should take approximately 15 minutes to answer them.{% endtrans %}</p>
+                <a class="mui-btn mui-btn--primary mui-btn--raised" href="https://bit.ly/privacytech-hasgeek" target="_blank" rel="noopener">{% trans %}Get started{% endtrans %}</a>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {{ featured_section(featured_project) }}
   {{ upcoming_section(upcoming_projects) }}
   {{ open_cfp_section(open_cfp_projects) }}

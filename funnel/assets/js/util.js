@@ -1,3 +1,9 @@
+import Gettext from './gettext';
+import * as timeago from 'timeago.js';
+/*eslint camelcase: ["error", {allow: ["hi_IN"]}]*/
+import hi_IN from 'timeago.js/lib/lang/hi_IN';
+// Strings used in window.gettext fn are in  templates/js/translations_only.js.jinja2
+
 /* global ga */
 export const Utils = {
   // convert array of objects into hashmap
@@ -98,6 +104,9 @@ export const Utils = {
     }
   },
   truncate() {
+    let readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${window.gettext(
+      'read more'
+    )}</span>`;
     $('.js-truncate').each(function () {
       let linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
@@ -109,8 +118,7 @@ export const Utils = {
       let linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
         lines: linesLimit,
-        fill:
-          '&hellip;<span class="js-read-more mui--text-hyperlink read-more">read more</span>',
+        fill: readMoreTxt,
       });
     });
 
@@ -166,13 +174,13 @@ export const Utils = {
       let eventDay = Date.parse(eventDate);
       // Find the difference between event and today's date in UTC
       let counting = Math.round((eventDay - today) / singleDay);
-      let dayText = ['Today', 'Tomorrow', 'Day after'];
+      // Defined these strings in project_countdown macro in calendar_snippet.js.jinja2
+      let dayText = ['Today', 'Tomorrow', 'Day after', 'In %d days'];
       // Show number of days on the widget only if it is less than 32 days
       if (counting >= 0 && counting < 3) {
-        monthElem.text(dayText[counting]);
+        monthElem.text(window.gettext(dayText[counting]));
       } else if (counting > 2 && counting < 32) {
-        let daysRemainingTxt = `In ${counting} days`;
-        monthElem.text(daysRemainingTxt);
+        monthElem.text(window.gettext(dayText[3], counting));
       }
     });
   },
@@ -182,10 +190,12 @@ export const Utils = {
   getResponseError(response) {
     let errorMsg = '';
 
+    // Add server error strings for translations in server_error.js.jinja2
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg =
-          'An internal server error occurred. Our support team has been notified and will investigate.';
+        errorMsg = window.gettext(
+          'An internal server error occurred. Our support team has been notified and will investigate.'
+        );
       } else if (
         response.status === 422 &&
         response.responseJSON.error === 'requires_sudo'
@@ -197,7 +207,9 @@ export const Utils = {
         errorMsg = response.responseJSON.error_description;
       }
     } else {
-      errorMsg = 'Unable to connect. Please reload and try again.';
+      errorMsg = window.gettext(
+        'Unable to connect. Check connection and tap to reload.'
+      );
     }
     return errorMsg;
   },
@@ -328,6 +340,28 @@ export const Utils = {
     }
     return headerHeight;
   },
+  getLocale() {
+    // Instantiate i18n with browser context
+    let lang = document.documentElement.lang;
+    let langShortForm = lang.substring(0, 2);
+    window.Hasgeek.config.locale =
+      window.Hasgeek.config.availableLanguages[langShortForm];
+    return window.Hasgeek.config.locale;
+  },
+  loadLangTranslations() {
+    Utils.getLocale();
+
+    window.i18n = new Gettext({
+      translatedLang: window.Hasgeek.config.locale,
+    });
+    window.gettext = window.i18n.gettext.bind(window.i18n);
+    window.ngettext = window.i18n.ngettext.bind(window.i18n);
+  },
+  getTimeago() {
+    // en_US and zh_CN are built in timeago, other languages requires to be registered.
+    timeago.register('hi_IN', hi_IN);
+    return timeago;
+  },
 };
 
 export const ScrollActiveMenu = {
@@ -452,7 +486,9 @@ export const SaveProject = function ({
           $(this).addClass('animate-btn--show');
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
-            window.toastr.success('Project added to Account > My saves');
+            window.toastr.success(
+              window.gettext('Project added to Account > My saves')
+            );
           }
         }
       });

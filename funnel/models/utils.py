@@ -7,15 +7,7 @@ from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 from flask import current_app
 
 from ..typing import OptionalMigratedTables
-from .user import (
-    USER_STATUS,
-    User,
-    UserEmail,
-    UserEmailClaim,
-    UserExternalId,
-    UserOldId,
-    db,
-)
+from .user import User, UserEmail, UserEmailClaim, UserExternalId, db
 
 __all__ = ['getuser', 'getextid', 'merge_users', 'IncompleteUserMigration']
 
@@ -30,17 +22,17 @@ def getuser(name: str) -> Optional[User]:
         # but this bit has traditionally been for Twitter only. Fix pending.
         if name.startswith('@'):
             extid = UserExternalId.get(service='twitter', username=name[1:])
-            if extid and extid.user.is_active:
+            if extid and extid.user.state.ACTIVE:
                 return extid.user
             else:
                 return None
         else:
             useremail = UserEmail.get(email=name)
-            if useremail and useremail.user is not None and useremail.user.is_active:
+            if useremail and useremail.user is not None and useremail.user.state.ACTIVE:
                 return useremail.user
             # No verified email id. Look for an unverified id; return first found
             result = UserEmailClaim.all(email=name).first()
-            if result and result.user.is_active:
+            if result and result.user.state.ACTIVE:
                 return result.user
             return None
     else:
@@ -64,14 +56,12 @@ def merge_users(user1: User, user2: User) -> Optional[User]:
     # keep_user.
     safe = do_migrate_instances(merge_user, keep_user, 'migrate_user')
     if safe:
-        # 2. Add merge_user's uuid to olduserids. Commit session.
-        db.session.add(UserOldId(id=merge_user.uuid, user=keep_user))
-        # 3. Mark merge_user as merged. Commit session.
-        merge_user.status = USER_STATUS.MERGED
-        # 4. Commit all of this
+        # 2. Add merge_user's uuid to olduserids and mark user as merged
+        merge_user.mark_merged_into(keep_user)
+        # 3. Commit all of this
         db.session.commit()
 
-        # 5. Return keep_user.
+        # 4. Return keep_user.
         current_app.logger.info("User merge complete, keeping user %s", keep_user)
         return keep_user
 

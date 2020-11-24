@@ -20,8 +20,8 @@ class TestModels(TestDatabaseFixture):
             assert merged == crusoe
             assert isinstance(merged, models.User)
             # because the logic is to merge into older account
-            assert crusoe.status == 0
-            assert bathound.status == 2
+            assert crusoe.state.ACTIVE
+            assert bathound.state.MERGED
 
         # Scenario 2: if second user's created_at date is older than first user's
         # created_at
@@ -36,8 +36,8 @@ class TestModels(TestDatabaseFixture):
             assert merged == tyrion
             assert isinstance(merged, models.User)
             # because the logic is to merge into older account
-            assert tyrion.status == 0
-            assert subramanian.status == 2
+            assert tyrion.state.ACTIVE
+            assert subramanian.state.MERGED
 
     def test_getuser(self):
         """Test for retrieving username by prepending @."""

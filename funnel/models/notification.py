@@ -509,7 +509,7 @@ class Notification(NoIdMixin, db.Model):
                 continue
 
             # Don't notify inactive (suspended, merged) users
-            if not user.is_active:
+            if not user.state.ACTIVE:
                 continue
 
             # Was a notification already sent to this user? If so:
