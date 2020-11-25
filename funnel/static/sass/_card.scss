@@ -6,7 +6,7 @@
   background-size: cover;
   background-position: center;
   .card__body {
-    padding: $mui-grid-padding 0;
+    padding: $mui-grid-padding;
     .card__body__content {
       color: #fff;
     }
@@ -42,7 +42,7 @@
       }
       .card__body__logo {
         float: right;
-        width: 40%;
+        width: 45%;
         img {
           margin-bottom: 8px;
         }

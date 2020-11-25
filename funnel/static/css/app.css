@@ -2687,7 +2687,7 @@ a.loginbutton.hidden,
   background-position: center;
 }
 .card--banner .card__body {
-  padding: 16px 0;
+  padding: 16px;
 }
 .card--banner .card__body .card__body__content {
   color: #fff;
@@ -2722,7 +2722,7 @@ a.loginbutton.hidden,
   }
   .card--banner .card__body .card__body__logo {
     float: right;
-    width: 40%;
+    width: 45%;
   }
   .card--banner .card__body .card__body__logo img {
     margin-bottom: 8px;
