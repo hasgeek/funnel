@@ -46,7 +46,6 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
                 for update in self.obj.published_updates
             ],
             'new_update': self.obj.url_for('new_update'),
-            'csrf_form': forms.Form(),
         }
 
     @route('new', methods=['GET', 'POST'])

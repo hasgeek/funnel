@@ -60,6 +60,9 @@ var sprintf = require('sprintf-js').sprintf,
   vsprintf = require('sprintf-js').vsprintf;
 
 const Gettext = function (config) {
+  this.catalog = {};
+  this.domain = 'messages';
+
   this.getTranslationFileUrl = function (langCode) {
     return `/static/translations/${langCode}/messages.json`;
   };
@@ -69,8 +72,9 @@ const Gettext = function (config) {
   };
 
   if (config !== undefined && config.translatedLang !== undefined) {
-    var catalog = {};
-    var domain = 'messages';
+    // because we cannot access `this` inside the AJAX callback
+    var catalog = this.catalog;
+    var domain = this.domain;
 
     $.ajax({
       type: 'GET',
