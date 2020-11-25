@@ -2719,6 +2719,7 @@ a.loginbutton.hidden,
     float: left;
     width: 55%;
     color: #fff;
+    padding-right: 16px;
   }
   .card--banner .card__body .card__body__logo {
     float: right;
