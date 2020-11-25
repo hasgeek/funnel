@@ -88,7 +88,7 @@
               <div class="modal__body">
                 <form action="{{ project.url_for('toggle_featured') }}" method="post">
                   {{ csrf_form.hidden_tag() }}
-                  <span class="mui--text-title mui--text-bold mui--text-dark">Confirmation</span>
+                  <span class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Confirmation{% endtrans %}</span>
                   <button name="transition" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">
                     {% if project.featured %}
                       {% trans %}Remove featured{% endtrans %}
