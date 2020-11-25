@@ -66,6 +66,13 @@ CREATE EXTENSION IF NOT EXISTS hll;
     )
 
 
+@manager.command
+def baseframe_translations_path():
+    from baseframe import baseframe_translations
+
+    sys.stdout.write(baseframe_translations.dirname)
+
+
 periodic = Manager(usage="Periodic tasks from cron (with recommended intervals)")
 
 

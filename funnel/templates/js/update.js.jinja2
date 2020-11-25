@@ -1,0 +1,71 @@
+{% macro updates_template() %}
+  {% raw %}
+    <div id="updates-wrapper" v-cloak>
+      <div v-if="isEditor">
+        <h2 class="mui--text-headline mui--text-left" v-if="draft">{{ gettext('Draft') }}</h2>
+        <ul v-if="draft" class="draft-updates">
+          <li v-for="update in draft"><a :href="update.urls.view">{{ update.title }}</a></li>
+        </ul>
+      </div>
+      <ul class="mui-list--unstyled" v-if="updates.length > 0">
+        <update :update="update" :iseditor="isEditor" :addreadmore="addReadMore" v-for="update in updates"></update>
+      </ul>
+    </div>
+
+    <script type="text/x-template" id="update-template">
+      <li class="update user" :id="'#update-' + update.uuid_b58">
+        <div class="mui--clearfix">
+          <div class="update__heading">
+            <ul class="bullet-separated-list--flex mui--text-light mui--text-body2 update__date" v-if="update.number">
+              <li><a class="mui--text-uppercase mui--text-light" :href="update.urls.view">{{ gettext('Update') }} #{{ update.number }}</a></li>
+              <li v-if="age"><a class="mui--text-light" :href="update.urls.view">{{ age }}</a></li>
+              <li v-if="update.visibility_label == 'Restricted'">
+                <faicon :icon="'lock-alt'"></faicon>
+              </li>
+              <li v-if="update.is_pinned">
+                <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
+              </li>
+            </ul>
+          </div>
+          <div class="update__action-btn">
+            <div class="mui-dropdown">
+              <a href="javascript:void(0)" class="mui--text-subhead mui--text-light project-links link-icon" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :icon_size="'subhead'" :baseline=true></faicon></a>
+              <sharedropdown :url='update.urls.view' :title='update.title'></sharedropdown>
+            </div>
+            <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide link-icon" :data-title="update.title" :data-url="update.urls.view + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :icon_size="'caption'" :baseline=true></faicon></a>
+            <div class="mui-dropdown mui-dropdown--update" v-if="iseditor">
+              <a href="javascript:void(0)" class="mui--text-light link-icon" data-mui-toggle="dropdown"><faicon :icon="'ellipsis-v'" :icon_size="'subhead'"></faicon></a>
+              <ul class="mui-dropdown__menu mui-dropdown__menu--hg-link mui-dropdown__menu--small" data-cy="share-dropdown">
+                <li><a class="mui--text-body2" v-if="update.urls.edit" :href="update.urls.edit"><faicon :icon="'edit'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Edit</a></li>
+                <li><a  class="mui--text-body2" v-if="update.urls.delete" :href="update.urls.delete"><faicon :icon="'trash-alt'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Delete</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <p class="mui--text-headline mui--text-bold"><a class="mui--text-dark" :href="update.urls.view">{{ update.title }}</a></p>
+        <div class="user__box mui--clearfix update__header">
+          <useravatar :user='update.user' :addprofilelink=true></useravatar>
+          <div class="user__box__header">
+            <h3 class="mui--text-body2 user__box__fullname zero-bottom-margin">{{ update.user.fullname }}</h3>
+            <h3 v-if="update.user.username" class="mui--text-caption user__box__userid"><span>@{{ update.user.username }}</span></h3>
+          </div>
+        </div>
+        <div v-if="!update.is_currently_restricted">
+          <div v-if="addreadmore">
+            <div class="update__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(update.body.html, 250)"></div>
+            <div class="update__content mui--text-light fullcontent" v-else v-html="update.body.html"></div>
+            <p class="mui--text-body2">
+              <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" aria-label="{{ gettext('read more') }}"><faicon :icon="'caret-circle-down'" :icon_size="'caption'"></faicon>{{ gettext('Read more') }}</a></p>
+              <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" aria-label="{{ gettext('hide') }}"><faicon :icon="'caret-circle-up'" :icon_size="'caption'"></faicon>{{ gettext('Hide') }}</a>
+            </p>
+          </div>
+          <div class="update__content mui--text-light" v-else v-html="update.body.html"></div>
+        </div>
+        <div v-else>
+          <p class="mui--text-body2 mui--text-light mui--text-center top-padding zero-bottom-margin"><faicon :icon="'lock-alt'" :icon_size="'caption'"></faicon> <em>{{ gettext('This update is for participants only') }}</em></p>
+        </div>
+        <hr class="mui--visible-xs-block mui--visible-sm-block">
+      </li>
+    </script>
+  {% endraw %}
+{% endmacro %}

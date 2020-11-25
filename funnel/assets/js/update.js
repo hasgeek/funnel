@@ -1,6 +1,5 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
-import * as timeago from 'timeago.js';
 import { Utils } from './util';
 import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
 
@@ -47,10 +46,17 @@ const Updates = {
       },
       computed: {
         age() {
+          console.log(this.timeago.format(this.update.published_at, 'en_IN'));
           return this.now && this.update.published_at
-            ? timeago.format(this.update.published_at)
+            ? this.timeago.format(
+                this.update.published_at,
+                window.Hasgeek.config.locale
+              )
             : '';
         },
+      },
+      created() {
+        this.timeago = Utils.getTimeago();
       },
       mounted() {
         window.setInterval(() => {

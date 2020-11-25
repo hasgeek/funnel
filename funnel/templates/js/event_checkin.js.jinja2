@@ -1,0 +1,57 @@
+{% macro checkin_count() %}
+  <h3 class="mui--text-right" id="ticket-participants-count">
+    {% raw %}
+    <script id="ticket-participants-count-template" type="text/ractive">
+      Checked In: <span class="js-totalcheckin mui--text-title">{{ total_checkedin }}</span> |
+      Total: <span class="js-total mui--text-title">{{ total_participants }}</span>
+    </script>
+    {% endraw %}
+  </h3>
+{% endmacro %}
+
+{% macro participant_list() %}
+  <tbody id="ticket-participants-table-content">
+    {% raw %}
+    <script id='ticket-participant-row' type='text/ractive'>
+    {{#each ticket_participants}}
+      <tr id="p-{{ puuid_b58 }}">
+        <td class='js-searchable' data-th="Name" data-cy="ticket-participant">{{#if has_user }}<faicon icon='user-check' icon_size='subhead' baseline=true css_class='mui--text-success fa-icon--margin'></faicon>{{/if}}{{ fullname }}</td>
+        <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
+        <td class='js-searchable' data-th="Email">{{ email }}</td>
+        <td class='js-searchable' data-th="Company">{{ company }}</td>
+        <td class='buttongrp-column'>
+          <ul class="mui-list--unstyled">
+            {{#if isUsher || isConcierge}}
+            <li>
+              <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-badge">{{ gettext('Show badge') }}</a>
+            </li>
+            <li>
+              <a href="{{ label_badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-label-badge">{{ gettext('Show label badge') }}</a>
+            </li>
+            {{/if}}
+            <li>
+              <form action="{{ getCheckinUrl() }}" method='POST' class='checkin_form form-inline' id="{{ puuid_b58 }}">
+                <div style="display:none;">
+                  <input id="csrf_token" name="csrf_token" value="{{ getCsrfToken() }}" type="hidden">
+                </div>
+                <input type="hidden" name="puuid_b58" value="{{ puuid_b58 }}">
+                {{#if checked_in}}
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Cancel check-in') }}" data-cy="cancel-checkin">{{ gettext('Cancel Check-in') }}  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                {{else}}
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Check-in') }}" data-cy="checkin">{{ gettext('Check-in') }} {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                {{/if}}
+              </form>
+            </li>
+            {{#if isConcierge}}
+            <li>
+              <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" rel="noopener" data-cy="edit-attendee-details">{{ gettext('Edit participant details') }}</a>
+            </li>
+            {{/if}}
+          </ul>
+        </td>
+      </tr>
+    {{/each}}
+    </script>
+    {% endraw %}
+  </tbody>
+{% endmacro %}

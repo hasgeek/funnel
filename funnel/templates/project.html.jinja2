@@ -124,7 +124,7 @@
     <div class="about__details" id="about">
       <div class="about__details__description">{{ project.description }}</div>
       {% if project.view_for('edit').is_available() %}
-        <p><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.url_for('edit') }}" aria-label="edit project details">{{ faicon(icon='edit') }} {% trans %}Edit details{% endtrans %}</a></p>
+        <p><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.url_for('edit') }}" aria-label="{% trans %}Edit details{% endtrans %}">{{ faicon(icon='edit') }} {% trans %}Edit details{% endtrans %}</a></p>
       {% endif %}
       {%- if project.subprojects %}
         <hr class="mui-divider">

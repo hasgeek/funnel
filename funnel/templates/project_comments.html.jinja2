@@ -1,7 +1,8 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield, widgetscripts %}
-{%- from "macros.html.jinja2" import project_header, comments_tree %}
+{%- from "macros.html.jinja2" import project_header %}
+{%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{% trans %}Comments{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
@@ -40,6 +41,7 @@
       </div>
     </div>
   </div>
+  {{ comment_template() }}
 {% endblock %}
 
 {% block pagescripts %}
