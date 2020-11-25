@@ -310,8 +310,7 @@
   <ul class="mui-list--unstyled pinned  {% if current_page == 'project' %}pinned--about-page{%- endif %}">
     <li>
       <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
-        <p class="pinned__update__heading mui-container">{{ faicon(icon='thumbtack', icon_size='caption') }} <span class="mui--text-subhead">{% trans %}Pinned update{% endtrans %}</span></p>
-        <p class="pinned__update__body mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span><span class="mui--text-subhead mui--text-light pinned__update__body__text">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.html|firstline }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
+        <p class="pinned__update__heading mui-container">{{ faicon(icon='thumbtack', baseline=false, css_class='mui--align-middle fa-icon--margin') }}<span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span class="mui--text-subhead mui--text-light pinned__update__body__text">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.html|firstline }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
       </a>
     </li>
   </ul>

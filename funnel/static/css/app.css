@@ -1667,7 +1667,7 @@ a.loginbutton.hidden,
   .sub-navbar .sub-navbar__item {
     display: inline-block;
     flex-shrink: 0;
-    padding: 24px 16px;
+    padding: 24px 0;
     margin: 0 16px;
     text-decoration: none;
     border-bottom: 4px solid transparent;
@@ -1762,7 +1762,6 @@ a.loginbutton.hidden,
   left: 0;
 }
 .tabs-wrapper--sticky .grid__col-12 {
-  padding-left: 0;
   padding-right: 0;
 }
 
