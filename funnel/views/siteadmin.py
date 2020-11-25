@@ -309,9 +309,21 @@ class SiteadminView(ClassView):
             exclude_user=current_auth.user
         ).filter_by(comment_id=comment_report.comment_id)
 
-        if report not in existing_reports:
+        if comment_report not in existing_reports:
             # current report should be in the existing unreviewed reports
             flash(_("You cannot review same comment twice"), 'error')
+            return redirect(url_for('siteadmin_review_comments_random'))
+
+        if comment_report.comment.state.SPAM:
+            # if a comment is marked as spam by some other mechanism, like direct
+            # DB update, all the reports will be left hanging. We can mark then as
+            # resolved. Not sure if there is a better alternative for `resolved_at`.
+            flash(_("This comment has already been marked as spam"), 'error')
+            CommentModeratorReport.query.filter_by(
+                comment=comment_report.comment
+            ).update({'resolved_at': db.func.utcnow()}, synchronize_session='fetch')
+            db.session.commit()
+            # Redirect to a new report
             return redirect(url_for('siteadmin_review_comments_random'))
 
         report_form = ModeratorReportForm()
@@ -322,7 +334,7 @@ class SiteadminView(ClassView):
             # existing report count will be greater than 0 because
             # current report exists and it's not by the current user.
             report_counter = Counter(
-                [report.report_type for report in existing_reports]
+                [exreport.report_type for exreport in existing_reports]
                 + [report_form.report_type.data]
             )
             # if there is already a report for this comment
@@ -366,7 +378,7 @@ class SiteadminView(ClassView):
         app.logger.debug(report_form.errors)
 
         return {
-            'report': report,
+            'report': comment_report,
             'report_form': report_form,
         }
 
