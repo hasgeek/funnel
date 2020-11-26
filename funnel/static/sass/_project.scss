@@ -268,8 +268,6 @@
 .pinned {
   position: sticky;
   top: 65px;
-  box-shadow: crimson;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.17);
   background: $mui-bg-color-primary;
   z-index: 5;
   display: none;
@@ -279,7 +277,7 @@
     display: inline-block;
     width: 100%;
     padding: $mui-grid-padding/2 0;
-    border-bottom: solid 1px rgba(121, 129, 139, 0.16);
+    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   }
 
   .pinned__update__heading {

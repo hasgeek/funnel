@@ -145,7 +145,7 @@
     }
     .profile__banner__box {
       position: relative;
-      padding-bottom: 75%;
+      padding-bottom: 33.3%;
       .profile__banner__box__img {
         position: absolute;
         object-fit: cover;
@@ -234,6 +234,13 @@
   margin-right: 8px;
 }
 
+.profile-create-btn--mobile {
+  width: calc(100% - 58px);
+  .mui-btn {
+    width: 100%;
+  }
+}
+
 .profile-dropdown-btn {
   background-color: $mui-bg-color-primary-dark;
   padding: 6px 16px;
@@ -275,7 +282,7 @@
         padding: 0 $mui-grid-padding;
       }
       .profile__banner__box {
-        padding-bottom: 37.5%;
+        padding-bottom: 33.3%;
       }
       .profile__banner__upload {
         border-radius: 0;
