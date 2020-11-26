@@ -300,7 +300,7 @@
       {%- if project.schedule_state.PUBLISHED %}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- endif %}" data-action="Schedule(navbar)" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}
-      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'crew' %}sub-navbar__item--active{%- endif %}"" href="{%- if current_page != 'crew' -%}{{ project.url_for('crew') }}{%- endif %}" title="Crew" data-action="Crew(navbar)" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'crew' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'crew' -%}{{ project.url_for('crew') }}{%- endif %}" title="Crew" data-action="Crew(navbar)" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- if project.current_roles.editor or project.current_roles.concierge or project.current_roles.usher -%}
         <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'settings' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'settings' -%}{{ project.url_for('settings') }}{%- endif %}" data-action="Settings(navbar)" data-cy-navbar="settings">{% trans %}Settings{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
       {%- endif %}
@@ -310,7 +310,7 @@
   <ul class="mui-list--unstyled pinned  {% if current_page == 'project' %}pinned--about-page{%- endif %}">
     <li>
       <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
-        <p class="pinned__update__heading mui-container">{{ faicon(icon='thumbtack', baseline=false, css_class='mui--align-middle fa-icon--margin') }}<span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span class="mui--text-subhead mui--text-light pinned__update__body__text">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.html|firstline }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
+        <p class="pinned__update__heading mui-container">{{ faicon(icon='thumbtack', baseline=false, css_class='mui--align-middle fa-icon--margin') }}<span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span><span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.html|firstline }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
       </a>
     </li>
   </ul>
