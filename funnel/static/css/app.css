@@ -5159,6 +5159,7 @@ body > .proposal-box.ui-draggable {
   display: inline-block;
   text-align: right;
   float: right;
+  padding: 8px 0;
 }
 .membership-wrapper__members
   .membership-wrapper__members__list

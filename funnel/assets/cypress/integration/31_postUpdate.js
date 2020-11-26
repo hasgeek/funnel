@@ -39,7 +39,7 @@ describe('Test updates feature', function () {
       .contains(project.title)
       .click({ force: true });
     cy.get('.pinned__update')
-      .find('.pinned__update__body')
+      .find('.pinned__update__heading')
       .contains(project.update_title);
     cy.get('a[data-cy-navbar="updates"]').click();
     cy.get('.update').contains(project.restricted_update_title);
@@ -51,7 +51,7 @@ describe('Test updates feature', function () {
       .contains(project.title)
       .click({ force: true });
     cy.get('.pinned__update')
-      .find('.pinned__update__body')
+      .find('.pinned__update__heading')
       .contains(project.update_title);
     cy.get('a[data-cy-navbar="updates"]').click();
     cy.get('.update__content')
