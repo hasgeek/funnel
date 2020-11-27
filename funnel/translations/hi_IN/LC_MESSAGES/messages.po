@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-27 13:18+0530\n"
-"PO-Revision-Date: 2020-11-27 13:17+0530\n"
+"POT-Creation-Date: 2020-11-27 13:24+0530\n"
+"PO-Revision-Date: 2020-11-27 13:16+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -3677,18 +3677,14 @@ msgstr "सवाल"
 msgid ""
 "\n"
 "      Only %(total_comments)s comment for \"%(query)s\""
-msgstr ""
-"\n"
-"      ”%(query)s\" के लिए केवल %(total_comments)s कमेंट"
+msgstr "\"%(query)s\" के लिए केवल %(total_comments)s कमेंट"
 
 #: funnel/templates/siteadmin_comments.html.jinja2:25
 #, python-format
 msgid ""
 "\n"
 "      Only %(total_comments)s comment"
-msgstr ""
-"\n"
-"      केवल %(total_comments)s कमेंट"
+msgstr "केवल %(total_comments)s कमेंट"
 
 #: funnel/templates/siteadmin_comments.html.jinja2:47
 msgid "Comment"
@@ -4323,8 +4319,8 @@ msgid ""
 "Hello <strong>{fullname}</strong>! Your email address "
 "<code>{email}</code> has now been verified"
 msgstr ""
-"नमस्ते <strong>{fullname}</ strong>! आपका ईमेल पता <code>{email}</code> "
-"अब वेरिफाई हो चुका है"
+"नमस्ते <strong>{fullname}</strong>! आपका ईमेल पता <code>{email}</code> अब"
+" वेरिफाई हो चुका है"
 
 #: funnel/views/account.py:451
 msgid "This was not for you"
@@ -4506,7 +4502,7 @@ msgid ""
 "can use that to login."
 msgstr ""
 "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह आईडी "
-"<strong>{username}</ strong> के साथ <strong>{service}</ strong> से जुड़ा "
+"<strong>{username}</strong> के साथ <strong>{service}</strong> से जुड़ा "
 "हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
 
 #: funnel/views/account_reset.py:93
@@ -4594,7 +4590,7 @@ msgstr ""
 
 #: funnel/views/account_reset.py:280
 msgid "Hello, <strong>{fullname}</strong>. You may now choose a new password."
-msgstr "नमस्ते, <strong>{fullname}</ strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
+msgstr "नमस्ते, <strong>{fullname}</strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
 
 #: funnel/views/auth_client.py:85
 msgid "Register a new client application"
@@ -6155,4 +6151,3 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 
 #~ msgid "Pinned update"
 #~ msgstr "पिन की हुई जानकारी"
-
