@@ -1443,7 +1443,7 @@
         "जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
       ],
       "Add cover photo url": [null, "कवर फोटो का URL जोड़ें"],
-      "Add cover photo": [null, ""],
+      "Add cover photo": [null, "कवर फोटो जोड़"],
       "New project": [null, "नया प्रोजेक्ट"],
       "Make profile public": [null, "प्रोफाइल को सार्वजनिक बनाएं"],
       "Make this profile public?": [null, "इस प्रोफाइल को सार्वजनिक बनाएं?"],
