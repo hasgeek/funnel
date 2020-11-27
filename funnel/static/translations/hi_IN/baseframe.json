@@ -4,7 +4,7 @@
     "messages": {
       "": {
         "domain": "messages",
-        "plural_forms": "nplurals=2; plural=(n != 1)",
+        "plural_forms": "nplurals=2; plural=(n != 1);",
         "lang": "hi_IN"
       },
       "now": [null, "अभी"],
@@ -13,16 +13,16 @@
       "a minute ago": [null, "एक मिनट पहले"],
       "%(num)s minutes ago": [null, "%(num)s मिनट पहले"],
       "an hour ago": [null, "एक घंटा पहले"],
-      "%(num)s hours ago": [null, "%(num)s घंटो पहले"],
+      "%(num)s hours ago": [null, "%(num)s घंटा पहले"],
       "a day ago": [null, "एक दिन पहले"],
       "%(num)s days ago": [null, "%(num)s दिन पहले"],
       "a month ago": [null, "एक महीने पहले"],
       "%(num)s months ago": [null, "%(num)s महीने पहले"],
       "a year ago": [null, "एक साल पहले"],
       "%(num)s years ago": [null, "%(num)s साल पहले"],
-      "Delete": [null, ""],
-      "Cancel": [null, ""],
-      "Submit": [null, ""],
+      "Delete": [null, "मिटाएं"],
+      "Cancel": [null, "रद्द करें"],
+      "Submit": [null, "जमा करें"],
       "Not a valid choice!": [null, ""],
       "Value not in LabeledEnum": [null, ""],
       "Invalid Choice: could not coerce": [null, ""],
@@ -67,24 +67,19 @@
       "Image URL": [null, ""],
       "Access denied": [null, ""],
       "You do not have access to that page.": [null, ""],
-      "Not Found": [null, ""],
+      "Not Found": [null, "नहीं प्राप्त हुआ"],
       "The page you were looking for does not exist.": [null, ""],
-      "Internal Server Error": [null, ""],
+      "Internal Server Error": [null, "आंतरिक सर्वर त्रुटि"],
       "Something broke inside. A report has been sent to the server’s administrator. Our apologies for the inconvenience.": [
         null,
         ""
       ],
-      "Copyright &copy; 2010-20 Hasgeek": [null, ""],
       "This form has timed out. Please submit again to confirm": [null, ""],
       "Please review the indicated issues": [null, ""],
-      "Loading...": [null, ""],
-      "Close": [null, ""],
-      "Toggle menu": [null, ""],
-      "My account": [null, ""],
-      "My profile": [null, ""],
-      "Apps": [null, ""],
+      "Loading...": [null, "लोड हो रहा है…"],
       "Select or upload image": [null, ""],
-      "URL": [null, ""],
+      "Close": [null, "बंद करें"],
+      "URL": [null, "URL"],
       "Emoji": [null, ""],
       "Content": [null, ""],
       "Webmail Domain": [null, ""],
@@ -94,8 +89,8 @@
       "Third": [null, ""],
       "Position": [null, ""],
       "Position Without Default": [null, ""],
-      "Name": [null, ""],
-      "Title": [null, ""]
+      "Name": [null, "नाम"],
+      "Title": [null, "शीर्षक"]
     }
   }
 }
