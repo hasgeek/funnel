@@ -1639,11 +1639,11 @@
       "Query": [null, "सवाल"],
       "\n      Only %(total_comments)s comment for \"%(query)s\"": [
         null,
-        "\n      ”%(query)s\" के लिए केवल %(total_comments)s कमेंट"
+        "\"%(query)s\" के लिए केवल %(total_comments)s कमेंट"
       ],
       "\n      Only %(total_comments)s comment": [
         null,
-        "\n      केवल %(total_comments)s कमेंट"
+        "केवल %(total_comments)s कमेंट"
       ],
       "Comment": [null, "कमेंट"],
       "No comment available": [null, "कोई कमेंट मौजूद नहीं है"],
@@ -1920,7 +1920,7 @@
       "Email address verified": [null, "ईमेल पता वेरिफाई किया गया"],
       "Hello <strong>{fullname}</strong>! Your email address <code>{email}</code> has now been verified": [
         null,
-        "नमस्ते <strong>{fullname}</ strong>! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका है"
+        "नमस्ते <strong>{fullname}</strong>! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका है"
       ],
       "This was not for you": [null, "यह आपके लिए नहीं था"],
       "You’ve opened an email verification link that was meant for another user. If you are managing multiple accounts, please login with the correct account and open the link again.": [
@@ -2049,7 +2049,7 @@
       "Cannot reset password": [null, "पासवर्ड रीसेट नहीं किया जा सकता"],
       "Your account does not have an email address. However, it is linked to <strong>{service}</strong> with the id <strong>{username}</strong>. You can use that to login.": [
         null,
-        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह आईडी <strong>{username}</ strong> के साथ <strong>{service}</ strong> से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
+        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह आईडी <strong>{username}</strong> के साथ <strong>{service}</strong> से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
       ],
       "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance.": [
         null,
@@ -2094,7 +2094,7 @@
       ],
       "Hello, <strong>{fullname}</strong>. You may now choose a new password.": [
         null,
-        "नमस्ते, <strong>{fullname}</ strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
+        "नमस्ते, <strong>{fullname}</strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
       ],
       "Register a new client application": [
         null,
