@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-27 13:02+0530\n"
-"PO-Revision-Date: 2020-11-27 13:01+0530\n"
+"POT-Creation-Date: 2020-11-27 13:18+0530\n"
+"PO-Revision-Date: 2020-11-27 13:17+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -3144,7 +3144,7 @@ msgstr "कवर फोटो का URL जोड़ें"
 
 #: funnel/templates/macros.html.jinja2:559
 msgid "Add cover photo"
-msgstr "कवर फोटो जोड़"
+msgstr "कवर फोटो जोड़ें"
 
 #: funnel/templates/macros.html.jinja2:575
 #: funnel/templates/macros.html.jinja2:622
@@ -3238,7 +3238,7 @@ msgstr "आपको %(project)s में आमंत्रित किया
 #: funnel/templates/meta_refresh.html.jinja2:6
 #: funnel/templates/meta_refresh.html.jinja2:28
 msgid "Loading…"
-msgstr "लोड हो रहा है…"
+msgstr "लोडिंग…"
 
 #: funnel/templates/notification_feed.html.jinja2:19
 msgid "To receive timely notifications by SMS, add a phone number."
@@ -3677,14 +3677,18 @@ msgstr "सवाल"
 msgid ""
 "\n"
 "      Only %(total_comments)s comment for \"%(query)s\""
-msgstr "\"%(query)s\" के लिए केवल %(total_comments)s कमेंट"
+msgstr ""
+"\n"
+"      ”%(query)s\" के लिए केवल %(total_comments)s कमेंट"
 
 #: funnel/templates/siteadmin_comments.html.jinja2:25
 #, python-format
 msgid ""
 "\n"
 "      Only %(total_comments)s comment"
-msgstr "केवल %(total_comments)s कमेंट"
+msgstr ""
+"\n"
+"      केवल %(total_comments)s कमेंट"
 
 #: funnel/templates/siteadmin_comments.html.jinja2:47
 msgid "Comment"
@@ -4270,7 +4274,7 @@ msgid ""
 "Hello, <strong>{fullname}</strong>. Please spare a minute to fill out "
 "your account"
 msgstr ""
-"हेलो, <strong>{fullname}</ strong>. कृपया अपने खाते की जानकारी भरने के "
+"नमस्ते, <strong>{fullname}</strong>. कृपया अपने खाते की जानकारी भरने के "
 "लिए एक मिनट का समय दें"
 
 #: funnel/views/account.py:378
@@ -4307,8 +4311,8 @@ msgid ""
 "Hello <strong>{fullname}</strong>! Your email address "
 "<code>{email}</code> has already been verified"
 msgstr ""
-"नमस्ते <strong> {fullname} </ strong>! आपका ईमेल पता <code>{email}</code>"
-" पहले ही वेरिफाई हो चुका है"
+"नमस्ते <strong> {fullname} </strong>! आपका ईमेल पता <code>{email}</code> "
+"पहले ही वेरिफाई हो चुका है"
 
 #: funnel/views/account.py:439
 msgid "Email address verified"
@@ -6151,3 +6155,4 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 
 #~ msgid "Pinned update"
 #~ msgstr "पिन की हुई जानकारी"
+
