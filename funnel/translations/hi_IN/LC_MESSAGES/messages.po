@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-27 12:27+0530\n"
-"PO-Revision-Date: 2020-11-27 11:51+0530\n"
+"POT-Creation-Date: 2020-11-27 12:56+0530\n"
+"PO-Revision-Date: 2020-11-27 12:56+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -2123,7 +2123,7 @@ msgstr ""
 
 #: funnel/templates/account.html.jinja2:36
 msgid "Go to profile"
-msgstr ""
+msgstr "प्रोफ़ाइल पर जाएँ"
 
 #: funnel/templates/account.html.jinja2:51
 msgid "(none)"
@@ -2755,7 +2755,7 @@ msgstr "लेबल संपादित करें"
 
 #: funnel/templates/labels.html.jinja2:18
 msgid "Create new label"
-msgstr ""
+msgstr "नया लेबल बनाए "
 
 #: funnel/templates/labels.html.jinja2:33
 msgid "(No labels)"
@@ -2763,7 +2763,7 @@ msgstr ""
 
 #: funnel/templates/labels.html.jinja2:41
 msgid "Archive"
-msgstr ""
+msgstr "पुरालेख"
 
 #: funnel/templates/labels.html.jinja2:49
 #: funnel/templates/schedule_edit.html.jinja2:86
@@ -2783,7 +2783,7 @@ msgstr ""
 
 #: funnel/templates/layout.html.jinja2:73
 msgid "Search the site"
-msgstr ""
+msgstr "साइट पर खोजें"
 
 #: funnel/templates/layout.html.jinja2:73
 msgid "Search…"
@@ -2849,15 +2849,15 @@ msgstr ""
 
 #: funnel/templates/macros.html.jinja2:66
 msgid "Copy link"
-msgstr ""
+msgstr "लिंक कॉपी करें"
 
 #: funnel/templates/macros.html.jinja2:69
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: funnel/templates/macros.html.jinja2:70
 msgid "Linkedin"
-msgstr ""
+msgstr "Linkedin"
 
 #: funnel/templates/js/comments.js.jinja2:82
 #: funnel/templates/macros.html.jinja2:78
@@ -3144,7 +3144,7 @@ msgstr "कवर फोटो का URL जोड़ें"
 
 #: funnel/templates/macros.html.jinja2:559
 msgid "Add cover photo"
-msgstr "कवर फोटो जोड़"
+msgstr ""
 
 #: funnel/templates/macros.html.jinja2:575
 #: funnel/templates/macros.html.jinja2:622
@@ -3419,7 +3419,7 @@ msgstr "सम्बंधित ईवेंट"
 
 #: funnel/templates/project.html.jinja2:190
 msgid "View Schedule"
-msgstr ""
+msgstr "कार्यक्रम देखें"
 
 #: funnel/templates/project.html.jinja2:198
 msgid "Related jobs"
@@ -3460,7 +3460,7 @@ msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:34
 msgid "Edit proposal"
-msgstr ""
+msgstr "प्रस्ताव को संपादित करें"
 
 #: funnel/templates/proposal.html.jinja2:36
 msgid "Submitted by"
@@ -3567,7 +3567,7 @@ msgstr ""
 
 #: funnel/templates/schedule_edit.html.jinja2:49
 msgid "Unscheduled proposals"
-msgstr ""
+msgstr "अनिर्धारित प्रस्ताव"
 
 #: funnel/templates/schedule_edit.html.jinja2:87
 msgid "Revert"
@@ -3575,7 +3575,7 @@ msgstr ""
 
 #: funnel/templates/schedule_edit.html.jinja2:100
 msgid "Save session"
-msgstr ""
+msgstr "सेशन सेव करें"
 
 #: funnel/templates/schedule_subscribe.html.jinja2:5
 msgid "Subscribe to the schedule"
@@ -3642,7 +3642,7 @@ msgstr "चेक-इन के लिए बैच स्कैन करें
 
 #: funnel/templates/settings.html.jinja2:122
 msgid "Downloads"
-msgstr ""
+msgstr "डाउनलोड"
 
 #: funnel/templates/settings.html.jinja2:125
 msgid "Download JSON"
@@ -3793,7 +3793,7 @@ msgstr "स्कैन हो रहा है"
 #: funnel/templates/js/badge.js.jinja2:35
 #, python-format
 msgid "Hello %s"
-msgstr ""
+msgstr "नमस्ते %s"
 
 #: funnel/templates/js/badge.js.jinja2:36
 #, python-format
@@ -3919,24 +3919,24 @@ msgstr ""
 
 #: funnel/templates/js/translations_only.js.jinja2:9
 msgid "read more"
-msgstr ""
+msgstr "और पढ़ें"
 
 #: funnel/templates/js/translations_only.js.jinja2:11
 msgid "Today"
-msgstr ""
+msgstr "आज"
 
 #: funnel/templates/js/translations_only.js.jinja2:13
 msgid "Tomorrow"
-msgstr ""
+msgstr "कल"
 
 #: funnel/templates/js/translations_only.js.jinja2:15
 msgid "Day after"
-msgstr ""
+msgstr "परसों"
 
 #: funnel/templates/js/translations_only.js.jinja2:17
 #, python-format
 msgid "In %d days"
-msgstr ""
+msgstr "%d दिनों में"
 
 #: funnel/templates/js/update.js.jinja2:20
 msgid "Update"
@@ -4590,7 +4590,7 @@ msgstr ""
 
 #: funnel/views/account_reset.py:280
 msgid "Hello, <strong>{fullname}</strong>. You may now choose a new password."
-msgstr "हेलो, <strong>{fullname}</ strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
+msgstr "नमस्ते, <strong>{fullname}</ strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
 
 #: funnel/views/auth_client.py:85
 msgid "Register a new client application"
