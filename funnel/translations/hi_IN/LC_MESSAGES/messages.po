@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-27 11:52+0530\n"
+"POT-Creation-Date: 2020-11-27 12:27+0530\n"
 "PO-Revision-Date: 2020-11-27 11:51+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -3144,7 +3144,7 @@ msgstr "कवर फोटो का URL जोड़ें"
 
 #: funnel/templates/macros.html.jinja2:559
 msgid "Add cover photo"
-msgstr ""
+msgstr "कवर फोटो जोड़"
 
 #: funnel/templates/macros.html.jinja2:575
 #: funnel/templates/macros.html.jinja2:622
@@ -6151,4 +6151,3 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 
 #~ msgid "Pinned update"
 #~ msgstr "पिन की हुई जानकारी"
-
