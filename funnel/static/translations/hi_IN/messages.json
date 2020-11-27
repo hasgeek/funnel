@@ -1552,9 +1552,9 @@
       "Edit details": [null, "विवरण संपादित करें"],
       "Related events": [null, "सम्बंधित ईवेंट"],
       "View Schedule": [null, "कार्यक्रम देखें"],
-      "Related jobs": [null, ""],
+      "Related jobs": [null, "सम्बंधित नौकरियां"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
-      "Loading...": [null, "लोड हो रहा है..."],
+      "Loading...": [null, "लोडिंग..."],
       "Add proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
