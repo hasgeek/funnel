@@ -1443,7 +1443,7 @@
         "जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
       ],
       "Add cover photo url": [null, "कवर फोटो का URL जोड़ें"],
-      "Add cover photo": [null, "कवर फोटो जोड़"],
+      "Add cover photo": [null, "कवर फोटो जोड़ें"],
       "New project": [null, "नया प्रोजेक्ट"],
       "Make profile public": [null, "प्रोफाइल को सार्वजनिक बनाएं"],
       "Make this profile public?": [null, "इस प्रोफाइल को सार्वजनिक बनाएं?"],
@@ -1479,7 +1479,7 @@
         null,
         "आपको %(project)s में आमंत्रित किया गया है."
       ],
-      "Loading…": [null, "लोड हो रहा है…"],
+      "Loading…": [null, "लोडिंग…"],
       "To receive timely notifications by SMS, add a phone number.": [
         null,
         "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें."
@@ -1639,11 +1639,11 @@
       "Query": [null, "सवाल"],
       "\n      Only %(total_comments)s comment for \"%(query)s\"": [
         null,
-        "\"%(query)s\" के लिए केवल %(total_comments)s कमेंट"
+        "\n      ”%(query)s\" के लिए केवल %(total_comments)s कमेंट"
       ],
       "\n      Only %(total_comments)s comment": [
         null,
-        "केवल %(total_comments)s कमेंट"
+        "\n      केवल %(total_comments)s कमेंट"
       ],
       "Comment": [null, "कमेंट"],
       "No comment available": [null, "कोई कमेंट मौजूद नहीं है"],
@@ -1900,7 +1900,7 @@
       "Update account": [null, "खाता अपडेट करें"],
       "Hello, <strong>{fullname}</strong>. Please spare a minute to fill out your account": [
         null,
-        "हेलो, <strong>{fullname}</ strong>. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय दें"
+        "नमस्ते, <strong>{fullname}</strong>. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय दें"
       ],
       "Edit account": [null, "खाता संपादित करें"],
       "Save changes": [null, "परिवर्तनों को सेव करें"],
@@ -1915,7 +1915,7 @@
       "Email address already verified": [null, "ईमेल पता पहले से वेरिफाइड है"],
       "Hello <strong>{fullname}</strong>! Your email address <code>{email}</code> has already been verified": [
         null,
-        "नमस्ते <strong> {fullname} </ strong>! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो चुका है"
+        "नमस्ते <strong> {fullname} </strong>! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो चुका है"
       ],
       "Email address verified": [null, "ईमेल पता वेरिफाई किया गया"],
       "Hello <strong>{fullname}</strong>! Your email address <code>{email}</code> has now been verified": [
