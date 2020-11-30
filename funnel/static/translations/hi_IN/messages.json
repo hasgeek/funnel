@@ -1343,7 +1343,6 @@
       ],
       "Copy link": [null, "लिंक कॉपी करें"],
       "Facebook": [null, "Facebook"],
-      "Linkedin": [null, "Linkedin"],
       "Share": [null, "साझा करें"],
       "Add to calendar": [null, "कैलेंडर में जोड़ें"],
       "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
@@ -1554,7 +1553,6 @@
       "View Schedule": [null, "कार्यक्रम देखें"],
       "Related jobs": [null, "सम्बंधित नौकरियां"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
-      "Loading...": [null, "लोडिंग..."],
       "Add proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
@@ -1562,9 +1560,9 @@
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Participants": [null, "प्रतिभागी"],
-      "%(title)s by %(speaker)s, %(project)s": [
+      "‘%(title)s‘ by %(speaker)s, %(project)s": [
         null,
-        "%(speaker)s, %(project)s के द्वारा %(title)s"
+        "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
       ],
       "Edit proposal": [null, "प्रस्ताव को संपादित करें"],
       "Submitted by": [null, ""],
@@ -1584,7 +1582,7 @@
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें "],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
-      "This section is empty.": [null, "ये अनुभाग खाली है."],
+      "This section is empty": [null, "ये अनुभाग खाली है"],
       "Modify proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची को बदलें"
@@ -1593,6 +1591,10 @@
       "proposals": [null, "प्रस्ताव"],
       "Confirmed sessions": [null, "निर्धारित सेशन"],
       "Unconfirmed proposals": [null, "अनिर्धारित प्रस्ताव"],
+      "‘%(title)s’ by %(speaker)s, %(project)s": [
+        null,
+        "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
+      ],
       "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
@@ -1676,7 +1678,7 @@
         "फिलहाल कोई सेशन टैग किया हुआ नहीं है."
       ],
       "No participation yet.": [null, "अब तक कहीं हिस्सा नहीं लिया गया है."],
-      "No proposals submitted.": [null, "कोई प्रस्ताव जमा नहीं है."],
+      "No proposals submitted": [null, "कोई प्रस्ताव जमा नहीं है"],
       "Venues": [null, "ईवेंट का स्थान"],
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
@@ -1686,9 +1688,9 @@
       "Check in status": [null, "स्थिति की जांच करें"],
       "Scanning": [null, "स्कैन हो रहा है"],
       "Hello %s": [null, "नमस्ते %s"],
-      "Thank you for choosing to participate in  %(title)s and for being a part of this growing community.": [
+      "Thank you for choosing to participate in  %(title)s and for being a part of this growing community": [
         null,
-        " %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद."
+        " %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद"
       ],
       "Attendee details not found": [null, "प्रतिभागी की जानकारी नहीं मिली"],
       "Login to leave a comment": [null, "कमेंट करने के लिए लॉगिन करें"],
