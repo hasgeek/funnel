@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, useravatar %}
+{%- from "macros.html.jinja2" import account_tabs, csrf_tag, useravatar %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
@@ -41,7 +41,7 @@
             <div class="preference__switch mui--clearfix">
               {% if transport_details[transport]['available'] %}
                 <form method="POST" class="js-autosubmit-form right-padding">
-                  {{ csrf_form.hidden_tag() }}
+                  {{ csrf_tag() }}
                   <input type="hidden" name="notification_type" value="">
                   <input type="hidden" name="transport" value="{{ transport }}">
                   <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch"/>
@@ -72,7 +72,7 @@
                         <p class="preference__title__subheader mui--text-light">{{ type.description }}</p>
                       </div>
                       <form method="POST" class="js-autosubmit-form">
-                        {{ csrf_form.hidden_tag() }}
+                        {{ csrf_tag() }}
                         <input type="hidden" name="notification_type" value="{{ type.notification_type }}">
                         <input type="hidden" name="transport" value="{{ transport }}">
                         <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="switch-input js-toggle-switch" data-transport="preference-{{ transport }}"/>

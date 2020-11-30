@@ -1,6 +1,10 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
 {% from "baseframe/components.html.jinja2" import faicon, alertbox %}
 
+{%- macro csrf_tag() %}
+<input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+{%- endmacro %}
+
 {% macro project_title(project) %}
   {%- if project.short_title == project.title -%}
     {#- Project title is not an extension of profile title, so display profile title too -#}
@@ -33,7 +37,7 @@
           {% set event.year = week.year  %}
           <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first calendar__weekdays__dates--latest {% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__weekdays__dates--latest {% endif %}"  data-month="{{ week.month }}">
             <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
-              {% if event.previous  %}{{ faicon(icon='chevron-left',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}{% endif %}
+              {% if event.previous %}{{ faicon(icon='chevron-left',  baseline=false, css_class='calendar__weekdays__dates__icon__next') }}{% endif %}
             </p>
             {% for date in week.dates %}
               <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} calendar__weekdays__dates__date--{{ loop.index }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
@@ -104,7 +108,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro project_header(project, csrf_form, class='', current_page='project', pinned=true) %}
+{% macro project_header(project, class='', current_page='project', pinned=true) %}
   <div class="mui-container project-banner {% if class %}{{ class }}{% endif %}">
     <div class="grid">
       {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
@@ -209,7 +213,7 @@
                 <div class="modal__body">
                   <p class="mui--text-body2 reg-modal__txt">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
                   <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
-                    {{ csrf_form.hidden_tag() }}
+                    {{ csrf_tag() }}
                     <div class="mui--text-right modal__body__btn">
                       <button class="mui-btn mui-btn--flat mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
                     </div>
@@ -227,7 +231,7 @@
                 <div class="modal__body">
                   <p class="mui--text-subhead reg-modal__txt">{% trans %}Can’t make it?{% endtrans %}</p>
                   <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
-                    {{ csrf_form.hidden_tag() }}
+                    {{ csrf_tag() }}
                     <div class="mui--text-right modal__body__btn">
                       <button class="mui-btn mui-btn--flat mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button>
                     </div>
