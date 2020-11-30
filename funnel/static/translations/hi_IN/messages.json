@@ -477,7 +477,7 @@
       "This name is reserved": [null, "यह नाम रिज़र्व है"],
       "This is <em>your</em> current username. You must change it first from <a href=\"{account}\">your account</a> before you can assign it to an organization": [
         null,
-        "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको <"
+        "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको <a href=“{account}”>अपने अकाउंट</a> से बदलना होगा"
       ],
       "This name has been taken by another user": [
         null,
@@ -1562,7 +1562,10 @@
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Participants": [null, "प्रतिभागी"],
-      "%(title)s by %(speaker)s, %(project)s": [null, ""],
+      "%(title)s by %(speaker)s, %(project)s": [
+        null,
+        "%(speaker)s, %(project)s के द्वारा %(title)s"
+      ],
       "Edit proposal": [null, "प्रस्ताव को संपादित करें"],
       "Submitted by": [null, ""],
       "via": [null, ""],
@@ -1581,7 +1584,7 @@
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें "],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
-      "This section is empty.": [null, ""],
+      "This section is empty.": [null, "ये अनुभाग खाली है."],
       "Modify proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची को बदलें"
@@ -1592,9 +1595,9 @@
       "Unconfirmed proposals": [null, "अनिर्धारित प्रस्ताव"],
       "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
       "Select date": [null, "डेट चुनें"],
-      "Select a date to add sessions": [null, ""],
+      "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
       "Unscheduled proposals": [null, "अनिर्धारित प्रस्ताव"],
-      "Revert": [null, ""],
+      "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
       "Download": [null, "डाउनलोड करें"],
@@ -1673,7 +1676,7 @@
         "फिलहाल कोई सेशन टैग किया हुआ नहीं है."
       ],
       "No participation yet.": [null, "अब तक कहीं हिस्सा नहीं लिया गया है."],
-      "No proposals submitted.": [null, "कोई प्रस्ताव जमा नहीं है।"],
+      "No proposals submitted.": [null, "कोई प्रस्ताव जमा नहीं है."],
       "Venues": [null, "ईवेंट का स्थान"],
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
@@ -1685,13 +1688,13 @@
       "Hello %s": [null, "नमस्ते %s"],
       "Thank you for choosing to participate in  %(title)s and for being a part of this growing community.": [
         null,
-        " %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद।"
+        " %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद."
       ],
       "Attendee details not found": [null, "प्रतिभागी की जानकारी नहीं मिली"],
       "Login to leave a comment": [null, "कमेंट करने के लिए लॉगिन करें"],
       "You need to be a participant to comment.": [
         null,
-        "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है।"
+        "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है."
       ],
       "Post a comment...": [null, "एक कमेंट पोस्ट करें..."],
       "New comment": [null, "नया कमेंट"],
@@ -1716,8 +1719,8 @@
       ],
       "Remove this member": [null, "इस सदस्य को हटाएं"],
       "Admin": [null, "एडमिन"],
-      "+ %d more role": [null, ""],
-      "+ %d more roles": [null, ""],
+      "+ %d more role": [null, "+ %d और भूमिका"],
+      "+ %d more roles": [null, "+ %d और भूमिका"],
       "Agenda view": [null, "एजेंडा देखें"],
       "Calender view": [null, "कैलेंडर देखें"],
       "An internal server error occurred. Our support team has been notified and will investigate.": [
@@ -1725,7 +1728,10 @@
         ""
       ],
       "Unable to connect. Check connection and tap to reload.": [null, ""],
-      "Project added to Account > My saves": [null, ""],
+      "Project added to Account > My saves": [
+        null,
+        "प्रोजेक्ट ‘अकाउंट > मेरी सेव की गई चीज़ें’ जोड़ा गया है"
+      ],
       "read more": [null, "और पढ़ें"],
       "Today": [null, "आज"],
       "Tomorrow": [null, "कल"],
@@ -2517,7 +2523,7 @@
       "Protected profile": [null, "संरक्षित प्रोफाइल"],
       "This organization has a protected profile and cannot be deleted.": [
         null,
-        "इस संगठन की एक संरक्षित प्रोफाइल है और इसे हटाया नहीं जा सकता है।"
+        "इस संगठन की एक संरक्षित प्रोफाइल है और इसे हटाया नहीं जा सकता है."
       ],
       "This organization has projects": [
         null,
@@ -2525,7 +2531,7 @@
       ],
       "Projects must be deleted or transferred before the organization can be deleted.": [
         null,
-        "संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना चाहिए।"
+        "संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना चाहिए."
       ],
       "Delete organization ‘{title}’? This will delete everything including projects, proposals and videos. This operation is permanent and cannot be undone.": [
         null,
@@ -2648,11 +2654,11 @@
       "This project has proposals": [null, "इस प्रोजेक्ट के कुछ प्रस्ताव हैं"],
       "Proposals must be deleted or transferred before the project can be deleted.": [
         null,
-        "संगठन मिटाए जाने से पहले प्रस्तावों को हटाया या स्थानांतरित किया जाना चाहिए।"
+        "संगठन मिटाए जाने से पहले प्रस्तावों को हटाया या स्थानांतरित किया जाना चाहिए."
       ],
       "Delete project ‘{title}’? This will delete everything in the project. This operation is permanent and cannot be undone.": [
         null,
-        "'{title}' प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा। ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता।"
+        "'{title}' प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "You have deleted project ‘{title}’ and all its associated content": [
         null,
