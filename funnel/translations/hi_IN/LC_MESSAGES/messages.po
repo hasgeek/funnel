@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-27 13:28+0530\n"
-"PO-Revision-Date: 2020-11-27 13:27+0530\n"
+"POT-Creation-Date: 2020-11-30 12:24+0530\n"
+"PO-Revision-Date: 2020-11-30 12:22+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -856,7 +856,7 @@ msgid ""
 "organization"
 msgstr ""
 "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको"
-" <"
+" <a href=“{account}”>अपने अकाउंट</a> से बदलना होगा"
 
 #: funnel/forms/organization.py:71
 msgid "This name has been taken by another user"
@@ -3456,7 +3456,7 @@ msgstr "प्रतिभागी"
 #: funnel/templates/schedule.html.jinja2:9
 #, python-format
 msgid "%(title)s by %(speaker)s, %(project)s"
-msgstr ""
+msgstr "%(speaker)s, %(project)s के द्वारा %(title)s"
 
 #: funnel/templates/proposal.html.jinja2:34
 msgid "Edit proposal"
@@ -3529,7 +3529,7 @@ msgstr "प्रस्ताव का वीडियो जोड़ें"
 #: funnel/templates/proposal.html.jinja2:214
 #: funnel/templates/proposal.html.jinja2:221
 msgid "This section is empty."
-msgstr ""
+msgstr "ये अनुभाग खाली है."
 
 #: funnel/templates/proposals.html.jinja2:36
 #: funnel/templates/settings.html.jinja2:93
@@ -3563,7 +3563,7 @@ msgstr "डेट चुनें"
 
 #: funnel/templates/schedule_edit.html.jinja2:44
 msgid "Select a date to add sessions"
-msgstr ""
+msgstr "सेशन जोड़ने के लिए डेट चुनें"
 
 #: funnel/templates/schedule_edit.html.jinja2:49
 msgid "Unscheduled proposals"
@@ -3571,7 +3571,7 @@ msgstr "अनिर्धारित प्रस्ताव"
 
 #: funnel/templates/schedule_edit.html.jinja2:87
 msgid "Revert"
-msgstr ""
+msgstr "वापस करें"
 
 #: funnel/templates/schedule_edit.html.jinja2:100
 msgid "Save session"
@@ -3755,7 +3755,7 @@ msgstr "अब तक कहीं हिस्सा नहीं लिया 
 
 #: funnel/templates/user_profile_proposals.html.jinja2:22
 msgid "No proposals submitted."
-msgstr "कोई प्रस्ताव जमा नहीं है।"
+msgstr "कोई प्रस्ताव जमा नहीं है."
 
 #: funnel/templates/venues.html.jinja2:4
 msgid "Venues"
@@ -3802,7 +3802,7 @@ msgid ""
 "of this growing community."
 msgstr ""
 " %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा "
-"बनने के लिए धन्यवाद।"
+"बनने के लिए धन्यवाद."
 
 #: funnel/templates/js/badge.js.jinja2:39
 msgid "Attendee details not found"
@@ -3814,7 +3814,7 @@ msgstr "कमेंट करने के लिए लॉगिन करे�
 
 #: funnel/templates/js/comments.js.jinja2:5
 msgid "You need to be a participant to comment."
-msgstr "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है।"
+msgstr "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है."
 
 #: funnel/templates/js/comments.js.jinja2:12
 msgid "Post a comment..."
@@ -3888,12 +3888,12 @@ msgstr "एडमिन"
 #: funnel/templates/js/membership.js.jinja2:123
 #, python-format
 msgid "+ %d more role"
-msgstr ""
+msgstr "+ %d और भूमिका"
 
 #: funnel/templates/js/membership.js.jinja2:124
 #, python-format
 msgid "+ %d more roles"
-msgstr ""
+msgstr "+ %d और भूमिका"
 
 #: funnel/templates/js/schedule.js.jinja2:7
 msgid "Agenda view"
@@ -3915,7 +3915,7 @@ msgstr ""
 
 #: funnel/templates/js/translations_only.js.jinja2:7
 msgid "Project added to Account > My saves"
-msgstr ""
+msgstr "प्रोजेक्ट ‘अकाउंट > मेरी सेव की गई चीज़ें’ जोड़ा गया है"
 
 #: funnel/templates/js/translations_only.js.jinja2:9
 msgid "read more"
@@ -5319,7 +5319,7 @@ msgstr "संरक्षित प्रोफाइल"
 
 #: funnel/views/organization.py:104
 msgid "This organization has a protected profile and cannot be deleted."
-msgstr "इस संगठन की एक संरक्षित प्रोफाइल है और इसे हटाया नहीं जा सकता है।"
+msgstr "इस संगठन की एक संरक्षित प्रोफाइल है और इसे हटाया नहीं जा सकता है."
 
 #: funnel/views/organization.py:110
 msgid "This organization has projects"
@@ -5331,7 +5331,7 @@ msgid ""
 "deleted."
 msgstr ""
 "संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना "
-"चाहिए।"
+"चाहिए."
 
 #: funnel/views/organization.py:124
 msgid ""
@@ -5499,15 +5499,15 @@ msgid ""
 "deleted."
 msgstr ""
 "संगठन मिटाए जाने से पहले प्रस्तावों को हटाया या स्थानांतरित किया जाना "
-"चाहिए।"
+"चाहिए."
 
 #: funnel/views/project.py:465
 msgid ""
 "Delete project ‘{title}’? This will delete everything in the project. "
 "This operation is permanent and cannot be undone."
 msgstr ""
-"'{title}' प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा। ऐसा करना "
-"इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता।"
+"'{title}' प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना "
+"इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/project.py:469
 msgid "You have deleted project ‘{title}’ and all its associated content"
@@ -6151,3 +6151,4 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 
 #~ msgid "Pinned update"
 #~ msgstr "पिन की हुई जानकारी"
+
