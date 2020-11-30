@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-30 12:24+0530\n"
-"PO-Revision-Date: 2020-11-30 12:22+0530\n"
+"POT-Creation-Date: 2020-11-30 14:15+0530\n"
+"PO-Revision-Date: 2020-11-30 14:06+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -1437,7 +1437,7 @@ msgstr "Google के ज़रिए लॉग इन करने में �
 msgid "Google"
 msgstr "Google"
 
-#: funnel/loginproviders/init_app.py:38
+#: funnel/loginproviders/init_app.py:38 funnel/templates/macros.html.jinja2:70
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
@@ -2855,10 +2855,6 @@ msgstr "लिंक कॉपी करें"
 msgid "Facebook"
 msgstr "Facebook"
 
-#: funnel/templates/macros.html.jinja2:70
-msgid "Linkedin"
-msgstr "Linkedin"
-
 #: funnel/templates/js/comments.js.jinja2:82
 #: funnel/templates/macros.html.jinja2:78
 #: funnel/templates/macros.html.jinja2:81
@@ -3237,6 +3233,8 @@ msgstr "आपको %(project)s में आमंत्रित किया
 
 #: funnel/templates/meta_refresh.html.jinja2:6
 #: funnel/templates/meta_refresh.html.jinja2:28
+#: funnel/templates/project.html.jinja2:218
+#: funnel/templates/redirect.html.jinja2:1
 msgid "Loading…"
 msgstr "लोडिंग…"
 
@@ -3429,11 +3427,6 @@ msgstr "सम्बंधित नौकरियां"
 msgid "Update venue"
 msgstr "ईवेंट का स्थान अपडेट करें"
 
-#: funnel/templates/project.html.jinja2:218
-#: funnel/templates/redirect.html.jinja2:1
-msgid "Loading..."
-msgstr "लोडिंग..."
-
 #: funnel/templates/project_cfp.html.jinja2:4
 #: funnel/templates/proposals.html.jinja2:41
 #: funnel/templates/settings.html.jinja2:89
@@ -3453,10 +3446,9 @@ msgid "Participants"
 msgstr "प्रतिभागी"
 
 #: funnel/templates/proposal.html.jinja2:7
-#: funnel/templates/schedule.html.jinja2:9
 #, python-format
-msgid "%(title)s by %(speaker)s, %(project)s"
-msgstr "%(speaker)s, %(project)s के द्वारा %(title)s"
+msgid "‘%(title)s‘ by %(speaker)s, %(project)s"
+msgstr "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
 
 #: funnel/templates/proposal.html.jinja2:34
 msgid "Edit proposal"
@@ -3528,8 +3520,8 @@ msgstr "प्रस्ताव का वीडियो जोड़ें"
 #: funnel/templates/proposal.html.jinja2:200
 #: funnel/templates/proposal.html.jinja2:214
 #: funnel/templates/proposal.html.jinja2:221
-msgid "This section is empty."
-msgstr "ये अनुभाग खाली है."
+msgid "This section is empty"
+msgstr "ये अनुभाग खाली है"
 
 #: funnel/templates/proposals.html.jinja2:36
 #: funnel/templates/settings.html.jinja2:93
@@ -3551,6 +3543,11 @@ msgstr "निर्धारित सेशन"
 #: funnel/templates/proposals.html.jinja2:72
 msgid "Unconfirmed proposals"
 msgstr "अनिर्धारित प्रस्ताव"
+
+#: funnel/templates/schedule.html.jinja2:9
+#, python-format
+msgid "‘%(title)s’ by %(speaker)s, %(project)s"
+msgstr "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
 
 #: funnel/templates/schedule.html.jinja2:81
 #: funnel/templates/settings.html.jinja2:97
@@ -3754,8 +3751,8 @@ msgid "No participation yet."
 msgstr "अब तक कहीं हिस्सा नहीं लिया गया है."
 
 #: funnel/templates/user_profile_proposals.html.jinja2:22
-msgid "No proposals submitted."
-msgstr "कोई प्रस्ताव जमा नहीं है."
+msgid "No proposals submitted"
+msgstr "कोई प्रस्ताव जमा नहीं है"
 
 #: funnel/templates/venues.html.jinja2:4
 msgid "Venues"
@@ -3799,10 +3796,10 @@ msgstr "नमस्ते %s"
 #, python-format
 msgid ""
 "Thank you for choosing to participate in  %(title)s and for being a part "
-"of this growing community."
+"of this growing community"
 msgstr ""
 " %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा "
-"बनने के लिए धन्यवाद."
+"बनने के लिए धन्यवाद"
 
 #: funnel/templates/js/badge.js.jinja2:39
 msgid "Attendee details not found"
@@ -6151,4 +6148,13 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 
 #~ msgid "Pinned update"
 #~ msgstr "पिन की हुई जानकारी"
+
+#~ msgid "Linkedin"
+#~ msgstr "Linkedin"
+
+#~ msgid "Loading..."
+#~ msgstr "लोडिंग..."
+
+#~ msgid "%(title)s by %(speaker)s, %(project)s"
+#~ msgstr "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
 
