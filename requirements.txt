@@ -1,6 +1,6 @@
 alembic==1.4.3
 argon2-cffi==20.1.0
-Babel==2.8.0
+Babel==2.9.0
 base58==2.0.1
 git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 bcrypt==3.2.0
