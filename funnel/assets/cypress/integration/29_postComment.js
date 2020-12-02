@@ -84,7 +84,7 @@ describe('Test comments feature', function () {
       .click({ force: true });
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="comments"]').click();
-    cy.get('p.mui-panel').contains('You need to be a participant to comment.');
+    cy.get('p.mui-panel').contains('You need to be a participant to comment');
 
     cy.logout();
     cy.login('/', editor.username, editor.password);
