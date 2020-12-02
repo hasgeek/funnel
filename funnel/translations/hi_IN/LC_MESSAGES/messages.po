@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-02 17:01+0530\n"
-"PO-Revision-Date: 2020-12-02 16:55+0530\n"
+"POT-Creation-Date: 2020-12-02 23:39+0530\n"
+"PO-Revision-Date: 2020-12-02 23:39+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -3807,8 +3807,8 @@ msgid "Login to leave a comment"
 msgstr "कमेंट करने के लिए लॉगिन करें"
 
 #: funnel/templates/js/comments.js.jinja2:5
-msgid "You need to be a participant to comment."
-msgstr "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है."
+msgid "You need to be a participant to comment"
+msgstr "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है"
 
 #: funnel/templates/js/comments.js.jinja2:12
 msgid "Post a comment..."
@@ -3821,7 +3821,7 @@ msgstr "नया कमेंट"
 #: funnel/templates/js/comments.js.jinja2:77
 #, python-format
 msgid "edited %s"
-msgstr ""
+msgstr "%s को संपादित किया "
 
 #: funnel/templates/js/comments.js.jinja2:79
 msgid "Reply"
@@ -6168,3 +6168,6 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "‘%(title)s’ by %(speaker)s, %(project)s"
 #~ msgstr "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
+
+#~ msgid "You need to be a participant to comment."
+#~ msgstr "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है."
