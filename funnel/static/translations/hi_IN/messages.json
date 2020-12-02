@@ -1685,13 +1685,13 @@
       ],
       "Attendee details not found": [null, "प्रतिभागी की जानकारी नहीं मिली"],
       "Login to leave a comment": [null, "कमेंट करने के लिए लॉगिन करें"],
-      "You need to be a participant to comment.": [
+      "You need to be a participant to comment": [
         null,
-        "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है."
+        "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है"
       ],
       "Post a comment...": [null, "एक कमेंट पोस्ट करें..."],
       "New comment": [null, "नया कमेंट"],
-      "edited %s": [null, ""],
+      "edited %s": [null, "%s को संपादित किया "],
       "Reply": [null, "जवाब दें"],
       "Report": [null, "रिपोर्ट करें"],
       "More": [null, "अधिक"],
