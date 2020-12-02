@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-11-30 14:15+0530\n"
-"PO-Revision-Date: 2020-11-30 14:06+0530\n"
+"POT-Creation-Date: 2020-12-02 17:01+0530\n"
+"PO-Revision-Date: 2020-12-02 16:55+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -360,7 +360,7 @@ msgstr "नोटिफिकेशन URL"
 msgid ""
 "When the user's data changes, Lastuser will POST a notice to this URL. "
 "Other notices may be posted too"
-msgstr "जब यूजर का डेटा बदल जाता है, तो आखरी यूजर इस URL को एक नोटिस पोस्ट करेगा"
+msgstr "जब यूजर का डेटा बदल जाता है, तो Lastuser इस URL को एक नोटिस पोस्ट करेगा"
 
 #: funnel/forms/auth_client.py:106
 msgid "Allow anyone to login"
@@ -2759,13 +2759,14 @@ msgstr "नया लेबल बनाए "
 
 #: funnel/templates/labels.html.jinja2:33
 msgid "(No labels)"
-msgstr ""
+msgstr "(कोई लेबल नहीं है)"
 
 #: funnel/templates/labels.html.jinja2:41
 msgid "Archive"
 msgstr "पुरालेख"
 
 #: funnel/templates/labels.html.jinja2:49
+#: funnel/templates/macros.html.jinja2:57
 #: funnel/templates/schedule_edit.html.jinja2:86
 #: funnel/views/organization.py:196 funnel/views/update.py:157
 #: funnel/views/venue.py:129 funnel/views/venue.py:200
@@ -2779,7 +2780,7 @@ msgstr "कृपया दर्शाए गए समस्याओं क�
 
 #: funnel/templates/layout.html.jinja2:68
 msgid "What’s this about?"
-msgstr ""
+msgstr "यह क्या है?"
 
 #: funnel/templates/layout.html.jinja2:73
 msgid "Search the site"
@@ -2836,16 +2837,16 @@ msgid "to save"
 msgstr "सेव करने के लिए"
 
 #: funnel/templates/macros.html.jinja2:57
-msgid "Save <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>"
-msgstr ""
-"<span class=\"mui--hidden-xs mui--hidden-sm\">इस प्रोजेक्ट</span> को सेव "
-"करें"
+msgid "Save this project"
+msgstr "इस प्रोजेक्ट को सेव करें"
 
 #: funnel/templates/macros.html.jinja2:59
-msgid "Unsave <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>"
-msgstr ""
-"<span class=\"mui--hidden-xs mui--hidden-sm\">इस प्रोजेक्ट</span> को सेव "
-"न करें"
+msgid "Unsave this project"
+msgstr "इस प्रोजेक्ट को सेव से हटाएँ"
+
+#: funnel/templates/macros.html.jinja2:59
+msgid "Unsave"
+msgstr "सेव से हटाएँ "
 
 #: funnel/templates/macros.html.jinja2:66
 msgid "Copy link"
@@ -3066,7 +3067,7 @@ msgstr "लाइव कार्यक्रम"
 
 #: funnel/templates/macros.html.jinja2:367
 msgid "Livestream and schedule"
-msgstr ""
+msgstr "लाइवस्ट्रीम और कार्यक्रम"
 
 #: funnel/templates/macros.html.jinja2:387
 #, python-format
@@ -3446,8 +3447,9 @@ msgid "Participants"
 msgstr "प्रतिभागी"
 
 #: funnel/templates/proposal.html.jinja2:7
+#: funnel/templates/schedule.html.jinja2:9
 #, python-format
-msgid "‘%(title)s‘ by %(speaker)s, %(project)s"
+msgid "%(title)s by %(speaker)s, %(project)s"
 msgstr "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
 
 #: funnel/templates/proposal.html.jinja2:34
@@ -3482,7 +3484,7 @@ msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:73
 msgid "Add preview video link"
-msgstr ""
+msgstr "प्रीव्यू वीडियो का लिंक जोड़े"
 
 #: funnel/templates/proposal.html.jinja2:85
 msgid "Session video"
@@ -3500,7 +3502,7 @@ msgstr "स्थिति: %(status)s"
 
 #: funnel/templates/proposal.html.jinja2:125
 msgid "View proposal in schedule"
-msgstr ""
+msgstr "कार्यक्रम में प्रस्ताव को देखे"
 
 #: funnel/templates/proposal.html.jinja2:146
 msgid "Change status of proposal"
@@ -3520,7 +3522,7 @@ msgstr "प्रस्ताव का वीडियो जोड़ें"
 #: funnel/templates/proposal.html.jinja2:200
 #: funnel/templates/proposal.html.jinja2:214
 #: funnel/templates/proposal.html.jinja2:221
-msgid "This section is empty"
+msgid "This section is empty."
 msgstr "ये अनुभाग खाली है"
 
 #: funnel/templates/proposals.html.jinja2:36
@@ -3543,11 +3545,6 @@ msgstr "निर्धारित सेशन"
 #: funnel/templates/proposals.html.jinja2:72
 msgid "Unconfirmed proposals"
 msgstr "अनिर्धारित प्रस्ताव"
-
-#: funnel/templates/schedule.html.jinja2:9
-#, python-format
-msgid "‘%(title)s’ by %(speaker)s, %(project)s"
-msgstr "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
 
 #: funnel/templates/schedule.html.jinja2:81
 #: funnel/templates/settings.html.jinja2:97
@@ -3751,7 +3748,7 @@ msgid "No participation yet."
 msgstr "अब तक कहीं हिस्सा नहीं लिया गया है."
 
 #: funnel/templates/user_profile_proposals.html.jinja2:22
-msgid "No proposals submitted"
+msgid "No proposals submitted."
 msgstr "कोई प्रस्ताव जमा नहीं है"
 
 #: funnel/templates/venues.html.jinja2:4
@@ -3798,7 +3795,7 @@ msgid ""
 "Thank you for choosing to participate in  %(title)s and for being a part "
 "of this growing community"
 msgstr ""
-" %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा "
+"%(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा "
 "बनने के लिए धन्यवाद"
 
 #: funnel/templates/js/badge.js.jinja2:39
@@ -3905,6 +3902,8 @@ msgid ""
 "An internal server error occurred. Our support team has been notified and"
 " will investigate."
 msgstr ""
+"आंतरिक सर्वर त्रुटि. हमारी टीम को सूचित कर दिया गया है और वे इसकी जांच "
+"करेंगे."
 
 #: funnel/templates/js/translations_only.js.jinja2:5
 msgid "Unable to connect. Check connection and tap to reload."
@@ -5685,7 +5684,7 @@ msgstr "आप एक ही कमेंट की दो बार समी�
 
 #: funnel/views/siteadmin.py:321
 msgid "This comment has already been marked as spam"
-msgstr ""
+msgstr "इस कमेंट को पहले ही स्पैम के रूप में चिह्नित किया जा चुका है"
 
 #: funnel/views/ticket_event.py:73
 msgid "This event already exists."
@@ -6128,7 +6127,7 @@ msgstr "{update} ({project})"
 
 #: funnel/views/notifications/update_notification.py:42
 msgid "Update in {project}: {update} {url}"
-msgstr "{project} में अपडेट करें: {update} {url}"
+msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid ""
 #~ "Livestream and\n"
@@ -6149,12 +6148,23 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 #~ msgid "Pinned update"
 #~ msgstr "पिन की हुई जानकारी"
 
-#~ msgid "Linkedin"
-#~ msgstr "Linkedin"
+#~ msgid "Save <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>"
+#~ msgstr ""
+#~ "<span class=\"mui--hidden-xs mui--hidden-"
+#~ "sm\">इस प्रोजेक्ट</span> को सेव करें"
 
-#~ msgid "Loading..."
-#~ msgstr "लोडिंग..."
+#~ msgid ""
+#~ "Unsave <span class=\"mui--hidden-xs mui"
+#~ "--hidden-sm\">this project</span>"
+#~ msgstr ""
+#~ "<span class=\"mui--hidden-xs mui--hidden-"
+#~ "sm\">इस प्रोजेक्ट</span> को सेव न करें"
 
-#~ msgid "%(title)s by %(speaker)s, %(project)s"
+#~ msgid "‘%(title)s‘ by %(speaker)s, %(project)s"
 #~ msgstr "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
 
+#~ msgid "This section is empty"
+#~ msgstr "ये अनुभाग खाली है"
+
+#~ msgid "‘%(title)s’ by %(speaker)s, %(project)s"
+#~ msgstr "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
