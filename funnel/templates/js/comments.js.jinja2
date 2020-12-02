@@ -2,7 +2,7 @@
   {% raw %}
     <div id="comments-wrapper" v-cloak>
       <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">{{ gettext('Login to leave a comment') }}</a>
-      <p class="mui-panel mui--bg-accent" v-if="isuserloggedin && !isuserparticipant">{{ gettext('You need to be a participant to comment.') }}</p>
+      <p class="mui-panel mui--bg-accent" v-if="isuserloggedin && !isuserparticipant">{{ gettext('You need to be a participant to comment') }}</p>
       <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="showmodal">
         <div class="mobile-nav mui--z1">
           <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
