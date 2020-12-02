@@ -209,6 +209,12 @@ class RenderNotification:
     def is_rollup(self):
         return len(self.fragments) > 1
 
+    def has_current_access(self) -> bool:
+        return (
+            self.user_notification.role
+            in self.notification.role_provider_obj.current_roles
+        )
+
     # --- Overrideable render methods
 
     @property

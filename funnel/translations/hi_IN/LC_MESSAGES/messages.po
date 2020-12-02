@@ -3229,7 +3229,7 @@ msgid "Loading…"
 msgstr "लोड हो रहा है…"
 
 #: funnel/templates/notification_feed.html.jinja2:21
-msgid "To receive timely notifications by SMS, add a phone number."
+msgid "To receive timely notifications by SMS, add a phone number"
 msgstr "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें."
 
 #: funnel/templates/notification_preferences.html.jinja2:84

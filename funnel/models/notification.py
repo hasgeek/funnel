@@ -482,6 +482,11 @@ class Notification(NoIdMixin, db.Model):
         """Return ``cls.allow_<transport>``."""
         return getattr(cls, 'allow_' + transport)
 
+    @property
+    def role_provider_obj(self):
+        """Return fragment if exists, document otherwise, indicating role provider."""
+        return self.fragment or self.document
+
     def dispatch(self) -> Generator[UserNotification, None, None]:
         """
         Create :class:`UserNotification` instances and yield in an iterator.
@@ -493,7 +498,7 @@ class Notification(NoIdMixin, db.Model):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
-        for user, role in (self.fragment or self.document).actors_with(
+        for user, role in self.role_provider_obj.actors_with(
             self.roles, with_role=True
         ):
             # If this notification requires that it not be sent to the actor that
