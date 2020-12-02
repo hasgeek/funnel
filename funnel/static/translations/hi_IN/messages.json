@@ -172,7 +172,7 @@
       "Notification URL": [null, "नोटिफिकेशन URL"],
       "When the user's data changes, Lastuser will POST a notice to this URL. Other notices may be posted too": [
         null,
-        "जब यूजर का डेटा बदल जाता है, तो आखरी यूजर इस URL को एक नोटिस पोस्ट करेगा"
+        "जब यूजर का डेटा बदल जाता है, तो Lastuser इस URL को एक नोटिस पोस्ट करेगा"
       ],
       "Allow anyone to login": [null, "किसी को भी लॉगिन करने दें"],
       "If your application requires access to be restricted to specific users, uncheck this, and only users who have been assigned a permission to the app will be able to login": [
@@ -1311,14 +1311,14 @@
       "~15 mins": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाए "],
-      "(No labels)": [null, ""],
+      "(No labels)": [null, "(कोई लेबल नहीं है)"],
       "Archive": [null, "पुरालेख"],
       "Save": [null, "सेव करें"],
       "Please review the indicated issues": [
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "What’s this about?": [null, ""],
+      "What’s this about?": [null, "यह क्या है?"],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
@@ -1333,14 +1333,9 @@
       "Sign up with email": [null, "ईमेल के ज़रिए साइन अप करें"],
       "Logging out...": [null, "लॉग आउट हो रहा है..."],
       "to save": [null, "सेव करने के लिए"],
-      "Save <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>": [
-        null,
-        "<span class=\"mui--hidden-xs mui--hidden-sm\">इस प्रोजेक्ट</span> को सेव करें"
-      ],
-      "Unsave <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>": [
-        null,
-        "<span class=\"mui--hidden-xs mui--hidden-sm\">इस प्रोजेक्ट</span> को सेव न करें"
-      ],
+      "Save this project": [null, "इस प्रोजेक्ट को सेव करें"],
+      "Unsave this project": [null, "इस प्रोजेक्ट को सेव से हटाएँ"],
+      "Unsave": [null, "सेव से हटाएँ "],
       "Copy link": [null, "लिंक कॉपी करें"],
       "Facebook": [null, "Facebook"],
       "Share": [null, "साझा करें"],
@@ -1407,7 +1402,7 @@
         "जमा करने की सुविधा %(date)s को बंद हो जाएगी"
       ],
       "Live schedule": [null, "लाइव कार्यक्रम"],
-      "Livestream and schedule": [null, ""],
+      "Livestream and schedule": [null, "लाइवस्ट्रीम और कार्यक्रम"],
       "Session starts at %(session)s": [null, "सेशन %(session)s शुरू होगा"],
       "Watch livestream": [null, "लाइवस्ट्रीम देखें"],
       "Spotlight": [null, "झलकियां"],
@@ -1560,7 +1555,7 @@
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Participants": [null, "प्रतिभागी"],
-      "‘%(title)s‘ by %(speaker)s, %(project)s": [
+      "%(title)s by %(speaker)s, %(project)s": [
         null,
         "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
       ],
@@ -1574,15 +1569,15 @@
         ""
       ],
       "Your proposal doesn't have a preview video!": [null, ""],
-      "Add preview video link": [null, ""],
+      "Add preview video link": [null, "प्रीव्यू वीडियो का लिंक जोड़े"],
       "Session video": [null, "सेशन की वीडियो"],
       "Proposal video": [null, "प्रस्ताव का वीडियो"],
       "Status: %(status)s": [null, "स्थिति: %(status)s"],
-      "View proposal in schedule": [null, ""],
+      "View proposal in schedule": [null, "कार्यक्रम में प्रस्ताव को देखे"],
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें "],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
-      "This section is empty": [null, "ये अनुभाग खाली है"],
+      "This section is empty.": [null, "ये अनुभाग खाली है"],
       "Modify proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची को बदलें"
@@ -1591,10 +1586,6 @@
       "proposals": [null, "प्रस्ताव"],
       "Confirmed sessions": [null, "निर्धारित सेशन"],
       "Unconfirmed proposals": [null, "अनिर्धारित प्रस्ताव"],
-      "‘%(title)s’ by %(speaker)s, %(project)s": [
-        null,
-        "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
-      ],
       "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
@@ -1678,7 +1669,7 @@
         "फिलहाल कोई सेशन टैग किया हुआ नहीं है."
       ],
       "No participation yet.": [null, "अब तक कहीं हिस्सा नहीं लिया गया है."],
-      "No proposals submitted": [null, "कोई प्रस्ताव जमा नहीं है"],
+      "No proposals submitted.": [null, "कोई प्रस्ताव जमा नहीं है"],
       "Venues": [null, "ईवेंट का स्थान"],
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
@@ -1690,7 +1681,7 @@
       "Hello %s": [null, "नमस्ते %s"],
       "Thank you for choosing to participate in  %(title)s and for being a part of this growing community": [
         null,
-        " %(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद"
+        "%(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद"
       ],
       "Attendee details not found": [null, "प्रतिभागी की जानकारी नहीं मिली"],
       "Login to leave a comment": [null, "कमेंट करने के लिए लॉगिन करें"],
@@ -1727,7 +1718,7 @@
       "Calender view": [null, "कैलेंडर देखें"],
       "An internal server error occurred. Our support team has been notified and will investigate.": [
         null,
-        ""
+        "आंतरिक सर्वर त्रुटि. हमारी टीम को सूचित कर दिया गया है और वे इसकी जांच करेंगे."
       ],
       "Unable to connect. Check connection and tap to reload.": [null, ""],
       "Project added to Account > My saves": [
@@ -2786,7 +2777,10 @@
         null,
         "आप एक ही कमेंट की दो बार समीक्षा नहीं कर सकते"
       ],
-      "This comment has already been marked as spam": [null, ""],
+      "This comment has already been marked as spam": [
+        null,
+        "इस कमेंट को पहले ही स्पैम के रूप में चिह्नित किया जा चुका है"
+      ],
       "This event already exists.": [null, "यह ईवेंट पहले से मौजूद है."],
       "New Event": [null, "नया ईवेंट"],
       "Add event": [null, "ईवेंट जोड़ें"],
@@ -3088,7 +3082,7 @@
       "{update} ({project})": [null, "{update} ({project})"],
       "Update in {project}: {update} {url}": [
         null,
-        "{project} में अपडेट करें: {update} {url}"
+        "{project} में अपडेट: {update} {url}"
       ]
     }
   }
