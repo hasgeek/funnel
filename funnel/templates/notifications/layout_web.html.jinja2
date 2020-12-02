@@ -19,10 +19,10 @@
     </div>
   {%- else %}
     {%- block no_access %}
-      <p>{{ faicon(icon='exclamation-circle', baseline=true, css_class='fa-icon--margin') }}{%- trans %}This notification is no longer available.{% endtrans %}</p>
+      <p>
+        {{ faicon(icon='exclamation-circle', baseline=true, css_class='fa-icon--margin') }}
+        {%- trans %}This update is no longer available.{% endtrans %}
+      </p>
     {%- endblock %}
-    {%- if not view.is_rollup %}
-      <p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>
-    {%- endif %}
   {%- endif %}
 {% endblock %}
