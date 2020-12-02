@@ -3239,6 +3239,7 @@ msgstr "आपको %(project)s में आमंत्रित किया
 msgid "Loading…"
 msgstr "लोडिंग…"
 
+
 #: funnel/templates/notification_feed.html.jinja2:19
 msgid "To receive timely notifications by SMS, add a phone number"
 msgstr "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें"
