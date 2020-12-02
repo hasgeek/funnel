@@ -1,12 +1,39 @@
+{%- from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import useravatar %}
 {%- block update %}
-  <div class="user">
-    <div class="user__box user__box--topalign">
-      {% block avatar %}{% if view.actor %}{{ useravatar(view.actor) }}{% endif %}{% endblock %}
-      <div class="user__box__header">
-        <div class="mui--text-subhead" data-cy="notification-box">{% block content %}{% trans %}(This template is missing content){% endtrans %}{% endblock %}</div>
-        {% if not view.is_rollup %}<p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>{% endif %}
+  {%- if view.has_current_access() %}
+    <div class="user">
+      <div class="user__box user__box--topalign">
+        {% block avatar %}{% if view.actor %}{{ useravatar(view.actor) }}{% endif %}{% endblock %}
+        <div class="user__box__header">
+          <div class="mui--text-subhead" data-cy="notification-box">
+            {%- block content %}
+              {% trans %}(This template is missing content){% endtrans %}
+            {%- endblock %}
+          </div>
+          {%- if not view.is_rollup %}
+            <p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>
+          {%- endif %}
+        </div>
       </div>
     </div>
-  </div>
+  {%- else %}
+    <div class="user">
+      <div class="user__box user__box--topalign">
+        {{ faicon(icon='exclamation-circle') }}
+        <div class="user__box__header">
+          <div class="mui--text-subhead" data-cy="notification-box">
+            {%- block no_access %}
+              <p>
+                {%- trans %}This notification is no longer available.{% endtrans %}
+              </p>
+            {%- endblock %}
+          </div>
+          {%- if not view.is_rollup %}
+            <p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>
+          {%- endif %}
+        </div>
+      </div>
+    </div>
+  {%- endif %}
 {% endblock %}

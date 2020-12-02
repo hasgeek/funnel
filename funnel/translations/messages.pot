@@ -3088,7 +3088,7 @@ msgid "Loading…"
 msgstr ""
 
 #: funnel/templates/notification_feed.html.jinja2:21
-msgid "To receive timely notifications by SMS, add a phone number."
+msgid "To receive timely notifications by SMS, add a phone number"
 msgstr ""
 
 #: funnel/templates/notification_preferences.html.jinja2:84
