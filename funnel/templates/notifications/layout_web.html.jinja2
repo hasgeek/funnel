@@ -18,22 +18,11 @@
       </div>
     </div>
   {%- else %}
-    <div class="user">
-      <div class="user__box user__box--topalign">
-        {{ faicon(icon='exclamation-circle') }}
-        <div class="user__box__header">
-          <div class="mui--text-subhead" data-cy="notification-box">
-            {%- block no_access %}
-              <p>
-                {%- trans %}This notification is no longer available.{% endtrans %}
-              </p>
-            {%- endblock %}
-          </div>
-          {%- if not view.is_rollup %}
-            <p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>
-          {%- endif %}
-        </div>
-      </div>
-    </div>
+    {%- block no_access %}
+      <p>{{ faicon(icon='exclamation-circle', baseline=true, css_class='fa-icon--margin') }}{%- trans %}This notification is no longer available.{% endtrans %}</p>
+    {%- endblock %}
+    {%- if not view.is_rollup %}
+      <p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>
+    {%- endif %}
   {%- endif %}
 {% endblock %}
