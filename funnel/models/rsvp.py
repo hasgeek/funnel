@@ -93,7 +93,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
                 commentset=self.project.commentset,
                 user=actor,
                 granted_by=actor,
-                is_subscribed=True,
+                is_subscriber=True,
             )
             db.session.add(membership)
 
@@ -121,7 +121,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
             previous_membership = CommentsetMembership(
                 commentset=self.project.commentset,
                 user=actor,
-                is_subscribed=False,
+                is_subscriber=False,
             )
             db.session.add(previous_membership)
 

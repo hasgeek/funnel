@@ -613,7 +613,7 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             if not rsvp.state.YES:
-                rsvp.rsvp_yes()
+                rsvp.rsvp_yes(actor=current_auth.user)
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
                 dispatch_notification(
@@ -630,7 +630,7 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user)
             if rsvp is not None and not rsvp.state.NO:
-                rsvp.rsvp_no()
+                rsvp.rsvp_no(actor=current_auth.user)
                 db.session.commit()
                 flash(_("Your registration has been cancelled"), 'info')
                 dispatch_notification(
@@ -786,6 +786,16 @@ class ProjectView(
     @render_with('project_comments.html.jinja2')
     @requires_roles({'reader'})
     def comments(self):
+        if current_auth.user.active_commentset_memberships is not None:
+            commentset_membership = (
+                current_auth.user.active_commentset_memberships.filter_by(
+                    commentset=self.obj.commentset
+                ).one_or_none()
+            )
+            if commentset_membership is not None:
+                commentset_membership.last_seen_at = db.func.utcnow()
+                db.session.commit()
+
         comments = self.obj.commentset.views.json_comments()
         if request_is_xhr():
             return jsonify({'comments': comments})

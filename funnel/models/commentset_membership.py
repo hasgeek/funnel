@@ -1,8 +1,8 @@
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable
 
-from . import User, db
+from . import Commentset, User, db
 from .helpers import reopen
 from .membership import ImmutableMembershipMixin
 
@@ -26,6 +26,22 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
             }
         }
     }
+
+    commentset_id = immutable(
+        db.Column(
+            None, db.ForeignKey('commentset.id', ondelete='CASCADE'), nullable=False
+        )
+    )
+    commentset = immutable(
+        db.relationship(
+            Commentset,
+            backref=db.backref(
+                'crew_memberships', lazy='dynamic', cascade='all', passive_deletes=True
+            ),
+        )
+    )
+    parent = immutable(db.synonym('commentset'))
+    parent_id = immutable(db.synonym('commentset_id'))
 
     #: Subscribers are notified of all the new comments in a commentset
     is_subscriber = db.Column(db.Boolean, nullable=False, default=False)
@@ -51,7 +67,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
 class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     active_commentset_memberships = db.relationship(
         CommentsetMembership,
-        lazy='select',
+        lazy='dynamic',
         primaryjoin=db.and_(
             CommentsetMembership.user_id == User.id,
             CommentsetMembership.is_active,
