@@ -242,7 +242,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'links': links,
             'transition_form': transition_form,
             'proposal_move_form': proposal_move_form,
-            'csrf_form': Form(),
             'proposal_transfer_form': proposal_transfer_form,
             'proposal_label_admin_form': proposal_label_admin_form,
         }
