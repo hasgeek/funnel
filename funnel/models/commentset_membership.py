@@ -29,6 +29,8 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
 
     #: Subscribers are notified of all the new comments in a commentset
     is_subscriber = db.Column(db.Boolean, nullable=False, default=False)
+    #: when the user visited this commentset last
+    last_seen_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     @cached_property
     def offered_roles(self):
