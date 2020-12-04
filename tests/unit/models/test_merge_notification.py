@@ -5,6 +5,7 @@ import pytest
 
 from funnel.models import (
     Notification,
+    NotificationPreferences,
     Organization,
     OrganizationAdminMembershipNotification,
     User,
@@ -12,6 +13,16 @@ from funnel.models import (
     db,
     merge_users,
 )
+
+
+@pytest.fixture(scope='session')
+def test_notification_type():
+    class MergeTestNotification(Notification):
+        """Test notification."""
+
+        __mapper_args__ = {'polymorphic_identity': 'merge_test'}
+
+    return MergeTestNotification
 
 
 @pytest.fixture()
@@ -80,7 +91,39 @@ def user2_notification(fixtures, notification):
     return un
 
 
-# --- Tests ----------------------------------------------------------------------------
+@pytest.fixture()
+def user1_main_preferences(fixtures):
+    prefs = NotificationPreferences(user=fixtures.user1, notification_type='')
+    db.session.add(prefs)
+    db.session.commit()
+    return prefs
+
+
+@pytest.fixture()
+def user1_test_preferences(fixtures, test_notification_type):
+    prefs = NotificationPreferences(user=fixtures.user1, notification_type='merge_test')
+    db.session.add(prefs)
+    db.session.commit()
+    return prefs
+
+
+@pytest.fixture()
+def user2_main_preferences(fixtures):
+    prefs = NotificationPreferences(user=fixtures.user2, notification_type='')
+    db.session.add(prefs)
+    db.session.commit()
+    return prefs
+
+
+@pytest.fixture()
+def user2_test_preferences(fixtures, test_notification_type):
+    prefs = NotificationPreferences(user=fixtures.user2, notification_type='merge_test')
+    db.session.add(prefs)
+    db.session.commit()
+    return prefs
+
+
+# --- Tests for UserNotification -------------------------------------------------------
 
 
 def test_merge_without_notifications(fixtures):
@@ -117,6 +160,9 @@ def test_merge_with_user2_notifications(fixtures, user2_notification):
     assert merged == fixtures.user1
     assert Notification.query.count() == 1
     assert UserNotification.query.count() == 1
+    # Since user_id is part of the primary key of UserNotification, session.commit()
+    # won't refresh it. It can no longer find that pkey. Therefore we must load it
+    # afresh from db for the test here
     notification = UserNotification.query.one()
     assert notification.user == fixtures.user1
 
@@ -136,4 +182,70 @@ def test_merge_with_dupe_notifications(
     assert user1_notification.user == fixtures.user1
 
 
-# TODO: Test UserNotificationPreferences merger
+# --- Tests for NotificationPreferences ------------------------------------------------
+
+
+def test_merge_with_user1_preferences(
+    fixtures, user1_main_preferences, user1_test_preferences
+):
+    """When preferences are only on the older user's account, nothing changes."""
+    assert NotificationPreferences.query.count() == 2
+    merged = merge_users(fixtures.user1, fixtures.user2)
+    db.session.commit()
+    assert merged == fixtures.user1
+    assert NotificationPreferences.query.count() == 2
+    #
+    user1_main_preferences.user == fixtures.user1
+    user1_test_preferences.user == fixtures.user1
+
+
+def test_merge_with_user2_preferences(
+    fixtures, user2_main_preferences, user2_test_preferences
+):
+    """When preferences are only on the newer user's account, they are transferred."""
+    assert NotificationPreferences.query.count() == 2
+    merged = merge_users(fixtures.user1, fixtures.user2)
+    db.session.commit()
+    assert merged == fixtures.user1
+    assert NotificationPreferences.query.count() == 2
+    user2_main_preferences.user == fixtures.user1
+    user2_test_preferences.user == fixtures.user1
+
+
+def test_merge_with_both_preferences(
+    fixtures,
+    user1_main_preferences,
+    user1_test_preferences,
+    user2_main_preferences,
+    user2_test_preferences,
+):
+    """When preferences are for both users, the newer user's are deleted."""
+    assert NotificationPreferences.query.count() == 4
+    merged = merge_users(fixtures.user1, fixtures.user2)
+    db.session.commit()
+    assert merged == fixtures.user1
+    assert NotificationPreferences.query.count() == 2
+    assert set(NotificationPreferences.query.all()) == {
+        user1_main_preferences,
+        user1_test_preferences,
+    }
+
+
+def test_merge_with_mixed_preferences(
+    fixtures,
+    user1_main_preferences,
+    user2_main_preferences,
+    user2_test_preferences,
+):
+    """A mix of transfers and deletions can happen."""
+    assert NotificationPreferences.query.count() == 3
+    merged = merge_users(fixtures.user1, fixtures.user2)
+    db.session.commit()
+    assert merged == fixtures.user1
+    assert NotificationPreferences.query.count() == 2
+    assert set(NotificationPreferences.query.all()) == {
+        user1_main_preferences,
+        user2_test_preferences,
+    }
+    assert user1_main_preferences.user == fixtures.user1
+    assert user2_test_preferences.user == fixtures.user1

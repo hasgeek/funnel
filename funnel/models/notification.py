@@ -1116,10 +1116,11 @@ class NotificationPreferences(BaseMixin, db.Model):
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         for ntype, prefs in list(old_user.notification_preferences.items()):
-            if ntype not in new_user.notification_preferences:
-                prefs.user_id = new_user.id
-            else:
+            if ntype in new_user.notification_preferences:
                 db.session.delete(prefs)
+        NotificationPreferences.query.filter_by(user_id=old_user.id).update(
+            {'user_id': new_user.id}, synchronize_session=False
+        )
         return None
 
     @db.validates('notification_type')
