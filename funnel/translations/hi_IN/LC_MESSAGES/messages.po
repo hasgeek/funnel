@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-03 02:09+0530\n"
-"PO-Revision-Date: 2020-12-02 23:39+0530\n"
+"POT-Creation-Date: 2020-12-07 03:05+0530\n"
+"PO-Revision-Date: 2020-12-03 14:55+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -856,7 +856,7 @@ msgid ""
 "organization"
 msgstr ""
 "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको"
-" <a href=“{account}”>अपने अकाउंट</a> से बदलना होगा"
+" <a href=\"{account}\">अपने अकाउंट</a> से बदलना होगा"
 
 #: funnel/forms/organization.py:71
 msgid "This name has been taken by another user"
@@ -2061,7 +2061,7 @@ msgid ""
 "updates."
 msgstr ""
 "हम कुछ ही देर में इसे शुरू कर देंगे. पर यदि देरी होती है, तो जानकारी पाने"
-" के लिए हमें <a href=\\mailto:%(support_email)s\\>%(support_email)s</a> "
+" के लिए हमें <a href=\"mailto:%(support_email)s\">%(support_email)s</a> "
 "पर ईमेल करें."
 
 #: funnel/templates/about.html.jinja2:2 funnel/templates/about.html.jinja2:13
@@ -2798,7 +2798,6 @@ msgstr "खोजें"
 #: funnel/templates/layout.html.jinja2:80
 #: funnel/templates/layout.html.jinja2:83
 #: funnel/templates/macros.html.jinja2:260
-#: funnel/templates/notification_feed.html.jinja2:5
 #: funnel/templates/updates.html.jinja2:4
 #: funnel/templates/updates.html.jinja2:17
 msgid "Updates"
@@ -3239,11 +3238,6 @@ msgstr "आपको %(project)s में आमंत्रित किया
 msgid "Loading…"
 msgstr "लोडिंग…"
 
-
-#: funnel/templates/notification_feed.html.jinja2:19
-msgid "To receive timely notifications by SMS, add a phone number"
-msgstr "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें"
-
 #: funnel/templates/notification_preferences.html.jinja2:75
 msgid "No notifications in this category"
 msgstr "इस श्रेणी में कोई भी नोटिफिकेशन नहीं है"
@@ -3314,7 +3308,7 @@ msgstr ""
 "आपका ऐड ब्लॉकर ने इस पेज को ब्लॉक कर रखा हो."
 
 #: funnel/templates/js/badge.js.jinja2:37
-#: funnel/templates/opensearch.xml.jinja2:3 funnel/views/notification.py:253
+#: funnel/templates/opensearch.xml.jinja2:3 funnel/views/notification.py:259
 msgid "Hasgeek"
 msgstr "Hasgeek"
 
@@ -3353,11 +3347,10 @@ msgid ""
 "href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">privacy"
 " policy</a>."
 msgstr ""
-"साइन इन करने पर, आप Hasgeek की <a "
-"href=\"/about/policy/terms\"target=\\_blank\\ rel=\n"
-"oopener\\>सेवा की शर्तों</a> और <ahref=\\/about/policy/privacy\\ "
-"target=\\_blank\\ rel=\n"
-"oopener\\>गोपनीयता निति</a> की सहमती देते हैं."
+"साइन इन करने पर, आप Hasgeek की <a href=\"/about/policy/terms\" "
+"target=\"_blank\" rel=\"noopener\">सेवा की शर्तों</a> और <a "
+"href=\"/about/policy/privacy\" target=\"_blank\" "
+"rel=\"noopener\">गोपनीयता निति</a> की सहमती देते हैं."
 
 #: funnel/templates/profile.html.jinja2:47
 msgid "People"
@@ -3793,7 +3786,7 @@ msgstr "नमस्ते %s"
 #: funnel/templates/js/badge.js.jinja2:36
 #, python-format
 msgid ""
-"Thank you for choosing to participate in  %(title)s and for being a part "
+"Thank you for choosing to participate in %(title)s and for being a part "
 "of this growing community"
 msgstr ""
 "%(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा "
@@ -4004,14 +3997,23 @@ msgstr ""
 msgid "Unsubscribe or manage preferences"
 msgstr "सदस्यता ख़त्म करें या अपनी प्राथमिकता को बदलें"
 
-#: funnel/templates/notifications/layout_web.html.jinja2:6
+#: funnel/templates/notifications/layout_web.html.jinja2:7
 msgid "(This template is missing content)"
 msgstr "(इस टेम्पलेट की विषय-सूची मौजूद नहीं है)"
 
+#: funnel/templates/notifications/layout_web.html.jinja2:14
+msgid "This update is no longer available."
+msgstr "यह अपडेट अब उपलब्ध नहीं है."
+
 #: funnel/templates/notifications/macros_email.html.jinja2:5
 #, python-format
-msgid "Update #%(number)s &bull; Posted by %(editor)s %(age)s"
-msgstr "#%(number)s &bull; बदलें %(editor)s %(age)s द्वारा पोस्ट किया गया"
+msgid "Update #%(number)s"
+msgstr ""
+
+#: funnel/templates/notifications/macros_email.html.jinja2:5
+#, python-format
+msgid "Posted by %(editor)s %(age)s"
+msgstr ""
 
 #: funnel/templates/notifications/organization_membership_granted_email.html.jinja2:7
 #: funnel/templates/notifications/organization_membership_revoked_email.html.jinja2:7
@@ -4051,7 +4053,7 @@ msgid ""
 "received %(count)s new proposals:"
 msgstr ""
 "\n"
-"आपके <a href=\\%(project_url)s\\>%(project)s</a> प्रोजेक्ट में %(count)s "
+"आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में %(count)s "
 "नए प्रस्ताव आए हैं:"
 
 #: funnel/templates/notifications/proposal_received_web.html.jinja2:8
@@ -4063,8 +4065,8 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"<a href=\\%(url)s\\>%(proposal)s</a> इसके द्वारा %(actor)s <span "
-"class=\\mui—text-body2\\>%(age)s</span> "
+"<a href=\"%(url)s\">%(proposal)s</a> इसके द्वारा %(actor)s <span "
+"class=\"mui—text-body2\">%(age)s</span> "
 
 #: funnel/templates/notifications/proposal_received_web.html.jinja2:13
 #, python-format
@@ -4074,7 +4076,7 @@ msgid ""
 "%(actor)s."
 msgstr ""
 "आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में एक नया "
-"प्रस्ताव आया है: <a href=\\%(proposal_url)s\\>%(proposal)s</a> %(actor)s "
+"प्रस्ताव आया है: <a href=\"%(proposal_url)s\">%(proposal)s</a> %(actor)s "
 "की ओर स."
 
 #: funnel/templates/notifications/proposal_submitted_email.html.jinja2:4
@@ -4096,8 +4098,8 @@ msgid ""
 "You submitted <a href=\"%(proposal_url)s\">%(proposal)s</a> to <a "
 "href=\"%(project_url)s\">%(project)s</a>."
 msgstr ""
-"आपने <a href=\\%(project_url)s\\>%(project)s</a> प्रोजेक्ट में <a "
-"href=\\”%(proposal_url)s\\”>%(proposal)s</a> जमा किया है."
+"आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a "
+"href=\"%(proposal_url)s\">%(proposal)s</a> जमा किया है."
 
 #: funnel/templates/notifications/rsvp_no_email.html.jinja2:4
 #, python-format
@@ -4507,8 +4509,8 @@ msgid ""
 "Your account does not have an email address. Please contact <a "
 "href=\"mailto:{email}\">{email}</a> for assistance."
 msgstr ""
-"आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया "
-"<ahref=\\mailto:{email}\\>{email}</a> से संपर्क करें."
+"आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया <a "
+"href=\"mailto:{email}\">{email}</a> से संपर्क करें."
 
 #: funnel/views/account_reset.py:111
 msgid "Email sent"
@@ -5234,7 +5236,7 @@ msgstr "अमान्य CSRF टोकन"
 msgid "You are receiving this because you have an account at hasgeek.com"
 msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आपका hasgeek.com पर एक खाता है"
 
-#: funnel/views/notification.py:250
+#: funnel/views/notification.py:256
 msgid "{sender} (via Hasgeek)"
 msgstr "{sender} (Hasgeek के ज़रिए)"
 
@@ -5577,8 +5579,8 @@ msgid ""
 "formatting."
 msgstr ""
 "यह फॉर्म फॉर्मेटिंग के लिए <a target=\"_blank\" rel=\"noopener "
-"noreferrer\" href=\\https://www.markdownguide.org/basic-"
-"syntax/\\>Markdown</a> का उपयोग करता है."
+"noreferrer\" href=\"https://www.markdownguide.org/basic-"
+"syntax/\">Markdown</a> का उपयोग करता है."
 
 #: funnel/views/proposal.py:281
 msgid "Edit session proposal"
@@ -6175,3 +6177,19 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "To receive timely notifications by SMS, add a phone number."
 #~ msgstr "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें."
+
+#~ msgid "To receive timely notifications by SMS, add a phone number"
+#~ msgstr "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें"
+
+#~ msgid ""
+#~ "Thank you for choosing to participate"
+#~ " in  %(title)s and for being a "
+#~ "part of this growing community"
+#~ msgstr ""
+#~ "%(title)s में भाग लेने के चुनाव के"
+#~ " लिए और इस बढ़ते कम्यूनिटी का "
+#~ "हिस्सा बनने के लिए धन्यवाद"
+
+#~ msgid "Update #%(number)s &bull; Posted by %(editor)s %(age)s"
+#~ msgstr "#%(number)s &bull; बदलें %(editor)s %(age)s द्वारा पोस्ट किया गया"
+
