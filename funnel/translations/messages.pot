@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-12-03 02:09+0530\n"
+"POT-Creation-Date: 2020-12-07 03:05+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2668,7 +2668,6 @@ msgstr ""
 #: funnel/templates/layout.html.jinja2:80
 #: funnel/templates/layout.html.jinja2:83
 #: funnel/templates/macros.html.jinja2:260
-#: funnel/templates/notification_feed.html.jinja2:5
 #: funnel/templates/updates.html.jinja2:4
 #: funnel/templates/updates.html.jinja2:17
 msgid "Updates"
@@ -3102,10 +3101,6 @@ msgstr ""
 msgid "Loading…"
 msgstr ""
 
-#: funnel/templates/notification_feed.html.jinja2:19
-msgid "To receive timely notifications by SMS, add a phone number"
-msgstr ""
-
 #: funnel/templates/notification_preferences.html.jinja2:75
 msgid "No notifications in this category"
 msgstr ""
@@ -3170,7 +3165,7 @@ msgid ""
 msgstr ""
 
 #: funnel/templates/js/badge.js.jinja2:37
-#: funnel/templates/opensearch.xml.jinja2:3 funnel/views/notification.py:253
+#: funnel/templates/opensearch.xml.jinja2:3 funnel/views/notification.py:259
 msgid "Hasgeek"
 msgstr ""
 
@@ -3644,7 +3639,7 @@ msgstr ""
 #: funnel/templates/js/badge.js.jinja2:36
 #, python-format
 msgid ""
-"Thank you for choosing to participate in  %(title)s and for being a part "
+"Thank you for choosing to participate in %(title)s and for being a part "
 "of this growing community"
 msgstr ""
 
@@ -3849,13 +3844,22 @@ msgstr ""
 msgid "Unsubscribe or manage preferences"
 msgstr ""
 
-#: funnel/templates/notifications/layout_web.html.jinja2:6
+#: funnel/templates/notifications/layout_web.html.jinja2:7
 msgid "(This template is missing content)"
+msgstr ""
+
+#: funnel/templates/notifications/layout_web.html.jinja2:14
+msgid "This update is no longer available."
 msgstr ""
 
 #: funnel/templates/notifications/macros_email.html.jinja2:5
 #, python-format
-msgid "Update #%(number)s &bull; Posted by %(editor)s %(age)s"
+msgid "Update #%(number)s"
+msgstr ""
+
+#: funnel/templates/notifications/macros_email.html.jinja2:5
+#, python-format
+msgid "Posted by %(editor)s %(age)s"
 msgstr ""
 
 #: funnel/templates/notifications/organization_membership_granted_email.html.jinja2:7
@@ -4993,7 +4997,7 @@ msgstr ""
 msgid "You are receiving this because you have an account at hasgeek.com"
 msgstr ""
 
-#: funnel/views/notification.py:250
+#: funnel/views/notification.py:256
 msgid "{sender} (via Hasgeek)"
 msgstr ""
 
