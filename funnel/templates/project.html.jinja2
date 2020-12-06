@@ -2,7 +2,7 @@
 {% set title_suffix = project.title_suffix %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import project_header %}
+{%- from "macros.html.jinja2" import csrf_tag, project_header %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.tagline }}{% endblock %}
 {% block twitter_card %}summary_large_image{% endblock %}
@@ -87,7 +87,7 @@
               </div>
               <div class="modal__body">
                 <form action="{{ project.url_for('toggle_featured') }}" method="post">
-                  {{ csrf_form.hidden_tag() }}
+                  {{ csrf_tag() }}
                   <span class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Confirmation{% endtrans %}</span>
                   <button name="transition" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">
                     {% if project.featured %}
@@ -104,7 +104,7 @@
       </div>
     </div>
   {% endif %}
-  {{ project_header(project, csrf_form) }}
+  {{ project_header(project) }}
 {% endblock %}
 
 {% block contentwrapper %}

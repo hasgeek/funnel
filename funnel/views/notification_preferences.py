@@ -111,7 +111,6 @@ class AccountNotificationView(ClassView):
                 for transport, enabled in platform_transports.items()
                 if enabled
             },
-            'csrf_form': SetNotificationPreferenceForm(),
         }
 
     @route('set', endpoint='set_notification_preference', methods=['POST'])
