@@ -1474,10 +1474,6 @@
         "आपको %(project)s में आमंत्रित किया गया है."
       ],
       "Loading…": [null, "लोडिंग…"],
-      "To receive timely notifications by SMS, add a phone number": [
-        null,
-        "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें"
-      ],
       "No notifications in this category": [
         null,
         "इस श्रेणी में कोई भी नोटिफिकेशन नहीं है"
@@ -1528,7 +1524,7 @@
       "Forgot password?": [null, "पासवर्ड भूल गए हैं?"],
       "By signing in, you agree to Hasgeek’s <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">terms of service</a> and <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">privacy policy</a>.": [
         null,
-        "साइन इन करने पर, आप Hasgeek की <a href=\"/about/policy/terms\"target=\"_blank\" rel=\noopener\">सेवा की शर्तों</a> और <ahref=\"/about/policy/privacy\" target=\"_blank\" rel=\noopener\">गोपनीयता निति</a> की सहमती देते हैं."
+        "साइन इन करने पर, आप Hasgeek की <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">सेवा की शर्तों</a> और <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">गोपनीयता निति</a> की सहमती देते हैं."
       ],
       "People": [null, "सदस्य"],
       "Drafts": [null, "ड्राफ्ट"],
@@ -1681,7 +1677,7 @@
       "Hello %s": [null, "नमस्ते %s"],
       "Thank you for choosing to participate in %(title)s and for being a part of this growing community": [
         null,
-        ""
+        "%(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद"
       ],
       "Attendee details not found": [null, "प्रतिभागी की जानकारी नहीं मिली"],
       "Login to leave a comment": [null, "कमेंट करने के लिए लॉगिन करें"],
@@ -1767,11 +1763,12 @@
         null,
         "(इस टेम्पलेट की विषय-सूची मौजूद नहीं है)"
       ],
-      "This update is no longer available.": [null, ""],
-      "Update #%(number)s &bull; Posted by %(editor)s %(age)s": [
+      "This update is no longer available.": [
         null,
-        "#%(number)s &bull; बदलें %(editor)s %(age)s द्वारा पोस्ट किया गया"
+        "यह अपडेट अब उपलब्ध नहीं है."
       ],
+      "Update #%(number)s": [null, ""],
+      "Posted by %(editor)s %(age)s": [null, ""],
       "See all admins": [null, "सभी एडमिन को देखें"],
       "<b>%(project)s</b> starts at %(start_time)s.": [
         null,
@@ -1806,7 +1803,7 @@
       "View proposal": [null, "प्रस्ताव देखें"],
       "You submitted <a href=\"%(proposal_url)s\">%(proposal)s</a> to <a href=\"%(project_url)s\">%(project)s</a>.": [
         null,
-        "आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a href=\"\"%(proposal_url)s\"\">%(proposal)s</a> जमा किया है."
+        "आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a href=\"%(proposal_url)s\">%(proposal)s</a> जमा किया है."
       ],
       "You have cancelled your registration for <b>%(project)s</b>. If this was accidental, you can register again.": [
         null,
@@ -2053,7 +2050,7 @@
       ],
       "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance.": [
         null,
-        "आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया <ahref=\"mailto:{email}\">{email}</a> से संपर्क करें."
+        "आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया <a href=\"mailto:{email}\">{email}</a> से संपर्क करें."
       ],
       "Email sent": [null, "ईमेल भेज दिया गया है"],
       "You have been sent an email with a link to reset your password, to your address {masked_email}. If it doesn’t arrive in a few minutes, it may have landed in your spam or junk folder. The reset link is valid for 24 hours.": [
@@ -2868,11 +2865,11 @@
       "Edit venue": [null, "ईवेंट का स्थान संपादित करें"],
       "Delete venue “{title}”? This operation is permanent and cannot be undone.": [
         null,
-        "“{title}” ईवेंट का स्थान मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "\"{title}\" ईवेंट का स्थान मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "You have deleted venue “{title}”": [
         null,
-        "आपने “{title}” ईवेंट का स्थान मिटा दिया है"
+        "आपने \"{title}\" ईवेंट का स्थान मिटा दिया है"
       ],
       "You have added a room at this venue": [
         null,
@@ -2883,11 +2880,11 @@
       "Edit room": [null, "रूम को संपादित करें"],
       "Delete room “{title}”? This operation is permanent and cannot be undone.": [
         null,
-        "“{title}” रूम को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "\"{title}\" रूम को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "You have deleted room “{title}”": [
         null,
-        "आपने “{title}” रूम मिटा दिया है"
+        "आपने \"{title}\" रूम मिटा दिया है"
       ],
       "Your password has been updated. If this was not authorized, reset your password or contact support at {email}. {reset_url}": [
         null,
