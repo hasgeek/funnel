@@ -1474,6 +1474,10 @@
         "आपको %(project)s में आमंत्रित किया गया है."
       ],
       "Loading…": [null, "लोडिंग…"],
+      "To receive timely notifications by SMS, add a phone number": [
+        null,
+        "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें"
+      ],
       "No notifications in this category": [
         null,
         "इस श्रेणी में कोई भी नोटिफिकेशन नहीं है"
@@ -1767,7 +1771,7 @@
         null,
         "यह अपडेट अब उपलब्ध नहीं है."
       ],
-      "Update #%(number)s": [null, ""],
+      "Update #%(number)s": [null, "अपडेट #%(number)s"],
       "Posted by %(editor)s %(age)s": [null, ""],
       "See all admins": [null, "सभी एडमिन को देखें"],
       "<b>%(project)s</b> starts at %(start_time)s.": [
@@ -2472,7 +2476,6 @@
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आपका hasgeek.com पर एक खाता है"
       ],
-      "{sender} (via Hasgeek)": [null, "{sender} (Hasgeek के ज़रिए)"],
       "That unsubscribe link has expired. However, you can manage your preferences from your account page": [
         null,
         "वो सदस्यता समाप्त वाली लिंक एक्स्पायर हो चुकी है. हालांकि, आप अपनी प्राथमिकताएं अपने खाते से प्रबंधित कर सकते हैं"
