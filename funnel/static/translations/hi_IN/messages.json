@@ -717,7 +717,7 @@
       "Room colour": [null, "कमरे का रंग"],
       "RGB colour for the room. Enter without the '#'. E.g. CCCCCC.": [
         null,
-        "कमरे का RGB रंग. बगैर '#' के दर्ज करें. जैसे CCCCCC."
+        "कमरे का RGB रंग. बगैर ‘#’ के दर्ज करें. जैसे CCCCCC."
       ],
       "Please enter a valid color code": [
         null,
@@ -1130,20 +1130,23 @@
         "लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें."
       ],
       "Merge accounts": [null, "अकाउंट जोड़ें"],
-      "Name:</strong> %(name)s": [null, "नाम:</strong> %(name)s"],
-      "Username:</strong> %(username)s": [
+      "<strong>Name:</strong> %(name)s": [
         null,
-        "यूजरनेम:</strong> %(username)s"
+        "<strong>नाम:</strong> %(name)s"
       ],
-      "Email addresses:</strong>%(email)s": [
+      "<strong>Username:</strong> %(username)s": [
         null,
-        "ईमेल पते:</strong>%(email)s"
+        "<strong>यूजरनेम:</strong> %(username)s"
       ],
-      "Email addresses:</strong><em>(none)</em>": [
+      "<strong>Email addresses:</strong>%(email)s": [
         null,
-        "ईमेल पते:</strong><em>(none)</em>"
+        "<strong>ईमेल पते:</strong>%(email)s"
       ],
-      "External ids:": [null, "एक्सटर्नल आईडी:"],
+      "<strong>Email addresses:</strong><em>(none)</em>": [
+        null,
+        "<strong>ईमेल पते:</strong><em>(none)</em>"
+      ],
+      "External IDs:": [null, "एक्सटर्नल IDs:"],
       "You appear to have two accounts. Would you like to merge them?": [
         null,
         "शायद आपके पास दो अकाउंट हैं. क्या आप उन दोनों को जोड़ना चाहेंगे?"
@@ -1331,7 +1334,7 @@
       ],
       "Don’t have an account?": [null, "अकाउंट नहीं है?"],
       "Sign up with email": [null, "ईमेल के ज़रिए साइन अप करें"],
-      "Logging out...": [null, "लॉग आउट हो रहा है..."],
+      "Logging out…": [null, "लॉग आउट हो रहा है…"],
       "to save": [null, "सेव करने के लिए"],
       "Save this project": [null, "इस प्रोजेक्ट को सेव करें"],
       "Unsave this project": [null, "इस प्रोजेक्ट को सेव से हटाएँ"],
@@ -1482,7 +1485,7 @@
         null,
         "इस श्रेणी में कोई भी नोटिफिकेशन नहीं है"
       ],
-      "Forbidden": [null, "अज्ञात"],
+      "Forbidden": [null, "निषिद्ध"],
       "There was an error in the authorization request:": [
         null,
         "ऑथराइजेशन की अनुरोध में कोई समस्या उत्पन्न हुई:"
@@ -1538,10 +1541,10 @@
         "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं."
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
-      "Featured project": [null, ""],
-      "Confirmation": [null, ""],
-      "Remove featured": [null, ""],
-      "Make featured": [null, ""],
+      "Featured project": [null, "मुख्य प्रोजेक्ट"],
+      "Confirmation": [null, "पुष्टि"],
+      "Remove featured": [null, "मुख्य पद से हटाए"],
+      "Make featured": [null, "मुख्य बनाएं"],
       "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "Edit details": [null, "विवरण संपादित करें"],
       "Related events": [null, "सम्बंधित ईवेंट"],
@@ -1560,21 +1563,31 @@
         "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
       ],
       "Edit proposal": [null, "प्रस्ताव को संपादित करें"],
-      "Submitted by": [null, ""],
-      "via": [null, ""],
-      "proposing": [null, ""],
-      "on": [null, ""],
+      "Submitted by <strong>%(speaker)s</strong>": [
+        null,
+        "<strong>%(speaker)s</strong> के द्वारा"
+      ],
+      "via %(proposal_user)s": [null, "%(proposal_user)s की तरफ से"],
+      "Submitted by <strong>%(user)s</strong>": [
+        null,
+        "<strong>%(user)s</strong> के द्वारा"
+      ],
+      "proposing": [null, "प्रस्ताव पेश कर रहें हैं"],
+      "on %(date)s": [null, "%(date)s को"],
       "This is a proposal requesting for someone to speak on this topic.\n            If you’d like to speak, leave a comment.": [
         null,
-        ""
+        "यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें"
       ],
-      "Your proposal doesn't have a preview video!": [null, ""],
+      "Your proposal doesn't have a preview video!": [
+        null,
+        "आपके प्रस्ताव में कोई प्रीव्यू वीडियो मौजूद नहीं है!"
+      ],
       "Add preview video link": [null, "प्रीव्यू वीडियो का लिंक जोड़े"],
       "Session video": [null, "सेशन की वीडियो"],
       "Proposal video": [null, "प्रस्ताव का वीडियो"],
       "Status: %(status)s": [null, "स्थिति: %(status)s"],
       "View proposal in schedule": [null, "कार्यक्रम में प्रस्ताव को देखे"],
-      "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें "],
+      "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "This section is empty.": [null, "ये अनुभाग खाली है"],
@@ -1635,11 +1648,11 @@
       "Query": [null, "सवाल"],
       "\n      Only %(total_comments)s comment for \"%(query)s\"": [
         null,
-        "\"%(query)s\" के लिए केवल %(total_comments)s कमेंट"
+        "\n      “%(query)s” के लिए केवल %(total_comments)s कमेंट"
       ],
       "\n      Only %(total_comments)s comment": [
         null,
-        "केवल %(total_comments)s कमेंट"
+        "\n      केवल %(total_comments)s कमेंट"
       ],
       "Comment": [null, "कमेंट"],
       "No comment available": [null, "कोई कमेंट मौजूद नहीं है"],
@@ -1655,7 +1668,7 @@
         null,
         "प्रतिभागियों को चेक-इन करने के लिए एक ईवेंट चुनें"
       ],
-      " View %(title)s attendees": [null, " ß%(title)s प्रतिभागियों को देखें"],
+      " View %(title)s attendees": [null, "%(title)s प्रतिभागियों को देखें"],
       "New image": [null, "नया इमेज"],
       "Remove image": [null, "इमेज हटाएं"],
       "Add new update": [null, "नई जानकारी डालें"],
@@ -1689,7 +1702,7 @@
         null,
         "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है"
       ],
-      "Post a comment...": [null, "एक कमेंट पोस्ट करें..."],
+      "Post a comment…": [null, "एक कमेंट पोस्ट करें…"],
       "New comment": [null, "नया कमेंट"],
       "edited %s": [null, "%s को संपादित किया "],
       "Reply": [null, "जवाब दें"],
@@ -1720,7 +1733,10 @@
         null,
         "आंतरिक सर्वर त्रुटि. हमारी टीम को सूचित कर दिया गया है और वे इसकी जांच करेंगे."
       ],
-      "Unable to connect. Check connection and tap to reload.": [null, ""],
+      "Unable to connect. Check connection and tap to reload.": [
+        null,
+        "कनेक्ट नहीं हो सके. कनेक्शन को जाँचें और फिर से लोड करने के लिए टैप करें."
+      ],
       "Project added to Account > My saves": [
         null,
         "प्रोजेक्ट ‘अकाउंट > मेरी सेव की गई चीज़ें’ जोड़ा गया है"
@@ -1772,7 +1788,7 @@
         "यह अपडेट अब उपलब्ध नहीं है."
       ],
       "Update #%(number)s": [null, "अपडेट #%(number)s"],
-      "Posted by %(editor)s %(age)s": [null, ""],
+      "Posted by %(editor)s %(age)s": [null, "%(age)s %(editor)s के द्वारा"],
       "See all admins": [null, "सभी एडमिन को देखें"],
       "<b>%(project)s</b> starts at %(start_time)s.": [
         null,
@@ -1792,9 +1808,9 @@
         null,
         "\nआपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में %(count)s नए प्रस्ताव आए हैं:"
       ],
-      "\n          <a href=\"%(url)s\">%(proposal)s</a> by %(actor)s <span class=\"mui--text-body2\">%(age)s</span>\n        ": [
+      "\n          <a href=\"%(url)s\">%(proposal)s</a> by %(actor)s": [
         null,
-        "\n<a href=\"%(url)s\">%(proposal)s</a> इसके द्वारा %(actor)s <span class=\"mui—text-body2\">%(age)s</span> "
+        "\n         <a href=\"%(url)s\">%(proposal)s</a> %(actor)s के द्वारा"
       ],
       "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new proposal: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s.": [
         null,
@@ -2037,11 +2053,11 @@
       "Verify": [null, "वेरिफाई करें"],
       "Remove {service} account ‘{username}’ from your account?": [
         null,
-        "अपने खाते से {service} खाता '{username}' हटाएं?"
+        "अपने खाते से {service} खाता ‘{username}’ हटाएं?"
       ],
       "You have removed the {service} account ‘{username}’": [
         null,
-        "आपने {service} खाता '{username}' हटा दिया है"
+        "आपने {service} खाता ‘{username}’ हटा दिया है"
       ],
       "Your password has expired. Please enter your username or email address to request a reset code and set a new password.": [
         null,
@@ -2110,11 +2126,11 @@
       "Confirm delete": [null, "मिटाने की पुष्टि करें"],
       "Delete application ‘{title}’? This will also delete all associated content including access tokens issued on behalf of users. This operation is permanent and cannot be undone.": [
         null,
-        "'{title}' ऐप्लिकेशन मिटाएं? यह यूज़र की ओर से जारी एक्सेस टोकन सहित सभी जुड़ी सामग्री को भी हटा देगा. यह प्रक्रिया स्थाई है और इसे वापस नहीं लाया जा सकता है."
+        "‘{title}’ ऐप्लिकेशन मिटाएं? यह यूज़र की ओर से जारी एक्सेस टोकन सहित सभी जुड़ी सामग्री को भी हटा देगा. यह प्रक्रिया स्थाई है और इसे वापस नहीं लाया जा सकता है."
       ],
       "You have deleted application ‘{title}’ and all its associated resources and permission assignments": [
         null,
-        "आपने '{title}' ऐप्लिकेशन और उससे जुड़ी सभी संसाधनों और सौंपी गई अनुमति को मिटा दिया है"
+        "आपने ‘{title}’ ऐप्लिकेशन और उससे जुड़ी सभी संसाधनों और सौंपी गई अनुमति को मिटा दिया है"
       ],
       "Disconnect {app}": [null, "{app} डिस्कनेक्ट करें"],
       "Disconnect application {app}? This will not remove any of your data in this app, but will prevent it from accessing any further data from your Hasgeek account.": [
@@ -2133,17 +2149,17 @@
       ],
       "Permissions have been assigned to team ‘{pname}’": [
         null,
-        "अनुमतियां टीम '{pname}' को सौंप दी गई हैं"
+        "अनुमतियां टीम ‘{pname}’ को सौंप दी गई हैं"
       ],
       "Assign permissions": [null, "अनुमतियां सौंपें"],
       "Add and edit teams from <a href=\"{url}\">your organization’s teams page</a>.": [
         null,
         "<a href=\"{url}\">आपके संगठन के टीम पेज</a> से टीम जोड़ें और संपादित करें."
       ],
-      "Delete access key ‘{title}’? ": [null, "ऐक्सेस की '{title}' मिटाएं?"],
+      "Delete access key ‘{title}’? ": [null, "ऐक्सेस की ‘{title}’ मिटाएं?"],
       "You have deleted access key ‘{title}’": [
         null,
-        "आपने ऐक्सेस की '{title}' मिटा दी है"
+        "आपने ऐक्सेस की ‘{title}’ मिटा दी है"
       ],
       "Permissions have been updated for user {pname}": [
         null,
@@ -2156,7 +2172,7 @@
       "Edit permissions": [null, "अनुमतियां संपादित करें"],
       "Remove all permissions assigned to user {pname} for app ‘{title}’?": [
         null,
-        "'{title}' ऐप के लिए {pname} यूजर को सौंपी गई सभी अनुमतियां हटाएं?"
+        "‘{title}’ ऐप के लिए {pname} यूजर को सौंपी गई सभी अनुमतियां हटाएं?"
       ],
       "You have revoked permisions for user {pname}": [
         null,
@@ -2172,7 +2188,7 @@
       ],
       "Remove all permissions assigned to team ‘{pname}’ for app ‘{title}’?": [
         null,
-        "'{title}' ऐप के लिए '{pname}' टीम को सौंपी गई सभी अनुमतियां हटाना चाहते हैं?"
+        "‘{title}’ ऐप के लिए ‘{pname}’ टीम को सौंपी गई सभी अनुमतियां हटाना चाहते हैं?"
       ],
       "You have revoked permisions for team {title}": [
         null,
@@ -2188,23 +2204,23 @@
       ],
       "No namespace specified for external resource ‘{scope}’ in scope": [
         null,
-        "स्कोप में बाहरी संसाधन '{scope}' के लिए कोई नेमस्पेस निर्दिष्ट नहीं है"
+        "स्कोप में बाहरी संसाधन ‘{scope}’ के लिए कोई नेमस्पेस निर्दिष्ट नहीं है"
       ],
       "Too many ‘:’ characters in ‘{scope}’ in scope": [
         null,
-        "स्कोप में '{scope}' में बहुत सारे ':' वर्ण"
+        "स्कोप में ‘{scope}’ में बहुत सारे ‘:’ वर्ण"
       ],
       "Too many ‘/’ characters in ‘{scope}’ in scope": [
         null,
-        "स्कोप में '{scope}' में बहुत सारे '/' वर्ण"
+        "स्कोप में ‘{scope}’ में बहुत सारे ‘/‘ वर्ण"
       ],
       "This application does not have access to all resources of app ‘{title}’": [
         null,
-        "इस एप्लिकेशन के पास '{title}' ऐप के सभी संसाधनों तक ऐक्सेस नहीं है"
+        "इस एप्लिकेशन के पास ‘{title}’ ऐप के सभी संसाधनों तक ऐक्सेस नहीं है"
       ],
       "Unknown resource namespace ‘{namespace}’ in scope": [
         null,
-        "स्कोप में अज्ञात संसाधन '{namespace}' नेमस्पेस"
+        "स्कोप में अज्ञात संसाधन ‘{namespace}’ नेमस्पेस"
       ],
       "Missing client_id": [null, "नामौजूद client_id"],
       "Unknown client_id": [null, "अज्ञात client_id"],
@@ -2461,7 +2477,7 @@
       ],
       "Form must contain a revision ID.": [
         null,
-        "फॉर्म में एक संशोधन आईडी होना चाहिए."
+        "फॉर्म में एक संशोधन ID होना चाहिए."
       ],
       "There have been changes to this draft since you last edited it. Please reload.": [
         null,
@@ -2469,7 +2485,7 @@
       ],
       "Invalid revision ID or the existing changes have been submitted already. Please reload.": [
         null,
-        "अमान्य संशोधन आईडी या मौजूदा परिवर्तन पहले ही जमा किए जा चुके हैं. कृपया रीलोड करें."
+        "अमान्य संशोधन ID या मौजूदा परिवर्तन पहले ही जमा किए जा चुके हैं. कृपया रीलोड करें."
       ],
       "Invalid CSRF token": [null, "अमान्य CSRF टोकन"],
       "You are receiving this because you have an account at hasgeek.com": [
@@ -2529,18 +2545,18 @@
       ],
       "Delete organization ‘{title}’? This will delete everything including projects, proposals and videos. This operation is permanent and cannot be undone.": [
         null,
-        "'{title}' संगठन मिटाएं? यह प्रोजेक्ट, प्रस्ताव और वीडियो सहित सब कुछ मिटा देगा. यह प्रक्रिया स्थाई है और इसे वापस पहले जैसा नहीं किया जा सकता है."
+        "‘{title}’ संगठन मिटाएं? यह प्रोजेक्ट, प्रस्ताव और वीडियो सहित सब कुछ मिटा देगा. यह प्रक्रिया स्थाई है और इसे वापस पहले जैसा नहीं किया जा सकता है."
       ],
       "You have deleted organization ‘{title}’ and all its associated content": [
         null,
-        "आपने '{title}' संगठन और उससे जुड़ी सभी सामग्री को मिटा दिया है"
+        "आपने ‘{title}’ संगठन और उससे जुड़ी सभी सामग्री को मिटा दिया है"
       ],
       "Create new team": [null, "नई टीम बनाएं"],
       "Edit team: {title}": [null, "टीम संपादित करें: {title}"],
       "Delete team {title}?": [null, "{title} टीम मिटाएं?"],
       "You have deleted team ‘{team}’ from organization ‘{org}’": [
         null,
-        "आपने '{org}' संगठन से '{team}' टीम को मिटा दिया है"
+        "आपने ‘{org}’ संगठन से ‘{team}’ टीम को मिटा दिया है"
       ],
       "Edit profile details": [null, "प्रोफाइल विवरण संपादित करें"],
       "Save logo": [null, "लोगो सेव करें"],
@@ -2652,11 +2668,11 @@
       ],
       "Delete project ‘{title}’? This will delete everything in the project. This operation is permanent and cannot be undone.": [
         null,
-        "'{title}' प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "‘{title}’ प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "You have deleted project ‘{title}’ and all its associated content": [
         null,
-        "आपने '{title}' प्रोजेक्ट और उससे जुड़ी सारी सामग्री हटा दी है"
+        "आपने ‘{title}’ प्रोजेक्ट और उससे जुड़ी सारी सामग्री हटा दी है"
       ],
       "Edit ticket client details": [null, "टिकट क्लाइंट विवरण संपादित करें"],
       "Invalid transition for this project": [
@@ -2692,9 +2708,9 @@
         null,
         "कुछ गड़बड़ी हुई है, कृपया दोबारा लोड करें और दोबारा प्रयास करें"
       ],
-      "Importing tickets from vendors...Refresh the page in about 30 seconds...": [
+      "Importing tickets from vendors… Refresh the page in about 30 seconds…": [
         null,
-        "विक्रेताओं से टिकट आयात हो रहा है...पेज को लगभग 30 सेकंड में रिफ्रेश करें..."
+        "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिफ्रेश करें…"
       ],
       "CFP for this project is not open": [
         null,
@@ -2713,7 +2729,7 @@
       "Update proposal": [null, "प्रस्ताव अपडेट करें"],
       "Delete your proposal ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,
-        "अपना '{title}' प्रस्ताव मिटाएं? यह सभी वोटों और कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "अपना ‘{title}’ प्रस्ताव मिटाएं? यह सभी वोटों और कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "Your proposal has been deleted": [
         null,
@@ -2797,20 +2813,16 @@
       ],
       "New Ticket Client": [null, "नया टिकट क्लाइंट"],
       "Add ticket client": [null, "टिकट क्लाइंट जोड़ें"],
-      "Importing tickets from vendors... Refresh the page in about 30 seconds...": [
-        null,
-        "विक्रेताओं से टिकट आयात हो रहा है...पेज को लगभग 30 सेकंड में रिफ्रेश करें..."
-      ],
       "Edit event": [null, "ईवेंट संपादित करें"],
       "Delete event ‘{title}’? This operation is permanent and cannot be undone.": [
         null,
-        "'{title}' ईवेंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "‘{title}’ ईवेंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "This event has been deleted": [null, "इस ईवेंट को मिटा दिया गया है"],
       "Edit ticket type": [null, "टिकट टाइप संपादित करें"],
       "Delete ticket type ‘{title}’? This operation is permanent and cannot be undone.": [
         null,
-        "'{title}' टिकट टाइप मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "‘{title}’ टिकट टाइप मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "This ticket type has been deleted": [
         null,
@@ -2819,7 +2831,7 @@
       "Edit ticket client": [null, "टिकट क्लाइंट संपादित करें"],
       "Delete ticket client ‘{title}’? This operation is permanent and cannot be undone.": [
         null,
-        "'{title}' टिकट क्लाइंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "‘{title}’ टिकट क्लाइंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "This participant already exists.": [
         null,
@@ -2868,11 +2880,11 @@
       "Edit venue": [null, "ईवेंट का स्थान संपादित करें"],
       "Delete venue “{title}”? This operation is permanent and cannot be undone.": [
         null,
-        "\"{title}\" ईवेंट का स्थान मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "“{title}” ईवेंट का स्थान मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "You have deleted venue “{title}”": [
         null,
-        "आपने \"{title}\" ईवेंट का स्थान मिटा दिया है"
+        "आपने “{title}” ईवेंट का स्थान मिटा दिया है"
       ],
       "You have added a room at this venue": [
         null,
@@ -2883,11 +2895,11 @@
       "Edit room": [null, "रूम को संपादित करें"],
       "Delete room “{title}”? This operation is permanent and cannot be undone.": [
         null,
-        "\"{title}\" रूम को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "“{title}” रूम को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
       ],
       "You have deleted room “{title}”": [
         null,
-        "आपने \"{title}\" रूम मिटा दिया है"
+        "आपने “{title}” रूम मिटा दिया है"
       ],
       "Your password has been updated. If this was not authorized, reset your password or contact support at {email}. {reset_url}": [
         null,
@@ -3001,7 +3013,7 @@
         null,
         "{user} को {actor} द्वारा {organization} का एडमिन बना दिया गया था"
       ],
-      "(unknown)": [null, ""],
+      "(unknown)": [null, "(अज्ञात)"],
       "You are receiving this because you are an admin of this organization": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस संगठन के एडमिन हैं"

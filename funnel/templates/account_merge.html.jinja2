@@ -4,18 +4,18 @@
 
 {% macro accountinfo(user) %}
   <ul class="mui-list--aligned mui--text-subhead">
-    <li><strong>{% trans name=user.fullname %}Name:</strong> {{ name }}{% endtrans %}</li>
-    <li><strong>{% trans username=user.username or '' %}Username:</strong> {{ username }}{% endtrans %}</li>
+    <li>{% trans name=user.fullname %}<strong>Name:</strong> {{ name }}{% endtrans %}</li>
+    <li>{% trans username=user.username or '' %}<strong>Username:</strong> {{ username }}{% endtrans %}</li>
     <li>
       <ul>
         {%- for useremail in user.emails %}
-          <li><strong>{% trans email=useremail.email %}Email addresses:</strong>{{ email }}{% endtrans %}</li>
+          <li>{% trans email=useremail.email %}<strong>Email addresses:</strong>{{ email }}{% endtrans %}</li>
         {%- else %}
-          <li><strong>{% trans %}Email addresses:</strong><em>(none)</em>{% endtrans %}</li>
+          <li>{% trans %}<strong>Email addresses:</strong><em>(none)</em>{% endtrans %}</li>
         {%- endfor %}
       </ul>
     </li>
-    <li><strong>{% trans %}External ids:{% endtrans %}</strong>
+    <li><strong>{% trans %}External IDs:{% endtrans %}</strong>
       <ul>
         {%- for extid in user.externalids %}
           <li><strong>{{ login_registry[extid.service].title }}:</strong> {{ extid.username }}</li>
