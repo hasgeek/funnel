@@ -36,7 +36,10 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
         db.relationship(
             Commentset,
             backref=db.backref(
-                'crew_memberships', lazy='dynamic', cascade='all', passive_deletes=True
+                'subscriber_memberships',
+                lazy='dynamic',
+                cascade='all',
+                passive_deletes=True,
             ),
         )
     )
