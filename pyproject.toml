@@ -55,6 +55,7 @@ sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY
 [tool.pytest.ini_options]
 norecursedirs = 'tests/integration/*'
 addopts = '--cov-report=term-missing'
+filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
 
 [tool.curlylint]
 include = '\.jinja2$'
