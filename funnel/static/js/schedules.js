@@ -310,11 +310,11 @@ $(function () {
           },
           allDayDefault: false,
           firstDay: 1, //Start from Monday, if not modified
+          firstHour: 9,
           defaultView: 'agendaWeek',
           allDaySlot: false,
           slotMinutes: CALENDAR_SLOT_MINUTES,
           defaultEventMinutes: 45,
-          firstHour: 8,
           slotEventOverlap: false,
           eventColor: '#229922',
           eventTextColor: '#FFFFFF',
@@ -515,7 +515,9 @@ $(function () {
         buttons.save = (function () {
           calendar.container
             .find('.fc-header-right')
-            .append('<span class="hg-fc-button save-schedule">Save</span>');
+            .append(
+              '<span class="hg-fc-button mui-btn save-schedule">Save</span>'
+            );
           var button = calendar.container.find('.save-schedule');
           button.enable = function (label) {
             $(this).removeClass('fc-state-disabled');
@@ -550,6 +552,22 @@ $(function () {
             $(this).removeClass('fc-state-hover');
           }
         );
+      calendar.container
+        .find('.fc-header-left')
+        .append(
+          '<div class="tabs"><button class="tabs__item js-fc-zoom" data-slotinterval="5">5 mins</button> <button class="tabs__item js-fc-zoom" data-slotinterval="15">15 mins</button> <button class="tabs__item js-fc-zoom" data-slotinterval="30">30 mins</button> <button class="tabs__item js-fc-zoom" data-slotinterval="60">60 mins</button></div>'
+        );
+      $(
+        '.js-fc-zoom[data-slotinterval=' +
+          calendar.options.config.slotMinutes +
+          ']'
+      ).addClass('tabs__item--active');
+      $('.js-fc-zoom').on('click', function () {
+        var zoom = $(this).data('slotinterval');
+        calendar.options.config.slotMinutes = zoom;
+        calendar.container.fullCalendar('destroy');
+        calendar.init(scheduled);
+      });
     };
 
     obj.render = function () {
@@ -561,7 +579,7 @@ $(function () {
         calendar.container
           .find('.fc-header-right')
           .prepend(
-            '<label for="autosaver" class="fc-button fc-state-disabled fc-corner-right fc-corner-left"><input id="autosaver" class="autosave" type="checkbox"> Autosave</label> '
+            '<label for="autosaver" class="hg-fc-checkbox"><input id="autosaver" class="autosave" type="checkbox"> Autosave</label>'
           );
         var autosaver = calendar.container.find('.autosave');
         autosaver.prop('checked', events.autosave);
