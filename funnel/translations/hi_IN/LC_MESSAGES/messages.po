@@ -6192,4 +6192,3 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "Update #%(number)s &bull; Posted by %(editor)s %(age)s"
 #~ msgstr "#%(number)s &bull; बदलें %(editor)s %(age)s द्वारा पोस्ट किया गया"
-
