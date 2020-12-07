@@ -22,6 +22,7 @@ from ..models import (
     CommentReplyNotification,
     CommentReportReceivedNotification,
     Commentset,
+    CommentsetMembership,
     NewCommentNotification,
     Proposal,
     Voteset,
@@ -172,6 +173,64 @@ class CommentsetView(UrlForView, ModelView):
             with_chrome=False,
         )
         return {'form': commentform_html}
+
+    @route('subscribe', methods=['POST'])
+    @requires_login
+    @render_with(json=True)
+    def subscribe(self):
+        csrf_form = forms.Form()
+        if csrf_form.validate_on_submit():
+            if self.obj not in current_auth.user.subscribed_commentsets:
+                new_ms = CommentsetMembership(
+                    commentset=self.obj,
+                    user=current_auth.user,
+                    is_subscriber=True,
+                    granted_by=current_auth.user,
+                )
+                db.session.add(new_ms)
+                db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("You have successfully subscribed to this comment thread"),
+            }
+        else:
+            return {
+                'status': 'error',
+                'error_code': 'subscribe_error',
+                'error_description': _(
+                    "There was an issue subscribing to this comment thread. Please try again"
+                ),
+                'error_details': csrf_form.errors,
+            }, 400
+
+    @route('unsubscribe', methods=['POST'])
+    @requires_login
+    @render_with(json=True)
+    def unsubscribe(self):
+        csrf_form = forms.Form()
+        if csrf_form.validate_on_submit():
+            if self.obj in current_auth.user.subscribed_commentsets:
+                existing_ms = CommentsetMembership.query.filter(
+                    commentset=self.obj,
+                    user=current_auth.user,
+                ).one()
+                existing_ms.is_subscriber = False
+                db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _(
+                    "You have successfully unsubscribed from this comment thread"
+                ),
+            }
+        else:
+            return {
+                'status': 'error',
+                'error_code': 'unsubscribe_error',
+                'error_description': _(
+                    "There was an issue unsubscribing to this comment thread. Please try again"
+                ),
+                'error_details': csrf_form.errors,
+            }, 400
 
 
 @route('/comments/<commentset>', subdomain='<profile>')
