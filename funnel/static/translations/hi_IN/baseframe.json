@@ -11,35 +11,47 @@
       "seconds ago": [null, "कुछ सेकंड पहले"],
       "%(num)s seconds ago": [null, "%(num)s सेकंड पहले"],
       "a minute ago": [null, "एक मिनट पहले"],
-      "%(num)s minutes ago": [null, "%(num)s मिनट पहले"],
+      "%(num)s minutes ago": [null, "%(num)s मिनटों पहले"],
       "an hour ago": [null, "एक घंटा पहले"],
       "%(num)s hours ago": [null, "%(num)s घंटो पहले"],
       "a day ago": [null, "एक दिन पहले"],
-      "%(num)s days ago": [null, "%(num)s दिन पहले"],
+      "%(num)s days ago": [null, "%(num)s दिनों पहले"],
       "a month ago": [null, "एक महीने पहले"],
-      "%(num)s months ago": [null, "%(num)s महीने पहले"],
+      "%(num)s months ago": [null, "%(num)s महीनों पहले"],
       "a year ago": [null, "एक साल पहले"],
-      "%(num)s years ago": [null, "%(num)s साल पहले"],
-      "Delete": [null, ""],
-      "Cancel": [null, ""],
-      "Submit": [null, ""],
-      "Not a valid choice!": [null, ""],
+      "%(num)s years ago": [null, "%(num)s सालों पहले"],
+      "Delete": [null, "मिटाएं"],
+      "Cancel": [null, "रद्द करें"],
+      "Submit": [null, "जमा करें"],
+      "Not a valid choice!": [null, "यह मान्य विकल्प नहीं हैं!"],
       "Value not in LabeledEnum": [null, ""],
       "Invalid Choice: could not coerce": [null, ""],
-      "Not a valid choice": [null, ""],
+      "Not a valid choice": [null, "यह मान्य विकल्प नहीं हैं"],
       "Field value must be a dictionary": [null, ""],
-      "Invalid JSON: {0!r}": [null, ""],
+      "Invalid JSON: {0!r}": [null, "अमान्य JSON: {0!r}"],
       "The JSON root must be a hash object": [null, ""],
       "This form has already been submitted": [null, ""],
-      "This {attr} is already in use": [null, ""],
-      "This URL name is already in use": [null, ""],
-      "The secret parameter is missing": [null, ""],
-      "The secret parameter is invalid or malformed": [null, ""],
+      "This {attr} is already in use": [
+        null,
+        "यह {attr} पहले से इस्तेमाल में हैं"
+      ],
+      "This URL name is already in use": [
+        null,
+        "यह URL नाम पहले से इस्तेमाल में हैं"
+      ],
+      "The secret parameter is missing": [
+        null,
+        "सीक्रेट पैरामीटर मौजूद नहीं हैं"
+      ],
+      "The secret parameter is invalid or malformed": [
+        null,
+        "सीक्रेट पैरामीटर गलत या असामान्य है"
+      ],
       "The response parameter is missing": [null, ""],
       "The response parameter is invalid or malformed": [null, ""],
       "This requires ‘{field}’ to be specified": [null, ""],
-      "This is required": [null, ""],
-      "Comparison failed": [null, ""],
+      "This is required": [null, "यह आवश्यक है"],
+      "Comparison failed": [null, "तुलना असफल रही"],
       "Subclasses must define ``compare``": [null, ""],
       "This must be greater than {other_label}": [null, ""],
       "This must be greater than or equal to {other_label}": [null, ""],
@@ -47,13 +59,25 @@
       "This must be lesser than or equal to {other_label}": [null, ""],
       "This must not be the same as {other_label}": [null, ""],
       "This is not a valid emoji": [null, ""],
-      "This domain is not a public email domain": [null, ""],
-      "This domain is a public email domain": [null, ""],
-      "This email address does not appear to be valid": [null, ""],
-      "The URL “{url}” is not valid or is currently inaccessible": [null, ""],
+      "This domain is not a public email domain": [
+        null,
+        "यह डोमेन सार्वजनिक ईमेल डोमेन नहीं है"
+      ],
+      "This domain is a public email domain": [
+        null,
+        "यह डोमेन सार्वजनिक ईमेल डोमेन है"
+      ],
+      "This email address does not appear to be valid": [
+        null,
+        "लगता है की यह ईमेल पता मान्य नहीं है"
+      ],
+      "The URL “{url}” is not valid or is currently inaccessible": [
+        null,
+        "यह URL “{url}” या तो मान्य नहीं है या फिर इस वक्त पहुँचा नहीं जा सकता"
+      ],
       "The URL “{url}” linked from “{text}” is not valid or is currently inaccessible": [
         null,
-        ""
+        "“{text}” से लिंक किया गया URL “{url}” या तो मान्य नहीं है या फिर इस वक्त पहुँचा नहीं जा सकता"
       ],
       "This URL’s protocol is not allowed": [null, ""],
       "This URL’s domain is not allowed": [null, ""],
@@ -64,27 +88,47 @@
         ""
       ],
       "Valid latitude and longitude expected": [null, ""],
-      "Latitude must be within ± 90 degrees": [null, ""],
-      "Longitude must be within ± 180 degrees": [null, ""],
+      "Latitude must be within ± 90 degrees": [
+        null,
+        "अक्षांश ± 90 डिग्री के अंदर होना चाहिए"
+      ],
+      "Longitude must be within ± 180 degrees": [
+        null,
+        "देशांतर ± 180 डिग्री के अंदर होना चाहिए"
+      ],
       "The server was temporarily unreachable. Try again": [null, ""],
-      "Latitude": [null, ""],
-      "Longitude": [null, ""],
-      "Image URL": [null, ""],
+      "Latitude": [null, "अक्षांश"],
+      "Longitude": [null, "देशांतर"],
+      "Image URL": [null, "इमेज URL"],
+      "Bad Request": [null, ""],
+      "This request was malformed and could not be processed.": [null, ""],
       "Access denied": [null, ""],
       "You do not have access to that page.": [null, ""],
-      "Not Found": [null, ""],
-      "The page you were looking for does not exist.": [null, ""],
-      "Internal Server Error": [null, ""],
+      "Not Found": [null, "नहीं मिल पाया"],
+      "The page you were looking for does not exist.": [
+        null,
+        "जिस पेज की आप तलाश कर रहे थे वह मौजूद नहीं है."
+      ],
+      "Unprocessable Entity": [null, ""],
+      "Too Many Requests": [null, ""],
+      "You have exceeded the rate limit and must try after some time.": [
+        null,
+        ""
+      ],
+      "Internal Server Error": [null, "आंतरिक सर्वर त्रुटि"],
       "Something broke inside. A report has been sent to the server’s administrator. Our apologies for the inconvenience.": [
         null,
         ""
       ],
       "This form has timed out. Please submit again to confirm": [null, ""],
-      "Please review the indicated issues": [null, ""],
+      "Please review the indicated issues": [
+        null,
+        "कृपया चिन्हांकित किये गए गलतियों का आलोच करें"
+      ],
       "Loading…": [null, "लोडिंग…"],
-      "Select or upload image": [null, ""],
-      "Close": [null, ""],
-      "URL": [null, ""],
+      "Select or upload image": [null, "इमेज को चुने या फिर अपलोड करें"],
+      "Close": [null, "बंद करें"],
+      "URL": [null, "URL"],
       "Emoji": [null, ""],
       "Content": [null, ""],
       "Webmail Domain": [null, ""],
