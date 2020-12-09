@@ -264,6 +264,7 @@
 
     var commentsConfig = {
       newCommentUrl: "{{ proposal.commentset.url_for('new_comment') }}",
+      commentsUrl: "{{ proposal.url_for('comments') }}",
       divElem: "#comments-wrapper",
       commentTemplate: '#comment-template',
       isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
