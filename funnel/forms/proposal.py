@@ -4,7 +4,6 @@ from coaster.auth import current_auth
 import baseframe.forms as forms
 
 from ..models import Proposal
-from .helpers import EmailAddressAvailable
 
 __all__ = [
     'ProposalForm',
@@ -131,100 +130,23 @@ class ProposalLabelsAdminForm(forms.Form):
 
 @Proposal.forms('main')
 class ProposalForm(forms.Form):
-    speaking = forms.RadioField(
-        __("Are you speaking?"),
-        coerce=int,
-        choices=[
-            (1, __("I will be speaking")),
-            (0, __("I’m proposing a topic for someone to speak on")),
-        ],
-    )
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
-        description=__("The title of your session"),
     )
-    abstract = forms.MarkdownField(
-        __("Abstract"),
-        validators=[forms.validators.DataRequired()],
-        description=__(
-            "A brief description of your session with target audience and key takeaways"
-        ),
-    )
-    outline = forms.MarkdownField(
-        __("Outline"),
-        validators=[forms.validators.DataRequired()],
-        description=__(
-            "A detailed description of the session with the sequence of ideas to be presented"
-        ),
-    )
-    requirements = forms.MarkdownField(
-        __("Requirements"),
-        description=__("For workshops, what must participants bring to the session?"),
-    )
-    slides = forms.URLField(
-        __("Slides"),
-        validators=[
-            forms.validators.Optional(),
-            forms.validators.URL(),
-            forms.validators.ValidUrl(),
-        ],
-        description=__(
-            "Link to your slides. These can be just an outline initially. "
-            "If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"
-        ),
+    body = forms.MarkdownField(
+        __("Content"), validators=[forms.validators.DataRequired()]
     )
     video_url = forms.URLField(
-        __("Preview Video"),
+        __("Video"),
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
             forms.validators.ValidUrl(),
         ],
-        description=__(
-            "Link to your preview video. Use a video to engage the community and give them a better "
-            "idea about what you are planning to cover in your session and why they should attend. "
-            "If you provide a YouTube/Vimeo link, we'll embed it in the page"
-        ),
+        description=__("YouTube or Vimeo URL (optional)"),
     )
-    links = forms.TextAreaField(
-        __("Links"),
-        description=__(
-            "Other links, one per line. Provide links to your profile and "
-            "slides and videos from your previous sessions; anything that'll help "
-            "folks decide if they want to attend your session"
-        ),
-    )
-    bio = forms.MarkdownField(
-        __("Speaker bio"),
-        validators=[forms.validators.DataRequired()],
-        description=__("Tell us why you are the best person to be taking this session"),
-    )
-    email = forms.EmailField(
-        __("Your email address"),
-        validators=[
-            forms.validators.DataRequired(),
-            EmailAddressAvailable(purpose='use'),
-        ],
-        description=__(
-            "An email address we can contact you at. Not displayed anywhere"
-        ),
-    )
-    phone = forms.StringField(
-        __("Phone number"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
-        description=__(
-            "A phone number we can call you at to discuss your proposal, if required. "
-            "Will not be displayed"
-        ),
-    )
-    location = forms.StringField(
-        __("Your location"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
-        description=__("Your location, to help plan for your travel if required"),
-    )
-
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def set_queries(self):

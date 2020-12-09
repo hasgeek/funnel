@@ -5,6 +5,7 @@ import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
 const Comments = {
   init({
     newCommentUrl,
+    commentsUrl,
     divElem,
     commentTemplate,
     isuserloggedin,
@@ -250,6 +251,7 @@ const Comments = {
         },
         fetchCommentsList() {
           $.ajax({
+            url: commentsUrl,
             type: 'GET',
             timeout: window.Hasgeek.config.ajaxTimeout,
             dataType: 'json',

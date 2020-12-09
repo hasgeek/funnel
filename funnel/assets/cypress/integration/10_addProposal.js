@@ -19,24 +19,14 @@ describe('Add a new proposal', function () {
     cy.location('pathname').should('contain', 'proposals');
     cy.get('a[data-cy="propose-a-session"]').click();
     cy.location('pathname').should('contain', 'new');
-    cy.get('#speaking label').eq(0).click();
     cy.get('#title').type(proposal.title);
-    cy.get('#field-abstract')
+    cy.get('#field-body')
       .find('.CodeMirror textarea')
-      .type(proposal.abstract, { force: true });
-    cy.get('#field-outline')
-      .find('.CodeMirror textarea')
-      .type(proposal.outline, { force: true });
-    cy.get('#slides').type(proposal.slides);
+      .type(proposal.content, { force: true });
     cy.get('#field-video_url').type(proposal.preview_video);
-    cy.get('#field-bio')
-      .find('.CodeMirror textarea')
-      .type(proposal.speaker_bio, { force: true });
-    cy.get('#phone').type(proposal.phone);
-    cy.get('#location').type(proposal.location);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
-    cy.get('button').contains('Submit proposal').click();
+    cy.get('button').contains('Submit').click();
     cy.location('pathname').should('contain', 'proposals');
 
     cy.get('.proposal__section__headline')
