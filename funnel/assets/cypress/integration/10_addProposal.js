@@ -19,7 +19,6 @@ describe('Add a new proposal', function () {
     cy.location('pathname').should('contain', 'proposals');
     cy.get('a[data-cy="propose-a-session"]').click();
     cy.location('pathname').should('contain', 'new');
-    cy.get('#speaking label').eq(0).click();
     cy.get('#title').type(proposal.title);
     cy.get('#field-body')
       .find('.CodeMirror textarea')
@@ -27,7 +26,7 @@ describe('Add a new proposal', function () {
     cy.get('#field-video_url').type(proposal.preview_video);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
-    cy.get('button').contains('Submit proposal').click();
+    cy.get('button').contains('Submit').click();
     cy.location('pathname').should('contain', 'proposals');
 
     cy.get('.proposal__section__headline')
