@@ -134,23 +134,18 @@ class ProposalForm(forms.Form):
         __("Title"),
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
-        description=__("The title of your session"),
     )
     body = forms.MarkdownField(
         __("Content"), validators=[forms.validators.DataRequired()]
     )
     video_url = forms.URLField(
-        __("Preview Video"),
+        __("Video"),
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
             forms.validators.ValidUrl(),
         ],
-        description=__(
-            "Link to your preview video. Use a video to engage the community and give them a better "
-            "idea about what you are planning to cover in your session and why they should attend. "
-            "If you provide a YouTube/Vimeo link, we'll embed it in the page"
-        ),
+        description=__("YouTube or Vimeo URL (optional)"),
     )
     formlabels = forms.FormField(forms.Form, __("Labels"))
 

@@ -2,7 +2,7 @@ from flask import Markup, abort, escape, flash, jsonify, redirect
 
 from bleach import linkify
 
-from baseframe import _, request_is_xhr
+from baseframe import _, __, request_is_xhr
 from baseframe.forms import Form, render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
@@ -57,6 +57,12 @@ proposal_headers = [
     'submitted',
     'confirmed',
 ]
+
+
+markdown_message = __(
+    'This form uses <a target="_blank" rel="noopener noreferrer"'
+    ' href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
+)
 
 
 def proposal_data(proposal):
@@ -153,11 +159,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             form=form,
             title=_("Submit a proposal"),
             submit=_("Submit"),
-            message=Markup(
-                _(
-                    'This form uses <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
-                )
-            ),
+            message=markdown_message,
         )
 
 
@@ -258,13 +260,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return redirect(self.obj.url_for(), code=303)
         return render_form(
             form=form,
-            title=_("Edit session proposal"),
-            submit=_("Update proposal"),
-            message=Markup(
-                _(
-                    'This form uses <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
-                )
-            ),
+            title=_("Edit proposal"),
+            submit=_("Update"),
+            message=markdown_message,
         )
 
     @route('delete', methods=['GET', 'POST'])
