@@ -320,7 +320,7 @@ export const Utils = {
         selection.removeAllRanges();
         selection.addRange(range);
         document.execCommand('copy');
-        window.toastr.success('Link copied');
+        window.toastr.success(window.gettext('Link copied'));
         selection.removeAllRanges();
       });
     }

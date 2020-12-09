@@ -1074,6 +1074,7 @@
         null,
         "अपने पसंदीदा समुदायों की सदस्यता लें और किसी भी संवाद या संग काम करने के अवसर को हाथ से जाने न दें."
       ],
+      "Go to profile": [null, ""],
       "(none)": [null, "(कोई भी नहीं)"],
       "From device": [null, "इस डिवाइस से"],
       "Edit": [null, "संपादित करें"],
@@ -1292,7 +1293,6 @@
         "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें."
       ],
       "Spotlight:": [null, "सुर्खियां:"],
-      "Answer this survey on privacy and technology": [null, ""],
       "What is the state of privacy enhancing technologies, data security, and compliance, in the Indian tech industry?": [
         null,
         ""
@@ -1305,7 +1305,10 @@
         null,
         ""
       ],
+      "Answer this survey on privacy and technology": [null, ""],
       "Get started": [null, ""],
+      "32 questions": [null, ""],
+      "~15 mins": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, ""],
       "(No labels)": [null, ""],
@@ -1390,7 +1393,6 @@
       "Proposals": [null, "प्रस्ताव"],
       "Schedule": [null, "कार्यक्रम"],
       "Settings": [null, "सेटिंग्स"],
-      "Pinned update": [null, "पिन की हुई जानकारी"],
       "This update is for participants only": [
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
@@ -1441,6 +1443,7 @@
         "जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
       ],
       "Add cover photo url": [null, "कवर फोटो का URL जोड़ें"],
+      "Add cover photo": [null, ""],
       "New project": [null, "नया प्रोजेक्ट"],
       "Make profile public": [null, "प्रोफाइल को सार्वजनिक बनाएं"],
       "Make this profile public?": [null, "इस प्रोफाइल को सार्वजनिक बनाएं?"],
@@ -1542,6 +1545,7 @@
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
       "Featured project": [null, ""],
+      "Confirmation": [null, ""],
       "Remove featured": [null, ""],
       "Make featured": [null, ""],
       "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
@@ -1722,11 +1726,40 @@
       ],
       "Unable to connect. Check connection and tap to reload.": [null, ""],
       "Project added to Account > My saves": [null, ""],
+      "Link copied": [null, ""],
       "read more": [null, ""],
       "Today": [null, ""],
       "Tomorrow": [null, ""],
       "Day after": [null, ""],
       "In %d days": [null, ""],
+      "The room sequence and colors have been updated.": [null, ""],
+      "There was a problem in contacting the server. Please try again later.": [
+        null,
+        ""
+      ],
+      "Edit Session": [null, ""],
+      "Schedule Session": [null, ""],
+      "Add new session": [null, ""],
+      "Autosave": [null, ""],
+      "Saving...": [null, ""],
+      "Saved": [null, ""],
+      "There was a problem in deleting the session.": [null, ""],
+      "%s will be removed from the schedule. Are you sure you want to remove it?": [
+        null,
+        ""
+      ],
+      "5 mins": [null, ""],
+      "15 mins": [null, ""],
+      "30 mins": [null, ""],
+      "60 mins": [null, ""],
+      "There was a problem in contacting the server. There are %d unsaved sessions. Please try again later.": [
+        null,
+        ""
+      ],
+      "There was a problem in contacting the server. There are %d unsaved session. Please try again later.": [
+        null,
+        ""
+      ],
       "Update": [null, "अपडेट करें"],
       "Read more": [null, "अधिक पढ़ें"],
       "Hide": [null, "छिपाएं"],
@@ -1764,6 +1797,7 @@
         null,
         "(इस टेम्पलेट की विषय-सूची मौजूद नहीं है)"
       ],
+      "This update is no longer available.": [null, ""],
       "Update #%(number)s &bull; Posted by %(editor)s %(age)s": [
         null,
         "#%(number)s &bull; बदलें %(editor)s %(age)s द्वारा पोस्ट किया गया"
@@ -2471,7 +2505,6 @@
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आपका hasgeek.com पर एक खाता है"
       ],
-      "{sender} (via Hasgeek)": [null, "{sender} (Hasgeek के ज़रिए)"],
       "That unsubscribe link has expired. However, you can manage your preferences from your account page": [
         null,
         "वो सदस्यता समाप्त वाली लिंक एक्स्पायर हो चुकी है. हालांकि, आप अपनी प्राथमिकताएं अपने खाते से प्रबंधित कर सकते हैं"
@@ -2774,6 +2807,7 @@
         null,
         "आप एक ही कमेंट की दो बार समीक्षा नहीं कर सकते"
       ],
+      "This comment has already been marked as spam": [null, ""],
       "This event already exists.": [null, "यह ईवेंट पहले से मौजूद है."],
       "New Event": [null, "नया ईवेंट"],
       "Add event": [null, "ईवेंट जोड़ें"],

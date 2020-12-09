@@ -1,3 +1,5 @@
+// Strings used in window.gettext fn are in  templates/js/translations_only.js.jinja2
+
 function hexToRgb(hex) {
   if (hex.charAt(0) != '#') hex = '#' + hex;
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -129,13 +131,17 @@ $(function () {
               data: JSON.stringify(json),
               success: function (result) {
                 toastr.success(
-                  'The room sequence and colors have been updated.'
+                  window.gettext(
+                    'The room sequence and colors have been updated.'
+                  )
                 );
               },
               complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   toastr.error(
-                    'There was a problem in contacting the server. Please try again later.'
+                    window.gettext(
+                      'There was a problem in contacting the server. Please try again later.'
+                    )
                   );
                 }
               },
@@ -223,7 +229,9 @@ $(function () {
           complete: function (xhr, type) {
             if (type == 'error' || type == 'timeout') {
               toastr.error(
-                'There was a problem in contacting the server. Please try again.'
+                window.gettext(
+                  'There was a problem in contacting the server. Please try again.'
+                )
               );
             }
             popup.container.find('.save').prop('disabled', false);
@@ -240,8 +248,9 @@ $(function () {
         success: function (result) {
           popup.title().text(events.current.title);
           if (settings.editable) {
-            if (events.current.obj_data.id) popup.title().text('Edit Session');
-            else popup.title().text('Schedule Session');
+            if (events.current.obj_data.id)
+              popup.title().text(window.gettext('Edit Session'));
+            else popup.title().text(window.gettext('Schedule Session'));
           } else {
             popup
               .title()
@@ -261,7 +270,9 @@ $(function () {
           if (type == 'error' || type == 'timeout') {
             popup.close();
             toastr.error(
-              'There was a problem in contacting the server. Please try again later.'
+              window.gettext(
+                'There was a problem in contacting the server. Please try again later.'
+              )
             );
           }
         },
@@ -422,7 +433,7 @@ $(function () {
           modal_url: NEW_SESSION_URL,
           start: startDate,
           end: endDate,
-          title: 'Add new session',
+          title: window.gettext('Add new session'),
           unscheduled: $('body #dummy'),
         };
         calendar.add(event);
@@ -459,8 +470,10 @@ $(function () {
         custom.find('.fc-event-delete').click(function (e) {
           if (
             confirm(
-              event.obj_data.title +
-                ' will be removed from the schedule. Are you sure you want to remove it?'
+              window.gettext(
+                '%s will be removed from the schedule. Are you sure you want to remove it?',
+                event.obj_data.title
+              )
             )
           ) {
             $.ajax({
@@ -475,13 +488,19 @@ $(function () {
                     toastr.warning(response.msg);
                   }
                 } else {
-                  toastr.error('There was a problem in deleting the session.');
+                  toastr.error(
+                    window.gettext(
+                      'There was a problem in deleting the session.'
+                    )
+                  );
                 }
               },
               complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   toastr.error(
-                    'There was a problem in contacting the server. Please try again later.'
+                    window.gettext(
+                      'There was a problem in contacting the server. Please try again later.'
+                    )
                   );
                 }
               },
@@ -516,7 +535,9 @@ $(function () {
           calendar.container
             .find('.fc-header-right')
             .append(
-              '<span class="hg-fc-button mui-btn save-schedule">Save</span>'
+              '<span class="hg-fc-button mui-btn save-schedule">' +
+                window.gettext('Save') +
+                '</span>'
             );
           var button = calendar.container.find('.save-schedule');
           button.enable = function (label) {
@@ -555,7 +576,15 @@ $(function () {
       calendar.container
         .find('.fc-header-left')
         .append(
-          '<div class="tabs"><button class="tabs__item js-fc-zoom" data-slotinterval="5">5 mins</button> <button class="tabs__item js-fc-zoom" data-slotinterval="15">15 mins</button> <button class="tabs__item js-fc-zoom" data-slotinterval="30">30 mins</button> <button class="tabs__item js-fc-zoom" data-slotinterval="60">60 mins</button></div>'
+          '<div class="tabs"><button class="tabs__item js-fc-zoom" data-slotinterval="5">' +
+            window.gettext('5 mins') +
+            '</button> <button class="tabs__item js-fc-zoom" data-slotinterval="15">' +
+            window.gettext('15 mins') +
+            '</button> <button class="tabs__item js-fc-zoom" data-slotinterval="30">' +
+            window.gettext('30 mins') +
+            '</button> <button class="tabs__item js-fc-zoom" data-slotinterval="60">' +
+            window.gettext('60 mins') +
+            '</button></div>'
         );
       $(
         '.js-fc-zoom[data-slotinterval=' +
@@ -579,7 +608,9 @@ $(function () {
         calendar.container
           .find('.fc-header-right')
           .prepend(
-            '<label for="autosaver" class="hg-fc-checkbox"><input id="autosaver" class="autosave" type="checkbox"> Autosave</label>'
+            '<label for="autosaver" class="hg-fc-checkbox"><input id="autosaver" class="autosave" type="checkbox">' +
+              window.gettext('Autosave') +
+              '</label>'
           );
         var autosaver = calendar.container.find('.autosave');
         autosaver.prop('checked', events.autosave);
@@ -679,11 +710,11 @@ $(function () {
       events.onChange = function (event, jsEvent, ui, view) {
         event.saved = false;
         events.update_time(event);
-        calendar.buttons.save.enable('Save');
+        calendar.buttons.save.enable(window.gettext('Save'));
         if (events.autosave) events.save();
       };
       events.save = function () {
-        calendar.buttons.save.disable('Saving...');
+        calendar.buttons.save.disable(window.gettext('Saving...'));
         var event_list = calendar.events('unsaved');
         var e = [];
         for (event in event_list) {
@@ -695,16 +726,26 @@ $(function () {
           data: [{ name: 'sessions', value: JSON.stringify(e) }],
           success: function (result) {
             for (event in event_list) event_list[event].saved = true;
-            calendar.buttons.save.disable('Saved');
+            calendar.buttons.save.disable(window.gettext('Saved'));
           },
           complete: function (xhr, type) {
             if (type == 'error' || type == 'timeout') {
-              calendar.buttons.save.enable('Save');
-              toastr.error(
-                'There was a problem in contacting the server. There are ' +
-                  e.length +
-                  ' unsaved sessions. Please try again later.'
-              );
+              calendar.buttons.save.enable(window.gettext('Save'));
+              if (e.length > 2) {
+                toastr.error(
+                  window.gettext(
+                    'There was a problem in contacting the server. There are %d unsaved sessions. Please try again later.',
+                    e.length
+                  )
+                );
+              } else {
+                toastr.error(
+                  window.gettext(
+                    'There was a problem in contacting the server. There are %d unsaved session. Please try again later.',
+                    e.length
+                  )
+                );
+              }
             }
           },
         });
