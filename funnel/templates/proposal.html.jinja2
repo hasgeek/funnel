@@ -95,7 +95,7 @@
       <div class="mui--d-inlineblock">
       <h1 class="mui--text-title mui--text-bold mui--pull-left">{{ proposal.title }}</h1>
         {% if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
-          <a class="mui--text-title mui--text-light mui--d-inlineblock mui--pull-right" href="{{ proposal.url_for('admin') }}" rel="modal:open" aria-label="{% trans %}Admin panel{% endtrans %}">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+          <a class="mui--text-title mui--text-light mui--d-inlineblock mui--pull-right" href="{{ proposal.url_for('admin') }}" rel="modal:open" aria-label="{% trans %}Admin panel{% endtrans %}">{{ faicon(icon='cog', icon_size='title', baseline=false) }}</a>
         {% endif %}
       </div>
       <div class="zero-bottom-margin">
