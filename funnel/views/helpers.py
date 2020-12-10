@@ -182,6 +182,11 @@ def validate_rate_limit(
     For an example of how the token and validator are used, see
     :func:`progressive_rate_limit_validator` and its users.
     """
+    # statsd.set requires an ASCII string. The identifier parameter is typically UGC,
+    # meaning it can contain just about any character and any length. The identifier
+    # is hashed using BLAKE2b here to bring it down to a meaningful length. It is not
+    # reversible should that be needed for debugging, but the obvious alternative Base64
+    # encoding (for convering to 7-bit ASCII) cannot be used as it does not limit length
     statsd.set(
         'rate_limit',
         blake2b(identifier.encode(), digest_size=32).hexdigest(),

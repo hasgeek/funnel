@@ -176,8 +176,6 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
             'ticket_event': self.obj,
             'project': self.obj.project,
             'badge_form': TicketParticipantBadgeForm(model=TicketParticipant),
-            'checkin_form': forms.Form(),
-            'csrf_form': forms.Form(),
         }
 
     @route('edit', methods=['GET', 'POST'])

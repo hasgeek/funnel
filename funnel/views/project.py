@@ -278,7 +278,6 @@ class ProjectView(
         return {
             'project': self.obj.current_access(),
             'current_rsvp': current_rsvp,
-            'csrf_form': forms.Form(),
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
@@ -292,7 +291,6 @@ class ProjectView(
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('videos')
@@ -302,7 +300,6 @@ class ProjectView(
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('json')
@@ -763,7 +760,6 @@ class ProjectView(
             'profile': self.obj.profile,
             'project': self.obj,
             'ticket_events': self.obj.ticket_events,
-            'csrf_form': forms.Form(),
         }
 
     @route('settings', methods=['GET', 'POST'])
@@ -779,7 +775,6 @@ class ProjectView(
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('comments', methods=['GET'])
@@ -806,7 +801,6 @@ class ProjectView(
                 'comments': comments,
                 'commentform': commentform,
                 'delcommentform': forms.Form(),
-                'csrf_form': forms.Form(),
             }
 
     @route('toggle_featured', methods=['POST'])

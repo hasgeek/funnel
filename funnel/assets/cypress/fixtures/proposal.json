@@ -1,12 +1,7 @@
 {
   "title": "End to end testing",
-  "abstract": "This talk is about e2e testing in frontend using Cypress.",
-  "outline": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. \nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-  "slides": "https://hasgeek.com/about",
+  "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. \nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   "preview_video": "https://www.youtube.com/watch?v=SLlSDI-N8iM",
-  "speaker_bio": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ali",
-  "phone": "990001234",
-  "location": "Bangalore",
   "room": "Taj M G Road – Banquet hall",
   "venue_room": "Banquet hall, Taj M G Road",
   "time": "9:05",

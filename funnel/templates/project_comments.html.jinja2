@@ -28,7 +28,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='subhead') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Comments{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='comments') }}
+  {{ project_header(project, class='mui--hidden-xs mui--hidden-sm', current_page='comments') }}
 {% endblock %}
 
 {% block basecontent %}
@@ -63,6 +63,7 @@
 
       var commentsConfig = {
         newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
+        commentsUrl: "{{ project.url_for('comments') }}",
         comments: [],
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',

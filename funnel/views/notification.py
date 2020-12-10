@@ -10,7 +10,7 @@ from flask import url_for
 from flask_babelhg import force_locale
 from werkzeug.utils import cached_property
 
-from baseframe import _, __, statsd
+from baseframe import __, statsd
 from coaster.auth import current_auth
 
 from .. import app, rq
@@ -252,11 +252,13 @@ class RenderNotification:
 
     def email_from(self):
         """Sender of an email."""
+        # FIXME: This field is NOT localized as it's causing an unknown downstream
+        # issue that renders the From name as `=?utf-8?b?Tm90a...`
         if self.notification.preference_context:
-            return _("{sender} (via Hasgeek)").format(
+            return "{sender} (via Hasgeek)".format(
                 sender=self.notification.preference_context.title
             )
-        return _("Hasgeek")
+        return "Hasgeek"
 
     def sms(self):
         """
