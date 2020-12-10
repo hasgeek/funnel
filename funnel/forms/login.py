@@ -73,7 +73,7 @@ class LoginForm(forms.Form):
         if not self.user.pw_hash:
             raise LoginPasswordResetException()
 
-        # Check password. If valid but using a deprecated algorithm like bcrypt2, also
+        # Check password. If valid but using a deprecated algorithm like bcrypt, also
         # perform an automatic hash upgrade
         if not self.user.password_is(field.data, upgrade_hash=True):
             raise forms.ValidationError(_("Incorrect password"))
