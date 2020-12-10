@@ -785,9 +785,14 @@ a.loginbutton.hidden,
   padding-left: 0;
   display: flex;
   list-style: inside;
+  margin: 0;
 }
 .bullet-separated-list--flex li {
   padding: 0 4px;
+}
+.bullet-separated-list--flex li span.bullet-separated-list__span {
+  position: relative;
+  left: -8px;
 }
 .bullet-separated-list--flex li:first-child {
   list-style-type: none;
@@ -3914,7 +3919,6 @@ a.loginbutton.hidden,
 }
 
 .proposal-wrapper {
-  border-radius: 4px;
   border: 1px solid rgba(132, 146, 166, 0.3);
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
     0 1px 2px rgba(158, 158, 158, 0.24);
@@ -3959,10 +3963,6 @@ a.loginbutton.hidden,
 }
 
 @media (min-width: 768px) {
-  .proposal-wrapper {
-    margin: 0 16px;
-  }
-
   .slider-btn--push-down {
     position: relative;
     top: 0;
@@ -3974,10 +3974,6 @@ a.loginbutton.hidden,
   }
 }
 @media (min-width: 1300px) {
-  .proposal-wrapper {
-    margin-bottom: 16px;
-  }
-
   .proposal__section__headline {
     margin-top: 0px;
   }
@@ -4022,22 +4018,7 @@ a.loginbutton.hidden,
   position: relative;
   overflow: visible;
 }
-.details .details__box--right,
-.details .details__box--left {
-  margin-top: 16px;
-}
 
-@media (min-width: 992px) {
-  .details {
-    display: flex;
-  }
-  .details .details__box--left {
-    width: 70%;
-  }
-  .details .details__box--right {
-    width: 30%;
-  }
-}
 .details__box__video--novideo {
   padding-left: 10px;
   padding-right: 10px;
@@ -4066,16 +4047,6 @@ a.loginbutton.hidden,
   margin-right: 0;
 }
 
-@media (min-width: 992px) {
-  .details__box__video {
-    min-width: 300px;
-  }
-}
-@media (min-width: 1200px) {
-  .details__box__video {
-    min-width: 500px;
-  }
-}
 .gallery {
   background: #000;
   display: flex;
@@ -4127,28 +4098,10 @@ a.loginbutton.hidden,
   display: none;
 }
 
-@media (min-width: 992px) {
-  .gallery {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    padding: 16px 0;
-    background: #000;
-    overflow: scroll;
-    flex-direction: column;
-  }
-  .gallery .gallery__thumbnail {
-    flex: 0 0 33.33%;
-    margin: 0;
-  }
-  .gallery .gallery-control {
-    display: none;
-  }
-  .gallery .gallery__text {
-    display: block;
-    padding: 0 16px;
-  }
+.proposal-video-thumbnail {
+  max-width: 60%;
 }
+
 .proposal-move-form div {
   display: inline-block;
 }

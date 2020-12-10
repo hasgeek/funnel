@@ -848,8 +848,13 @@ a.loginbutton.hidden,
   padding-left: 0;
   display: flex;
   list-style: inside;
+  margin: 0;
   li {
     padding: 0 4px;
+    span.bullet-separated-list__span {
+      position: relative;
+      left: -8px;
+    }
   }
   li:first-child {
     list-style-type: none;
