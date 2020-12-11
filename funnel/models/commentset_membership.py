@@ -2,7 +2,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable
 
-from . import Commentset, User, db
+from . import User, db
 from .helpers import reopen
 from .membership import ImmutableMembershipMixin
 
@@ -30,7 +30,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
     )
     commentset = immutable(
         db.relationship(
-            Commentset,
+            "Commentset",
             backref=db.backref(
                 'subscriber_memberships',
                 lazy='dynamic',

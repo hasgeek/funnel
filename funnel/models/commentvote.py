@@ -11,15 +11,8 @@ from coaster.sqlalchemy import RoleAccessProxy, StateManager, cached, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import (
-    BaseMixin,
-    CommentsetMembership,
-    MarkdownColumn,
-    NoIdMixin,
-    TSVectorType,
-    UuidMixin,
-    db,
-)
+from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
+from .commentset_membership import CommentsetMembership
 from .helpers import add_search_trigger, reopen
 from .user import DuckTypeUser, User, deleted_user, removed_user
 
