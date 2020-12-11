@@ -1,11 +1,14 @@
 .proposal-wrapper {
   border: 1px solid rgba(132, 146, 166, 0.3);
-  border-radius: 16px 16px 0 16px;
   padding: 0;
   margin: 0;
   position: relative;
   background: $mui-bg-color-primary;
-  overflow: hidden;
+  .proposal__wrapper__alert {
+    padding: $mui-grid-padding/2 $mui-grid-padding;
+    margin: 0;
+    border-radius: 0;
+  }
 }
 
 .proposal__section {
@@ -34,6 +37,8 @@
 }
 
 .details {
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
   .details__box {
     position: relative;
     overflow: visible;
@@ -366,11 +371,23 @@
   }
 }
 
+.proposal-page {
+  .jquery-modal.blocker.current .modal {
+    .mui-select .mui-select__menu {
+      max-width: 100%;
+      top: 24px !important;
+    }
+  }
+}
+
 @media (max-width: 767px) {
   .proposal-page {
     .jquery-modal.blocker.current .modal {
       width: 100%;
       border-radius: 0;
+      .mui-select .mui-select__menu {
+        max-width: 100%;
+      }
     }
   }
 }
