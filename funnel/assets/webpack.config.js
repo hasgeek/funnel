@@ -61,7 +61,6 @@ module.exports = {
     contact: path.resolve(__dirname, 'js/contact.js'),
     search: path.resolve(__dirname, 'js/search.js'),
     membership: path.resolve(__dirname, 'js/membership.js'),
-    session_videos: path.resolve(__dirname, 'js/session_videos.js'),
     comments: path.resolve(__dirname, 'js/comments.js'),
     update: path.resolve(__dirname, 'js/update.js'),
     rsvp_list: path.resolve(__dirname, 'js/rsvp_list.js'),

@@ -67,7 +67,7 @@
           <div class="proposal-wrapper">
             <div class="details">
               {% if proposal.session and proposal.session.video or proposal.video or 'edit_proposal' in proposal.permissions(current_auth.user) %}
-                <div class="details__box details__box--left mui-tabs__bar">
+                <div class="details__box mui-tabs__bar">
                   {% with seq = 1 %}
                     {% if proposal.session and proposal.session.video and proposal.session.video.url %}
                       <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
@@ -183,7 +183,7 @@
             {% endif %}
 
             <section class="proposal__section--border">
-              <div class="proposal__section proposal__section--left">
+              <div class="proposal__section proposal__section--bleed-x">
                 <div class="proposal-content">
                   {{ proposal.body }}
                 </div>
@@ -199,8 +199,8 @@
         </div>
 
         <div class="grid__col-sm-4 mui--hidden-xs mui--hidden-sm">
-          <h2 class="mui--text-subhead mui--text-bold mui--text-uppercase zero-top-margin">{% trans %}Up next{% endtrans %}</h2>
           {%- if proposal.getnext() -%}
+            <h2 class="mui--text-subhead mui--text-bold mui--text-uppercase zero-top-margin">{% trans %}Up next{% endtrans %}</h2>
             {{ proposal_card(proposal.getnext()) }}
           {%- endif -%}
         </div>

@@ -3953,11 +3953,20 @@ a.loginbutton.hidden,
   margin: 0;
   position: relative;
   background: #ffffff;
+  border-radius: 16px 16px 0 16px;
 }
 .proposal-wrapper .proposal__wrapper__alert {
   padding: 8px 16px;
   margin: 0;
   border-radius: 0;
+}
+.proposal-wrapper .details {
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+}
+.proposal-wrapper .details .details__box {
+  position: relative;
+  overflow: visible;
 }
 
 .proposal__section {
@@ -3977,21 +3986,12 @@ a.loginbutton.hidden,
   padding: 0 32px 0 0;
 }
 
+.proposal__section--bleed-x {
+  padding: 0 16px;
+}
+
 .proposal__section--bleed-y {
   padding: 16px 0;
-}
-
-.proposal__section--heading {
-  margin-bottom: 16px;
-}
-
-.details {
-  border-radius: 16px 16px 0 0;
-  overflow: hidden;
-}
-.details .details__box {
-  position: relative;
-  overflow: visible;
 }
 
 .details__box__video--novideo {
@@ -4006,6 +4006,7 @@ a.loginbutton.hidden,
   background-color: #dda32a;
   padding: 10px;
   opacity: 0.8;
+  white-space: pre-wrap;
 }
 
 .details__box__control {
@@ -4099,9 +4100,7 @@ a.loginbutton.hidden,
   .proposal-card--fullwidth .proposal-card__video-thumbnail {
     max-width: 200px;
     margin-top: 14px;
-  }
-  .proposal-card--fullwidth .proposal-card__body {
-    width: calc(100% - 216px);
+    margin: 14px 16px 0 0;
   }
   .proposal-card--fullwidth .proposal-card__body .proposal-card__body__details {
     justify-content: left;
@@ -4894,13 +4893,13 @@ a.loginbutton.hidden,
   .session-modal--nopadding
   .modal__body
   .modal__body__separator {
-  margin: 16px;
+  margin: 16px 0;
 }
 .jquery-modal.blocker.current
   .session-modal--nopadding
   .modal__body
   .modal__body__section {
-  margin: 32px 0;
+  margin: 0 0 16px;
 }
 .jquery-modal.blocker.current
   .session-modal--nopadding
@@ -4908,6 +4907,13 @@ a.loginbutton.hidden,
   .modal__body__section
   .modal__body__section__text {
   margin: 0 0 5px;
+}
+.jquery-modal.blocker.current
+  .session-modal--nopadding
+  .modal__body
+  .details__box--left {
+  max-width: 70%;
+  margin-top: 16px;
 }
 
 @media (min-width: 1200px) {
