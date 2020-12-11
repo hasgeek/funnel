@@ -12,7 +12,6 @@ from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
 from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
-from .commentset_membership import CommentsetMembership
 from .helpers import add_search_trigger, reopen
 from .user import DuckTypeUser, User, deleted_user, removed_user
 
@@ -172,27 +171,6 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         if 'participant' in parent_roles or 'commenter' in parent_roles:
             roles.add('parent_participant')
         return roles
-
-    def add_subscriber(self, actor: User, user: User) -> None:
-        existing_ms = CommentsetMembership.query.filter(
-            commentset=self, user=user, is_active=True
-        ).one_or_none()
-        if existing_ms is None:
-            new_ms = CommentsetMembership(
-                commentset=self,
-                user=user,
-                granted_by=actor,
-            )
-            db.session.add(new_ms)
-        else:
-            existing_ms.last_seen_at = db.func.utcnow()
-
-    def remove_subscriber(self, actor: User, user: User) -> None:
-        existing_ms = CommentsetMembership.query.filter(
-            commentset=self, user=user, is_active=True
-        ).one_or_none()
-        if existing_ms is not None:
-            existing_ms.revoke(actor=actor)
 
 
 class Comment(UuidMixin, BaseMixin, db.Model):

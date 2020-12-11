@@ -1,8 +1,9 @@
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable
+from coaster.sqlalchemy import immutable, with_roles
 
 from . import User, db
+from .commentvote import Commentset
 from .helpers import reopen
 from .membership import ImmutableMembershipMixin
 
@@ -19,6 +20,8 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
             'read': {
                 'urls',
                 'user',
+                'commentset',
+                'last_seen_at',
             }
         }
     }
@@ -45,14 +48,8 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
 
     @cached_property
     def offered_roles(self):
-        """
-        Roles offered by this membership record.
-
-        This property will typically not be used, as the ``User.is_*`` properties
-        directly test the role columns. This property exists solely to satisfy the
-        :attr:`offered_roles` membership ducktype.
-        """
-        roles = {}
+        """Roles offered by this membership record."""
+        roles = set()
         if self.is_active:
             roles.add('commentset_subscriber')
         return roles
@@ -70,7 +67,39 @@ class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         viewonly=True,
     )
 
-    # List of commentsets the user is subscribed to
-    subscribed_commentsets = DynamicAssociationProxy(
-        'active_commentset_memberships', 'commentset'
+
+@reopen(Commentset)
+class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+    active_memberships = with_roles(
+        db.relationship(
+            CommentsetMembership,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                CommentsetMembership.commentset_id == Commentset.id,
+                CommentsetMembership.is_active,
+            ),
+            viewonly=True,
+        ),
+        grants_via={'user': {'commentset_subscriber'}},
     )
+
+    def add_subscriber(self, actor: User, user: User) -> None:
+        existing_ms = CommentsetMembership.query.filter_by(
+            commentset=self, user=user, is_active=True
+        ).one_or_none()
+        if existing_ms is None:
+            new_ms = CommentsetMembership(
+                commentset=self,
+                user=user,
+                granted_by=actor,
+            )
+            db.session.add(new_ms)
+        else:
+            existing_ms.last_seen_at = db.func.utcnow()
+
+    def remove_subscriber(self, actor: User, user: User) -> None:
+        existing_ms = CommentsetMembership.query.filter_by(
+            commentset=self, user=user, is_active=True
+        ).one_or_none()
+        if existing_ms is not None:
+            existing_ms.revoke(actor=actor)

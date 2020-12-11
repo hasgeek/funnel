@@ -792,12 +792,19 @@ class ProjectView(
                 db.session.commit()
 
         comments = self.obj.commentset.views.json_comments()
+        subscribed = bool(self.obj.commentset.current_roles.commentset_subscriber)
         if request_is_xhr():
-            return jsonify({'comments': comments})
+            return jsonify(
+                {
+                    'subscribed': subscribed,
+                    'comments': comments,
+                }
+            )
         else:
             commentform = CommentForm(model=Comment)
             return {
                 'project': self.obj,
+                'subscribed': subscribed,
                 'comments': comments,
                 'commentform': commentform,
                 'delcommentform': forms.Form(),
