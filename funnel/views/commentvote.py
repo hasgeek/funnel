@@ -22,7 +22,6 @@ from ..models import (
     CommentReplyNotification,
     CommentReportReceivedNotification,
     Commentset,
-    CommentsetMembership,
     NewCommentNotification,
     Proposal,
     Voteset,
@@ -155,6 +154,10 @@ class CommentsetView(UrlForView, ModelView):
             self.obj.count = Commentset.count + 1
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
+            # add the commenter as subscriber. If the user is already a subscriber,
+            # `add_subscriber` updates the `last_seen_at` field
+            self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+
             db.session.commit()
             dispatch_notification(
                 NewCommentNotification(document=comment.commentset, fragment=comment)
@@ -180,15 +183,8 @@ class CommentsetView(UrlForView, ModelView):
     def subscribe(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
-            if self.obj not in current_auth.user.subscribed_commentsets:
-                new_ms = CommentsetMembership(
-                    commentset=self.obj,
-                    user=current_auth.user,
-                    is_subscriber=True,
-                    granted_by=current_auth.user,
-                )
-                db.session.add(new_ms)
-                db.session.commit()
+            self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+            db.session.commit()
             return {
                 'status': 'ok',
                 'message': _("You have successfully subscribed to this comment thread"),
@@ -209,13 +205,8 @@ class CommentsetView(UrlForView, ModelView):
     def unsubscribe(self):
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
-            if self.obj in current_auth.user.subscribed_commentsets:
-                existing_ms = CommentsetMembership.query.filter(
-                    commentset=self.obj,
-                    user=current_auth.user,
-                ).one()
-                existing_ms.is_subscriber = False
-                db.session.commit()
+            self.obj.remove_subscriber(actor=current_auth.user, user=current_auth.user)
+            db.session.commit()
             return {
                 'status': 'ok',
                 'message': _(

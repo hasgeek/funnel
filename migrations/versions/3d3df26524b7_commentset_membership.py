@@ -24,7 +24,6 @@ def upgrade():
         sa.Column('revoked_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('record_type', sa.Integer(), nullable=False),
         sa.Column('commentset_id', sa.Integer(), nullable=False),
-        sa.Column('is_subscriber', sa.Boolean(), nullable=False),
         sa.Column('last_seen_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('revoked_by_id', sa.Integer(), nullable=True),

@@ -14,15 +14,11 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
 
     __tablename__ = 'commentset_membership'
 
-    # List of is_role columns in this model
-    __data_columns__ = {'is_subscriber'}
-
     __roles__ = {
         'all': {
             'read': {
                 'urls',
                 'user',
-                'is_subscriber',
             }
         }
     }
@@ -43,11 +39,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
             ),
         )
     )
-    parent = immutable(db.synonym('commentset'))
-    parent_id = immutable(db.synonym('commentset_id'))
 
-    #: Subscribers are notified of all the new comments in a commentset
-    is_subscriber = db.Column(db.Boolean, nullable=False, default=False)
     #: when the user visited this commentset last
     last_seen_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
@@ -61,7 +53,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
         :attr:`offered_roles` membership ducktype.
         """
         roles = {}
-        if self.is_subscriber:
+        if self.is_active:
             roles.add('commentset_subscriber')
         return roles
 
@@ -78,18 +70,7 @@ class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         viewonly=True,
     )
 
-    active_subscribed_commentset_memberships = db.relationship(
-        CommentsetMembership,
-        lazy='select',
-        primaryjoin=db.and_(
-            CommentsetMembership.user_id == User.id,
-            CommentsetMembership.is_active,
-            CommentsetMembership.is_subscriber.is_(True),
-        ),
-        viewonly=True,
-    )
-
-    commentsets = DynamicAssociationProxy('active_commentset_memberships', 'commentset')
+    # List of commentsets the user is subscribed to
     subscribed_commentsets = DynamicAssociationProxy(
-        'active_subscribed_commentset_memberships', 'commentset'
+        'active_commentset_memberships', 'commentset'
     )

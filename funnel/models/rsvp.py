@@ -9,7 +9,6 @@ from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
 from . import NoIdMixin, UuidMixin, db
-from .commentset_membership import CommentsetMembership
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -80,22 +79,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         type='primary',
     )
     def rsvp_yes(self, actor: User):
-        previous_membership = (
-            CommentsetMembership.query.filter(CommentsetMembership.is_active)
-            .filter_by(
-                commentset=self.project.commentset,
-                user_id=actor.id,
-            )
-            .one_or_none()
-        )
-        if previous_membership is None:
-            membership = CommentsetMembership(
-                commentset=self.project.commentset,
-                user=actor,
-                granted_by=actor,
-                is_subscriber=True,
-            )
-            db.session.add(membership)
+        self.project.commentset.add_subscriber(actor=actor, user=actor)
 
     @with_roles(call={'owner'})
     @state.transition(
@@ -106,26 +90,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         type='dark',
     )
     def rsvp_no(self, actor):
-        previous_membership = (
-            CommentsetMembership.query.filter(CommentsetMembership.is_active)
-            .filter_by(
-                commentset=self.project.commentset,
-                user_id=actor.id,
-            )
-            .one_or_none()
-        )
-        if previous_membership is None:
-            # just in case there is no membership record when a user is canceling
-            # registration. Cna happen right after introducing the membership feature.
-            # In that case, create one and then revoke it to have a record.
-            previous_membership = CommentsetMembership(
-                commentset=self.project.commentset,
-                user=actor,
-                is_subscriber=False,
-            )
-            db.session.add(previous_membership)
-
-        previous_membership.revoke(actor=actor)
+        self.project.commentset.remove_subscriber(actor=actor, user=actor)
 
     @with_roles(call={'owner'})
     @state.transition(
