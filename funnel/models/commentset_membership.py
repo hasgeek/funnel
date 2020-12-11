@@ -51,7 +51,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
         """Roles offered by this membership record."""
         roles = set()
         if self.is_active:
-            roles.add('commentset_subscriber')
+            roles.add('subscriber')
         return roles
 
 
@@ -80,8 +80,14 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
             ),
             viewonly=True,
         ),
-        grants_via={'user': {'commentset_subscriber'}},
+        grants_via={'user': {'subscriber'}},
     )
+
+    def update_last_seen_at(self, user: User):
+        existing_ms = CommentsetMembership.query.filter_by(
+            commentset=self, user=user, is_active=True
+        ).one()
+        existing_ms.last_seen_at = db.func.utcnow()
 
     def add_subscriber(self, actor: User, user: User) -> None:
         existing_ms = CommentsetMembership.query.filter_by(
@@ -94,8 +100,6 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
                 granted_by=actor,
             )
             db.session.add(new_ms)
-        else:
-            existing_ms.last_seen_at = db.func.utcnow()
 
     def remove_subscriber(self, actor: User, user: User) -> None:
         existing_ms = CommentsetMembership.query.filter_by(

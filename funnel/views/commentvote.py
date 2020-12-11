@@ -154,9 +154,9 @@ class CommentsetView(UrlForView, ModelView):
             self.obj.count = Commentset.count + 1
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
-            # add the commenter as subscriber. If the user is already a subscriber,
-            # `add_subscriber` updates the `last_seen_at` field
-            self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+
+            if not self.obj.current_roles.subscriber:
+                self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
 
             db.session.commit()
             dispatch_notification(

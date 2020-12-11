@@ -792,7 +792,7 @@ class ProjectView(
                 db.session.commit()
 
         comments = self.obj.commentset.views.json_comments()
-        subscribed = bool(self.obj.commentset.current_roles.commentset_subscriber)
+        subscribed = bool(self.obj.commentset.current_roles.subscriber)
         if request_is_xhr():
             return jsonify(
                 {
