@@ -78,8 +78,8 @@ def reset():
                     message=Markup(
                         _(
                             "Your account does not have an email address. However,"
-                            " it is linked to <strong>{service}</strong> with the id"
-                            " <strong>{username}</strong>. You can use that to login."
+                            " it is linked to {service} with the ID"
+                            " {username}. You can use that to login."
                         ).format(
                             service=login_registry[extid.service].title,
                             username=extid.username or extid.userid,
@@ -277,9 +277,9 @@ def reset_email_do():
         formid='password-change',
         submit=_("Reset password"),
         message=Markup(
-            _(
-                "Hello, <strong>{fullname}</strong>. You may now choose a new password."
-            ).format(fullname=escape(user.fullname))
+            _("Hello, {fullname}. You may now choose a new password.").format(
+                fullname=escape(user.fullname)
+            )
         ),
         ajax=False,
         template='account_formlayout.html.jinja2',

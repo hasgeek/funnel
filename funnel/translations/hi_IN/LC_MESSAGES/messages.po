@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-08 04:01+0530\n"
-"PO-Revision-Date: 2020-12-08 04:01+0530\n"
+"POT-Creation-Date: 2020-12-11 18:28+0530\n"
+"PO-Revision-Date: 2020-12-11 17:23+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -490,7 +490,7 @@ msgstr ""
 
 #: funnel/forms/helpers.py:109 funnel/forms/project.py:109
 msgid "A https:// URL is required"
-msgstr "https:// वाली URL आवश्यक है"
+msgstr "https:// URL आवश्यक है"
 
 #: funnel/forms/helpers.py:110
 msgid "Images must be hosted at images.hasgeek.com"
@@ -2023,7 +2023,7 @@ msgstr "क्या आप वाकई इसी पेज पर जाना
 
 #: funnel/templates/410.html.jinja2:7
 msgid "This is gone"
-msgstr "यह ख़त्म हो चुका है"
+msgstr "यह जा चुका है"
 
 #: funnel/templates/410.html.jinja2:12
 msgid "The page you are looking for has been removed"
@@ -2298,23 +2298,17 @@ msgid "Merge accounts"
 msgstr "अकाउंट जोड़ें"
 
 #: funnel/templates/account_merge.html.jinja2:7
-#, python-format
-msgid "<strong>Name:</strong> %(name)s"
-msgstr "<strong>नाम:</strong> %(name)s"
+msgid "Name:"
+msgstr "नाम:"
 
 #: funnel/templates/account_merge.html.jinja2:8
-#, python-format
-msgid "<strong>Username:</strong> %(username)s"
-msgstr "<strong>यूजरनेम:</strong> %(username)s"
+msgid "Username:"
+msgstr "यूजरनेम:"
 
 #: funnel/templates/account_merge.html.jinja2:11
-#, python-format
-msgid "<strong>Email addresses:</strong>%(email)s"
-msgstr "<strong>ईमेल पते:</strong>%(email)s"
-
 #: funnel/templates/account_merge.html.jinja2:12
-msgid "<strong>Email addresses:</strong><em>(none)</em>"
-msgstr "<strong>ईमेल पते:</strong><em>(none)</em>"
+msgid "Email addresses:"
+msgstr "ईमेल पते:"
 
 #: funnel/templates/account_merge.html.jinja2:15
 msgid "External IDs:"
@@ -2629,13 +2623,9 @@ msgstr "अपने ईमेल पते की पुष्टि करे�
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has added you to <b>%(project)s</b> as a crew "
-"member.\n"
+"    %(actor)s has added you to %(project)s as a crew member.\n"
 "  "
 msgstr ""
-"\n"
-"<b>%(actor)s</b> ने आपको <b>%(project)s</b> दल के सदस्य के रूप में जोड़ा "
-"है."
 
 #: funnel/templates/email_project_crew_membership_add_notification.html.jinja2:9
 #: funnel/templates/email_project_crew_membership_revoke_notification.html.jinja2:9
@@ -2646,13 +2636,9 @@ msgstr "दल के सभी सदस्यों को देखें"
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has invited you to join <b>%(project)s</b> as a crew"
-" member.\n"
+"    %(actor)s has invited you to join %(project)s as a crew member.\n"
 "  "
 msgstr ""
-"\n"
-"<b>%(actor)s</b> ने आपको दल के सदस्य के रूप में <b>%(project)s</b> में "
-"शामिल होने के लिए आमंत्रित किया है."
 
 #: funnel/templates/email_project_crew_membership_invite_notification.html.jinja2:9
 msgid "Accept or decline invite"
@@ -2662,12 +2648,9 @@ msgstr "आमंत्रण को स्वीकार करें या �
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has removed you as a crew member from "
-"<b>%(project)s</b>.\n"
+"    %(actor)s has removed you as a crew member from %(project)s.\n"
 "  "
 msgstr ""
-"\n"
-"<b>%(actor)s</b> ने आपको <b>%(project)s</b> के दल के सदस्य से हटा दिया है."
 
 #: funnel/templates/funnelindex.html.jinja2:5
 msgid "Talkfunnel hosts proposal submissions and reviews for events."
@@ -2755,7 +2738,7 @@ msgstr "लेबल संपादित करें"
 
 #: funnel/templates/labels.html.jinja2:18
 msgid "Create new label"
-msgstr "नया लेबल बनाए "
+msgstr "नया लेबल बनाएं"
 
 #: funnel/templates/labels.html.jinja2:33
 msgid "(No labels)"
@@ -3050,7 +3033,7 @@ msgstr "मेरी सेव की गई चीज़ें"
 #: funnel/templates/macros.html.jinja2:310
 #: funnel/templates/scan_contact.html.jinja2:4
 msgid "Scan badge"
-msgstr "बैच स्कैन करें"
+msgstr "बैज स्कैन करें"
 
 #: funnel/templates/macros.html.jinja2:311
 msgid "Contacts"
@@ -3457,8 +3440,8 @@ msgstr "प्रस्ताव को संपादित करें"
 
 #: funnel/templates/proposal.html.jinja2:36
 #, python-format
-msgid "Submitted by <strong>%(speaker)s</strong>"
-msgstr "<strong>%(speaker)s</strong> के द्वारा"
+msgid "Submitted by %(speaker)s"
+msgstr "%(speaker)s के द्वारा"
 
 #: funnel/templates/proposal.html.jinja2:37
 #, python-format
@@ -3467,8 +3450,8 @@ msgstr "%(proposal_user)s की तरफ से"
 
 #: funnel/templates/proposal.html.jinja2:38
 #, python-format
-msgid "Submitted by <strong>%(user)s</strong>"
-msgstr "<strong>%(user)s</strong> के द्वारा"
+msgid "Submitted by %(user)s"
+msgstr "%(user)s के द्वारा"
 
 #: funnel/templates/proposal.html.jinja2:39
 msgid "proposing"
@@ -3706,8 +3689,8 @@ msgid "Review comments"
 msgstr "कमेंट की समीक्षा करें"
 
 #: funnel/templates/siteadmin_review_comment.html.jinja2:9
-msgid "This comment has been reported as <strong>spam</strong>."
-msgstr "यह कमेंट <strong>स्पैम</strong> के तौर पर रिपोर्ट की गई है."
+msgid "This comment has been reported as spam."
+msgstr "यह कमेंट पैम के तौर पर रिपोर्ट की गई है."
 
 #: funnel/templates/ticket_event.html.jinja2:6
 msgid "Setup events"
@@ -4281,12 +4264,10 @@ msgid "Update account"
 msgstr "खाता अपडेट करें"
 
 #: funnel/views/account.py:368
-msgid ""
-"Hello, <strong>{fullname}</strong>. Please spare a minute to fill out "
-"your account"
+msgid "Hello, {fullname}. Please spare a minute to fill out your account"
 msgstr ""
-"नमस्ते, <strong>{fullname}</strong>. कृपया अपने खाते की जानकारी भरने के "
-"लिए एक मिनट का समय दें"
+"नमस्ते, {fullname}. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय"
+" दें"
 
 #: funnel/views/account.py:378
 msgid "Edit account"
@@ -4319,11 +4300,11 @@ msgstr "ईमेल पता पहले से वेरिफाइड ह�
 
 #: funnel/views/account.py:418
 msgid ""
-"Hello <strong>{fullname}</strong>! Your email address "
-"<code>{email}</code> has already been verified"
+"Hello {fullname}! Your email address <code>{email}</code> has already "
+"been verified"
 msgstr ""
-"नमस्ते <strong> {fullname} </strong>! आपका ईमेल पता <code>{email}</code> "
-"पहले ही वेरिफाई हो चुका है"
+"नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो "
+"चुका है"
 
 #: funnel/views/account.py:439
 msgid "Email address verified"
@@ -4331,11 +4312,11 @@ msgstr "ईमेल पता वेरिफाई किया गया"
 
 #: funnel/views/account.py:441
 msgid ""
-"Hello <strong>{fullname}</strong>! Your email address "
-"<code>{email}</code> has now been verified"
+"Hello {fullname}! Your email address <code>{email}</code> has now been "
+"verified"
 msgstr ""
-"नमस्ते <strong>{fullname}</strong>! आपका ईमेल पता <code>{email}</code> अब"
-" वेरिफाई हो चुका है"
+"नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका "
+"है"
 
 #: funnel/views/account.py:451
 msgid "This was not for you"
@@ -4513,12 +4494,10 @@ msgstr "पासवर्ड रीसेट नहीं किया जा �
 #: funnel/views/account_reset.py:79
 msgid ""
 "Your account does not have an email address. However, it is linked to "
-"<strong>{service}</strong> with the id <strong>{username}</strong>. You "
-"can use that to login."
+"{service} with the ID {username}. You can use that to login."
 msgstr ""
-"आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह आईडी "
-"<strong>{username}</strong> के साथ <strong>{service}</strong> से जुड़ा "
-"हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
+"आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ "
+"{service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
 
 #: funnel/views/account_reset.py:93
 msgid ""
@@ -4604,8 +4583,8 @@ msgstr ""
 "लॉग आउट किया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं."
 
 #: funnel/views/account_reset.py:280
-msgid "Hello, <strong>{fullname}</strong>. You may now choose a new password."
-msgstr "नमस्ते, <strong>{fullname}</strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
+msgid "Hello, {fullname}. You may now choose a new password."
+msgstr "नमस्ते, {fullname}. अब आप एक नया पासवर्ड चुन सकते हैं."
 
 #: funnel/views/auth_client.py:85
 msgid "Register a new client application"
@@ -5803,7 +5782,7 @@ msgstr "सेव करें और देखें"
 
 #: funnel/views/update.py:129
 msgid "The update has been published"
-msgstr "अपडेट पब्लिश किया गया है"
+msgstr "अपडेट पब्लिश हो चुकी है"
 
 #: funnel/views/update.py:134
 msgid "There was an error publishing this update. Please refresh and try again"
@@ -6196,3 +6175,101 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "External ids:"
 #~ msgstr "एक्सटर्नल आईडी:"
+
+#~ msgid "<strong>Name:</strong> %(name)s"
+#~ msgstr "<strong>नाम:</strong> %(name)s"
+
+#~ msgid "<strong>Username:</strong> %(username)s"
+#~ msgstr "<strong>यूजरनेम:</strong> %(username)s"
+
+#~ msgid "<strong>Email addresses:</strong>%(email)s"
+#~ msgstr "<strong>ईमेल पते:</strong>%(email)s"
+
+#~ msgid "<strong>Email addresses:</strong><em>(none)</em>"
+#~ msgstr "<strong>ईमेल पते:</strong><em>(none)</em>"
+
+#~ msgid "Submitted by <strong>%(speaker)s</strong>"
+#~ msgstr "<strong>%(speaker)s</strong> के द्वारा"
+
+#~ msgid "Submitted by <strong>%(user)s</strong>"
+#~ msgstr "<strong>%(user)s</strong> के द्वारा"
+
+#~ msgid "This comment has been reported as <strong>spam</strong>."
+#~ msgstr "यह कमेंट <strong>स्पैम</strong> के तौर पर रिपोर्ट की गई है."
+
+#~ msgid ""
+#~ "Hello, <strong>{fullname}</strong>. Please spare "
+#~ "a minute to fill out your account"
+#~ msgstr ""
+#~ "नमस्ते, <strong>{fullname}</strong>. कृपया अपने "
+#~ "खाते की जानकारी भरने के लिए एक "
+#~ "मिनट का समय दें"
+
+#~ msgid ""
+#~ "Hello <strong>{fullname}</strong>! Your email "
+#~ "address <code>{email}</code> has already been"
+#~ " verified"
+#~ msgstr ""
+#~ "नमस्ते <strong> {fullname} </strong>! आपका "
+#~ "ईमेल पता <code>{email}</code> पहले ही "
+#~ "वेरिफाई हो चुका है"
+
+#~ msgid ""
+#~ "Hello <strong>{fullname}</strong>! Your email "
+#~ "address <code>{email}</code> has now been "
+#~ "verified"
+#~ msgstr ""
+#~ "नमस्ते <strong>{fullname}</strong>! आपका ईमेल "
+#~ "पता <code>{email}</code> अब वेरिफाई हो "
+#~ "चुका है"
+
+#~ msgid ""
+#~ "Your account does not have an "
+#~ "email address. However, it is linked "
+#~ "to <strong>{service}</strong> with the id "
+#~ "<strong>{username}</strong>. You can use that"
+#~ " to login."
+#~ msgstr ""
+#~ "आपके खाते में ईमेल पता दर्ज नहीं"
+#~ " है. हालांकि, यह आईडी "
+#~ "<strong>{username}</strong> के साथ "
+#~ "<strong>{service}</strong> से जुड़ा हुआ है."
+#~ " आप लॉगिन करने के लिए उसका "
+#~ "उपयोग कर सकते हैं."
+
+#~ msgid "Hello, <strong>{fullname}</strong>. You may now choose a new password."
+#~ msgstr "नमस्ते, <strong>{fullname}</strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
+
+#~ msgid ""
+#~ "\n"
+#~ "    <b>%(actor)s</b> has added you to"
+#~ " <b>%(project)s</b> as a crew member.\n"
+#~ ""
+#~ "  "
+#~ msgstr ""
+#~ "\n"
+#~ "<b>%(actor)s</b> ने आपको <b>%(project)s</b> दल"
+#~ " के सदस्य के रूप में जोड़ा है."
+
+#~ msgid ""
+#~ "\n"
+#~ "    <b>%(actor)s</b> has invited you to"
+#~ " join <b>%(project)s</b> as a crew "
+#~ "member.\n"
+#~ "  "
+#~ msgstr ""
+#~ "\n"
+#~ "<b>%(actor)s</b> ने आपको दल के सदस्य "
+#~ "के रूप में <b>%(project)s</b> में शामिल"
+#~ " होने के लिए आमंत्रित किया है."
+
+#~ msgid ""
+#~ "\n"
+#~ "    <b>%(actor)s</b> has removed you as"
+#~ " a crew member from <b>%(project)s</b>."
+#~ "\n"
+#~ "  "
+#~ msgstr ""
+#~ "\n"
+#~ "<b>%(actor)s</b> ने आपको <b>%(project)s</b> के"
+#~ " दल के सदस्य से हटा दिया है."

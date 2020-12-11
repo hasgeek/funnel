@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-12-08 04:01+0530\n"
+"POT-Creation-Date: 2020-12-11 18:28+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2189,22 +2189,16 @@ msgid "Merge accounts"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:7
-#, python-format
-msgid "<strong>Name:</strong> %(name)s"
+msgid "Name:"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:8
-#, python-format
-msgid "<strong>Username:</strong> %(username)s"
+msgid "Username:"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:11
-#, python-format
-msgid "<strong>Email addresses:</strong>%(email)s"
-msgstr ""
-
 #: funnel/templates/account_merge.html.jinja2:12
-msgid "<strong>Email addresses:</strong><em>(none)</em>"
+msgid "Email addresses:"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:15
@@ -2514,8 +2508,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has added you to <b>%(project)s</b> as a crew "
-"member.\n"
+"    %(actor)s has added you to %(project)s as a crew member.\n"
 "  "
 msgstr ""
 
@@ -2528,8 +2521,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has invited you to join <b>%(project)s</b> as a crew"
-" member.\n"
+"    %(actor)s has invited you to join %(project)s as a crew member.\n"
 "  "
 msgstr ""
 
@@ -2541,8 +2533,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has removed you as a crew member from "
-"<b>%(project)s</b>.\n"
+"    %(actor)s has removed you as a crew member from %(project)s.\n"
 "  "
 msgstr ""
 
@@ -3310,7 +3301,7 @@ msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:36
 #, python-format
-msgid "Submitted by <strong>%(speaker)s</strong>"
+msgid "Submitted by %(speaker)s"
 msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:37
@@ -3320,7 +3311,7 @@ msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:38
 #, python-format
-msgid "Submitted by <strong>%(user)s</strong>"
+msgid "Submitted by %(user)s"
 msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:39
@@ -3553,7 +3544,7 @@ msgid "Review comments"
 msgstr ""
 
 #: funnel/templates/siteadmin_review_comment.html.jinja2:9
-msgid "This comment has been reported as <strong>spam</strong>."
+msgid "This comment has been reported as spam."
 msgstr ""
 
 #: funnel/templates/ticket_event.html.jinja2:6
@@ -4096,9 +4087,7 @@ msgid "Update account"
 msgstr ""
 
 #: funnel/views/account.py:368
-msgid ""
-"Hello, <strong>{fullname}</strong>. Please spare a minute to fill out "
-"your account"
+msgid "Hello, {fullname}. Please spare a minute to fill out your account"
 msgstr ""
 
 #: funnel/views/account.py:378
@@ -4132,8 +4121,8 @@ msgstr ""
 
 #: funnel/views/account.py:418
 msgid ""
-"Hello <strong>{fullname}</strong>! Your email address "
-"<code>{email}</code> has already been verified"
+"Hello {fullname}! Your email address <code>{email}</code> has already "
+"been verified"
 msgstr ""
 
 #: funnel/views/account.py:439
@@ -4142,8 +4131,8 @@ msgstr ""
 
 #: funnel/views/account.py:441
 msgid ""
-"Hello <strong>{fullname}</strong>! Your email address "
-"<code>{email}</code> has now been verified"
+"Hello {fullname}! Your email address <code>{email}</code> has now been "
+"verified"
 msgstr ""
 
 #: funnel/views/account.py:451
@@ -4320,8 +4309,7 @@ msgstr ""
 #: funnel/views/account_reset.py:79
 msgid ""
 "Your account does not have an email address. However, it is linked to "
-"<strong>{service}</strong> with the id <strong>{username}</strong>. You "
-"can use that to login."
+"{service} with the ID {username}. You can use that to login."
 msgstr ""
 
 #: funnel/views/account_reset.py:93
@@ -4395,7 +4383,7 @@ msgid ""
 msgstr ""
 
 #: funnel/views/account_reset.py:280
-msgid "Hello, <strong>{fullname}</strong>. You may now choose a new password."
+msgid "Hello, {fullname}. You may now choose a new password."
 msgstr ""
 
 #: funnel/views/auth_client.py:85

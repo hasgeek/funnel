@@ -245,7 +245,7 @@
         null,
         "आपने या किसी और ने इसे ईमेल पते से एक अकाउंट बनाया था, पर उसकी पुष्टि नहीं की है. क्या आप अपना पासवर्ड रीसेट करना चाहेंगे?"
       ],
-      "A https:// URL is required": [null, "https:// वाली URL आवश्यक है"],
+      "A https:// URL is required": [null, "https:// URL आवश्यक है"],
       "Images must be hosted at images.hasgeek.com": [
         null,
         "तस्वीरें images.hasgeek.com पर होस्ट की जानी चाहिए"
@@ -1031,7 +1031,7 @@
         null,
         "क्या आप वाकई इसी पेज पर जाना चाहते हैं?"
       ],
-      "This is gone": [null, "यह ख़त्म हो चुका है"],
+      "This is gone": [null, "यह जा चुका है"],
       "The page you are looking for has been removed": [
         null,
         "आप जिस पेज पर जाना चाहते थे उसे हटा दिया गया है"
@@ -1130,22 +1130,9 @@
         "लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें."
       ],
       "Merge accounts": [null, "अकाउंट जोड़ें"],
-      "<strong>Name:</strong> %(name)s": [
-        null,
-        "<strong>नाम:</strong> %(name)s"
-      ],
-      "<strong>Username:</strong> %(username)s": [
-        null,
-        "<strong>यूजरनेम:</strong> %(username)s"
-      ],
-      "<strong>Email addresses:</strong>%(email)s": [
-        null,
-        "<strong>ईमेल पते:</strong>%(email)s"
-      ],
-      "<strong>Email addresses:</strong><em>(none)</em>": [
-        null,
-        "<strong>ईमेल पते:</strong><em>(none)</em>"
-      ],
+      "Name:": [null, "नाम:"],
+      "Username:": [null, "यूजरनेम:"],
+      "Email addresses:": [null, "ईमेल पते:"],
       "External IDs:": [null, "एक्सटर्नल IDs:"],
       "You appear to have two accounts. Would you like to merge them?": [
         null,
@@ -1257,22 +1244,22 @@
         "अगर आपने इसकी अनुरोध नहीं की है, तो फिर आप इस ईमेल को अनदेखा कर दें."
       ],
       "Confirm your email address": [null, "अपने ईमेल पते की पुष्टि करें"],
-      "\n    <b>%(actor)s</b> has added you to <b>%(project)s</b> as a crew member.\n  ": [
+      "\n    %(actor)s has added you to %(project)s as a crew member.\n  ": [
         null,
-        "\n<b>%(actor)s</b> ने आपको <b>%(project)s</b> दल के सदस्य के रूप में जोड़ा है."
+        ""
       ],
       "See all crew members": [null, "दल के सभी सदस्यों को देखें"],
-      "\n    <b>%(actor)s</b> has invited you to join <b>%(project)s</b> as a crew member.\n  ": [
+      "\n    %(actor)s has invited you to join %(project)s as a crew member.\n  ": [
         null,
-        "\n<b>%(actor)s</b> ने आपको दल के सदस्य के रूप में <b>%(project)s</b> में शामिल होने के लिए आमंत्रित किया है."
+        ""
       ],
       "Accept or decline invite": [
         null,
         "आमंत्रण को स्वीकार करें या अस्वीकारें"
       ],
-      "\n    <b>%(actor)s</b> has removed you as a crew member from <b>%(project)s</b>.\n  ": [
+      "\n    %(actor)s has removed you as a crew member from %(project)s.\n  ": [
         null,
-        "\n<b>%(actor)s</b> ने आपको <b>%(project)s</b> के दल के सदस्य से हटा दिया है."
+        ""
       ],
       "Talkfunnel hosts proposal submissions and reviews for events.": [
         null,
@@ -1313,7 +1300,7 @@
       "32 questions": [null, ""],
       "~15 mins": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
-      "Create new label": [null, "नया लेबल बनाए "],
+      "Create new label": [null, "नया लेबल बनाएं"],
       "(No labels)": [null, "(कोई लेबल नहीं है)"],
       "Archive": [null, "पुरालेख"],
       "Save": [null, "सेव करें"],
@@ -1398,7 +1385,7 @@
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
       "Notifications": [null, "नोटिफिकेशन"],
       "My saves": [null, "मेरी सेव की गई चीज़ें"],
-      "Scan badge": [null, "बैच स्कैन करें"],
+      "Scan badge": [null, "बैज स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
       "Submissions close at %(date)s": [
         null,
@@ -1563,15 +1550,9 @@
         "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
       ],
       "Edit proposal": [null, "प्रस्ताव को संपादित करें"],
-      "Submitted by <strong>%(speaker)s</strong>": [
-        null,
-        "<strong>%(speaker)s</strong> के द्वारा"
-      ],
+      "Submitted by %(speaker)s": [null, "%(speaker)s के द्वारा"],
       "via %(proposal_user)s": [null, "%(proposal_user)s की तरफ से"],
-      "Submitted by <strong>%(user)s</strong>": [
-        null,
-        "<strong>%(user)s</strong> के द्वारा"
-      ],
+      "Submitted by %(user)s": [null, "%(user)s के द्वारा"],
       "proposing": [null, "प्रस्ताव पेश कर रहें हैं"],
       "on %(date)s": [null, "%(date)s को"],
       "This is a proposal requesting for someone to speak on this topic.\n            If you’d like to speak, leave a comment.": [
@@ -1657,9 +1638,9 @@
       "Comment": [null, "कमेंट"],
       "No comment available": [null, "कोई कमेंट मौजूद नहीं है"],
       "Review comments": [null, "कमेंट की समीक्षा करें"],
-      "This comment has been reported as <strong>spam</strong>.": [
+      "This comment has been reported as spam.": [
         null,
-        "यह कमेंट <strong>स्पैम</strong> के तौर पर रिपोर्ट की गई है."
+        "यह कमेंट पैम के तौर पर रिपोर्ट की गई है."
       ],
       "Setup events": [null, "ईवेंट सेटअप करें"],
       "Back to setup events": [null, "ईवेंट सेटअप पर वापस जाएं"],
@@ -1915,9 +1896,9 @@
         "आपकी प्रोफाइल अपडेट कर दी गई है"
       ],
       "Update account": [null, "खाता अपडेट करें"],
-      "Hello, <strong>{fullname}</strong>. Please spare a minute to fill out your account": [
+      "Hello, {fullname}. Please spare a minute to fill out your account": [
         null,
-        "नमस्ते, <strong>{fullname}</strong>. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय दें"
+        "नमस्ते, {fullname}. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय दें"
       ],
       "Edit account": [null, "खाता संपादित करें"],
       "Save changes": [null, "परिवर्तनों को सेव करें"],
@@ -1930,14 +1911,14 @@
         "ईमेल पता <code>{email}</code> अन्य यूजर द्वारा पहले ही वेरिफाई हो चुका है"
       ],
       "Email address already verified": [null, "ईमेल पता पहले से वेरिफाइड है"],
-      "Hello <strong>{fullname}</strong>! Your email address <code>{email}</code> has already been verified": [
+      "Hello {fullname}! Your email address <code>{email}</code> has already been verified": [
         null,
-        "नमस्ते <strong> {fullname} </strong>! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो चुका है"
+        "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो चुका है"
       ],
       "Email address verified": [null, "ईमेल पता वेरिफाई किया गया"],
-      "Hello <strong>{fullname}</strong>! Your email address <code>{email}</code> has now been verified": [
+      "Hello {fullname}! Your email address <code>{email}</code> has now been verified": [
         null,
-        "नमस्ते <strong>{fullname}</strong>! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका है"
+        "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका है"
       ],
       "This was not for you": [null, "यह आपके लिए नहीं था"],
       "You’ve opened an email verification link that was meant for another user. If you are managing multiple accounts, please login with the correct account and open the link again.": [
@@ -2064,9 +2045,9 @@
         "आपका पासवर्ड एक्स्पायर हो चुका है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें."
       ],
       "Cannot reset password": [null, "पासवर्ड रीसेट नहीं किया जा सकता"],
-      "Your account does not have an email address. However, it is linked to <strong>{service}</strong> with the id <strong>{username}</strong>. You can use that to login.": [
+      "Your account does not have an email address. However, it is linked to {service} with the ID {username}. You can use that to login.": [
         null,
-        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह आईडी <strong>{username}</strong> के साथ <strong>{service}</strong> से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
+        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ {service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
       ],
       "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance.": [
         null,
@@ -2109,9 +2090,9 @@
         null,
         "आपका पासवर्ड बदल दिया गया है. एहतियात के तौर पर, आपको एक अन्य डिवाइस से लॉग आउट किया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं."
       ],
-      "Hello, <strong>{fullname}</strong>. You may now choose a new password.": [
+      "Hello, {fullname}. You may now choose a new password.": [
         null,
-        "नमस्ते, <strong>{fullname}</strong>. अब आप एक नया पासवर्ड चुन सकते हैं."
+        "नमस्ते, {fullname}. अब आप एक नया पासवर्ड चुन सकते हैं."
       ],
       "Register a new client application": [
         null,
@@ -2842,7 +2823,7 @@
       "Edit Participant": [null, "प्रतिभागी संपादित करें"],
       "Post an update": [null, "एक अपडेट पोस्ट करें"],
       "Save & preview": [null, "सेव करें और देखें"],
-      "The update has been published": [null, "अपडेट पब्लिश किया गया है"],
+      "The update has been published": [null, "अपडेट पब्लिश हो चुकी है"],
       "There was an error publishing this update. Please refresh and try again": [
         null,
         "इस अपडेट को पब्लिश करने में एक त्रुटि उत्पन्न हुई थी. कृपया रिफ्रेश करें और दोबारा प्रयास करें"
