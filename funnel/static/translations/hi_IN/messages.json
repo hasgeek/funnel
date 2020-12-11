@@ -1246,12 +1246,12 @@
       "Confirm your email address": [null, "अपने ईमेल पते की पुष्टि करें"],
       "\n    %(actor)s has added you to %(project)s as a crew member.\n  ": [
         null,
-        ""
+        "\n    %(actor)s ने आपको %(project)s दल के सदस्य के रूप में जोड़ा है.\n  "
       ],
       "See all crew members": [null, "दल के सभी सदस्यों को देखें"],
       "\n    %(actor)s has invited you to join %(project)s as a crew member.\n  ": [
         null,
-        ""
+        "\n    %(actor)s ने आपको दल के सदस्य के रूप में %(project)s में शामिल होने के लिए आमंत्रित किया है.\n  "
       ],
       "Accept or decline invite": [
         null,
@@ -1259,7 +1259,7 @@
       ],
       "\n    %(actor)s has removed you as a crew member from %(project)s.\n  ": [
         null,
-        ""
+        "\n    %(actor)s ने आपको %(project)s के दल के सदस्य से हटा दिया है.\n  "
       ],
       "Talkfunnel hosts proposal submissions and reviews for events.": [
         null,
