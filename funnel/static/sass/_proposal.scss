@@ -1,68 +1,19 @@
 .proposal-wrapper {
   border: 1px solid rgba(132, 146, 166, 0.3);
-  box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
-    0 1px 2px rgba(158, 158, 158, 0.24);
+  border-radius: 16px 16px 0 16px;
   padding: 0;
   margin: 0;
   position: relative;
-}
-
-.slider-btn-wrapper {
-  width: 100%;
-}
-
-.slider-btn a {
-  display: block;
-  width: 100%;
-}
-
-.slider-btn a:hover {
-  text-decoration: none;
-}
-
-.slider-btn--push-down {
-  position: relative;
-  top: 40px;
-}
-
-.slider-btn--right {
-  width: 90%;
-}
-
-.slider-btn__action-btn svg {
-  position: relative;
-  top: -5px;
-}
-
-.truncate-title {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  width: 70%;
-  display: inline-block;
+  background: $mui-bg-color-primary;
   overflow: hidden;
-}
-
-@media (min-width: 768px) {
-  .slider-btn--push-down {
-    position: relative;
-    top: 0;
-    width: 50%;
-  }
-
-  .slider-btn--right {
-    width: 50%;
-  }
-}
-
-@media (min-width: 1300px) {
-  .proposal__section__headline {
-    margin-top: 0px;
-  }
 }
 
 .proposal__section {
   padding: $mui-grid-padding;
   overflow-wrap: break-word;
+  .proposal__section__labels {
+    margin-top: $mui-grid-padding;
+  }
 }
 
 .proposal__section--border {
@@ -72,21 +23,6 @@
 .proposal-status-wrapper .grid .columns,
 .proposal__section .grid .columns {
   padding: 0 $mui-grid-padding-double 0 0;
-}
-
-@media (min-width: 992px) {
-  .proposal__section--left {
-    float: left;
-    width: calc(70% - #{$mui-grid-padding});
-    padding-bottom: $mui-grid-padding;
-  }
-
-  .proposal__admin-panel {
-    float: right;
-    width: calc(30% - #{$mui-grid-padding});
-    margin-top: $mui-grid-padding-double;
-    margin-right: $mui-grid-padding;
-  }
 }
 
 .proposal__section--bleed-y {
@@ -121,7 +57,7 @@
 
 .details__box__control {
   background: $mui-text-dark;
-  padding: 10px;
+  padding: 4px $mui-grid-padding;
   color: $mui-text-white;
   text-align: right;
 
@@ -191,8 +127,47 @@
   }
 }
 
-.proposal-video-thumbnail {
-  max-width: 60%;
+.proposal-card__body {
+  .proposal-card__body__details {
+    display: flex;
+    justify-content: space-between;
+    .proposal-card__video-thumbnail {
+      max-width: 50%;
+    }
+  }
+}
+
+.proposal-card--fullwidth {
+  .proposal-card__video-thumbnail {
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-top: -16px;
+    max-width: calc(100% + 32px);
+  }
+}
+
+@media (min-width: 1200px) {
+  .proposal-card--fullwidth {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    .proposal-card__video-thumbnail {
+      max-width: 200px;
+      margin-top: 14px;
+    }
+    .proposal-card__body {
+      width: calc(100% - 216px);
+      .proposal-card__body__details {
+        justify-content: left;
+        .proposal-card__body__details__txt {
+          display: flex;
+          .proposal-card__details__txt__read {
+            margin-left: 16px;
+          }
+        }
+      }
+    }
+  }
 }
 
 .proposal-move-form div {
@@ -251,12 +226,12 @@
 
 .label {
   padding: 4px 8px;
-  font-size: 12px;
+  font-size: 10px;
   text-transform: uppercase;
   color: $mui-text-light;
-  border: 2px solid rgba(132, 146, 166, 0.3);
+  border: 1px solid $mui-divider-color;
   background-color: $mui-bg-color-accent;
-  border-radius: 2px;
+  border-radius: 16px;
   display: inline-block;
   margin: 0 4px 4px 0;
   text-decoration: none;
@@ -388,5 +363,14 @@
 
   .mui-checkbox {
     margin-bottom: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .proposal-page {
+    .jquery-modal.blocker.current .modal {
+      width: 100%;
+      border-radius: 0;
+    }
   }
 }

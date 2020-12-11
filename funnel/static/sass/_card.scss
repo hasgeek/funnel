@@ -136,11 +136,16 @@
 }
 
 .clickable-card,
-.card-wrapper {
+.card--shaped {
   color: $mui-text-dark;
   display: block;
   cursor: pointer;
   text-decoration: none;
+}
+
+.card--shaped {
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
 }
 
 .clickable-card:focus,

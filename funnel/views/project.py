@@ -275,12 +275,14 @@ class ProjectView(
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
+        featured_proposals = self.obj.proposals.filter_by(featured=True)
         return {
             'project': self.obj.current_access(),
             'current_rsvp': current_rsvp,
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
+            'featured_proposals': featured_proposals,
         }
 
     @route('proposals')

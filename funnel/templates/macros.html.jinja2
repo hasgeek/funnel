@@ -332,7 +332,7 @@
   {%- endif %}
 {% endmacro %}
 
-{% macro video_action_bar(video, proposal='', session='') %}
+{% macro video_action_bar(video, proposal='', session='', share=true) %}
   {%- if video.source == 'youtube' -%}
     <p class="zero-bottom-margin mui--pull-left"><a href="https://videoken.com" target="_blank" rel="noopener" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
   {%- endif %}
@@ -343,15 +343,15 @@
     <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
   {%- endif %}
 
-  {%- if proposal or session %}
+  {%- if proposal or session and share %}
     {%- if proposal %}
       {% set url, title = proposal.url_for(_external=true), proposal.title  %}
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-action="Share dropdown" data-cy="share-project" data-url="{{ url }}&amp;utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='subhead', css_class=share_icon_css) }}</a>
+      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-action="Share dropdown" data-cy="share-project" data-url="{{ url }}&amp;utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       <div class="mui-dropdown">
-        <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='subhead', css_class=share_icon_css) }}</a>
+        <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='subhead') }}</a>
         {{ share_dropdown(url, title) }}
       </div>
   {%- endif %}
@@ -722,7 +722,7 @@
 
 {% macro project_mini_header(project) %}
   <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
-  <p class="mui--text-headline">{{ project.tagline }}</p>
+  <p class="mui--text-headline smaller-margin ">{{ project.tagline }}</p>
   <p>
   {% if project.features.tickets_or_rsvp() and project.features.rsvp_unregistered() %}
     <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">
@@ -847,4 +847,47 @@
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}">{{ user.title|initials }}</div>
   {% endif %}
   {% if user.profile_url and add_profile_link%}</a>{% endif %}
+{%- endmacro %}
+
+{%- macro proposal_card(proposal, full_width=false) %}
+  <a class="card clickable-card card--shaped" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-action="View {{ proposal.title }}">
+    <div class="card__body {% if full_width %} mui--bg-accent {%- endif -%}">
+      <div class="proposal-card {% if full_width %} proposal-card--fullwidth{%- endif -%}">
+        {% if full_width and proposal.video and  proposal.video.thumbnail %}
+          <img src="{{ proposal.video.thumbnail }}" class="proposal-card__video-thumbnail">
+        {%- endif -%}
+        <div class="proposal-card__body">
+          <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ proposal.title }}</h3>
+          <div class="user user--smaller">
+            <div class="user__box">
+              {{ useravatar(proposal.speaker, add_profile_link=false) }}
+              <div class="user__box__header">
+                <p class="mui--text-caption user__box__fullname">{{ proposal.speaker.fullname }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.description }}</div>
+          {% if proposal.video and proposal.video.thumbnail %}
+            <div class="proposal-card__body__details">
+              {% if not full_width %}<img src="{{ proposal.video.thumbnail }}" class="proposal-card__video-thumbnail">{%- endif -%}
+              <div class="proposal-card__body__details__txt">
+                <ul class="bullet-separated-list--flex mui--text-body2 mui--text-light">
+                  <li>{{ proposal.datetime|date }}</li>
+                  {%- if proposal.video.duration %}<li class="js-video-duration"><span class="bullet-separated-list__span">{{ proposal.video.duration }}</span></li>{%- endif %}
+                </ul>
+                <p class="mui--text-body2 proposal-card__details__txt__read primary-color-txt">Read more {{ faicon(icon='chevron-right', icon_size='caption', baseline=false, css_class="mui--align-middle") }}</p>
+              </div>
+            </div>
+          {% else %}
+            <div class="proposal-card__body__details">
+              <div class="proposal-card__body__details__txt">
+                <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ proposal.datetime|longdate }}</p>
+                <p class="mui--text-body2 proposal-card__details__txt__read mui--text-light primary-color-txt">Read more {{ faicon(icon='chevron-right', icon_size='caption', baseline=false, css_class="mui--align-middle") }}</p>
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </a>
 {%- endmacro %}

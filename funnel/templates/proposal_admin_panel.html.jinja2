@@ -1,7 +1,9 @@
 {% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
 {% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import csrf_tag %}
 
 <div>
+  <p><a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times',  icon_size='title') }}</a></p>
   {%- if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
     <div class="card">
       <div class="card__header">
@@ -16,6 +18,16 @@
           <hr class="mui-divider">
         {% endif %}
         {%- if proposal.current_roles.project_editor %}
+          <form action="{{ proposal.url_for('toggle_featured') }}" method="post">
+            {{ csrf_tag() }}
+            <button name="transition" class="mui-btn mui-btn--accent">
+              {% if proposal.featured %}
+                {% trans %}Remove featured{% endtrans %}
+              {% else %}
+                {% trans %}Make featured{% endtrans %}
+              {% endif %}
+            </button>
+          </form>
           {%- if proposal_move_form %}
             {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Move", style='horiz') }}
             <hr class="mui-divider">

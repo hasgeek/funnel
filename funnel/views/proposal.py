@@ -2,7 +2,7 @@ from flask import Markup, abort, escape, flash, jsonify, redirect
 
 from bleach import linkify
 
-from baseframe import _, __, request_is_xhr
+from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
@@ -367,6 +367,16 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("Please choose the user you want to transfer this proposal to."),
                 'error',
             )
+        return redirect(self.obj.url_for(), 303)
+
+    @route('toggle_featured', methods=['POST'])
+    @requires_login
+    @requires_permission('move-proposal')
+    def toggle_featured(self):
+        featured_form = forms.Form()
+        if featured_form.validate_on_submit():
+            self.obj.featured = not self.obj.featured
+            db.session.commit()
         return redirect(self.obj.url_for(), 303)
 
     @route('schedule', methods=['GET', 'POST'])

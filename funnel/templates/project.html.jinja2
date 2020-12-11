@@ -2,7 +2,7 @@
 {% set title_suffix = project.title_suffix %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import csrf_tag, project_header %}
+{%- from "macros.html.jinja2" import csrf_tag, project_header, proposal_card %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.tagline }}{% endblock %}
 {% block twitter_card %}summary_large_image{% endblock %}
@@ -208,6 +208,24 @@
       {%- endif %}
     </div>
   </div>
+
+  {% if featured_proposals %}
+    <div lass="project-section" id="proposals">
+      <div class="grid">
+        <div class="grid__col-xs-12">
+          <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Submissions{% endtrans %}</h2>
+        </div>
+      </div>
+      <ul class="grid">
+        {% for proposal in featured_proposals %}
+          <li class="grid__col-12">
+            {{ proposal_card(proposal, full_width=true) }}
+          </li>
+        {%- endfor -%}
+      </ul>
+      </div>
+    </div>
+  {%- endif %}
 
   {% if project.hasjob_embed_url.url -%}
   <div class="grid project-section" id="related-jobs">
