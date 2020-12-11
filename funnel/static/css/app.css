@@ -4081,7 +4081,7 @@ a.loginbutton.hidden,
 .proposal-card__body
   .proposal-card__body__details
   .proposal-card__video-thumbnail {
-  max-width: 50%;
+  max-width: 120px;
 }
 
 .proposal-card--fullwidth .proposal-card__video-thumbnail {
