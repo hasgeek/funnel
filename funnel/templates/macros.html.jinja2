@@ -851,10 +851,10 @@
 
 {%- macro proposal_card(proposal, full_width=false) %}
   <a class="card clickable-card card--shaped" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-action="View {{ proposal.title }}">
-    <div class="card__body {% if full_width %} mui--bg-accent {%- endif -%}">
+    <div class="card__body">
       <div class="proposal-card {% if full_width %} proposal-card--fullwidth{%- endif -%}">
         {% if full_width and proposal.video and  proposal.video.thumbnail %}
-          <img src="{{ proposal.video.thumbnail }}" class="proposal-card__video-thumbnail">
+          <div class="proposal-card__video"><img src="{{ proposal.video.thumbnail }}" class="proposal-card__video__thumbnail"></div>
         {%- endif -%}
         <div class="proposal-card__body">
           <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ proposal.title }}</h3>
@@ -875,14 +875,14 @@
                   <li>{{ proposal.datetime|date }}</li>
                   {%- if proposal.video.duration %}<li><span class="bullet-separated-list__span">{{ proposal.video.duration|timedelta }}</span></li>{%- endif %}
                 </ul>
-                <p class="mui--text-body2 proposal-card__details__txt__read primary-color-txt">Read more {{ faicon(icon='chevron-right', icon_size='caption', baseline=false, css_class="mui--align-middle") }}</p>
+                <p class="mui--text-body2 proposal-card__details__txt__read primary-color-txt">Read more{{ faicon(icon='arrow-right', icon_size='caption', css_class='fa-icon--left-margin') }}</p>
               </div>
             </div>
           {% else %}
             <div class="proposal-card__body__details">
               <div class="proposal-card__body__details__txt">
                 <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ proposal.datetime|date }}</p>
-                <p class="mui--text-body2 proposal-card__details__txt__read mui--text-light primary-color-txt">Read more {{ faicon(icon='chevron-right', icon_size='caption', baseline=false, css_class="mui--align-middle") }}</p>
+                <p class="mui--text-body2 proposal-card__details__txt__read mui--text-light primary-color-txt">Read more{{ faicon(icon='arrow-right', icon_size='caption', css_class='fa-icon--left-margin') }}</p>
               </div>
             </div>
           {%- endif -%}

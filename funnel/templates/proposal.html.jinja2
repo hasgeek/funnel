@@ -14,9 +14,9 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-accent hg-app proposal-page">
+    <body class="mui--bg-accent hg-app no-sticky-header proposal-page">
   {%- else %}
-    <body class="mui--bg-accent proposal-page">
+    <body class="mui--bg-accent no-sticky-header proposal-page">
   {%- endif %}
 {% endblock %}
 
@@ -60,7 +60,7 @@
             {{ alertbox('success', gettext("This is a featured proposal")) }}
           </div>
         {% endif %}
-        <div class="grid__col-xs-12 grid__col-sm-8">
+        <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8">
           {%- if proposal.getnext() -%}
             <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block margin-bottom mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
           {%- endif -%}
@@ -198,7 +198,7 @@
           </div>
         </div>
 
-        <div class="grid__col-sm-4 mui--hidden-xs mui--hidden-sm">
+        <div class="grid__col-sm-5 grid__col-md-4 mui--hidden-xs mui--hidden-sm">
           {%- if proposal.getnext() -%}
             <h2 class="mui--text-subhead mui--text-bold mui--text-uppercase zero-top-margin">{% trans %}Up next{% endtrans %}</h2>
             {{ proposal_card(proposal.getnext()) }}

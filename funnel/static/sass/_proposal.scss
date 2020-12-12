@@ -135,32 +135,44 @@
 
 .proposal-card__body {
   .proposal-card__body__details {
-    display: flex;
-    justify-content: space-between;
     .proposal-card__video-thumbnail {
-      max-width: 120px;
+      width: 100%;
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .proposal-card__body {
+    .proposal-card__body__details {
+      display: flex;
+      justify-content: space-between;
+      .proposal-card__video-thumbnail {
+        max-width: 120px;
+      }
     }
   }
 }
 
 .proposal-card--fullwidth {
-  .proposal-card__video-thumbnail {
-    margin-left: -16px;
-    margin-right: -16px;
-    margin-top: -16px;
-    max-width: calc(100% + 32px);
+  .proposal-card__video {
+    margin-left: -$mui-grid-padding;
+    margin-right: -$mui-grid-padding;
+    margin-top: -$mui-grid-padding;
+    .proposal-card__video__thumbnail {
+      width: 100%;
+    }
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 768px) {
   .proposal-card--fullwidth {
     display: flex;
     align-items: start;
     justify-content: space-between;
-    .proposal-card__video-thumbnail {
-      max-width: 200px;
+    .proposal-card__video {
+      min-width: 200px;
       margin-top: 14px;
-      margin: 14px 16px 0 0;
+      margin: 14px $mui-grid-padding 0 0;
     }
     .proposal-card__body {
       .proposal-card__body__details {
@@ -168,7 +180,7 @@
         .proposal-card__body__details__txt {
           display: flex;
           .proposal-card__details__txt__read {
-            margin-left: 16px;
+            margin-left: $mui-grid-padding;
           }
         }
       }
