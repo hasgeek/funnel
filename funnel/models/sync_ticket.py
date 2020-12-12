@@ -472,10 +472,14 @@ class SyncTicket(BaseMixin, db.Model):
 
 @reopen(Project)
 class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
-    # FIXME: RoleMixin expects TicketParticipant.user to be unique per project, meaning
-    # one user can have one participant ticket only. This is not guaranteed by the model
-    # as tickets are unique per email address per ticket type, and one user can have
-    # (a) two email addresses with tickets, or (b) tickets of different types
+    # XXX: This relationship exposes an edge case in RoleMixin. It previously expected
+    # TicketParticipant.user to be unique per project, meaning one user could have one
+    # participant ticket only. This is not guaranteed by the model as tickets are unique
+    # per email address per ticket type, and one user can have (a) two email addresses
+    # with tickets, or (b) tickets of different types. RoleMixin has since been patched
+    # to look for the first matching record (.first() instead of .one()). This may
+    # expose a new edge case in future in case the TicketParticipant model adds an
+    # `offered_roles` method, as only the first matching record's method will be called
     ticket_participants = with_roles(
         db.relationship(TicketParticipant, lazy='dynamic', cascade='all'),
         grants_via={'user': {'participant'}},
