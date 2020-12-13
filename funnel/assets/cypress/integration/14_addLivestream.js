@@ -18,7 +18,7 @@ describe('Add livestream', function () {
     cy.get('#field-livestream_urls')
       .find('textarea')
       .type(project.livestream_url, { force: true });
-    cy.get('button').contains('Save changes').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
     cy.location('pathname').should('contain', project.url);
 
     cy.get('#livestream').should('exist');

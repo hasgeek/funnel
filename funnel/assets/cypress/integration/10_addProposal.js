@@ -26,7 +26,7 @@ describe('Add a new proposal', function () {
     cy.get('#field-video_url').type(proposal.preview_video);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
-    cy.get('button').contains('Submit').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
     cy.location('pathname').should('contain', 'proposals');
 
     cy.get('.proposal__section__headline')

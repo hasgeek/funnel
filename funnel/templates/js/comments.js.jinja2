@@ -121,7 +121,7 @@
                 <div class="ajax-form ajax-form--block" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="deleteForm">
                   <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('delete-comment-form-' + comment.uuid_b58, comment.urls.delete, 2)" :id="'delete-comment-form-' + comment.uuid_b58" data-cy="delete-form">
                     <p class="ajax-form__title">Delete this comment?</p>
-                    <button type="submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Confirm</button>
+                    <button type="submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="confirm-delete-btn">Confirm</button>
                     <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeAllForms($event, 'deleteForm')">Cancel</button>
                   </form>
                   <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>

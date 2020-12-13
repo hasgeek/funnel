@@ -21,7 +21,7 @@ describe('Setup ticketed event for checkin', function () {
         cy.get('a[data-cy="new-ticket-event"]').click();
         cy.get('#title').type(ticketEvent.title);
         cy.get('#badge_template').type(ticketEvent.badge_template);
-        cy.get('button').contains('Add event').click();
+        cy.get('button[data-cy="form-submit-btn"]').click();
       });
     });
   });

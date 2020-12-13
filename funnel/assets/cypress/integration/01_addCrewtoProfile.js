@@ -28,7 +28,7 @@ describe('Adding crew to profile', function () {
     cy.wait('@edit-form');
     cy.get('button[data-cy-btn="revoke"]').click();
     cy.wait('@delete-form');
-    cy.get('button').contains('Remove').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
     cy.wait('@delete-member');
     cy.get('[data-cy="member"]').contains(admin.username).should('not.exist');
 
@@ -37,7 +37,7 @@ describe('Adding crew to profile', function () {
     cy.get('[data-cy="member"]').contains(admin.username).click();
     cy.wait('@edit-form');
     cy.get('#is_owner-0').click();
-    cy.get('button').contains('Edit membership').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
     cy.wait('@edit-member');
     cy.get('[data-cy="member"]')
       .contains(admin.username)
