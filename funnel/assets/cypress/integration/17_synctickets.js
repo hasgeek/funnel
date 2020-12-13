@@ -25,10 +25,10 @@ describe('Sync tickets from Boxoffice', function () {
     cy.get('#client_access_token').type(ticket_client.access_key, {
       log: false,
     });
-    cy.get('button').contains('Add ticket client').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
 
     cy.get('button[data-cy="sync-tickets"').click();
-    cy.wait(120000);
+    cy.wait(1200);
     cy.get('button[data-cy="sync-tickets"').click();
 
     cy.fixture('ticket_events').then((ticketEvents) => {
@@ -37,7 +37,7 @@ describe('Sync tickets from Boxoffice', function () {
           .find('a[data-cy="ticket-edit"]')
           .click();
         cy.get('label').contains(ticketEvent.title).click();
-        cy.get('button').contains('Save changes').click();
+        cy.get('button[data-cy="form-submit-btn"]').click();
       });
     });
 
