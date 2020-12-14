@@ -58,6 +58,7 @@ def commentset_json(obj):
 
 @Proposal.views('vote')
 @route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
+@route('/<profile>/<project>/sub/<url_name_uuid_b58>')
 class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
