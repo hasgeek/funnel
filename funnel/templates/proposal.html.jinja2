@@ -57,7 +57,7 @@
       <div class="grid">
         {% if proposal.featured and ('edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor) %}
           <div class="grid__col-sm-12 margin-bottom">
-            {{ alertbox('success', gettext("This is a featured proposal")) }}
+            {{ alertbox('success', gettext("This is a featured submission")) }}
           </div>
         {% endif %}
         <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8">
@@ -141,7 +141,7 @@
             </div>
             <section class="proposal__section grid__col--bleed-y">
               <div class="mui--d-inlineblock">
-                <p class="mui--text-caption mui--text-light zero-bottom-margin mui--pull-left">{% trans date=proposal.datetime|date  %}Submitted {{ date }} {% endtrans %}</p>
+                <p class="mui--text-caption mui--text-light zero-bottom-margin mui--pull-left">{% trans date=proposal.datetime|date %}Submitted {{ date }} {% endtrans %}</p>
                 <div class="mui--pull-right mui--hidden-xs mui--hidden-sm">
                   {{ share_widget() }}
                 </div>
@@ -158,7 +158,7 @@
                   </div>
                 </div>
               {%- else %}
-                <p>{% trans speaker=proposal.user.pickername, date=proposal.datetime|date  %}Submitted by {{ speaker }} proposing on {{ date }} {% endtrans %}</p>
+                <p>{% trans speaker=proposal.user.pickername, date=proposal.datetime|date  %}Submitted by {{ speaker }} on {{ date }}{% endtrans %}</p>
                 <p class="zero-bottom-margin">
                   <em>{% trans %}This is a proposal requesting for someone to speak on this topic.
                   If you’d like to speak, leave a comment.{% endtrans %}</em>

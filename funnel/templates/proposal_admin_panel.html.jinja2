@@ -3,7 +3,7 @@
 {%- from "macros.html.jinja2" import csrf_tag %}
 
 <div>
-  <p><a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel">{{ faicon(icon='times',  icon_size='title') }}</a></p>
+  <p><a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel">{{ faicon(icon='times', icon_size='title') }}</a></p>
   {%- if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
     <div class="card">
       <div class="card__header">
@@ -29,11 +29,11 @@
             </button>
           </form>
           {%- if proposal_move_form %}
-            {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit="Move", style='horiz') }}
+            {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit=gettext("Move"), style='horiz') }}
             <hr class="mui-divider">
           {%- endif %}
           {%- if proposal_transfer_form %}
-            {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit="Transfer") }}
+            {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit=gettext("Transfer")) }}
             <hr class="mui-divider">
           {%- endif %}
           <p class="mui--text-subhead">{% trans %}Change status of proposal{% endtrans %}</p>
@@ -41,7 +41,7 @@
             {{ transition_form.hidden_tag() }}
             <p class="btn-group" data-cy="proposal-status">
               {% for name, transition in transition_form.transition.choices %}
-                <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}">{{ transition.data['title'] }}</button>
+                <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %} mui-btn--danger {%- endif %}">{{ transition.data['title'] }}</button>
               {% endfor %}
             </p>
           </form>
@@ -75,9 +75,9 @@
         {%- elif 'edit_proposal' in proposal.permissions(current_auth.user) %}
           <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">
             {%- if proposal.video %}
-              {% trans %}Edit proposal video{% endtrans %}
+              {% trans %}Edit submission video{% endtrans %}
             {% else %}
-              {% trans %}Add proposal video{% endtrans %}
+              {% trans %}Add submission video{% endtrans %}
             {%- endif %}
           </a>
         {%- endif %}

@@ -49,7 +49,6 @@ export const LabelsWidget = {
 
     // Open and close dropdown
     $('#label-select').on('click', () => {
-      console.log('clicked');
       if ($('#label-dropdown fieldset').hasClass('active')) {
         $('#label-dropdown fieldset').removeClass('active');
       } else {

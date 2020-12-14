@@ -866,7 +866,7 @@
 {%- macro proposal_card(proposal, full_width=false) %}
   <a class="card clickable-card card--shaped" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-action="View {{ proposal.title }}">
     <div class="card__body">
-      <div class="proposal-card {% if full_width %} proposal-card--fullwidth{%- endif -%}">
+      <div class="proposal-card {%- if full_width %} proposal-card--fullwidth {%- endif -%}">
         <div class="proposal-card__body">
           <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ proposal.title }}</h3>
           <div class="user user--smaller">
