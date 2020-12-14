@@ -1,5 +1,3 @@
-import { Video, Comments } from './util';
-
 export const Proposal = {
   init() {
     $('button[name="transition"][value="delete"]').click(function (e) {
@@ -51,6 +49,7 @@ export const LabelsWidget = {
 
     // Open and close dropdown
     $('#label-select').on('click', () => {
+      console.log('clicked');
       if ($('#label-dropdown fieldset').hasClass('active')) {
         $('#label-dropdown fieldset').removeClass('active');
       } else {
@@ -92,16 +91,8 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.Hasgeek.ProposalInit = function ({
-    videoWrapper = '',
-    videoUrl = '',
-  }) {
+  window.Hasgeek.ProposalInit = function () {
     Proposal.init();
-    Comments.init();
     LabelsWidget.init();
-
-    if (videoWrapper) {
-      Video.embedIframe(videoWrapper, videoUrl);
-    }
   };
 });

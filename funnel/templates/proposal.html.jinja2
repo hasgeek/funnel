@@ -27,7 +27,7 @@
     {{ share_dropdown(url, title) }}
   </div>
   {% if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
-    <a class="mui--text-title mui--text-light mui--d-inlineblock" href="{{ proposal.url_for('admin') }}" rel="modal:open" aria-label="{% trans %}Admin panel{% endtrans %}">{{ faicon(icon='cog', icon_size='title', baseline=false) }}</a>
+    <a class="mui--text-title mui--text-light mui--d-inlineblock" href="{{ proposal.url_for('admin') }}" rel="modal:open" aria-label="{% trans %}Admin panel{% endtrans %}" data-cy="admin-panel">{{ faicon(icon='cog', icon_size='title', baseline=false) }}</a>
   {% endif %}
 {% endmacro %}
 
@@ -143,7 +143,7 @@
                   {{ share_widget() }}
                 </div>
               </div>
-              <h1 class="mui--text-title mui--text-bold zero-bottom-margin">{{ proposal.title }}</h1>
+              <h1 class="mui--text-title mui--text-bold zero-bottom-margin" data-cy="proposal-title">{{ proposal.title }}</h1>
               {%- if proposal.speaker %}
                 <div class="user">
                   <div class="user__box">
@@ -220,13 +220,6 @@
 <script src="{{ url_for('static', filename=asset_path('comments')) }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
-    var proposalConfig = {};
-    proposalConfig.videoWrapper = document.getElementById('js-embed');
-    if(proposalConfig.videoWrapper) {
-      proposalConfig.videoUrl = proposalConfig.videoWrapper.getAttribute('data-video-src');
-    }
-    window.Hasgeek.ProposalInit(proposalConfig);
-
     var commentsConfig = {
       newCommentUrl: "{{ proposal.commentset.url_for('new_comment') }}",
       commentsUrl: "{{ proposal.url_for('comments') }}",

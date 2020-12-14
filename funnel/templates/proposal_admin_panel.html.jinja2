@@ -3,7 +3,7 @@
 {%- from "macros.html.jinja2" import csrf_tag %}
 
 <div>
-  <p><a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times',  icon_size='title') }}</a></p>
+  <p><a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel">{{ faicon(icon='times',  icon_size='title') }}</a></p>
   {%- if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
     <div class="card">
       <div class="card__header">
@@ -33,7 +33,7 @@
             <hr class="mui-divider">
           {%- endif %}
           {%- if proposal_transfer_form %}
-            {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit="Transfer", style='horiz') }}
+            {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit="Transfer") }}
             <hr class="mui-divider">
           {%- endif %}
           <p class="mui--text-subhead">{% trans %}Change status of proposal{% endtrans %}</p>
@@ -87,3 +87,8 @@
 </div>
 
 {{ widgetscripts(proposal_transfer_form, script=true) }}
+<script type="text/javascript">
+  $(function() {
+    window.Hasgeek.ProposalInit();
+  });
+</script>

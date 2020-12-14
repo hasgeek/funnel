@@ -8,6 +8,7 @@ describe('Confirm proposal', function () {
 
   it('Confirm proposal', function () {
     cy.server();
+    cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('GET', '**/updates/*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
 
@@ -20,12 +21,15 @@ describe('Confirm proposal', function () {
     cy.get('#search').type(proposal.title);
     cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
 
+    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.wait('@fetch-admin-panel');
     cy.get('#label-select').click();
     cy.get('#label-dropdown label').contains(labels[2].title).click();
     cy.get('#label-dropdown label').contains(labels[3].title).click();
     cy.get('#label-select').click();
-    cy.get('button[name="add-label"]').click();
-
+    cy.get('form.add-label-form')
+      .find('button[data-cy="form-submit-btn"]')
+      .click();
     cy.fixture('labels').then((labels) => {
       labels.forEach(function (label) {
         if (label.label1) {
@@ -35,12 +39,21 @@ describe('Confirm proposal', function () {
         }
       });
     });
+
+    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="awaiting_details"]')
       .click();
+
+    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="under_evaluation"]')
       .click();
+
+    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="confirm"]')
       .click();
