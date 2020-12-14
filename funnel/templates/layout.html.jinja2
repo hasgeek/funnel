@@ -35,9 +35,9 @@
     <meta property="og:image" content="{{ profile.logo_url }}" />
     <meta name="twitter:image" content="{{ profile.logo_url }}" />
   {%- elif not config['LEGACY'] %}
-    <link rel="image_src" href="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
-    <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
-    <meta name="twitter:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
+    <link rel="image_src" href="{{ url_for('static', filename='img/anniversary-hg-banner.png', v=2, _external=true) }}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/anniversary-hg-banner.png', v=2, _external=true) }}" />
+    <meta name="twitter:image" content="{{ url_for('static', filename='img/anniversary-hg-banner.png', v=2, _external=true) }}" />
   {%- else  %}
     <link rel="image_src" href="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
     <meta property="og:image" content="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
@@ -87,11 +87,11 @@
       {%- endif %}
     {%- else -%}
       <a href="{{ url_for('index') }}" class="header__site-title__title__home mui--hidden-xs mui--hidden-sm" data-cy="home-desktop" data-action="Home" aria-label="Home">
-        <img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>
+        <img src="/static/img/anniversary-hg-logo.jpg" class="header__site-title__home__logo"/>
       </a>
-      <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
+      <a href="/hasgeek/10" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}10 Years!{% endtrans %}</a>
       <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-action="Home">
-        {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
+        {% if  current_view.current_section == 'home' %}<img src="/static/img/anniversary-hg-logo.png" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/anniversary-hg-logo-inactive.png" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
       </a>
       <form action="/search" class="search-form js-search-form">
         <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">
@@ -99,10 +99,10 @@
         <input type="text" name="type" value="project" hidden>
         <button type="submit" class="search-form__submit"></button>
       </form>
-      <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-action="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
+      <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-action="Search">{{ faicon(icon='search-duotone', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
       {% if not current_auth.is_anonymous -%}
-        <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
-        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-action="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
+        <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell-duotone', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
+        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-action="Account">{{ faicon(icon='user-duotone', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
         <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
           <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-action="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
           <a href="{{ url_for('account') }}" class="header__nav-links header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Account{% endtrans %}" data-action="Account" data-cy="my-account">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
