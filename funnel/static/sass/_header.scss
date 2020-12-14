@@ -50,7 +50,7 @@
 
           .header__site-title__home__logo {
             height: 24px;
-            margin: 0 auto 5px;
+            margin: 0 auto 6px;
           }
 
           .search-form {
@@ -99,7 +99,8 @@
             .header__nav-links__icon {
               width: 24px;
               height: 24px;
-              color: $mui-text-light;
+              --fa-primary-color: #0f73ed;
+              --fa-secondary-color: #a1c1e6;
               margin: 0 auto 4px;
             }
             .mui-caret {
@@ -107,6 +108,10 @@
             }
           }
           .header__nav-links--active {
+            .header__nav-links__icon {
+              --fa-primary-color: #0f73ed;
+              --fa-secondary-color: #ffd927;
+            }
             .header__nav-links__icon,
             .header__nav-links__text,
             .mui-caret {
@@ -206,7 +211,7 @@
 
             .logo-about {
               position: absolute !important;
-              left: 46px;
+              left: 55px;
               top: 5px;
               font-size: 12px;
               padding: 2px 10px;
