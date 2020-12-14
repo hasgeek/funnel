@@ -9,8 +9,6 @@ const Comments = {
     divElem,
     commentTemplate,
     isuserloggedin,
-    isuserparticipant,
-    iscommentmoderator,
     user,
     loginUrl,
   }) {
@@ -30,7 +28,7 @@ const Comments = {
 
     const commentUI = Vue.component('comment', {
       template: commentTemplate,
-      props: ['comment', 'user', 'isuserparticipant', 'iscommentmoderator'],
+      props: ['comment', 'user', 'isuserloggedin'],
       data() {
         return {
           errorMsg: '',
@@ -152,8 +150,6 @@ const Comments = {
           newCommentUrl,
           comments: [],
           isuserloggedin,
-          isuserparticipant,
-          iscommentmoderator,
           user,
           commentForm: false,
           textarea: '',

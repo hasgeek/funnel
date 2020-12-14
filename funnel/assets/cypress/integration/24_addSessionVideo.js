@@ -5,6 +5,7 @@ describe('Add video to session', function () {
 
   it('Add videos to session', function () {
     cy.server();
+    cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('**/viewsession-popup').as('view-session');
 
     cy.login('/', admin.username, admin.password);
@@ -25,6 +26,8 @@ describe('Add video to session', function () {
     cy.get('[data-cy="session-video"]').find('iframe').should('be.visible');
     cy.get('img[data-cy="proposal-video-thumbnail"]').should('be.visible');
     cy.get('img[data-cy="session-video-thumbnail"]').should('be.visible');
+    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="edit-session-video"]').should('exist');
   });
 });

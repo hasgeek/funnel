@@ -269,7 +269,10 @@
         "अगर चुना गया, तो केवल संपादक और समीक्षक ही प्रस्ताव में इस लेबल का उपयोग कर सकते हैं"
       ],
       "Option": [null, "विकल्प"],
-      "User does not exist": [null, "यूजर मौजूद नहीं है"],
+      "An email address or username is required": [null, ""],
+      "Password is required": [null, ""],
+      "Password must be under %(max)s characters": [null, ""],
+      "This user could not be identified": [null, ""],
       "Session id": [null, "सेशन आईडी"],
       "That does not appear to be a valid login session": [
         null,
@@ -593,62 +596,9 @@
         "इस प्रस्ताव को किसी दूसरे स्पीकर को भेजें"
       ],
       "Labels": [null, "लेबल"],
-      "Are you speaking?": [null, "आप कुछ पेश करने वाले हैं?"],
-      "I will be speaking": [null, "मैं कुछ पेश करने वाला हूं"],
-      "I’m proposing a topic for someone to speak on": [
-        null,
-        "मैं किसी और के द्वारा बोलने के लिए एक विषय भेज रहा हूं"
-      ],
-      "The title of your session": [null, "आपके सेशन का शीर्षक"],
-      "Abstract": [null, "संक्षिप्त विवरण"],
-      "A brief description of your session with target audience and key takeaways": [
-        null,
-        "लक्षित दर्शक और मुख्य बातों के साथ अपने सत्र का संक्षिप्त विवरण दें"
-      ],
-      "Outline": [null, "प्रारूप"],
-      "A detailed description of the session with the sequence of ideas to be presented": [
-        null,
-        "प्रस्तुत किए जाने वाले विषयों की श्रेणीक्रम के साथ-साथ सेशन का एक विस्तृत विवरण"
-      ],
-      "Requirements": [null, "आपेक्षित वस्तुएं"],
-      "For workshops, what must participants bring to the session?": [
-        null,
-        "वर्कशॉप में आने के लिए, प्रतिभागियों को उस सत्र में क्या सब लाना आवश्यक है?"
-      ],
-      "Slides": [null, "स्लाइड"],
-      "Link to your slides. These can be just an outline initially. If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page": [
-        null,
-        "अपने स्लाइड का लिंक बनाएं. शुरुआत में ये बस एक प्रारूप हो सकता है. अगर आप Slideshare/Speakerdeck का लिंक देते हैं, तो हम इस पेज पर स्लाइड जोड़ देंगे"
-      ],
-      "Preview Video": [null, "प्रीव्यू वीडियो"],
-      "Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. If you provide a YouTube/Vimeo link, we'll embed it in the page": [
-        null,
-        "अपने प्रीव्यू वीडियो का लिंक बनाएं. समुदाय के सदस्यों का रुझान पाने, उन्हें अपने सेशन और उसमें वो शामिल क्यों हों  इस बारे में अच्छे से बताने के लिए कोई वीडियो डालें. अगर आप YouTube/Vimeo का लिंक देते हैं, तो हम उसे इस पेज पर डाल देंगे"
-      ],
-      "Links": [null, "लिंक्स"],
-      "Other links, one per line. Provide links to your profile and slides and videos from your previous sessions; anything that'll help folks decide if they want to attend your session": [
-        null,
-        "अन्य लिंक, प्रति लाइन में एक. अपने पिछले सेशन से ही अपने प्रोफाइल, स्लाइड और वीडियो का लिंक प्रदान करें; या कुछ ऐसा जिनसे लोगों को लगे कि उन्हें आपके सेशन में शामिल होना चाहिए"
-      ],
-      "Speaker bio": [null, "स्पीकर का परिचय"],
-      "Tell us why you are the best person to be taking this session": [
-        null,
-        "हमें बताएं कि आप इस सेशन को लेने के लिए सबसे बेहतरीन इंसान कैसे हैं"
-      ],
-      "Your email address": [null, "आपका ईमेल पता"],
-      "An email address we can contact you at. Not displayed anywhere": [
-        null,
-        "एक ईमेल पता जिस पर हम आपसे संपर्क कर सकें. कहीं और नहीं दिखेगा"
-      ],
-      "A phone number we can call you at to discuss your proposal, if required. Will not be displayed": [
-        null,
-        "एक फोन नंबर, जिस पर हम आवश्यकता पड़ने पर फोन करके आपके प्रस्ताव पर बातें कर सकें. प्रदर्शित नहीं किया जाएगा"
-      ],
-      "Your location": [null, "आपका स्थान"],
-      "Your location, to help plan for your travel if required": [
-        null,
-        "आपका स्थान, आवश्यक होने पर आपके सफर का खर्च उठाने के लिए"
-      ],
+      "Content": [null, "विषय सूची"],
+      "Video": [null, "वीडियो"],
+      "YouTube or Vimeo URL (optional)": [null, ""],
       "Move proposal to": [null, "प्रस्ताव को भेजें"],
       "Move this proposal to another project": [
         null,
@@ -656,6 +606,7 @@
       ],
       "Room": [null, "रूम"],
       "Speaker": [null, "स्पीकर"],
+      "Speaker bio": [null, "स्पीकर का परिचय"],
       "Banner image URL": [null, "बैनर चित्र का URL"],
       "From images.hasgeek.com, with 16:9 aspect ratio. Should be < 50 kB in size": [
         null,
@@ -685,7 +636,6 @@
       "Job title": [null, "पेशे का नाम"],
       "Twitter": [null, "Twitter"],
       "Badge is printed": [null, "बैच प्रिंट की हुई है"],
-      "Content": [null, "विषय सूची"],
       "Markdown formatting is supported": [
         null,
         "मार्कडाउन फॉर्मेटिंग समर्थित है"
@@ -1074,6 +1024,7 @@
         null,
         "अपने पसंदीदा समुदायों की सदस्यता लें और किसी भी संवाद या संग काम करने के अवसर को हाथ से जाने न दें."
       ],
+      "Go to profile": [null, ""],
       "(none)": [null, "(कोई भी नहीं)"],
       "From device": [null, "इस डिवाइस से"],
       "Edit": [null, "संपादित करें"],
@@ -1150,29 +1101,6 @@
       "Logged in account": [null, "अकाउंट में लॉग इन हो गया"],
       "Other account": [null, "अन्य अकाउंट"],
       "Skip": [null, "बाद में"],
-      "Setup events for check-in": [null, "चेक-इन के लिए ईवेंट सेटअप करें"],
-      "Select an event for manual check-in of attendees": [
-        null,
-        "आने वाले प्रतिभागियों के मैन्युअल चेक-इन के लिए कोई ईवेंट चुनें"
-      ],
-      "Add events to manage check-in": [
-        null,
-        "चेक-इन को प्रबंधित करने के लिए ईवेंट जोड़ें"
-      ],
-      "New ticketed event": [null, "टिकट द्वारा प्रवेश वाला नया ईवेंट"],
-      "Add ticketed participant": [
-        null,
-        "जिन प्रतिभागियों के पास टिकट है उन्हें जोड़ें"
-      ],
-      "Tickets": [null, "टिकटें"],
-      "New ticket": [null, "नया टिकट"],
-      "Ticket clients": [null, "टिकट क्लाइंट्स"],
-      "Add ticket client to import tickets": [
-        null,
-        "टिकट क्लाइंट को महत्वपूर्ण टिकटों में जोड़ें"
-      ],
-      "New ticket client": [null, "नया टिकट क्लाइंट"],
-      "Sync tickets": [null, "टिकट सिंक करें"],
       "Client application information": [null, "क्लाइंट एप्लीकेशन की जानकारी"],
       "Admin panel": [null, "एडमिन पैनल"],
       "Edit this application": [null, "इस एप्लीकेशन को संपादित करें"],
@@ -1292,7 +1220,6 @@
         "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें."
       ],
       "Spotlight:": [null, "सुर्खियां:"],
-      "Answer this survey on privacy and technology": [null, ""],
       "What is the state of privacy enhancing technologies, data security, and compliance, in the Indian tech industry?": [
         null,
         ""
@@ -1305,7 +1232,10 @@
         null,
         ""
       ],
+      "Answer this survey on privacy and technology": [null, ""],
       "Get started": [null, ""],
+      "32 questions": [null, ""],
+      "~15 mins": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, ""],
       "(No labels)": [null, ""],
@@ -1370,13 +1300,13 @@
         null,
         "रजिस्ट्रेशन शुरू करने के लिए समय-सूची जोड़ें"
       ],
-      "Submit a session proposal": [null, "किसी सेशन के लिए प्रस्ताव भेजें"],
-      "Proposal submissions close at %(date)s": [
+      "Make a submission": [null, ""],
+      "Submissions close at %(date)s": [
         null,
-        "प्रस्ताव जमा करने की सुविधा %(date)s को बंद हो जाएगी"
+        "जमा करने की सुविधा %(date)s को बंद हो जाएगी"
       ],
-      "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
-      "Add proposal guidelines": [null, "प्रस्ताव के लिए दिशा-निर्देश जोड़ें"],
+      "Open submissions": [null, ""],
+      "Add submission guidelines": [null, ""],
       "Submissions are closed for this project": [
         null,
         "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
@@ -1386,34 +1316,25 @@
       "Talks": [null, "टॉक"],
       "Jobs": [null, "नौकरियां"],
       "Comments": [null, "कमेंट"],
-      "Video": [null, "वीडियो"],
-      "Proposals": [null, "प्रस्ताव"],
+      "Submissions": [null, ""],
       "Schedule": [null, "कार्यक्रम"],
       "Settings": [null, "सेटिंग्स"],
-      "Pinned update": [null, "पिन की हुई जानकारी"],
       "This update is for participants only": [
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
       ],
-      "Edit proposal video": [null, "प्रस्ताव का वीडियो संपादित करें"],
+      "Edit submission video": [null, ""],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
       "Notifications": [null, "नोटिफिकेशन"],
       "My saves": [null, "मेरी सेव की गई चीज़ें"],
       "Scan badge": [null, "बैच स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
-      "Submissions close at %(date)s": [
-        null,
-        "जमा करने की सुविधा %(date)s को बंद हो जाएगी"
-      ],
       "Live schedule": [null, "लाइव कार्यक्रम"],
       "Livestream and schedule": [null, ""],
       "Session starts at %(session)s": [null, "सेशन %(session)s शुरू होगा"],
       "Watch livestream": [null, "लाइवस्ट्रीम देखें"],
       "Spotlight": [null, "झलकियां"],
-      "Accepting proposal submissions": [
-        null,
-        "प्रस्ताव जमा करने की सुविधा खुली हुई है"
-      ],
+      "Accepting submissions": [null, ""],
       "Show more": [null, "और दिखाएं"],
       "All projects": [null, "सभी प्रोजेक्ट"],
       "Manage admins": [null, "एडमिंस को प्रबंधित करें"],
@@ -1441,6 +1362,7 @@
         "जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
       ],
       "Add cover photo url": [null, "कवर फोटो का URL जोड़ें"],
+      "Add cover photo": [null, ""],
       "New project": [null, "नया प्रोजेक्ट"],
       "Make profile public": [null, "प्रोफाइल को सार्वजनिक बनाएं"],
       "Make this profile public?": [null, "इस प्रोफाइल को सार्वजनिक बनाएं?"],
@@ -1456,6 +1378,7 @@
       "Admins": [null, "एडमिन"],
       "Sessions": [null, "सेशन"],
       "Projects": [null, "प्रोजेक्ट"],
+      "Tickets": [null, "टिकटें"],
       "Attend": [null, "हिस्सा लें"],
       "Team &amp; careers": [null, "टीम &amp; करियर"],
       "Contact": [null, "संपर्क"],
@@ -1542,6 +1465,7 @@
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
       "Featured project": [null, ""],
+      "Confirmation": [null, ""],
       "Remove featured": [null, ""],
       "Make featured": [null, ""],
       "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
@@ -1550,46 +1474,71 @@
       "View Schedule": [null, ""],
       "Related jobs": [null, ""],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
-      "Loading...": [null, "लोड हो रहा है..."],
-      "Add proposal guidelines and timing": [
+      "Setup events for check-in": [null, "चेक-इन के लिए ईवेंट सेटअप करें"],
+      "Select an event for manual check-in of attendees": [
         null,
-        "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
+        "आने वाले प्रतिभागियों के मैन्युअल चेक-इन के लिए कोई ईवेंट चुनें"
       ],
+      "Add events to manage check-in": [
+        null,
+        "चेक-इन को प्रबंधित करने के लिए ईवेंट जोड़ें"
+      ],
+      "New ticketed event": [null, "टिकट द्वारा प्रवेश वाला नया ईवेंट"],
+      "Add ticketed participant": [
+        null,
+        "जिन प्रतिभागियों के पास टिकट है उन्हें जोड़ें"
+      ],
+      "New ticket": [null, "नया टिकट"],
+      "Ticket clients": [null, "टिकट क्लाइंट्स"],
+      "Add ticket client to import tickets": [
+        null,
+        "टिकट क्लाइंट को महत्वपूर्ण टिकटों में जोड़ें"
+      ],
+      "New ticket client": [null, "नया टिकट क्लाइंट"],
+      "Sync tickets": [null, "टिकट सिंक करें"],
+      "Add submission guidelines and timing": [null, ""],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Participants": [null, "प्रतिभागी"],
-      "%(title)s by %(speaker)s, %(project)s": [null, ""],
-      "Edit proposal": [null, ""],
-      "Submitted by": [null, ""],
-      "via": [null, ""],
-      "proposing": [null, ""],
-      "on": [null, ""],
-      "This is a proposal requesting for someone to speak on this topic.\n            If you’d like to speak, leave a comment.": [
-        null,
-        ""
-      ],
-      "Your proposal doesn't have a preview video!": [null, ""],
+      "This is a featured submission": [null, ""],
+      "Up next": [null, ""],
+      "Add a video": [null, ""],
       "Add preview video link": [null, ""],
       "Session video": [null, ""],
       "Proposal video": [null, ""],
-      "Status: %(status)s": [null, "स्थिति: %(status)s"],
-      "View proposal in schedule": [null, ""],
+      "Submitted %(date)s ": [null, ""],
+      "Submitted by %(speaker)s on %(date)s": [null, ""],
+      "This is a proposal requesting for someone to speak on this topic.\n                  If you’d like to speak, leave a comment.": [
+        null,
+        ""
+      ],
+      "This proposal has been added to the schedule": [null, ""],
+      "Move": [null, ""],
+      "Transfer": [null, ""],
       "Change status of proposal": [null, ""],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Add proposal video": [null, ""],
-      "This section is empty.": [null, ""],
+      "Add submission video": [null, ""],
+      "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
       "Modify proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची को बदलें"
       ],
-      "All proposals": [null, "सभी प्रस्ताव"],
-      "proposals": [null, "प्रस्ताव"],
-      "Confirmed sessions": [null, "निर्धारित सेशन"],
-      "Unconfirmed proposals": [null, "अनिर्धारित प्रस्ताव"],
+      "Add proposal guidelines and timing": [
+        null,
+        "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
+      ],
+      "Proposal submissions close at %(date)s": [
+        null,
+        "प्रस्ताव जमा करने की सुविधा %(date)s को बंद हो जाएगी"
+      ],
+      "All submissions": [null, ""],
+      "Loading...": [null, "लोड हो रहा है..."],
+      "%(title)s by %(speaker)s, %(project)s": [null, ""],
       "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
       "Select date": [null, ""],
       "Select a date to add sessions": [null, ""],
-      "Unscheduled proposals": [null, ""],
+      "Unscheduled submissions": [null, ""],
       "Revert": [null, ""],
       "Save session": [null, ""],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
@@ -1604,15 +1553,10 @@
         null,
         "सेशन के साथ जुड़ी कोई वीडियो नहीं है"
       ],
-      "Open proposal for this session": [
-        null,
-        "इस सेशन के लिए प्रस्ताव प्रक्रिया खोलें"
-      ],
+      "Open submission for this session": [null, ""],
       "Speaker Bio": [null, "स्पीकर की जानकारी"],
-      "Proposal submission status: %(status)s": [
-        null,
-        "प्रस्ताव जमा करने की स्थिति: %(status)s"
-      ],
+      "Status: %(status)s": [null, "स्थिति: %(status)s"],
+      "Submission status: %(status)s": [null, ""],
       "Edit project details": [null, "प्रोजेक्ट विवरण संपादित करें"],
       "Update project URL": [null, "प्रोजेक्ट URL बदलें"],
       "Add or edit livestream URLs": [
@@ -1620,6 +1564,7 @@
         "लाइवस्ट्रीम URLs जोड़ें या संपादित करें"
       ],
       "Manage venues": [null, "ईवेंट के स्थानों को संपादित करें"],
+      "Modify submission guidelines and timing": [null, ""],
       "Setup ticketed events for check-in": [
         null,
         "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
@@ -1669,7 +1614,7 @@
         "फिलहाल कोई सेशन टैग किया हुआ नहीं है."
       ],
       "No participation yet.": [null, "अब तक कहीं हिस्सा नहीं लिया गया है."],
-      "No proposals submitted.": [null, "कोई प्रस्ताव जमा नहीं है।"],
+      "No submissions": [null, ""],
       "Venues": [null, "ईवेंट का स्थान"],
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
@@ -1685,10 +1630,6 @@
       ],
       "Attendee details not found": [null, "प्रतिभागी की जानकारी नहीं मिली"],
       "Login to leave a comment": [null, "कमेंट करने के लिए लॉगिन करें"],
-      "You need to be a participant to comment.": [
-        null,
-        "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है।"
-      ],
       "Post a comment...": [null, "एक कमेंट पोस्ट करें..."],
       "New comment": [null, "नया कमेंट"],
       "edited %s": [null, ""],
@@ -1764,6 +1705,7 @@
         null,
         "(इस टेम्पलेट की विषय-सूची मौजूद नहीं है)"
       ],
+      "This update is no longer available.": [null, ""],
       "Update #%(number)s &bull; Posted by %(editor)s %(age)s": [
         null,
         "#%(number)s &bull; बदलें %(editor)s %(age)s द्वारा पोस्ट किया गया"
@@ -1778,22 +1720,22 @@
         null,
         "<a href=\"%(url)s\">%(project)s</a> शुरू होने का समय %(start_time)s."
       ],
-      "Your project <b>%(project)s</b> has a new proposal: <b>%(proposal)s</b>.": [
+      "Your project <b>%(project)s</b> has a new submission: <b>%(proposal)s</b>.": [
         null,
-        "आपके <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव आया है: <b>%(proposal)s</b>."
+        ""
       ],
-      "Proposal page": [null, "प्रस्ताव का पेज"],
-      "\n        Your project <a href=\"%(project_url)s\">%(project)s</a> has received %(count)s new proposals:": [
+      "Submission page": [null, ""],
+      "\n        Your project <a href=\"%(project_url)s\">%(project)s</a> has received %(count)s new submissions:": [
         null,
-        "\nआपके <a href=\\%(project_url)s\\>%(project)s</a> प्रोजेक्ट में %(count)s नए प्रस्ताव आए हैं:"
+        ""
       ],
       "\n          <a href=\"%(url)s\">%(proposal)s</a> by %(actor)s <span class=\"mui--text-body2\">%(age)s</span>\n        ": [
         null,
         "\n<a href=\\%(url)s\\>%(proposal)s</a> इसके द्वारा %(actor)s <span class=\\mui—text-body2\\>%(age)s</span> "
       ],
-      "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new proposal: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s.": [
+      "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new submission: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s.": [
         null,
-        "आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में एक नया प्रस्ताव आया है: <a href=\\%(proposal_url)s\\>%(proposal)s</a> %(actor)s की ओर स."
+        ""
       ],
       "You have submitted a new proposal <b>%(proposal)s</b> to the project <b>%(project)s</b>.": [
         null,
@@ -2471,7 +2413,6 @@
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आपका hasgeek.com पर एक खाता है"
       ],
-      "{sender} (via Hasgeek)": [null, "{sender} (Hasgeek के ज़रिए)"],
       "That unsubscribe link has expired. However, you can manage your preferences from your account page": [
         null,
         "वो सदस्यता समाप्त वाली लिंक एक्स्पायर हो चुकी है. हालांकि, आप अपनी प्राथमिकताएं अपने खाते से प्रबंधित कर सकते हैं"
@@ -2684,29 +2625,19 @@
         null,
         "आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
       ],
-      "Something went wrong, please reload and try again": [
+      "This page timed out. Refresh and try again": [null, ""],
+      "Importing tickets from vendors… Refresh the page in about 30 seconds…": [
         null,
-        "कुछ गड़बड़ी हुई है, कृपया दोबारा लोड करें और दोबारा प्रयास करें"
+        ""
       ],
-      "Importing tickets from vendors...Refresh the page in about 30 seconds...": [
-        null,
-        "विक्रेताओं से टिकट आयात हो रहा है...पेज को लगभग 30 सेकंड में रिफ्रेश करें..."
-      ],
-      "CFP for this project is not open": [
-        null,
-        "इस प्रोजेक्ट के लिए CFP खुला नहीं है"
-      ],
-      "Your new session proposal has been submitted": [
-        null,
-        "आपका नया सेशन प्रस्ताव जमा कर दिया गया है"
-      ],
-      "Submit proposal": [null, "प्रस्ताव जमा करें"],
       "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting.": [
         null,
         "यह फॉर्म फॉर्मेटिंग के लिए <a target=\"_blank\" rel=\"noopener noreferrer\" href=\\https://www.markdownguide.org/basic-syntax/\\>Markdown</a> का उपयोग करता है."
       ],
-      "Edit session proposal": [null, "सेशन का प्रस्ताव संपादित करें"],
-      "Update proposal": [null, "प्रस्ताव अपडेट करें"],
+      "This project is not accepting submissions": [null, ""],
+      "Your proposal has been submitted": [null, ""],
+      "Submit a proposal": [null, ""],
+      "Edit proposal": [null, ""],
       "Delete your proposal ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,
         "अपना '{title}' प्रस्ताव मिटाएं? यह सभी वोटों और कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
@@ -2752,8 +2683,13 @@
       ],
       "{session} in 5 minutes": [null, "5 मिनट में {session}"],
       "Profiles": [null, "प्रोफाइल"],
+      "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
       "Edit session": [null, "सेशन संपादित करें"],
+      "Something went wrong, please reload and try again": [
+        null,
+        "कुछ गड़बड़ी हुई है, कृपया दोबारा लोड करें और दोबारा प्रयास करें"
+      ],
       "Comment(s) successfully reported as spam": [
         null,
         "कमेंट को सफलतापूर्वक स्पैम के रूप में रिपोर्ट कर दिया गया है"
@@ -2774,6 +2710,7 @@
         null,
         "आप एक ही कमेंट की दो बार समीक्षा नहीं कर सकते"
       ],
+      "This comment has already been marked as spam": [null, ""],
       "This event already exists.": [null, "यह ईवेंट पहले से मौजूद है."],
       "New Event": [null, "नया ईवेंट"],
       "Add event": [null, "ईवेंट जोड़ें"],

@@ -39,7 +39,6 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename=asset_path('session_videos')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var saveProjectConfig = {
@@ -47,7 +46,6 @@
       }
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
-      window.Hasgeek.SessionVideoInit();
     });
   </script>
 {% endblock %}
