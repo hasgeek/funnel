@@ -1300,13 +1300,13 @@
         null,
         "रजिस्ट्रेशन शुरू करने के लिए समय-सूची जोड़ें"
       ],
-      "Submit a session proposal": [null, "किसी सेशन के लिए प्रस्ताव भेजें"],
-      "Proposal submissions close at %(date)s": [
+      "Make a submission": [null, ""],
+      "Submissions close at %(date)s": [
         null,
-        "प्रस्ताव जमा करने की सुविधा %(date)s को बंद हो जाएगी"
+        "जमा करने की सुविधा %(date)s को बंद हो जाएगी"
       ],
-      "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
-      "Add proposal guidelines": [null, "प्रस्ताव के लिए दिशा-निर्देश जोड़ें"],
+      "Open submissions": [null, ""],
+      "Add submission guidelines": [null, ""],
       "Submissions are closed for this project": [
         null,
         "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
@@ -1323,25 +1323,18 @@
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
       ],
-      "Edit proposal video": [null, "प्रस्ताव का वीडियो संपादित करें"],
+      "Edit submission video": [null, ""],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
       "Notifications": [null, "नोटिफिकेशन"],
       "My saves": [null, "मेरी सेव की गई चीज़ें"],
       "Scan badge": [null, "बैच स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
-      "Submissions close at %(date)s": [
-        null,
-        "जमा करने की सुविधा %(date)s को बंद हो जाएगी"
-      ],
       "Live schedule": [null, "लाइव कार्यक्रम"],
       "Livestream and schedule": [null, ""],
       "Session starts at %(session)s": [null, "सेशन %(session)s शुरू होगा"],
       "Watch livestream": [null, "लाइवस्ट्रीम देखें"],
       "Spotlight": [null, "झलकियां"],
-      "Accepting proposal submissions": [
-        null,
-        "प्रस्ताव जमा करने की सुविधा खुली हुई है"
-      ],
+      "Accepting submissions": [null, ""],
       "Show more": [null, "और दिखाएं"],
       "All projects": [null, "सभी प्रोजेक्ट"],
       "Manage admins": [null, "एडमिंस को प्रबंधित करें"],
@@ -1481,7 +1474,6 @@
       "View Schedule": [null, ""],
       "Related jobs": [null, ""],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
-      "Loading...": [null, "लोड हो रहा है..."],
       "Setup events for check-in": [null, "चेक-इन के लिए ईवेंट सेटअप करें"],
       "Select an event for manual check-in of attendees": [
         null,
@@ -1504,34 +1496,44 @@
       ],
       "New ticket client": [null, "नया टिकट क्लाइंट"],
       "Sync tickets": [null, "टिकट सिंक करें"],
-      "Add proposal guidelines and timing": [
-        null,
-        "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
-      ],
+      "Add submission guidelines and timing": [null, ""],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Participants": [null, "प्रतिभागी"],
-      "This is a featured proposal": [null, ""],
+      "This is a featured submission": [null, ""],
       "Up next": [null, ""],
-      "This submission doesn't have a preview video": [null, ""],
+      "Add a video": [null, ""],
       "Add preview video link": [null, ""],
       "Session video": [null, ""],
       "Proposal video": [null, ""],
       "Submitted %(date)s ": [null, ""],
-      "Submitted by %(speaker)s proposing on %(date)s ": [null, ""],
+      "Submitted by %(speaker)s on %(date)s": [null, ""],
       "This is a proposal requesting for someone to speak on this topic.\n                  If you’d like to speak, leave a comment.": [
         null,
         ""
       ],
       "This proposal has been added to the schedule": [null, ""],
+      "Move": [null, ""],
+      "Transfer": [null, ""],
       "Change status of proposal": [null, ""],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Add proposal video": [null, ""],
+      "Add submission video": [null, ""],
+      "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
       "Modify proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची को बदलें"
       ],
+      "Add proposal guidelines and timing": [
+        null,
+        "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
+      ],
+      "Proposal submissions close at %(date)s": [
+        null,
+        "प्रस्ताव जमा करने की सुविधा %(date)s को बंद हो जाएगी"
+      ],
       "All submissions": [null, ""],
+      "Loading...": [null, "लोड हो रहा है..."],
       "%(title)s by %(speaker)s, %(project)s": [null, ""],
       "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
       "Select date": [null, ""],
@@ -1551,16 +1553,10 @@
         null,
         "सेशन के साथ जुड़ी कोई वीडियो नहीं है"
       ],
-      "Open proposal for this session": [
-        null,
-        "इस सेशन के लिए प्रस्ताव प्रक्रिया खोलें"
-      ],
+      "Open submission for this session": [null, ""],
       "Speaker Bio": [null, "स्पीकर की जानकारी"],
       "Status: %(status)s": [null, "स्थिति: %(status)s"],
-      "Proposal submission status: %(status)s": [
-        null,
-        "प्रस्ताव जमा करने की स्थिति: %(status)s"
-      ],
+      "Submission status: %(status)s": [null, ""],
       "Edit project details": [null, "प्रोजेक्ट विवरण संपादित करें"],
       "Update project URL": [null, "प्रोजेक्ट URL बदलें"],
       "Add or edit livestream URLs": [
@@ -1568,6 +1564,7 @@
         "लाइवस्ट्रीम URLs जोड़ें या संपादित करें"
       ],
       "Manage venues": [null, "ईवेंट के स्थानों को संपादित करें"],
+      "Modify submission guidelines and timing": [null, ""],
       "Setup ticketed events for check-in": [
         null,
         "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
@@ -1617,7 +1614,7 @@
         "फिलहाल कोई सेशन टैग किया हुआ नहीं है."
       ],
       "No participation yet.": [null, "अब तक कहीं हिस्सा नहीं लिया गया है."],
-      "No submissions.": [null, ""],
+      "No submissions": [null, ""],
       "Venues": [null, "ईवेंट का स्थान"],
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
@@ -1723,11 +1720,11 @@
         null,
         "<a href=\"%(url)s\">%(project)s</a> शुरू होने का समय %(start_time)s."
       ],
-      "Your project <b>%(project)s</b> has a new proposal: <b>%(proposal)s</b>.": [
+      "Your project <b>%(project)s</b> has a new submission: <b>%(proposal)s</b>.": [
         null,
-        "आपके <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव आया है: <b>%(proposal)s</b>."
+        ""
       ],
-      "Proposal page": [null, "प्रस्ताव का पेज"],
+      "Submission page": [null, ""],
       "\n        Your project <a href=\"%(project_url)s\">%(project)s</a> has received %(count)s new submissions:": [
         null,
         ""
@@ -1736,9 +1733,9 @@
         null,
         "\n<a href=\\%(url)s\\>%(proposal)s</a> इसके द्वारा %(actor)s <span class=\\mui—text-body2\\>%(age)s</span> "
       ],
-      "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new proposal: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s.": [
+      "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new submission: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s.": [
         null,
-        "आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में एक नया प्रस्ताव आया है: <a href=\\%(proposal_url)s\\>%(proposal)s</a> %(actor)s की ओर स."
+        ""
       ],
       "You have submitted a new proposal <b>%(proposal)s</b> to the project <b>%(project)s</b>.": [
         null,
@@ -2628,10 +2625,10 @@
         null,
         "आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
       ],
-      "Something went wrong. Reload and try again": [null, ""],
-      "Importing tickets from vendors... Refresh the page in about 30 seconds...": [
+      "This page timed out. Refresh and try again": [null, ""],
+      "Importing tickets from vendors… Refresh the page in about 30 seconds…": [
         null,
-        "विक्रेताओं से टिकट आयात हो रहा है...पेज को लगभग 30 सेकंड में रिफ्रेश करें..."
+        ""
       ],
       "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting.": [
         null,
@@ -2729,6 +2726,10 @@
       ],
       "New Ticket Client": [null, "नया टिकट क्लाइंट"],
       "Add ticket client": [null, "टिकट क्लाइंट जोड़ें"],
+      "Importing tickets from vendors... Refresh the page in about 30 seconds...": [
+        null,
+        "विक्रेताओं से टिकट आयात हो रहा है...पेज को लगभग 30 सेकंड में रिफ्रेश करें..."
+      ],
       "Edit event": [null, "ईवेंट संपादित करें"],
       "Delete event ‘{title}’? This operation is permanent and cannot be undone.": [
         null,

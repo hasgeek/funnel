@@ -49,7 +49,7 @@
                 {%- endif %}
                 {%- if cfp_transition_form %}
                   <div>
-                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Proposal submission status: {{ status }}{% endtrans %}</p>
+                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Submission status: {{ status }}{% endtrans %}</p>
                     <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
                       {{ cfp_transition_form.hidden_tag() }}
                       <p class="btn-group">
@@ -99,11 +99,11 @@
                 {%- endif %}
                 {% if project.view_for('cfp').is_available() and project.cfp_state.NONE -%}
                   <li>
-                    <a href="{{ project.url_for('cfp') }}" data-cy="add-cfp">{% trans %}Add proposal guidelines and timing{% endtrans %}</a>
+                    <a href="{{ project.url_for('cfp') }}" data-cy="add-cfp">{% trans %}Add submission guidelines and timing{% endtrans %}</a>
                   </li>
                 {% else -%}
                   <li>
-                    <a href="{{ project.url_for('cfp') }}" data-cy="modify-cfp">{% trans %}Modify proposal guidelines and timing{% endtrans %}</a>
+                    <a href="{{ project.url_for('cfp') }}" data-cy="modify-cfp">{% trans %}Modify submission guidelines and timing{% endtrans %}</a>
                   </li>
                 {%- endif %}
                 {% if project.view_for('edit_schedule').is_available() %}
