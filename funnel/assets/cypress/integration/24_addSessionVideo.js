@@ -19,7 +19,7 @@ describe('Add video to session', function () {
     cy.get('#session-modal').should('be.visible');
     cy.get('[data-cy-admin="edit-session"]').click();
     cy.get('#field-video_url').type(proposal.session_video);
-    cy.get('button').contains('save session').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
     cy.get('[data-cy="session-video"]').find('iframe').should('be.visible');
     cy.get('[data-cy="view-proposal"]').invoke('removeAttr', 'target').click();
     cy.get('[data-cy="session-video"]').find('iframe').should('be.visible');
