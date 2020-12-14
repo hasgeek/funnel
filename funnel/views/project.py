@@ -285,6 +285,7 @@ class ProjectView(
             'featured_proposals': featured_proposals,
         }
 
+    @route('sub')
     @route('proposals')
     @render_with('proposals.html.jinja2')
     @requires_roles({'reader'})

@@ -94,9 +94,9 @@
                         <div class="details__box__video details__box__video--novideo embed-video-wrapper">
                           <div class="details__box__video__icon mui--text-center">
                             {{ faicon(icon='video-slash', icon_size='headline', baseline=false, css_class='mui-text-light') }}
-                            <p class="mui-text-light mui--text-body2">{% trans %}Add a video{% endtrans %}</p>
+                            <p class="mui-text-light mui--text-body2">{% trans %}No video{% endtrans %}</p>
                           </div>
-                          <a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--raised icon-btn details__box__video__add-btn" aria-label="{% trans %}Add preview video link{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a></p>
+                          <a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--raised icon-btn details__box__video__add-btn" aria-label="{% trans %}Add video{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a></p>
                         </div>
                       </div>
                     {% endif %}

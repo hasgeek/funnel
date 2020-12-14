@@ -155,7 +155,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
 
         return render_form(
             form=form,
-            title=_("Submit a proposal"),
+            title=_("Make a submission"),
             submit=_("Submit"),
             message=markdown_message,
         )
@@ -170,6 +170,7 @@ class ProjectProposalView(BaseProjectProposalView):
 ProjectProposalView.add_route_for(
     'new_proposal', 'proposals/new', methods=['GET', 'POST']
 )
+ProjectProposalView.add_route_for('new_proposal', 'sub/new', methods=['GET', 'POST'])
 ProjectProposalView.init_app(app)
 
 
@@ -184,6 +185,7 @@ FunnelProjectProposalView.init_app(funnelapp)
 
 @Proposal.views('main')
 @route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
+@route('/<profile>/<project>/sub/<url_name_uuid_b58>')
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
