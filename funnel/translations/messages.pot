@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-12-14 20:10+0530\n"
+"POT-Creation-Date: 2020-12-15 00:02+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2514,7 +2514,7 @@ msgid "Please review the indicated issues"
 msgstr ""
 
 #: funnel/templates/layout.html.jinja2:68
-msgid "What’s this about?"
+msgid "10 Years!"
 msgstr ""
 
 #: funnel/templates/layout.html.jinja2:73

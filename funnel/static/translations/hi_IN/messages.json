@@ -1247,7 +1247,7 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "What’s this about?": [null, "यह क्या है?"],
+      "10 Years!": [null, "10 साल!"],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
@@ -1502,19 +1502,25 @@
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Participants": [null, "प्रतिभागी"],
-      "This is a featured submission": [null, ""],
-      "Up next": [null, ""],
-      "No video": [null, ""],
-      "Add video": [null, ""],
-      "Session video": [null, ""],
-      "Proposal video": [null, ""],
-      "Submitted %(date)s ": [null, ""],
-      "Submitted by %(speaker)s on %(date)s": [null, ""],
+      "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
+      "Up next": [null, "अगला आने वाला"],
+      "No video": [null, "कोई वीडियो नहीं है"],
+      "Add video": [null, "वीडियो जोड़ें"],
+      "Session video": [null, "सेशन वीडियो"],
+      "Proposal video": [null, "प्रस्ताव वीडियो"],
+      "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
+      "Submitted by %(speaker)s on %(date)s": [
+        null,
+        "%(speaker)s के द्वारा %(date)s पर"
+      ],
       "This is a proposal requesting for someone to speak on this topic.\n                  If you’d like to speak, leave a comment.": [
         null,
-        ""
+        "यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें."
       ],
-      "This proposal has been added to the schedule": [null, ""],
+      "This proposal has been added to the schedule": [
+        null,
+        "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
+      ],
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],

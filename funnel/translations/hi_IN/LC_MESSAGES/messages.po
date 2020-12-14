@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-14 20:10+0530\n"
-"PO-Revision-Date: 2020-12-14 19:59+0530\n"
+"POT-Creation-Date: 2020-12-15 00:02+0530\n"
+"PO-Revision-Date: 2020-12-15 00:02+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -2630,8 +2630,8 @@ msgid "Please review the indicated issues"
 msgstr "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
 
 #: funnel/templates/layout.html.jinja2:68
-msgid "What’s this about?"
-msgstr "यह क्या है?"
+msgid "10 Years!"
+msgstr "10 साल!"
 
 #: funnel/templates/layout.html.jinja2:73
 msgid "Search the site"
@@ -3337,48 +3337,50 @@ msgstr "प्रतिभागी"
 
 #: funnel/templates/proposal.html.jinja2:52
 msgid "This is a featured submission"
-msgstr ""
+msgstr "यह मुख्य सबमिशन है"
 
 #: funnel/templates/proposal.html.jinja2:56
 #: funnel/templates/proposal.html.jinja2:178
 msgid "Up next"
-msgstr ""
+msgstr "अगला आने वाला"
 
 #: funnel/templates/proposal.html.jinja2:85
 msgid "No video"
-msgstr ""
+msgstr "कोई वीडियो नहीं है"
 
 #: funnel/templates/proposal.html.jinja2:87
 msgid "Add video"
-msgstr ""
+msgstr "वीडियो जोड़ें"
 
 #: funnel/templates/proposal.html.jinja2:99
 msgid "Session video"
-msgstr ""
+msgstr "सेशन वीडियो"
 
 #: funnel/templates/proposal.html.jinja2:109
 msgid "Proposal video"
-msgstr ""
+msgstr "प्रस्ताव वीडियो"
 
 #: funnel/templates/proposal.html.jinja2:131
 #, python-format
 msgid "Submitted %(date)s "
-msgstr ""
+msgstr "%(date)s को सबमिट "
 
 #: funnel/templates/proposal.html.jinja2:146
 #, python-format
 msgid "Submitted by %(speaker)s on %(date)s"
-msgstr ""
+msgstr "%(speaker)s के द्वारा %(date)s पर"
 
 #: funnel/templates/proposal.html.jinja2:148
 msgid ""
 "This is a proposal requesting for someone to speak on this topic.\n"
 "                  If you’d like to speak, leave a comment."
 msgstr ""
+"यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n"
+"            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें."
 
 #: funnel/templates/proposal.html.jinja2:160
 msgid "This proposal has been added to the schedule"
-msgstr ""
+msgstr "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
 
 #: funnel/templates/proposal_admin_panel.html.jinja2:27
 msgid "Move"
@@ -6345,120 +6347,3 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "Add proposal guidelines"
 #~ msgstr "प्रस्ताव के लिए दिशा-निर्देश जोड़ें"
-
-#~ msgid "Edit proposal video"
-#~ msgstr "प्रस्ताव का वीडियो संपादित करें"
-
-#~ msgid "Accepting proposal submissions"
-#~ msgstr "प्रस्ताव जमा करने की सुविधा खुली हुई है"
-
-#~ msgid "Submitted by %(speaker)s on %(date)s"
-#~ msgstr "%(speaker)s के द्वारा %(date)s पर"
-
-#~ msgid "Submitted by %(speaker)s via %(user)s on %(date)s"
-#~ msgstr "%(speaker)s के द्वारा %(user)s की तरफ से %(date)s पर"
-
-#~ msgid "Submitted by %(user)s (proposing) on %(date)s"
-#~ msgstr "%(user)s (प्रस्ताव का विचार रखने वाले) के द्वारा %(date)s पर"
-
-#~ msgid ""
-#~ "This is a proposal requesting for someone to speak on this topic.\n"
-#~ "            If you’d like to speak, leave a comment."
-#~ msgstr ""
-#~ "यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n"
-#~ "            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें."
-
-#~ msgid "Your proposal doesn't have a preview video!"
-#~ msgstr "आपके प्रस्ताव में कोई प्रीव्यू वीडियो मौजूद नहीं है!"
-
-#~ msgid "Add preview video link"
-#~ msgstr "प्रीव्यू वीडियो का लिंक जोड़े"
-
-#~ msgid "Session video"
-#~ msgstr "सेशन की वीडियो"
-
-#~ msgid "Proposal video"
-#~ msgstr "प्रस्ताव का वीडियो"
-
-#~ msgid "View proposal in schedule"
-#~ msgstr "कार्यक्रम में प्रस्ताव को देखे"
-
-#~ msgid "This section is empty."
-#~ msgstr "ये अनुभाग खाली है."
-
-#~ msgid "All proposals"
-#~ msgstr "सभी प्रस्ताव"
-
-#~ msgid "proposals"
-#~ msgstr "प्रस्ताव"
-
-#~ msgid "Confirmed sessions"
-#~ msgstr "निर्धारित सेशन"
-
-#~ msgid "Unconfirmed proposals"
-#~ msgstr "अनिर्धारित प्रस्ताव"
-
-#~ msgid "Unscheduled proposals"
-#~ msgstr "अनिर्धारित प्रस्ताव"
-
-#~ msgid "Open proposal for this session"
-#~ msgstr "इस सेशन के लिए प्रस्ताव प्रक्रिया खोलें"
-
-#~ msgid "Proposal submission status: %(status)s"
-#~ msgstr "प्रस्ताव जमा करने की स्थिति: %(status)s"
-
-#~ msgid "No proposals submitted."
-#~ msgstr "कोई प्रस्ताव जमा नहीं है"
-
-#~ msgid "You need to be a participant to comment"
-#~ msgstr "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है"
-
-#~ msgid ""
-#~ "Your project <b>%(project)s</b> has a "
-#~ "new proposal: <b>%(proposal)s</b>."
-#~ msgstr ""
-#~ "आपके <b>%(project)s</b> प्रोजेक्ट में एक "
-#~ "नया प्रस्ताव आया है: <b>%(proposal)s</b>."
-
-#~ msgid "Proposal page"
-#~ msgstr "प्रस्ताव का पेज"
-
-#~ msgid ""
-#~ "\n"
-#~ "        Your project <a "
-#~ "href=\"%(project_url)s\">%(project)s</a> has received "
-#~ "%(count)s new proposals:"
-#~ msgstr ""
-#~ "\n"
-#~ "आपके <a href=\"%(project_url)s\">%(project)s</a> "
-#~ "प्रोजेक्ट में %(count)s नए प्रस्ताव आए"
-#~ " हैं:"
-
-#~ msgid ""
-#~ "Your project <a "
-#~ "href=\"%(project_url)s\">%(project)s</a> has received "
-#~ "a new proposal: <a "
-#~ "href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s."
-#~ msgstr ""
-#~ "आपके <a href=\"%(project_url)s\">%(project)s</a> "
-#~ "प्रोजेक्ट में एक नया प्रस्ताव आया "
-#~ "है: <a href=\"%(proposal_url)s\">%(proposal)s</a> "
-#~ "%(actor)s की ओर स."
-
-#~ msgid "CFP for this project is not open"
-#~ msgstr "इस प्रोजेक्ट के लिए CFP खुला नहीं है"
-
-#~ msgid "Your new session proposal has been submitted"
-#~ msgstr "आपका नया सेशन प्रस्ताव जमा कर दिया गया है"
-
-#~ msgid "Submit proposal"
-#~ msgstr "प्रस्ताव जमा करें"
-
-#~ msgid "Edit session proposal"
-#~ msgstr "सेशन का प्रस्ताव संपादित करें"
-
-#~ msgid "Update proposal"
-#~ msgstr "प्रस्ताव अपडेट करें"
-
-#~ msgid "Submit a proposal"
-#~ msgstr "एक प्रस्ताव जमा करें"
