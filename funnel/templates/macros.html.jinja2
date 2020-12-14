@@ -343,7 +343,7 @@
     <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
   {%- endif %}
 
-  {%- if proposal or session and share %}
+  {%- if share and proposal or session %}
     {%- if proposal %}
       {% set url, title = proposal.url_for(_external=true), proposal.title  %}
     {% else %}

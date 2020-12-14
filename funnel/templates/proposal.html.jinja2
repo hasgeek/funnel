@@ -74,7 +74,7 @@
                         <div class="details__box__video mui--bg-primary-dark embed-video-wrapper" data-cy="session-video">
                           {{ embed_video_player(proposal.session.video) }}
                         </div>
-                        <div class="details__box__control">
+                        <div class="details__box__control mui--clearfix">
                           {{ video_action_bar(proposal.session.video, '', proposal.session, false)}}
                         </div>
                       </div>
@@ -85,7 +85,7 @@
                         <div class="details__box__video mui--bg-primary-dark embed-video-wrapper" data-cy="proposal-video">
                           {{ embed_video_player(proposal.video) }}
                         </div>
-                        <div class="details__box__control">
+                        <div class="details__box__control mui--clearfix">
                           {{ video_action_bar(proposal.video, proposal, '', false) }}
                         </div>
                       </div>
@@ -94,7 +94,7 @@
                         <div class="details__box__video details__box__video--novideo embed-video-wrapper">
                           <div class="details__box__video__icon mui--text-center">
                             {{ faicon(icon='video-slash', icon_size='headline', baseline=false, css_class='mui-text-light') }}
-                            <p class="mui-text-light mui--text-body2">{% trans %}This submission doesn't have a preview video{% endtrans %}</p>
+                            <p class="mui-text-light mui--text-body2">{% trans %}Add a video{% endtrans %}</p>
                           </div>
                           <a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--raised icon-btn details__box__video__add-btn" aria-label="{% trans %}Add preview video link{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a></p>
                         </div>
@@ -184,11 +184,9 @@
               <div class="alert alert--info proposal__wrapper__alert"><a class="mui--text-body2" href="{{ proposal.session.url_for() }}">{% trans %}This proposal has been added to the schedule{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', baseline=false, css_class='primary-color-txt fa-icon--left-margin mui--align-middle') }}</a></div>
             {% endif %}
 
-            <section class="proposal__section--border">
-              <div class="proposal__section proposal__section--bleed-x">
-                <div class="proposal-content">
-                  {{ proposal.body }}
-                </div>
+            <section class="proposal__section proposal__section--bleed-x proposal__section--border">
+              <div class="proposal-content">
+                {{ proposal.body }}
               </div>
             </section>
 

@@ -3784,6 +3784,7 @@ a.loginbutton.hidden,
   }
 }
 .project-section__headline {
+  margin-top: 32px;
   margin-bottom: 16px;
 }
 
@@ -4078,7 +4079,11 @@ a.loginbutton.hidden,
   display: none;
 }
 
-.proposal-card__body
+.proposal-card {
+  padding: 8px 0;
+}
+.proposal-card
+  .proposal-card__body
   .proposal-card__body__details
   .proposal-card__video-thumbnail {
   width: 100%;
