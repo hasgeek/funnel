@@ -1,5 +1,3 @@
-import { Video, Comments } from './util';
-
 export const Proposal = {
   init() {
     $('button[name="transition"][value="delete"]').click(function (e) {
@@ -92,16 +90,8 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.Hasgeek.ProposalInit = function ({
-    videoWrapper = '',
-    videoUrl = '',
-  }) {
+  window.Hasgeek.ProposalInit = function () {
     Proposal.init();
-    Comments.init();
     LabelsWidget.init();
-
-    if (videoWrapper) {
-      Video.embedIframe(videoWrapper, videoUrl);
-    }
   };
 });

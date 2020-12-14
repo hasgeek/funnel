@@ -62,7 +62,7 @@
                 {%- elif project.schedule_state.PUBLISHED -%}
                   <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-action="Schedule(index page card)">Schedule</a>
                 {%- elif project.cfp_state.HAS_PROPOSALS -%}
-                  <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-action="View proposals(index page card)">Proposals</a>
+                  <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-action="View submissions(index page card)">Submissions</a>
                 {%- endif %}
                 {%- if project.features.tickets() -%}
                   <a href="{{ project.url_for() }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-action="Participate(index page card)">Participate</a>
