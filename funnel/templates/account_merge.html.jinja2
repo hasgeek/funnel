@@ -4,14 +4,14 @@
 
 {% macro accountinfo(user) %}
   <ul class="mui-list--aligned mui--text-subhead">
-    <li><span class="mui--text-bold">{% trans name=user.fullname %}Name:{% endtrans %}</span> {{ name }}</li>
-    <li><span class="mui--text-bold">{% trans username=user.username or '' %}Username:{% endtrans %}</span> {{ username }}</li>
+    <li><span class="mui--text-bold">{% trans %}Name:{% endtrans %}</span> {{ user.fullname }}</li>
+    <li><span class="mui--text-bold">{% trans %}Username:{% endtrans %}</span> {{ user.username or '' }}</li>
     <li>
       <ul>
         {%- for useremail in user.emails %}
-          <li><span class="mui--text-bold">{% trans email=useremail.email %}Email addresses:{% endtrans %}</span>{{ email }}</li>
+          <li><span class="mui--text-bold">{% trans %}Email addresses:{% endtrans %}</span> {{ useremail.email }}</li>
         {%- else %}
-          <li><span class="mui--text-bold">{% trans %}Email addresses:{% endtrans %}</span><em>(none)</em></li>
+          <li><span class="mui--text-bold">{% trans %}Email addresses:{% endtrans %}</span> <em>{% trans %}(none){% endtrans %}</em></li>
         {%- endfor %}
       </ul>
     </li>

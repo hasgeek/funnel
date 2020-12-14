@@ -7,16 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-11 18:38+0530\n"
-"PO-Revision-Date: 2020-12-11 18:38+0530\n"
+"POT-Creation-Date: 2020-12-14 08:04+0530\n"
+"PO-Revision-Date: 2020-12-14 08:06+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
+"X-Generator: Poedit 2.3\n"
 
 #: funnel/registry.py:73
 msgid "A Bearer token is required in the Authorization header"
@@ -51,24 +52,16 @@ msgid "Hindi (beta; incomplete)"
 msgstr "हिंदी (बीटा; अधूरा)"
 
 #: funnel/forms/account.py:52
-msgid ""
-"This password is too simple. Add complexity by making it longer and using"
-" a mix of upper and lower case letters, numbers and symbols"
-msgstr ""
-"यह पासवर्ड काफी आसान है. इसे लंबा बनाकर और अंग्रेजी के बड़े और छोटे "
-"अक्षरों, नंबर तथा चिन्हों का उपयोग करके इसे कठिन बनाएं"
+msgid "This password is too simple. Add complexity by making it longer and using a mix of upper and lower case letters, numbers and symbols"
+msgstr "यह पासवर्ड काफी आसान है. इसे लंबा बनाकर और अंग्रेजी के बड़े और छोटे अक्षरों, नंबर तथा चिन्हों का उपयोग करके इसे कठिन बनाएं"
 
 #: funnel/forms/account.py:104 funnel/forms/account.py:290
 msgid "Full name"
 msgstr "शुभ नाम"
 
 #: funnel/forms/account.py:105
-msgid ""
-"This account is for you as an individual. We’ll make one for your "
-"organization later"
-msgstr ""
-"यह खाता आपके लिए व्यक्तिगत तौर पर है. हम आपके संगठन के लिए बाद में दूसरा "
-"खाता बना देंगे"
+msgid "This account is for you as an individual. We’ll make one for your organization later"
+msgstr "यह खाता आपके लिए व्यक्तिगत तौर पर है. हम आपके संगठन के लिए बाद में दूसरा खाता बना देंगे"
 
 #: funnel/forms/account.py:111 funnel/forms/account.py:300
 #: funnel/forms/account.py:375 funnel/forms/account.py:398
@@ -110,9 +103,7 @@ msgstr "कृपया अपने यूजरनेम या ईमेल �
 
 #: funnel/forms/account.py:228
 msgid "This username or email does not match the user the reset code is for"
-msgstr ""
-"जिस यूजर के लिए यह रिसेट कोड है उस यूजर से कोई मिलता हुआ कोई यूजरनेम या "
-"ईमेल नहीं मिला"
+msgstr "जिस यूजर के लिए यह रिसेट कोड है उस यूजर से कोई मिलता हुआ कोई यूजरनेम या ईमेल नहीं मिला"
 
 #: funnel/forms/account.py:241
 msgid "Current password"
@@ -160,24 +151,16 @@ msgid "Username"
 msgstr "यूजरनेम"
 
 #: funnel/forms/account.py:310
-msgid ""
-"Single word that can contain letters, numbers and dashes. You need a "
-"username to have a public profile"
-msgstr ""
-"एक ही शब्द जिसमें कि अक्षर, नंबर और डैश हों. आपको पब्लिक प्रोफाइल बनाने "
-"के लिए यूजरनेम की आवश्यकता है"
+msgid "Single word that can contain letters, numbers and dashes. You need a username to have a public profile"
+msgstr "एक ही शब्द जिसमें कि अक्षर, नंबर और डैश हों. आपको पब्लिक प्रोफाइल बनाने के लिए यूजरनेम की आवश्यकता है"
 
 #: funnel/forms/account.py:323 funnel/forms/project.py:56
 msgid "Timezone"
 msgstr "समय क्षेत्र"
 
 #: funnel/forms/account.py:324
-msgid ""
-"Where in the world are you? Dates and times will be shown in your local "
-"timezone"
-msgstr ""
-"आप फिलहाल कहां पर हैं? समय और तारीख आपको अपने स्थानीय समय क्षेत्र में "
-"दिखेंगे"
+msgid "Where in the world are you? Dates and times will be shown in your local timezone"
+msgstr "आप फिलहाल कहां पर हैं? समय और तारीख आपको अपने स्थानीय समय क्षेत्र में दिखेंगे"
 
 #: funnel/forms/account.py:332
 msgid "Use your device’s timezone"
@@ -230,12 +213,8 @@ msgid "Send notifications by SMS"
 msgstr "SMS द्वारा नोटिफिकेशन भेजें"
 
 #: funnel/forms/account.py:430
-msgid ""
-"Unsubscribe anytime, and control what notifications are sent from the "
-"Notifications tab under account settings"
-msgstr ""
-"कभी भी सदस्यता समाप्त करें, और कौन सी नोटिफिकेशन भेजी जाती हैं, इसे खाता "
-"सेटिंग के तहत नोटिफिकेशन टैब से नियंत्रित करें"
+msgid "Unsubscribe anytime, and control what notifications are sent from the Notifications tab under account settings"
+msgstr "कभी भी सदस्यता समाप्त करें, और कौन सी नोटिफिकेशन भेजी जाती हैं, इसे खाता सेटिंग के तहत नोटिफिकेशन टैब से नियंत्रित करें"
 
 #: funnel/forms/account.py:447
 msgid "This does not appear to be a valid phone number"
@@ -295,9 +274,7 @@ msgid "Owner"
 msgstr "ओनर"
 
 #: funnel/forms/auth_client.py:43
-msgid ""
-"User or organization that owns this application. Changing the owner will "
-"revoke all currently assigned permissions for this app"
+msgid "User or organization that owns this application. Changing the owner will revoke all currently assigned permissions for this app"
 msgstr "यूजर या संगठन जो इस ऐप्लिकेशन का मालिक है. ओनर बदलने स"
 
 #: funnel/forms/auth_client.py:49
@@ -306,17 +283,11 @@ msgstr "ऐप्लिकेशन टाइप"
 
 #: funnel/forms/auth_client.py:55
 msgid "Confidential (server-hosted app, capable of storing secret key securely)"
-msgstr ""
-"गोपनीय (सर्वर-होस्टेड ऐप, गुप्त कुंजी को सुरक्षित रूप से संग्रहीत करने "
-"में सक्षम)"
+msgstr "गोपनीय (सर्वर-होस्टेड ऐप, गुप्त कुंजी को सुरक्षित रूप से संग्रहीत करने में सक्षम)"
 
 #: funnel/forms/auth_client.py:61
-msgid ""
-"Public (native or in-browser app, not capable of storing secret key "
-"securely)"
-msgstr ""
-"सार्वजनिक (नेटिव या इन-ब्राउज़र ऐप, सीक्रेट की (कुंजी) को सुरक्षित रूप से"
-" संग्रहीत करने में सक्षम नहीं)"
+msgid "Public (native or in-browser app, not capable of storing secret key securely)"
+msgstr "सार्वजनिक (नेटिव या इन-ब्राउज़र ऐप, सीक्रेट की (कुंजी) को सुरक्षित रूप से संग्रहीत करने में सक्षम नहीं)"
 
 #: funnel/forms/auth_client.py:68
 msgid "Application website"
@@ -331,35 +302,23 @@ msgid "Client namespace"
 msgstr "क्लाइंट नेमस्पेस"
 
 #: funnel/forms/auth_client.py:77
-msgid ""
-"A dot-based namespace that uniquely identifies your client application. "
-"For example, if your client website is "
-"<code>https://auth.hasgeek.com</code>, use <code>com.hasgeek.auth</code>."
-" Only required if your client app provides resources"
-msgstr ""
-"एक डॉट-आधारित नेमस्पेस जो विचित्र रूप से आपके क्लाइंट ऐप्लिकेशन की पहचान "
-"करता है"
+msgid "A dot-based namespace that uniquely identifies your client application. For example, if your client website is <code>https://auth.hasgeek.com</code>, use <code>com.hasgeek.auth</code>. Only required if your client app provides resources"
+msgstr "एक डॉट-आधारित नेमस्पेस जो विचित्र रूप से आपके क्लाइंट ऐप्लिकेशन की पहचान करता है"
 
 #: funnel/forms/auth_client.py:86 funnel/templates/auth_client.html.jinja2:45
 msgid "Redirect URLs"
 msgstr "रीडायरेक्ट URLs"
 
 #: funnel/forms/auth_client.py:92
-msgid ""
-"OAuth2 Redirect URL. If your app is available on multiple hostnames, list"
-" each redirect URL on a separate line"
-msgstr ""
-"OAuth2 रीडायरेक्ट URL. अगर आपका ऐप कई होस्टनेम पर उपलब्ध है, तो हर "
-"अलग-अलग लाइन पर प्रत्येक रीडायरेक्ट URLलिस्ट करें"
+msgid "OAuth2 Redirect URL. If your app is available on multiple hostnames, list each redirect URL on a separate line"
+msgstr "OAuth2 रीडायरेक्ट URL. अगर आपका ऐप कई होस्टनेम पर उपलब्ध है, तो हर अलग-अलग लाइन पर प्रत्येक रीडायरेक्ट URLलिस्ट करें"
 
 #: funnel/forms/auth_client.py:98 funnel/templates/auth_client.html.jinja2:49
 msgid "Notification URL"
 msgstr "नोटिफिकेशन URL"
 
 #: funnel/forms/auth_client.py:100
-msgid ""
-"When the user's data changes, Lastuser will POST a notice to this URL. "
-"Other notices may be posted too"
+msgid "When the user's data changes, Lastuser will POST a notice to this URL. Other notices may be posted too"
 msgstr "जब यूजर का डेटा बदल जाता है, तो Lastuser इस URL को एक नोटिस पोस्ट करेगा"
 
 #: funnel/forms/auth_client.py:106
@@ -367,14 +326,8 @@ msgid "Allow anyone to login"
 msgstr "किसी को भी लॉगिन करने दें"
 
 #: funnel/forms/auth_client.py:108
-msgid ""
-"If your application requires access to be restricted to specific users, "
-"uncheck this, and only users who have been assigned a permission to the "
-"app will be able to login"
-msgstr ""
-"यदि आपके ऐप्लिकेशन को विशिष्ट यूज़र के लिए प्रतिबंधित करने के लिए ऐक्सेस "
-"की ज़रूरत है, तो इसे अनचेक करें, और वे यूजर जिन्हें ऐप्लिकेशन की अनुमति "
-"दी गई है, केवल वे लॉगिन करने में सक्षम होंगे"
+msgid "If your application requires access to be restricted to specific users, uncheck this, and only users who have been assigned a permission to the app will be able to login"
+msgstr "यदि आपके ऐप्लिकेशन को विशिष्ट यूज़र के लिए प्रतिबंधित करने के लिए ऐक्सेस की ज़रूरत है, तो इसे अनचेक करें, और वे यूजर जिन्हें ऐप्लिकेशन की अनुमति दी गई है, केवल वे लॉगिन करने में सक्षम होंगे"
 
 #: funnel/forms/auth_client.py:125
 msgid "Invalid owner"
@@ -399,9 +352,7 @@ msgstr "यह किस लिए है?"
 
 #: funnel/forms/auth_client.py:183
 msgid "Add a description to help yourself remember why this was generated"
-msgstr ""
-"खुद को यह याद रखने में मदद करने के लिए विवरण डालें कि यह क्यों बनाया गया "
-"था"
+msgstr "खुद को यह याद रखने में मदद करने के लिए विवरण डालें कि यह क्यों बनाया गया था"
 
 #: funnel/forms/auth_client.py:194
 msgid "Permission ‘{perm}’ is malformed"
@@ -439,54 +390,32 @@ msgid "This email address has been claimed by someone else"
 msgstr "इस ईमेल पते का इस्तेमाल किसी और के द्वारा किया जा चुका है"
 
 #: funnel/forms/helpers.py:49
-msgid ""
-"This email address is already registered. You may want to try logging in "
-"or resetting your password"
-msgstr ""
-"यह ईमेल पता पहले से रजिस्टर है. आपको लॉगिन करनी चाहिए या फिर अपने पासवर्ड"
-" को रीसेट करनी चाहिए"
+msgid "This email address is already registered. You may want to try logging in or resetting your password"
+msgstr "यह ईमेल पता पहले से रजिस्टर है. आपको लॉगिन करनी चाहिए या फिर अपने पासवर्ड को रीसेट करनी चाहिए"
 
 #: funnel/forms/helpers.py:56
 msgid "This does not appear to be a valid email address."
 msgstr "यह ईमेल पता सही नहीं लग रहा है."
 
 #: funnel/forms/helpers.py:60
-msgid ""
-"The domain name of this email address is missing a DNS MX record. We "
-"require an MX record as missing MX is a strong indicator of spam. Please "
-"ask your tech person to add MX to DNS."
-msgstr ""
-"इस ईमेल पते के डोमेन का DNS MX रिकॉर्ड मौजूद नहीं है. हमें MX record की "
-"आवश्यकता होती है क्योंकि गैर-मौजूद MX वाले ईमेल को फर्ज़ी माना जाता है. "
-"कृपया अपने वेबसाइट निर्माणकर्ता से DNS में MX जोड़ने को बोलें."
+msgid "The domain name of this email address is missing a DNS MX record. We require an MX record as missing MX is a strong indicator of spam. Please ask your tech person to add MX to DNS."
+msgstr "इस ईमेल पते के डोमेन का DNS MX रिकॉर्ड मौजूद नहीं है. हमें MX record की आवश्यकता होती है क्योंकि गैर-मौजूद MX वाले ईमेल को फर्ज़ी माना जाता है. कृपया अपने वेबसाइट निर्माणकर्ता से DNS में MX जोड़ने को बोलें."
 
 #: funnel/forms/helpers.py:68
 msgid "You have already registered this email address"
 msgstr "आपने पहले ही इस ईमेल को रजिस्टर कर लिया है"
 
 #: funnel/forms/helpers.py:74
-msgid ""
-"This email address appears to be having temporary problems with receiving"
-" email. Please use another if necessary"
-msgstr ""
-"इस ईमेल पते पर फिलहाल ईमेल पाए जाने में समस्या नज़र आ रही है. अगर कुछ "
-"महत्वपूर्ण ह"
+msgid "This email address appears to be having temporary problems with receiving email. Please use another if necessary"
+msgstr "इस ईमेल पते पर फिलहाल ईमेल पाए जाने में समस्या नज़र आ रही है. अगर कुछ महत्वपूर्ण ह"
 
 #: funnel/forms/helpers.py:82
-msgid ""
-"This email address is no longer valid. If you believe this to be "
-"incorrect, email {support} asking for the address to be activated"
-msgstr ""
-"यह ईमेल पता अब वैध नहीं है. अगर फिर भी आपको ये गलत लगता है, तो इस पते को "
-"सक्रिय करने के लिए {support} को ईमेल भेजें"
+msgid "This email address is no longer valid. If you believe this to be incorrect, email {support} asking for the address to be activated"
+msgstr "यह ईमेल पता अब वैध नहीं है. अगर फिर भी आपको ये गलत लगता है, तो इस पते को सक्रिय करने के लिए {support} को ईमेल भेजें"
 
 #: funnel/forms/helpers.py:97
-msgid ""
-"You or someone else has made an account with this email address but has "
-"not confirmed it. Do you need to reset your password?"
-msgstr ""
-"आपने या किसी और ने इसे ईमेल पते से एक अकाउंट बनाया था, पर उसकी पुष्टि "
-"नहीं की है. क्या आप अपना पासवर्ड रीसेट करना चाहेंगे?"
+msgid "You or someone else has made an account with this email address but has not confirmed it. Do you need to reset your password?"
+msgstr "आपने या किसी और ने इसे ईमेल पते से एक अकाउंट बनाया था, पर उसकी पुष्टि नहीं की है. क्या आप अपना पासवर्ड रीसेट करना चाहेंगे?"
 
 #: funnel/forms/helpers.py:109 funnel/forms/project.py:109
 msgid "A https:// URL is required"
@@ -510,9 +439,7 @@ msgstr "प्रस्ताव के फॉर्म में इस ले�
 
 #: funnel/forms/label.py:28
 msgid "If checked, proposers must select one of the options"
-msgstr ""
-"अगर चुना गया, तो प्रस्ताव बनाने वाले व्यक्ति का इनमें से एक विकल्प चुनना "
-"आवश्यक है"
+msgstr "अगर चुना गया, तो प्रस्ताव बनाने वाले व्यक्ति का इनमें से एक विकल्प चुनना आवश्यक है"
 
 #: funnel/forms/label.py:31
 msgid "Restrict use of this label to editors"
@@ -520,9 +447,7 @@ msgstr "संपादकों को इस लेबल को उपयो�
 
 #: funnel/forms/label.py:33
 msgid "If checked, only editors and reviewers can apply this label on proposals"
-msgstr ""
-"अगर चुना गया, तो केवल संपादक और समीक्षक ही प्रस्ताव में इस लेबल का उपयोग "
-"कर सकते हैं"
+msgstr "अगर चुना गया, तो केवल संपादक और समीक्षक ही प्रस्ताव में इस लेबल का उपयोग कर सकते हैं"
 
 #: funnel/forms/label.py:45
 msgid "Option"
@@ -554,9 +479,7 @@ msgstr "एक्सेस लेवल"
 
 #: funnel/forms/membership.py:29
 msgid "Admin (can manage projects, but can’t add or remove other admins)"
-msgstr ""
-"एडमिन (प्रोजेक्ट प्रबंधित कर सकते हैं, पर दूसरे एडमिन को जोड़ या हटा नहीं"
-" सकते)"
+msgstr "एडमिन (प्रोजेक्ट प्रबंधित कर सकते हैं, पर दूसरे एडमिन को जोड़ या हटा नहीं सकते)"
 
 #: funnel/forms/membership.py:31
 msgid "Owner (can also manage other owners and admins)"
@@ -568,9 +491,7 @@ msgstr "संपादक"
 
 #: funnel/forms/membership.py:47
 msgid "Can edit project details, proposal guidelines, schedule, labels and venues"
-msgstr ""
-"प्रोजेक्ट विवरण, प्रस्ताव के दिशा निर्देश, कार्यक्रम, लेबल और स्थानों की "
-"जानकारी संपादित कर सकते हैं"
+msgstr "प्रोजेक्ट विवरण, प्रस्ताव के दिशा निर्देश, कार्यक्रम, लेबल और स्थानों की जानकारी संपादित कर सकते हैं"
 
 #: funnel/forms/membership.py:52 funnel/templates/js/membership.js.jinja2:121
 msgid "Concierge"
@@ -586,9 +507,7 @@ msgstr "मार्गदर्शक"
 
 #: funnel/forms/membership.py:59
 msgid "Can check-in a participant using their badge at a physical event"
-msgstr ""
-"किसी वास्तविक इवेंट में प्रतिभागियों के बैच की जांच करके अंदर आने की "
-"अनुमति दे सकते हैं"
+msgstr "किसी वास्तविक इवेंट में प्रतिभागियों के बैच की जांच करके अंदर आने की अनुमति दे सकते हैं"
 
 #: funnel/forms/membership.py:75
 msgid "Choice"
@@ -832,14 +751,8 @@ msgid "Your organization’s given name, without legal suffixes such as Pvt Ltd"
 msgstr "आपके संगठन का नाम, बगैर किसी प्रकार के जैसे कि Pvt Ltd (प्र. लि.)"
 
 #: funnel/forms/organization.py:26
-msgid ""
-"A short name for your organization’s profile page. Single word containing"
-" letters, numbers and dashes only. Pick something permanent: changing it "
-"will break existing links from around the web"
-msgstr ""
-"आपके संगठन के प्रोफाइल पेज के लिए एक संक्षिप्त नाम. एक शब्द जिसमें केवल "
-"अक्षर, नंबर और डैश ही शामिल हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब "
-"पर मौजूद पुराने लिंक काम नहीं करेंगे"
+msgid "A short name for your organization’s profile page. Single word containing letters, numbers and dashes only. Pick something permanent: changing it will break existing links from around the web"
+msgstr "आपके संगठन के प्रोफाइल पेज के लिए एक संक्षिप्त नाम. एक शब्द जिसमें केवल अक्षर, नंबर और डैश ही शामिल हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
 
 #: funnel/forms/organization.py:46
 msgid "Names can only have letters, numbers and dashes (except at the ends)"
@@ -850,13 +763,8 @@ msgid "This name is reserved"
 msgstr "यह नाम रिज़र्व है"
 
 #: funnel/forms/organization.py:64
-msgid ""
-"This is <em>your</em> current username. You must change it first from <a "
-"href=\"{account}\">your account</a> before you can assign it to an "
-"organization"
-msgstr ""
-"यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको"
-" <a href=\"{account}\">अपने अकाउंट</a> से बदलना होगा"
+msgid "This is <em>your</em> current username. You must change it first from <a href=\"{account}\">your account</a> before you can assign it to an organization"
+msgstr "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको <a href=\"{account}\">अपने अकाउंट</a> से बदलना होगा"
 
 #: funnel/forms/organization.py:71
 msgid "This name has been taken by another user"
@@ -911,15 +819,8 @@ msgid "Your full name, in the form others can recognise you by"
 msgstr "आपका पूरा नाम, जिससे कि दूसरे व्यक्ति आपको जान सकें"
 
 #: funnel/forms/profile.py:57
-msgid ""
-"A short name for mentioning you with @username, and the URL to your "
-"profile page. Single word containing letters, numbers and dashes only. "
-"Pick something permanent: changing it will break existing links from "
-"around the web"
-msgstr ""
-"@username और आपके प्रोफाइल पेज की URL के साथ लगाने के लिए एक उपनाम. एक "
-"शब्द जिसमें केवल अक्षर, नंबर और डैश मौजूद हों. कुछ स्थाई सा नाम रखें: इसे"
-" बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
+msgid "A short name for mentioning you with @username, and the URL to your profile page. Single word containing letters, numbers and dashes only. Pick something permanent: changing it will break existing links from around the web"
+msgstr "@username और आपके प्रोफाइल पेज की URL के साथ लगाने के लिए एक उपनाम. एक शब्द जिसमें केवल अक्षर, नंबर और डैश मौजूद हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
 
 #: funnel/forms/profile.py:63
 msgid "About you"
@@ -984,12 +885,8 @@ msgid "Quotes are not necessary in the location name"
 msgstr "स्थान के नाम में क्वोट लगाना आवश्यक नहीं है"
 
 #: funnel/forms/project.py:89
-msgid ""
-"Livestream URLs. One per line. Must be on YouTube or Vimeo. Must begin "
-"with https://"
-msgstr ""
-"लाइवस्ट्रीम URLs. प्रति लाइन में एक. YouTube या Vimeo पर ही होनी चाहिए. "
-"https:// से ही शुरुआत होनी चाहिए"
+msgid "Livestream URLs. One per line. Must be on YouTube or Vimeo. Must begin with https://"
+msgstr "लाइवस्ट्रीम URLs. प्रति लाइन में एक. YouTube या Vimeo पर ही होनी चाहिए. https:// से ही शुरुआत होनी चाहिए"
 
 #: funnel/forms/project.py:110
 msgid "Livestream must be on YouTube or Vimeo"
@@ -1000,34 +897,20 @@ msgid "Custom URL"
 msgstr "कस्टम URL"
 
 #: funnel/forms/project.py:121
-msgid ""
-"Customize the URL of your project. Use lowercase letters, numbers and "
-"dashes only. Including a date is recommended"
-msgstr ""
-"अपने प्रोजेक्ट के URL को अपने अनुकूल बनाएं. केवल लोअरकेस अक्षर, नंबर और "
-"डैश का ही इस्तेमाल करें. आप इसमें कोई तिथि भी जोड़ सकते हैं"
+msgid "Customize the URL of your project. Use lowercase letters, numbers and dashes only. Including a date is recommended"
+msgstr "अपने प्रोजेक्ट के URL को अपने अनुकूल बनाएं. केवल लोअरकेस अक्षर, नंबर और डैश का ही इस्तेमाल करें. आप इसमें कोई तिथि भी जोड़ सकते हैं"
 
 #: funnel/forms/project.py:130
-msgid ""
-"This URL contains unsupported characters. It can contain lowercase "
-"letters, numbers and hyphens only."
-msgstr ""
-"इस URL में कुछ गैर-उपयोगी वर्ण मौजूद हैं. इसमें केवल लोअरकेस अक्षर, नंबर "
-"और हायफ़न ही रह सकते हैं."
+msgid "This URL contains unsupported characters. It can contain lowercase letters, numbers and hyphens only."
+msgstr "इस URL में कुछ गैर-उपयोगी वर्ण मौजूद हैं. इसमें केवल लोअरकेस अक्षर, नंबर और हायफ़न ही रह सकते हैं."
 
 #: funnel/forms/project.py:161 funnel/templates/proposals.html.jinja2:29
 msgid "Proposal guidelines"
 msgstr "प्रस्ताव के दिशा-निर्देश"
 
 #: funnel/forms/project.py:164
-msgid ""
-"Set guidelines for the type of sessions(talks, workshops, other format) "
-"your project is accepting, your review process and any other info for "
-"participants"
-msgstr ""
-"अपने प्रोजेक्ट के अनुसार सेशन के प्रकार(टॉक्स, वर्कशॉप, अन्य प्रकार) की "
-"स्वीकृति, आपकी समीक्षा प्रणाली और प्रतिभागियों से जुड़ी किसी अन्य जानकारी"
-" के लिए दिशा-निर्देश तैयार करें"
+msgid "Set guidelines for the type of sessions(talks, workshops, other format) your project is accepting, your review process and any other info for participants"
+msgstr "अपने प्रोजेक्ट के अनुसार सेशन के प्रकार(टॉक्स, वर्कशॉप, अन्य प्रकार) की स्वीकृति, आपकी समीक्षा प्रणाली और प्रतिभागियों से जुड़ी किसी अन्य जानकारी के लिए दिशा-निर्देश तैयार करें"
 
 #: funnel/forms/project.py:171
 msgid "Proposal submissions open at"
@@ -1113,12 +996,8 @@ msgid "Outline"
 msgstr "प्रारूप"
 
 #: funnel/forms/proposal.py:158
-msgid ""
-"A detailed description of the session with the sequence of ideas to be "
-"presented"
-msgstr ""
-"प्रस्तुत किए जाने वाले विषयों की श्रेणीक्रम के साथ-साथ सेशन का एक विस्तृत"
-" विवरण"
+msgid "A detailed description of the session with the sequence of ideas to be presented"
+msgstr "प्रस्तुत किए जाने वाले विषयों की श्रेणीक्रम के साथ-साथ सेशन का एक विस्तृत विवरण"
 
 #: funnel/forms/proposal.py:163 funnel/templates/proposal.html.jinja2:196
 #: funnel/templates/proposal.html.jinja2:198
@@ -1127,9 +1006,7 @@ msgstr "आपेक्षित वस्तुएं"
 
 #: funnel/forms/proposal.py:164
 msgid "For workshops, what must participants bring to the session?"
-msgstr ""
-"वर्कशॉप में आने के लिए, प्रतिभागियों को उस सत्र में क्या सब लाना आवश्यक "
-"है?"
+msgstr "वर्कशॉप में आने के लिए, प्रतिभागियों को उस सत्र में क्या सब लाना आवश्यक है?"
 
 #: funnel/forms/proposal.py:167 funnel/templates/proposal.html.jinja2:217
 #: funnel/templates/proposal.html.jinja2:219
@@ -1137,29 +1014,16 @@ msgid "Slides"
 msgstr "स्लाइड"
 
 #: funnel/forms/proposal.py:173
-msgid ""
-"Link to your slides. These can be just an outline initially. If you "
-"provide a Slideshare/Speakerdeck link, we'll embed slides in the page"
-msgstr ""
-"अपने स्लाइड का लिंक बनाएं. शुरुआत में ये बस एक प्रारूप हो सकता है. अगर आप"
-" Slideshare/Speakerdeck का लिंक देते हैं, तो हम इस पेज पर स्लाइड जोड़ "
-"देंगे"
+msgid "Link to your slides. These can be just an outline initially. If you provide a Slideshare/Speakerdeck link, we'll embed slides in the page"
+msgstr "अपने स्लाइड का लिंक बनाएं. शुरुआत में ये बस एक प्रारूप हो सकता है. अगर आप Slideshare/Speakerdeck का लिंक देते हैं, तो हम इस पेज पर स्लाइड जोड़ देंगे"
 
 #: funnel/forms/proposal.py:179
 msgid "Preview Video"
 msgstr "प्रीव्यू वीडियो"
 
 #: funnel/forms/proposal.py:185
-msgid ""
-"Link to your preview video. Use a video to engage the community and give "
-"them a better idea about what you are planning to cover in your session "
-"and why they should attend. If you provide a YouTube/Vimeo link, we'll "
-"embed it in the page"
-msgstr ""
-"अपने प्रीव्यू वीडियो का लिंक बनाएं. समुदाय के सदस्यों का रुझान पाने, "
-"उन्हें अपने सेशन और उसमें वो शामिल क्यों हों  इस बारे में अच्छे से बताने "
-"के लिए कोई वीडियो डालें. अगर आप YouTube/Vimeo का लिंक देते हैं, तो हम उसे"
-" इस पेज पर डाल देंगे"
+msgid "Link to your preview video. Use a video to engage the community and give them a better idea about what you are planning to cover in your session and why they should attend. If you provide a YouTube/Vimeo link, we'll embed it in the page"
+msgstr "अपने प्रीव्यू वीडियो का लिंक बनाएं. समुदाय के सदस्यों का रुझान पाने, उन्हें अपने सेशन और उसमें वो शामिल क्यों हों  इस बारे में अच्छे से बताने के लिए कोई वीडियो डालें. अगर आप YouTube/Vimeo का लिंक देते हैं, तो हम उसे इस पेज पर डाल देंगे"
 
 #: funnel/forms/proposal.py:192 funnel/templates/proposal.html.jinja2:206
 #: funnel/templates/proposal.html.jinja2:212
@@ -1167,14 +1031,8 @@ msgid "Links"
 msgstr "लिंक्स"
 
 #: funnel/forms/proposal.py:193
-msgid ""
-"Other links, one per line. Provide links to your profile and slides and "
-"videos from your previous sessions; anything that'll help folks decide if"
-" they want to attend your session"
-msgstr ""
-"अन्य लिंक, प्रति लाइन में एक. अपने पिछले सेशन से ही अपने प्रोफाइल, स्लाइड"
-" और वीडियो का लिंक प्रदान करें; या कुछ ऐसा जिनसे लोगों को लगे कि उन्हें "
-"आपके सेशन में शामिल होना चाहिए"
+msgid "Other links, one per line. Provide links to your profile and slides and videos from your previous sessions; anything that'll help folks decide if they want to attend your session"
+msgstr "अन्य लिंक, प्रति लाइन में एक. अपने पिछले सेशन से ही अपने प्रोफाइल, स्लाइड और वीडियो का लिंक प्रदान करें; या कुछ ऐसा जिनसे लोगों को लगे कि उन्हें आपके सेशन में शामिल होना चाहिए"
 
 #: funnel/forms/proposal.py:200 funnel/forms/session.py:30
 #: funnel/templates/proposal.html.jinja2:202
@@ -1194,12 +1052,8 @@ msgid "An email address we can contact you at. Not displayed anywhere"
 msgstr "एक ईमेल पता जिस पर हम आपसे संपर्क कर सकें. कहीं और नहीं दिखेगा"
 
 #: funnel/forms/proposal.py:217
-msgid ""
-"A phone number we can call you at to discuss your proposal, if required. "
-"Will not be displayed"
-msgstr ""
-"एक फोन नंबर, जिस पर हम आवश्यकता पड़ने पर फोन करके आपके प्रस्ताव पर बातें "
-"कर सकें. प्रदर्शित नहीं किया जाएगा"
+msgid "A phone number we can call you at to discuss your proposal, if required. Will not be displayed"
+msgstr "एक फोन नंबर, जिस पर हम आवश्यकता पड़ने पर फोन करके आपके प्रस्ताव पर बातें कर सकें. प्रदर्शित नहीं किया जाएगा"
 
 #: funnel/forms/proposal.py:223
 msgid "Your location"
@@ -1231,9 +1085,7 @@ msgstr "बैनर चित्र का URL"
 
 #: funnel/forms/session.py:34
 msgid "From images.hasgeek.com, with 16:9 aspect ratio. Should be < 50 kB in size"
-msgstr ""
-"images.hasgeek.com से, 16:9 एस्पेक्ट रेश्यो के साथ. आकार 50 kB से छोटी "
-"होनी चाहिए"
+msgstr "images.hasgeek.com से, 16:9 एस्पेक्ट रेश्यो के साथ. आकार 50 kB से छोटी होनी चाहिए"
 
 #: funnel/forms/session.py:44
 msgid "This session is a break period"
@@ -1410,12 +1262,8 @@ msgid "Unknown failure"
 msgstr "अज्ञात समस्या"
 
 #: funnel/loginproviders/github.py:83
-msgid ""
-"GitHub appears to be having temporary issues. Please try again. Internal "
-"details: {error}"
-msgstr ""
-"GitHub में फिलहाल कोई समस्या चल रही है. कृपया फिर से कोशिश करें. आंतरिक "
-"विवरण: {error}"
+msgid "GitHub appears to be having temporary issues. Please try again. Internal details: {error}"
+msgstr "GitHub में फिलहाल कोई समस्या चल रही है. कृपया फिर से कोशिश करें. आंतरिक विवरण: {error}"
 
 #: funnel/loginproviders/google.py:39
 msgid "Duplicate callback. Did you go back in your browser history?"
@@ -1459,9 +1307,7 @@ msgstr "LinkedIn के ज़रिए प्रमाणित करने �
 
 #: funnel/loginproviders/linkedin.py:98
 msgid "Unable to retrieve user details from LinkedIn. Please try again"
-msgstr ""
-"LinkedIn से यूजर की जानकारी प्राप्त करने में असमर्थ रहा. आंतरिक विवरण: "
-"{error}"
+msgstr "LinkedIn से यूजर की जानकारी प्राप्त करने में असमर्थ रहा. आंतरिक विवरण: {error}"
 
 #: funnel/loginproviders/linkedin.py:109
 msgid "Unable to fetch email from LinkedIn. Internal details: {error}"
@@ -2042,12 +1888,8 @@ msgid "Internal server error"
 msgstr "आंतरिक सर्वर त्रुटि"
 
 #: funnel/templates/500.html.jinja2:12
-msgid ""
-"Our support team has been notified and will look into this. Try again "
-"later"
-msgstr ""
-"हमारे सहयोगी टीम को सूचित कर दिया गया है और वो इसकी जांच करेंगे. बाद में "
-"फिर से कोशिश करें"
+msgid "Our support team has been notified and will look into this. Try again later"
+msgstr "हमारे सहयोगी टीम को सूचित कर दिया गया है और वो इसकी जांच करेंगे. बाद में फिर से कोशिश करें"
 
 #: funnel/templates/503.html.jinja2:7
 msgid "Website down for maintenance"
@@ -2055,14 +1897,8 @@ msgstr "वेबसाइट मरम्मत के लिए बंद क�
 
 #: funnel/templates/503.html.jinja2:12
 #, python-format
-msgid ""
-"We should be back in a few seconds. If it is taking longer, write to us "
-"at <a href=\"mailto:%(support_email)s\">%(support_email)s</a> for "
-"updates."
-msgstr ""
-"हम कुछ ही देर में इसे शुरू कर देंगे. पर यदि देरी होती है, तो जानकारी पाने"
-" के लिए हमें <a href=\"mailto:%(support_email)s\">%(support_email)s</a> "
-"पर ईमेल करें."
+msgid "We should be back in a few seconds. If it is taking longer, write to us at <a href=\"mailto:%(support_email)s\">%(support_email)s</a> for updates."
+msgstr "हम कुछ ही देर में इसे शुरू कर देंगे. पर यदि देरी होती है, तो जानकारी पाने के लिए हमें <a href=\"mailto:%(support_email)s\">%(support_email)s</a> पर ईमेल करें."
 
 #: funnel/templates/about.html.jinja2:2 funnel/templates/about.html.jinja2:13
 #: funnel/templates/macros.html.jinja2:672
@@ -2070,62 +1906,39 @@ msgid "About Hasgeek"
 msgstr "Hasgeek का परिचय"
 
 #: funnel/templates/about.html.jinja2:24
-msgid ""
-"It’s 2020, and the world as we know it is slightly upturned. Meeting new "
-"people and geeking-out about your passion has become harder than it used "
-"to be. These special interactions that drive us to do new things and "
-"explore new ideas also need a new place. It’s time to rebuild everything."
-" Join us."
-msgstr ""
-"साल 2020 चल रहा है, और जैसा कि हम जानते हैं पूरी दुनिया में सबकुछ थोड़ा "
-"बदल सा गया है. नए लोगों से मिलना और उनसे अपने जूनून और सोच को जाहिर करना "
-"पहले के दौर के मुकाबले कठिन हो गया है. वो ख़ास मुलाकात-बात जिनसे हमें नई "
-"चीज़ें करने और नए विचारों को जानने में सक्षम हो पाते थे उसके लिए भी एक नई"
-" जगह चाहिए. समय आ गया है कि सबकुछ दोबारा से बनाएं. हमसे जुड़ें."
+msgid "It’s 2020, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us."
+msgstr "साल 2020 चल रहा है, और जैसा कि हम जानते हैं पूरी दुनिया में सबकुछ थोड़ा बदल सा गया है. नए लोगों से मिलना और उनसे अपने जूनून और सोच को जाहिर करना पहले के दौर के मुकाबले कठिन हो गया है. वो ख़ास मुलाकात-बात जिनसे हमें नई चीज़ें करने और नए विचारों को जानने में सक्षम हो पाते थे उसके लिए भी एक नई जगह चाहिए. समय आ गया है कि सबकुछ दोबारा से बनाएं. हमसे जुड़ें."
 
 #: funnel/templates/about.html.jinja2:25
 msgid "Find your peers"
 msgstr "अपने साथियों को ढूंढें"
 
 #: funnel/templates/about.html.jinja2:27
-msgid ""
-"Ideas need voices. Voices need a place to interact with other voices. "
-"Find peers around you who recognize your value. Create projects that "
-"spark a conversation."
-msgstr ""
-"सोच को साकार करने वालों की ज़रूरत पड़ती है. साकार करने वालों दूसरे लोगों "
-"से जुड़ने के लिए  एक जगह की ज़रूरत पड़ती है. अपने आस-पास ऐसे साथियों को "
-"ढूंढें जो आपके कौशल को पहचाने. ऐसे प्रोजेक्ट्स बनाएं जिनके खूब चर्चे हों."
+msgid "Ideas need voices. Voices need a place to interact with other voices. Find peers around you who recognize your value. Create projects that spark a conversation."
+msgstr "सोच को साकार करने वालों की ज़रूरत पड़ती है. साकार करने वालों दूसरे लोगों से जुड़ने के लिए  एक जगह की ज़रूरत पड़ती है. अपने आस-पास ऐसे साथियों को ढूंढें जो आपके कौशल को पहचाने. ऐसे प्रोजेक्ट्स बनाएं जिनके खूब चर्चे हों."
 
 #: funnel/templates/about.html.jinja2:30
 msgid "Discover your community"
 msgstr "अपने लिए कोई समुदाय ढूंढें"
 
 #: funnel/templates/about.html.jinja2:33
-msgid ""
-"Conversations build community. Bring the conversations to your community "
-"by collaborating with others who share your passion."
-msgstr ""
-"बातचीत से ही समुदाय बनती है. दूसरे लोग जिनका रुझान भी आ जैसा हो उनसे "
-"जुड़कर अपने समुदाय में बातचीत को बढाएं."
+msgid "Conversations build community. Bring the conversations to your community by collaborating with others who share your passion."
+msgstr "बातचीत से ही समुदाय बनती है. दूसरे लोग जिनका रुझान भी आ जैसा हो उनसे जुड़कर अपने समुदाय में बातचीत को बढाएं."
 
 #: funnel/templates/about.html.jinja2:35
 msgid "Sustain the conversations"
 msgstr "संवाद को चलते रहने दें"
 
 #: funnel/templates/about.html.jinja2:37
-msgid ""
-"Subscribe to your favourite communities and make sure you never miss a "
-"conversation or an opportunity to collaborate."
-msgstr ""
-"अपने पसंदीदा समुदायों की सदस्यता लें और किसी भी संवाद या संग काम करने के "
-"अवसर को हाथ से जाने न दें."
+msgid "Subscribe to your favourite communities and make sure you never miss a conversation or an opportunity to collaborate."
+msgstr "अपने पसंदीदा समुदायों की सदस्यता लें और किसी भी संवाद या संग काम करने के अवसर को हाथ से जाने न दें."
 
 #: funnel/templates/account.html.jinja2:36
 msgid "Go to profile"
 msgstr "प्रोफ़ाइल पर जाएँ"
 
 #: funnel/templates/account.html.jinja2:51
+#: funnel/templates/account_merge.html.jinja2:12
 msgid "(none)"
 msgstr "(कोई भी नहीं)"
 
@@ -2179,9 +1992,7 @@ msgstr "हटाएं"
 
 #: funnel/templates/account.html.jinja2:90
 msgid "Adding an external id will merge any Hasgeek account linked to it"
-msgstr ""
-"एक्सटर्नल आईडी को जोड़ने से उसमें पहले से मौजूद Hasgeek अकाउंट भी जुड़ "
-"जाएगा"
+msgstr "एक्सटर्नल आईडी को जोड़ने से उसमें पहले से मौजूद Hasgeek अकाउंट भी जुड़ जाएगा"
 
 #: funnel/templates/account.html.jinja2:102
 msgid "Email addresses"
@@ -2252,9 +2063,7 @@ msgstr "लॉगिन सेशन"
 #: funnel/templates/account.html.jinja2:246
 #, python-format
 msgid "Since %(since)s via %(login_service)s – last active %(last_active)s"
-msgstr ""
-"%(login_service)s के ज़रिए %(since)s से – आखरी बार इस्तेमाल "
-"%(last_active)s"
+msgstr "%(login_service)s के ज़रिए %(since)s से – आखरी बार इस्तेमाल %(last_active)s"
 
 #: funnel/templates/account.html.jinja2:246
 #, python-format
@@ -2285,12 +2094,8 @@ msgid "Close"
 msgstr "बंद करें"
 
 #: funnel/templates/account_formlayout.html.jinja2:18
-msgid ""
-"Cookies are required to login. Please enable cookies in your browser’s "
-"settings and reload this page."
-msgstr ""
-"लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में "
-"जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें."
+msgid "Cookies are required to login. Please enable cookies in your browser’s settings and reload this page."
+msgstr "लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें."
 
 #: funnel/templates/account_merge.html.jinja2:3
 #: funnel/templates/account_merge.html.jinja2:43 funnel/views/login.py:550
@@ -2498,12 +2303,8 @@ msgid "Client access key"
 msgstr "क्लाइंट एक्सेस की"
 
 #: funnel/templates/auth_client_credential.html.jinja2:7
-msgid ""
-"Here is your new application access key. Save this somewhere safe. You "
-"will not be able to view this secret again."
-msgstr ""
-"ये आपके नए एप्लीकेशन की एक्सेस की (कुंजी ) है. इसे कहीं सुरक्षित जगह रख "
-"दें. आप दोबारा से इस सीक्रेट को नहीं देख पाएंगे."
+msgid "Here is your new application access key. Save this somewhere safe. You will not be able to view this secret again."
+msgstr "ये आपके नए एप्लीकेशन की एक्सेस की (कुंजी ) है. इसे कहीं सुरक्षित जगह रख दें. आप दोबारा से इस सीक्रेट को नहीं देख पाएंगे."
 
 #: funnel/templates/auth_client_credential.html.jinja2:12
 msgid "Access key for"
@@ -2585,12 +2386,8 @@ msgid "Download contacts CSV"
 msgstr "कॉन्टैक्ट की CSV फाइल डाउनलोड करें"
 
 #: funnel/templates/delete.html.jinja2:9
-msgid ""
-"This form timed out because it was open for a long time. Please submit "
-"again."
-msgstr ""
-"इस फॉर्म की समय सीमा समाप्त हो गई क्योंकि यह काफी देर से खुली हुई थी. "
-"कृपया दोबारा जमा करें."
+msgid "This form timed out because it was open for a long time. Please submit again."
+msgstr "इस फॉर्म की समय सीमा समाप्त हो गई क्योंकि यह काफी देर से खुली हुई थी. कृपया दोबारा जमा करें."
 
 #: funnel/templates/email_account_reset.html.jinja2:4
 #: funnel/templates/email_account_verify.html.jinja2:4
@@ -2599,12 +2396,8 @@ msgid "Hello %(fullname)s,"
 msgstr "नमस्ते %(fullname)s,"
 
 #: funnel/templates/email_account_reset.html.jinja2:6
-msgid ""
-"You &ndash; or someone claiming to be you &ndash; asked for your password"
-" to be reset. This link is valid for 24 hours."
-msgstr ""
-"आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति;  ने आपके पासवर्ड"
-" को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
+msgid "You &ndash; or someone claiming to be you &ndash; asked for your password to be reset. This link is valid for 24 hours."
+msgstr "आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति;  ने आपके पासवर्ड को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
 
 #: funnel/templates/email_account_reset.html.jinja2:8 funnel/views/email.py:32
 msgid "Reset your password"
@@ -2621,13 +2414,11 @@ msgstr "अपने ईमेल पते की पुष्टि करे�
 
 #: funnel/templates/email_project_crew_membership_add_notification.html.jinja2:4
 #, python-format
-msgid ""
-"\n"
-"    %(actor)s has added you to %(project)s as a crew member.\n"
+msgid "\n"
+"    %(actor)s has added you to ‘%(project)s’ as a crew member.\n"
 "  "
-msgstr ""
-"\n"
-"    %(actor)s ने आपको %(project)s दल के सदस्य के रूप में जोड़ा है.\n"
+msgstr "\n"
+"    %(actor)s ने आपको ‘%(project)s’ दल के सदस्य के रूप में जोड़ा है.\n"
 "  "
 
 #: funnel/templates/email_project_crew_membership_add_notification.html.jinja2:9
@@ -2637,14 +2428,11 @@ msgstr "दल के सभी सदस्यों को देखें"
 
 #: funnel/templates/email_project_crew_membership_invite_notification.html.jinja2:4
 #, python-format
-msgid ""
-"\n"
-"    %(actor)s has invited you to join %(project)s as a crew member.\n"
+msgid "\n"
+"    %(actor)s has invited you to join ‘%(project)s’ as a crew member.\n"
 "  "
-msgstr ""
-"\n"
-"    %(actor)s ने आपको दल के सदस्य के रूप में %(project)s में शामिल होने "
-"के लिए आमंत्रित किया है.\n"
+msgstr "\n"
+"    %(actor)s ने आपको दल के सदस्य के रूप में ‘%(project)s’ में शामिल होने के लिए आमंत्रित किया है.\n"
 "  "
 
 #: funnel/templates/email_project_crew_membership_invite_notification.html.jinja2:9
@@ -2653,38 +2441,24 @@ msgstr "आमंत्रण को स्वीकार करें या �
 
 #: funnel/templates/email_project_crew_membership_revoke_notification.html.jinja2:4
 #, python-format
-msgid ""
-"\n"
-"    %(actor)s has removed you as a crew member from %(project)s.\n"
+msgid "\n"
+"    %(actor)s has removed you as a crew member from ‘%(project)s’.\n"
 "  "
-msgstr ""
-"\n"
-"    %(actor)s ने आपको %(project)s के दल के सदस्य से हटा दिया है.\n"
+msgstr "\n"
+"    %(actor)s ने आपको ‘%(project)s’ के दल के सदस्य से हटा दिया है.\n"
 "  "
 
 #: funnel/templates/funnelindex.html.jinja2:5
 msgid "Talkfunnel hosts proposal submissions and reviews for events."
-msgstr ""
-"Talkfunnel, ईवेंट के लिए प्रस्ताव शामिल करने और उसकी समीक्षा करने का काम "
-"करता है."
+msgstr "Talkfunnel, ईवेंट के लिए प्रस्ताव शामिल करने और उसकी समीक्षा करने का काम करता है."
 
 #: funnel/templates/funnelindex.html.jinja2:21
-msgid ""
-"Talkfunnel will be discontinued in 2020 and is no longer accepting new "
-"projects. Please use "
-msgstr ""
-"Talkfunnel के सेवा 2020 में ख़त्म हो जाएगी और यह नए प्रोजेक्ट स्वीकार "
-"नहीं करेगा. कृपया इसका उपयोग करे "
+msgid "Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use "
+msgstr "Talkfunnel के सेवा 2020 में ख़त्म हो जाएगी और यह नए प्रोजेक्ट स्वीकार नहीं करेगा. कृपया इसका उपयोग करे "
 
 #: funnel/templates/funnelindex.html.jinja2:25
-msgid ""
-"Talkfunnel is a space for peer review for technology and critical "
-"infrastructure projects. Submit a proposal to any of the events to get "
-"started."
-msgstr ""
-"Talkfunnel, तकनीकी और महत्वपूर्ण बुनियादी ढांचे वाले प्रोजेक्ट की सामूहिक"
-" समीक्षा की एक जगह है. इससे जुड़ने के लिए नीचे मौजूद किसी भी इवेंट में एक"
-" प्रस्ताव जमा करें."
+msgid "Talkfunnel is a space for peer review for technology and critical infrastructure projects. Submit a proposal to any of the events to get started."
+msgstr "Talkfunnel, तकनीकी और महत्वपूर्ण बुनियादी ढांचे वाले प्रोजेक्ट की सामूहिक समीक्षा की एक जगह है. इससे जुड़ने के लिए नीचे मौजूद किसी भी इवेंट में एक प्रस्ताव जमा करें."
 
 #: funnel/templates/funnelindex.html.jinja2:72
 msgid "There are no projects at this time."
@@ -2703,26 +2477,15 @@ msgid "Spotlight:"
 msgstr "सुर्खियां:"
 
 #: funnel/templates/index.html.jinja2:59
-msgid ""
-"What is the state of privacy enhancing technologies, data security, and "
-"compliance, in the Indian tech industry?"
+msgid "What is the state of privacy enhancing technologies, data security, and compliance, in the Indian tech industry?"
 msgstr ""
 
 #: funnel/templates/index.html.jinja2:60
-msgid ""
-"This survey, conducted by Hasgeek, in partnership with Omidyar Network "
-"India, is aimed at broadly understanding privacy concerns and practices "
-"among middle and senior management inside tech organizations, and how "
-"factors such as regulated nature of certain businesses, compliance "
-"requirements, etc impact the development of privacy enhancing "
-"technologies."
+msgid "This survey, conducted by Hasgeek, in partnership with Omidyar Network India, is aimed at broadly understanding privacy concerns and practices among middle and senior management inside tech organizations, and how factors such as regulated nature of certain businesses, compliance requirements, etc impact the development of privacy enhancing technologies."
 msgstr ""
 
 #: funnel/templates/index.html.jinja2:61
-msgid ""
-"Hasgeek invites you to participate in this survey, as a senior tech "
-"practitioner and leader in your organization. There are 32 questions in "
-"all and should take approximately 15 minutes to answer them."
+msgid "Hasgeek invites you to participate in this survey, as a senior tech practitioner and leader in your organization. There are 32 questions in all and should take approximately 15 minutes to answer them."
 msgstr ""
 
 #: funnel/templates/index.html.jinja2:65
@@ -2869,9 +2632,7 @@ msgstr "बैनर इमेज को बदलें"
 
 #: funnel/templates/macros.html.jinja2:106 funnel/views/session.py:213
 msgid "This project will not be listed as it has no sessions in the schedule"
-msgstr ""
-"इस प्रोजेक्ट को सूचीबद्ध नहीं किया जाएगा क्योंकि इसके समय-सूची में कोई "
-"सेशन मौजूद नहीं है"
+msgstr "इस प्रोजेक्ट को सूचीबद्ध नहीं किया जाएगा क्योंकि इसके समय-सूची में कोई सेशन मौजूद नहीं है"
 
 #: funnel/templates/macros.html.jinja2:111
 msgid "This project is currently not published"
@@ -2904,13 +2665,8 @@ msgid "Register"
 msgstr "रजिस्टर करें"
 
 #: funnel/templates/macros.html.jinja2:195
-msgid ""
-"This will share your name and email address with the project’s crew so "
-"they can keep you updated. You can cancel your registration at any time."
-msgstr ""
-"इसे करने से आपके नाम और ईमेल पते को प्रोजेक्ट के दल के सदस्यों के साथ "
-"साझा किया जाएगा ताकि आपको इससे जुड़ी जानकारियों से अवगत रख सकें. आप किसी "
-"भी समय अपना रजिस्ट्रेशन रद्द कर सकते हैं."
+msgid "This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time."
+msgstr "इसे करने से आपके नाम और ईमेल पते को प्रोजेक्ट के दल के सदस्यों के साथ साझा किया जाएगा ताकि आपको इससे जुड़ी जानकारियों से अवगत रख सकें. आप किसी भी समय अपना रजिस्ट्रेशन रद्द कर सकते हैं."
 
 #: funnel/templates/macros.html.jinja2:205
 msgid "Cancel registration"
@@ -3121,12 +2877,8 @@ msgid "You cannot host projects from this profile"
 msgstr "आप इस प्रोफाइल से प्रोजेक्ट होस्ट नहीं कर सकते"
 
 #: funnel/templates/macros.html.jinja2:537
-msgid ""
-"Any existing projects will become inaccessible until the profile is "
-"public again"
-msgstr ""
-"जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी "
-"मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
+msgid "Any existing projects will become inaccessible until the profile is public again"
+msgstr "जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
 
 #: funnel/templates/macros.html.jinja2:560
 msgid "Add cover photo url"
@@ -3270,18 +3022,12 @@ msgid "Full access to all your data in %(title)s (%(website)s)"
 msgstr "%(title)s (%(website)s) में आपके पूरे डेटा का एक्सेस"
 
 #: funnel/templates/oauth_authorize.html.jinja2:39
-msgid ""
-"You should authorize this only if you initiated the request and trust the"
-" application with your data."
-msgstr ""
-"आपको इसे अपने डेटा की अनुमति तभी देनी चाहिए, अगर आपने ही इसकी अनुरोध की "
-"थी और आपको इस एप्लीकेशन पर यकीन हो."
+msgid "You should authorize this only if you initiated the request and trust the application with your data."
+msgstr "आपको इसे अपने डेटा की अनुमति तभी देनी चाहिए, अगर आपने ही इसकी अनुरोध की थी और आपको इस एप्लीकेशन पर यकीन हो."
 
 #: funnel/templates/oauth_authorize.html.jinja2:48
 msgid "This form has timed out. Please submit again to confirm"
-msgstr ""
-"इस फॉर्म की समय सीमा समाप्त हो चुकी है. पुष्टि के लिए कृपया दोबारा से जमा"
-" करें"
+msgstr "इस फॉर्म की समय सीमा समाप्त हो चुकी है. पुष्टि के लिए कृपया दोबारा से जमा करें"
 
 #: funnel/templates/oauth_public_redirect.html.jinja2:2
 #, python-format
@@ -3298,12 +3044,8 @@ msgid "Offline"
 msgstr "ऑफलाइन"
 
 #: funnel/templates/offline.html.jinja2:10
-msgid ""
-"This page cannot be loaded at the moment. You may be offline, or your ad "
-"blocker may be blocking this page."
-msgstr ""
-"यह पेज फिलहाल लोड नहीं किया जा सकता. हो सकता है कि आप ऑफलाइन हों, या फिर "
-"आपका ऐड ब्लॉकर ने इस पेज को ब्लॉक कर रखा हो."
+msgid "This page cannot be loaded at the moment. You may be offline, or your ad blocker may be blocking this page."
+msgstr "यह पेज फिलहाल लोड नहीं किया जा सकता. हो सकता है कि आप ऑफलाइन हों, या फिर आपका ऐड ब्लॉकर ने इस पेज को ब्लॉक कर रखा हो."
 
 #: funnel/templates/js/badge.js.jinja2:37
 #: funnel/templates/opensearch.xml.jinja2:3
@@ -3339,16 +3081,8 @@ msgstr "पासवर्ड भूल गए हैं?"
 
 #: funnel/templates/password_login_form.html.jinja2:16
 #: funnel/templates/signup_form.html.jinja2:25
-msgid ""
-"By signing in, you agree to Hasgeek’s <a href=\"/about/policy/terms\" "
-"target=\"_blank\" rel=\"noopener\">terms of service</a> and <a "
-"href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">privacy"
-" policy</a>."
-msgstr ""
-"साइन इन करने पर, आप Hasgeek की <a href=\"/about/policy/terms\" "
-"target=\"_blank\" rel=\"noopener\">सेवा की शर्तों</a> और <a "
-"href=\"/about/policy/privacy\" target=\"_blank\" "
-"rel=\"noopener\">गोपनीयता निति</a> की सहमती देते हैं."
+msgid "By signing in, you agree to Hasgeek’s <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">terms of service</a> and <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">privacy policy</a>."
+msgstr "साइन इन करने पर, आप Hasgeek की <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">सेवा की शर्तों</a> और <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">गोपनीयता निति</a> की सहमती देते हैं."
 
 #: funnel/templates/profile.html.jinja2:47
 msgid "People"
@@ -3473,11 +3207,9 @@ msgid "on %(date)s"
 msgstr "%(date)s को"
 
 #: funnel/templates/proposal.html.jinja2:42
-msgid ""
-"This is a proposal requesting for someone to speak on this topic.\n"
+msgid "This is a proposal requesting for someone to speak on this topic.\n"
 "            If you’d like to speak, leave a comment."
-msgstr ""
-"यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n"
+msgstr "यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n"
 "            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें"
 
 #: funnel/templates/proposal.html.jinja2:71
@@ -3670,20 +3402,16 @@ msgstr "सवाल"
 
 #: funnel/templates/siteadmin_comments.html.jinja2:22
 #, python-format
-msgid ""
-"\n"
+msgid "\n"
 "      Only %(total_comments)s comment for \"%(query)s\""
-msgstr ""
-"\n"
+msgstr "\n"
 "      “%(query)s” के लिए केवल %(total_comments)s कमेंट"
 
 #: funnel/templates/siteadmin_comments.html.jinja2:25
 #, python-format
-msgid ""
-"\n"
+msgid "\n"
 "      Only %(total_comments)s comment"
-msgstr ""
-"\n"
+msgstr "\n"
 "      केवल %(total_comments)s कमेंट"
 
 #: funnel/templates/siteadmin_comments.html.jinja2:47
@@ -3699,8 +3427,8 @@ msgid "Review comments"
 msgstr "कमेंट की समीक्षा करें"
 
 #: funnel/templates/siteadmin_review_comment.html.jinja2:9
-msgid "This comment has been reported as spam."
-msgstr "यह कमेंट पैम के तौर पर रिपोर्ट की गई है."
+msgid "This comment has been reported as spam"
+msgstr "यह कमेंट पैम के तौर पर रिपोर्ट की गई है"
 
 #: funnel/templates/ticket_event.html.jinja2:6
 msgid "Setup events"
@@ -3797,12 +3525,8 @@ msgstr "नमस्ते %s"
 
 #: funnel/templates/js/badge.js.jinja2:36
 #, python-format
-msgid ""
-"Thank you for choosing to participate in %(title)s and for being a part "
-"of this growing community"
-msgstr ""
-"%(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा "
-"बनने के लिए धन्यवाद"
+msgid "Thank you for choosing to participate in %(title)s and for being a part of this growing community"
+msgstr "%(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद"
 
 #: funnel/templates/js/badge.js.jinja2:39
 msgid "Attendee details not found"
@@ -3904,12 +3628,8 @@ msgid "Calender view"
 msgstr "कैलेंडर देखें"
 
 #: funnel/templates/js/translations_only.js.jinja2:3
-msgid ""
-"An internal server error occurred. Our support team has been notified and"
-" will investigate."
-msgstr ""
-"आंतरिक सर्वर त्रुटि. हमारी टीम को सूचित कर दिया गया है और वे इसकी जांच "
-"करेंगे."
+msgid "An internal server error occurred. Our support team has been notified and will investigate."
+msgstr "आंतरिक सर्वर त्रुटि. हमारी टीम को सूचित कर दिया गया है और वे इसकी जांच करेंगे."
 
 #: funnel/templates/js/translations_only.js.jinja2:5
 msgid "Unable to connect. Check connection and tap to reload."
@@ -3998,12 +3718,8 @@ msgstr "कमेंट की समीक्षा करें"
 
 #: funnel/templates/notifications/comment_report_received_web.html.jinja2:5
 #, python-format
-msgid ""
-"A comment has been reported as spam. <a href=\"%(url)s\">Review "
-"comment</a>."
-msgstr ""
-"एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है. <a "
-"href=\"%(url)s\">कमेंट की समीक्षा करें</a>."
+msgid "A comment has been reported as spam. <a href=\"%(url)s\">Review comment</a>."
+msgstr "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है. <a href=\"%(url)s\">कमेंट की समीक्षा करें</a>."
 
 #: funnel/templates/notifications/layout_email.html.jinja2:35
 msgid "Unsubscribe or manage preferences"
@@ -4049,9 +3765,7 @@ msgstr "<a href=\"%(url)s\">%(project)s</a> शुरू होने का स
 #: funnel/templates/notifications/proposal_received_email.html.jinja2:4
 #, python-format
 msgid "Your project <b>%(project)s</b> has a new proposal: <b>%(proposal)s</b>."
-msgstr ""
-"आपके <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव आया है: "
-"<b>%(proposal)s</b>."
+msgstr "आपके <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव आया है: <b>%(proposal)s</b>."
 
 #: funnel/templates/notifications/proposal_received_email.html.jinja2:6
 msgid "Proposal page"
@@ -4059,43 +3773,27 @@ msgstr "प्रस्ताव का पेज"
 
 #: funnel/templates/notifications/proposal_received_web.html.jinja2:4
 #, python-format
-msgid ""
-"\n"
-"        Your project <a href=\"%(project_url)s\">%(project)s</a> has "
-"received %(count)s new proposals:"
-msgstr ""
-"\n"
-"आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में %(count)s "
-"नए प्रस्ताव आए हैं:"
+msgid "\n"
+"        Your project <a href=\"%(project_url)s\">%(project)s</a> has received %(count)s new proposals:"
+msgstr "\n"
+"आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में %(count)s नए प्रस्ताव आए हैं:"
 
 #: funnel/templates/notifications/proposal_received_web.html.jinja2:8
 #, python-format
-msgid ""
-"\n"
+msgid "\n"
 "          <a href=\"%(url)s\">%(proposal)s</a> by %(actor)s"
-msgstr ""
-"\n"
+msgstr "\n"
 "         <a href=\"%(url)s\">%(proposal)s</a> %(actor)s के द्वारा"
 
 #: funnel/templates/notifications/proposal_received_web.html.jinja2:13
 #, python-format
-msgid ""
-"Your project <a href=\"%(project_url)s\">%(project)s</a> has received a "
-"new proposal: <a href=\"%(proposal_url)s\">%(proposal)s</a> from "
-"%(actor)s."
-msgstr ""
-"आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में एक नया "
-"प्रस्ताव आया है: <a href=\"%(proposal_url)s\">%(proposal)s</a> %(actor)s "
-"की ओर स."
+msgid "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new proposal: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s."
+msgstr "आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में एक नया प्रस्ताव आया है: <a href=\"%(proposal_url)s\">%(proposal)s</a> %(actor)s की ओर स."
 
 #: funnel/templates/notifications/proposal_submitted_email.html.jinja2:4
 #, python-format
-msgid ""
-"You have submitted a new proposal <b>%(proposal)s</b> to the project "
-"<b>%(project)s</b>."
-msgstr ""
-"आपने <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव <b>%(proposal)s</b>"
-" भेजा है."
+msgid "You have submitted a new proposal <b>%(proposal)s</b> to the project <b>%(project)s</b>."
+msgstr "आपने <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव <b>%(proposal)s</b> भेजा है."
 
 #: funnel/templates/notifications/proposal_submitted_email.html.jinja2:6
 msgid "View proposal"
@@ -4103,21 +3801,13 @@ msgstr "प्रस्ताव देखें"
 
 #: funnel/templates/notifications/proposal_submitted_web.html.jinja2:4
 #, python-format
-msgid ""
-"You submitted <a href=\"%(proposal_url)s\">%(proposal)s</a> to <a "
-"href=\"%(project_url)s\">%(project)s</a>."
-msgstr ""
-"आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a "
-"href=\"%(proposal_url)s\">%(proposal)s</a> जमा किया है."
+msgid "You submitted <a href=\"%(proposal_url)s\">%(proposal)s</a> to <a href=\"%(project_url)s\">%(project)s</a>."
+msgstr "आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a href=\"%(proposal_url)s\">%(proposal)s</a> जमा किया है."
 
 #: funnel/templates/notifications/rsvp_no_email.html.jinja2:4
 #, python-format
-msgid ""
-"You have cancelled your registration for <b>%(project)s</b>. If this was "
-"accidental, you can register again."
-msgstr ""
-"आपने <b>%(project)s</b> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है. अगर यह "
-"गलती से हुआ है, तो फिर आप दोबारा रजिस्टर कर सकते हैं."
+msgid "You have cancelled your registration for <b>%(project)s</b>. If this was accidental, you can register again."
+msgstr "आपने <b>%(project)s</b> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है. अगर यह गलती से हुआ है, तो फिर आप दोबारा रजिस्टर कर सकते हैं."
 
 #: funnel/templates/notifications/rsvp_no_email.html.jinja2:6
 #: funnel/templates/notifications/rsvp_yes_email.html.jinja2:11
@@ -4127,9 +3817,7 @@ msgstr "प्रोजेक्ट पेज"
 #: funnel/templates/notifications/rsvp_no_web.html.jinja2:4
 #, python-format
 msgid "You cancelled your registration for <a href=\"%(url)s\">%(project)s</a>"
-msgstr ""
-"आपने <a href=\"%(url)s\">%(project)s</a> के लिए अपनी रजिस्ट्रेशन रद्द कर "
-"दी है"
+msgstr "आपने <a href=\"%(url)s\">%(project)s</a> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है"
 
 #: funnel/templates/notifications/rsvp_yes_email.html.jinja2:6
 #, python-format
@@ -4150,29 +3838,19 @@ msgstr "आप <a href=\"%(url)s\">%(project)s</a> के लिए रजिस
 #: funnel/templates/notifications/update_new_web.html.jinja2:3
 #, python-format
 msgid "%(actor)s posted an update in <a href=\"%(project_url)s\">%(project)s</a>:"
-msgstr ""
-"%(actor)s ने <a href=\"%(project_url)s\">%(project)s</a> में एक नई "
-"जानकारी पोस्ट की है:"
+msgstr "%(actor)s ने <a href=\"%(project_url)s\">%(project)s</a> में एक नई जानकारी पोस्ट की है:"
 
 #: funnel/templates/notifications/update_new_email.html.jinja2:10
 msgid "Read on the website"
 msgstr "वेबसाइट पर जाकर पढ़ें"
 
 #: funnel/templates/notifications/user_password_set_email.html.jinja2:2
-msgid ""
-"Your password has been updated. If you did this, no further action is "
-"necessary."
-msgstr ""
-"आपके पासवर्ड को बदल दिया गया है. अगर आपने ही यह किया है, तो कुछ और करने "
-"की ज़रूरत नहीं है."
+msgid "Your password has been updated. If you did this, no further action is necessary."
+msgstr "आपके पासवर्ड को बदल दिया गया है. अगर आपने ही यह किया है, तो कुछ और करने की ज़रूरत नहीं है."
 
 #: funnel/templates/notifications/user_password_set_email.html.jinja2:5
-msgid ""
-"If this was not authorized, consider resetting with a more secure "
-"password. Contact support if further assistance is required."
-msgstr ""
-"अगर आपने यह नहीं किया है, तो एक अधिक सुरक्षित पासवर्ड के साथ इसे रिसेट "
-"करें. यदि और किसी मदद की ज़रूरत हो, तो हमारे सहयोगी दल से संपर्क करें."
+msgid "If this was not authorized, consider resetting with a more secure password. Contact support if further assistance is required."
+msgstr "अगर आपने यह नहीं किया है, तो एक अधिक सुरक्षित पासवर्ड के साथ इसे रिसेट करें. यदि और किसी मदद की ज़रूरत हो, तो हमारे सहयोगी दल से संपर्क करें."
 
 #: funnel/templates/notifications/user_password_set_email.html.jinja2:9
 #: funnel/views/account_reset.py:121 funnel/views/account_reset.py:276
@@ -4258,12 +3936,8 @@ msgid "Something went wrong. Please reload and try again"
 msgstr "कुछ गड़बड़ी हुई है. कृपया दोबारा लोड करें और दोबारा प्रयास करें"
 
 #: funnel/views/account.py:345
-msgid ""
-"Your profile has been updated. We sent you an email to confirm your "
-"address"
-msgstr ""
-"आपकी प्रोफाइल अपडेट कर दी गई है. आपके पते की पुष्टि के लिए हमने आपको एक "
-"ईमेल भेजा है"
+msgid "Your profile has been updated. We sent you an email to confirm your address"
+msgstr "आपकी प्रोफाइल अपडेट कर दी गई है. आपके पते की पुष्टि के लिए हमने आपको एक ईमेल भेजा है"
 
 #: funnel/views/account.py:354
 msgid "Your profile has been updated"
@@ -4275,9 +3949,7 @@ msgstr "खाता अपडेट करें"
 
 #: funnel/views/account.py:368
 msgid "Hello, {fullname}. Please spare a minute to fill out your account"
-msgstr ""
-"नमस्ते, {fullname}. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय"
-" दें"
+msgstr "नमस्ते, {fullname}. कृपया अपने खाते की जानकारी भरने के लिए एक मिनट का समय दें"
 
 #: funnel/views/account.py:378
 msgid "Edit account"
@@ -4299,9 +3971,7 @@ msgid "Email address already claimed"
 msgstr "ईमेल पता पहले ही इस्तेमाल किया जा चुका है"
 
 #: funnel/views/account.py:409
-msgid ""
-"The email address <code>{email}</code> has already been verified by "
-"another user"
+msgid "The email address <code>{email}</code> has already been verified by another user"
 msgstr "ईमेल पता <code>{email}</code> अन्य यूजर द्वारा पहले ही वेरिफाई हो चुका है"
 
 #: funnel/views/account.py:416
@@ -4309,34 +3979,23 @@ msgid "Email address already verified"
 msgstr "ईमेल पता पहले से वेरिफाइड है"
 
 #: funnel/views/account.py:418
-msgid ""
-"Hello {fullname}! Your email address <code>{email}</code> has already "
-"been verified"
-msgstr ""
-"नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो "
-"चुका है"
+msgid "Hello {fullname}! Your email address <code>{email}</code> has already been verified"
+msgstr "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो चुका है"
 
 #: funnel/views/account.py:439
 msgid "Email address verified"
 msgstr "ईमेल पता वेरिफाई किया गया"
 
 #: funnel/views/account.py:441
-msgid ""
-"Hello {fullname}! Your email address <code>{email}</code> has now been "
-"verified"
-msgstr ""
-"नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका "
-"है"
+msgid "Hello {fullname}! Your email address <code>{email}</code> has now been verified"
+msgstr "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका है"
 
 #: funnel/views/account.py:451
 msgid "This was not for you"
 msgstr "यह आपके लिए नहीं था"
 
 #: funnel/views/account.py:452
-msgid ""
-"You’ve opened an email verification link that was meant for another user."
-" If you are managing multiple accounts, please login with the correct "
-"account and open the link again."
+msgid "You’ve opened an email verification link that was meant for another user. If you are managing multiple accounts, please login with the correct account and open the link again."
 msgstr "आपने एक ईमेल वेरिफिकेशन लिंक खोला है जो किसी अन्य यूजर के लिए था."
 
 #: funnel/views/account.py:460
@@ -4490,59 +4149,36 @@ msgid "You have removed the {service} account ‘{username}’"
 msgstr "आपने {service} खाता ‘{username}’ हटा दिया है"
 
 #: funnel/views/account_reset.py:49
-msgid ""
-"Your password has expired. Please enter your username or email address to"
-" request a reset code and set a new password."
-msgstr ""
-"आपका पासवर्ड एक्स्पायर हो चुका है. रीसेट कोड का अनुरोध करने और एक नया "
-"पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें."
+msgid "Your password has expired. Please enter your username or email address to request a reset code and set a new password."
+msgstr "आपका पासवर्ड एक्स्पायर हो चुका है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें."
 
 #: funnel/views/account_reset.py:77 funnel/views/account_reset.py:91
 msgid "Cannot reset password"
 msgstr "पासवर्ड रीसेट नहीं किया जा सकता"
 
 #: funnel/views/account_reset.py:79
-msgid ""
-"Your account does not have an email address. However, it is linked to "
-"{service} with the ID {username}. You can use that to login."
-msgstr ""
-"आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ "
-"{service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
+msgid "Your account does not have an email address. However, it is linked to {service} with the ID {username}. You can use that to login."
+msgstr "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ {service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
 
 #: funnel/views/account_reset.py:93
-msgid ""
-"Your account does not have an email address. Please contact <a "
-"href=\"mailto:{email}\">{email}</a> for assistance."
-msgstr ""
-"आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया <a "
-"href=\"mailto:{email}\">{email}</a> से संपर्क करें."
+msgid "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance."
+msgstr "आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया <a href=\"mailto:{email}\">{email}</a> से संपर्क करें."
 
 #: funnel/views/account_reset.py:111
 msgid "Email sent"
 msgstr "ईमेल भेज दिया गया है"
 
 #: funnel/views/account_reset.py:112
-msgid ""
-"You have been sent an email with a link to reset your password, to your "
-"address {masked_email}. If it doesn’t arrive in a few minutes, it may "
-"have landed in your spam or junk folder. The reset link is valid for 24 "
-"hours."
-msgstr ""
-"आपको अपना पासवर्ड रीसेट करने के लिए एक लिंक के साथ एक ईमेल भेजा गया है, "
-"आपके {masked_email} पते पर. अगर यह कुछ मिनटों में नहीं आता है, तो यह आपके"
-" स्पैम या जंक फोल्डर में जा सकता है. रीसेट लिंक 24 घंटे के लिए मान्य है."
+msgid "You have been sent an email with a link to reset your password, to your address {masked_email}. If it doesn’t arrive in a few minutes, it may have landed in your spam or junk folder. The reset link is valid for 24 hours."
+msgstr "आपको अपना पासवर्ड रीसेट करने के लिए एक लिंक के साथ एक ईमेल भेजा गया है, आपके {masked_email} पते पर. अगर यह कुछ मिनटों में नहीं आता है, तो यह आपके स्पैम या जंक फोल्डर में जा सकता है. रीसेट लिंक 24 घंटे के लिए मान्य है."
 
 #: funnel/views/account_reset.py:123
 msgid "Send reset link"
 msgstr "रीसेट लिंक भेजें"
 
 #: funnel/views/account_reset.py:157 funnel/views/account_reset.py:206
-msgid ""
-"This password reset link is invalid. If you still need to reset your "
-"password, you may request a new link"
-msgstr ""
-"यह पासवर्ड रीसेट लिंक अमान्य है. अगर आपको अभी भी अपना पासवर्ड रीसेट करने "
-"की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
+msgid "This password reset link is invalid. If you still need to reset your password, you may request a new link"
+msgstr "यह पासवर्ड रीसेट लिंक अमान्य है. अगर आपको अभी भी अपना पासवर्ड रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
 
 #: funnel/views/account_reset.py:181
 msgid "Please try again"
@@ -4553,12 +4189,8 @@ msgid "This page timed out. Please open the reset link again."
 msgstr "इस पेज की समय-सीमा समााप्त हो चुकी है. कृपया रीसेट लिंक दोबारा खोलें."
 
 #: funnel/views/account_reset.py:194
-msgid ""
-"This password reset link has expired. If you still need to reset your "
-"password, you may request a new link"
-msgstr ""
-"यह पासवर्ड रीसेट लिंक एक्स्पायर हो चुका है. अगर आपको अभी भी अपना पासवर्ड "
-"रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
+msgid "This password reset link has expired. If you still need to reset your password, you may request a new link"
+msgstr "यह पासवर्ड रीसेट लिंक एक्स्पायर हो चुका है. अगर आपको अभी भी अपना पासवर्ड रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
 
 #: funnel/views/account_reset.py:221 funnel/views/auth_oauth.py:488
 msgid "Unknown user"
@@ -4569,12 +4201,8 @@ msgid "There is no account matching this password reset request"
 msgstr "इस पासवर्ड रीसेट अनुरोध से मेल खाने योग्य कोई खाता नहीं है"
 
 #: funnel/views/account_reset.py:231
-msgid ""
-"This password reset link has been used. If you need to reset your "
-"password again, you may request a new link"
-msgstr ""
-"इस पासवर्ड रीसेट लिंक का उपयोग किया जा चुका है. अगर आपको अपना पासवर्ड फिर"
-" से रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
+msgid "This password reset link has been used. If you need to reset your password again, you may request a new link"
+msgstr "इस पासवर्ड रीसेट लिंक का उपयोग किया जा चुका है. अगर आपको अपना पासवर्ड फिर से रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
 
 #: funnel/views/account_reset.py:258
 msgid "Password reset complete"
@@ -4585,12 +4213,8 @@ msgid "Your password has been changed. You may now login with your new password.
 msgstr "आपका पासवर्ड बदल दिया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं."
 
 #: funnel/views/account_reset.py:264
-msgid ""
-"Your password has been changed. As a precaution, you have been logged out"
-" of one other device. You may now login with your new password."
-msgstr ""
-"आपका पासवर्ड बदल दिया गया है. एहतियात के तौर पर, आपको एक अन्य डिवाइस से "
-"लॉग आउट किया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं."
+msgid "Your password has been changed. As a precaution, you have been logged out of one other device. You may now login with your new password."
+msgstr "आपका पासवर्ड बदल दिया गया है. एहतियात के तौर पर, आपको एक अन्य डिवाइस से लॉग आउट किया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं."
 
 #: funnel/views/account_reset.py:280
 msgid "Hello, {fullname}. You may now choose a new password."
@@ -4605,12 +4229,8 @@ msgid "Register application"
 msgstr "ऐप्लिकेशन रजिस्टर करें"
 
 #: funnel/views/auth_client.py:137
-msgid ""
-"This application’s owner has changed, so all previously assigned "
-"permissions have been revoked"
-msgstr ""
-"इस ऐप्लिकेशन का ओनर बदल गया है, इसलिए पहले से सौंपी गई सभी अनुमतियां रद्द"
-" कर दी गई हैं"
+msgid "This application’s owner has changed, so all previously assigned permissions have been revoked"
+msgstr "इस ऐप्लिकेशन का ओनर बदल गया है, इसलिए पहले से सौंपी गई सभी अनुमतियां रद्द कर दी गई हैं"
 
 #: funnel/views/auth_client.py:151
 msgid "Edit application"
@@ -4626,36 +4246,20 @@ msgid "Confirm delete"
 msgstr "मिटाने की पुष्टि करें"
 
 #: funnel/views/auth_client.py:165
-msgid ""
-"Delete application ‘{title}’? This will also delete all associated "
-"content including access tokens issued on behalf of users. This operation"
-" is permanent and cannot be undone."
-msgstr ""
-"‘{title}’ ऐप्लिकेशन मिटाएं? यह यूज़र की ओर से जारी एक्सेस टोकन सहित सभी "
-"जुड़ी सामग्री को भी हटा देगा. यह प्रक्रिया स्थाई है और इसे वापस नहीं लाया"
-" जा सकता है."
+msgid "Delete application ‘{title}’? This will also delete all associated content including access tokens issued on behalf of users. This operation is permanent and cannot be undone."
+msgstr "‘{title}’ ऐप्लिकेशन मिटाएं? यह यूज़र की ओर से जारी एक्सेस टोकन सहित सभी जुड़ी सामग्री को भी हटा देगा. यह प्रक्रिया स्थाई है और इसे वापस नहीं लाया जा सकता है."
 
 #: funnel/views/auth_client.py:170
-msgid ""
-"You have deleted application ‘{title}’ and all its associated resources "
-"and permission assignments"
-msgstr ""
-"आपने ‘{title}’ ऐप्लिकेशन और उससे जुड़ी सभी संसाधनों और सौंपी गई अनुमति को"
-" मिटा दिया है"
+msgid "You have deleted application ‘{title}’ and all its associated resources and permission assignments"
+msgstr "आपने ‘{title}’ ऐप्लिकेशन और उससे जुड़ी सभी संसाधनों और सौंपी गई अनुमति को मिटा दिया है"
 
 #: funnel/views/auth_client.py:187
 msgid "Disconnect {app}"
 msgstr "{app} डिस्कनेक्ट करें"
 
 #: funnel/views/auth_client.py:188
-msgid ""
-"Disconnect application {app}? This will not remove any of your data in "
-"this app, but will prevent it from accessing any further data from your "
-"Hasgeek account."
-msgstr ""
-"{app} एप्लिकेशन डिस्कनेक्ट करना चाहते हैं? यह इस ऐप में आपके किसी भी डेटा"
-" को नहीं हटाएगा, बल्कि इसे आपके Hasgeek खाते से किसी और डेटा को एक्सेस "
-"करने से रोकेगा."
+msgid "Disconnect application {app}? This will not remove any of your data in this app, but will prevent it from accessing any further data from your Hasgeek account."
+msgstr "{app} एप्लिकेशन डिस्कनेक्ट करना चाहते हैं? यह इस ऐप में आपके किसी भी डेटा को नहीं हटाएगा, बल्कि इसे आपके Hasgeek खाते से किसी और डेटा को एक्सेस करने से रोकेगा."
 
 #: funnel/views/auth_client.py:194
 msgid "You have disconnected {app} from your account"
@@ -4683,9 +4287,7 @@ msgid "Assign permissions"
 msgstr "अनुमतियां सौंपें"
 
 #: funnel/views/auth_client.py:285
-msgid ""
-"Add and edit teams from <a href=\"{url}\">your organization’s teams "
-"page</a>."
+msgid "Add and edit teams from <a href=\"{url}\">your organization’s teams page</a>."
 msgstr "<a href=\"{url}\">आपके संगठन के टीम पेज</a> से टीम जोड़ें और संपादित करें."
 
 #: funnel/views/auth_client.py:324
@@ -4726,9 +4328,7 @@ msgstr "{title} टीम के लिए सभी अनुमतियां
 
 #: funnel/views/auth_client.py:473
 msgid "Remove all permissions assigned to team ‘{pname}’ for app ‘{title}’?"
-msgstr ""
-"‘{title}’ ऐप के लिए ‘{pname}’ टीम को सौंपी गई सभी अनुमतियां हटाना चाहते "
-"हैं?"
+msgstr "‘{title}’ ऐप के लिए ‘{pname}’ टीम को सौंपी गई सभी अनुमतियां हटाना चाहते हैं?"
 
 #: funnel/views/auth_client.py:476
 msgid "You have revoked permisions for team {title}"
@@ -4897,9 +4497,7 @@ msgstr "कमेंट को स्पैम के रूप में रि
 
 #: funnel/views/commentvote.py:367 funnel/views/commentvote.py:374
 msgid "There was an issue reporting this comment. Please try again"
-msgstr ""
-"इस कमेंट को रिपोर्ट करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा "
-"प्रयास करें"
+msgstr "इस कमेंट को रिपोर्ट करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
 
 #: funnel/views/contact.py:170
 msgid "This project has concluded"
@@ -5016,46 +4614,28 @@ msgid "The label has been deleted"
 msgstr "लेबल मिटा दिया गया है"
 
 #: funnel/views/login.py:121
-msgid ""
-"You have a weak password. To ensure the safety of your account, please "
-"choose a stronger password"
-msgstr ""
-"आपका पासवर्ड कमज़ोर है. अपने खाते की सुरक्षा सुनिश्चित करने के लिए, कृपया"
-" एक मज़बूत पासवर्ड चुनें"
+msgid "You have a weak password. To ensure the safety of your account, please choose a stronger password"
+msgstr "आपका पासवर्ड कमज़ोर है. अपने खाते की सुरक्षा सुनिश्चित करने के लिए, कृपया एक मज़बूत पासवर्ड चुनें"
 
 #: funnel/views/login.py:139
-msgid ""
-"Your password is a year old. To ensure the safety of your account, please"
-" choose a new password"
-msgstr ""
-"आपका पासवर्ड एक साल पुराना है. अपने खाते की सुरक्षा सुनिश्चित करने के "
-"लिए, कृपया एक नया पासवर्ड चुनें"
+msgid "Your password is a year old. To ensure the safety of your account, please choose a new password"
+msgstr "आपका पासवर्ड एक साल पुराना है. अपने खाते की सुरक्षा सुनिश्चित करने के लिए, कृपया एक नया पासवर्ड चुनें"
 
 #: funnel/views/login.py:155 funnel/views/login.py:647
 msgid "You are now logged in"
 msgstr "अब आप लॉग इन हो गए हैं"
 
 #: funnel/views/login.py:162
-msgid ""
-"Your account does not have a password set. Please enter your username or "
-"email address to request a reset code and set a new password"
-msgstr ""
-"आपके खाते का पासवर्ड सेट नहीं है. रीसेट कोड का अनुरोध करने और एक नया "
-"पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें"
+msgid "Your account does not have a password set. Please enter your username or email address to request a reset code and set a new password"
+msgstr "आपके खाते का पासवर्ड सेट नहीं है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें"
 
 #: funnel/views/login.py:174
-msgid ""
-"Your account has a weak password. Please enter your username or email "
-"address to request a reset code and set a new password"
-msgstr ""
-"आपके खाते का पासवर्ड कमजोर है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड"
-" सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें"
+msgid "Your account has a weak password. Please enter your username or email address to request a reset code and set a new password"
+msgstr "आपके खाते का पासवर्ड कमजोर है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें"
 
 #: funnel/views/login.py:212
 msgid "Are you trying to logout? Please try again to confirm"
-msgstr ""
-"क्या आप लॉग आउट करने का प्रयास कर रहे हैं? पुष्टि करने के लिए कृपया "
-"दोबारा प्रयास करें"
+msgstr "क्या आप लॉग आउट करने का प्रयास कर रहे हैं? पुष्टि करने के लिए कृपया दोबारा प्रयास करें"
 
 #: funnel/views/login.py:252
 msgid "To logout, use the logout button"
@@ -5111,21 +4691,15 @@ msgstr "ऐसा लगता है आप कुछ समय के लि�
 
 #: funnel/views/login_session.py:127
 msgid "Your login session was revoked from another device. Please login again"
-msgstr ""
-"आपका लॉगिन सेशन अन्य डिवाइस से रद्द कर दिया गया था. कृपया दोबारा लॉगिन "
-"करें"
+msgstr "आपका लॉगिन सेशन अन्य डिवाइस से रद्द कर दिया गया था. कृपया दोबारा लॉगिन करें"
 
 #: funnel/views/login_session.py:327 funnel/views/login_session.py:366
 msgid "You need to be logged in for that page"
 msgstr "आपको उस पेज के लिए लॉगिन होना चाहिए"
 
 #: funnel/views/login_session.py:374
-msgid ""
-"This operation requires you to confirm your password. However, your "
-"account does not have a password, so you must set one first"
-msgstr ""
-"इस प्रक्रिया के लिए आपको अपने पासवर्ड की पुष्टि करनी होगी. हालांकि, आपके "
-"खाते में पासवर्ड सेट नहीं है, इसलिए आपको पहले एक पासवर्ड सेट करना होगा"
+msgid "This operation requires you to confirm your password. However, your account does not have a password, so you must set one first"
+msgstr "इस प्रक्रिया के लिए आपको अपने पासवर्ड की पुष्टि करनी होगी. हालांकि, आपके खाते में पासवर्ड सेट नहीं है, इसलिए आपको पहले एक पासवर्ड सेट करना होगा"
 
 #: funnel/views/login_session.py:411
 msgid "This request must be confirmed with your password"
@@ -5136,14 +4710,8 @@ msgid "Confirm with your password to proceed"
 msgstr "आगे बढ़ने के लिए अपने पासवर्ड से पुष्टि करें"
 
 #: funnel/views/membership.py:74 funnel/views/membership.py:345
-msgid ""
-"This user does not have any verified contact information. If you are able"
-" to contact them, please ask them to verify their email address or phone "
-"number"
-msgstr ""
-"इस यूजर के पास कोई वेरिफाइड संपर्क जानकारी नहीं है. अगर आप उनसे संपर्क "
-"करने में सक्षम हैं, तो कृपया उन्हें अपना ईमेल पता या फोन नंबर वेरिफाई "
-"करने के लिए कहें"
+msgid "This user does not have any verified contact information. If you are able to contact them, please ask them to verify their email address or phone number"
+msgstr "इस यूजर के पास कोई वेरिफाइड संपर्क जानकारी नहीं है. अगर आप उनसे संपर्क करने में सक्षम हैं, तो कृपया उन्हें अपना ईमेल पता या फोन नंबर वेरिफाई करने के लिए कहें"
 
 #: funnel/views/membership.py:100
 msgid "This user is already an admin"
@@ -5218,20 +4786,12 @@ msgid "Form must contain a revision ID."
 msgstr "फॉर्म में एक संशोधन ID होना चाहिए."
 
 #: funnel/views/mixins.py:325
-msgid ""
-"There have been changes to this draft since you last edited it. Please "
-"reload."
-msgstr ""
-"आपके पिछले संपादन के बाद से इस ड्राफ्ट में बदलाव किए गए हैं. कृपया रीलोड "
-"करें."
+msgid "There have been changes to this draft since you last edited it. Please reload."
+msgstr "आपके पिछले संपादन के बाद से इस ड्राफ्ट में बदलाव किए गए हैं. कृपया रीलोड करें."
 
 #: funnel/views/mixins.py:349
-msgid ""
-"Invalid revision ID or the existing changes have been submitted already. "
-"Please reload."
-msgstr ""
-"अमान्य संशोधन ID या मौजूदा परिवर्तन पहले ही जमा किए जा चुके हैं. कृपया "
-"रीलोड करें."
+msgid "Invalid revision ID or the existing changes have been submitted already. Please reload."
+msgstr "अमान्य संशोधन ID या मौजूदा परिवर्तन पहले ही जमा किए जा चुके हैं. कृपया रीलोड करें."
 
 #: funnel/views/mixins.py:371
 msgid "Invalid CSRF token"
@@ -5242,20 +4802,12 @@ msgid "You are receiving this because you have an account at hasgeek.com"
 msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आपका hasgeek.com पर एक खाता है"
 
 #: funnel/views/notification_preferences.py:31
-msgid ""
-"That unsubscribe link has expired. However, you can manage your "
-"preferences from your account page"
-msgstr ""
-"वो सदस्यता समाप्त वाली लिंक एक्स्पायर हो चुकी है. हालांकि, आप अपनी "
-"प्राथमिकताएं अपने खाते से प्रबंधित कर सकते हैं"
+msgid "That unsubscribe link has expired. However, you can manage your preferences from your account page"
+msgstr "वो सदस्यता समाप्त वाली लिंक एक्स्पायर हो चुकी है. हालांकि, आप अपनी प्राथमिकताएं अपने खाते से प्रबंधित कर सकते हैं"
 
 #: funnel/views/notification_preferences.py:36
-msgid ""
-"That unsubscribe link is invalid. However, you can manage your "
-"preferences from your account page"
-msgstr ""
-"वो सदस्यता समाप्त वाली लिंक अमान्य है. हालांकि, आप अपनी प्राथमिकताएं अपने"
-" खाते से प्रबंधित कर सकते हैं"
+msgid "That unsubscribe link is invalid. However, you can manage your preferences from your account page"
+msgstr "वो सदस्यता समाप्त वाली लिंक अमान्य है. हालांकि, आप अपनी प्राथमिकताएं अपने खाते से प्रबंधित कर सकते हैं"
 
 #: funnel/views/notification_preferences.py:190
 #: funnel/views/notification_preferences.py:368
@@ -5271,13 +4823,8 @@ msgid "Unauthorized unsubscribe link"
 msgstr "अनधिकृत सदस्यता समाप्त वाली लिंक"
 
 #: funnel/views/notification_preferences.py:353
-msgid ""
-"This unsubscribe link is for someone else’s account. Please logout or use"
-" an incognito/private browsing session to use this link."
-msgstr ""
-"यह सदस्यता समाप्त वाली लिंक किसी और के खाते के लिए है. इस लिंक का उपयोग "
-"करने के लिए कृपया किसी गुप्त/निजी ब्राउज़िंग सेशन का उपयोग करें या लॉग "
-"आउट हो जाएं."
+msgid "This unsubscribe link is for someone else’s account. Please logout or use an incognito/private browsing session to use this link."
+msgstr "यह सदस्यता समाप्त वाली लिंक किसी और के खाते के लिए है. इस लिंक का उपयोग करने के लिए कृपया किसी गुप्त/निजी ब्राउज़िंग सेशन का उपयोग करें या लॉग आउट हो जाएं."
 
 #: funnel/views/notification_preferences.py:367
 msgid "Unknown user account"
@@ -5300,9 +4847,7 @@ msgid "Save preferences"
 msgstr "प्राथमिकताएं सेव करें"
 
 #: funnel/views/organization.py:71
-msgid ""
-"You need to have a verified email address or phone number to create an "
-"organization"
+msgid "You need to have a verified email address or phone number to create an organization"
 msgstr "संगठन बनाने के लिए आपके पास एक वेरिफाइड ईमेल पता या फोन नंबर होना चाहिए"
 
 #: funnel/views/organization.py:90
@@ -5326,21 +4871,12 @@ msgid "This organization has projects"
 msgstr "इस संगठन के पास कुछ प्रोजेक्ट है"
 
 #: funnel/views/organization.py:111
-msgid ""
-"Projects must be deleted or transferred before the organization can be "
-"deleted."
-msgstr ""
-"संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना "
-"चाहिए."
+msgid "Projects must be deleted or transferred before the organization can be deleted."
+msgstr "संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना चाहिए."
 
 #: funnel/views/organization.py:124
-msgid ""
-"Delete organization ‘{title}’? This will delete everything including "
-"projects, proposals and videos. This operation is permanent and cannot be"
-" undone."
-msgstr ""
-"‘{title}’ संगठन मिटाएं? यह प्रोजेक्ट, प्रस्ताव और वीडियो सहित सब कुछ मिटा"
-" देगा. यह प्रक्रिया स्थाई है और इसे वापस पहले जैसा नहीं किया जा सकता है."
+msgid "Delete organization ‘{title}’? This will delete everything including projects, proposals and videos. This operation is permanent and cannot be undone."
+msgstr "‘{title}’ संगठन मिटाएं? यह प्रोजेक्ट, प्रस्ताव और वीडियो सहित सब कुछ मिटा देगा. यह प्रक्रिया स्थाई है और इसे वापस पहले जैसा नहीं किया जा सकता है."
 
 #: funnel/views/organization.py:129
 msgid "You have deleted organization ‘{title}’ and all its associated content"
@@ -5377,9 +4913,7 @@ msgstr "बैनर सेव करें"
 
 #: funnel/views/profile.py:349
 msgid "There was a problem saving your changes. Please try again"
-msgstr ""
-"आपके परिवर्तनों को सेव करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा "
-"प्रयास करें"
+msgstr "आपके परिवर्तनों को सेव करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
 
 #: funnel/views/project.py:73
 msgid "Be the first to register!"
@@ -5494,20 +5028,12 @@ msgid "This project has proposals"
 msgstr "इस प्रोजेक्ट के कुछ प्रस्ताव हैं"
 
 #: funnel/views/project.py:453
-msgid ""
-"Proposals must be deleted or transferred before the project can be "
-"deleted."
-msgstr ""
-"संगठन मिटाए जाने से पहले प्रस्तावों को हटाया या स्थानांतरित किया जाना "
-"चाहिए."
+msgid "Proposals must be deleted or transferred before the project can be deleted."
+msgstr "संगठन मिटाए जाने से पहले प्रस्तावों को हटाया या स्थानांतरित किया जाना चाहिए."
 
 #: funnel/views/project.py:462
-msgid ""
-"Delete project ‘{title}’? This will delete everything in the project. "
-"This operation is permanent and cannot be undone."
-msgstr ""
-"‘{title}’ प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना "
-"इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+msgid "Delete project ‘{title}’? This will delete everything in the project. This operation is permanent and cannot be undone."
+msgstr "‘{title}’ प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/project.py:466
 msgid "You have deleted project ‘{title}’ and all its associated content"
@@ -5547,9 +5073,7 @@ msgstr "आपका रजिस्ट्रेशन रद्द कर द�
 
 #: funnel/views/project.py:638
 msgid "There was a problem cancelling your registration. Please try again"
-msgstr ""
-"आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा "
-"प्रयास करें"
+msgstr "आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
 
 #: funnel/views/project.py:731 funnel/views/session.py:293
 msgid "Something went wrong, please reload and try again"
@@ -5572,14 +5096,8 @@ msgid "Submit proposal"
 msgstr "प्रस्ताव जमा करें"
 
 #: funnel/views/proposal.py:177 funnel/views/proposal.py:283
-msgid ""
-"This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" "
-"href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for "
-"formatting."
-msgstr ""
-"यह फॉर्म फॉर्मेटिंग के लिए <a target=\"_blank\" rel=\"noopener "
-"noreferrer\" href=\"https://www.markdownguide.org/basic-"
-"syntax/\">Markdown</a> का उपयोग करता है."
+msgid "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting."
+msgstr "यह फॉर्म फॉर्मेटिंग के लिए <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> का उपयोग करता है."
 
 #: funnel/views/proposal.py:280
 msgid "Edit session proposal"
@@ -5590,13 +5108,8 @@ msgid "Update proposal"
 msgstr "प्रस्ताव अपडेट करें"
 
 #: funnel/views/proposal.py:297
-msgid ""
-"Delete your proposal ‘{title}’? This will remove all votes and comments "
-"as well. This operation is permanent and cannot be undone."
-msgstr ""
-"अपना ‘{title}’ प्रस्ताव मिटाएं? यह सभी वोटों और कमेंटों को भी हटा देगा. "
-"ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा "
-"सकता."
+msgid "Delete your proposal ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone."
+msgstr "अपना ‘{title}’ प्रस्ताव मिटाएं? यह सभी वोटों और कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/proposal.py:301
 msgid "Your proposal has been deleted"
@@ -5668,9 +5181,7 @@ msgstr "कमेंट को सफलतापूर्वक स्पैम
 
 #: funnel/views/siteadmin.py:272
 msgid "There was a problem marking the comments as spam. Please try again"
-msgstr ""
-"कमेंटों को स्पैम के रूप में चिह्नित करने में एक समस्या उत्पन्न हुई थी. "
-"कृपया दोबारा प्रयास करें"
+msgstr "कमेंटों को स्पैम के रूप में चिह्नित करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
 
 #: funnel/views/siteadmin.py:287
 msgid "There are no comment reports to review at this time"
@@ -5730,9 +5241,7 @@ msgstr "ईवेंट संपादित करें"
 
 #: funnel/views/ticket_event.py:200
 msgid "Delete event ‘{title}’? This operation is permanent and cannot be undone."
-msgstr ""
-"‘{title}’ ईवेंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस "
-"पहले जैसा नहीं किया जा सकता."
+msgstr "‘{title}’ ईवेंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/ticket_event.py:204 funnel/views/ticket_event.py:365
 msgid "This event has been deleted"
@@ -5743,12 +5252,8 @@ msgid "Edit ticket type"
 msgstr "टिकट टाइप संपादित करें"
 
 #: funnel/views/ticket_event.py:294
-msgid ""
-"Delete ticket type ‘{title}’? This operation is permanent and cannot be "
-"undone."
-msgstr ""
-"‘{title}’ टिकट टाइप मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे "
-"वापस पहले जैसा नहीं किया जा सकता."
+msgid "Delete ticket type ‘{title}’? This operation is permanent and cannot be undone."
+msgstr "‘{title}’ टिकट टाइप मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/ticket_event.py:298
 msgid "This ticket type has been deleted"
@@ -5759,12 +5264,8 @@ msgid "Edit ticket client"
 msgstr "टिकट क्लाइंट संपादित करें"
 
 #: funnel/views/ticket_event.py:361
-msgid ""
-"Delete ticket client ‘{title}’? This operation is permanent and cannot be"
-" undone."
-msgstr ""
-"‘{title}’ टिकट क्लाइंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे"
-" वापस पहले जैसा नहीं किया जा सकता."
+msgid "Delete ticket client ‘{title}’? This operation is permanent and cannot be undone."
+msgstr "‘{title}’ टिकट क्लाइंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/ticket_participant.py:148
 msgid "This participant already exists."
@@ -5796,9 +5297,7 @@ msgstr "अपडेट पब्लिश हो चुकी है"
 
 #: funnel/views/update.py:134
 msgid "There was an error publishing this update. Please refresh and try again"
-msgstr ""
-"इस अपडेट को पब्लिश करने में एक त्रुटि उत्पन्न हुई थी. कृपया रिफ्रेश करें "
-"और दोबारा प्रयास करें"
+msgstr "इस अपडेट को पब्लिश करने में एक त्रुटि उत्पन्न हुई थी. कृपया रिफ्रेश करें और दोबारा प्रयास करें"
 
 #: funnel/views/update.py:150
 msgid "The update has been edited"
@@ -5813,20 +5312,12 @@ msgid "The update has been deleted"
 msgstr "अपडेट मिटा दिया गया है"
 
 #: funnel/views/update.py:176
-msgid ""
-"Delete this draft update? This operation is permanent and cannot be "
-"undone."
-msgstr ""
-"इस ड्राफ्ट अपडेट को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे "
-"वापस पहले जैसा नहीं किया जा सकता."
+msgid "Delete this draft update? This operation is permanent and cannot be undone."
+msgstr "इस ड्राफ्ट अपडेट को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/update.py:181
-msgid ""
-"Delete this update? This update’s number (#{number}) will be skipped for "
-"the next update."
-msgstr ""
-"इस अपडेट को मिटाएं? नंबर (#{number}) का यह अपडेट अगले अपडेट के लिए छोड़ "
-"दिया जाएगा."
+msgid "Delete this update? This update’s number (#{number}) will be skipped for the next update."
+msgstr "इस अपडेट को मिटाएं? नंबर (#{number}) का यह अपडेट अगले अपडेट के लिए छोड़ दिया जाएगा."
 
 #: funnel/views/venue.py:47
 msgid "You have added a new venue to the project"
@@ -5862,9 +5353,7 @@ msgstr "ईवेंट का स्थान संपादित करे�
 
 #: funnel/views/venue.py:142
 msgid "Delete venue “{title}”? This operation is permanent and cannot be undone."
-msgstr ""
-"“{title}” ईवेंट का स्थान मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और "
-"इसे वापस पहले जैसा नहीं किया जा सकता."
+msgstr "“{title}” ईवेंट का स्थान मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/venue.py:146
 msgid "You have deleted venue “{title}”"
@@ -5888,21 +5377,15 @@ msgstr "रूम को संपादित करें"
 
 #: funnel/views/venue.py:213
 msgid "Delete room “{title}”? This operation is permanent and cannot be undone."
-msgstr ""
-"“{title}” रूम को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस "
-"पहले जैसा नहीं किया जा सकता."
+msgstr "“{title}” रूम को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
 
 #: funnel/views/venue.py:217
 msgid "You have deleted room “{title}”"
 msgstr "आपने “{title}” रूम मिटा दिया है"
 
 #: funnel/views/notifications/account_notification.py:41
-msgid ""
-"Your password has been updated. If this was not authorized, reset your "
-"password or contact support at {email}. {reset_url}"
-msgstr ""
-"आपका पासवर्ड अपडेट हो चुका है. अगर यह अधिकृत नहीं था, तो अपना पासवर्ड "
-"रीसेट करें या {email} पर सहयोगी दल से संपर्क करें. {reset_url}"
+msgid "Your password has been updated. If this was not authorized, reset your password or contact support at {email}. {reset_url}"
+msgstr "आपका पासवर्ड अपडेट हो चुका है. अगर यह अधिकृत नहीं था, तो अपना पासवर्ड रीसेट करें या {email} पर सहयोगी दल से संपर्क करें. {reset_url}"
 
 #: funnel/views/notifications/commentvote_notification.py:25
 msgid "You are receiving this because you are a site admin"
@@ -5946,9 +5429,7 @@ msgstr "आपको {actor} द्वारा {organization} के ओनर 
 
 #: funnel/views/notifications/organization_membership_notification.py:51
 msgid "You have been invited as an admin of {organization} by {actor}"
-msgstr ""
-"आपको {actor} द्वारा {organization} के एडमिन के रूप में आमंत्रित किया गया "
-"है"
+msgstr "आपको {actor} द्वारा {organization} के एडमिन के रूप में आमंत्रित किया गया है"
 
 #: funnel/views/notifications/organization_membership_notification.py:58
 msgid "You are now an owner of {organization}"
@@ -5984,15 +5465,11 @@ msgstr "आपकी भूमिका {actor} द्वारा {organization
 
 #: funnel/views/notifications/organization_membership_notification.py:116
 msgid "{user} was invited to be an owner of {organization} by {actor}"
-msgstr ""
-"{user} को {actor} द्वारा {organization} का ओनर बनने के लिए आमंत्रित किया "
-"गया था"
+msgstr "{user} को {actor} द्वारा {organization} का ओनर बनने के लिए आमंत्रित किया गया था"
 
 #: funnel/views/notifications/organization_membership_notification.py:121
 msgid "{user} was invited to be an admin of {organization} by {actor}"
-msgstr ""
-"{user} को {actor} द्वारा {organization} का एडमिन बनने के लिए आमंत्रित "
-"किया गया था"
+msgstr "{user} को {actor} द्वारा {organization} का एडमिन बनने के लिए आमंत्रित किया गया था"
 
 #: funnel/views/notifications/organization_membership_notification.py:127
 msgid "{user} is now an owner of {organization}"
@@ -6042,9 +5519,7 @@ msgstr "आपको {actor} द्वारा {organization} के एडम�
 
 #: funnel/views/notifications/organization_membership_notification.py:308
 msgid "{user} was removed as an admin of {organization} by {actor}"
-msgstr ""
-"{user} को {actor} द्वारा {organization} के एडमिन के रूप में हटा दिया गया "
-"था"
+msgstr "{user} को {actor} द्वारा {organization} के एडमिन के रूप में हटा दिया गया था"
 
 #: funnel/views/notifications/project_starting_notification.py:19
 #: funnel/views/notifications/rsvp_notification.py:49
@@ -6094,12 +5569,8 @@ msgid "View project"
 msgstr "प्रोजेक्ट देखें"
 
 #: funnel/views/notifications/rsvp_notification.py:76
-msgid ""
-"You have registered for {project}. The next session starts {datetime}. "
-"You will get a reminder 10m prior. {url}"
-msgstr ""
-"आपने {project} के लिए रजिस्टर किया है. अगला सेशन {datetime} शुरू होगा. "
-"आपको 10 मिनट पहले का रिमाइंडर मिल जाएगा. {url}"
+msgid "You have registered for {project}. The next session starts {datetime}. You will get a reminder 10m prior. {url}"
+msgstr "आपने {project} के लिए रजिस्टर किया है. अगला सेशन {datetime} शुरू होगा. आपको 10 मिनट पहले का रिमाइंडर मिल जाएगा. {url}"
 
 #: funnel/views/notifications/rsvp_notification.py:82
 msgid "You have registered for {project} {url}"
@@ -6283,3 +5754,35 @@ msgstr "{project} में अपडेट: {update} {url}"
 #~ "\n"
 #~ "<b>%(actor)s</b> ने आपको <b>%(project)s</b> के"
 #~ " दल के सदस्य से हटा दिया है."
+
+#~ msgid ""
+#~ "\n"
+#~ "    %(actor)s has added you to %(project)s as a crew member.\n"
+#~ "  "
+#~ msgstr ""
+#~ "\n"
+#~ "    %(actor)s ने आपको %(project)s दल के सदस्य के रूप में जोड़ा है.\n"
+#~ "  "
+
+#~ msgid ""
+#~ "\n"
+#~ "    %(actor)s has invited you to join %(project)s as a crew member.\n"
+#~ "  "
+#~ msgstr ""
+#~ "\n"
+#~ "    %(actor)s ने आपको दल के सदस्य"
+#~ " के रूप में %(project)s में शामिल "
+#~ "होने के लिए आमंत्रित किया है.\n"
+#~ "  "
+
+#~ msgid ""
+#~ "\n"
+#~ "    %(actor)s has removed you as a crew member from %(project)s.\n"
+#~ "  "
+#~ msgstr ""
+#~ "\n"
+#~ "    %(actor)s ने आपको %(project)s के दल के सदस्य से हटा दिया है.\n"
+#~ "  "
+
+#~ msgid "This comment has been reported as spam."
+#~ msgstr "यह कमेंट पैम के तौर पर रिपोर्ट की गई है."

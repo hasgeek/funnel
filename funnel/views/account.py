@@ -366,8 +366,8 @@ class AccountView(ClassView):
                 submit=_("Continue"),
                 message=Markup(
                     _(
-                        "Hello, {fullname}. Please spare a minute to fill"
-                        " out your account"
+                        "Hello, {fullname}. Please spare a minute to fill out your"
+                        " account"
                     ).format(fullname=escape(current_auth.user.fullname))
                 ),
                 ajax=False,

@@ -1244,22 +1244,22 @@
         "अगर आपने इसकी अनुरोध नहीं की है, तो फिर आप इस ईमेल को अनदेखा कर दें."
       ],
       "Confirm your email address": [null, "अपने ईमेल पते की पुष्टि करें"],
-      "\n    %(actor)s has added you to %(project)s as a crew member.\n  ": [
+      "\n    %(actor)s has added you to ‘%(project)s’ as a crew member.\n  ": [
         null,
-        "\n    %(actor)s ने आपको %(project)s दल के सदस्य के रूप में जोड़ा है.\n  "
+        "\n    %(actor)s ने आपको ‘%(project)s’ दल के सदस्य के रूप में जोड़ा है.\n  "
       ],
       "See all crew members": [null, "दल के सभी सदस्यों को देखें"],
-      "\n    %(actor)s has invited you to join %(project)s as a crew member.\n  ": [
+      "\n    %(actor)s has invited you to join ‘%(project)s’ as a crew member.\n  ": [
         null,
-        "\n    %(actor)s ने आपको दल के सदस्य के रूप में %(project)s में शामिल होने के लिए आमंत्रित किया है.\n  "
+        "\n    %(actor)s ने आपको दल के सदस्य के रूप में ‘%(project)s’ में शामिल होने के लिए आमंत्रित किया है.\n  "
       ],
       "Accept or decline invite": [
         null,
         "आमंत्रण को स्वीकार करें या अस्वीकारें"
       ],
-      "\n    %(actor)s has removed you as a crew member from %(project)s.\n  ": [
+      "\n    %(actor)s has removed you as a crew member from ‘%(project)s’.\n  ": [
         null,
-        "\n    %(actor)s ने आपको %(project)s के दल के सदस्य से हटा दिया है.\n  "
+        "\n    %(actor)s ने आपको ‘%(project)s’ के दल के सदस्य से हटा दिया है.\n  "
       ],
       "Talkfunnel hosts proposal submissions and reviews for events.": [
         null,
@@ -1638,9 +1638,9 @@
       "Comment": [null, "कमेंट"],
       "No comment available": [null, "कोई कमेंट मौजूद नहीं है"],
       "Review comments": [null, "कमेंट की समीक्षा करें"],
-      "This comment has been reported as spam.": [
+      "This comment has been reported as spam": [
         null,
-        "यह कमेंट पैम के तौर पर रिपोर्ट की गई है."
+        "यह कमेंट पैम के तौर पर रिपोर्ट की गई है"
       ],
       "Setup events": [null, "ईवेंट सेटअप करें"],
       "Back to setup events": [null, "ईवेंट सेटअप पर वापस जाएं"],
@@ -2047,7 +2047,7 @@
       "Cannot reset password": [null, "पासवर्ड रीसेट नहीं किया जा सकता"],
       "Your account does not have an email address. However, it is linked to {service} with the ID {username}. You can use that to login.": [
         null,
-        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ {service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
+        ""
       ],
       "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance.": [
         null,

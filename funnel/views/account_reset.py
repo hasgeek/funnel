@@ -77,9 +77,9 @@ def reset():
                     title=_("Cannot reset password"),
                     message=Markup(
                         _(
-                            "Your account does not have an email address. However,"
-                            " it is linked to {service} with the ID"
-                            " {username}. You can use that to login."
+                            "Your account does not have an email address. However, it"
+                            " is linked to {service} with the ID {username}. You can"
+                            " use that to login."
                         ).format(
                             service=login_registry[extid.service].title,
                             username=extid.username or extid.userid,
