@@ -1502,6 +1502,19 @@
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Participants": [null, "प्रतिभागी"],
+      "This is a featured submission": [null, ""],
+      "Up next": [null, ""],
+      "No video": [null, ""],
+      "Add video": [null, ""],
+      "Session video": [null, ""],
+      "Proposal video": [null, ""],
+      "Submitted %(date)s ": [null, ""],
+      "Submitted by %(speaker)s on %(date)s": [null, ""],
+      "This is a proposal requesting for someone to speak on this topic.\n                  If you’d like to speak, leave a comment.": [
+        null,
+        ""
+      ],
+      "This proposal has been added to the schedule": [null, ""],
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
@@ -2649,7 +2662,6 @@
         null,
         "आपका प्रस्ताव जमा किया जा चुका है"
       ],
-      "Submit a proposal": [null, "एक प्रस्ताव जमा करें"],
       "Edit proposal": [null, "प्रस्ताव को संपादित करें"],
       "Delete your proposal ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,
