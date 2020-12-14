@@ -46,16 +46,14 @@
       <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-title" aria-label="{% trans %}Edit proposal{% endtrans %}" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false) }}</a>{% endif %}</h1>
       <p class="zero-bottom-margin">
         {%- if proposal.speaker %}
-          {% trans speaker=proposal.speaker.pickername %}Submitted by {{ speaker }}{% endtrans%}
-          {%- if proposal.speaker != proposal.user %}
-            {% trans user=proposal.user.pickername %}via {{ proposal_user }}{% endtrans %}
+          {%- if proposal.speaker == proposal.user %}
+          {% trans speaker=proposal.speaker.pickername, date=proposal.datetime|date %}Submitted by {{ speaker }} on {{ date }}{% endtrans %}
+          {%- else %}
+          {% trans speaker=proposal.speaker.pickername, user=proposal.user.pickername, date=proposal.datetime|date %}Submitted by {{ speaker }} via {{ user }} on {{ date }}{% endtrans %}
           {%- endif %}
-        {%- else %}
-          {% trans user=proposal.user.pickername %}Submitted by {{ user }}{% endtrans %}
-          ({% trans %}proposing{% endtrans %})
         {%- endif %}
-        {% trans date=proposal.datetime|date %}on {{ date }}{% endtrans %}
         {%- if not proposal.speaker -%}
+          {% trans user=proposal.user.pickername, date=proposal.datetime|date %}Submitted by {{ user }} (proposing) on {{ date }}{% endtrans %}
           <p>
             <em>{% trans %}This is a proposal requesting for someone to speak on this topic.
             If you’d like to speak, leave a comment.{% endtrans %}</em>

@@ -785,7 +785,7 @@
         "आपने लॉग इन के अनुरोध को ख़ारिज कर दिया"
       ],
       "Unrecognized algorithm ‘{value}’": [null, "अज्ञात ऍल्गोरिथम ‘{value}’"],
-      "Submitted": [null, "जमा कर दिया गया"],
+      "Submitted": [null, "जमा कर दिया गए"],
       "Screened": [null, "समीक्षा समाप्त"],
       "Hidden": [null, "गुप्त"],
       "Spam": [null, "स्पैम"],
@@ -1357,7 +1357,7 @@
         null,
         "रजिस्ट्रेशन शुरू करने के लिए समय-सूची जोड़ें"
       ],
-      "Submit a session proposal": [null, "किसी सेशन के लिए प्रस्ताव भेजें"],
+      "Submit a session proposal": [null, "सेशन के लिए प्रस्ताव भेजें"],
       "Proposal submissions close at %(date)s": [
         null,
         "प्रस्ताव जमा करने की सुविधा %(date)s को बंद हो जाएगी"
@@ -1550,14 +1550,21 @@
         "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
       ],
       "Edit proposal": [null, "प्रस्ताव को संपादित करें"],
-      "Submitted by %(speaker)s": [null, "%(speaker)s के द्वारा"],
-      "via %(proposal_user)s": [null, "%(proposal_user)s की तरफ से"],
-      "Submitted by %(user)s": [null, "%(user)s के द्वारा"],
-      "proposing": [null, "प्रस्ताव पेश कर रहें हैं"],
-      "on %(date)s": [null, "%(date)s को"],
+      "Submitted by %(speaker)s on %(date)s": [
+        null,
+        "%(speaker)s के द्वारा %(date)s पर"
+      ],
+      "Submitted by %(speaker)s via %(user)s on %(date)s": [
+        null,
+        "%(speaker)s के द्वारा %(user)s की तरफ से %(date)s पर"
+      ],
+      "Submitted by %(user)s (proposing) on %(date)s": [
+        null,
+        "%(user)s (प्रस्ताव का विचार रखने वाले) के द्वारा %(date)s पर"
+      ],
       "This is a proposal requesting for someone to speak on this topic.\n            If you’d like to speak, leave a comment.": [
         null,
-        "यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें"
+        "यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें."
       ],
       "Your proposal doesn't have a preview video!": [
         null,
@@ -1571,10 +1578,10 @@
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
-      "This section is empty.": [null, "ये अनुभाग खाली है"],
+      "This section is empty.": [null, "ये अनुभाग खाली है."],
       "Modify proposal guidelines and timing": [
         null,
-        "प्रस्ताव की दिशा-निर्देश और समय-सूची को बदलें"
+        "प्रस्ताव से जुडे दिशा-निर्देश और समय-सूची को बदलें"
       ],
       "All proposals": [null, "सभी प्रस्ताव"],
       "proposals": [null, "प्रस्ताव"],
@@ -2047,7 +2054,7 @@
       "Cannot reset password": [null, "पासवर्ड रीसेट नहीं किया जा सकता"],
       "Your account does not have an email address. However, it is linked to {service} with the ID {username}. You can use that to login.": [
         null,
-        ""
+        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ {service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
       ],
       "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance.": [
         null,
