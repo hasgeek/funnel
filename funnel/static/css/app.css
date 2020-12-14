@@ -3998,15 +3998,22 @@ a.loginbutton.hidden,
   padding-left: 10px;
   padding-right: 10px;
   padding-top: 10px;
-  border: 2px dashed rgba(132, 146, 166, 0.3);
   border-radius: 2px;
   min-height: 220px;
+  background: #f1f1f1;
+  position: relative;
 }
-.details__box__video--novideo .details__box__video__banner {
-  background-color: #dda32a;
-  padding: 10px;
-  opacity: 0.8;
-  white-space: pre-wrap;
+.details__box__video--novideo .details__box__video__icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.details__box__video--novideo .details__box__video__add-btn {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 3;
 }
 
 .details__box__control {
@@ -4350,7 +4357,7 @@ a.loginbutton.hidden,
   position: absolute;
   top: 50%;
   left: 50%;
-  color: #ffffff;
+  color: #f06a5e;
   transform: translate(-50%, -50%);
 }
 .video .video__thumnail--novideo {

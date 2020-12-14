@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-14 10:34+0530\n"
+"POT-Creation-Date: 2020-12-14 15:05+0530\n"
 "PO-Revision-Date: 2020-11-23 16:31+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -76,7 +76,7 @@ msgid "Email address"
 msgstr "ईमेल पता"
 
 #: funnel/forms/account.py:119 funnel/forms/account.py:141
-#: funnel/forms/account.py:153 funnel/forms/login.py:33
+#: funnel/forms/account.py:153 funnel/forms/login.py:37
 msgid "Password"
 msgstr "पासवर्ड"
 
@@ -86,7 +86,7 @@ msgid "Confirm password"
 msgstr "पासवर्ड की पुष्टि करें"
 
 #: funnel/forms/account.py:147 funnel/forms/account.py:265
-#: funnel/forms/login.py:51
+#: funnel/forms/login.py:79
 msgid "Incorrect password"
 msgstr "गलत पासवर्ड"
 
@@ -528,15 +528,28 @@ msgstr ""
 msgid "Option"
 msgstr "विकल्प"
 
-#: funnel/forms/login.py:41
-msgid "User does not exist"
-msgstr "यूजर मौजूद नहीं है"
+#: funnel/forms/login.py:31
+msgid "An email address or username is required"
+msgstr ""
 
-#: funnel/forms/login.py:79
+#: funnel/forms/login.py:39
+msgid "Password is required"
+msgstr ""
+
+#: funnel/forms/login.py:41
+#, python-format
+msgid "Password must be under %(max)s characters"
+msgstr ""
+
+#: funnel/forms/login.py:50
+msgid "This user could not be identified"
+msgstr ""
+
+#: funnel/forms/login.py:107
 msgid "Session id"
 msgstr "सेशन आईडी"
 
-#: funnel/forms/login.py:86
+#: funnel/forms/login.py:114
 msgid "That does not appear to be a valid login session"
 msgstr "यह कोई वैध लॉग इन सेशन नहीं लग रहा"
 
@@ -1829,7 +1842,7 @@ msgstr "इस प्रस्ताव को मूल्यांकन क�
 #: funnel/models/proposal.py:472 funnel/templates/auth_client.html.jinja2:16
 #: funnel/templates/auth_client.html.jinja2:145
 #: funnel/templates/delete.html.jinja2:11
-#: funnel/templates/js/comments.js.jinja2:90
+#: funnel/templates/js/comments.js.jinja2:89
 #: funnel/templates/labels.html.jinja2:43
 #: funnel/templates/organization_teams.html.jinja2:36
 #: funnel/templates/proposal_admin_panel.html.jinja2:13
@@ -2024,7 +2037,7 @@ msgstr "इस डिवाइस से"
 
 #: funnel/templates/account.html.jinja2:66
 #: funnel/templates/auth_client.html.jinja2:144
-#: funnel/templates/js/comments.js.jinja2:89
+#: funnel/templates/js/comments.js.jinja2:88
 #: funnel/templates/labels.html.jinja2:39
 #: funnel/templates/organization_teams.html.jinja2:35
 #: funnel/templates/project_admin.html.jinja2:25
@@ -2703,7 +2716,7 @@ msgstr ""
 msgid "Linkedin"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:82
+#: funnel/templates/js/comments.js.jinja2:81
 #: funnel/templates/macros.html.jinja2:79
 #: funnel/templates/macros.html.jinja2:82
 msgid "Share"
@@ -2837,19 +2850,19 @@ msgstr "नौकरियां"
 #: funnel/templates/macros.html.jinja2:262
 #: funnel/templates/project_comments.html.jinja2:4
 #: funnel/templates/project_comments.html.jinja2:20
-#: funnel/templates/proposal.html.jinja2:170 funnel/views/search.py:270
+#: funnel/templates/proposal.html.jinja2:172 funnel/views/search.py:270
 #: funnel/views/siteadmin.py:241
 msgid "Comments"
 msgstr "कमेंट"
 
 #: funnel/templates/macros.html.jinja2:264
 #: funnel/templates/macros.html.jinja2:642
+#: funnel/templates/project.html.jinja2:204
 #: funnel/templates/proposals.html.jinja2:4
 #: funnel/templates/proposals.html.jinja2:17
 #: funnel/templates/user_profile_proposals.html.jinja2:10
-#: funnel/views/search.py:211
-msgid "Proposals"
-msgstr "प्रस्ताव"
+msgid "Submissions"
+msgstr ""
 
 #: funnel/templates/macros.html.jinja2:265
 #: funnel/templates/macros.html.jinja2:392
@@ -3067,7 +3080,7 @@ msgstr "इस प्रस्ताव के साथ एक प्रीव�
 msgid "This proposal has slides"
 msgstr "इस प्रस्ताव में स्लाइड मौजूद है"
 
-#: funnel/templates/macros.html.jinja2:735
+#: funnel/templates/macros.html.jinja2:741
 msgid "(No sessions have been submitted)"
 msgstr "(सेशन की कोई जानकारी नहीं दी गई है)"
 
@@ -3269,10 +3282,6 @@ msgstr ""
 msgid "View Schedule"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:204
-msgid "Submissions"
-msgstr ""
-
 #: funnel/templates/project.html.jinja2:221
 msgid "Related jobs"
 msgstr ""
@@ -3351,49 +3360,43 @@ msgid "This is a featured proposal"
 msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:56
-#: funnel/templates/proposal.html.jinja2:178
+#: funnel/templates/proposal.html.jinja2:180
 msgid "Up next"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:83
-msgid "Your proposal doesn't have a preview video!"
+#: funnel/templates/proposal.html.jinja2:85
+msgid "This submission doesn't have a preview video"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:84
+#: funnel/templates/proposal.html.jinja2:87
 msgid "Add preview video link"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:96
+#: funnel/templates/proposal.html.jinja2:99
 msgid "Session video"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:106
+#: funnel/templates/proposal.html.jinja2:109
 msgid "Proposal video"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:128
+#: funnel/templates/proposal.html.jinja2:131
 #, python-format
 msgid "Submitted %(date)s "
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:143
+#: funnel/templates/proposal.html.jinja2:146
 #, python-format
 msgid "Submitted by %(speaker)s proposing on %(date)s "
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:145
+#: funnel/templates/proposal.html.jinja2:148
 msgid ""
 "This is a proposal requesting for someone to speak on this topic.\n"
 "                  If you’d like to speak, leave a comment."
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:153
-#: funnel/templates/settings.html.jinja2:33
-#, python-format
-msgid "Status: %(status)s"
-msgstr "स्थिति: %(status)s"
-
-#: funnel/templates/proposal.html.jinja2:158
+#: funnel/templates/proposal.html.jinja2:160
 msgid "This proposal has been added to the schedule"
 msgstr ""
 
@@ -3418,20 +3421,8 @@ msgid "Modify proposal guidelines and timing"
 msgstr "प्रस्ताव की दिशा-निर्देश और समय-सूची को बदलें"
 
 #: funnel/templates/proposals.html.jinja2:58
-msgid "All proposals"
-msgstr "सभी प्रस्ताव"
-
-#: funnel/templates/proposals.html.jinja2:67
-msgid "proposals"
-msgstr "प्रस्ताव"
-
-#: funnel/templates/proposals.html.jinja2:71
-msgid "Confirmed sessions"
-msgstr "निर्धारित सेशन"
-
-#: funnel/templates/proposals.html.jinja2:72
-msgid "Unconfirmed proposals"
-msgstr "अनिर्धारित प्रस्ताव"
+msgid "All submissions"
+msgstr ""
 
 #: funnel/templates/schedule.html.jinja2:9
 #, python-format
@@ -3452,7 +3443,7 @@ msgid "Select a date to add sessions"
 msgstr ""
 
 #: funnel/templates/schedule_edit.html.jinja2:49
-msgid "Unscheduled proposals"
+msgid "Unscheduled submissions"
 msgstr ""
 
 #: funnel/templates/schedule_edit.html.jinja2:87
@@ -3495,6 +3486,11 @@ msgstr "इस सेशन के लिए प्रस्ताव प्र�
 #: funnel/templates/session_view_popup.html.jinja2:64
 msgid "Speaker Bio"
 msgstr "स्पीकर की जानकारी"
+
+#: funnel/templates/settings.html.jinja2:33
+#, python-format
+msgid "Status: %(status)s"
+msgstr "स्थिति: %(status)s"
 
 #: funnel/templates/settings.html.jinja2:44
 #, python-format
@@ -3640,8 +3636,8 @@ msgid "No participation yet."
 msgstr "अब तक कहीं हिस्सा नहीं लिया गया है."
 
 #: funnel/templates/user_profile_proposals.html.jinja2:22
-msgid "No proposals submitted."
-msgstr "कोई प्रस्ताव जमा नहीं है।"
+msgid "No submissions."
+msgstr ""
 
 #: funnel/templates/venues.html.jinja2:4
 msgid "Venues"
@@ -3698,32 +3694,28 @@ msgstr "प्रतिभागी की जानकारी नहीं �
 msgid "Login to leave a comment"
 msgstr "कमेंट करने के लिए लॉगिन करें"
 
-#: funnel/templates/js/comments.js.jinja2:5
-msgid "You need to be a participant to comment."
-msgstr "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है।"
-
-#: funnel/templates/js/comments.js.jinja2:12
+#: funnel/templates/js/comments.js.jinja2:6
 msgid "Post a comment..."
 msgstr "एक कमेंट पोस्ट करें..."
 
-#: funnel/templates/js/comments.js.jinja2:18
+#: funnel/templates/js/comments.js.jinja2:12
 msgid "New comment"
 msgstr "नया कमेंट"
 
-#: funnel/templates/js/comments.js.jinja2:77
+#: funnel/templates/js/comments.js.jinja2:76
 #, python-format
 msgid "edited %s"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:79
+#: funnel/templates/js/comments.js.jinja2:78
 msgid "Reply"
 msgstr "जवाब दें"
 
-#: funnel/templates/js/comments.js.jinja2:80
+#: funnel/templates/js/comments.js.jinja2:79
 msgid "Report"
 msgstr "रिपोर्ट करें"
 
-#: funnel/templates/js/comments.js.jinja2:87
+#: funnel/templates/js/comments.js.jinja2:86
 msgid "More"
 msgstr "अधिक"
 
@@ -3941,11 +3933,8 @@ msgstr "प्रस्ताव का पेज"
 msgid ""
 "\n"
 "        Your project <a href=\"%(project_url)s\">%(project)s</a> has "
-"received %(count)s new proposals:"
+"received %(count)s new submissions:"
 msgstr ""
-"\n"
-"आपके <a href=\\%(project_url)s\\>%(project)s</a> प्रोजेक्ट में %(count)s "
-"नए प्रस्ताव आए हैं:"
 
 #: funnel/templates/notifications/proposal_received_web.html.jinja2:8
 #, python-format
@@ -5538,6 +5527,10 @@ msgstr "5 मिनट में {session}"
 msgid "Profiles"
 msgstr "प्रोफाइल"
 
+#: funnel/views/search.py:211
+msgid "Proposals"
+msgstr "प्रस्ताव"
+
 #: funnel/views/session.py:38
 msgid "Select Room"
 msgstr "रूम का चयन करें"
@@ -6201,3 +6194,41 @@ msgstr "{project} में अपडेट करें: {update} {url}"
 
 #~ msgid "Update proposal"
 #~ msgstr "प्रस्ताव अपडेट करें"
+
+#~ msgid "User does not exist"
+#~ msgstr "यूजर मौजूद नहीं है"
+
+#~ msgid "Your proposal doesn't have a preview video!"
+#~ msgstr ""
+
+#~ msgid "All proposals"
+#~ msgstr "सभी प्रस्ताव"
+
+#~ msgid "proposals"
+#~ msgstr "प्रस्ताव"
+
+#~ msgid "Confirmed sessions"
+#~ msgstr "निर्धारित सेशन"
+
+#~ msgid "Unconfirmed proposals"
+#~ msgstr "अनिर्धारित प्रस्ताव"
+
+#~ msgid "Unscheduled proposals"
+#~ msgstr ""
+
+#~ msgid "No proposals submitted."
+#~ msgstr "कोई प्रस्ताव जमा नहीं है।"
+
+#~ msgid "You need to be a participant to comment."
+#~ msgstr "आपको कमेंट करने के लिए हिस्सा लेने की ज़रूरत है।"
+
+#~ msgid ""
+#~ "\n"
+#~ "        Your project <a "
+#~ "href=\"%(project_url)s\">%(project)s</a> has received "
+#~ "%(count)s new proposals:"
+#~ msgstr ""
+#~ "\n"
+#~ "आपके <a href=\\%(project_url)s\\>%(project)s</a> "
+#~ "प्रोजेक्ट में %(count)s नए प्रस्ताव आए"
+#~ " हैं:"

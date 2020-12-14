@@ -6,7 +6,7 @@
   {%- if view.is_rollup %}
     <p>
       {%- trans project=project_title(project), project_url=project.url_for(), count=view.fragments|length %}
-        Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new proposals:
+        Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new submissions:
       {%- endtrans %}
     </p>
     <ol class="mui-list--aligned">

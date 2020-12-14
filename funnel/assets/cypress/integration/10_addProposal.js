@@ -16,7 +16,7 @@ describe('Add a new proposal', function () {
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="proposals"]').click();
+    cy.get('a[data-cy-navbar="submissions"]').click();
     cy.location('pathname').should('contain', 'proposals');
     cy.get('a[data-cy="propose-a-session"]').click();
     cy.location('pathname').should('contain', 'new');

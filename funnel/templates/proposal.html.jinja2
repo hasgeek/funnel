@@ -92,8 +92,11 @@
                     {%- elif 'edit_proposal' in proposal.permissions(current_auth.user) %}
                       <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
                         <div class="details__box__video details__box__video--novideo embed-video-wrapper">
-                          <p class="details__box__video__banner mui--bg-warning mui--text-body2">{% trans %}Your proposal doesn't have a preview video!{% endtrans %}</p>
-                          <p class="video_txt"><a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised">{% trans %}Add preview video link{% endtrans %}</a></p>
+                          <div class="details__box__video__icon mui--text-center">
+                            {{ faicon(icon='video-slash', icon_size='headline', baseline=false, css_class='mui-text-light') }}
+                            <p class="mui-text-light mui--text-body2">{% trans %}This submission doesn't have a preview video{% endtrans %}</p>
+                          </div>
+                          <a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--raised icon-btn details__box__video__add-btn" aria-label="{% trans %}Add preview video link{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a></p>
                         </div>
                       </div>
                     {% endif %}
@@ -225,8 +228,6 @@
       divElem: "#comments-wrapper",
       commentTemplate: '#comment-template',
       isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-      isuserparticipant: {% if current_auth.user and proposal.features.comment_new() -%}true{% else %}false{% endif %},
-      iscommentmoderator: {% if current_auth.user and current_auth.user.is_comment_moderator -%}true{% else %}false{% endif %},
       user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
       loginUrl: "{{ url_for('login') }}",
     };

@@ -49,15 +49,22 @@
   padding-left: 10px;
   padding-right: 10px;
   padding-top: 10px;
-  border: 2px dashed rgba(132, 146, 166, 0.3);
   border-radius: 2px;
   min-height: 220px;
+  background: $mui-bg-color-primary-dark;
+  position: relative;
 
-  .details__box__video__banner {
-    background-color: #dda32a;
-    padding: 10px;
-    opacity: 0.8;
-    white-space: pre-wrap;
+  .details__box__video__icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .details__box__video__add-btn {
+    position: absolute;
+    bottom: $mui-grid-padding;
+    right: $mui-grid-padding;
+    z-index: 3;
   }
 }
 

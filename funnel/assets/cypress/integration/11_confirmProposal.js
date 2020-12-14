@@ -16,7 +16,7 @@ describe('Confirm proposal', function () {
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="proposals"]').click();
+    cy.get('a[data-cy-navbar="submissions"]').click();
     cy.location('pathname').should('contain', 'proposals');
     cy.get('#search').type(proposal.title);
     cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
@@ -57,7 +57,6 @@ describe('Confirm proposal', function () {
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="confirm"]')
       .click();
-    cy.get('[data-cy-proposal-status="Confirmed"]').should('exist');
 
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
