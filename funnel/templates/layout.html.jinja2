@@ -91,7 +91,7 @@
       </a>
       <a href="/hasgeek/10" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}10 Years!{% endtrans %}</a>
       <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-action="Home">
-        {% if  current_view.current_section == 'home' %}<img src="/static/img/anniversary-hg-logo.jpg" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/anniversary-hg-logo.jpg" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
+        {% if  current_view.current_section == 'home' %}<img src="/static/img/anniversary-hg-logo.png" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/anniversary-hg-logo-inactive.png" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
       </a>
       <form action="/search" class="search-form js-search-form">
         <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">

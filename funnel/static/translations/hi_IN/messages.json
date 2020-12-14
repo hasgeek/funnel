@@ -1245,7 +1245,7 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "What’s this about?": [null, ""],
+      "10 Years!": [null, ""],
       "Search the site": [null, ""],
       "Search…": [null, ""],
       "Search": [null, "खोजें"],
@@ -1502,8 +1502,8 @@
       "Participants": [null, "प्रतिभागी"],
       "This is a featured submission": [null, ""],
       "Up next": [null, ""],
-      "Add a video": [null, ""],
-      "Add preview video link": [null, ""],
+      "No video": [null, ""],
+      "Add video": [null, ""],
       "Session video": [null, ""],
       "Proposal video": [null, ""],
       "Submitted %(date)s ": [null, ""],
@@ -2636,7 +2636,6 @@
       ],
       "This project is not accepting submissions": [null, ""],
       "Your proposal has been submitted": [null, ""],
-      "Submit a proposal": [null, ""],
       "Edit proposal": [null, ""],
       "Delete your proposal ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,
