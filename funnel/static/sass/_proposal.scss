@@ -23,9 +23,6 @@
 .proposal__section {
   padding: $mui-grid-padding;
   overflow-wrap: break-word;
-  .proposal__section__labels {
-    margin-top: $mui-grid-padding;
-  }
 }
 
 .proposal__section--border {
@@ -236,7 +233,6 @@
 }
 
 .proposal-content {
-  margin: 8px 0;
   min-height: 100px;
 }
 
