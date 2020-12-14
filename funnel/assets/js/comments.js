@@ -5,11 +5,10 @@ import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
 const Comments = {
   init({
     newCommentUrl,
+    commentsUrl,
     divElem,
     commentTemplate,
     isuserloggedin,
-    isuserparticipant,
-    iscommentmoderator,
     user,
     loginUrl,
   }) {
@@ -29,7 +28,7 @@ const Comments = {
 
     const commentUI = Vue.component('comment', {
       template: commentTemplate,
-      props: ['comment', 'user', 'isuserparticipant', 'iscommentmoderator'],
+      props: ['comment', 'user', 'isuserloggedin'],
       data() {
         return {
           errorMsg: '',
@@ -151,8 +150,6 @@ const Comments = {
           newCommentUrl,
           comments: [],
           isuserloggedin,
-          isuserparticipant,
-          iscommentmoderator,
           user,
           commentForm: false,
           textarea: '',
@@ -250,6 +247,7 @@ const Comments = {
         },
         fetchCommentsList() {
           $.ajax({
+            url: commentsUrl,
             type: 'GET',
             timeout: window.Hasgeek.config.ajaxTimeout,
             dataType: 'json',

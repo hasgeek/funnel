@@ -138,7 +138,6 @@ class CommentsetView(UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
-    @requires_roles({'parent_participant'})
     def new_comment(self):
         if self.obj.parent is None:
             return redirect('/')

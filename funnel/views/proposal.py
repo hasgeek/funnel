@@ -1,9 +1,9 @@
-from flask import Markup, abort, escape, flash, jsonify, redirect, request
+from flask import Markup, abort, escape, flash, jsonify, redirect
 
 from bleach import linkify
 
-from baseframe import _, request_is_xhr
-from baseframe.forms import Form, render_delete_sqla, render_form
+from baseframe import _, __, forms, request_is_xhr
+from baseframe.forms import render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import (
@@ -19,7 +19,6 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import (
-    CommentForm,
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMoveForm,
@@ -27,7 +26,6 @@ from ..forms import (
     ProposalTransitionForm,
 )
 from ..models import (
-    Comment,
     Project,
     Proposal,
     ProposalReceivedNotification,
@@ -59,6 +57,12 @@ proposal_headers = [
 ]
 
 
+markdown_message = __(
+    'This form uses <a target="_blank" rel="noopener noreferrer"'
+    ' href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
+)
+
+
 def proposal_data(proposal):
     """
     Return proposal data suitable for a JSON dump.
@@ -77,28 +81,9 @@ def proposal_data(proposal):
             ('fullname', proposal.owner.fullname),
             ('proposer', proposal.user.pickername),
             ('speaker', proposal.speaker.pickername if proposal.speaker else None),
-            (
-                'objective',
-                proposal.abstract.html,
-            ),  # TODO: Remove this, name has changed
-            (
-                'description',
-                proposal.outline.html,
-            ),  # TODO: Remove this, name has changed
-            (
-                'requirements',
-                proposal.requirements.html,
-            ),  # TODO: Remove this, name has changed
-            ('abstract_text', proposal.abstract.text),
-            ('abstract_html', proposal.abstract.html),
-            ('outline_text', proposal.outline.text),
-            ('outline_html', proposal.outline.html),
-            ('requirements_text', proposal.requirements.text),
-            ('requirements_html', proposal.requirements.html),
-            ('slides', proposal.slides.url if proposal.slides else ''),
-            ('links', proposal.links),
+            ('description', proposal.description),
+            ('body', proposal.body.html),
             ('video', proposal.video),
-            ('bio', proposal.bio.html),
             ('votes', proposal.voteset.count),
             ('comments', proposal.commentset.count),
             ('submitted', proposal.created_at.isoformat()),
@@ -141,26 +126,25 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
         # This along with the `reader` role makes it possible for
         # anyone to submit a proposal if the CFP is open.
         if not self.obj.cfp_state.OPEN:
-            flash(_("CFP for this project is not open"), 'error')
+            flash(_("This project is not accepting submissions"), 'error')
             return redirect(self.obj.url_for(), code=303)
 
         form = ProposalForm(model=Proposal, parent=self.obj)
 
-        if request.method == 'GET':
-            form.email.data = str(current_auth.user.email)
-            form.phone.data = str(current_auth.user.phone)
-
         if form.validate_on_submit():
-            proposal = Proposal(user=current_auth.user, project=self.obj)
+            proposal = Proposal(
+                user=current_auth.user, speaker=current_auth.user, project=self.obj
+            )
             db.session.add(proposal)
             with db.session.no_autoflush:
                 form.populate_obj(proposal)
             proposal.name = make_name(proposal.title)
+            proposal.update_description()
             proposal.voteset.vote(
                 current_auth.user
             )  # Vote up your own proposal by default
             db.session.commit()
-            flash(_("Your new session proposal has been submitted"), 'info')
+            flash(_("Your proposal has been submitted"), 'info')
             dispatch_notification(
                 ProposalSubmittedNotification(document=proposal),
                 ProposalReceivedNotification(
@@ -171,13 +155,9 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
 
         return render_form(
             form=form,
-            title=_("Submit a session proposal"),
-            submit=_("Submit proposal"),
-            message=Markup(
-                _(
-                    'This form uses <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
-                )
-            ),
+            title=_("Submit a proposal"),
+            submit=_("Submit"),
+            message=markdown_message,
         )
 
 
@@ -211,10 +191,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('proposal.html.jinja2')
     @requires_permission('view')
     def view(self):
+        # FIXME: Use a separate endpoint for comments as this is messing with browser
+        # cache. View Source on proposal pages shows comments tree instead of source
         if request_is_xhr():
             return jsonify({'comments': self.obj.commentset.views.json_comments()})
-
-        commentform = CommentForm(model=Comment)
 
         links = [
             Markup(linkify(str(escape(link))))
@@ -222,6 +202,16 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             if link
         ]
 
+        return {
+            'project': self.obj.project,
+            'proposal': self.obj,
+            'links': links,
+        }
+
+    @route('admin')
+    @render_with('proposal_admin_panel.html.jinja2')
+    @requires_permission('view')
+    def admin(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
         proposal_transfer_form = ProposalTransferForm()
 
@@ -234,12 +224,8 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
         return {
-            'project': self.obj.project,
             'proposal': self.obj,
-            'comments': self.obj.commentset.views.json_comments(),
-            'commentform': commentform,
-            'delcommentform': Form(),
-            'links': links,
+            'project': self.obj.project,
             'transition_form': transition_form,
             'proposal_move_form': proposal_move_form,
             'proposal_transfer_form': proposal_transfer_form,
@@ -265,25 +251,20 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_permission('edit_proposal')
     def edit(self):
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
-        if self.obj.user != current_auth.user:
-            del form.speaking
         if form.validate_on_submit():
             with db.session.no_autoflush:
                 form.populate_obj(self.obj)
             self.obj.name = make_name(self.obj.title)
+            self.obj.update_description()
             self.obj.edited_at = db.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
         return render_form(
             form=form,
-            title=_("Edit session proposal"),
-            submit=_("Update proposal"),
-            message=Markup(
-                _(
-                    'This form uses <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
-                )
-            ),
+            title=_("Edit proposal"),
+            submit=_("Update"),
+            message=markdown_message,
         )
 
     @route('delete', methods=['GET', 'POST'])
@@ -386,6 +367,16 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("Please choose the user you want to transfer this proposal to."),
                 'error',
             )
+        return redirect(self.obj.url_for(), 303)
+
+    @route('toggle_featured', methods=['POST'])
+    @requires_login
+    @requires_permission('move-proposal')
+    def toggle_featured(self):
+        featured_form = forms.Form()
+        if featured_form.validate_on_submit():
+            self.obj.featured = not self.obj.featured
+            db.session.commit()
         return redirect(self.obj.url_for(), 303)
 
     @route('schedule', methods=['GET', 'POST'])
