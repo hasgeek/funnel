@@ -1796,9 +1796,9 @@
         null,
         "\nआपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में %(count)s नए प्रस्ताव आए हैं:"
       ],
-      "\n          <a href=\"%(url)s\">%(proposal)s</a> by %(actor)s": [
+      "\n        <a href=\"%(url)s\">%(proposal)s</a> by %(actor)s %(age)s\n          ": [
         null,
-        "\n         <a href=\"%(url)s\">%(proposal)s</a> %(actor)s के द्वारा"
+        "\n        <a href=\"%(url)s\">%(proposal)s</a> %(age)s %(actor)s के द्वारा\n          "
       ],
       "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new proposal: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s.": [
         null,

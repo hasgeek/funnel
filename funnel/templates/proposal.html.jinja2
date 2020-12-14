@@ -45,14 +45,11 @@
     <section class="proposal__section proposal__section--border grid__col--bleed-y">
       <h1 class="mui--text-headline proposal__section__headline"><strong>{{ proposal.title }}</strong>  {% if 'edit_proposal' in proposal.permissions(current_auth.user) %}<a href="{{ proposal.url_for('edit') }}#field-title" aria-label="{% trans %}Edit proposal{% endtrans %}" class="mui--text-subhead mui--align-middle"> {{ faicon(icon='edit', icon_size='subhead', baseline=false) }}</a>{% endif %}</h1>
       <p class="zero-bottom-margin">
-        {%- if proposal.speaker %}
-          {%- if proposal.speaker == proposal.user %}
+        {%- if proposal.speaker and proposal.speaker != proposal.user %}
           {% trans speaker=proposal.speaker.pickername, date=proposal.datetime|date %}Submitted by {{ speaker }} on {{ date }}{% endtrans %}
-          {%- else %}
+        {%- elif proposal.speaker %}
           {% trans speaker=proposal.speaker.pickername, user=proposal.user.pickername, date=proposal.datetime|date %}Submitted by {{ speaker }} via {{ user }} on {{ date }}{% endtrans %}
-          {%- endif %}
-        {%- endif %}
-        {%- if not proposal.speaker -%}
+        {% else %}
           {% trans user=proposal.user.pickername, date=proposal.datetime|date %}Submitted by {{ user }} (proposing) on {{ date }}{% endtrans %}
           <p>
             <em>{% trans %}This is a proposal requesting for someone to speak on this topic.
