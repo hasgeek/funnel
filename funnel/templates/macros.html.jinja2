@@ -721,8 +721,8 @@
 {% endmacro %}
 
 {% macro project_mini_header(project) %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}"><strong>{{ project.title }}</a></strong></h1>
-  <p class="mui--text-headline smaller-margin ">{{ project.tagline }}</p>
+  <h1 class="mui--text-headline mui--text-bold"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <p class="mui--text-subhead mui--text-light smaller-margin ">{{ project.tagline }}</p>
   <p>
   {% if project.features.tickets_or_rsvp() and project.features.rsvp_unregistered() %}
     <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets" data-action="Tickets(header-proposalpage)">

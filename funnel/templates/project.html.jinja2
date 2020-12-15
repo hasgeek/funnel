@@ -108,113 +108,114 @@
 {% endblock %}
 
 {% block basecontent %}
-  <div class="mui-container">
-  <div class="page-content">
-  <div class="about">
-    {% if not project.schedule_state.PAST and project.features.tickets() -%}
-      <div class="about__participate">
-        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
-          <div class="mobile-nav mui--z1">
-            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget" data-action="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
+  <div class="mui--bg-accent">
+    <div class="mui-container">
+      <div class="page-content">
+        <div class="about">
+          {% if not project.schedule_state.PAST and project.features.tickets() -%}
+            <div class="about__participate">
+              <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
+                <div class="mobile-nav mui--z1">
+                  <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget" data-action="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
+                </div>
+              </div>
+              <div id="tickets">
+                <div id="boxoffice-widget"><p class="mui--text-body2">Loading...</p></div>
+              </div>
+            </div>
+          {%- endif %}
+          <div class="about__details" id="about">
+            <div class="about__details__description">{{ project.description }}</div>
+            {% if project.view_for('edit').is_available() %}
+              <p><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.url_for('edit') }}" aria-label="{% trans %}Edit details{% endtrans %}">{{ faicon(icon='edit') }} {% trans %}Edit details{% endtrans %}</a></p>
+            {% endif %}
+            {%- if project.subprojects %}
+              <hr class="mui-divider">
+              <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Related events{% endtrans %}</h2>
+              <ul class="grid">
+                {% for subproject in project.subprojects %}
+                  <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
+                    <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" data-action="View {{ subproject.title }}">
+                      <div class="card__header">
+                        <div class="card__header__title">
+                          <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
+                          <h4 class="mui--text-subhead card__title__heading">{{ subproject.datelocation }}</h4>
+                        </div>
+                      </div>
+                      {% if subproject.tagline %}
+                        <div class="card__body">
+                          <p>{{ subproject.tagline }}</p>
+                        </div>
+                      {% endif %}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif %}
+
+            {% if project.featured_sessions  %}
+              <div id="talks" class="mui--clearfix">
+                <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Talks{% endtrans %}</h2>
+                <div class="grid-no-left-padding grid-no-right-padding">
+                  <ul class="about__details__featured mui--clearfix">
+                    {% for session in project.featured_sessions %}
+                      {% if session.scheduled %}
+                        <li class="about__details__featured__cards">
+                          <div class="card session-card">
+                            {% if session.banner_image_url.url %}
+                              {% if session.proposal %}
+                                <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %} data-action="View featured talk {{ session.title }}">
+                              {% else %}
+                                <div class="card__header session-card__header">
+                              {% endif %}
+                                <p class="session-card__header__img-wrapper">
+                                  <img class="session-card__header__img-wrapper__img js-lazyload-img" data-src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
+                                  <noscript>
+                                    <img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
+                                  </noscript>
+                                </p>
+                                <div class="card__title__heading session-card__header__title">
+                                  {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
+                                  <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
+                                </div>
+                              {% if session.proposal %}</a>{% else %}</div>{% endif %}
+                            {% else %}
+                              {% if session.proposal %}
+                                <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-action="View featured talk {{ session.title }}">
+                              {% else %}
+                                <div class="card__header">
+                              {% endif %}
+                                <div class="card__title__heading session-card__header__title">
+                                  {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
+                                  <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
+                                </div>
+                              {% if session.proposal %}</a>{% else %}</div>{% endif %}
+                            {% endif %}
+                            {% if session.description %}
+                              {% if session.proposal %}
+                                <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-action="View featured talk {{ session.title }}">
+                              {% else %}
+                                <div class="card__body">
+                              {% endif %}
+                                <div class="mui--text-body2 mui--text-light js-truncate" data-truncate-lines="2">{{ session.description|striptags }}</div>
+                              {% if session.proposal %}</a>{% else %}</div>{% endif %}
+                            {% endif %}
+                          </div>
+                        </li>
+                      {% endif %}
+                    {%- endfor -%}
+                  </ul>
+                </div>
+                {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(talks section)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
+              </div>
+            {%- endif %}
           </div>
-        </div>
-        <div id="tickets">
-          <div id="boxoffice-widget"><p class="mui--text-body2">Loading...</p></div>
         </div>
       </div>
-    {%- endif %}
-    <div class="about__details" id="about">
-      <div class="about__details__description">{{ project.description }}</div>
-      {% if project.view_for('edit').is_available() %}
-        <p><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.url_for('edit') }}" aria-label="{% trans %}Edit details{% endtrans %}">{{ faicon(icon='edit') }} {% trans %}Edit details{% endtrans %}</a></p>
-      {% endif %}
-      {%- if project.subprojects %}
-        <hr class="mui-divider">
-        <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Related events{% endtrans %}</h2>
-        <ul class="grid">
-          {% for subproject in project.subprojects %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
-              <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" data-action="View {{ subproject.title }}">
-                <div class="card__header">
-                  <div class="card__header__title">
-                    <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
-                    <h4 class="mui--text-subhead card__title__heading">{{ subproject.datelocation }}</h4>
-                  </div>
-                </div>
-                {% if subproject.tagline %}
-                  <div class="card__body">
-                    <p>{{ subproject.tagline }}</p>
-                  </div>
-                {% endif %}
-              </a>
-            </li>
-          {%- endfor -%}
-        </ul>
-      {%- endif %}
-
-      {% if project.featured_sessions  %}
-        <div id="talks" class="mui--clearfix">
-          <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Talks{% endtrans %}</h2>
-          <div class="grid-no-left-padding grid-no-right-padding">
-            <ul class="about__details__featured mui--clearfix">
-              {% for session in project.featured_sessions %}
-                {% if session.scheduled %}
-                  <li class="about__details__featured__cards">
-                    <div class="card session-card">
-                      {% if session.banner_image_url.url %}
-                        {% if session.proposal %}
-                          <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %} data-action="View featured talk {{ session.title }}">
-                        {% else %}
-                          <div class="card__header session-card__header">
-                        {% endif %}
-                          <p class="session-card__header__img-wrapper">
-                            <img class="session-card__header__img-wrapper__img js-lazyload-img" data-src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
-                            <noscript>
-                              <img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
-                            </noscript>
-                          </p>
-                          <div class="card__title__heading session-card__header__title">
-                            {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
-                            <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
-                          </div>
-                        {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                      {% else %}
-                        {% if session.proposal %}
-                          <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-action="View featured talk {{ session.title }}">
-                        {% else %}
-                          <div class="card__header">
-                        {% endif %}
-                          <div class="card__title__heading session-card__header__title">
-                            {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
-                            <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
-                          </div>
-                        {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                      {% endif %}
-                      {% if session.description %}
-                        {% if session.proposal %}
-                          <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-action="View featured talk {{ session.title }}">
-                        {% else %}
-                          <div class="card__body">
-                        {% endif %}
-                          <div class="mui--text-body2 mui--text-light js-truncate" data-truncate-lines="2">{{ session.description|striptags }}</div>
-                        {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                      {% endif %}
-                    </div>
-                  </li>
-                {% endif %}
-              {%- endfor -%}
-            </ul>
-          </div>
-          {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-action="View schedule(talks section)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
-        </div>
-      {%- endif %}
     </div>
-  </div>
-</div>
-</div>
 
   {% if featured_proposals.count() > 0 %}
-    <div class="project-section mui--bg-accent" id="submissions">
+    <div class="project-section" id="submissions">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-xs-12">
@@ -228,6 +229,7 @@
             </li>
           {%- endfor -%}
         </ul>
+        <p class="mui--text-center"><a href="{{ project.url_for('view_proposals') }}" class="mui--text-subhead">{% trans %}See all{% endtrans %}</p>
         </div>
       </div>
     </div>
@@ -275,6 +277,7 @@
       </div>
     {%- endif %}
   </div>
+</div>
 {% endblock %}
 
 {% block footerscripts %}

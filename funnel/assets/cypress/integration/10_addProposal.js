@@ -17,7 +17,6 @@ describe('Add a new proposal', function () {
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="submissions"]').click();
-    cy.location('pathname').should('contain', 'proposals');
     cy.get('a[data-cy="propose-a-session"]').click();
     cy.location('pathname').should('contain', 'new');
     cy.get('#title').type(proposal.title);
@@ -28,7 +27,6 @@ describe('Add a new proposal', function () {
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
     cy.get('button[data-cy="form-submit-btn"]').click();
-    cy.location('pathname').should('contain', 'proposals');
 
     cy.get('[data-cy="proposal-title"]')
       .should('exist')
