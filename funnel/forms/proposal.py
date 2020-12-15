@@ -103,7 +103,7 @@ def proposal_label_admin_form(project, proposal):
 class ProposalTransferForm(forms.Form):
     user = forms.UserSelectField(
         __("Transfer to"),
-        description=__("Transfer this proposal to another speaker"),
+        description=__("Transfer this submission to another presenter"),
         validators=[forms.validators.DataRequired()],
     )
 
