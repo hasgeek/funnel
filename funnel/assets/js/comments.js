@@ -295,6 +295,29 @@ const Comments = {
         $(window).resize(() => {
           this.headerHeight = Utils.getPageHeaderHeight();
         });
+
+        const commentSection = document.querySelector(divElem);
+        if (commentSection) {
+          const observer = new IntersectionObserver(
+            function (entries) {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  console.log('comments section scrolled into view');
+                  $.ajax({
+                    url: newCommentUrl,
+                    type: 'POST',
+                  });
+                  observer.unobserve(commentSection);
+                }
+              });
+            },
+            {
+              rootMargin: '0px',
+              threshold: 0,
+            }
+          );
+          observer.observe(commentSection);
+        }
       },
       updated() {
         if (this.initialLoad && window.location.hash) {
