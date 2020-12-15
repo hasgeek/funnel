@@ -563,23 +563,14 @@
         null,
         "इस URL में कुछ गैर-उपयोगी वर्ण मौजूद हैं. इसमें केवल लोअरकेस अक्षर, नंबर और हायफ़न ही रह सकते हैं."
       ],
-      "Proposal guidelines": [null, "प्रस्ताव के दिशा-निर्देश"],
-      "Set guidelines for the type of sessions(talks, workshops, other format) your project is accepting, your review process and any other info for participants": [
+      "Guidelines": [null, ""],
+      "Set guidelines for the type of submissions your project is accepting, your review process, and anything else relevant to the submission": [
         null,
-        "अपने प्रोजेक्ट के अनुसार सेशन के प्रकार(टॉक्स, वर्कशॉप, अन्य प्रकार) की स्वीकृति, आपकी समीक्षा प्रणाली और प्रतिभागियों से जुड़ी किसी अन्य जानकारी के लिए दिशा-निर्देश तैयार करें"
+        ""
       ],
-      "Proposal submissions open at": [
-        null,
-        "प्रस्ताव जमा करने का प्रारंभिक समय"
-      ],
-      "Proposal submissions close at": [
-        null,
-        "प्रस्ताव जमा करने की प्रक्रिया होने का समय"
-      ],
-      "This requires open time for submissions to be specified": [
-        null,
-        "प्रस्ताव जमा होने की प्रतिक्रिया पाने में समय लग सकता है"
-      ],
+      "Submissions open at": [null, ""],
+      "Submissions close at": [null, ""],
+      "This requires an opening time to be specified": [null, ""],
       "Submissions cannot close before they open": [
         null,
         "जमा करने के प्रक्रिया खुलने से पहले बंद नहीं की जा सकती"
@@ -591,10 +582,7 @@
       "Note to self": [null, "खुद याद रखने की बात"],
       "Please select one": [null, "कृपया, कोई एक चुनें"],
       "Transfer to": [null, "इसे भेजें"],
-      "Transfer this proposal to another speaker": [
-        null,
-        "इस प्रस्ताव को किसी दूसरे स्पीकर को भेजें"
-      ],
+      "Transfer this submission to another presenter": [null, ""],
       "Labels": [null, "लेबल"],
       "Content": [null, "विषय सूची"],
       "Video": [null, "वीडियो"],
@@ -1472,6 +1460,7 @@
       "Edit details": [null, ""],
       "Related events": [null, ""],
       "View Schedule": [null, ""],
+      "See all": [null, ""],
       "Related jobs": [null, ""],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
       "Setup events for check-in": [null, "चेक-इन के लिए ईवेंट सेटअप करें"],
@@ -1519,6 +1508,7 @@
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Add proposal video": [null, ""],
       "Add submission video": [null, ""],
+      "Proposal guidelines": [null, "प्रस्ताव के दिशा-निर्देश"],
       "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
       "Modify proposal guidelines and timing": [
         null,
@@ -1527,10 +1517,6 @@
       "Add proposal guidelines and timing": [
         null,
         "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
-      ],
-      "Proposal submissions close at %(date)s": [
-        null,
-        "प्रस्ताव जमा करने की सुविधा %(date)s को बंद हो जाएगी"
       ],
       "All submissions": [null, ""],
       "Loading...": [null, "लोड हो रहा है..."],
