@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-15 00:02+0530\n"
-"PO-Revision-Date: 2020-12-15 00:02+0530\n"
+"POT-Creation-Date: 2020-12-15 14:55+0530\n"
+"PO-Revision-Date: 2020-12-15 14:55+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -2027,6 +2027,7 @@ msgid "Go to profile"
 msgstr "प्रोफ़ाइल पर जाएँ"
 
 #: funnel/templates/account.html.jinja2:51
+#: funnel/templates/account_merge.html.jinja2:8
 #: funnel/templates/account_merge.html.jinja2:12
 msgid "(none)"
 msgstr "(कोई भी नहीं)"
@@ -2630,7 +2631,7 @@ msgid "Please review the indicated issues"
 msgstr "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
 
 #: funnel/templates/layout.html.jinja2:68
-msgid "10 Years!"
+msgid "10 years!"
 msgstr "10 साल!"
 
 #: funnel/templates/layout.html.jinja2:73
@@ -4203,11 +4204,11 @@ msgstr "ईमेल पता पहले से वेरिफाइड ह�
 
 #: funnel/views/account.py:418
 msgid ""
-"Hello {fullname}! Your email address <code>{email}</code> has already "
+"Hello, {fullname}! Your email address <code>{email}</code> has already "
 "been verified"
 msgstr ""
-"नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो "
-"चुका है"
+"नमस्ते, {fullname}! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो"
+" चुका है"
 
 #: funnel/views/account.py:439
 msgid "Email address verified"
@@ -4215,11 +4216,9 @@ msgstr "ईमेल पता वेरिफाई किया गया"
 
 #: funnel/views/account.py:441
 msgid ""
-"Hello {fullname}! Your email address <code>{email}</code> has now been "
+"Hello, {fullname}! Your email address <code>{email}</code> has now been "
 "verified"
-msgstr ""
-"नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका "
-"है"
+msgstr "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका"
 
 #: funnel/views/account.py:451
 msgid "This was not for you"
@@ -6347,3 +6346,22 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "Add proposal guidelines"
 #~ msgstr "प्रस्ताव के लिए दिशा-निर्देश जोड़ें"
+
+#~ msgid "10 Years!"
+#~ msgstr "10 साल!"
+
+#~ msgid ""
+#~ "Hello {fullname}! Your email address "
+#~ "<code>{email}</code> has already been verified"
+#~ msgstr ""
+#~ "नमस्ते {fullname}! आपका ईमेल पता "
+#~ "<code>{email}</code> पहले ही वेरिफाई हो "
+#~ "चुका है"
+
+#~ msgid ""
+#~ "Hello {fullname}! Your email address "
+#~ "<code>{email}</code> has now been verified"
+#~ msgstr ""
+#~ "नमस्ते {fullname}! आपका ईमेल पता "
+#~ "<code>{email}</code> अब वेरिफाई हो चुका "
+#~ "है"

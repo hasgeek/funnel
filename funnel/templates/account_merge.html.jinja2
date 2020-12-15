@@ -5,7 +5,7 @@
 {% macro accountinfo(user) %}
   <ul class="mui-list--aligned mui--text-subhead">
     <li><span class="mui--text-bold">{% trans %}Name:{% endtrans %}</span> {{ user.fullname }}</li>
-    <li><span class="mui--text-bold">{% trans %}Username:{% endtrans %}</span> {{ user.username or '' }}</li>
+    <li><span class="mui--text-bold">{% trans %}Username:{% endtrans %}</span> {% if user.username %}{{ user.username }}{% else %}{% trans %}(none){% endtrans %}{% endif %}</li>
     <li>
       <ul>
         {%- for useremail in user.emails %}

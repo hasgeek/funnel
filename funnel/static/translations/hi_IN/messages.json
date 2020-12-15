@@ -1247,7 +1247,7 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "10 Years!": [null, "10 साल!"],
+      "10 years!": [null, "10 साल!"],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
@@ -1874,14 +1874,14 @@
         "ईमेल पता <code>{email}</code> अन्य यूजर द्वारा पहले ही वेरिफाई हो चुका है"
       ],
       "Email address already verified": [null, "ईमेल पता पहले से वेरिफाइड है"],
-      "Hello {fullname}! Your email address <code>{email}</code> has already been verified": [
+      "Hello, {fullname}! Your email address <code>{email}</code> has already been verified": [
         null,
-        "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो चुका है"
+        "नमस्ते, {fullname}! आपका ईमेल पता <code>{email}</code> पहले ही वेरिफाई हो चुका है"
       ],
       "Email address verified": [null, "ईमेल पता वेरिफाई किया गया"],
-      "Hello {fullname}! Your email address <code>{email}</code> has now been verified": [
+      "Hello, {fullname}! Your email address <code>{email}</code> has now been verified": [
         null,
-        "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका है"
+        "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका"
       ],
       "This was not for you": [null, "यह आपके लिए नहीं था"],
       "You’ve opened an email verification link that was meant for another user. If you are managing multiple accounts, please login with the correct account and open the link again.": [

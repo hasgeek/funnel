@@ -416,7 +416,7 @@ class AccountView(ClassView):
                         title=_("Email address already verified"),
                         message=Markup(
                             _(
-                                "Hello {fullname}! Your email address"
+                                "Hello, {fullname}! Your email address"
                                 " <code>{email}</code> has already been verified"
                             ).format(
                                 fullname=escape(claimed_user.fullname),
@@ -439,7 +439,7 @@ class AccountView(ClassView):
                     title=_("Email address verified"),
                     message=Markup(
                         _(
-                            "Hello {fullname}! "
+                            "Hello, {fullname}! "
                             "Your email address <code>{email}</code> has now been verified"
                         ).format(
                             fullname=escape(useremail.user.fullname),
