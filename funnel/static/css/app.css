@@ -4113,7 +4113,7 @@ a.loginbutton.hidden,
 .proposal-card--fullwidth .proposal-card__video {
   margin-left: -16px;
   margin-right: -16px;
-  margin-top: -16px;
+  margin-bottom: -21px;
 }
 .proposal-card--fullwidth
   .proposal-card__video
