@@ -89,7 +89,7 @@
       <a href="javascript:void(0)" class="link-icon project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><span class="mui--text-light txt">{{ faicon(icon='share-alt-square', baseline=true, css_class='mui--text-light') }}{% trans %}Share{% endtrans %}</span></a>
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
-    <a href="javascript:void(0)" class="link-icon hg-link-btn mui--hide" data-url="{{ project.url_for(_external=true) }}&amp;utm_campaign=webshare"><span class=" mui--text-light txt">{{ faicon(icon='share-alt', baseline=true, css_class='mui--text-light') }}{% trans %}Share{% endtrans %}</span></a>
+    <a href="javascript:void(0)" class="link-icon hg-link-btn mui--hide" data-url="{{ project.url_for(_external=true) }}&quest;utm_campaign=webshare"><span class=" mui--text-light txt">{{ faicon(icon='share-alt', baseline=true, css_class='mui--text-light') }}{% trans %}Share{% endtrans %}</span></a>
     {% if project.schedule_state.PUBLISHED %}
       <a class="link-icon add-calendar" aria-label="Add to calendar" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-action="Add to calendar" data-cy="add-to-calendar"><span class="mui--text-light txt">{{ faicon(icon='calendar-plus', baseline=true, css_class='mui--text-light') }}{% trans %}Add to calendar{% endtrans %}</span></a>
     {% endif %}
