@@ -32,7 +32,7 @@
               <a href="javascript:void(0)" class="mui--text-subhead mui--text-light project-links link-icon" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :icon_size="'subhead'" :baseline=true></faicon></a>
               <sharedropdown :url='update.urls.view' :title='update.title'></sharedropdown>
             </div>
-            <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide link-icon" :data-title="update.title" :data-url="update.urls.view + '&amp;utm_campaign=webshare'"><faicon :icon="'share-alt'" :icon_size="'caption'" :baseline=true></faicon></a>
+            <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide link-icon" :data-title="update.title" :data-url="update.urls.view + '?utm_campaign=webshare'"><faicon :icon="'share-alt'" :icon_size="'caption'" :baseline=true></faicon></a>
             <div class="mui-dropdown mui-dropdown--update" v-if="iseditor">
               <a href="javascript:void(0)" class="mui--text-light link-icon" data-mui-toggle="dropdown"><faicon :icon="'ellipsis-v'" :icon_size="'subhead'"></faicon></a>
               <ul class="mui-dropdown__menu mui-dropdown__menu--hg-link mui-dropdown__menu--small" data-cy="share-dropdown">
