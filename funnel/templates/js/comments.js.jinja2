@@ -81,7 +81,7 @@
                   <a href="javascript:void(0)" class="link-icon project-links mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :baseline=false :css_class="'fa5-icon--aligntop'"></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Share') }}</span></a>
                   <sharedropdown :url='comment.urls.view' :title='comment.title'></sharedropdown>
                 </div>
-                <a href="javascript:void(0)" class="link-icon mui--text-light hg-link-btn mui--hide link comment__body__links" :data-title="comment.title" :data-url="comment.absolute_url + '&amp;utm_campaign=webshare'" :data-text=comment.message.text><faicon :icon="'share-alt'" :baseline=false :css_class="'fa5-icon--aligntop'"></faicon></a>
+                <a href="javascript:void(0)" class="link-icon mui--text-light hg-link-btn mui--hide link comment__body__links" :data-title="comment.title" :data-url="comment.absolute_url + '?utm_campaign=webshare'" :data-text=comment.message.text><faicon :icon="'share-alt'" :baseline=false :css_class="'fa5-icon--aligntop'"></faicon></a>
                 <div class="mui-dropdown" v-if="comment.urls.edit || comment.urls.delete">
                   <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-mui-toggle="dropdown"  data-cy="comment-menu"><faicon :icon="'ellipsis-v'" :baseline=false :css_class="'fa5-icon--aligntop'"></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('More') }}</span></a>
                   <ul class="mui-dropdown__menu mui-dropdown__menu--hg-link mui-dropdown__menu--small" data-cy="share-dropdown">

@@ -21,10 +21,10 @@
 {% endblock %}
 
 {% macro share_widget() %}
-  <a href="javascript:void(0)" class="hg-link-btn mui--hide mui--text-title mui-text-light" data-action="Share dropdown" data-cy="share-project" data-url="{{ url }}&amp;utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
+  <a href="javascript:void(0)" class="hg-link-btn mui--hide mui--text-title mui-text-light" data-action="Share dropdown" data-cy="share-project" data-url="{{ proposal.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
   <div class="mui-dropdown">
     <a href="javascript:void(0)" class="project-links mui--text-title mui-text-light" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
-    {{ share_dropdown(url, title) }}
+    {{ share_dropdown(proposal.url_for(_external=true), proposal.title) }}
   </div>
   {% if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
     <a class="mui--text-title mui--text-light mui--d-inlineblock" href="{{ proposal.url_for('admin') }}" rel="modal:open" aria-label="{% trans %}Admin panel{% endtrans %}" data-cy="admin-panel">{{ faicon(icon='cog', icon_size='title', baseline=false) }}</a>
@@ -64,7 +64,7 @@
           {%- if proposal.getnext() -%}
             <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block margin-bottom mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
           {%- endif -%}
-          <div class="proposal-wrapper">
+          <div class="proposal-wrapper mui--z1">
             <div class="details">
               {% if proposal.session and proposal.session.video or proposal.video or 'edit_proposal' in proposal.permissions(current_auth.user) %}
                 <div class="details__box mui-tabs__bar">

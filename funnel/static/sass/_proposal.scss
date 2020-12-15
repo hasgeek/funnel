@@ -1,5 +1,4 @@
 .proposal-wrapper {
-  border: 1px solid rgba(132, 146, 166, 0.3);
   padding: 0;
   margin: 0;
   position: relative;
@@ -164,7 +163,7 @@
   .proposal-card__video {
     margin-left: -$mui-grid-padding;
     margin-right: -$mui-grid-padding;
-    margin-top: -$mui-grid-padding;
+    margin-bottom: -22px;
     .proposal-card__video__thumbnail {
       width: 100%;
     }

@@ -131,6 +131,20 @@ class Label(BaseScopedNameMixin, db.Model):
         }
     }
 
+    __datasets__ = {
+        'related': {
+            'name',
+            'title',
+            'project',
+            'seq',
+            'restricted',
+            'required',
+            'archived',
+            'main_label',
+            'icon_emoji',
+        }
+    }
+
     @property
     def title_for_name(self):
         if self.main_label:

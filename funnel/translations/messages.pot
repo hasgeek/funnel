@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-12-15 14:55+0530\n"
+"POT-Creation-Date: 2020-12-16 00:48+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -967,52 +967,51 @@ msgid ""
 "letters, numbers and hyphens only."
 msgstr ""
 
-#: funnel/forms/project.py:161 funnel/templates/proposals.html.jinja2:29
-msgid "Proposal guidelines"
+#: funnel/forms/project.py:161
+msgid "Guidelines"
 msgstr ""
 
 #: funnel/forms/project.py:164
 msgid ""
-"Set guidelines for the type of sessions(talks, workshops, other format) "
-"your project is accepting, your review process and any other info for "
-"participants"
+"Set guidelines for the type of submissions your project is accepting, "
+"your review process, and anything else relevant to the submission"
 msgstr ""
 
-#: funnel/forms/project.py:171
-msgid "Proposal submissions open at"
+#: funnel/forms/project.py:170
+msgid "Submissions open at"
 msgstr ""
 
-#: funnel/forms/project.py:176
-msgid "Proposal submissions close at"
+#: funnel/forms/project.py:175
+msgid "Submissions close at"
 msgstr ""
 
-#: funnel/forms/project.py:181
-msgid "This requires open time for submissions to be specified"
+#: funnel/forms/project.py:180
+msgid "This requires an opening time to be specified"
 msgstr ""
 
-#: funnel/forms/project.py:184
+#: funnel/forms/project.py:183
 msgid "Submissions cannot close before they open"
 msgstr ""
 
-#: funnel/forms/project.py:194 funnel/forms/project.py:240
+#: funnel/forms/project.py:193 funnel/forms/project.py:239
 #: funnel/forms/proposal.py:165
 msgid "Status"
 msgstr ""
 
-#: funnel/forms/project.py:204 funnel/templates/schedule_edit.html.jinja2:21
+#: funnel/forms/project.py:203 funnel/templates/schedule_edit.html.jinja2:21
 #: funnel/templates/settings.html.jinja2:55
 msgid "Schedule status"
 msgstr ""
 
-#: funnel/forms/project.py:216
+#: funnel/forms/project.py:215
 msgid "CfP status"
 msgstr ""
 
-#: funnel/forms/project.py:228
+#: funnel/forms/project.py:227
 msgid "Save this project?"
 msgstr ""
 
-#: funnel/forms/project.py:231 funnel/forms/session.py:68
+#: funnel/forms/project.py:230 funnel/forms/session.py:68
 msgid "Note to self"
 msgstr ""
 
@@ -1025,7 +1024,7 @@ msgid "Transfer to"
 msgstr ""
 
 #: funnel/forms/proposal.py:106
-msgid "Transfer this proposal to another speaker"
+msgid "Transfer this submission to another presenter"
 msgstr ""
 
 #: funnel/forms/proposal.py:113 funnel/forms/proposal.py:123
@@ -1227,7 +1226,7 @@ msgid "Please enter a valid color code"
 msgstr ""
 
 #: funnel/forms/venue.py:105 funnel/templates/macros.html.jinja2:260
-#: funnel/templates/project.html.jinja2:229
+#: funnel/templates/project.html.jinja2:231
 msgid "Venue"
 msgstr ""
 
@@ -2681,6 +2680,7 @@ msgstr ""
 
 #: funnel/templates/macros.html.jinja2:230
 #: funnel/templates/macros.html.jinja2:347
+#: funnel/templates/proposals.html.jinja2:45
 #, python-format
 msgid "Submissions close at %(date)s"
 msgstr ""
@@ -2699,7 +2699,7 @@ msgid "Submissions are closed for this project"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:248
-#: funnel/templates/project.html.jinja2:247
+#: funnel/templates/project.html.jinja2:249
 #: funnel/templates/venues.html.jinja2:37 funnel/views/venue.py:52
 msgid "Add venue"
 msgstr ""
@@ -2709,7 +2709,7 @@ msgid "About"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:258
-#: funnel/templates/project.html.jinja2:143
+#: funnel/templates/project.html.jinja2:144
 msgid "Talks"
 msgstr ""
 
@@ -2727,7 +2727,7 @@ msgstr ""
 
 #: funnel/templates/macros.html.jinja2:264
 #: funnel/templates/macros.html.jinja2:642
-#: funnel/templates/project.html.jinja2:204
+#: funnel/templates/project.html.jinja2:205
 #: funnel/templates/proposals.html.jinja2:4
 #: funnel/templates/proposals.html.jinja2:17
 #: funnel/templates/user_profile_proposals.html.jinja2:10
@@ -2905,7 +2905,7 @@ msgid "Projects"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:658
-#: funnel/templates/project.html.jinja2:108
+#: funnel/templates/project.html.jinja2:109
 #: funnel/templates/project_admin.html.jinja2:39
 msgid "Tickets"
 msgstr ""
@@ -2958,7 +2958,7 @@ msgstr ""
 
 #: funnel/templates/meta_refresh.html.jinja2:6
 #: funnel/templates/meta_refresh.html.jinja2:28
-#: funnel/templates/project.html.jinja2:241
+#: funnel/templates/project.html.jinja2:243
 #: funnel/templates/redirect.html.jinja2:1
 msgid "Loading…"
 msgstr ""
@@ -3111,7 +3111,7 @@ msgstr ""
 msgid "Make featured"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:108
+#: funnel/templates/project.html.jinja2:109
 #: funnel/templates/project_comments.html.jinja2:20
 #: funnel/templates/project_membership.html.jinja2:17
 #: funnel/templates/proposal.html.jinja2:38
@@ -3123,24 +3123,28 @@ msgstr ""
 msgid "Back to the project"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:118
+#: funnel/templates/project.html.jinja2:119
 #: funnel/templates/proposal_admin_panel.html.jinja2:12
 msgid "Edit details"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:121
+#: funnel/templates/project.html.jinja2:122
 msgid "Related events"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:192
+#: funnel/templates/project.html.jinja2:193
 msgid "View Schedule"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:221
+#: funnel/templates/project.html.jinja2:214
+msgid "See all"
+msgstr ""
+
+#: funnel/templates/project.html.jinja2:223
 msgid "Related jobs"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:231
+#: funnel/templates/project.html.jinja2:233
 msgid "Update venue"
 msgstr ""
 
@@ -3274,6 +3278,10 @@ msgstr ""
 msgid "Add submission video"
 msgstr ""
 
+#: funnel/templates/proposals.html.jinja2:29
+msgid "Proposal guidelines"
+msgstr ""
+
 #: funnel/templates/proposals.html.jinja2:35
 msgid "Open proposal submissions"
 msgstr ""
@@ -3284,11 +3292,6 @@ msgstr ""
 
 #: funnel/templates/proposals.html.jinja2:41
 msgid "Add proposal guidelines and timing"
-msgstr ""
-
-#: funnel/templates/proposals.html.jinja2:45
-#, python-format
-msgid "Proposal submissions close at %(date)s"
 msgstr ""
 
 #: funnel/templates/proposals.html.jinja2:58

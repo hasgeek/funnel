@@ -3960,7 +3960,6 @@ a.loginbutton.hidden,
 }
 
 .proposal-wrapper {
-  border: 1px solid rgba(132, 146, 166, 0.3);
   padding: 0;
   margin: 0;
   position: relative;
@@ -4114,7 +4113,7 @@ a.loginbutton.hidden,
 .proposal-card--fullwidth .proposal-card__video {
   margin-left: -16px;
   margin-right: -16px;
-  margin-top: -16px;
+  margin-bottom: -22px;
 }
 .proposal-card--fullwidth
   .proposal-card__video
@@ -4660,7 +4659,7 @@ a.loginbutton.hidden,
   top: 165px;
   background-color: #f2deda;
   color: #1b3a44;
-  z-index: 3;
+  z-index: 1;
   float: right;
   padding: 5px;
   border-radius: 3px;
@@ -4848,7 +4847,7 @@ a.loginbutton.hidden,
   }
   .schedule-grid .schedule .schedule__row--sticky {
     overflow: visible;
-    top: 110px;
+    top: 128px;
   }
   .schedule-grid
     .schedule
