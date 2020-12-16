@@ -2,7 +2,6 @@ import Gettext from './gettext';
 import * as timeago from 'timeago.js';
 /*eslint camelcase: ["error", {allow: ["hi_IN"]}]*/
 import hi_IN from 'timeago.js/lib/lang/hi_IN';
-// Strings used in window.gettext fn are in  templates/js/translations_only.js.jinja2
 
 /* global ga */
 export const Utils = {
@@ -104,7 +103,7 @@ export const Utils = {
     }
   },
   truncate() {
-    let readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${window.gettext(
+    let readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${gettext(
       'read more'
     )}</span>`;
     $('.js-truncate').each(function () {
@@ -175,12 +174,17 @@ export const Utils = {
       // Find the difference between event and today's date in UTC
       let counting = Math.round((eventDay - today) / singleDay);
       // Defined these strings in project_countdown macro in calendar_snippet.js.jinja2
-      let dayText = ['Today', 'Tomorrow', 'Day after', 'In %d days'];
+      let dayText = [
+        gettext('Today'),
+        gettext('Tomorrow'),
+        gettext('Day after'),
+        gettext('In %d days', counting),
+      ];
       // Show number of days on the widget only if it is less than 32 days
       if (counting >= 0 && counting < 3) {
-        monthElem.text(window.gettext(dayText[counting]));
+        monthElem.text(dayText[counting]);
       } else if (counting > 2 && counting < 32) {
-        monthElem.text(window.gettext(dayText[3], counting));
+        monthElem.text(dayText[3]);
       }
     });
   },
@@ -193,7 +197,7 @@ export const Utils = {
     // Add server error strings for translations in server_error.js.jinja2
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg = window.gettext(
+        errorMsg = gettext(
           'An internal server error occurred. Our support team has been notified and will investigate.'
         );
       } else if (
@@ -207,7 +211,7 @@ export const Utils = {
         errorMsg = response.responseJSON.error_description;
       }
     } else {
-      errorMsg = window.gettext(
+      errorMsg = gettext(
         'Unable to connect. Check connection and tap to reload.'
       );
     }
@@ -320,7 +324,7 @@ export const Utils = {
         selection.removeAllRanges();
         selection.addRange(range);
         document.execCommand('copy');
-        window.toastr.success(window.gettext('Link copied'));
+        window.toastr.success(gettext('Link copied'));
         selection.removeAllRanges();
       });
     }
@@ -354,7 +358,7 @@ export const Utils = {
     window.i18n = new Gettext({
       translatedLang: window.Hasgeek.config.locale,
     });
-    window.gettext = window.i18n.gettext.bind(window.i18n);
+    gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
   },
   getTimeago() {
@@ -487,7 +491,7 @@ export const SaveProject = function ({
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
             window.toastr.success(
-              window.gettext('Project added to Account > My saves')
+              gettext('Project added to Account > My saves')
             );
           }
         }

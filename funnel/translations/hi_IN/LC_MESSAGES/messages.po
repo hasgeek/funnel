@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-16 23:13+0530\n"
+"POT-Creation-Date: 2020-12-16 23:36+0530\n"
 "PO-Revision-Date: 2020-12-16 00:48+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -41,6 +41,41 @@ msgstr "यह टोकन इस सामग्री की एक्से�
 #: funnel/registry.py:101
 msgid "This resource can only be accessed by trusted clients"
 msgstr "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
+
+#: funnel/assets/js/util.js:177
+msgid "Today"
+msgstr ""
+
+#: funnel/assets/js/util.js:177
+msgid "Tomorrow"
+msgstr ""
+
+#: funnel/assets/js/util.js:177
+msgid "Day after"
+msgstr ""
+
+#: funnel/assets/js/util.js:177
+#, python-format
+msgid "In %d days"
+msgstr ""
+
+#: funnel/assets/js/util.js:195
+msgid ""
+"An internal server error occurred. Our support team has been notified and"
+" will investigate."
+msgstr ""
+
+#: funnel/assets/js/util.js:209
+msgid "Unable to connect. Check connection and tap to reload."
+msgstr ""
+
+#: funnel/assets/js/util.js:322
+msgid "Link copied"
+msgstr ""
+
+#: funnel/assets/js/util.js:489
+msgid "Project added to Account > My saves"
+msgstr ""
 
 #: funnel/forms/account.py:46
 msgid "English"
@@ -1894,6 +1929,91 @@ msgstr "संयोजित"
 msgid "Invited"
 msgstr "आमंत्रित"
 
+#: funnel/static/js/schedules.js:132
+msgid "The room sequence and colors have been updated."
+msgstr ""
+
+#: funnel/static/js/schedules.js:140 funnel/static/js/schedules.js:271
+#: funnel/static/js/schedules.js:499
+msgid "There was a problem in contacting the server. Please try again later."
+msgstr ""
+
+#: funnel/static/js/schedules.js:230
+msgid "There was a problem in contacting the server. Please try again."
+msgstr ""
+
+#: funnel/static/js/schedules.js:250
+msgid "Edit Session"
+msgstr ""
+
+#: funnel/static/js/schedules.js:251
+msgid "Schedule Session"
+msgstr ""
+
+#: funnel/static/js/schedules.js:434
+msgid "Add new session"
+msgstr ""
+
+#: funnel/static/js/schedules.js:471
+#, python-format
+msgid "%s will be removed from the schedule. Are you sure you want to remove it?"
+msgstr ""
+
+#: funnel/static/js/schedules.js:490
+msgid "There was a problem in deleting the session."
+msgstr ""
+
+#: funnel/static/js/schedules.js:537 funnel/static/js/schedules.js:711
+#: funnel/static/js/schedules.js:731 funnel/templates/labels.html.jinja2:49
+#: funnel/templates/macros.html.jinja2:58
+#: funnel/templates/schedule_edit.html.jinja2:87
+#: funnel/views/organization.py:196 funnel/views/update.py:156
+#: funnel/views/venue.py:129 funnel/views/venue.py:200
+msgid "Save"
+msgstr "सेव करें"
+
+#: funnel/static/js/schedules.js:578
+msgid "5 mins"
+msgstr ""
+
+#: funnel/static/js/schedules.js:580
+msgid "15 mins"
+msgstr ""
+
+#: funnel/static/js/schedules.js:582
+msgid "30 mins"
+msgstr ""
+
+#: funnel/static/js/schedules.js:584
+msgid "60 mins"
+msgstr ""
+
+#: funnel/static/js/schedules.js:610
+msgid "Autosave"
+msgstr ""
+
+#: funnel/static/js/schedules.js:715
+msgid "Saving..."
+msgstr ""
+
+#: funnel/static/js/schedules.js:727
+msgid "Saved"
+msgstr ""
+
+#: funnel/static/js/schedules.js:734
+#, python-format
+msgid ""
+"There was a problem in contacting the server. There are %d unsaved "
+"sessions. Please try again later."
+msgstr ""
+
+#: funnel/static/js/schedules.js:741
+#, python-format
+msgid ""
+"There was a problem in contacting the server. There are %d unsaved "
+"session. Please try again later."
+msgstr ""
+
 #: funnel/templates/403.html.jinja2:7
 msgid "Unavailable"
 msgstr "अनुपलब्ध"
@@ -2612,15 +2732,6 @@ msgstr "(कोई लेबल नहीं है)"
 #: funnel/templates/labels.html.jinja2:41
 msgid "Archive"
 msgstr "पुरालेख"
-
-#: funnel/templates/js/translations_only.js.jinja2:33
-#: funnel/templates/labels.html.jinja2:49
-#: funnel/templates/macros.html.jinja2:58
-#: funnel/templates/schedule_edit.html.jinja2:87
-#: funnel/views/organization.py:196 funnel/views/update.py:156
-#: funnel/views/venue.py:129 funnel/views/venue.py:200
-msgid "Save"
-msgstr "सेव करें"
 
 #: funnel/templates/labels_form.html.jinja2:26
 #: funnel/templates/project_cfp.html.jinja2:9
@@ -3672,25 +3783,25 @@ msgstr "रूम जोड़ें"
 
 #: funnel/templates/js/badge.js.jinja2:14
 msgid "Select camera"
-msgstr "कैमरा चुनें"
+msgstr ""
 
 #: funnel/templates/js/badge.js.jinja2:20
 msgid "Switch camera"
-msgstr "कैमरा बदलें"
+msgstr ""
 
 #: funnel/templates/js/badge.js.jinja2:29
 msgid "Check in status"
-msgstr "स्थिति की जांच करें"
+msgstr ""
 
 #: funnel/templates/js/badge.js.jinja2:33
 #: funnel/templates/js/badge.js.jinja2:70
 msgid "Scanning"
-msgstr "स्कैन हो रहा है"
+msgstr ""
 
 #: funnel/templates/js/badge.js.jinja2:35
 #, python-format
 msgid "Hello %s"
-msgstr "नमस्ते %s"
+msgstr ""
 
 #: funnel/templates/js/badge.js.jinja2:36
 #, python-format
@@ -3698,214 +3809,100 @@ msgid ""
 "Thank you for choosing to participate in %(title)s and for being a part "
 "of this growing community"
 msgstr ""
-"%(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा "
-"बनने के लिए धन्यवाद"
 
 #: funnel/templates/js/badge.js.jinja2:39
 msgid "Attendee details not found"
-msgstr "प्रतिभागी की जानकारी नहीं मिली"
+msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:4
 msgid "Login to leave a comment"
-msgstr "कमेंट करने के लिए लॉगिन करें"
+msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:6
 msgid "Post a comment…"
-msgstr "एक कमेंट पोस्ट करें…"
+msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:12
 msgid "New comment"
-msgstr "नया कमेंट"
+msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:76
 #, python-format
 msgid "edited %s"
-msgstr "%s को संपादित किया "
+msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:78
 msgid "Reply"
-msgstr "जवाब दें"
+msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:79
 msgid "Report"
-msgstr "रिपोर्ट करें"
+msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:86
 msgid "More"
-msgstr "अधिक"
+msgstr ""
 
 #: funnel/templates/js/event_checkin.js.jinja2:26
 msgid "Show badge"
-msgstr "बैज दिखाएं"
+msgstr ""
 
 #: funnel/templates/js/event_checkin.js.jinja2:29
 msgid "Show label badge"
-msgstr "लेबल बैज दिखाएं"
+msgstr ""
 
 #: funnel/templates/js/event_checkin.js.jinja2:47
 msgid "Edit participant details"
-msgstr "प्रतिभागी की जानकारी को संपादित करें"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:7
 msgid "Add new member"
-msgstr "नया सदस्य जोड़ें"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:21
 msgid "members"
-msgstr "सदस्य"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:21
 msgid "member"
-msgstr "सदस्य"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:24
 msgid "Role"
-msgstr "भूमिका"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:66
 msgid "No members found"
-msgstr "कोई सदस्य नहीं पाया गया"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:67
 msgid "Members you add will appear here…"
-msgstr "आपके द्वारा जोड़े गए सदस्य यहां दिखाई देंगे..."
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:79
 msgid "Remove this member"
-msgstr "इस सदस्य को हटाएं"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:100
 msgid "Admin"
-msgstr "एडमिन"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:123
 #, python-format
 msgid "+ %d more role"
-msgstr "+ %d और भूमिका"
+msgstr ""
 
 #: funnel/templates/js/membership.js.jinja2:124
 #, python-format
 msgid "+ %d more roles"
-msgstr "+ %d और भूमिका"
+msgstr ""
 
 #: funnel/templates/js/schedule.js.jinja2:7
 msgid "Agenda view"
-msgstr "एजेंडा देखें"
+msgstr ""
 
 #: funnel/templates/js/schedule.js.jinja2:8
 msgid "Calender view"
-msgstr "कैलेंडर देखें"
-
-#: funnel/templates/js/translations_only.js.jinja2:3
-msgid ""
-"An internal server error occurred. Our support team has been notified and"
-" will investigate."
-msgstr ""
-"आंतरिक सर्वर त्रुटि. हमारी टीम को सूचित कर दिया गया है और वे इसकी जांच "
-"करेंगे."
-
-#: funnel/templates/js/translations_only.js.jinja2:5
-msgid "Unable to connect. Check connection and tap to reload."
-msgstr "कनेक्ट नहीं हो सके. कनेक्शन को जाँचें और फिर से लोड करने के लिए टैप करें."
-
-#: funnel/templates/js/translations_only.js.jinja2:7
-msgid "Project added to Account > My saves"
-msgstr "प्रोजेक्ट ‘अकाउंट > मेरी सेव की गई चीज़ें’ जोड़ा गया है"
-
-#: funnel/templates/js/translations_only.js.jinja2:9
-msgid "Link copied"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:11
-msgid "read more"
-msgstr "और पढ़ें"
-
-#: funnel/templates/js/translations_only.js.jinja2:13
-msgid "Today"
-msgstr "आज"
-
-#: funnel/templates/js/translations_only.js.jinja2:15
-msgid "Tomorrow"
-msgstr "कल"
-
-#: funnel/templates/js/translations_only.js.jinja2:17
-msgid "Day after"
-msgstr "परसों"
-
-#: funnel/templates/js/translations_only.js.jinja2:19
-#, python-format
-msgid "In %d days"
-msgstr "%d दिनों में"
-
-#: funnel/templates/js/translations_only.js.jinja2:21
-msgid "The room sequence and colors have been updated."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:23
-msgid "There was a problem in contacting the server. Please try again later."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:25
-msgid "Edit Session"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:27
-msgid "Schedule Session"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:29
-msgid "Add new session"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:31
-msgid "Autosave"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:35
-msgid "Saving..."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:37
-msgid "Saved"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:39
-msgid "There was a problem in deleting the session."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:41
-#, python-format
-msgid "%s will be removed from the schedule. Are you sure you want to remove it?"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:43
-msgid "5 mins"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:45
-msgid "15 mins"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:47
-msgid "30 mins"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:49
-msgid "60 mins"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:51
-#, python-format
-msgid ""
-"There was a problem in contacting the server. There are %d unsaved "
-"sessions. Please try again later."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:53
-#, python-format
-msgid ""
-"There was a problem in contacting the server. There are %d unsaved "
-"session. Please try again later."
 msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:20 funnel/views/proposal.py:268
@@ -3914,11 +3911,11 @@ msgstr "अपडेट करें"
 
 #: funnel/templates/js/update.js.jinja2:58
 msgid "Read more"
-msgstr "अधिक पढ़ें"
+msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:59
 msgid "Hide"
-msgstr "छिपाएं"
+msgstr ""
 
 #: funnel/templates/notifications/comment_received_email.html.jinja2:8
 msgid "You wrote:"
@@ -6472,3 +6469,201 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "Unscheduled submissions"
 #~ msgstr "अनिर्धारित सबमिशन"
+
+#~ msgid "Edit Session"
+#~ msgstr ""
+
+#~ msgid "Schedule Session"
+#~ msgstr ""
+
+#~ msgid "Add new session"
+#~ msgstr ""
+
+#~ msgid "read more"
+#~ msgstr "और पढ़ें"
+
+#~ msgid "Today"
+#~ msgstr ""
+
+#~ msgid "Tomorrow"
+#~ msgstr ""
+
+#~ msgid "Day after"
+#~ msgstr ""
+
+#~ msgid "In %d days"
+#~ msgstr ""
+
+#~ msgid "The room sequence and colors have been updated."
+#~ msgstr ""
+
+#~ msgid "There was a problem in contacting the server. Please try again later."
+#~ msgstr ""
+
+#~ msgid "Autosave"
+#~ msgstr ""
+
+#~ msgid "Saving..."
+#~ msgstr ""
+
+#~ msgid "Saved"
+#~ msgstr ""
+
+#~ msgid "There was a problem in deleting the session."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "%s will be removed from the "
+#~ "schedule. Are you sure you want to"
+#~ " remove it?"
+#~ msgstr ""
+
+#~ msgid "5 mins"
+#~ msgstr ""
+
+#~ msgid "15 mins"
+#~ msgstr ""
+
+#~ msgid "30 mins"
+#~ msgstr ""
+
+#~ msgid "60 mins"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "There was a problem in contacting "
+#~ "the server. There are %d unsaved "
+#~ "sessions. Please try again later."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "There was a problem in contacting "
+#~ "the server. There are %d unsaved "
+#~ "session. Please try again later."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "An internal server error occurred. Our"
+#~ " support team has been notified and"
+#~ " will investigate."
+#~ msgstr ""
+
+#~ msgid "Unable to connect. Check connection and tap to reload."
+#~ msgstr ""
+
+#~ msgid "Link copied"
+#~ msgstr ""
+
+#~ msgid "Project added to Account > My saves"
+#~ msgstr ""
+
+#~ msgid "${}"
+#~ msgstr ""
+
+#~ msgid "."
+#~ msgstr ""
+
+#~ msgid "@"
+#~ msgstr ""
+
+#~ msgid "There was a problem in contacting the server. Please try again."
+#~ msgstr ""
+
+#~ msgid "Select camera"
+#~ msgstr "कैमरा चुनें"
+
+#~ msgid "Switch camera"
+#~ msgstr "कैमरा बदलें"
+
+#~ msgid "Check in status"
+#~ msgstr "स्थिति की जांच करें"
+
+#~ msgid "Scanning"
+#~ msgstr "स्कैन हो रहा है"
+
+#~ msgid "Hello %s"
+#~ msgstr "नमस्ते %s"
+
+#~ msgid ""
+#~ "Thank you for choosing to participate"
+#~ " in %(title)s and for being a "
+#~ "part of this growing community"
+#~ msgstr ""
+#~ "%(title)s में भाग लेने के चुनाव के"
+#~ " लिए और इस बढ़ते कम्यूनिटी का "
+#~ "हिस्सा बनने के लिए धन्यवाद"
+
+#~ msgid "Attendee details not found"
+#~ msgstr "प्रतिभागी की जानकारी नहीं मिली"
+
+#~ msgid "Login to leave a comment"
+#~ msgstr "कमेंट करने के लिए लॉगिन करें"
+
+#~ msgid "Post a comment…"
+#~ msgstr "एक कमेंट पोस्ट करें…"
+
+#~ msgid "New comment"
+#~ msgstr "नया कमेंट"
+
+#~ msgid "edited %s"
+#~ msgstr "%s को संपादित किया "
+
+#~ msgid "Reply"
+#~ msgstr "जवाब दें"
+
+#~ msgid "Report"
+#~ msgstr "रिपोर्ट करें"
+
+#~ msgid "More"
+#~ msgstr "अधिक"
+
+#~ msgid "Show badge"
+#~ msgstr "बैज दिखाएं"
+
+#~ msgid "Show label badge"
+#~ msgstr "लेबल बैज दिखाएं"
+
+#~ msgid "Edit participant details"
+#~ msgstr "प्रतिभागी की जानकारी को संपादित करें"
+
+#~ msgid "Add new member"
+#~ msgstr "नया सदस्य जोड़ें"
+
+#~ msgid "members"
+#~ msgstr "सदस्य"
+
+#~ msgid "member"
+#~ msgstr "सदस्य"
+
+#~ msgid "Role"
+#~ msgstr "भूमिका"
+
+#~ msgid "No members found"
+#~ msgstr "कोई सदस्य नहीं पाया गया"
+
+#~ msgid "Members you add will appear here…"
+#~ msgstr "आपके द्वारा जोड़े गए सदस्य यहां दिखाई देंगे..."
+
+#~ msgid "Remove this member"
+#~ msgstr "इस सदस्य को हटाएं"
+
+#~ msgid "Admin"
+#~ msgstr "एडमिन"
+
+#~ msgid "+ %d more role"
+#~ msgstr "+ %d और भूमिका"
+
+#~ msgid "+ %d more roles"
+#~ msgstr "+ %d और भूमिका"
+
+#~ msgid "Agenda view"
+#~ msgstr "एजेंडा देखें"
+
+#~ msgid "Calender view"
+#~ msgstr "कैलेंडर देखें"
+
+#~ msgid "Read more"
+#~ msgstr "अधिक पढ़ें"
+
+#~ msgid "Hide"
+#~ msgstr "छिपाएं"

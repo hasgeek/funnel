@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-12-16 23:13+0530\n"
+"POT-Creation-Date: 2020-12-16 23:36+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,6 +39,41 @@ msgstr ""
 
 #: funnel/registry.py:101
 msgid "This resource can only be accessed by trusted clients"
+msgstr ""
+
+#: funnel/assets/js/util.js:177
+msgid "Today"
+msgstr ""
+
+#: funnel/assets/js/util.js:177
+msgid "Tomorrow"
+msgstr ""
+
+#: funnel/assets/js/util.js:177
+msgid "Day after"
+msgstr ""
+
+#: funnel/assets/js/util.js:177
+#, python-format
+msgid "In %d days"
+msgstr ""
+
+#: funnel/assets/js/util.js:195
+msgid ""
+"An internal server error occurred. Our support team has been notified and"
+" will investigate."
+msgstr ""
+
+#: funnel/assets/js/util.js:209
+msgid "Unable to connect. Check connection and tap to reload."
+msgstr ""
+
+#: funnel/assets/js/util.js:322
+msgid "Link copied"
+msgstr ""
+
+#: funnel/assets/js/util.js:489
+msgid "Project added to Account > My saves"
 msgstr ""
 
 #: funnel/forms/account.py:46
@@ -1827,6 +1862,91 @@ msgstr ""
 msgid "Invited"
 msgstr ""
 
+#: funnel/static/js/schedules.js:132
+msgid "The room sequence and colors have been updated."
+msgstr ""
+
+#: funnel/static/js/schedules.js:140 funnel/static/js/schedules.js:271
+#: funnel/static/js/schedules.js:499
+msgid "There was a problem in contacting the server. Please try again later."
+msgstr ""
+
+#: funnel/static/js/schedules.js:230
+msgid "There was a problem in contacting the server. Please try again."
+msgstr ""
+
+#: funnel/static/js/schedules.js:250
+msgid "Edit Session"
+msgstr ""
+
+#: funnel/static/js/schedules.js:251
+msgid "Schedule Session"
+msgstr ""
+
+#: funnel/static/js/schedules.js:434
+msgid "Add new session"
+msgstr ""
+
+#: funnel/static/js/schedules.js:471
+#, python-format
+msgid "%s will be removed from the schedule. Are you sure you want to remove it?"
+msgstr ""
+
+#: funnel/static/js/schedules.js:490
+msgid "There was a problem in deleting the session."
+msgstr ""
+
+#: funnel/static/js/schedules.js:537 funnel/static/js/schedules.js:711
+#: funnel/static/js/schedules.js:731 funnel/templates/labels.html.jinja2:49
+#: funnel/templates/macros.html.jinja2:58
+#: funnel/templates/schedule_edit.html.jinja2:87
+#: funnel/views/organization.py:196 funnel/views/update.py:156
+#: funnel/views/venue.py:129 funnel/views/venue.py:200
+msgid "Save"
+msgstr ""
+
+#: funnel/static/js/schedules.js:578
+msgid "5 mins"
+msgstr ""
+
+#: funnel/static/js/schedules.js:580
+msgid "15 mins"
+msgstr ""
+
+#: funnel/static/js/schedules.js:582
+msgid "30 mins"
+msgstr ""
+
+#: funnel/static/js/schedules.js:584
+msgid "60 mins"
+msgstr ""
+
+#: funnel/static/js/schedules.js:610
+msgid "Autosave"
+msgstr ""
+
+#: funnel/static/js/schedules.js:715
+msgid "Saving..."
+msgstr ""
+
+#: funnel/static/js/schedules.js:727
+msgid "Saved"
+msgstr ""
+
+#: funnel/static/js/schedules.js:734
+#, python-format
+msgid ""
+"There was a problem in contacting the server. There are %d unsaved "
+"sessions. Please try again later."
+msgstr ""
+
+#: funnel/static/js/schedules.js:741
+#, python-format
+msgid ""
+"There was a problem in contacting the server. There are %d unsaved "
+"session. Please try again later."
+msgstr ""
+
 #: funnel/templates/403.html.jinja2:7
 msgid "Unavailable"
 msgstr ""
@@ -2498,15 +2618,6 @@ msgstr ""
 
 #: funnel/templates/labels.html.jinja2:41
 msgid "Archive"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:33
-#: funnel/templates/labels.html.jinja2:49
-#: funnel/templates/macros.html.jinja2:58
-#: funnel/templates/schedule_edit.html.jinja2:87
-#: funnel/views/organization.py:196 funnel/views/update.py:156
-#: funnel/views/venue.py:129 funnel/views/venue.py:200
-msgid "Save"
 msgstr ""
 
 #: funnel/templates/labels_form.html.jinja2:26
@@ -3656,116 +3767,6 @@ msgstr ""
 
 #: funnel/templates/js/schedule.js.jinja2:8
 msgid "Calender view"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:3
-msgid ""
-"An internal server error occurred. Our support team has been notified and"
-" will investigate."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:5
-msgid "Unable to connect. Check connection and tap to reload."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:7
-msgid "Project added to Account > My saves"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:9
-msgid "Link copied"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:11
-msgid "read more"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:13
-msgid "Today"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:15
-msgid "Tomorrow"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:17
-msgid "Day after"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:19
-#, python-format
-msgid "In %d days"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:21
-msgid "The room sequence and colors have been updated."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:23
-msgid "There was a problem in contacting the server. Please try again later."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:25
-msgid "Edit Session"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:27
-msgid "Schedule Session"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:29
-msgid "Add new session"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:31
-msgid "Autosave"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:35
-msgid "Saving..."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:37
-msgid "Saved"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:39
-msgid "There was a problem in deleting the session."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:41
-#, python-format
-msgid "%s will be removed from the schedule. Are you sure you want to remove it?"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:43
-msgid "5 mins"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:45
-msgid "15 mins"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:47
-msgid "30 mins"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:49
-msgid "60 mins"
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:51
-#, python-format
-msgid ""
-"There was a problem in contacting the server. There are %d unsaved "
-"sessions. Please try again later."
-msgstr ""
-
-#: funnel/templates/js/translations_only.js.jinja2:53
-#, python-format
-msgid ""
-"There was a problem in contacting the server. There are %d unsaved "
-"session. Please try again later."
 msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:20 funnel/views/proposal.py:268
