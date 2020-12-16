@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-12-15 16:41+0530\n"
+"POT-Creation-Date: 2020-12-16 00:48+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"Generated-By: Babel 2.8.0\n"
 
 #: funnel/registry.py:73
 msgid "A Bearer token is required in the Authorization header"
@@ -1269,7 +1269,7 @@ msgstr ""
 msgid "Google"
 msgstr ""
 
-#: funnel/loginproviders/init_app.py:38
+#: funnel/loginproviders/init_app.py:38 funnel/templates/macros.html.jinja2:71
 msgid "LinkedIn"
 msgstr ""
 
@@ -1939,6 +1939,8 @@ msgid "Go to profile"
 msgstr ""
 
 #: funnel/templates/account.html.jinja2:51
+#: funnel/templates/account_merge.html.jinja2:8
+#: funnel/templates/account_merge.html.jinja2:12
 msgid "(none)"
 msgstr ""
 
@@ -2107,26 +2109,20 @@ msgid "Merge accounts"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:7
-#, python-format
-msgid "Name:</strong> %(name)s"
+msgid "Name:"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:8
-#, python-format
-msgid "Username:</strong> %(username)s"
+msgid "Username:"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:11
-#, python-format
-msgid "Email addresses:</strong>%(email)s"
-msgstr ""
-
 #: funnel/templates/account_merge.html.jinja2:12
-msgid "Email addresses:</strong><em>(none)</em>"
+msgid "Email addresses:"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:15
-msgid "External ids:"
+msgid "External IDs:"
 msgstr ""
 
 #: funnel/templates/account_merge.html.jinja2:25
@@ -2386,8 +2382,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has added you to <b>%(project)s</b> as a crew "
-"member.\n"
+"    %(actor)s has added you to ‘%(project)s’ as a crew member.\n"
 "  "
 msgstr ""
 
@@ -2400,8 +2395,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has invited you to join <b>%(project)s</b> as a crew"
-" member.\n"
+"    %(actor)s has invited you to join ‘%(project)s’ as a crew member.\n"
 "  "
 msgstr ""
 
@@ -2413,8 +2407,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    <b>%(actor)s</b> has removed you as a crew member from "
-"<b>%(project)s</b>.\n"
+"    %(actor)s has removed you as a crew member from ‘%(project)s’.\n"
 "  "
 msgstr ""
 
@@ -2508,6 +2501,7 @@ msgid "Archive"
 msgstr ""
 
 #: funnel/templates/labels.html.jinja2:49
+#: funnel/templates/macros.html.jinja2:58
 #: funnel/templates/schedule_edit.html.jinja2:86
 #: funnel/views/organization.py:196 funnel/views/update.py:156
 #: funnel/views/venue.py:129 funnel/views/venue.py:200
@@ -2520,7 +2514,7 @@ msgid "Please review the indicated issues"
 msgstr ""
 
 #: funnel/templates/layout.html.jinja2:68
-msgid "10 Years!"
+msgid "10 years!"
 msgstr ""
 
 #: funnel/templates/layout.html.jinja2:73
@@ -2570,7 +2564,7 @@ msgid "Sign up with email"
 msgstr ""
 
 #: funnel/templates/logout_browser_data.html.jinja2:2
-msgid "Logging out..."
+msgid "Logging out…"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:56
@@ -2578,11 +2572,15 @@ msgid "to save"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:58
-msgid "Save <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>"
+msgid "Save this project"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:60
-msgid "Unsave <span class=\"mui--hidden-xs mui--hidden-sm\">this project</span>"
+msgid "Unsave this project"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:60
+msgid "Unsave"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:67
@@ -2591,10 +2589,6 @@ msgstr ""
 
 #: funnel/templates/macros.html.jinja2:70
 msgid "Facebook"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:71
-msgid "Linkedin"
 msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:81
@@ -2965,6 +2959,7 @@ msgstr ""
 #: funnel/templates/meta_refresh.html.jinja2:6
 #: funnel/templates/meta_refresh.html.jinja2:28
 #: funnel/templates/project.html.jinja2:243
+#: funnel/templates/redirect.html.jinja2:1
 msgid "Loading…"
 msgstr ""
 
@@ -3303,10 +3298,6 @@ msgstr ""
 msgid "All submissions"
 msgstr ""
 
-#: funnel/templates/redirect.html.jinja2:1
-msgid "Loading..."
-msgstr ""
-
 #: funnel/templates/schedule.html.jinja2:9
 #, python-format
 msgid "%(title)s by %(speaker)s, %(project)s"
@@ -3468,7 +3459,7 @@ msgid "Review comments"
 msgstr ""
 
 #: funnel/templates/siteadmin_review_comment.html.jinja2:9
-msgid "This comment has been reported as <strong>spam</strong>."
+msgid "This comment has been reported as spam"
 msgstr ""
 
 #: funnel/templates/ticket_event.html.jinja2:6
@@ -3567,8 +3558,8 @@ msgstr ""
 #: funnel/templates/js/badge.js.jinja2:36
 #, python-format
 msgid ""
-"Thank you for choosing to participate in  %(title)s and for being a part "
-"of this growing community."
+"Thank you for choosing to participate in %(title)s and for being a part "
+"of this growing community"
 msgstr ""
 
 #: funnel/templates/js/badge.js.jinja2:39
@@ -3580,7 +3571,7 @@ msgid "Login to leave a comment"
 msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:6
-msgid "Post a comment..."
+msgid "Post a comment…"
 msgstr ""
 
 #: funnel/templates/js/comments.js.jinja2:12
@@ -3778,7 +3769,12 @@ msgstr ""
 
 #: funnel/templates/notifications/macros_email.html.jinja2:5
 #, python-format
-msgid "Update #%(number)s &bull; Posted by %(editor)s %(age)s"
+msgid "Update #%(number)s"
+msgstr ""
+
+#: funnel/templates/notifications/macros_email.html.jinja2:5
+#, python-format
+msgid "Posted by %(editor)s %(age)s"
 msgstr ""
 
 #: funnel/templates/notifications/organization_membership_granted_email.html.jinja2:7
@@ -3821,12 +3817,11 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"          <a href=\"%(url)s\">%(proposal)s</a> by %(actor)s <span "
-"class=\"mui--text-body2\">%(age)s</span>\n"
-"        "
+"        <a href=\"%(url)s\">%(proposal)s</a> by %(actor)s %(age)s\n"
+"          "
 msgstr ""
 
-#: funnel/templates/notifications/proposal_received_web.html.jinja2:13
+#: funnel/templates/notifications/proposal_received_web.html.jinja2:14
 #, python-format
 msgid ""
 "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a "
@@ -4004,9 +3999,7 @@ msgid "Update account"
 msgstr ""
 
 #: funnel/views/account.py:368
-msgid ""
-"Hello, <strong>{fullname}</strong>. Please spare a minute to fill out "
-"your account"
+msgid "Hello, {fullname}. Please spare a minute to fill out your account"
 msgstr ""
 
 #: funnel/views/account.py:378
@@ -4040,8 +4033,8 @@ msgstr ""
 
 #: funnel/views/account.py:418
 msgid ""
-"Hello <strong>{fullname}</strong>! Your email address "
-"<code>{email}</code> has already been verified"
+"Hello, {fullname}! Your email address <code>{email}</code> has already "
+"been verified"
 msgstr ""
 
 #: funnel/views/account.py:439
@@ -4050,8 +4043,8 @@ msgstr ""
 
 #: funnel/views/account.py:441
 msgid ""
-"Hello <strong>{fullname}</strong>! Your email address "
-"<code>{email}</code> has now been verified"
+"Hello, {fullname}! Your email address <code>{email}</code> has now been "
+"verified"
 msgstr ""
 
 #: funnel/views/account.py:451
@@ -4228,8 +4221,7 @@ msgstr ""
 #: funnel/views/account_reset.py:79
 msgid ""
 "Your account does not have an email address. However, it is linked to "
-"<strong>{service}</strong> with the id <strong>{username}</strong>. You "
-"can use that to login."
+"{service} with the ID {username}. You can use that to login."
 msgstr ""
 
 #: funnel/views/account_reset.py:93
@@ -4303,7 +4295,7 @@ msgid ""
 msgstr ""
 
 #: funnel/views/account_reset.py:280
-msgid "Hello, <strong>{fullname}</strong>. You may now choose a new password."
+msgid "Hello, {fullname}. You may now choose a new password."
 msgstr ""
 
 #: funnel/views/auth_client.py:85
@@ -5211,7 +5203,7 @@ msgstr ""
 msgid "This page timed out. Refresh and try again"
 msgstr ""
 
-#: funnel/views/project.py:758
+#: funnel/views/project.py:758 funnel/views/ticket_event.py:149
 msgid "Importing tickets from vendors… Refresh the page in about 30 seconds…"
 msgstr ""
 
@@ -5370,10 +5362,6 @@ msgstr ""
 
 #: funnel/views/ticket_event.py:114
 msgid "Add ticket client"
-msgstr ""
-
-#: funnel/views/ticket_event.py:149
-msgid "Importing tickets from vendors... Refresh the page in about 30 seconds..."
 msgstr ""
 
 #: funnel/views/ticket_event.py:190
