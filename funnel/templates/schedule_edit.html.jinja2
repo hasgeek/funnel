@@ -64,7 +64,7 @@
             <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
             {% for venue in venues %}
               <div class="ui-dragable-box ui-dragable-box--header">
-                <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{venue.uuid_b58}}">
+                <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{ venue.uuid_b58 }}">
                 <div class="collapsible">
                   <div class="collapsible__header" data-cy-collapsible="open">
                     <input type="hidden" name="uuid" value="{{ venue.uuid_b58 }}">
@@ -77,10 +77,10 @@
                     {% for room in venue.rooms %}
                       <p class="ui-dragable-box" draggable="true">
                         {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
-                        <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{room.uuid_b58}}">
+                        <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{ room.uuid_b58 }}">
                         <label for="room-color-input-{{ room.uuid_b58 }}" class="h5">
-                          <input type="hidden" name="room-uuidb58" value="{{ room.uuid_b58 }}" data-venue="{{venue.uuid_b58}}">
-                          {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.uuid_b58 }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{room.uuid_b58}}">
+                          <input type="hidden" name="room-uuidb58" value="{{ room.uuid_b58 }}" data-venue="{{ venue.uuid_b58 }}">
+                          {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.uuid_b58 }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{ room.uuid_b58 }}">
                         </label>
                       </p>
                     {% endfor %}
@@ -136,7 +136,7 @@
       var ROOMS = {{ rooms|tojson }};
       var BREAK_EVENTS_COLOR = "#999999";
       var EDIT_EVENTS = true;
-      var CALENDAR_SLOT_MINUTES = 30;
+      var CALENDAR_SLOT_MINUTES = 5;
     </script>
   {%- endassets -%}
 {% endblock %}
