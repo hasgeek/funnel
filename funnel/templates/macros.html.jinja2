@@ -863,7 +863,7 @@
   {% endif %}
   {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}">{% endif %}
   {% if user and user.avatar %}
-    <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar }}?size={{imgsize}}"/>
+    <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar }}?size={{ imgsize }}"/>
   {%- else %}
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}">{{ user.title|initials }}</div>
   {% endif %}
