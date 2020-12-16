@@ -2,7 +2,7 @@
 {% block content -%}
 
   <p>{% trans project=project.title, actor=actor.pickername %}
-    <b>{{ actor }}</b> has removed you as a crew member from <b>{{ project }}</b>.
+    {{ actor }} has removed you as a crew member from ‘{{ project }}’.
   {% endtrans %}</p>
 
   <p class="btn-bar">
