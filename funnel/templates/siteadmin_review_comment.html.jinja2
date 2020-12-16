@@ -6,7 +6,7 @@
 
 {% block admincontentblock %}
 <div class="mui-panel">
-  <p>{% trans %}This comment has been reported as <strong>spam</strong>.{% endtrans %}</p>
+  <p>{% trans %}This comment has been reported as spam{% endtrans %}</p>
   <form action="{{ url_for('siteadmin_review_comment', report=report.uuid_b58) }}" method="post">
     {{ report_form.hidden_tag() }}
     {% for value, title in report_form.report_type.choices %}

@@ -9,7 +9,7 @@ from flask import Response, current_app, json, jsonify
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc
 
-from baseframe import _, forms, localize_timezone
+from baseframe import _, localize_timezone
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
@@ -234,7 +234,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
             'schedule_transition_form': schedule_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('subscribe')

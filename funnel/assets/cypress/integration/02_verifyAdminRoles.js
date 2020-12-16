@@ -12,7 +12,7 @@ describe('Profile admin roles', function () {
     cy.get('#field-description')
       .find('.CodeMirror textarea')
       .type(profile.description, { force: true });
-    cy.get('button').contains('Save changes').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
     // TODO: After imgee merger, add tests to upload and select image
     cy.get('[data-cy="add-banner"]').should('exist');
 

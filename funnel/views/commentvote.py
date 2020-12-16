@@ -58,6 +58,7 @@ def commentset_json(obj):
 
 @Proposal.views('vote')
 @route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
+@route('/<profile>/<project>/sub/<url_name_uuid_b58>')
 class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
@@ -138,7 +139,6 @@ class CommentsetView(UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
-    @requires_roles({'parent_participant'})
     def new_comment(self):
         if self.obj.parent is None:
             return redirect('/')
