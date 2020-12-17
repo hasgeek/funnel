@@ -223,6 +223,23 @@ class CommentsetView(UrlForView, ModelView):
                 'error_details': csrf_form.errors,
             }, 400
 
+    @route('seen', methods=['POST'])
+    @requires_login
+    @render_with(json=True)
+    def update_last_seen_at(self):
+        csrf_form = forms.Form()
+        if csrf_form.validate_on_submit():
+            self.obj.update_last_seen_at(user=current_auth.user)
+            db.session.commit()
+            return {'status': 'ok'}
+        else:
+            return {
+                'status': 'error',
+                'error_code': 'update_seen_at_error',
+                'error_description': _("There was an issue. Please try again"),
+                'error_details': csrf_form.errors,
+            }, 400
+
 
 @route('/comments/<commentset>', subdomain='<profile>')
 class FunnelCommentsetView(CommentsetView):

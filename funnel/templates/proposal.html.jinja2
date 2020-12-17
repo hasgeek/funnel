@@ -272,6 +272,7 @@
       iscommentmoderator: {% if current_auth.user and current_auth.user.is_comment_moderator -%}true{% else %}false{% endif %},
       user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
       loginUrl: "{{ url_for('login') }}",
+      lastSeenUrl: {% if proposal.commentset.current_roles.subscriber %}"{{ proposal.commentset.url_for('update_last_seen_at') }}"{% else %}false{% endif %},
     };
 
     window.Hasgeek.Comments(commentsConfig);

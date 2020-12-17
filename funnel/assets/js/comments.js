@@ -13,6 +13,7 @@ const Comments = {
     iscommentmoderator,
     user,
     loginUrl,
+    lastSeenUrl,
   }) {
     const COMMENTACTIONS = {
       REPLY: 0,
@@ -159,6 +160,7 @@ const Comments = {
           textarea: '',
           errorMsg: '',
           loginUrl,
+          lastSeenUrl,
           refreshTimer: '',
           headerHeight: '',
           svgIconUrl: window.Hasgeek.config.svgIconUrl,
@@ -297,15 +299,21 @@ const Comments = {
         });
 
         const commentSection = document.querySelector(divElem);
-        if (commentSection) {
+        if (commentSection && lastSeenUrl) {
           const observer = new IntersectionObserver(
             function (entries) {
               entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                  console.log('comments section scrolled into view');
                   $.ajax({
-                    url: newCommentUrl,
+                    url: lastSeenUrl,
                     type: 'POST',
+                    data: {
+                      csrf_token: $('meta[name="csrf-token"]').attr('content'),
+                    },
+                    dataType: 'json',
+                    success(responseData) {
+                      console.log(responseData);
+                    },
                   });
                   observer.unobserve(commentSection);
                 }

@@ -86,8 +86,9 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
     def update_last_seen_at(self, user: User):
         existing_ms = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
-        ).one()
-        existing_ms.last_seen_at = db.func.utcnow()
+        ).one_or_none()
+        if existing_ms is not None:
+            existing_ms.last_seen_at = db.func.utcnow()
 
     def add_subscriber(self, actor: User, user: User) -> None:
         existing_ms = CommentsetMembership.query.filter_by(
