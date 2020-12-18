@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-16 23:36+0530\n"
-"PO-Revision-Date: 2020-12-16 00:48+0530\n"
+"POT-Creation-Date: 2020-12-18 10:29+0530\n"
+"PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
 "Language-Team: hi <webmaster@hasgeek.com>\n"
@@ -42,38 +42,38 @@ msgstr "यह टोकन इस सामग्री की एक्से�
 msgid "This resource can only be accessed by trusted clients"
 msgstr "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
 
-#: funnel/assets/js/util.js:177
+#: funnel/assets/js/util.js:178
 msgid "Today"
 msgstr ""
 
-#: funnel/assets/js/util.js:177
+#: funnel/assets/js/util.js:179
 msgid "Tomorrow"
 msgstr ""
 
-#: funnel/assets/js/util.js:177
+#: funnel/assets/js/util.js:180
 msgid "Day after"
 msgstr ""
 
-#: funnel/assets/js/util.js:177
+#: funnel/assets/js/util.js:181
 #, python-format
 msgid "In %d days"
 msgstr ""
 
-#: funnel/assets/js/util.js:195
+#: funnel/assets/js/util.js:200
 msgid ""
 "An internal server error occurred. Our support team has been notified and"
 " will investigate."
 msgstr ""
 
-#: funnel/assets/js/util.js:209
+#: funnel/assets/js/util.js:214
 msgid "Unable to connect. Check connection and tap to reload."
 msgstr ""
 
-#: funnel/assets/js/util.js:322
+#: funnel/assets/js/util.js:327
 msgid "Link copied"
 msgstr ""
 
-#: funnel/assets/js/util.js:489
+#: funnel/assets/js/util.js:494
 msgid "Project added to Account > My saves"
 msgstr ""
 
@@ -241,7 +241,7 @@ msgstr "प्रकार"
 #: funnel/forms/account.py:388 funnel/templates/layout.html.jinja2:70
 #: funnel/templates/macros.html.jinja2:637
 msgid "Home"
-msgstr "घर"
+msgstr "मुखपृष्ठ"
 
 #: funnel/forms/account.py:389
 msgid "Work"
@@ -1933,38 +1933,38 @@ msgstr "आमंत्रित"
 msgid "The room sequence and colors have been updated."
 msgstr ""
 
-#: funnel/static/js/schedules.js:140 funnel/static/js/schedules.js:271
-#: funnel/static/js/schedules.js:499
+#: funnel/static/js/schedules.js:138 funnel/static/js/schedules.js:269
+#: funnel/static/js/schedules.js:495
 msgid "There was a problem in contacting the server. Please try again later."
 msgstr ""
 
-#: funnel/static/js/schedules.js:230
+#: funnel/static/js/schedules.js:228
 msgid "There was a problem in contacting the server. Please try again."
 msgstr ""
 
-#: funnel/static/js/schedules.js:250
+#: funnel/static/js/schedules.js:248
 msgid "Edit Session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:251
+#: funnel/static/js/schedules.js:249
 msgid "Schedule Session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:434
+#: funnel/static/js/schedules.js:432
 msgid "Add new session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:471
+#: funnel/static/js/schedules.js:469
 #, python-format
 msgid "%s will be removed from the schedule. Are you sure you want to remove it?"
 msgstr ""
 
-#: funnel/static/js/schedules.js:490
+#: funnel/static/js/schedules.js:488
 msgid "There was a problem in deleting the session."
 msgstr ""
 
-#: funnel/static/js/schedules.js:537 funnel/static/js/schedules.js:711
-#: funnel/static/js/schedules.js:731 funnel/templates/labels.html.jinja2:49
+#: funnel/static/js/schedules.js:533 funnel/static/js/schedules.js:707
+#: funnel/static/js/schedules.js:727 funnel/templates/labels.html.jinja2:49
 #: funnel/templates/macros.html.jinja2:58
 #: funnel/templates/schedule_edit.html.jinja2:87
 #: funnel/views/organization.py:196 funnel/views/update.py:156
@@ -1972,42 +1972,42 @@ msgstr ""
 msgid "Save"
 msgstr "सेव करें"
 
-#: funnel/static/js/schedules.js:578
+#: funnel/static/js/schedules.js:574
 msgid "5 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:580
+#: funnel/static/js/schedules.js:576
 msgid "15 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:582
+#: funnel/static/js/schedules.js:578
 msgid "30 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:584
+#: funnel/static/js/schedules.js:580
 msgid "60 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:610
+#: funnel/static/js/schedules.js:606
 msgid "Autosave"
 msgstr ""
 
-#: funnel/static/js/schedules.js:715
+#: funnel/static/js/schedules.js:711
 msgid "Saving..."
 msgstr ""
 
-#: funnel/static/js/schedules.js:727
+#: funnel/static/js/schedules.js:723
 msgid "Saved"
 msgstr ""
 
-#: funnel/static/js/schedules.js:734
+#: funnel/static/js/schedules.js:730
 #, python-format
 msgid ""
 "There was a problem in contacting the server. There are %d unsaved "
 "sessions. Please try again later."
 msgstr ""
 
-#: funnel/static/js/schedules.js:741
+#: funnel/static/js/schedules.js:737
 #, python-format
 msgid ""
 "There was a problem in contacting the server. There are %d unsaved "
@@ -2225,7 +2225,7 @@ msgstr "प्राथमिक बनाएं"
 
 #: funnel/templates/account.html.jinja2:128 funnel/views/account.py:525
 msgid "Add an email address"
-msgstr "कोई ईमेल पता जोड़ें"
+msgstr "अन्य ईमेल पता जोड़ें"
 
 #: funnel/templates/account.html.jinja2:138
 msgid "Mobile numbers"
@@ -2237,7 +2237,7 @@ msgstr "(ब्लॉक किए हुए)"
 
 #: funnel/templates/account.html.jinja2:169
 msgid "Add a mobile number"
-msgstr "कोई मोबाइल नंबर जोड़ें"
+msgstr "अन्य मोबाइल नंबर जोड़ें"
 
 #: funnel/templates/account.html.jinja2:178
 msgid "Connected apps"
@@ -2762,7 +2762,7 @@ msgstr "खोजें"
 #: funnel/templates/updates.html.jinja2:4
 #: funnel/templates/updates.html.jinja2:17
 msgid "Updates"
-msgstr "जानकारियां"
+msgstr "अपडेट"
 
 #: funnel/templates/layout.html.jinja2:81
 #: funnel/templates/layout.html.jinja2:84
@@ -3000,7 +3000,7 @@ msgstr "नोटिफिकेशन"
 
 #: funnel/templates/macros.html.jinja2:309
 msgid "My saves"
-msgstr "मेरी सेव की गई चीज़ें"
+msgstr "मेरी सेव किये गए प्रोजेक्ट"
 
 #: funnel/templates/macros.html.jinja2:310
 #: funnel/templates/scan_contact.html.jinja2:4
