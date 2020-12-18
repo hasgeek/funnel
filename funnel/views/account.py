@@ -366,8 +366,8 @@ class AccountView(ClassView):
                 submit=_("Continue"),
                 message=Markup(
                     _(
-                        "Hello, <strong>{fullname}</strong>. Please spare a minute to fill"
-                        " out your account"
+                        "Hello, {fullname}. Please spare a minute to fill out your"
+                        " account"
                     ).format(fullname=escape(current_auth.user.fullname))
                 ),
                 ajax=False,
@@ -416,7 +416,7 @@ class AccountView(ClassView):
                         title=_("Email address already verified"),
                         message=Markup(
                             _(
-                                "Hello <strong>{fullname}</strong>! Your email address"
+                                "Hello, {fullname}! Your email address"
                                 " <code>{email}</code> has already been verified"
                             ).format(
                                 fullname=escape(claimed_user.fullname),
@@ -439,7 +439,7 @@ class AccountView(ClassView):
                     title=_("Email address verified"),
                     message=Markup(
                         _(
-                            "Hello <strong>{fullname}</strong>! "
+                            "Hello, {fullname}! "
                             "Your email address <code>{email}</code> has now been verified"
                         ).format(
                             fullname=escape(useremail.user.fullname),

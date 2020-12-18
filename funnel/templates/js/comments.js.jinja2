@@ -3,7 +3,7 @@
     <div id="comments-wrapper" v-cloak>
       <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">{{ gettext('Login to leave a comment') }}</a>
       <a href="javascript:void(0)" class="post-form-block nounderline js-new-comment-form" :class="[commentForm ? 'mui--hide' : '']" @click="showNewCommentForm($event, 'comment_message')" :aria-label="gettext('Post comment')" data-cy="post-comment" v-else role="button">
-        <span class="post-form mui--hidden-xs mui--hidden-sm">{{ gettext('Post a comment...') }}</span>
+        <span class="post-form mui--hidden-xs mui--hidden-sm">{{ gettext('Post a comment…') }}</span>
         <div class="user mui--hidden-xs mui--hidden-sm">
           <div class="user__box">
             <useravatar :user='user' :addprofilelink=false></useravatar>
