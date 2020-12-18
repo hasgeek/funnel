@@ -1,3 +1,5 @@
+/* global gettext */
+
 import Gettext from './gettext';
 import * as timeago from 'timeago.js';
 /*eslint camelcase: ["error", {allow: ["hi_IN"]}]*/
@@ -358,7 +360,7 @@ export const Utils = {
     window.i18n = new Gettext({
       translatedLang: window.Hasgeek.config.locale,
     });
-    gettext = window.i18n.gettext.bind(window.i18n);
+    window.gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
   },
   getTimeago() {
