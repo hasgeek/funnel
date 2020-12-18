@@ -136,6 +136,10 @@ class CommentsetView(UrlForView, ModelView):
         # `profile` remains for funnelapp even though it's not used.
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
+    @route('', methods=['GET'])
+    def view(self):
+        return redirect(self.obj.views.url(), code=303)
+
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
@@ -192,9 +196,21 @@ class CommentView(UrlForView, ModelView):
         comment = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
-            .one_or_404()
+            .one_or_none()
         )
+        if comment is None:
+            # if the comment doesn't exist or deleted, return the commentset,
+            # `after_loader()` will redirect to the commentset instead.
+            return Commentset.query.filter(
+                Commentset.uuid_b58 == commentset
+            ).one_or_404()
         return comment
+
+    def after_loader(self):
+        if isinstance(self.obj, Commentset):
+            flash(_("The comment does not exist. It may have been deleted"), 'error')
+            return redirect(self.obj.url_for(), code=303)
+        return super().after_loader()
 
     @route('')
     @requires_roles({'reader'})
