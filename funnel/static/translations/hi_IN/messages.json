@@ -2214,7 +2214,7 @@
       "Your vote has been withdrawn": [null, "आपका वोट वापस ले लिया गया है"],
       "Your comment has been posted": [null, "आपका कमेंट पोस्ट कर दिया गया है"],
       "Post comment": [null, "कमेंट पोस्ट करें"],
-      "The comment does not exist. It may have been deleted": [null, ""],
+      "That comment could not be found. It may have been deleted": [null, ""],
       "Your comment has been edited": [
         null,
         "आपका कमेंट संपादित कर दिया गया है"

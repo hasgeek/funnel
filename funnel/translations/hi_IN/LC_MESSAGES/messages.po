@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-18 12:28+0530\n"
+"POT-Creation-Date: 2020-12-19 11:00+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.9.0\n"
 
 #: funnel/registry.py:73
 msgid "A Bearer token is required in the Authorization header"
@@ -1778,7 +1778,7 @@ msgid "Send Back to Submitted"
 msgstr "जमा किए पर वापस भेजें"
 
 #: funnel/models/proposal.py:384 funnel/templates/macros.html.jinja2:218
-#: funnel/views/commentvote.py:400 funnel/views/login_session.py:426
+#: funnel/views/commentvote.py:402 funnel/views/login_session.py:426
 msgid "Confirm"
 msgstr "स्वीकृती दें"
 
@@ -1842,7 +1842,7 @@ msgstr "इस प्रस्ताव को मूल्यांकन क�
 #: funnel/templates/labels.html.jinja2:46
 #: funnel/templates/organization_teams.html.jinja2:42
 #: funnel/templates/proposal_admin_panel.html.jinja2:16
-#: funnel/views/commentvote.py:310 funnel/views/update.py:185
+#: funnel/views/commentvote.py:312 funnel/views/update.py:185
 msgid "Delete"
 msgstr "मिटाएं"
 
@@ -4755,43 +4755,43 @@ msgid "Read the list of teams in your organizations"
 msgstr "अपने संगठनों में टीमों की सूची पढ़ें"
 
 #: funnel/views/commentvote.py:74 funnel/views/commentvote.py:89
-#: funnel/views/commentvote.py:325 funnel/views/commentvote.py:340
+#: funnel/views/commentvote.py:327 funnel/views/commentvote.py:342
 msgid "Your vote has been recorded"
 msgstr "आपका वोट रिकॉर्ड कर लिया गया है"
 
-#: funnel/views/commentvote.py:104 funnel/views/commentvote.py:355
+#: funnel/views/commentvote.py:104 funnel/views/commentvote.py:357
 msgid "Your vote has been withdrawn"
 msgstr "आपका वोट वापस ले लिया गया है"
 
-#: funnel/views/commentvote.py:167 funnel/views/commentvote.py:250
+#: funnel/views/commentvote.py:167 funnel/views/commentvote.py:252
 msgid "Your comment has been posted"
 msgstr "आपका कमेंट पोस्ट कर दिया गया है"
 
-#: funnel/views/commentvote.py:174 funnel/views/commentvote.py:258
+#: funnel/views/commentvote.py:174 funnel/views/commentvote.py:260
 msgid "Post comment"
 msgstr "कमेंट पोस्ट करें"
 
-#: funnel/views/commentvote.py:211
-msgid "The comment does not exist. It may have been deleted"
+#: funnel/views/commentvote.py:212
+msgid "That comment could not be found. It may have been deleted"
 msgstr ""
 
-#: funnel/views/commentvote.py:276
+#: funnel/views/commentvote.py:278
 msgid "Your comment has been edited"
 msgstr "आपका कमेंट संपादित कर दिया गया है"
 
-#: funnel/views/commentvote.py:283
+#: funnel/views/commentvote.py:285
 msgid "Edit comment"
 msgstr "कमेंट संपादित करें"
 
-#: funnel/views/commentvote.py:303
+#: funnel/views/commentvote.py:305
 msgid "Your comment has been deleted"
 msgstr "आपकी कमेंट मिटा दी गई है"
 
-#: funnel/views/commentvote.py:378
+#: funnel/views/commentvote.py:380
 msgid "The comment has been reported as spam"
 msgstr "कमेंट को स्पैम के रूप में रिपोर्ट कर दिया गया है"
 
-#: funnel/views/commentvote.py:383 funnel/views/commentvote.py:390
+#: funnel/views/commentvote.py:385 funnel/views/commentvote.py:392
 msgid "There was an issue reporting this comment. Please try again"
 msgstr ""
 "इस कमेंट को रिपोर्ट करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा "

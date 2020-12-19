@@ -208,7 +208,9 @@ class CommentView(UrlForView, ModelView):
 
     def after_loader(self):
         if isinstance(self.obj, Commentset):
-            flash(_("The comment does not exist. It may have been deleted"), 'error')
+            flash(
+                _("That comment could not be found. It may have been deleted"), 'error'
+            )
             return redirect(self.obj.url_for(), code=303)
         return super().after_loader()
 
