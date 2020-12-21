@@ -275,14 +275,17 @@ class ProjectView(
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
+        featured_proposals = self.obj.proposals.filter_by(featured=True)
         return {
             'project': self.obj.current_access(),
             'current_rsvp': current_rsvp,
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
+            'featured_proposals': featured_proposals,
         }
 
+    @route('sub')
     @route('proposals')
     @render_with('proposals.html.jinja2')
     @requires_roles({'reader'})
@@ -729,7 +732,7 @@ class ProjectView(
                     'status': 'error',
                     'error': 'project_save_form_invalid',
                     'error_description': _(
-                        "Something went wrong, please reload and try again"
+                        "This page timed out. Refresh and try again"
                     ),
                     'form_nonce': form.form_nonce.data,
                 },
@@ -737,24 +740,27 @@ class ProjectView(
             )
 
     @route('admin', methods=['GET', 'POST'])
-    @render_with('admin.html.jinja2')
+    @render_with('project_admin.html.jinja2')
     @requires_login
     @requires_roles({'concierge', 'usher'})
     def admin(self):
+        """Render admin panel for at-venue concierge operations."""
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
-            for ticket_client in self.obj.ticket_clients:
-                if ticket_client and ticket_client.name.lower() in [
-                    'explara',
-                    'boxoffice',
-                ]:
-                    import_tickets.queue(ticket_client.id)
-            flash(
-                _(
-                    "Importing tickets from vendors...Refresh the page in about 30 seconds..."
-                ),
-                'info',
-            )
+            if request.form.get('form.id') == 'sync-tickets':
+                for ticket_client in self.obj.ticket_clients:
+                    if ticket_client and ticket_client.name.lower() in [
+                        'explara',
+                        'boxoffice',
+                    ]:
+                        import_tickets.queue(ticket_client.id)
+                flash(
+                    _(
+                        "Importing tickets from vendors…"
+                        " Refresh the page in about 30 seconds…"
+                    ),
+                    'info',
+                )
             return redirect(self.obj.url_for('admin'), code=303)
         return {
             'profile': self.obj.profile,

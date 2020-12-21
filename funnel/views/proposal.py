@@ -2,8 +2,8 @@ from flask import Markup, abort, escape, flash, jsonify, redirect
 
 from bleach import linkify
 
-from baseframe import _, __, request_is_xhr
-from baseframe.forms import Form, render_delete_sqla, render_form
+from baseframe import _, __, forms, request_is_xhr
+from baseframe.forms import render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import (
@@ -19,7 +19,6 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import (
-    CommentForm,
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMoveForm,
@@ -27,7 +26,6 @@ from ..forms import (
     ProposalTransitionForm,
 )
 from ..models import (
-    Comment,
     Project,
     Proposal,
     ProposalReceivedNotification,
@@ -157,7 +155,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
 
         return render_form(
             form=form,
-            title=_("Submit a proposal"),
+            title=_("Make a submission"),
             submit=_("Submit"),
             message=markdown_message,
         )
@@ -172,6 +170,7 @@ class ProjectProposalView(BaseProjectProposalView):
 ProjectProposalView.add_route_for(
     'new_proposal', 'proposals/new', methods=['GET', 'POST']
 )
+ProjectProposalView.add_route_for('new_proposal', 'sub/new', methods=['GET', 'POST'])
 ProjectProposalView.init_app(app)
 
 
@@ -186,6 +185,7 @@ FunnelProjectProposalView.init_app(funnelapp)
 
 @Proposal.views('main')
 @route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
+@route('/<profile>/<project>/sub/<url_name_uuid_b58>')
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
@@ -198,14 +198,22 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if request_is_xhr():
             return jsonify({'comments': self.obj.commentset.views.json_comments()})
 
-        commentform = CommentForm(model=Comment)
-
         links = [
             Markup(linkify(str(escape(link))))
             for link in self.obj.links.replace('\r\n', '\n').split('\n')
             if link
         ]
 
+        return {
+            'project': self.obj.project,
+            'proposal': self.obj,
+            'links': links,
+        }
+
+    @route('admin')
+    @render_with('proposal_admin_panel.html.jinja2')
+    @requires_permission('view')
+    def admin(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
         proposal_transfer_form = ProposalTransferForm()
 
@@ -218,12 +226,8 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
         return {
-            'project': self.obj.project,
             'proposal': self.obj,
-            'comments': self.obj.commentset.views.json_comments(),
-            'commentform': commentform,
-            'delcommentform': Form(),
-            'links': links,
+            'project': self.obj.project,
             'transition_form': transition_form,
             'proposal_move_form': proposal_move_form,
             'proposal_transfer_form': proposal_transfer_form,
@@ -365,6 +369,16 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("Please choose the user you want to transfer this proposal to."),
                 'error',
             )
+        return redirect(self.obj.url_for(), 303)
+
+    @route('toggle_featured', methods=['POST'])
+    @requires_login
+    @requires_permission('move-proposal')
+    def toggle_featured(self):
+        featured_form = forms.Form()
+        if featured_form.validate_on_submit():
+            self.obj.featured = not self.obj.featured
+            db.session.commit()
         return redirect(self.obj.url_for(), 303)
 
     @route('schedule', methods=['GET', 'POST'])

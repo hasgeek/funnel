@@ -8,6 +8,7 @@ describe('Add a new proposal', function () {
 
   it('Add proposal', function () {
     cy.server();
+    cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('GET', '**/updates/*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
 
@@ -15,8 +16,7 @@ describe('Add a new proposal', function () {
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="proposals"]').click();
-    cy.location('pathname').should('contain', 'proposals');
+    cy.get('a[data-cy-navbar="submissions"]').click();
     cy.get('a[data-cy="propose-a-session"]').click();
     cy.location('pathname').should('contain', 'new');
     cy.get('#title').type(proposal.title);
@@ -26,17 +26,19 @@ describe('Add a new proposal', function () {
     cy.get('#field-video_url').type(proposal.preview_video);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
-    cy.get('button').contains('Submit').click();
-    cy.location('pathname').should('contain', 'proposals');
+    cy.get('button[data-cy="form-submit-btn"]').click();
 
-    cy.get('.proposal__section__headline')
+    cy.get('[data-cy="proposal-title"]')
       .should('exist')
       .contains(proposal.title);
     cy.get('[data-cy="proposal-video"]').find('iframe').should('be.visible');
+    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.wait('@fetch-admin-panel');
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');
     cy.get('[data-cy="edit-proposal-video"]').should('exist');
 
+    cy.get('a[data-cy="close-admin-panel"]').click();
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
       .find('.CodeMirror textarea')
