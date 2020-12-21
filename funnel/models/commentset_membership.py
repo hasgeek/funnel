@@ -18,7 +18,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
     __data_columns__ = ('last_seen_at',)
 
     __roles__ = {
-        'all': {
+        'subject': {
             'read': {
                 'urls',
                 'user',
