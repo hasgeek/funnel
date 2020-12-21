@@ -787,18 +787,8 @@ class ProjectView(
     @render_with('project_comments.html.jinja2')
     @requires_roles({'reader'})
     def comments(self):
-        if current_auth.user.active_commentset_memberships is not None:
-            commentset_membership = (
-                current_auth.user.active_commentset_memberships.filter_by(
-                    commentset=self.obj.commentset
-                ).one_or_none()
-            )
-            if commentset_membership is not None:
-                commentset_membership.last_seen_at = db.func.utcnow()
-                db.session.commit()
-
         comments = self.obj.commentset.views.json_comments()
-        subscribed = bool(self.obj.commentset.current_roles.subscriber)
+        subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
             return jsonify(
                 {

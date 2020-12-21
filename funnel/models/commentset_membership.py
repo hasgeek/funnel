@@ -49,10 +49,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
     @cached_property
     def offered_roles(self):
         """Roles offered by this membership record."""
-        roles = set()
-        if self.is_active:
-            roles.add('subscriber')
-        return roles
+        return {'document_subscriber'}
 
 
 @reopen(User)

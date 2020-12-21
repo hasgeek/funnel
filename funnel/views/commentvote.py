@@ -155,7 +155,7 @@ class CommentsetView(UrlForView, ModelView):
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
 
-            if not self.obj.current_roles.subscriber:
+            if not self.obj.current_roles.document_subscriber:
                 self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
 
             db.session.commit()
@@ -193,11 +193,9 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'error',
                 'error_code': 'subscribe_error',
-                'error_description': _(
-                    "There was an issue subscribing to this comment thread. Please try again"
-                ),
+                'error_description': _("Invalid CSRF token. Please try again"),
                 'error_details': csrf_form.errors,
-            }, 400
+            }, 422
 
     @route('unsubscribe', methods=['POST'])
     @requires_login
@@ -217,11 +215,9 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'error',
                 'error_code': 'unsubscribe_error',
-                'error_description': _(
-                    "There was an issue unsubscribing to this comment thread. Please try again"
-                ),
+                'error_description': _("Invalid CSRF token. Please try again"),
                 'error_details': csrf_form.errors,
-            }, 400
+            }, 422
 
     @route('seen', methods=['POST'])
     @requires_login
@@ -236,9 +232,9 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'error',
                 'error_code': 'update_seen_at_error',
-                'error_description': _("There was an issue. Please try again"),
+                'error_description': _("Invalid CSRF token. Please try again"),
                 'error_details': csrf_form.errors,
-            }, 400
+            }, 422
 
 
 @route('/comments/<commentset>', subdomain='<profile>')
