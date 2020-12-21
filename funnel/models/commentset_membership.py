@@ -86,7 +86,7 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
             ),
             viewonly=True,
         ),
-        grants_via={'user': {'subscriber'}},
+        grants_via={'user': {'document_subscriber'}},
     )
 
     def update_last_seen_at(self, user: User):
