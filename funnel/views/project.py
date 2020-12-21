@@ -613,7 +613,7 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             if not rsvp.state.YES:
-                rsvp.rsvp_yes(actor=current_auth.user)
+                rsvp.rsvp_yes(subscribe_comments=True)
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
                 dispatch_notification(
@@ -630,7 +630,7 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user)
             if rsvp is not None and not rsvp.state.NO:
-                rsvp.rsvp_no(actor=current_auth.user)
+                rsvp.rsvp_no()
                 db.session.commit()
                 flash(_("Your registration has been cancelled"), 'info')
                 dispatch_notification(
