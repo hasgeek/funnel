@@ -46,11 +46,18 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
     )
 
     #: when the user visited this commentset last
-    last_seen_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    last_seen_at = db.Column(
+        db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
+    )
 
     @cached_property
     def offered_roles(self):
-        """Roles offered by this membership record."""
+        """
+        Roles offered by this membership record.
+
+        It won't be used though because relationship below ignores it.
+        ref: https://github.com/hasgeek/funnel/pull/977#discussion_r544878851
+        """
         return {'document_subscriber'}
 
 
