@@ -193,7 +193,9 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'error',
                 'error_code': 'subscribe_error',
-                'error_description': _("Invalid CSRF token. Please try again"),
+                'error_description': _(
+                    "Invalid CSRF token. Reload the page and try again"
+                ),
                 'error_details': csrf_form.errors,
             }, 422
 
@@ -215,7 +217,9 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'error',
                 'error_code': 'unsubscribe_error',
-                'error_description': _("Invalid CSRF token. Please try again"),
+                'error_description': _(
+                    "Invalid CSRF token. Reload the page and try again"
+                ),
                 'error_details': csrf_form.errors,
             }, 422
 
@@ -232,7 +236,9 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'error',
                 'error_code': 'update_seen_at_error',
-                'error_description': _("Invalid CSRF token. Please try again"),
+                'error_description': _(
+                    "Invalid CSRF token. Reload the page and try again"
+                ),
                 'error_details': csrf_form.errors,
             }, 422
 
