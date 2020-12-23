@@ -187,15 +187,13 @@ class CommentsetView(UrlForView, ModelView):
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("You have successfully subscribed to this comment thread"),
+                'message': _("Successfully subscribed to this comment thread"),
             }
         else:
             return {
                 'status': 'error',
                 'error_code': 'subscribe_error',
-                'error_description': _(
-                    "Invalid CSRF token. Reload the page and try again"
-                ),
+                'error_description': _("This page timed out. Reload and try again"),
                 'error_details': csrf_form.errors,
             }, 422
 
@@ -209,17 +207,13 @@ class CommentsetView(UrlForView, ModelView):
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _(
-                    "You have successfully unsubscribed from this comment thread"
-                ),
+                'message': _("Successfully unsubscribed from this comment thread"),
             }
         else:
             return {
                 'status': 'error',
                 'error_code': 'unsubscribe_error',
-                'error_description': _(
-                    "Invalid CSRF token. Reload the page and try again"
-                ),
+                'error_description': _("This page timed out. Reload and try again"),
                 'error_details': csrf_form.errors,
             }, 422
 
@@ -236,9 +230,7 @@ class CommentsetView(UrlForView, ModelView):
             return {
                 'status': 'error',
                 'error_code': 'update_seen_at_error',
-                'error_description': _(
-                    "Invalid CSRF token. Reload the page and try again"
-                ),
+                'error_description': _("This page timed out. Reload and try again"),
                 'error_details': csrf_form.errors,
             }, 422
 

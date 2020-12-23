@@ -56,7 +56,6 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
         Roles offered by this membership record.
 
         It won't be used though because relationship below ignores it.
-        ref: https://github.com/hasgeek/funnel/pull/977#discussion_r544878851
         """
         return {'document_subscriber'}
 
@@ -96,7 +95,8 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         if existing_ms is not None:
             existing_ms.last_seen_at = db.func.utcnow()
 
-    def add_subscriber(self, actor: User, user: User) -> None:
+    def add_subscriber(self, actor: User, user: User) -> bool:
+        """Return True is subscriber is added, False if already exists."""
         existing_ms = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
@@ -107,10 +107,15 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
                 granted_by=actor,
             )
             db.session.add(new_ms)
+            return True
+        return False
 
-    def remove_subscriber(self, actor: User, user: User) -> None:
+    def remove_subscriber(self, actor: User, user: User) -> bool:
+        """Return True is subscriber is removed, False if already removed."""
         existing_ms = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
         if existing_ms is not None:
             existing_ms.revoke(actor=actor)
+            return True
+        return False
