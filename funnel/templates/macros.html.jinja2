@@ -125,7 +125,7 @@
         <div class="project-banner__profile-details">
           {%- if project.profile.logo_url.url %}
             <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
-              <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}?size=80" alt="{{ project.profile.title }}"/>
+              <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url.resize(80) }}" alt="{{ project.profile.title }}"/>
             </a>
           {% endif %}
           <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
