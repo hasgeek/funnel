@@ -983,36 +983,28 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
-      "The room sequence and colors have been updated.": [null, ""],
-      "There was a problem in contacting the server. Please try again later.": [
+      "The room sequence and colours have been updated.": [null, ""],
+      "The server could not be reached. Check connection and try again": [
         null,
         ""
       ],
-      "There was a problem in contacting the server. Please try again.": [
-        null,
-        ""
-      ],
-      "Edit Session": [null, ""],
-      "Schedule Session": [null, ""],
+      "Edit session": [null, "सेशन संपादित करें"],
+      "Schedule session": [null, ""],
       "Add new session": [null, ""],
-      "%s will be removed from the schedule. Are you sure you want to remove it?": [
-        null,
-        ""
-      ],
-      "There was a problem in deleting the session.": [null, ""],
+      "Remove %s from the schedule?": [null, ""],
       "Save": [null, "सेव करें"],
       "5 mins": [null, ""],
       "15 mins": [null, ""],
       "30 mins": [null, ""],
       "60 mins": [null, ""],
       "Autosave": [null, ""],
-      "Saving...": [null, ""],
+      "Saving…": [null, ""],
       "Saved": [null, ""],
-      "There was a problem in contacting the server. There are %d unsaved sessions. Please try again later.": [
+      "The server could not be reached. There are %d unsaved sessions. Check connection and try again": [
         null,
         ""
       ],
-      "There was a problem in contacting the server. There are %d unsaved session. Please try again later.": [
+      "The server could not be reached. There is 1 unsaved session. Check connection and try again": [
         null,
         ""
       ],
@@ -2729,7 +2721,6 @@
       "Profiles": [null, "प्रोफाइल"],
       "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
-      "Edit session": [null, "सेशन संपादित करें"],
       "Something went wrong, please reload and try again": [
         null,
         "कुछ गड़बड़ी हुई है, कृपया दोबारा लोड करें और दोबारा प्रयास करें"

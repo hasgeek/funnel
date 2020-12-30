@@ -129,14 +129,14 @@ $(function () {
               data: JSON.stringify(json),
               success: function (result) {
                 toastr.success(
-                  gettext('The room sequence and colors have been updated.')
+                  gettext('The room sequence and colours have been updated.')
                 );
               },
               complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   toastr.error(
                     gettext(
-                      'There was a problem in contacting the server. Please try again later.'
+                      'The server could not be reached. Check connection and try again'
                     )
                   );
                 }
@@ -226,7 +226,7 @@ $(function () {
             if (type == 'error' || type == 'timeout') {
               toastr.error(
                 gettext(
-                  'There was a problem in contacting the server. Please try again.'
+                  'The server could not be reached. Check connection and try again'
                 )
               );
             }
@@ -245,8 +245,8 @@ $(function () {
           popup.title().text(events.current.title);
           if (settings.editable) {
             if (events.current.obj_data.id)
-              popup.title().text(gettext('Edit Session'));
-            else popup.title().text(gettext('Schedule Session'));
+              popup.title().text(gettext('Edit session'));
+            else popup.title().text(gettext('Schedule session'));
           } else {
             popup
               .title()
@@ -267,7 +267,7 @@ $(function () {
             popup.close();
             toastr.error(
               gettext(
-                'There was a problem in contacting the server. Please try again later.'
+                'The server could not be reached. Check connection and try again'
               )
             );
           }
@@ -466,10 +466,7 @@ $(function () {
         custom.find('.fc-event-delete').click(function (e) {
           if (
             confirm(
-              gettext(
-                '%s will be removed from the schedule. Are you sure you want to remove it?',
-                event.obj_data.title
-              )
+              gettext('Remove %s from the schedule?', event.obj_data.title)
             )
           ) {
             $.ajax({
@@ -481,19 +478,15 @@ $(function () {
                     events.add_unscheduled(event.title, response.modal_url);
                   obj.remove(event);
                   if (response.msg) {
-                    toastr.warning(response.msg);
+                    toastr.warning(response.message);
                   }
-                } else {
-                  toastr.error(
-                    gettext('There was a problem in deleting the session.')
-                  );
                 }
               },
               complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   toastr.error(
                     gettext(
-                      'There was a problem in contacting the server. Please try again later.'
+                      'The server could not be reached. Check connection and try again'
                     )
                   );
                 }
@@ -708,7 +701,7 @@ $(function () {
         if (events.autosave) events.save();
       };
       events.save = function () {
-        calendar.buttons.save.disable(gettext('Saving...'));
+        calendar.buttons.save.disable(gettext('Saving…'));
         var event_list = calendar.events('unsaved');
         var e = [];
         for (event in event_list) {
@@ -728,15 +721,14 @@ $(function () {
               if (e.length > 2) {
                 toastr.error(
                   gettext(
-                    'There was a problem in contacting the server. There are %d unsaved sessions. Please try again later.',
+                    'The server could not be reached. There are %d unsaved sessions. Check connection and try again',
                     e.length
                   )
                 );
               } else {
                 toastr.error(
                   gettext(
-                    'There was a problem in contacting the server. There are %d unsaved session. Please try again later.',
-                    e.length
+                    'The server could not be reached. There is 1 unsaved session. Check connection and try again'
                   )
                 );
               }
