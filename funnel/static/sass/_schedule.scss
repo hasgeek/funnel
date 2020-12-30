@@ -348,6 +348,43 @@
   top: -9px;
 }
 
+// full calendar header
+.fc-header {
+  table-layout: fixed;
+  width: 100%;
+  white-space: nowrap;
+  td {
+    display: block;
+    width: 100%;
+    overflow: scroll;
+    margin: 0 0 5px;
+  }
+  .fc-header-center {
+    display: none;
+  }
+  .fc-header-right {
+    vertical-align: middle;
+    .hg-fc-checkbox {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    .hg-fc-button {
+      margin: 0;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .fc-header {
+    td {
+      display: table-cell;
+    }
+    td.fc-header-left {
+      width: 380px;
+    }
+  }
+}
+
 /* Calendar session */
 .calendar-wrapper .fc-header-title {
   display: none;
