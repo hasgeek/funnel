@@ -187,7 +187,7 @@ class CommentsetView(UrlForView, ModelView):
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("Successfully subscribed to this comment thread"),
+                'message': _("Subscribed to this comment thread"),
             }
         else:
             return {
@@ -207,7 +207,7 @@ class CommentsetView(UrlForView, ModelView):
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("Successfully unsubscribed from this comment thread"),
+                'message': _("Unsubscribed from this comment thread"),
             }
         else:
             return {
