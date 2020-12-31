@@ -210,7 +210,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return jsonify(
                 status=True,
                 modal_url=modal_url,
-                msg=_(
+                message=_(
                     "This project will not be listed as it has no sessions in the "
                     "schedule"
                 ),
