@@ -34,6 +34,7 @@ $(() => {
     );
   }
   Utils.addWebShare();
+  Utils.activateToggleSwitch();
 
   const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {

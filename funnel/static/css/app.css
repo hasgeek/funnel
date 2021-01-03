@@ -3968,7 +3968,7 @@ a.loginbutton.hidden,
 }
 .proposal-wrapper .proposal__wrapper__alert {
   padding: 8px 16px;
-  margin: 0;
+  margin: 0 0 16px;
   border-radius: 0;
 }
 .proposal-wrapper .details {
@@ -3978,6 +3978,31 @@ a.loginbutton.hidden,
 .proposal-wrapper .details .details__box {
   position: relative;
   overflow: visible;
+}
+
+.proposal-menu {
+  min-width: 270px;
+}
+.proposal-menu > li > a {
+  padding: 16px;
+}
+.proposal-menu hr {
+  margin: 0;
+}
+.proposal-menu .proposal-menu__form {
+  max-width: calc(100% - 25px);
+}
+.proposal-menu .proposal-menu__form .proposal-menu__form__label {
+  max-width: calc(100% - 40px);
+}
+.proposal-menu
+  .proposal-menu__form
+  .proposal-menu__form__label
+  .proposal-menu__form__label__helptxt {
+  white-space: break-spaces;
+}
+.proposal-menu .proposal-menu__form .switch-label {
+  padding-top: 10px;
 }
 
 .proposal__section {

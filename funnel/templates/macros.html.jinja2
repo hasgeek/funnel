@@ -343,17 +343,17 @@
     <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
   {%- endif %}
 
-  {%- if share and proposal or session %}
+  {%- if share and (proposal or session) %}
     {%- if proposal %}
       {% set url, title = proposal.url_for(_external=true), proposal.title  %}
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-action="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
-      <div class="mui-dropdown">
-        <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='subhead') }}</a>
-        {{ share_dropdown(url, title) }}
-      </div>
+    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-action="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+    <div class="mui-dropdown">
+      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='subhead') }}</a>
+      {{ share_dropdown(url, title) }}
+    </div>
   {%- endif %}
 {% endmacro %}
 
