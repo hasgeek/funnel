@@ -307,9 +307,6 @@ const Comments = {
                       csrf_token: $('meta[name="csrf-token"]').attr('content'),
                     },
                     dataType: 'json',
-                    success(responseData) {
-                      console.log(responseData);
-                    },
                   });
                   observer.unobserve(commentSection);
                 }
