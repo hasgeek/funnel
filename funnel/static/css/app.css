@@ -1474,7 +1474,7 @@ a.loginbutton.hidden,
     width: 400px;
   }
 }
-@media only screen and (max-device-width: 767px) and (orientation: landscape) {
+@media only screen and (max-width: 767px) and (orientation: landscape) {
   .hg-app .header--fixed .header__nav {
     height: 35px;
   }
@@ -1534,7 +1534,7 @@ a.loginbutton.hidden,
     line-height: 24px;
   }
 }
-@media (min-device-width: 768px) and (max-device-width: 1199px) and (orientation: landscape) {
+@media (min-width: 768px) and (max-width: 1199px) and (orientation: landscape) {
   .hg-app .header--fixed .header__nav {
     height: 35px;
   }
