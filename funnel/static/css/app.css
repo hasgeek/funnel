@@ -1135,8 +1135,7 @@ a.loginbutton.hidden,
   .header__nav-links__icon {
   width: 24px;
   height: 24px;
-  --fa-primary-color: #0f73ed;
-  --fa-secondary-color: #a1c1e6;
+  color: #4d5763;
   margin: 0 auto 4px;
 }
 .hg-app
@@ -1147,16 +1146,6 @@ a.loginbutton.hidden,
   .header__nav-links
   .mui-caret {
   color: #4d5763;
-}
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__nav-links--active
-  .header__nav-links__icon {
-  --fa-primary-color: #0f73ed;
-  --fa-secondary-color: #ffd927;
 }
 .hg-app
   .header--fixed
@@ -1292,7 +1281,7 @@ a.loginbutton.hidden,
     .header__site-title__title
     .logo-about {
     position: absolute !important;
-    left: 55px;
+    left: 46px;
     top: 5px;
     font-size: 12px;
     padding: 2px 10px;
