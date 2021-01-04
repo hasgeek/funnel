@@ -32,8 +32,7 @@
       <ul class="mui-dropdown__menu mui-dropdown__menu--right proposal-menu">
         {%- if 'edit_proposal' in proposal.permissions(current_auth.user) %}
           <li><a class="mui--text-body2" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}{% trans %}Edit description{% endtrans %}</a></li>
-          <li><a class="mui--text-body2"  href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}{% trans %}Edit metadata{% endtrans %}</a></li>
-          <li><a class="mui--text-body2" href="{{ proposal.url_for('edit') }}" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}
+          <li><a class="mui--text-body2" href="{{ proposal.url_for('edit') }}#field-video_url" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}
             {%- if proposal.video %}
               {% trans %}Edit video link{% endtrans %}
             {% else %}
@@ -66,7 +65,7 @@
               <a class="mui--text-body2"  href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session" aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}{% trans %}Edit session{% endtrans %}</a>
               </a>
             </li>
-            <li><a class="mui--text-body2" href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}
+            <li><a class="mui--text-body2" href="{{ proposal.session.url_for('edit') }}#field-video_url" data-cy="edit-session-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}
               {%- if proposal.session.video  %}
                 {% trans %}Edit video link{% endtrans %}
               {% else %}
