@@ -158,6 +158,10 @@ class CommentsetView(UrlForView, ModelView):
             self.obj.count = Commentset.count + 1
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
+
+            if not self.obj.current_roles.document_subscriber:
+                self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+
             db.session.commit()
             dispatch_notification(
                 NewCommentNotification(document=comment.commentset, fragment=comment)
@@ -176,6 +180,63 @@ class CommentsetView(UrlForView, ModelView):
             with_chrome=False,
         )
         return {'form': commentform_html}
+
+    @route('subscribe', methods=['POST'])
+    @requires_login
+    @render_with(json=True)
+    def subscribe(self):
+        csrf_form = forms.Form()
+        if csrf_form.validate_on_submit():
+            self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("Subscribed to this comment thread"),
+            }
+        else:
+            return {
+                'status': 'error',
+                'error_code': 'subscribe_error',
+                'error_description': _("This page timed out. Reload and try again"),
+                'error_details': csrf_form.errors,
+            }, 422
+
+    @route('unsubscribe', methods=['POST'])
+    @requires_login
+    @render_with(json=True)
+    def unsubscribe(self):
+        csrf_form = forms.Form()
+        if csrf_form.validate_on_submit():
+            self.obj.remove_subscriber(actor=current_auth.user, user=current_auth.user)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("Unsubscribed from this comment thread"),
+            }
+        else:
+            return {
+                'status': 'error',
+                'error_code': 'unsubscribe_error',
+                'error_description': _("This page timed out. Reload and try again"),
+                'error_details': csrf_form.errors,
+            }, 422
+
+    @route('seen', methods=['POST'])
+    @requires_login
+    @render_with(json=True)
+    def update_last_seen_at(self):
+        csrf_form = forms.Form()
+        if csrf_form.validate_on_submit():
+            self.obj.update_last_seen_at(user=current_auth.user)
+            db.session.commit()
+            return {'status': 'ok'}
+        else:
+            return {
+                'status': 'error',
+                'error_code': 'update_seen_at_error',
+                'error_description': _("This page timed out. Reload and try again"),
+                'error_details': csrf_form.errors,
+            }, 422
 
 
 @route('/comments/<commentset>', subdomain='<profile>')

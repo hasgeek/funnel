@@ -11,6 +11,7 @@ const Comments = {
     isuserloggedin,
     user,
     loginUrl,
+    lastSeenUrl,
   }) {
     const COMMENTACTIONS = {
       REPLY: 0,
@@ -155,6 +156,7 @@ const Comments = {
           textarea: '',
           errorMsg: '',
           loginUrl,
+          lastSeenUrl,
           refreshTimer: '',
           headerHeight: '',
           svgIconUrl: window.Hasgeek.config.svgIconUrl,
@@ -291,6 +293,35 @@ const Comments = {
         $(window).resize(() => {
           this.headerHeight = Utils.getPageHeaderHeight();
         });
+
+        const commentSection = document.querySelector(divElem);
+        if (commentSection && lastSeenUrl) {
+          const observer = new IntersectionObserver(
+            function (entries) {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  $.ajax({
+                    url: lastSeenUrl,
+                    type: 'POST',
+                    data: {
+                      csrf_token: $('meta[name="csrf-token"]').attr('content'),
+                    },
+                    dataType: 'json',
+                    success(responseData) {
+                      console.log(responseData);
+                    },
+                  });
+                  observer.unobserve(commentSection);
+                }
+              });
+            },
+            {
+              rootMargin: '0px',
+              threshold: 0,
+            }
+          );
+          observer.observe(commentSection);
+        }
       },
       updated() {
         if (this.initialLoad && window.location.hash) {

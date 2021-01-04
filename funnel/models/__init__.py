@@ -54,3 +54,4 @@ from .proposal_membership import *  # isort:skip
 from .site_membership import *  # isort:skip
 from .moderation import *  # isort:skip
 from .notification_types import *  # isort:skip
+from .commentset_membership import *  # isort:skip
