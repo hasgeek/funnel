@@ -4994,6 +4994,39 @@ a.loginbutton.hidden,
   top: -9px;
 }
 
+.fc-header {
+  table-layout: fixed;
+  width: 100%;
+  white-space: nowrap;
+}
+.fc-header td {
+  display: block;
+  width: 100%;
+  overflow: scroll;
+  margin: 0 0 5px;
+}
+.fc-header .fc-header-center {
+  display: none;
+}
+.fc-header .fc-header-right {
+  vertical-align: middle;
+}
+.fc-header .fc-header-right .hg-fc-checkbox {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.fc-header .fc-header-right .hg-fc-button {
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .fc-header td {
+    display: table-cell;
+  }
+  .fc-header td.fc-header-left {
+    width: 380px;
+  }
+}
 /* Calendar session */
 .calendar-wrapper .fc-header-title {
   display: none;

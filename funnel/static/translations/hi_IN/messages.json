@@ -28,6 +28,17 @@
         null,
         "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
       ],
+      "Today": [null, ""],
+      "Tomorrow": [null, ""],
+      "Day after": [null, ""],
+      "In %d days": [null, ""],
+      "An internal server error occurred. Our support team has been notified and will investigate.": [
+        null,
+        ""
+      ],
+      "Unable to connect. Check connection and tap to reload.": [null, ""],
+      "Link copied": [null, ""],
+      "Project added to Account > My saves": [null, ""],
       "English": [null, "अंग्रेज़ी"],
       "Hindi (beta; incomplete)": [null, "हिंदी (बीटा; अधूरा)"],
       "This password is too simple. Add complexity by making it longer and using a mix of upper and lower case letters, numbers and symbols": [
@@ -972,6 +983,31 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "The room sequence and colours have been updated.": [null, ""],
+      "The server could not be reached. Check connection and try again": [
+        null,
+        ""
+      ],
+      "Edit session": [null, "सेशन संपादित करें"],
+      "Schedule session": [null, ""],
+      "Add new session": [null, ""],
+      "Remove %s from the schedule?": [null, ""],
+      "Save": [null, "सेव करें"],
+      "5 mins": [null, ""],
+      "15 mins": [null, ""],
+      "30 mins": [null, ""],
+      "60 mins": [null, ""],
+      "Autosave": [null, ""],
+      "Saving…": [null, ""],
+      "Saved": [null, ""],
+      "The server could not be reached. There are %d unsaved sessions. Check connection and try again": [
+        null,
+        ""
+      ],
+      "The server could not be reached. There is 1 unsaved session. Check connection and try again": [
+        null,
+        ""
+      ],
       "Unavailable": [null, "अनुपलब्ध"],
       "This page is not currently available": [
         null,
@@ -1236,7 +1272,6 @@
       "Create new label": [null, "नया लेबल बनाएं"],
       "(No labels)": [null, "(कोई लेबल नहीं है)"],
       "Archive": [null, "पुरालेख"],
-      "Save": [null, "सेव करें"],
       "Please review the indicated issues": [
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
@@ -1540,7 +1575,7 @@
       "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
-      "Unscheduled submissions": [null, "अनिर्धारित सबमिशन"],
+      "Unscheduled proposals": [null, ""],
       "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
@@ -1627,64 +1662,41 @@
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
       "Add room": [null, "रूम जोड़ें"],
-      "Select camera": [null, "कैमरा चुनें"],
-      "Switch camera": [null, "कैमरा बदलें"],
-      "Check in status": [null, "स्थिति की जांच करें"],
-      "Scanning": [null, "स्कैन हो रहा है"],
-      "Hello %s": [null, "नमस्ते %s"],
+      "Select camera": [null, ""],
+      "Switch camera": [null, ""],
+      "Check in status": [null, ""],
+      "Scanning": [null, ""],
+      "Hello %s": [null, ""],
       "Thank you for choosing to participate in %(title)s and for being a part of this growing community": [
         null,
-        "%(title)s में भाग लेने के चुनाव के लिए और इस बढ़ते कम्यूनिटी का हिस्सा बनने के लिए धन्यवाद"
+        ""
       ],
-      "Attendee details not found": [null, "प्रतिभागी की जानकारी नहीं मिली"],
-      "Login to leave a comment": [null, "कमेंट करने के लिए लॉगिन करें"],
+      "Attendee details not found": [null, ""],
+      "Login to leave a comment": [null, ""],
       "Post a comment…": [null, "कमेंट पोस्ट करें…"],
-      "New comment": [null, "नया कमेंट"],
-      "edited %s": [null, "%s को संपादित किया "],
-      "Reply": [null, "जवाब दें"],
-      "Report": [null, "रिपोर्ट करें"],
-      "More": [null, "अधिक"],
-      "Show badge": [null, "बैज दिखाएं"],
-      "Show label badge": [null, "लेबल बैज दिखाएं"],
-      "Edit participant details": [
-        null,
-        "प्रतिभागी की जानकारी को संपादित करें"
-      ],
-      "Add new member": [null, "नया सदस्य जोड़ें"],
-      "members": [null, "सदस्य"],
-      "member": [null, "सदस्य"],
-      "Role": [null, "भूमिका"],
-      "No members found": [null, "कोई सदस्य नहीं पाया गया"],
-      "Members you add will appear here…": [
-        null,
-        "आपके द्वारा जोड़े गए सदस्य यहां दिखाई देंगे..."
-      ],
-      "Remove this member": [null, "इस सदस्य को हटाएं"],
-      "Admin": [null, "एडमिन"],
-      "+ %d more role": [null, "+ %d और भूमिका"],
-      "+ %d more roles": [null, "+ %d और भूमिका"],
-      "Agenda view": [null, "एजेंडा देखें"],
-      "Calender view": [null, "कैलेंडर देखें"],
-      "An internal server error occurred. Our support team has been notified and will investigate.": [
-        null,
-        "आंतरिक सर्वर त्रुटि. हमारी टीम को सूचित कर दिया गया है और वे इसकी जांच करेंगे."
-      ],
-      "Unable to connect. Check connection and tap to reload.": [
-        null,
-        "कनेक्ट नहीं हो सके. कनेक्शन को जाँचें और फिर से लोड करने के लिए टैप करें."
-      ],
-      "Project added to Account > My saves": [
-        null,
-        "प्रोजेक्ट ‘अकाउंट > मेरी सेव की गई चीज़ें’ जोड़ा गया है"
-      ],
-      "read more": [null, "और पढ़ें"],
-      "Today": [null, "आज"],
-      "Tomorrow": [null, "कल"],
-      "Day after": [null, "परसों"],
-      "In %d days": [null, "%d दिनों में"],
+      "New comment": [null, ""],
+      "edited %s": [null, ""],
+      "Reply": [null, ""],
+      "Report": [null, ""],
+      "More": [null, ""],
+      "Show badge": [null, ""],
+      "Show label badge": [null, ""],
+      "Edit participant details": [null, ""],
+      "Add new member": [null, ""],
+      "members": [null, ""],
+      "member": [null, ""],
+      "Role": [null, ""],
+      "No members found": [null, ""],
+      "Members you add will appear here…": [null, ""],
+      "Remove this member": [null, ""],
+      "Admin": [null, ""],
+      "+ %d more role": [null, ""],
+      "+ %d more roles": [null, ""],
+      "Agenda view": [null, ""],
+      "Calender view": [null, ""],
       "Update": [null, "अपडेट करें"],
-      "Read more": [null, "अधिक पढ़ें"],
-      "Hide": [null, "छिपाएं"],
+      "Read more": [null, ""],
+      "Hide": [null, ""],
       "You wrote:": [null, "आपने लिखा:"],
       "View comment": [null, "कमेंट देखें"],
       "View in context": [null, "संदर्भ के साथ देखें"],
@@ -2709,7 +2721,6 @@
       "Profiles": [null, "प्रोफाइल"],
       "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
-      "Edit session": [null, "सेशन संपादित करें"],
       "Something went wrong, please reload and try again": [
         null,
         "कुछ गड़बड़ी हुई है, कृपया दोबारा लोड करें और दोबारा प्रयास करें"

@@ -52,24 +52,22 @@
       {%- if people %}
         <div class="mui-container">
           <div class="page-content">
-            <div class="mui-container">
-              <div class="grid">
-                <div class="grid__col-xs-12">
-                  <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}People{% endtrans %}</h2>
-                  <ul class="mui-list--unstyled mui-list--border">
-                    {%- for user, teams in people %}
-                      <li class="user">
-                        <div class="user__box">
-                          {{ useravatar(user) }}
-                          <div class="user__box__header">
-                            <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
-                            <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>
-                          </div>
+            <div class="grid">
+              <div class="grid__col-xs-12">
+                <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}People{% endtrans %}</h2>
+                <ul class="mui-list--unstyled mui-list--border">
+                  {%- for user, teams in people %}
+                    <li class="user">
+                      <div class="user__box">
+                        {{ useravatar(user) }}
+                        <div class="user__box__header">
+                          <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
+                          <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>
                         </div>
-                      </li>
-                    {%- endfor %}
-                  </ul>
-                </div>
+                      </div>
+                    </li>
+                  {%- endfor %}
+                </ul>
               </div>
             </div>
           </div>
@@ -78,41 +76,34 @@
     {%- endwith %}
   {%- endif %}
 
-  {%- if profile.features.new_project() %}
-    <div class="projects-wrapper">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Drafts{% endtrans %}</h2>
-          </div>
+  {%- if profile.features.new_project() or  draft_projects %}
+  <div class="projects-wrapper">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Drafts{% endtrans %}</h2>
         </div>
-        <ul class="grid projects" role="list">
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-action="Add new project">
-              <div class="card__image-wrapper">
-                <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
-                <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
-              </div>
-              <div class="card__body">
-                <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
-                <p class="mui--text-subhead mui--text-light zero-top-margin">{% trans %}Write, collaborate and get feedback.{% endtrans %}</p>
-              </div>
-              <div class="mui-divider"></div>
-              <div class="card__footer">
-                <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}New project{% endtrans %}</p>
-              </div>
-            </a>
-          </li>
-  {% elif draft_projects %}
-    <div class="projects-wrapper">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Drafts{% endtrans %}</h2>
-          </div>
-        </div>
-        <ul class="grid projects" role="list">
-  {% endif %}
+      </div>
+      <ul class="grid projects" role="list">
+        {%- if profile.features.new_project() %}
+          <ul class="grid projects" role="list">
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-action="Add new project">
+                <div class="card__image-wrapper">
+                  <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
+                  <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
+                </div>
+                <div class="card__body">
+                  <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
+                  <p class="mui--text-subhead mui--text-light zero-top-margin">{% trans %}Write, collaborate and get feedback.{% endtrans %}</p>
+                </div>
+                <div class="mui-divider"></div>
+                <div class="card__footer">
+                  <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}New project{% endtrans %}</p>
+                </div>
+              </a>
+            </li>
+        {% endif %}
         {% if draft_projects %}
           {% for project in draft_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
@@ -128,13 +119,15 @@
       {% endif %}
     </div>
   </div>
+  {%- endif %}
 
   {% if unscheduled_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-          <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
+            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
+          </div>
         </div>
         <ul class="grid projects" role="list">
           {% for project in unscheduled_projects %}
