@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2020-12-30 13:02+0530\n"
+"POT-Creation-Date: 2021-01-04 14:55+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -1813,7 +1813,7 @@ msgid "Send Back to Submitted"
 msgstr "जमा किए पर वापस भेजें"
 
 #: funnel/models/proposal.py:384 funnel/templates/macros.html.jinja2:199
-#: funnel/views/commentvote.py:402 funnel/views/login_session.py:426
+#: funnel/views/commentvote.py:463 funnel/views/login_session.py:426
 msgid "Confirm"
 msgstr "स्वीकृती दें"
 
@@ -1877,7 +1877,7 @@ msgstr "इस प्रस्ताव को मूल्यांकन क�
 #: funnel/templates/labels.html.jinja2:43
 #: funnel/templates/organization_teams.html.jinja2:36
 #: funnel/templates/proposal_admin_panel.html.jinja2:13
-#: funnel/views/commentvote.py:312 funnel/views/update.py:185
+#: funnel/views/commentvote.py:373 funnel/views/update.py:185
 msgid "Delete"
 msgstr "मिटाएं"
 
@@ -1889,11 +1889,11 @@ msgstr "इस प्रस्ताव को मिटा दिया गय�
 msgid "Going"
 msgstr "शामिल होंगे"
 
-#: funnel/models/rsvp.py:23 funnel/models/rsvp.py:88
+#: funnel/models/rsvp.py:23 funnel/models/rsvp.py:89
 msgid "Not going"
 msgstr "शामिल नहीं होंगे"
 
-#: funnel/models/rsvp.py:24 funnel/models/rsvp.py:99
+#: funnel/models/rsvp.py:24 funnel/models/rsvp.py:101
 msgid "Maybe"
 msgstr "शायद"
 
@@ -1901,7 +1901,7 @@ msgstr "शायद"
 msgid "Awaiting"
 msgstr "प्रतीक्षित"
 
-#: funnel/models/rsvp.py:78 funnel/models/rsvp.py:89 funnel/models/rsvp.py:100
+#: funnel/models/rsvp.py:78 funnel/models/rsvp.py:90 funnel/models/rsvp.py:102
 msgid "Your response has been saved"
 msgstr "आपकी प्रतिक्रिया सेव कर दी गई"
 
@@ -1934,7 +1934,7 @@ msgid "The room sequence and colours have been updated."
 msgstr ""
 
 #: funnel/static/js/schedules.js:138 funnel/static/js/schedules.js:228
-#: funnel/static/js/schedules.js:269 funnel/static/js/schedules.js:491
+#: funnel/static/js/schedules.js:269 funnel/static/js/schedules.js:488
 #: funnel/static/js/schedules.packed.js:1
 msgid "The server could not be reached. Check connection and try again"
 msgstr ""
@@ -1957,8 +1957,8 @@ msgstr ""
 msgid "Remove %s from the schedule?"
 msgstr ""
 
-#: funnel/static/js/schedules.js:529 funnel/static/js/schedules.js:703
-#: funnel/static/js/schedules.js:723 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:526 funnel/static/js/schedules.js:700
+#: funnel/static/js/schedules.js:720 funnel/static/js/schedules.packed.js:1
 #: funnel/templates/labels.html.jinja2:49
 #: funnel/templates/macros.html.jinja2:58
 #: funnel/templates/schedule_edit.html.jinja2:87
@@ -1967,42 +1967,42 @@ msgstr ""
 msgid "Save"
 msgstr "सेव करें"
 
-#: funnel/static/js/schedules.js:570 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:567 funnel/static/js/schedules.packed.js:1
 msgid "5 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:572 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:569 funnel/static/js/schedules.packed.js:1
 msgid "15 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:574 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:571 funnel/static/js/schedules.packed.js:1
 msgid "30 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:576 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:573 funnel/static/js/schedules.packed.js:1
 msgid "60 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:602 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:599 funnel/static/js/schedules.packed.js:1
 msgid "Autosave"
 msgstr ""
 
-#: funnel/static/js/schedules.js:707 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:704 funnel/static/js/schedules.packed.js:1
 msgid "Saving…"
 msgstr ""
 
-#: funnel/static/js/schedules.js:719 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:716 funnel/static/js/schedules.packed.js:1
 msgid "Saved"
 msgstr ""
 
-#: funnel/static/js/schedules.js:726 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:723 funnel/static/js/schedules.packed.js:1
 #, python-format
 msgid ""
 "The server could not be reached. There are %d unsaved sessions. Check "
 "connection and try again"
 msgstr ""
 
-#: funnel/static/js/schedules.js:733 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:730 funnel/static/js/schedules.packed.js:1
 msgid ""
 "The server could not be reached. There is 1 unsaved session. Check "
 "connection and try again"
@@ -2733,8 +2733,8 @@ msgid "Please review the indicated issues"
 msgstr "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
 
 #: funnel/templates/layout.html.jinja2:68
-msgid "10 years!"
-msgstr "10 साल!"
+msgid "What’s this about?"
+msgstr ""
 
 #: funnel/templates/layout.html.jinja2:73
 msgid "Search the site"
@@ -4821,43 +4821,56 @@ msgid "Read the list of teams in your organizations"
 msgstr "अपने संगठनों में टीमों की सूची पढ़ें"
 
 #: funnel/views/commentvote.py:74 funnel/views/commentvote.py:89
-#: funnel/views/commentvote.py:327 funnel/views/commentvote.py:342
+#: funnel/views/commentvote.py:388 funnel/views/commentvote.py:403
 msgid "Your vote has been recorded"
 msgstr "आपका वोट रिकॉर्ड कर लिया गया है"
 
-#: funnel/views/commentvote.py:104 funnel/views/commentvote.py:357
+#: funnel/views/commentvote.py:104 funnel/views/commentvote.py:418
 msgid "Your vote has been withdrawn"
 msgstr "आपका वोट वापस ले लिया गया है"
 
-#: funnel/views/commentvote.py:167 funnel/views/commentvote.py:252
+#: funnel/views/commentvote.py:171 funnel/views/commentvote.py:313
 msgid "Your comment has been posted"
 msgstr "आपका कमेंट पोस्ट कर दिया गया है"
 
-#: funnel/views/commentvote.py:174 funnel/views/commentvote.py:260
+#: funnel/views/commentvote.py:178 funnel/views/commentvote.py:321
 msgid "Post comment"
 msgstr "कमेंट पोस्ट करें"
 
-#: funnel/views/commentvote.py:212
+#: funnel/views/commentvote.py:194
+msgid "Subscribed to this comment thread"
+msgstr ""
+
+#: funnel/views/commentvote.py:200 funnel/views/commentvote.py:220
+#: funnel/views/commentvote.py:237
+msgid "This page timed out. Reload and try again"
+msgstr ""
+
+#: funnel/views/commentvote.py:214
+msgid "Unsubscribed from this comment thread"
+msgstr ""
+
+#: funnel/views/commentvote.py:273
 msgid "That comment could not be found. It may have been deleted"
 msgstr ""
 
-#: funnel/views/commentvote.py:278
+#: funnel/views/commentvote.py:339
 msgid "Your comment has been edited"
 msgstr "आपका कमेंट संपादित कर दिया गया है"
 
-#: funnel/views/commentvote.py:285
+#: funnel/views/commentvote.py:346
 msgid "Edit comment"
 msgstr "कमेंट संपादित करें"
 
-#: funnel/views/commentvote.py:305
+#: funnel/views/commentvote.py:366
 msgid "Your comment has been deleted"
 msgstr "आपकी कमेंट मिटा दी गई है"
 
-#: funnel/views/commentvote.py:380
+#: funnel/views/commentvote.py:441
 msgid "The comment has been reported as spam"
 msgstr "कमेंट को स्पैम के रूप में रिपोर्ट कर दिया गया है"
 
-#: funnel/views/commentvote.py:385 funnel/views/commentvote.py:392
+#: funnel/views/commentvote.py:446 funnel/views/commentvote.py:453
 msgid "There was an issue reporting this comment. Please try again"
 msgstr ""
 "इस कमेंट को रिपोर्ट करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा "
@@ -6660,3 +6673,6 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "Hide"
 #~ msgstr "छिपाएं"
+
+#~ msgid "10 years!"
+#~ msgstr "10 साल!"
