@@ -731,9 +731,7 @@ class ProjectView(
                 {
                     'status': 'error',
                     'error': 'project_save_form_invalid',
-                    'error_description': _(
-                        "This page timed out. Refresh and try again"
-                    ),
+                    'error_description': _("This page timed out. Reload and try again"),
                     'form_nonce': form.form_nonce.data,
                 },
                 400,
@@ -757,7 +755,7 @@ class ProjectView(
                 flash(
                     _(
                         "Importing tickets from vendors…"
-                        " Refresh the page in about 30 seconds…"
+                        " Reload the page in about 30 seconds…"
                     ),
                     'info',
                 )

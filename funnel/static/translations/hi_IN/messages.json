@@ -983,6 +983,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -2226,6 +2229,12 @@
       "Your vote has been withdrawn": [null, "आपका वोट वापस ले लिया गया है"],
       "Your comment has been posted": [null, "आपका कमेंट पोस्ट कर दिया गया है"],
       "Post comment": [null, "कमेंट पोस्ट करें"],
+      "Subscribed to this comment thread": [null, ""],
+      "This page timed out. Reload and try again": [
+        null,
+        "इस पेज को लोड होने का समय समाप्त हो चुका है. पेज को रिलोड करने के बाद फिर से कोशिश करें"
+      ],
+      "Unsubscribed from this comment thread": [null, ""],
       "That comment could not be found. It may have been deleted": [null, ""],
       "Your comment has been edited": [
         null,
@@ -2378,9 +2387,9 @@
         null,
         "आप अपनी भूमिका संपादित नहीं कर सकते"
       ],
-      "This member’s record was edited elsewhere. Please refresh the page": [
+      "This member’s record was edited elsewhere. Reload the page": [
         null,
-        "इस सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. कृपया पेज को रिफ्रेश करें"
+        "इस सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. पेज को रिलोड करें"
       ],
       "The member’s roles have been updated": [
         null,
@@ -2412,9 +2421,9 @@
         null,
         "नया सदस्य नहीं जोड़ा जा सका"
       ],
-      "The member’s record was edited elsewhere. Please refresh the page": [
+      "The member’s record was edited elsewhere. Reload the page": [
         null,
-        "सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. कृपया पेज को रिफ्रेश करें"
+        "सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. पेज को रिलोड करें"
       ],
       "Remove {member} as a crew member from this project?": [
         null,
@@ -2653,13 +2662,9 @@
         null,
         "आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
       ],
-      "This page timed out. Refresh and try again": [
+      "Importing tickets from vendors… Reload the page in about 30 seconds…": [
         null,
-        "इस पेज को लोड होने का समय समाप्त हो चुका है. पेज को रिफ्रेश करने के बाद फिर से कोशिश करें"
-      ],
-      "Importing tickets from vendors… Refresh the page in about 30 seconds…": [
-        null,
-        "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिफ्रेश करें…"
+        "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिलोड करें…"
       ],
       "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting.": [
         null,
@@ -2794,9 +2799,9 @@
       "Post an update": [null, "एक अपडेट पोस्ट करें"],
       "Save & preview": [null, "सेव करें और देखें"],
       "The update has been published": [null, "अपडेट पब्लिश हो चुकी है"],
-      "There was an error publishing this update. Please refresh and try again": [
+      "There was an error publishing this update. Reload and try again": [
         null,
-        "इस अपडेट को पब्लिश करने में एक त्रुटि उत्पन्न हुई थी. कृपया रिफ्रेश करें और दोबारा प्रयास करें"
+        "इस अपडेट को पब्लिश करने में एक त्रुटि उत्पन्न हुई थी. रिलोड करें और दोबारा प्रयास करें"
       ],
       "The update has been edited": [null, "अपडेट को संपादित किया गया है"],
       "Edit update": [null, "अपडेट संपादित करें"],
