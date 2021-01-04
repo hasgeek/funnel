@@ -131,7 +131,7 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
                 dispatch_notification(NewUpdateNotification(document=self.obj))
         else:
             flash(
-                _("There was an error publishing this update. " "Reload and try again"),
+                _("There was an error publishing this update. Reload and try again"),
                 'error',
             )
         return redirect(self.obj.project.url_for('updates'))
