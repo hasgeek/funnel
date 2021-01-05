@@ -9,11 +9,7 @@ export const useravatar = Ractive.extend({
     size: 'medium',
     getInitials: window.Baseframe.Utils.getInitials,
     imgurl() {
-      return (
-        this.get('user')['avatar'] +
-        '?size=' +
-        window.Hasgeek.config.userAvatarImgSize[this.get('size')]
-      );
+      return this.get('user')['avatar'] + '.resize(' + this.get('size') + ')';
     },
   },
 });

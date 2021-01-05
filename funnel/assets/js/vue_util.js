@@ -23,7 +23,7 @@ export const userAvatarUI = Vue.component('useravatar', {
       return window.Hasgeek.config.userAvatarImgSize[this.size];
     },
     imgurl() {
-      return this.user.avatar + '?size=' + this.imgsize;
+      return this.user.avatar + '.resize(' + this.get('size') + ')';
     },
   },
 });

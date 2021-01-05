@@ -1,5 +1,8 @@
 {% from "baseframe/forms.html.jinja2" import renderform %}
 {% from "baseframe/components.html.jinja2" import faicon, alertbox %}
+{%- set banner_img = 1500 %}
+{%- set profile_logo = 240 %}
+{%- set profile_logo_small = 80 %}
 
 {%- macro csrf_tag() %}
 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
@@ -125,7 +128,7 @@
         <div class="project-banner__profile-details">
           {%- if project.profile.logo_url.url %}
             <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-action="View {{ project.profile.title }}(project page)">
-              <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url.resize(80) }}" alt="{{ project.profile.title }}"/>
+              <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url.resize(profile_logo_small) }}" alt="{{ project.profile.title }}"/>
             </a>
           {% endif %}
           <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link" data-action="View {{ project.profile.title }}(project page)">{{ project.profile.title }}</a>
@@ -178,7 +181,7 @@
                 </p>
               </div>
             {%- elif project.bg_image.url %}
-              <img class="project-banner__box__image" src="{{ project.bg_image.resize(1500) }}" alt="{{ project.title }}" data-cy="bg_image"/>
+              <img class="project-banner__box__image" src="{{ project.bg_image.resize(banner_img) }}" alt="{{ project.title }}" data-cy="bg_image"/>
             {%- else %}
               <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
             {% endif %}
@@ -371,9 +374,9 @@
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-action="View {{ project.title }}(upcoming)">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
-        <img class="card__image js-lazyload-img" data-src="{{ project.bg_image.resize(1500) }}" alt="{{ project.title }}"/>
+        <img class="card__image js-lazyload-img" data-src="{{ project.bg_image.resize(banner_img) }}" alt="{{ project.title }}"/>
         <noscript>
-          <img class="card__image" src="{{ project.bg_image.resize(1500) }}" alt="{{ project.title }}"/>
+          <img class="card__image" src="{{ project.bg_image.resize(banner_img) }}" alt="{{ project.title }}"/>
         </noscript>
       {% else %}
         <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
@@ -430,7 +433,7 @@
             <div class="card card--spotlight card--spotlight--live">
               <div class="card__image-wrapper">
                 {% if featured_project.bg_image.url %}
-                  <img class="card__image" src="{{ featured_project.bg_image.resize(1500) }}" alt="{{ featured_project.title }}"/>
+                  <img class="card__image" src="{{ featured_project.bg_image.resize(banner_img) }}" alt="{{ featured_project.title }}"/>
                 {% else %}
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                   <p class="card__image__tagline">{{ featured_project.title }}</p>
@@ -476,7 +479,7 @@
               <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy-project="{{ featured_project.title }}" data-action="View {{ featured_project.title }}(spotlight)">
                 <div class="card__image-wrapper">
                   {% if featured_project.bg_image.url %}
-                    <img class="card__image" src="{{ featured_project.bg_image.resize(1500) }}" alt="{{ featured_project.title }}"/>
+                    <img class="card__image" src="{{ featured_project.bg_image.resize(banner_img) }}" alt="{{ featured_project.title }}"/>
                   {% else %}
                     <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                     <p class="card__image__tagline">{{ featured_project.title }}</p>
@@ -617,7 +620,7 @@
     <div class="profile__banner">
           <div class="profile__banner__box">
             {%- if profile.banner_image_url.url %}
-              <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(1500) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
+              <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(banner_img) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
             {% else %}
               <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ profile.title }}"/>
             {% endif %}
@@ -630,7 +633,7 @@
                 {% endif %}
                 <div class="profile__logo">
                   {%- if profile.logo_url.url %}
-                    <img class="profile__logo__img" src="{{ profile.logo_url.resize(240) }}" alt="{{ profile.title }}"/>
+                    <img class="profile__logo__img" src="{{ profile.logo_url.resize(profile_logo) }}" alt="{{ profile.title }}"/>
                   {% else %}
                     <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class='profile__logo__icon') }}</span>
                   {% endif %}
