@@ -16,9 +16,9 @@ $(() => {
   window.Hasgeek.config.readReceiptTimeout = 5000;
   window.Hasgeek.config.saveEditorContentTimeout = 300;
   window.Hasgeek.config.userAvatarImgSize = {
-    big: '160',
-    medium: '80',
-    small: '48',
+    big: 160,
+    medium: 80,
+    small: 48,
   };
 
   Utils.loadLangTranslations();

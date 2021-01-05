@@ -19,11 +19,13 @@ export const userAvatarUI = Vue.component('useravatar', {
     getInitials: window.Baseframe.Utils.getInitials,
   },
   computed: {
-    imgsize() {
-      return window.Hasgeek.config.userAvatarImgSize[this.size];
-    },
     imgurl() {
-      return this.user.avatar + '.resize(' + this.get('size') + ')';
+      return (
+        this.user.avatar +
+        '.resize(' +
+        window.Hasgeek.config.userAvatarImgSize[this.size] +
+        ')'
+      );
     },
   },
 });
