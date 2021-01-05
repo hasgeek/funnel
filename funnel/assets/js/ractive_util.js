@@ -11,9 +11,8 @@ export const useravatar = Ractive.extend({
     imgurl() {
       return (
         this.get('user')['avatar'] +
-        '.resize(' +
-        window.Hasgeek.config.userAvatarImgSize[this.get('size')] +
-        ')'
+        '?size=' +
+        window.Hasgeek.config.userAvatarImgSize[this.get('size')]
       );
     },
   },
