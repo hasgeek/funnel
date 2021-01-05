@@ -806,13 +806,13 @@ class ProjectView(
                 'delcommentform': forms.Form(),
             }
 
-    @route('toggle_featured', methods=['POST'])
-    def toggle_featured(self):
+    @route('update_featured', methods=['POST'])
+    def update_featured(self):
         if not current_auth.user.is_site_editor:
             return abort(403)
-        featured_form = forms.Form()
+        featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
-            self.obj.featured = not self.obj.featured
+            featured_form.populate_obj(self.obj)
             db.session.commit()
         return redirect(get_next_url(referrer=True), 303)
 

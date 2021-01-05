@@ -84,6 +84,13 @@ class ProjectForm(forms.Form):
             self.bg_image.profile = self.edit_obj.profile.name
 
 
+@Project.forms('featured')
+class ProjectFeaturedForm(forms.Form):
+    features = forms.BooleanField(
+        __("Feature this project"), validators=[forms.validators.InputRequired()]
+    )
+
+
 class ProjectLivestreamForm(forms.Form):
     livestream_urls = forms.TextListField(
         __(

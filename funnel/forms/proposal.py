@@ -99,6 +99,13 @@ def proposal_label_admin_form(project, proposal):
     return form
 
 
+@Proposal.forms('featured')
+class ProposalFeaturedForm(forms.Form):
+    features = forms.BooleanField(
+        __("Feature this submission"), validators=[forms.validators.InputRequired()]
+    )
+
+
 @Proposal.forms('transfer')
 class ProposalTransferForm(forms.Form):
     user = forms.UserSelectField(

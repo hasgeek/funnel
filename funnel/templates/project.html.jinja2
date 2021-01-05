@@ -86,7 +86,7 @@
                 <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
               </div>
               <div class="modal__body">
-                <form action="{{ project.url_for('toggle_featured') }}" method="post">
+                <form action="{{ project.url_for('update_featured') }}" method="post">
                   {{ csrf_tag() }}
                   <span class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Confirmation{% endtrans %}</span>
                   <button name="transition" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">
