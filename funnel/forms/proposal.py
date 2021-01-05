@@ -101,7 +101,7 @@ def proposal_label_admin_form(project, proposal):
 
 @Proposal.forms('featured')
 class ProposalFeaturedForm(forms.Form):
-    features = forms.BooleanField(
+    featured = forms.BooleanField(
         __("Feature this submission"), validators=[forms.validators.InputRequired()]
     )
 

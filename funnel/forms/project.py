@@ -86,7 +86,7 @@ class ProjectForm(forms.Form):
 
 @Project.forms('featured')
 class ProjectFeaturedForm(forms.Form):
-    features = forms.BooleanField(
+    featured = forms.BooleanField(
         __("Feature this project"), validators=[forms.validators.InputRequired()]
     )
 
