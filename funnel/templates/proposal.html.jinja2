@@ -31,25 +31,25 @@
       <a href="javascript:void(0)" class="mui--text-title mui--text-light" data-mui-toggle="dropdown" aria-label="{% trans %}Proposal menu{% endtrans %}" data-cy="proposal-menu">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
       <ul class="mui-dropdown__menu mui-dropdown__menu--right proposal-menu">
         {%- if 'edit_proposal' in proposal.permissions(current_auth.user) %}
-          <li><a class="mui--text-body2" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}{% trans %}Edit description{% endtrans %}</a></li>
-          <li><a class="mui--text-body2" href="{{ proposal.url_for('edit') }}#field-video_url" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}
+          <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=true, css_class='mui--text-light fa-icon--margin') }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
+          <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video_url" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=true, css_class='mui--text-light fa-icon--margin') }}<span class="mui--text-body2">
             {%- if proposal.video %}
               {% trans %}Edit video link{% endtrans %}
             {% else %}
               {% trans %}Add video link{% endtrans %}
             {%- endif %}
-          </a></li>
+          </span></a></li>
           <hr>
-          <li><a class="mui--text-body2" href="{{ proposal.url_for('delete') }}" class="mui--text-danger" data-cy-admin="delete">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--text-danger fa-icon--margin mui--align-middle') }}<span class="mui--text-danger">{% trans %}Delete{% endtrans %}</span></a></li>
+          <li><a class="mui--text-subhead" href="{{ proposal.url_for('delete') }}" class="mui--text-danger" data-cy-admin="delete">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=true, css_class='mui--text-danger fa-icon--margin') }}<span class="mui--text-danger mui--text-body2">{% trans %}Delete{% endtrans %}</span></a></li>
         {%- endif %}
         {%- if proposal.current_roles.project_editor %}
-          <li><a href="{{ proposal.url_for('admin') }}" class="mui--text-body2" rel="modal:open" aria-label="{% trans %}Admin panel{% endtrans %}" data-cy="admin-panel">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}{% trans %}Open admin panel{% endtrans %}</a></li>
+          <li><a class="mui--text-subhead" href="{{ proposal.url_for('admin') }}" rel="modal:open" aria-label="{% trans %}Admin panel{% endtrans %}" data-cy="admin-panel">{{ faicon(icon='cog', icon_size='subhead', baseline=true, css_class='mui--text-light fa-icon--margin') }}<span class="mui--text-body2">{% trans %}Open admin panel{% endtrans %}</span></a></li>
           <li>
-            <a href="javascript:void(0)" class="mui--text-body2 mui--clearfix">
-              {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle mui--pull-left') }}
+            <a class="mui--text-subhead mui--clearfix" href="javascript:void(0)">
+              {{ faicon(icon='stars', icon_size='subhead', baseline=true, css_class='mui--text-light fa-icon--margin mui--pull-left') }}
               <span class="mui--pull-right proposal-menu__form">
                 <span class="mui--d-inlineblock proposal-menu__form__label">
-                  <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
+                  <span class="mui--d-block mui--text-body2">{% trans %}Feature this submission{% endtrans %}</span>
                   <span class="mui--d-block mui--text-caption mui--text-light proposal-menu__form__label__helptxt">{% trans %}Multiple submissions can be featured in a project.{% endtrans %}</span>
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
@@ -62,17 +62,14 @@
             </a>
           </li>
           {% if proposal.state.SCHEDULED %}
-            <li>
-              <a class="mui--text-body2"  href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session" aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}{% trans %}Edit session{% endtrans %}</a>
-              </a>
-            </li>
-            <li><a class="mui--text-body2" href="{{ proposal.session.url_for('edit') }}#field-video_url" data-cy="edit-session-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}
+            <li><a class="mui--text-subhead" href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session" aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=true, css_class='mui--text-light fa-icon--margin') }}<span class="mui--text-body2">{% trans %}Edit session{% endtrans %}</span></a></li>
+            <li><a class="mui--text-subhead" href="{{ proposal.session.url_for('edit') }}#field-video_url" data-cy="edit-session-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=true, css_class='mui--text-light fa-icon--margin') }}<span class="mui--text-body2">
               {%- if proposal.session.video  %}
                 {% trans %}Edit video link{% endtrans %}
               {% else %}
                 {% trans %}Add video link{% endtrans %}
               {%- endif %}
-          </a></li>
+            </span></a></li>
           {%- endif %}
         {%- endif %}
       </ul>
