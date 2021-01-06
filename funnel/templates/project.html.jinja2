@@ -74,10 +74,10 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-sm-12">
-            <form action="{{ project.url_for('update_featured') }}" method="post" class="margin-top">
+            <form action="{{ project.url_for('update_featured') }}" method="post" class="top-padding">
               {{ csrf_tag() }}
               <span class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Feature this project{% endtrans %}</span>
-              <input type="hidden" name="featured" value="false">
+              {%- if project.featured %}<input type="hidden" name="featured" value="false">{%- endif %}
               <input type="checkbox" name="featured" {%- if project.featured %}checked{%- endif %} id="featured-project" class="switch-input js-toggle"/>
               <label class="switch-label switch-label--middle" for="featured-project"></label>
             </form>
