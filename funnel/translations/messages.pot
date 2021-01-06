@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-01-04 14:55+0530\n"
+"POT-Creation-Date: 2021-01-06 19:16+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,7 +72,7 @@ msgstr ""
 msgid "Link copied"
 msgstr ""
 
-#: funnel/assets/js/util.js:496
+#: funnel/assets/js/util.js:501
 msgid "Project added to Account > My saves"
 msgstr ""
 
@@ -486,7 +486,7 @@ msgid ""
 "not confirmed it. Do you need to reset your password?"
 msgstr ""
 
-#: funnel/forms/helpers.py:109 funnel/forms/project.py:109
+#: funnel/forms/helpers.py:109 funnel/forms/project.py:116
 msgid "A https:// URL is required"
 msgstr ""
 
@@ -923,11 +923,11 @@ msgid "Project status"
 msgstr ""
 
 #: funnel/forms/profile.py:99 funnel/forms/project.py:63
-#: funnel/forms/project.py:144
+#: funnel/forms/project.py:151
 msgid "Banner image"
 msgstr ""
 
-#: funnel/forms/project.py:30 funnel/forms/proposal.py:134
+#: funnel/forms/project.py:30 funnel/forms/proposal.py:141
 #: funnel/forms/session.py:14 funnel/forms/sync_ticket.py:38
 #: funnel/forms/sync_ticket.py:73 funnel/forms/update.py:12
 #: funnel/templates/auth_client_index.html.jinja2:15
@@ -976,77 +976,81 @@ msgstr ""
 msgid "Quotes are not necessary in the location name"
 msgstr ""
 
-#: funnel/forms/project.py:89
+#: funnel/forms/project.py:90 funnel/templates/project.html.jinja2:69
+msgid "Feature this project"
+msgstr ""
+
+#: funnel/forms/project.py:96
 msgid ""
 "Livestream URLs. One per line. Must be on YouTube or Vimeo. Must begin "
 "with https://"
 msgstr ""
 
-#: funnel/forms/project.py:110
+#: funnel/forms/project.py:117
 msgid "Livestream must be on YouTube or Vimeo"
 msgstr ""
 
-#: funnel/forms/project.py:120
+#: funnel/forms/project.py:127
 msgid "Custom URL"
 msgstr ""
 
-#: funnel/forms/project.py:121
+#: funnel/forms/project.py:128
 msgid ""
 "Customize the URL of your project. Use lowercase letters, numbers and "
 "dashes only. Including a date is recommended"
 msgstr ""
 
-#: funnel/forms/project.py:130
+#: funnel/forms/project.py:137
 msgid ""
 "This URL contains unsupported characters. It can contain lowercase "
 "letters, numbers and hyphens only."
 msgstr ""
 
-#: funnel/forms/project.py:161
+#: funnel/forms/project.py:168
 msgid "Guidelines"
 msgstr ""
 
-#: funnel/forms/project.py:164
+#: funnel/forms/project.py:171
 msgid ""
 "Set guidelines for the type of submissions your project is accepting, "
 "your review process, and anything else relevant to the submission"
 msgstr ""
 
-#: funnel/forms/project.py:170
+#: funnel/forms/project.py:177
 msgid "Submissions open at"
 msgstr ""
 
-#: funnel/forms/project.py:175
+#: funnel/forms/project.py:182
 msgid "Submissions close at"
 msgstr ""
 
-#: funnel/forms/project.py:180
+#: funnel/forms/project.py:187
 msgid "This requires an opening time to be specified"
 msgstr ""
 
-#: funnel/forms/project.py:183
+#: funnel/forms/project.py:190
 msgid "Submissions cannot close before they open"
 msgstr ""
 
-#: funnel/forms/project.py:193 funnel/forms/project.py:239
-#: funnel/forms/proposal.py:165
+#: funnel/forms/project.py:200 funnel/forms/project.py:246
+#: funnel/forms/proposal.py:172
 msgid "Status"
 msgstr ""
 
-#: funnel/forms/project.py:203 funnel/templates/schedule_edit.html.jinja2:21
+#: funnel/forms/project.py:210 funnel/templates/schedule_edit.html.jinja2:21
 #: funnel/templates/settings.html.jinja2:55
 msgid "Schedule status"
 msgstr ""
 
-#: funnel/forms/project.py:215
+#: funnel/forms/project.py:222
 msgid "CfP status"
 msgstr ""
 
-#: funnel/forms/project.py:227
+#: funnel/forms/project.py:234
 msgid "Save this project?"
 msgstr ""
 
-#: funnel/forms/project.py:230 funnel/forms/session.py:68
+#: funnel/forms/project.py:237 funnel/forms/session.py:68
 msgid "Note to self"
 msgstr ""
 
@@ -1054,37 +1058,41 @@ msgstr ""
 msgid "Please select one"
 msgstr ""
 
-#: funnel/forms/proposal.py:105
+#: funnel/forms/proposal.py:105 funnel/templates/proposal.html.jinja2:39
+msgid "Feature this submission"
+msgstr ""
+
+#: funnel/forms/proposal.py:112
 msgid "Transfer to"
 msgstr ""
 
-#: funnel/forms/proposal.py:106
+#: funnel/forms/proposal.py:113
 msgid "Transfer this submission to another presenter"
 msgstr ""
 
-#: funnel/forms/proposal.py:113 funnel/forms/proposal.py:123
-#: funnel/forms/proposal.py:150 funnel/templates/labels.html.jinja2:5
+#: funnel/forms/proposal.py:120 funnel/forms/proposal.py:130
+#: funnel/forms/proposal.py:157 funnel/templates/labels.html.jinja2:5
 msgid "Labels"
 msgstr ""
 
-#: funnel/forms/proposal.py:139 funnel/forms/update.py:17
+#: funnel/forms/proposal.py:146 funnel/forms/update.py:17
 #: funnel/templates/siteadmin_comments.html.jinja2:48
 msgid "Content"
 msgstr ""
 
-#: funnel/forms/proposal.py:142 funnel/templates/macros.html.jinja2:263
+#: funnel/forms/proposal.py:149 funnel/templates/macros.html.jinja2:263
 msgid "Video"
 msgstr ""
 
-#: funnel/forms/proposal.py:148
+#: funnel/forms/proposal.py:155
 msgid "YouTube or Vimeo URL (optional)"
 msgstr ""
 
-#: funnel/forms/proposal.py:178
+#: funnel/forms/proposal.py:185
 msgid "Move proposal to"
 msgstr ""
 
-#: funnel/forms/proposal.py:179
+#: funnel/forms/proposal.py:186
 msgid "Move this proposal to another project"
 msgstr ""
 
@@ -1261,7 +1269,7 @@ msgid "Please enter a valid color code"
 msgstr ""
 
 #: funnel/forms/venue.py:105 funnel/templates/macros.html.jinja2:260
-#: funnel/templates/project.html.jinja2:231
+#: funnel/templates/project.html.jinja2:212
 msgid "Venue"
 msgstr ""
 
@@ -1809,8 +1817,8 @@ msgstr ""
 #: funnel/templates/js/comments.js.jinja2:89
 #: funnel/templates/labels.html.jinja2:43
 #: funnel/templates/organization_teams.html.jinja2:36
-#: funnel/templates/proposal_admin_panel.html.jinja2:13
-#: funnel/views/commentvote.py:373 funnel/views/update.py:185
+#: funnel/templates/proposal.html.jinja2:32 funnel/views/commentvote.py:373
+#: funnel/views/update.py:185
 msgid "Delete"
 msgstr ""
 
@@ -1873,7 +1881,8 @@ msgid "The server could not be reached. Check connection and try again"
 msgstr ""
 
 #: funnel/static/js/schedules.js:248 funnel/static/js/schedules.packed.js:1
-#: funnel/views/session.py:71 funnel/views/session.py:114
+#: funnel/templates/proposal.html.jinja2:51 funnel/views/session.py:71
+#: funnel/views/session.py:114
 msgid "Edit session"
 msgstr ""
 
@@ -2201,7 +2210,6 @@ msgstr ""
 #: funnel/templates/macros.html.jinja2:208
 #: funnel/templates/macros.html.jinja2:529
 #: funnel/templates/macros.html.jinja2:581
-#: funnel/templates/project.html.jinja2:76
 #: funnel/templates/project_cfp.html.jinja2:8
 #: funnel/templates/proposal_admin_panel.html.jinja2:5
 #: funnel/templates/schedule_edit.html.jinja2:95
@@ -2260,8 +2268,8 @@ msgid "Client application information"
 msgstr ""
 
 #: funnel/templates/auth_client.html.jinja2:11
-#: funnel/templates/proposal.html.jinja2:22
-#: funnel/templates/proposal_admin_panel.html.jinja2:8
+#: funnel/templates/proposal.html.jinja2:33
+#: funnel/templates/proposal_admin_panel.html.jinja2:6
 #: funnel/templates/settings.html.jinja2:29
 msgid "Admin panel"
 msgstr ""
@@ -2805,7 +2813,7 @@ msgid "Submissions are closed for this project"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:248
-#: funnel/templates/project.html.jinja2:249
+#: funnel/templates/project.html.jinja2:230
 #: funnel/templates/venues.html.jinja2:37 funnel/views/venue.py:52
 msgid "Add venue"
 msgstr ""
@@ -2815,7 +2823,7 @@ msgid "About"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:258
-#: funnel/templates/project.html.jinja2:144
+#: funnel/templates/project.html.jinja2:125
 msgid "Talks"
 msgstr ""
 
@@ -2826,14 +2834,14 @@ msgstr ""
 #: funnel/templates/macros.html.jinja2:262
 #: funnel/templates/project_comments.html.jinja2:4
 #: funnel/templates/project_comments.html.jinja2:20
-#: funnel/templates/proposal.html.jinja2:170 funnel/views/search.py:270
+#: funnel/templates/proposal.html.jinja2:206 funnel/views/search.py:270
 #: funnel/views/siteadmin.py:241
 msgid "Comments"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:264
 #: funnel/templates/macros.html.jinja2:642
-#: funnel/templates/project.html.jinja2:205
+#: funnel/templates/project.html.jinja2:186
 #: funnel/templates/proposals.html.jinja2:4
 #: funnel/templates/proposals.html.jinja2:17
 #: funnel/templates/user_profile_proposals.html.jinja2:10
@@ -2861,12 +2869,11 @@ msgid "This update is for participants only"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:292
-#: funnel/templates/proposal_admin_panel.html.jinja2:64
 msgid "Edit submission video"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:294
-#: funnel/templates/proposal_admin_panel.html.jinja2:59
+#: funnel/templates/proposal.html.jinja2:52
 msgid "Edit session video"
 msgstr ""
 
@@ -3011,7 +3018,7 @@ msgid "Projects"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:658
-#: funnel/templates/project.html.jinja2:109
+#: funnel/templates/project.html.jinja2:90
 #: funnel/templates/project_admin.html.jinja2:39
 msgid "Tickets"
 msgstr ""
@@ -3064,7 +3071,7 @@ msgstr ""
 
 #: funnel/templates/meta_refresh.html.jinja2:6
 #: funnel/templates/meta_refresh.html.jinja2:28
-#: funnel/templates/project.html.jinja2:243
+#: funnel/templates/project.html.jinja2:224
 #: funnel/templates/redirect.html.jinja2:1
 msgid "Loading…"
 msgstr ""
@@ -3198,28 +3205,10 @@ msgstr ""
 msgid "Unscheduled projects"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:71
-msgid "Featured project"
-msgstr ""
-
-#: funnel/templates/project.html.jinja2:81
-msgid "Confirmation"
-msgstr ""
-
-#: funnel/templates/project.html.jinja2:84
-#: funnel/templates/proposal_admin_panel.html.jinja2:21
-msgid "Remove featured"
-msgstr ""
-
-#: funnel/templates/project.html.jinja2:86
-#: funnel/templates/proposal_admin_panel.html.jinja2:23
-msgid "Make featured"
-msgstr ""
-
-#: funnel/templates/project.html.jinja2:109
+#: funnel/templates/project.html.jinja2:90
 #: funnel/templates/project_comments.html.jinja2:20
 #: funnel/templates/project_membership.html.jinja2:17
-#: funnel/templates/proposal.html.jinja2:38
+#: funnel/templates/proposal.html.jinja2:74
 #: funnel/templates/proposals.html.jinja2:17
 #: funnel/templates/schedule.html.jinja2:70
 #: funnel/templates/session_videos.html.jinja2:16
@@ -3228,28 +3217,27 @@ msgstr ""
 msgid "Back to the project"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:119
-#: funnel/templates/proposal_admin_panel.html.jinja2:12
+#: funnel/templates/project.html.jinja2:100
 msgid "Edit details"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:122
+#: funnel/templates/project.html.jinja2:103
 msgid "Related events"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:193
+#: funnel/templates/project.html.jinja2:174
 msgid "View Schedule"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:214
+#: funnel/templates/project.html.jinja2:195
 msgid "See all"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:223
+#: funnel/templates/project.html.jinja2:204
 msgid "Related jobs"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:233
+#: funnel/templates/project.html.jinja2:214
 msgid "Update venue"
 msgstr ""
 
@@ -3312,75 +3300,91 @@ msgstr ""
 msgid "Participants"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:52
+#: funnel/templates/proposal.html.jinja2:23
+msgid "Proposal menu"
+msgstr ""
+
+#: funnel/templates/proposal.html.jinja2:25
+msgid "Edit description"
+msgstr ""
+
+#: funnel/templates/proposal.html.jinja2:26
+msgid "Add proposal video"
+msgstr ""
+
+#: funnel/templates/proposal.html.jinja2:27
+#: funnel/templates/proposal.html.jinja2:53
+msgid "Edit video link"
+msgstr ""
+
+#: funnel/templates/proposal.html.jinja2:29
+#: funnel/templates/proposal.html.jinja2:55
+msgid "Add video link"
+msgstr ""
+
+#: funnel/templates/proposal.html.jinja2:33
+msgid "Open admin panel"
+msgstr ""
+
+#: funnel/templates/proposal.html.jinja2:40
+msgid "Multiple submissions can be featured in a project."
+msgstr ""
+
+#: funnel/templates/proposal.html.jinja2:88
 msgid "This is a featured submission"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:56
-#: funnel/templates/proposal.html.jinja2:178
+#: funnel/templates/proposal.html.jinja2:92
+#: funnel/templates/proposal.html.jinja2:214
 msgid "Up next"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:85
+#: funnel/templates/proposal.html.jinja2:121
 msgid "No video"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:87
+#: funnel/templates/proposal.html.jinja2:123
 msgid "Add video"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:99
+#: funnel/templates/proposal.html.jinja2:135
 msgid "Session video"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:109
+#: funnel/templates/proposal.html.jinja2:145
 msgid "Proposal video"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:131
+#: funnel/templates/proposal.html.jinja2:167
 #, python-format
 msgid "Submitted %(date)s "
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:146
+#: funnel/templates/proposal.html.jinja2:182
 #, python-format
 msgid "Submitted by %(speaker)s on %(date)s"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:148
+#: funnel/templates/proposal.html.jinja2:184
 msgid ""
 "This is a proposal requesting for someone to speak on this topic.\n"
 "                  If you’d like to speak, leave a comment."
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:160
+#: funnel/templates/proposal.html.jinja2:196
 msgid "This proposal has been added to the schedule"
 msgstr ""
 
-#: funnel/templates/proposal_admin_panel.html.jinja2:27
+#: funnel/templates/proposal_admin_panel.html.jinja2:9
 msgid "Move"
 msgstr ""
 
-#: funnel/templates/proposal_admin_panel.html.jinja2:29
+#: funnel/templates/proposal_admin_panel.html.jinja2:10
 msgid "Transfer"
 msgstr ""
 
-#: funnel/templates/proposal_admin_panel.html.jinja2:31
+#: funnel/templates/proposal_admin_panel.html.jinja2:11
 msgid "Change status of proposal"
-msgstr ""
-
-#: funnel/templates/proposal_admin_panel.html.jinja2:58
-#: funnel/templates/proposal_admin_panel.html.jinja2:61
-#: funnel/templates/session_view_popup.html.jinja2:44
-msgid "Add session video"
-msgstr ""
-
-#: funnel/templates/proposal_admin_panel.html.jinja2:63
-msgid "Add proposal video"
-msgstr ""
-
-#: funnel/templates/proposal_admin_panel.html.jinja2:66
-msgid "Add submission video"
 msgstr ""
 
 #: funnel/templates/proposals.html.jinja2:29
@@ -3456,6 +3460,10 @@ msgstr ""
 
 #: funnel/templates/session_view_popup.html.jinja2:41
 msgid "The session has no attached video"
+msgstr ""
+
+#: funnel/templates/session_view_popup.html.jinja2:44
+msgid "Add session video"
 msgstr ""
 
 #: funnel/templates/session_view_popup.html.jinja2:51

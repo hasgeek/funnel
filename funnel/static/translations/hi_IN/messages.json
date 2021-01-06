@@ -566,6 +566,7 @@
         null,
         "स्थान के नाम में क्वोट लगाना आवश्यक नहीं है"
       ],
+      "Feature this project": [null, ""],
       "Livestream URLs. One per line. Must be on YouTube or Vimeo. Must begin with https://": [
         null,
         "लाइवस्ट्रीम URLs. प्रति लाइन में एक. YouTube या Vimeo पर ही होनी चाहिए. https:// से ही शुरुआत होनी चाहिए"
@@ -604,6 +605,7 @@
       "Save this project?": [null, "इस प्रोजेक्ट को सहेजें?"],
       "Note to self": [null, "खुद याद रखने की बात"],
       "Please select one": [null, "कृपया, कोई एक चुनें"],
+      "Feature this submission": [null, ""],
       "Transfer to": [null, "इसे भेजें"],
       "Transfer this submission to another presenter": [
         null,
@@ -1492,10 +1494,6 @@
         "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं."
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
-      "Featured project": [null, "मुख्य प्रोजेक्ट"],
-      "Confirmation": [null, "पुष्टि"],
-      "Remove featured": [null, "मुख्य पद से हटाए"],
-      "Make featured": [null, "मुख्य बनाएं"],
       "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "Edit details": [null, "विवरण संपादित करें"],
       "Related events": [null, "सम्बंधित ईवेंट"],
@@ -1532,6 +1530,13 @@
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Participants": [null, "प्रतिभागी"],
+      "Proposal menu": [null, ""],
+      "Edit description": [null, ""],
+      "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
+      "Edit video link": [null, ""],
+      "Add video link": [null, ""],
+      "Open admin panel": [null, ""],
+      "Multiple submissions can be featured in a project.": [null, ""],
       "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "Up next": [null, "अगला आने वाला"],
       "No video": [null, "कोई वीडियो नहीं है"],
@@ -1554,9 +1559,6 @@
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
-      "Add session video": [null, "सेशन की वीडियो जोड़ें"],
-      "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
-      "Add submission video": [null, "सबमिशन का वीडियो जोड़ें"],
       "Proposal guidelines": [null, "प्रस्ताव के दिशा-निर्देश"],
       "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
       "Modify proposal guidelines and timing": [
@@ -1590,6 +1592,7 @@
         null,
         "सेशन के साथ जुड़ी कोई वीडियो नहीं है"
       ],
+      "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Open submission for this session": [
         null,
         "इस सेशन के लिए सबमिशन की प्रक्रिया खोलें"
