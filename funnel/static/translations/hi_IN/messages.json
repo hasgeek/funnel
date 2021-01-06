@@ -1276,7 +1276,7 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "10 years!": [null, "10 साल!"],
+      "What’s this about?": [null, ""],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
@@ -2226,6 +2226,9 @@
       "Your vote has been withdrawn": [null, "आपका वोट वापस ले लिया गया है"],
       "Your comment has been posted": [null, "आपका कमेंट पोस्ट कर दिया गया है"],
       "Post comment": [null, "कमेंट पोस्ट करें"],
+      "Subscribed to this comment thread": [null, ""],
+      "This page timed out. Reload and try again": [null, ""],
+      "Unsubscribed from this comment thread": [null, ""],
       "That comment could not be found. It may have been deleted": [null, ""],
       "Your comment has been edited": [
         null,
