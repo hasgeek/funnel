@@ -2717,6 +2717,12 @@ a.loginbutton.hidden,
   background-color: #ffffff !important;
 }
 
+.switch-label.switch-label--middle {
+  position: relative;
+  top: -2px;
+  vertical-align: middle;
+}
+
 .card--banner {
   border-radius: 16px;
   overflow: hidden;

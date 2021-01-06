@@ -53,7 +53,8 @@
                   <span class="mui--d-block mui--text-caption mui--text-light proposal-menu__form__label__helptxt">{% trans %}Multiple submissions can be featured in a project.{% endtrans %}</span>
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
-                {{ csrf_tag() }}
+                  {{ csrf_tag() }}
+                  <input type="hidden" name="featured" value="false">
                   <input type="checkbox" name="featured" {%- if proposal.featured %}checked{%- endif %} id="featured-proposal" class="switch-input js-toggle"/>
                   <label class="switch-label mui--pull-right" for="featured-proposal"></label>
                 </form>
