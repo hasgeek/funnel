@@ -613,7 +613,7 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             if not rsvp.state.YES:
-                rsvp.rsvp_yes()
+                rsvp.rsvp_yes(subscribe_comments=True)
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
                 dispatch_notification(
@@ -788,12 +788,19 @@ class ProjectView(
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
+        subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
-            return jsonify({'comments': comments})
+            return jsonify(
+                {
+                    'subscribed': subscribed,
+                    'comments': comments,
+                }
+            )
         else:
             commentform = CommentForm(model=Comment)
             return {
                 'project': self.obj,
+                'subscribed': subscribed,
                 'comments': comments,
                 'commentform': commentform,
                 'delcommentform': forms.Form(),
