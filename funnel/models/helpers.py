@@ -386,7 +386,7 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
 
 
 class ImgeeFurl(furl):
-    def resize(self, width: int, height: int) -> furl:
+    def resize(self, width: int, height: Optional[int] = None) -> furl:
         """
         Return image url with `?size=WxH` suffixed to it.
 
@@ -395,7 +395,7 @@ class ImgeeFurl(furl):
         """
         if self.url:
             copy = self.copy()
-            copy.args['size'] = f'{width}x{height}'
+            copy.args['size'] = f'{width}' if height is None else f'{width}x{height}'
             return copy
         return self
 
