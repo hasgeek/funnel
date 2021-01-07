@@ -3,10 +3,28 @@ import { Utils } from './util';
 
 export const userAvatarUI = Vue.component('useravatar', {
   template:
-    '<a :href="user.profile_url" v-if="user.profile_url && addprofilelink"><span class="user__box__wrapper" v-if="user.avatar"><img class="user__box__gravatar" :src="user.avatar"></span><div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(user.fullname) }}</div></a v-if="user.profile_url && addprofilelink"></a><span v-else><img class="user__box__gravatar" :src="user.avatar" v-if="user.avatar"/><div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(user.fullname) }}</span v-else>',
-  props: ['user', 'addprofilelink'],
+    '<a :href="user.profile_url" v-if="user.profile_url && addprofilelink"><span class="user__box__wrapper" v-if="user.avatar"><img class="user__box__gravatar" :src="imgurl"></span><div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(user.fullname) }}</div></a v-if="user.profile_url && addprofilelink"></a><span v-else><img class="user__box__gravatar" :src="imgurl" v-if="user.avatar"/><div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(user.fullname) }}</span v-else>',
+  props: {
+    user: Object,
+    addprofilelink: {
+      type: Boolean,
+      default: true,
+    },
+    size: {
+      type: String,
+      default: 'medium',
+    },
+  },
   methods: {
     getInitials: window.Baseframe.Utils.getInitials,
+  },
+  computed: {
+    imgsize() {
+      return window.Hasgeek.config.userAvatarImgSize[this.size];
+    },
+    imgurl() {
+      return this.user.avatar + '?size=' + this.imgsize;
+    },
   },
 });
 
