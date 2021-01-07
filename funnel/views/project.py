@@ -452,9 +452,9 @@ class ProjectView(
         """Delete project if safe to do so."""
         if not self.obj.is_safe_to_delete():
             return render_message(
-                title=_("This project has proposals"),
+                title=_("This project has submissions"),
                 message=_(
-                    "Proposals must be deleted or transferred before the project"
+                    "Submissions must be deleted or transferred before the project"
                     " can be deleted."
                 ),
             )
@@ -806,14 +806,21 @@ class ProjectView(
                 'delcommentform': forms.Form(),
             }
 
-    @route('toggle_featured', methods=['POST'])
-    def toggle_featured(self):
+    @route('update_featured', methods=['POST'])
+    def update_featured(self):
         if not current_auth.user.is_site_editor:
             return abort(403)
-        featured_form = forms.Form()
+        featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
-            self.obj.featured = not self.obj.featured
+            featured_form.populate_obj(self.obj)
             db.session.commit()
+            if self.obj.featured:
+                return {'status': 'ok', 'message': 'This project has been featured.'}
+            else:
+                return {
+                    'status': 'ok',
+                    'message': 'This project is no longer featured.',
+                }
         return redirect(get_next_url(referrer=True), 303)
 
 

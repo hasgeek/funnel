@@ -6,7 +6,7 @@
   border-radius: 16px 16px 0 16px;
   .proposal__wrapper__alert {
     padding: $mui-grid-padding/2 $mui-grid-padding;
-    margin: 0;
+    margin: 0 0 $mui-grid-padding;
     border-radius: 0;
   }
   .details {
@@ -15,6 +15,32 @@
     .details__box {
       position: relative;
       overflow: visible;
+    }
+  }
+}
+
+.proposal-menu {
+  min-width: 270px;
+  > li > a {
+    padding: $mui-grid-padding;
+  }
+  hr {
+    margin: 0;
+  }
+  .fa5-icon.mui--align-middle {
+    position: relative;
+    top: -1px;
+  }
+  .proposal-menu__form {
+    max-width: calc(100% - 25px);
+    .proposal-menu__form__label {
+      max-width: calc(100% - 40px);
+      .proposal-menu__form__label__helptxt {
+        white-space: break-spaces;
+      }
+    }
+    .switch-label {
+      padding-top: 10px;
     }
   }
 }
@@ -236,6 +262,9 @@
 
 .proposal-content {
   min-height: 100px;
+  img {
+    max-width: 100%;
+  }
 }
 
 .links-list {
@@ -290,7 +319,7 @@
     z-index: -1;
     opacity: 0;
     left: 0px;
-    width: 100%;
+    width: calc(100% - 16px);
     margin: 0px;
     padding: $mui-grid-padding/2;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);

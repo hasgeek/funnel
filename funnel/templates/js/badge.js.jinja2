@@ -25,7 +25,7 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-action="close contact modal" on-click="closeModal(event)" aria-label="{{ gettext('Close') }}"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
+            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-ga="close checkin modal" on-click="closeModal(event)" aria-label="{{ gettext('Close') }}"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
             <h3 class="mui--text-title">{{ gettext('Check in status') }}</h3>
           </div>
           <div class="modal__body">
@@ -63,7 +63,7 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-action="close modal"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
+            <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-ga="close contact details modal"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
           </div>
           <div class="modal__body">
             {{#if scanning}}
