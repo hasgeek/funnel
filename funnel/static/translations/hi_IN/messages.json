@@ -1533,14 +1533,15 @@
       "Proposal menu": [null, ""],
       "Edit description": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
-      "Edit video link": [null, ""],
-      "Add video link": [null, ""],
-      "Open admin panel": [null, ""],
-      "Multiple submissions can be featured in a project.": [null, ""],
+      "Replace video": [null, ""],
+      "Add video": [null, "वीडियो जोड़ें"],
+      "Editor panel": [null, ""],
+      "Featured submissions appear on the project page": [null, ""],
+      "Replace session video": [null, ""],
+      "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "Up next": [null, "अगला आने वाला"],
       "No video": [null, "कोई वीडियो नहीं है"],
-      "Add video": [null, "वीडियो जोड़ें"],
       "Session video": [null, "सेशन वीडियो"],
       "Proposal video": [null, "प्रस्ताव वीडियो"],
       "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
@@ -1592,7 +1593,6 @@
         null,
         "सेशन के साथ जुड़ी कोई वीडियो नहीं है"
       ],
-      "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Open submission for this session": [
         null,
         "इस सेशन के लिए सबमिशन की प्रक्रिया खोलें"
@@ -2287,9 +2287,9 @@
       "Label has been edited": [null, "लेबल संपादित कर दिया गया है"],
       "The label has been archived": [null, "लेबल को पुरालेख कर दिया गया है"],
       "CSRF token is missing": [null, "CSRF टोकन नामौजूद है"],
-      "Labels that have been assigned to proposals cannot be deleted": [
+      "Labels that have been assigned to submissions cannot be deleted": [
         null,
-        "जिन लेबल को प्रस्तावों को सौंपा गया है, उन्हें हटाया नहीं जा सकता है"
+        ""
       ],
       "The label has been deleted": [null, "लेबल मिटा दिया गया है"],
       "You have a weak password. To ensure the safety of your account, please choose a stronger password": [
@@ -2616,10 +2616,10 @@
       "Create project": [null, "प्रोजेक्ट बनाएं"],
       "Customize the URL": [null, "URL कस्टमाइज़ करें"],
       "Edit project": [null, "प्रोजेक्ट संपादित करें"],
-      "This project has proposals": [null, "इस प्रोजेक्ट के कुछ प्रस्ताव हैं"],
-      "Proposals must be deleted or transferred before the project can be deleted.": [
+      "This project has submissions": [null, ""],
+      "Submissions must be deleted or transferred before the project can be deleted.": [
         null,
-        "संगठन मिटाए जाने से पहले प्रस्तावों को हटाया या स्थानांतरित किया जाना चाहिए."
+        ""
       ],
       "Delete project ‘{title}’? This will delete everything in the project. This operation is permanent and cannot be undone.": [
         null,
@@ -2675,49 +2675,28 @@
         null,
         "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
       ],
-      "Your proposal has been submitted": [
+      "Your submission has been submitted": [null, ""],
+      "Edit submission": [null, ""],
+      "Delete your submission ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,
-        "आपका प्रस्ताव जमा किया जा चुका है"
+        ""
       ],
-      "Edit proposal": [null, "प्रस्ताव को संपादित करें"],
-      "Delete your proposal ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
+      "Your submission has been deleted": [null, ""],
+      "Invalid transition for this submission.": [null, ""],
+      "You were at the last submission": [null, ""],
+      "You were at the first submission": [null, ""],
+      "This submission has been moved to {project}.": [null, ""],
+      "Please choose the project you want to move this submission to.": [
         null,
-        "अपना ‘{title}’ प्रस्ताव मिटाएं? यह सभी वोटों और कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        ""
       ],
-      "Your proposal has been deleted": [
+      "This submission has been transfered.": [null, ""],
+      "Please choose the user you want to transfer this submission to.": [
         null,
-        "आपका प्रस्ताव मिटा दिया गया है"
+        ""
       ],
-      "Invalid transition for this proposal.": [
-        null,
-        "इस प्रस्ताव के लिए अमान्य परिवर्तन."
-      ],
-      "You were at the last proposal": [null, "आप आखरी प्रस्ताव पर थे"],
-      "You were at the first proposal": [null, "आप पहले प्रस्ताव पर थे"],
-      "This proposal has been moved to {project}.": [
-        null,
-        "यह प्रस्ताव {project} में भेज दिया गया है."
-      ],
-      "Please choose the project you want to move this proposal to.": [
-        null,
-        "कृपया वो प्रोजेक्ट चुनें जिसमें आप इस प्रस्ताव को भेजना चाहते हैं."
-      ],
-      "This proposal has been transfered.": [
-        null,
-        "यह प्रस्ताव भेज दिया गया है."
-      ],
-      "Please choose the user you want to transfer this proposal to.": [
-        null,
-        "कृपया वह यूजर चुनें जिसे आप इस प्रस्ताव को भेजना चाहते हैं."
-      ],
-      "Labels have been saved for this proposal.": [
-        null,
-        "इस प्रस्ताव के लिए लेबल सेव किए जा चुके हैं."
-      ],
-      "Labels could not be saved for this proposal.": [
-        null,
-        "इस प्रस्ताव के लिए लेबल नहीं सेव किए जा सके."
-      ],
+      "Labels have been saved for this submission.": [null, ""],
+      "Labels could not be saved for this submission.": [null, ""],
       "Edit labels for '{}'": [null, "'{}' के लिए लेबल संपादित करें"],
       "{session} in {venue} in 5 minutes": [
         null,
@@ -2882,10 +2861,7 @@
         null,
         "{actor} ने आपके प्रोजेक्ट पर कमेंट किया"
       ],
-      "{actor} commented on your proposal": [
-        null,
-        "{actor} ने आपके प्रस्ताव पर कमेंट किया"
-      ],
+      "{actor} commented on your submission": [null, ""],
       "{actor} replied to your comment:": [
         null,
         "{actor} ने आपके कमेंट का जवाब दिया:"
@@ -2894,10 +2870,7 @@
         null,
         "{actor} ने आपके प्रोजेक्ट पर कमेंट किया:"
       ],
-      "{actor} commented on your proposal:": [
-        null,
-        "{actor} ने आपके प्रस्ताव पर कमेंट किया:"
-      ],
+      "{actor} commented on your submission:": [null, ""],
       "You have been invited as an owner of {organization} by {actor}": [
         null,
         "आपको {actor} द्वारा {organization} के ओनर के रूप में आमंत्रित किया गया है"
@@ -3004,26 +2977,17 @@
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस प्रोजेक्ट के संपादक हैं"
       ],
-      "New proposal in {project}: {proposal}": [
+      "New submission in {project}: {proposal}": [null, ""],
+      "New submission in {project}: {proposal} {url}": [null, ""],
+      "You are receiving this because you have submitted this submission": [
         null,
-        "{project} में नया प्रस्ताव: {proposal}"
-      ],
-      "New proposal in {project}: {proposal} {url}": [
-        null,
-        "{project} में नया प्रस्ताव: {proposal} {url}"
-      ],
-      "You are receiving this because you have submitted this proposal": [
-        null,
-        "आप इसे प्राप्त कर रहे हैं क्योंकि आपने यह प्रस्ताव जमा किया है"
+        ""
       ],
       "Proposal submitted to {project}: {proposal}": [
         null,
         "प्रस्ताव को {project} में जमा किया गया: {proposal}"
       ],
-      "Your proposal has been submitted to {project} {url}": [
-        null,
-        "आपका प्रस्ताव {project} {url} में जमा कर दिया गया है"
-      ],
+      "Your submission has been submitted to {project} {url}": [null, ""],
       "Registration confirmation for {project}": [
         null,
         "{project} के लिए रजिस्ट्रेशन की पुष्टि"
