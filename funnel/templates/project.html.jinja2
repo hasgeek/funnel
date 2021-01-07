@@ -97,7 +97,7 @@
             <div class="about__participate">
               <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
                 <div class="mobile-nav mui--z1">
-                  <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget" data-ga="Back to the {{ project.title }}(tickets page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
+                  <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget"data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
                 </div>
               </div>
               <div id="tickets">
@@ -116,7 +116,7 @@
               <ul class="grid">
                 {% for subproject in project.subprojects %}
                   <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
-                    <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" data-ga="View {{ subproject.title }}">
+                    <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" data-ga="View subproject">
                       <div class="card__header">
                         <div class="card__header__title">
                           <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
@@ -145,7 +145,7 @@
                           <div class="card session-card">
                             {% if session.banner_image_url.url %}
                               {% if session.proposal %}
-                                <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %} data-ga="View featured talk {{ session.title }}">
+                                <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %} data-ga="View featured talk">
                               {% else %}
                                 <div class="card__header session-card__header">
                               {% endif %}
@@ -174,7 +174,7 @@
                             {% endif %}
                             {% if session.description %}
                               {% if session.proposal %}
-                                <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-ga="View featured talk {{ session.title }}">
+                                <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-ga="View featured talk">
                               {% else %}
                                 <div class="card__body">
                               {% endif %}
@@ -187,7 +187,7 @@
                     {%- endfor -%}
                   </ul>
                 </div>
-                {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}" data-ga="View schedule(talks section)">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
+                {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
               </div>
             {%- endif %}
           </div>
@@ -233,7 +233,7 @@
         <h2 class="mui--text-headline mui--text-left project-section__headline">
           {% trans %}Venue{% endtrans %}
           {% if project.view_for('venues').is_available() %}
-            <a class="mui--text-body2" href="{{ project.url_for('venues') }}" aria-label="update venue" data-ga="update venue">{% trans %}Update venue{% endtrans %} {{ faicon(icon='edit') }}</a>
+            <a class="mui--text-body2" href="{{ project.url_for('venues') }}" aria-label="update venue">{% trans %}Update venue{% endtrans %} {{ faicon(icon='edit') }}</a>
           {% endif %}
         </h2>
         <div class="mui--text-body2">
