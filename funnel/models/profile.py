@@ -12,6 +12,7 @@ from ..typing import OptionalMigratedTables
 from . import BaseMixin, MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
 from .helpers import (
     RESERVED_NAMES,
+    ImgeeType,
     add_search_trigger,
     valid_username,
     visual_field_delimiter,
@@ -95,8 +96,8 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     description = MarkdownColumn('description', default='', nullable=False)
     website = db.Column(UrlType, nullable=True)
-    logo_url = db.Column(UrlType, nullable=True)
-    banner_image_url = db.Column(UrlType, nullable=True)
+    logo_url = db.Column(ImgeeType, nullable=True)
+    banner_image_url = db.Column(ImgeeType, nullable=True)
     #: Legacy profiles are available via funnelapp, non-legacy in the main app
     legacy = db.Column(db.Boolean, default=False, nullable=False)
 

@@ -29,6 +29,7 @@ from . import (
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import (
     RESERVED_NAMES,
+    ImgeeType,
     add_search_trigger,
     reopen,
     valid_name,
@@ -157,7 +158,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     bg_image = with_roles(
-        db.Column(UrlType, nullable=True),
+        db.Column(ImgeeType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )

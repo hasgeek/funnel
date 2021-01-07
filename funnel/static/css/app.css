@@ -331,6 +331,7 @@ html.touch .collapsible__body--disable {
   margin-right: 8px;
   border-radius: 50%;
   font-size: 16px;
+  object-fit: cover;
 }
 .user .user__box .user__box__gravatar--initials {
   min-width: 40px;
