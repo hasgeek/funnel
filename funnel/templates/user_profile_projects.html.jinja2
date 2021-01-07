@@ -7,7 +7,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ profile.url_for() }}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ profile.title }}(projects page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Projects{% endtrans %}</span>
+      <a href="{{ profile.url_for() }}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the profile page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Projects{% endtrans %}</span>
     </div>
   </div>
   {{ profile_header(profile,  class='mui--hidden-xs mui--hidden-sm', current_page='projects') }}

@@ -22,7 +22,7 @@
               {{#results[result].items}}
                 <div class="tab-content__results user grid__col-sm-12 {{#if result == 'project' || result == 'profile'}} grid__col-sm-6 grid__col-lg-4{{/if}}">
                   {{#if result == 'project'}}
-                    <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming clickable-card" data-action="View {{ title }}(search project)">
+                    <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming clickable-card" data-ga="View project">
                       <div class="card__image-wrapper">
                         {{#if obj.bg_image }}
                           <img class="card__image" src="{{ obj.bg_image }}?size=1500" alt="{{ title }}"/>
@@ -70,7 +70,7 @@
                       </div>
                     </a>
                   {{elseif result == 'profile'}}
-                    <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming clickable-card" data-action="View {{ title }}(search profile)">
+                    <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming clickable-card" data-ga="View profile">
                       <div class="card__image-wrapper">
                         {{#if obj.banner_image_url }}
                           <img class="card__image" src="{{ obj.banner_image_url }}" alt="{{ title }}"/>

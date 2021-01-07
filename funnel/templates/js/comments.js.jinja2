@@ -13,7 +13,7 @@
       </a>
       <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="showmodal">
         <div class="mobile-nav mui--z1">
-          <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
+          <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-ga="Close new comment form" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
         </div>
       </div>
       <div class="ajax-form" :class="[showmodal ? 'ajax-form--mob' : '']" v-if="commentForm">
@@ -43,7 +43,7 @@
       <li class="comment" :class="[formOpened ? 'comment--modal' : '']"  :id="'c-' + comment.uuid_b58">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="formOpened">
           <div class="mobile-nav mui--z1">
-            <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-action="Close" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
+            <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-ga="Close comment form" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
           </div>
         </div>
         <div class="comment__header">
@@ -78,7 +78,7 @@
                 <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-cy="reply" v-if="isuserloggedin"  @click="activateSubForm($event, COMMENTACTIONS.REPLY, 'reply-comment-textarea-' + comment.uuid_b58)"><faicon :icon="'comment-alt'" :baseline=false></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Reply') }}</span></a>
                 <a href="javascript:void(0)" class="link-icon mui--text-light link comment__body__links" data-cy="report-spam" v-if="isuserloggedin" @click="activateSubForm($event, COMMENTACTIONS.REPORTSPAM)"><faicon :icon="'flag-alt'":baseline=false></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Report') }}</span></a>
                 <div class="mui-dropdown">
-                  <a href="javascript:void(0)" class="link-icon project-links mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :baseline=false :css_class="'fa5-icon--aligntop'"></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Share') }}</span></a>
+                  <a href="javascript:void(0)" class="link-icon project-links mui--text-light link comment__body__links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project"><faicon :icon="'share-alt-square'" :baseline=false :css_class="'fa5-icon--aligntop'"></faicon><span class="mui--hidden-xs mui--hidden-sm">{{ gettext('Share') }}</span></a>
                   <sharedropdown :url='comment.urls.view' :title='comment.title'></sharedropdown>
                 </div>
                 <a href="javascript:void(0)" class="link-icon mui--text-light hg-link-btn mui--hide link comment__body__links" :data-title="comment.title" :data-url="comment.absolute_url + '?utm_campaign=webshare'" :data-text=comment.message.text><faicon :icon="'share-alt'" :baseline=false :css_class="'fa5-icon--aligntop'"></faicon></a>

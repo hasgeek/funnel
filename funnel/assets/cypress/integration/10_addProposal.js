@@ -32,13 +32,12 @@ describe('Add a new proposal', function () {
       .should('exist')
       .contains(proposal.title);
     cy.get('[data-cy="proposal-video"]').find('iframe').should('be.visible');
-    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
-    cy.wait('@fetch-admin-panel');
+    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.wait(1000);
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');
     cy.get('[data-cy="edit-proposal-video"]').should('exist');
 
-    cy.get('a[data-cy="close-admin-panel"]').click();
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
       .find('.CodeMirror textarea')
