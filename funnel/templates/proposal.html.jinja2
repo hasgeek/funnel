@@ -20,7 +20,7 @@
   {%- endif %}
 {% endblock %}
 
-{% macro share_widget(screen='dekstop') %}
+{% macro share_widget(formid='desktop') %}
   <a href="javascript:void(0)" class="hg-link-btn mui--hide mui--text-title mui-text-light" data-ga="Share dropdown" data-cy="share-project" data-url="{{ proposal.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
   <div class="mui-dropdown">
     <a href="javascript:void(0)" class="project-links mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
@@ -30,7 +30,7 @@
     <div class="mui--d-inlineblock mui-dropdown">
       <a href="javascript:void(0)" class="mui--text-title mui--text-light" data-mui-toggle="dropdown" aria-label="{% trans %}Proposal menu{% endtrans %}" data-cy="proposal-menu">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
       <ul class="mui-dropdown__menu mui-dropdown__menu--right proposal-menu">
-        {%- if 'edit_proposal' in proposal.permissions(current_auth.user) %}
+        {%- if proposal.current_permissions.edit_proposal %}
           <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
           <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video_url" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">
             {%- if proposal.video %}
@@ -53,8 +53,8 @@
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
                   {{ csrf_tag() }}
-                  <input type="checkbox" name="featured" id="featured-proposal-{{screen}}" class="switch-input js-toggle"/>
-                  <label class="switch-label mui--pull-right" for="featured-proposal-{{screen}}"></label>
+                  <input type="checkbox" name="featured" id="featured-proposal-{{formid}}" class="switch-input js-toggle"/>
+                  <label class="switch-label mui--pull-right" for="featured-proposal-{{formid}}"></label>
                 </form>
               </span>
           </a></li>
@@ -88,7 +88,7 @@
     <div class="mobile-nav mui--z1">
       <a href="{{ proposal.project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the {{ project.title }}(proposal page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
       <div class="mui--pull-right mobile-nav__icon">
-        {{ share_widget(screen='mob') }}
+        {{ share_widget(formid='mob') }}
       </div>
     </div>
   </div>
