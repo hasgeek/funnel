@@ -160,6 +160,10 @@ def image_models():
 
 def test_imgeetype(test_client, test_db, image_models):
     valid_url = "https://images.example.com/embed/file/randomimagehash"
+    valid_url_with_resize = (
+        "https://images.example.com/embed/file/randomimagehash?size=120x100"
+    )
+    valid_url_with_qs = "https://images.example.com/embed/file/randomimagehash?foo=bar"
     invalid_url = "https://example.com/embed/file/randomimagehash"
 
     m1 = image_models.MyImageModel(
@@ -176,7 +180,20 @@ def test_imgeetype(test_client, test_db, image_models):
     test_db.session.add(m2)
     test_db.session.commit()
     assert m2.image_url.url == valid_url
-    assert m2.image_url.resize(120, 100).url == valid_url + "?size=120x100"
-    assert m2.image_url.resize(120).url == valid_url + "?size=120"
+    assert m2.image_url.resize(120, 100).args['size'] == '120x100'
+    assert m2.image_url.resize(120).args['size'] == '120'
     # Confirm resizing did not mutate the URL
     assert m2.image_url.url == valid_url
+
+    m2.image_url = valid_url_with_resize
+    test_db.session.commit()
+    assert m2.image_url.url == valid_url_with_resize
+    assert m2.image_url.resize(120, 100).args['size'] == '120x100'
+    assert m2.image_url.resize(120).args['size'] == '120'
+
+    m2.image_url = valid_url_with_qs
+    test_db.session.commit()
+    assert m2.image_url.url == valid_url_with_qs
+    assert m2.image_url.resize(120).args['foo'] == 'bar'
+    assert m2.image_url.resize(120, 100).args['size'] == '120x100'
+    assert m2.image_url.resize(120).args['size'] == '120'
