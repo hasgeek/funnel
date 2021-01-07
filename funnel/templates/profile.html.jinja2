@@ -88,7 +88,7 @@
         {%- if profile.features.new_project() %}
           <ul class="grid projects" role="list">
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-action="Add new project">
+              <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
                 <div class="card__image-wrapper">
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
                   <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
@@ -113,7 +113,7 @@
         </ul>
         {% if draft_projects|length > 3 %}
           <div class="mui--text-center">
-            <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" data-action="Show all drafts projects(index page)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" data-ga="Show all drafts projects(index page)" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       {% endif %}

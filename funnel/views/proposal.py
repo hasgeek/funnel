@@ -144,7 +144,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 current_auth.user
             )  # Vote up your own proposal by default
             db.session.commit()
-            flash(_("Your proposal has been submitted"), 'info')
+            flash(_("Your submission has been submitted"), 'info')
             dispatch_notification(
                 ProposalSubmittedNotification(document=proposal),
                 ProposalReceivedNotification(
@@ -264,7 +264,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return redirect(self.obj.url_for(), code=303)
         return render_form(
             form=form,
-            title=_("Edit proposal"),
+            title=_("Edit submission"),
             submit=_("Update"),
             message=markdown_message,
         )
@@ -278,10 +278,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db,
             title=_("Confirm delete"),
             message=_(
-                "Delete your proposal ‘{title}’? This will remove all votes and"
+                "Delete your submission ‘{title}’? This will remove all votes and"
                 " comments as well. This operation is permanent and cannot be undone."
             ).format(title=self.obj.title),
-            success=_("Your proposal has been deleted"),
+            success=_("Your submission has been deleted"),
             next=self.obj.project.url_for(),
             cancel_url=self.obj.url_for(),
         )
@@ -305,7 +305,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 # if the proposal is deleted, don't redirect to proposal page
                 return redirect(self.obj.project.url_for('view_proposals'))
         else:
-            flash(_("Invalid transition for this proposal."), 'error')
+            flash(_("Invalid transition for this submission."), 'error')
             abort(403)
         return redirect(self.obj.url_for())
 
@@ -316,7 +316,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if nextobj:
             return redirect(nextobj.url_for())
         else:
-            flash(_("You were at the last proposal"), 'info')
+            flash(_("You were at the last submission"), 'info')
             return redirect(self.obj.project.url_for())
 
     @route('prev')
@@ -326,7 +326,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if prevobj:
             return redirect(prevobj.url_for())
         else:
-            flash(_("You were at the first proposal"), 'info')
+            flash(_("You were at the first submission"), 'info')
             return redirect(self.obj.project.url_for())
 
     @route('move', methods=['POST'])
@@ -341,7 +341,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
             flash(
                 _(
-                    "This proposal has been moved to {project}.".format(
+                    "This submission has been moved to {project}.".format(
                         project=target_project.title
                     )
                 ),
@@ -349,7 +349,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             )
         else:
             flash(
-                _("Please choose the project you want to move this proposal to."),
+                _("Please choose the project you want to move this submission to."),
                 'error',
             )
         return redirect(self.obj.url_for(), 303)
@@ -363,10 +363,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             target_user = proposal_transfer_form.user.data
             self.obj.current_access().transfer_to(target_user)
             db.session.commit()
-            flash(_("This proposal has been transfered."), 'success')
+            flash(_("This submission has been transfered."), 'success')
         else:
             flash(
-                _("Please choose the user you want to transfer this proposal to."),
+                _("Please choose the user you want to transfer this submission to."),
                 'error',
             )
         return redirect(self.obj.url_for(), 303)
@@ -379,7 +379,20 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()
-        return redirect(self.obj.url_for(), 303)
+            if self.obj.featured:
+                return {'status': 'ok', 'message': 'This submission has been featured.'}
+            else:
+                return {
+                    'status': 'ok',
+                    'message': 'This submission is no longer featured.',
+                }
+        return (
+            {
+                'status': 'error',
+                'error_description': featured_form.errors,
+            },
+            400,
+        )
 
     @route('schedule', methods=['GET', 'POST'])
     @requires_login
@@ -399,10 +412,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
-            flash(_("Labels have been saved for this proposal."), 'info')
+            flash(_("Labels have been saved for this submission."), 'info')
             return redirect(self.obj.url_for(), 303)
         else:
-            flash(_("Labels could not be saved for this proposal."), 'error')
+            flash(_("Labels could not be saved for this submission."), 'error')
             return render_form(
                 form,
                 submit=_("Save changes"),

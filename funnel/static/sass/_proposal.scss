@@ -27,6 +27,10 @@
   hr {
     margin: 0;
   }
+  .fa5-icon.mui--align-middle {
+    position: relative;
+    top: -1px;
+  }
   .proposal-menu__form {
     max-width: calc(100% - 25px);
     .proposal-menu__form__label {
@@ -258,6 +262,9 @@
 
 .proposal-content {
   min-height: 100px;
+  img {
+    max-width: 100%;
+  }
 }
 
 .links-list {

@@ -2706,12 +2706,6 @@ a.loginbutton.hidden,
   background-color: #ffffff !important;
 }
 
-.switch-label.switch-label--middle {
-  position: relative;
-  top: -2px;
-  vertical-align: middle;
-}
-
 .card--banner {
   border-radius: 16px;
   overflow: hidden;
@@ -3984,6 +3978,10 @@ a.loginbutton.hidden,
 .proposal-menu hr {
   margin: 0;
 }
+.proposal-menu .fa5-icon.mui--align-middle {
+  position: relative;
+  top: -1px;
+}
 .proposal-menu .proposal-menu__form {
   max-width: calc(100% - 25px);
 }
@@ -4210,6 +4208,9 @@ a.loginbutton.hidden,
 }
 .proposal-content {
   min-height: 100px;
+}
+.proposal-content img {
+  max-width: 100%;
 }
 
 .links-list {

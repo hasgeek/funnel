@@ -452,9 +452,9 @@ class ProjectView(
         """Delete project if safe to do so."""
         if not self.obj.is_safe_to_delete():
             return render_message(
-                title=_("This project has proposals"),
+                title=_("This project has submissions"),
                 message=_(
-                    "Proposals must be deleted or transferred before the project"
+                    "Submissions must be deleted or transferred before the project"
                     " can be deleted."
                 ),
             )
@@ -814,6 +814,13 @@ class ProjectView(
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()
+            if self.obj.featured:
+                return {'status': 'ok', 'message': 'This project has been featured.'}
+            else:
+                return {
+                    'status': 'ok',
+                    'message': 'This project is no longer featured.',
+                }
         return redirect(get_next_url(referrer=True), 303)
 
 

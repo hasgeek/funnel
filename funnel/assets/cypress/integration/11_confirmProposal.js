@@ -20,7 +20,7 @@ describe('Confirm proposal', function () {
     cy.get('#search').type(proposal.title);
     cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
 
-    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
     cy.wait('@fetch-admin-panel');
     cy.get('#label-select').click();
     cy.get('#label-dropdown label').contains(labels[2].title).click();
@@ -39,19 +39,19 @@ describe('Confirm proposal', function () {
       });
     });
 
-    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
     cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="awaiting_details"]')
       .click();
 
-    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
     cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="under_evaluation"]')
       .click();
 
-    cy.get('.proposal__section').find('a[data-cy="admin-panel"]').click();
+    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
     cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="confirm"]')

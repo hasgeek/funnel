@@ -87,7 +87,7 @@ $(() => {
   // Send click events to Google analytics
   $('.mui-btn, a').click(function gaHandler() {
     const action =
-      $(this).attr('data-action') || $(this).attr('title') || $(this).html();
+      $(this).attr('data-ga') || $(this).attr('title') || $(this).html();
     const target = $(this).attr('data-target') || $(this).attr('href') || '';
     Utils.sendToGA('click', action, target);
   });

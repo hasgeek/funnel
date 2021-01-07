@@ -370,7 +370,29 @@ export const Utils = {
   },
   activateToggleSwitch() {
     $('.js-toggle').on('change', function () {
-      $(this).parent('form').submit();
+      let checkbox = $(this);
+      let currentState = this.checked;
+      let previousState = !currentState;
+      let formData = $(checkbox).parent('form').serializeArray();
+      if (!currentState) {
+        formData.push({ name: $(this).attr('name'), value: 'false' });
+      }
+      $.ajax({
+        type: 'POST',
+        url: $(checkbox).parent('form').attr('action'),
+        data: formData,
+        dataType: 'json',
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          if (responseData && responseData.message) {
+            window.toastr.success(responseData.message);
+          }
+        },
+        error: function (response) {
+          Utils.handleAjaxError(response);
+          $(checkbox).prop('checked', previousState);
+        },
+      });
     });
   },
 };
