@@ -275,15 +275,17 @@ class ProjectView(
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
+        featured_proposals = self.obj.proposals.filter_by(featured=True)
         return {
             'project': self.obj.current_access(),
             'current_rsvp': current_rsvp,
-            'csrf_form': forms.Form(),
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
+            'featured_proposals': featured_proposals,
         }
 
+    @route('sub')
     @route('proposals')
     @render_with('proposals.html.jinja2')
     @requires_roles({'reader'})
@@ -292,7 +294,6 @@ class ProjectView(
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('videos')
@@ -302,7 +303,6 @@ class ProjectView(
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('json')
@@ -613,7 +613,7 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             if not rsvp.state.YES:
-                rsvp.rsvp_yes()
+                rsvp.rsvp_yes(subscribe_comments=True)
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
                 dispatch_notification(
@@ -732,7 +732,7 @@ class ProjectView(
                     'status': 'error',
                     'error': 'project_save_form_invalid',
                     'error_description': _(
-                        "Something went wrong, please reload and try again"
+                        "This page timed out. Refresh and try again"
                     ),
                     'form_nonce': form.form_nonce.data,
                 },
@@ -740,30 +740,32 @@ class ProjectView(
             )
 
     @route('admin', methods=['GET', 'POST'])
-    @render_with('admin.html.jinja2')
+    @render_with('project_admin.html.jinja2')
     @requires_login
     @requires_roles({'concierge', 'usher'})
     def admin(self):
+        """Render admin panel for at-venue concierge operations."""
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
-            for ticket_client in self.obj.ticket_clients:
-                if ticket_client and ticket_client.name.lower() in [
-                    'explara',
-                    'boxoffice',
-                ]:
-                    import_tickets.queue(ticket_client.id)
-            flash(
-                _(
-                    "Importing tickets from vendors...Refresh the page in about 30 seconds..."
-                ),
-                'info',
-            )
+            if request.form.get('form.id') == 'sync-tickets':
+                for ticket_client in self.obj.ticket_clients:
+                    if ticket_client and ticket_client.name.lower() in [
+                        'explara',
+                        'boxoffice',
+                    ]:
+                        import_tickets.queue(ticket_client.id)
+                flash(
+                    _(
+                        "Importing tickets from vendors…"
+                        " Refresh the page in about 30 seconds…"
+                    ),
+                    'info',
+                )
             return redirect(self.obj.url_for('admin'), code=303)
         return {
             'profile': self.obj.profile,
             'project': self.obj,
             'ticket_events': self.obj.ticket_events,
-            'csrf_form': forms.Form(),
         }
 
     @route('settings', methods=['GET', 'POST'])
@@ -779,7 +781,6 @@ class ProjectView(
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('comments', methods=['GET'])
@@ -787,16 +788,22 @@ class ProjectView(
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
+        subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
-            return jsonify({'comments': comments})
+            return jsonify(
+                {
+                    'subscribed': subscribed,
+                    'comments': comments,
+                }
+            )
         else:
             commentform = CommentForm(model=Comment)
             return {
                 'project': self.obj,
+                'subscribed': subscribed,
                 'comments': comments,
                 'commentform': commentform,
                 'delcommentform': forms.Form(),
-                'csrf_form': forms.Form(),
             }
 
     @route('toggle_featured', methods=['POST'])

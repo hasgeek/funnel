@@ -2,16 +2,28 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
-  transition: 200ms linear;
-  -webkit-transition: 200ms linear;
+  background: url('/static/img/survery-banner.png');
+  background-size: cover;
+  background-position: center;
   .card__body {
     padding: $mui-grid-padding;
+    .card__body__content {
+      color: #fff;
+    }
     .card__body__logo {
-      margin: auto;
       width: 100%;
       text-align: center;
+      background: #fff;
+      padding: 16px;
+      border-radius: 16px;
       img {
-        max-width: 100%;
+        width: 60px;
+      }
+      .caption {
+        max-width: 153px;
+        margin: auto;
+        display: flex;
+        justify-content: space-between;
       }
     }
   }
@@ -20,14 +32,21 @@
 @media (min-width: 768px) {
   .card--banner {
     .card__body {
-      .card__body__logo {
-        float: right;
-        width: 15%;
-        text-align: right;
-      }
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
       .card__body__content {
         float: left;
-        width: 85%;
+        width: 55%;
+        color: #fff;
+        padding-right: 16px;
+      }
+      .card__body__logo {
+        float: right;
+        width: 45%;
+        img {
+          margin-bottom: 8px;
+        }
       }
     }
   }
@@ -117,11 +136,16 @@
 }
 
 .clickable-card,
-.card-wrapper {
+.card--shaped {
   color: $mui-text-dark;
   display: block;
   cursor: pointer;
   text-decoration: none;
+}
+
+.card--shaped {
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
 }
 
 .clickable-card:focus,

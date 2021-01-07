@@ -1,6 +1,6 @@
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, forms, localize_timezone, request_is_xhr
+from baseframe import _, localize_timezone, request_is_xhr
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -178,7 +178,6 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'schedule': schedule_data(
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
-            'csrf_form': forms.Form(),
         }
 
     @route('viewsession-popup')
@@ -211,7 +210,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return jsonify(
                 status=True,
                 modal_url=modal_url,
-                msg=_(
+                message=_(
                     "This project will not be listed as it has no sessions in the "
                     "schedule"
                 ),

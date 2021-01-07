@@ -129,13 +129,15 @@ $(function () {
               data: JSON.stringify(json),
               success: function (result) {
                 toastr.success(
-                  'The room sequence and colors have been updated.'
+                  gettext('The room sequence and colours have been updated.')
                 );
               },
               complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   toastr.error(
-                    'There was a problem in contacting the server. Please try again later.'
+                    gettext(
+                      'The server could not be reached. Check connection and try again'
+                    )
                   );
                 }
               },
@@ -223,7 +225,9 @@ $(function () {
           complete: function (xhr, type) {
             if (type == 'error' || type == 'timeout') {
               toastr.error(
-                'There was a problem in contacting the server. Please try again.'
+                gettext(
+                  'The server could not be reached. Check connection and try again'
+                )
               );
             }
             popup.container.find('.save').prop('disabled', false);
@@ -240,8 +244,9 @@ $(function () {
         success: function (result) {
           popup.title().text(events.current.title);
           if (settings.editable) {
-            if (events.current.obj_data.id) popup.title().text('Edit Session');
-            else popup.title().text('Schedule Session');
+            if (events.current.obj_data.id)
+              popup.title().text(gettext('Edit session'));
+            else popup.title().text(gettext('Schedule session'));
           } else {
             popup
               .title()
@@ -261,7 +266,9 @@ $(function () {
           if (type == 'error' || type == 'timeout') {
             popup.close();
             toastr.error(
-              'There was a problem in contacting the server. Please try again later.'
+              gettext(
+                'The server could not be reached. Check connection and try again'
+              )
             );
           }
         },
@@ -310,11 +317,11 @@ $(function () {
           },
           allDayDefault: false,
           firstDay: 1, //Start from Monday, if not modified
+          firstHour: 9,
           defaultView: 'agendaWeek',
           allDaySlot: false,
           slotMinutes: CALENDAR_SLOT_MINUTES,
           defaultEventMinutes: 45,
-          firstHour: 8,
           slotEventOverlap: false,
           eventColor: '#229922',
           eventTextColor: '#FFFFFF',
@@ -422,7 +429,7 @@ $(function () {
           modal_url: NEW_SESSION_URL,
           start: startDate,
           end: endDate,
-          title: 'Add new session',
+          title: gettext('Add new session'),
           unscheduled: $('body #dummy'),
         };
         calendar.add(event);
@@ -459,8 +466,7 @@ $(function () {
         custom.find('.fc-event-delete').click(function (e) {
           if (
             confirm(
-              event.obj_data.title +
-                ' will be removed from the schedule. Are you sure you want to remove it?'
+              gettext('Remove %s from the schedule?', event.obj_data.title)
             )
           ) {
             $.ajax({
@@ -472,16 +478,16 @@ $(function () {
                     events.add_unscheduled(event.title, response.modal_url);
                   obj.remove(event);
                   if (response.msg) {
-                    toastr.warning(response.msg);
+                    toastr.warning(response.message);
                   }
-                } else {
-                  toastr.error('There was a problem in deleting the session.');
                 }
               },
               complete: function (xhr, type) {
                 if (type == 'error' || type == 'timeout') {
                   toastr.error(
-                    'There was a problem in contacting the server. Please try again later.'
+                    gettext(
+                      'The server could not be reached. Check connection and try again'
+                    )
                   );
                 }
               },
@@ -515,7 +521,11 @@ $(function () {
         buttons.save = (function () {
           calendar.container
             .find('.fc-header-right')
-            .append('<span class="hg-fc-button save-schedule">Save</span>');
+            .append(
+              '<span class="hg-fc-button mui-btn save-schedule">' +
+                gettext('Save') +
+                '</span>'
+            );
           var button = calendar.container.find('.save-schedule');
           button.enable = function (label) {
             $(this).removeClass('fc-state-disabled');
@@ -550,6 +560,30 @@ $(function () {
             $(this).removeClass('fc-state-hover');
           }
         );
+      calendar.container
+        .find('.fc-header-left')
+        .append(
+          '<div class="tabs"><button class="tabs__item js-fc-zoom" data-slotinterval="5">' +
+            gettext('5 mins') +
+            '</button> <button class="tabs__item js-fc-zoom" data-slotinterval="15">' +
+            gettext('15 mins') +
+            '</button> <button class="tabs__item js-fc-zoom" data-slotinterval="30">' +
+            gettext('30 mins') +
+            '</button> <button class="tabs__item js-fc-zoom" data-slotinterval="60">' +
+            gettext('60 mins') +
+            '</button></div>'
+        );
+      $(
+        '.js-fc-zoom[data-slotinterval=' +
+          calendar.options.config.slotMinutes +
+          ']'
+      ).addClass('tabs__item--active');
+      $('.js-fc-zoom').on('click', function () {
+        var zoom = $(this).data('slotinterval');
+        calendar.options.config.slotMinutes = zoom;
+        calendar.container.fullCalendar('destroy');
+        calendar.init(scheduled);
+      });
     };
 
     obj.render = function () {
@@ -561,7 +595,9 @@ $(function () {
         calendar.container
           .find('.fc-header-right')
           .prepend(
-            '<label for="autosaver" class="fc-button fc-state-disabled fc-corner-right fc-corner-left"><input id="autosaver" class="autosave" type="checkbox"> Autosave</label> '
+            '<label for="autosaver" class="hg-fc-checkbox"><input id="autosaver" class="autosave" type="checkbox">' +
+              gettext('Autosave') +
+              '</label>'
           );
         var autosaver = calendar.container.find('.autosave');
         autosaver.prop('checked', events.autosave);
@@ -661,11 +697,11 @@ $(function () {
       events.onChange = function (event, jsEvent, ui, view) {
         event.saved = false;
         events.update_time(event);
-        calendar.buttons.save.enable('Save');
+        calendar.buttons.save.enable(gettext('Save'));
         if (events.autosave) events.save();
       };
       events.save = function () {
-        calendar.buttons.save.disable('Saving...');
+        calendar.buttons.save.disable(gettext('Saving…'));
         var event_list = calendar.events('unsaved');
         var e = [];
         for (event in event_list) {
@@ -677,16 +713,25 @@ $(function () {
           data: [{ name: 'sessions', value: JSON.stringify(e) }],
           success: function (result) {
             for (event in event_list) event_list[event].saved = true;
-            calendar.buttons.save.disable('Saved');
+            calendar.buttons.save.disable(gettext('Saved'));
           },
           complete: function (xhr, type) {
             if (type == 'error' || type == 'timeout') {
-              calendar.buttons.save.enable('Save');
-              toastr.error(
-                'There was a problem in contacting the server. There are ' +
-                  e.length +
-                  ' unsaved sessions. Please try again later.'
-              );
+              calendar.buttons.save.enable(gettext('Save'));
+              if (e.length > 2) {
+                toastr.error(
+                  gettext(
+                    'The server could not be reached. There are %d unsaved sessions. Check connection and try again',
+                    e.length
+                  )
+                );
+              } else {
+                toastr.error(
+                  gettext(
+                    'The server could not be reached. There is 1 unsaved session. Check connection and try again'
+                  )
+                );
+              }
             }
           },
         });

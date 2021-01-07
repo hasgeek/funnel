@@ -147,8 +147,8 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                             import_tickets.queue(ticket_client.id)
                     flash(
                         _(
-                            "Importing tickets from vendors... "
-                            "Refresh the page in about 30 seconds..."
+                            "Importing tickets from vendors… "
+                            "Refresh the page in about 30 seconds…"
                         ),
                         'info',
                     )
@@ -176,8 +176,6 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
             'ticket_event': self.obj,
             'project': self.obj.project,
             'badge_form': TicketParticipantBadgeForm(model=TicketParticipant),
-            'checkin_form': forms.Form(),
-            'csrf_form': forms.Form(),
         }
 
     @route('edit', methods=['GET', 'POST'])

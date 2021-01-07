@@ -20,7 +20,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline mobile-nav__icon" data-action="Back to the {{ project.title }}(settings page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Settings{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='settings') }}
+  {{ project_header(project, class='mui--hidden-xs mui--hidden-sm', current_page='settings') }}
 {% endblock %}
 
 {% block basecontent %}
@@ -49,7 +49,7 @@
                 {%- endif %}
                 {%- if cfp_transition_form %}
                   <div>
-                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Proposal submission status: {{ status }}{% endtrans %}</p>
+                    <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Submission status: {{ status }}{% endtrans %}</p>
                     <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
                       {{ cfp_transition_form.hidden_tag() }}
                       <p class="btn-group">
@@ -99,11 +99,11 @@
                 {%- endif %}
                 {% if project.view_for('cfp').is_available() and project.cfp_state.NONE -%}
                   <li>
-                    <a href="{{ project.url_for('cfp') }}" data-cy="add-cfp">{% trans %}Add proposal guidelines and timing{% endtrans %}</a>
+                    <a href="{{ project.url_for('cfp') }}" data-cy="add-cfp">{% trans %}Add submission guidelines and timing{% endtrans %}</a>
                   </li>
                 {% else -%}
                   <li>
-                    <a href="{{ project.url_for('cfp') }}" data-cy="modify-cfp">{% trans %}Modify proposal guidelines and timing{% endtrans %}</a>
+                    <a href="{{ project.url_for('cfp') }}" data-cy="modify-cfp">{% trans %}Modify submission guidelines and timing{% endtrans %}</a>
                   </li>
                 {%- endif %}
                 {% if project.view_for('edit_schedule').is_available() %}

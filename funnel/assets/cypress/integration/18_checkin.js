@@ -30,7 +30,7 @@ describe('Checkin of attendees', function () {
           .find('label')
           .contains(ticketParticipant.ticketEvent)
           .click();
-        cy.get('button').contains('Add participant').click();
+        cy.get('button[data-cy="form-submit-btn"]').click();
       });
     });
 

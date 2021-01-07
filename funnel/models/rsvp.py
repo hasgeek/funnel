@@ -78,8 +78,9 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         message=__("Your response has been saved"),
         type='primary',
     )
-    def rsvp_yes(self):
-        pass
+    def rsvp_yes(self, subscribe_comments: bool = False):
+        if subscribe_comments:
+            self.project.commentset.add_subscriber(actor=self.user, user=self.user)
 
     @with_roles(call={'owner'})
     @state.transition(
@@ -89,8 +90,9 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         message=__("Your response has been saved"),
         type='dark',
     )
-    def rsvp_no(self):
-        pass
+    def rsvp_no(self, unsubscribe_comments: bool = False):
+        if unsubscribe_comments:
+            self.project.commentset.remove_subscriber(actor=self.user, user=self.user)
 
     @with_roles(call={'owner'})
     @state.transition(

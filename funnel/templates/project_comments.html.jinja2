@@ -28,7 +28,7 @@
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(videos page)">{{ faicon(icon='arrow-left', icon_size='subhead') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Comments{% endtrans %}</span>
     </div>
   </div>
-  {{ project_header(project, csrf_form, class='mui--hidden-xs mui--hidden-sm', current_page='comments') }}
+  {{ project_header(project, class='mui--hidden-xs mui--hidden-sm', current_page='comments') }}
 {% endblock %}
 
 {% block basecontent %}
@@ -63,14 +63,14 @@
 
       var commentsConfig = {
         newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
+        commentsUrl: "{{ project.url_for('comments') }}",
         comments: [],
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-        isuserparticipant: {% if current_auth.user and project.features.comment_new() -%}true{% else %}false{% endif %},
-        iscommentmoderator: {% if current_auth.user and current_auth.user.is_comment_moderator -%}true{% else %}false{% endif %},
         user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
+        lastSeenUrl: {% if project.commentset.current_roles.document_subscriber %}{{ project.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };
 
       window.Hasgeek.Comments(commentsConfig);

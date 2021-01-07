@@ -1,6 +1,6 @@
 from flask import abort, g, redirect, request
 
-from baseframe import _, forms
+from baseframe import _
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import (
@@ -326,7 +326,6 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                 membership.current_access(datasets=('without_parent', 'related'))
                 for membership in self.obj.active_crew_memberships
             ],
-            'csrf_form': forms.Form(),
         }
 
     @route('new', methods=['GET', 'POST'])

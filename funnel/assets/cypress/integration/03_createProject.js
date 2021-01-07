@@ -15,7 +15,7 @@ describe('Project', function () {
     cy.get('#field-description')
       .find('.CodeMirror textarea')
       .type(project.description, { force: true });
-    cy.get('button').contains('Create project').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
 
     cy.location('pathname').should('contain', project.url);
     cy.title().should('include', project.title);

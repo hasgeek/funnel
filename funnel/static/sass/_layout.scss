@@ -6,8 +6,16 @@
   margin-top: 0 !important;
 }
 
-.smaller-margin {
-  margin-bottom: $mui-grid-padding/4;
+.margin-bottom {
+  margin-bottom: $mui-grid-padding/2;
+}
+
+.margin-top {
+  margin-top: $mui-grid-padding/2;
+}
+
+.zero-padding {
+  padding: 0;
 }
 
 .mui-btn--nomargin {
@@ -154,6 +162,28 @@
   color: $mui-text-light;
   background: $mui-bg-color-primary;
 }
+.badge--primary {
+  color: $mui-primary-color;
+}
+
+.badge--round {
+  border-radius: 50%;
+  width: 25px;
+  line-height: 25px;
+  padding: 0;
+}
+
+.badge--round-smaller {
+  width: 16px;
+  line-height: 16px;
+}
+
+.badge--tab {
+  margin-left: 4px;
+  color: $mui-text-light;
+  background: $mui-bg-color-primary;
+}
+
 .badge--primary {
   color: $mui-primary-color;
 }
@@ -363,6 +393,22 @@ html.touch .collapsible__body--disable {
   }
 }
 
+.user--smaller {
+  .user__box {
+    .user__box__gravatar {
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+    }
+    .user__box__gravatar--initials {
+      min-width: 24px;
+    }
+    .user__box__header {
+      min-height: 24px;
+    }
+  }
+}
+
 .user--bigger {
   .user__box {
     padding: 8px 0;
@@ -564,6 +610,10 @@ html.touch .collapsible__body--disable {
 .fa-icon--margin,
 .right-margin {
   margin-right: 8px;
+}
+
+.fa-icon--left-margin {
+  margin-left: 8px;
 }
 
 .login-page {
@@ -845,8 +895,13 @@ a.loginbutton.hidden,
   padding-left: 0;
   display: flex;
   list-style: inside;
+  margin: 0;
   li {
-    padding: 0 4px;
+    padding: 0 3px;
+    span.bullet-separated-list__span {
+      position: relative;
+      left: -7px;
+    }
   }
   li:first-child {
     list-style-type: none;

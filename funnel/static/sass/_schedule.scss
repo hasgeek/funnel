@@ -55,7 +55,7 @@
           top: 165px;
           background-color: $mui-accent-color-lighter;
           color: $mui-text-accent-lighter;
-          z-index: 3;
+          z-index: 1;
           float: right;
           padding: 5px;
           border-radius: 3px;
@@ -228,7 +228,7 @@
       }
       .schedule__row--sticky {
         overflow: visible;
-        top: 110px;
+        top: 128px;
 
         .schedule__row__column--header {
           padding: $mui-grid-padding 10px;
@@ -309,15 +309,19 @@
     word-break: break-word;
 
     .modal__body__separator {
-      margin: $mui-grid-padding-double -$mui-grid-padding;
+      margin: $mui-grid-padding 0;
     }
 
     .modal__body__section {
-      margin: $mui-grid-padding-double 0;
+      margin: 0 0 $mui-grid-padding;
 
       .modal__body__section__text {
         margin: 0 0 5px;
       }
+    }
+    .details__box--left {
+      max-width: 70%;
+      margin-top: 16px;
     }
   }
 }
@@ -342,6 +346,43 @@
   float: right;
   position: relative;
   top: -9px;
+}
+
+// full calendar header
+.fc-header {
+  table-layout: fixed;
+  width: 100%;
+  white-space: nowrap;
+  td {
+    display: block;
+    width: 100%;
+    overflow: scroll;
+    margin: 0 0 5px;
+  }
+  .fc-header-center {
+    display: none;
+  }
+  .fc-header-right {
+    vertical-align: middle;
+    .hg-fc-checkbox {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    .hg-fc-button {
+      margin: 0;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .fc-header {
+    td {
+      display: table-cell;
+    }
+    td.fc-header-left {
+      width: 380px;
+    }
+  }
 }
 
 /* Calendar session */
