@@ -28,7 +28,7 @@ describe('Sync tickets from Boxoffice', function () {
     cy.get('button[data-cy="form-submit-btn"]').click();
 
     cy.get('button[data-cy="sync-tickets"').click();
-    cy.wait(1200);
+    cy.wait(120000);
     cy.get('button[data-cy="sync-tickets"').click();
 
     cy.fixture('ticket_events').then((ticketEvents) => {
