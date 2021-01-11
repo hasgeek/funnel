@@ -221,7 +221,7 @@ class LabelView(UrlForView, ModelView):
     def delete(self):
         if self.obj.has_proposals:
             flash(
-                _("Labels that have been assigned to proposals cannot be deleted"),
+                _("Labels that have been assigned to submissions cannot be deleted"),
                 category='error',
             )
         else:

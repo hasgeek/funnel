@@ -37,7 +37,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         )
 
     def email_subject(self):
-        return self.emoji_prefix + _("New proposal in {project}: {proposal}").format(
+        return self.emoji_prefix + _("New submission in {project}: {proposal}").format(
             proposal=self.proposal.title, project=self.project.joined_title()
         )
 
@@ -50,7 +50,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("New proposal in {project}: {proposal} {url}").format(
+        return _("New submission in {project}: {proposal} {url}").format(
             proposal=self.proposal.title,
             project=self.project.joined_title('>'),
             url=shortlink(
@@ -66,7 +66,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
     proposal: Proposal
     aliases = {'document': 'proposal'}
     emoji_prefix = "📤 "
-    reason = __("You are receiving this because you have submitted this proposal")
+    reason = __("You are receiving this because you have submitted this submission")
 
     def web(self):
         return render_template(
@@ -92,7 +92,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("Your proposal has been submitted to {project} {url}").format(
+        return _("Your submission has been submitted to {project} {url}").format(
             project=self.proposal.project.joined_title('>'),
             url=shortlink(
                 self.proposal.url_for(_external=True, **self.tracking_tags('sms'))

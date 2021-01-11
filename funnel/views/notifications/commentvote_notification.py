@@ -100,7 +100,7 @@ class CommentNotification(RenderNotification):
         if self.document_type == 'project':
             return _("{actor} commented on your project")
         if self.document_type == 'proposal':
-            return _("{actor} commented on your proposal")
+            return _("{actor} commented on your submission")
 
     def activity_template_inline(self, comment=None):
         """Activity template for inline use with other content, like SMS with URL."""
@@ -111,7 +111,7 @@ class CommentNotification(RenderNotification):
         if self.document_type == 'project':
             return _("{actor} commented on your project:")
         if self.document_type == 'proposal':
-            return _("{actor} commented on your proposal:")
+            return _("{actor} commented on your submission:")
 
     def activity_html(self, comment=None):
         """Activity template rendered into HTML, for use in web and email templates."""

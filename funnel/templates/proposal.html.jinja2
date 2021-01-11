@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/components.html.jinja2" import faicon, alertbox %}
-{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, comments_tree,  project_mini_header, useravatar, share_dropdown, proposal_card %}
+{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, comments_tree,  project_mini_header, useravatar, share_dropdown, proposal_card, csrf_tag %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}{{ proposal.description }}{% endblock %}
@@ -20,14 +20,57 @@
   {%- endif %}
 {% endblock %}
 
-{% macro share_widget() %}
-  <a href="javascript:void(0)" class="hg-link-btn mui--hide mui--text-title mui-text-light" data-action="Share dropdown" data-cy="share-project" data-url="{{ proposal.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
+{% macro share_widget(formid='desktop') %}
+  <a href="javascript:void(0)" class="hg-link-btn mui--hide mui--text-title mui-text-light" data-ga="Share dropdown" data-cy="share-project" data-url="{{ proposal.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
   <div class="mui-dropdown">
-    <a href="javascript:void(0)" class="project-links mui--text-title mui-text-light" data-mui-toggle="dropdown" data-action="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
+    <a href="javascript:void(0)" class="project-links mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
     {{ share_dropdown(proposal.url_for(_external=true), proposal.title) }}
   </div>
   {% if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
-    <a class="mui--text-title mui--text-light mui--d-inlineblock" href="{{ proposal.url_for('admin') }}" rel="modal:open" aria-label="{% trans %}Admin panel{% endtrans %}" data-cy="admin-panel">{{ faicon(icon='cog', icon_size='title', baseline=false) }}</a>
+    <div class="mui--d-inlineblock mui-dropdown">
+      <a href="javascript:void(0)" class="mui--text-title mui--text-light" data-mui-toggle="dropdown" aria-label="{% trans %}Proposal menu{% endtrans %}" data-cy="proposal-menu">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+      <ul class="mui-dropdown__menu mui-dropdown__menu--right proposal-menu">
+        {%- if proposal.current_permissions.edit_proposal %}
+          <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
+          <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video_url" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">
+            {%- if proposal.video %}
+              {% trans %}Replace video{% endtrans %}
+            {% else %}
+              {% trans %}Add video{% endtrans %}
+            {%- endif %}
+          </span></a></li>
+          <hr>
+          <li><a class="mui--text-subhead" href="{{ proposal.url_for('delete') }}" class="mui--text-danger" data-cy-admin="delete">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--text-danger fa-icon--margin mui--align-middle') }}<span class="mui--text-danger mui--text-body2">{% trans %}Delete{% endtrans %}</span></a></li>
+        {%- endif %}
+        {%- if proposal.current_roles.project_editor %}
+          <li><a href="{{ proposal.url_for('admin') }}" class="mui--text-subhead" rel="modal:open" aria-label="{% trans %}Editor panel{% endtrans %}" data-cy="editor-panel">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Editor panel{% endtrans %}</span></a></li>
+          <li><a href="javascript:void(0)" class="mui--text-body2 mui--clearfix">
+              {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--pull-left mui--align-middle') }}
+              <span class="mui--pull-right proposal-menu__form">
+                <span class="mui--d-inlineblock proposal-menu__form__label">
+                  <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
+                  <span class="mui--d-block mui--text-caption mui--text-light proposal-menu__form__label__helptxt">{% trans %}Featured submissions appear on the project page{% endtrans %}</span>
+                </span>
+                <form action="{{ proposal.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
+                  {{ csrf_tag() }}
+                  <input type="checkbox" name="featured" id="featured-proposal-{{formid}}" class="switch-input js-toggle"/>
+                  <label class="switch-label mui--pull-right" for="featured-proposal-{{formid}}"></label>
+                </form>
+              </span>
+          </a></li>
+        {%- endif %}
+        {% if proposal.state.SCHEDULED %}
+          <li><a class="mui--text-subhead"  href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session" aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit session{% endtrans %}</span></a></li>
+          <li><a class="mui--text-subhead" href="{{ proposal.session.url_for('edit') }}#field-video_url" data-cy="edit-session-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">
+            {%- if proposal.session.video  %}
+              {% trans %}Replace session video{% endtrans %}
+            {% else %}
+              {% trans %}Add session video{% endtrans %}
+            {%- endif %}
+          </span></a></li>
+        {%- endif %}
+      </ul>
+    </div>
   {% endif %}
 {% endmacro %}
 
@@ -43,9 +86,9 @@
   </div>
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ proposal.project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-action="Back to the {{ project.title }}(proposal page)">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
+      <a href="{{ proposal.project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
       <div class="mui--pull-right mobile-nav__icon">
-        {{ share_widget() }}
+        {{ share_widget(formid='mob') }}
       </div>
     </div>
   </div>
@@ -232,7 +275,6 @@
     };
 
     window.Hasgeek.Comments(commentsConfig);
-
   });
 </script>
 <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
