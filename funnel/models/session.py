@@ -13,15 +13,8 @@ from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles
 from coaster.utils import utcnow
 
-from . import (
-    BaseScopedIdNameMixin,
-    MarkdownColumn,
-    TSVectorType,
-    UrlType,
-    UuidMixin,
-    db,
-)
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from . import BaseScopedIdNameMixin, MarkdownColumn, TSVectorType, UuidMixin, db
+from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
@@ -57,7 +50,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
     is_break = db.Column(db.Boolean, default=False, nullable=False)
     featured = db.Column(db.Boolean, default=False, nullable=False)
-    banner_image_url = db.Column(UrlType, nullable=True)
+    banner_image_url = db.Column(ImgeeType, nullable=True)
 
     search_vector = db.deferred(
         db.Column(
