@@ -148,7 +148,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                     flash(
                         _(
                             "Importing tickets from vendors… "
-                            "Refresh the page in about 30 seconds…"
+                            "Reload the page in about 30 seconds…"
                         ),
                         'info',
                     )

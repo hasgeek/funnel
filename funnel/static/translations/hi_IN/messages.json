@@ -985,6 +985,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1049,9 +1052,9 @@
         "हम कुछ ही देर में इसे शुरू कर देंगे. पर यदि देरी होती है, तो जानकारी पाने के लिए हमें <a href=\"mailto:%(support_email)s\">%(support_email)s</a> पर ईमेल करें."
       ],
       "About Hasgeek": [null, "Hasgeek का परिचय"],
-      "It’s 2020, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.": [
+      "It’s 2021, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.": [
         null,
-        "साल 2020 चल रहा है, और जैसा कि हम जानते हैं पूरी दुनिया में सबकुछ थोड़ा बदल सा गया है. नए लोगों से मिलना और उनसे अपने जूनून और सोच को जाहिर करना पहले के दौर के मुकाबले कठिन हो गया है. वो ख़ास मुलाकात-बात जिनसे हमें नई चीज़ें करने और नए विचारों को जानने में सक्षम हो पाते थे उसके लिए भी एक नई जगह चाहिए. समय आ गया है कि सबकुछ दोबारा से बनाएं. हमसे जुड़ें."
+        "साल 2021 चल रहा है, और जैसा कि हम जानते हैं पूरी दुनिया में सबकुछ थोड़ा बदल सा गया है. नए लोगों से मिलना और उनसे अपने जूनून और सोच को जाहिर करना पहले के दौर के मुकाबले कठिन हो गया है. वो ख़ास मुलाकात-बात जिनसे हमें नई चीज़ें करने और नए विचारों को जानने में सक्षम हो पाते थे उसके लिए भी एक नई जगह चाहिए. समय आ गया है कि सबकुछ दोबारा से बनाएं. हमसे जुड़ें."
       ],
       "Find your peers": [null, "अपने साथियों को ढूंढें"],
       "Ideas need voices. Voices need a place to interact with other voices. Find peers around you who recognize your value. Create projects that spark a conversation.": [
@@ -1254,22 +1257,6 @@
         "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें."
       ],
       "Spotlight:": [null, "सुर्खियां:"],
-      "What is the state of privacy enhancing technologies, data security, and compliance, in the Indian tech industry?": [
-        null,
-        ""
-      ],
-      "This survey, conducted by Hasgeek, in partnership with Omidyar Network India, is aimed at broadly understanding privacy concerns and practices among middle and senior management inside tech organizations, and how factors such as regulated nature of certain businesses, compliance requirements, etc impact the development of privacy enhancing technologies.": [
-        null,
-        ""
-      ],
-      "Hasgeek invites you to participate in this survey, as a senior tech practitioner and leader in your organization. There are 32 questions in all and should take approximately 15 minutes to answer them.": [
-        null,
-        ""
-      ],
-      "Answer this survey on privacy and technology": [null, ""],
-      "Get started": [null, ""],
-      "32 questions": [null, ""],
-      "~15 mins": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाएं"],
       "(No labels)": [null, "(कोई लेबल नहीं है)"],
@@ -2230,7 +2217,10 @@
       "Your comment has been posted": [null, "आपका कमेंट पोस्ट कर दिया गया है"],
       "Post comment": [null, "कमेंट पोस्ट करें"],
       "Subscribed to this comment thread": [null, ""],
-      "This page timed out. Reload and try again": [null, ""],
+      "This page timed out. Reload and try again": [
+        null,
+        "इस पेज को लोड होने का समय समाप्त हो चुका है. पेज को रिलोड करने के बाद फिर से कोशिश करें"
+      ],
       "Unsubscribed from this comment thread": [null, ""],
       "That comment could not be found. It may have been deleted": [null, ""],
       "Your comment has been edited": [
@@ -2384,9 +2374,9 @@
         null,
         "आप अपनी भूमिका संपादित नहीं कर सकते"
       ],
-      "This member’s record was edited elsewhere. Please refresh the page": [
+      "This member’s record was edited elsewhere. Reload the page": [
         null,
-        "इस सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. कृपया पेज को रिफ्रेश करें"
+        "इस सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. पेज को रिलोड करें"
       ],
       "The member’s roles have been updated": [
         null,
@@ -2418,9 +2408,9 @@
         null,
         "नया सदस्य नहीं जोड़ा जा सका"
       ],
-      "The member’s record was edited elsewhere. Please refresh the page": [
+      "The member’s record was edited elsewhere. Reload the page": [
         null,
-        "सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. कृपया पेज को रिफ्रेश करें"
+        "सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. पेज को रिलोड करें"
       ],
       "Remove {member} as a crew member from this project?": [
         null,
@@ -2659,13 +2649,9 @@
         null,
         "आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
       ],
-      "This page timed out. Refresh and try again": [
+      "Importing tickets from vendors… Reload the page in about 30 seconds…": [
         null,
-        "इस पेज को लोड होने का समय समाप्त हो चुका है. पेज को रिफ्रेश करने के बाद फिर से कोशिश करें"
-      ],
-      "Importing tickets from vendors… Refresh the page in about 30 seconds…": [
-        null,
-        "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिफ्रेश करें…"
+        "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिलोड करें…"
       ],
       "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting.": [
         null,
@@ -2779,9 +2765,9 @@
       "Post an update": [null, "एक अपडेट पोस्ट करें"],
       "Save & preview": [null, "सेव करें और देखें"],
       "The update has been published": [null, "अपडेट पब्लिश हो चुकी है"],
-      "There was an error publishing this update. Please refresh and try again": [
+      "There was an error publishing this update. Reload and try again": [
         null,
-        "इस अपडेट को पब्लिश करने में एक त्रुटि उत्पन्न हुई थी. कृपया रिफ्रेश करें और दोबारा प्रयास करें"
+        "इस अपडेट को पब्लिश करने में एक त्रुटि उत्पन्न हुई थी. रिलोड करें और दोबारा प्रयास करें"
       ],
       "The update has been edited": [null, "अपडेट को संपादित किया गया है"],
       "Edit update": [null, "अपडेट संपादित करें"],
