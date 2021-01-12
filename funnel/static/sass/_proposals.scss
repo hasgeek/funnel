@@ -17,6 +17,9 @@
       margin-bottom: $mui-grid-padding;
     }
   }
+  tbody > tr:first-child > td {
+    border-top: 1px solid $mui-bg-color-primary-dark;
+  }
 }
 
 .search-proposal-form {

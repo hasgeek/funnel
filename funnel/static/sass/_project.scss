@@ -455,7 +455,7 @@
   margin: 0;
 
   .category-heading:after {
-    border-width: 23px;
+    border-color: #ccc $mui-bg-color-accent #ccc #ccc;
   }
 
   .ticket-booking {
@@ -528,4 +528,8 @@
   margin-top: $mui-grid-padding;
   position: relative;
   outline: none;
+}
+
+.project-page #root_footer {
+  background: $mui-bg-color-accent;
 }

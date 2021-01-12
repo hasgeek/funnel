@@ -228,7 +228,7 @@
           </div>
           <div class="card__body">
             <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
-              {% for org in current_auth.user.organizations_as_admin %}
+              {% for org in current_auth.user.organizations_as_owner %}
               <li class="top-padding bottom-padding">
                 <p class="mui--text-body2 zero-bottom-margin">
                   <a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a>
@@ -239,6 +239,10 @@
               </li>
               {%- endfor %}
             </ol>
+          </div>
+          <div class="mui-divider"></div>
+          <div class="card__footer card__footer--smallerbtn">
+            <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="/new">{% trans %}Create new profile{% endtrans %}</a>
           </div>
         </div>
       </div>

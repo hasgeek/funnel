@@ -2437,7 +2437,7 @@ a.loginbutton.hidden,
 }
 .search {
   width: 100%;
-  margin: 0 0 10px;
+  margin: 0 0 16px;
   padding: 0 10px;
   border: 1px solid rgba(132, 146, 166, 0.3);
   border-radius: 2px;
@@ -3240,6 +3240,40 @@ a.loginbutton.hidden,
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.card--upcoming .card__logo {
+  display: flex;
+  -ms-flex-items: center;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  left: 1em;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
+    0 1px 2px rgba(158, 158, 158, 0.24);
+  text-align: center;
+  width: 70px;
+  height: 70px;
+  position: absolute;
+  top: calc(56.2% - 35px);
+  z-index: 3;
+  overflow: hidden;
+}
+.card--upcoming .card__logo .card__logo__img {
+  object-fit: contain;
+  max-height: 100%;
+}
+.card--upcoming .card__logo .card__logo__nologo {
+  background-color: #f1f1f1;
+  width: 100%;
+  height: 100%;
+}
+.card--upcoming .card__logo .card__logo__nologo .card__logo__nologo__icon {
+  width: 35px;
+  height: 35px;
+  position: relative;
+  top: 16px;
+}
 .card--upcoming .card__body {
   padding: 0 16px 16px;
   position: relative;
@@ -3277,6 +3311,9 @@ a.loginbutton.hidden,
 }
 .card--upcoming .card__body .card__body__footer {
   margin: 12px 0 6.5px;
+}
+.card--upcoming .card__body--profile {
+  margin-top: 50px;
 }
 
 .card__image-wrapper--default:after {
@@ -3886,7 +3923,7 @@ a.loginbutton.hidden,
   margin: 0;
 }
 .about #boxoffice-widget .category-heading:after {
-  border-width: 23px;
+  border-color: #ccc #f9f9f9 #ccc #ccc;
 }
 .about #boxoffice-widget .ticket-booking {
   border-bottom: 1px solid #ccc;
@@ -3947,6 +3984,10 @@ a.loginbutton.hidden,
   margin-top: 16px;
   position: relative;
   outline: none;
+}
+
+.project-page #root_footer {
+  background: #f9f9f9;
 }
 
 .proposal-wrapper {
@@ -4572,6 +4613,9 @@ a.loginbutton.hidden,
 }
 .proposal-list-table tbody > tr > td .speaker-details {
   margin-bottom: 16px;
+}
+.proposal-list-table tbody > tr:first-child > td {
+  border-top: 1px solid #f1f1f1;
 }
 
 .search-proposal-form {
