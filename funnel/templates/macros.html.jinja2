@@ -605,7 +605,7 @@
           <span class="card__logo__nologo">{{ faicon(icon='user-solid', css_class='card__logo__nologo__icon') }}</span>
         {% endif %}
       </div>
-      <div>{{ profile.description.html }}</div>
+      <div>{{ profile.description.html|striptags }}</div>
     </div>
   </a>
 {% endmacro %}
