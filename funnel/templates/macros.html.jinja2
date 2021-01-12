@@ -597,14 +597,14 @@
         <p class="card__image__tagline mui--text-body2">{{ profile.title }}</p>
       {% endif %}
     </div>
-    <div class="card__logo">
-      {% if profile.logo_url %}
-        <img src="{{ profile.logo_url.resize(profile_logo) }}" class="card__logo__img">
-      {% else %}
-        <span class="card__logo__nologo">{{ faicon(icon='user-solid', css_class='card__logo__nologo__icon') }}</span>
-      {% endif %}
-    </div>
     <div class="card__body card__body--profile">
+      <div class="card__logo">
+        {% if profile.logo_url %}
+          <img src="{{ profile.logo_url.resize(profile_logo) }}" class="card__logo__img">
+        {% else %}
+          <span class="card__logo__nologo">{{ faicon(icon='user-solid', css_class='card__logo__nologo__icon') }}</span>
+        {% endif %}
+      </div>
       <div>{{ profile.description }}</div>
     </div>
   </a>
