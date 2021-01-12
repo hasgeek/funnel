@@ -229,7 +229,7 @@
           <div class="card__body">
             <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
               {% for org in current_auth.user.organizations_as_owner %}
-              <li class="top-padding bottom-padding">
+              <li class="top-padding bottom-padding js-all-profile {% if loop.index > 4 %}mui--hide{% endif %}">
                 <p class="mui--text-body2 zero-bottom-margin">
                   <a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a>
                   {% if not org.profile.state.PUBLIC %}
@@ -239,6 +239,11 @@
               </li>
               {%- endfor %}
             </ol>
+            {% if current_auth.user.organizations_as_owner|length > 4 %}
+              <div class="mui--text-center">
+                <a href="javascript:void(0)" class="jquery-show-all mui--text-uppercase" data-projects="js-all-profile" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              </div>
+            {% endif %}
           </div>
           <div class="mui-divider"></div>
           <div class="card__footer card__footer--smallerbtn">

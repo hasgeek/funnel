@@ -3,14 +3,6 @@ import Vue from 'vue/dist/vue.min';
 
 $(() => {
   window.Hasgeek.HomeInit = function (config) {
-    // Expand CFP section
-    $('.jquery-show-all').click(function showAll(event) {
-      event.preventDefault();
-      const projectElemClass = `.${$(this).data('projects')}`;
-      $(projectElemClass).removeClass('mui--hide');
-      $(this).addClass('mui--hide');
-    });
-
     $('.js-save-form').each(function () {
       let projectSaveConfig = {
         formId: $(this).attr('id'),

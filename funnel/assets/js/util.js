@@ -31,6 +31,13 @@ export const Utils = {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
       $(this).siblings('.collapsible__body').slideToggle();
     });
+
+    $('.jquery-show-all').click(function showAll(event) {
+      event.preventDefault();
+      const projectElemClass = `.${$(this).data('projects')}`;
+      $(projectElemClass).removeClass('mui--hide');
+      $(this).addClass('mui--hide');
+    });
   },
   animateScrollTo(offsetY) {
     $('html,body').animate(
