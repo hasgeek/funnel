@@ -145,7 +145,7 @@
                           <div class="card session-card">
                             {% if session.banner_image_url.url %}
                               {% if session.proposal %}
-                                <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %} data-ga="View featured talk">
+                                <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %} data-ga="View featured session">
                               {% else %}
                                 <div class="card__header session-card__header">
                               {% endif %}
@@ -162,7 +162,7 @@
                               {% if session.proposal %}</a>{% else %}</div>{% endif %}
                             {% else %}
                               {% if session.proposal %}
-                                <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-ga="View featured talk {{ session.title }}">
+                                <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-ga="View featured session">
                               {% else %}
                                 <div class="card__header">
                               {% endif %}
@@ -174,7 +174,7 @@
                             {% endif %}
                             {% if session.description %}
                               {% if session.proposal %}
-                                <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-ga="View featured talk">
+                                <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-ga="View featured session">
                               {% else %}
                                 <div class="card__body">
                               {% endif %}
