@@ -223,8 +223,9 @@
 
       <div class="grid__col-xs-12">
         <div class="card">
-          <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">{% trans %}Organizations{% endtrans %}</h3>
+          <div class="card__header mui--clearfix">
+            <h3 class="mui--text-title margin-top mui--text-bold mui--pull-left">{% trans %}Organizations{% endtrans %}</h3>
+            <a class="mui--text-subhead margin-top mui--pull-right" href="/new">{{ faicon(icon='plus', css_class='fa-icon--margin') }}<span>{% trans %}New{% endtrans %}</span></a>
           </div>
           <div class="card__body">
             <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
