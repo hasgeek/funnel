@@ -271,6 +271,7 @@
   background: $mui-bg-color-primary;
   z-index: 5;
   display: none;
+  margin: 0;
 
   .pinned__update {
     text-decoration: none !important;
@@ -315,6 +316,7 @@
 .pinned--about-page {
   top: 0;
   display: block;
+  background: $mui-bg-color-accent;
 }
 
 @media (min-width: 768px) {
@@ -528,4 +530,8 @@
   margin-top: $mui-grid-padding;
   position: relative;
   outline: none;
+}
+
+.project-page #root_footer {
+  background: $mui-bg-color-accent;
 }
