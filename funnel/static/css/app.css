@@ -3735,6 +3735,7 @@ a.loginbutton.hidden,
   background: #ffffff;
   z-index: 5;
   display: none;
+  margin: 0;
 }
 .pinned .pinned__update {
   text-decoration: none !important;
@@ -3775,6 +3776,7 @@ a.loginbutton.hidden,
 .pinned--about-page {
   top: 0;
   display: block;
+  background: #f9f9f9;
 }
 
 @media (min-width: 768px) {
@@ -3947,6 +3949,10 @@ a.loginbutton.hidden,
   margin-top: 16px;
   position: relative;
   outline: none;
+}
+
+.project-page #root_footer {
+  background: #f9f9f9;
 }
 
 .proposal-wrapper {
