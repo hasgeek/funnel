@@ -182,7 +182,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
-        db.relationship(Commentset, backref=db.backref('comments', cascade='all')),
+        db.relationship(
+            Commentset, backref=db.backref('comments', lazy='dynamic', cascade='all')
+        ),
         grants_via={None: {'document_subscriber'}},
     )
 
@@ -223,6 +225,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'primary': {'created_at', 'urls', 'uuid_b58'},
         'related': {'created_at', 'urls', 'uuid_b58'},
         'json': {'created_at', 'urls', 'uuid_b58'},
+        'minimal': {'created_at', 'uuid_b58'},
     }
 
     search_vector = db.deferred(
@@ -274,7 +277,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def user(cls):  # NOQA: N805
         return cls._user
 
-    with_roles(user, read={'all'}, datasets={'primary', 'related', 'json'})
+    with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
 
     message: Union[str, Markup]
 
@@ -296,7 +299,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def message(cls):  # NOQA: N805
         return cls._message
 
-    with_roles(message, read={'all'}, datasets={'primary', 'related', 'json'})
+    with_roles(
+        message, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'}
+    )
 
     @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property

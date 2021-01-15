@@ -6,6 +6,7 @@ from baseframe import _, forms, request_is_xhr
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import (
+    ClassView,
     ModelView,
     UrlForView,
     render_with,
@@ -125,6 +126,40 @@ def parent_comments_url(obj):
     elif obj.proposal is not None:
         url = obj.proposal.url_for(_external=True)
     return url
+
+
+@route('/comments')
+class AllCommentsView(ClassView):
+    current_section = 'comments'
+
+    @route('', endpoint='comments')
+    @requires_login
+    @render_with(json=True)
+    def view(self):
+        data = {
+            'comments': [
+                {
+                    'parent': cm.commentset.parent.title,
+                    'last_seen_at': cm.last_seen_at,
+                    'new_comments_count': (
+                        cm.commentset.comments.filter(Comment.state.PUBLIC)
+                        .filter(Comment.created_at > cm.last_seen_at)
+                        .count()
+                    ),
+                    'last_comment': (
+                        cm.commentset.comments.filter(Comment.state.PUBLIC)
+                        .order_by(Comment.created_at.desc())
+                        .first()
+                        .current_access(datasets=('minimal', 'related'))
+                    ),
+                }
+                for cm in current_auth.user.active_commentset_memberships.all()
+            ],
+        }
+        return data
+
+
+AllCommentsView.init_app(app)
 
 
 @route('/comments/<commentset>')
