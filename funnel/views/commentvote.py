@@ -134,29 +134,27 @@ class AllCommentsView(ClassView):
 
     @route('', endpoint='comments')
     @requires_login
-    @render_with(json=True)
+    @render_with('unread_comments.html.jinja2', json=True)
     def view(self):
-        data = {
-            'comments': [
-                {
-                    'parent': cm.commentset.parent.title,
-                    'last_seen_at': cm.last_seen_at,
-                    'new_comments_count': (
-                        cm.commentset.comments.filter(Comment.state.PUBLIC)
-                        .filter(Comment.created_at > cm.last_seen_at)
-                        .count()
-                    ),
-                    'last_comment': (
-                        cm.commentset.comments.filter(Comment.state.PUBLIC)
-                        .order_by(Comment.created_at.desc())
-                        .first()
-                        .current_access(datasets=('minimal', 'related'))
-                    ),
-                }
-                for cm in current_auth.user.active_commentset_memberships.all()
-            ],
-        }
-        return data
+        commentsets = [
+            {
+                'parent': cm.commentset.parent.title,
+                'last_seen_at': cm.last_seen_at,
+                'new_comments_count': (
+                    cm.commentset.comments.filter(Comment.state.PUBLIC)
+                    .filter(Comment.created_at > cm.last_seen_at)
+                    .count()
+                ),
+                'last_comment': (
+                    cm.commentset.comments.filter(Comment.state.PUBLIC)
+                    .order_by(Comment.created_at.desc())
+                    .first()
+                    .current_access(datasets=('minimal', 'related'))
+                ),
+            }
+            for cm in current_auth.user.active_commentset_memberships.all()
+        ]
+        return {'commentsets': commentsets}
 
 
 AllCommentsView.init_app(app)
