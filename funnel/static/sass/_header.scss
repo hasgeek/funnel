@@ -178,6 +178,10 @@
     -webkit-transform: translate(-100%, 0);
     overflow: scroll;
     background: $mui-bg-color-primary;
+    .comments-sidebar__heading {
+      margin: 0;
+      padding: 15px $mui-grid-padding 14px;
+    }
     .comments-list {
       list-style: none;
       padding: 0;
@@ -185,11 +189,16 @@
         padding: 0 $mui-grid-padding;
         border-bottom: solid 1px rgba(151, 151, 151, 0.09);
         .user__box {
-          .user__box__gravatar.user__box__gravatar--initials {
-            background: $mui-bg-color-accent;
-          }
+          align-items: end;
           .user__box__header.comment__details {
             width: calc(100% - 40px);
+            .user__box__fullname {
+              margin: 0 0 2px;
+            }
+            .comment__details__age {
+              position: relative;
+              top: 4px;
+            }
             .user__box__subcontent {
               margin: 0 0 5px;
               .truncated-text {
@@ -444,13 +453,8 @@
   .hg-app {
     .header--fixed {
       .header__nav {
-        height: 35px;
         .header__site-title {
           .header__site-title__title {
-            .header__site-title__home__logo {
-              height: 25px;
-            }
-
             .search-form {
               height: 26px;
               top: -8px;
