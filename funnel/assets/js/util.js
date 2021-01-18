@@ -395,6 +395,27 @@ export const Utils = {
       });
     });
   },
+  handleCommentsSidebar() {
+    $('.js-comments-button').on('click', function (e) {
+      e.stopPropagation();
+      $('#js-comments-dropdown').addClass('open');
+    });
+
+    $('.js-close-comments').on('click', function (e) {
+      e.stopPropagation();
+      $('#js-comments-dropdown').removeClass('open');
+    });
+
+    $('body').on('click', function (e) {
+      if (
+        $('#js-comments-dropdown').hasClass('open') &&
+        !$(e.target).is('#js-comments-button') &&
+        !$.contains($('#js-comments-dropdown')[0], e.target)
+      ) {
+        $('#js-comments-dropdown').removeClass('open');
+      }
+    });
+  },
 };
 
 export const ScrollActiveMenu = {

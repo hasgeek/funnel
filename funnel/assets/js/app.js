@@ -31,6 +31,7 @@ $(() => {
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
   Utils.handleModalForm();
+  Utils.handleCommentsSidebar();
   if ($('.header__nav-links--updates').length) {
     Utils.updateNotificationStatus();
     window.setInterval(

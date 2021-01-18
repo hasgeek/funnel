@@ -169,6 +169,28 @@
   color: #0f73ed;
 }
 
+.badge--round {
+  border-radius: 50%;
+  width: 25px;
+  line-height: 25px;
+  padding: 0;
+}
+
+.badge--round-smaller {
+  width: 16px;
+  line-height: 16px;
+}
+
+.badge--tab {
+  margin-left: 4px;
+  color: #4d5763;
+  background: #ffffff;
+}
+
+.badge--primary {
+  color: #0f73ed;
+}
+
 .select2-inline {
   display: inline-block;
   margin-right: 5px;
@@ -1381,8 +1403,8 @@ a.loginbutton.hidden,
     .header__site-title__title
     .logo-about {
     position: absolute !important;
-    left: 46px;
-    top: 5px;
+    left: 42px;
+    top: 9px;
     font-size: 12px;
     padding: 2px 10px;
     border-radius: 4px;
@@ -1663,6 +1685,7 @@ a.loginbutton.hidden,
     .header__site-title__title
     .search-form {
     height: 26px;
+    top: -8px;
   }
   .hg-app
     .header--fixed
@@ -1681,8 +1704,8 @@ a.loginbutton.hidden,
     .header__site-title__title
     .search-form
     .search-form__field__icon {
-    top: 6px;
-    left: 8px;
+    top: 31px;
+    left: 27px;
   }
   .hg-app .header--fixed .header__nav .header__site-title a.header__button {
     height: 24px;

@@ -267,8 +267,8 @@
 
             .logo-about {
               position: absolute !important;
-              left: 46px;
-              top: 5px;
+              left: 42px;
+              top: 9px;
               font-size: 12px;
               padding: 2px 10px;
               border-radius: 4px;
@@ -453,13 +453,15 @@
 
             .search-form {
               height: 26px;
+              top: -8px;
+
               .search-form__field {
                 padding: 5px 10px 5px $mui-grid-padding-double;
                 font-size: 14px;
               }
               .search-form__field__icon {
-                top: 6px;
-                left: 8px;
+                top: 31px;
+                left: 27px;
               }
             }
           }
