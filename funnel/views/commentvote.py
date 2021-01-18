@@ -134,7 +134,7 @@ class AllCommentsView(ClassView):
 
     @route('', endpoint='comments')
     @requires_login
-    @render_with('unread_comments.html.jinja2', json=True)
+    @render_with('unread_comments.html.jinja2')
     def view(self):
         commentsets = [
             {
