@@ -95,6 +95,7 @@ from sqlalchemy import event
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Query as BaseQuery
 from sqlalchemy.orm.collections import column_mapped_collection
+from sqlalchemy.orm.exc import NoResultFound
 
 from werkzeug.utils import cached_property
 
@@ -580,6 +581,14 @@ class UserNotificationMixin:
     def fragment(self) -> Optional[db.Model]:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
+
+    def is_not_deleted(self):
+        """Return True if the document and optional fragment are still present."""
+        try:
+            return bool(self.fragment and self.document or self.document)
+        except NoResultFound:
+            pass
+        return False
 
 
 class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
