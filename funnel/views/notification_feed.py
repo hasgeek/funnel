@@ -42,6 +42,7 @@ class AllNotificationsView(ClassView):
                     else None,
                 }
                 for un in pagination.items
+                if un.is_not_deleted()
             ],
             'has_next': pagination.has_next,
             'has_prev': pagination.has_prev,
