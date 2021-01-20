@@ -813,11 +813,9 @@
               {%- if proposal.commentset %}
                 <li>{{ proposal.commentset.count }} comments</li>
               {% endif %}
-              {% if not project %}
-                <li>
-                  {{ proposal.state.label.title }}
-                </li>
-              {% endif %}
+              <li>
+                {{ proposal.state.label.title }}
+              </li>
               <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</li>
               {% if proposal.video %}
                 <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">

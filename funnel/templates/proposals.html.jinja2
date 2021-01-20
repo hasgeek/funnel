@@ -77,8 +77,9 @@
                 </div>
               </form>
             </div>
+            <hr class="separator">
           {%- endif %}
-          {{ proposal_list(project.proposals_by_confirmation['unconfirmed'], project) }}
+          {{ proposal_list(project.proposals, project) }}
           </div>
         </div>
       </div>
