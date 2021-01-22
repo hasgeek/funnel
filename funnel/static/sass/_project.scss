@@ -227,7 +227,8 @@
       }
     }
   }
-  .project-details__box--ticketbox {
+  .project-details__box__content {
+    min-height: 22px;
     margin-bottom: $mui-grid-padding;
   }
 }
@@ -305,7 +306,7 @@
     .project-details__box--topmargin {
       margin-top: 42px;
     }
-    .project-details__box--ticketbox {
+    .project-details__box__content {
       margin-bottom: 0;
     }
   }

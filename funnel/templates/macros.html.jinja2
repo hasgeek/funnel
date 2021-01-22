@@ -256,13 +256,15 @@
         </div>
       {% endif %}
       <div class="grid__col-md-4 project-details__box {% if project.livestream_urls %}project-details__box--topmargin{% endif %}">
-        <div class="bookmark">{{ saveprojectform(project) }}</div>
-        {% if project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
-          <div aria-label="{{ project.datelocation }}">
-            {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
-          </div>
-        {% endif %}
-        <div class="project-details__box--ticketbox">
+        <div class="project-details__box__content">
+          <div class="bookmark">{{ saveprojectform(project) }}</div>
+          {% if project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+            <div aria-label="{{ project.datelocation }}">
+              {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
+            </div>
+          {% endif %}
+        </div>
+        <div class="project-details__box__content">
           {% if project.view_for('edit_schedule').is_available() %}
             <a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}"><span class="mui--hidden-lg">{% trans %}Add schedule to enable registrations{% endtrans %}</span><span class="mui--visible-lg-inline">{% trans %}Add schedule{% endtrans %}</span></a>
           {%- endif %}

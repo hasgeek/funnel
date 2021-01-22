@@ -3697,7 +3697,8 @@ a.loginbutton.hidden,
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
-.project-banner .project-details__box--ticketbox {
+.project-banner .project-details__box__content {
+  min-height: 22px;
   margin-bottom: 16px;
 }
 
@@ -3767,7 +3768,7 @@ a.loginbutton.hidden,
   .project-banner .project-details__box--topmargin {
     margin-top: 42px;
   }
-  .project-banner .project-details__box--ticketbox {
+  .project-banner .project-details__box__content {
     margin-bottom: 0;
   }
 }

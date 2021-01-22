@@ -75,9 +75,11 @@
       </div>
     </div>
   </div>
-  <div class="project-footer">
-    {{ registerblock(project) }}
-  </div>
+  {% if project.features.tickets() or project.features.rsvp() %}
+    <div class="project-footer">
+      {{ registerblock(project) }}
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block baseheadline %}
