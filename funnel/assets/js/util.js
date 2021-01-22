@@ -421,7 +421,9 @@ export const Utils = {
       url: window.Hasgeek.config.unreadCommentUrl,
       timeout: window.Hasgeek.config.ajaxTimeout,
       success(responseData) {
-        $(window.Hasgeek.config.commentSidebarElem).append(responseData.trim());
+        $(window.Hasgeek.config.commentSidebarElem).append(
+          responseData.data.trim()
+        );
       },
     });
   },
