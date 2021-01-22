@@ -121,7 +121,7 @@
     {% elif project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
         <p class="register-block__txt mui--text-body2 mui--text-light">{{ project.views.registration_text() }}</p>
-        <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin"  href="{{ url_for('login') }}">Login to register</a>
+        <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin"  href="{{ url_for('login') }}">Register</a>
       {% elif project.features.rsvp_unregistered() -%}
         <p class="register-block__txt mui--text-body2 mui--text-light">{{ project.views.registration_text() }}</p>
       {%- elif project.features.rsvp_registered() %}
@@ -147,7 +147,7 @@
           </div>
         {%- endif %}
         {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %}
-          <div class="mui-dropdown mui--align-middle">
+          <div class="mui-dropdown mui--align-middle register-block__right__menu">
             <a href="javascript:void(0)" class="mui--align-middle" data-mui-toggle="dropdown">{{ faicon(icon='ellipsis-v', icon_size='subhead') }}</a>
             <ul class="mui-dropdown__menu mui-dropdown__menu--right">
               {% if project.features.rsvp_registered() %}

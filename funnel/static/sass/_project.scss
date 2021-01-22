@@ -8,7 +8,6 @@
   display: flex;
   align-items: center;
   margin: 0;
-  padding: 0 0 0 $mui-grid-padding;
   .project-links,
   .hg-link-btn {
     padding-right: $mui-grid-padding;
@@ -33,9 +32,10 @@
 
   .register-block__right {
     min-width: 155px;
+    text-align: right;
   }
-  .register-block__right__btn {
-    margin-right: $mui-grid-padding/2;
+  .register-block__right__menu {
+    margin-left: $mui-grid-padding/2;
   }
 }
 
@@ -80,8 +80,9 @@
       min-width: 450px;
       justify-content: space-around;
       align-items: center;
+      padding-right: $mui-grid-padding;
       .project-header {
-        margin: 0 16px 0 0;
+        margin: 0 $mui-grid-padding 0 0;
       }
     }
   }
