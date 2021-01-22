@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from flask import abort, flash, jsonify, redirect, request
+from flask import abort, flash, jsonify, redirect, render_template, request
 
 from baseframe import _, forms, request_is_xhr
 from baseframe.forms import Form, render_form
@@ -53,7 +53,10 @@ def commentset_json(obj):
     return [
         comment.current_access(datasets=('json', 'related'))
         for comment in toplevel_comments
-        if comment.state.PUBLIC or comment.replies
+        if (
+            comment.state.PUBLIC
+            or comment.replies.filter(Comment.state.PUBLIC).count() > 0
+        )
     ]
 
 
@@ -134,11 +137,14 @@ class AllCommentsView(ClassView):
 
     @route('', endpoint='comments')
     @requires_login
-    @render_with('unread_comments.html.jinja2')
+    @render_with(json=True)
     def view(self):
-        commentsets = [
+        commentset_memberships = [
             {
-                'parent': cm.commentset.parent.title,
+                'parent': cm.commentset.parent.current_access(
+                    datasets=('primary', 'related')
+                ),
+                'commentset_url': cm.commentset.url_for(_external=True),
                 'last_seen_at': cm.last_seen_at,
                 'new_comments_count': (
                     cm.commentset.comments.filter(Comment.state.PUBLIC)
@@ -149,12 +155,31 @@ class AllCommentsView(ClassView):
                     cm.commentset.comments.filter(Comment.state.PUBLIC)
                     .order_by(Comment.created_at.desc())
                     .first()
-                    .current_access(datasets=('minimal', 'related'))
+                    .current_access(datasets=('primary', 'related'))
                 ),
             }
-            for cm in current_auth.user.active_commentset_memberships.all()
+            for cm in (
+                current_auth.user.active_commentset_memberships.join(Commentset)
+                .join(Comment)
+                .filter(Comment.state.PUBLIC)
+                .order_by(Comment.created_at.desc())
+            )
         ]
-        return {'commentsets': commentsets}
+
+        new_comment = False
+        for ms in commentset_memberships:
+            if ms['new_comments_count'] > 0:
+                new_comment = True
+
+        return jsonify(
+            {
+                'new_comment': new_comment,
+                'data': render_template(
+                    'unread_comments.html.jinja2',
+                    **{'commentset_memberships': commentset_memberships},
+                ),
+            }
+        )
 
 
 AllCommentsView.init_app(app)
