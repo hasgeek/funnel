@@ -86,9 +86,9 @@
 {% endmacro %}
 
 {% macro project_share(project) %}
-  <div class="project-header">
+  <div class="project-header mui--text-title">
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
+      <a href="javascript:void(0)" class="project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
     <a href="javascript:void(0)" class="hg-link-btn mui--hide" data-url="{{ project.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
@@ -116,9 +116,8 @@
 {% macro registerblock(project, modalid='mob-register-modal') %}
   <div class="register-block">
     {% if project.features.tickets()  %}
-      <div class="mui--text-center">
-        <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" id="get-tickets">{% trans %}Get tickets{% endtrans %}</a>
-      </div>
+      <p class="register-block__txt mui--d-inlineblock mui--text-body2 mui--text-light">{% trans %}Tickets available!{% endtrans %}</p>
+      <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" id="get-tickets">{% trans %}Get tickets{% endtrans %}</a>
     {% elif project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
         <p class="register-block__txt mui--text-body2 mui--text-light">{{ project.views.registration_text() }}</p>
@@ -364,7 +363,7 @@
     {%- endif %}
     <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='subhead') }}</a>
+      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       {{ share_dropdown(url, title) }}
     </div>
   {%- endif %}

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-01-15 22:01+0530\n"
+"POT-Creation-Date: 2021-01-22 13:54+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -239,7 +239,7 @@ msgid "Type"
 msgstr "प्रकार"
 
 #: funnel/forms/account.py:388 funnel/templates/layout.html.jinja2:70
-#: funnel/templates/macros.html.jinja2:636
+#: funnel/templates/macros.html.jinja2:652
 msgid "Home"
 msgstr "मुखपृष्ठ"
 
@@ -1031,7 +1031,7 @@ msgstr "लैंडिंग पेज की सामग्रियां"
 msgid "Quotes are not necessary in the location name"
 msgstr "स्थान के नाम में क्वोट लगाना आवश्यक नहीं है"
 
-#: funnel/forms/project.py:90 funnel/templates/project.html.jinja2:69
+#: funnel/forms/project.py:90 funnel/templates/project.html.jinja2:81
 msgid "Feature this project"
 msgstr ""
 
@@ -1141,7 +1141,7 @@ msgstr "लेबल"
 msgid "Content"
 msgstr "विषय सूची"
 
-#: funnel/forms/proposal.py:149 funnel/templates/macros.html.jinja2:262
+#: funnel/forms/proposal.py:149
 msgid "Video"
 msgstr "वीडियो"
 
@@ -1331,8 +1331,7 @@ msgstr "कमरे का RGB रंग. बगैर ‘#’ के दर्
 msgid "Please enter a valid color code"
 msgstr "कृपया एक वैध कलर कोड दर्ज करें"
 
-#: funnel/forms/venue.py:105 funnel/templates/macros.html.jinja2:259
-#: funnel/templates/project.html.jinja2:212
+#: funnel/forms/venue.py:105 funnel/templates/project.html.jinja2:242
 msgid "Venue"
 msgstr "ईवेंट का स्थान"
 
@@ -1462,7 +1461,7 @@ msgid "{user} commented"
 msgstr "{user} ने कमेंट किया"
 
 #: funnel/models/commentvote.py:322 funnel/models/commentvote.py:327
-#: funnel/templates/macros.html.jinja2:265
+#: funnel/templates/macros.html.jinja2:277
 #: funnel/templates/project_membership.html.jinja2:4
 #: funnel/templates/project_membership.html.jinja2:17
 msgid "Crew"
@@ -1488,59 +1487,59 @@ msgstr "संसोधन"
 msgid "Not spam"
 msgstr "गैर स्पैम"
 
-#: funnel/models/notification.py:145
+#: funnel/models/notification.py:146
 msgid "Uncategorized"
 msgstr "अवर्गीकृत"
 
-#: funnel/models/notification.py:146 funnel/templates/account.html.jinja2:5
+#: funnel/models/notification.py:147 funnel/templates/account.html.jinja2:5
 #: funnel/templates/account_saved.html.jinja2:4
 #: funnel/templates/js/badge.js.jinja2:96
 #: funnel/templates/notification_preferences.html.jinja2:5
 msgid "My account"
 msgstr "मेरा अकाउंट"
 
-#: funnel/models/notification.py:148
+#: funnel/models/notification.py:149
 msgid "My subscriptions and billing"
 msgstr "मेरे सदस्यता और बिल"
 
-#: funnel/models/notification.py:152
+#: funnel/models/notification.py:153
 msgid "Projects I am participating in"
 msgstr "मेरे द्वारा भाग लिए प्रोजेक्ट"
 
-#: funnel/models/notification.py:163
+#: funnel/models/notification.py:164
 msgid "Projects I am a crew member in"
 msgstr "प्रोजेक्ट, जिनमें मैं दल का हिस्सा हूं"
 
-#: funnel/models/notification.py:171
+#: funnel/models/notification.py:172
 msgid "Organizations I manage"
 msgstr "मेरे द्वारा प्रबंधित संगठन"
 
-#: funnel/models/notification.py:179
+#: funnel/models/notification.py:180
 msgid "As a website administrator"
 msgstr "वेबसाइट एडमिनिस्ट्रेटर के तौर पर"
 
-#: funnel/models/notification.py:190
+#: funnel/models/notification.py:191
 msgid "Queued"
 msgstr "श्रेणीबद्ध"
 
-#: funnel/models/notification.py:191
+#: funnel/models/notification.py:192
 msgid "Pending"
 msgstr "लंबित"
 
-#: funnel/models/notification.py:192
+#: funnel/models/notification.py:193
 msgid "Delivered"
 msgstr "पहुंचाए हुए"
 
-#: funnel/models/notification.py:193
+#: funnel/models/notification.py:194
 msgid "Failed"
 msgstr "विफल रहे"
 
-#: funnel/models/notification.py:194
+#: funnel/models/notification.py:195
 #: funnel/templates/auth_client.html.jinja2:75
 msgid "Unknown"
 msgstr "अज्ञात"
 
-#: funnel/models/notification.py:253
+#: funnel/models/notification.py:254
 msgid "Unspecified notification type"
 msgstr "अनिर्धारित नोटिफिकेशन प्रकार"
 
@@ -1647,11 +1646,11 @@ msgstr "सार्वजनिक"
 msgid "Private"
 msgstr "निजी"
 
-#: funnel/models/profile.py:384 funnel/templates/macros.html.jinja2:590
+#: funnel/models/profile.py:384 funnel/templates/macros.html.jinja2:606
 msgid "Make public"
 msgstr "सार्वजनिक बनाएं"
 
-#: funnel/models/profile.py:389 funnel/templates/macros.html.jinja2:540
+#: funnel/models/profile.py:389 funnel/templates/macros.html.jinja2:556
 msgid "Make private"
 msgstr "निजी बनाएं"
 
@@ -1688,7 +1687,7 @@ msgid "Live"
 msgstr "लाइव"
 
 #: funnel/models/project.py:335 funnel/models/project.py:381
-#: funnel/templates/macros.html.jinja2:459
+#: funnel/templates/macros.html.jinja2:475
 msgid "Upcoming"
 msgstr "आने वाले"
 
@@ -1820,7 +1819,7 @@ msgstr "इस प्रस्ताव को जमा कर दिया ग
 msgid "Send Back to Submitted"
 msgstr "जमा किए पर वापस भेजें"
 
-#: funnel/models/proposal.py:384 funnel/templates/macros.html.jinja2:198
+#: funnel/models/proposal.py:384 funnel/templates/macros.html.jinja2:125
 #: funnel/views/commentvote.py:463 funnel/views/login_session.py:426
 msgid "Confirm"
 msgstr "स्वीकृती दें"
@@ -1969,7 +1968,6 @@ msgstr ""
 #: funnel/static/js/schedules.js:526 funnel/static/js/schedules.js:700
 #: funnel/static/js/schedules.js:720 funnel/static/js/schedules.packed.js:1
 #: funnel/templates/labels.html.jinja2:49
-#: funnel/templates/macros.html.jinja2:58
 #: funnel/templates/schedule_edit.html.jinja2:87
 #: funnel/views/organization.py:196 funnel/views/update.py:153
 #: funnel/views/venue.py:129 funnel/views/venue.py:200
@@ -2085,7 +2083,7 @@ msgstr ""
 "पर ईमेल करें."
 
 #: funnel/templates/about.html.jinja2:2 funnel/templates/about.html.jinja2:13
-#: funnel/templates/macros.html.jinja2:671
+#: funnel/templates/macros.html.jinja2:687
 msgid "About Hasgeek"
 msgstr "Hasgeek का परिचय"
 
@@ -2298,10 +2296,10 @@ msgstr "%(location)s – %(ipaddr)s से अनुमानित"
 #: funnel/templates/img_upload_formlayout.html.jinja2:6
 #: funnel/templates/labels_form.html.jinja2:18
 #: funnel/templates/layout.html.jinja2:124
-#: funnel/templates/macros.html.jinja2:190
-#: funnel/templates/macros.html.jinja2:207
-#: funnel/templates/macros.html.jinja2:528
-#: funnel/templates/macros.html.jinja2:580
+#: funnel/templates/macros.html.jinja2:117
+#: funnel/templates/macros.html.jinja2:138
+#: funnel/templates/macros.html.jinja2:544
+#: funnel/templates/macros.html.jinja2:596
 #: funnel/templates/project_cfp.html.jinja2:8
 #: funnel/templates/proposal_admin_panel.html.jinja2:5
 #: funnel/templates/schedule_edit.html.jinja2:95
@@ -2723,7 +2721,7 @@ msgstr "खोजें"
 
 #: funnel/templates/layout.html.jinja2:80
 #: funnel/templates/layout.html.jinja2:83
-#: funnel/templates/macros.html.jinja2:260
+#: funnel/templates/macros.html.jinja2:273
 #: funnel/templates/notification_feed.html.jinja2:5
 #: funnel/templates/updates.html.jinja2:4
 #: funnel/templates/updates.html.jinja2:17
@@ -2732,12 +2730,11 @@ msgstr "अपडेट"
 
 #: funnel/templates/layout.html.jinja2:81
 #: funnel/templates/layout.html.jinja2:84
-#: funnel/templates/macros.html.jinja2:306
+#: funnel/templates/macros.html.jinja2:322
 msgid "Account"
 msgstr "अकाउंट"
 
 #: funnel/templates/layout.html.jinja2:92
-#: funnel/templates/macros.html.jinja2:56
 #: funnel/templates/signup_form.html.jinja2:26 funnel/views/login.py:205
 msgid "Login"
 msgstr "लॉगिन"
@@ -2758,22 +2755,6 @@ msgstr "ईमेल के ज़रिए साइन अप करें"
 msgid "Logging out…"
 msgstr "लॉग आउट हो रहा है…"
 
-#: funnel/templates/macros.html.jinja2:56
-msgid "to save"
-msgstr "सेव करने के लिए"
-
-#: funnel/templates/macros.html.jinja2:58
-msgid "Save this project"
-msgstr "इस प्रोजेक्ट को सेव करें"
-
-#: funnel/templates/macros.html.jinja2:60
-msgid "Unsave this project"
-msgstr "इस प्रोजेक्ट को सेव से हटाएँ"
-
-#: funnel/templates/macros.html.jinja2:60
-msgid "Unsave"
-msgstr "सेव से हटाएँ "
-
 #: funnel/templates/macros.html.jinja2:67
 msgid "Copy link"
 msgstr "लिंक कॉपी करें"
@@ -2781,16 +2762,6 @@ msgstr "लिंक कॉपी करें"
 #: funnel/templates/macros.html.jinja2:70
 msgid "Facebook"
 msgstr "Facebook"
-
-#: funnel/templates/js/comments.js.jinja2:81
-#: funnel/templates/macros.html.jinja2:79
-#: funnel/templates/macros.html.jinja2:82
-msgid "Share"
-msgstr "साझा करें"
-
-#: funnel/templates/macros.html.jinja2:84
-msgid "Add to calendar"
-msgstr "कैलेंडर में जोड़ें"
 
 #: funnel/templates/macros.html.jinja2:91
 msgid "Update livestream URLs"
@@ -2800,42 +2771,19 @@ msgstr "लाइवस्ट्रीम URLs को बदलें"
 msgid "Update banner image"
 msgstr "बैनर इमेज को बदलें"
 
-#: funnel/templates/macros.html.jinja2:106 funnel/views/session.py:213
-msgid "This project will not be listed as it has no sessions in the schedule"
+#: funnel/templates/macros.html.jinja2:104
+msgid "Tickets available!"
 msgstr ""
-"इस प्रोजेक्ट को सूचीबद्ध नहीं किया जाएगा क्योंकि इसके समय-सूची में कोई "
-"सेशन मौजूद नहीं है"
 
-#: funnel/templates/macros.html.jinja2:111
-msgid "This project is currently not published"
-msgstr "इस प्रोजेक्ट को फिलहाल प्रकाशित नहीं किया गया है"
-
-#: funnel/templates/macros.html.jinja2:126
-msgid "Edit url"
-msgstr "URL संपादित करें"
-
-#: funnel/templates/macros.html.jinja2:135
-#: funnel/templates/macros.html.jinja2:365
-#: funnel/templates/macros.html.jinja2:390
-msgid "Livestream"
-msgstr "लाइवस्ट्रीम"
-
-#: funnel/templates/macros.html.jinja2:145
-#: funnel/templates/macros.html.jinja2:161
-#: funnel/templates/macros.html.jinja2:285
-msgid "Preview video"
-msgstr "प्रीव्यू वीडियो"
-
-#: funnel/templates/macros.html.jinja2:180
-#: funnel/templates/macros.html.jinja2:256
+#: funnel/templates/macros.html.jinja2:105
 msgid "Get tickets"
 msgstr "टिकट पाएं"
 
-#: funnel/templates/macros.html.jinja2:187
+#: funnel/templates/macros.html.jinja2:114
 msgid "Register"
 msgstr "रजिस्टर करें"
 
-#: funnel/templates/macros.html.jinja2:194
+#: funnel/templates/macros.html.jinja2:121
 msgid ""
 "This will share your name and email address with the project’s crew so "
 "they can keep you updated. You can cancel your registration at any time."
@@ -2844,77 +2792,101 @@ msgstr ""
 "साझा किया जाएगा ताकि आपको इससे जुड़ी जानकारियों से अवगत रख सकें. आप किसी "
 "भी समय अपना रजिस्ट्रेशन रद्द कर सकते हैं."
 
-#: funnel/templates/macros.html.jinja2:204
+#: funnel/templates/macros.html.jinja2:135
 msgid "Cancel registration"
 msgstr "रजिस्ट्रेशन रद्द करें"
 
-#: funnel/templates/macros.html.jinja2:211
+#: funnel/templates/macros.html.jinja2:142
 msgid "Can’t make it?"
 msgstr "आप मदद नहीं कर सकते?"
 
-#: funnel/templates/macros.html.jinja2:215
+#: funnel/templates/macros.html.jinja2:146
 msgid "Confirm cancellation"
 msgstr "रद्द करने की पुष्टि करें"
 
-#: funnel/templates/macros.html.jinja2:221
+#: funnel/templates/macros.html.jinja2:153
 #: funnel/templates/project_rsvp_list.html.jinja2:3
 #: funnel/templates/settings.html.jinja2:116
 msgid "View participants"
 msgstr "प्रतिभागियों को देखें"
 
-#: funnel/templates/macros.html.jinja2:224
+#: funnel/templates/macros.html.jinja2:168 funnel/views/session.py:213
+msgid "This project will not be listed as it has no sessions in the schedule"
+msgstr ""
+"इस प्रोजेक्ट को सूचीबद्ध नहीं किया जाएगा क्योंकि इसके समय-सूची में कोई "
+"सेशन मौजूद नहीं है"
+
+#: funnel/templates/macros.html.jinja2:173
+msgid "This project is currently not published"
+msgstr "इस प्रोजेक्ट को फिलहाल प्रकाशित नहीं किया गया है"
+
+#: funnel/templates/macros.html.jinja2:188
+msgid "Edit url"
+msgstr "URL संपादित करें"
+
+#: funnel/templates/macros.html.jinja2:197
+#: funnel/templates/macros.html.jinja2:381
+#: funnel/templates/macros.html.jinja2:406
+msgid "Livestream"
+msgstr "लाइवस्ट्रीम"
+
+#: funnel/templates/macros.html.jinja2:207
+#: funnel/templates/macros.html.jinja2:222
+#: funnel/templates/macros.html.jinja2:301
+msgid "Preview video"
+msgstr "प्रीव्यू वीडियो"
+
+#: funnel/templates/macros.html.jinja2:240
 msgid "Add schedule to enable registrations"
 msgstr "रजिस्ट्रेशन शुरू करने के लिए समय-सूची जोड़ें"
 
-#: funnel/templates/macros.html.jinja2:228
-#: funnel/templates/macros.html.jinja2:242
-#: funnel/templates/macros.html.jinja2:663
+#: funnel/templates/macros.html.jinja2:240
+msgid "Add schedule"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:244
+#: funnel/templates/macros.html.jinja2:258
+#: funnel/templates/macros.html.jinja2:679
 #: funnel/templates/proposals.html.jinja2:44
 #: funnel/templates/proposals.html.jinja2:48 funnel/views/proposal.py:158
 msgid "Make a submission"
 msgstr "एक सबमिशन भेजें"
 
-#: funnel/templates/macros.html.jinja2:229
-#: funnel/templates/macros.html.jinja2:346
+#: funnel/templates/macros.html.jinja2:245
+#: funnel/templates/macros.html.jinja2:362
 #: funnel/templates/proposals.html.jinja2:45
 #, python-format
 msgid "Submissions close at %(date)s"
 msgstr "सबमिशन जमा करने की सुविधा %(date)s को बंद हो जाएगी"
 
-#: funnel/templates/macros.html.jinja2:236
+#: funnel/templates/macros.html.jinja2:252
 msgid "Open submissions"
 msgstr "सबमिशन को खोलें"
 
-#: funnel/templates/macros.html.jinja2:237
+#: funnel/templates/macros.html.jinja2:253
 msgid "Add submission guidelines"
 msgstr "सबमिशन की दिशा-निर्देश और समय-सूची जोड़ें"
 
-#: funnel/templates/macros.html.jinja2:243
+#: funnel/templates/macros.html.jinja2:259
 #: funnel/templates/proposals.html.jinja2:49
 msgid "Submissions are closed for this project"
 msgstr "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
 
-#: funnel/templates/macros.html.jinja2:247
-#: funnel/templates/project.html.jinja2:230
+#: funnel/templates/macros.html.jinja2:263
+#: funnel/templates/project.html.jinja2:260
 #: funnel/templates/venues.html.jinja2:37 funnel/views/venue.py:52
 msgid "Add venue"
 msgstr "ईवेंट का स्थान जोड़ें"
 
-#: funnel/templates/macros.html.jinja2:254
+#: funnel/templates/macros.html.jinja2:271
 msgid "About"
 msgstr "परिचय"
 
-#: funnel/templates/macros.html.jinja2:257
-#: funnel/templates/macros.html.jinja2:639
-#: funnel/templates/project.html.jinja2:125 funnel/views/search.py:173
-msgid "Sessions"
-msgstr "सेशन"
-
-#: funnel/templates/macros.html.jinja2:258
+#: funnel/templates/macros.html.jinja2:272
 msgid "Jobs"
 msgstr "नौकरियां"
 
-#: funnel/templates/macros.html.jinja2:261
+#: funnel/templates/macros.html.jinja2:274
 #: funnel/templates/project_comments.html.jinja2:4
 #: funnel/templates/project_comments.html.jinja2:20
 #: funnel/templates/proposal.html.jinja2:204 funnel/views/search.py:270
@@ -2922,128 +2894,121 @@ msgstr "नौकरियां"
 msgid "Comments"
 msgstr "कमेंट"
 
-#: funnel/templates/macros.html.jinja2:263
-#: funnel/templates/macros.html.jinja2:641
-#: funnel/templates/project.html.jinja2:186
+#: funnel/templates/macros.html.jinja2:275
+#: funnel/templates/macros.html.jinja2:657
+#: funnel/templates/project.html.jinja2:216
 #: funnel/templates/proposals.html.jinja2:4
 #: funnel/templates/proposals.html.jinja2:17
 #: funnel/templates/user_profile_proposals.html.jinja2:10
 msgid "Submissions"
 msgstr "सबमिशन"
 
-#: funnel/templates/macros.html.jinja2:264
-#: funnel/templates/macros.html.jinja2:391
+#: funnel/templates/macros.html.jinja2:276
+#: funnel/templates/macros.html.jinja2:407
 #: funnel/templates/schedule.html.jinja2:5
 #: funnel/templates/schedule.html.jinja2:70
 #: funnel/templates/schedule_edit.html.jinja2:4
 msgid "Schedule"
 msgstr "कार्यक्रम"
 
-#: funnel/templates/macros.html.jinja2:266
-#: funnel/templates/schedule_edit.html.jinja2:51
-#: funnel/templates/settings.html.jinja2:4
-#: funnel/templates/settings.html.jinja2:16
-msgid "Settings"
-msgstr "सेटिंग्स"
-
 #: funnel/templates/js/update.js.jinja2:65
-#: funnel/templates/macros.html.jinja2:273
+#: funnel/templates/macros.html.jinja2:289
 msgid "This update is for participants only"
 msgstr "यह जानकारी केवल प्रतिभागियों के लिए है"
 
-#: funnel/templates/macros.html.jinja2:291
+#: funnel/templates/macros.html.jinja2:307
 msgid "Edit submission video"
 msgstr "सबमिशन से जुड़ा वीडियो संपादित करें"
 
-#: funnel/templates/macros.html.jinja2:293
+#: funnel/templates/macros.html.jinja2:309
 #: funnel/templates/proposal.html.jinja2:50
 msgid "Edit session video"
 msgstr "सेशन का वीडियो संपादित करें"
 
-#: funnel/templates/macros.html.jinja2:307
+#: funnel/templates/macros.html.jinja2:323
 msgid "Notifications"
 msgstr "नोटिफिकेशन"
 
-#: funnel/templates/macros.html.jinja2:308
+#: funnel/templates/macros.html.jinja2:324
 msgid "My saves"
 msgstr "मेरी सेव किये गए प्रोजेक्ट"
 
-#: funnel/templates/macros.html.jinja2:309
+#: funnel/templates/macros.html.jinja2:325
 #: funnel/templates/scan_contact.html.jinja2:4
 msgid "Scan badge"
 msgstr "बैज स्कैन करें"
 
-#: funnel/templates/macros.html.jinja2:310
+#: funnel/templates/macros.html.jinja2:326
 msgid "Contacts"
 msgstr "कॉन्टैक्ट"
 
-#: funnel/templates/macros.html.jinja2:363
+#: funnel/templates/macros.html.jinja2:379
 msgid "Live schedule"
 msgstr "लाइव कार्यक्रम"
 
-#: funnel/templates/macros.html.jinja2:367
+#: funnel/templates/macros.html.jinja2:383
 msgid "Livestream and schedule"
 msgstr "लाइवस्ट्रीम और कार्यक्रम"
 
-#: funnel/templates/macros.html.jinja2:387
+#: funnel/templates/macros.html.jinja2:403
 #, python-format
 msgid "Session starts at %(session)s"
 msgstr "सेशन %(session)s शुरू होगा"
 
-#: funnel/templates/macros.html.jinja2:390
+#: funnel/templates/macros.html.jinja2:406
 msgid "Watch livestream"
 msgstr "लाइवस्ट्रीम देखें"
 
-#: funnel/templates/macros.html.jinja2:407
+#: funnel/templates/macros.html.jinja2:423
 msgid "Spotlight"
 msgstr "झलकियां"
 
-#: funnel/templates/macros.html.jinja2:479
+#: funnel/templates/macros.html.jinja2:495
 msgid "Accepting submissions"
 msgstr "सब्मिशन स्वीकार कर रहे हैं"
 
-#: funnel/templates/macros.html.jinja2:491
+#: funnel/templates/macros.html.jinja2:507
 #: funnel/templates/profile.html.jinja2:96
 msgid "Show more"
 msgstr "और दिखाएं"
 
-#: funnel/templates/macros.html.jinja2:505
+#: funnel/templates/macros.html.jinja2:521
 msgid "All projects"
 msgstr "सभी प्रोजेक्ट"
 
-#: funnel/templates/macros.html.jinja2:522
+#: funnel/templates/macros.html.jinja2:538
 msgid "Manage admins"
 msgstr "एडमिंस को प्रबंधित करें"
 
-#: funnel/templates/macros.html.jinja2:522
+#: funnel/templates/macros.html.jinja2:538
 msgid "View admins"
 msgstr "एडमिंस को देखें"
 
-#: funnel/templates/macros.html.jinja2:523
+#: funnel/templates/macros.html.jinja2:539
 msgid "Edit this profile"
 msgstr "इस प्रोफाइल को संपादित करें"
 
-#: funnel/templates/macros.html.jinja2:523
+#: funnel/templates/macros.html.jinja2:539
 msgid "Make profile private"
 msgstr "प्रोफाइल को निजी बनाएं"
 
-#: funnel/templates/macros.html.jinja2:529
+#: funnel/templates/macros.html.jinja2:545
 msgid "Make this profile private?"
 msgstr "वाकई इस प्रोफाइल को निजी बनाना चाहते हैं?"
 
-#: funnel/templates/macros.html.jinja2:533
+#: funnel/templates/macros.html.jinja2:549
 msgid "Your profile will not be visible to anyone other than you"
 msgstr "आपका प्रोफाइल आपके अलावा किसी और को नहीं दिखाई देगा"
 
-#: funnel/templates/macros.html.jinja2:534
+#: funnel/templates/macros.html.jinja2:550
 msgid "It will not be listed in search results"
 msgstr "यह खोज परिणामों में भी दिखाई नहीं देगा"
 
-#: funnel/templates/macros.html.jinja2:535
+#: funnel/templates/macros.html.jinja2:551
 msgid "You cannot host projects from this profile"
 msgstr "आप इस प्रोफाइल से प्रोजेक्ट होस्ट नहीं कर सकते"
 
-#: funnel/templates/macros.html.jinja2:536
+#: funnel/templates/macros.html.jinja2:552
 msgid ""
 "Any existing projects will become inaccessible until the profile is "
 "public again"
@@ -3051,93 +3016,98 @@ msgstr ""
 "जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी "
 "मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
 
-#: funnel/templates/macros.html.jinja2:559
+#: funnel/templates/macros.html.jinja2:575
 msgid "Add cover photo url"
 msgstr "कवर फोटो का URL जोड़ें"
 
-#: funnel/templates/macros.html.jinja2:559
+#: funnel/templates/macros.html.jinja2:575
 msgid "Add cover photo"
 msgstr "कवर फोटो जोड़ें"
 
-#: funnel/templates/macros.html.jinja2:575
-#: funnel/templates/macros.html.jinja2:622
+#: funnel/templates/macros.html.jinja2:591
+#: funnel/templates/macros.html.jinja2:638
 #: funnel/templates/profile.html.jinja2:83
 msgid "New project"
 msgstr "नया प्रोजेक्ट"
 
-#: funnel/templates/macros.html.jinja2:577
-#: funnel/templates/macros.html.jinja2:624
+#: funnel/templates/macros.html.jinja2:593
+#: funnel/templates/macros.html.jinja2:640
 msgid "Make profile public"
 msgstr "प्रोफाइल को सार्वजनिक बनाएं"
 
-#: funnel/templates/macros.html.jinja2:581
+#: funnel/templates/macros.html.jinja2:597
 msgid "Make this profile public?"
 msgstr "इस प्रोफाइल को सार्वजनिक बनाएं?"
 
-#: funnel/templates/macros.html.jinja2:585
+#: funnel/templates/macros.html.jinja2:601
 msgid "Your profile will be visible to anyone visiting the page"
 msgstr "आपका प्रोफाइल इस पेज पर आने वाले सभी व्यक्तियों को दिखाई देगा"
 
-#: funnel/templates/macros.html.jinja2:586
+#: funnel/templates/macros.html.jinja2:602
 msgid "Your profile will be listed in search results"
 msgstr "आपका प्रोफाइल खोज प्राणिमों में दिखाई देगा"
 
-#: funnel/templates/macros.html.jinja2:614
+#: funnel/templates/macros.html.jinja2:630
 #, python-format
 msgid "Joined %(date)s"
 msgstr "%(date)s को जुड़े"
 
-#: funnel/templates/macros.html.jinja2:637
+#: funnel/templates/macros.html.jinja2:653
 #: funnel/templates/organization_membership.html.jinja2:15
 msgid "Admins"
 msgstr "एडमिन"
 
-#: funnel/templates/macros.html.jinja2:640
+#: funnel/templates/macros.html.jinja2:655
+#: funnel/templates/project.html.jinja2:137 funnel/views/search.py:173
+msgid "Sessions"
+msgstr "सेशन"
+
+#: funnel/templates/macros.html.jinja2:656
 #: funnel/templates/user_profile_projects.html.jinja2:10
 #: funnel/views/search.py:76
 msgid "Projects"
 msgstr "प्रोजेक्ट"
 
-#: funnel/templates/macros.html.jinja2:657
-#: funnel/templates/project.html.jinja2:90
+#: funnel/templates/macros.html.jinja2:673
+#: funnel/templates/project.html.jinja2:102
 #: funnel/templates/project_admin.html.jinja2:39
 msgid "Tickets"
 msgstr "टिकटें"
 
-#: funnel/templates/macros.html.jinja2:659
+#: funnel/templates/macros.html.jinja2:675
 msgid "Attend"
 msgstr "हिस्सा लें"
 
-#: funnel/templates/macros.html.jinja2:672
+#: funnel/templates/macros.html.jinja2:688
 msgid "Team &amp; careers"
 msgstr "टीम &amp; करियर"
 
-#: funnel/templates/macros.html.jinja2:673
+#: funnel/templates/macros.html.jinja2:689
 msgid "Contact"
 msgstr "संपर्क"
 
-#: funnel/templates/macros.html.jinja2:674
+#: funnel/templates/macros.html.jinja2:690
 #: funnel/templates/policy.html.jinja2:14
 msgid "Site policies"
 msgstr "साइट नीतियां"
 
-#: funnel/templates/macros.html.jinja2:705
+#: funnel/templates/macros.html.jinja2:721
 msgid "Outstation speaker"
 msgstr "दूसरे शहर से आने वाले स्पीकर"
 
-#: funnel/templates/macros.html.jinja2:706
+#: funnel/templates/macros.html.jinja2:722
 msgid "(proposing)"
 msgstr "(प्रस्तुत कर रहे हैं)"
 
-#: funnel/templates/macros.html.jinja2:720
+#: funnel/templates/macros.html.jinja2:734
 msgid "This proposal has a preview video"
 msgstr "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
 
-#: funnel/templates/macros.html.jinja2:725
+#: funnel/templates/macros.html.jinja2:739
 msgid "This proposal has slides"
 msgstr "इस प्रस्ताव में स्लाइड मौजूद है"
 
-#: funnel/templates/macros.html.jinja2:740
+#: funnel/templates/macros.html.jinja2:754
 msgid "(No sessions have been submitted)"
 msgstr "(सेशन की कोई जानकारी नहीं दी गई है)"
 
@@ -3152,7 +3122,7 @@ msgstr "आपको %(project)s में आमंत्रित किया
 
 #: funnel/templates/meta_refresh.html.jinja2:6
 #: funnel/templates/meta_refresh.html.jinja2:28
-#: funnel/templates/project.html.jinja2:224
+#: funnel/templates/project.html.jinja2:254
 #: funnel/templates/redirect.html.jinja2:1
 msgid "Loading…"
 msgstr "लोडिंग…"
@@ -3296,7 +3266,8 @@ msgstr "लिखें, दूसरे से जुड़ें और प्
 msgid "Unscheduled projects"
 msgstr "अनिर्धारित प्रोजेक्ट"
 
-#: funnel/templates/project.html.jinja2:90
+#: funnel/templates/project.html.jinja2:62
+#: funnel/templates/project.html.jinja2:102
 #: funnel/templates/project_comments.html.jinja2:20
 #: funnel/templates/project_membership.html.jinja2:17
 #: funnel/templates/proposal.html.jinja2:72
@@ -3308,27 +3279,33 @@ msgstr "अनिर्धारित प्रोजेक्ट"
 msgid "Back to the project"
 msgstr "प्रोजेक्ट पर वापस जाएं"
 
-#: funnel/templates/project.html.jinja2:100
+#: funnel/templates/project.html.jinja2:112
 msgid "Edit details"
 msgstr "विवरण संपादित करें"
 
-#: funnel/templates/project.html.jinja2:103
+#: funnel/templates/project.html.jinja2:115
 msgid "Related events"
 msgstr "सम्बंधित ईवेंट"
 
-#: funnel/templates/project.html.jinja2:174
+#: funnel/templates/project.html.jinja2:186
 msgid "View Schedule"
 msgstr "कार्यक्रम देखें"
 
-#: funnel/templates/project.html.jinja2:195
+#: funnel/templates/project.html.jinja2:198
+#: funnel/templates/session_videos.html.jinja2:3
+#: funnel/templates/session_videos.html.jinja2:16
+msgid "Videos"
+msgstr "वीडियो"
+
+#: funnel/templates/project.html.jinja2:225
 msgid "See all"
 msgstr "सारे देखें"
 
-#: funnel/templates/project.html.jinja2:204
+#: funnel/templates/project.html.jinja2:234
 msgid "Related jobs"
 msgstr "सम्बंधित नौकरियां"
 
-#: funnel/templates/project.html.jinja2:214
+#: funnel/templates/project.html.jinja2:244
 msgid "Update venue"
 msgstr "ईवेंट का स्थान अपडेट करें"
 
@@ -3526,6 +3503,12 @@ msgstr "सेशन जोड़ने के लिए डेट चुने�
 msgid "Unscheduled proposals"
 msgstr ""
 
+#: funnel/templates/schedule_edit.html.jinja2:51
+#: funnel/templates/settings.html.jinja2:4
+#: funnel/templates/settings.html.jinja2:16
+msgid "Settings"
+msgstr "सेटिंग्स"
+
 #: funnel/templates/schedule_edit.html.jinja2:88
 msgid "Revert"
 msgstr "वापस करें"
@@ -3545,11 +3528,6 @@ msgstr "डाउनलोड करें"
 #: funnel/templates/schedule_subscribe.html.jinja2:10
 msgid "Add to Google Calendar"
 msgstr "Google Calendar में जोड़ें"
-
-#: funnel/templates/session_videos.html.jinja2:3
-#: funnel/templates/session_videos.html.jinja2:16
-msgid "Videos"
-msgstr "वीडियो"
 
 #: funnel/templates/session_view_popup.html.jinja2:14
 msgid "This session has not been scheduled yet."
@@ -3800,6 +3778,10 @@ msgstr ""
 #: funnel/templates/js/comments.js.jinja2:79
 msgid "Report"
 msgstr ""
+
+#: funnel/templates/js/comments.js.jinja2:81
+msgid "Share"
+msgstr "साझा करें"
 
 #: funnel/templates/js/comments.js.jinja2:86
 msgid "More"
@@ -6834,3 +6816,18 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "Talks"
 #~ msgstr "टॉक"
+
+#~ msgid "to save"
+#~ msgstr "सेव करने के लिए"
+
+#~ msgid "Save this project"
+#~ msgstr "इस प्रोजेक्ट को सेव करें"
+
+#~ msgid "Unsave this project"
+#~ msgstr "इस प्रोजेक्ट को सेव से हटाएँ"
+
+#~ msgid "Unsave"
+#~ msgstr "सेव से हटाएँ "
+
+#~ msgid "Add to calendar"
+#~ msgstr "कैलेंडर में जोड़ें"
