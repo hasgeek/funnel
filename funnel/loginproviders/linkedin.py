@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from flask import redirect, request, session
 
+from simplejson.errors import JSONDecodeError
 import requests
 
 from baseframe import _
@@ -14,7 +15,7 @@ __all__ = ['LinkedInProvider']
 
 class LinkedInProvider(LoginProvider):
     auth_url = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id={client_id}&scope={scope}&redirect_uri={redirect_uri}&state={state}'
-    token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'
+    token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'  # nosec
     user_info = 'https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName)'
     user_email = 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))'
 
@@ -77,6 +78,10 @@ class LinkedInProvider(LoginProvider):
                 _(
                     "Unable to authenticate via LinkedIn. Internal details: {error}"
                 ).format(error=e)
+            )
+        except JSONDecodeError as e:
+            raise LoginCallbackError(
+                _("Invalid response from LinkedIn: {error}").format(error=e)
             )
         if 'error' in response:
             raise LoginCallbackError(response['error'])
