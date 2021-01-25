@@ -5600,7 +5600,7 @@ msgid "{actor} replied to your comment"
 msgstr ""
 
 #: funnel/views/notifications/commentvote_notification.py:101
-msgid "{actor} commented on a project you participated in"
+msgid "{actor} commented on a project you are in"
 msgstr ""
 
 #: funnel/views/notifications/commentvote_notification.py:103
@@ -5612,7 +5612,7 @@ msgid "{actor} replied to your comment:"
 msgstr ""
 
 #: funnel/views/notifications/commentvote_notification.py:112
-msgid "{actor} commented on a project you participated in:"
+msgid "{actor} commented on a project you are in:"
 msgstr ""
 
 #: funnel/views/notifications/commentvote_notification.py:114

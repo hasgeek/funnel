@@ -98,7 +98,7 @@ class CommentNotification(RenderNotification):
         if self.document_type == 'comment':
             return _("{actor} replied to your comment")
         if self.document_type == 'project':
-            return _("{actor} commented on a project you participated in")
+            return _("{actor} commented on a project you are in")
         if self.document_type == 'proposal':
             return _("{actor} commented on your submission")
 
@@ -109,7 +109,7 @@ class CommentNotification(RenderNotification):
         if self.document_type == 'comment':
             return _("{actor} replied to your comment:")
         if self.document_type == 'project':
-            return _("{actor} commented on a project you participated in:")
+            return _("{actor} commented on a project you are in:")
         if self.document_type == 'proposal':
             return _("{actor} commented on your submission:")
 

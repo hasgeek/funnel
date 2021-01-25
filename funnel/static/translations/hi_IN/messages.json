@@ -2843,13 +2843,13 @@
         null,
         "{actor} ने आपके कमेंट का जवाब दिया"
       ],
-      "{actor} commented on a project you participated in": [null, ""],
+      "{actor} commented on a project you are in": [null, ""],
       "{actor} commented on your submission": [null, ""],
       "{actor} replied to your comment:": [
         null,
         "{actor} ने आपके कमेंट का जवाब दिया:"
       ],
-      "{actor} commented on a project you participated in:": [null, ""],
+      "{actor} commented on a project you are in:": [null, ""],
       "{actor} commented on your submission:": [null, ""],
       "You have been invited as an owner of {organization} by {actor}": [
         null,
