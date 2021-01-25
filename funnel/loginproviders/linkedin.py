@@ -1,8 +1,9 @@
 from urllib.parse import quote
 from uuid import uuid4
 
-from flask import redirect, request, session
+from flask import current_app, redirect, request, session
 
+from sentry_sdk import capture_exception
 from simplejson.errors import JSONDecodeError
 import requests
 
@@ -80,8 +81,10 @@ class LinkedInProvider(LoginProvider):
                 ).format(error=e)
             )
         except JSONDecodeError as e:
+            current_app.logger.error(e.msg)
+            capture_exception(e)
             raise LoginCallbackError(
-                _("Invalid response from LinkedIn: {error}").format(error=e)
+                _("LinkedIn is having intermittent issues. Try again?")
             )
         if 'error' in response:
             raise LoginCallbackError(response['error'])
