@@ -214,7 +214,13 @@ def reopen(cls: Type[T]):
             raise TypeError("Reopened class contains unsupported __attributes__")
         for attr, value in list(temp_cls.__dict__.items()):
             # Skip the standard Python attributes, process the rest
-            if attr not in ('__dict__', '__doc__', '__module__', '__weakref__'):
+            if attr not in (
+                '__dict__',
+                '__doc__',
+                '__module__',
+                '__weakref__',
+                '__annotations__',
+            ):
                 # Refuse to overwrite existing attributes
                 if hasattr(cls, attr):
                     raise AttributeError(f"{cls.__name__} already has attribute {attr}")
@@ -222,6 +228,9 @@ def reopen(cls: Type[T]):
                 setattr(cls, attr, value)
                 # ...And remove it from the temporary class
                 delattr(temp_cls, attr)
+            # Merge typing annotations
+            elif attr == '__annotations__':
+                cls.__annotations__.update(value)
         # Return the original class. Leave the temporary class to the garbage collector
         return cls
 
@@ -339,7 +348,7 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
         )
     )
 
-    update_statement = dedent(
+    update_statement = dedent(  # nosec
         '''
         UPDATE {table_name} SET {column_name} = {update_expr};
         '''.format(  # nosec
