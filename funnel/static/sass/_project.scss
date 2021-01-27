@@ -24,14 +24,19 @@
 }
 .register-block {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   .register-block__txt {
     margin: 0 $mui-grid-padding 0 0;
   }
+  .register-block__txt--small {
+    max-width: calc(100% - 140px);
+  }
+  .register-block__txt--smaller {
+    max-width: calc(100% - 170px);
+  }
 
   .register-block__right {
-    min-width: 155px;
     text-align: right;
   }
   .register-block__right__menu {
@@ -78,9 +83,9 @@
     .desktop-navbar-items {
       display: flex;
       min-width: 450px;
-      justify-content: space-around;
+      justify-content: flex-end;
       align-items: center;
-      padding-right: $mui-grid-padding;
+      padding: 0 $mui-grid-padding;
       .project-header {
         margin: 0 $mui-grid-padding 0 0;
       }

@@ -938,8 +938,8 @@ a.loginbutton.hidden,
 }
 
 .mui-dropdown__menu--hg-link {
-  max-width: 105px;
-  min-width: 105px;
+  max-width: 125px;
+  min-width: 125px;
   z-index: 1003;
   overflow: hidden;
   margin-top: 0;
@@ -3490,14 +3490,19 @@ a.loginbutton.hidden,
 
 .register-block {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
 }
 .register-block .register-block__txt {
   margin: 0 16px 0 0;
 }
+.register-block .register-block__txt--small {
+  max-width: calc(100% - 140px);
+}
+.register-block .register-block__txt--smaller {
+  max-width: calc(100% - 170px);
+}
 .register-block .register-block__right {
-  min-width: 155px;
   text-align: right;
 }
 .register-block .register-block__right__menu {
@@ -3540,9 +3545,9 @@ a.loginbutton.hidden,
   .sub-navbar-container__inner .desktop-navbar-items {
     display: flex;
     min-width: 450px;
-    justify-content: space-around;
+    justify-content: flex-end;
     align-items: center;
-    padding-right: 16px;
+    padding: 0 16px;
   }
   .sub-navbar-container__inner .desktop-navbar-items .project-header {
     margin: 0 16px 0 0;

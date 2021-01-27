@@ -113,21 +113,27 @@
   {% endif %}
 {% endmacro %}
 
-{% macro registerblock(project, modalid='mob-register-modal') %}
+{% macro registerblock(project, modalid='mobile') %}
   <div class="register-block">
     {% if project.features.tickets()  %}
       <p class="register-block__txt mui--d-inlineblock mui--text-body2 mui--text-light">{% trans %}Tickets available!{% endtrans %}</p>
-      <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" id="get-tickets">{% trans %}Get tickets{% endtrans %}</a>
+      <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="{%- if modalid != 'mobile' -%}js-open-ticket-widget{%- endif %} mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" id="get-tickets">{% trans %}Get tickets{% endtrans %}</a>
     {% elif project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
-        <p class="register-block__txt mui--text-body2 mui--text-light">{{ project.views.registration_text() }}</p>
+        <div class="register-block__txt register-block__txt--small">
+          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
+        </div>
         <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin"  href="{{ url_for('login') }}">Register</a>
       {% elif project.features.rsvp_unregistered() -%}
-        <p class="register-block__txt mui--text-body2 mui--text-light">{{ project.views.registration_text() }}</p>
+        <div class="register-block__txt register-block__txt--small {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %} register-block__txt--smaller{%- endif %}">
+          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
+        </div>
       {%- elif project.features.rsvp_registered() %}
-        <p class="register-block__txt mui--text-body2 mui--text-light">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', baseline=true, css_class='mui--text-success fa-icon--left-margin') }}</p>
+        <div class="register-block__txt">
+          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class='mui--text-success fa-icon--left-margin') }}</p>
+        </div>
       {%- endif %}
-      <div {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}class="register-block__right"{%- endif %}>
+      <div>
         {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
           <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn" href="#{{modalid}}-register-modal" id="register-btn">{% trans %}Register{% endtrans %}</a>
           <div class="modal reg-modal" id="{{modalid}}-register-modal">
@@ -320,7 +326,7 @@
       </nav>
       <div class="desktop-navbar-items">
         {{ project_share(project) }}
-        {{ registerblock(project, modalid='desktop-register-modal') }}
+        {{ registerblock(project, modalid='desktop') }}
       </div>
     </div>
   </div>
