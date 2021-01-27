@@ -985,6 +985,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -2840,19 +2843,13 @@
         null,
         "{actor} ने आपके कमेंट का जवाब दिया"
       ],
-      "{actor} commented on your project": [
-        null,
-        "{actor} ने आपके प्रोजेक्ट पर कमेंट किया"
-      ],
+      "{actor} commented on a project you are in": [null, ""],
       "{actor} commented on your submission": [null, ""],
       "{actor} replied to your comment:": [
         null,
         "{actor} ने आपके कमेंट का जवाब दिया:"
       ],
-      "{actor} commented on your project:": [
-        null,
-        "{actor} ने आपके प्रोजेक्ट पर कमेंट किया:"
-      ],
+      "{actor} commented on a project you are in:": [null, ""],
       "{actor} commented on your submission:": [null, ""],
       "You have been invited as an owner of {organization} by {actor}": [
         null,
