@@ -737,6 +737,7 @@
         null,
         "LinkedIn के ज़रिए प्रमाणित करने में असमर्थ रहा. आंतरिक विवरण: {error}"
       ],
+      "LinkedIn is having intermittent issues. Try again?": [null, ""],
       "Unable to retrieve user details from LinkedIn. Please try again": [
         null,
         "LinkedIn से यूजर की जानकारी प्राप्त करने में असमर्थ रहा. आंतरिक विवरण: {error}"
