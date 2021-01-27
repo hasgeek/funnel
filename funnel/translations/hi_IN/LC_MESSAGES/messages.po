@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-01-25 10:05+0530\n"
+"POT-Creation-Date: 2021-01-27 11:13+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -1340,12 +1340,12 @@ msgstr "ईवेंट का स्थान"
 msgid "You denied the GitHub login request"
 msgstr "आपने GitHub लॉग इन अनुरोध को ख़ारिज कर दिया है"
 
-#: funnel/loginproviders/github.py:47 funnel/loginproviders/linkedin.py:58
+#: funnel/loginproviders/github.py:47 funnel/loginproviders/linkedin.py:60
 msgid "This server's callback URL is misconfigured"
 msgstr "सर्वर की कॉलबैक URL की विन्यास गलत है"
 
 #: funnel/loginproviders/github.py:50 funnel/loginproviders/google.py:45
-#: funnel/loginproviders/linkedin.py:61
+#: funnel/loginproviders/linkedin.py:63
 msgid "Unknown failure"
 msgstr "अज्ञात समस्या"
 
@@ -1385,25 +1385,29 @@ msgstr "LinkedIn"
 msgid "GitHub"
 msgstr "GitHub"
 
-#: funnel/loginproviders/linkedin.py:50
+#: funnel/loginproviders/linkedin.py:52
 msgid "We detected a possible attempt at cross-site request forgery"
 msgstr "हमें क्रॉस-साइट अनुरोध के भीतर संभावित धोखाधड़ी का पता चला है"
 
-#: funnel/loginproviders/linkedin.py:54
+#: funnel/loginproviders/linkedin.py:56
 msgid "You denied the LinkedIn login request"
 msgstr "आपने LinkedIn लॉग इन अनुरोध को ख़ारिज कर दिया"
 
-#: funnel/loginproviders/linkedin.py:77 funnel/loginproviders/linkedin.py:91
+#: funnel/loginproviders/linkedin.py:79 funnel/loginproviders/linkedin.py:99
 msgid "Unable to authenticate via LinkedIn. Internal details: {error}"
 msgstr "LinkedIn के ज़रिए प्रमाणित करने में असमर्थ रहा. आंतरिक विवरण: {error}"
 
-#: funnel/loginproviders/linkedin.py:98
+#: funnel/loginproviders/linkedin.py:87
+msgid "LinkedIn is having intermittent issues. Try again?"
+msgstr ""
+
+#: funnel/loginproviders/linkedin.py:106
 msgid "Unable to retrieve user details from LinkedIn. Please try again"
 msgstr ""
 "LinkedIn से यूजर की जानकारी प्राप्त करने में असमर्थ रहा. आंतरिक विवरण: "
 "{error}"
 
-#: funnel/loginproviders/linkedin.py:109
+#: funnel/loginproviders/linkedin.py:117
 msgid "Unable to fetch email from LinkedIn. Internal details: {error}"
 msgstr "LinkedIn से ईमेल प्राप्त करने में असमर्थ रहा. आंतरिक विवरण: {error}"
 
