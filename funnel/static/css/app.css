@@ -3494,13 +3494,8 @@ a.loginbutton.hidden,
   justify-content: space-between;
 }
 .register-block .register-block__txt {
+  font-size: 10px;
   margin: 0 16px 0 0;
-}
-.register-block .register-block__txt--small {
-  max-width: calc(100% - 140px);
-}
-.register-block .register-block__txt--smaller {
-  max-width: calc(100% - 170px);
 }
 .register-block .register-block__right {
   text-align: right;
@@ -3509,6 +3504,11 @@ a.loginbutton.hidden,
   margin-left: 8px;
 }
 
+@media (min-width: 360px) {
+  .register-block .register-block__txt {
+    font-size: 14px;
+  }
+}
 .project-footer {
   position: fixed;
   width: calc(100% - 32px);

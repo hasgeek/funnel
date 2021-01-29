@@ -23,7 +23,7 @@
 {% macro share_widget(formid='desktop') %}
   <a href="javascript:void(0)" class="hg-link-btn mui--hide mui--text-title mui-text-light" data-ga="Share dropdown" data-cy="share-project" data-url="{{ proposal.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
   <div class="mui-dropdown">
-    <a href="javascript:void(0)" class="project-links mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt-square', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
+    <a href="javascript:void(0)" class="project-links mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
     {{ share_dropdown(proposal.url_for(_external=true), proposal.title, css_class='mui-dropdown__menu--right') }}
   </div>
   {% if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}

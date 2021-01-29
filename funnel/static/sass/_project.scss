@@ -22,25 +22,28 @@
     margin: 0;
   }
 }
+
 .register-block {
   display: flex;
   align-items: center;
   justify-content: space-between;
   .register-block__txt {
+    font-size: 10px;
     margin: 0 $mui-grid-padding 0 0;
   }
-  .register-block__txt--small {
-    max-width: calc(100% - 140px);
-  }
-  .register-block__txt--smaller {
-    max-width: calc(100% - 170px);
-  }
-
   .register-block__right {
     text-align: right;
   }
   .register-block__right__menu {
     margin-left: $mui-grid-padding/2;
+  }
+}
+
+@media (min-width: 360px) {
+  .register-block {
+    .register-block__txt {
+      font-size: 14px;
+    }
   }
 }
 
