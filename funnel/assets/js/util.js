@@ -137,7 +137,9 @@ export const Utils = {
         : $(this).find('.calendar__weekdays__dates--latest');
 
       firstActiveWeek
-        .find('.calendar__weekdays__dates__date--showtime:first')
+        .find(
+          '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first'
+        )
         .addClass('calendar__weekdays__dates__date--display');
 
       $(this)
@@ -153,7 +155,9 @@ export const Utils = {
         .find('.calendar__weekdays__dates__date--showtime')
         .mouseleave(function () {
           firstActiveWeek
-            .find('.calendar__weekdays__dates__date--showtime:first')
+            .find(
+              '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first'
+            )
             .addClass('calendar__weekdays__dates__date--display');
         });
 
@@ -161,7 +165,9 @@ export const Utils = {
       let nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
-        .find('.calendar__weekdays__dates__date--active')
+        .find(
+          '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest'
+        )
         .first();
       let eventDate = nextEventElem.data('event-date');
       let eventMonth = nextEventElem.data('event-month');
