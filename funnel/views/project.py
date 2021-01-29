@@ -121,7 +121,7 @@ def get_registration_text(count, registered=False):
         if registered:
             return _("You and {num} others have registered").format(num=count - 1)
         else:
-            return _("{num} registrations so far. Be the next one?").format(num=count)
+            return _("{num} registrations so far").format(num=count)
 
 
 def project_data(project):
