@@ -117,7 +117,7 @@
   <div class="register-block">
     {% if project.features.tickets()  %}
       <p class="register-block__txt mui--d-inlineblock mui--text-body2 mui--text-light">{% trans %}Tickets available!{% endtrans %}</p>
-      <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="{%- if modalid != 'mobile' -%}js-open-ticket-widget{%- endif %} mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" id="get-tickets">{% trans %}Get tickets{% endtrans %}</a>
+      <a href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#tickets" class="{%- if modalid == 'mobile' -%}js-open-ticket-widget{%- endif %} mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin {% if current_page == 'project' and modalid != 'mobile' %}js-smooth-scroll js-samepage{%- endif %}" id="get-tickets">{% trans %}Get tickets{% endtrans %}</a>
     {% elif project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
         <div class="register-block__txt register-block__txt--small">
