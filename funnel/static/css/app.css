@@ -5473,6 +5473,9 @@ body > .proposal-box.ui-draggable {
   color: #4d5763;
   position: relative;
 }
+.update .update__heading {
+  float: left;
+}
 .update .update__action-btn {
   float: right;
 }
@@ -5513,9 +5516,6 @@ body > .proposal-box.ui-draggable {
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: #f9f9f9;
-  }
-  .update .update__heading {
-    float: left;
   }
   .update .update__action-btn {
     position: static;
