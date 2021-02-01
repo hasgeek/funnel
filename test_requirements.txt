@@ -1,4 +1,4 @@
-coverage==5.3.1
+coverage==5.4
 coveralls==2.2.0
 fakeredis==1.4.5
 mock==4.0.3
