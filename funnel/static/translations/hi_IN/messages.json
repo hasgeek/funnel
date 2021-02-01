@@ -1281,16 +1281,21 @@
       "Don’t have an account?": [null, "अकाउंट नहीं है?"],
       "Sign up with email": [null, "ईमेल के ज़रिए साइन अप करें"],
       "Logging out…": [null, "लॉग आउट हो रहा है…"],
-      "to save": [null, "सेव करने के लिए"],
-      "Save this project": [null, "इस प्रोजेक्ट को सेव करें"],
-      "Unsave this project": [null, "इस प्रोजेक्ट को सेव से हटाएँ"],
-      "Unsave": [null, "सेव से हटाएँ "],
       "Copy link": [null, "लिंक कॉपी करें"],
       "Facebook": [null, "Facebook"],
-      "Share": [null, "साझा करें"],
-      "Add to calendar": [null, "कैलेंडर में जोड़ें"],
       "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
       "Update banner image": [null, "बैनर इमेज को बदलें"],
+      "Tickets available!": [null, ""],
+      "Get tickets": [null, "टिकट पाएं"],
+      "Register": [null, "रजिस्टर करें"],
+      "This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.": [
+        null,
+        "इसे करने से आपके नाम और ईमेल पते को प्रोजेक्ट के दल के सदस्यों के साथ साझा किया जाएगा ताकि आपको इससे जुड़ी जानकारियों से अवगत रख सकें. आप किसी भी समय अपना रजिस्ट्रेशन रद्द कर सकते हैं."
+      ],
+      "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
+      "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
+      "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
+      "View participants": [null, "प्रतिभागियों को देखें"],
       "This project will not be listed as it has no sessions in the schedule": [
         null,
         "इस प्रोजेक्ट को सूचीबद्ध नहीं किया जाएगा क्योंकि इसके समय-सूची में कोई सेशन मौजूद नहीं है"
@@ -1302,20 +1307,11 @@
       "Edit url": [null, "URL संपादित करें"],
       "Livestream": [null, "लाइवस्ट्रीम"],
       "Preview video": [null, "प्रीव्यू वीडियो"],
-      "Get tickets": [null, "टिकट पाएं"],
-      "Register": [null, "रजिस्टर करें"],
-      "This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.": [
-        null,
-        "इसे करने से आपके नाम और ईमेल पते को प्रोजेक्ट के दल के सदस्यों के साथ साझा किया जाएगा ताकि आपको इससे जुड़ी जानकारियों से अवगत रख सकें. आप किसी भी समय अपना रजिस्ट्रेशन रद्द कर सकते हैं."
-      ],
-      "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
-      "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
-      "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
-      "View participants": [null, "प्रतिभागियों को देखें"],
       "Add schedule to enable registrations": [
         null,
         "रजिस्ट्रेशन शुरू करने के लिए समय-सूची जोड़ें"
       ],
+      "Add schedule": [null, ""],
       "Make a submission": [null, "एक सबमिशन भेजें"],
       "Submissions close at %(date)s": [
         null,
@@ -1332,12 +1328,10 @@
       ],
       "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
       "About": [null, "परिचय"],
-      "Sessions": [null, "सेशन"],
       "Jobs": [null, "नौकरियां"],
       "Comments": [null, "कमेंट"],
       "Submissions": [null, "सबमिशन"],
       "Schedule": [null, "कार्यक्रम"],
-      "Settings": [null, "सेटिंग्स"],
       "This update is for participants only": [
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
@@ -1395,6 +1389,7 @@
       ],
       "Joined %(date)s": [null, "%(date)s को जुड़े"],
       "Admins": [null, "एडमिन"],
+      "Sessions": [null, "सेशन"],
       "Projects": [null, "प्रोजेक्ट"],
       "Tickets": [null, "टिकटें"],
       "Attend": [null, "हिस्सा लें"],
@@ -1486,6 +1481,7 @@
       "Edit details": [null, "विवरण संपादित करें"],
       "Related events": [null, "सम्बंधित ईवेंट"],
       "View Schedule": [null, "कार्यक्रम देखें"],
+      "Videos": [null, "वीडियो"],
       "See all": [null, "सारे देखें"],
       "Related jobs": [null, "सम्बंधित नौकरियां"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
@@ -1567,12 +1563,12 @@
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
       "Unscheduled proposals": [null, ""],
+      "Settings": [null, "सेटिंग्स"],
       "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
       "Download": [null, "डाउनलोड करें"],
       "Add to Google Calendar": [null, "Google Calendar में जोड़ें"],
-      "Videos": [null, "वीडियो"],
       "This session has not been scheduled yet.": [
         null,
         "इस सेशन की समय-सूची अभी नहीं बनाई गई है."
@@ -1669,6 +1665,7 @@
       "edited %s": [null, ""],
       "Reply": [null, ""],
       "Report": [null, ""],
+      "Share": [null, "साझा करें"],
       "More": [null, ""],
       "Show badge": [null, ""],
       "Show label badge": [null, ""],

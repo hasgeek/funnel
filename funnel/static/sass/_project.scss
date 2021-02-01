@@ -3,8 +3,109 @@
   padding: $mui-grid-padding/2 0;
   border-bottom: 1px solid rgba(121, 129, 139, 0.48);
 }
+
+.project-header {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  .project-links,
+  .hg-link-btn {
+    padding-right: $mui-grid-padding;
+  }
+  .settings {
+    padding-left: $mui-grid-padding;
+  }
+  .hg-link-btn.hide {
+    display: none;
+  }
+  .mui-btn--nostyle + .mui-btn--nostyle {
+    margin: 0;
+  }
+}
+
+.register-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .register-block__txt {
+    font-size: 10px;
+    margin: 0 $mui-grid-padding 0 0;
+  }
+  .register-block__right {
+    text-align: right;
+  }
+  .register-block__right__menu {
+    margin-left: $mui-grid-padding/2;
+  }
+}
+
+@media (min-width: 360px) {
+  .register-block {
+    .register-block__txt {
+      font-size: 14px;
+    }
+  }
+}
+
+.project-footer {
+  position: fixed;
+  width: calc(100% - 32px);
+  bottom: 0;
+  padding: 16px;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  z-index: 1000;
+
+  .mui-dropdown__menu {
+    top: -66px !important;
+    border-radius: 16px 16px 0px;
+  }
+}
+
+@media (min-width: 768px) {
+  .project-footer {
+    display: none;
+  }
+}
+
+.sub-navbar-container__inner {
+  .desktop-navbar-items {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .sub-navbar-container__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .sub-navbar {
+      max-width: calc(100% - 480px);
+      margin-left: 0;
+    }
+    .desktop-navbar-items {
+      display: flex;
+      min-width: 450px;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 $mui-grid-padding;
+      .project-header {
+        margin: 0 $mui-grid-padding 0 0;
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .sub-navbar-container__inner {
+    .desktop-navbar-items {
+      justify-content: flex-end;
+    }
+  }
+}
+
 .project-banner {
-  margin-top: $mui-grid-padding;
+  padding-top: 80px;
 
   .project-banner__profile-details {
     display: flex;
@@ -80,43 +181,15 @@
     }
   }
 
-  .project-banner__footer {
-    display: flex;
-    align-items: baseline;
-    margin: $mui-grid-padding 0 0;
-    padding: 0 $mui-grid-padding;
-
-    .bookmark {
-      padding-right: 8px;
-      a {
-        text-decoration: none !important;
-      }
-    }
-    .hg-link-btn.hide {
-      display: none;
-    }
-    .bookmark {
-      .txt,
-      .login-txt {
-        position: relative;
-        top: -2px;
-      }
-      .animate-btn {
-        height: 20px;
-      }
-      .animate-btn--animate {
-        -webkit-animation: none;
-        animation: none;
-      }
-    }
-    .mui-btn--nostyle + .mui-btn--nostyle {
-      margin: 0;
-    }
-  }
-
   .project-details__box {
     margin-top: $mui-grid-padding;
     position: relative;
+
+    .bookmark {
+      position: absolute;
+      right: 14px;
+      z-index: 3;
+    }
 
     .card__calendar {
       padding: 0 $mui-grid-padding 10px;
@@ -163,16 +236,16 @@
       }
     }
   }
-  .project-details__box--ticketbox {
+  .project-details__box__content {
+    min-height: 22px;
     margin-bottom: $mui-grid-padding;
-    .check-icon {
-      margin-right: 8px;
-    }
   }
 }
 
 @media (min-width: 768px) {
   .project-banner {
+    padding-top: 35px;
+
     .project-banner__box {
       padding: 0 $mui-grid-padding;
       .project-banner__box__add-btn {
@@ -180,15 +253,6 @@
       }
       .project-banner__box__add-btn--second {
         right: 60px;
-      }
-    }
-    .project-banner__footer {
-      padding: 0;
-      justify-content: unset;
-      .bookmark,
-      .project-links,
-      .hg-link-btn {
-        padding-right: 24px !important;
       }
     }
     .project-details__box {
@@ -251,7 +315,7 @@
     .project-details__box--topmargin {
       margin-top: 42px;
     }
-    .project-details__box--ticketbox {
+    .project-details__box__content {
       margin-bottom: 0;
     }
   }
@@ -322,7 +386,7 @@
 @media (min-width: 768px) {
   .pinned {
     position: sticky;
-    top: 56px;
+    top: 128px;
     display: block;
   }
 }

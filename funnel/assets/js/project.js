@@ -84,7 +84,7 @@ const Ticketing = {
   },
 
   initTicketModal() {
-    $('.open-ticket-widget').click((event) => {
+    $('.js-open-ticket-widget').click((event) => {
       event.preventDefault();
       this.openTicketModal();
     });

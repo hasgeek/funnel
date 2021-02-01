@@ -8,6 +8,10 @@
   color: $mui-text-light;
   position: relative;
 
+  .update__heading {
+    float: left;
+  }
+
   .update__action-btn {
     float: right;
   }
@@ -54,19 +58,12 @@
 }
 
 @media (min-width: 768px) {
-  .pinned {
-    top: 110px;
-    margin-bottom: -10px;
-  }
   .update {
     padding: $mui-grid-padding-double $mui-grid-padding;
     margin-bottom: $mui-grid-padding;
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: $mui-bg-color-accent;
-    .update__heading {
-      float: left;
-    }
     .update__action-btn {
       position: static;
     }
