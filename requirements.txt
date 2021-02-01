@@ -14,7 +14,7 @@ Flask-Executor==0.9.4
 git+https://github.com/hasgeek/Flask-FlatPages.git#egg=Flask-FlatPages
 git+https://github.com/hasgeek/flask-lastuser.git#egg=Flask-Lastuser
 Flask-Mailman==0.1.7
-Flask-Migrate==2.5.3
+Flask-Migrate==2.6.0
 Flask-OAuth==0.12
 Flask-Redis==0.4.0
 Flask-RQ2==18.3
