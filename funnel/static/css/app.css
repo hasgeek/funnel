@@ -938,8 +938,8 @@ a.loginbutton.hidden,
 }
 
 .mui-dropdown__menu--hg-link {
-  max-width: 105px;
-  min-width: 105px;
+  max-width: 125px;
+  min-width: 125px;
   z-index: 1003;
   overflow: hidden;
   margin-top: 0;
@@ -1684,7 +1684,7 @@ a.loginbutton.hidden,
     position: sticky;
     top: 50px;
     order: 1;
-    z-index: 2;
+    z-index: 6;
   }
 
   .sub-navbar {
@@ -3247,7 +3247,7 @@ a.loginbutton.hidden,
 .card--upcoming .card__body .card__body__bookmark {
   position: absolute;
   right: 16px;
-  top: 18px;
+  top: 16px;
   z-index: 4;
   line-height: 1;
 }
@@ -3469,8 +3469,97 @@ a.loginbutton.hidden,
   border-bottom: 1px solid rgba(121, 129, 139, 0.48);
 }
 
+.project-header {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+.project-header .project-links,
+.project-header .hg-link-btn {
+  padding-right: 16px;
+}
+.project-header .settings {
+  padding-left: 16px;
+}
+.project-header .hg-link-btn.hide {
+  display: none;
+}
+.project-header .mui-btn--nostyle + .mui-btn--nostyle {
+  margin: 0;
+}
+
+.register-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.register-block .register-block__txt {
+  font-size: 10px;
+  margin: 0 16px 0 0;
+}
+.register-block .register-block__right {
+  text-align: right;
+}
+.register-block .register-block__right__menu {
+  margin-left: 8px;
+}
+
+@media (min-width: 360px) {
+  .register-block .register-block__txt {
+    font-size: 14px;
+  }
+}
+.project-footer {
+  position: fixed;
+  width: calc(100% - 32px);
+  bottom: 0;
+  padding: 16px;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  z-index: 1000;
+}
+.project-footer .mui-dropdown__menu {
+  top: -66px !important;
+  border-radius: 16px 16px 0px;
+}
+
+@media (min-width: 768px) {
+  .project-footer {
+    display: none;
+  }
+}
+.sub-navbar-container__inner .desktop-navbar-items {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .sub-navbar-container__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sub-navbar-container__inner .sub-navbar {
+    max-width: calc(100% - 480px);
+    margin-left: 0;
+  }
+  .sub-navbar-container__inner .desktop-navbar-items {
+    display: flex;
+    min-width: 450px;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 16px;
+  }
+  .sub-navbar-container__inner .desktop-navbar-items .project-header {
+    margin: 0 16px 0 0;
+  }
+}
+@media (min-width: 768px) {
+  .sub-navbar-container__inner .desktop-navbar-items {
+    justify-content: flex-end;
+  }
+}
 .project-banner {
-  margin-top: 16px;
+  padding-top: 80px;
 }
 .project-banner .project-banner__profile-details {
   display: flex;
@@ -3542,39 +3631,14 @@ a.loginbutton.hidden,
   margin: 0;
   display: block;
 }
-.project-banner .project-banner__footer {
-  display: flex;
-  align-items: baseline;
-  margin: 16px 0 0;
-  padding: 0 16px;
-}
-.project-banner .project-banner__footer .bookmark {
-  padding-right: 8px;
-}
-.project-banner .project-banner__footer .bookmark a {
-  text-decoration: none !important;
-}
-.project-banner .project-banner__footer .hg-link-btn.hide {
-  display: none;
-}
-.project-banner .project-banner__footer .bookmark .txt,
-.project-banner .project-banner__footer .bookmark .login-txt {
-  position: relative;
-  top: -2px;
-}
-.project-banner .project-banner__footer .bookmark .animate-btn {
-  height: 20px;
-}
-.project-banner .project-banner__footer .bookmark .animate-btn--animate {
-  -webkit-animation: none;
-  animation: none;
-}
-.project-banner .project-banner__footer .mui-btn--nostyle + .mui-btn--nostyle {
-  margin: 0;
-}
 .project-banner .project-details__box {
   margin-top: 16px;
   position: relative;
+}
+.project-banner .project-details__box .bookmark {
+  position: absolute;
+  right: 14px;
+  z-index: 3;
 }
 .project-banner .project-details__box .card__calendar {
   padding: 0 16px 10px;
@@ -3639,14 +3703,15 @@ a.loginbutton.hidden,
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
 }
-.project-banner .project-details__box--ticketbox {
+.project-banner .project-details__box__content {
+  min-height: 22px;
   margin-bottom: 16px;
-}
-.project-banner .project-details__box--ticketbox .check-icon {
-  margin-right: 8px;
 }
 
 @media (min-width: 768px) {
+  .project-banner {
+    padding-top: 35px;
+  }
   .project-banner .project-banner__box {
     padding: 0 16px;
   }
@@ -3655,15 +3720,6 @@ a.loginbutton.hidden,
   }
   .project-banner .project-banner__box .project-banner__box__add-btn--second {
     right: 60px;
-  }
-  .project-banner .project-banner__footer {
-    padding: 0;
-    justify-content: unset;
-  }
-  .project-banner .project-banner__footer .bookmark,
-  .project-banner .project-banner__footer .project-links,
-  .project-banner .project-banner__footer .hg-link-btn {
-    padding-right: 24px !important;
   }
   .project-banner .project-details__box .propose .propose__txt {
     font-size: 14px;
@@ -3718,7 +3774,7 @@ a.loginbutton.hidden,
   .project-banner .project-details__box--topmargin {
     margin-top: 42px;
   }
-  .project-banner .project-details__box--ticketbox {
+  .project-banner .project-details__box__content {
     margin-bottom: 0;
   }
 }
@@ -3782,7 +3838,7 @@ a.loginbutton.hidden,
 @media (min-width: 768px) {
   .pinned {
     position: sticky;
-    top: 56px;
+    top: 128px;
     display: block;
   }
 }
@@ -5417,6 +5473,9 @@ body > .proposal-box.ui-draggable {
   color: #4d5763;
   position: relative;
 }
+.update .update__heading {
+  float: left;
+}
 .update .update__action-btn {
   float: right;
 }
@@ -5451,20 +5510,12 @@ body > .proposal-box.ui-draggable {
   }
 }
 @media (min-width: 768px) {
-  .pinned {
-    top: 110px;
-    margin-bottom: -10px;
-  }
-
   .update {
     padding: 32px 16px;
     margin-bottom: 16px;
     border-radius: 16px;
     border: solid 1px rgba(121, 129, 139, 0.16);
     background-color: #f9f9f9;
-  }
-  .update .update__heading {
-    float: left;
   }
   .update .update__action-btn {
     position: static;

@@ -2,7 +2,7 @@
 {% set title_suffix = project.title_suffix %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import csrf_tag, project_header, proposal_card %}
+{%- from "macros.html.jinja2" import csrf_tag, project_header, proposal_card, project_share, video_thumbnail, registerblock %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.tagline }}{% endblock %}
 {% block twitter_card %}summary_large_image{% endblock %}
@@ -60,13 +60,27 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app project-page">
+    <body class="mui--bg-primary hg-app project-page no-sticky-header">
   {%- else %}
-    <body class="mui--bg-primary">
+    <body class="mui--bg-primary no-sticky-header">
   {%- endif %}
 {% endblock %}
 
-{% block contenthead %}{% endblock %}
+{% block contenthead %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title', css_class="mui--align-middle") }}</a>
+      <div class="mui--pull-right mobile-nav__icon">
+        {{ project_share(project) }}
+      </div>
+    </div>
+  </div>
+  {% if project.features.tickets() or project.features.rsvp() %}
+    <div class="project-footer">
+      {{ registerblock(project) }}
+    </div>
+  {% endif %}
+{% endblock %}
 
 {% block baseheadline %}
   {% if current_auth.user.is_site_editor %}
@@ -97,7 +111,7 @@
             <div class="about__participate">
               <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl about__participate__back-nav">
                 <div class="mobile-nav mui--z1">
-                  <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget"data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
+                  <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
                 </div>
               </div>
               <div id="tickets">
@@ -194,6 +208,25 @@
         </div>
       </div>
     </div>
+
+  {% if project.sessions_with_video|length > 0 %}
+    <div class="project-section" id="videos">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-xs-12">
+            <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Videos{% endtrans %}</h2>
+          </div>
+        </div>
+        <div class="grid">
+          {% for session in project.sessions_with_video %}
+            <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
+              {{ video_thumbnail(session) }}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {%- endif %}
 
   {% if featured_proposals.count() > 0 %}
     <div class="project-section" id="submissions">

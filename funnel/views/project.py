@@ -71,41 +71,41 @@ CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
 
 registration_count_messages = [
     CountWords(_("Be the first to register!"), None),
-    CountWords(_("One registration so far. Be the second?"), _("You have registered")),
+    CountWords(_("One registration so far"), _("You have registered")),
     CountWords(
-        _("Two registrations so far. Be the third?"),
+        _("Two registrations so far"),
         _("You and one other have registered"),
     ),
     CountWords(
-        _("Three registrations so far. Be the fourth?"),
+        _("Three registrations so far"),
         _("You and two others have registered"),
     ),
     CountWords(
-        _("Four registrations so far. Be the next one?"),
+        _("Four registrations so far"),
         _("You and three others have registered"),
     ),
     CountWords(
-        _("Five registrations so far. Be the next one?"),
+        _("Five registrations so far"),
         _("You and four others have registered"),
     ),
     CountWords(
-        _("Six registrations so far. Be the next one?"),
+        _("Six registrations so far"),
         _("You and five others have registered"),
     ),
     CountWords(
-        _("Seven registrations so far. Be the next one?"),
+        _("Seven registrations so far"),
         _("You and six others have registered"),
     ),
     CountWords(
-        _("Eight registrations so far. Be the next one?"),
+        _("Eight registrations so far?"),
         _("You and seven others have registered"),
     ),
     CountWords(
-        _("Nine registrations so far. Be the next one?"),
+        _("Nine registrations so far"),
         _("You and eight others have registered"),
     ),
     CountWords(
-        _("Ten registrations so far. Be the next one?"),
+        _("Ten registrations so far"),
         _("You and nine others have registered"),
     ),
 ]
@@ -121,7 +121,7 @@ def get_registration_text(count, registered=False):
         if registered:
             return _("You and {num} others have registered").format(num=count - 1)
         else:
-            return _("{num} registrations so far. Be the next one?").format(num=count)
+            return _("{num} registrations so far").format(num=count)
 
 
 def project_data(project):
