@@ -1,4 +1,4 @@
-alembic==1.4.3
+alembic==1.5.3
 argon2-cffi==20.1.0
 Babel==2.9.0
 base58==2.0.1
