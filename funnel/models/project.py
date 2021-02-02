@@ -174,7 +174,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.Column(JsonDict, nullable=False, server_default='{}'),
         # This is an attribute, but we deliberately use `call` instead of `read` to
         # block this from dictionary enumeration. FIXME: Break up this dictionary into
-        # individual columns with `all` access for ticket embed id and `concierge`
+        # individual columns with `all` access for ticket embed id and `promoter`
         # access for ticket sync access token.
         call={'all'},
     )
@@ -410,13 +410,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         super(Project, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROJECT)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
-        # Add the creator as editor and concierge
+        # Add the creator as editor and promoter
         new_membership = ProjectCrewMembership(
             parent=self,
             user=self.user,
             granted_by=self.user,
             is_editor=True,
-            is_concierge=True,
+            is_promoter=True,
         )
         db.session.add(new_membership)
 

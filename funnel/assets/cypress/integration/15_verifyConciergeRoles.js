@@ -1,9 +1,9 @@
-describe('Verify roles of concierge', function () {
-  const concierge = require('../fixtures/user.json').concierge;
+describe('Verify roles of promoter', function () {
+  const promoter = require('../fixtures/user.json').promoter;
   const project = require('../fixtures/project.json');
 
-  it('Access available for concierge in project settings', function () {
-    cy.login('/', concierge.username, concierge.password);
+  it('Access available for promoter in project settings', function () {
+    cy.login('/', promoter.username, promoter.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
       .first()
