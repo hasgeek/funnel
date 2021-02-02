@@ -230,7 +230,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {
             'status': 'ok',
-            'title': _('Past projects'),
+            'title': _('Past sessions'),
             'headings': [_('Date'), _('Project'), _('Location')],
             'next_page': (
                 pagination.page + 1 if pagination.page < pagination.pages else ''

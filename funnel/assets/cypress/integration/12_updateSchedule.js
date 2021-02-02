@@ -16,7 +16,7 @@ describe('Add session to schedule and publish', function () {
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="edit-schedule"').click();
     cy.location('pathname').should('contain', 'schedule');
@@ -54,10 +54,10 @@ describe('Add session to schedule and publish', function () {
     cy.get('.sp-palette-container').should('exist');
 
     cy.get('[data-cy="project-page"]').click();
-    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('button[data-cy-schedule=publish_schedule]').click();
-    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('[data-cy="schedule-state"]').contains('Upcoming');
 

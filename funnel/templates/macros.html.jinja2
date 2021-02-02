@@ -267,14 +267,14 @@
           {% endif %}
         </div>
         <div class="project-details__box__content">
-          {% if project.view_for('edit_schedule').is_available() %}
+          {% if project.view_for('edit_schedule').is_available() and not project.schedule_state.PUBLISHED %}
             <a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}"><span class="mui--hidden-xs mui--hidden-sm mui--hidden-lg">{% trans %}Add schedule to enable registrations{% endtrans %}</span><span class="mui--visible-xs-inline mui--visible-sm-inline mui--visible-lg-inline">{% trans %}Add schedule{% endtrans %}</span></a>
+            <hr class="mui-divider">
           {%- endif %}
           {% if project.cfp_state.OPEN -%}
-            <hr class="mui-divider">
             <div class="propose propose--lessmargin">
               <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
-              {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close at {{ date }}{% endtrans %}</em></p>{% endif %}
+              {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
             </div>
           {% elif project.view_for('cfp').is_available() -%}
             <hr class="mui-divider">
@@ -417,7 +417,7 @@
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
         <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
         <hr class="separator">
-        {% if project.cfp_end_at_localized %}<p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close at {{ date }}{% endtrans %}</em></p>{% endif %}
+        {% if project.cfp_end_at_localized %}<p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
       {% endif %}
     </div>
   </a>
