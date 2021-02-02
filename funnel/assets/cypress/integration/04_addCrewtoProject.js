@@ -1,7 +1,7 @@
 describe('Adding crew', function () {
   const owner = require('../fixtures/user.json').owner;
   const admin = require('../fixtures/user.json').admin;
-  const concierge = require('../fixtures/user.json').concierge;
+  const promoter = require('../fixtures/user.json').promoter;
   const usher = require('../fixtures/user.json').usher;
   const editor = require('../fixtures/user.json').editor;
   const hguser = require('../fixtures/user.json').hguser;
@@ -25,7 +25,7 @@ describe('Adding crew', function () {
       .find('[data-cy="role"]')
       .contains('Editor');
 
-    cy.add_member(concierge.username, 'concierge');
+    cy.add_member(promoter.username, 'promoter');
     cy.add_member(usher.username, 'usher');
     cy.add_member(editor.username, 'editor');
     cy.add_member(hguser.username, 'usher', (fail = true));

@@ -21,7 +21,7 @@ const Membership = {
         rolesCount(member) {
           let count = 0;
           if (member.is_editor) count += 1;
-          if (member.is_concierge) count += 1;
+          if (member.is_promoter) count += 1;
           if (member.is_usher) count += 1;
           return count - 1;
         },

@@ -125,13 +125,13 @@ def test_project_roles(project_fixtures):
     """Test that the fixtures have roles set up correctly."""
     owner_roles = project_fixtures.project.roles_for(project_fixtures.user_owner)
     assert 'editor' in owner_roles
-    assert 'concierge' in owner_roles
+    assert 'promoter' in owner_roles
     assert 'crew' in owner_roles
     assert 'participant' in owner_roles
 
     editor_roles = project_fixtures.project.roles_for(project_fixtures.user_editor)
     assert 'editor' in editor_roles
-    assert 'concierge' not in editor_roles
+    assert 'promoter' not in editor_roles
     assert 'crew' in editor_roles
     assert 'participant' in editor_roles
 
@@ -139,7 +139,7 @@ def test_project_roles(project_fixtures):
         project_fixtures.user_participant
     )
     assert 'editor' not in participant_roles
-    assert 'concierge' not in participant_roles
+    assert 'promoter' not in participant_roles
     assert 'crew' not in participant_roles
     assert 'participant' in participant_roles
 
@@ -147,7 +147,7 @@ def test_project_roles(project_fixtures):
         project_fixtures.user_cancelled_participant
     )
     assert 'editor' not in cancelled_participant_roles
-    assert 'concierge' not in cancelled_participant_roles
+    assert 'promoter' not in cancelled_participant_roles
     assert 'crew' not in cancelled_participant_roles
     assert 'participant' not in cancelled_participant_roles
 
@@ -155,7 +155,7 @@ def test_project_roles(project_fixtures):
         project_fixtures.user_bystander
     )
     assert 'editor' not in bystander_roles
-    assert 'concierge' not in bystander_roles
+    assert 'promoter' not in bystander_roles
     assert 'crew' not in bystander_roles
     assert 'participant' not in bystander_roles
 

@@ -515,7 +515,7 @@ class ProjectCrewMembershipView(
                     previous_membership.replace(
                         actor=current_auth.user,
                         is_editor=form.is_editor.data,
-                        is_concierge=form.is_concierge.data,
+                        is_promoter=form.is_promoter.data,
                         is_usher=form.is_usher.data,
                     )
                 except MembershipRevokedError:

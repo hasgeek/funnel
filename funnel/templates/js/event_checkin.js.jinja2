@@ -21,7 +21,7 @@
         <td class='js-searchable' data-th="Company">{{ company }}</td>
         <td class='buttongrp-column'>
           <ul class="mui-list--unstyled">
-            {{#if isUsher || isConcierge}}
+            {{#if isUsher || IsPromoter}}
             <li>
               <a href="{{ badge_url }}" {{#badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" {{/badge_printed}} {{^badge_printed}} class="mui-btn mui-btn--small mui-btn--raised mui-btn--default" {{/badge_printed}} target="_blank" rel="noopener" data-cy="show-badge">{{ gettext('Show badge') }}</a>
             </li>
@@ -42,7 +42,7 @@
                 {{/if}}
               </form>
             </li>
-            {{#if isConcierge}}
+            {{#if IsPromoter}}
             <li>
               <a href="{{ edit_url }}" class="mui--text-hyperlink" target="_blank" rel="noopener" data-cy="edit-attendee-details">{{ gettext('Edit participant details') }}</a>
             </li>
