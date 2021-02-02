@@ -21,9 +21,9 @@ def init_models():
             email='profileowner@example.com', user=profile_owner
         )
 
-        concierge = User(username='concierge-user', fullname='concierge-user')
-        concierge._set_password('concierge-user34_qQE')
-        concierge_email = UserEmail(email='concierge@example.com', user=concierge)
+        promoter = User(username='promoter-user', fullname='promoter-user')
+        promoter._set_password('promoter-user34_qQE')
+        promoter_email = UserEmail(email='promoter@example.com', user=promoter)
 
         usher = User(username='usher-cypress', fullname='usher-cypress')
         usher._set_password('usher-cypress566_YUt')
@@ -44,8 +44,8 @@ def init_models():
                 user_email,
                 profile_owner,
                 profile_owner_email,
-                concierge,
-                concierge_email,
+                promoter,
+                promoter_email,
                 usher,
                 usher_email,
                 editor,

@@ -7,9 +7,9 @@
     "username": "admin-user",
     "password": "admin-user129_Ftz"
   },
-  "concierge": {
-    "username": "concierge-user",
-    "password": "concierge-user34_qQE"
+  "promoter": {
+    "username": "promoter-user",
+    "password": "promoter-user34_qQE"
   },
   "usher": {
     "username": "usher-cypress",

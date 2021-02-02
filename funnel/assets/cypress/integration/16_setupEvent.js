@@ -1,11 +1,11 @@
 describe('Setup ticketed event for checkin', function () {
-  const concierge = require('../fixtures/user.json').concierge;
+  const promoter = require('../fixtures/user.json').promoter;
   const project = require('../fixtures/project.json');
   const ticketEvents = require('../fixtures/ticket_events.json');
   const ticketParticipants = require('../fixtures/ticket_participants.json');
 
   it('Setup ticketed event for checkin', function () {
-    cy.login('/', concierge.username, concierge.password);
+    cy.login('/', promoter.username, promoter.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
       .first()
