@@ -91,7 +91,7 @@
     9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
     var ticketEventConfig = {};
     ticketEventConfig.checkin = {
-      isConcierge: {%- if project.current_roles.concierge %} true {% else %} false {%- endif %},
+      IsPromoter: {%- if project.current_roles.promoter %} true {% else %} false {%- endif %},
       isUsher: {%- if project.current_roles.usher %} true {% else %} false {%- endif %},
       checkinUrl: "{{ ticket_event.url_for('checkin') }}",
       participantlistUrl: "{{ ticket_event.url_for('participants_json') }}",

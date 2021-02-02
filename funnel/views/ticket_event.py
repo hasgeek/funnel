@@ -38,7 +38,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     @route('')
     @render_with('ticket_event_list.html.jinja2')
     @requires_login
-    @requires_roles({'concierge', 'usher'})
+    @requires_roles({'promoter', 'usher'})
     def ticket_events(self):
         return {
             'project': self.obj,
@@ -48,7 +48,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('json')
     @requires_login
-    @requires_roles({'editor', 'concierge'})
+    @requires_roles({'editor', 'promoter'})
     def events_json(self):
         return jsonify(
             ticket_events=[
@@ -58,7 +58,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def new_event(self):
         form = TicketEventForm()
         if form.validate_on_submit():
@@ -76,7 +76,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('ticket_type/new', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def new_ticket_type(self):
         form = TicketTypeForm()
         form.ticket_events.query = self.obj.ticket_events
@@ -97,7 +97,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('ticket_client/new', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def new_ticket_client(self):
         form = TicketClientForm()
         if form.validate_on_submit():
@@ -131,7 +131,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
 
     @route('', methods=['GET', 'POST'])
     @render_with('ticket_event.html.jinja2')
-    @requires_roles({'project_concierge', 'project_usher'})
+    @requires_roles({'project_promoter', 'project_usher'})
     def view(self):
         if request.method == 'POST':
             if 'form.id' not in request.form:
@@ -179,7 +179,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
         }
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_promoter'})
     def edit(self):
         form = TicketEventForm(obj=self.obj, model=TicketEvent)
         if form.validate_on_submit():
@@ -191,7 +191,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_promoter'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -208,7 +208,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
 
     @route('scan_badge')
     @render_with('scan_badge.html.jinja2')
-    @requires_roles({'project_concierge', 'project_usher'})
+    @requires_roles({'project_promoter', 'project_usher'})
     def scan_badge(self):
         return {
             'profile': self.obj.project.profile,
@@ -255,7 +255,7 @@ class TicketTypeView(UrlForView, ModelView):
 
     @route('')
     @render_with('ticket_type.html.jinja2')
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_promoter'})
     def view(self):
         ticket_participants = (
             TicketParticipant.query.join(SyncTicket)
@@ -270,7 +270,7 @@ class TicketTypeView(UrlForView, ModelView):
         }
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_promoter'})
     def edit(self):
         form = TicketTypeForm(obj=self.obj, model=TicketType)
         form.ticket_events.query = self.obj.project.ticket_events
@@ -285,7 +285,7 @@ class TicketTypeView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_promoter'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -338,7 +338,7 @@ class TicketClientView(UrlForView, ModelView):
         return super(TicketClientView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_promoter'})
     def edit(self):
         form = TicketClientForm(obj=self.obj, model=TicketClient)
         if form.validate_on_submit():
@@ -352,7 +352,7 @@ class TicketClientView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_promoter'})
     def delete(self):
         return render_delete_sqla(
             self.obj,

@@ -521,7 +521,7 @@ class ProjectView(
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def edit_boxoffice_data(self):
         form = ProjectBoxofficeForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
@@ -646,7 +646,7 @@ class ProjectView(
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list(self):
         return {
             'project': self.obj,
@@ -692,14 +692,14 @@ class ProjectView(
 
     @route('rsvp_list/yes.csv')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list_yes_csv(self):
         """Return a CSV of RSVP participants who answered Yes."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.YES)
 
     @route('rsvp_list/maybe.csv')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list_maybe_csv(self):
         """Return a CSV of RSVP participants who answered Maybe."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
@@ -740,9 +740,9 @@ class ProjectView(
     @route('admin', methods=['GET', 'POST'])
     @render_with('project_admin.html.jinja2')
     @requires_login
-    @requires_roles({'concierge', 'usher'})
+    @requires_roles({'promoter', 'usher'})
     def admin(self):
-        """Render admin panel for at-venue concierge operations."""
+        """Render admin panel for at-venue promoter operations."""
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
             if request.form.get('form.id') == 'sync-tickets':
@@ -769,7 +769,7 @@ class ProjectView(
     @route('settings', methods=['GET', 'POST'])
     @render_with('settings.html.jinja2')
     @requires_login
-    @requires_roles({'editor', 'concierge', 'usher'})
+    @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)

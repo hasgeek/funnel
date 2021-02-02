@@ -11,7 +11,7 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
     assert 'admin' in new_project.profile.roles_for(new_user_owner)
     # but it has no role in the project yet
     assert 'editor' not in new_project.roles_for(new_user_owner)._contents()
-    assert 'concierge' not in new_project.roles_for(new_user_owner)
+    assert 'promoter' not in new_project.roles_for(new_user_owner)
     assert 'usher' not in new_project.roles_for(new_user_owner)
 
     previous_membership = (
@@ -36,7 +36,7 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
     # so adding a new membership without revoking the previous one
     # will raise IntegrityError in database.
     new_membership_without_revoke = ProjectCrewMembership(
-        parent=new_project, user=new_user, is_concierge=True
+        parent=new_project, user=new_user, is_promoter=True
     )
     test_db.session.add(new_membership_without_revoke)
     with pytest.raises(IntegrityError):
@@ -55,27 +55,27 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
     assert previous_membership2 not in new_project.active_crew_memberships
 
     assert 'editor' not in new_project.roles_for(new_user)
-    assert 'concierge' not in new_project.roles_for(new_user)
+    assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' not in new_project.roles_for(new_user)
 
     # let's add back few more roles
     new_membership2 = ProjectCrewMembership(
-        parent=new_project, user=new_user, is_concierge=True, is_usher=True
+        parent=new_project, user=new_user, is_promoter=True, is_usher=True
     )
     test_db.session.add(new_membership2)
     test_db.session.commit()
 
     assert 'editor' not in new_project.roles_for(new_user)
-    assert 'concierge' in new_project.roles_for(new_user)
+    assert 'promoter' in new_project.roles_for(new_user)
     assert 'usher' in new_project.roles_for(new_user)
 
     # let's try replacing the roles in place
     new_membership3 = new_membership2.replace(
-        actor=new_user_owner, is_editor=True, is_concierge=False, is_usher=False
+        actor=new_user_owner, is_editor=True, is_promoter=False, is_usher=False
     )
     test_db.session.commit()
     assert 'editor' in new_project.roles_for(new_user)
-    assert 'concierge' not in new_project.roles_for(new_user)
+    assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' not in new_project.roles_for(new_user)
     assert new_membership3.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
 
@@ -83,7 +83,7 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
     new_membership4 = new_membership3.replace(actor=new_user_owner, is_usher=True)
     test_db.session.commit()
     assert 'editor' in new_project.roles_for(new_user)
-    assert 'concierge' not in new_project.roles_for(new_user)
+    assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' in new_project.roles_for(new_user)
     # offered_roles should also return all valid roles
     assert new_membership4.offered_roles == {

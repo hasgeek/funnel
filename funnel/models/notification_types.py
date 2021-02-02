@@ -231,7 +231,7 @@ class ProposalReceivedNotification(DocumentHasProfile, Notification):
 
 
 class RegistrationReceivedNotification(DocumentHasProfile, Notification):
-    """Notification to concierges of new registrations."""
+    """Notification to promoters of new registrations."""
 
     __mapper_args__ = {'polymorphic_identity': 'rsvp_received'}
     active = False
@@ -241,7 +241,7 @@ class RegistrationReceivedNotification(DocumentHasProfile, Notification):
 
     document: Project
     fragment: Rsvp
-    roles = ['project_concierge']
+    roles = ['project_promoter']
     exclude_actor = True
 
 

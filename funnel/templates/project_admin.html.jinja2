@@ -26,12 +26,12 @@
         <ol class="mui-list--aligned">
           {%- for ticket_event in ticket_events %}
             <li>
-              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ ticket_event.title }}" data-ga="View event">{{ ticket_event.title }}</a>{%- if project.current_roles.concierge %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="edit event">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ ticket_event.title }}" data-ga="View event">{{ ticket_event.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="edit event">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
       </div>
-      {%- if project.current_roles.concierge %}
+      {%- if project.current_roles.promoter %}
       <div class="mui-divider"></div>
       <div class="card__footer">
         <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-event">{% trans %}New ticketed event{% endtrans %}</a>
@@ -43,7 +43,7 @@
     </div>
   </div>
 
- {%- if project.current_roles.concierge %}
+ {%- if project.current_roles.promoter %}
   <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4">
     <div class="card">
       <div class="card__header">
@@ -53,7 +53,7 @@
         <ol class="mui-list--aligned">
           {%- for ticket_type in project.ticket_types -%}
             <li data-cy-ticket="{{ ticket_type.title }}">
-              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead" data-ga="View ticket type">{{ ticket_type.title }}</a>{%- if project.current_roles.concierge %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-cy="ticket-edit"  data-ga="edit ticket type">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead" data-ga="View ticket type">{{ ticket_type.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-cy="ticket-edit"  data-ga="edit ticket type">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -75,7 +75,7 @@
         <ol class="mui-list--aligned">
           {%- for client in project.ticket_clients %}
             <li>
-              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.concierge %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}"  data-ga="Edit ticket client">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}"  data-ga="Edit ticket client">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
