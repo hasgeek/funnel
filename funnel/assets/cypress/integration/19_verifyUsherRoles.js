@@ -9,7 +9,7 @@ describe('Verify roles of usher', function () {
       .first()
       .click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="edit"]').should('not.exist');
     cy.get('a[data-cy="add-livestream"]').should('not.exist');
