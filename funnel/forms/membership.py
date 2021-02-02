@@ -48,8 +48,8 @@ class ProjectCrewMembershipForm(forms.Form):
             "Can edit project details, proposal guidelines, schedule, labels and venues"
         ),
     )
-    is_concierge = forms.BooleanField(
-        __("Concierge"),
+    is_promoter = forms.BooleanField(
+        __("Promoter"),
         default=False,
         description=__("Can manage participants and see contact info"),
     )
@@ -63,7 +63,7 @@ class ProjectCrewMembershipForm(forms.Form):
 
     def validate(self, extra_validators=None):
         is_valid = super(ProjectCrewMembershipForm, self).validate(extra_validators)
-        if not any([self.is_editor.data, self.is_concierge.data, self.is_usher.data]):
+        if not any([self.is_editor.data, self.is_promoter.data, self.is_usher.data]):
             self.is_usher.errors.append("Please select one or more roles")
             is_valid = False
         return is_valid

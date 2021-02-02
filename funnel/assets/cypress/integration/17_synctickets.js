@@ -1,12 +1,12 @@
 describe('Sync tickets from Boxoffice', function () {
-  const concierge = require('../fixtures/user.json').concierge;
+  const promoter = require('../fixtures/user.json').promoter;
   const user = require('../fixtures/user.json').user;
   const project = require('../fixtures/project.json');
   const ticketEvents = require('../fixtures/ticket_events.json');
   const { ticket_client } = require('../fixtures/boxoffice.js');
 
   it('Sync tickets from Boxoffice', function () {
-    cy.login('/', concierge.username, concierge.password);
+    cy.login('/', promoter.username, promoter.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
       .first()

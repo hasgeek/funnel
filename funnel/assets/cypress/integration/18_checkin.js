@@ -1,5 +1,5 @@
 describe('Checkin of attendees', function () {
-  const concierge = require('../fixtures/user.json').concierge;
+  const promoter = require('../fixtures/user.json').promoter;
   const user = require('../fixtures/user.json').user;
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
@@ -7,7 +7,7 @@ describe('Checkin of attendees', function () {
   const ticketParticipants = require('../fixtures/ticket_participants.json');
 
   it('Checkin of attendees', function () {
-    cy.login('/', concierge.username, concierge.password);
+    cy.login('/', promoter.username, promoter.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
       .first()

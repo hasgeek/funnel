@@ -1,6 +1,6 @@
 describe('View crew', function () {
   const admin = require('../fixtures/user.json').admin;
-  const concierge = require('../fixtures/user.json').concierge;
+  const promoter = require('../fixtures/user.json').promoter;
   const usher = require('../fixtures/user.json').usher;
   const project = require('../fixtures/project.json');
 
@@ -19,10 +19,10 @@ describe('View crew', function () {
       .find('[data-cy="role"]')
       .contains('Editor');
     cy.get('[data-cy="member"]')
-      .contains(concierge.username)
+      .contains(promoter.username)
       .parents('.member')
       .find('[data-cy="role"]')
-      .contains('Concierge');
+      .contains('Promoter');
     cy.get('[data-cy="member"]')
       .contains(usher.username)
       .parents('.member')
