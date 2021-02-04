@@ -8,18 +8,14 @@
   display: flex;
   align-items: center;
   margin: 0;
-  .project-links,
-  .hg-link-btn {
-    padding-right: $mui-grid-padding;
-  }
-  .settings {
-    padding-left: $mui-grid-padding;
-  }
   .hg-link-btn.hide {
     display: none;
   }
   .mui-btn--nostyle + .mui-btn--nostyle {
     margin: 0;
+  }
+  .add-calendar {
+    padding-left: $mui-grid-padding;
   }
 }
 
@@ -30,6 +26,7 @@
   .register-block__txt {
     font-size: 10px;
     margin: 0 $mui-grid-padding 0 0;
+    max-width: calc(100% - 170px);
   }
   .register-block__right {
     text-align: right;
@@ -62,12 +59,6 @@
   }
 }
 
-@media (min-width: 768px) {
-  .project-footer {
-    display: none;
-  }
-}
-
 .sub-navbar-container__inner {
   .desktop-navbar-items {
     display: none;
@@ -80,18 +71,7 @@
     justify-content: space-between;
     align-items: center;
     .sub-navbar {
-      max-width: calc(100% - 480px);
-      margin-left: 0;
-    }
-    .desktop-navbar-items {
-      display: flex;
-      min-width: 450px;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 0 $mui-grid-padding;
-      .project-header {
-        margin: 0 $mui-grid-padding 0 0;
-      }
+      width: 100%;
     }
   }
 }
@@ -105,8 +85,7 @@
 }
 
 .project-banner {
-  padding-top: 80px;
-
+  padding: 0 !important;
   .project-banner__profile-details {
     display: flex;
     align-items: center;
@@ -114,11 +93,11 @@
 
     .project-banner__profile-details__logo-wrapper {
       display: inline-block;
-      height: 36px;
-      width: 36px;
+      height: 24px;
+      width: 24px;
       border-radius: 50%;
       overflow: hidden;
-      margin-right: 10px;
+      margin-right: $mui-grid-padding/2;
 
       .project-banner__profile-details__logo_wrapper__logo {
         height: 100%;
@@ -131,13 +110,6 @@
   .project-banner__profile-details--center {
     justify-content: center;
     margin-bottom: $mui-grid-padding;
-  }
-
-  .project-banner__headline {
-    margin-bottom: $mui-grid-padding;
-    .project-banner__headline__title {
-      margin-bottom: 6px;
-    }
   }
   .livestream-box {
     margin: 0;
@@ -152,9 +124,6 @@
       object-fit: cover;
       width: 100%;
       height: 100%;
-    }
-    .project-banner__headline {
-      padding: 0 $mui-grid-padding;
     }
     .project-banner__box__add-btn {
       position: absolute;
@@ -182,7 +151,7 @@
   }
 
   .project-details__box {
-    margin-top: $mui-grid-padding;
+    padding: $mui-grid-padding;
     position: relative;
 
     .bookmark {
@@ -193,7 +162,7 @@
 
     .card__calendar {
       padding: 0 $mui-grid-padding 10px;
-      margin: 0 0 25px;
+      margin: 0 0 40px;
       margin-left: -$mui-grid-padding;
       margin-right: -$mui-grid-padding;
 
@@ -238,16 +207,12 @@
   }
   .project-details__box__content {
     min-height: 22px;
-    margin-bottom: $mui-grid-padding;
   }
 }
 
 @media (min-width: 768px) {
   .project-banner {
-    padding-top: 35px;
-
     .project-banner__box {
-      padding: 0 $mui-grid-padding;
       .project-banner__box__add-btn {
         right: $mui-grid-padding;
       }
@@ -266,20 +231,11 @@
         }
       }
     }
-    .livestream-box {
-      padding: 0 $mui-grid-padding;
-      .project-banner__box {
-        padding: 0;
-      }
-    }
   }
 }
 
 @media (min-width: 992px) {
   .project-banner {
-    .project-banner__box {
-      padding: 0 $mui-grid-padding;
-    }
     .profile-text {
       margin: 0 0 5px;
 
@@ -289,12 +245,6 @@
     }
     .project-details__box {
       margin: 0;
-      margin-top: -7px;
-
-      .card__calendar {
-        margin: 0 0 85px;
-        padding: 0 0 8px;
-      }
       .propose {
         align-items: baseline;
         margin-left: $mui-grid-padding;
@@ -311,12 +261,6 @@
       .propose__btn-wrapper {
         padding-left: 10px;
       }
-    }
-    .project-details__box--topmargin {
-      margin-top: 42px;
-    }
-    .project-details__box__content {
-      margin-bottom: 0;
     }
   }
 }
@@ -391,8 +335,11 @@
   }
 }
 
+.project-section {
+  padding: $mui-grid-padding/2 $mui-grid-padding $mui-grid-padding/2;
+}
+
 .project-section__headline {
-  margin-top: $mui-grid-padding-double;
   margin-bottom: $mui-grid-padding;
 }
 
@@ -432,43 +379,10 @@
       padding: 0 $mui-grid-padding;
     }
   }
-
-  .about__participate__back-nav {
-    display: none;
-  }
-
-  .about__participate {
-    display: none;
-  }
-
-  .about__participate--modal {
-    position: fixed;
-    top: 56px;
-    background: $mui-bg-color-primary;
-    left: 0;
-    right: 0;
-    padding: $mui-grid-padding;
-    z-index: 100001;
-    bottom: 0;
-    overflow: auto;
-
-    .about__participate__back-nav {
-      display: block;
-    }
-  }
 }
 
 @media (min-width: 768px) {
   .about {
-    .about__participate {
-      display: block !important;
-      position: relative;
-      width: calc(50% - #{$mui-grid-padding-double});
-      float: right;
-      padding: 0;
-      margin-left: $mui-grid-padding-double;
-      margin-bottom: $mui-grid-padding;
-    }
     .about__details {
       float: none;
 
@@ -491,10 +405,6 @@
 
 @media (min-width: 992px) {
   .about {
-    .about__participate {
-      width: calc(40% - #{$mui-grid-padding-double});
-    }
-
     .about__details__featured {
       .about__details__featured__cards {
         width: calc(33.3% - #{$mui-grid-padding-double});
@@ -515,63 +425,118 @@
   }
 }
 
-.about #boxoffice-widget {
-  padding: 10px 0;
-  max-width: 100%;
-  margin: 0;
-
-  .category-heading:after {
-    border-width: 23px;
-  }
-
-  .ticket-booking {
-    border-bottom: 1px solid #ccc;
-  }
-
-  .ticket-booking:last-child {
-    border-bottom: none;
-  }
-
-  .ticket-details {
-    margin: 0;
-    width: 100%;
-  }
-
-  .ticket-price-qty {
-    float: left;
-    width: 100%;
-    margin-top: $mui-grid-padding-double;
-  }
-
-  .ticket-description .few-ticket {
-    left: 0;
-    top: -21px;
-  }
-
-  .price-details-wrapper,
-  .ticket-total,
-  .proceed-button-wrapper {
-    float: left;
-  }
-
-  .ticket-total {
-    margin-left: -10px;
-    margin-right: -10px;
-  }
-
-  .item-amount,
-  .valid-upto,
-  .discount {
-    text-align: left;
-  }
-
-  .checkout-confirmation {
-    padding: 0;
-  }
-
-  .fa {
+.tickets-wrapper {
+  .tickets-wrapper__modal {
     display: none;
-    padding: 0 !important;
+  }
+
+  .tickets-wrapper__modal__back {
+    display: none;
+  }
+
+  .tickets-wrapper__modal__body__close {
+    display: none;
+  }
+
+  .tickets-wrapper__modal--show {
+    position: fixed;
+    top: 56px;
+    background: $mui-bg-color-primary;
+    left: 0;
+    right: 0;
+    padding: $mui-grid-padding;
+    z-index: 100001;
+    bottom: 0;
+    overflow: auto;
+
+    .tickets-wrapper__modal__back {
+      display: block;
+    }
+  }
+
+  #boxoffice-widget {
+    padding: $mui-grid-padding 0;
+    max-width: 100%;
+    margin: 0;
+
+    .category-heading:after {
+      border-width: 23px;
+    }
+
+    .ticket-booking {
+      border-bottom: 1px solid #ccc;
+    }
+
+    .ticket-booking:last-child {
+      border-bottom: none;
+    }
+
+    .ticket-details {
+      margin: 0;
+      width: 100%;
+    }
+
+    .ticket-price-qty {
+      float: left;
+      width: 100%;
+      margin-top: $mui-grid-padding-double;
+    }
+
+    .ticket-description .few-ticket {
+      left: 0;
+      top: -21px;
+    }
+
+    .price-details-wrapper,
+    .ticket-total,
+    .proceed-button-wrapper {
+      float: left;
+    }
+
+    .ticket-total {
+      margin-left: -10px;
+      margin-right: -10px;
+    }
+
+    .item-amount,
+    .valid-upto,
+    .discount {
+      text-align: left;
+    }
+
+    .checkout-confirmation {
+      padding: 0;
+    }
+
+    .fa {
+      display: none;
+      padding: 0 !important;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .tickets-wrapper {
+    .tickets-wrapper__modal {
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.75);
+    }
+
+    .tickets-wrapper__modal__body {
+      max-width: 500px;
+      margin: auto;
+      width: 90%;
+      padding: $mui-grid-padding;
+      min-height: auto;
+      border-radius: 8px;
+      background-color: $mui-bg-color-primary;
+      .tickets-wrapper__modal__body__close {
+        display: block;
+        float: right;
+      }
+    }
   }
 }
 
@@ -594,8 +559,4 @@
   margin-top: $mui-grid-padding;
   position: relative;
   outline: none;
-}
-
-.project-page #root_footer {
-  background: $mui-bg-color-accent;
 }

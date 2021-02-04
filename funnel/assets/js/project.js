@@ -94,17 +94,13 @@ const Ticketing = {
     });
 
     if (window.location.hash.indexOf('#tickets') > -1) {
-      if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
-        this.openTicketModal();
-      } else {
-        Utils.animateScrollTo($('#tickets').offset().top);
-      }
+      this.openTicketModal();
     }
 
     $(window).resize(() => {
       if (
         $(window).width() >= window.Hasgeek.config.mobileBreakpoint &&
-        $('.about__participate').hasClass('about__participate--modal')
+        $('.tickets-wrapper__modal').hasClass('tickets-wrapper__modal--show')
       ) {
         this.hideTicketModal();
       }
@@ -112,7 +108,7 @@ const Ticketing = {
     $(window).on('popstate', () => {
       if (
         $(window).width() < window.Hasgeek.config.mobileBreakpoint &&
-        $('.about__participate').hasClass('about__participate--modal')
+        $('.tickets-wrapper__modal ').hasClass('tickets-wrapper__modal--show')
       ) {
         this.hideTicketModal();
       } else if (
@@ -132,9 +128,10 @@ const Ticketing = {
       '',
       '#tickets'
     );
-    $('.header').removeClass('header--fixed');
-    $('.about__participate').addClass('about__participate--modal');
-    $('.about__participate').fadeIn();
+    console.log('open widget');
+    $('.header').addClass('header--lowzindex');
+    $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');
+    $('.tickets-wrapper__modal').fadeIn();
   },
 
   hideTicketModal() {
@@ -143,9 +140,9 @@ const Ticketing = {
       '',
       window.location.pathname + window.location.search
     );
-    $('.header').addClass('header--fixed');
-    $('.about__participate').removeClass('about__participate--modal');
-    $('.about__participate').fadeOut();
+    $('.header').removeClass('.header--lowzindex');
+    $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
+    $('.tickets-wrapper__modal').fadeOut();
   },
 };
 const EmbedMap = {
