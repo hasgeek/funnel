@@ -1,39 +1,14 @@
-{% extends "layout.html.jinja2" %}
-{% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import project_header %}
+{% set current_page = 'crew' %}
+{% extends "project_layout.html.jinja2" %}
 {%- from "js/membership.js.jinja2" import membership_template, project_member_template %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% block title %}{% trans %}Crew{% endtrans %}{% endblock %}
-{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
-{% block contenthead %}{% endblock %}
+{% block baseheadlinetitle %}{% endblock %}
 
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app modal-form-page no-sticky-header">
-  {%- else %}
-    <body class="mui--bg-primary no-sticky-header">
-  {%- endif %}
-{% endblock %}
-
-{% block baseheadline %}
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
-    <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mui--text-headline mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Crew{% endtrans %}</span>
-    </div>
-  </div>
-  {{ project_header(project, class='mui--hidden-xs mui--hidden-sm', current_page='crew') }}
-{% endblock %}
-
-{% block basecontent %}
-  <div class="mui-container">
-    <div class="page-content page-content--mob-nav">
-      <div class="grid" id="crew">
-        <div class="grid__col-xs-12">
-          {{ membership_template() }}
-        </div>
-      </div>
-    </div>
+{% block basecontentinner %}
+  <div class="project-section" id="crew">
+    {{ membership_template() }}
   </div>
   {{ project_member_template() }}
 {% endblock %}

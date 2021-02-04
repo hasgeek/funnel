@@ -1,0 +1,105 @@
+{% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title_suffix %}
+{% from "baseframe/forms.html.jinja2" import ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import csrf_tag, project_header, project_details_header, proposal_card, project_share, video_thumbnail, registerblock, project_col_right %}
+{% block title %}{{ project.title }}{% endblock %}
+{% block description %}{{ project.tagline }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
+{% block twitter_card %}summary_large_image{% endblock %}
+
+{%- block pageheaders %}
+{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-accent hg-app no-sticky-header">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block contenthead %}
+{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block baseheadlinetitle %}{{ self.title() }}{% endblock %}</span>
+    </div>
+  </div>
+{% endblock %}
+
+{% block basecontent %}
+ <div class="mui-container">
+  <div class="grid page-content page-content--mob-nav">
+    <div class="grid__col-sm-12 grid__col-md-8">
+      <div class="page-card">
+        {{ project_header(project, current_page=current_page) }}
+        {% block basecontentinner %}
+        {% endblock %}
+      </div>
+    </div>
+    {% block basecontentcolumn %}
+      <div class="mui--hidden-xs mui--hidden-sm mui--hidden-md grid__col-md-4">
+        <div class="card card--shaped">
+          <div class="card__body project-banner">
+            {{ project_details_header(project) }}
+          </div>
+        </div>
+        <p class="mui--text-caption mui--text-light">{% trans %}This project is brought to you by{% endtrans %}</p>
+        <div class="card card--shaped">
+          <div class="card__body project-banner">
+            <div class="project-details__box">
+              <div class="project-banner__profile-details">
+                {%- if project.profile.logo_url.url %}
+                  <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
+                    <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+                  </a>
+                {% endif %}
+                <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+              </div>
+              <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% block basecontentcolumninner %}{% endblock %}
+    {% endblock %}
+  </div>
+ </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var projectConfig = {};
+
+      {% if project.features.tickets() -%}
+        projectConfig.tickets = {
+          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
+          widgetElem: "#boxoffice-widget",
+          org: {{ project.boxoffice_data.org|tojson }},
+          itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
+          itemCollectionTitle: {{ project.title|tojson }}
+        };
+      {%- endif %}
+
+      {%- if project.primary_venue.has_coordinates -%}
+        projectConfig.venue = {
+          mapId: "venue-map",
+          latitude: {{ project.primary_venue.latitude|tojson }},
+          longitude: {{ project.primary_venue.longitude|tojson }}
+        };
+      {%- endif %}
+
+      var saveProjectConfig = {
+        formId: 'save-form',
+      };
+
+      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
+      window.Hasgeek.ProjectInit(projectConfig);
+    });
+  </script>
+{% endblock %}

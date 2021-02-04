@@ -28,7 +28,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET'])
-    @render_with('updates.html.jinja2', json=True)
+    @render_with('project_updates.html.jinja2', json=True)
     @requires_roles({'reader'})
     def updates(self):
         return {
