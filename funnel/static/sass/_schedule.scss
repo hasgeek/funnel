@@ -1,6 +1,10 @@
 .schedule-grid {
   padding: 0;
 
+  .tabs-wrapper {
+    box-shadow: none;
+  }
+
   .schedule {
     margin: 0 0 $mui-grid-padding-double;
 

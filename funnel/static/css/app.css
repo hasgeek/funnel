@@ -3604,8 +3604,7 @@ a.loginbutton.hidden,
   z-index: 3;
 }
 .project-banner .project-details__box .card__calendar {
-  padding: 0 16px 10px;
-  margin: 0 0 40px;
+  padding: 0 16px 16px;
   margin-left: -16px;
   margin-right: -16px;
 }
@@ -3647,6 +3646,9 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates:last-child {
   padding-bottom: 0;
 }
+.project-banner .project-details__box .register-block {
+  margin-top: 21px;
+}
 .project-banner .project-details__box .project-venue {
   margin: 10px 0;
 }
@@ -3665,9 +3667,6 @@ a.loginbutton.hidden,
 }
 .project-banner .project-details__box .propose .propose-btn--strike:hover {
   text-decoration: line-through;
-}
-.project-banner .project-details__box__content {
-  min-height: 22px;
 }
 
 @media (min-width: 768px) {
@@ -3919,6 +3918,13 @@ a.loginbutton.hidden,
     #boxoffice-widget
     .payment-progress-wrapper {
     border-radius: 16px 16px 0 0;
+  }
+  .tickets-wrapper
+    .tickets-wrapper__modal__body
+    #boxoffice-widget
+    .boxoffice-section {
+    padding: 16px;
+    border: none;
   }
 }
 .about .rsvp-wrapper {
@@ -4532,6 +4538,9 @@ a.loginbutton.hidden,
 
 .schedule-grid {
   padding: 0;
+}
+.schedule-grid .tabs-wrapper {
+  box-shadow: none;
 }
 .schedule-grid .schedule {
   margin: 0 0 32px;

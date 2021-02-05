@@ -191,13 +191,14 @@
     <div class="project-details__box__content mui--hidden-xs mui--hidden-sm">
       {{ registerblock(project, modalid='desktop')}}
     </div>
-    {% if project.features.tickets() or project.features.rsvp()%}<hr>{%- endif %}
     <div class="project-details__box__content">
       {% if project.view_for('edit_schedule').is_available() and not project.schedule_state.PUBLISHED %}
+        <hr class="mui-divider">
         <a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}"><span class="mui--hidden-xs mui--hidden-sm mui--hidden-lg">{% trans %}Add schedule to enable registrations{% endtrans %}</span><span class="mui--visible-xs-inline mui--visible-sm-inline mui--visible-lg-inline">{% trans %}Add schedule{% endtrans %}</span></a>
         <hr class="mui-divider">
       {%- endif %}
       {% if project.cfp_state.OPEN -%}
+        <hr class="mui-divider">
         <div class="propose propose--lessmargin">
           <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
           {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light mui--text-body2">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
@@ -375,11 +376,11 @@
       <div class="tickets-wrapper__modal">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl tickets-wrapper__modal__back">
           <div class="mobile-nav mui--z1">
-            <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
+            <a href="javascript:void(0)" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
         </div>
         <div id="tickets" class="tickets-wrapper__modal__body">
-          <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='times', icon_size='title') }}</a>
+          <a href="javascript:void(0)" aria-label="{% trans %}Back to the project{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='times', icon_size='title') }}</a>
           <div id="boxoffice-widget"><p class="mui--text-body2">Loading...</p></div>
         </div>
       </div>
