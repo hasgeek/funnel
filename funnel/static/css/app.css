@@ -3795,27 +3795,17 @@ a.loginbutton.hidden,
   padding: 0 16px;
   word-break: break-word;
 }
-.about .about__details__description h1,
-.about .about__details__description h2,
-.about .about__details__description h3,
-.about .about__details__description h4,
-.about .about__details__description h5 {
+.about .about__details h1,
+.about .about__details h2,
+.about .about__details h3,
+.about .about__details h4,
+.about .about__details h5 {
   font-weight: 400;
   font-size: 24px;
   line-height: 32px;
 }
-.about img {
+.about .about__details img {
   width: 100%;
-}
-.about .about__details__featured {
-  display: block;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  width: 100%;
-}
-.about .about__details__featured .about__details__featured__cards {
-  padding: 0 16px;
 }
 
 @media (min-width: 768px) {
@@ -3824,25 +3814,6 @@ a.loginbutton.hidden,
   }
   .about .about__details hr {
     overflow: hidden;
-  }
-  .about .about__details__featured .about__details__featured__cards {
-    display: inline-block;
-    width: calc(50% - 32px);
-    padding: 0 16px;
-    vertical-align: top;
-    margin: 0 -2px;
-  }
-}
-@media (min-width: 992px) {
-  .about .about__details__featured .about__details__featured__cards {
-    width: calc(33.3% - 32px);
-    padding: 0 16px;
-  }
-}
-@media (min-width: 1200px) {
-  .about .about__details__featured .about__details__featured__cards {
-    width: calc(33.3% - 32px);
-    padding: 0 16px;
   }
 }
 .tickets-wrapper .tickets-wrapper__modal {
@@ -4083,9 +4054,6 @@ a.loginbutton.hidden,
   display: none;
 }
 
-.proposal-card {
-  padding: 8px 0;
-}
 .proposal-card
   .proposal-card__body
   .proposal-card__body__details

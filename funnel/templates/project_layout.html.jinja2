@@ -32,7 +32,7 @@
 {% block basecontent %}
  <div class="mui-container">
   <div class="grid page-content page-content--mob-nav">
-    <div class="grid__col-sm-12 grid__col-md-8">
+    <div class="grid__col-sm-12 grid__col-md-7 grid__col-lg-8">
       <div class="page-card">
         {{ project_header(project, current_page=current_page) }}
         {% block basecontentinner %}
@@ -40,7 +40,7 @@
       </div>
     </div>
     {% block basecontentcolumn %}
-      <div class="mui--hidden-xs mui--hidden-sm mui--hidden-md grid__col-md-4">
+      <div class="mui--hidden-xs mui--hidden-sm mui--hidden-md grid__col-md-5 grid__col-lg-4">
         <div class="card card--shaped">
           <div class="card__body project-banner">
             {{ project_details_header(project) }}

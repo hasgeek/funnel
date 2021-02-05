@@ -143,7 +143,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('schedule.html.jinja2', json=True)
+    @render_with('project_schedule.html.jinja2', json=True)
     def view(self):
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'

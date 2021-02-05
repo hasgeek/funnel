@@ -354,30 +354,18 @@
   padding: 0 $mui-grid-padding;
   word-break: break-word;
 
-  .about__details__description h1,
-  .about__details__description h2,
-  .about__details__description h3,
-  .about__details__description h4,
-  .about__details__description h5 {
+  .about__details h1,
+  .about__details h2,
+  .about__details h3,
+  .about__details h4,
+  .about__details h5 {
     font-weight: 400;
     font-size: 24px;
     line-height: 32px;
   }
 
-  img {
+  .about__details img {
     width: 100%;
-  }
-
-  .about__details__featured {
-    display: block;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    width: 100%;
-
-    .about__details__featured__cards {
-      padding: 0 $mui-grid-padding;
-    }
   }
 }
 
@@ -388,38 +376,6 @@
 
       hr {
         overflow: hidden;
-      }
-    }
-
-    .about__details__featured {
-      .about__details__featured__cards {
-        display: inline-block;
-        width: calc(50% - 32px);
-        padding: 0 $mui-grid-padding;
-        vertical-align: top;
-        margin: 0 -2px;
-      }
-    }
-  }
-}
-
-@media (min-width: 992px) {
-  .about {
-    .about__details__featured {
-      .about__details__featured__cards {
-        width: calc(33.3% - #{$mui-grid-padding-double});
-        padding: 0 $mui-grid-padding;
-      }
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .about {
-    .about__details__featured {
-      .about__details__featured__cards {
-        width: calc(33.3% - #{$mui-grid-padding-double});
-        padding: 0 $mui-grid-padding;
       }
     }
   }
