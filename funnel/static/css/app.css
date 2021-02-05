@@ -3779,7 +3779,7 @@ a.loginbutton.hidden,
   }
 }
 .project-section {
-  padding: 8px 16px 8px;
+  padding: 16px 16px 0;
 }
 
 .project-section__headline {
@@ -3792,7 +3792,6 @@ a.loginbutton.hidden,
 }
 
 .about {
-  padding: 0 16px;
   word-break: break-word;
 }
 .about .about__details h1,
@@ -3899,9 +3898,9 @@ a.loginbutton.hidden,
     max-width: 500px;
     margin: auto;
     width: 90%;
-    padding: 16px;
+    padding: 0;
     min-height: auto;
-    border-radius: 8px;
+    border-radius: 16px;
     background-color: #ffffff;
   }
   .tickets-wrapper
@@ -3909,6 +3908,17 @@ a.loginbutton.hidden,
     .tickets-wrapper__modal__body__close {
     display: block;
     float: right;
+    margin-right: 4px;
+    margin-top: 4px;
+  }
+  .tickets-wrapper .tickets-wrapper__modal__body #boxoffice-widget {
+    padding: 0;
+  }
+  .tickets-wrapper
+    .tickets-wrapper__modal__body
+    #boxoffice-widget
+    .payment-progress-wrapper {
+    border-radius: 16px 16px 0 0;
   }
 }
 .about .rsvp-wrapper {
