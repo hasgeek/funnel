@@ -84,7 +84,6 @@ const Ticketing = {
 
   initTicketModal() {
     $('.js-open-ticket-widget').click((event) => {
-      console.log('clicked');
       event.preventDefault();
       this.openTicketModal();
     });
@@ -98,24 +97,25 @@ const Ticketing = {
     }
 
     $(window).resize(() => {
-      if (
-        $(window).width() >= window.Hasgeek.config.mobileBreakpoint &&
-        $('.tickets-wrapper__modal').hasClass('tickets-wrapper__modal--show')
-      ) {
+      if (window.history.state.openModal) {
         this.hideTicketModal();
       }
     });
     $(window).on('popstate', () => {
+      if (window.history.state.openModal) {
+        this.hideTicketModal();
+      } else if (window.history.state) {
+        this.openTicketModal();
+      }
+    });
+
+    $('body').on('click', (event) => {
       if (
-        $(window).width() < window.Hasgeek.config.mobileBreakpoint &&
-        $('.tickets-wrapper__modal ').hasClass('tickets-wrapper__modal--show')
+        window.history.state.openModal &&
+        !$(event.target).is('.js-open-ticket-widget') &&
+        !$.contains($('#boxoffice-widget')[0], event.target)
       ) {
         this.hideTicketModal();
-      } else if (
-        window.history.state &&
-        $(window).width() < window.Hasgeek.config.mobileBreakpoint
-      ) {
-        this.openTicketModal();
       }
     });
   },
@@ -124,25 +124,23 @@ const Ticketing = {
     window.history.pushState(
       {
         openModal: true,
+        prevUrl: window.location.href,
       },
       '',
       '#tickets'
     );
-    console.log('open widget');
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');
     $('.tickets-wrapper__modal').fadeIn();
   },
 
   hideTicketModal() {
-    window.history.pushState(
-      '',
-      '',
-      window.location.pathname + window.location.search
-    );
-    $('.header').removeClass('.header--lowzindex');
-    $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
-    $('.tickets-wrapper__modal').fadeOut();
+    if (window.history.state.openModal) {
+      window.history.pushState('', '', window.history.state.prevUrl);
+      $('.header').removeClass('.header--lowzindex');
+      $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
+      $('.tickets-wrapper__modal').fadeOut();
+    }
   },
 };
 

@@ -336,7 +336,7 @@
 }
 
 .project-section {
-  padding: $mui-grid-padding/2 $mui-grid-padding $mui-grid-padding/2;
+  padding: $mui-grid-padding $mui-grid-padding 0;
 }
 
 .project-section__headline {
@@ -351,7 +351,6 @@
 }
 
 .about {
-  padding: 0 $mui-grid-padding;
   word-break: break-word;
 
   .about__details h1,
@@ -484,13 +483,21 @@
       max-width: 500px;
       margin: auto;
       width: 90%;
-      padding: $mui-grid-padding;
+      padding: 0;
       min-height: auto;
-      border-radius: 8px;
+      border-radius: 16px;
       background-color: $mui-bg-color-primary;
       .tickets-wrapper__modal__body__close {
         display: block;
         float: right;
+        margin-right: 4px;
+        margin-top: 4px;
+      }
+      #boxoffice-widget {
+        padding: 0;
+        .payment-progress-wrapper {
+          border-radius: 16px 16px 0 0;
+        }
       }
     }
   }
