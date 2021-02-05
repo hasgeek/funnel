@@ -161,8 +161,7 @@
     }
 
     .card__calendar {
-      padding: 0 $mui-grid-padding 10px;
-      margin: 0 0 40px;
+      padding: 0 $mui-grid-padding $mui-grid-padding;
       margin-left: -$mui-grid-padding;
       margin-right: -$mui-grid-padding;
 
@@ -185,6 +184,9 @@
         }
       }
     }
+    .register-block {
+      margin-top: 21px;
+    }
     .project-venue {
       margin: 10px 0;
     }
@@ -204,9 +206,6 @@
         text-decoration: line-through;
       }
     }
-  }
-  .project-details__box__content {
-    min-height: 22px;
   }
 }
 
@@ -497,6 +496,10 @@
         padding: 0;
         .payment-progress-wrapper {
           border-radius: 16px 16px 0 0;
+        }
+        .boxoffice-section {
+          padding: $mui-grid-padding;
+          border: none;
         }
       }
     }

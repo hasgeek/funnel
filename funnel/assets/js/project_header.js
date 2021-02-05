@@ -87,6 +87,7 @@ const Ticketing = {
       event.preventDefault();
       this.openTicketModal();
     });
+
     $('#close-ticket-widget').click((event) => {
       event.preventDefault();
       this.hideTicketModal();
@@ -113,6 +114,7 @@ const Ticketing = {
       if (
         window.history.state.openModal &&
         !$(event.target).is('.js-open-ticket-widget') &&
+        !$(event.target).is('#close-ticket-widget') &&
         !$.contains($('#boxoffice-widget')[0], event.target)
       ) {
         this.hideTicketModal();
