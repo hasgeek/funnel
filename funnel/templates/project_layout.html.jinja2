@@ -71,13 +71,11 @@
 
 {% block footerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var projectConfig = {};
-
+      var tickets;
       {% if project.features.tickets() -%}
-        projectConfig.tickets = {
+        tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
           widgetElem: "#boxoffice-widget",
           org: {{ project.boxoffice_data.org|tojson }},
@@ -86,20 +84,12 @@
         };
       {%- endif %}
 
-      {%- if project.primary_venue.has_coordinates -%}
-        projectConfig.venue = {
-          mapId: "venue-map",
-          latitude: {{ project.primary_venue.latitude|tojson }},
-          longitude: {{ project.primary_venue.longitude|tojson }}
-        };
-      {%- endif %}
-
       var saveProjectConfig = {
         formId: 'save-form',
       };
 
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
-      window.Hasgeek.ProjectInit(projectConfig);
+      window.Hasgeek.ProjectHeaderInit(saveProjectConfig, tickets);
     });
   </script>
+  {% block footerinnerscripts %}{% endblock %}
 {% endblock %}

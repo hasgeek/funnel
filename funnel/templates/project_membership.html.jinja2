@@ -13,15 +13,10 @@
   {{ project_member_template() }}
 {% endblock %}
 
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+{% block footerinnerscripts %}
   <script src="{{ url_for('static', filename=asset_path('membership')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var saveProjectConfig = {
-        formId: 'save-form',
-      }
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
       var membershipConfig = {
         newMemberUrl: "{{ project.url_for('new_member') }}",
         members: {{ memberships|tojson }},

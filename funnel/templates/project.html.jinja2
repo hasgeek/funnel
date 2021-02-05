@@ -223,22 +223,11 @@
   {%- endif %}
 {% endblock %}
 
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+{% block footerinnerscripts %}
   <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var projectConfig = {};
-
-      {% if project.features.tickets() -%}
-        projectConfig.tickets = {
-          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
-          widgetElem: "#boxoffice-widget",
-          org: {{ project.boxoffice_data.org|tojson }},
-          itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
-          itemCollectionTitle: {{ project.title|tojson }}
-        };
-      {%- endif %}
 
       {%- if project.primary_venue.has_coordinates -%}
         projectConfig.venue = {
@@ -248,11 +237,6 @@
         };
       {%- endif %}
 
-      var saveProjectConfig = {
-        formId: 'save-form',
-      };
-
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
       window.Hasgeek.ProjectInit(projectConfig);
     });
   </script>

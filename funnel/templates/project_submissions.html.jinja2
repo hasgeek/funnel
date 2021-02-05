@@ -60,8 +60,7 @@
   {%- endif %}
 {% endblock %}
 
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+{% block footerinnerscripts %}
   <script src="{{ url_for('static', filename=asset_path('proposals')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
@@ -70,12 +69,6 @@
         tableId: 'submissions-table',
         inputId: 'search'
       };
-
-      var saveProjectConfig = {
-        formId: 'save-form',
-      }
-
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
       window.Hasgeek.ProposalsInit(config);
     });
   </script>
