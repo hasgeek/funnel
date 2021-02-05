@@ -24,17 +24,10 @@
   </div>
 {% endblock %}
 
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+{% block footerinnerscripts %}
   <script src="{{ url_for('static', filename=asset_path('update')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var saveProjectConfig = {
-        formId: 'save-form'
-      }
-
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
-
       var updateConfig = {
         draft: {% if draft_updates -%} {{ draft_updates|tojson }} {%- else -%} [] {%- endif %},
         updates: {% if published_updates -%} {{ published_updates|tojson }} {%- else -%} [] {%- endif %},
@@ -43,7 +36,6 @@
         isEditor: {{ project.features.post_update()|tojson }},
         addReadMore: true,
       };
-
       window.Hasgeek.UpdatesInit(updateConfig);
     });
   </script>

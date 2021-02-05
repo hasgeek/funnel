@@ -81,8 +81,7 @@
   </div>
 {% endblock %}
 
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+{% block footerinnerscripts %}
   <script src="{{ url_for('static', filename=asset_path('schedule_view')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(document).ready( function() {
@@ -105,11 +104,6 @@
         scheduleConfig['active_session'] = {{ active_session|tojson }};
       {%- endif %}
 
-      var saveProjectConfig = {
-        formId: 'save-form',
-      }
-
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
       window.Hasgeek.ScheduleInit(scheduleConfig);
     });
   </script>

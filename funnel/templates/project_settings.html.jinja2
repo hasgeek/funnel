@@ -116,15 +116,3 @@
     </div>
   </div>
 {% endblock %}
-
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
-  <script type="text/javascript">
-    $(function() {
-      var saveProjectConfig = {
-        formId: 'save-form',
-      }
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
-    });
-  </script>
-{% endblock %}

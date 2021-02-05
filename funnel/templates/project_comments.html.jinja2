@@ -23,17 +23,10 @@
   {%- endassets -%}
 {% endblock %}
 
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+{% block footerinnerscripts %}
   <script src="{{ url_for('static', filename=asset_path('comments')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var saveProjectConfig = {
-        formId: 'save-form',
-      }
-
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
-
       var commentsConfig = {
         newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
         commentsUrl: "{{ project.url_for('comments') }}",
