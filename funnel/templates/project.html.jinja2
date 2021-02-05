@@ -81,12 +81,12 @@
       <p class="alert__text">{% trans url=project.url_for('settings') %}This project is currently not published. Visit <a href="{{ url }}">settings</a> to publish{% endtrans %}</p>
     </div>
   {% endif %}
-  <div class="about__details project-section" id="about">
-    <div class="about__details__description">{{ project.description }}</div>
+  <div class="about project-section" id="about">
+    <div class="about__details">{{ project.description }}</div>
     {%- if project.subprojects %}
       <hr class="mui-divider">
       <h2 class="mui--text-display1 mui--text-left mui--text-bold">{% trans %}Related events{% endtrans %}</h2>
-      <ul class="grid">
+      <ul class="grid grid-no-left-padding grid-no-right-padding">
         {% for subproject in project.subprojects %}
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
             <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" data-ga="View subproject">
@@ -106,82 +106,12 @@
         {%- endfor -%}
       </ul>
     {%- endif %}
-
-    {% if project.featured_sessions  %}
-      <div id="sessions" class="mui--clearfix">
-        <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Sessions{% endtrans %}</h2>
-        <div class="grid-no-left-padding grid-no-right-padding">
-          <ul class="about__details__featured mui--clearfix">
-            {% for session in project.featured_sessions %}
-              {% if session.scheduled %}
-                <li class="about__details__featured__cards">
-                  <div class="card session-card">
-                    {% if session.banner_image_url.url %}
-                      {% if session.proposal %}
-                        <a class="card__header session-card__header clickable-card" href="{{ session.proposal.url_for() }}" {% if session.speaker %} aria-label="{{ session.speaker }}" {% else %} aria-label="{{ session.title }}" {% endif %} data-ga="View featured session">
-                      {% else %}
-                        <div class="card__header session-card__header">
-                      {% endif %}
-                        <p class="session-card__header__img-wrapper">
-                          <img class="session-card__header__img-wrapper__img js-lazyload-img" data-src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
-                          <noscript>
-                            <img class="session-card__header__img-wrapper__img" src="{{ session.banner_image_url }}" {% if session.speaker %} alt="{{ session.speaker }}" {% else %} alt="{{ session.title }}" {% endif %}/>
-                          </noscript>
-                        </p>
-                        <div class="card__title__heading session-card__header__title">
-                          {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
-                          <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
-                        </div>
-                      {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                    {% else %}
-                      {% if session.proposal %}
-                        <a class="card__header session-card__header clickable-card session-card__header--bck" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-ga="View featured session">
-                      {% else %}
-                        <div class="card__header">
-                      {% endif %}
-                        <div class="card__title__heading session-card__header__title">
-                          {% if session.speaker %}<h4 class="mui--text-subhead mui--text-bold zero-bottom-margin zero-top-margin">{{ session.speaker }}</h4>{% endif %}
-                          <h3 class="mui--text-subhead zero-bottom-margin zero-top-margin">{{ session.title }}</h3>
-                        </div>
-                      {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                    {% endif %}
-                    {% if session.description %}
-                      {% if session.proposal %}
-                        <a class="card__body clickable-card" href="{{ session.proposal.url_for() }}" aria-label="{{ session.title }}" data-ga="View featured session">
-                      {% else %}
-                        <div class="card__body">
-                      {% endif %}
-                        <div class="mui--text-body2 mui--text-light js-truncate" data-truncate-lines="2">{{ session.description|striptags }}</div>
-                      {% if session.proposal %}</a>{% else %}</div>{% endif %}
-                    {% endif %}
-                  </div>
-                </li>
-              {% endif %}
-            {%- endfor -%}
-          </ul>
-        </div>
-        {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
-      </div>
-    {%- endif %}
   </div>
-
-  {% if project.sessions_with_video|length > 0 %}
-    <div class="project-section" id="videos">
-      <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Videos{% endtrans %}</h2>
-      <div class="grid-no-left-padding grid-no-right-padding">
-        {% for session in project.sessions_with_video %}
-          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
-            {{ video_thumbnail(session) }}
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  {%- endif %}
 
   {% if featured_proposals.count() > 0 %}
     <div class="project-section" id="submissions">
       <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Submissions{% endtrans %}</h2>
-      <ul class="grid-no-left-padding grid-no-right-padding">
+      <ul class="mui-list--unstyled ">
         {% for proposal in featured_proposals %}
           <li>
             {{ proposal_card(proposal, full_width=true) }}
@@ -189,6 +119,47 @@
         {%- endfor -%}
       </ul>
       <p class="mui--text-center"><a href="{{ project.url_for('view_proposals') }}" class="mui--text-subhead">{% trans %}See all{% endtrans %}</p>
+    </div>
+  {%- endif %}
+
+  {% if project.featured_sessions  %}
+    <div class="project-section" id="sessions" >
+      <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Sessions{% endtrans %}</h2>
+      <ul class="mui-list--unstyled">
+        {% for session in project.featured_sessions %}
+          {% if session.scheduled %}
+            <li>
+              <a class="card clickable-card card--shaped" href="{{ session.url_for() }}" aria-label="{{ session.title }}" data-ga="View session">
+                <div class="card__body proposal-card proposal-card--fullwidth">
+                  <div class="proposal-card__body">
+                    <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
+                    <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
+                    <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description }}</div>
+                    <p class="mui--text-body2 mui--text-light">{{ session.start_at|datetime }}</p>
+                  </div>
+                  {% if session.banner_image_url.url %}
+                    <div class="proposal-card__video"><img class="proposal-card__video__thumbnail" src="{{ session.banner_image_url }}"/></div>
+                  {%- endif %}
+                </div>
+              </a>
+            </li>
+          {%- endif %}
+        {%- endfor -%}
+      </ul>
+      {%- if project.schedule_state.PUBLISHED %}<p class="mui--text-left mui--clearfix"><a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('schedule') }}">{% trans %}View Schedule{% endtrans %}</a></p>{%- endif %}
+    </div>
+  {%- endif %}
+
+  {% if project.sessions_with_video|length > 0 %}
+    <div class="project-section" id="videos">
+      <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Videos{% endtrans %}</h2>
+      <div class="grid grid-no-left-padding grid-no-right-padding">
+        {% for session in project.sessions_with_video %}
+          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
+            {{ video_thumbnail(session) }}
+          </div>
+        {% endfor %}
+      </div>
     </div>
   {%- endif %}
 
