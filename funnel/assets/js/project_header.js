@@ -139,7 +139,7 @@ const Ticketing = {
   hideTicketModal() {
     if (window.history.state.openModal) {
       window.history.pushState('', '', window.history.state.prevUrl);
-      $('.header').removeClass('.header--lowzindex');
+      $('.header').removeClass('header--lowzindex');
       $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
       $('.tickets-wrapper__modal').fadeOut();
     }
