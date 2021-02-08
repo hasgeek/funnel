@@ -53,7 +53,7 @@
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
                   {{ csrf_tag() }}
-                  <input type="checkbox" name="featured" id="featured-proposal-{{formid}}" class="switch-input js-toggle"/>
+                  <input type="checkbox" name="featured" id="featured-proposal-{{formid}}" class="switch-input js-toggle" {%- if proposal.featured %}checked{%- endif %}/>
                   <label class="switch-label mui--pull-right" for="featured-proposal-{{formid}}"></label>
                 </form>
               </span>
