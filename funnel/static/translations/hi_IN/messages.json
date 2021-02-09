@@ -1577,7 +1577,6 @@
         null,
         "इस सेशन के लिए सबमिशन की प्रक्रिया खोलें"
       ],
-      "Speaker Bio": [null, "स्पीकर की जानकारी"],
       "Status: %(status)s": [null, "स्थिति: %(status)s"],
       "Submission status: %(status)s": [null, "सबमिशन की स्थिति: %(status)s"],
       "Edit project details": [null, "प्रोजेक्ट विवरण संपादित करें"],
