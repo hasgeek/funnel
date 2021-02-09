@@ -55,8 +55,7 @@ def session_form(project, proposal=None, session=None):
     else:
         form = SessionForm()
         if proposal:
-            form.description.data = proposal.outline
-            form.speaker_bio.data = proposal.bio
+            form.description.data = proposal.body
             form.speaker.data = proposal.owner.fullname
             form.title.data = proposal.title
 

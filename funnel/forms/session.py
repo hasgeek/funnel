@@ -26,9 +26,6 @@ class SessionForm(forms.Form):
         validators=[forms.validators.Optional(), forms.validators.Length(max=200)],
         filters=[forms.filters.strip()],
     )
-    speaker_bio = forms.MarkdownField(
-        __("Speaker bio"), validators=[forms.validators.Optional()]
-    )
     banner_image_url = forms.URLField(
         __("Banner image URL"),
         description=__(
