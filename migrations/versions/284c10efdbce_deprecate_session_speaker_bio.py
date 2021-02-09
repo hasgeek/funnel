@@ -27,6 +27,7 @@ session = table(
     'session',
     column('id', sa.Integer()),
     column('description_text', sa.UnicodeText()),
+    column('description_html', sa.UnicodeText()),
     column('speaker_bio_text', sa.UnicodeText()),
 )
 
@@ -48,11 +49,9 @@ def get_progressbar(label, maxval):
 
 
 def session_description(row):
-    description = ''
-    if row.description_text:
-        description += f"{row.description_text.strip()}\r\n\r\n"
-    if row.speaker_bio:
-        description += f"### Speaker bio\r\n\r\n{row.speaker_bio.strip()}\r\n\r\n"
+    description = f"{row.description_text.strip()}\r\n"
+    if row.speaker_bio_text:
+        description += f"\r\n### Speaker bio\r\n\r\n{row.speaker_bio_text.strip()}\r\n"
     return description
 
 
@@ -77,9 +76,6 @@ def upgrade():
         progress.update(counter)
     progress.finish()
 
-    op.drop_column('session', 'speaker_bio_text')
-    op.drop_column('session', 'speaker_bio_html')
-
     op.execute(
         sa.DDL(
             dedent(
@@ -103,16 +99,33 @@ def upgrade():
         )
     )
 
+    op.drop_column('session', 'speaker_bio_text')
+    op.drop_column('session', 'speaker_bio_html')
+
 
 def downgrade():
     op.add_column(
         'session',
-        sa.Column('speaker_bio_html', sa.TEXT(), autoincrement=False, nullable=False),
+        sa.Column(
+            'speaker_bio_html',
+            sa.TEXT(),
+            autoincrement=False,
+            nullable=False,
+            server_default='',
+        ),
     )
+    op.alter_column('session', 'speaker_bio_html', server_default=None)
     op.add_column(
         'session',
-        sa.Column('speaker_bio_text', sa.TEXT(), autoincrement=False, nullable=False),
+        sa.Column(
+            'speaker_bio_text',
+            sa.TEXT(),
+            autoincrement=False,
+            nullable=False,
+            server_default='',
+        ),
     )
+    op.alter_column('session', 'speaker_bio_text', server_default=None)
 
     op.execute(
         sa.DDL(
