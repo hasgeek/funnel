@@ -51,9 +51,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     featured = db.Column(db.Boolean, default=False, nullable=False)
     banner_image_url = db.Column(ImgeeType, nullable=True)
 
-    # TODO: Deprecated
-    speaker_bio = MarkdownColumn('speaker_bio', default='', nullable=False)
-
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
@@ -97,7 +94,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                 'user',
                 'featured',
                 'description',
-                'speaker_bio',
                 'start_at',
                 'end_at',
                 'venue_room',
@@ -121,7 +117,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',
@@ -137,7 +132,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',
@@ -153,7 +147,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',

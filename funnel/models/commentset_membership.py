@@ -45,6 +45,9 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
         )
     )
 
+    parent = immutable(db.synonym('commentset'))
+    parent_id = immutable(db.synonym('commentset_id'))
+
     #: when the user visited this commentset last
     last_seen_at = db.Column(
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
