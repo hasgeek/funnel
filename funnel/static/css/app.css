@@ -3454,34 +3454,13 @@ a.loginbutton.hidden,
     padding: 0 16px;
   }
 }
-.site-admin {
-  margin-bottom: 32px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(121, 129, 139, 0.48);
-}
-
-.project-header {
-  display: flex;
-  align-items: center;
-  margin: 0;
-}
-.project-header .hg-link-btn.hide {
-  display: none;
-}
-.project-header .mui-btn--nostyle + .mui-btn--nostyle {
-  margin: 0;
-}
-.project-header .add-calendar {
-  padding-left: 16px;
-}
-
 .register-block {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .register-block .register-block__txt {
-  font-size: 10px;
+  font-size: 12px;
   margin: 0 16px 0 0;
   max-width: calc(100% - 170px);
 }
@@ -3511,6 +3490,13 @@ a.loginbutton.hidden,
   border-radius: 16px 16px 0px;
 }
 
+@media (min-width: 992px) {
+  .project-details-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px;
+  }
+}
 .sub-navbar-container__inner .desktop-navbar-items {
   display: none;
 }
@@ -3597,11 +3583,6 @@ a.loginbutton.hidden,
 .project-banner .project-details__box {
   padding: 16px;
   position: relative;
-}
-.project-banner .project-details__box .bookmark {
-  position: absolute;
-  right: 14px;
-  z-index: 3;
 }
 .project-banner .project-details__box .card__calendar {
   padding: 0 16px 16px;
@@ -3713,18 +3694,41 @@ a.loginbutton.hidden,
     padding-left: 10px;
   }
 }
-@media (min-width: 992px) and (max-width: 1199px) {
-  .project-banner .project-details__box .add-calendar {
-    right: 32px;
-    top: 3px;
-    font-size: 13px;
+.bookmark-wrapper {
+  line-height: 1;
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+.project-header .hg-link-btn.hide {
+  display: none;
+}
+.project-header .mui-btn--nostyle + .mui-btn--nostyle {
+  margin: 0;
+}
+.project-header .bookmark {
+  position: relative;
+  top: -2px;
+}
+
+@media (min-width: 768px) {
+  .project-header {
+    position: relative;
+    top: 6px;
+  }
+
+  .project-details__box__title {
+    max-width: calc(100% - 120px);
   }
 }
 .pinned {
   position: sticky;
   top: 65px;
   background: #ffffff;
-  z-index: 5;
+  z-index: 2;
   display: none;
   margin: 0;
 }
