@@ -317,7 +317,7 @@
         null,
         "प्रोजेक्ट विवरण, प्रस्ताव के दिशा निर्देश, कार्यक्रम, लेबल और स्थानों की जानकारी संपादित कर सकते हैं"
       ],
-      "Concierge": [null, "आयोजक"],
+      "Promoter": [null, ""],
       "Can manage participants and see contact info": [
         null,
         "प्रतिभागियों तथा उनके संपर्क की जानकारी  को प्रबंधित कर सकते हैं"
@@ -625,7 +625,6 @@
       ],
       "Room": [null, "रूम"],
       "Speaker": [null, "स्पीकर"],
-      "Speaker bio": [null, "स्पीकर का परिचय"],
       "Banner image URL": [null, "बैनर चित्र का URL"],
       "From images.hasgeek.com, with 16:9 aspect ratio. Should be < 50 kB in size": [
         null,
@@ -1298,7 +1297,7 @@
       "View participants": [null, "प्रतिभागियों को देखें"],
       "This project will not be listed as it has no sessions in the schedule": [
         null,
-        "इस प्रोजेक्ट को सूचीबद्ध नहीं किया जाएगा क्योंकि इसके समय-सूची में कोई सेशन मौजूद नहीं है"
+        ""
       ],
       "This project is currently not published": [
         null,
@@ -1313,10 +1312,7 @@
       ],
       "Add schedule": [null, ""],
       "Make a submission": [null, "एक सबमिशन भेजें"],
-      "Submissions close at %(date)s": [
-        null,
-        "सबमिशन जमा करने की सुविधा %(date)s को बंद हो जाएगी"
-      ],
+      "Submissions close %(date)s": [null, ""],
       "Open submissions": [null, "सबमिशन को खोलें"],
       "Add submission guidelines": [
         null,
@@ -1581,7 +1577,6 @@
         null,
         "इस सेशन के लिए सबमिशन की प्रक्रिया खोलें"
       ],
-      "Speaker Bio": [null, "स्पीकर की जानकारी"],
       "Status: %(status)s": [null, "स्थिति: %(status)s"],
       "Submission status: %(status)s": [null, "सबमिशन की स्थिति: %(status)s"],
       "Edit project details": [null, "प्रोजेक्ट विवरण संपादित करें"],
@@ -2257,7 +2252,7 @@
       "Cancellation &amp; refund policy": [null, "रद्दीकरण और घन वापसी नीति"],
       "Community guidelines": [null, "कम्यूनिटी दिशा-निर्देश"],
       "Code of conduct": [null, "आचार संहिता"],
-      "Past projects": [null, "गुज़रे हुए प्रोजेक्ट"],
+      "Past sessions": [null, ""],
       "Date": [null, "डेट"],
       "Project": [null, "प्रोजेक्ट"],
       "Discussion spaces for geeks": [null, "लोगों के लिए चर्चा की जगह"],
@@ -2512,79 +2507,49 @@
         null,
         "रजिस्टर करने वाले पहले व्यक्ति बनें!"
       ],
-      "One registration so far. Be the second?": [
-        null,
-        "अब तक एक रजिस्ट्रेशन. आप दूसरे बनना चाहते हैं?"
-      ],
+      "One registration so far": [null, "अब तक एक रजिस्ट्रेशन"],
       "You have registered": [null, "आपने रजिस्टर कर लिया है"],
-      "Two registrations so far. Be the third?": [
-        null,
-        "अब तक दो रजिस्ट्रेशन. आप तीसरे बनना चाहते हैं?"
-      ],
+      "Two registrations so far": [null, "अब तक दो रजिस्ट्रेशन"],
       "You and one other have registered": [
         null,
         "आपने और एक अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Three registrations so far. Be the fourth?": [
-        null,
-        "अब तक तीन रजिस्ट्रेशन. आप चौथे बनना चाहते हैं?"
-      ],
+      "Three registrations so far": [null, "अब तक तीन रजिस्ट्रेशन"],
       "You and two others have registered": [
         null,
         "आपने और दो अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Four registrations so far. Be the next one?": [
-        null,
-        "अब तक चार रजिस्ट्रेशन. आप अगले होना चाहते हैं?"
-      ],
+      "Four registrations so far": [null, "अब तक चार रजिस्ट्रेशन"],
       "You and three others have registered": [
         null,
         "आपने और तीन अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Five registrations so far. Be the next one?": [
-        null,
-        "अब तक पांच रजिस्ट्रेशन. आप अगले होना चाहते हैं?"
-      ],
+      "Five registrations so far": [null, "अब तक पांच रजिस्ट्रेशन"],
       "You and four others have registered": [
         null,
         "आपने और चार अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Six registrations so far. Be the next one?": [
-        null,
-        "अब तक छे रजिस्ट्रेशन. आप अगले होना चाहते हैं?"
-      ],
+      "Six registrations so far": [null, "अब तक छे रजिस्ट्रेशन"],
       "You and five others have registered": [
         null,
         "आपने और पांच अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Seven registrations so far. Be the next one?": [
-        null,
-        "अब तक सात रजिस्ट्रेशन. आप अगले होना चाहते हैं?"
-      ],
+      "Seven registrations so far": [null, "अब तक सात रजिस्ट्रेशन"],
       "You and six others have registered": [
         null,
         "आपने और छे अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Eight registrations so far. Be the next one?": [
-        null,
-        "अब तक आठ रजिस्ट्रेशन. आप अगले होना चाहते हैं?"
-      ],
+      "Eight registrations so far?": [null, "अब तक आठ रजिस्ट्रेशन"],
       "You and seven others have registered": [
         null,
         "आपने और सात अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Nine registrations so far. Be the next one?": [
-        null,
-        "अब तक नौ रजिस्ट्रेशन. आप अगले होना चाहते हैं?"
-      ],
+      "Nine registrations so far": [null, "अब तक नौ रजिस्ट्रेशन"],
       "You and eight others have registered": [
         null,
         "आपने और आठ अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Ten registrations so far. Be the next one?": [
-        null,
-        "अब तक दस रजिस्ट्रेशन. आप अगले होना चाहते हैं?"
-      ],
+      "Ten registrations so far": [null, "अब तक दस रजिस्ट्रेशन"],
       "You and nine others have registered": [
         null,
         "आपने और नौ अन्य व्यक्ति ने रजिस्टर कर लिया है"
@@ -2593,10 +2558,7 @@
         null,
         "आपने और {num} अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "{num} registrations so far. Be the next one?": [
-        null,
-        "अब तक {num} रजिस्ट्रेशन. आप अगले होना चाहते हैं?"
-      ],
+      "{num} registrations so far": [null, "अब तक {num} रजिस्ट्रेशन"],
       "Your new project has been created": [
         null,
         "आपका नया प्रोजेक्ट बना दिया गया है"
