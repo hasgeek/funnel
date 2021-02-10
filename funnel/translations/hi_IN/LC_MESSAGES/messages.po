@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-02-09 10:32+0530\n"
+"POT-Creation-Date: 2021-02-10 10:03+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -1948,77 +1948,80 @@ msgstr ""
 msgid "@"
 msgstr ""
 
-#: funnel/static/js/schedules.js:132
+#: funnel/static/js/schedules.js:132 funnel/static/js/schedules.packed.js:1
 msgid "The room sequence and colours have been updated."
 msgstr ""
 
 #: funnel/static/js/schedules.js:138 funnel/static/js/schedules.js:228
 #: funnel/static/js/schedules.js:269 funnel/static/js/schedules.js:488
+#: funnel/static/js/schedules.packed.js:1
 msgid "The server could not be reached. Check connection and try again"
 msgstr ""
 
-#: funnel/static/js/schedules.js:248 funnel/templates/proposal.html.jinja2:63
-#: funnel/views/session.py:70 funnel/views/session.py:113
+#: funnel/static/js/schedules.js:248 funnel/static/js/schedules.packed.js:1
+#: funnel/templates/proposal.html.jinja2:63 funnel/views/session.py:70
+#: funnel/views/session.py:113
 msgid "Edit session"
 msgstr "सेशन संपादित करें"
 
-#: funnel/static/js/schedules.js:249
+#: funnel/static/js/schedules.js:249 funnel/static/js/schedules.packed.js:1
 msgid "Schedule session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:432
+#: funnel/static/js/schedules.js:432 funnel/static/js/schedules.packed.js:1
 msgid "Add new session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:469
+#: funnel/static/js/schedules.js:469 funnel/static/js/schedules.packed.js:1
 #, python-format
 msgid "Remove %s from the schedule?"
 msgstr ""
 
 #: funnel/static/js/schedules.js:526 funnel/static/js/schedules.js:700
-#: funnel/static/js/schedules.js:720 funnel/templates/labels.html.jinja2:53
+#: funnel/static/js/schedules.js:720 funnel/static/js/schedules.packed.js:1
+#: funnel/templates/labels.html.jinja2:53
 #: funnel/templates/schedule_edit.html.jinja2:93
 #: funnel/views/organization.py:196 funnel/views/update.py:153
 #: funnel/views/venue.py:129 funnel/views/venue.py:200
 msgid "Save"
 msgstr "सेव करें"
 
-#: funnel/static/js/schedules.js:567
+#: funnel/static/js/schedules.js:567 funnel/static/js/schedules.packed.js:1
 msgid "5 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:569
+#: funnel/static/js/schedules.js:569 funnel/static/js/schedules.packed.js:1
 msgid "15 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:571
+#: funnel/static/js/schedules.js:571 funnel/static/js/schedules.packed.js:1
 msgid "30 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:573
+#: funnel/static/js/schedules.js:573 funnel/static/js/schedules.packed.js:1
 msgid "60 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:599
+#: funnel/static/js/schedules.js:599 funnel/static/js/schedules.packed.js:1
 msgid "Autosave"
 msgstr ""
 
-#: funnel/static/js/schedules.js:704
+#: funnel/static/js/schedules.js:704 funnel/static/js/schedules.packed.js:1
 msgid "Saving…"
 msgstr ""
 
-#: funnel/static/js/schedules.js:716
+#: funnel/static/js/schedules.js:716 funnel/static/js/schedules.packed.js:1
 msgid "Saved"
 msgstr ""
 
-#: funnel/static/js/schedules.js:723
+#: funnel/static/js/schedules.js:723 funnel/static/js/schedules.packed.js:1
 #, python-format
 msgid ""
 "The server could not be reached. There are %d unsaved sessions. Check "
 "connection and try again"
 msgstr ""
 
-#: funnel/static/js/schedules.js:730
+#: funnel/static/js/schedules.js:730 funnel/static/js/schedules.packed.js:1
 msgid ""
 "The server could not be reached. There is 1 unsaved session. Check "
 "connection and try again"
@@ -5318,7 +5321,7 @@ msgstr "रजिस्टर करने वाले पहले व्य�
 
 #: funnel/views/project.py:74
 msgid "One registration so far"
-msgstr ""
+msgstr "अब तक एक रजिस्ट्रेशन"
 
 #: funnel/views/project.py:74
 msgid "You have registered"
@@ -5326,7 +5329,7 @@ msgstr "आपने रजिस्टर कर लिया है"
 
 #: funnel/views/project.py:76
 msgid "Two registrations so far"
-msgstr ""
+msgstr "अब तक दो रजिस्ट्रेशन"
 
 #: funnel/views/project.py:77
 msgid "You and one other have registered"
@@ -5334,7 +5337,7 @@ msgstr "आपने और एक अन्य व्यक्ति ने र
 
 #: funnel/views/project.py:80
 msgid "Three registrations so far"
-msgstr ""
+msgstr "अब तक तीन रजिस्ट्रेशन"
 
 #: funnel/views/project.py:81
 msgid "You and two others have registered"
@@ -5342,7 +5345,7 @@ msgstr "आपने और दो अन्य व्यक्ति ने र
 
 #: funnel/views/project.py:84
 msgid "Four registrations so far"
-msgstr ""
+msgstr "अब तक चार रजिस्ट्रेशन"
 
 #: funnel/views/project.py:85
 msgid "You and three others have registered"
@@ -5350,7 +5353,7 @@ msgstr "आपने और तीन अन्य व्यक्ति ने 
 
 #: funnel/views/project.py:88
 msgid "Five registrations so far"
-msgstr ""
+msgstr "अब तक पांच रजिस्ट्रेशन"
 
 #: funnel/views/project.py:89
 msgid "You and four others have registered"
@@ -5358,7 +5361,7 @@ msgstr "आपने और चार अन्य व्यक्ति ने 
 
 #: funnel/views/project.py:92
 msgid "Six registrations so far"
-msgstr ""
+msgstr "अब तक छे रजिस्ट्रेशन"
 
 #: funnel/views/project.py:93
 msgid "You and five others have registered"
@@ -5366,7 +5369,7 @@ msgstr "आपने और पांच अन्य व्यक्ति न�
 
 #: funnel/views/project.py:96
 msgid "Seven registrations so far"
-msgstr ""
+msgstr "अब तक सात रजिस्ट्रेशन"
 
 #: funnel/views/project.py:97
 msgid "You and six others have registered"
@@ -5374,7 +5377,7 @@ msgstr "आपने और छे अन्य व्यक्ति ने र
 
 #: funnel/views/project.py:100
 msgid "Eight registrations so far?"
-msgstr ""
+msgstr "अब तक आठ रजिस्ट्रेशन"
 
 #: funnel/views/project.py:101
 msgid "You and seven others have registered"
@@ -5382,7 +5385,7 @@ msgstr "आपने और सात अन्य व्यक्ति ने 
 
 #: funnel/views/project.py:104
 msgid "Nine registrations so far"
-msgstr ""
+msgstr "अब तक नौ रजिस्ट्रेशन"
 
 #: funnel/views/project.py:105
 msgid "You and eight others have registered"
@@ -5390,7 +5393,7 @@ msgstr "आपने और आठ अन्य व्यक्ति ने र
 
 #: funnel/views/project.py:108
 msgid "Ten registrations so far"
-msgstr ""
+msgstr "अब तक दस रजिस्ट्रेशन"
 
 #: funnel/views/project.py:109
 msgid "You and nine others have registered"
@@ -5402,7 +5405,7 @@ msgstr "आपने और {num} अन्य व्यक्ति ने र�
 
 #: funnel/views/project.py:124
 msgid "{num} registrations so far"
-msgstr ""
+msgstr "अब तक {num} रजिस्ट्रेशन"
 
 #: funnel/views/project.py:240
 msgid "Your new project has been created"

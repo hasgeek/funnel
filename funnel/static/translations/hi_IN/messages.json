@@ -2507,49 +2507,49 @@
         null,
         "रजिस्टर करने वाले पहले व्यक्ति बनें!"
       ],
-      "One registration so far": [null, ""],
+      "One registration so far": [null, "अब तक एक रजिस्ट्रेशन"],
       "You have registered": [null, "आपने रजिस्टर कर लिया है"],
-      "Two registrations so far": [null, ""],
+      "Two registrations so far": [null, "अब तक दो रजिस्ट्रेशन"],
       "You and one other have registered": [
         null,
         "आपने और एक अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Three registrations so far": [null, ""],
+      "Three registrations so far": [null, "अब तक तीन रजिस्ट्रेशन"],
       "You and two others have registered": [
         null,
         "आपने और दो अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Four registrations so far": [null, ""],
+      "Four registrations so far": [null, "अब तक चार रजिस्ट्रेशन"],
       "You and three others have registered": [
         null,
         "आपने और तीन अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Five registrations so far": [null, ""],
+      "Five registrations so far": [null, "अब तक पांच रजिस्ट्रेशन"],
       "You and four others have registered": [
         null,
         "आपने और चार अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Six registrations so far": [null, ""],
+      "Six registrations so far": [null, "अब तक छे रजिस्ट्रेशन"],
       "You and five others have registered": [
         null,
         "आपने और पांच अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Seven registrations so far": [null, ""],
+      "Seven registrations so far": [null, "अब तक सात रजिस्ट्रेशन"],
       "You and six others have registered": [
         null,
         "आपने और छे अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Eight registrations so far?": [null, ""],
+      "Eight registrations so far?": [null, "अब तक आठ रजिस्ट्रेशन"],
       "You and seven others have registered": [
         null,
         "आपने और सात अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Nine registrations so far": [null, ""],
+      "Nine registrations so far": [null, "अब तक नौ रजिस्ट्रेशन"],
       "You and eight others have registered": [
         null,
         "आपने और आठ अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Ten registrations so far": [null, ""],
+      "Ten registrations so far": [null, "अब तक दस रजिस्ट्रेशन"],
       "You and nine others have registered": [
         null,
         "आपने और नौ अन्य व्यक्ति ने रजिस्टर कर लिया है"
@@ -2558,7 +2558,7 @@
         null,
         "आपने और {num} अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "{num} registrations so far": [null, ""],
+      "{num} registrations so far": [null, "अब तक {num} रजिस्ट्रेशन"],
       "Your new project has been created": [
         null,
         "आपका नया प्रोजेक्ट बना दिया गया है"
