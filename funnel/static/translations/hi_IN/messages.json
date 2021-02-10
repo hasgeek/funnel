@@ -985,9 +985,6 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
-      "${}": [null, ""],
-      ".": [null, ""],
-      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1282,6 +1279,11 @@
       "Logging out…": [null, "लॉग आउट हो रहा है…"],
       "Copy link": [null, "लिंक कॉपी करें"],
       "Facebook": [null, "Facebook"],
+      "Edit url": [null, "URL संपादित करें"],
+      "Edit description": [null, ""],
+      "Settings": [null, "सेटिंग्स"],
+      "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
+      "Featured project appears as Spotlight on the home page": [null, ""],
       "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
       "Update banner image": [null, "बैनर इमेज को बदलें"],
       "Tickets available!": [null, ""],
@@ -1295,17 +1297,6 @@
       "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
       "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
       "View participants": [null, "प्रतिभागियों को देखें"],
-      "This project will not be listed as it has no sessions in the schedule": [
-        null,
-        ""
-      ],
-      "This project is currently not published": [
-        null,
-        "इस प्रोजेक्ट को फिलहाल प्रकाशित नहीं किया गया है"
-      ],
-      "Edit url": [null, "URL संपादित करें"],
-      "Livestream": [null, "लाइवस्ट्रीम"],
-      "Preview video": [null, "प्रीव्यू वीडियो"],
       "Add schedule to enable registrations": [
         null,
         "रजिस्ट्रेशन शुरू करने के लिए समय-सूची जोड़ें"
@@ -1323,6 +1314,8 @@
         "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
       ],
       "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
+      "Livestream": [null, "लाइवस्ट्रीम"],
+      "Preview video": [null, "प्रीव्यू वीडियो"],
       "About": [null, "परिचय"],
       "Jobs": [null, "नौकरियां"],
       "Comments": [null, "कमेंट"],
@@ -1332,6 +1325,8 @@
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
       ],
+      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
+      "Tickets": [null, "टिकटें"],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
       "Notifications": [null, "नोटिफिकेशन"],
@@ -1387,7 +1382,6 @@
       "Admins": [null, "एडमिन"],
       "Sessions": [null, "सेशन"],
       "Projects": [null, "प्रोजेक्ट"],
-      "Tickets": [null, "टिकटें"],
       "Attend": [null, "हिस्सा लें"],
       "Team &amp; careers": [null, "टीम &amp; करियर"],
       "Contact": [null, "संपर्क"],
@@ -1473,14 +1467,19 @@
         "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं."
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
-      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
-      "Edit details": [null, "विवरण संपादित करें"],
+      "This project will not be listed as it has no sessions in the schedule": [
+        null,
+        ""
+      ],
+      "This project is currently not published. Visit <a href=\"%(url)s\">settings</a> to publish": [
+        null,
+        ""
+      ],
       "Related events": [null, "सम्बंधित ईवेंट"],
+      "See all": [null, "सारे देखें"],
       "View Schedule": [null, "कार्यक्रम देखें"],
       "Videos": [null, "वीडियो"],
-      "See all": [null, "सारे देखें"],
       "Related jobs": [null, "सम्बंधित नौकरियां"],
-      "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
       "Setup events for check-in": [null, "चेक-इन के लिए ईवेंट सेटअप करें"],
       "Select an event for manual check-in of attendees": [
         null,
@@ -1509,9 +1508,54 @@
       ],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
+      "This project is brought to you by": [null, ""],
       "Participants": [null, "प्रतिभागी"],
+      "%(title)s by %(speaker)s, %(project)s": [
+        null,
+        "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
+      ],
+      "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
+      "Status: %(status)s": [null, "स्थिति: %(status)s"],
+      "Submission status: %(status)s": [null, "सबमिशन की स्थिति: %(status)s"],
+      "Edit project details": [null, "प्रोजेक्ट विवरण संपादित करें"],
+      "Update project URL": [null, "प्रोजेक्ट URL बदलें"],
+      "Add or edit livestream URLs": [
+        null,
+        "लाइवस्ट्रीम URLs जोड़ें या संपादित करें"
+      ],
+      "Manage venues": [null, "ईवेंट के स्थानों को संपादित करें"],
+      "Modify submission guidelines and timing": [
+        null,
+        "सबमिशन से जुडे दिशा-निर्देश और समय-सूची को बदलें"
+      ],
+      "Setup ticketed events for check-in": [
+        null,
+        "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
+      ],
+      "Scan badges to check-in": [null, "चेक-इन के लिए बैच स्कैन करें"],
+      "Downloads": [null, "डाउनलोड"],
+      "Download JSON": [null, "JSON डाउनलोड करें"],
+      "JSON": [null, "JSON"],
+      "View schedule JSON": [null, "कार्यक्रम की JSON फाइल देखें"],
+      "Schedule JSON": [null, "कार्यक्रम की JSON फाइल"],
+      "Proposal guidelines": [null, "प्रस्ताव के दिशा-निर्देश"],
+      "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
+      "Modify proposal guidelines and timing": [
+        null,
+        "प्रस्ताव से जुडे दिशा-निर्देश और समय-सूची को बदलें"
+      ],
+      "Add proposal guidelines and timing": [
+        null,
+        "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
+      ],
+      "All submissions": [null, "सारे सबमिशन"],
+      "Add new update": [null, "नई जानकारी डालें"],
+      "Post an update…": [null, "नई जानकारी पोस्ट करें…"],
+      "This project has not posted any updates yet.": [
+        null,
+        "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है."
+      ],
       "Proposal menu": [null, ""],
-      "Edit description": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
       "Add video": [null, "वीडियो जोड़ें"],
@@ -1540,26 +1584,9 @@
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
-      "Proposal guidelines": [null, "प्रस्ताव के दिशा-निर्देश"],
-      "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
-      "Modify proposal guidelines and timing": [
-        null,
-        "प्रस्ताव से जुडे दिशा-निर्देश और समय-सूची को बदलें"
-      ],
-      "Add proposal guidelines and timing": [
-        null,
-        "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
-      ],
-      "All submissions": [null, "सारे सबमिशन"],
-      "%(title)s by %(speaker)s, %(project)s": [
-        null,
-        "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
-      ],
-      "Edit schedule": [null, "कार्यक्रम को संपादित करें"],
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
       "Unscheduled proposals": [null, ""],
-      "Settings": [null, "सेटिंग्स"],
       "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
@@ -1577,29 +1604,6 @@
         null,
         "इस सेशन के लिए सबमिशन की प्रक्रिया खोलें"
       ],
-      "Status: %(status)s": [null, "स्थिति: %(status)s"],
-      "Submission status: %(status)s": [null, "सबमिशन की स्थिति: %(status)s"],
-      "Edit project details": [null, "प्रोजेक्ट विवरण संपादित करें"],
-      "Update project URL": [null, "प्रोजेक्ट URL बदलें"],
-      "Add or edit livestream URLs": [
-        null,
-        "लाइवस्ट्रीम URLs जोड़ें या संपादित करें"
-      ],
-      "Manage venues": [null, "ईवेंट के स्थानों को संपादित करें"],
-      "Modify submission guidelines and timing": [
-        null,
-        "सबमिशन से जुडे दिशा-निर्देश और समय-सूची को बदलें"
-      ],
-      "Setup ticketed events for check-in": [
-        null,
-        "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
-      ],
-      "Scan badges to check-in": [null, "चेक-इन के लिए बैच स्कैन करें"],
-      "Downloads": [null, "डाउनलोड"],
-      "Download JSON": [null, "JSON डाउनलोड करें"],
-      "JSON": [null, "JSON"],
-      "View schedule JSON": [null, "कार्यक्रम की JSON फाइल देखें"],
-      "Schedule JSON": [null, "कार्यक्रम की JSON फाइल"],
       "or use your email instead": [null, "या फिर अपने ईमेल का उपयोग करें"],
       "Already have an account?": [null, "पहले से कोई अकाउंट है?"],
       "Query": [null, "सवाल"],
@@ -1628,12 +1632,6 @@
       " View %(title)s attendees": [null, "%(title)s प्रतिभागियों को देखें"],
       "New image": [null, "नया इमेज"],
       "Remove image": [null, "इमेज हटाएं"],
-      "Add new update": [null, "नई जानकारी डालें"],
-      "Post an update…": [null, "नई जानकारी पोस्ट करें…"],
-      "This project has not posted any updates yet.": [
-        null,
-        "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है."
-      ],
       "No tagged sessions yet.": [
         null,
         "फिलहाल कोई सेशन टैग किया हुआ नहीं है."
