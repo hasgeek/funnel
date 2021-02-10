@@ -36,7 +36,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     )
     parent = db.synonym('project')
     description = MarkdownColumn('description', default='', nullable=False)
-    speaker_bio = MarkdownColumn('speaker_bio', default='', nullable=False)
     proposal_id = db.Column(
         None, db.ForeignKey('proposal.id'), nullable=True, unique=True
     )
@@ -57,12 +56,10 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             TSVectorType(
                 'title',
                 'description_text',
-                'speaker_bio_text',
                 'speaker',
                 weights={
                     'title': 'A',
                     'description_text': 'B',
-                    'speaker_bio_text': 'B',
                     'speaker': 'A',
                 },
                 regconfig='english',
@@ -71,7 +68,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                     Session.title,
                     Session.speaker,
                     Session.description_html,
-                    Session.speaker_bio_html,
                 ),
             ),
             nullable=False,
@@ -98,7 +94,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                 'user',
                 'featured',
                 'description',
-                'speaker_bio',
                 'start_at',
                 'end_at',
                 'venue_room',
@@ -122,7 +117,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',
@@ -138,7 +132,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',
@@ -154,7 +147,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',
@@ -202,7 +194,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             session_obj = cls(
                 title=proposal.title,
                 description=proposal.outline,
-                speaker_bio=proposal.bio,
                 project=proposal.project,
                 proposal=proposal,
             )
