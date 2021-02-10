@@ -52,13 +52,10 @@
   {%- endif -%}
 {% endblock %}
 
-{% block contenthead %}
+{% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
     <div class="mobile-nav mui--z1">
-      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title', css_class="mui--align-middle") }}</a>
-      <div class="mui--pull-right mobile-nav__icon">
-        {{ project_share(project) }}
-      </div>
+      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
     </div>
   </div>
   {% if project.features.tickets() or project.features.rsvp() %}
@@ -66,9 +63,6 @@
       {{ registerblock(project) }}
     </div>
   {% endif %}
-{% endblock %}
-
-{% block baseheadline %}
 {% endblock %}
 
 {% block basecontentinner %}
