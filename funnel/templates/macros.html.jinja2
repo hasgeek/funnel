@@ -123,7 +123,7 @@
                 </span>
                 <form action="{{ project.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
                   {{ csrf_tag() }}
-                  <input type="checkbox" name="featured" id="featured-project" class="switch-input js-toggle"/>
+                  <input type="checkbox" name="featured" id="featured-project" class="switch-input js-toggle" {%- if project.featured %}checked{%- endif %}/>
                   <label class="switch-label mui--pull-right" for="featured-project"></label>
                 </form>
               </span>
@@ -328,7 +328,7 @@
         </h1>
         <p class="mui--text-subhead mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
-      <div class="mui--pull-right mui--hidden-xs mui--hidden-sm">
+      <div class="mui--pull-right">
         {{ project_share(project) }}
       </div>
     </div>

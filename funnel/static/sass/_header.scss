@@ -581,9 +581,10 @@
   .mobile-nav__icon {
     display: inline-block;
     padding: $mui-grid-padding;
+    line-height: 1;
   }
   .mobile-nav__headline {
-    font-size: 20px;
+    font-size: 22px;
     line-height: 1;
   }
 }
