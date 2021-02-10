@@ -41,29 +41,31 @@
     </div>
     {% block basecontentcolumn %}
       <div class="mui--hidden-xs mui--hidden-sm mui--hidden-md grid__col-md-5 grid__col-lg-4">
-        <div class="card card--shaped">
-          <div class="card__body project-banner">
-            {{ project_details_header(project) }}
-          </div>
-        </div>
-        <p class="mui--text-caption mui--text-light">{% trans %}This project is brought to you by{% endtrans %}</p>
-        <div class="card card--shaped">
-          <div class="card__body project-banner">
-            <div class="project-details__box">
-              <div class="project-banner__profile-details">
-                {%- if project.profile.logo_url.url %}
-                  <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
-                    <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
-                  </a>
-                {% endif %}
-                <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
-              </div>
-              <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html }}</div>
+        <div class="project-details-sticky">
+          <div class="card card--shaped">
+            <div class="card__body project-banner">
+              {{ project_details_header(project) }}
             </div>
           </div>
+          <p class="mui--text-caption mui--text-light">{% trans %}This project is brought to you by{% endtrans %}</p>
+          <div class="card card--shaped">
+            <div class="card__body project-banner">
+              <div class="project-details__box">
+                <div class="project-banner__profile-details">
+                  {%- if project.profile.logo_url.url %}
+                    <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
+                      <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+                    </a>
+                  {% endif %}
+                  <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+                </div>
+                <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html }}</div>
+              </div>
+            </div>
+          </div>
+          {% block basecontentcolumninner %}{% endblock %}
         </div>
       </div>
-      {% block basecontentcolumninner %}{% endblock %}
     {% endblock %}
   </div>
  </div>
