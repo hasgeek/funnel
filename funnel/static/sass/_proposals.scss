@@ -7,17 +7,8 @@
 
 .proposal-list-table {
   width: 100%;
-  border-spacing: 0;
-
+  border-spacing: 0 $mui-grid-padding;
   tbody > tr > td {
-    border: 1px solid $mui-bg-color-primary-dark;
-    border-top: 0;
-
-    .speaker-details {
-      margin-bottom: $mui-grid-padding;
-    }
-  }
-  tbody > tr:first-child > td {
-    border-top: 1px solid $mui-bg-color-primary-dark;
+    padding: 0 $mui-grid-padding;
   }
 }

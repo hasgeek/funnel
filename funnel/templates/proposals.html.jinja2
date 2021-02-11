@@ -79,7 +79,7 @@
             </div>
             <hr class="separator">
           {%- endif %}
-          {{ proposal_list(project.proposals, project) }}
+          {{ proposal_list(project.proposals, form, project) }}
           </div>
         </div>
       </div>
@@ -89,6 +89,9 @@
 {% endblock %}
 
 {% block footerscripts %}
+  {% assets "js_sortable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
   <script src="{{ url_for('static', filename=asset_path('proposals')) }}" type="text/javascript"></script>
   <script type="text/javascript">
@@ -105,6 +108,18 @@
 
       window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
       window.Hasgeek.ProposalsInit(config);
+
+      $(".proposal-list-table tbody").sortable({
+        placeholder: $(this).data('drag-placeholder'),
+        cursor: 'move',
+        update: function() {
+          $(this).children('.sortable').each(function(index) {
+            console.log('index', index, this)
+            $(this).children('input[name$="seq"]').val(++index);
+          });
+        }
+      });
+
     });
   </script>
 {% endblock %}

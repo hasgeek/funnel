@@ -4626,17 +4626,10 @@ a.loginbutton.hidden,
 
 .proposal-list-table {
   width: 100%;
-  border-spacing: 0;
+  border-spacing: 0 16px;
 }
 .proposal-list-table tbody > tr > td {
-  border: 1px solid #f1f1f1;
-  border-top: 0;
-}
-.proposal-list-table tbody > tr > td .speaker-details {
-  margin-bottom: 16px;
-}
-.proposal-list-table tbody > tr:first-child > td {
-  border-top: 1px solid #f1f1f1;
+  padding: 0 16px;
 }
 
 .schedule-grid {
@@ -5120,8 +5113,8 @@ body > .proposal-box.ui-draggable {
 }
 
 .label-box {
-  margin: 10px 0;
-  padding: 10px;
+  margin: 16px 0;
+  padding: 16px;
 }
 .label-box .label-box__icon {
   float: left;
