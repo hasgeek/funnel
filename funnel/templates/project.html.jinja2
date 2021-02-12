@@ -65,14 +65,14 @@
   {% endif %}
 {% endblock %}
 
-{% block basecontentinner %}
+{% block base_content_inner %}
   {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
     {{ alertbox('warning', gettext("This project will not be listed as it has no sessions in the schedule")) }}
   {% endif %}
   {% if project.view_for('view').is_available() and project.state.DRAFT %}
     <div class="alert alert--warning alert--dismissable">
       <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', icon_size='title', baseline=true) }}</a>
-      <p class="alert__text">{% trans url=project.url_for('settings') %}This project is currently not published. Visit <a href="{{ url }}">settings</a> to publish{% endtrans %}</p>
+      <p class="alert__text"><a href="{{ project.url_for('settings') }}">{% trans %}This project is not published. Visit settings to publish{% endtrans %} {{ faicon(icon='arrow-right') }}</a></p>
     </div>
   {% endif %}
   <div class="about project-section" id="about">
@@ -128,7 +128,7 @@
                   <div class="proposal-card__body">
                     <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
                     <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
-                    <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description|striptags|truncate(200) }}</div>
+                    <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline }}</div>
                     <p class="mui--text-body2 mui--text-light">{{ session.start_at|datetime }}</p>
                   </div>
                   {% if session.banner_image_url.url %}
@@ -149,7 +149,7 @@
       <h2 class="mui--text-headline project-section__headline mui--text-left">{% trans %}Videos{% endtrans %}</h2>
       <div class="grid grid-no-left-padding grid-no-right-padding">
         {% for session in project.sessions_with_video %}
-          <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
+          <div class="grid__col-xs-12 grid__col-sm-6">
             {{ video_thumbnail(session) }}
           </div>
         {% endfor %}

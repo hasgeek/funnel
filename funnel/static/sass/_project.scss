@@ -173,7 +173,7 @@
     position: relative;
 
     .card__calendar {
-      padding: 0 $mui-grid-padding $mui-grid-padding;
+      padding: 0 $mui-grid-padding 0;
       margin-left: -$mui-grid-padding;
       margin-right: -$mui-grid-padding;
 
@@ -197,7 +197,7 @@
       }
     }
     .register-block {
-      margin-top: 21px;
+      margin-top: $mui-grid-padding-double;
     }
     .project-venue {
       margin: 10px 0;

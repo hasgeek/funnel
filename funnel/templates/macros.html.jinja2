@@ -102,7 +102,7 @@
         <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
           {%- if project.current_roles.crew -%}
             {% if project.view_for('edit_slug').is_available() %}
-              <li><a class="mui--text-subhead" href="{{ project.url_for('edit_slug') }}">{{ faicon(icon='link', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit url{% endtrans %}</span></a></li>
+              <li><a class="mui--text-subhead" href="{{ project.url_for('edit_slug') }}">{{ faicon(icon='link', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit URL{% endtrans %}</span></a></li>
             {% endif %}
             {% if project.view_for('edit').is_available() %}
               <li><a class="mui--text-subhead" href="{{ project.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
@@ -225,9 +225,11 @@
         </div>
       {% endif %}
     </div>
-    <div class="project-details__box__content mui--hidden-xs mui--hidden-sm">
-      {{ registerblock(project, modalid='desktop')}}
-    </div>
+    {% if project.features.tickets() or project.features.rsvp() %}
+      <div class="project-details__box__content mui--hidden-xs mui--hidden-sm">
+        {{ registerblock(project, modalid='desktop')}}
+      </div>
+    {% endif %}
     <div class="project-details__box__content">
       {% if project.view_for('edit_schedule').is_available() and not project.schedule_state.PUBLISHED %}
         <hr class="mui-divider">
@@ -374,7 +376,7 @@
         </div>
         <div id="tickets" class="tickets-wrapper__modal__body">
           <a href="javascript:void(0)" aria-label="{% trans %}Back to the project{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='times', icon_size='title') }}</a>
-          <div id="boxoffice-widget"><p class="mui--text-body2">Loading...</p></div>
+          <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading...{% endtrans %}</p></div>
         </div>
       </div>
     {%- endif %}
@@ -940,7 +942,7 @@
             </div>
           </div>
         </div>
-        <div class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.description }}</div>
+        <div class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.body.html|firstline }}</div>
         {% if proposal.video and proposal.video.thumbnail %}
           <div class="proposal-card__body__details">
             {% if not full_width %}<img src="{{ proposal.video.thumbnail }}" class="proposal-card__video-thumbnail">{%- endif -%}

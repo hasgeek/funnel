@@ -3617,7 +3617,7 @@ a.loginbutton.hidden,
   position: relative;
 }
 .project-banner .project-details__box .card__calendar {
-  padding: 0 16px 16px;
+  padding: 0 16px 0;
   margin-left: -16px;
   margin-right: -16px;
 }
@@ -3660,7 +3660,7 @@ a.loginbutton.hidden,
   padding-bottom: 0;
 }
 .project-banner .project-details__box .register-block {
-  margin-top: 21px;
+  margin-top: 32px;
 }
 .project-banner .project-details__box .project-venue {
   margin: 10px 0;

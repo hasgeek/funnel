@@ -28,6 +28,24 @@
         null,
         "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
       ],
+      "The server is experiencing difficulties. Try again in a few minutes": [
+        null,
+        ""
+      ],
+      "This device has no internet connection": [null, ""],
+      "Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com ": [
+        null,
+        ""
+      ],
+      "Do you really want to delete this proposal?": [null, ""],
+      "Unable to access video stream. Please make sure you have camera enabled or try a different browser.": [
+        null,
+        ""
+      ],
+      "There was a problem in contacting the server. Please try again later": [
+        null,
+        ""
+      ],
       "Today": [null, ""],
       "Tomorrow": [null, ""],
       "Day after": [null, ""],
@@ -1279,7 +1297,7 @@
       "Logging out…": [null, "लॉग आउट हो रहा है…"],
       "Copy link": [null, "लिंक कॉपी करें"],
       "Facebook": [null, "Facebook"],
-      "Edit url": [null, "URL संपादित करें"],
+      "Edit URL": [null, ""],
       "Edit description": [null, ""],
       "Settings": [null, "सेटिंग्स"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
@@ -1327,6 +1345,7 @@
       ],
       "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "Tickets": [null, "टिकटें"],
+      "Loading...": [null, ""],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
       "Notifications": [null, "नोटिफिकेशन"],
@@ -1471,10 +1490,7 @@
         null,
         ""
       ],
-      "This project is currently not published. Visit <a href=\"%(url)s\">settings</a> to publish": [
-        null,
-        ""
-      ],
+      "This project is not published. Visit settings to publish": [null, ""],
       "Related events": [null, "सम्बंधित ईवेंट"],
       "See all": [null, "सारे देखें"],
       "View Schedule": [null, "कार्यक्रम देखें"],
@@ -1509,6 +1525,7 @@
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "This project is brought to you by": [null, ""],
+      "Read more": [null, ""],
       "Participants": [null, "प्रतिभागी"],
       "%(title)s by %(speaker)s, %(project)s": [
         null,
@@ -1676,7 +1693,6 @@
       "Agenda view": [null, ""],
       "Calender view": [null, ""],
       "Update": [null, "अपडेट करें"],
-      "Read more": [null, ""],
       "Hide": [null, ""],
       "You wrote:": [null, "आपने लिखा:"],
       "View comment": [null, "कमेंट देखें"],

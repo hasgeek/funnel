@@ -1,10 +1,10 @@
 {% extends "layout.html.jinja2" %}
-{% set title_suffix = project.title_suffix %}
+{% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import ajaxform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import csrf_tag, project_header, project_details_header, proposal_card, project_share, video_thumbnail, registerblock, project_col_right %}
 {% block title %}{{ project.title }}{% endblock %}
-{% block description %}{{ project.tagline }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
+{% block description %}{{ project.tagline }}{% endblock %}
 {% block twitter_card %}summary_large_image{% endblock %}
 
 {%- block pageheaders %}
@@ -35,7 +35,7 @@
     <div class="grid__col-sm-12 grid__col-md-7 grid__col-lg-8">
       <div class="page-card">
         {{ project_header(project, current_page=current_page) }}
-        {% block basecontentinner %}
+        {% block base_content_inner %}
         {% endblock %}
       </div>
     </div>
@@ -59,7 +59,7 @@
                   {% endif %}
                   <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                 </div>
-                <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html }}</div>
+                <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|firstline }} <a href="{{ project.profile.url_for() }}" class="mui--text-body2">{% trans %}Read more{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', css_class='fa-icon--left-margin') }}</a></div>
               </div>
             </div>
           </div>
