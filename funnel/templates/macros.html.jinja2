@@ -942,7 +942,7 @@
             </div>
           </div>
         </div>
-        <div class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.body.html|firstline }}</div>
+        <div class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.body.html|firstline|truncate(150) }}</div>
         {% if proposal.video and proposal.video.thumbnail %}
           <div class="proposal-card__body__details">
             {% if not full_width %}<img src="{{ proposal.video.thumbnail }}" class="proposal-card__video-thumbnail">{%- endif -%}
