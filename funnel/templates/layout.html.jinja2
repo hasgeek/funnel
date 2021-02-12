@@ -19,7 +19,7 @@
 {%- endblock %}
 
 {# The profile's description is used on all pages within a profile, unless the template overrides this -#}
-{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
+{% block description %}{% if g.profile %}{{ g.profile.description.html|firstline }}{% endif %}{% endblock %}
 
 {%- block image_src %}
   {%- if project and project.bg_image.url %}

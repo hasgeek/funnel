@@ -59,7 +59,7 @@
                   {% endif %}
                   <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                 </div>
-                <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|firstline }} <a href="{{ project.profile.url_for() }}" class="mui--text-body2">{% trans %}Read more{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', css_class='fa-icon--left-margin') }}</a></div>
+                <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|firstline|truncate(150) }} <a href="{{ project.profile.url_for() }}" class="mui--text-body2">{% trans %}Read more{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', css_class='fa-icon--left-margin') }}</a></div>
               </div>
             </div>
           </div>

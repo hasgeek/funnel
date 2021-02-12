@@ -128,7 +128,7 @@
                   <div class="proposal-card__body">
                     <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
                     <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
-                    <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline }}</div>
+                    <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline|truncate(150) }}</div>
                     <p class="mui--text-body2 mui--text-light">{{ session.start_at|datetime }}</p>
                   </div>
                   {% if session.banner_image_url.url %}
