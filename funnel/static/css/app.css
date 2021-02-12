@@ -1633,6 +1633,13 @@ a.loginbutton.hidden,
     display: none;
   }
 }
+.alert-wrapper {
+  padding: 0 16px;
+}
+.alert-wrapper .alert {
+  margin: 16px auto 0;
+}
+
 .sub-navbar .sub-navbar__item {
   display: block;
   padding: 16px;
