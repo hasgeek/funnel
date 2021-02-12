@@ -434,6 +434,13 @@
   }
 }
 
+.alert-wrapper {
+  padding: 0 16px;
+  .alert {
+    margin: 16px auto 0;
+  }
+}
+
 .sub-navbar {
   .sub-navbar__item {
     display: block;
