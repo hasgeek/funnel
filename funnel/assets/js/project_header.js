@@ -43,15 +43,20 @@ const Ticketing = {
         let errorMsg;
 
         if (response.readyState === 4) {
-          errorMsg = 'Server error, please try again later.';
+          errorMsg = window.gettext(
+            'The server is experiencing difficulties. Try again in a few minutes'
+          );
           $(widgetElem).html(errorMsg);
         } else if (response.readyState === 0) {
           if (ajaxLoad.retries < 0) {
             if (!navigator.onLine) {
-              errorMsg = 'Unable to connect. There is no network!';
+              errorMsg = window.gettext(
+                'This device has no internet connection'
+              );
             } else {
-              errorMsg =
-                '<p>Unable to connect. If you are behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com .</p>';
+              errorMsg = window.gettext(
+                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com '
+              );
             }
 
             $(widgetElem).html(errorMsg);

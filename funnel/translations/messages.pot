@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-02-10 17:24+0530\n"
+"POT-Creation-Date: 2021-02-12 11:36+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,6 +39,36 @@ msgstr ""
 
 #: funnel/registry.py:101
 msgid "This resource can only be accessed by trusted clients"
+msgstr ""
+
+#: funnel/assets/js/project_header.js:46 funnel/assets/js/scan_contact.js:86
+msgid "The server is experiencing difficulties. Try again in a few minutes"
+msgstr ""
+
+#: funnel/assets/js/project_header.js:51 funnel/assets/js/scan_contact.js:91
+msgid "This device has no internet connection"
+msgstr ""
+
+#: funnel/assets/js/project_header.js:54
+msgid ""
+"Unable to connect. If this device is behind a firewall or using any "
+"script blocking extension (like Privacy Badger), please ensure your "
+"browser can load boxoffice.hasgeek.com, api.razorpay.com and "
+"checkout.razorpay.com "
+msgstr ""
+
+#: funnel/assets/js/proposal.js:4
+msgid "Do you really want to delete this proposal?"
+msgstr ""
+
+#: funnel/assets/js/scan_badge.js:176 funnel/assets/js/scan_contact.js:179
+msgid ""
+"Unable to access video stream. Please make sure you have camera enabled "
+"or try a different browser."
+msgstr ""
+
+#: funnel/assets/js/schedule_view.js:148
+msgid "There was a problem in contacting the server. Please try again later"
 msgstr ""
 
 #: funnel/assets/js/util.js:186
@@ -2133,7 +2163,7 @@ msgstr ""
 
 #: funnel/templates/account.html.jinja2:126
 #: funnel/templates/account.html.jinja2:167
-#: funnel/templates/venues.html.jinja2:36
+#: funnel/templates/venues.html.jinja2:34
 msgid "Set as primary"
 msgstr ""
 
@@ -2650,7 +2680,7 @@ msgid "Facebook"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:90
-msgid "Edit url"
+msgid "Edit URL"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:93
@@ -2755,7 +2785,7 @@ msgstr ""
 
 #: funnel/templates/macros.html.jinja2:236
 #: funnel/templates/project.html.jinja2:162
-#: funnel/templates/venues.html.jinja2:37 funnel/views/venue.py:52
+#: funnel/templates/venues.html.jinja2:35 funnel/views/venue.py:52
 msgid "Add venue"
 msgstr ""
 
@@ -2818,6 +2848,10 @@ msgstr ""
 #: funnel/templates/macros.html.jinja2:716
 #: funnel/templates/project_admin.html.jinja2:39
 msgid "Tickets"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:333
+msgid "Loading..."
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:351
@@ -3157,10 +3191,7 @@ msgid "This project will not be listed as it has no sessions in the schedule"
 msgstr ""
 
 #: funnel/templates/project.html.jinja2:69
-#, python-format
-msgid ""
-"This project is currently not published. Visit <a "
-"href=\"%(url)s\">settings</a> to publish"
+msgid "This project is not published. Visit settings to publish"
 msgstr ""
 
 #: funnel/templates/project.html.jinja2:75
@@ -3242,6 +3273,11 @@ msgstr ""
 msgid "This project is brought to you by"
 msgstr ""
 
+#: funnel/templates/js/update.js.jinja2:58
+#: funnel/templates/project_layout.html.jinja2:55
+msgid "Read more"
+msgstr ""
+
 #: funnel/templates/project_rsvp_list.html.jinja2:13
 msgid "Participants"
 msgstr ""
@@ -3279,7 +3315,7 @@ msgid "Add or edit livestream URLs"
 msgstr ""
 
 #: funnel/templates/project_settings.html.jinja2:62
-#: funnel/templates/venues.html.jinja2:17
+#: funnel/templates/venues.html.jinja2:15
 msgid "Manage venues"
 msgstr ""
 
@@ -3563,19 +3599,19 @@ msgstr ""
 msgid "No submissions"
 msgstr ""
 
-#: funnel/templates/venues.html.jinja2:4
+#: funnel/templates/venues.html.jinja2:3
 msgid "Venues"
 msgstr ""
 
-#: funnel/templates/venues.html.jinja2:31
+#: funnel/templates/venues.html.jinja2:29
 msgid "(No venues)"
 msgstr ""
 
-#: funnel/templates/venues.html.jinja2:61
+#: funnel/templates/venues.html.jinja2:59
 msgid "(No rooms)"
 msgstr ""
 
-#: funnel/templates/venues.html.jinja2:66
+#: funnel/templates/venues.html.jinja2:64
 msgid "Add room"
 msgstr ""
 
@@ -3709,10 +3745,6 @@ msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:20 funnel/views/proposal.py:268
 msgid "Update"
-msgstr ""
-
-#: funnel/templates/js/update.js.jinja2:58
-msgid "Read more"
 msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:59

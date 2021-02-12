@@ -3,7 +3,7 @@
 {%- from "macros.html.jinja2" import proposal_list %}
 {% block title %}{% trans %}Submissions{% endtrans %}{% endblock %}
 
-{% block basecontentinner %}
+{% block base_content_inner %}
   <div class="project-section">
    {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
     <div class="about__details" id="call-for-proposal">

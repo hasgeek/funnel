@@ -82,13 +82,16 @@ const badgeScan = {
 
             if (response.readyState === 4) {
               if (response.status === 500) {
-                errorMsg =
-                  'Internal Server Error. Please reload and try again.';
+                errorMsg = window.gettext(
+                  'The server is experiencing difficulties. Try again in a few minutes'
+                );
               } else {
                 errorMsg = JSON.parse(response.responseText).message;
               }
             } else {
-              errorMsg = 'Unable to connect. Please reload and try again.';
+              errorMsg = window.gettext(
+                'This device has no internet connection'
+              );
             }
 
             badgeScanComponent.set({
@@ -176,7 +179,9 @@ const badgeScan = {
         } else {
           this.set(
             'error',
-            'Unable to access video stream. Please make sure you have a camera enabled or try a different browser.'
+            window.gettext(
+              'Unable to access video stream. Please make sure you have camera enabled or try a different browser.'
+            )
           );
         }
       },
