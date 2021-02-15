@@ -215,7 +215,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('schedule.html.jinja2')
+    @render_with('project_schedule.html.jinja2')
     @requires_roles({'reader'})
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
