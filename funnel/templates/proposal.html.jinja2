@@ -196,7 +196,7 @@
                     {{ useravatar(proposal.speaker) }}
                     <div class="user__box__header">
                       <p class="mui--text-body2 user__box__fullname">{{ proposal.speaker.fullname }}</p>
-                      <p class="mui--text-caption user__box__userid">@{{ proposal.speaker.username }}</p>
+                      {%- if proposal.speaker.username %}<p class="mui--text-caption user__box__userid">@{{ proposal.speaker.username }}</p>{%- endif -%}
                     </div>
                   </div>
                 </div>
