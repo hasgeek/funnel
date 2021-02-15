@@ -296,6 +296,13 @@ class ProjectView(
             'cfp_transition_form': cfp_transition_form,
         }
 
+    @route('videos')
+    @render_with('project_videos.html.jinja2')
+    def session_videos(self):
+        return {
+            'project': self.obj,
+        }
+
     @route('json')
     @render_with(json=True)
     @requires_roles({'reader'})
