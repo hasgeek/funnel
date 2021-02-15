@@ -168,12 +168,12 @@ $(() => {
       });
     }
 
-    $('a#register-btn').click(function () {
+    $('a.js-register-btn').click(function () {
       $(this).modal();
     });
 
-    if (window.location.hash === '#register-modal') {
-      $('a#register-btn').modal();
+    if (window.location.hash.includes('register-modal')) {
+      $('a.js-register-btn:visible').modal();
     }
 
     if (tickets) {
