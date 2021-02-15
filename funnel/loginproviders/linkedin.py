@@ -126,7 +126,7 @@ class LinkedInProvider(LoginProvider):
         return {
             'email': email_address,
             'userid': info.get('id'),
-            'username': info.get('id'),
+            'username': None,
             'fullname': (
                 info.get('localizedFirstName') + ' ' + info.get('localizedLastName')
             ),
