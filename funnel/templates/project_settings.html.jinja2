@@ -74,7 +74,7 @@
           <li>
             <a href="{{ project.url_for('cfp') }}" data-cy="add-cfp">{% trans %}Add submission guidelines and timing{% endtrans %}</a>
           </li>
-        {% else -%}
+        {% elif project.view_for('cfp').is_available() -%}
           <li>
             <a href="{{ project.url_for('cfp') }}" data-cy="modify-cfp">{% trans %}Modify submission guidelines and timing{% endtrans %}</a>
           </li>

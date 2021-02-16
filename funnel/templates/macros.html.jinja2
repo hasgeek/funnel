@@ -330,7 +330,7 @@
         </h1>
         <p class="mui--text-subhead mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
-      <div class="mui--pull-right">
+      <div class="mui--pull-right {% if current_page == 'comments' %}comments-page{%- endif %}">
         {{ project_share(project) }}
       </div>
     </div>
