@@ -20,6 +20,9 @@
     .register-block__txt {
       font-size: 14px;
     }
+    .register-block__txt--longer {
+      max-width: calc(100% - 20px);
+    }
   }
 }
 
