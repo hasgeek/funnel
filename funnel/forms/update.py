@@ -21,6 +21,7 @@ class UpdateForm(forms.Form):
     is_pinned = forms.BooleanField(
         __("Pin this update above other updates"), default=False
     )
+    # FIXME: This is incompatible with promoted updates
     is_restricted = forms.BooleanField(
         __("Limit visibility to participants only"), default=False
     )

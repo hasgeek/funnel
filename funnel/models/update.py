@@ -2,18 +2,25 @@ from __future__ import annotations
 
 from typing import Iterable, Optional, Set
 
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Query as BaseQuery
 
 from baseframe import __
-from coaster.sqlalchemy import Query, StateManager, auto_init_default, with_roles
+from coaster.sqlalchemy import (
+    Query,
+    StateManager,
+    auto_init_default,
+    immutable,
+    with_roles,
+)
 from coaster.utils import LabeledEnum
 
 from . import (
     BaseScopedIdNameMixin,
     Commentset,
     MarkdownColumn,
+    NoIdMixin,
     Project,
-    TimestampMixin,
     TSVectorType,
     User,
     UuidMixin,
@@ -35,9 +42,12 @@ class UPDATE_STATE(LabeledEnum):  # NOQA: N801
 class VISIBILITY_STATE(LabeledEnum):  # NOQA: N801
     PUBLIC = (0, 'public', __("Public"))
     RESTRICTED = (1, 'restricted', __("Restricted"))
+    PROMOTION = (2, 'promotion', __("Promotion"))
+
+    REGULAR = {PUBLIC, RESTRICTED}
 
 
-class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
+class Update(UuidMixin, BaseScopedIdNameMixin, db.Model):
     __tablename__ = 'update'
 
     _visibility_state = db.Column(
@@ -79,13 +89,20 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         read={'all'},
         grants_via={
             None: {
-                'editor': {'editor', 'project_editor'},
+                'editor': {'reader', 'editor', 'project_editor'},
+                'promoter': {'reader', 'promoter', 'project_promoter'},
                 'participant': {'reader', 'project_participant'},
                 'crew': {'reader', 'project_crew'},
             }
         },
     )
     parent = db.synonym('project')
+
+    update_promotions = with_roles(
+        db.relationship('UpdatePromotion'),
+        read={'all'},
+        grants_via={None: {'promoted_participant'}},
+    )
 
     body = MarkdownColumn('body', nullable=False)
 
@@ -231,7 +248,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         label=('withdrawn', __("Withdrawn")),
     )
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor', 'promoter'})
     @state.transition(state.DRAFT, state.PUBLISHED)
     def publish(self, actor: User) -> bool:
         first_publishing = False
@@ -239,7 +256,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         if self.published_at is None:
             first_publishing = True
             self.published_at = db.func.utcnow()
-        if self.number is None:
+        if self.number is None and not self.visibility_state.PROMOTION:
+            # Assign a number only if:
+            # 1. It doesn't have a number already, and
+            # 2. It's not a promotion.
+            # Sequential numbers are a tracking tool for project participants and don't
+            # apply in unpublished updates or promotions.
             self.number = db.select(
                 [db.func.coalesce(db.func.max(Update.number), 0) + 1]
             ).where(Update.project == self.project)
@@ -261,7 +283,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             self.deleted_by = actor
             self.deleted_at = db.func.utcnow()
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor', 'promoter'})
     @state.transition(state.DELETED, state.DRAFT)
     def undo_delete(self) -> None:
         self.deleted_by = None
@@ -275,6 +297,18 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     @with_roles(call={'editor'})
     @visibility_state.transition(visibility_state.PUBLIC, visibility_state.RESTRICTED)
     def make_restricted(self) -> None:
+        pass
+
+    @with_roles(call={'promoter'})
+    @state.requires(state.UNPUBLISHED)
+    @visibility_state.transition(visibility_state.REGULAR, visibility_state.PROMOTION)
+    def make_promotion(self) -> None:
+        pass
+
+    @with_roles(call={'editor'})
+    @state.requires(state.UNPUBLISHED)
+    @visibility_state.transition(visibility_state.PROMOTION, visibility_state.PUBLIC)
+    def make_regular(self) -> None:
         pass
 
     @with_roles(read={'all'})  # type: ignore[misc]
@@ -314,6 +348,62 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 add_search_trigger(Update, 'search_vector')
 auto_init_default(Update._visibility_state)
 auto_init_default(Update._state)
+
+
+class UpdatePromotion(NoIdMixin, db.Model):
+    """Holds an authorization allowing an update to be promoted to a project."""
+
+    __tablename__ = 'update_promotion'
+    update_id = immutable(
+        db.Column(
+            None, db.ForeignKey('update.id', ondelete='CASCADE'), primary_key=True
+        )
+    )
+    update = immutable(db.relationship(Update))
+    project_id = immutable(
+        db.Column(
+            None, db.ForeignKey('project.id', ondelete='CASCADE'), primary_key=True
+        )
+    )
+    project = with_roles(
+        db.relationship(
+            Project, backref=db.backref('update_promotions', lazy='dynamic')
+        ),
+        read={'all'},
+        grants_via={
+            None: {
+                'participant': 'promoted_participant',
+                'crew': 'promoted_participant',
+            }
+        },
+    )
+
+    requested_by_id = immutable(
+        db.Column(None, db.ForeignKey('user.id'), nullable=False)
+    )
+    requested_by = immutable(db.relationship(User, foreign_keys=[requested_by_id]))
+    requested_at = immutable(
+        db.Column(db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False)
+    )
+
+    granted_by_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
+    granted_by = db.relationship(User, foreign_keys=[granted_by_id])
+    granted_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+
+    revoked_by_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
+    revoked_by = db.relationship(User, foreign_keys=[revoked_by_id])
+    revoked_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+
+    @hybrid_property
+    def is_active(self):
+        return self.granted_at is not None and self.revoked_at is None
+
+    @is_active.expression  # type: ignore[no-redef]
+    def is_active(cls):  # NOQA: N805
+        return db.and_(
+            cls.granted_at.isnot(None),
+            cls.revoked_at.is_(None),
+        )
 
 
 @reopen(Project)

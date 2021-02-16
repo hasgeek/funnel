@@ -115,6 +115,20 @@ class NewUpdateNotification(DocumentHasProject, Notification):
     exclude_actor = False  # Send to everyone including the actor
 
 
+class PromotedUpdateNotification(DocumentHasProject, Notification):
+    """Notifications of promoted updates."""
+
+    __mapper_args__ = {'polymorphic_identity': 'update_promoted'}
+
+    category = notification_categories.participant
+    title = __("When there is a related project")
+    description = __("Projects by the same crew that you may be interested in")
+
+    document: Update
+    roles = ['promoted_participant']
+    exclude_actor = False
+
+
 class ProposalSubmittedNotification(DocumentHasProject, Notification):
     """Notification to the proposer on a successful proposal submission."""
 
