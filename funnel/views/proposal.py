@@ -1,9 +1,9 @@
-from flask import Markup, abort, escape, flash, jsonify, redirect
+from flask import Markup, abort, escape, flash, jsonify, redirect, request
 
 from bleach import linkify
 
 from baseframe import _, __, request_is_xhr
-from baseframe.forms import render_delete_sqla, render_form
+from baseframe.forms import Form, render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
 from coaster.views import (
@@ -160,6 +160,40 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             message=markdown_message,
         )
 
+    @requires_login
+    def reorder_proposals(self):
+        if Form().validate_on_submit():
+            current_proposal = Proposal.query.filter_by(
+                uuid_b58=request.form['currentItemId']
+            ).one_or_404()
+            previous_proposal = (
+                Proposal.query.filter_by(uuid_b58=request.form['previousItemId']).one()
+                if request.form.get('previousItemId', None)
+                else None
+            )
+            # new_index = 1 if previous_proposal is None else previous_proposal.url_id + 1
+            ordered_proposal_ids = [
+                p.uuid_b58 for p in self.obj.proposals.order_by(Proposal.url_id.asc())
+            ]
+            if current_proposal.uuid_b58 in ordered_proposal_ids:
+                ordered_proposal_ids.remove(current_proposal.uuid_b58)
+
+            if previous_proposal is None:
+                # current item was moved to the top of the list
+                new_index = 0
+            else:
+                new_index = ordered_proposal_ids.index(previous_proposal.uuid_b58) + 1
+
+            ordered_proposal_ids.insert(new_index, current_proposal.uuid_b58)
+
+            for idx, proposal_id in enumerate(ordered_proposal_ids):
+                Proposal.query.filter_by(project=self.obj, uuid_b58=proposal_id).update(
+                    {'url_id': idx + 1}
+                )
+
+            return {'status': 'ok'}
+        return {'status': 'error'}, 400
+
 
 @Project.views('proposal_new')
 @route('/<profile>/<project>')
@@ -171,6 +205,9 @@ ProjectProposalView.add_route_for(
     'new_proposal', 'proposals/new', methods=['GET', 'POST']
 )
 ProjectProposalView.add_route_for('new_proposal', 'sub/new', methods=['GET', 'POST'])
+ProjectProposalView.add_route_for(
+    'reorder_proposals', 'sub/reorder', methods=['GET', 'POST']
+)
 ProjectProposalView.init_app(app)
 
 

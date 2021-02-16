@@ -112,11 +112,30 @@
       $(".proposal-list-table tbody").sortable({
         placeholder: $(this).data('drag-placeholder'),
         cursor: 'move',
-        update: function() {
-          $(this).children('.sortable').each(function(index) {
-            console.log('index', index, this)
-            $(this).children('input[name$="seq"]').val(++index);
+        update: function(event, ui) {
+          var sortedIDs = $(this).sortable("toArray");
+          var currentID = $(ui.item).attr('id');
+          var currentIndex = sortedIDs.indexOf(currentID);
+          $.ajax({
+            url: '{{ project.url_for("reorder_proposals") }}',
+            type: 'POST',
+            data: {
+              csrf_token: window.Hasgeek.config.CsrfToken,
+              currentItemId: currentID,
+              previousItemId: currentID == 0 ? null : sortedIDs[currentIndex - 1]
+            },
+            dataType: 'json',
+            success: function (responseData) {
+              console.log(responseData);
+            }
           });
+
+          // var proposals = [];
+          // $(this).children('.sortable').each(function(index) {
+          //   // console.log('index', index, this)
+          //   $(this).children('input[name$="proposal-seq"]').val(index+1);
+          //   proposals.push({'suuid': $(this).attr('id'), 'seq': index+1});
+          // });
         }
       });
 
