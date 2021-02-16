@@ -11,6 +11,8 @@ describe('Add labels to project', function () {
       editor.password
     );
 
+    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.wait(1000);
     cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="manage-labels"').click();

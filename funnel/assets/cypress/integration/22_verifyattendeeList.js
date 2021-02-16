@@ -10,7 +10,9 @@ describe('Verify attendee list', function () {
       .first()
       .click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy="see-responses"]').click();
+    cy.get('a[data-cy="rsvp-menu"]:visible').click();
+    cy.wait(1000);
+    cy.get('a[data-cy="see-responses"]:visible').click();
     cy.location('pathname').should('contain', 'rsvp_list');
     cy.get('[data-cy="user"]').should('contain', user.username);
   });

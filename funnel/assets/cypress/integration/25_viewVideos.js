@@ -9,7 +9,6 @@ describe('View project videos page', function () {
       .find('.card--upcoming')
       .contains(project.title)
       .click({ force: true });
-    cy.get('[data-cy-navbar="video"]').click();
     cy.get('img[data-cy="thumbnail"]').should('be.visible');
     cy.get('[data-cy="title"]').contains(proposal.title);
     cy.get('[data-cy="title"]').contains(session.title);

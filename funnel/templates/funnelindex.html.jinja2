@@ -2,7 +2,7 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% else %}{% trans %}Talkfunnel hosts proposal submissions and reviews for events.{% endtrans %}{% endif %}{% endblock %}
+{% block description %}{% if g.profile %}{{ g.profile.description.html|firstline }}{% else %}{% trans %}Talkfunnel hosts proposal submissions and reviews for events.{% endtrans %}{% endif %}{% endblock %}
 
 {% block contenthead %}
   {%- if not g.profile %}

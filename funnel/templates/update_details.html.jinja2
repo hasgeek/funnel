@@ -1,11 +1,9 @@
 {% extends "layout.html.jinja2" %}
-{% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import project_header, project_mini_header %}
 {%- from "js/update.js.jinja2" import updates_template %}
-{% block title %}{{update.title}}{% endblock %}
-{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
+{% block title %}{{ update.title }}{% endblock %}
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}

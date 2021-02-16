@@ -287,7 +287,7 @@ class ProjectView(
 
     @route('sub')
     @route('proposals')
-    @render_with('proposals.html.jinja2')
+    @render_with('project_submissions.html.jinja2')
     @requires_roles({'reader'})
     def view_proposals(self):
         form = forms.Form()
@@ -299,12 +299,10 @@ class ProjectView(
         }
 
     @route('videos')
-    @render_with('session_videos.html.jinja2')
+    @render_with('project_videos.html.jinja2')
     def session_videos(self):
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj,
-            'cfp_transition_form': cfp_transition_form,
         }
 
     @route('json')
@@ -769,7 +767,7 @@ class ProjectView(
         }
 
     @route('settings', methods=['GET', 'POST'])
-    @render_with('settings.html.jinja2')
+    @render_with('project_settings.html.jinja2')
     @requires_login
     @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self):
