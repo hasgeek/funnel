@@ -13,9 +13,9 @@ describe('Responding yes to attend a project', function () {
       .contains(project.title)
       .click({ force: true });
     cy.location('pathname').should('contain', project.url);
-    cy.get('#register-btn').click();
+    cy.get('a.js-register-btn:visible').click();
     cy.wait(2000);
-    cy.get('button[data-cy="confirm"]').click();
+    cy.get('button[data-cy="confirm"]:visible').click();
     cy.get('.alert--success').should('exist');
     cy.get('button[data-cy="bookmark"]').click();
     cy.wait('@bookmark-project');

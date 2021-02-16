@@ -1,8 +1,6 @@
-{% extends "layout.html.jinja2" %}
-{% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import project_header %}
+{% set current_page = 'schedule' %}
+{% extends "project_layout.html.jinja2" %}
 {%- from "js/schedule.js.jinja2" import schedule_template %}
-{% from "baseframe/components.html.jinja2" import faicon %}
 
 {% block title %}{%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}{% endblock %}
 
@@ -69,45 +67,21 @@
   {%- endif -%}
 {% endblock %}
 
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app no-sticky-header">
-  {%- else %}
-    <body class="mui--bg-primary no-sticky-header">
-  {%- endif %}
-{% endblock %}
-
-{% block contenthead %}{% endblock %}
-
-{% block baseheadline %}
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
-    <div class="mobile-nav mui--z1">
-      <a href="{{ project.urls['view'] }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Schedule{% endtrans %}</span>
-    </div>
-  </div>
-  {{ project_header(project, class='mui--hidden-xs mui--hidden-sm', current_page='schedule') }}
-{% endblock %}
-
-{% block basecontent %}
-  <div class="mui-container">
-    <div class="page-content page-content--mob-nav">
-      <div class="grid" id="schedule">
-        {% if project.view_for('edit_schedule').is_available() %}
-          <div class="grid__col-xs-12"><div><p class="mui--pull-right zero-bottom-margin"><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.urls['edit_schedule'] }}">{% trans %}Edit schedule{% endtrans %}</a></p></div></div>
-        {% endif %}
-        <div class="grid__col-xs-12 schedule-grid">
-          <div class="schedule-table-container" id="project-schedule-table">
-            <schedule></schedule>
-          </div>
-            {{ schedule_template() }}
-        </div>
+{% block base_content_inner %}
+  <div class="project-section" id="schedule">
+    {% if project.view_for('edit_schedule').is_available() %}
+      <div><p class="mui--pull-right zero-bottom-margin"><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.urls['edit_schedule'] }}">{% trans %}Edit schedule{% endtrans %}</a></p></div>
+    {% endif %}
+    <div class="schedule-grid">
+      <div class="schedule-table-container" id="project-schedule-table">
+        <schedule></schedule>
       </div>
+        {{ schedule_template() }}
     </div>
   </div>
 {% endblock %}
 
-{% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+{% block footerinnerscripts %}
   <script src="{{ url_for('static', filename=asset_path('schedule_view')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(document).ready( function() {
@@ -130,11 +104,6 @@
         scheduleConfig['active_session'] = {{ active_session|tojson }};
       {%- endif %}
 
-      var saveProjectConfig = {
-        formId: 'save-form',
-      }
-
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig);
       window.Hasgeek.ScheduleInit(scheduleConfig);
     });
   </script>
