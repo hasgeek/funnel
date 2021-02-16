@@ -74,16 +74,15 @@
       };
       window.Hasgeek.ProposalsInit(config);
 
-      $(".proposal-list-table tbody").sortable({
-        placeholder: $(this).data('drag-placeholder'),
-        cursor: 'move',
-        update: function() {
-          $(this).children('.sortable').each(function(index) {
-            console.log('index', index, this)
-            $(this).children('input[name$="seq"]').val(++index);
-          });
-        }
-      });
+      {%- if project.current_roles.editor -%}
+        $(".proposal-list-table tbody").sortable({
+          placeholder: $(this).data('drag-placeholder'),
+          cursor: 'move',
+          update: function(event, ui) {
+            console.log($(this).children('.sortable'), ui.item);
+          }
+        });
+      {%- endif %}
 
     });
   </script>

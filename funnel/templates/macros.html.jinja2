@@ -841,13 +841,15 @@
 {% endmacro %}
 
 {%- macro proposal_list(proposals, form, project='') %}
+  {%- if project.current_roles.editor -%}
   <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
     {{ form.hidden_tag() }}
+  {%- endif %}
     <table id="submissions-table" class="proposal-list-table mui-table">
       <tbody>
         {% for proposal in proposals %}
-          <tr id="{{ proposal.uuid_b58 }}" class="sortable ui-dragable-box label-box mui--z1" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
-            <td class="js-searchable">
+          <tr id="{{ proposal.uuid_b58 }}" {%- if project.current_roles.editor %}class="sortable"{%- endif %} data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+            <td class="js-searchable label-box mui--z1 {%- if project.current_roles.editor %} ui-dragable-box{%- endif %}">
               <input name="proposal-seq" value="{{ proposal.url_id }}" readonly class="seq-input mui--hide">
               {{ faicon(icon='grip-vertical',  baseline=false, css_class='label-box__icon') }}
               <div class="label-box__heading">
@@ -916,7 +918,9 @@
         {% endfor %}
       </tbody>
     </table>
+  {%- if project.current_roles.editor -%}
   </form>
+  {%- endif %}
 {%- endmacro %}
 
 {%- macro useravatar(user, css_class='', add_profile_link=true,  size='medium') %}
