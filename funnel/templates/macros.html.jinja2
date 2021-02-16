@@ -535,7 +535,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy-project="{{ featured_project.title }}" data-ga="View spotlight project">
+              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy="spotlight-project" data-ga="View spotlight project">
                 <div class="card__image-wrapper">
                   {% if featured_project.bg_image.url %}
                     <img class="card__image" src="{{ featured_project.bg_image.resize(banner_img) }}" alt="{{ featured_project.title }}"/>
@@ -782,7 +782,7 @@
 {% endmacro %}
 
 {% macro project_mini_header(project) %}
-  <h1 class="mui--text-headline mui--text-bold"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <h1 class="mui--text-headline mui--text-bold"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
   <p class="mui--text-subhead mui--text-light smaller-margin ">{{ project.tagline }}</p>
   <p>
   {% if project.features.tickets_or_rsvp() and project.features.rsvp_unregistered() %}
@@ -933,7 +933,7 @@
   <a class="card clickable-card card--shaped" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission">
     <div class="card__body proposal-card {%- if full_width %} proposal-card--fullwidth {%- endif -%}">
       <div class="proposal-card__body">
-        <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ proposal.title }}</h3>
+        <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
         <div class="user user--smaller">
           <div class="user__box">
             {{ useravatar(proposal.speaker, add_profile_link=false, size='small') }}

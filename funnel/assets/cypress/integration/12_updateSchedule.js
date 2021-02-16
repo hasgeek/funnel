@@ -1,5 +1,6 @@
 describe('Add session to schedule and publish', function () {
   const editor = require('../fixtures/user.json').editor;
+  const siteEditor = require('../fixtures/user.json').owner;
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
   const profile = require('../fixtures/profile.json');
@@ -68,6 +69,19 @@ describe('Add session to schedule and publish', function () {
     cy.get('[data-cy="schedule-state"]').contains('Upcoming');
 
     cy.get('a[data-cy="home-desktop"]').click();
-    cy.get('.upcoming').find('.card--upcoming').contains(project.title);
+    cy.logout();
+    cy.wait(1000);
+    cy.login('/', siteEditor.username, siteEditor.password);
+    cy.get('.upcoming').find('.card--upcoming').contains(project.title).click();
+    cy.get('a[data-cy="project-menu"]').click();
+    cy.wait(1000);
+    cy.get('input#featured-project').click({ force: true });
+    cy.get('a[data-cy="home-desktop"]').click();
+    cy.get('[data-cy="spotlight-project"]').contains(project.title).click();
+    cy.get('a[data-cy="project-menu"]').click();
+    cy.wait(1000);
+    cy.get('input#featured-project').click({ force: true });
+    cy.get('a[data-cy="home-desktop"]').click();
+    cy.get('[data-cy="spotlight-project"]').should('not.exist');
   });
 });
