@@ -3483,6 +3483,9 @@ a.loginbutton.hidden,
   .register-block .register-block__txt {
     font-size: 14px;
   }
+  .register-block .register-block__txt--longer {
+    max-width: calc(100% - 20px);
+  }
 }
 .project-footer {
   position: fixed;
