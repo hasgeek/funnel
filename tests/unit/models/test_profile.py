@@ -10,11 +10,11 @@ class TestProfile(object):
     def test_profile_urltype_valid(self, test_db, new_organization):
         profile = Profile.query.filter_by(id=new_organization.profile.id).first()
         assert profile.name == 'test-org'
-        profile.logo_url = "https://hasgeek.com"
+        profile.logo_url = "https://images.example.com/test"
         test_db.session.add(profile)
         test_db.session.commit()
         assert isinstance(profile.logo_url, furl)
-        assert profile.logo_url.url == "https://hasgeek.com"
+        assert profile.logo_url.url == "https://images.example.com/test"
 
     def test_profile_urltype_invalid(self, test_db, new_organization):
         profile = Profile.query.filter_by(id=new_organization.profile.id).first()
