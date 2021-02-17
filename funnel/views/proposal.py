@@ -186,9 +186,9 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
 
             ordered_proposal_ids.insert(new_index, current_proposal.uuid_b58)
 
-            for idx, proposal_id in enumerate(ordered_proposal_ids):
+            for proposal_id in reversed(ordered_proposal_ids):
                 Proposal.query.filter_by(project=self.obj, uuid_b58=proposal_id).update(
-                    {'url_id': idx + 1}
+                    {'url_id': ordered_proposal_ids.index(proposal_id) + 1}
                 )
 
             return {'status': 'ok'}
