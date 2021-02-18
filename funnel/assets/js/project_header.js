@@ -88,19 +88,19 @@ const Ticketing = {
   },
 
   initTicketModal() {
+    if (window.location.hash.indexOf('#tickets') > -1) {
+      this.openTicketModal();
+    }
+
     $('.js-open-ticket-widget').click((event) => {
       event.preventDefault();
       this.openTicketModal();
     });
 
-    $('#close-ticket-widget').click((event) => {
+    $('body').on('click', '#close-ticket-widget', (event) => {
       event.preventDefault();
       this.hideTicketModal();
     });
-
-    if (window.location.hash.indexOf('#tickets') > -1) {
-      this.openTicketModal();
-    }
 
     $(window).on('popstate', () => {
       if (window.history.state.openModal) {
