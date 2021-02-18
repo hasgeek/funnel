@@ -88,41 +88,25 @@ const Ticketing = {
   },
 
   initTicketModal() {
+    if (window.location.hash.indexOf('#tickets') > -1) {
+      this.openTicketModal();
+    }
+
     $('.js-open-ticket-widget').click((event) => {
       event.preventDefault();
       this.openTicketModal();
     });
 
-    $('#close-ticket-widget').click((event) => {
+    $('body').on('click', '#close-ticket-widget', (event) => {
       event.preventDefault();
       this.hideTicketModal();
     });
 
-    if (window.location.hash.indexOf('#tickets') > -1) {
-      this.openTicketModal();
-    }
-
-    $(window).resize(() => {
-      if (window.history.state.openModal) {
-        this.hideTicketModal();
-      }
-    });
     $(window).on('popstate', () => {
       if (window.history.state.openModal) {
         this.hideTicketModal();
       } else if (window.history.state) {
         this.openTicketModal();
-      }
-    });
-
-    $('body').on('click', (event) => {
-      if (
-        window.history.state.openModal &&
-        !$(event.target).is('.js-open-ticket-widget') &&
-        !$(event.target).is('#close-ticket-widget') &&
-        !$.contains($('#boxoffice-widget')[0], event.target)
-      ) {
-        this.hideTicketModal();
       }
     });
   },

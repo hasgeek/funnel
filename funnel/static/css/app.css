@@ -3846,7 +3846,7 @@ a.loginbutton.hidden,
 }
 .tickets-wrapper .tickets-wrapper__modal--show {
   position: fixed;
-  top: 56px;
+  top: 52px;
   background: #ffffff;
   left: 0;
   right: 0;
@@ -4483,7 +4483,7 @@ a.loginbutton.hidden,
 @media (max-width: 767px) {
   .comment--modal {
     position: fixed;
-    top: 56px;
+    top: 52px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -4685,7 +4685,7 @@ a.loginbutton.hidden,
   overflow-x: auto;
   position: sticky;
   position: -webkit-sticky;
-  top: 56px;
+  top: 52px;
   order: 1;
   z-index: 4;
   border: none;
