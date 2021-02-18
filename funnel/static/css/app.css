@@ -2545,8 +2545,9 @@ a.loginbutton.hidden,
 .ajax-form .mui-form .mui-form__fields .CodeMirror {
   border: 1px solid #0f73ed;
   border-radius: 16px 16px 0 16px;
-  min-height: 16px;
+  min-height: 56px;
   padding: 16px;
+  height: auto;
 }
 .ajax-form .mui-form .mui-form__fields .CodeMirror ~ .CodeMirror {
   display: none;
@@ -3483,6 +3484,9 @@ a.loginbutton.hidden,
   .register-block .register-block__txt {
     font-size: 14px;
   }
+  .register-block .register-block__txt--longer {
+    max-width: calc(100% - 20px);
+  }
 }
 .project-footer {
   position: fixed;
@@ -4123,7 +4127,7 @@ a.loginbutton.hidden,
     justify-content: space-between;
   }
   .proposal-card--fullwidth .proposal-card__video {
-    min-width: 200px;
+    width: 200px;
     margin-top: 14px;
     margin: 14px 0 0 16px;
   }
@@ -4378,6 +4382,10 @@ a.loginbutton.hidden,
 }
 
 @media (max-width: 767px) {
+  .comments-page .project-header {
+    display: none;
+  }
+
   .post-form-block {
     position: fixed;
     top: 16px;
@@ -4450,6 +4458,9 @@ a.loginbutton.hidden,
 .comment .comment__body .comment--children {
   padding-left: 8px;
   word-break: break-word;
+}
+.comment .comment__body .js-comment-form .ajax-form {
+  margin-top: 8px;
 }
 .comment
   .comment__body

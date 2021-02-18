@@ -160,7 +160,7 @@
       {% elif project.features.rsvp_unregistered() -%}
         <p class="register-block__txt mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
       {%- elif project.features.rsvp_registered() %}
-        <p class="register-block__txt mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class='mui--text-success fa-icon--left-margin') }}</p>
+        <p class="register-block__txt register-block__txt--longer mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class='mui--text-success fa-icon--left-margin') }}</p>
       {%- endif %}
       {% if not current_auth.is_anonymous %}
         <div>
@@ -187,7 +187,7 @@
               <a href="javascript:void(0)" class="mui--align-middle" data-mui-toggle="dropdown" data-cy="rsvp-menu">{{ faicon(icon='ellipsis-v', icon_size='subhead') }}</a>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                 {% if project.features.rsvp_registered() %}
-                  <li><a class="mui--text-body2" href="#{{modalid}}-register-modal" id="register-btn">{% trans %}Cancel registration{% endtrans %}</a></li>
+                  <li><a class="mui--text-body2 js-register-btn" href="#{{modalid}}-register-modal">{% trans %}Cancel registration{% endtrans %}</a></li>
                   <div class="modal reg-modal" id="{{modalid}}-register-modal">
                     <div class="modal__header">
                       <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
@@ -330,7 +330,7 @@
         </h1>
         <p class="mui--text-subhead mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
       </div>
-      <div class="mui--pull-right">
+      <div class="mui--pull-right {% if current_page == 'comments' %}comments-page{%- endif %}">
         {{ project_share(project) }}
       </div>
     </div>
