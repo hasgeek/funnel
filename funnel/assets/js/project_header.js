@@ -114,17 +114,6 @@ const Ticketing = {
         this.openTicketModal();
       }
     });
-
-    $('body').on('click', (event) => {
-      if (
-        window.history.state.openModal &&
-        !$(event.target).is('.js-open-ticket-widget') &&
-        !$(event.target).is('#close-ticket-widget') &&
-        !$.contains($('#boxoffice-widget')[0], event.target)
-      ) {
-        this.hideTicketModal();
-      }
-    });
   },
 
   openTicketModal() {
