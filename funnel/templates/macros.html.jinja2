@@ -198,7 +198,7 @@
                       <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
                         {{ csrf_tag() }}
                         <div class="mui--text-right modal__body__btn">
-                          <button class="mui-btn mui-btn--flat mui-btn--primary" type="submit" name="submit" value="no">{% trans %}Confirm cancellation{% endtrans %}</button>
+                          <button class="mui-btn mui-btn--flat mui-btn--primary" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% trans %}Confirm cancellation{% endtrans %}</button>
                         </div>
                       </form>
                     </div>
