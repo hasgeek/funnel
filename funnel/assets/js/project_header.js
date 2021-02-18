@@ -102,11 +102,6 @@ const Ticketing = {
       this.openTicketModal();
     }
 
-    $(window).resize(() => {
-      if (window.history.state.openModal) {
-        this.hideTicketModal();
-      }
-    });
     $(window).on('popstate', () => {
       if (window.history.state.openModal) {
         this.hideTicketModal();
