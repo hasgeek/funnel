@@ -28,7 +28,7 @@ describe('Add labels to project', function () {
         cy.get('.emojionearea-button').click();
         cy.get('.emojionearea-picker').should('be.visible');
         cy.get(
-          '.emojionearea-category[name="smileys_people"] i[title="Grinning"]'
+          '.emojionearea-category[name="smileys_people"] i[title="Relaxed"]'
         ).click();
         cy.get('.emojionearea-picker').should('be.hidden');
 
