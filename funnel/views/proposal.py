@@ -186,10 +186,22 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
 
             ordered_proposal_ids.insert(new_index, current_proposal.uuid_b58)
 
-            for proposal_id in reversed(ordered_proposal_ids):
-                Proposal.query.filter_by(project=self.obj, uuid_b58=proposal_id).update(
-                    {'url_id': ordered_proposal_ids.index(proposal_id) + 1}
+            mapping = [
+                {
+                    'url_id': ordered_proposal_ids.index(proposal.uuid_b58) + 1,
+                    'project_id': proposal.project_id,
+                    'id': proposal.id,
+                }
+                for proposal in Proposal.query.filter(
+                    Proposal.project == self.obj,
+                    Proposal.uuid_b58.in_(ordered_proposal_ids),
                 )
+            ]
+            db.session.bulk_update_mappings(
+                Proposal,
+                mapping,
+            )
+            db.session.commit()
 
             return {'status': 'ok'}
         return {'status': 'error'}, 400
