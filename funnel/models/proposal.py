@@ -150,6 +150,7 @@ class Proposal(
             Project,
             primaryjoin=project_id == Project.id,
             backref=db.backref('proposals', cascade='all', lazy='dynamic'),
+            order_by='Proposal.seq.asc()',
         ),
         grants_via={None: project_child_role_map},
     )

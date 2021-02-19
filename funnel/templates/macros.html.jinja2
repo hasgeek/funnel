@@ -850,7 +850,6 @@
         {% for proposal in proposals %}
           <tr id="{{ proposal.uuid_b58 }}" {%- if project.current_roles.editor %}class="sortable"{%- endif %} data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
             <td class="js-searchable label-box mui--z1 {%- if project.current_roles.editor %} ui-dragable-box{%- endif %}">
-              <input name="proposal-seq" value="{{ proposal.url_id }}" readonly class="seq-input mui--hide">
               {{ faicon(icon='grip-vertical',  baseline=false, css_class='label-box__icon') }}
               <div class="label-box__heading">
                 <h3 class="mui--text-title zero-top-margin zero-bottom-margin"><a href="{{ proposal.url_for() }}" class="mui--text-title mui--text-bold nounderline" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>

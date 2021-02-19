@@ -171,36 +171,26 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 if request.form.get('previousItemId', None)
                 else None
             )
-            # new_index = 1 if previous_proposal is None else previous_proposal.url_id + 1
-            ordered_proposal_ids = [
-                p.uuid_b58 for p in self.obj.proposals.order_by(Proposal.url_id.asc())
-            ]
-            if current_proposal.uuid_b58 in ordered_proposal_ids:
-                ordered_proposal_ids.remove(current_proposal.uuid_b58)
+
+            ordered_proposals = self.obj.proposals.order_by(Proposal.seq.asc())
 
             if previous_proposal is None:
                 # current item was moved to the top of the list
-                new_index = 0
+                if ordered_proposals.count() <= 1:
+                    # when the project has only one or no proposal, and the sorting
+                    # endpoint gets called somehow by mistake or with any malicious
+                    # intention
+                    new_seq = 1000
+                else:
+                    # there are more than one proposal and the current item was
+                    # dragged to the beginning of the list
+                    new_seq = ordered_proposals.first().seq - 1
             else:
-                new_index = ordered_proposal_ids.index(previous_proposal.uuid_b58) + 1
+                # increment the sequence by small margin, it'll get normalized by
+                # a background job periodically.
+                new_seq = previous_proposal.seq + 1
 
-            ordered_proposal_ids.insert(new_index, current_proposal.uuid_b58)
-
-            mapping = [
-                {
-                    'url_id': ordered_proposal_ids.index(proposal.uuid_b58) + 1,
-                    'project_id': proposal.project_id,
-                    'id': proposal.id,
-                }
-                for proposal in Proposal.query.filter(
-                    Proposal.project == self.obj,
-                    Proposal.uuid_b58.in_(ordered_proposal_ids),
-                )
-            ]
-            db.session.bulk_update_mappings(
-                Proposal,
-                mapping,
-            )
+            current_proposal.seq = new_seq
             db.session.commit()
 
             return {'status': 'ok'}
