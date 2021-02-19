@@ -9,7 +9,7 @@ python -m tests.e2e.frontend_tests_initdb
 nohup python runcypressserver.py 2>&1 1>/dev/null & echo $! > /tmp/server.pid
 nohup ./rq.sh 2>&1 1>/dev/null & echo $! > /tmp/rq.pid
 cd funnel/assets
-npx cypress run --browser chrome --record --key $RECORD_KEY
+npx cypress run --browser chrome
 kill -9 `cat /tmp/rq.pid`
 kill -9 `cat /tmp/server.pid`
 cd ../..
