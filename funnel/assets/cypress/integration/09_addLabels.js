@@ -20,7 +20,6 @@ describe('Add labels to project', function () {
 
     cy.fixture('labels').then((labels) => {
       labels.forEach(function (label) {
-        cy.wait(2000);
         cy.get('a[data-cy="add-labels"]').click();
         cy.location('pathname').should('contain', '/new');
 
@@ -28,7 +27,7 @@ describe('Add labels to project', function () {
         cy.get('.emojionearea-button').click();
         cy.get('.emojionearea-picker').should('be.visible');
         cy.get(
-          '.emojionearea-category[name="smileys_people"] i[title="Relaxed"]'
+          '.emojionearea-category[name="smileys_people"] i[title="Innocent"]'
         ).click();
         cy.get('.emojionearea-picker').should('be.hidden');
 
