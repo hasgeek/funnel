@@ -514,6 +514,11 @@ html.touch .collapsible__body--disable {
   font-size: 32px;
 }
 
+.embed-video-wrapper--shaped {
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+
 .pace {
   -webkit-pointer-events: none;
   pointer-events: none;
@@ -942,7 +947,6 @@ a.loginbutton.hidden,
   min-width: 125px;
   z-index: 1003;
   overflow: hidden;
-  margin-top: 0;
 }
 .mui-dropdown__menu--hg-link > li > a {
   color: #4d5763;
@@ -3559,7 +3563,6 @@ a.loginbutton.hidden,
 }
 .project-banner {
   padding: 0 !important;
-  overflow: hidden;
   border-radius: 16px 16px 0 0;
 }
 .project-banner .project-banner__profile-details {
