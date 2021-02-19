@@ -155,6 +155,8 @@ class Proposal(
     )
     parent = db.synonym('project')
 
+    seq = db.Column(db.Integer, nullable=False)
+
     # TODO: Deprecated
     abstract = MarkdownColumn('abstract', nullable=True)
     # TODO: Deprecated
@@ -227,6 +229,7 @@ class Proposal(
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
+        db.UniqueConstraint('project_id', 'seq'),
         db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
