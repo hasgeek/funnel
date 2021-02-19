@@ -971,7 +971,6 @@ a.loginbutton.hidden,
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.23);
-  overflow: hidden;
 }
 
 .dropdown-menu {
@@ -2845,7 +2844,6 @@ a.loginbutton.hidden,
 
 .card--shaped {
   border-radius: 16px 16px 0 16px;
-  overflow: hidden;
 }
 
 .clickable-card:focus,
@@ -3561,6 +3559,8 @@ a.loginbutton.hidden,
 }
 .project-banner {
   padding: 0 !important;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
 }
 .project-banner .project-banner__profile-details {
   display: flex;

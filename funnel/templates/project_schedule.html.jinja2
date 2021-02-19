@@ -67,6 +67,8 @@
   {%- endif -%}
 {% endblock %}
 
+{% block baseheadline_title %}{% trans %}Schedule{% endtrans %}{% endblock %}
+
 {% block base_content_inner %}
   <div class="project-section" id="schedule">
     {% if project.view_for('edit_schedule').is_available() %}

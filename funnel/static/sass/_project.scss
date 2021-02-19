@@ -107,6 +107,8 @@
 
 .project-banner {
   padding: 0 !important;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
   .project-banner__profile-details {
     display: flex;
     align-items: center;
