@@ -64,6 +64,9 @@ describe('Confirm proposal', function () {
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="confirm"]')
       .click();
+    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.wait(1000);
+    cy.get('input#featured-proposal-desktop').click({ force: true });
 
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
@@ -75,9 +78,19 @@ describe('Confirm proposal', function () {
     var cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(proposal.comment);
     cy.get(`${cid} .comment__header`).contains(editor.username);
+
+    cy.get('a[data-cy="project-page"]').click();
+    cy.get('[data-cy="proposal-card"]').contains(proposal.title).click();
+    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.wait(1000);
+    cy.get('input#featured-proposal-desktop').click({ force: true });
+    cy.get('a[data-cy="project-page"]').click();
+    cy.get('[data-cy="proposal-card"]').should('not.exist');
+
     cy.visit('/');
     cy.logout();
     cy.wait(1000);
+
     cy.login('/' + profile.title, member.username, member.password);
     cy.visit('/updates');
     cy.wait('@fetch-updates');
