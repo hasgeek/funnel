@@ -298,7 +298,7 @@
       </div>
     {% else %}
       <div class="project-banner__box">
-        <div {% if project.banner_video_url.url or project.bg_image.url or project.current_roles.crew %}class="embed-video-wrapper" {% endif %}>
+        <div {% if project.banner_video_url.url or project.bg_image.url or project.current_roles.crew %}class="embed-video-wrapper embed-video-wrapper--shaped" {% endif %}>
           {{ livestream_edit_btn(project) }}
           {{ banner_edit_btn(project) }}
           {% if project.banner_video_url.url %}
