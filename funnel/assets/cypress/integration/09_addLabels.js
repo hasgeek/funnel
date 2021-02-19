@@ -20,6 +20,7 @@ describe('Add labels to project', function () {
 
     cy.fixture('labels').then((labels) => {
       labels.forEach(function (label) {
+        cy.wait(2000);
         cy.get('a[data-cy="add-labels"]').click();
         cy.location('pathname').should('contain', '/new');
 
