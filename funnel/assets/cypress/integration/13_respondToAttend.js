@@ -17,6 +17,16 @@ describe('Responding yes to attend a project', function () {
     cy.wait(2000);
     cy.get('button[data-cy="confirm"]:visible').click();
     cy.get('.alert--success').should('exist');
+    cy.wait(2000);
+    cy.get('a[data-cy="rsvp-menu"]:visible').click();
+    cy.get('a.js-register-btn:visible').click();
+    cy.wait(2000);
+    cy.get('button[data-cy="cancel-rsvp"]:visible').click();
+    cy.get('.alert--info').should('exist');
+    cy.wait(2000);
+    cy.get('a.js-register-btn:visible').click();
+    cy.wait(2000);
+    cy.get('button[data-cy="confirm"]:visible').click();
     cy.get('button[data-cy="bookmark"]').click();
     cy.wait('@bookmark-project');
     cy.get('button[data-cy="bookmarked"]').should('exist');

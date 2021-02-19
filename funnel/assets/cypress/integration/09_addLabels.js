@@ -24,12 +24,12 @@ describe('Add labels to project', function () {
         cy.location('pathname').should('contain', '/new');
 
         cy.get('#title').type(label.title);
-        cy.get('.emojionearea-button').click();
-        cy.get('.emojionearea-picker').should('be.visible');
-        cy.get(
-          '.emojionearea-category[name="smileys_people"] i[title="Grinning"]'
-        ).click();
-        cy.get('.emojionearea-picker').should('be.hidden');
+        // cy.get('.emojionearea-button').click();
+        // cy.get('.emojionearea-picker').should('be.visible');
+        // cy.get(
+        //   '.emojionearea-category[name="smileys_people"] i[title="Innocent"]'
+        // ).click();
+        // cy.get('.emojionearea-picker').should('be.hidden');
 
         if (label.label1) {
           cy.get('#add-sublabel-form').click();
@@ -38,25 +38,25 @@ describe('Add labels to project', function () {
             .eq(0)
             .find('#title')
             .type(label.label1);
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(0)
-            .find('.emojionearea-button')
-            .click();
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(0)
-            .find('.emojionearea-picker')
-            .should('be.visible');
-          // Emoji Relaxed is throwing not a valid emoji error
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(0)
-            .find(
-              '.emojionearea-category[name="smileys_people"] i[title="Joy"]'
-            )
-            .click();
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(0)
-            .find('.emojionearea-picker')
-            .should('be.hidden');
+          //   cy.get('#child-form > .ui-dragable-box')
+          //     .eq(0)
+          //     .find('.emojionearea-button')
+          //     .click();
+          //   cy.get('#child-form > .ui-dragable-box')
+          //     .eq(0)
+          //     .find('.emojionearea-picker')
+          //     .should('be.visible');
+          //   // Emoji Relaxed is throwing not a valid emoji error
+          //   cy.get('#child-form > .ui-dragable-box')
+          //     .eq(0)
+          //     .find(
+          //       '.emojionearea-category[name="smileys_people"] i[title="Joy"]'
+          //     )
+          //     .click();
+          //   cy.get('#child-form > .ui-dragable-box')
+          //     .eq(0)
+          //     .find('.emojionearea-picker')
+          //     .should('be.hidden');
         }
 
         if (label.label2) {
@@ -66,24 +66,24 @@ describe('Add labels to project', function () {
             .eq(1)
             .find('#title')
             .type(label.label2);
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(1)
-            .find('.emojionearea-button')
-            .click();
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(1)
-            .find('.emojionearea-picker')
-            .should('be.visible');
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(1)
-            .find(
-              '.emojionearea-category[name="smileys_people"] i[title="Smile"]'
-            )
-            .click();
-          cy.get('#child-form > .ui-dragable-box')
-            .eq(1)
-            .find('.emojionearea-picker')
-            .should('be.hidden');
+          //   cy.get('#child-form > .ui-dragable-box')
+          //     .eq(1)
+          //     .find('.emojionearea-button')
+          //     .click();
+          //   cy.get('#child-form > .ui-dragable-box')
+          //     .eq(1)
+          //     .find('.emojionearea-picker')
+          //     .should('be.visible');
+          //   cy.get('#child-form > .ui-dragable-box')
+          //     .eq(1)
+          //     .find(
+          //       '.emojionearea-category[name="smileys_people"] i[title="Smile"]'
+          //     )
+          //     .click();
+          //   cy.get('#child-form > .ui-dragable-box')
+          //     .eq(1)
+          //     .find('.emojionearea-picker')
+          //     .should('be.hidden');
         }
 
         if (label.adminLabel) {
