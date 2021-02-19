@@ -41,9 +41,9 @@
           <div class="label-box__icon-wrapper">
             <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='title') }}</a>
             {% if label.has_proposals %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}">{{ faicon(icon='archive', icon_size='title') }}</a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}" title="{% trans %}Archive{% endtrans %}">{{ faicon(icon='archive', icon_size='title') }}</a>
             {% else %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}" title="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
             {% endif %}
           </div>
         </div>
