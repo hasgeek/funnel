@@ -158,7 +158,7 @@
         <p class="register-block__txt mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
         <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin"  href="{{ url_for('login', next=request.path) }}">Register</a>
       {% elif project.features.rsvp_unregistered() -%}
-        <p class="register-block__txt mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
+        <p class="register-block__txt {% if project.view_for('rsvp_list').is_available() %}register-block__txt--short{%- endif %} mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
       {%- elif project.features.rsvp_registered() %}
         <p class="register-block__txt register-block__txt--longer mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class='mui--text-success fa-icon--left-margin') }}</p>
       {%- endif %}
@@ -375,7 +375,7 @@
           </div>
         </div>
         <div id="tickets" class="tickets-wrapper__modal__body">
-          <a href="javascript:void(0)" aria-label="{% trans %}Back to the project{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='times', icon_size='title') }}</a>
+          <a href="javascript:void(0)" aria-label="{% trans %}Back to the project{% endtrans %}" class="tickets-wrapper__modal__body__close" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
           <div id="boxoffice-widget"><p class="mui--text-body2">{% trans %}Loading...{% endtrans %}</p></div>
         </div>
       </div>
@@ -655,7 +655,7 @@
   </div>
   <div class="modal" id="make-private-modal">
     <div class="modal__header">
-      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <p class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Make this profile private?{% endtrans %}</p>
     </div>
     <div class="modal__body">
@@ -711,7 +711,7 @@
                   <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
                   <div class="modal" id="make-public-modal">
                     <div class="modal__header">
-                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                       <p class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Make this profile public?{% endtrans %}</p>
                     </div>
                     <div class="modal__body">

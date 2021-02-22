@@ -73,7 +73,7 @@
   {% endif %}
   {% if project.view_for('view').is_available() and project.state.DRAFT %}
     <div class="alert alert--warning alert--dismissable">
-      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', icon_size='title', baseline=true) }}</a>
+      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <p class="alert__text"><a href="{{ project.url_for('settings') }}">{% trans %}This project is not published. Visit settings to publish{% endtrans %} {{ faicon(icon='arrow-right') }}</a></p>
     </div>
   {% endif %}

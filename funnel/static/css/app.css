@@ -3473,7 +3473,7 @@ a.loginbutton.hidden,
 .register-block .register-block__txt {
   font-size: 12px;
   margin: 0 16px 0 0;
-  max-width: calc(100% - 170px);
+  max-width: calc(100% - 125px);
 }
 .register-block .register-block__right {
   text-align: right;
@@ -3485,6 +3485,9 @@ a.loginbutton.hidden,
 @media (min-width: 360px) {
   .register-block .register-block__txt {
     font-size: 14px;
+  }
+  .register-block .register-block__txt--short {
+    max-width: calc(100% - 170px);
   }
   .register-block .register-block__txt--longer {
     max-width: calc(100% - 20px);
