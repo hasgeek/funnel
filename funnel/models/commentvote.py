@@ -125,13 +125,13 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {'settype', 'count', 'project', 'proposal'},
+            'read': {'settype', 'count', 'project', 'proposal', 'urls'},
             'call': {'url_for'},
         }
     }
 
     __datasets__ = {
-        'primary': {'settype', 'count'},
+        'primary': {'parent', 'urls'},
         'related': {'uuid_b58', 'url_name_uuid_b58'},
     }
 
@@ -190,7 +190,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     in_reply_to_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)
     replies = db.relationship(
-        'Comment', backref=db.backref('in_reply_to', remote_side='Comment.id')
+        'Comment',
+        lazy='dynamic',
+        backref=db.backref('in_reply_to', remote_side='Comment.id'),
     )
 
     _message = MarkdownColumn('message', nullable=False)

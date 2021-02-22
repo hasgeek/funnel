@@ -1,6 +1,6 @@
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import immutable, with_roles
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import User, db
 from .commentvote import Commentset
@@ -73,6 +73,10 @@ class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
             CommentsetMembership.is_active,
         ),
         viewonly=True,
+    )
+
+    subscribed_commentsets = DynamicAssociationProxy(
+        'active_commentset_memberships', 'commentset'
     )
 
 
