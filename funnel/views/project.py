@@ -71,41 +71,41 @@ CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
 
 registration_count_messages = [
     CountWords(_("Be the first to register!"), None),
-    CountWords(_("One registration so far. Be the second?"), _("You have registered")),
+    CountWords(_("One registration so far"), _("You have registered")),
     CountWords(
-        _("Two registrations so far. Be the third?"),
+        _("Two registrations so far"),
         _("You and one other have registered"),
     ),
     CountWords(
-        _("Three registrations so far. Be the fourth?"),
+        _("Three registrations so far"),
         _("You and two others have registered"),
     ),
     CountWords(
-        _("Four registrations so far. Be the next one?"),
+        _("Four registrations so far"),
         _("You and three others have registered"),
     ),
     CountWords(
-        _("Five registrations so far. Be the next one?"),
+        _("Five registrations so far"),
         _("You and four others have registered"),
     ),
     CountWords(
-        _("Six registrations so far. Be the next one?"),
+        _("Six registrations so far"),
         _("You and five others have registered"),
     ),
     CountWords(
-        _("Seven registrations so far. Be the next one?"),
+        _("Seven registrations so far"),
         _("You and six others have registered"),
     ),
     CountWords(
-        _("Eight registrations so far. Be the next one?"),
+        _("Eight registrations so far?"),
         _("You and seven others have registered"),
     ),
     CountWords(
-        _("Nine registrations so far. Be the next one?"),
+        _("Nine registrations so far"),
         _("You and eight others have registered"),
     ),
     CountWords(
-        _("Ten registrations so far. Be the next one?"),
+        _("Ten registrations so far"),
         _("You and nine others have registered"),
     ),
 ]
@@ -121,7 +121,7 @@ def get_registration_text(count, registered=False):
         if registered:
             return _("You and {num} others have registered").format(num=count - 1)
         else:
-            return _("{num} registrations so far. Be the next one?").format(num=count)
+            return _("{num} registrations so far").format(num=count)
 
 
 def project_data(project):
@@ -287,7 +287,7 @@ class ProjectView(
 
     @route('sub')
     @route('proposals')
-    @render_with('proposals.html.jinja2')
+    @render_with('project_submissions.html.jinja2')
     @requires_roles({'reader'})
     def view_proposals(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
@@ -297,12 +297,10 @@ class ProjectView(
         }
 
     @route('videos')
-    @render_with('session_videos.html.jinja2')
+    @render_with('project_videos.html.jinja2')
     def session_videos(self):
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj,
-            'cfp_transition_form': cfp_transition_form,
         }
 
     @route('json')
@@ -521,7 +519,7 @@ class ProjectView(
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def edit_boxoffice_data(self):
         form = ProjectBoxofficeForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
@@ -646,7 +644,7 @@ class ProjectView(
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list(self):
         return {
             'project': self.obj,
@@ -692,14 +690,14 @@ class ProjectView(
 
     @route('rsvp_list/yes.csv')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list_yes_csv(self):
         """Return a CSV of RSVP participants who answered Yes."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.YES)
 
     @route('rsvp_list/maybe.csv')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list_maybe_csv(self):
         """Return a CSV of RSVP participants who answered Maybe."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
@@ -740,9 +738,9 @@ class ProjectView(
     @route('admin', methods=['GET', 'POST'])
     @render_with('project_admin.html.jinja2')
     @requires_login
-    @requires_roles({'concierge', 'usher'})
+    @requires_roles({'promoter', 'usher'})
     def admin(self):
-        """Render admin panel for at-venue concierge operations."""
+        """Render admin panel for at-venue promoter operations."""
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
             if request.form.get('form.id') == 'sync-tickets':
@@ -767,9 +765,9 @@ class ProjectView(
         }
 
     @route('settings', methods=['GET', 'POST'])
-    @render_with('settings.html.jinja2')
+    @render_with('project_settings.html.jinja2')
     @requires_login
-    @requires_roles({'editor', 'concierge', 'usher'})
+    @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)

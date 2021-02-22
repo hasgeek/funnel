@@ -88,7 +88,7 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
         'ticket_type_titles': ticket_participant.ticket_type_titles,
         'has_user': ticket_participant.has_user,
     }
-    if not {'concierge', 'usher'}.isdisjoint(project.current_roles):
+    if not {'promoter', 'usher'}.isdisjoint(project.current_roles):
         data.update(
             {
                 'badge_url': url_for(
@@ -121,7 +121,7 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('json')
     @requires_login
-    @requires_roles({'concierge', 'usher'})
+    @requires_roles({'promoter', 'usher'})
     def participants_json(self):
         return jsonify(
             ticket_participants=[
@@ -132,7 +132,7 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def new_participant(self):
         form = TicketParticipantForm(parent=self.obj)
         if form.validate_on_submit():
@@ -190,7 +190,7 @@ class TicketParticipantView(UrlForView, ModelView):
         return super(TicketParticipantView, self).after_loader()
 
     @route('edit', methods=['GET', 'POST'])
-    @requires_roles({'project_concierge'})
+    @requires_roles({'project_promoter'})
     def edit(self):
         form = TicketParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
@@ -205,13 +205,13 @@ class TicketParticipantView(UrlForView, ModelView):
 
     @route('badge', methods=['GET'])
     @render_with('badge.html.jinja2')
-    @requires_roles({'project_concierge', 'project_usher'})
+    @requires_roles({'project_promoter', 'project_usher'})
     def badge(self):
         return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
 
     @route('label_badge', methods=['GET'])
     @render_with('label_badge.html.jinja2')
-    @requires_roles({'project_concierge', 'project_usher'})
+    @requires_roles({'project_promoter', 'project_usher'})
     def label_badge(self):
         return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
 
@@ -231,7 +231,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect, requires_login]
 
     @route('ticket_participants/checkin', methods=['GET', 'POST'])
-    @requires_roles({'project_concierge', 'project_usher'})
+    @requires_roles({'project_promoter', 'project_usher'})
     def checkin(self):
         form = forms.Form()
         if form.validate_on_submit():
@@ -253,7 +253,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
 
     @route('ticket_participants/json')
     @render_with(json=True)
-    @requires_roles({'project_concierge', 'project_usher'})
+    @requires_roles({'project_promoter', 'project_usher'})
     def participants_json(self):
         checkin_count = 0
         ticket_participants = []
@@ -274,7 +274,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
 
     @route('badges')
     @render_with('badge.html.jinja2')
-    @requires_roles({'project_concierge', 'project_usher'})
+    @requires_roles({'project_promoter', 'project_usher'})
     def badges(self):
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         ticket_participants = (
@@ -292,7 +292,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
 
     @route('label_badges')
     @render_with('label_badge.html.jinja2')
-    @requires_roles({'project_concierge', 'project_usher'})
+    @requires_roles({'project_promoter', 'project_usher'})
     def label_badges(self):
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         ticket_participants = (

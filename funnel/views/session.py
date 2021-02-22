@@ -55,8 +55,7 @@ def session_form(project, proposal=None, session=None):
     else:
         form = SessionForm()
         if proposal:
-            form.description.data = proposal.outline
-            form.speaker_bio.data = proposal.bio
+            form.description.data = proposal.body
             form.speaker.data = proposal.owner.fullname
             form.title.data = proposal.title
 
@@ -143,7 +142,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('schedule.html.jinja2', json=True)
+    @render_with('project_schedule.html.jinja2', json=True)
     def view(self):
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'

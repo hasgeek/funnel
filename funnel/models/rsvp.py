@@ -36,7 +36,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         db.relationship(
             Project, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
         ),
-        read={'owner', 'project_concierge'},
+        read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
     )
     user_id = db.Column(
@@ -46,7 +46,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         db.relationship(
             User, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
         ),
-        read={'owner', 'project_concierge'},
+        read={'owner', 'project_promoter'},
         grants={'owner'},
     )
 
@@ -59,12 +59,12 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
     )
     state = with_roles(
         StateManager('_state', RSVP_STATUS, doc="RSVP answer"),
-        call={'owner', 'project_concierge'},
+        call={'owner', 'project_promoter'},
     )
 
     __datasets__ = {'primary': {'project', 'user', 'response'}, 'related': {'response'}}
 
-    @with_roles(read={'owner', 'project_concierge'})  # type: ignore[misc]
+    @with_roles(read={'owner', 'project_promoter'})  # type: ignore[misc]
     @property
     def response(self):
         """Return RSVP response as a raw value."""
@@ -105,7 +105,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
     def rsvp_maybe(self):
         pass
 
-    @with_roles(call={'owner', 'project_concierge'})
+    @with_roles(call={'owner', 'project_promoter'})
     def user_email(self):
         """User's preferred email address for this registration."""
         return self.user.transport_for_email(self.project.profile)

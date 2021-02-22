@@ -1035,8 +1035,8 @@ a.loginbutton.hidden,
 }
 
 .mui-dropdown__menu--hg-link {
-  max-width: 105px;
-  min-width: 105px;
+  max-width: 125px;
+  min-width: 125px;
   z-index: 1003;
   overflow: hidden;
   margin-top: 0;
@@ -1059,5 +1059,42 @@ a.loginbutton.hidden,
 @media (min-width: 768px) {
   .emoticon {
     height: 400px;
+  }
+}
+
+.page-card {
+  padding: 0 0 $mui-grid-padding;
+  margin: 0;
+  position: relative;
+  background: $mui-bg-color-primary;
+  border-radius: 16px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.23);
+  overflow: hidden;
+}
+
+.dropdown-menu {
+  z-index: 4;
+  min-width: 270px;
+  > li > a {
+    padding: $mui-grid-padding;
+  }
+  hr {
+    margin: 0;
+  }
+  .fa5-icon.mui--align-middle {
+    position: relative;
+    top: -1px;
+  }
+  .dropdown-menu__form {
+    max-width: calc(100% - 25px);
+    .dropdown-menu__form__label {
+      max-width: calc(100% - 40px);
+      .dropdown-menu__form__label__helptxt {
+        white-space: break-spaces;
+      }
+    }
+    .switch-label {
+      padding-top: 10px;
+    }
   }
 }

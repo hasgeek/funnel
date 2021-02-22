@@ -19,7 +19,7 @@
 {%- endblock %}
 
 {# The profile's description is used on all pages within a profile, unless the template overrides this -#}
-{% block description %}{% if g.profile %}{{ g.profile.description|striptags }}{% endif %}{% endblock %}
+{% block description %}{% if g.profile %}{{ g.profile.description.html|firstline }}{% endif %}{% endblock %}
 
 {%- block image_src %}
   {%- if project and project.bg_image.url %}
@@ -182,18 +182,18 @@
 
 {%- block basecontentbox %}
   {%- block messages %}
-    <div class="mui-container alert-wrapper">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mui-container alert-wrapper">
           {% for category, message in messages %}
             <div class="alert alert--{{category}} alert--dismissable">
               <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', icon_size='subhead') }}</a>
               <p class="alert__text">{{ message }}</p>
             </div>
           {% endfor %}
-        {% endif %}
-      {% endwith %}
-    </div>
+        </div>
+      {% endif %}
+    {% endwith %}
   {% endblock %}
   {%- block baseheadline %}{% endblock %}
   {% block basecontent %}

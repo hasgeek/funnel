@@ -1,11 +1,112 @@
-.site-admin {
-  margin-bottom: $mui-grid-padding-double;
-  padding: $mui-grid-padding/2 0;
-  border-bottom: 1px solid rgba(121, 129, 139, 0.48);
+.register-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .register-block__txt {
+    font-size: 12px;
+    margin: 0 $mui-grid-padding 0 0;
+    max-width: calc(100% - 170px);
+  }
+  .register-block__right {
+    text-align: right;
+  }
+  .register-block__right__menu {
+    margin-left: $mui-grid-padding/2;
+  }
 }
-.project-banner {
-  margin-top: $mui-grid-padding;
 
+@media (min-width: 360px) {
+  .register-block {
+    .register-block__txt {
+      font-size: 14px;
+    }
+    .register-block__txt--longer {
+      max-width: calc(100% - 20px);
+    }
+  }
+}
+
+.project-footer {
+  position: fixed;
+  width: calc(100% - 32px);
+  bottom: 0;
+  padding: 16px;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  z-index: 1000;
+
+  .mui-dropdown__menu {
+    top: -66px !important;
+    border-radius: 16px 16px 0px;
+  }
+}
+
+@media (min-width: 992px) {
+  .project-details-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px;
+  }
+}
+
+.project-header {
+  position: fixed;
+  top: $mui-grid-padding;
+  right: $mui-grid-padding;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  .hg-link-btn.hide {
+    display: none;
+  }
+  .mui-btn--nostyle + .mui-btn--nostyle {
+    margin: 0;
+  }
+  .bookmark {
+    position: relative;
+    top: -2px;
+  }
+}
+
+@media (min-width: 768px) {
+  .project-header {
+    position: relative;
+    right: 0;
+    top: 6px;
+  }
+  .project-details__box__title {
+    max-width: calc(100% - 120px);
+  }
+}
+
+.sub-navbar-container__inner {
+  .desktop-navbar-items {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .sub-navbar-container__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .sub-navbar {
+      width: 100%;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .sub-navbar-container__inner {
+    .desktop-navbar-items {
+      justify-content: flex-end;
+    }
+  }
+}
+
+.project-banner {
+  padding: 0 !important;
   .project-banner__profile-details {
     display: flex;
     align-items: center;
@@ -13,11 +114,11 @@
 
     .project-banner__profile-details__logo-wrapper {
       display: inline-block;
-      height: 36px;
-      width: 36px;
+      height: 24px;
+      width: 24px;
       border-radius: 50%;
       overflow: hidden;
-      margin-right: 10px;
+      margin-right: $mui-grid-padding/2;
 
       .project-banner__profile-details__logo_wrapper__logo {
         height: 100%;
@@ -30,13 +131,6 @@
   .project-banner__profile-details--center {
     justify-content: center;
     margin-bottom: $mui-grid-padding;
-  }
-
-  .project-banner__headline {
-    margin-bottom: $mui-grid-padding;
-    .project-banner__headline__title {
-      margin-bottom: 6px;
-    }
   }
   .livestream-box {
     margin: 0;
@@ -51,9 +145,6 @@
       object-fit: cover;
       width: 100%;
       height: 100%;
-    }
-    .project-banner__headline {
-      padding: 0 $mui-grid-padding;
     }
     .project-banner__box__add-btn {
       position: absolute;
@@ -80,47 +171,12 @@
     }
   }
 
-  .project-banner__footer {
-    display: flex;
-    align-items: baseline;
-    margin: $mui-grid-padding 0 0;
-    padding: 0 $mui-grid-padding;
-
-    .bookmark {
-      padding-right: 8px;
-      a {
-        text-decoration: none !important;
-      }
-    }
-    .hg-link-btn.hide {
-      display: none;
-    }
-    .bookmark {
-      .txt,
-      .login-txt {
-        position: relative;
-        top: -2px;
-      }
-      .animate-btn {
-        height: 20px;
-      }
-      .animate-btn--animate {
-        -webkit-animation: none;
-        animation: none;
-      }
-    }
-    .mui-btn--nostyle + .mui-btn--nostyle {
-      margin: 0;
-    }
-  }
-
   .project-details__box {
-    margin-top: $mui-grid-padding;
+    padding: $mui-grid-padding;
     position: relative;
 
     .card__calendar {
-      padding: 0 $mui-grid-padding 10px;
-      margin: 0 0 25px;
+      padding: 0 $mui-grid-padding 0;
       margin-left: -$mui-grid-padding;
       margin-right: -$mui-grid-padding;
 
@@ -143,6 +199,9 @@
         }
       }
     }
+    .register-block {
+      margin-top: $mui-grid-padding-double;
+    }
     .project-venue {
       margin: 10px 0;
     }
@@ -163,32 +222,16 @@
       }
     }
   }
-  .project-details__box--ticketbox {
-    margin-bottom: $mui-grid-padding;
-    .check-icon {
-      margin-right: 8px;
-    }
-  }
 }
 
 @media (min-width: 768px) {
   .project-banner {
     .project-banner__box {
-      padding: 0 $mui-grid-padding;
       .project-banner__box__add-btn {
         right: $mui-grid-padding;
       }
       .project-banner__box__add-btn--second {
         right: 60px;
-      }
-    }
-    .project-banner__footer {
-      padding: 0;
-      justify-content: unset;
-      .bookmark,
-      .project-links,
-      .hg-link-btn {
-        padding-right: 24px !important;
       }
     }
     .project-details__box {
@@ -202,20 +245,11 @@
         }
       }
     }
-    .livestream-box {
-      padding: 0 $mui-grid-padding;
-      .project-banner__box {
-        padding: 0;
-      }
-    }
   }
 }
 
 @media (min-width: 992px) {
   .project-banner {
-    .project-banner__box {
-      padding: 0 $mui-grid-padding;
-    }
     .profile-text {
       margin: 0 0 5px;
 
@@ -225,12 +259,6 @@
     }
     .project-details__box {
       margin: 0;
-      margin-top: -7px;
-
-      .card__calendar {
-        margin: 0 0 85px;
-        padding: 0 0 8px;
-      }
       .propose {
         align-items: baseline;
         margin-left: $mui-grid-padding;
@@ -248,29 +276,20 @@
         padding-left: 10px;
       }
     }
-    .project-details__box--topmargin {
-      margin-top: 42px;
-    }
-    .project-details__box--ticketbox {
-      margin-bottom: 0;
-    }
   }
 }
 
-@media (min-width: 992px) and (max-width: 1199px) {
-  .project-banner .project-details__box .add-calendar {
-    right: $mui-grid-padding-double;
-    top: 3px;
-    font-size: 13px;
-  }
+.bookmark-wrapper {
+  line-height: 1;
 }
 
 .pinned {
   position: sticky;
   top: 65px;
   background: $mui-bg-color-primary;
-  z-index: 5;
+  z-index: 2;
   display: none;
+  margin: 0;
 
   .pinned__update {
     text-decoration: none !important;
@@ -315,18 +334,22 @@
 .pinned--about-page {
   top: 0;
   display: block;
+  background: $mui-bg-color-accent;
 }
 
 @media (min-width: 768px) {
   .pinned {
     position: sticky;
-    top: 56px;
+    top: 128px;
     display: block;
   }
 }
 
+.project-section {
+  padding: $mui-grid-padding $mui-grid-padding 0;
+}
+
 .project-section__headline {
-  margin-top: $mui-grid-padding-double;
   margin-bottom: $mui-grid-padding;
 }
 
@@ -338,46 +361,51 @@
 }
 
 .about {
-  padding: 0 $mui-grid-padding;
   word-break: break-word;
 
-  .about__details__description h1,
-  .about__details__description h2,
-  .about__details__description h3,
-  .about__details__description h4,
-  .about__details__description h5 {
+  .about__details h1,
+  .about__details h2,
+  .about__details h3,
+  .about__details h4,
+  .about__details h5 {
     font-weight: 400;
     font-size: 24px;
     line-height: 32px;
   }
 
-  img {
+  .about__details img {
     width: 100%;
   }
+}
 
-  .about__details__featured {
-    display: block;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    width: 100%;
+@media (min-width: 768px) {
+  .about {
+    .about__details {
+      float: none;
 
-    .about__details__featured__cards {
-      padding: 0 $mui-grid-padding;
+      hr {
+        overflow: hidden;
+      }
     }
   }
+}
 
-  .about__participate__back-nav {
+.tickets-wrapper {
+  .tickets-wrapper__modal {
     display: none;
   }
 
-  .about__participate {
+  .tickets-wrapper__modal__back {
     display: none;
   }
 
-  .about__participate--modal {
+  .tickets-wrapper__modal__body__close {
+    display: none;
+  }
+
+  .tickets-wrapper__modal--show {
     position: fixed;
-    top: 56px;
+    top: 52px;
     background: $mui-bg-color-primary;
     left: 0;
     right: 0;
@@ -386,126 +414,106 @@
     bottom: 0;
     overflow: auto;
 
-    .about__participate__back-nav {
+    .tickets-wrapper__modal__back {
       display: block;
+    }
+  }
+
+  #boxoffice-widget {
+    padding: $mui-grid-padding 0;
+    max-width: 100%;
+    margin: 0;
+
+    .category-heading:after {
+      border-width: 23px;
+    }
+
+    .ticket-booking {
+      border-bottom: 1px solid #ccc;
+    }
+
+    .ticket-booking:last-child {
+      border-bottom: none;
+    }
+
+    .ticket-details {
+      margin: 0;
+      width: 100%;
+    }
+
+    .ticket-price-qty {
+      float: left;
+      width: 100%;
+      margin-top: $mui-grid-padding-double;
+    }
+
+    .ticket-description .few-ticket {
+      left: 0;
+      top: -21px;
+    }
+
+    .price-details-wrapper,
+    .ticket-total,
+    .proceed-button-wrapper {
+      float: left;
+    }
+
+    .ticket-total {
+      margin-left: -10px;
+      margin-right: -10px;
+    }
+
+    .item-amount,
+    .valid-upto,
+    .discount {
+      text-align: left;
+    }
+
+    .checkout-confirmation {
+      padding: 0;
+    }
+
+    .fa {
+      display: none;
+      padding: 0 !important;
     }
   }
 }
 
 @media (min-width: 768px) {
-  .about {
-    .about__participate {
-      display: block !important;
-      position: relative;
-      width: calc(50% - #{$mui-grid-padding-double});
-      float: right;
+  .tickets-wrapper {
+    .tickets-wrapper__modal {
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.75);
+    }
+
+    .tickets-wrapper__modal__body {
+      max-width: 500px;
+      margin: auto;
+      width: 90%;
       padding: 0;
-      margin-left: $mui-grid-padding-double;
-      margin-bottom: $mui-grid-padding;
-    }
-    .about__details {
-      float: none;
-
-      hr {
-        overflow: hidden;
+      min-height: auto;
+      border-radius: 16px;
+      background-color: $mui-bg-color-primary;
+      .tickets-wrapper__modal__body__close {
+        display: block;
+        float: right;
+        margin-right: 4px;
+        margin-top: 4px;
+      }
+      #boxoffice-widget {
+        padding: 0;
+        .payment-progress-wrapper {
+          border-radius: 16px 16px 0 0;
+        }
+        .boxoffice-section {
+          padding: $mui-grid-padding;
+          border: none;
+        }
       }
     }
-
-    .about__details__featured {
-      .about__details__featured__cards {
-        display: inline-block;
-        width: calc(50% - 32px);
-        padding: 0 $mui-grid-padding;
-        vertical-align: top;
-        margin: 0 -2px;
-      }
-    }
-  }
-}
-
-@media (min-width: 992px) {
-  .about {
-    .about__participate {
-      width: calc(40% - #{$mui-grid-padding-double});
-    }
-
-    .about__details__featured {
-      .about__details__featured__cards {
-        width: calc(33.3% - #{$mui-grid-padding-double});
-        padding: 0 $mui-grid-padding;
-      }
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .about {
-    .about__details__featured {
-      .about__details__featured__cards {
-        width: calc(33.3% - #{$mui-grid-padding-double});
-        padding: 0 $mui-grid-padding;
-      }
-    }
-  }
-}
-
-.about #boxoffice-widget {
-  padding: 10px 0;
-  max-width: 100%;
-  margin: 0;
-
-  .category-heading:after {
-    border-width: 23px;
-  }
-
-  .ticket-booking {
-    border-bottom: 1px solid #ccc;
-  }
-
-  .ticket-booking:last-child {
-    border-bottom: none;
-  }
-
-  .ticket-details {
-    margin: 0;
-    width: 100%;
-  }
-
-  .ticket-price-qty {
-    float: left;
-    width: 100%;
-    margin-top: $mui-grid-padding-double;
-  }
-
-  .ticket-description .few-ticket {
-    left: 0;
-    top: -21px;
-  }
-
-  .price-details-wrapper,
-  .ticket-total,
-  .proceed-button-wrapper {
-    float: left;
-  }
-
-  .ticket-total {
-    margin-left: -10px;
-    margin-right: -10px;
-  }
-
-  .item-amount,
-  .valid-upto,
-  .discount {
-    text-align: left;
-  }
-
-  .checkout-confirmation {
-    padding: 0;
-  }
-
-  .fa {
-    display: none;
-    padding: 0 !important;
   }
 }
 

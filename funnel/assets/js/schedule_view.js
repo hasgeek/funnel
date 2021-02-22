@@ -145,7 +145,9 @@ const Schedule = {
               },
               error() {
                 window.toastr.error(
-                  'There was a problem in contacting the server. Please try again later.'
+                  window.gettext(
+                    'There was a problem in contacting the server. Please try again later'
+                  )
                 );
               },
             });

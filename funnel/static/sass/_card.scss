@@ -473,7 +473,7 @@
     .card__body__bookmark {
       position: absolute;
       right: $mui-grid-padding;
-      top: 18px;
+      top: $mui-grid-padding;
       z-index: 4;
       line-height: 1;
     }

@@ -1,4 +1,9 @@
 @media (max-width: 767px) {
+  .comments-page {
+    .project-header {
+      display: none;
+    }
+  }
   .post-form-block {
     position: fixed;
     top: 16px;
@@ -69,6 +74,9 @@
       word-break: break-word;
     }
     .js-comment-form {
+      .ajax-form {
+        margin-top: $mui-grid-padding/2;
+      }
       > .comment__body__links.link-icon:first-child {
         padding-left: 0;
       }
@@ -86,7 +94,7 @@
 @media (max-width: 767px) {
   .comment--modal {
     position: fixed;
-    top: 56px;
+    top: 52px;
     bottom: 0;
     left: 0;
     right: 0;

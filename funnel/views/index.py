@@ -61,8 +61,12 @@ class IndexView(ClassView):
             .first()
         )
         if featured_project in upcoming_projects:
+            # if featured project is in upcoming projects, remove it from there and
+            # pick one upcoming project from from all projects, only if
+            # there are any projects left in it
             upcoming_projects.remove(featured_project)
-            upcoming_projects.append(all_projects.pop(0))
+            if all_projects:
+                upcoming_projects.append(all_projects.pop(0))
         open_cfp_projects = (
             projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
             .order_by(Project.next_session_at.asc())
@@ -127,7 +131,7 @@ def past_projects_json(page=1, per_page=10):
     pagination = past_projects.paginate(page=page, per_page=per_page)
     return {
         'status': 'ok',
-        'title': _('Past projects'),
+        'title': _('Past sessions'),
         'headings': [_('Date'), _('Project'), _('Location')],
         'next_page': pagination.page + 1 if pagination.page < pagination.pages else '',
         'total_pages': pagination.pages,

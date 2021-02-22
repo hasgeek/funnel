@@ -143,32 +143,32 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
 
     fullname = with_roles(
         db.Column(db.Unicode(80), nullable=False),
-        read={'concierge', 'subject', 'scanner'},
+        read={'promoter', 'subject', 'scanner'},
     )
     #: Unvalidated phone number
     phone = with_roles(
         db.Column(db.Unicode(80), nullable=True),
-        read={'concierge', 'subject', 'scanner'},
+        read={'promoter', 'subject', 'scanner'},
     )
     #: Unvalidated Twitter id
     twitter = with_roles(
         db.Column(db.Unicode(80), nullable=True),
-        read={'concierge', 'subject', 'scanner'},
+        read={'promoter', 'subject', 'scanner'},
     )
     #: Job title
     job_title = with_roles(
         db.Column(db.Unicode(80), nullable=True),
-        read={'concierge', 'subject', 'scanner'},
+        read={'promoter', 'subject', 'scanner'},
     )
     #: Company
     company = with_roles(
         db.Column(db.Unicode(80), nullable=True),
-        read={'concierge', 'subject', 'scanner'},
+        read={'promoter', 'subject', 'scanner'},
     )
     #: Participant's city
     city = with_roles(
         db.Column(db.Unicode(80), nullable=True),
-        read={'concierge', 'subject', 'scanner'},
+        read={'promoter', 'subject', 'scanner'},
     )
     # public key
     puk = db.Column(
@@ -185,7 +185,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(Project),
-        read={'concierge', 'subject', 'scanner'},
+        read={'promoter', 'subject', 'scanner'},
         grants_via={None: project_child_role_map},
     )
 
@@ -194,7 +194,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     # Since 'email' comes from the mixin, it's not available to be annotated using
     # `with_roles`. Instead, we have to specify the roles that can access it in here:
     __roles__ = {
-        'concierge': {'read': {'email'}},
+        'promoter': {'read': {'email'}},
         'subject': {'read': {'email'}},
         'scanner': {'read': {'email'}},
     }

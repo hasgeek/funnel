@@ -57,7 +57,6 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         'url_name': session.url_name,
         'proposal_id': session.proposal_id,
         'description': session.description,
-        'speaker_bio': session.speaker_bio,
         'url': session.url_for(_external=True),
         'json_url': (
             session.proposal.url_for('json', _external=True)
@@ -216,7 +215,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('schedule.html.jinja2')
+    @render_with('project_schedule.html.jinja2')
     @requires_roles({'reader'})
     def schedule(self):
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
