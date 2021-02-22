@@ -12,7 +12,7 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-accent hg-app no-sticky-header">
+    <body class="mui--bg-accent hg-app no-sticky-header project-inner-page">
   {%- else %}
     <body class="mui--bg-primary no-sticky-header">
   {%- endif %}
@@ -35,11 +35,10 @@
     <div class="grid__col-sm-12 grid__col-md-7 grid__col-lg-8">
       <div class="page-card">
         {{ project_header(project, current_page=current_page) }}
-        {% block base_content_inner %}
-        {% endblock %}
+        {% block base_content_inner %}{% endblock %}
       </div>
     </div>
-    {% block basecontentcolumn %}
+    {% block base_content_column %}
       <div class="mui--hidden-xs mui--hidden-sm mui--hidden-md grid__col-md-5 grid__col-lg-4">
         <div class="project-details-sticky">
           <div class="card card--shaped">

@@ -168,15 +168,15 @@
             <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#{{modalid}}-register-modal" id="{{modalid}}-register-btn">{% trans %}Register{% endtrans %}</a>
             <div class="modal reg-modal" id="{{modalid}}-register-modal">
               <div class="modal__header">
-                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                 <p class="mui--text-title mui--text-bold mui--text-dark reg-modal__txt">{{ project.title }}</p>
               </div>
               <div class="modal__body">
-                <p class="mui--text-body2 reg-modal__txt">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
+                <p class="mui--text-body2">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
                 <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
                   {{ csrf_tag() }}
                   <div class="mui--text-right modal__body__btn">
-                    <button class="mui-btn mui-btn--flat mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
+                    <button class="mui-btn mui-btn--flat mui-btn--nostyle mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
                   </div>
                 </form>
               </div>
@@ -190,15 +190,15 @@
                   <li><a class="mui--text-body2 js-register-btn" href="#{{modalid}}-register-modal">{% trans %}Cancel registration{% endtrans %}</a></li>
                   <div class="modal reg-modal" id="{{modalid}}-register-modal">
                     <div class="modal__header">
-                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', icon_size='title') }}</a>
+                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                       <p class="mui--text-title mui--text-bold mui--text-dark reg-modal__txt">{{ project.title }}</p>
                     </div>
                     <div class="modal__body">
-                      <p class="mui--text-subhead reg-modal__txt">{% trans %}Can’t make it?{% endtrans %}</p>
+                      <p class="mui--text-subhead">{% trans %}Can’t make it?{% endtrans %}</p>
                       <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
                         {{ csrf_tag() }}
                         <div class="mui--text-right modal__body__btn">
-                          <button class="mui-btn mui-btn--flat mui-btn--primary" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% trans %}Confirm cancellation{% endtrans %}</button>
+                          <button class="mui-btn mui-btn--flat mui-btn--nostyle mui-btn--primary" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% trans %}Confirm cancellation{% endtrans %}</button>
                         </div>
                       </form>
                     </div>
@@ -269,8 +269,8 @@
   </div>
 {% endmacro %}
 
-{% macro project_header(project, class='', current_page='project', pinned=true) %}
-  <div class="project-banner {% if class %}{{ class }}{% endif %}">
+{% macro project_header(project, current_page='project', pinned=true) %}
+  <div class="project-banner {% if current_page != 'project' %}project-banner--inner{%- endif %}">
     {% if project.livestream_urls %}
       <div role="tabpanel" class="livestream-box" id="livestream">
         <ul class="mui-tabs__bar project-banner__box" role="tablist">
@@ -297,7 +297,7 @@
         {%- endfor %}
       </div>
     {% else %}
-      <div class="project-banner__box">
+      <div class="project-banner__box project-banner__box--banner">
         <div {% if project.banner_video_url.url or project.bg_image.url or project.current_roles.crew %}class="embed-video-wrapper embed-video-wrapper--shaped" {% endif %}>
           {{ livestream_edit_btn(project) }}
           {{ banner_edit_btn(project) }}
@@ -334,11 +334,11 @@
         {{ project_share(project) }}
       </div>
     </div>
-    <div class="mui--hidden-lg mui--hidden-xl">
+    <div class="mui--hidden-lg mui--hidden-xl project-details-header">
       {{ project_details_header(project) }}
     </div>
   </div>
-  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
+  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if current_page != 'project' %}sub-navbar-container--inner{%- endif %}">
     <div class="sub-navbar-container__inner mui-container">
       <nav class="sub-navbar" id="page-navbar">
         <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
@@ -357,8 +357,8 @@
       </nav>
     </div>
   </div>
-  {% with pinned_update = project.pinned_update %}{%- if pinned_update and pinned %}
-  <ul class="mui-list--unstyled pinned  {% if current_page == 'project' %}pinned--about-page{%- endif %}">
+  {% with pinned_update = project.pinned_update %}{%- if pinned_update %}
+  <ul class="mui-list--unstyled pinned  {% if current_page != 'project' %}pinned--inner{%- endif %}">
     <li>
       <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
         <p class="pinned__update__heading mui-container">{{ faicon(icon='thumbtack', baseline=false, css_class='mui--align-middle fa-icon--margin') }}<span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span><span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.html|firstline }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>

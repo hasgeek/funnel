@@ -3740,6 +3740,20 @@ a.loginbutton.hidden,
     padding-left: 10px;
   }
 }
+@media (max-width: 767px) {
+  .project-banner--inner .livestream-box,
+  .project-banner--inner .project-banner__box--banner,
+  .project-banner--inner .project-details-header,
+  .project-banner--inner .project-details__box__title,
+  .sub-navbar-container--inner,
+  .pinned--inner {
+    display: none;
+  }
+
+  .project-banner.project-banner--inner .project-details__box {
+    padding: 0;
+  }
+}
 .bookmark-wrapper {
   line-height: 1;
 }
@@ -3811,7 +3825,8 @@ a.loginbutton.hidden,
 
 .reg-modal .reg-modal__txt {
   margin-bottom: 16px;
-  width: calc(100% - 10px);
+  width: calc(100% - 16px);
+  line-height: 1;
 }
 
 .about {
