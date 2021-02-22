@@ -2,7 +2,7 @@ from flask import Markup, abort, escape, flash, jsonify, redirect
 
 from bleach import linkify
 
-from baseframe import _, __, request_is_xhr
+from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
@@ -208,7 +208,13 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'project': self.obj.project,
             'proposal': self.obj,
             'links': links,
+            'form': forms.Form(),
         }
+
+    @route('update_subscribe', methods=['POST'])
+    @requires_login
+    def update_subscribe(self):
+        return {'status': 'ok', 'message': 'Subscribed'}
 
     @route('admin')
     @render_with('proposal_admin_panel.html.jinja2')

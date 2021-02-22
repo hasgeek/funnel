@@ -72,6 +72,16 @@
       </ul>
     </div>
   {% endif %}
+  <div class="mui-dropdown">
+    <a href="javascript:void(0)" class="mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">{{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light') }}</a>
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
+      <form action="{{ proposal.url_for('update_subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
+        {{ form.hidden_tag() }}
+        <li><input type="radio" name="action" value="confirm" class="mui--text-body2 js-subscribe-btn mui--hide" id="confirm-subscription"><label for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Get notification{% endtrans %}</label></li>
+        <li><input type="radio" name="action" value="cancel" class="mui--text-body2 js-subscribe-btn mui--hide" id="cancel-subscription"><label for="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Mute this submission{% endtrans %}</li>
+      </form>
+    </ul>
+  </div>
 {% endmacro %}
 
 {% block contenthead %}
@@ -275,6 +285,32 @@
     };
 
     window.Hasgeek.Comments(commentsConfig);
+
+    $('.js-subscribe-btn').on('click', function(event) {
+      event.preventDefault();
+      console.log('submitted');
+      var form = $('#subscribe-form');
+      $(form).find('button[type="submit"]').attr('disabled', true);
+      var formData = $(form).serializeArray();
+      $.ajax({
+        type: 'POST',
+        url: $(form).attr('action'),
+        data: formData,
+        dataType: 'json',
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          if (responseData && responseData.message) {
+            window.toastr.success(responseData.message);
+          }
+        },
+        error: function (response) {
+          // Utils.handleAjaxError(response);``
+        },
+        complete: function() {
+          $(form).find('button[type="submit"]').attr('disabled', false);
+        }
+      });
+    });
   });
 </script>
 <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>

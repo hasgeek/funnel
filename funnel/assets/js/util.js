@@ -232,7 +232,7 @@ export const Utils = {
     return errorMsg;
   },
   formErrorHandler(formId, errorResponse) {
-    $(`#${formId}`).find('button[type="submit"]').prop('disabled', false);
+    $(`#${formId}`).find('button[type="submit"]').attr('disabled', false);
     $(`#${formId}`).find('.loading').addClass('mui--hide');
     return Utils.handleAjaxError(errorResponse);
   },
