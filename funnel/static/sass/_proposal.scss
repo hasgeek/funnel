@@ -186,7 +186,7 @@
     }
     .proposal-card__body {
       .proposal-card__body__details {
-        justify-content: left;
+        display: block;
         .proposal-card__body__details__txt {
           display: flex;
           .proposal-card__details__txt__read {

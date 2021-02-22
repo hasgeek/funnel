@@ -4164,7 +4164,7 @@ a.loginbutton.hidden,
     width: 100%;
   }
   .proposal-card--fullwidth .proposal-card__body .proposal-card__body__details {
-    justify-content: left;
+    display: block;
   }
   .proposal-card--fullwidth
     .proposal-card__body
