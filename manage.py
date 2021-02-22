@@ -121,6 +121,39 @@ def project_starting_alert():
 
 
 @periodic.command
+def resetseq():
+    """Reset Proposal.seq to same interval.
+
+    Reseting with the initial seq might cause collition because it's possible for
+    an item to get a seq that's multiple of 1000 after dragging around. So if we
+    reset the order with seq multiple of 1000, then the new seq of another item may
+    cause collision.
+
+    So we can increase the seq to the multiples of 100000 so that it doesn't cause
+    collision with existing items, and then reset them to multiples of 1000.
+
+    There is a chance that this might cause an issue if somebody drags items around
+    in between these 2 commits. but that should get fixed in next reorder.
+    """
+    projects = models.Project.query.all()
+    app.logger.info("Resetting seq to bare index value")
+    for project in projects:
+        for idx, proposal in enumerate(
+            project.proposals.order_by(models.Proposal.seq.asc()).all()
+        ):
+            proposal.seq = idx + 1
+        db.session.commit()
+    app.logger.info("Setting seq to multiplied value")
+    for project in projects:
+        app.logger.info(project.title)
+        for idxp, proposal in enumerate(
+            project.proposals.order_by(models.Proposal.seq.asc()).all()
+        ):
+            proposal.seq = (idxp + 1) * 1000
+        db.session.commit()
+
+
+@periodic.command
 def growthstats():
     """Publish growth statistics to Telegram (midnight)."""
     if not app.config.get('TELEGRAM_STATS_BOT_TOKEN') or not app.config.get(

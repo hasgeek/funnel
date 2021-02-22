@@ -172,11 +172,11 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 else None
             )
 
-            ordered_proposals = self.obj.proposals.order_by(Proposal.seq.asc())
+            ordered_proposals = self.obj.proposals.order_by(Proposal.seq.asc()).all()
 
             if previous_proposal is None:
                 # current item was moved to the top of the list
-                if ordered_proposals.count() <= 1:
+                if len(ordered_proposals) <= 1:
                     # when the project has only one or no proposal, and the sorting
                     # endpoint gets called somehow by mistake or with any malicious
                     # intention
@@ -184,11 +184,15 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 else:
                     # there are more than one proposal and the current item was
                     # dragged to the beginning of the list
-                    new_seq = ordered_proposals.first().seq - 1
+                    new_seq = ordered_proposals[0].seq - 1000
+            elif previous_proposal == ordered_proposals[-1]:
+                # current item has been pulled to the end of the list
+                new_seq = previous_proposal.seq + 1000
             else:
-                # increment the sequence by small margin, it'll get normalized by
-                # a background job periodically.
-                new_seq = previous_proposal.seq + 1
+                next_proposal = ordered_proposals[
+                    ordered_proposals.index(previous_proposal) + 1
+                ]
+                new_seq = (previous_proposal.seq + next_proposal.seq) // 2
 
             current_proposal.seq = new_seq
             db.session.commit()
