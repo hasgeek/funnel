@@ -128,13 +128,16 @@
               <a class="card clickable-card card--shaped" href="{{ session.url_for() }}" aria-label="{{ session.title }}" data-ga="View session">
                 <div class="card__body proposal-card proposal-card--fullwidth">
                   <div class="proposal-card__body">
-                    <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
-                    <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
-                    <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline|truncate(150) }}</div>
-                    <p class="mui--text-body2 mui--text-light">{{ session.start_at|datetime }}</p>
+                    <div class="proposal-card__body__details">
+                      <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
+                      <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
+                      {% if session.banner_image_url.url %}<img src="{{ session.banner_image_url }}" class="proposal-card__video-thumbnail">{%- endif %}
+                      <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline|truncate(150) }}</div>
+                      <p class="mui--text-body2 mui--text-light">{{ session.start_at|datetime }}</p>
+                    </div>
                   </div>
                   {% if session.banner_image_url.url %}
-                    <div class="proposal-card__video"><img class="proposal-card__video__thumbnail" src="{{ session.banner_image_url }}"/></div>
+                    <div class="proposal-card__video proposal-card__video--desktop"><img class="proposal-card__video__thumbnail" src="{{ session.banner_image_url }}"/></div>
                   {%- endif %}
                 </div>
               </a>

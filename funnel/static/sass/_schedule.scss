@@ -330,6 +330,15 @@
   }
 }
 
+.jquery-modal.blocker.current .session-modal {
+  .session-modal__title {
+    max-width: calc(100% - 20px);
+    margin-top: 0;
+    position: relative;
+    top: -10px;
+  }
+}
+
 @media (min-width: 1200px) {
   .jquery-modal.blocker.current .session-modal {
     width: 90%;

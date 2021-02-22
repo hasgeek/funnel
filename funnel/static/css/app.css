@@ -4130,15 +4130,15 @@ a.loginbutton.hidden,
     max-width: 120px;
   }
 }
-.proposal-card--fullwidth .proposal-card__video {
-  margin-left: -16px;
-  margin-right: -16px;
-  margin-bottom: -22px;
-}
 .proposal-card--fullwidth
-  .proposal-card__video
-  .proposal-card__video__thumbnail {
-  width: 100%;
+  .proposal-card__body
+  .proposal-card__body__details
+  .proposal-card__video-thumbnail {
+  width: auto;
+  max-width: 100%;
+}
+.proposal-card--fullwidth .proposal-card__video--desktop {
+  display: none;
 }
 
 @media (min-width: 768px) {
@@ -4147,10 +4147,21 @@ a.loginbutton.hidden,
     align-items: start;
     justify-content: space-between;
   }
-  .proposal-card--fullwidth .proposal-card__video {
+  .proposal-card--fullwidth
+    .proposal-card__body__details
+    .proposal-card__video-thumbnail {
+    display: none;
+  }
+  .proposal-card--fullwidth .proposal-card__video--desktop {
+    display: block;
     width: 200px;
     margin-top: 14px;
     margin: 14px 0 0 16px;
+  }
+  .proposal-card--fullwidth
+    .proposal-card__video--desktop
+    .proposal-card__video__thumbnail {
+    width: 100%;
   }
   .proposal-card--fullwidth .proposal-card__body .proposal-card__body__details {
     justify-content: left;
@@ -4202,7 +4213,7 @@ a.loginbutton.hidden,
   margin-right: 20px;
 }
 
-@medium (min-width: 1200px) {
+@media (min-width: 1200px) {
   .proposal__admin-panel .btn-group .mui-btn {
     margin-bottom: 10px;
     margin-right: 10px;
@@ -4964,6 +4975,13 @@ a.loginbutton.hidden,
   .details__box--left {
   max-width: 70%;
   margin-top: 16px;
+}
+
+.jquery-modal.blocker.current .session-modal .session-modal__title {
+  max-width: calc(100% - 20px);
+  margin-top: 0;
+  position: relative;
+  top: -10px;
 }
 
 @media (min-width: 1200px) {
