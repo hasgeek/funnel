@@ -18,8 +18,8 @@ class TestLabelForms(object):
                 ),
                 meta={'csrf': False},
             )
+            assert not form.validate()
             assert form.errors == {}
-            assert form.validate()
 
     def test_label_form_invalid(self, test_client):
         with current_app.test_request_context('/'):

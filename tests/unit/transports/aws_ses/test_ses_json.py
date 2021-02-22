@@ -1,14 +1,6 @@
-import json
 import os
 
-import pytest
-
-from funnel.transports.email.aws_ses import (
-    SesEvent,
-    SnsValidator,
-    SnsValidatorChecks,
-    SnsValidatorException,
-)
+from funnel.transports.email.aws_ses import SesEvent
 
 
 class TestSesEventJson:
@@ -65,38 +57,3 @@ class TestSesEventJson:
         assert len(obj.complaint.complained_recipients) == 1
         assert obj.complaint.complaint_feedback_type == "abuse"
         assert obj.complaint.user_agent == "Amazon SES Mailbox Simulator"
-
-    def test_signature_good_message(self) -> None:
-        """Check if Signature Verification works."""
-        with open(os.path.join(self.data_dir, "full-message.json"), 'r') as file:
-            data = file.read()
-
-        # Decode the JSON
-        message = json.loads(data)
-        validator = SnsValidator(
-            ["arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com"]
-        )
-
-        # Checks
-        validator.check(message, SnsValidatorChecks.SIGNATURE)
-        validator.check(message, SnsValidatorChecks.SIGNATURE_VERSION)
-        validator.check(message, SnsValidatorChecks.CERTIFICATE_URL)
-        validator.check(message, SnsValidatorChecks.TOPIC)
-
-    def test_signature_bad_message(self) -> None:
-        """Checks if Signature Verification works."""
-        with open(os.path.join(self.data_dir, "bad-message.json"), 'r') as file:
-            data = file.read()
-
-        # Decode the JSON
-        message = json.loads(data)
-        validator = SnsValidator(
-            ["arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com"]
-        )
-
-        # Checks
-        validator.check(message, SnsValidatorChecks.SIGNATURE_VERSION)
-        validator.check(message, SnsValidatorChecks.CERTIFICATE_URL)
-        validator.check(message, SnsValidatorChecks.TOPIC)
-        with pytest.raises(SnsValidatorException):
-            validator.check(message, SnsValidatorChecks.SIGNATURE)
