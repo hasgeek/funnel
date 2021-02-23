@@ -8,15 +8,15 @@
    {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
     <div class="about__details" id="call-for-proposal">
       {%- if project.instructions and project.instructions != "None" %}
-        <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Proposal guidelines{% endtrans %}</h2>
+        <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Submission guidelines{% endtrans %}</h2>
         <div class="about__details__description">
           {% if project.view_for('cfp').is_available() -%}
             <p>
               <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">
                 {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
-                  {% trans %}Open proposal submissions{% endtrans %}
+                  {% trans %}Open submissions{% endtrans %}
                 {%- else %}
-                  {% trans %}Modify proposal guidelines and timing{% endtrans %}
+                  <span class="mui--hidden-xs">{% trans %}Modify guidelines and timing{% endtrans %}</span><span class="mui--visible-xs-inline ">{% trans %}Modify guidelines{% endtrans %}</span>
                 {%- endif %}
               </a>
             </p>
@@ -24,7 +24,7 @@
           {{ project.instructions }}
         </div>
       {%- elif project.view_for('cfp').is_available() %}
-        <p><a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">{% trans %}Add proposal guidelines and timing{% endtrans %}</a></p>
+        <p><a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">{% trans %}Add guidelines and timing{% endtrans %}</a></p>
       {%- endif %}
       {% if project.cfp_state.OPEN -%}
         <div>

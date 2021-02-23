@@ -1,5 +1,5 @@
 from funnel import app
-from funnel.models import User, UserEmail, db
+from funnel.models import SiteMembership, User, UserEmail, db
 
 
 def init_models():
@@ -36,6 +36,8 @@ def init_models():
         user2 = User(username='hg-user', fullname='hg-user')
         user2._set_password('hg-user5_HE')
 
+        sm = SiteMembership(user=profile_owner, is_site_editor=True)
+
         db.session.add_all(
             [
                 user_admin,
@@ -51,6 +53,7 @@ def init_models():
                 editor,
                 editor_email,
                 user2,
+                sm,
             ]
         )
         db.session.commit()

@@ -88,41 +88,25 @@ const Ticketing = {
   },
 
   initTicketModal() {
+    if (window.location.hash.indexOf('#tickets') > -1) {
+      this.openTicketModal();
+    }
+
     $('.js-open-ticket-widget').click((event) => {
       event.preventDefault();
       this.openTicketModal();
     });
 
-    $('#close-ticket-widget').click((event) => {
+    $('body').on('click', '#close-ticket-widget', (event) => {
       event.preventDefault();
       this.hideTicketModal();
     });
 
-    if (window.location.hash.indexOf('#tickets') > -1) {
-      this.openTicketModal();
-    }
-
-    $(window).resize(() => {
-      if (window.history.state.openModal) {
-        this.hideTicketModal();
-      }
-    });
     $(window).on('popstate', () => {
       if (window.history.state.openModal) {
         this.hideTicketModal();
       } else if (window.history.state) {
         this.openTicketModal();
-      }
-    });
-
-    $('body').on('click', (event) => {
-      if (
-        window.history.state.openModal &&
-        !$(event.target).is('.js-open-ticket-widget') &&
-        !$(event.target).is('#close-ticket-widget') &&
-        !$.contains($('#boxoffice-widget')[0], event.target)
-      ) {
-        this.hideTicketModal();
       }
     });
   },
@@ -138,7 +122,7 @@ const Ticketing = {
     );
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');
-    $('.tickets-wrapper__modal').fadeIn();
+    $('.tickets-wrapper__modal').show();
   },
 
   hideTicketModal() {
@@ -146,7 +130,7 @@ const Ticketing = {
       window.history.pushState('', '', window.history.state.prevUrl);
       $('.header').removeClass('header--lowzindex');
       $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
-      $('.tickets-wrapper__modal').fadeOut();
+      $('.tickets-wrapper__modal').hide();
     }
   },
 };
