@@ -1,3 +1,5 @@
+"""Project updates and promotions."""
+
 from __future__ import annotations
 
 from typing import Iterable, Optional, Set
@@ -42,7 +44,7 @@ class UPDATE_STATE(LabeledEnum):  # NOQA: N801
 class VISIBILITY_STATE(LabeledEnum):  # NOQA: N801
     PUBLIC = (0, 'public', __("Public"))
     RESTRICTED = (1, 'restricted', __("Restricted"))
-    PROMOTION = (2, 'promotion', __("Promotion"))
+    PROMOTED = (2, 'promoted', __("Promoted"))
 
     REGULAR = {PUBLIC, RESTRICTED}
 
@@ -256,7 +258,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, db.Model):
         if self.published_at is None:
             first_publishing = True
             self.published_at = db.func.utcnow()
-        if self.number is None and not self.visibility_state.PROMOTION:
+        if self.number is None and not self.visibility_state.PROMOTED:
             # Assign a number only if:
             # 1. It doesn't have a number already, and
             # 2. It's not a promotion.
@@ -301,13 +303,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, db.Model):
 
     @with_roles(call={'promoter'})
     @state.requires(state.UNPUBLISHED)
-    @visibility_state.transition(visibility_state.REGULAR, visibility_state.PROMOTION)
-    def make_promotion(self) -> None:
+    @visibility_state.transition(visibility_state.REGULAR, visibility_state.PROMOTED)
+    def make_promoted(self) -> None:
         pass
 
     @with_roles(call={'editor'})
     @state.requires(state.UNPUBLISHED)
-    @visibility_state.transition(visibility_state.PROMOTION, visibility_state.PUBLIC)
+    @visibility_state.transition(visibility_state.PROMOTED, visibility_state.PUBLIC)
     def make_regular(self) -> None:
         pass
 
