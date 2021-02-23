@@ -119,7 +119,7 @@
               <span class="mui--pull-right dropdown-menu__form">
                 <span class="mui--d-inlineblock dropdown-menu__form__label">
                   <span class="mui--d-block">{% trans %}Feature this project{% endtrans %}</span>
-                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured project appears as Spotlight on the home page{% endtrans %}</span>
+                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured projects appear under Spotlight on the home page{% endtrans %}</span>
                 </span>
                 <form action="{{ project.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
                   {{ csrf_tag() }}
@@ -172,11 +172,11 @@
                 <p class="mui--text-title mui--text-bold mui--text-dark reg-modal__txt">{{ project.title }}</p>
               </div>
               <div class="modal__body">
-                <p class="mui--text-body2">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
+                <p class="mui--text-body2 reg-modal__body">{% trans %}This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
                 <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
                   {{ csrf_tag() }}
                   <div class="mui--text-right modal__body__btn">
-                    <button class="mui-btn mui-btn--flat mui-btn--nostyle mui-btn--primary" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
+                    <button class="mui-btn mui-btn--flat mui-btn--nostyle mui-btn--primary reg-modal__btn" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
                   </div>
                 </form>
               </div>
@@ -194,11 +194,11 @@
                       <p class="mui--text-title mui--text-bold mui--text-dark reg-modal__txt">{{ project.title }}</p>
                     </div>
                     <div class="modal__body">
-                      <p class="mui--text-subhead">{% trans %}Can’t make it?{% endtrans %}</p>
+                      <p class="mui--text-subhead reg-modal__body">{% trans %}Can’t make it?{% endtrans %}</p>
                       <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
                         {{ csrf_tag() }}
                         <div class="mui--text-right modal__body__btn">
-                          <button class="mui-btn mui-btn--flat mui-btn--nostyle mui-btn--primary" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% trans %}Confirm cancellation{% endtrans %}</button>
+                          <button class="mui-btn mui-btn--flat mui-btn--nostyle mui-btn--primary reg-modal__btn" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% trans %}Confirm cancellation{% endtrans %}</button>
                         </div>
                       </form>
                     </div>

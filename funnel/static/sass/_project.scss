@@ -39,8 +39,9 @@
   z-index: 1000;
 
   .mui-dropdown__menu {
-    top: -66px !important;
+    top: -54px !important;
     border-radius: 16px 16px 0px;
+    z-index: 6;
   }
 }
 
@@ -372,11 +373,19 @@
   margin-bottom: $mui-grid-padding;
 }
 
-.reg-modal {
+.jquery-modal.blocker.current .modal.reg-modal {
+  padding: $mui-grid-padding 0 0 0;
   .reg-modal__txt {
     margin-bottom: $mui-grid-padding;
     width: calc(100% - 16px);
     line-height: 1;
+  }
+  .reg-modal__txt,
+  .reg-modal__body {
+    padding: 0 $mui-grid-padding;
+  }
+  .reg-modal__btn {
+    padding: $mui-grid-padding;
   }
 }
 
@@ -553,7 +562,7 @@
   height: 400px;
   width: 100%;
   z-index: 0;
-  margin-top: $mui-grid-padding;
+  margin: $mui-grid-padding 0;
   position: relative;
   outline: none;
 }

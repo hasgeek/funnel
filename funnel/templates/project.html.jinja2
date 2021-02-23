@@ -179,7 +179,7 @@
         <p class="zero-bottom-margin">{{ project.primary_venue.address2 }}</p>
         <p class="zero-bottom-margin">{{ project.primary_venue.city }}{% if project.primary_venue.city and  project.primary_venue.postcode %} - {{ project.primary_venue.postcode }}{%- endif %}</p>
         {%- if project.primary_venue.state and project.primary_venue.country -%}
-          <p class="zero-bottom-margin">{{ project.primary_venue.state }}, {{ project.primary_venue.country }}</p>
+          <p>{{ project.primary_venue.state }}, {{ project.primary_venue.country }}</p>
         {%- endif %}
       </div>
       {%- if project.primary_venue.has_coordinates -%}

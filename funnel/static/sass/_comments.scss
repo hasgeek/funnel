@@ -91,6 +91,10 @@
   }
 }
 
+.comment:first-child {
+  margin: 0;
+}
+
 @media (max-width: 767px) {
   .comment--modal {
     position: fixed;
