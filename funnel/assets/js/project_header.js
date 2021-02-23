@@ -122,7 +122,7 @@ const Ticketing = {
     );
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');
-    $('.tickets-wrapper__modal').fadeIn();
+    $('.tickets-wrapper__modal').show();
   },
 
   hideTicketModal() {
@@ -130,7 +130,7 @@ const Ticketing = {
       window.history.pushState('', '', window.history.state.prevUrl);
       $('.header').removeClass('header--lowzindex');
       $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
-      $('.tickets-wrapper__modal').fadeOut();
+      $('.tickets-wrapper__modal').hide();
     }
   },
 };

@@ -5,7 +5,7 @@
   .register-block__txt {
     font-size: 12px;
     margin: 0 $mui-grid-padding 0 0;
-    max-width: calc(100% - 170px);
+    max-width: calc(100% - 125px);
   }
   .register-block__right {
     text-align: right;
@@ -19,6 +19,9 @@
   .register-block {
     .register-block__txt {
       font-size: 14px;
+    }
+    .register-block__txt--short {
+      max-width: calc(100% - 170px);
     }
     .register-block__txt--longer {
       max-width: calc(100% - 20px);
@@ -36,8 +39,9 @@
   z-index: 1000;
 
   .mui-dropdown__menu {
-    top: -66px !important;
+    top: -54px !important;
     border-radius: 16px 16px 0px;
+    z-index: 6;
   }
 }
 
@@ -107,6 +111,8 @@
 
 .project-banner {
   padding: 0 !important;
+  border-radius: 16px 16px 0 0;
+
   .project-banner__profile-details {
     display: flex;
     align-items: center;
@@ -279,6 +285,20 @@
   }
 }
 
+@media (max-width: 767px) {
+  .project-banner--inner .livestream-box,
+  .project-banner--inner .project-banner__box--banner,
+  .project-banner--inner .project-details-header,
+  .project-banner--inner .project-details__box__title,
+  .sub-navbar-container--inner,
+  .pinned--inner {
+    display: none;
+  }
+  .project-banner.project-banner--inner .project-details__box {
+    padding: 0;
+  }
+}
+
 .bookmark-wrapper {
   line-height: 1;
 }
@@ -353,10 +373,19 @@
   margin-bottom: $mui-grid-padding;
 }
 
-.reg-modal {
+.jquery-modal.blocker.current .modal.reg-modal {
+  padding: $mui-grid-padding 0 0 0;
   .reg-modal__txt {
     margin-bottom: $mui-grid-padding;
-    width: calc(100% - 10px);
+    width: calc(100% - 16px);
+    line-height: 1;
+  }
+  .reg-modal__txt,
+  .reg-modal__body {
+    padding: 0 $mui-grid-padding;
+  }
+  .reg-modal__btn {
+    padding: $mui-grid-padding;
   }
 }
 
@@ -533,7 +562,7 @@
   height: 400px;
   width: 100%;
   z-index: 0;
-  margin-top: $mui-grid-padding;
+  margin: $mui-grid-padding 0;
   position: relative;
   outline: none;
 }

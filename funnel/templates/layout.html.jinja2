@@ -164,7 +164,7 @@
         <div class="mui-container alert-wrapper">
           {% for category, message in messages %}
             <div class="alert alert--{{category}} alert--dismissable">
-              <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', icon_size='subhead') }}</a>
+              <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='subhead') }}</a>
               <p class="alert__text">{{ message }}</p>
             </div>
           {% endfor %}
