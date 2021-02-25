@@ -20,19 +20,19 @@ EXOTEL_TO = "+919999999999"
 MESSAGE = "Test Message"
 
 
-def test_twilio_success(test_client):
+def test_twilio_success():
     """Test if message sending is a success."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=False)
     assert sid
 
 
-def test_twilio_callback(test_client):
+def test_twilio_callback(client):
     """Test if message sending is a success when a callback is requested."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=True)
     assert sid
 
 
-def test_twilio_failures(test_client):
+def test_twilio_failures():
     """Test if message sending is a failure."""
     # Invalid Target
     try:
@@ -56,7 +56,7 @@ def test_twilio_failures(test_client):
         assert True
 
 
-def test_exotel_nonce(test_client, test_db_structure):
+def test_exotel_nonce(client):
     """Test if the exotel nonce works as expected."""
     # The random case.
     token = make_exotel_token(EXOTEL_TO)
@@ -71,15 +71,13 @@ def test_exotel_nonce(test_client, test_db_structure):
     url = '/api/1/sms/exotel_event/' + token
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     data = {'To': EXOTEL_TO, 'SmsSid': 'Some-long-string', 'Status': 'sent'}
-    with test_client as c:
-        resp: Response = c.post(url, headers=headers, data=data)
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert data['status'] == 'ok'
-        test_db_structure.session.commit()
+    resp: Response = client.post(url, headers=headers, data=data)
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['status'] == 'ok'
 
 
-def test_exotel_send_error(test_client):
+def test_exotel_send_error(client):
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
     try:

@@ -9,14 +9,14 @@ from coaster.utils import utcnow
 from funnel.models import Organization, Project, ProjectRedirect, Session
 
 
-def test_project_state_conditional(test_db):
+def test_project_state_conditional(db_session):
     past_projects = Project.query.filter(Project.schedule_state.PAST).all()
     assert len(past_projects) >= 0
     upcoming_projects = Project.query.filter(Project.schedule_state.UPCOMING).all()
     assert len(upcoming_projects) >= 0
 
 
-def test_project_cfp_state_conditional(test_db):
+def test_project_cfp_state_conditional(db_session):
     private_draft_cfp_projects = Project.query.filter(
         Project.cfp_state.PRIVATE_DRAFT
     ).all()
@@ -31,7 +31,7 @@ def test_project_cfp_state_conditional(test_db):
     assert len(expired_cfp_projects) >= 0
 
 
-def test_cfp_state_draft(test_db, new_organization, new_project):
+def test_cfp_state_draft(db_session, new_organization, new_project):
     assert new_project.cfp_start_at is None
     assert new_project.state.DRAFT
     assert new_project.cfp_state.NONE
@@ -39,7 +39,7 @@ def test_cfp_state_draft(test_db, new_organization, new_project):
     assert new_project in new_organization.profile.draft_projects
 
     new_project.open_cfp()
-    test_db.session.commit()
+    db_session.commit()
 
     assert new_project.cfp_state.PUBLIC
     assert new_project.cfp_start_at is None
@@ -47,7 +47,7 @@ def test_cfp_state_draft(test_db, new_organization, new_project):
     assert new_project in new_organization.profile.draft_projects
 
     new_project.cfp_start_at = utcnow()
-    test_db.session.commit()
+    db_session.commit()
 
     assert new_project.cfp_start_at is not None
     assert not new_project.cfp_state.DRAFT
@@ -56,13 +56,13 @@ def test_cfp_state_draft(test_db, new_organization, new_project):
     )  # because project state is still draft
 
     new_project.publish()
-    test_db.session.commit()
+    db_session.commit()
     assert not new_project.cfp_state.DRAFT
     assert not new_project.state.DRAFT
     assert new_project not in new_organization.profile.draft_projects
 
 
-def test_project_dates(test_db, new_project):
+def test_project_dates(db_session, new_project):
     # without any session the project will have no start and end dates
     assert new_project.sessions.count() == 0
     assert new_project.schedule_start_at is None
@@ -98,9 +98,9 @@ def test_project_dates(test_db, new_project):
         start_at=start_time_b,
         end_at=end_time_b,
     )
-    test_db.session.add(new_session_a)
-    test_db.session.add(new_session_b)
-    test_db.session.commit()
+    db_session.add(new_session_a)
+    db_session.add(new_session_b)
+    db_session.commit()
 
     # now project.schedule_start_at will be the first session's start date
     # and project.schedule_end_at will be the last session's end date
@@ -138,7 +138,7 @@ def test_project_dates(test_db, new_project):
     new_session_b.end_at = new_project.timezone.normalize(
         new_project.timezone.localize(datetime(2019, 7, 1, 14, 15, 0))
     )
-    test_db.session.commit()
+    db_session.commit()
 
     # Invalidate property cache
     invalidate_cached_property(new_project, 'datelocation')
@@ -167,7 +167,7 @@ def test_project_dates(test_db, new_project):
     new_session_b.end_at = new_project.timezone.normalize(
         new_project.timezone.localize(datetime(2019, 6, 28, 14, 15, 0))
     )
-    test_db.session.commit()
+    db_session.commit()
 
     # Invalidate property cache
     invalidate_cached_property(new_project, 'datelocation')
@@ -197,7 +197,7 @@ def test_project_dates(test_db, new_project):
     new_session_b.end_at = new_project.timezone.normalize(
         new_project.timezone.localize(datetime(2019, 1, 1, 14, 15, 0))
     )
-    test_db.session.commit()
+    db_session.commit()
 
     # Invalidate property cache
     invalidate_cached_property(new_project, 'datelocation')
@@ -215,16 +215,16 @@ def test_project_dates(test_db, new_project):
     )
 
 
-@pytest.fixture()
-def second_organization(test_db, new_user2):
+@pytest.fixture
+def second_organization(db_session, new_user2):
     org2 = Organization(owner=new_user2, title="Second test org", name='test-org-2')
-    test_db.session.add(org2)
-    test_db.session.commit()
+    db_session.add(org2)
+    db_session.commit()
     return org2
 
 
 def test_project_rename(
-    test_db, new_organization, second_organization, new_project, new_project2
+    db_session, new_organization, second_organization, new_project, new_project2
 ):
     # The project has a default name from the fixture, and there is no redirect
     assert new_project.name == 'test-project'

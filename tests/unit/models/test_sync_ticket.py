@@ -1,5 +1,7 @@
 import unittest
 
+import pytest
+
 from coaster.utils import uuid_b58
 from funnel import app
 from funnel.models import (
@@ -42,13 +44,13 @@ def bulk_upsert(project, ticket_event_list):
             ticket_event.ticket_types.append(ticket_type)
 
 
+@pytest.mark.usefixtures('db_session')
 class TestEventModels(unittest.TestCase):
     app = app
 
     def setUp(self):
         self.ctx = self.app.test_request_context()
         self.ctx.push()
-        db.create_all()
         # Initial Setup
         random_user_id = uuid_b58()
         self.user = User(
@@ -94,8 +96,6 @@ class TestEventModels(unittest.TestCase):
         self.session = db.session
 
     def tearDown(self):
-        self.session.rollback()
-        db.drop_all()
         self.ctx.pop()
 
     def test_import_from_list(self):

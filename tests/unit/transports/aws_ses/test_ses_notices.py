@@ -3,84 +3,70 @@ import os
 
 from flask import Response
 
+# Data Directory which contains JSON Files
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
-class TestSESNotices:
-    """Tests SES Notices."""
+# URL
+URL = '/api/1/email/ses_event'
 
-    # Data Directory which contains JSON Files
-    DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+# Dummy headers. Or else tests will start failing
+HEADERS = {
+    'x-amz-sns-message-type': 'Not Empty',
+    'x-amz-sns-message-id': 'Some ID',
+    'x-amz-sns-topic-arn': 'Some Topic',
+}
 
-    # URL
-    URL = '/api/1/email/ses_event'
 
-    # Dummy headers. Or else tests will start failing
-    HEADERS = {
-        'x-amz-sns-message-type': 'Not Empty',
-        'x-amz-sns-message-id': 'Some ID',
-        'x-amz-sns-topic-arn': 'Some Topic',
-    }
+def test_invalid_method(client) -> None:
+    """GET requests are not allowed."""
+    resp: Response = client.get(URL)
+    assert resp.status_code == 405
 
-    def test_invalid_method(self, test_client) -> None:
-        """GET requests are not allowed."""
-        with test_client as c:
-            resp: Response = c.get(self.URL)
-        assert resp.status_code == 405
 
-    def test_empty_json(self, test_client) -> None:
-        """Test empty JSON."""
-        with test_client as c:
-            resp: Response = c.post(self.URL)
-        assert resp.status_code == 422
-        rdata = resp.get_json()
-        assert rdata['status'] == 'error'
+def test_empty_json(client) -> None:
+    """Test empty JSON."""
+    resp: Response = client.post(URL)
+    assert resp.status_code == 422
+    rdata = resp.get_json()
+    assert rdata['status'] == 'error'
 
-    def test_bad_message(self, test_client) -> None:
-        """Test bad signature message."""
-        with open(os.path.join(self.DATA_DIR, 'bad-message.json'), 'r') as file:
-            data = file.read()
-        with test_client as c:
-            resp: Response = c.post(
-                self.URL, json=json.loads(data), headers=self.HEADERS
-            )
-        assert resp.status_code == 422
-        rdata = resp.get_json()
-        assert rdata['status'] == 'error'
-        assert rdata['error'] == 'validation_failure'
 
-    def test_complaint_message(self, test_client, test_db_structure):
-        """Test Complaint message."""
-        with open(os.path.join(self.DATA_DIR, 'full-message.json'), 'r') as file:
-            data = file.read()
-        with test_client as c:
-            resp: Response = c.post(
-                self.URL, json=json.loads(data), headers=self.HEADERS
-            )
-        assert resp.status_code == 200
-        rdata = resp.get_json()
-        assert rdata['status'] == 'ok'
+def test_bad_message(client) -> None:
+    """Test bad signature message."""
+    with open(os.path.join(DATA_DIR, 'bad-message.json'), 'r') as file:
+        data = file.read()
+    resp: Response = client.post(URL, json=json.loads(data), headers=HEADERS)
+    assert resp.status_code == 422
+    rdata = resp.get_json()
+    assert rdata['status'] == 'error'
+    assert rdata['error'] == 'validation_failure'
 
-    def test_delivery_message(self, test_client, test_db_structure):
-        """Test Delivery message."""
-        with open(os.path.join(self.DATA_DIR, 'delivery-message.json'), 'r') as file:
-            data = file.read()
-        with test_client as c:
-            resp: Response = c.post(
-                self.URL, json=json.loads(data), headers=self.HEADERS
-            )
-        assert resp.status_code == 200
-        rdata = resp.get_json()
-        assert rdata['status'] == 'ok'
-        test_db_structure.session.commit()
 
-    def test_bounce_message(self, test_client, test_db_structure):
-        """Test Bounce message."""
-        with open(os.path.join(self.DATA_DIR, 'bounce-message.json'), 'r') as file:
-            data = file.read()
-        with test_client as c:
-            resp: Response = c.post(
-                self.URL, json=json.loads(data), headers=self.HEADERS
-            )
-        assert resp.status_code == 200
-        rdata = resp.get_json()
-        assert rdata['status'] == 'ok'
-        test_db_structure.session.commit()
+def test_complaint_message(client):
+    """Test Complaint message."""
+    with open(os.path.join(DATA_DIR, 'full-message.json'), 'r') as file:
+        data = file.read()
+    resp: Response = client.post(URL, json=json.loads(data), headers=HEADERS)
+    assert resp.status_code == 200
+    rdata = resp.get_json()
+    assert rdata['status'] == 'ok'
+
+
+def test_delivery_message(client):
+    """Test Delivery message."""
+    with open(os.path.join(DATA_DIR, 'delivery-message.json'), 'r') as file:
+        data = file.read()
+    resp: Response = client.post(URL, json=json.loads(data), headers=HEADERS)
+    assert resp.status_code == 200
+    rdata = resp.get_json()
+    assert rdata['status'] == 'ok'
+
+
+def test_bounce_message(client):
+    """Test Bounce message."""
+    with open(os.path.join(DATA_DIR, 'bounce-message.json'), 'r') as file:
+        data = file.read()
+    resp: Response = client.post(URL, json=json.loads(data), headers=HEADERS)
+    assert resp.status_code == 200
+    rdata = resp.get_json()
+    assert rdata['status'] == 'ok'

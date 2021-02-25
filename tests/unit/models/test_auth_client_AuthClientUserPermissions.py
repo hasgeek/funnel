@@ -1,4 +1,4 @@
-from funnel import db
+from funnel.models import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture

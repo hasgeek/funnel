@@ -213,26 +213,26 @@ def test_changefreq_for_age():
     assert changefreq_for_age(timedelta(days=180)) == ChangeFreq.yearly
 
 
-def test_sitemap(test_client, test_db_structure):
+def test_sitemap(client):
     """Test sitemap endpoints (caveat: no content checks)."""
     expected_content_type = 'application/xml; charset=utf-8'
 
-    rv = test_client.get('/sitemap.xml')
+    rv = client.get('/sitemap.xml')
     assert rv.status_code == 200
     assert rv.content_type == expected_content_type
     assert b'/sitemap-static.xml' in rv.data
 
-    rv = test_client.get('/sitemap-static.xml')
+    rv = client.get('/sitemap-static.xml')
     assert rv.status_code == 200
     assert rv.content_type == expected_content_type
 
-    rv = test_client.get('/sitemap-2015-11.xml')
+    rv = client.get('/sitemap-2015-11.xml')
     assert rv.status_code == 200
     assert rv.content_type == expected_content_type
 
-    rv = test_client.get('/sitemap-2015-11-05.xml')
+    rv = client.get('/sitemap-2015-11-05.xml')
     assert rv.status_code == 200
     assert rv.content_type == expected_content_type
 
-    rv = test_client.get('/sitemap-2010-12.xml')
+    rv = client.get('/sitemap-2010-12.xml')
     assert rv.status_code == 404

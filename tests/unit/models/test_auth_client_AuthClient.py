@@ -11,8 +11,8 @@ class TestClient(TestDatabaseFixture):
     def test_client_secret_is(self):
         """Test for checking if Client's secret is a ClientCredential."""
         auth_client = self.fixtures.auth_client
-        credentials = models.AuthClientCredential.new(auth_client)
-        assert auth_client.secret_is(credentials[1], credentials[0].name)
+        cred, secret = models.AuthClientCredential.new(auth_client)
+        assert auth_client.secret_is(secret, cred.name)
 
     def test_client_host_matches(self):
         """Test that AuthClient.host_matches works with same-site referrer URL."""
