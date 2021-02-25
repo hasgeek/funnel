@@ -1,7 +1,6 @@
 import pytest
 
 from coaster.utils import utcnow
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -86,10 +85,10 @@ class TestClient(TestDatabaseFixture):
             validity=0,
             user_session=varys_session,
         )
-        db.session.add_all(
+        self.db_session.add_all(
             [varys, house_lannisters, lannisters_auth_token, varys_session]
         )
-        db.session.commit()
+        self.db_session.commit()
         result = house_lannisters.authtoken_for(varys, user_session=varys_session)
         assert isinstance(result, models.AuthToken)
         assert "Lord Varys" == result.user.fullname

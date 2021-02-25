@@ -1,13 +1,17 @@
 import unittest
 
+import pytest
+
 from funnel import app
 
 from .fixtures import Fixtures
 
 
 class TestDatabaseFixture(unittest.TestCase):
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def pytest_fixtures(self, client, db_session):
+        self.client = client
+        self.db_session = db_session
         self.app = app
         self.fixtures = Fixtures()
-        self.fixtures.make_fixtures()
-        self.fixtures.test_client = app.test_client()
+        self.fixtures.make_fixtures(db_session)

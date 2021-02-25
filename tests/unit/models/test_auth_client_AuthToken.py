@@ -3,7 +3,6 @@ from datetime import timedelta
 import pytest
 
 from coaster.utils import buid, utcnow
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -83,7 +82,7 @@ class TestAuthToken(TestDatabaseFixture):
         )
         auth_token = models.AuthToken(auth_client=dachsadv, user=oakley, scope=scope)
         token = auth_token.token
-        db.session.add(dachsadv, auth_token)
+        self.db_session.add(dachsadv, auth_token)
         result = models.AuthToken.get(token)
         assert isinstance(result, models.AuthToken)
         assert result.auth_client == dachsadv
@@ -112,7 +111,7 @@ class TestAuthToken(TestDatabaseFixture):
         pottermania = models.Organization(
             name='pottermania', title='Pottermania', owner=hermione
         )
-        db.session.add_all(
+        self.db_session.add_all(
             [
                 myrtle,
                 myrtle_token,
@@ -125,7 +124,7 @@ class TestAuthToken(TestDatabaseFixture):
                 pottermania,
             ]
         )
-        db.session.commit()
+        self.db_session.commit()
 
         # scenario 1
         result1 = models.AuthToken.all(pottermania.owner_users)
@@ -140,8 +139,8 @@ class TestAuthToken(TestDatabaseFixture):
         cho_token = models.AuthToken(
             auth_client=auth_client, user=cho, scope=['charms']
         )
-        db.session.add_all([lily, lily_token, cho, cho_token])
-        db.session.commit()
+        self.db_session.add_all([lily, lily_token, cho, cho_token])
+        self.db_session.commit()
 
         # scenario 2 and count == 1
         result3 = models.AuthToken.all([lily])
@@ -163,7 +162,9 @@ class TestAuthToken(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         auth_client = self.fixtures.auth_client
 
-        user_session = models.UserSession(buid=buid(), user=crusoe)
+        user_session = models.UserSession(
+            buid=buid(), user=crusoe, ipaddr='', user_agent='', accessed_at=utcnow()
+        )
         auth_token_with_user_session = models.AuthToken(
             user=crusoe, user_session=user_session
         )
@@ -194,13 +195,13 @@ class TestAuthToken(TestDatabaseFixture):
     #     )
     #     token = auth_token.token
 
-    #     db.session.add(auth_token)
-    #     db.session.add(londontales)
+    #     self.db_session.add(auth_token)
+    #     self.db_session.add(londontales)
     #     piggles = models.User(username=u"piggles")
     #     naughtymonkey = models.User(username=u"naughtymonkey")
-    #     db.session.add(piggles)
-    #     db.session.add(naughtymonkey)
-    #     db.session.commit()
+    #     self.db_session.add(piggles)
+    #     self.db_session.add(naughtymonkey)
+    #     self.db_session.commit()
 
     #     # Scenario: When only one user has authtokens associated with them
     #     models.AuthToken.migrate_user(piglet, naughtymonkey)
@@ -213,8 +214,8 @@ class TestAuthToken(TestDatabaseFixture):
     #     another_auth_token = models.AuthToken(
     #         auth_client=londontales, user=piggles, scope=scope_piggles
     #     )
-    #     db.session.add(another_auth_token)
-    #     db.session.commit()
+    #     self.db_session.add(another_auth_token)
+    #     self.db_session.commit()
     #     models.AuthToken.migrate_user(piglet, piggles)
     #     scope_received = models.AuthToken.get(another_auth_token.token).scope
     #     scope_expected = tuple(set(scope_piglet + scope_piggles))
