@@ -2,7 +2,7 @@ from flask import Markup, abort, escape, flash, jsonify, redirect
 
 from bleach import linkify
 
-from baseframe import _, __, forms, request_is_xhr
+from baseframe import _, __, request_is_xhr
 from baseframe.forms import render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
@@ -22,6 +22,7 @@ from ..forms import (
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMoveForm,
+    ProposalSubscribeForm,
     ProposalTransferForm,
     ProposalTransitionForm,
 )
@@ -203,18 +204,36 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             for link in self.obj.links.replace('\r\n', '\n').split('\n')
             if link
         ]
-
         return {
             'project': self.obj.project,
             'proposal': self.obj,
             'links': links,
-            'form': forms.Form(),
+            'subscribed': bool(self.obj.commentset.current_roles.document_subscriber),
         }
 
     @route('update_subscribe', methods=['POST'])
     @requires_login
     def update_subscribe(self):
-        return {'status': 'ok', 'message': 'Subscribed'}
+        subscribe_form = ProposalSubscribeForm()
+        if subscribe_form.validate_on_submit():
+            if subscribe_form.subscribe.data:
+                self.obj.commentset.add_subscriber(
+                    actor=current_auth.user, user=current_auth.user
+                )
+                db.session.commit()
+                return {'status': 'ok', 'message': __("Subscribed")}
+            else:
+                self.obj.commentset.remove_subscriber(
+                    actor=current_auth.user, user=current_auth.user
+                )
+                db.session.commit()
+                return {'status': 'ok', 'message': __("Unsubscribed")}
+        else:
+            return {
+                'status': 'error',
+                'details': subscribe_form.errors,
+                'message': __("Request expired. Reload and try again"),
+            }, 400
 
     @route('admin')
     @render_with('proposal_admin_panel.html.jinja2')

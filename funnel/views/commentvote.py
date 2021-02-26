@@ -161,7 +161,7 @@ class AllCommentsView(ClassView):
             for cm in (
                 current_auth.user.active_commentset_memberships.join(Commentset)
                 .join(Comment)
-                .filter(Comment.user.isnot(current_auth.user))
+                .filter(Comment.user != current_auth.user)
                 .filter(Comment.state.PUBLIC)
                 .order_by(Comment.created_at.desc())
             )

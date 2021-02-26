@@ -73,12 +73,21 @@
     </div>
   {% endif %}
   <div class="mui-dropdown">
-    <a href="javascript:void(0)" class="mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">{{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light') }}</a>
+    <a href="javascript:void(0)" class="mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">
+      {% if subscribed %}
+        {{ faicon(icon='bell-slash', icon_size='title', baseline=false, css_class='mui--text-light') }}
+      {% else %}
+        {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light') }}
+      {% endif %}
+    </a>
     <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
       <form action="{{ proposal.url_for('update_subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
-        {{ form.hidden_tag() }}
-        <li><input type="radio" name="action" value="confirm" class="mui--text-body2 js-subscribe-btn mui--hide" id="confirm-subscription"><label for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Get notification{% endtrans %}</label></li>
-        <li><input type="radio" name="action" value="cancel" class="mui--text-body2 js-subscribe-btn mui--hide" id="cancel-subscription"><label for="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Mute this submission{% endtrans %}</li>
+        {{ proposal.forms.subscribe().hidden_tag() }}
+        {% if subscribed %}
+          <li><input type="radio" name="subscribe" value="false" class="mui--text-body2 js-subscribe-btn mui--hide" id="cancel-subscription"><label for="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Mute this submission{% endtrans %}</li>
+        {% else %}
+          <li><input type="radio" name="subscribe" value="true" class="mui--text-body2 js-subscribe-btn mui--hide" id="confirm-subscription"><label for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Get notification{% endtrans %}</label></li>
+        {% endif %}
       </form>
     </ul>
   </div>
