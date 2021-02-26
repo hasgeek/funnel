@@ -1,4 +1,4 @@
-"""Added seq field to Proposal.
+"""Reset Proposal.url_id value by 10000x.
 
 Revision ID: 8031d3777a2e
 Revises: 284c10efdbce
@@ -31,7 +31,6 @@ proposal = table(
     column('id', sa.Integer()),
     column('project_id', sa.Integer()),
     column('url_id', sa.Integer()),
-    column('seq', sa.Integer()),
 )
 
 
@@ -54,11 +53,6 @@ def get_progressbar(label, maxval):
 def upgrade():
     conn = op.get_bind()
 
-    op.add_column('proposal', sa.Column('seq', sa.Integer(), nullable=True))
-    op.create_unique_constraint(
-        'proposal_project_id_seq_key', 'proposal', ['project_id', 'seq']
-    )
-
     count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
@@ -66,7 +60,7 @@ def upgrade():
     projects = conn.execute(sa.select([project.c.id]))
     for counter, project_item in enumerate(projects):
         proposals = conn.execute(
-            sa.select([proposal.c.id, proposal.c.url_id, proposal.c.seq])
+            sa.select([proposal.c.id, proposal.c.url_id])
             .where(proposal.c.project_id == project_item.id)
             .select_from(proposal)
             .order_by(proposal.c.url_id.asc())
@@ -76,14 +70,33 @@ def upgrade():
             conn.execute(
                 sa.update(proposal)
                 .where(sa.and_(proposal.c.id == proposal_item.id))
-                .values(seq=(proposal_counter + 1) * 1000)
+                .values(url_id=(proposal_counter + 1) * 10000)
             )
         progress.update(counter)
     progress.finish()
 
-    op.alter_column('proposal', 'seq', nullable=False)
-
 
 def downgrade():
-    op.drop_constraint('proposal_project_id_seq_key', 'proposal', type_='unique')
-    op.drop_column('proposal', 'seq')
+    conn = op.get_bind()
+
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
+    progress = get_progressbar("Projects", count)
+    progress.start()
+
+    projects = conn.execute(sa.select([project.c.id]))
+    for counter, project_item in enumerate(projects):
+        proposals = conn.execute(
+            sa.select([proposal.c.id, proposal.c.url_id])
+            .where(proposal.c.project_id == project_item.id)
+            .select_from(proposal)
+            .order_by(proposal.c.url_id.asc())
+        )
+
+        for proposal_counter, proposal_item in enumerate(proposals):
+            conn.execute(
+                sa.update(proposal)
+                .where(sa.and_(proposal.c.id == proposal_item.id))
+                .values(url_id=(proposal_counter + 1))
+            )
+        progress.update(counter)
+    progress.finish()

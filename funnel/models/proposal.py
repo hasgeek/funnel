@@ -150,14 +150,12 @@ class Proposal(
             Project,
             primaryjoin=project_id == Project.id,
             backref=db.backref(
-                'proposals', cascade='all', lazy='dynamic', order_by='Proposal.seq'
+                'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
             ),
         ),
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
-
-    seq = db.Column(db.Integer, nullable=False)
 
     # TODO: Deprecated
     abstract = MarkdownColumn('abstract', nullable=True)
@@ -231,7 +229,6 @@ class Proposal(
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
-        db.UniqueConstraint('project_id', 'seq'),
         db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
 

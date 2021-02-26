@@ -172,7 +172,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 else None
             )
 
-            ordered_proposals = self.obj.proposals.order_by(Proposal.seq.asc()).all()
+            ordered_proposals = self.obj.proposals.order_by(Proposal.url_id.asc()).all()
 
             if previous_proposal is None:
                 # current item was moved to the top of the list
@@ -180,21 +180,21 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                     # when the project has only one or no proposal, and the sorting
                     # endpoint gets called somehow by mistake or with any malicious
                     # intention
-                    new_seq = 1000
+                    new_seq = 10000
                 else:
                     # there are more than one proposal and the current item was
                     # dragged to the beginning of the list
-                    new_seq = ordered_proposals[0].seq - 1000
+                    new_seq = ordered_proposals[0].url_id - 10000
             elif previous_proposal == ordered_proposals[-1]:
                 # current item has been pulled to the end of the list
-                new_seq = previous_proposal.seq + 1000
+                new_seq = previous_proposal.url_id + 10000
             else:
                 next_proposal = ordered_proposals[
                     ordered_proposals.index(previous_proposal) + 1
                 ]
-                new_seq = (previous_proposal.seq + next_proposal.seq) // 2
+                new_seq = (previous_proposal.url_id + next_proposal.url_id) // 2
 
-            current_proposal.seq = new_seq
+            current_proposal.url_id = new_seq
             db.session.commit()
 
             return {'status': 'ok'}

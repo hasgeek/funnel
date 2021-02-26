@@ -122,34 +122,32 @@ def project_starting_alert():
 
 @periodic.command
 def resetseq():
-    """Reset Proposal.seq to same interval.
+    """Reset Proposal.url_id to same interval.
 
-    Reseting with the initial seq might cause collition because it's possible for
-    an item to get a seq that's multiple of 1000 after dragging around. So if we
-    reset the order with seq multiple of 1000, then the new seq of another item may
-    cause collision.
+    Reseting with the initial url_id might cause collition because it's possible for
+    an item to get a url_id that's multiple of 10000 after dragging around.
 
-    So we can increase the seq to the multiples of 100000 so that it doesn't cause
-    collision with existing items, and then reset them to multiples of 1000.
+    So we can decrease the url_id to the base value starting from 1 so that it doesn't
+    cause collision with existing items, and then reset them to multiples of 10000.
 
     There is a chance that this might cause an issue if somebody drags items around
     in between these 2 commits. but that should get fixed in next reorder.
     """
     projects = models.Project.query.all()
-    app.logger.info("Resetting seq to bare index value")
+    app.logger.info("Resetting url_id to bare index value")
     for project in projects:
         for idx, proposal in enumerate(
-            project.proposals.order_by(models.Proposal.seq.asc()).all()
+            project.proposals.order_by(models.Proposal.url_id.asc()).all()
         ):
-            proposal.seq = idx + 1
+            proposal.url_id = idx + 1
         db.session.commit()
-    app.logger.info("Setting seq to multiplied value")
+    app.logger.info("Setting url_id to multiplied value")
     for project in projects:
         app.logger.info(project.title)
         for idxp, proposal in enumerate(
-            project.proposals.order_by(models.Proposal.seq.asc()).all()
+            project.proposals.order_by(models.Proposal.url_id.asc()).all()
         ):
-            proposal.seq = (idxp + 1) * 1000
+            proposal.url_id = (idxp + 1) * 10000
         db.session.commit()
 
 
