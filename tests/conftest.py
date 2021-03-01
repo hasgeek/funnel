@@ -352,15 +352,42 @@ def org_citywatch(db_session, user_vetinari, user_vimes):
 
 
 @pytest.fixture
-def project_guards(db_session, org_ankhmorpork, user_vetinari, user_rincewind):
-    """Project in which the City Watch investigates a dragon plot."""
+def project_ai1(db_session, org_uu, user_ponder_stibbons):
+    """
+    Anthill Inside conference, hosted by Unseen University (an inspired event).
+
+    Based on Soul Music, which features the first appearance of Hex, published 1994.
+    """
     project = Project(
-        profile=org_citywatch.profile,
-        user=user_vimes,
-        title="Guards! Guards!",
-        subtitle="A Discworld novel",
-        description="Guards! Guards! is the 8th Discworld novel by Terry Pratchett,"
-        " first published in 1989. It is the first novel about the City Watch.",
+        profile=org_uu.profile,
+        user=user_ponder_stibbons,
+        title="Soul Music",
+        subtitle="Hex makes an initial appearance",
+        description="Hex has its origins in a device that briefly appeared in Soul"
+        " Music, created by Ponder Stibbons and some student Wizards in the High Energy"
+        " Magic building. In this form it was simply a complex network of glass tubes,"
+        " containing ants. The wizards could then use punch cards to control which"
+        " tubes the ants could crawl through, enabling it to perform simple"
+        " mathematical functions.",
+    )
+    db_session.add(project)
+    return project
+
+
+@pytest.fixture
+def project_ai2(db_session, org_uu, user_ponder_stibbons):
+    """
+    Anthill Inside conference, hosted by Unseen University (an inspired event).
+
+    Based on Interesting Times..
+    """
+    project = Project(
+        profile=org_uu.profile,
+        user=user_ponder_stibbons,
+        title="Interesting Times",
+        subtitle="Hex invents parts for itself",
+        description="Hex has become a lot more complex, and is constantly reinventing"
+        " itself, meaning several new components of it are mysteries to those at UU.",
     )
     db_session.add(project)
     return project
