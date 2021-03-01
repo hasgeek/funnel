@@ -1,7 +1,11 @@
+from datetime import datetime
+
+from pytz import utc
 import pytest
 
 from funnel import app
 from funnel.models import (
+    AuthClient,
     Label,
     Organization,
     OrganizationMembership,
@@ -43,6 +47,338 @@ def client(db_session):
     with app.app_context():  # Not required for test_client, but required for autouse
         with app.test_client() as test_client:
             yield test_client
+
+
+# --- Sample data: users, organizations, projects, etc ---------------------------------
+
+# These names are adapted from the Discworld universe. Backstories can be found at:
+# * https://discworld.fandom.com/
+# * https://wiki.lspace.org/
+
+
+# --- Users
+
+
+@pytest.fixture
+def user_twoflower(db_session):
+    """
+    Twoflower is a tourist from the Agatean Empire who goes on adventures.
+
+    As a tourist unfamiliar with local customs, Twoflower represents our naive user,
+    having only made a user account but not having picked a username or made any other
+    affiliations.
+    """
+    user = User(fullname="Twoflower")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_rincewind(db_session):
+    """
+    Rincewind is a wizard and a former member of Unseen University.
+
+    Rincewind is Twoflower's guide in the first two books, and represents our fully
+    initiated user in tests.
+    """
+    user = User(username='rincewind', fullname="Rincewind")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_death(db_session):
+    """
+    Death is the epoch user, present at the beginning and always having the last word.
+
+    Since Death predates all other users in tests, any call to `merge_users` or
+    `migrate_user` always transfers assets to Death. The fixture has created_at set to
+    the epoch to represent this. Death is also a site admin.
+    """
+    user = User(
+        username='death',
+        fullname="Death",
+        created_at=datetime(1970, 1, 1, tzinfo=utc),
+    )
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_mort(db_session):
+    """
+    Mort is Death's apprentice, and a site admin in tests.
+
+    Mort has a created_at in the past (the publication date of the book), granting
+    priority when merging user accounts. Unlike Death, Mort does not have a username or
+    profile, so Mort will acquire it from a merged user.
+    """
+    user = User(fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=utc))
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_susan(db_session):
+    """
+    Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
+
+    Susan inherits Death's role as a site admin and plays a correspondent with Mort.
+    """
+    user = User(username='susan', fullname="Susan Sto Helit")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_lutze(db_session):
+    """
+    Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
+
+    Lu-Tze plays the role of a site editor, cleaning up after messy users.
+    """
+    user = User(username='lu-tze', fullname="Lu-Tze")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_ridcully(db_session):
+    """
+    Mustrum Ridcully, archchancellor of Unseen University.
+
+    Ridcully serves as an owner of the Unseen University organization in tests.
+    """
+    user = User(username='ridcully', fullname="Mustrum Ridcully")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_librarian(db_session):
+    """
+    Librarian of Unseen University, currently an orangutan.
+
+    The Librarian serves as an admin of the Unseen University organization in tests.
+    """
+    user = User(username='librarian', fullname="The Librarian")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_ponder_stibbons(db_session):
+    """
+    Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
+
+    Admin of UU org.
+    """
+    user = User(username='ponder-stibbons', fullname="Ponder Stibbons")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_vetinari(db_session):
+    """
+    Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
+
+    Co-owner of the City Watch organization in our tests.
+    """
+    user = User(username='vetinari', fullname="Havelock Vetinari")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_vimes(db_session):
+    """
+    Samuel Vimes, commander of the Ankh-Morpork City Watch.
+
+    Co-owner of the City Watch organization in our tests.
+    """
+    user = User(username='vimes', fullname="Sam Vimes")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_carrot(db_session):
+    """
+    Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
+
+    Admin of the organization in our tests.
+    """
+    user = User(username='carrot', fullname="Carrot Ironfoundersson")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_angua(db_session):
+    """
+    Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
+
+    Represents a user who (a) gets promoted in her organization, and (b) prefers an
+    foreign, unsupported language.
+    """
+    # We assign here the locale for Interlingue ('ie'), a constructed language, on the
+    # assumption that it will never be supported. "Uberwald" is the German translation
+    # of Transylvania, which is located in Romania. Interlingue is the work of an
+    # Eastern European, and has since been supplanted by Interlingua, with ISO 639-1
+    # code 'ia'. It is therefore reasonably safe to assume Interlingue is dead.
+    user = User(fullname="Angua von Überwald", locale='ie', auto_locale=False)
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_dibbler(db_session):
+    """
+    Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
+
+    Represents the spammer in our tests, from spam comments to spam projects.
+    """
+    user = User(username='dibbler', fullname="CMOT Dibbler")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_wolfgang(db_session):
+    """
+    Wolfgang von Überwald, brother of Angua, violent shapeshifter.
+
+    Represents an attacker who changes appearance by changing identifiers or making
+    sockpuppet user accounts.
+    """
+    user = User(username='wolfgang', fullname="Wolfgang von Überwald")
+    db_session.add(user)
+    return user
+
+
+@pytest.fixture
+def user_om(db_session):
+    """
+    Great God Om of the theocracy of Omnia, who has lost his believers.
+
+    Moves between having a user account and an org account in tests, creating a new user
+    account for Brutha, the last believer.
+    """
+    user = User(username='omnia', fullname="Om")
+    db_session.add(user)
+    return user
+
+
+# --- Organizations
+
+
+@pytest.fixture
+def org_ankhmorpork(db_session, user_vetinari):
+    """
+    City of Ankh-Morpork, here representing the government rather than location.
+
+    Havelock Vetinari is the Patrician (aka dictator), and sponsors various projects to
+    develop the city.
+    """
+    org = OrganizationMembership(
+        name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari
+    )
+    db_session.add(org)
+    return org
+
+
+@pytest.fixture
+def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
+    """
+    Unseen University is located in Ankh-Morpork.
+
+    Staff:
+
+    * Alberto Malich, founder emeritus (not listed here since no corresponding role)
+    * Mustrum Ridcully, archchancellor (owner)
+    * The Librarian, head of the library (admin)
+    * Ponder Stibbons, Head of Inadvisably Applied Magic (admin)
+    """
+    org = Organization(name='UU', title="Unseen University", owner=user_ridcully)
+    db_session.add(org)
+    db_session.add(
+        OrganizationMembership(
+            organization=org,
+            user=user_librarian,
+            is_owner=False,
+            granted_by=user_ridcully,
+        )
+    )
+    db_session.add(
+        OrganizationMembership(
+            organization=org,
+            user=user_ponder_stibbons,
+            is_owner=False,
+            granted_by=user_ridcully,
+        )
+    )
+    return org
+
+
+@pytest.fixture
+def org_citywatch(db_session, user_vetinari, user_vimes):
+    """
+    City Watch of Ankh-Morpork (a sub-organization).
+
+    Staff:
+
+    * Havelock Vetinari, Patrician of the city, legal owner but with no operating role
+    * Sam Vimes, commander (owner)
+    * Carrot Ironfoundersson, captain (admin)
+    * Angua von Uberwald, corporal (unlisted, as there is no member role)
+    """
+    org = Organization(name='city-watch', title="City Watch", owner=user_vetinari)
+    db_session.add(org)
+    db_session.add(
+        OrganizationMembership(
+            organization=org, user=user_vimes, is_owner=True, granted_by=user_vetinari
+        )
+    )
+    db_session.add(
+        OrganizationMembership(
+            organization=org, user=user_carrot, is_owner=False, granted_by=user_vimes
+        )
+    )
+    return org
+
+
+# --- Projects
+
+
+@pytest.fixture
+def project_guards(db_session, org_ankhmorpork, user_vetinari, user_rincewind):
+    """Project in which the City Watch investigates a dragon plot."""
+    project = Project(
+        profile=org_citywatch.profile,
+        user=user_vimes,
+        title="Guards! Guards!",
+        subtitle="A Discworld novel",
+        description="Guards! Guards! is the 8th Discworld novel by Terry Pratchett,"
+        " first published in 1989. It is the first novel about the City Watch.",
+    )
+    db_session.add(project)
+    return project
+
+
+# --- Client apps
+
+
+@pytest.fixture
+def client_hex(db_session, org_uu):
+    """
+    Hex, supercomputer at Unseen University, powered by an Anthill Inside.
+
+    Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
+    """
+    client = AuthClient(title="Hex", owner=org_uu)
+    db_session.add(client)
+    return client
 
 
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
