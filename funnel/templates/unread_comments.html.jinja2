@@ -2,12 +2,14 @@
 {%- from "macros.html.jinja2" import useravatar %}
 {% for membership in commentset_memberships %}
   <li class="user">
-    <div class="user__box">
-      {{ useravatar(membership.last_comment.user) }}
-      <div class="user__box__header comment__details">
-        <h3 class="mui--text-body2 user__box__fullname"><span class="mui--text-bold">{{ membership.last_comment.user.fullname }}</span><span class="mui--text-caption mui--pull-right comment__details__age">{{ membership.last_comment.created_at|age }}</span></h3>
-        <h3 class="mui--text-caption mui--text-light user__box__subcontent"><span class="truncated-text">{{ membership.last_comment.message.text }}</span> <span class="badge badge--round badge--round-smaller mui--pull-right">{{ membership.new_comments_count }}</span></h3>
-      <div>
-    </div>
+    <a class="clickable-card" href="{{ membership.commentset_url }}">
+      <div class="user__box">
+        {{ useravatar(membership.last_comment.user, add_profile_link=false) }}
+        <div class="user__box__header comment__details">
+          <h3 class="mui--text-body2 user__box__fullname"><span class="mui--text-bold">{{ membership.last_comment.user.fullname }}</span><span class="mui--text-caption mui--pull-right comment__details__age">{{ membership.last_comment.created_at|age }}</span></h3>
+          <h3 class="mui--text-caption mui--text-light user__box__subcontent"><span class="truncated-text">{{ membership.last_comment.message.text }}</span> <span class="badge badge--round badge--round-smaller mui--pull-right">{{ membership.new_comments_count }}</span></h3>
+        <div>
+      </div>
+    </a>
   </li>
 {% endfor %}

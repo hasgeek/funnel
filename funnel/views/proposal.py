@@ -215,24 +215,34 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     def update_subscribe(self):
         subscribe_form = ProposalSubscribeForm()
+        subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
         if subscribe_form.validate_on_submit():
             if subscribe_form.subscribe.data:
                 self.obj.commentset.add_subscriber(
                     actor=current_auth.user, user=current_auth.user
                 )
                 db.session.commit()
-                return {'status': 'ok', 'message': __("Subscribed")}
+                return {
+                    'status': 'ok',
+                    'message': __("Subscribed"),
+                    'form_nonce': subscribe_form.form_nonce.data,
+                }
             else:
                 self.obj.commentset.remove_subscriber(
                     actor=current_auth.user, user=current_auth.user
                 )
                 db.session.commit()
-                return {'status': 'ok', 'message': __("Unsubscribed")}
+                return {
+                    'status': 'ok',
+                    'message': __("Unsubscribed"),
+                    'form_nonce': subscribe_form.form_nonce.data,
+                }
         else:
             return {
                 'status': 'error',
                 'details': subscribe_form.errors,
                 'message': __("Request expired. Reload and try again"),
+                'form_nonce': subscribe_form.form_nonce.data,
             }, 400
 
     @route('admin')

@@ -75,19 +75,18 @@
   <div class="mui-dropdown">
     <a href="javascript:void(0)" class="mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">
       {% if subscribed %}
-        {{ faicon(icon='bell-slash', icon_size='title', baseline=false, css_class='mui--text-light') }}
+        {{ faicon(icon='bell-slash', icon_size='title', baseline=false, css_class='mui--text-light js-subscribed') }}
+        {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light mui--hide js-unsubscribed') }}
       {% else %}
-        {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light') }}
+        {{ faicon(icon='bell-slash', icon_size='title', baseline=false, css_class='mui--text-light mui--hide js-subscribed') }}
+        {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light js-unsubscribed') }}
       {% endif %}
     </a>
     <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
       <form action="{{ proposal.url_for('update_subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
         {{ proposal.forms.subscribe().hidden_tag() }}
-        {% if subscribed %}
-          <li><input type="radio" name="subscribe" value="false" class="mui--text-body2 js-subscribe-btn mui--hide" id="cancel-subscription"><label for="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Mute this submission{% endtrans %}</li>
-        {% else %}
-          <li><input type="radio" name="subscribe" value="true" class="mui--text-body2 js-subscribe-btn mui--hide" id="confirm-subscription"><label for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Get notification{% endtrans %}</label></li>
-        {% endif %}
+        <li class="js-subscribed  {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label for="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Mute this submission{% endtrans %}</label></li>
+        <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Get notification{% endtrans %}</label></li>
       </form>
     </ul>
   </div>
@@ -294,32 +293,8 @@
     };
 
     window.Hasgeek.Comments(commentsConfig);
+    window.Hasgeek.ProposalInit();
 
-    $('.js-subscribe-btn').on('click', function(event) {
-      event.preventDefault();
-      console.log('submitted');
-      var form = $('#subscribe-form');
-      $(form).find('button[type="submit"]').attr('disabled', true);
-      var formData = $(form).serializeArray();
-      $.ajax({
-        type: 'POST',
-        url: $(form).attr('action'),
-        data: formData,
-        dataType: 'json',
-        timeout: window.Hasgeek.config.ajaxTimeout,
-        success: function (responseData) {
-          if (responseData && responseData.message) {
-            window.toastr.success(responseData.message);
-          }
-        },
-        error: function (response) {
-          // Utils.handleAjaxError(response);``
-        },
-        complete: function() {
-          $(form).find('button[type="submit"]').attr('disabled', false);
-        }
-      });
-    });
   });
 </script>
 <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
