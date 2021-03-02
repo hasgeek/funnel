@@ -60,7 +60,7 @@
 {% endmacro %}
 
 {% macro saveprojectform(project, iconsize='body', formid='save-form') %}
-  <form id={{formid}} class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
+  <form id="{{ formid }}" class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
     {{ current_view.SavedProjectForm().hidden_tag() }}
     <div class="no-jshidden bookmark-wrapper">
       {%- if current_auth.is_anonymous %}
@@ -152,19 +152,25 @@
   <div class="register-block">
     {% if project.features.tickets()  %}
       <div class="register-block__txt js-tickets-available">
-        <p class="js-ticket-price zero-bottom-margin"></p>
-        <p class="mui--text-caption mui--text-light zero-bottom-margin">{% trans %}Tickets available{% endtrans %}</p>
+        <p class="js-ticket-price mui--text-subhead mui--text-bold zero-bottom-margin"></p>
+        <p class="mui--text-light zero-bottom-margin">{% trans %}Tickets available{% endtrans %}</p>
       </div>
       <div class="register-block__txt js-tickets-not-available mui--hide">
-        <p class="zero-bottom-margin">{% trans %}Sold out{% endtrans %}</p>
+        <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% trans %}Sales closed{% endtrans %}</p>
       </div>
       <a href="{{ project.url_for() }}" class="js-open-ticket-widget register-block__btn mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get tickets{% endtrans %}</a>
     {% elif project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
-        <p class="register-block__txt mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
+        <div class="register-block__txt">
+          <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% trans %}Free{% endtrans %}</p>
+          <p class="mui--text-caption mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
+        </div>
         <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin"  href="{{ url_for('login', next=request.path) }}">Register</a>
       {% elif project.features.rsvp_unregistered() -%}
-        <p class="register-block__txt {% if project.view_for('rsvp_list').is_available() %}register-block__txt--short{%- endif %} mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
+        <div class="register-block__txt {% if project.view_for('rsvp_list').is_available() %}register-block__txt--short{%- endif %}">
+          <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% trans %}Free{% endtrans %}</p>
+          <p class="mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
+        </div>
       {%- elif project.features.rsvp_registered() %}
         <p class="register-block__txt register-block__txt--longer mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class='mui--text-success fa-icon--left-margin') }}</p>
       {%- endif %}
@@ -451,7 +457,7 @@
     <div class="card__body">
       {%- if not current_auth.is_anonymous %}
         {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
-        <div class="card__body__bookmark {% if not include_calendar %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, save_form_id) }}</div>
+        <div class="card__body__bookmark {% if not include_calendar %} card__body__bookmark--pushup {% endif %}">{{ saveprojectform(project, formid=save_form_id) }}</div>
       {% endif %}
       {%- if include_calendar%}
         {% if calendarwidget_compact and project.schedule_state.PUBLISHED and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
@@ -558,7 +564,7 @@
                   {%- if not current_auth.is_anonymous %}
                     {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
                     <div class="card__body__bookmark">
-                      {{ saveprojectform(featured_project, save_form_id) }}
+                      {{ saveprojectform(featured_project, formid=save_form_id) }}
                     </div>
                   {% endif %}
                   {% if featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
