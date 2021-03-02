@@ -139,8 +139,11 @@
 .card--shaped {
   color: $mui-text-dark;
   display: block;
-  cursor: pointer;
   text-decoration: none;
+}
+
+.clickable-card {
+  cursor: pointer;
 }
 
 .card--shaped {

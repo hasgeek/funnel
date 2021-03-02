@@ -13,6 +13,9 @@
   .register-block__right__menu {
     margin-left: $mui-grid-padding/2;
   }
+  .register-block__txt--strike {
+    text-decoration: line-through;
+  }
 }
 
 @media (min-width: 360px) {
