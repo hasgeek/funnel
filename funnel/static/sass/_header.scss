@@ -58,14 +58,14 @@
             top: 0;
             left: 0;
             box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16);
-            padding: 16px;
+            padding: $mui-grid-padding $mui-grid-padding/2;
             right: 0;
             left: 0;
             background: $mui-bg-color-primary;
 
             .search-form__field {
               background-color: #f1f1f1;
-              padding: 8px 32px 8px 42px;
+              padding: 8px 8px 8px 29px;
               color: #4d5763;
               font-size: 16px;
               outline: none;
@@ -84,7 +84,7 @@
               background-color: $mui-bg-color-primary;
               overflow: scroll;
               list-style: none;
-              padding: 0 16px;
+              padding: 0 $mui-grid-padding;
               display: none;
               height: calc(100vh - 126px);
               left: 0;
@@ -276,13 +276,13 @@
             overflow: visible;
 
             .header__site-title__title__home {
-              width: 140px;
+              width: 185px;
             }
 
             .logo-about {
               position: absolute !important;
-              left: 42px;
-              top: 9px;
+              left: 46px;
+              top: 5px;
               font-size: 12px;
               padding: 2px 10px;
               border-radius: 4px;
@@ -320,6 +320,10 @@
               bottom: 0;
               box-shadow: none;
               background: transparent;
+              padding: $mui-grid-padding;
+              .search-form__field {
+                padding: 8px 8px 8px 36px;
+              }
               .search-form__field--selected {
                 background: #fff;
                 border-radius: 16px 16px 0 0;
@@ -358,7 +362,6 @@
 
             .header__site-title__title__settings {
               display: flex;
-              width: 152px;
               justify-content: flex-end;
             }
             .header__nav-links--right {
@@ -421,7 +424,6 @@
   .hg-app {
     .header--fixed {
       .header__nav {
-        height: 35px;
         .header__site-title {
           .header__site-title__title {
             .header__nav-links {
@@ -438,10 +440,6 @@
             .header__nav-links--updates:after {
               right: 0;
               left: 19px;
-            }
-
-            .search-form {
-              bottom: 35px;
             }
           }
           a.header__button {

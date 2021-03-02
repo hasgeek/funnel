@@ -1116,7 +1116,7 @@ a.loginbutton.hidden,
   top: 0;
   left: 0;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16);
-  padding: 16px;
+  padding: 16px 8px;
   right: 0;
   left: 0;
   background: #ffffff;
@@ -1129,7 +1129,7 @@ a.loginbutton.hidden,
   .search-form
   .search-form__field {
   background-color: #f1f1f1;
-  padding: 8px 32px 8px 42px;
+  padding: 8px 8px 8px 29px;
   color: #4d5763;
   font-size: 16px;
   outline: none;
@@ -1456,7 +1456,7 @@ a.loginbutton.hidden,
     .header__site-title
     .header__site-title__title
     .header__site-title__title__home {
-    width: 140px;
+    width: 185px;
   }
   .hg-app
     .header--fixed
@@ -1465,8 +1465,8 @@ a.loginbutton.hidden,
     .header__site-title__title
     .logo-about {
     position: absolute !important;
-    left: 42px;
-    top: 9px;
+    left: 46px;
+    top: 5px;
     font-size: 12px;
     padding: 2px 10px;
     border-radius: 4px;
@@ -1526,6 +1526,16 @@ a.loginbutton.hidden,
     bottom: 0;
     box-shadow: none;
     background: transparent;
+    padding: 16px;
+  }
+  .hg-app
+    .header--fixed
+    .header__nav
+    .header__site-title
+    .header__site-title__title
+    .search-form
+    .search-form__field {
+    padding: 8px 8px 8px 36px;
   }
   .hg-app
     .header--fixed
@@ -1600,7 +1610,6 @@ a.loginbutton.hidden,
     .header__site-title__title
     .header__site-title__title__settings {
     display: flex;
-    width: 152px;
     justify-content: flex-end;
   }
   .hg-app
@@ -1669,9 +1678,6 @@ a.loginbutton.hidden,
   }
 }
 @media only screen and (max-width: 767px) and (orientation: landscape) {
-  .hg-app .header--fixed .header__nav {
-    height: 35px;
-  }
   .hg-app
     .header--fixed
     .header__nav
@@ -1714,14 +1720,6 @@ a.loginbutton.hidden,
     .header__nav-links--updates:after {
     right: 0;
     left: 19px;
-  }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__site-title
-    .header__site-title__title
-    .search-form {
-    bottom: 35px;
   }
   .hg-app .header--fixed .header__nav .header__site-title a.header__button {
     height: 24px;
