@@ -1301,11 +1301,13 @@
       "Edit description": [null, ""],
       "Settings": [null, "सेटिंग्स"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
-      "Featured project appears as Spotlight on the home page": [null, ""],
+      "Featured projects appear under Spotlight on the home page": [null, ""],
       "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
       "Update banner image": [null, "बैनर इमेज को बदलें"],
-      "Tickets available!": [null, ""],
+      "Tickets available": [null, ""],
+      "Sales closed": [null, ""],
       "Get tickets": [null, "टिकट पाएं"],
+      "Free": [null, ""],
       "Register": [null, "रजिस्टर करें"],
       "This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.": [
         null,
@@ -1555,16 +1557,10 @@
       "JSON": [null, "JSON"],
       "View schedule JSON": [null, "कार्यक्रम की JSON फाइल देखें"],
       "Schedule JSON": [null, "कार्यक्रम की JSON फाइल"],
-      "Proposal guidelines": [null, "प्रस्ताव के दिशा-निर्देश"],
-      "Open proposal submissions": [null, "प्रस्ताव जमा करने की सुविधा खोलें"],
-      "Modify proposal guidelines and timing": [
-        null,
-        "प्रस्ताव से जुडे दिशा-निर्देश और समय-सूची को बदलें"
-      ],
-      "Add proposal guidelines and timing": [
-        null,
-        "प्रस्ताव की दिशा-निर्देश और समय-सूची जोड़ें"
-      ],
+      "Submission guidelines": [null, ""],
+      "Modify guidelines and timing": [null, ""],
+      "Modify guidelines": [null, ""],
+      "Add guidelines and timing": [null, ""],
       "All submissions": [null, "सारे सबमिशन"],
       "Add new update": [null, "नई जानकारी डालें"],
       "Post an update…": [null, "नई जानकारी पोस्ट करें…"],

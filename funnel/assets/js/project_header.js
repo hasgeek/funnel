@@ -85,6 +85,26 @@ const Ticketing = {
         Utils.sendToGA('ticketing', userAction, label, value);
       }
     );
+    $(document).on(
+      'boxofficeShowPriceEvent',
+      (event, prices, currency, quantityAvailable) => {
+        let price, minPrice, maxPrice, isTicketAvailable;
+        isTicketAvailable = Math.min(...quantityAvailable);
+        if (!isTicketAvailable) {
+          $('.js-tickets-available').addClass('mui--hide');
+          $('.js-tickets-not-available').removeClass('mui--hide');
+          $('.js-open-ticket-widget').addClass('register-block__txt--strike');
+        } else {
+          minPrice = Math.min(...prices);
+          price = `${currency}${minPrice}`;
+          if (prices.length > 1) {
+            maxPrice = Math.max(...prices);
+            price = `${currency}${minPrice} - ${currency}${maxPrice}`;
+          }
+          $('.js-ticket-price').text(price);
+        }
+      }
+    );
   },
 
   initTicketModal() {

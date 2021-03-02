@@ -2842,8 +2842,11 @@ a.loginbutton.hidden,
 .card--shaped {
   color: #1f2d3d;
   display: block;
-  cursor: pointer;
   text-decoration: none;
+}
+
+.clickable-card {
+  cursor: pointer;
 }
 
 .card--shaped {
@@ -3480,6 +3483,9 @@ a.loginbutton.hidden,
 }
 .register-block .register-block__right__menu {
   margin-left: 8px;
+}
+.register-block .register-block__txt--strike {
+  text-decoration: line-through;
 }
 
 @media (min-width: 360px) {
