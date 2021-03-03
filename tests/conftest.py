@@ -324,7 +324,7 @@ def create_proposal(test_db_structure, create_user, create_project):
         speaker=user,
         project=project,
         title="Test Proposal",
-        outline="Test proposal description",
+        description="Test proposal description",
         location="Bangalore",
     )
     test_db_structure.session.add(proposal)
