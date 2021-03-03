@@ -354,6 +354,34 @@ def org_citywatch(db_session, user_vetinari, user_vimes):
 
 
 @pytest.fixture
+def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
+    """Ankh-Morpork hosts its 2010 expo."""
+    project = Project(
+        profile=org_ankhmorpork.profile,
+        user=user_vetinari,
+        title="Ankh-Morpork 2010",
+        subtitle="Welcome to Ankh-Morpork, tourists!",
+        description="The city doesn't have tourists. Let's change that.",
+    )
+    db_session.add(project)
+    return project
+
+
+@pytest.fixture
+def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
+    """Ankh-Morpork hosts its 2011 expo."""
+    project = Project(
+        profile=org_ankhmorpork.profile,
+        user=user_vetinari,
+        title="Ankh-Morpork 2011",
+        subtitle="Welcome back, our pub's changed",
+        description="The Broken Drum is gone, but we have The Mended Drum now.",
+    )
+    db_session.add(project)
+    return project
+
+
+@pytest.fixture
 def project_ai1(db_session, org_uu, user_ponder_stibbons):
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
