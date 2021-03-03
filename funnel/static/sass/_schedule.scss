@@ -9,8 +9,9 @@
     margin: 0 0 $mui-grid-padding-double;
 
     .schedule__date {
-      margin-bottom: $mui-grid-padding-double;
+      margin-bottom: $mui-grid-padding;
       padding-left: $mui-grid-padding;
+      margin-top: 0;
     }
 
     .schedule__row {
@@ -327,6 +328,15 @@
       max-width: 70%;
       margin-top: 16px;
     }
+  }
+}
+
+.jquery-modal.blocker.current .session-modal {
+  .session-modal__title {
+    max-width: calc(100% - 20px);
+    margin-top: 0;
+    position: relative;
+    top: -10px;
   }
 }
 

@@ -85,6 +85,26 @@ const Ticketing = {
         Utils.sendToGA('ticketing', userAction, label, value);
       }
     );
+    $(document).on(
+      'boxofficeShowPriceEvent',
+      (event, prices, currency, quantityAvailable) => {
+        let price, minPrice, maxPrice, isTicketAvailable;
+        isTicketAvailable = Math.min(...quantityAvailable);
+        if (!isTicketAvailable) {
+          $('.js-tickets-available').addClass('mui--hide');
+          $('.js-tickets-not-available').removeClass('mui--hide');
+          $('.js-open-ticket-widget').addClass('register-block__txt--strike');
+        } else {
+          minPrice = Math.min(...prices);
+          price = `${currency}${minPrice}`;
+          if (prices.length > 1) {
+            maxPrice = Math.max(...prices);
+            price = `${currency}${minPrice} - ${currency}${maxPrice}`;
+          }
+          $('.js-ticket-price').text(price);
+        }
+      }
+    );
   },
 
   initTicketModal() {
@@ -122,7 +142,7 @@ const Ticketing = {
     );
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');
-    $('.tickets-wrapper__modal').fadeIn();
+    $('.tickets-wrapper__modal').show();
   },
 
   hideTicketModal() {
@@ -130,7 +150,7 @@ const Ticketing = {
       window.history.pushState('', '', window.history.state.prevUrl);
       $('.header').removeClass('header--lowzindex');
       $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
-      $('.tickets-wrapper__modal').fadeOut();
+      $('.tickets-wrapper__modal').hide();
     }
   },
 };
