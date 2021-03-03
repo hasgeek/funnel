@@ -349,6 +349,8 @@ def org_citywatch(db_session, user_vetinari, user_vimes):
 
 
 # --- Projects
+# Fixtures from this point on drift away from Discworld, to reflect the unique contours
+# of the product being tested. Maintaining fidelity to Discworld is hard.
 
 
 @pytest.fixture
@@ -379,7 +381,7 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
 
-    Based on Interesting Times..
+    Based on Interesting Times.
     """
     project = Project(
         profile=org_uu.profile,
