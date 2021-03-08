@@ -8,5 +8,7 @@
   "email": "memberuser@example.com",
   "session_video": "https://youtu.be/T0RzSqm2nfc",
   "comment": "Please update slides with code snippets",
-  "proposer_note": "Adding preview video next week"
+  "proposer_note": "Adding preview video next week",
+  "comment_2": "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+  "comment_3": "It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages"
 }
