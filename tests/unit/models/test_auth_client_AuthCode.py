@@ -1,4 +1,3 @@
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -16,8 +15,8 @@ class TestAuthCode(TestDatabaseFixture):
             scope='id',
         )
         # code redirect_uri, used
-        db.session.add(auth_code)
-        db.session.commit()
+        self.db_session.add(auth_code)
+        self.db_session.commit()
         result = models.AuthCode.all_for(user=crusoe).one_or_none()
         assert isinstance(result, models.AuthCode)
         assert result.auth_client == auth_client
@@ -34,8 +33,8 @@ class TestAuthCode(TestDatabaseFixture):
             redirect_uri='http://batdogadventures.com/fun',
             scope='email',
         )
-        db.session.add(auth_code)
-        db.session.commit()
+        self.db_session.add(auth_code)
+        self.db_session.commit()
 
         # Scenario 1: When code has not been used
         unused_code_status = models.AuthCode.all_for(user=oakley).one().is_valid()
@@ -43,6 +42,6 @@ class TestAuthCode(TestDatabaseFixture):
 
         # Scenario 2: When code has been used
         auth_code.used = False
-        db.session.commit()
+        self.db_session.commit()
         used_code_status = models.AuthCode.all_for(user=oakley).one().is_valid()
         assert used_code_status

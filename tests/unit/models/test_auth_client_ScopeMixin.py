@@ -2,7 +2,6 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -17,8 +16,8 @@ class TestScopeMixin(TestDatabaseFixture):
         ginny_token = models.AuthToken(
             auth_client=auth_client, user=ginny, scope=scope, validity=0
         )
-        db.session.add_all([ginny, ginny_token])
-        db.session.commit()
+        self.db_session.add_all([ginny, ginny_token])
+        self.db_session.commit()
         assert ginny_token.scope == (scope,)
 
     def test_scopemixin_add_scope(self):
@@ -30,7 +29,7 @@ class TestScopeMixin(TestDatabaseFixture):
         neville_token = models.AuthToken(
             auth_client=auth_client, user=neville, validity=0, scope=scope1
         )
-        db.session.add_all([neville, neville_token])
+        self.db_session.add_all([neville, neville_token])
         neville_token.add_scope(scope2)
         assert neville_token.scope == (scope2, scope1)
 
@@ -62,7 +61,7 @@ class TestScopeMixin(TestDatabaseFixture):
         assert auth_code.scope == ()
         assert auth_code._scope == ''
         # Committing with default None causes IntegrityError
-        db.session.add(
+        self.db_session.add(
             models.AuthCode(
                 auth_client=self.fixtures.auth_client,
                 user=self.fixtures.crusoe,
@@ -71,7 +70,7 @@ class TestScopeMixin(TestDatabaseFixture):
         )
         # Raise IntegrityError on scope=None
         with pytest.raises(IntegrityError):
-            db.session.commit()
+            self.db_session.commit()
 
     def test_authtoken_scope_null(self):
         """`AuthToken` can't have null scope but can have empty scope."""
@@ -98,7 +97,7 @@ class TestScopeMixin(TestDatabaseFixture):
         assert auth_token.scope == ()
         assert auth_token._scope == ''
         # Committing with default None causes IntegrityError
-        db.session.add(
+        self.db_session.add(
             models.AuthToken(
                 auth_client=self.fixtures.auth_client,
                 user=self.fixtures.crusoe,
@@ -106,7 +105,7 @@ class TestScopeMixin(TestDatabaseFixture):
         )
         # Raise IntegrityError on scope=None
         with pytest.raises(IntegrityError):
-            db.session.commit()
+            self.db_session.commit()
 
     def test_authclient_scope_null(self):
         """`AuthClient` can have empty scope."""
@@ -117,8 +116,8 @@ class TestScopeMixin(TestDatabaseFixture):
             website='http://localhost',
             scope=None,
         )
-        db.session.add(auth_client)
-        db.session.commit()
+        self.db_session.add(auth_client)
+        self.db_session.commit()
         assert auth_client.scope == ()
         # Scope can be assigned a string value, but will return as a tuple
         auth_client.scope = 'test'

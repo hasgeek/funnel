@@ -3,7 +3,6 @@ from datetime import timedelta
 import pytest
 
 from coaster.utils import buid, utcnow
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -23,8 +22,11 @@ class TestAuthToken(TestDatabaseFixture):
 
     def test_authtoken_refresh(self):
         """Test to verify creation of new token while retaining the refresh token."""
+        auth_client = self.fixtures.auth_client
         hagrid = models.User(username='hagrid', fullname='Rubeus Hagrid')
-        auth_token = models.AuthToken(user=hagrid, algorithm='hmac-sha-1')
+        auth_token = models.AuthToken(
+            auth_client=auth_client, user=hagrid, algorithm='hmac-sha-1'
+        )
         existing_token = auth_token.token
         existing_secret = auth_token.secret
         auth_token.refresh()
@@ -83,7 +85,7 @@ class TestAuthToken(TestDatabaseFixture):
         )
         auth_token = models.AuthToken(auth_client=dachsadv, user=oakley, scope=scope)
         token = auth_token.token
-        db.session.add(dachsadv, auth_token)
+        self.db_session.add(dachsadv, auth_token)
         result = models.AuthToken.get(token)
         assert isinstance(result, models.AuthToken)
         assert result.auth_client == dachsadv
@@ -112,7 +114,7 @@ class TestAuthToken(TestDatabaseFixture):
         pottermania = models.Organization(
             name='pottermania', title='Pottermania', owner=hermione
         )
-        db.session.add_all(
+        self.db_session.add_all(
             [
                 myrtle,
                 myrtle_token,
@@ -125,7 +127,7 @@ class TestAuthToken(TestDatabaseFixture):
                 pottermania,
             ]
         )
-        db.session.commit()
+        self.db_session.commit()
 
         # scenario 1
         result1 = models.AuthToken.all(pottermania.owner_users)
@@ -140,8 +142,8 @@ class TestAuthToken(TestDatabaseFixture):
         cho_token = models.AuthToken(
             auth_client=auth_client, user=cho, scope=['charms']
         )
-        db.session.add_all([lily, lily_token, cho, cho_token])
-        db.session.commit()
+        self.db_session.add_all([lily, lily_token, cho, cho_token])
+        self.db_session.commit()
 
         # scenario 2 and count == 1
         result3 = models.AuthToken.all([lily])
@@ -163,9 +165,11 @@ class TestAuthToken(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         auth_client = self.fixtures.auth_client
 
-        user_session = models.UserSession(buid=buid(), user=crusoe)
+        user_session = models.UserSession(
+            buid=buid(), user=crusoe, ipaddr='', user_agent='', accessed_at=utcnow()
+        )
         auth_token_with_user_session = models.AuthToken(
-            user=crusoe, user_session=user_session
+            auth_client=auth_client, user=crusoe, user_session=user_session
         )
         assert isinstance(auth_token_with_user_session.user_session.user, models.User)
         assert auth_token_with_user_session.user_session.user == crusoe
@@ -176,55 +180,54 @@ class TestAuthToken(TestDatabaseFixture):
         assert isinstance(auth_token_without_user_session._user, models.User)
         assert auth_token_without_user_session._user == crusoe
 
-    # def test_authtoken_migrate_user(self):
-    #     """
-    #     FIXME: Test for migrating user who has an AuthToken issued
-    #     """
-    #     piglet = self.fixtures.piglet
-    #     specialdachs = self.fixtures.specialdachs
-    #     scope_piglet = [u'id', u'email']
-    #     londontales = models.AuthClient(
-    #         title=u'London tales',
-    #         organization=specialdachs,
-    #         confidential=True,
-    #         website=u'http://londondachtales.uk',
-    #     )
-    #     auth_token = models.AuthToken(
-    #         auth_client=londontales, user=piglet, scope=scope_piglet, validity=0
-    #     )
-    #     token = auth_token.token
+    def test_authtoken_migrate_user(self):
+        """Test for migrating user who has an AuthToken issued."""
+        piglet = self.fixtures.piglet
+        specialdachs = self.fixtures.specialdachs
+        scope_piglet = [u'id', u'email']
+        londontales = models.AuthClient(
+            title=u'London tales',
+            organization=specialdachs,
+            confidential=True,
+            website=u'http://londondachtales.uk',
+        )
+        auth_token = models.AuthToken(
+            auth_client=londontales, user=piglet, scope=scope_piglet, validity=0
+        )
+        token = auth_token.token
 
-    #     db.session.add(auth_token)
-    #     db.session.add(londontales)
-    #     piggles = models.User(username=u"piggles")
-    #     naughtymonkey = models.User(username=u"naughtymonkey")
-    #     db.session.add(piggles)
-    #     db.session.add(naughtymonkey)
-    #     db.session.commit()
+        self.db_session.add(auth_token)
+        self.db_session.add(londontales)
+        piggles = models.User(username=u"piggles")
+        naughtymonkey = models.User(username=u"naughtymonkey")
+        self.db_session.add(piggles)
+        self.db_session.add(naughtymonkey)
+        self.db_session.commit()
 
-    #     # Scenario: When only one user has authtokens associated with them
-    #     models.AuthToken.migrate_user(piglet, naughtymonkey)
-    #     scope_received_piglet = models.AuthToken.get(token).scope
-    #     self.assertCountEqual(scope_received_piglet, tuple(scope_piglet))
+        # Scenario: When only one user has authtokens associated with them
+        models.AuthToken.migrate_user(piglet, naughtymonkey)
+        scope_received_piglet = models.AuthToken.get(token).scope
+        self.assertCountEqual(scope_received_piglet, tuple(scope_piglet))
 
-    #     # Scenario: There's a existing token for newuser with the same client,
-    #     # then we expect to: newtoken to have extended scope
-    #     scope_piggles = [u'teams']
-    #     another_auth_token = models.AuthToken(
-    #         auth_client=londontales, user=piggles, scope=scope_piggles
-    #     )
-    #     db.session.add(another_auth_token)
-    #     db.session.commit()
-    #     models.AuthToken.migrate_user(piglet, piggles)
-    #     scope_received = models.AuthToken.get(another_auth_token.token).scope
-    #     scope_expected = tuple(set(scope_piglet + scope_piggles))
-    #     self.assertCountEqual(scope_received, scope_expected)
+        # Scenario: There's a existing token for newuser with the same client,
+        # then we expect to: newtoken to have extended scope
+        scope_piggles = [u'teams']
+        another_auth_token = models.AuthToken(
+            auth_client=londontales, user=piggles, scope=scope_piggles
+        )
+        self.db_session.add(another_auth_token)
+        self.db_session.commit()
+        models.AuthToken.migrate_user(piglet, piggles)
+        scope_received = models.AuthToken.get(another_auth_token.token).scope
+        scope_expected = tuple(set(scope_piglet + scope_piggles))
+        self.assertCountEqual(scope_received, scope_expected)
 
     def test_authtoken_algorithm(self):
         """Test for checking AuthToken's algorithm property."""
+        auth_client = self.fixtures.auth_client
         snape = models.User(username='snape', fullname='Professor Severus Snape')
         valid_algorithm = 'hmac-sha-1'
-        auth_token = models.AuthToken(user=snape)
+        auth_token = models.AuthToken(auth_client=auth_client, user=snape)
         auth_token.algorithm = None
         assert auth_token._algorithm is None
         auth_token.algorithm = valid_algorithm

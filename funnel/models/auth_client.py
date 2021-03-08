@@ -366,7 +366,6 @@ class AuthClientCredential(BaseMixin, db.Model):
         :param auth_client: The client for which a name/secret pair is being generated
         """
         cred = cls(auth_client=auth_client, name=make_buid())
-        db.session.add(cred)
         secret = newsecret()
         cred.secret_hash = (
             'blake2b$32$' + blake2b(secret.encode(), digest_size=32).hexdigest()

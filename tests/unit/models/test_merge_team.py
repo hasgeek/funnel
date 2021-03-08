@@ -3,30 +3,23 @@ from types import SimpleNamespace
 
 import pytest
 
-from funnel import models
+from funnel.models import Organization, Team, User, db, merge_users
 
 
-@pytest.fixture(scope='function')
-def team_merge_data(test_client):
-    db = models.db
-    db.create_all()
-    user1 = models.User(
+@pytest.fixture
+def team_merge_data(db_session):
+    user1 = User(
         username='user1',
         fullname="User 1",
         created_at=db.func.utcnow() - timedelta(days=1),
     )
-    user2 = models.User(username='user2', fullname="User 2")
-    org = models.Organization(
-        name='test-org-team-merge', title="Organization", owner=user1
-    )
-    team = models.Team(title="Team", organization=org)
-    db.session.add_all([user1, user2, org, team])
-    db.session.commit()
+    user2 = User(username='user2', fullname="User 2")
+    org = Organization(name='test-org-team-merge', title="Organization", owner=user1)
+    team = Team(title="Team", organization=org)
+    db_session.add_all([user1, user2, org, team])
+    db_session.commit()
 
-    yield SimpleNamespace(**locals())
-
-    db.session.rollback()
-    db.drop_all()
+    return SimpleNamespace(**locals())
 
 
 def test_team_migrate_user1(team_merge_data):
@@ -36,12 +29,12 @@ def test_team_migrate_user1(team_merge_data):
     Scenario 1: First user is in a team
     """
     team_merge_data.team.users.append(team_merge_data.user1)
-    team_merge_data.db.session.commit()
+    team_merge_data.db_session.commit()
     assert list(team_merge_data.team.users) == [team_merge_data.user1]
     assert team_merge_data.user1.teams == [team_merge_data.team]
     assert team_merge_data.user2.teams == []
 
-    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = merge_users(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]
@@ -55,12 +48,12 @@ def test_team_migrate_user2(team_merge_data):
     Scenario 2: Second user is in a team
     """
     team_merge_data.team.users.append(team_merge_data.user2)
-    team_merge_data.db.session.commit()
+    team_merge_data.db_session.commit()
     assert list(team_merge_data.team.users) == [team_merge_data.user2]
     assert team_merge_data.user1.teams == []
     assert team_merge_data.user2.teams == [team_merge_data.team]
 
-    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = merge_users(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]
@@ -75,7 +68,7 @@ def test_team_migrate_user3(team_merge_data):
     """
     team_merge_data.team.users.append(team_merge_data.user1)
     team_merge_data.team.users.append(team_merge_data.user2)
-    team_merge_data.db.session.commit()
+    team_merge_data.db_session.commit()
     assert list(team_merge_data.team.users) == [
         team_merge_data.user1,
         team_merge_data.user2,
@@ -83,7 +76,7 @@ def test_team_migrate_user3(team_merge_data):
     assert team_merge_data.user1.teams == [team_merge_data.team]
     assert team_merge_data.user2.teams == [team_merge_data.team]
 
-    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = merge_users(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]
