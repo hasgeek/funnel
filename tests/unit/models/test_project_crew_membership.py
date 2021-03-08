@@ -5,7 +5,7 @@ import pytest
 from funnel.models import MEMBERSHIP_RECORD_TYPE, ProjectCrewMembership
 
 
-def test_project_crew_membership(test_db, new_user, new_user_owner, new_project):
+def test_project_crew_membership(db_session, new_user, new_user_owner, new_project):
     """Test that project crew members get their roles from ProjectCrewMembership."""
     # new_user is profile admin
     assert 'admin' in new_project.profile.roles_for(new_user_owner)
@@ -24,8 +24,8 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
     new_membership = ProjectCrewMembership(
         parent=new_project, user=new_user_owner, is_editor=True
     )
-    test_db.session.add(new_membership)
-    test_db.session.commit()
+    db_session.add(new_membership)
+    db_session.commit()
 
     assert 'editor' in new_project.roles_for(new_user_owner)
     assert new_membership.is_active
@@ -38,10 +38,10 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
     new_membership_without_revoke = ProjectCrewMembership(
         parent=new_project, user=new_user, is_promoter=True
     )
-    test_db.session.add(new_membership_without_revoke)
+    db_session.add(new_membership_without_revoke)
     with pytest.raises(IntegrityError):
-        test_db.session.commit()
-    test_db.session.rollback()
+        db_session.commit()
+    db_session.rollback()
 
     # let's revoke previous membership
     previous_membership2 = (
@@ -50,7 +50,7 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
         .first()
     )
     previous_membership2.revoke(actor=new_user_owner)
-    test_db.session.commit()
+    db_session.commit()
 
     assert previous_membership2 not in new_project.active_crew_memberships
 
@@ -62,8 +62,8 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
     new_membership2 = ProjectCrewMembership(
         parent=new_project, user=new_user, is_promoter=True, is_usher=True
     )
-    test_db.session.add(new_membership2)
-    test_db.session.commit()
+    db_session.add(new_membership2)
+    db_session.commit()
 
     assert 'editor' not in new_project.roles_for(new_user)
     assert 'promoter' in new_project.roles_for(new_user)
@@ -73,7 +73,7 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
     new_membership3 = new_membership2.replace(
         actor=new_user_owner, is_editor=True, is_promoter=False, is_usher=False
     )
-    test_db.session.commit()
+    db_session.commit()
     assert 'editor' in new_project.roles_for(new_user)
     assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' not in new_project.roles_for(new_user)
@@ -81,7 +81,7 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
 
     # replace() can replace a single role as well, rest stays as they were
     new_membership4 = new_membership3.replace(actor=new_user_owner, is_usher=True)
-    test_db.session.commit()
+    db_session.commit()
     assert 'editor' in new_project.roles_for(new_user)
     assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' in new_project.roles_for(new_user)
@@ -100,7 +100,7 @@ def test_project_crew_membership(test_db, new_user, new_user_owner, new_project)
 
 
 def test_project_roles_lazy_eval(
-    test_db, new_user, new_user_owner, new_organization, new_project2
+    db_session, new_user, new_user_owner, new_organization, new_project2
 ):
     """Test that the lazy roles evaluator picks up membership-based roles."""
     assert 'admin' in new_organization.profile.roles_for(new_user_owner)

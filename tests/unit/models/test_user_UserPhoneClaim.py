@@ -1,4 +1,3 @@
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -19,8 +18,8 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         phone = '9191919191'
         claim_by_crusoe = models.UserPhoneClaim(phone=phone, user=crusoe)
         claim_by_oakley = models.UserPhoneClaim(phone=phone, user=oakley)
-        db.session.add(claim_by_crusoe, claim_by_oakley)
-        db.session.commit()
+        self.db_session.add(claim_by_crusoe, claim_by_oakley)
+        self.db_session.commit()
         result = models.UserPhoneClaim.all(phone)
         assert set(result) == {claim_by_crusoe, claim_by_oakley}
 
@@ -29,8 +28,8 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         snow = models.User(username='', fullname='President Coriolanus Snow')
         phone = '9191919191'
         phone_claim = models.UserPhoneClaim(phone=phone, user=snow)
-        db.session.add(phone_claim)
-        db.session.commit()
+        self.db_session.add(phone_claim)
+        self.db_session.commit()
         result = models.UserPhoneClaim.get_for(user=snow, phone=phone)
         assert isinstance(result, models.UserPhoneClaim)
         assert result.phone == phone
@@ -41,8 +40,8 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         haymitch = models.User(username='haymitch', fullname='Haymitch Abernathy')
         phone = '9191919191'
         phone_claim = models.UserPhoneClaim(phone=phone, user=haymitch)
-        db.session.add(phone_claim)
-        db.session.commit()
+        self.db_session.add(phone_claim)
+        self.db_session.commit()
         result = str(models.UserPhoneClaim(phone=phone))
         assert isinstance(result, str)
         assert phone in result

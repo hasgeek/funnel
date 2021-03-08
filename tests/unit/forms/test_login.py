@@ -6,30 +6,30 @@ from funnel.models import User
 
 
 @pytest.fixture
-def user(db_transaction):
+def user(db_session):
     user = User(username='user', fullname="User", password='test_password')
-    db_transaction.session.add(user)
-    db_transaction.session.flush()
+    db_session.add(user)
+    db_session.flush()
     return user
 
 
 @pytest.fixture
-def user_nameless(db_transaction):
+def user_nameless(db_session):
     user = User(fullname="Nameless User", password='test_password_nameless')
-    db_transaction.session.add(user)
+    db_session.add(user)
     user.add_email('nameless@example.com')
-    db_transaction.session.flush()
+    db_session.flush()
     return user
 
 
 @pytest.fixture
-def user_named(db_transaction):
+def user_named(db_session):
     user = User(
         username='user-named', fullname="Named User", password='test_password_named'
     )
-    db_transaction.session.add(user)
+    db_session.add(user)
     user.add_email('named@example.com')
-    db_transaction.session.flush()
+    db_session.flush()
     return user
 
 

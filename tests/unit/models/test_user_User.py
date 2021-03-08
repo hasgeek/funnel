@@ -5,7 +5,6 @@ from sqlalchemy.orm.collections import InstrumentedList
 import pytest
 
 from coaster.utils import utcnow
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -15,8 +14,8 @@ class TestUser(TestDatabaseFixture):
     def test_user(self):
         """Test for creation of user object from User model."""
         user = models.User(username='lena', fullname="Lena Audrey Dachshund")
-        db.session.add_all([user])
-        db.session.commit()
+        self.db_session.add_all([user])
+        self.db_session.commit()
         lena = models.User.get(username='lena')
         assert isinstance(lena, models.User)
         assert user.username == 'lena'
@@ -46,8 +45,8 @@ class TestUser(TestDatabaseFixture):
         crusoe = models.User.get(username='crusoe')
         assert crusoe.is_profile_complete() is True
         lena = models.User()
-        db.session.add(lena)
-        db.session.commit()
+        self.db_session.add(lena)
+        self.db_session.commit()
         assert lena.is_profile_complete() is False
 
     def test_user_organization_owned(self):
@@ -82,14 +81,14 @@ class TestUser(TestDatabaseFixture):
         mr_pilkington_email = models.UserEmail(
             user=mr_pilkington, email='pilkington@animalfarm.co.uk'
         )
-        db.session.add_all([mr_pilkington, mr_pilkington_email])
-        db.session.commit()
+        self.db_session.add_all([mr_pilkington, mr_pilkington_email])
+        self.db_session.commit()
         assert mr_pilkington.email.email == mr_pilkington_email.email
         assert mr_pilkington.email.primary is True
         # scenario 3: when no email address is on db
         clover = models.User(username='clover')
-        db.session.add(clover)
-        db.session.commit()
+        self.db_session.add(clover)
+        self.db_session.commit()
         assert clover.email == ''
 
     def test_user_del_email(self):
@@ -104,7 +103,7 @@ class TestUser(TestDatabaseFixture):
         mr_jones_spare_email = models.UserEmail(
             email='j@animalfarm.co.uk', user=mr_jones
         )
-        db.session.add_all(
+        self.db_session.add_all(
             [
                 mr_jones,
                 mr_jones_primary_email,
@@ -112,11 +111,11 @@ class TestUser(TestDatabaseFixture):
                 mr_jones_spare_email,
             ]
         )
-        db.session.commit()
+        self.db_session.commit()
         # scenario 1: when email requested to be deleted is primary
         primary_email = mr_jones_primary_email.email
         mr_jones.del_email(primary_email)
-        db.session.commit()
+        self.db_session.commit()
         result1 = mr_jones.emails
         assert isinstance(result1, list)
         assert set(result1) == {mr_jones_secondary_email, mr_jones_spare_email}
@@ -124,7 +123,7 @@ class TestUser(TestDatabaseFixture):
         # scenario 2: when email requested to be delete is not primary
         spare_email = mr_jones_spare_email.email
         mr_jones.del_email(spare_email)
-        db.session.commit()
+        self.db_session.commit()
         result2 = mr_jones.emails
         assert isinstance(result2, list)
         assert result2 == [mr_jones_secondary_email]
@@ -145,8 +144,8 @@ class TestUser(TestDatabaseFixture):
         # scenario 2: when there is a phone but not as primary
         snowball = models.User(username='snowball')
         snowball_phone = models.UserPhone(phone='+918574808032', user=snowball)
-        db.session.add_all([snowball, snowball_phone])
-        db.session.commit()
+        self.db_session.add_all([snowball, snowball_phone])
+        self.db_session.commit()
         assert isinstance(snowball.phone, models.UserPhone)
         assert snowball_phone == snowball.phone
         assert snowball.phone.primary is True
@@ -163,8 +162,8 @@ class TestUser(TestDatabaseFixture):
         # Scenario 2: Set valid password
         kate = models.User(username='kate', fullname='Detective Kate Beckette')
         kate.password = '12thprecinct'
-        db.session.add(kate)
-        db.session.commit()
+        self.db_session.add(kate)
+        self.db_session.commit()
         result = models.User.get(buid=kate.buid)
         assert len(result.pw_hash) == 77  # Argon2 hash
         assert result.password_is('12thprecinct') is True
@@ -175,8 +174,8 @@ class TestUser(TestDatabaseFixture):
         alexis = models.User(username='alexis', fullname='Alexis Castle')
         alexis.password = 'unfortunateincidents'
         alexis.pw_expires_at = utcnow() + timedelta(0, 0, 1)
-        db.session.add(alexis)
-        db.session.commit()
+        self.db_session.add(alexis)
+        self.db_session.commit()
         result = models.User.get(buid=alexis.buid)
         assert result is not None
         assert alexis.password_has_expired() is True
@@ -237,11 +236,11 @@ class TestUser(TestDatabaseFixture):
         # ## Merge a user onto an older user ###
         crusoe = models.User.get(username='crusoe')
         crusoe2 = models.User(username="crusoe2", fullname="Crusoe2")
-        db.session.add(crusoe2)
-        db.session.commit()
+        self.db_session.add(crusoe2)
+        self.db_session.commit()
         with self.app.test_request_context('/'):
             merged_user = models.merge_users(crusoe, crusoe2)
-            db.session.commit()
+            self.db_session.commit()
             # ## DONE ###
             assert isinstance(merged_user, models.User)
             # because the logic is to merge into older account so merge status set on newer account
@@ -273,18 +272,18 @@ class TestUser(TestDatabaseFixture):
         # scenario 5: when user.state.ACTIVE
         lector = models.User()
         assert lector.state.ACTIVE
-        db.session.add(lector)
-        db.session.commit()
+        self.db_session.add(lector)
+        self.db_session.commit()
         lookup_by_buid_status = models.User.get(buid=lector.buid)
         assert lookup_by_buid_status == lector
         # scenario 6 : when user.state.MERGED
-        piglet = models.User.get(username='piglet')
-        piggy = models.User(username='piggy')
-        db.session.add(piggy)
-        db.session.commit()
+        piglet = models.User.get(username='piglet', fullname="Piglet")
+        piggy = models.User(username='piggy', fullname="Piggy")
+        self.db_session.add(piggy)
+        self.db_session.commit()
         with self.app.test_request_context('/'):
             models.merge_users(piglet, piggy)
-            db.session.commit()
+            self.db_session.commit()
             lookup_by_buid_merged = models.User.get(buid=piggy.buid)
             assert isinstance(lookup_by_buid_merged, models.User)
             assert lookup_by_buid_merged.username == piglet.username
@@ -322,19 +321,19 @@ class TestUser(TestDatabaseFixture):
         # scenario 6: when user.state.ACTIVE
         hannibal = models.User(username='hannibal')
         assert hannibal.state.ACTIVE
-        db.session.add(hannibal)
-        db.session.commit()
+        self.db_session.add(hannibal)
+        self.db_session.commit()
         lookup_by_usernames = models.User.all(usernames=[hannibal.username])
         assert len(lookup_by_usernames) == 1
         assert lookup_by_usernames[0] == hannibal
         # scenario 7 : when user.state.MERGED
         jykll = models.User()
         hyde = models.User()
-        db.session.add_all([jykll, hyde])
-        db.session.commit()
+        self.db_session.add_all([jykll, hyde])
+        self.db_session.commit()
         with self.app.test_request_context('/'):
             models.merge_users(jykll, hyde)
-            db.session.commit()
+            self.db_session.commit()
             lookup_by_buid_merged = models.User.all(buids=[hyde.buid])
             assert isinstance(lookup_by_buid_merged, list)
             assert lookup_by_buid_merged[0].username == jykll.username
@@ -345,18 +344,18 @@ class TestUser(TestDatabaseFixture):
         mr_whymper = models.User(username='whymper')
         whymper_email = 'whmmm@animalfarm.co.uk'
         whymper_result = mr_whymper.add_email(whymper_email, primary=True)
-        db.session.flush()
+        self.db_session.flush()
         assert whymper_result.email == whymper_email
         # # scenario 2: when primary flag is True but user has existing primary email
         crusoe = models.User.get(username='crusoe')
         crusoe_new_email = 'crusoe@batdog.ca'
         crusoe_result = crusoe.add_email(email=crusoe_new_email, primary=True)
-        db.session.flush()
+        self.db_session.flush()
         assert crusoe_result.email == crusoe_new_email
         # # scenario 3: when primary flag is True but user has existing email same as one passed
         crusoe_existing_email = 'crusoe@keepballin.ca'
         crusoe_result = crusoe.add_email(crusoe_existing_email, primary=True)
-        db.session.flush()
+        self.db_session.flush()
         assert crusoe_result.email == crusoe_existing_email
 
     def test_make_email_primary(self):
