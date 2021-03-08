@@ -191,7 +191,7 @@
         .user__box {
           align-items: end;
           .user__box__header.comment__details {
-            width: calc(100% - 40px);
+            width: calc(100% - 48px);
             .user__box__fullname {
               margin: 0 0 2px;
             }
@@ -200,7 +200,7 @@
               top: 4px;
             }
             .user__box__subcontent {
-              margin: 0 0 5px;
+              margin: 0 0 0;
               .truncated-text {
                 width: calc(100% - 25px);
                 white-space: nowrap;

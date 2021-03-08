@@ -402,9 +402,24 @@ export const Utils = {
     });
   },
   handleCommentsSidebar() {
+    let firstLoad = true;
     $('.js-comments-button').on('click', function (e) {
       e.stopPropagation();
       $('#js-comments-dropdown').addClass('open');
+      if (firstLoad) {
+        $.ajax({
+          type: 'GET',
+          url: window.Hasgeek.config.unreadCommentUrl,
+          timeout: window.Hasgeek.config.ajaxTimeout,
+          success(responseData) {
+            $('.js-loading').addClass('mui--hide');
+            $(window.Hasgeek.config.commentSidebarElem).append(
+              responseData.data.trim()
+            );
+            firstLoad = false;
+          },
+        });
+      }
     });
 
     $('.js-close-comments').on('click', function (e) {
@@ -420,17 +435,6 @@ export const Utils = {
       ) {
         $('#js-comments-dropdown').removeClass('open');
       }
-    });
-
-    $.ajax({
-      type: 'GET',
-      url: window.Hasgeek.config.unreadCommentUrl,
-      timeout: window.Hasgeek.config.ajaxTimeout,
-      success(responseData) {
-        $(window.Hasgeek.config.commentSidebarElem).append(
-          responseData.data.trim()
-        );
-      },
     });
   },
 };

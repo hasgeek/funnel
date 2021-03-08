@@ -143,9 +143,10 @@
     </div>
   </header>
   <div class="comments-sidebar" id="js-comments-dropdown">
-    <span class="js-close-comments mui--pull-right right-padding top-padding">{{ faicon(icon='times', baseline=false, css_class='fa-icon--margin mui--align-bottom') }}</span>
+    <span class="js-close-comments mui--pull-right right-padding top-padding">{{ faicon(icon='times', baseline=false, css_class='mui--align-bottom') }}</span>
     <h3 class="comments-sidebar__heading">{{ faicon(icon='comment-alt', css_class='fa-icon--margin') }}<span>{% trans %}Comments{% endtrans %}</span></h3>
     <hr class="zero-bottom-margin zero-top-margin">
+    <span class="loading js-loading left-padding separator"></span>
     <ul class="comments-list" id="js-unread-comments">
       {% for comment in comments %}
       {% endfor %}
