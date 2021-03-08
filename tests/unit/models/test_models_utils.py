@@ -1,6 +1,5 @@
 from os import environ
 
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -13,8 +12,8 @@ class TestModels(TestDatabaseFixture):
         # created_at
         crusoe = self.fixtures.crusoe
         bathound = models.User(username="bathound", fullname="Bathound")
-        db.session.add(bathound)
-        db.session.commit()
+        self.db_session.add(bathound)
+        self.db_session.commit()
         with self.app.test_request_context('/'):
             merged = models.merge_users(crusoe, bathound)
             assert merged == crusoe
@@ -26,11 +25,11 @@ class TestModels(TestDatabaseFixture):
         # Scenario 2: if second user's created_at date is older than first user's
         # created_at
         tyrion = models.User(username='tyrion', fullname="Tyrion Lannister")
-        db.session.add(tyrion)
-        db.session.commit()
+        self.db_session.add(tyrion)
+        self.db_session.commit()
         subramanian = models.User(username='subramanian', fullname="Tyrion Subramanian")
-        db.session.add(subramanian)
-        db.session.commit()
+        self.db_session.add(subramanian)
+        self.db_session.commit()
         with self.app.test_request_context('/'):
             merged = models.merge_users(subramanian, tyrion)
             assert merged == tyrion
@@ -54,8 +53,8 @@ class TestModels(TestDatabaseFixture):
             oauth_token=oauth_token,
             oauth_token_type=oauth_token_type,
         )
-        db.session.add(externalid)
-        db.session.commit()
+        self.db_session.add(externalid)
+        self.db_session.commit()
         result1 = models.getuser('@crusoe')
         assert isinstance(result1, models.User)
         assert result1 == crusoe
@@ -66,8 +65,8 @@ class TestModels(TestDatabaseFixture):
             username='daenerys', fullname="Daenerys Targaryen", email=d_email
         )
         daenerys_email = models.UserEmail(email=d_email, user=daenerys)
-        db.session.add_all([daenerys, daenerys_email])
-        db.session.commit()
+        self.db_session.add_all([daenerys, daenerys_email])
+        self.db_session.commit()
         result2 = models.getuser(d_email)
         assert isinstance(result2, models.User)
         assert result2 == daenerys
@@ -78,23 +77,23 @@ class TestModels(TestDatabaseFixture):
         j_email = 'jonsnow@nightswatch.co.uk'
         jonsnow = models.User(username='jonsnow', fullname="Jon Snow")
         jonsnow_email_claimed = models.UserEmailClaim(email=j_email, user=jonsnow)
-        db.session.add_all([jonsnow, jonsnow_email_claimed])
-        db.session.commit()
+        self.db_session.add_all([jonsnow, jonsnow_email_claimed])
+        self.db_session.commit()
         result4 = models.getuser(j_email)
         assert isinstance(result4, models.User)
         assert result4 == jonsnow
 
         # scenario 5: with no @ anywhere in name, fetch username
         arya = models.User(username='arya', fullname="Arya Stark")
-        db.session.add(arya)
-        db.session.commit()
+        self.db_session.add(arya)
+        self.db_session.commit()
         result5 = models.getuser('arya')
         assert result5 == arya
 
         # scenario 6: with no starting with @ name and no UserEmailClaim or UserEmail
         cersei = models.User(username='cersei', fullname="Cersei Lannister")
-        db.session.add(cersei)
-        db.session.commit()
+        self.db_session.add(cersei)
+        self.db_session.commit()
         result6 = models.getuser('cersei@thelannisters.co.uk')
         assert result6 is None
 
@@ -113,8 +112,8 @@ class TestModels(TestDatabaseFixture):
             oauth_token_type='Bearer',
         )
 
-        db.session.add(externalid)
-        db.session.commit()
+        self.db_session.add(externalid)
+        self.db_session.commit()
         result = models.getextid(service_facebook, userid=email)
         assert isinstance(result, models.UserExternalId)
         assert '<UserExternalId {service}:{username} of {user}>'.format(

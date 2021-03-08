@@ -1,4 +1,3 @@
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -13,8 +12,8 @@ class TestUserClientPermissions(TestDatabaseFixture):
         result = models.AuthClientUserPermissions(
             user=gustav, auth_client=auth_client, access_permissions=access_permissions
         )
-        db.session.add(result)
-        db.session.commit()
+        self.db_session.add(result)
+        self.db_session.commit()
         assert isinstance(result, models.AuthClientUserPermissions)
 
     def test_userclientpermissions_migrate_user(self):
@@ -43,9 +42,9 @@ class TestUserClientPermissions(TestDatabaseFixture):
             auth_client=auth_client,
             access_permissions=access_permissions_new_oakley,
         )
-        db.session.add(old_oakley_userclientperms)
-        db.session.add(new_oakley_userclientperms)
-        db.session.commit()
+        self.db_session.add(old_oakley_userclientperms)
+        self.db_session.add(new_oakley_userclientperms)
+        self.db_session.commit()
         models.AuthClientUserPermissions.migrate_user(old_oakley, new_oakley)
         result = new_oakley.client_permissions[0]
         for each in new_oakley.client_permissions:
