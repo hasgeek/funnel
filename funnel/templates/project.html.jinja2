@@ -1,4 +1,6 @@
+{% set current_page = 'project' %}
 {% extends "project_layout.html.jinja2" %}
+{% block titleblock %}{{ project.title }}{%- endblock %}
 {% from "baseframe/components.html.jinja2" import alertbox %}
 
 {%- block pageheaders %}
@@ -71,7 +73,7 @@
   {% endif %}
   {% if project.view_for('view').is_available() and project.state.DRAFT %}
     <div class="alert alert--warning alert--dismissable">
-      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', icon_size='title', baseline=true) }}</a>
+      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <p class="alert__text"><a href="{{ project.url_for('settings') }}">{% trans %}This project is not published. Visit settings to publish{% endtrans %} {{ faicon(icon='arrow-right') }}</a></p>
     </div>
   {% endif %}
@@ -112,7 +114,7 @@
           </li>
         {%- endfor -%}
       </ul>
-      <p class="mui--text-center"><a href="{{ project.url_for('view_proposals') }}" class="mui--text-subhead">{% trans %}See all{% endtrans %}</p>
+      <p class="mui--text-center"><a href="{{ project.url_for('view_proposals') }}" class="mui--text-subhead">{% trans %}See all{% endtrans %}</a></p>
     </div>
   {%- endif %}
 
@@ -126,13 +128,16 @@
               <a class="card clickable-card card--shaped" href="{{ session.url_for() }}" aria-label="{{ session.title }}" data-ga="View session">
                 <div class="card__body proposal-card proposal-card--fullwidth">
                   <div class="proposal-card__body">
-                    <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
-                    <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
-                    <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline|truncate(150) }}</div>
-                    <p class="mui--text-body2 mui--text-light">{{ session.start_at|datetime }}</p>
+                    <div class="proposal-card__body__details">
+                      <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
+                      <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
+                      {% if session.banner_image_url.url %}<img src="{{ session.banner_image_url }}" class="proposal-card__video-thumbnail">{%- endif %}
+                      <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline|truncate(150) }}</div>
+                      <p class="mui--text-body2 mui--text-light">{{ session.start_at|datetime }}</p>
+                    </div>
                   </div>
                   {% if session.banner_image_url.url %}
-                    <div class="proposal-card__video"><img class="proposal-card__video__thumbnail" src="{{ session.banner_image_url }}"/></div>
+                    <div class="proposal-card__video proposal-card__video--desktop"><img class="proposal-card__video__thumbnail" src="{{ session.banner_image_url }}"/></div>
                   {%- endif %}
                 </div>
               </a>
@@ -174,7 +179,7 @@
         <p class="zero-bottom-margin">{{ project.primary_venue.address2 }}</p>
         <p class="zero-bottom-margin">{{ project.primary_venue.city }}{% if project.primary_venue.city and  project.primary_venue.postcode %} - {{ project.primary_venue.postcode }}{%- endif %}</p>
         {%- if project.primary_venue.state and project.primary_venue.country -%}
-          <p class="zero-bottom-margin">{{ project.primary_venue.state }}, {{ project.primary_venue.country }}</p>
+          <p>{{ project.primary_venue.state }}, {{ project.primary_venue.country }}</p>
         {%- endif %}
       </div>
       {%- if project.primary_venue.has_coordinates -%}

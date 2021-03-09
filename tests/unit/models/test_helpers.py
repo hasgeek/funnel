@@ -150,15 +150,17 @@ def test_add_to_class():
 
 
 @pytest.fixture(scope='session')
-def image_models():
+def image_models(database):
     class MyImageModel(db.Model):
+        __tablename__ = 'my_image_model'
         id = db.Column(db.Integer, primary_key=True)  # NOQA: A003
         image_url = db.Column(ImgeeType)
 
+    database.create_all()
     return SimpleNamespace(**locals())
 
 
-def test_imgeetype(test_client, test_db, image_models):
+def test_imgeetype(db_session, image_models):
     valid_url = "https://images.example.com/embed/file/randomimagehash"
     valid_url_with_resize = (
         "https://images.example.com/embed/file/randomimagehash?size=120x100"
@@ -169,16 +171,16 @@ def test_imgeetype(test_client, test_db, image_models):
     m1 = image_models.MyImageModel(
         image_url=invalid_url,
     )
-    test_db.session.add(m1)
+    db_session.add(m1)
     with pytest.raises(StatementError):
-        test_db.session.commit()
-    test_db.session.rollback()
+        db_session.commit()
+    db_session.rollback()
 
     m2 = image_models.MyImageModel(
         image_url=valid_url,
     )
-    test_db.session.add(m2)
-    test_db.session.commit()
+    db_session.add(m2)
+    db_session.commit()
     assert m2.image_url.url == valid_url
     assert m2.image_url.resize(120, 100).args['size'] == '120x100'
     assert m2.image_url.resize(120).args['size'] == '120'
@@ -186,13 +188,13 @@ def test_imgeetype(test_client, test_db, image_models):
     assert m2.image_url.url == valid_url
 
     m2.image_url = valid_url_with_resize
-    test_db.session.commit()
+    db_session.commit()
     assert m2.image_url.url == valid_url_with_resize
     assert m2.image_url.resize(120, 100).args['size'] == '120x100'
     assert m2.image_url.resize(120).args['size'] == '120'
 
     m2.image_url = valid_url_with_qs
-    test_db.session.commit()
+    db_session.commit()
     assert m2.image_url.url == valid_url_with_qs
     assert m2.image_url.resize(120).args['foo'] == 'bar'
     assert m2.image_url.resize(120, 100).args['size'] == '120x100'

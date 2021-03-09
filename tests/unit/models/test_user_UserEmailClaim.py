@@ -1,4 +1,3 @@
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -9,8 +8,8 @@ class TestUserEmailClaim(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         new_email = 'crusoe@batdogs.ca'
         result = models.UserEmailClaim(user=crusoe, email=new_email)
-        db.session.add(result)
-        db.session.commit()
+        self.db_session.add(result)
+        self.db_session.commit()
         assert isinstance(result, models.UserEmailClaim)
         assert crusoe == result.user
         assert '<UserEmailClaim {email} of {user}>'.format(
@@ -31,8 +30,8 @@ class TestUserEmailClaim(TestDatabaseFixture):
         katnis = models.User(username='katnis', fullname='Katnis Everdeen')
         email = 'katnis@hungergames.org'
         email_claim = models.UserEmailClaim(user=katnis, email=email)
-        db.session.add(email_claim)
-        db.session.commit()
+        self.db_session.add(email_claim)
+        self.db_session.commit()
         result = models.UserEmailClaim.get_for(user=katnis, email=email)
         assert isinstance(result, models.UserEmailClaim)
         assert result.email == email
@@ -45,9 +44,9 @@ class TestUserEmailClaim(TestDatabaseFixture):
         email = 'gail@district7.gov'
         claim_by_gail = models.UserEmailClaim(user=gail, email=email)
         claim_by_peeta = models.UserEmailClaim(user=peeta, email=email)
-        db.session.add(claim_by_gail)
-        db.session.add(claim_by_peeta)
-        db.session.commit()
+        self.db_session.add(claim_by_gail)
+        self.db_session.add(claim_by_peeta)
+        self.db_session.commit()
         result = models.UserEmailClaim.all(email)
         assert set(result) == {claim_by_gail, claim_by_peeta}
 

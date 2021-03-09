@@ -2,7 +2,6 @@ from os import environ
 
 import pytest
 
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -46,8 +45,8 @@ class TestUserExternalId(TestDatabaseFixture):
             oauth_token=oauth_token,
             oauth_token_type=oauth_token_type,
         )
-        db.session.add(externalid)
-        db.session.commit()
+        self.db_session.add(externalid)
+        self.db_session.commit()
         # scenario 2: when userid is passed
         get_by_userid = models.UserExternalId.get(
             service=service, userid=crusoe.email.email

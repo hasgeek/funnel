@@ -14,7 +14,7 @@ from flask import (
 )
 import itsdangerous
 
-from baseframe import _, __, forms, request_is_xhr
+from baseframe import _, __, forms, request_is_xhr, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
@@ -321,6 +321,7 @@ def login_service(service):
     callback_url = url_for(
         '.login_service_callback', service=service, next=next_url, _external=True
     )
+    statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
     try:
         return provider.do(callback_url=callback_url)
     except (LoginInitError, LoginCallbackError) as e:
@@ -351,6 +352,7 @@ def login_service_callback(service):
             return redirect(get_next_url(referrer=False), code=303)
         else:
             return redirect(url_for('login'), code=303)
+    statsd.gauge('login.progress', -1, delta=True, tags={'service': service})
     return login_service_postcallback(service, userdata)
 
 

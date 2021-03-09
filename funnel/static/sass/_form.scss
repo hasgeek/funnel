@@ -370,8 +370,9 @@
       .CodeMirror {
         border: 1px solid $mui-primary-color;
         border-radius: 16px 16px 0 16px;
-        min-height: 16px;
-        padding: 16px;
+        min-height: 56px;
+        padding: $mui-grid-padding;
+        height: auto;
       }
       .CodeMirror ~ .CodeMirror {
         display: none;

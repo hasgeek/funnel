@@ -13,7 +13,7 @@
       </a>
       <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="showmodal">
         <div class="mobile-nav mui--z1">
-          <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-ga="Close new comment form" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
+          <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-ga="Close new comment form" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
         </div>
       </div>
       <div class="ajax-form" :class="[showmodal ? 'ajax-form--mob' : '']" v-if="commentForm">
@@ -43,7 +43,7 @@
       <li class="comment" :class="[formOpened ? 'comment--modal' : '']"  :id="'c-' + comment.uuid_b58">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="formOpened">
           <div class="mobile-nav mui--z1">
-            <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-ga="Close comment form" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'subhead'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
+            <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-ga="Close comment form" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
           </div>
         </div>
         <div class="comment__header">

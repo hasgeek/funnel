@@ -6,9 +6,8 @@ import pytest
 from funnel.models import Organization, OrganizationMembership, User, db, merge_users
 
 
-@pytest.fixture()
-def fixtures(test_client):
-    db.create_all()
+@pytest.fixture
+def fixtures(db_session):
     owner = User(
         username='owner',
         fullname="Org Owner",
@@ -25,73 +24,70 @@ def fixtures(test_client):
     org = Organization(
         name='test-org-membership-merge', title="Organization", owner=owner
     )
-    db.session.add_all([owner, user1, user2, org])
-    db.session.commit()
+    db_session.add_all([owner, user1, user2, org])
+    db_session.commit()
 
-    yield SimpleNamespace(**locals())
-
-    db.session.rollback()
-    db.drop_all()
+    return SimpleNamespace(**locals())
 
 
-@pytest.fixture()
-def user1_membership(fixtures):
+@pytest.fixture
+def user1_membership(db_session, fixtures):
     membership = OrganizationMembership(organization=fixtures.org, user=fixtures.user1)
-    db.session.add(membership)
-    db.session.commit()
+    db_session.add(membership)
+    db_session.commit()
     return membership
 
 
-@pytest.fixture()
-def user1_owner_membership(fixtures):
+@pytest.fixture
+def user1_owner_membership(db_session, fixtures):
     membership = OrganizationMembership(
         organization=fixtures.org, user=fixtures.user1, is_owner=True
     )
-    db.session.add(membership)
-    db.session.commit()
+    db_session.add(membership)
+    db_session.commit()
     return membership
 
 
-@pytest.fixture()
-def user2_membership(fixtures):
+@pytest.fixture
+def user2_membership(db_session, fixtures):
     membership = OrganizationMembership(organization=fixtures.org, user=fixtures.user2)
-    db.session.add(membership)
-    db.session.commit()
+    db_session.add(membership)
+    db_session.commit()
     return membership
 
 
-@pytest.fixture()
-def user2_owner_membership(fixtures):
+@pytest.fixture
+def user2_owner_membership(db_session, fixtures):
     membership = OrganizationMembership(
         organization=fixtures.org, user=fixtures.user2, is_owner=True
     )
-    db.session.add(membership)
-    db.session.commit()
+    db_session.add(membership)
+    db_session.commit()
     return membership
 
 
 # --- Tests ----------------------------------------------------------------------------
 
 
-def test_merge_without_membership(fixtures):
+def test_merge_without_membership(db_session, fixtures):
     """Merge without any memberships works."""
     assert fixtures.org.active_admin_memberships.count() == 1
     assert set(fixtures.org.owner_users) == {fixtures.owner}
     assert set(fixtures.org.admin_users) == {fixtures.owner}
     merged = merge_users(fixtures.user1, fixtures.user2)
-    db.session.commit()
+    db_session.commit()
     assert merged == fixtures.user1
     assert set(fixtures.org.owner_users) == {fixtures.owner}
     assert set(fixtures.org.admin_users) == {fixtures.owner}
 
 
-def test_merge_with_user1_membership(fixtures, user1_membership):
+def test_merge_with_user1_membership(db_session, fixtures, user1_membership):
     """When only the older account has a membership, it works."""
     assert fixtures.org.active_admin_memberships.count() == 2
     assert set(fixtures.org.owner_users) == {fixtures.owner}
     assert set(fixtures.org.admin_users) == {fixtures.owner, fixtures.user1}
     merged = merge_users(fixtures.user1, fixtures.user2)
-    db.session.commit()
+    db_session.commit()
     assert merged == fixtures.user1
     assert set(fixtures.org.owner_users) == {fixtures.owner}
     assert set(fixtures.org.admin_users) == {fixtures.owner, fixtures.user1}
@@ -99,13 +95,13 @@ def test_merge_with_user1_membership(fixtures, user1_membership):
     assert user1_membership.revoked_at is None
 
 
-def test_merge_with_user2_membership(fixtures, user2_membership):
+def test_merge_with_user2_membership(db_session, fixtures, user2_membership):
     """When only the newer account has a membership, it is transferred."""
     assert fixtures.org.active_admin_memberships.count() == 2
     assert set(fixtures.org.owner_users) == {fixtures.owner}
     assert set(fixtures.org.admin_users) == {fixtures.owner, fixtures.user2}
     merged = merge_users(fixtures.user1, fixtures.user2)
-    db.session.commit()
+    db_session.commit()
     assert merged == fixtures.user1
     assert set(fixtures.org.owner_users) == {fixtures.owner}
     assert set(fixtures.org.admin_users) == {fixtures.owner, fixtures.user1}
@@ -113,7 +109,9 @@ def test_merge_with_user2_membership(fixtures, user2_membership):
     assert user2_membership.revoked_at is None
 
 
-def test_merge_with_admin_membership(fixtures, user1_membership, user2_membership):
+def test_merge_with_admin_membership(
+    db_session, fixtures, user1_membership, user2_membership
+):
     """When both have equal memberships, older account's is preserved."""
     assert fixtures.org.active_admin_memberships.count() == 3
     assert set(fixtures.org.owner_users) == {fixtures.owner}
@@ -123,7 +121,7 @@ def test_merge_with_admin_membership(fixtures, user1_membership, user2_membershi
         fixtures.user2,
     }
     merged = merge_users(fixtures.user1, fixtures.user2)
-    db.session.commit()
+    db_session.commit()
     assert merged == fixtures.user1
     assert set(fixtures.org.owner_users) == {fixtures.owner}
     assert set(fixtures.org.admin_users) == {fixtures.owner, fixtures.user1}
@@ -134,7 +132,7 @@ def test_merge_with_admin_membership(fixtures, user1_membership, user2_membershi
 
 
 def test_merge_with_user1_owner_membership(
-    fixtures, user1_owner_membership, user2_membership
+    db_session, fixtures, user1_owner_membership, user2_membership
 ):
     """When older user has more roles, older account's is preserved."""
     assert fixtures.org.active_admin_memberships.count() == 3
@@ -145,7 +143,7 @@ def test_merge_with_user1_owner_membership(
         fixtures.user2,
     }
     merged = merge_users(fixtures.user1, fixtures.user2)
-    db.session.commit()
+    db_session.commit()
     assert merged == fixtures.user1
     assert set(fixtures.org.owner_users) == {fixtures.owner, fixtures.user1}
     assert set(fixtures.org.admin_users) == {fixtures.owner, fixtures.user1}
@@ -156,7 +154,7 @@ def test_merge_with_user1_owner_membership(
 
 
 def test_merge_with_user2_owner_membership(
-    fixtures, user1_membership, user2_owner_membership
+    db_session, fixtures, user1_membership, user2_owner_membership
 ):
     """When newer user has more roles, both are revoked and new record is created."""
     assert fixtures.org.active_admin_memberships.count() == 3
@@ -167,7 +165,7 @@ def test_merge_with_user2_owner_membership(
         fixtures.user2,
     }
     merged = merge_users(fixtures.user1, fixtures.user2)
-    db.session.commit()
+    db_session.commit()
     assert merged == fixtures.user1
     assert set(fixtures.org.owner_users) == {fixtures.owner, fixtures.user1}
     assert set(fixtures.org.admin_users) == {fixtures.owner, fixtures.user1}
@@ -178,7 +176,7 @@ def test_merge_with_user2_owner_membership(
 
 
 def test_merge_with_owner_membership(
-    fixtures, user1_owner_membership, user2_owner_membership
+    db_session, fixtures, user1_owner_membership, user2_owner_membership
 ):
     """When both have equal superior memberships, older account's is preserved."""
     assert fixtures.org.active_admin_memberships.count() == 3
@@ -193,7 +191,7 @@ def test_merge_with_owner_membership(
         fixtures.user2,
     }
     merged = merge_users(fixtures.user1, fixtures.user2)
-    db.session.commit()
+    db_session.commit()
     assert merged == fixtures.user1
     assert set(fixtures.org.owner_users) == {fixtures.owner, fixtures.user1}
     assert set(fixtures.org.admin_users) == {fixtures.owner, fixtures.user1}

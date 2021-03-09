@@ -56,11 +56,9 @@ def notification_types():
     return SimpleNamespace(**locals())
 
 
-@pytest.fixture(scope='module')
-def project_fixtures(test_db_structure, test_client):
+@pytest.fixture
+def project_fixtures(db_session):
     """Provide users, one org and one project, for tests on them."""
-    db = test_db_structure
-
     user_owner = User(username='user-owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
 
@@ -79,7 +77,7 @@ def project_fixtures(test_db_structure, test_client):
 
     org = Organization(name='notifications-org', title="Organization", owner=user_owner)
 
-    db.session.add_all(
+    db_session.add_all(
         [
             user_owner,
             user_editor,
@@ -89,7 +87,7 @@ def project_fixtures(test_db_structure, test_client):
             org,
         ]
     )
-    db.session.commit()
+    db_session.commit()
     profile = org.profile
     project = Project(
         profile=profile,
@@ -97,8 +95,8 @@ def project_fixtures(test_db_structure, test_client):
         title="Notifications project",
         tagline="Test notification delivery",
     )
-    db.session.add(project)
-    db.session.add(
+    db_session.add(project)
+    db_session.add(
         ProjectCrewMembership(project=project, user=user_editor, is_editor=True)
     )
     rsvp_y = Rsvp(project=project, user=user_participant)
@@ -109,14 +107,14 @@ def project_fixtures(test_db_structure, test_client):
     rsvp_suspended = Rsvp(project=project, user=user_suspended)
     rsvp_suspended.rsvp_yes(subscribe_comments=True)
     user_suspended.mark_suspended()
-    db.session.add_all([rsvp_y, rsvp_n, rsvp_suspended])
-    db.session.commit()
+    db_session.add_all([rsvp_y, rsvp_n, rsvp_suspended])
+    db_session.commit()
 
     refresh_attrs = [attr for attr in locals().values() if isinstance(attr, db.Model)]
 
     def refresh():
         for attr in refresh_attrs:
-            db.session.add(attr)
+            db_session.add(attr)
 
     return SimpleNamespace(**locals())
 
@@ -160,20 +158,19 @@ def test_project_roles(project_fixtures):
     assert 'participant' not in bystander_roles
 
 
-@pytest.fixture()
-def update(project_fixtures, db_transaction):
+@pytest.fixture
+def update(project_fixtures, db_session):
     """Publish an update as a fixture."""
-    db = db_transaction
     update = Update(
         project=project_fixtures.project,
         user=project_fixtures.user_editor,
         title="New update",
         body="New update body",
     )
-    db.session.add(update)
-    db.session.commit()
+    db_session.add(update)
+    db_session.commit()
     update.publish(project_fixtures.user_editor)
-    db.session.commit()
+    db_session.commit()
     return update
 
 
@@ -208,14 +205,13 @@ def test_update_roles(project_fixtures, update):
 
 
 def test_update_notification_structure(
-    notification_types, project_fixtures, update, db_transaction
+    notification_types, project_fixtures, update, db_session
 ):
     """Test whether a NewUpdateNotification has the appropriate structure."""
-    db = db_transaction
     project_fixtures.refresh()
     notification = notification_types.TestNewUpdateNotification(update)
-    db.session.add(notification)
-    db.session.commit()
+    db_session.add(notification)
+    db_session.commit()
 
     assert notification.type == 'update_new_test'
     assert notification.document == update
@@ -262,19 +258,18 @@ def test_update_notification_structure(
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_user_notification_preferences(notification_types, db_transaction):
+def test_user_notification_preferences(notification_types, db_session):
     """Test that users have a notification_preferences dict."""
-    db = db_transaction
     user = User(fullname="User")
-    db.session.add(user)
-    db.session.commit()
+    db_session.add(user)
+    db_session.commit()
     assert user.notification_preferences == {}
     np = NotificationPreferences(
         user=user,
         notification_type=notification_types.TestNewUpdateNotification.cls_type(),
     )
-    db.session.add(np)
-    db.session.commit()
+    db_session.add(np)
+    db_session.commit()
     assert set(user.notification_preferences.keys()) == {'update_new_test'}
     assert user.notification_preferences['update_new_test'] == np
     assert user.notification_preferences['update_new_test'].user == user
@@ -285,14 +280,14 @@ def test_user_notification_preferences(notification_types, db_transaction):
 
     # There cannot be two sets of preferences for the same notification type
     with pytest.raises(IntegrityError):
-        db.session.add(
+        db_session.add(
             NotificationPreferences(
                 user=user,
                 notification_type=notification_types.TestNewUpdateNotification.cls_type(),
             )
         )
-        db.session.commit()
-    db.session.rollback()
+        db_session.commit()
+    db_session.rollback()
 
     # Preferences cannot be set for invalid types
     with pytest.raises(ValueError):
@@ -303,8 +298,8 @@ def test_user_notification_preferences(notification_types, db_transaction):
         user=user,
         notification_type=notification_types.TestProposalReceivedNotification.cls_type(),
     )
-    db.session.add(np2)
-    db.session.commit()
+    db_session.add(np2)
+    db_session.commit()
     assert set(user.notification_preferences.keys()) == {
         'update_new_test',
         'proposal_received_test',
@@ -312,14 +307,13 @@ def test_user_notification_preferences(notification_types, db_transaction):
 
 
 def test_notification_preferences(
-    notification_types, project_fixtures, update, db_transaction
+    notification_types, project_fixtures, update, db_session
 ):
     """Test whether user preferences are correctly accessed."""
-    db = db_transaction
     # Rather than dispatching, we'll hardcode UserNotification for each test user
     notification = notification_types.TestNewUpdateNotification(update)
-    db.session.add(notification)
-    db.session.commit()
+    db_session.add(notification)
+    db_session.commit()
 
     # No user has any preferences saved at this point, so enquiries will result in
     # defaults

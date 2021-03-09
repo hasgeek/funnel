@@ -18,10 +18,8 @@ def invalidate_cache(user):
         invalidate_cached_property(user, attr)
 
 
-def test_siteadmin_roles(test_db, new_user):
+def test_siteadmin_roles(db_session, new_user):
     """`SiteMembership` grants siteadmin roles."""
-    db = test_db
-
     assert new_user.active_site_membership is None
     assert new_user.is_site_admin is False
     assert new_user.is_comment_moderator is False
@@ -35,8 +33,8 @@ def test_siteadmin_roles(test_db, new_user):
         is_user_moderator=True,
         is_site_editor=True,
     )
-    db.session.add(membership)
-    db.session.commit()
+    db_session.add(membership)
+    db_session.commit()
     invalidate_cache(new_user)
 
     # Now confirm all roles are present
@@ -48,7 +46,7 @@ def test_siteadmin_roles(test_db, new_user):
 
     # Progressively revoke roles and confirm
     membership = membership.replace(actor=new_user, is_site_editor=False)
-    db.session.commit()
+    db_session.commit()
     invalidate_cache(new_user)
 
     assert new_user.active_site_membership == membership
@@ -58,7 +56,7 @@ def test_siteadmin_roles(test_db, new_user):
     assert new_user.is_site_editor is False
 
     membership = membership.replace(actor=new_user, is_user_moderator=False)
-    db.session.commit()
+    db_session.commit()
     invalidate_cache(new_user)
 
     assert new_user.active_site_membership == membership
@@ -70,11 +68,11 @@ def test_siteadmin_roles(test_db, new_user):
     # At least one role is required, so this will fail
     with pytest.raises(IntegrityError):
         membership.replace(actor=new_user, is_comment_moderator=False)
-        db.session.commit()
-    db.session.rollback()
+        db_session.commit()
+    db_session.rollback()
     # The membership record must be revoked to remove all roles
     membership.revoke(actor=new_user)
-    db.session.commit()
+    db_session.commit()
     invalidate_cache(new_user)
 
     assert new_user.active_site_membership is None
