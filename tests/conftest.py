@@ -433,7 +433,13 @@ def client_hex(db_session, org_uu):
 
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
-    client = AuthClient(title="Hex", owner=org_uu)
+    # TODO: AuthClient needs to move to profile as parent
+    client = AuthClient(
+        title="Hex",
+        organization=org_uu,
+        confidential=True,
+        website='https://example.org/',
+    )
     db_session.add(client)
     return client
 
