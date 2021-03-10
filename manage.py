@@ -135,7 +135,7 @@ def reset_proposal_order():
     """
     projects = models.Project.query.all()
     for project in projects:
-        app.logger.info("Project: ", project.title)
+        app.logger.info(project.title)
         app.logger.info("Resetting url_id to bare index value")
         for idx, proposal in enumerate(
             project.proposals.order_by(models.Proposal.url_id.asc()).all()

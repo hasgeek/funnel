@@ -1,10 +1,11 @@
 from funnel.models import Proposal
+from manage import reset_proposal_order
 
 
-def test_reorder(db_session, user_angua, project_expo2010):
+def test_reorder(db_session, user_twoflower, project_expo2010):
     proposal1 = Proposal(
-        user=user_angua,
-        speaker=user_angua,
+        user=user_twoflower,
+        speaker=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 1",
         body="Test body",
@@ -12,8 +13,8 @@ def test_reorder(db_session, user_angua, project_expo2010):
     )
     db_session.add(proposal1)
     proposal2 = Proposal(
-        user=user_angua,
-        speaker=user_angua,
+        user=user_twoflower,
+        speaker=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 2",
         body="Test body",
@@ -21,8 +22,8 @@ def test_reorder(db_session, user_angua, project_expo2010):
     )
     db_session.add(proposal2)
     proposal3 = Proposal(
-        user=user_angua,
-        speaker=user_angua,
+        user=user_twoflower,
+        speaker=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 3",
         body="Test body",
@@ -30,6 +31,16 @@ def test_reorder(db_session, user_angua, project_expo2010):
     )
     db_session.add(proposal3)
     db_session.commit()
+
+    assert proposal1.url_id == 1
+    assert proposal2.url_id == 2
+    assert proposal3.url_id == 3
+
+    reset_proposal_order()
+
+    assert proposal1.url_id == 10000
+    assert proposal2.url_id == 20000
+    assert proposal3.url_id == 30000
 
     assert proposal1.title == "Test Proposal 1"
     assert proposal1.url_id < proposal2.url_id < proposal3.url_id
