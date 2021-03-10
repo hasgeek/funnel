@@ -281,9 +281,7 @@ def org_ankhmorpork(db_session, user_vetinari):
     Havelock Vetinari is the Patrician (aka dictator), and sponsors various projects to
     develop the city.
     """
-    org = OrganizationMembership(
-        name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari
-    )
+    org = Organization(name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari)
     db_session.add(org)
     return org
 
