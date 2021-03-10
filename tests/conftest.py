@@ -358,7 +358,7 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2010",
-        subtitle="Welcome to Ankh-Morpork, tourists!",
+        tagline="Welcome to Ankh-Morpork, tourists!",
         description="The city doesn't have tourists. Let's change that.",
     )
     db_session.add(project)
@@ -372,7 +372,7 @@ def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2011",
-        subtitle="Welcome back, our pub's changed",
+        tagline="Welcome back, our pub's changed",
         description="The Broken Drum is gone, but we have The Mended Drum now.",
     )
     db_session.add(project)
@@ -390,7 +390,7 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
         profile=org_uu.profile,
         user=user_ponder_stibbons,
         title="Soul Music",
-        subtitle="Hex makes an initial appearance",
+        tagline="Hex makes an initial appearance",
         description="Hex has its origins in a device that briefly appeared in Soul"
         " Music, created by Ponder Stibbons and some student Wizards in the High Energy"
         " Magic building. In this form it was simply a complex network of glass tubes,"
@@ -413,7 +413,7 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
         profile=org_uu.profile,
         user=user_ponder_stibbons,
         title="Interesting Times",
-        subtitle="Hex invents parts for itself",
+        tagline="Hex invents parts for itself",
         description="Hex has become a lot more complex, and is constantly reinventing"
         " itself, meaning several new components of it are mysteries to those at UU.",
     )
