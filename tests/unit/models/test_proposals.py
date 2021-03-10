@@ -1,29 +1,29 @@
 from funnel.models import Proposal
 
 
-def test_reorder(self, db_session, new_user, new_project):
+def test_reorder(db_session, user_angua, project_expo2010):
     proposal1 = Proposal(
-        user=new_user,
-        speaker=new_user,
-        project=new_project,
+        user=user_angua,
+        speaker=user_angua,
+        project=project_expo2010,
         title="Test Proposal 1",
         body="Test body",
         description="Test proposal 1 description",
     )
     db_session.add(proposal1)
     proposal2 = Proposal(
-        user=new_user,
-        speaker=new_user,
-        project=new_project,
+        user=user_angua,
+        speaker=user_angua,
+        project=project_expo2010,
         title="Test Proposal 2",
         body="Test body",
         description="Test proposal 2 description",
     )
     db_session.add(proposal2)
     proposal3 = Proposal(
-        user=new_user,
-        speaker=new_user,
-        project=new_project,
+        user=user_angua,
+        speaker=user_angua,
+        project=project_expo2010,
         title="Test Proposal 3",
         body="Test body",
         description="Test proposal 3 description",
