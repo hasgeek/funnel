@@ -476,7 +476,7 @@ def test_email_address_mixin(email_models, db_session):
     link3 = models.EmailLink(emailuser=user2, email='Other@example.com')
     db_session.add(link3)
     with pytest.raises(IntegrityError):
-        db_session.flush()
+        db_session.commit()
 
     del link3
     db_session.rollback()
