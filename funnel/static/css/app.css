@@ -2627,6 +2627,7 @@ a.loginbutton.hidden,
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  margin: 0 0 8px;
 }
 .post-form-block .post-form {
   cursor: pointer;
