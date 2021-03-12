@@ -1,0 +1,168 @@
+"""commentset membership for existing registrations.
+
+Revision ID: 1c9cbf3a1e5e
+Revises: 284c10efdbce
+Create Date: 2021-03-11 09:07:56.611054
+
+"""
+
+from uuid import uuid4
+
+from alembic import op
+from sqlalchemy.sql import column, table
+from sqlalchemy_utils import UUIDType
+import sqlalchemy as sa
+
+from progressbar import ProgressBar
+import progressbar.widgets
+
+# revision identifiers, used by Alembic.
+revision = '1c9cbf3a1e5e'
+down_revision = '284c10efdbce'
+branch_labels = None
+depends_on = None
+
+
+project = table(
+    'project',
+    column('id', sa.Integer()),
+    column('commentset_id', sa.Integer()),
+)
+
+
+rsvp = table(
+    'rsvp',
+    column('project_id', sa.Integer()),
+    column('user_id', sa.Integer()),
+    column('state', sa.CHAR(1)),
+)
+
+
+commentset = table(
+    'commentset',
+    column('id', sa.Integer()),
+    column('uuid', UUIDType(binary=False)),
+    column('type', sa.Integer()),
+    column('count', sa.Integer()),
+)
+
+
+commentset_membership = table(
+    'commentset_membership',
+    column('id', UUIDType(binary=False)),
+    column('user_id', sa.Integer()),
+    column('commentset_id', sa.Integer()),
+    column('record_type', sa.Integer()),
+    column('granted_by_id', sa.Integer()),
+    column('granted_at', sa.TIMESTAMP()),
+    column('last_seen_at', sa.TIMESTAMP()),
+    column('revoked_at', sa.TIMESTAMP()),
+    column('created_at', sa.TIMESTAMP()),
+    column('updated_at', sa.TIMESTAMP()),
+)
+
+
+class MEMBERSHIP_RECORD_TYPE:  # NOQA: N801
+    """Membership record types."""
+
+    INVITE = 0
+    ACCEPT = 1
+    DIRECT_ADD = 2
+    AMEND = 3
+
+
+def get_progressbar(label, maxval):
+    return ProgressBar(
+        maxval=maxval,
+        widgets=[
+            label,
+            ': ',
+            progressbar.widgets.Percentage(),
+            ' ',
+            progressbar.widgets.Bar(),
+            ' ',
+            progressbar.widgets.ETA(),
+            ' ',
+        ],
+    )
+
+
+def upgrade():
+    conn = op.get_bind()
+
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
+    progress = get_progressbar("Projects", count)
+    progress.start()
+
+    projects = conn.execute(
+        sa.select([project.c.id, project.c.commentset_id]).order_by(project.c.id.desc())
+    )
+    for counter, project_item in enumerate(projects):
+        rsvp_count = conn.scalar(
+            sa.select([sa.func.count('*')])
+            .where(rsvp.c.project_id == project_item.id)
+            .select_from(rsvp)
+        )
+        if rsvp_count == 0:
+            continue
+
+        rsvps = conn.execute(
+            sa.select([rsvp.c.project_id, rsvp.c.user_id, rsvp.c.state])
+            .where(rsvp.c.project_id == project_item.id)
+            .where(rsvp.c.state == 'Y')
+            .select_from(rsvp)
+        )
+
+        for rsvp_item in rsvps:
+            existing_counter = conn.scalar(
+                sa.select([sa.func.count('*')])
+                .where(
+                    commentset_membership.c.commentset_id == project_item.commentset_id
+                )
+                .where(commentset_membership.c.user_id == rsvp_item.user_id)
+                .where(commentset_membership.c.revoked_at is None)
+                .select_from(commentset_membership)
+            )
+            if existing_counter == 0:
+                conn.execute(
+                    commentset_membership.insert().values(
+                        {
+                            'id': uuid4(),
+                            'user_id': rsvp_item.user_id,
+                            'commentset_id': project_item.commentset_id,
+                            'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
+                            'granted_by_id': None,
+                            'granted_at': sa.func.utcnow(),
+                            'created_at': sa.func.utcnow(),
+                            'updated_at': sa.func.utcnow(),
+                            'last_seen_at': sa.func.utcnow(),
+                        }
+                    )
+                )
+        progress.update(counter)
+    progress.finish()
+
+
+def downgrade():
+    conn = op.get_bind()
+
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
+    progress = get_progressbar("Projects", count)
+    progress.start()
+
+    projects = conn.execute(sa.select([project.c.id, project.c.commentset_id]))
+    for counter, project_item in enumerate(projects):
+        commentset_memberships = conn.execute(
+            sa.select([commentset_membership.c.id])
+            .where(commentset_membership.c.commentset_id == project_item.commentset_id)
+            .where(commentset_membership.c.revoked_at is None)
+            .select_from(commentset_membership)
+        )
+        for membership_item in commentset_memberships:
+            conn.execute(
+                sa.delete(commentset_membership).where(
+                    commentset_membership.c.id == membership_item.id
+                )
+            )
+        progress.update(counter)
+    progress.finish()
