@@ -184,12 +184,12 @@ class TestAuthToken(TestDatabaseFixture):
         """Test for migrating user who has an AuthToken issued."""
         piglet = self.fixtures.piglet
         specialdachs = self.fixtures.specialdachs
-        scope_piglet = [u'id', u'email']
+        scope_piglet = ['id', 'email']
         londontales = models.AuthClient(
-            title=u'London tales',
+            title='London tales',
             organization=specialdachs,
             confidential=True,
-            website=u'http://londondachtales.uk',
+            website='http://londondachtales.uk',
         )
         auth_token = models.AuthToken(
             auth_client=londontales, user=piglet, scope=scope_piglet, validity=0
@@ -198,8 +198,8 @@ class TestAuthToken(TestDatabaseFixture):
 
         self.db_session.add(auth_token)
         self.db_session.add(londontales)
-        piggles = models.User(username=u"piggles")
-        naughtymonkey = models.User(username=u"naughtymonkey")
+        piggles = models.User(username="piggles")
+        naughtymonkey = models.User(username="naughtymonkey")
         self.db_session.add(piggles)
         self.db_session.add(naughtymonkey)
         self.db_session.commit()
@@ -211,7 +211,7 @@ class TestAuthToken(TestDatabaseFixture):
 
         # Scenario: There's a existing token for newuser with the same client,
         # then we expect to: newtoken to have extended scope
-        scope_piggles = [u'teams']
+        scope_piggles = ['teams']
         another_auth_token = models.AuthToken(
             auth_client=londontales, user=piggles, scope=scope_piggles
         )

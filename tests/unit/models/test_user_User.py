@@ -219,9 +219,9 @@ class TestUser(TestDatabaseFixture):
         crusoe = models.User.get(username='crusoe')
         oakley = models.User.get(username='oakley')
         piglet = models.User.get(username='piglet')
-        # lena = models.User.get(username=u'lena')
+        # lena = models.User.get(username='lena')
         # FIXME # scenario 1: when empty query passed
-        # result1 = models.User.autocomplete(u'*')
+        # result1 = models.User.autocomplete('*')
         # self.assertEqual(result1 or lena)
         # scenario 2: when query passed
         assert models.User.autocomplete('[oa]') == [oakley]

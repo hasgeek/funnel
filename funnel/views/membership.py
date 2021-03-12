@@ -140,7 +140,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
         membership_form_html = render_form(
             form=membership_form,
             title='',
-            submit=u'Add member',
+            submit='Add member',
             ajax=False,
             with_chrome=False,
         )
@@ -243,7 +243,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
         membership_form_html = render_form(
             form=membership_form,
             title='',
-            submit=u'Edit membership',
+            submit='Edit membership',
             ajax=False,
             with_chrome=False,
         )
@@ -407,7 +407,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
         membership_form_html = render_form(
             form=membership_form,
             title='',
-            submit=u'Add member',
+            submit='Add member',
             ajax=False,
             with_chrome=False,
         )
@@ -555,7 +555,7 @@ class ProjectCrewMembershipView(
         membership_form_html = render_form(
             form=form,
             title='',
-            submit=u'Edit membership',
+            submit='Edit membership',
             ajax=False,
             with_chrome=False,
         )

@@ -420,10 +420,10 @@ class NewPhoneForm(forms.RecaptchaForm):
     # type = forms.RadioField(__("Type"), coerce=nullstr,
     #     validators=[forms.validators.Optional()],
     #     choices=[
-    #         (__(u"Mobile"), __(u"Mobile")),
-    #         (__(u"Home"), __(u"Home")),
-    #         (__(u"Work"), __(u"Work")),
-    #         (__(u"Other"), __(u"Other"))])
+    #         (__("Mobile"), __("Mobile")),
+    #         (__("Home"), __("Home")),
+    #         (__("Work"), __("Work")),
+    #         (__("Other"), __("Other"))])
 
     enable_notifications = forms.BooleanField(
         __("Send notifications by SMS"),
