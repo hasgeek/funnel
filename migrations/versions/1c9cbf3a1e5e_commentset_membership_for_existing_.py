@@ -131,7 +131,7 @@ def upgrade():
                             'user_id': rsvp_item.user_id,
                             'commentset_id': project_item.commentset_id,
                             'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
-                            'granted_by_id': None,
+                            'granted_by_id': rsvp_item.user_id,  # because user registered
                             'granted_at': sa.func.utcnow(),
                             'created_at': sa.func.utcnow(),
                             'updated_at': sa.func.utcnow(),
