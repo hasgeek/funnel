@@ -277,7 +277,7 @@ class TestUser(TestDatabaseFixture):
         lookup_by_buid_status = models.User.get(buid=lector.buid)
         assert lookup_by_buid_status == lector
         # scenario 6 : when user.state.MERGED
-        piglet = models.User.get(username='piglet', fullname="Piglet")
+        piglet = models.User.get(username='piglet')
         piggy = models.User(username='piggy', fullname="Piggy")
         self.db_session.add(piggy)
         self.db_session.commit()
