@@ -1,4 +1,3 @@
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -9,8 +8,8 @@ class TestUserOldId(TestDatabaseFixture):
         """Test for verifying creation and retrieval of UserOldId instance."""
         crusoe = self.fixtures.crusoe
         bathound = models.User(username="bathound", fullname="Bathound")
-        db.session.add(bathound)
-        db.session.commit()
+        self.db_session.add(bathound)
+        self.db_session.commit()
         with self.app.test_request_context('/'):
             merged = models.merge_users(crusoe, bathound)
             if merged == crusoe:

@@ -1,0 +1,96 @@
+{% extends "layout.html.jinja2" %}
+{% set title_suffix = project.title %}
+{% from "baseframe/forms.html.jinja2" import ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import csrf_tag, project_header, project_details_header, proposal_card, project_share, video_thumbnail, registerblock, project_col_right %}
+{% block title %}{{ project.title }}{% endblock %}
+{% block description %}{{ project.tagline }}{% endblock %}
+{% block twitter_card %}summary_large_image{% endblock %}
+
+{%- block pageheaders %}
+{% endblock %}
+
+{% block bodytag %}
+  {%- if not config['LEGACY'] -%}
+    <body class="mui--bg-accent hg-app no-sticky-header project-inner-page">
+  {%- else %}
+    <body class="mui--bg-primary no-sticky-header">
+  {%- endif %}
+{% endblock %}
+
+{% block contenthead %}
+{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block baseheadline_title %}{{ self.title() }}{% endblock %}</span>
+    </div>
+  </div>
+{% endblock %}
+
+{% block basecontent %}
+ <div class="mui-container">
+  <div class="grid page-content page-content--mob-nav">
+    <div class="grid__col-sm-12 grid__col-md-7 grid__col-lg-8">
+      <div class="page-card">
+        {{ project_header(project, current_page=current_page) }}
+        {% block base_content_inner %}{% endblock %}
+      </div>
+    </div>
+    {% block base_content_column %}
+      <div class="mui--hidden-xs mui--hidden-sm mui--hidden-md grid__col-md-5 grid__col-lg-4">
+        <div class="project-details-sticky">
+          <div class="card card--shaped">
+            <div class="card__body project-banner">
+              {{ project_details_header(project) }}
+            </div>
+          </div>
+          <p class="mui--text-caption mui--text-light">{% trans %}This project is brought to you by{% endtrans %}</p>
+          <div class="card card--shaped">
+            <div class="card__body project-banner">
+              <div class="project-details__box">
+                <div class="project-banner__profile-details">
+                  {%- if project.profile.logo_url.url %}
+                    <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
+                      <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+                    </a>
+                  {% endif %}
+                  <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+                </div>
+                <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|firstline|truncate(150) }} <a href="{{ project.profile.url_for() }}" class="mui--text-body2">{% trans %}Read more{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', css_class='fa-icon--left-margin') }}</a></div>
+              </div>
+            </div>
+          </div>
+          {% block basecontentcolumninner %}{% endblock %}
+        </div>
+      </div>
+    {% endblock %}
+  </div>
+ </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var tickets;
+      {% if project.features.tickets() -%}
+        tickets = {
+          boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
+          widgetElem: "#boxoffice-widget",
+          org: {{ project.boxoffice_data.org|tojson }},
+          itemCollectionId: {{ project.boxoffice_data.item_collection_id|tojson }},
+          itemCollectionTitle: {{ project.title|tojson }}
+        };
+      {%- endif %}
+
+      var saveProjectConfig = {
+        formId: 'save-form',
+      };
+
+      window.Hasgeek.ProjectHeaderInit(saveProjectConfig, tickets);
+    });
+  </script>
+  {% block footerinnerscripts %}{% endblock %}
+{% endblock %}

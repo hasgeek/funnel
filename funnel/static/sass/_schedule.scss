@@ -1,12 +1,17 @@
 .schedule-grid {
   padding: 0;
 
+  .tabs-wrapper {
+    box-shadow: none;
+  }
+
   .schedule {
     margin: 0 0 $mui-grid-padding-double;
 
     .schedule__date {
-      margin-bottom: $mui-grid-padding-double;
+      margin-bottom: $mui-grid-padding;
       padding-left: $mui-grid-padding;
+      margin-top: 0;
     }
 
     .schedule__row {
@@ -92,7 +97,7 @@
       overflow-x: auto;
       position: sticky;
       position: -webkit-sticky;
-      top: 56px;
+      top: 52px;
       order: 1;
       z-index: 4;
       border: none;
@@ -323,6 +328,15 @@
       max-width: 70%;
       margin-top: 16px;
     }
+  }
+}
+
+.jquery-modal.blocker.current .session-modal {
+  .session-modal__title {
+    max-width: calc(100% - 20px);
+    margin-top: 0;
+    position: relative;
+    top: -10px;
   }
 }
 

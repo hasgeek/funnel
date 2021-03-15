@@ -1,6 +1,5 @@
 import pytest
 
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -23,8 +22,8 @@ class TestOrganization(TestDatabaseFixture):
         name = 'spew'
         title = 'S.P.E.W'
         spew = models.Organization(name=name, title=title, owner=self.fixtures.crusoe)
-        db.session.add(spew)
-        db.session.commit()
+        self.db_session.add(spew)
+        self.db_session.commit()
         # scenario 1: when neither name or buid are passed
         with pytest.raises(TypeError):
             models.Organization.get()
@@ -46,9 +45,9 @@ class TestOrganization(TestDatabaseFixture):
         """Test for getting all organizations (takes buid or name optionally)."""
         gryffindor = models.Organization(name='gryffindor', owner=self.fixtures.crusoe)
         ravenclaw = models.Organization(name='ravenclaw', owner=self.fixtures.crusoe)
-        db.session.add(gryffindor)
-        db.session.add(ravenclaw)
-        db.session.commit()
+        self.db_session.add(gryffindor)
+        self.db_session.add(ravenclaw)
+        self.db_session.commit()
         # scenario 1: when neither buids nor names are given
         assert models.Organization.all() == []
         # scenario 2: when buids are passed
@@ -81,8 +80,8 @@ class TestOrganization(TestDatabaseFixture):
         title = 'The Cullens'
         olympic_coven = models.Organization(title=title, owner=self.fixtures.crusoe)
         olympic_coven.name = name
-        db.session.add(olympic_coven)
-        db.session.commit()
+        self.db_session.add(olympic_coven)
+        self.db_session.commit()
         assert isinstance(olympic_coven.pickername, str)
         assert (
             '{title} (@{name})'.format(title=title, name=name)

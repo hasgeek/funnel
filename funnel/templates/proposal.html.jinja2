@@ -29,7 +29,7 @@
   {% if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
     <div class="mui--d-inlineblock mui-dropdown">
       <a href="javascript:void(0)" class="mui--text-title mui--text-light" data-mui-toggle="dropdown" aria-label="{% trans %}Proposal menu{% endtrans %}" data-cy="proposal-menu">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
-      <ul class="mui-dropdown__menu mui-dropdown__menu--right proposal-menu">
+      <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
         {%- if proposal.current_permissions.edit_proposal %}
           <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
           <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video_url" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">
@@ -46,10 +46,10 @@
           <li><a href="{{ proposal.url_for('admin') }}" class="mui--text-subhead" rel="modal:open" aria-label="{% trans %}Editor panel{% endtrans %}" data-cy="editor-panel">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Editor panel{% endtrans %}</span></a></li>
           <li><a href="javascript:void(0)" class="mui--text-body2 mui--clearfix">
               {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--pull-left mui--align-middle') }}
-              <span class="mui--pull-right proposal-menu__form">
-                <span class="mui--d-inlineblock proposal-menu__form__label">
+              <span class="mui--pull-right dropdown-menu__form">
+                <span class="mui--d-inlineblock dropdown-menu__form__label">
                   <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
-                  <span class="mui--d-block mui--text-caption mui--text-light proposal-menu__form__label__helptxt">{% trans %}Featured submissions appear on the project page{% endtrans %}</span>
+                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear on the project page{% endtrans %}</span>
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
                   {{ csrf_tag() }}
@@ -107,7 +107,7 @@
           {%- if proposal.getnext() -%}
             <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block margin-bottom mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
           {%- endif -%}
-          <div class="proposal-wrapper mui--z1">
+          <div class="page-card">
             <div class="details">
               {% if proposal.session and proposal.session.video or proposal.video or 'edit_proposal' in proposal.permissions(current_auth.user) %}
                 <div class="details__box mui-tabs__bar">
@@ -196,7 +196,7 @@
                     {{ useravatar(proposal.speaker) }}
                     <div class="user__box__header">
                       <p class="mui--text-body2 user__box__fullname">{{ proposal.speaker.fullname }}</p>
-                      <p class="mui--text-caption user__box__userid">@{{ proposal.speaker.username }}</p>
+                      {%- if proposal.speaker.username %}<p class="mui--text-caption user__box__userid">@{{ proposal.speaker.username }}</p>{%- endif -%}
                     </div>
                   </div>
                 </div>

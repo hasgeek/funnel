@@ -3,7 +3,6 @@ from datetime import timedelta
 import pytest
 
 from coaster.utils import buid, utcnow
-from funnel import db
 import funnel.models as models
 
 from .test_db import TestDatabaseFixture
@@ -25,8 +24,8 @@ class TestUser(TestDatabaseFixture):
             accessed_at=utcnow(),
         )
         another_user_session.set_sudo()
-        db.session.add(another_user_session)
-        db.session.commit()
+        self.db_session.add(another_user_session)
+        self.db_session.commit()
         assert another_user_session.has_sudo is True
 
     def test_usersession_revoke(self):
@@ -79,9 +78,9 @@ class TestUser(TestDatabaseFixture):
             user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36',
             accessed_at=utcnow(),
         )
-        db.session.add(chandler)
-        db.session.add(chandler_session)
-        db.session.commit()
+        self.db_session.add(chandler)
+        self.db_session.add(chandler_session)
+        self.db_session.commit()
         result = models.UserSession.authenticate(chandler_session.buid)
         assert isinstance(result, models.UserSession)
         assert result == chandler_session
@@ -89,7 +88,7 @@ class TestUser(TestDatabaseFixture):
         # Now manipulate the session to make it invalid
         # 1. More than a year since last access, so it's expired
         chandler_session.accessed_at = utcnow() - timedelta(days=1000)
-        db.session.commit()
+        self.db_session.commit()
         # By default, expired sessions raise an exception
         with pytest.raises(models.UserSessionExpired):
             models.UserSession.authenticate(chandler_session.buid)
@@ -101,7 +100,7 @@ class TestUser(TestDatabaseFixture):
         # 2. Revoked session (taking priority over expiry)
         chandler_session.accessed_at = utcnow()
         chandler_session.revoked_at = utcnow()
-        db.session.commit()
+        self.db_session.commit()
         with pytest.raises(models.UserSessionRevoked):
             models.UserSession.authenticate(chandler_session.buid)
         # Again, silent mode simply returns None

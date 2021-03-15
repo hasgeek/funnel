@@ -1,0 +1,15 @@
+{% set current_page = 'videos' %}
+{% extends "project_layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import project_header, video_thumbnail %}
+{% block title %}{% trans %}Videos{% endtrans %}{% endblock %}
+
+
+{% block base_content_inner %}
+  <div class="grid project-section" id="videos">
+    {% for session in project.sessions_with_video %}
+      <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
+        {{ video_thumbnail(session) }}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

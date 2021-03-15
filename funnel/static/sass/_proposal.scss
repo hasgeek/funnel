@@ -1,9 +1,4 @@
-.proposal-wrapper {
-  padding: 0;
-  margin: 0;
-  position: relative;
-  background: $mui-bg-color-primary;
-  border-radius: 16px 16px 0 16px;
+.page-card {
   .proposal__wrapper__alert {
     padding: $mui-grid-padding/2 $mui-grid-padding;
     margin: 0 0 $mui-grid-padding;
@@ -15,32 +10,6 @@
     .details__box {
       position: relative;
       overflow: visible;
-    }
-  }
-}
-
-.proposal-menu {
-  min-width: 270px;
-  > li > a {
-    padding: $mui-grid-padding;
-  }
-  hr {
-    margin: 0;
-  }
-  .fa5-icon.mui--align-middle {
-    position: relative;
-    top: -1px;
-  }
-  .proposal-menu__form {
-    max-width: calc(100% - 25px);
-    .proposal-menu__form__label {
-      max-width: calc(100% - 40px);
-      .proposal-menu__form__label__helptxt {
-        white-space: break-spaces;
-      }
-    }
-    .switch-label {
-      padding-top: 10px;
     }
   }
 }
@@ -163,7 +132,6 @@
 }
 
 .proposal-card {
-  padding: $mui-grid-padding/2 0;
   .proposal-card__body {
     .proposal-card__body__details {
       .proposal-card__video-thumbnail {
@@ -186,13 +154,17 @@
 }
 
 .proposal-card--fullwidth {
-  .proposal-card__video {
-    margin-left: -$mui-grid-padding;
-    margin-right: -$mui-grid-padding;
-    margin-bottom: -22px;
-    .proposal-card__video__thumbnail {
-      width: 100%;
+  .proposal-card__body {
+    .proposal-card__body__details {
+      .proposal-card__video-thumbnail {
+        width: auto;
+        max-width: 100%;
+        max-height: 150px;
+      }
     }
+  }
+  .proposal-card__video--desktop {
+    display: none;
   }
 }
 
@@ -201,14 +173,21 @@
     display: flex;
     align-items: start;
     justify-content: space-between;
-    .proposal-card__video {
-      min-width: 200px;
+    .proposal-card__body__details .proposal-card__video-thumbnail {
+      display: none;
+    }
+    .proposal-card__video--desktop {
+      display: block;
+      width: 200px;
       margin-top: 14px;
       margin: 14px 0 0 $mui-grid-padding;
+      .proposal-card__video__thumbnail {
+        width: 100%;
+      }
     }
     .proposal-card__body {
       .proposal-card__body__details {
-        justify-content: left;
+        display: block;
         .proposal-card__body__details__txt {
           display: flex;
           .proposal-card__details__txt__read {
@@ -253,7 +232,7 @@
   margin-right: 20px;
 }
 
-@medium (min-width: 1200px) {
+@media (min-width: 1200px) {
   .proposal__admin-panel .btn-group .mui-btn {
     margin-bottom: 10px;
     margin-right: 10px;

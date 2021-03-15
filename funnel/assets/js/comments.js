@@ -64,7 +64,6 @@ const Comments = {
             this.formAction.forEach((commentForm) => {
               this[commentForm.form] = false;
             });
-            $('#js-header').removeClass('header--lowzindex');
             this.$parent.refreshCommentsTimer();
           }
         },
@@ -175,7 +174,6 @@ const Comments = {
           this.activateForm(this.COMMENTACTIONS.NEW, textareaId);
         },
         activateForm(action, textareaId, parentApp = app) {
-          $('#js-header').addClass('header--lowzindex');
           if (textareaId) {
             this.$nextTick(() => {
               let editor = window.CodeMirror.fromTextArea(
@@ -205,7 +203,6 @@ const Comments = {
             this.commentForm = false;
             this.formTitle = '';
             this.showmodal = false;
-            $('#js-header').removeClass('header--lowzindex');
             this.refreshCommentsTimer();
           }
         },

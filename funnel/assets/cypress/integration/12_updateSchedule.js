@@ -1,5 +1,6 @@
 describe('Add session to schedule and publish', function () {
   const editor = require('../fixtures/user.json').editor;
+  const siteEditor = require('../fixtures/user.json').owner;
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
   const profile = require('../fixtures/profile.json');
@@ -16,6 +17,8 @@ describe('Add session to schedule and publish', function () {
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
+    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.wait(1000);
     cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="edit-schedule"').click();
@@ -54,14 +57,31 @@ describe('Add session to schedule and publish', function () {
     cy.get('.sp-palette-container').should('exist');
 
     cy.get('[data-cy="project-page"]').click();
+    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.wait(1000);
     cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('button[data-cy-schedule=publish_schedule]').click();
+    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.wait(1000);
     cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('[data-cy="schedule-state"]').contains('Upcoming');
 
     cy.get('a[data-cy="home-desktop"]').click();
-    cy.get('.upcoming').find('.card--upcoming').contains(project.title);
+    cy.logout();
+    cy.wait(1000);
+    cy.login('/', siteEditor.username, siteEditor.password);
+    cy.get('.upcoming').find('.card--upcoming').contains(project.title).click();
+    cy.get('a[data-cy="project-menu"]').click();
+    cy.wait(1000);
+    cy.get('input#featured-project').click({ force: true });
+    cy.get('a[data-cy="home-desktop"]').click();
+    cy.get('[data-cy="spotlight-project"]').contains(project.title).click();
+    cy.get('a[data-cy="project-menu"]').click();
+    cy.wait(1000);
+    cy.get('input#featured-project').click({ force: true });
+    cy.get('a[data-cy="home-desktop"]').click();
+    cy.get('[data-cy="spotlight-project"]').should('not.exist');
   });
 });
