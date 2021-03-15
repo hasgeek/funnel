@@ -15,8 +15,9 @@
   }
 
   .label-box__heading {
-    margin: $mui-grid-padding 10px;
+    margin: $mui-grid-padding 0 $mui-grid-padding $mui-grid-padding/2;
     display: inline-block;
+    width: calc(100% - 30px);
   }
 
   @media (min-width: 1200px) {

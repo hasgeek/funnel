@@ -5117,8 +5117,9 @@ body > .proposal-box.ui-draggable {
   cursor: pointer;
 }
 .label-box .label-box__heading {
-  margin: 16px 10px;
+  margin: 16px 0 16px 8px;
   display: inline-block;
+  width: calc(100% - 30px);
 }
 @media (min-width: 1200px) {
   .label-box .sublabel-wrapper {
