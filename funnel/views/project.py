@@ -290,12 +290,10 @@ class ProjectView(
     @render_with('project_submissions.html.jinja2')
     @requires_roles({'reader'})
     def view_proposals(self):
-        form = forms.Form()
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'form': form,
         }
 
     @route('videos')

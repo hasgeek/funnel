@@ -171,7 +171,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 if request.form.get('previousItemId', None)
                 else None
             )
-            current_proposal.reorder(below=previous_proposal)
+            current_proposal.reorder(below_proposal=previous_proposal)
             db.session.commit()
 
             return {'status': 'ok'}
