@@ -8,66 +8,61 @@ import funnel.models as models
 from .test_db import TestDatabaseFixture
 
 
+def test_user(db_session):
+    """Test for creation of user object from User model."""
+    user = models.User(username='hrun', fullname="Hrun the Barbarian")
+    db_session.add(user)
+    db_session.commit()
+    hrun = models.User.get(username='hrun')
+    assert isinstance(hrun, models.User)
+    assert user.username == 'hrun'
+    assert user.fullname == "Hrun the Barbarian"
+    assert user.state.ACTIVE
+    assert hrun == user
+
+
+def test_user_pickername(user_twoflower, user_rincewind):
+    """Test to verify pickername contains fullname and optional username."""
+    assert user_twoflower.pickername == "Twoflower"
+    assert user_rincewind.pickername == "Rincewind (@rincewind)"
+
+
+def test_user_is_profile_complete(db_session, user_twoflower, user_rincewind):
+    """
+    Test to check if user profile is complete.
+
+    That is fullname, username and email are present.
+    """
+    # Both fixtures start out incomplete
+    assert user_twoflower.is_profile_complete() is False
+    assert user_rincewind.is_profile_complete() is False
+
+    # Rincewind claims an email address, but it is not verified
+    db_session.add(
+        models.UserEmailClaim(user=user_rincewind, email='rincewind@example.org')
+    )
+    db_session.commit()
+    assert user_rincewind.is_profile_complete() is False
+
+    # Rincewind's profile is complete when a verified email address is added
+    user_rincewind.add_email('rincewind@example.org')
+    assert user_rincewind.is_profile_complete() is True
+
+    # Email is insufficient for Twoflower
+    user_twoflower.add_email('twoflower@example.org')
+    assert user_twoflower.is_profile_complete() is False
+
+    # Twoflower also needs a username
+    user_twoflower.username = 'twoflower'
+    assert user_twoflower.is_profile_complete() is True
+
+
+def test_user_organization_owned(user_ridcully, org_uu):
+    """Test for verifying organizations a user is a owner of."""
+    assert list(user_ridcully.organizations_as_owner) == [org_uu]
+
+
 class TestUser(TestDatabaseFixture):
-    def test_user(self):
-        """Test for creation of user object from User model."""
-        user = models.User(username='lena', fullname="Lena Audrey Dachshund")
-        self.db_session.add_all([user])
-        self.db_session.commit()
-        lena = models.User.get(username='lena')
-        assert isinstance(lena, models.User)
-        assert user.username == 'lena'
-        assert user.fullname == "Lena Audrey Dachshund"
-
-    def test_user_pickername(self):
-        """Test to verify fullname and username (if any)."""
-        # scenario 1: when username exists
-        crusoe = models.User.get(username='crusoe')
-        result = crusoe.pickername
-        expected_result = '{fullname} (@{username})'.format(
-            fullname=crusoe.fullname, username=crusoe.username
-        )
-        assert result == expected_result
-        # scenario 2: when username doesnt exist
-        mr_fedrick = models.User(fullname='Mr. Fedrick')
-        result = mr_fedrick.pickername
-        expected_result = '{fullname}'.format(fullname=mr_fedrick.fullname)
-        assert result == expected_result
-
-    def test_user_is_profile_complete(self):
-        """
-        Test to check if user profile is complete.
-
-        That is fullname, username and email are present.
-        """
-        crusoe = models.User.get(username='crusoe')
-        assert crusoe.is_profile_complete() is True
-        lena = models.User()
-        self.db_session.add(lena)
-        self.db_session.commit()
-        assert lena.is_profile_complete() is False
-
-    def test_user_organization_owned(self):
-        """Test for verifying organizations a user is a owner of."""
-        crusoe = models.User.get(username='crusoe')
-        batdog = models.Organization.get(name='batdog')
-        result = crusoe.organizations_as_owner
-        assert list(result) == [batdog]
-
-    def test_user_organizations_as_owner(self):
-        """Test for verifying list of organizations this user is an owner of."""
-        oakley = models.User.get(username='oakley')
-        specialdachs = models.Organization.get(name='specialdachs')
-        result = oakley.organizations_as_owner
-        assert list(result) == [specialdachs]
-
-    def test_user_username(self):
-        """Test to retrieve User property username."""
-        crusoe = models.User.get(username='crusoe')
-        result = crusoe.username
-        assert isinstance(result, str)
-        assert crusoe.username == result
-
     def test_user_email(self):
         """Test to retrieve UserEmail property email."""
         # scenario 1: when there is primary email address
@@ -151,62 +146,6 @@ class TestUser(TestDatabaseFixture):
         piglet = models.User.get(username='piglet')
         assert piglet.phone == ''
 
-    def test_user_password(self):
-        """Test to set user password."""
-        # Scenario 1: Set None as password
-        castle = models.User(username='castle', fullname='Rick Castle')
-        castle.password = None
-        assert castle.pw_hash is None
-        # Scenario 2: Set valid password
-        kate = models.User(username='kate', fullname='Detective Kate Beckette')
-        kate.password = '12thprecinct'
-        self.db_session.add(kate)
-        self.db_session.commit()
-        result = models.User.get(buid=kate.buid)
-        assert len(result.pw_hash) == 77  # Argon2 hash
-        assert result.password_is('12thprecinct') is True
-        assert result.pw_expires_at > result.pw_set_at
-
-    def test_user_password_has_expired(self):
-        """Test to check if password for a user has expired."""
-        alexis = models.User(username='alexis', fullname='Alexis Castle')
-        alexis.password = 'unfortunateincidents'
-        alexis.pw_expires_at = utcnow() + timedelta(0, 0, 1)
-        self.db_session.add(alexis)
-        self.db_session.commit()
-        result = models.User.get(buid=alexis.buid)
-        assert result is not None
-        assert alexis.password_has_expired() is True
-
-    def test_user_password_is(self):
-        """Test to retrieve hashed password for a user."""
-        # scenario 1: no password been set
-        oldmajor = models.User(username='oldmajor')
-        assert oldmajor.password_is('oinkoink') is False
-        # scenario 3: if password has been set
-        dumbeldore = models.User('dumbeldore', fullname='Albus Dumberldore')
-        dumbeldore_password = 'dissendium'
-        dumbeldore.password = dumbeldore_password
-        assert dumbeldore.password_is(dumbeldore_password) is True
-
-    def test_password_hash_upgrade(self):
-        """Test for password hash upgrade."""
-        # pw_hash contains bcrypt.hash('password')
-        weaksauce = models.User(
-            fullname="Weak Password",
-            pw_hash='$2b$12$q/TiZH08kbgiUk2W0I99sOaW5hKQ1ETgJxoAv8TvV.5WxB3dYQINO',
-        )
-        assert weaksauce.pw_hash.startswith('$2b$')
-        assert not weaksauce.password_is('incorrect')
-        assert weaksauce.pw_hash.startswith('$2b$')
-        assert not weaksauce.password_is('incorrect', upgrade_hash=True)
-        assert weaksauce.pw_hash.startswith('$2b$')
-        assert weaksauce.password_is('password')
-        assert weaksauce.pw_hash.startswith('$2b$')
-        assert weaksauce.password_is('password', upgrade_hash=True)
-        # Transparent upgrade to Argon2 after a successful password validation
-        assert weaksauce.pw_hash.startswith('$argon2id$')
-
     def test_user_autocomplete(self):
         """
         Test for User's autocomplete method.
@@ -279,34 +218,81 @@ class TestUser(TestDatabaseFixture):
             assert isinstance(lookup_by_buid_merged, list)
             assert lookup_by_buid_merged[0].username == jykll.username
 
-    def test_user_add_email(self):
-        """Test to add email address for a user."""
-        # scenario 1: if primary flag is True and user has no existing email
-        mr_whymper = models.User(username='whymper')
-        whymper_email = 'whmmm@animalfarm.co.uk'
-        whymper_result = mr_whymper.add_email(whymper_email, primary=True)
-        self.db_session.commit()
-        assert whymper_result.email == whymper_email
-        # # scenario 2: when primary flag is True but user has existing primary email
-        crusoe = models.User.get(username='crusoe')
-        crusoe_new_email = 'crusoe@batdog.ca'
-        crusoe_result = crusoe.add_email(email=crusoe_new_email, primary=True)
-        self.db_session.commit()
-        assert crusoe_result.email == crusoe_new_email
-        # # scenario 3: when primary flag is True but user has existing email same as one passed
-        crusoe_existing_email = 'crusoe@keepballin.ca'
-        crusoe_result = crusoe.add_email(crusoe_existing_email, primary=True)
-        self.db_session.commit()
-        assert crusoe_result.email == crusoe_existing_email
 
-    def test_make_email_primary(self):
-        """Test to make an email primary for a user."""
-        mr_whymper = models.User(username='whymmper')
-        whymper_email = 'whmmmm@animalfarm.co.uk'
-        whymper_result = mr_whymper.add_email(whymper_email)
-        mr_whymper.primary_email = whymper_result
-        assert whymper_result.email == whymper_email
-        assert whymper_result.primary is True
+def test_user_add_email(db_session, user_rincewind):
+    """Test to add email address for a user."""
+    # scenario 1: if primary flag is True and user has no existing email
+    email1 = 'rincewind@example.org'
+    useremail1 = user_rincewind.add_email(email1, primary=True)
+    db_session.commit()
+    assert user_rincewind.email == useremail1
+    assert useremail1.email == email1
+    assert useremail1.primary is True
+    # scenario 2: when primary flag is True but user has existing primary email
+    email2 = 'rincewind@example.com'
+    useremail2 = user_rincewind.add_email(email2, primary=True)
+    db_session.commit()
+    assert useremail2.email == email2
+    assert useremail2.primary is True
+    assert useremail1.primary is False
+    assert user_rincewind.email == useremail2  # type: ignore[unreachable]
+
+    # scenario 3: when primary flag is True but user has that existing email
+    useremail3 = user_rincewind.add_email(email1, primary=True)  # type: ignore[unreachable]
+    db_session.commit()
+    assert useremail3 == useremail1
+    assert useremail3.primary is True
+    assert useremail2.primary is False
+
+
+def test_make_email_primary(user_rincewind):
+    """Test to make an email primary for a user."""
+    email = 'rincewind@example.org'
+    useremail = user_rincewind.add_email(email)
+    assert useremail.email == email
+    assert useremail.primary is False
+    assert user_rincewind.primary_email is None
+    user_rincewind.primary_email = useremail
+    assert useremail.primary is True
+
+
+def test_user_password(user_twoflower):
+    """Test to set user password."""
+    # User account starts out with no password
+    assert user_twoflower.pw_hash is None
+    # User account can set a password
+    user_twoflower.password = 'test-password'
+    assert user_twoflower.password_is('test-password') is True
+    assert user_twoflower.password_is('wrong-password') is False
+
+
+def test_user_password_has_expired(db_session, user_twoflower):
+    """Test to check if password for a user has expired."""
+    assert user_twoflower.pw_hash is None
+    user_twoflower.password = 'test-password'
+    db_session.commit()  # Required to set pw_expires_at and pw_set_at
+    assert user_twoflower.pw_expires_at > user_twoflower.pw_set_at
+    assert user_twoflower.password_has_expired() is False
+    user_twoflower.pw_expires_at = utcnow() - timedelta(seconds=1)
+    assert user_twoflower.password_has_expired() is True
+
+
+def test_password_hash_upgrade(user_twoflower):
+    """Test for password hash upgrade."""
+    # pw_hash contains bcrypt.hash('password')
+    user_twoflower.pw_hash = (
+        '$2b$12$q/TiZH08kbgiUk2W0I99sOaW5hKQ1ETgJxoAv8TvV.5WxB3dYQINO'
+    )
+    assert user_twoflower.pw_hash.startswith('$2b$')
+    assert not user_twoflower.password_is('incorrect')
+    assert user_twoflower.pw_hash.startswith('$2b$')
+    assert not user_twoflower.password_is('incorrect', upgrade_hash=True)
+    assert user_twoflower.pw_hash.startswith('$2b$')
+    assert user_twoflower.password_is('password')
+    assert user_twoflower.pw_hash.startswith('$2b$')
+    assert user_twoflower.password_is('password', upgrade_hash=True)
+    # Transparent upgrade to Argon2 after a successful password validation
+    assert user_twoflower.pw_hash.startswith('$argon2id$')
 
 
 def test_user_merged_user(db_session, user_death, user_rincewind):

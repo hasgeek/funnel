@@ -362,8 +362,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 )
             db.session.delete(useremail)
 
-    @with_roles(read={'owner'})
-    @cached_property
+    @property
     def email(self) -> Union[str, UserEmail]:
         """Return primary email address for user."""
         # Look for a primary address
@@ -382,8 +381,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # to get the email address as a string.
         return ''
 
-    @with_roles(read={'owner'})
-    @cached_property
+    with_roles(email, read={'owner'})
+
+    @property
     def phone(self) -> Union[str, UserPhone]:
         """Return primary phone number for user."""
         # Look for a primary phone number
@@ -401,6 +401,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # to support the common use case, where the caller will use str(user.phone)
         # to get the phone number as a string.
         return ''
+
+    with_roles(phone, read={'owner'})
 
     def is_profile_complete(self) -> bool:
         """Verify if profile is complete (fullname, username and contacts present)."""
