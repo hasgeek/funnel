@@ -32,7 +32,10 @@
         null,
         ""
       ],
-      "This device has no internet connection": [null, ""],
+      "This device has no internet connection": [
+        null,
+        "इस उपकरण का कोई इंटरनेट कनेक्शन नहीं है"
+      ],
       "Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com ": [
         null,
         ""
@@ -1003,6 +1006,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,

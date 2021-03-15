@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-03-02 23:41+0530\n"
+"POT-Creation-Date: 2021-03-15 12:08+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"Generated-By: Babel 2.9.0\n"
 
 #: funnel/registry.py:73
 msgid "A Bearer token is required in the Authorization header"
@@ -48,7 +48,7 @@ msgstr ""
 
 #: funnel/assets/js/project_header.js:53 funnel/assets/js/scan_contact.js:92
 msgid "This device has no internet connection"
-msgstr ""
+msgstr "इस उपकरण का कोई इंटरनेट कनेक्शन नहीं है"
 
 #: funnel/assets/js/project_header.js:57
 msgid ""
@@ -1444,7 +1444,7 @@ msgstr "Twitter में कुछ वक्ती समस्या है. �
 msgid "You denied the request to login"
 msgstr "आपने लॉग इन के अनुरोध को ख़ारिज कर दिया"
 
-#: funnel/models/auth_client.py:536
+#: funnel/models/auth_client.py:535
 msgid "Unrecognized algorithm ‘{value}’"
 msgstr "अज्ञात ऍल्गोरिथम ‘{value}’"
 
@@ -1965,80 +1965,89 @@ msgstr "संयोजित"
 msgid "Invited"
 msgstr "आमंत्रित"
 
-#: funnel/static/js/schedules.js:132 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/ractive.packed.js:11
+msgid "${}"
+msgstr ""
+
+#: funnel/static/js/ractive.packed.js:12
+msgid "."
+msgstr ""
+
+#: funnel/static/js/ractive.packed.js:13
+msgid "@"
+msgstr ""
+
+#: funnel/static/js/schedules.js:132
 msgid "The room sequence and colours have been updated."
 msgstr ""
 
 #: funnel/static/js/schedules.js:138 funnel/static/js/schedules.js:228
 #: funnel/static/js/schedules.js:269 funnel/static/js/schedules.js:488
-#: funnel/static/js/schedules.packed.js:1
 msgid "The server could not be reached. Check connection and try again"
 msgstr ""
 
-#: funnel/static/js/schedules.js:248 funnel/static/js/schedules.packed.js:1
-#: funnel/templates/proposal.html.jinja2:49 funnel/views/session.py:70
-#: funnel/views/session.py:113
+#: funnel/static/js/schedules.js:248 funnel/templates/proposal.html.jinja2:49
+#: funnel/views/session.py:70 funnel/views/session.py:113
 msgid "Edit session"
 msgstr "सेशन संपादित करें"
 
-#: funnel/static/js/schedules.js:249 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:249
 msgid "Schedule session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:432 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:432
 msgid "Add new session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:469 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:469
 #, python-format
 msgid "Remove %s from the schedule?"
 msgstr ""
 
 #: funnel/static/js/schedules.js:526 funnel/static/js/schedules.js:700
-#: funnel/static/js/schedules.js:720 funnel/static/js/schedules.packed.js:1
-#: funnel/templates/labels.html.jinja2:49
+#: funnel/static/js/schedules.js:720 funnel/templates/labels.html.jinja2:49
 #: funnel/templates/schedule_edit.html.jinja2:87
 #: funnel/views/organization.py:196 funnel/views/update.py:153
 #: funnel/views/venue.py:129 funnel/views/venue.py:200
 msgid "Save"
 msgstr "सेव करें"
 
-#: funnel/static/js/schedules.js:567 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:567
 msgid "5 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:569 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:569
 msgid "15 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:571 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:571
 msgid "30 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:573 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:573
 msgid "60 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:599 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:599
 msgid "Autosave"
 msgstr ""
 
-#: funnel/static/js/schedules.js:704 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:704
 msgid "Saving…"
 msgstr ""
 
-#: funnel/static/js/schedules.js:716 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:716
 msgid "Saved"
 msgstr ""
 
-#: funnel/static/js/schedules.js:723 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:723
 #, python-format
 msgid ""
 "The server could not be reached. There are %d unsaved sessions. Check "
 "connection and try again"
 msgstr ""
 
-#: funnel/static/js/schedules.js:730 funnel/static/js/schedules.packed.js:1
+#: funnel/static/js/schedules.js:730
 msgid ""
 "The server could not be reached. There is 1 unsaved session. Check "
 "connection and try again"
@@ -3253,11 +3262,11 @@ msgstr "ऑफलाइन"
 
 #: funnel/templates/offline.html.jinja2:10
 msgid ""
-"This page cannot be loaded at the moment. You may be offline, or your ad "
-"blocker may be blocking this page."
+"This device has no internet connection, or an ad blocker is blocking this"
+" page"
 msgstr ""
-"यह पेज फिलहाल लोड नहीं किया जा सकता. हो सकता है कि आप ऑफलाइन हों, या फिर "
-"आपका ऐड ब्लॉकर ने इस पेज को ब्लॉक कर रखा हो."
+"इस उपकरण का कोई इंटरनेट कनेक्शन नहीं है, या एक विज्ञापन अवरोधक इस पृष्ठ "
+"को अवरुद्ध कर रहा है"
 
 #: funnel/templates/js/badge.js.jinja2:37
 #: funnel/templates/opensearch.xml.jinja2:3
