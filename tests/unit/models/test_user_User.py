@@ -1,7 +1,5 @@
 from datetime import timedelta
 
-from sqlalchemy.orm.collections import InstrumentedList
-
 import pytest
 
 from coaster.utils import utcnow
@@ -231,63 +229,6 @@ class TestUser(TestDatabaseFixture):
         assert models.User.autocomplete('@[') == []  # Test for empty searches
         assert models.User.autocomplete('[[]]') == []
 
-    def test_user_merged_user(self):
-        """Test for checking if user had a old id."""
-        # ## Merge a user onto an older user ###
-        crusoe = models.User.get(username='crusoe')
-        crusoe2 = models.User(username="crusoe2", fullname="Crusoe2")
-        self.db_session.add(crusoe2)
-        self.db_session.commit()
-        with self.app.test_request_context('/'):
-            merged_user = models.merge_users(crusoe, crusoe2)
-            self.db_session.commit()
-            # ## DONE ###
-            assert isinstance(merged_user, models.User)
-            # because the logic is to merge into older account so merge status set on newer account
-            assert crusoe.state.ACTIVE
-            assert crusoe2.state.MERGED
-            assert merged_user.username == "crusoe"
-            assert isinstance(merged_user.oldids, InstrumentedList)
-            assert set(crusoe.oldids) == set(merged_user.oldids)
-
-    def test_user_get(self):
-        """Test for User's get method."""
-        # scenario 1: if both username and buid not passed
-        with pytest.raises(TypeError):
-            models.User.get()
-        crusoe = models.User.get(username='crusoe')
-        piglet = models.User.get(username='piglet')
-        # scenario 2: if buid is passed
-        lookup_by_buid = models.User.get(buid=crusoe.buid)
-        assert isinstance(lookup_by_buid, models.User)
-        assert lookup_by_buid.buid == crusoe.buid
-        # scenario 3: if username is passed
-        lookup_by_username = models.User.get(username="crusoe")
-        assert isinstance(lookup_by_username, models.User)
-        assert lookup_by_username.username == "crusoe"
-        # scenario 4: if defercols is set to True
-        lookup_by_username = models.User.get(username="crusoe", defercols=True)
-        assert isinstance(lookup_by_username, models.User)
-        assert lookup_by_username.username == "crusoe"
-        # scenario 5: when user.state.ACTIVE
-        lector = models.User()
-        assert lector.state.ACTIVE
-        self.db_session.add(lector)
-        self.db_session.commit()
-        lookup_by_buid_status = models.User.get(buid=lector.buid)
-        assert lookup_by_buid_status == lector
-        # scenario 6 : when user.state.MERGED
-        piglet = models.User.get(username='piglet')
-        piggy = models.User(username='piggy', fullname="Piggy")
-        self.db_session.add(piggy)
-        self.db_session.commit()
-        with self.app.test_request_context('/'):
-            models.merge_users(piglet, piggy)
-            self.db_session.commit()
-            lookup_by_buid_merged = models.User.get(buid=piggy.buid)
-            assert isinstance(lookup_by_buid_merged, models.User)
-            assert lookup_by_buid_merged.username == piglet.username
-
     def test_user_all(self):
         """Test for User's all method."""
         # scenario 1: when neither buids or usernames are passed
@@ -366,3 +307,42 @@ class TestUser(TestDatabaseFixture):
         mr_whymper.primary_email = whymper_result
         assert whymper_result.email == whymper_email
         assert whymper_result.primary is True
+
+
+def test_user_merged_user(db_session, user_death, user_rincewind):
+    """Test for checking if user had a old id."""
+    db_session.commit()
+    assert user_death.state.ACTIVE
+    assert user_rincewind.state.ACTIVE
+    models.merge_users(user_death, user_rincewind)
+    assert user_death.state.ACTIVE
+    assert user_rincewind.state.MERGED
+    assert {o.uuid for o in user_death.oldids} == {user_rincewind.uuid}
+
+
+def test_user_get(db_session, user_twoflower, user_rincewind, user_death):
+    """Test for User's get method."""
+    # scenario 1: if both username and buid not passed
+    db_session.commit()
+    with pytest.raises(TypeError):
+        models.User.get()
+
+    # scenario 2: if buid is passed
+    lookup_by_buid = models.User.get(buid=user_twoflower.buid)
+    assert lookup_by_buid == user_twoflower
+
+    # scenario 3: if username is passed
+    lookup_by_username = models.User.get(username='rincewind')
+    assert lookup_by_username == user_rincewind
+
+    # scenario 4: if defercols is set to True
+    lookup_by_username = models.User.get(username='rincewind', defercols=True)
+    assert lookup_by_username == user_rincewind
+
+    # scenario 5: when user.state.MERGED
+    assert user_rincewind.state.ACTIVE
+    models.merge_users(user_death, user_rincewind)
+    assert user_rincewind.state.MERGED
+
+    lookup_by_buid = models.User.get(buid=user_rincewind.buid)
+    assert lookup_by_buid == user_death
