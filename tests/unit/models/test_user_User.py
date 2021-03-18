@@ -5,8 +5,6 @@ import pytest
 from coaster.utils import utcnow
 import funnel.models as models
 
-from .test_db import TestDatabaseFixture
-
 
 def test_user(db_session):
     """Test for creation of user object from User model."""
@@ -62,161 +60,257 @@ def test_user_organization_owned(user_ridcully, org_uu):
     assert list(user_ridcully.organizations_as_owner) == [org_uu]
 
 
-class TestUser(TestDatabaseFixture):
-    def test_user_email(self):
-        """Test to retrieve UserEmail property email."""
-        # scenario 1: when there is primary email address
-        crusoe = models.User.get(username='crusoe')
-        assert isinstance(crusoe.email, models.UserEmail)
-        assert crusoe.email == crusoe.email
-        # scenario 2: when there is no primary email address
-        mr_pilkington = models.User(username='pilkington')
-        mr_pilkington_email = models.UserEmail(
-            user=mr_pilkington, email='pilkington@animalfarm.co.uk'
-        )
-        self.db_session.add_all([mr_pilkington, mr_pilkington_email])
-        self.db_session.commit()
-        assert mr_pilkington.email.email == mr_pilkington_email.email
-        assert mr_pilkington.email.primary is True
-        # scenario 3: when no email address is on db
-        clover = models.User(username='clover')
-        self.db_session.add(clover)
-        self.db_session.commit()
-        assert clover.email == ''
+def test_user_email(db_session, user_twoflower):
+    """Add and retrieve an email address."""
+    assert user_twoflower.email == ''
+    useremail = user_twoflower.add_email('twoflower@example.org')
+    assert isinstance(useremail, models.UserEmail)
+    db_session.commit()
+    assert useremail.primary is False
+    # When there is no primary, accessing the `email` property will promote existing
+    assert user_twoflower.email == useremail
+    assert useremail.primary is True
 
-    def test_user_del_email(self):
-        """Test to delete email address for a user."""
-        mr_jones = models.User(username='mrjones')
-        mr_jones_primary_email = models.UserEmail(
-            email='mrjones@animalfarm.co.uk', user=mr_jones, primary=True
-        )
-        mr_jones_secondary_email = models.UserEmail(
-            email='jones@animalfarm.co.uk', user=mr_jones
-        )
-        mr_jones_spare_email = models.UserEmail(
-            email='j@animalfarm.co.uk', user=mr_jones
-        )
-        self.db_session.add_all(
-            [
-                mr_jones,
-                mr_jones_primary_email,
-                mr_jones_secondary_email,
-                mr_jones_spare_email,
-            ]
-        )
-        self.db_session.commit()
-        # scenario 1: when email requested to be deleted is primary
-        primary_email = mr_jones_primary_email.email
-        mr_jones.del_email(primary_email)
-        self.db_session.commit()
-        result1 = mr_jones.emails
-        assert isinstance(result1, list)
-        assert set(result1) == {mr_jones_secondary_email, mr_jones_spare_email}
-        assert mr_jones_secondary_email.primary is True
-        # scenario 2: when email requested to be delete is not primary
-        spare_email = mr_jones_spare_email.email
-        mr_jones.del_email(spare_email)
-        self.db_session.commit()
-        result2 = mr_jones.emails
-        assert isinstance(result2, list)
-        assert result2 == [mr_jones_secondary_email]
-        assert mr_jones_secondary_email.primary is True
+    useremail2 = user_twoflower.add_email(  # type: ignore[unreachable]
+        'twoflower@example.com', primary=True
+    )
+    db_session.commit()
 
-    def test_user_phone(self):
-        """Test to retrieve UserPhone property phone."""
-        # scenario 1: when there is a phone set as primary
-        crusoe = models.User.get(username='crusoe')
-        crusoe_phone = (
-            models.UserPhone.query.join(models.User)
-            .filter(models.User.username == 'crusoe')
-            .one()
-        )
-        assert isinstance(crusoe.phone, models.UserPhone)
-        assert crusoe_phone == crusoe.phone
-        assert crusoe.phone.primary is True
-        # scenario 2: when there is a phone but not as primary
-        snowball = models.User(username='snowball')
-        snowball_phone = models.UserPhone(phone='+918574808032', user=snowball)
-        self.db_session.add_all([snowball, snowball_phone])
-        self.db_session.commit()
-        assert isinstance(snowball.phone, models.UserPhone)
-        assert snowball_phone == snowball.phone
-        assert snowball.phone.primary is True
-        # scenario 3: when there is no phone on db
-        piglet = models.User.get(username='piglet')
-        assert piglet.phone == ''
+    # The primary has changed
+    assert user_twoflower.email == useremail2
+    assert useremail.primary is False
+    assert useremail2.primary is True
 
-    def test_user_autocomplete(self):
-        """
-        Test for User's autocomplete method.
 
-        Queries valid users defined in fixtures, as well as input that should not return
-        a response.
-        """
-        crusoe = models.User.get(username='crusoe')
-        oakley = models.User.get(username='oakley')
-        piglet = models.User.get(username='piglet')
-        # lena = models.User.get(username='lena')
-        # FIXME # scenario 1: when empty query passed
-        # result1 = models.User.autocomplete('*')
-        # self.assertEqual(result1 or lena)
-        # scenario 2: when query passed
-        assert models.User.autocomplete('[oa]') == [oakley]
-        assert models.User.autocomplete('Pig') == [piglet]
-        assert models.User.autocomplete('crusoe@keepballin.ca') == [crusoe]
-        assert models.User.autocomplete('[]cruso') == [crusoe]
-        assert models.User.autocomplete('@[') == []  # Test for empty searches
-        assert models.User.autocomplete('[[]]') == []
+def test_user_del_email(db_session, user_twoflower):
+    """Delete an email address from a user's account."""
+    assert user_twoflower.primary_email is None
+    assert len(user_twoflower.emails) == 0
+    user_twoflower.add_email('twoflower@example.org', primary=True)
+    user_twoflower.add_email('twoflower@example.com')
+    user_twoflower.add_email('twoflower@example.net')
+    db_session.commit()
 
-    def test_user_all(self):
-        """Test for User's all method."""
-        # scenario 1: when neither buids or usernames are passed
-        with pytest.raises(Exception):
-            models.User.all()
-        crusoe = models.User.get(username='crusoe')
-        oakley = models.User.get(username='oakley')
-        expected_result = [oakley, crusoe]
-        # scenario 2: when both buids and usernames are passed
-        lookup_by_both = models.User.all(
-            buids=[crusoe.buid], usernames=[oakley.username]
+    assert len(user_twoflower.emails) == 3  # type: ignore[unreachable]
+    assert user_twoflower.primary_email is not None
+    assert str(user_twoflower.primary_email) == 'twoflower@example.org'  # type: ignore[unreachable]
+    assert {str(e) for e in user_twoflower.emails} == {
+        'twoflower@example.org',
+        'twoflower@example.com',
+        'twoflower@example.net',
+    }
+
+    # Delete a non-primary email address. It will be removed
+    user_twoflower.del_email('twoflower@example.net')
+    db_session.commit()
+
+    assert len(user_twoflower.emails) == 2
+    assert user_twoflower.primary_email is not None
+    assert str(user_twoflower.primary_email) == 'twoflower@example.org'
+    assert {str(e) for e in user_twoflower.emails} == {
+        'twoflower@example.org',
+        'twoflower@example.com',
+    }
+
+    # Delete a primary email address. The next available address will be made primary
+    user_twoflower.del_email('twoflower@example.org')
+    db_session.commit()
+
+    assert len(user_twoflower.emails) == 1
+    assert user_twoflower.primary_email is not None
+    assert str(user_twoflower.primary_email) == 'twoflower@example.com'
+    assert {str(e) for e in user_twoflower.emails} == {
+        'twoflower@example.com',
+    }
+
+    # Delete last remaining email address. Primary will be removed
+    user_twoflower.del_email('twoflower@example.com')
+    db_session.commit()
+
+    assert len(user_twoflower.emails) == 0
+    assert user_twoflower.primary_email is None
+    assert user_twoflower.email == ''
+
+
+def test_user_phone(db_session, user_twoflower):
+    """Test to retrieve UserPhone property phone."""
+    assert user_twoflower.phone == ''
+    userphone = user_twoflower.add_phone('+12345678900')
+    assert isinstance(userphone, models.UserPhone)
+    db_session.commit()
+    assert userphone.primary is False
+    # When there is no primary, accessing the `phone` property will promote existing
+    assert user_twoflower.phone == userphone
+    assert userphone.primary is True
+
+    userphone2 = user_twoflower.add_phone(  # type: ignore[unreachable]
+        '+12345678901', primary=True
+    )
+    db_session.commit()
+
+    # The primary has changed
+    assert user_twoflower.phone == userphone2
+    assert userphone.primary is False
+    assert userphone2.primary is True
+
+
+def test_user_del_phone(db_session, user_twoflower):
+    """Delete an phone address from a user's account."""
+    assert user_twoflower.primary_phone is None
+    assert len(user_twoflower.phones) == 0
+    user_twoflower.add_phone('+12345678900', primary=True)
+    user_twoflower.add_phone('+12345678901')
+    user_twoflower.add_phone('+12345678902')
+    db_session.commit()
+
+    assert len(user_twoflower.phones) == 3  # type: ignore[unreachable]
+    assert user_twoflower.primary_phone is not None
+    assert str(user_twoflower.primary_phone) == '+12345678900'  # type: ignore[unreachable]
+    assert {str(e) for e in user_twoflower.phones} == {
+        '+12345678900',
+        '+12345678901',
+        '+12345678902',
+    }
+
+    # Delete a non-primary phone address. It will be removed
+    user_twoflower.del_phone('+12345678902')
+    db_session.commit()
+
+    assert len(user_twoflower.phones) == 2
+    assert user_twoflower.primary_phone is not None
+    assert str(user_twoflower.primary_phone) == '+12345678900'
+    assert {str(e) for e in user_twoflower.phones} == {
+        '+12345678900',
+        '+12345678901',
+    }
+
+    # Delete a primary phone address. The next available address will be made primary
+    user_twoflower.del_phone('+12345678900')
+    db_session.commit()
+
+    assert len(user_twoflower.phones) == 1
+    assert user_twoflower.primary_phone is not None
+    assert str(user_twoflower.primary_phone) == '+12345678901'
+    assert {str(e) for e in user_twoflower.phones} == {
+        '+12345678901',
+    }
+
+    # Delete last remaining phone address. Primary will be removed
+    user_twoflower.del_phone('+12345678901')
+    db_session.commit()
+
+    assert len(user_twoflower.phones) == 0
+    assert user_twoflower.primary_phone is None
+    assert user_twoflower.phone == ''
+
+
+def test_user_autocomplete(
+    db_session, user_twoflower, user_rincewind, user_dibbler, user_librarian
+):
+    """
+    Test for User autocomplete method.
+
+    Queries valid users defined in fixtures, as well as input that should not return
+    a response.
+    """
+    user_rincewind.add_email('rincewind@example.org')
+    db_session.commit()
+
+    # A typical lookup with part of someone's name will find matches
+    assert models.User.autocomplete('Dib') == [user_dibbler]
+
+    # Spurious characters like `[` and `]` are ignored
+    assert models.User.autocomplete('[tw]') == [user_twoflower]
+
+    # Multiple users with the same starting character(s), sorted alphabetically
+    # Both users with and without usernames are found
+    assert user_librarian.fullname.startswith('The')  # The `The` prefix is tested here
+    assert user_twoflower.username is None
+    assert user_librarian.username is not None
+    assert models.User.autocomplete('t') == [user_librarian, user_twoflower]
+
+    # Lookup by email address
+    assert models.User.autocomplete('rincewind@example.org') == [user_rincewind]
+
+    # More spurious characters
+    assert models.User.autocomplete('[]twofl') == [user_twoflower]
+
+    # Empty searches
+    assert models.User.autocomplete('@[') == []
+    assert models.User.autocomplete('[[]]') == []
+    assert models.User.autocomplete('[%') == []
+
+    # TODO: Test for @username searches against external ids (requires fixtures)
+
+
+@pytest.mark.parametrize('defercols', [False, True])
+def test_user_all(
+    db_session,
+    user_twoflower,
+    user_rincewind,
+    user_ridcully,
+    user_dibbler,
+    user_death,
+    user_mort,
+    defercols,
+):
+    """Retrieve all users matching specified criteria."""
+    # Some fixtures are not used in the tests because the test determines that they
+    # won't show up in the query unless specifically asked for
+
+    db_session.commit()  # Commit required to generate UUID (userid/buid)
+    # A parameter is required
+    with pytest.raises(TypeError):
+        models.User.all()
+
+    with pytest.raises(TypeError):
+        models.User.all(defercols=True)
+
+    # Scenario 1: Lookup by buids only
+    assert set(
+        models.User.all(
+            buids=[user_twoflower.buid, user_rincewind.buid], defercols=defercols
         )
-        assert isinstance(lookup_by_both, list)
-        assert set(lookup_by_both) == set(expected_result)
-        # scenario 3: when only buids are passed
-        lookup_by_buids = models.User.all(buids=[crusoe.buid, oakley.buid])
-        assert isinstance(lookup_by_buids, list)
-        assert set(lookup_by_buids) == set(expected_result)
-        # scenario 4: when only usernames are passed
-        lookup_by_usernames = models.User.all(
-            usernames=[crusoe.username, oakley.username]
+    ) == {
+        user_twoflower,
+        user_rincewind,
+    }
+
+    # Scenario 2: lookup by buid or username
+    assert (
+        set(
+            models.User.all(
+                buids=[user_twoflower.buid, user_rincewind.buid],
+                usernames=[user_ridcully.username, user_dibbler.username],
+                defercols=defercols,
+            )
         )
-        assert isinstance(lookup_by_usernames, list)
-        assert set(lookup_by_usernames) == set(expected_result)
-        # scenario 5: when defercols is set to True
-        lookup_by_usernames = models.User.all(
-            usernames=[crusoe.username, oakley.username], defercols=True
+        == {user_twoflower, user_rincewind, user_ridcully, user_dibbler}
+    )
+
+    # Scenario 3: lookup by usernames only
+    assert (
+        set(
+            models.User.all(
+                usernames=[user_ridcully.username, user_dibbler.username],
+                defercols=defercols,
+            )
         )
-        assert isinstance(lookup_by_usernames, list)
-        assert set(lookup_by_usernames) == set(expected_result)
-        # scenario 6: when user.state.ACTIVE
-        hannibal = models.User(username='hannibal')
-        assert hannibal.state.ACTIVE
-        self.db_session.add(hannibal)
-        self.db_session.commit()
-        lookup_by_usernames = models.User.all(usernames=[hannibal.username])
-        assert len(lookup_by_usernames) == 1
-        assert lookup_by_usernames[0] == hannibal
-        # scenario 7 : when user.state.MERGED
-        jykll = models.User()
-        hyde = models.User()
-        self.db_session.add_all([jykll, hyde])
-        self.db_session.commit()
-        with self.app.test_request_context('/'):
-            models.merge_users(jykll, hyde)
-            self.db_session.commit()
-            lookup_by_buid_merged = models.User.all(buids=[hyde.buid])
-            assert isinstance(lookup_by_buid_merged, list)
-            assert lookup_by_buid_merged[0].username == jykll.username
+        == {user_ridcully, user_dibbler}
+    )
+
+    # Scenario 4: querying for a merged user buid
+    models.merge_users(user_death, user_rincewind)
+    db_session.commit()
+
+    assert set(
+        models.User.all(
+            buids=[user_twoflower.buid, user_rincewind.buid], defercols=defercols
+        )
+    ) == {
+        user_twoflower,
+        user_death,
+    }
 
 
 def test_user_add_email(db_session, user_rincewind):
@@ -238,7 +332,9 @@ def test_user_add_email(db_session, user_rincewind):
     assert user_rincewind.email == useremail2  # type: ignore[unreachable]
 
     # scenario 3: when primary flag is True but user has that existing email
-    useremail3 = user_rincewind.add_email(email1, primary=True)  # type: ignore[unreachable]
+    useremail3 = user_rincewind.add_email(  # type: ignore[unreachable]
+        email1, primary=True
+    )
     db_session.commit()
     assert useremail3 == useremail1
     assert useremail3.primary is True
