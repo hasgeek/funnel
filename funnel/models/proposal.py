@@ -609,6 +609,9 @@ class Proposal(
         ordered_siblings: list = self.project.proposals.order_by(
             Proposal.url_id.asc()
         ).all()
+        # keep a copy of all url_ids, ordered
+        url_ids = [p.url_id for p in ordered_siblings]
+
         ordered_siblings.remove(self)
 
         if below_proposal is None:
@@ -623,14 +626,14 @@ class Proposal(
         db.session.bulk_update_mappings(
             self.__class__,
             [
-                {'id': p.id, 'project_id': p.project_id, 'url_id': (idx + 1) * 10000}
+                {'id': p.id, 'project_id': p.project_id, 'url_id': url_ids[idx] * 10000}
                 for idx, p in enumerate(ordered_siblings)
             ],
         )
         db.session.bulk_update_mappings(
             self.__class__,
             [
-                {'id': p.id, 'project_id': p.project_id, 'url_id': (idx + 1)}
+                {'id': p.id, 'project_id': p.project_id, 'url_id': url_ids[idx]}
                 for idx, p in enumerate(ordered_siblings)
             ],
         )
