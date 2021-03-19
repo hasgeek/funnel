@@ -21,9 +21,8 @@ def abort_null(text: Optional[str]) -> Optional[str]:
 
     Throws HTTP (400) Bad Request if text is tainted, returns text otherwise.
     """
-    if text is not None:
-        if '\x00' in text:
-            abort(400)
+    if text is not None and '\x00' in text:
+        abort(400)
     return text
 
 
