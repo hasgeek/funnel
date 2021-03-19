@@ -250,8 +250,6 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     def merge_and_replace(self, actor: User, other: MembershipType) -> MembershipType:
         """Replace this record by merging roles from an independent record."""
         if self.__class__ is not other.__class__:
-            # This should not be necessary if mypy catches incorrect calls, but it's
-            # also for safety from console scripting errors
             raise TypeError("Merger requires membership records of the same type")
         if self.revoked_at is not None:
             raise MembershipRevokedError("This membership record has been revoked")
