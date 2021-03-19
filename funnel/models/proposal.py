@@ -617,9 +617,6 @@ class Proposal(
         if below_proposal is None:
             # current item was moved to the top of the list
             ordered_siblings.insert(0, self)
-        elif below_proposal == ordered_siblings[-1]:
-            # current item has been pulled to the end of the list
-            ordered_siblings.insert(len(ordered_siblings), self)
         else:
             ordered_siblings.insert(ordered_siblings.index(below_proposal) + 1, self)
 
