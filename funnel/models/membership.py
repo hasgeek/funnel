@@ -328,6 +328,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
                 )
                 db.session.flush()
 
+        # Transfer all revoked records and non-conflicting active records. At this point
+        # no filter is necessary as the conflicting records have all been merged.
         cls.query.filter(cls.user == old_user).update(
             {'user_id': new_user.id}, synchronize_session=False
         )
