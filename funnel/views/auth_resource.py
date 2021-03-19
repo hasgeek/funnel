@@ -293,6 +293,7 @@ def user_get_by_userids(userid):
     """
     if not userid:
         return api_result('error', error='no_userid_provided', _jsonp=True)
+    # `userid` parameter is a list, not a scalar, since requestargs has `userid[]`
     users = User.all(buids=userid)
     orgs = Organization.all(buids=userid)
     return api_result(

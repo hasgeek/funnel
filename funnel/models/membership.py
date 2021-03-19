@@ -55,9 +55,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __uuid_primary_key__ = True
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: Iterable[str] = ()
-    #: Parent column (override as synonym of 'profile_id' or 'project_id' in the
-    #: subclasses)
-    parent_id = None
+    #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
+    parent_id: db.Column
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
@@ -251,9 +250,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     def merge_and_replace(self, actor: User, other: MembershipType) -> MembershipType:
         """Replace this record by merging roles from an independent record."""
         if self.__class__ is not other.__class__:
-            # This should not be necessary if mypy catches incorrect calls, but it's
-            # also for safety from console scripting errors
             raise TypeError("Merger requires membership records of the same type")
+        if self.revoked_at is not None:
+            raise MembershipRevokedError("This membership record has been revoked")
         if other.revoked_at is not None:
             raise MembershipRevokedError("Can't merge with a revoked membership record")
 
@@ -299,15 +298,36 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         user's favour. All revoked records for the old user are transferred to the new
         user.
         """
-        old_user_record = cls.query.filter(
+        # Look up all active membership records of the subclass's type for the old user
+        # account. `cls` here represents the subclass.
+        old_user_records = cls.query.filter(
             cls.user == old_user, cls.revoked_at.is_(None)
-        ).one_or_none()
-        new_user_record = cls.query.filter(
-            cls.user == new_user, cls.revoked_at.is_(None)
-        ).one_or_none()
-        if old_user_record is not None and new_user_record is not None:
-            new_user_record.merge_and_replace(new_user, old_user_record)
-            db.session.flush()
+        ).all()
+        # Look up all conflicting memberships for the new user account. Limit lookups by
+        # parent except when the membership type doesn't have a parent (SiteMembership).
+        if cls.parent_id is not None:
+            new_user_records = cls.query.filter(
+                cls.user == new_user,
+                cls.revoked_at.is_(None),
+                cls.parent_id.in_([r.parent_id for r in old_user_records]),
+            ).all()
+        else:
+            new_user_records = cls.query.filter(
+                cls.user == new_user,
+                cls.revoked_at.is_(None),
+            ).all()
+        new_user_records_by_parent = {r.parent_id: r for r in new_user_records}
+
+        for record in old_user_records:
+            if record.parent_id in new_user_records_by_parent:
+                # Where there is a conflict, merge the records
+                new_user_records_by_parent[record.parent_id].merge_and_replace(
+                    new_user, record
+                )
+                db.session.flush()
+
+        # Transfer all revoked records and non-conflicting active records. At this point
+        # no filter is necessary as the conflicting records have all been merged.
         cls.query.filter(cls.user == old_user).update(
             {'user_id': new_user.id}, synchronize_session=False
         )
