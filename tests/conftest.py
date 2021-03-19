@@ -451,22 +451,18 @@ TEST_DATA = {
         'testuser': {
             'name': "testuser",
             'fullname': "Test User",
-            'email': "testuser@example.com",
         },
         'testuser2': {
             'name': "testuser2",
             'fullname': "Test User 2",
-            'email': "testuser2@example.com",
         },
         'test-org-owner': {
             'name': "test-org-owner",
             'fullname': "Test User 2",
-            'email': "testorgowner@example.com",
         },
         'test-org-admin': {
             'name': "test-org-admin",
             'fullname': "Test User 3",
-            'email': "testorgadmin@example.com",
         },
     }
 }
