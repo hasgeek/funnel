@@ -260,9 +260,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def user(self) -> Union[User, DuckTypeUser]:
         return (
             deleted_user
-            if self.state.DELETED
+            if self.state.DELETED or self._user.state.DELETED
             else removed_user
-            if self.state.SPAM
+            if self.state.SPAM or self._user.state.SUSPENDED
             else self._user
         )
 
@@ -282,9 +282,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def message(self) -> Union[str, Markup]:
         return (
             _('[deleted]')
-            if self.state.DELETED
+            if self.user == deleted_user
             else _('[removed]')
-            if self.state.SPAM
+            if self.user == removed_user
             else self._message
         )
 

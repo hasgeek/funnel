@@ -809,8 +809,12 @@ class DuckTypeUser(RoleMixin):
         self.fullname = self.title = self.pickername = representation
 
     def __str__(self) -> str:
-        """Represent user account as a string."""
-        return self.pickername
+        """
+        Represent user account as a string.
+
+        `str()` because `__str__()` needs to return a string object.
+        """
+        return str(self.pickername)
 
 
 deleted_user = DuckTypeUser(__("[deleted]"))
