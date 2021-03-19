@@ -197,10 +197,10 @@ class TicketParticipantView(UrlForView, ModelView):
             self.obj.user = form.user
             form.populate_obj(self.obj)
             db.session.commit()
-            flash(_(u"Your changes have been saved"), 'info')
+            flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.project.url_for('admin'), code=303)
         return render_form(
-            form=form, title=_(u"Edit Participant"), submit=_(u"Save changes")
+            form=form, title=_("Edit Participant"), submit=_("Save changes")
         )
 
     @route('badge', methods=['GET'])

@@ -57,7 +57,6 @@ class TestEventModels(unittest.TestCase):
         self.user = User(
             username='lukes{userid}'.format(userid=random_user_id.lower()),
             fullname="Luke Skywalker",
-            email='luke{userid}@dagobah.org'.format(userid=random_user_id),
         )
 
         self.db_session.add(self.user)
