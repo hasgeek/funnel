@@ -122,6 +122,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'commentset'
     settype = db.Column('type', db.Integer, nullable=True)
     count = db.Column(db.Integer, default=0, nullable=False)
+    last_comment_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     __roles__ = {
         'all': {

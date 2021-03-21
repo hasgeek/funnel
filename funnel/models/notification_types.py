@@ -165,6 +165,8 @@ class NewCommentNotification(Notification):
 
     document: Commentset
     fragment: Comment
+    # TODO: Consider `document_subscriber_unmuted` role (may not be a sound
+    # implementation for muting)
     roles = ['replied_to_commenter', 'document_subscriber']
 
 

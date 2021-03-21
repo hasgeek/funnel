@@ -15,7 +15,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
 
     __tablename__ = 'commentset_membership'
 
-    __data_columns__ = ('last_seen_at',)
+    __data_columns__ = ('last_seen_at', 'is_muted')
 
     __roles__ = {
         'subject': {
@@ -23,6 +23,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
                 'urls',
                 'user',
                 'commentset',
+                'is_muted',
                 'last_seen_at',
             }
         }
@@ -48,7 +49,9 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
     parent = immutable(db.synonym('commentset'))
     parent_id = immutable(db.synonym('commentset_id'))
 
-    #: when the user visited this commentset last
+    #: Flag to indicate notifications are muted
+    is_muted = db.Column(db.Boolean, nullable=False, default=False)
+    #: When the user visited this commentset last
     last_seen_at = db.Column(
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
@@ -93,6 +96,21 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
             viewonly=True,
         ),
         grants_via={'user': {'document_subscriber'}},
+    )
+
+    # Send notifications only to subscribers who haven't muted
+    active_memberships_to_notify = with_roles(
+        db.relationship(
+            CommentsetMembership,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                CommentsetMembership.commentset_id == Commentset.id,
+                CommentsetMembership.is_active,
+                CommentsetMembership.is_muted.is_(False),
+            ),
+            viewonly=True,
+        ),
+        grants_via={'user': {'document_subscriber_unmuted'}},
     )
 
     def update_last_seen_at(self, user: User):
