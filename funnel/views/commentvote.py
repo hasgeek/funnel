@@ -1,4 +1,5 @@
 from collections import namedtuple
+from typing import Optional
 
 from flask import abort, flash, jsonify, redirect, render_template, request
 
@@ -55,7 +56,9 @@ def commentset_json(obj):
         for comment in toplevel_comments
         if (
             comment.state.PUBLIC
-            or comment.replies.filter(Comment.state.PUBLIC).count() > 0
+            or db.session.query(
+                comment.replies.filter(Comment.state.PUBLIC).exists()
+            ).scalar()
         )
     ]
 
@@ -131,6 +134,17 @@ def parent_comments_url(obj):
     return url
 
 
+def get_last_comment(commentset: Commentset) -> Optional[Comment]:
+    comment = (
+        commentset.comments.filter(Comment.state.PUBLIC)
+        .order_by(Comment.created_at.desc())
+        .first()
+    )
+    if comment:
+        return comment.current_access(datasets=('primary', 'related'))
+    return None
+
+
 @route('/comments')
 class AllCommentsView(ClassView):
     current_section = 'comments'
@@ -151,18 +165,12 @@ class AllCommentsView(ClassView):
                     .filter(Comment.created_at > cm.last_seen_at)
                     .count()
                 ),
-                'last_comment': (
-                    cm.commentset.comments.filter(Comment.state.PUBLIC)
-                    .order_by(Comment.created_at.desc())
-                    .first()
-                    .current_access(datasets=('primary', 'related'))
-                ),
+                'last_comment': get_last_comment(cm.commentset),
             }
             for cm in (
-                current_auth.user.active_commentset_memberships.join(Commentset)
-                .join(Comment)
-                .filter(Comment.state.PUBLIC)
-                .order_by(Comment.created_at.desc())
+                current_auth.user.active_commentset_memberships.join(
+                    Commentset
+                ).order_by(Commentset.last_comment_at.desc())
             )
         ]
 
@@ -176,7 +184,7 @@ class AllCommentsView(ClassView):
                 'new_comment': new_comment,
                 'data': render_template(
                     'unread_comments.html.jinja2',
-                    **{'commentset_memberships': commentset_memberships},
+                    commentset_memberships=commentset_memberships,
                 ),
             }
         )

@@ -102,9 +102,9 @@
         <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">
         {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
         <ul class="search-form__dropdown js-search-dropdown">
-          {%- if g.profile -%}<li><input type="radio" name="search-domain" id="search-profile" class="right-margin" value="/{{ g.profile.name }}/search"><label for="search-profile">Local search (../{{ g.profile.name }})</label></li>{%- endif %}
-          {%- if project -%}<li><input type="radio" name="search-domain" id="search-project" class="right-margin" value="/{{ g.profile.name }}/{{ project.name }}/search"><label for="search-project">Local search (../{{ g.profile.name }}/{{ project.name }})</label></li>{%- endif %}
-          <li class="search-form__dropdown__item--border"><input type="radio" name="search-domain" id="search-global" class="right-margin" value="/search" checked="checked"><label for="search-global">Global search</label></li>
+          {%- if g.profile -%}<li><input type="radio" name="search-domain" id="search-profile" class="right-margin" value="/{{ g.profile.name }}/search"><label for="search-profile">{% trans profile=g.profile.title %}Search profile ({{ profile }}){% endtrans %}</label></li>{%- endif %}
+          {%- if project -%}<li><input type="radio" name="search-domain" id="search-project" class="right-margin" value="/{{ g.profile.name }}/{{ project.name }}/search"><label for="search-project">{% trans project=project.title %}Search project ({{ project }}){% endtrans %}</label></li>{%- endif %}
+          <li class="search-form__dropdown__item--border"><input type="radio" name="search-domain" id="search-global" class="right-margin" value="/search" checked="checked"><label for="search-global">{% trans %}Search website{% endtrans %}</label></li>
         </ul>
         <button type="submit" class="search-form__submit"></button>
       </form>

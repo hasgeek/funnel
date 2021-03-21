@@ -113,7 +113,7 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         grants_via={'user': {'document_subscriber_unmuted'}},
     )
 
-    def update_last_seen_at(self, user: User):
+    def update_last_seen_at(self, user: User) -> None:
         existing_ms = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()

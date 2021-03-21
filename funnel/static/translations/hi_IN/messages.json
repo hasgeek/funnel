@@ -40,7 +40,6 @@
         null,
         ""
       ],
-      "Do you really want to delete this proposal?": [null, ""],
       "Unable to access video stream. Please make sure you have camera enabled or try a different browser.": [
         null,
         ""
@@ -644,6 +643,7 @@
         null,
         "इस प्रस्ताव को दूसरे प्रोजेक्ट में भेजें"
       ],
+      "Get notification": [null, ""],
       "Room": [null, "रूम"],
       "Speaker": [null, "स्पीकर"],
       "Banner image URL": [null, "बैनर चित्र का URL"],
@@ -1290,7 +1290,10 @@
       "What’s this about?": [null, ""],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
-      "Search": [null, "खोजें"],
+      "Search profile (%(profile)s)": [null, ""],
+      "Search project (%(project)s)": [null, ""],
+      "Search website": [null, ""],
+      "Comments": [null, "कमेंट"],
       "Updates": [null, "अपडेट"],
       "Account": [null, "अकाउंट"],
       "Login": [null, "लॉगिन"],
@@ -1344,7 +1347,6 @@
       "Preview video": [null, "प्रीव्यू वीडियो"],
       "About": [null, "परिचय"],
       "Jobs": [null, "नौकरियां"],
-      "Comments": [null, "कमेंट"],
       "Submissions": [null, "सबमिशन"],
       "Schedule": [null, "कार्यक्रम"],
       "This update is for participants only": [
@@ -1574,6 +1576,8 @@
         null,
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है."
       ],
+      "Create a promotion": [null, ""],
+      "Select promotion destination": [null, ""],
       "Proposal menu": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
@@ -1582,6 +1586,7 @@
       "Featured submissions appear on the project page": [null, ""],
       "Replace session video": [null, ""],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
+      "Mute this submission": [null, ""],
       "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "Up next": [null, "अगला आने वाला"],
       "No video": [null, "कोई वीडियो नहीं है"],
@@ -1611,6 +1616,7 @@
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
       "Download": [null, "डाउनलोड करें"],
       "Add to Google Calendar": [null, "Google Calendar में जोड़ें"],
+      "Search": [null, "खोजें"],
       "This session has not been scheduled yet.": [
         null,
         "इस सेशन की समय-सूची अभी नहीं बनाई गई है."
@@ -2638,6 +2644,9 @@
         "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
       ],
       "Your submission has been submitted": [null, ""],
+      "Subscribed": [null, ""],
+      "Unsubscribed": [null, ""],
+      "Request expired. Reload and try again": [null, ""],
       "Edit submission": [null, ""],
       "Delete your submission ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,

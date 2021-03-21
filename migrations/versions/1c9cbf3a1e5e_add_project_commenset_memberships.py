@@ -1,7 +1,7 @@
-"""commentset membership for existing registrations.
+"""Add project commentset memberships.
 
 Revision ID: 1c9cbf3a1e5e
-Revises: 284c10efdbce
+Revises: a23e88f06478
 Create Date: 2021-03-11 09:07:56.611054
 
 """
@@ -18,7 +18,7 @@ import progressbar.widgets
 
 # revision identifiers, used by Alembic.
 revision = '1c9cbf3a1e5e'
-down_revision = '284c10efdbce'
+down_revision = 'a23e88f06478'
 branch_labels = None
 depends_on = None
 
@@ -54,11 +54,12 @@ commentset_membership = table(
     column('commentset_id', sa.Integer()),
     column('record_type', sa.Integer()),
     column('granted_by_id', sa.Integer()),
-    column('granted_at', sa.TIMESTAMP()),
-    column('last_seen_at', sa.TIMESTAMP()),
-    column('revoked_at', sa.TIMESTAMP()),
-    column('created_at', sa.TIMESTAMP()),
-    column('updated_at', sa.TIMESTAMP()),
+    column('granted_at', sa.TIMESTAMP(timezone=True)),
+    column('is_muted', sa.TIMESTAMP(timezone=True)),
+    column('last_seen_at', sa.TIMESTAMP(timezone=True)),
+    column('revoked_at', sa.TIMESTAMP(timezone=True)),
+    column('created_at', sa.TIMESTAMP(timezone=True)),
+    column('updated_at', sa.TIMESTAMP(timezone=True)),
 )
 
 
@@ -135,12 +136,15 @@ def upgrade():
                             'granted_at': sa.func.utcnow(),
                             'created_at': sa.func.utcnow(),
                             'updated_at': sa.func.utcnow(),
+                            'is_muted': sa.sql.expression.false(),
                             'last_seen_at': sa.func.utcnow(),
                         }
                     )
                 )
         progress.update(counter)
     progress.finish()
+
+    # TODO: Add commentset memberships for project crew
 
 
 def downgrade():
