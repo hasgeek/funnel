@@ -250,6 +250,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def __init__(self, **kwargs) -> None:
         super(Comment, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
+        self.commentset.last_comment_at = db.func.utcnow()
 
     @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
