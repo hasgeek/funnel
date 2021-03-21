@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Set
+from typing import Optional, Set, Union
 
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
@@ -17,26 +17,29 @@ class IncompleteUserMigration(Exception):
 
 
 def getuser(name: str) -> Optional[User]:
-    if '@' in name:
-        # TODO: This should have used UserExternalId.__at_username_services__,
-        # but this bit has traditionally been for Twitter only. Fix pending.
-        if name.startswith('@'):
-            extid = UserExternalId.get(service='twitter', username=name[1:])
-            if extid and extid.user.state.ACTIVE:
-                return extid.user
-            else:
-                return None
-        else:
-            useremail = UserEmail.get(email=name)
-            if useremail and useremail.user is not None and useremail.user.state.ACTIVE:
-                return useremail.user
-            # No verified email id. Look for an unverified id; return first found
-            result = UserEmailClaim.all(email=name).first()
-            if result and result.user.state.ACTIVE:
-                return result.user
-            return None
-    else:
-        return User.get(username=name)
+    """Get a user with a matching name or email address."""
+    # Treat an '@' or '~' prefix as a username lookup, removing the prefix
+    if name.startswith('@') or name.startswith('~'):
+        name = name[1:]
+    # If there's an '@' in the middle, treat as an email address
+    elif '@' in name:
+        # TODO: This lookup may be more efficient for email claims if we query the
+        # EmailAddress model directly, doing a join with UserEmail and UserEmailClaim.
+        useremail: Union[None, UserEmail, UserEmailClaim]
+        useremail = UserEmail.get(email=name)
+        if not useremail:
+            # If there's no verified email address, look for a claim.
+            useremail = (
+                UserEmailClaim.all(email=name)
+                .order_by(UserEmailClaim.created_at)
+                .first()
+            )
+        if useremail and useremail.user is not None and useremail.user.state.ACTIVE:
+            # Return user only if in active state
+            return useremail.user
+        return None
+    # If it wasn't an email address lookup, do a username lookup
+    return User.get(username=name)
 
 
 def getextid(service: str, userid: str) -> Optional[UserExternalId]:

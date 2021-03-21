@@ -14,13 +14,13 @@ def test_get_existing_members(
     # new_user is new_project.profile's admin, so the page should load
     resp = client.get(new_project.url_for('crew'))
     assert resp.status_code == 200
-    assert u"Add a member" in resp.data.decode('utf-8')
+    assert "Add a member" in resp.data.decode('utf-8')
 
     # but new_user is not new_project2.profile's admin, so it should not load
     resp2 = client.get(new_project2.url_for('crew'))
     assert resp2.status_code == 403  # forbidden
-    assert u"Add new member" not in resp2.data.decode('utf-8')
-    assert u"Access denied" in resp2.data.decode('utf-8')
+    assert "Add new member" not in resp2.data.decode('utf-8')
+    assert "Access denied" in resp2.data.decode('utf-8')
 
     # let's add a member to the project
     new_membership = ProjectCrewMembership(

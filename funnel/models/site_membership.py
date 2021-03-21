@@ -29,6 +29,9 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         }
     }
 
+    #: SiteMembership doesn't have a container limiting its scope
+    parent_id = None
+
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
