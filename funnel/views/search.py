@@ -635,7 +635,11 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
             or stype not in search_types
             or search_types[stype].project_query_filter is None
         ):
-            return {'type': None, 'counts': search_counts(squery, project=self.obj)}
+            return {
+                'project': self.obj.current_access(datasets=('primary', 'related')),
+                'type': None,
+                'counts': search_counts(squery, project=self.obj),
+            }
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
