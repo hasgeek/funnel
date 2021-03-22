@@ -475,7 +475,7 @@ class ProjectView(
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'editor'})
     def update_banner(self):
-        form = ProjectBannerForm()
+        form = ProjectBannerForm(obj=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner')
         return {
             'edit_logo_url': edit_logo_url,

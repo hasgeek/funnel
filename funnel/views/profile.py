@@ -315,6 +315,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self):
+        # TODO: View doesn't seem to be used anymore. Remove.
         form = ProfileBannerForm(obj=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
