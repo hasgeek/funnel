@@ -24,6 +24,7 @@ from ..models import (
     CommentReplyNotification,
     CommentReportReceivedNotification,
     Commentset,
+    CommentsetMembership,
     NewCommentNotification,
     Proposal,
     Voteset,
@@ -170,7 +171,10 @@ class AllCommentsView(ClassView):
             for cm in (
                 current_auth.user.active_commentset_memberships.join(
                     Commentset
-                ).order_by(Commentset.last_comment_at.desc())
+                ).order_by(
+                    Commentset.last_comment_at.desc(),
+                    CommentsetMembership.granted_at.desc(),
+                )
             )
         ]
 
