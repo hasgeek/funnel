@@ -121,7 +121,7 @@
 }
 
 .page-content--mob-nav {
-  padding-top: 80px;
+  padding-top: 52px;
 }
 
 @media (min-width: 768px) {
@@ -557,7 +557,7 @@ html.touch .collapsible__body--disable {
 
 .embed-video-wrapper--shaped {
   overflow: hidden;
-  border-radius: 16px 16px 0 0;
+  border-radius: 16px;
 }
 
 //Progree bar
@@ -1049,11 +1049,25 @@ a.loginbutton.hidden,
 
 .page-card {
   padding: 0;
-  margin: 0;
+  margin: $mui-grid-padding 0;
   position: relative;
   background: $mui-bg-color-primary;
   border-radius: 16px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.23);
+  .page-card__card {
+    margin-bottom: 0;
+    box-shadow: none;
+    border-bottom: 1px solid $mui-divider-color;
+  }
+  li:last-child .page-card__card {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .page-card {
+    margin: 0 0 $mui-grid-padding;
+  }
 }
 
 .dropdown-menu {
@@ -1081,4 +1095,8 @@ a.loginbutton.hidden,
       padding-top: 10px;
     }
   }
+}
+
+.text-expand {
+  cursor: pointer;
 }

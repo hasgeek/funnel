@@ -37,7 +37,7 @@
                             <div class="card__calendar card__calendar--compact card__calendar--compact" aria-hidden="true">
                               <div class="calendar">
                                 {{#obj.calendar_weeks_compact.weeks}}{{# { week: . } }}
-                                  <p class="calendar__month-name {{#if week.upcoming && @index < 2}}calendar__month-name--upcoming calendar__month-name--upcoming--first calendar__month-name--latest calendar__month-name--unique{{/if}}">{{ week.month }} {{ week.year }}&nbsp;<span class="calendar__counting"></span></p>
+                                  <p class="calendar__month {{#if week.upcoming && @index < 2}}calendar__month--upcoming calendar__month--upcoming--first calendar__month--latest calendar__month--unique{{/if}}">{{ week.month }} {{ week.year }}&nbsp;<span class="calendar__counting"></span></p>
 
                                   <div class="calendar__weekdays mui--bg-accent {{#if obj.calendar_weeks_compact.weeks.length > 1 }} calendar__weekdays--rows {{/if}}">
                                     <div class="calendar__weekdays__dates {{#if week.upcoming &&  @index <  2 }}calendar__weekdays__dates--upcoming calendar__weekdays__dates--upcoming--first{{/if}}">

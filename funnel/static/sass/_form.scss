@@ -458,6 +458,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  margin: 0 0 $mui-grid-padding;
   .post-form {
     cursor: pointer;
     text-decoration: none !important;

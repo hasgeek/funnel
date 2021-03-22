@@ -5,10 +5,12 @@
 {% block title %}{% trans %}Crew{% endtrans %}{% endblock %}
 
 {% block base_content_inner %}
-  <div class="project-section" id="crew">
-    {{ membership_template() }}
+  <div class="page-card">
+    <div class="project-section" id="crew">
+      {{ membership_template() }}
+    </div>
+    {{ project_member_template() }}
   </div>
-  {{ project_member_template() }}
 {% endblock %}
 
 {% block footerinnerscripts %}

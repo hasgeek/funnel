@@ -48,6 +48,16 @@
   }
 }
 
+.project-header-wrapper {
+  margin-bottom: $mui-grid-padding;
+}
+
+@media (min-width: 768px) {
+  .project-header-wrapper {
+    margin-bottom: 0;
+  }
+}
+
 @media (min-width: 992px) {
   .project-details-sticky {
     position: -webkit-sticky;
@@ -80,10 +90,7 @@
   .project-header {
     position: relative;
     right: 0;
-    top: 6px;
-  }
-  .project-details__box__title {
-    max-width: calc(100% - 120px);
+    top: 0;
   }
 }
 
@@ -98,6 +105,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 $mui-grid-padding;
     .sub-navbar {
       width: 100%;
     }
@@ -185,12 +193,11 @@
     position: relative;
 
     .card__calendar {
-      padding: 0 $mui-grid-padding 0;
-      margin-left: -$mui-grid-padding;
-      margin-right: -$mui-grid-padding;
+      padding-top: 0;
+      padding-bottom: $mui-grid-padding/2;
 
       .calendar {
-        .calendar__month-name--unique {
+        .calendar__month--unique {
           display: none;
         }
         .calendar__weekdays .calendar__weekdays__dates {
@@ -198,9 +205,10 @@
           padding-bottom: 17px;
         }
 
-        .calendar__weekdays .calendar__month-name--latest,
+        .calendar__weekdays .calendar__month--latest,
         .calendar__weekdays .calendar__weekdays__dates--latest {
           display: flex;
+          margin-bottom: $mui-grid-padding/2;
         }
 
         .calendar__weekdays .calendar__weekdays__dates:last-child {
@@ -235,6 +243,7 @@
 
 @media (min-width: 768px) {
   .project-banner {
+    display: flex;
     .project-banner__box {
       .project-banner__box__add-btn {
         right: $mui-grid-padding;
@@ -244,6 +253,7 @@
       }
     }
     .project-details__box {
+      width: 100%;
       .propose {
         .propose__txt {
           font-size: 14px;
@@ -253,6 +263,18 @@
           }
         }
       }
+    }
+    .project-banner__left {
+      width: 67%;
+    }
+    .project-banner__right {
+      width: 33%;
+    }
+    .project-banner__left--smaller {
+      width: 25%;
+    }
+    .project-banner__right--smaller {
+      width: 75%;
     }
   }
 }
@@ -307,13 +329,6 @@
 }
 
 .pinned {
-  position: sticky;
-  top: 65px;
-  background: $mui-bg-color-primary;
-  z-index: 2;
-  display: none;
-  margin: 0;
-
   .pinned__update {
     text-decoration: none !important;
     display: inline-block;
@@ -347,6 +362,9 @@
   .pinned__update__heading {
     display: block;
   }
+  .pinned__update {
+    border-bottom: 0;
+  }
 }
 
 .pinned a:hover,
@@ -354,26 +372,14 @@
   text-decoration: none !important;
 }
 
-.pinned--about-page {
-  top: 0;
-  display: block;
-  background: $mui-bg-color-accent;
-}
-
-@media (min-width: 768px) {
-  .pinned {
-    position: sticky;
-    top: 128px;
-    display: block;
-  }
-}
-
 .project-section {
   padding: $mui-grid-padding $mui-grid-padding 0;
 }
 
 .project-section__headline {
-  margin-bottom: $mui-grid-padding;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .jquery-modal.blocker.current .modal.reg-modal {
@@ -394,6 +400,7 @@
 
 .about {
   word-break: break-word;
+  padding-bottom: $mui-grid-padding;
 
   .about__details h1,
   .about__details h2,

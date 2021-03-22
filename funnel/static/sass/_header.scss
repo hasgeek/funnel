@@ -451,7 +451,6 @@
     transition: border-color 1.5s ease;
     min-width: 0;
     min-height: 0;
-    background-color: $mui-bg-color-accent;
   }
 
   .sub-navbar__item--wrapper {
@@ -490,7 +489,7 @@
     top: 50px;
     order: 1;
     z-index: 3;
-    margin-bottom: 8px;
+    margin-bottom: $mui-grid-padding;
   }
 
   .sub-navbar {
@@ -498,12 +497,11 @@
     display: flex;
     align-items: center;
     margin: 0 auto;
-    padding: 0 $mui-grid-padding;
 
     .sub-navbar__item {
       display: inline-block;
       flex-shrink: 0;
-      padding: 24px 0;
+      padding: $mui-grid-padding 0;
       margin: 0 $mui-grid-padding;
       text-decoration: none;
       border-bottom: 4px solid transparent;
@@ -545,7 +543,6 @@
   .sub-navbar {
     max-width: 960px;
     margin: auto;
-    padding: 0 $mui-grid-padding;
   }
 }
 
