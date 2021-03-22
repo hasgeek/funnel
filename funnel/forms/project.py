@@ -82,6 +82,8 @@ class ProjectForm(forms.Form):
     def set_queries(self):
         if self.edit_obj is not None:
             self.bg_image.profile = self.edit_obj.profile.name
+        else:
+            self.bg_image.profile = self.edit_parent.name
 
 
 @Project.forms('featured')
