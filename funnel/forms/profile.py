@@ -46,8 +46,7 @@ class ProfileForm(OrganizationForm):
     )
 
     def set_queries(self):
-        if self.edit_obj:
-            self.logo_url.profile = self.edit_obj.name
+        self.logo_url.profile = self.edit_obj.name
 
     def make_for_user(self):
         self.title.label.text = __("Your name")
@@ -89,8 +88,7 @@ class ProfileLogoForm(forms.Form):
 
     def set_queries(self):
         self.logo_url.widget_type = 'modal'
-        if self.edit_obj:
-            self.logo_url.profile = self.edit_obj.name
+        self.logo_url.profile = self.edit_obj.name
 
 
 @Profile.forms('banner_image')

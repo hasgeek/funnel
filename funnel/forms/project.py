@@ -160,8 +160,7 @@ class ProjectBannerForm(forms.Form):
 
     def set_queries(self):
         self.bg_image.widget_type = 'modal'
-        if self.edit_obj:
-            self.bg_image.profile = self.edit_obj.profile.name
+        self.bg_image.profile = self.edit_obj.profile.name
 
 
 @Project.forms('cfp')
