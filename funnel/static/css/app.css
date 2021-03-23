@@ -1170,6 +1170,7 @@ a.loginbutton.hidden,
   right: 0;
   font-size: 14px;
   top: 70px;
+  overflow: hidden;
 }
 .hg-app
   .header--fixed
@@ -1183,6 +1184,21 @@ a.loginbutton.hidden,
   margin-left: -15px;
   margin-right: -15px;
   padding: 0 15px;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .search-form
+  .search-form__dropdown
+  .search-form__dropdown__label {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
 }
 .hg-app
   .header--fixed

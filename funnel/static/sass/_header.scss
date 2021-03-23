@@ -91,11 +91,20 @@
               right: 0;
               font-size: 14px;
               top: 70px;
+              overflow: hidden;
               .search-form__dropdown__item--border {
                 border-bottom: 1px solid #f0f0f0;
                 margin-left: -15px;
                 margin-right: -15px;
                 padding: 0 15px;
+              }
+              .search-form__dropdown__label {
+                width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: inline-block;
+                vertical-align: bottom;
               }
             }
             .search-form__dropdown--show {

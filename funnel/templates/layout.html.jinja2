@@ -103,23 +103,21 @@
         {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
         <ul class="search-form__dropdown js-search-dropdown">
           {%- if project -%}
-            <li><input type="radio" name="search-domain" id="search-project" class="right-margin" value="/{{ g.profile.name }}/{{ project.name }}/search"><label for="search-project">{% trans project=project.title %}Search project ({{ project }}){% endtrans %}</label></li>
+            <li><input type="radio" name="search-domain" id="search-project" class="right-margin" value="/{{ g.profile.name }}/{{ project.name }}/search"><label for="search-project" class="search-form__dropdown__label">{% trans project=project.title %}Search project ({{ project }}){% endtrans %}</label></li>
           {%- endif %}
           {%- if g.profile -%}
-            <li><input type="radio" name="search-domain" id="search-profile" class="right-margin" value="/{{ g.profile.name }}/search"><label for="search-profile">{% trans profile=g.profile.title %}Search profile ({{ profile }}){% endtrans %}</label></li>
+            <li><input type="radio" name="search-domain" id="search-profile" class="right-margin" value="/{{ g.profile.name }}/search"><label for="search-profile" class="search-form__dropdown__label">{% trans profile=g.profile.title %}Search profile ({{ profile }}){% endtrans %}</label></li>
           {%- endif %}
-          {%- if project or g.profile %}
-            <li class="search-form__dropdown__item--border"><input type="radio" name="search-domain" id="search-global" class="right-margin" value="/search" checked="checked"><label for="search-global">{% trans %}Search website{% endtrans %}</label></li>
-          {% endif %}
+          <li class="search-form__dropdown__item--border"><input type="radio" name="search-domain" id="search-global" class="right-margin" value="/search" checked="checked"><label for="search-global" class="search-form__dropdown__label">{% trans %}Search website{% endtrans %}</label></li>
         </ul>
         <button type="submit" class="search-form__submit"></button>
       </form>
       {% if not current_auth.is_anonymous -%}
-        <a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" >{{ faicon(icon='comment-alt-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>
+        {%- if config['ENABLE-COMMENT-SIDEBAR'] %}<a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" >{{ faicon(icon='comment-alt-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>{% endif %}
         <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
         <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
         <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-          <a href="javascript:void(0)" class="header__nav-links header__nav-links--right js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar">{{ faicon(icon='comment-alt', css_class='header__nav-links__icon') }}</a>
+          {%- if config['ENABLE-COMMENT-SIDEBAR'] %}<a href="javascript:void(0)" class="header__nav-links header__nav-links--right js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar">{{ faicon(icon='comment-alt', css_class='header__nav-links__icon') }}</a>{% endif %}
           <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
           <a href="{{ url_for('account') }}" class="header__nav-links header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account" data-cy="my-account">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
           {% if current_auth.user.profile %}
@@ -154,8 +152,6 @@
     <hr class="zero-bottom-margin zero-top-margin">
     <span class="loading js-loading left-padding separator"></span>
     <ul class="comments-list" id="js-unread-comments">
-      {% for comment in comments %}
-      {% endfor %}
     </ul>
   </div>
 {%- endblock %}
@@ -240,8 +236,15 @@
     window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
     window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
     window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
-    window.Hasgeek.config.unreadCommentUrl = {{ url_for('comments')|tojson }};
-    window.Hasgeek.config.commentSidebarElem = '#js-unread-comments';
+    {%- if config['ENABLE-COMMENT-SIDEBAR'] %}
+      window.Hasgeek.config.commentSidebarElem = '#js-unread-comments';
+      window.Hasgeek.config.unreadCommentUrl = {{ url_for('comments')|tojson }};
+    {% endif %}
+    {% if not current_auth.is_anonymous -%}
+      window.Hasgeek.config.loggedInUser = true;
+    {%- else %}
+      window.Hasgeek.config.loggedInUser = false;
+    {% endif %}
   </script>
   {% assets "js_jquerytruncate" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
@@ -271,44 +274,7 @@
       });
     }
   </script>
-
   <script type="text/javascript">
-    const Store = {
-      // Local storage can only save strings, so value is converted into strings and stored.
-      add(key, value) {
-        return localStorage.setItem(key, JSON.stringify(value));
-      },
-      // Reads from LocalStorage.
-      read(key) {
-        return JSON.parse(localStorage.getItem(key));
-      },
-    };
-
-    var searchKeys = Store.read('search-keys');
-
-    if(searchKeys && searchKeys.length > 0) {
-      var autocompleteHtml = {{ search_keyword()|tojson }};
-      var KeywordHtml;
-      searchKeys.forEach(function(keyword) {
-        KeywordHtml = autocompleteHtml.replace('keyword-replace', keyword);
-        $('.js-search-dropdown').append(KeywordHtml);
-      });
-
-      $('.js-search-keyword').on('click', function (e) {
-        e.preventDefault();
-        $('.js-search-field').val($(this).text());
-      });
-
-      $('.js-clear-search-keyword').on('click', function (e) {
-        e.stopPropagation();
-        var keyword = $(this).parents('.js-search-keyword').text();
-        var autocompleteList = Store.read('search-keys');
-        autocompleteList.splice(autocompleteList.indexOf(keyword), 1);
-        Store.add('search-keys', autocompleteList);
-        $(this).parent('.js-search-keyword').remove();
-      });
-    }
-
     $('.js-search-field').on('click', function(e) {
       e.preventDefault();
       $(this).addClass('search-form__field--selected');
@@ -326,21 +292,59 @@
       }
     });
 
-    $('input[type=radio][name=search-domain]').change(function() {
-       $('.js-search-form').attr('action', this.value);
-    });
+    if(window.Hasgeek.config.loggedInUser) {
+      const Store = {
+        // Local storage can only save strings, so value is converted into strings and stored.
+        add(key, value) {
+          return localStorage.setItem(key, JSON.stringify(value));
+        },
+        // Reads from LocalStorage.
+        read(key) {
+          return JSON.parse(localStorage.getItem(key));
+        },
+      };
 
-    $('.js-search-form').on('submit', function() {
       var searchKeys = Store.read('search-keys');
-      var keyword = $('.js-search-field').val();
-      if(!searchKeys) {
-        searchKeys = [];
+
+      if(searchKeys && searchKeys.length > 0) {
+        var autocompleteHtml = {{ search_keyword()|tojson }};
+        var KeywordHtml;
+        searchKeys.forEach(function(keyword) {
+          KeywordHtml = autocompleteHtml.replace('keyword-replace', keyword);
+          $('.js-search-dropdown').append(KeywordHtml);
+        });
+
+        $('.js-search-keyword').on('click', function (e) {
+          e.preventDefault();
+          $('.js-search-field').val($(this).text());
+        });
+
+        $('.js-clear-search-keyword').on('click', function (e) {
+          e.stopPropagation();
+          var keyword = $(this).parents('.js-search-keyword').text();
+          var autocompleteList = Store.read('search-keys');
+          autocompleteList.splice(autocompleteList.indexOf(keyword), 1);
+          Store.add('search-keys', autocompleteList);
+          $(this).parent('.js-search-keyword').remove();
+        });
       }
-      if(searchKeys.indexOf(keyword) === -1) {
-        searchKeys.push(keyword);
-      }
-      Store.add('search-keys', searchKeys);
-    });
+
+      $('input[type=radio][name=search-domain]').change(function() {
+         $('.js-search-form').attr('action', this.value);
+      });
+
+      $('.js-search-form').on('submit', function() {
+        var searchKeys = Store.read('search-keys');
+        var keyword = $('.js-search-field').val();
+        if(!searchKeys) {
+          searchKeys = [];
+        }
+        if(searchKeys.indexOf(keyword) === -1) {
+          searchKeys.push(keyword);
+        }
+        Store.add('search-keys', searchKeys);
+      });
+    }
   </script>
   {%- endif -%}
   {% block footerscripts %}{% endblock %}
