@@ -102,19 +102,17 @@
               <a class="card clickable-card page-card__card" href="{{ session.url_for() }}" aria-label="{{ session.title }}" data-ga="View session">
                 <div class="card__body proposal-card proposal-card--fullwidth">
                   <div class="proposal-card__body">
-                    <div class="proposal-card__body__details">
-                      <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
-                      <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
-                      {% if session.banner_image_url.url %}
-                        <div  class="proposal-card__video">
-                          <div  class="proposal-card__video__thumbnail">
-                            <img src="{{ session.banner_image_url }}">
-                          </div>
+                    <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
+                    <p class="mui--text-body2 mui--text-light">{{ session.speaker }}</p>
+                    {% if session.banner_image_url.url %}
+                      <div  class="proposal-card__video">
+                        <div  class="proposal-card__video__thumbnail">
+                          <img src="{{ session.banner_image_url }}">
                         </div>
-                      {%- endif %}
-                      <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline|truncate(150) }}</div>
-                      <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ session.start_at|datetime }}</p>
-                    </div>
+                      </div>
+                    {%- endif %}
+                    <div class="mui--text-light mui--text-body2 margin-bottom">{{ session.description.html|firstline|truncate(150) }}</div>
+                    <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ session.start_at|datetime }}</p>
                   </div>
                   {% if session.banner_image_url.url %}
                     <div class="proposal-card__video proposal-card__video--desktop">

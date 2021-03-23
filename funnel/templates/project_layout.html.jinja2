@@ -55,7 +55,7 @@
       {% endif %}
       <div class="about" id="about">
         {% if project.description.html|length > 300 %}
-          <div class="about__details js-htmltruncate-expand text-expand">{{ project.description.html|truncate(300) }}...</div>
+          <div class="about__details js-htmltruncate-expand text-expand">{{ project.description.html|truncate(300)|striptags }}...</div>
           <div class="about__details js-htmltruncate-full mui--hide">{{ project.description.html }}</div>
         {%- else %}
           <div class="about__details">{{ project.description.html }}</div>
@@ -91,7 +91,7 @@
 {% block basecontent %}
   <div class="mui--bg-primary project-header-wrapper">
     <div class="mui-container">
-      <div class="grid page-content page-content--mob-nav">
+      <div class="grid page-content {% if current_page == 'project' %}page-content--mob-nav{%- endif %}">
         <div class="grid__col-sm-12">
           <div class="project-banner {% if current_page != 'project' %}project-banner--inner{%- endif %}">
             {% if project.livestream_urls %}
@@ -120,8 +120,8 @@
                 {%- endfor %}
               </div>
             {% else %}
-              <div class="project-banner__box project-banner__box--banner project-banner__left {% if current_page != 'project' %}project-banner__left--smaller{%- endif %}">
-                <div {% if project.banner_video_url.url or project.bg_image.url or project.current_roles.crew %}class="embed-video-wrapper embed-video-wrapper--shaped" {% endif %}>
+              <div class="project-banner__box project-banner__box--banner project-banner__left {% if current_page != 'project' or not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %}">
+                <div class="embed-video-wrapper embed-video-wrapper--shaped">
                   {{ livestream_edit_btn(project) }}
                   {{ banner_edit_btn(project) }}
                   {% if project.banner_video_url.url %}
@@ -139,7 +139,7 @@
                 </div>
               </div>
             {% endif %}
-            <div class="project-details__box mui--clearfix project-banner__right {% if current_page != 'project' and not project.livestream_urls %}project-banner__right--smaller{%- endif %}">
+            <div class="project-details__box mui--clearfix project-banner__right {% if current_page != 'project' and not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %}">
               <div class="project-details__box__title">
                 <div class="project-banner__profile-details">
                   {%- if project.profile.logo_url.url %}
@@ -178,7 +178,7 @@
                     <hr class="mui-divider">
                     <div class="propose propose--lessmargin">
                       <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
-                      {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light mui--text-body2">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
+                      {% if project.cfp_end_at_localized -%}<p class="propose__txt zero-bottom-margin">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light mui--text-body2">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
                     </div>
                   {% elif project.view_for('cfp').is_available() -%}
                     <hr class="mui-divider">
@@ -242,9 +242,9 @@
     <div class="mui-container">
       <div class="sub-navbar-container__inner">
         <nav class="sub-navbar" id="page-navbar">
-          <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#about" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
+          <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
           {%- if project.hasjob_embed_url.url -%}
-            <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'project' %}js-smooth-scroll js-samepage{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
           <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'updates' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'updates' -%}{{ project.url_for('updates') }}{%- endif %}" data-cy-navbar="updates">{% trans %}Updates{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'comments' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'comments' -%}{{ project.url_for('comments') }}{%- endif %}" data-cy-navbar="comments">{% trans %}Comments{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
@@ -268,7 +268,7 @@
 
   <div class="mui-container">
     <div class="grid">
-      <div class="grid__col-sm-7 grid__col-md-7 grid__col-lg-8">
+      <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8">
         {% with pinned_update = project.pinned_update %}{%- if pinned_update %}
           <ul class="mui-list--unstyled page-card pinned {% if current_page != 'project' %}pinned--inner{%- endif %}">
             <li>
@@ -286,7 +286,7 @@
         {% block base_content_inner %}{% endblock %}
       </div>
       {% block base_content_column %}
-        <div class="mui--hidden-xs mui--hidden-sm  grid__col-sm-5 grid__col-md-4 grid__col-lg-4">
+        <div class="mui--hidden-xs mui--hidden-sm grid__col-sm-6 grid__col-md-5 grid__col-lg-4">
           <div class="project-details-sticky">
             <div class="card card--shaped">
               <div class="card__body project-banner">

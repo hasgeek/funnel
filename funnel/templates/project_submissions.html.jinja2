@@ -23,7 +23,7 @@
               </p>
             {%- endif %}
             {% if project.instructions.html|length > 300 %}
-              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|truncate(300) }}...</div>
+              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|truncate(300)|sstriptags }}...</div>
               <div class="js-htmltruncate-full mui--hide">{{ project.instructions.html }}</div>
             {%- else %}
               <div>{{ project.instructions.html }}</div>

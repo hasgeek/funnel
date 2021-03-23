@@ -121,7 +121,7 @@
 }
 
 .page-content--mob-nav {
-  padding-top: 52px;
+  padding-top: 80px;
 }
 
 @media (min-width: 768px) {
@@ -3040,7 +3040,7 @@ a.loginbutton.hidden,
   right: 0;
   margin: auto;
   z-index: 1;
-  background: #e1eefd;
+  border: 1px solid #e1eefd;
 }
 .card__calendar
   .calendar
@@ -3072,7 +3072,7 @@ a.loginbutton.hidden,
   border-radius: 2px;
   background: #e1eefd;
   color: #1f2d3d;
-  left: 92%;
+  left: 44%;
   margin: auto;
   padding: 4px;
   width: 160px;
@@ -3082,6 +3082,18 @@ a.loginbutton.hidden,
   transition: opacity 0.1s;
   -webkit-transition: opacity 0.1s;
   transform: translate(-50%, 0);
+}
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date--showtime:hover:after,
+.card__calendar
+  .calendar
+  .calendar__weekdays
+  .calendar__weekdays__dates
+  .calendar__weekdays__dates__date--display:after {
+  background: #e1eefd;
 }
 .card__calendar
   .calendar
@@ -3620,7 +3632,7 @@ a.loginbutton.hidden,
   display: block;
 }
 .project-banner .project-details__box {
-  padding: 16px;
+  padding: 16px 0;
   position: relative;
 }
 .project-banner .project-details__box .card__calendar {
@@ -3700,6 +3712,7 @@ a.loginbutton.hidden,
     right: 60px;
   }
   .project-banner .project-details__box {
+    padding: 16px;
     width: 100%;
   }
   .project-banner .project-details__box .propose .propose__txt {
@@ -4158,7 +4171,7 @@ a.loginbutton.hidden,
     justify-content: space-between;
   }
   .proposal-card--fullwidth
-    .proposal-card__body__details
+    .proposal-card__body
     .proposal-card__video__thumbnail {
     display: none;
   }
@@ -4743,7 +4756,7 @@ a.loginbutton.hidden,
   position: -webkit-sticky;
   top: 52px;
   order: 1;
-  z-index: 4;
+  z-index: 3;
   border: none;
   display: flex;
   box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);

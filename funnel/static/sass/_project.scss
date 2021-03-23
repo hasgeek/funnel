@@ -189,7 +189,7 @@
   }
 
   .project-details__box {
-    padding: $mui-grid-padding;
+    padding: $mui-grid-padding 0;
     position: relative;
 
     .card__calendar {
@@ -253,6 +253,7 @@
       }
     }
     .project-details__box {
+      padding: $mui-grid-padding;
       width: 100%;
       .propose {
         .propose__txt {

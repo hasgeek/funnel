@@ -299,16 +299,13 @@
           right: 0;
           margin: auto;
           z-index: 1;
-          // border: 1px solid rgba(15, 114, 237, 0.2);
-          // background: rgba(15, 114, 237, 0.05);
-          background: #e1eefd;
+          border: 1px solid $mui-primary-color-lighter;
         }
         .calendar__weekdays__dates__date--active:before {
           content: '';
           border-left: 5px solid transparent;
           border-right: 5px solid transparent;
-          // border-top: 5px solid rgba(15,114,237,0.2);
-          border-top: 5px solid #e1eefd;
+          border-top: 5px solid $mui-primary-color-lighter;
           position: absolute;
           bottom: -5px;
           right: 0;
@@ -325,11 +322,9 @@
           position: absolute;
           bottom: -32px;
           border-radius: 2px;
-          // border: 1px solid rgba(15, 114, 237, 0.2);
-          // background: rgba(15, 114, 237, 0.05);
-          background: #e1eefd;
+          background: $mui-primary-color-lighter;
           color: $mui-text-dark;
-          left: 92%;
+          left: 44%;
           margin: auto;
           padding: 4px;
           width: 160px;
@@ -339,6 +334,11 @@
           transition: opacity 0.1s;
           -webkit-transition: opacity 0.1s;
           transform: translate(-50%, 0);
+        }
+
+        .calendar__weekdays__dates__date--showtime:hover:after,
+        .calendar__weekdays__dates__date--display:after {
+          background: $mui-primary-color-lighter;
         }
 
         .calendar__weekdays__dates__date--showtime:hover

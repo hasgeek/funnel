@@ -8,7 +8,7 @@
   <div class="page-card">
     <div class="grid top-padding" id="videos">
       {% for session in project.sessions_with_video %}
-        <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
+        <div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
           {{ video_thumbnail(session) }}
         </div>
       {%- else %}

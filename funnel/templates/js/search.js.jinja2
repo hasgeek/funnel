@@ -61,12 +61,12 @@
                           </div>
                         {{/if}}
                         <div class="card__body__title js-truncate {{#if !obj.calendar_weeks_full.weeks.length }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}:</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
-                        <p class="mui--text-subhead card__body__location">
-                        {{#if obj.location }}
-                          <faicon icon='map-marker-alt' icon_size='caption' baseline=false></faicon> {{ obj.location }}
-                        {{/if}}
-                        </p>
                         <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
+                        {{#if obj.location }}
+                          <p class="mui--text-subhead card__body__location">
+                          <faicon icon='map-marker-alt' icon_size='caption' baseline=false></faicon> {{ obj.location }}
+                          </p>
+                        {{/if}}
                       </div>
                     </a>
                   {{elseif result == 'profile'}}
