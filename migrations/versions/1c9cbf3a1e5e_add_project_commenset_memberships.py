@@ -121,7 +121,7 @@ def upgrade():
                     commentset_membership.c.commentset_id == project_item.commentset_id
                 )
                 .where(commentset_membership.c.user_id == rsvp_item.user_id)
-                .where(commentset_membership.c.revoked_at is None)
+                .where(commentset_membership.c.revoked_at.is_(None))
                 .select_from(commentset_membership)
             )
             if existing_counter == 0:
