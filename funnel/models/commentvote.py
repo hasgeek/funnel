@@ -378,7 +378,7 @@ add_search_trigger(Comment, 'search_vector')
 
 
 @reopen(Commentset)
-class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Commentset:
     toplevel_comments = db.relationship(
         Comment,
         lazy='dynamic',
