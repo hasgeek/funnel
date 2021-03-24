@@ -678,7 +678,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
 
 
 @reopen(Commentset)
-class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Commentset:
     proposal = with_roles(
         db.relationship(Proposal, uselist=False, back_populates='commentset'),
         # TODO: Remove creator to subscriber mapping when proposals use memberships
@@ -689,7 +689,7 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     @property
     def proposals_all(self):
         if self.subprojects:

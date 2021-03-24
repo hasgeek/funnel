@@ -107,13 +107,13 @@ class SavedSession(NoIdMixin, db.Model):
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     def saved_sessions_in(self, project):
         return self.saved_sessions.join(Session).filter(Session.project == project)
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     @with_roles(call={'all'})
     def is_saved_by(self, user):
         return (
