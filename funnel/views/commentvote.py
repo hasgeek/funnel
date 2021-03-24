@@ -26,16 +26,39 @@ from ..models import (
     Commentset,
     CommentsetMembership,
     NewCommentNotification,
+    Project,
     Proposal,
+    User,
     Voteset,
     db,
 )
+from ..signals import project_role_change, proposal_role_change
 from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProposalViewMixin
 from .notification import dispatch_notification
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
+
+
+@project_role_change.connect
+def update_project_commentset_membership(project: Project, user: User) -> None:
+    if 'participant' in project.roles_for(user):
+        project.commentset.add_subscriber(user)
+    else:
+        project.commentset.remove_subscriber(user)
+
+
+@proposal_role_change.connect
+def update_proposal_commentset_membership(proposal: Proposal, user: User) -> None:
+    if 'participant' in proposal.roles_for(user):
+        proposal.commentset.add_subscriber(user)
+
+    # TODO: Removal is pending a switch to ProposalMembership and the grant of
+    # 'participant' role from there. For now, users will have to mute notifications
+
+    # else:
+    #     proposal.commentset.remove_subscriber(user)
 
 
 @Comment.views('url')
@@ -229,6 +252,8 @@ class CommentsetView(UrlForView, ModelView):
             comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
 
+            # TODO: Replace this with a 'participant' or 'commenter' role in
+            # ProposalMembership
             if not self.obj.current_roles.document_subscriber:
                 self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
 
@@ -250,46 +275,6 @@ class CommentsetView(UrlForView, ModelView):
             with_chrome=False,
         )
         return {'form': commentform_html}
-
-    @route('subscribe', methods=['POST'])
-    @requires_login
-    @render_with(json=True)
-    def subscribe(self):
-        csrf_form = forms.Form()
-        if csrf_form.validate_on_submit():
-            self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("Subscribed to this comment thread"),
-            }
-        else:
-            return {
-                'status': 'error',
-                'error_code': 'subscribe_error',
-                'error_description': _("This page timed out. Reload and try again"),
-                'error_details': csrf_form.errors,
-            }, 422
-
-    @route('unsubscribe', methods=['POST'])
-    @requires_login
-    @render_with(json=True)
-    def unsubscribe(self):
-        csrf_form = forms.Form()
-        if csrf_form.validate_on_submit():
-            self.obj.remove_subscriber(actor=current_auth.user, user=current_auth.user)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("Unsubscribed from this comment thread"),
-            }
-        else:
-            return {
-                'status': 'error',
-                'error_code': 'unsubscribe_error',
-                'error_description': _("This page timed out. Reload and try again"),
-                'error_details': csrf_form.errors,
-            }, 422
 
     @route('seen', methods=['POST'])
     @requires_login

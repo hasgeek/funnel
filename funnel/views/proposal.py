@@ -211,9 +211,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'subscribed': bool(self.obj.commentset.current_roles.document_subscriber),
         }
 
-    @route('update_subscribe', methods=['POST'])
+    @route('subscribe', methods=['POST'])
     @requires_login
-    def update_subscribe(self):
+    def subscribe(self):
         subscribe_form = ProposalSubscribeForm()
         subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
         if subscribe_form.validate_on_submit():
@@ -224,7 +224,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
                 return {
                     'status': 'ok',
-                    'message': __("Subscribed"),
+                    'message': __("Subscribed to notifications"),
                     'form_nonce': subscribe_form.form_nonce.data,
                 }
             else:
@@ -234,7 +234,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
                 return {
                     'status': 'ok',
-                    'message': __("Unsubscribed"),
+                    'message': __("Unsubscribed from notifications"),
                     'form_nonce': subscribe_form.form_nonce.data,
                 }
         else:
