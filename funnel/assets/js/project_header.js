@@ -88,9 +88,10 @@ const Ticketing = {
     $(document).on(
       'boxofficeShowPriceEvent',
       (event, prices, currency, quantityAvailable) => {
-        let price, minPrice, maxPrice, isTicketAvailable;
-        isTicketAvailable = Math.min(...quantityAvailable);
-        minPrice = Math.min(...prices);
+        let price, maxPrice, minPrice, isTicketAvailable;
+        isTicketAvailable =
+          quantityAvailable.length > 0 ? Math.min(...quantityAvailable) : 0;
+        minPrice = prices.length > 0 ? Math.min(...prices) : 0;
         if (!isTicketAvailable || !minPrice) {
           $('.js-tickets-available').addClass('mui--hide');
           $('.js-tickets-not-available').removeClass('mui--hide');
