@@ -252,7 +252,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit(self):
-        form = ProfileForm(obj=self.obj, model=Profile)
+        form = ProfileForm(obj=self.obj, model=Profile, profile=self.obj)
         if self.obj.user:
             form.make_for_user()
         if form.validate_on_submit():
@@ -272,7 +272,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_logo(self):
-        form = ProfileLogoForm()
+        form = ProfileLogoForm(profile=self.obj)
         edit_logo_url = self.obj.url_for('edit_logo_url')
         return {
             'edit_logo_url': edit_logo_url,
@@ -282,7 +282,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit_logo', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_logo_url(self):
-        form = ProfileLogoForm(obj=self.obj)
+        form = ProfileLogoForm(obj=self.obj, profile=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -305,7 +305,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self):
-        form = ProfileBannerForm()
+        form = ProfileBannerForm(profile=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
         return {
             'edit_logo_url': edit_logo_url,
@@ -315,8 +315,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self):
-        # TODO: View doesn't seem to be used anymore. Remove.
-        form = ProfileBannerForm(obj=self.obj)
+        form = ProfileBannerForm(obj=self.obj, profile=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
