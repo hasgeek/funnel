@@ -226,7 +226,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'admin'})
     def new_project(self):
-        form = ProjectForm(model=Project, parent=self.obj)
+        form = ProjectForm(model=Project, profile=self.obj)
 
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
@@ -401,7 +401,7 @@ class ProjectView(
             # WTForms will ignore formdata if it's None.
             form = ProjectForm(
                 obj=self.obj,
-                parent=self.obj.profile,
+                profile=self.obj.profile,
                 model=Project,
                 formdata=initial_formdata,
             )
@@ -420,7 +420,9 @@ class ProjectView(
             if getbool(request.args.get('form.autosave')):
                 return self.autosave_post()
             else:
-                form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
+                form = ProjectForm(
+                    obj=self.obj, profile=self.obj.profile, model=Project
+                )
                 if form.validate_on_submit():
                     form.populate_obj(self.obj)
                     db.session.commit()
@@ -475,7 +477,7 @@ class ProjectView(
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'editor'})
     def update_banner(self):
-        form = ProjectBannerForm()
+        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         edit_logo_url = self.obj.url_for('edit_banner')
         return {
             'edit_logo_url': edit_logo_url,
@@ -486,7 +488,7 @@ class ProjectView(
     @requires_login
     @requires_roles({'editor'})
     def edit_banner(self):
-        form = ProjectBannerForm(obj=self.obj)
+        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
