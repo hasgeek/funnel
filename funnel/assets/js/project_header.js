@@ -89,6 +89,12 @@ const Ticketing = {
       'boxofficeShowPriceEvent',
       (event, prices, currency, quantityAvailable) => {
         let price, minPrice, maxPrice, isTicketAvailable;
+        console.log(
+          'prices, currency, quantityAvailable',
+          prices,
+          currency,
+          quantityAvailable
+        );
         isTicketAvailable = Math.min(...quantityAvailable);
         if (!isTicketAvailable) {
           $('.js-tickets-available').addClass('mui--hide');
