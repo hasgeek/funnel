@@ -52,7 +52,7 @@ class SitemapPage(NamedTuple):
 # The earliest date in Hasgeek's production database is 26 May 2011 (from Lastuser).
 # We use 1 May here as we're only interested in the month. Hasjob's dataset starts
 # earlier, from 14 Mar 2011, but this sitemap does not apply to Hasjob
-earliest_date = datetime(2011, 5, 1, tzinfo=utc)
+earliest_date = utc.localize(datetime(2011, 5, 1))
 
 
 def all_sitemap_days(until: datetime) -> list:
@@ -118,11 +118,11 @@ def validate_daterange(
 
     # Now make a date range
     if not day:
-        dtstart = datetime(year, month, 1, tzinfo=utc)
+        dtstart = utc.localize(datetime(year, month, 1))
         dtend = dtstart + relativedelta(months=1)
     else:
         try:
-            dtstart = datetime(year, month, day, tzinfo=utc)
+            dtstart = utc.localize(datetime(year, month, day))
         except ValueError:
             # Invalid day
             abort(404)
