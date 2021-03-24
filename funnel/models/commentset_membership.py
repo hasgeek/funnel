@@ -67,7 +67,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     active_commentset_memberships = db.relationship(
         CommentsetMembership,
         lazy='dynamic',
@@ -84,7 +84,7 @@ class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
 
 
 @reopen(Commentset)
-class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Commentset:
     active_memberships = with_roles(
         db.relationship(
             CommentsetMembership,

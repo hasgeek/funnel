@@ -740,7 +740,7 @@ add_search_trigger(Project, 'search_vector')
 
 
 @reopen(Profile)
-class Profile:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Profile:
     listed_projects = db.relationship(
         Project,
         lazy='dynamic',
@@ -894,7 +894,7 @@ class ProjectLocation(TimestampMixin, db.Model):
 
 
 @reopen(Commentset)
-class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Commentset:
     project = with_roles(
         db.relationship(Project, uselist=False, back_populates='commentset'),
         grants_via={None: {'editor': 'document_subscriber'}},

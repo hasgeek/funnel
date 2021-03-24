@@ -130,7 +130,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     active_user_sessions = db.relationship(
         UserSession,
         lazy='dynamic',
