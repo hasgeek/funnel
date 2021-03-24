@@ -48,68 +48,68 @@ def test_all_sitemap_months_days():
     """The sitemap months and days ranges are contiguous."""
     # Test dates 14, 15, 16 & 17, at midnight and noon, to see month/day rollover
 
-    until = datetime(2020, 10, 14, tzinfo=utc)
+    until = utc.localize(datetime(2020, 10, 14))
     days = all_sitemap_days(until)
     months = all_sitemap_months(until)
-    assert days[0] == datetime(2020, 10, 14, tzinfo=utc)
-    assert days[-1] == datetime(2020, 9, 1, tzinfo=utc)
-    assert months[0] == datetime(2020, 8, 1, tzinfo=utc)
+    assert days[0] == utc.localize(datetime(2020, 10, 14))
+    assert days[-1] == utc.localize(datetime(2020, 9, 1))
+    assert months[0] == utc.localize(datetime(2020, 8, 1))
     assert months[-1] == earliest_date
 
-    until = datetime(2020, 10, 14, 12, 0, tzinfo=utc)
+    until = utc.localize(datetime(2020, 10, 14, 12, 0))
     days = all_sitemap_days(until)
     months = all_sitemap_months(until)
-    assert days[0] == datetime(2020, 10, 14, tzinfo=utc)
-    assert days[-1] == datetime(2020, 9, 1, tzinfo=utc)
-    assert months[0] == datetime(2020, 8, 1, tzinfo=utc)
+    assert days[0] == utc.localize(datetime(2020, 10, 14))
+    assert days[-1] == utc.localize(datetime(2020, 9, 1))
+    assert months[0] == utc.localize(datetime(2020, 8, 1))
     assert months[-1] == earliest_date
 
-    until = datetime(2020, 10, 15, tzinfo=utc)
+    until = utc.localize(datetime(2020, 10, 15))
     days = all_sitemap_days(until)
     months = all_sitemap_months(until)
-    assert days[0] == datetime(2020, 10, 15, tzinfo=utc)
-    assert days[-1] == datetime(2020, 9, 1, tzinfo=utc)
-    assert months[0] == datetime(2020, 8, 1, tzinfo=utc)
+    assert days[0] == utc.localize(datetime(2020, 10, 15))
+    assert days[-1] == utc.localize(datetime(2020, 9, 1))
+    assert months[0] == utc.localize(datetime(2020, 8, 1))
     assert months[-1] == earliest_date
 
-    until = datetime(2020, 10, 15, 12, 0, tzinfo=utc)
+    until = utc.localize(datetime(2020, 10, 15, 12, 0))
     days = all_sitemap_days(until)
     months = all_sitemap_months(until)
-    assert days[0] == datetime(2020, 10, 15, tzinfo=utc)
-    assert days[-1] == datetime(2020, 9, 1, tzinfo=utc)
-    assert months[0] == datetime(2020, 8, 1, tzinfo=utc)
+    assert days[0] == utc.localize(datetime(2020, 10, 15))
+    assert days[-1] == utc.localize(datetime(2020, 9, 1))
+    assert months[0] == utc.localize(datetime(2020, 8, 1))
     assert months[-1] == earliest_date
 
-    until = datetime(2020, 10, 16, tzinfo=utc)
+    until = utc.localize(datetime(2020, 10, 16))
     days = all_sitemap_days(until)
     months = all_sitemap_months(until)
-    assert days[0] == datetime(2020, 10, 16, tzinfo=utc)
-    assert days[-1] == datetime(2020, 10, 1, tzinfo=utc)
-    assert months[0] == datetime(2020, 9, 1, tzinfo=utc)
+    assert days[0] == utc.localize(datetime(2020, 10, 16))
+    assert days[-1] == utc.localize(datetime(2020, 10, 1))
+    assert months[0] == utc.localize(datetime(2020, 9, 1))
     assert months[-1] == earliest_date
 
-    until = datetime(2020, 10, 16, 12, 0, tzinfo=utc)
+    until = utc.localize(datetime(2020, 10, 16, 12, 0))
     days = all_sitemap_days(until)
     months = all_sitemap_months(until)
-    assert days[0] == datetime(2020, 10, 16, tzinfo=utc)
-    assert days[-1] == datetime(2020, 10, 1, tzinfo=utc)
-    assert months[0] == datetime(2020, 9, 1, tzinfo=utc)
+    assert days[0] == utc.localize(datetime(2020, 10, 16))
+    assert days[-1] == utc.localize(datetime(2020, 10, 1))
+    assert months[0] == utc.localize(datetime(2020, 9, 1))
     assert months[-1] == earliest_date
 
-    until = datetime(2020, 10, 17, tzinfo=utc)
+    until = utc.localize(datetime(2020, 10, 17))
     days = all_sitemap_days(until)
     months = all_sitemap_months(until)
-    assert days[0] == datetime(2020, 10, 17, tzinfo=utc)
-    assert days[-1] == datetime(2020, 10, 1, tzinfo=utc)
-    assert months[0] == datetime(2020, 9, 1, tzinfo=utc)
+    assert days[0] == utc.localize(datetime(2020, 10, 17))
+    assert days[-1] == utc.localize(datetime(2020, 10, 1))
+    assert months[0] == utc.localize(datetime(2020, 9, 1))
     assert months[-1] == earliest_date
 
-    until = datetime(2020, 10, 17, 12, 0, tzinfo=utc)
+    until = utc.localize(datetime(2020, 10, 17, 12, 0))
     days = all_sitemap_days(until)
     months = all_sitemap_months(until)
-    assert days[0] == datetime(2020, 10, 17, tzinfo=utc)
-    assert days[-1] == datetime(2020, 10, 1, tzinfo=utc)
-    assert months[0] == datetime(2020, 9, 1, tzinfo=utc)
+    assert days[0] == utc.localize(datetime(2020, 10, 17))
+    assert days[-1] == utc.localize(datetime(2020, 10, 1))
+    assert months[0] == utc.localize(datetime(2020, 9, 1))
     assert months[-1] == earliest_date
 
 
@@ -117,32 +117,32 @@ def test_validate_daterange():
     """Test the values that validate_dayrange accepts."""
     # String dates are accepted
     assert validate_daterange('2015', '11', '05') == (
-        datetime(2015, 11, 5, tzinfo=utc),
-        datetime(2015, 11, 6, tzinfo=utc),
+        utc.localize(datetime(2015, 11, 5)),
+        utc.localize(datetime(2015, 11, 6)),
     )
 
     # Integer dates are fine too
     assert validate_daterange(2015, 11, 5) == (
-        datetime(2015, 11, 5, tzinfo=utc),
-        datetime(2015, 11, 6, tzinfo=utc),
+        utc.localize(datetime(2015, 11, 5)),
+        utc.localize(datetime(2015, 11, 6)),
     )
 
     # Zero padding is fine, as long as int(x) will accept it
     assert validate_daterange('2015', '11', '00005') == (
-        datetime(2015, 11, 5, tzinfo=utc),
-        datetime(2015, 11, 6, tzinfo=utc),
+        utc.localize(datetime(2015, 11, 5)),
+        utc.localize(datetime(2015, 11, 6)),
     )
 
     # Day is optional, and date range is then for the full month
     assert validate_daterange('2015', '11', None) == (
-        datetime(2015, 11, 1, tzinfo=utc),
-        datetime(2015, 12, 1, tzinfo=utc),
+        utc.localize(datetime(2015, 11, 1)),
+        utc.localize(datetime(2015, 12, 1)),
     )
 
     # Same with int year/month
     assert validate_daterange(2015, 11, None) == (
-        datetime(2015, 11, 1, tzinfo=utc),
-        datetime(2015, 12, 1, tzinfo=utc),
+        utc.localize(datetime(2015, 11, 1)),
+        utc.localize(datetime(2015, 12, 1)),
     )
 
     # However, invalid dates and dates prior to earliest date or later than present day

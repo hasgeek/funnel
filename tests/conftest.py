@@ -98,7 +98,7 @@ def user_death(db_session):
     user = User(
         username='death',
         fullname="Death",
-        created_at=datetime(1970, 1, 1, tzinfo=utc),
+        created_at=utc.localize(datetime(1970, 1, 1)),
     )
     db_session.add(user)
     return user
@@ -113,7 +113,7 @@ def user_mort(db_session):
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
-    user = User(fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=utc))
+    user = User(fullname="Mort", created_at=utc.localize(datetime(1987, 11, 12)))
     db_session.add(user)
     return user
 
