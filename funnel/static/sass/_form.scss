@@ -239,6 +239,10 @@
       right: 0;
       padding: $mui-grid-padding;
       z-index: 1003;
+      .mui-btn--primary {
+        position: relative;
+        top: 8px;
+      }
     }
   }
 }

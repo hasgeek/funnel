@@ -117,16 +117,17 @@
 }
 
 .page-content {
-  padding-top: 32px;
+  padding-top: 38px;
 }
 
 .page-content--mob-nav {
-  padding-top: 80px;
+  padding-top: 70px;
 }
 
 @media (min-width: 768px) {
+  .page-content,
   .page-content--mob-nav {
-    padding-top: 32px;
+    padding-top: 24px;
   }
 }
 .nounderline {
@@ -1669,6 +1670,7 @@ a.loginbutton.hidden,
   transition: border-color 1.5s ease;
   min-width: 0;
   min-height: 0;
+  font-weight: 600;
 }
 .sub-navbar .sub-navbar__item--wrapper {
   height: 56px;
@@ -1721,7 +1723,6 @@ a.loginbutton.hidden,
     transition: border-color 1.5s ease;
     min-width: 0;
     min-height: 0;
-    font-weight: bold;
   }
   .sub-navbar .sub-navbar__item:first-child {
     margin: 0 16px 0 0;
@@ -2436,6 +2437,10 @@ a.loginbutton.hidden,
   right: 0;
   padding: 16px;
   z-index: 1003;
+}
+.modal--form .mui-form .form-actions .mui-btn--primary {
+  position: relative;
+  top: 8px;
 }
 
 .modal--form.modal--form--edit .modal--form__action-box,

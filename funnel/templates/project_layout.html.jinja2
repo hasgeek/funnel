@@ -238,26 +238,26 @@
     </div>
   {%- endif %}
 
-  <div class="mui--bg-primary sub-navbar-container sub-navbar-container--sticky {% if current_page != 'project' %}sub-navbar-container--inner{%- endif %}">
+  <div class="mui--bg-primary sub-navbar-container sub-navbar-container--sticky mui--z1 {% if current_page != 'project' %}sub-navbar-container--inner{%- endif %}">
     <div class="mui-container">
       <div class="sub-navbar-container__inner">
         <nav class="sub-navbar" id="page-navbar">
-          <a class="sub-navbar__item mui--text-subhead mui--text-light mui--hidden-xs mui--hidden-sm" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}" data-cy-navbar="about">{% trans %}About{% endtrans %}</a>
+          <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}" data-cy-navbar="about">{% trans %}Project overview{% endtrans %}</a>
           {%- if project.hasjob_embed_url.url -%}
-            <a class="sub-navbar__item mui--text-subhead mui--text-light" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
-          <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'updates' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'updates' -%}{{ project.url_for('updates') }}{%- endif %}" data-cy-navbar="updates">{% trans %}Updates{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
-          <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'comments' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'comments' -%}{{ project.url_for('comments') }}{%- endif %}" data-cy-navbar="comments">{% trans %}Comments{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+          <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'updates' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'updates' -%}{{ project.url_for('updates') }}{%- endif %}" data-cy-navbar="updates">{% trans %}Updates{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+          <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'comments' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'comments' -%}{{ project.url_for('comments') }}{%- endif %}" data-cy-navbar="comments">{% trans %}Comments{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- if project.current_roles.editor or not project.cfp_state.NONE -%}
-            <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'submissions' -%}{{ project.url_for('view_proposals') }}{%- endif %}" data-cy-navbar="submissions">{% trans %}Submissions{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'submissions' -%}{{ project.url_for('view_proposals') }}{%- endif %}" data-cy-navbar="submissions">{% trans %}Submissions{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
           {%- if project.schedule_state.PUBLISHED %}
-            <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- endif %}" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- endif %}" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
           {% if project.sessions_with_video %}
-            <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'videos' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'videos' -%}{{ project.url_for('session_videos') }}{%- endif %}" data-cy-navbar="videos">{% trans %}Videos{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'videos' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'videos' -%}{{ project.url_for('session_videos') }}{%- endif %}" data-cy-navbar="videos">{% trans %}Videos{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
-          <a class="sub-navbar__item mui--text-subhead mui--text-light {% if current_page == 'crew' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'crew' -%}{{ project.url_for('crew') }}{%- endif %}" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+          <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'crew' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'crew' -%}{{ project.url_for('crew') }}{%- endif %}" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
         </nav>
         <div class="{% if current_page == 'comments' %}comments-page{%- endif %}">
           {{ project_share(project) }}

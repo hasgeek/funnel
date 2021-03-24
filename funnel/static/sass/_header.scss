@@ -451,6 +451,7 @@
     transition: border-color 1.5s ease;
     min-width: 0;
     min-height: 0;
+    font-weight: 600;
   }
 
   .sub-navbar__item--wrapper {
@@ -509,7 +510,6 @@
       transition: border-color 1.5s ease;
       min-width: 0;
       min-height: 0;
-      font-weight: bold;
     }
 
     .sub-navbar__item:first-child {

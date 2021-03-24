@@ -128,7 +128,7 @@
                 <div class="ajax-form ajax-form--block" :class="[formOpened ? 'ajax-form--mob' : '']" v-if="spamForm">
                   <form method="POST" accept-charset="UTF-8" class="mui-form" @submit.prevent="submitCommentForm('spam-comment-form-' + comment.uuid_b58, comment.urls.report_spam, 3)" :id="'spam-comment-form-' + comment.uuid_b58">
                     <p class="ajax-form__title">Do you want to mark this comment as spam?</p>
-                    <button type="submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Confirm</button>
+                    <button type="submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary">Mark spam</button>
                     <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent ajax-form__cancelbtn" @click="closeAllForms($event, 'spamForm')">Cancel</button>
                   </form>
                   <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>

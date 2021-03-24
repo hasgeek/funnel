@@ -117,16 +117,17 @@
 }
 
 .page-content {
-  padding-top: $mui-grid-padding-double;
+  padding-top: 38px;
 }
 
 .page-content--mob-nav {
-  padding-top: 80px;
+  padding-top: 70px;
 }
 
 @media (min-width: 768px) {
+  .page-content,
   .page-content--mob-nav {
-    padding-top: $mui-grid-padding-double;
+    padding-top: 24px;
   }
 }
 
