@@ -1006,9 +1006,6 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
-      "${}": [null, ""],
-      ".": [null, ""],
-      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1308,8 +1305,6 @@
       "Settings": [null, "सेटिंग्स"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
       "Featured projects appear under Spotlight on the home page": [null, ""],
-      "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
-      "Update banner image": [null, "बैनर इमेज को बदलें"],
       "Tickets available": [null, ""],
       "Sales closed": [null, ""],
       "Get tickets": [null, "टिकट पाएं"],
@@ -1323,47 +1318,20 @@
       "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
       "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
       "View participants": [null, "प्रतिभागियों को देखें"],
-      "Add schedule to enable registrations": [
-        null,
-        "रजिस्ट्रेशन शुरू करने के लिए समय-सूची जोड़ें"
-      ],
-      "Add schedule": [null, ""],
-      "Make a submission": [null, "एक सबमिशन भेजें"],
-      "Submissions close %(date)s": [null, ""],
-      "Open submissions": [null, "सबमिशन को खोलें"],
-      "Add submission guidelines": [
-        null,
-        "सबमिशन की दिशा-निर्देश और समय-सूची जोड़ें"
-      ],
-      "Submissions are closed for this project": [
-        null,
-        "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
-      ],
-      "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
-      "Livestream": [null, "लाइवस्ट्रीम"],
       "Preview video": [null, "प्रीव्यू वीडियो"],
-      "About": [null, "परिचय"],
-      "Jobs": [null, "नौकरियां"],
-      "Comments": [null, "कमेंट"],
-      "Submissions": [null, "सबमिशन"],
-      "Schedule": [null, "कार्यक्रम"],
-      "This update is for participants only": [
-        null,
-        "यह जानकारी केवल प्रतिभागियों के लिए है"
-      ],
-      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
-      "Tickets": [null, "टिकटें"],
-      "Loading...": [null, ""],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
       "Notifications": [null, "नोटिफिकेशन"],
       "My saves": [null, "मेरी सेव किये गए प्रोजेक्ट"],
       "Scan badge": [null, "बैज स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
+      "Submissions close %(date)s": [null, ""],
       "Live schedule": [null, "लाइव कार्यक्रम"],
+      "Livestream": [null, "लाइवस्ट्रीम"],
       "Livestream and schedule": [null, "लाइवस्ट्रीम और कार्यक्रम"],
       "Session starts at %(session)s": [null, "सेशन %(session)s शुरू होगा"],
       "Watch livestream": [null, "लाइवस्ट्रीम देखें"],
+      "Schedule": [null, "कार्यक्रम"],
       "Spotlight": [null, "झलकियां"],
       "Accepting submissions": [null, "सब्मिशन स्वीकार कर रहे हैं"],
       "Show more": [null, "और दिखाएं"],
@@ -1409,7 +1377,10 @@
       "Admins": [null, "एडमिन"],
       "Sessions": [null, "सेशन"],
       "Projects": [null, "प्रोजेक्ट"],
+      "Submissions": [null, "सबमिशन"],
+      "Tickets": [null, "टिकटें"],
       "Attend": [null, "हिस्सा लें"],
+      "Make a submission": [null, "एक सबमिशन भेजें"],
       "Team &amp; careers": [null, "टीम &amp; करियर"],
       "Contact": [null, "संपर्क"],
       "Site policies": [null, "साइट नीतियां"],
@@ -1494,14 +1465,8 @@
         "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं."
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
-      "This project will not be listed as it has no sessions in the schedule": [
-        null,
-        ""
-      ],
-      "This project is not published. Visit settings to publish": [null, ""],
-      "Related events": [null, "सम्बंधित ईवेंट"],
+      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "See all": [null, "सारे देखें"],
-      "View Schedule": [null, "कार्यक्रम देखें"],
       "Videos": [null, "वीडियो"],
       "Related jobs": [null, "सम्बंधित नौकरियां"],
       "Setup events for check-in": [null, "चेक-इन के लिए ईवेंट सेटअप करें"],
@@ -1532,6 +1497,33 @@
       ],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
+      "Comments": [null, "कमेंट"],
+      "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
+      "Update banner image": [null, "बैनर इमेज को बदलें"],
+      "This project will not be listed as it has no sessions in the schedule": [
+        null,
+        ""
+      ],
+      "This project is not published. Visit settings to publish": [null, ""],
+      "Related events": [null, "सम्बंधित ईवेंट"],
+      "Add schedule": [null, ""],
+      "Open submissions": [null, "सबमिशन को खोलें"],
+      "Add submission guidelines": [
+        null,
+        "सबमिशन की दिशा-निर्देश और समय-सूची जोड़ें"
+      ],
+      "Submissions are closed for this project": [
+        null,
+        "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
+      ],
+      "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
+      "Loading...": [null, ""],
+      "Project overview": [null, ""],
+      "Jobs": [null, "नौकरियां"],
+      "This update is for participants only": [
+        null,
+        "यह जानकारी केवल प्रतिभागियों के लिए है"
+      ],
       "This project is brought to you by": [null, ""],
       "Read more": [null, ""],
       "Participants": [null, "प्रतिभागी"],
@@ -1574,6 +1566,7 @@
         null,
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है."
       ],
+      "This project has not posted any videos yet.": [null, ""],
       "Proposal menu": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],

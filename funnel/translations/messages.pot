@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-03-15 12:08+0530\n"
+"POT-Creation-Date: 2021-03-24 12:15+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.0\n"
+"Generated-By: Babel 2.7.0\n"
 
 #: funnel/registry.py:73
 msgid "A Bearer token is required in the Authorization header"
@@ -71,38 +71,38 @@ msgstr ""
 msgid "There was a problem in contacting the server. Please try again later"
 msgstr ""
 
-#: funnel/assets/js/util.js:186
+#: funnel/assets/js/util.js:190
 msgid "Today"
 msgstr ""
 
-#: funnel/assets/js/util.js:187
+#: funnel/assets/js/util.js:191
 msgid "Tomorrow"
 msgstr ""
 
-#: funnel/assets/js/util.js:188
+#: funnel/assets/js/util.js:192
 msgid "Day after"
 msgstr ""
 
-#: funnel/assets/js/util.js:189
+#: funnel/assets/js/util.js:193
 #, python-format
 msgid "In %d days"
 msgstr ""
 
-#: funnel/assets/js/util.js:208
+#: funnel/assets/js/util.js:212
 msgid ""
 "An internal server error occurred. Our support team has been notified and"
 " will investigate."
 msgstr ""
 
-#: funnel/assets/js/util.js:222
+#: funnel/assets/js/util.js:226
 msgid "Unable to connect. Check connection and tap to reload."
 msgstr ""
 
-#: funnel/assets/js/util.js:335
+#: funnel/assets/js/util.js:339
 msgid "Link copied"
 msgstr ""
 
-#: funnel/assets/js/util.js:506
+#: funnel/assets/js/util.js:510
 msgid "Project added to Account > My saves"
 msgstr ""
 
@@ -258,7 +258,7 @@ msgid "Type"
 msgstr ""
 
 #: funnel/forms/account.py:388 funnel/templates/layout.html.jinja2:70
-#: funnel/templates/macros.html.jinja2:709
+#: funnel/templates/macros.html.jinja2:556
 msgid "Home"
 msgstr ""
 
@@ -1067,7 +1067,7 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: funnel/forms/project.py:210 funnel/templates/project_settings.html.jinja2:32
+#: funnel/forms/project.py:210 funnel/templates/project_settings.html.jinja2:33
 #: funnel/templates/schedule_edit.html.jinja2:21
 msgid "Schedule status"
 msgstr ""
@@ -1294,7 +1294,7 @@ msgstr ""
 msgid "Please enter a valid color code"
 msgstr ""
 
-#: funnel/forms/venue.py:105 funnel/templates/project.html.jinja2:155
+#: funnel/forms/venue.py:105 funnel/templates/project.html.jinja2:146
 msgid "Venue"
 msgstr ""
 
@@ -1424,7 +1424,7 @@ msgid "{user} commented"
 msgstr ""
 
 #: funnel/models/commentvote.py:322 funnel/models/commentvote.py:327
-#: funnel/templates/macros.html.jinja2:325
+#: funnel/templates/project_layout.html.jinja2:226
 #: funnel/templates/project_membership.html.jinja2:4
 msgid "Crew"
 msgstr ""
@@ -1608,11 +1608,11 @@ msgstr ""
 msgid "Private"
 msgstr ""
 
-#: funnel/models/profile.py:384 funnel/templates/macros.html.jinja2:664
+#: funnel/models/profile.py:384 funnel/templates/macros.html.jinja2:511
 msgid "Make public"
 msgstr ""
 
-#: funnel/models/profile.py:389 funnel/templates/macros.html.jinja2:614
+#: funnel/models/profile.py:389 funnel/templates/macros.html.jinja2:461
 msgid "Make private"
 msgstr ""
 
@@ -1649,7 +1649,7 @@ msgid "Live"
 msgstr ""
 
 #: funnel/models/project.py:335 funnel/models/project.py:381
-#: funnel/templates/macros.html.jinja2:533
+#: funnel/templates/macros.html.jinja2:380
 msgid "Upcoming"
 msgstr ""
 
@@ -1781,7 +1781,7 @@ msgstr ""
 msgid "Send Back to Submitted"
 msgstr ""
 
-#: funnel/models/proposal.py:384 funnel/templates/macros.html.jinja2:171
+#: funnel/models/proposal.py:384 funnel/templates/macros.html.jinja2:159
 #: funnel/views/commentvote.py:463 funnel/views/login_session.py:426
 msgid "Confirm"
 msgstr ""
@@ -1898,89 +1898,80 @@ msgstr ""
 msgid "Invited"
 msgstr ""
 
-#: funnel/static/js/ractive.packed.js:11
-msgid "${}"
-msgstr ""
-
-#: funnel/static/js/ractive.packed.js:12
-msgid "."
-msgstr ""
-
-#: funnel/static/js/ractive.packed.js:13
-msgid "@"
-msgstr ""
-
-#: funnel/static/js/schedules.js:132
+#: funnel/static/js/schedules.js:132 funnel/static/js/schedules.packed.js:1
 msgid "The room sequence and colours have been updated."
 msgstr ""
 
 #: funnel/static/js/schedules.js:138 funnel/static/js/schedules.js:228
 #: funnel/static/js/schedules.js:269 funnel/static/js/schedules.js:488
+#: funnel/static/js/schedules.packed.js:1
 msgid "The server could not be reached. Check connection and try again"
 msgstr ""
 
-#: funnel/static/js/schedules.js:248 funnel/templates/proposal.html.jinja2:49
-#: funnel/views/session.py:70 funnel/views/session.py:113
+#: funnel/static/js/schedules.js:248 funnel/static/js/schedules.packed.js:1
+#: funnel/templates/proposal.html.jinja2:49 funnel/views/session.py:70
+#: funnel/views/session.py:113
 msgid "Edit session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:249
+#: funnel/static/js/schedules.js:249 funnel/static/js/schedules.packed.js:1
 msgid "Schedule session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:432
+#: funnel/static/js/schedules.js:432 funnel/static/js/schedules.packed.js:1
 msgid "Add new session"
 msgstr ""
 
-#: funnel/static/js/schedules.js:469
+#: funnel/static/js/schedules.js:469 funnel/static/js/schedules.packed.js:1
 #, python-format
 msgid "Remove %s from the schedule?"
 msgstr ""
 
 #: funnel/static/js/schedules.js:526 funnel/static/js/schedules.js:700
-#: funnel/static/js/schedules.js:720 funnel/templates/labels.html.jinja2:49
+#: funnel/static/js/schedules.js:720 funnel/static/js/schedules.packed.js:1
+#: funnel/templates/labels.html.jinja2:49
 #: funnel/templates/schedule_edit.html.jinja2:87
 #: funnel/views/organization.py:196 funnel/views/update.py:153
 #: funnel/views/venue.py:129 funnel/views/venue.py:200
 msgid "Save"
 msgstr ""
 
-#: funnel/static/js/schedules.js:567
+#: funnel/static/js/schedules.js:567 funnel/static/js/schedules.packed.js:1
 msgid "5 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:569
+#: funnel/static/js/schedules.js:569 funnel/static/js/schedules.packed.js:1
 msgid "15 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:571
+#: funnel/static/js/schedules.js:571 funnel/static/js/schedules.packed.js:1
 msgid "30 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:573
+#: funnel/static/js/schedules.js:573 funnel/static/js/schedules.packed.js:1
 msgid "60 mins"
 msgstr ""
 
-#: funnel/static/js/schedules.js:599
+#: funnel/static/js/schedules.js:599 funnel/static/js/schedules.packed.js:1
 msgid "Autosave"
 msgstr ""
 
-#: funnel/static/js/schedules.js:704
+#: funnel/static/js/schedules.js:704 funnel/static/js/schedules.packed.js:1
 msgid "Saving…"
 msgstr ""
 
-#: funnel/static/js/schedules.js:716
+#: funnel/static/js/schedules.js:716 funnel/static/js/schedules.packed.js:1
 msgid "Saved"
 msgstr ""
 
-#: funnel/static/js/schedules.js:723
+#: funnel/static/js/schedules.js:723 funnel/static/js/schedules.packed.js:1
 #, python-format
 msgid ""
 "The server could not be reached. There are %d unsaved sessions. Check "
 "connection and try again"
 msgstr ""
 
-#: funnel/static/js/schedules.js:730
+#: funnel/static/js/schedules.js:730 funnel/static/js/schedules.packed.js:1
 msgid ""
 "The server could not be reached. There is 1 unsaved session. Check "
 "connection and try again"
@@ -2049,7 +2040,7 @@ msgid ""
 msgstr ""
 
 #: funnel/templates/about.html.jinja2:2 funnel/templates/about.html.jinja2:13
-#: funnel/templates/macros.html.jinja2:744
+#: funnel/templates/macros.html.jinja2:591
 msgid "About Hasgeek"
 msgstr ""
 
@@ -2246,12 +2237,12 @@ msgstr ""
 #: funnel/templates/img_upload_formlayout.html.jinja2:6
 #: funnel/templates/labels_form.html.jinja2:18
 #: funnel/templates/layout.html.jinja2:124
-#: funnel/templates/macros.html.jinja2:163
-#: funnel/templates/macros.html.jinja2:184
-#: funnel/templates/macros.html.jinja2:602
-#: funnel/templates/macros.html.jinja2:654
-#: funnel/templates/project.html.jinja2:70
+#: funnel/templates/macros.html.jinja2:151
+#: funnel/templates/macros.html.jinja2:172
+#: funnel/templates/macros.html.jinja2:449
+#: funnel/templates/macros.html.jinja2:501
 #: funnel/templates/project_cfp.html.jinja2:8
+#: funnel/templates/project_layout.html.jinja2:46
 #: funnel/templates/proposal_admin_panel.html.jinja2:5
 #: funnel/templates/schedule_edit.html.jinja2:95
 #: funnel/templates/schedule_subscribe.html.jinja2:4
@@ -2309,7 +2300,7 @@ msgid "Client application information"
 msgstr ""
 
 #: funnel/templates/auth_client.html.jinja2:11
-#: funnel/templates/project_settings.html.jinja2:7
+#: funnel/templates/project_settings.html.jinja2:8
 #: funnel/templates/proposal_admin_panel.html.jinja2:6
 msgid "Admin panel"
 msgstr ""
@@ -2495,13 +2486,13 @@ msgid "Dropdown menu"
 msgstr ""
 
 #: funnel/templates/contacts.html.jinja2:40
-#: funnel/templates/project_settings.html.jinja2:101
+#: funnel/templates/project_settings.html.jinja2:102
 msgid "Download CSV"
 msgstr ""
 
 #: funnel/templates/contacts.html.jinja2:41
 #: funnel/templates/contacts.html.jinja2:61
-#: funnel/templates/project_settings.html.jinja2:101
+#: funnel/templates/project_settings.html.jinja2:102
 msgid "CSV"
 msgstr ""
 
@@ -2607,7 +2598,7 @@ msgid "Spotlight:"
 msgstr ""
 
 #: funnel/templates/labels.html.jinja2:10
-#: funnel/templates/project_settings.html.jinja2:79
+#: funnel/templates/project_settings.html.jinja2:80
 msgid "Manage labels"
 msgstr ""
 
@@ -2647,15 +2638,15 @@ msgstr ""
 
 #: funnel/templates/layout.html.jinja2:80
 #: funnel/templates/layout.html.jinja2:83
-#: funnel/templates/macros.html.jinja2:321
 #: funnel/templates/notification_feed.html.jinja2:5
+#: funnel/templates/project_layout.html.jinja2:220
 #: funnel/templates/project_updates.html.jinja2:4
 msgid "Updates"
 msgstr ""
 
 #: funnel/templates/layout.html.jinja2:81
 #: funnel/templates/layout.html.jinja2:84
-#: funnel/templates/macros.html.jinja2:380
+#: funnel/templates/macros.html.jinja2:224
 msgid "Account"
 msgstr ""
 
@@ -2711,353 +2702,288 @@ msgstr ""
 msgid "Featured projects appear under Spotlight on the home page"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:124
-msgid "Update livestream URLs"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:130
-msgid "Update banner image"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:139
+#: funnel/templates/macros.html.jinja2:127
 msgid "Tickets available"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:142
+#: funnel/templates/macros.html.jinja2:130
 msgid "Sales closed"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:144
+#: funnel/templates/macros.html.jinja2:132
 msgid "Get tickets"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:147
-#: funnel/templates/macros.html.jinja2:153
+#: funnel/templates/macros.html.jinja2:135
+#: funnel/templates/macros.html.jinja2:141
 msgid "Free"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:160
+#: funnel/templates/macros.html.jinja2:148
 msgid "Register"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:167
+#: funnel/templates/macros.html.jinja2:155
 msgid ""
 "This will share your name and email address with the project’s crew so "
 "they can keep you updated. You can cancel your registration at any time."
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:181
+#: funnel/templates/macros.html.jinja2:169
 msgid "Cancel registration"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:188
+#: funnel/templates/macros.html.jinja2:176
 msgid "Can’t make it?"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:192
+#: funnel/templates/macros.html.jinja2:180
 msgid "Confirm cancellation"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:199
+#: funnel/templates/macros.html.jinja2:187
 #: funnel/templates/project_rsvp_list.html.jinja2:3
-#: funnel/templates/project_settings.html.jinja2:93
+#: funnel/templates/project_settings.html.jinja2:94
 msgid "View participants"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:226
-msgid "Add schedule to enable registrations"
+#: funnel/templates/macros.html.jinja2:203
+#: funnel/templates/project_layout.html.jinja2:101
+#: funnel/templates/project_layout.html.jinja2:116
+msgid "Preview video"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:209
+msgid "Edit submission video"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:211
+#: funnel/templates/proposal.html.jinja2:50
+msgid "Edit session video"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:225
+msgid "Notifications"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:226
-msgid "Add schedule"
+msgid "My saves"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:231
-#: funnel/templates/macros.html.jinja2:245
-#: funnel/templates/macros.html.jinja2:736
-#: funnel/templates/project_submissions.html.jinja2:24
-#: funnel/templates/project_submissions.html.jinja2:28
-#: funnel/views/proposal.py:158
-msgid "Make a submission"
+#: funnel/templates/macros.html.jinja2:227
+#: funnel/templates/scan_contact.html.jinja2:4
+msgid "Scan badge"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:232
-#: funnel/templates/macros.html.jinja2:420
-#: funnel/templates/project_submissions.html.jinja2:25
+#: funnel/templates/macros.html.jinja2:228
+msgid "Contacts"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:267
+#: funnel/templates/project_layout.html.jinja2:162
+#: funnel/templates/project_layout.html.jinja2:279
+#: funnel/templates/project_submissions.html.jinja2:32
 #, python-format
 msgid "Submissions close %(date)s"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:239
-#: funnel/templates/project_submissions.html.jinja2:15
-msgid "Open submissions"
+#: funnel/templates/macros.html.jinja2:284
+msgid "Live schedule"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:240
-msgid "Add submission guidelines"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:246
-#: funnel/templates/project_submissions.html.jinja2:29
-msgid "Submissions are closed for this project"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:250
-#: funnel/templates/project.html.jinja2:167
-#: funnel/templates/venues.html.jinja2:35 funnel/views/venue.py:52
-msgid "Add venue"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:261
-#: funnel/templates/macros.html.jinja2:439
-#: funnel/templates/macros.html.jinja2:464
+#: funnel/templates/macros.html.jinja2:286
+#: funnel/templates/macros.html.jinja2:311
+#: funnel/templates/project_layout.html.jinja2:91
 msgid "Livestream"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:271
-#: funnel/templates/macros.html.jinja2:286
-#: funnel/templates/macros.html.jinja2:359
-msgid "Preview video"
+#: funnel/templates/macros.html.jinja2:288
+msgid "Livestream and schedule"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:319
-msgid "About"
+#: funnel/templates/macros.html.jinja2:308
+#, python-format
+msgid "Session starts at %(session)s"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:320
-msgid "Jobs"
+#: funnel/templates/macros.html.jinja2:311
+msgid "Watch livestream"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:322
-#: funnel/templates/project_comments.html.jinja2:4
-#: funnel/templates/proposal.html.jinja2:203 funnel/views/search.py:270
-#: funnel/views/siteadmin.py:241
-msgid "Comments"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:323
-#: funnel/templates/macros.html.jinja2:714
-#: funnel/templates/project.html.jinja2:100
-#: funnel/templates/project_submissions.html.jinja2:3
-#: funnel/templates/user_profile_proposals.html.jinja2:10
-msgid "Submissions"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:324
-#: funnel/templates/macros.html.jinja2:465
+#: funnel/templates/macros.html.jinja2:312
+#: funnel/templates/project_layout.html.jinja2:223
 #: funnel/templates/project_schedule.html.jinja2:4
 #: funnel/templates/project_schedule.html.jinja2:59
 #: funnel/templates/schedule_edit.html.jinja2:4
 msgid "Schedule"
 msgstr ""
 
-#: funnel/templates/js/update.js.jinja2:65
-#: funnel/templates/macros.html.jinja2:333
-msgid "This update is for participants only"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:342
-#: funnel/templates/macros.html.jinja2:346
-#: funnel/templates/project.html.jinja2:54
-#: funnel/templates/project_layout.html.jinja2:21
-#: funnel/templates/proposal.html.jinja2:72
-msgid "Back to the project"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:342
-#: funnel/templates/macros.html.jinja2:730
-#: funnel/templates/project_admin.html.jinja2:39
-msgid "Tickets"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:347
-msgid "Loading..."
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:365
-msgid "Edit submission video"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:367
-#: funnel/templates/proposal.html.jinja2:50
-msgid "Edit session video"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:381
-msgid "Notifications"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:382
-msgid "My saves"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:383
-#: funnel/templates/scan_contact.html.jinja2:4
-msgid "Scan badge"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:384
-msgid "Contacts"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:437
-msgid "Live schedule"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:441
-msgid "Livestream and schedule"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:461
-#, python-format
-msgid "Session starts at %(session)s"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:464
-msgid "Watch livestream"
-msgstr ""
-
-#: funnel/templates/macros.html.jinja2:481
+#: funnel/templates/macros.html.jinja2:328
 msgid "Spotlight"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:553
+#: funnel/templates/macros.html.jinja2:400
 msgid "Accepting submissions"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:565
+#: funnel/templates/macros.html.jinja2:412
 #: funnel/templates/profile.html.jinja2:96
 msgid "Show more"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:579
+#: funnel/templates/macros.html.jinja2:426
 msgid "All projects"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:596
+#: funnel/templates/macros.html.jinja2:443
 msgid "Manage admins"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:596
+#: funnel/templates/macros.html.jinja2:443
 msgid "View admins"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:597
+#: funnel/templates/macros.html.jinja2:444
 msgid "Edit this profile"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:597
+#: funnel/templates/macros.html.jinja2:444
 msgid "Make profile private"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:603
+#: funnel/templates/macros.html.jinja2:450
 msgid "Make this profile private?"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:607
+#: funnel/templates/macros.html.jinja2:454
 msgid "Your profile will not be visible to anyone other than you"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:608
+#: funnel/templates/macros.html.jinja2:455
 msgid "It will not be listed in search results"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:609
+#: funnel/templates/macros.html.jinja2:456
 msgid "You cannot host projects from this profile"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:610
+#: funnel/templates/macros.html.jinja2:457
 msgid ""
 "Any existing projects will become inaccessible until the profile is "
 "public again"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:633
+#: funnel/templates/macros.html.jinja2:480
 msgid "Add cover photo url"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:633
+#: funnel/templates/macros.html.jinja2:480
 msgid "Add cover photo"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:649
-#: funnel/templates/macros.html.jinja2:695
+#: funnel/templates/macros.html.jinja2:496
+#: funnel/templates/macros.html.jinja2:542
 #: funnel/templates/profile.html.jinja2:83
 msgid "New project"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:651
-#: funnel/templates/macros.html.jinja2:697
+#: funnel/templates/macros.html.jinja2:498
+#: funnel/templates/macros.html.jinja2:544
 msgid "Make profile public"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:655
+#: funnel/templates/macros.html.jinja2:502
 msgid "Make this profile public?"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:659
+#: funnel/templates/macros.html.jinja2:506
 msgid "Your profile will be visible to anyone visiting the page"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:660
+#: funnel/templates/macros.html.jinja2:507
 msgid "Your profile will be listed in search results"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:687
+#: funnel/templates/macros.html.jinja2:534
 #, python-format
 msgid "Joined %(date)s"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:710
+#: funnel/templates/macros.html.jinja2:557
 #: funnel/templates/organization_membership.html.jinja2:15
 msgid "Admins"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:712
-#: funnel/templates/project.html.jinja2:112 funnel/views/search.py:173
+#: funnel/templates/macros.html.jinja2:559
+#: funnel/templates/project.html.jinja2:85 funnel/views/search.py:173
 msgid "Sessions"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:713
+#: funnel/templates/macros.html.jinja2:560
 #: funnel/templates/user_profile_projects.html.jinja2:10
 #: funnel/views/search.py:76
 msgid "Projects"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:732
+#: funnel/templates/macros.html.jinja2:561
+#: funnel/templates/project.html.jinja2:69
+#: funnel/templates/project_layout.html.jinja2:222
+#: funnel/templates/project_submissions.html.jinja2:3
+#: funnel/templates/user_profile_proposals.html.jinja2:10
+msgid "Submissions"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:577
+#: funnel/templates/project_admin.html.jinja2:39
+#: funnel/templates/project_layout.html.jinja2:195
+msgid "Tickets"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:579
 msgid "Attend"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:745
+#: funnel/templates/macros.html.jinja2:583
+#: funnel/templates/project_layout.html.jinja2:161
+#: funnel/templates/project_layout.html.jinja2:175
+#: funnel/templates/project_layout.html.jinja2:278
+#: funnel/templates/project_layout.html.jinja2:292
+#: funnel/templates/project_submissions.html.jinja2:31
+#: funnel/templates/project_submissions.html.jinja2:35
+#: funnel/views/proposal.py:158
+msgid "Make a submission"
+msgstr ""
+
+#: funnel/templates/macros.html.jinja2:592
 msgid "Team &amp; careers"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:746
+#: funnel/templates/macros.html.jinja2:593
 msgid "Contact"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:747
+#: funnel/templates/macros.html.jinja2:594
 #: funnel/templates/policy.html.jinja2:14
 msgid "Site policies"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:778
+#: funnel/templates/macros.html.jinja2:625
 msgid "Outstation speaker"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:779
+#: funnel/templates/macros.html.jinja2:626
 msgid "(proposing)"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:791
+#: funnel/templates/macros.html.jinja2:638
 msgid "This proposal has a preview video"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:796
+#: funnel/templates/macros.html.jinja2:643
 msgid "This proposal has slides"
 msgstr ""
 
-#: funnel/templates/macros.html.jinja2:811
+#: funnel/templates/macros.html.jinja2:658
 msgid "(No sessions have been submitted)"
 msgstr ""
 
@@ -3072,7 +2998,7 @@ msgstr ""
 
 #: funnel/templates/meta_refresh.html.jinja2:6
 #: funnel/templates/meta_refresh.html.jinja2:28
-#: funnel/templates/project.html.jinja2:163
+#: funnel/templates/project.html.jinja2:154
 #: funnel/templates/redirect.html.jinja2:1
 msgid "Loading…"
 msgstr ""
@@ -3206,32 +3132,27 @@ msgstr ""
 msgid "Unscheduled projects"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:66 funnel/views/session.py:212
-msgid "This project will not be listed as it has no sessions in the schedule"
+#: funnel/templates/project.html.jinja2:54
+#: funnel/templates/project_layout.html.jinja2:21
+#: funnel/templates/project_layout.html.jinja2:195
+#: funnel/templates/project_layout.html.jinja2:199
+#: funnel/templates/proposal.html.jinja2:72
+msgid "Back to the project"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:71
-msgid "This project is not published. Visit settings to publish"
-msgstr ""
-
-#: funnel/templates/project.html.jinja2:77
-msgid "Related events"
-msgstr ""
-
-#: funnel/templates/project.html.jinja2:107
+#: funnel/templates/project.html.jinja2:70
+#: funnel/templates/project.html.jinja2:86
+#: funnel/templates/project.html.jinja2:124
 msgid "See all"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:133
-msgid "View Schedule"
-msgstr ""
-
-#: funnel/templates/project.html.jinja2:138
+#: funnel/templates/project.html.jinja2:123
+#: funnel/templates/project_layout.html.jinja2:225
 #: funnel/templates/project_videos.html.jinja2:3
 msgid "Videos"
 msgstr ""
 
-#: funnel/templates/project.html.jinja2:150
+#: funnel/templates/project.html.jinja2:139
 msgid "Related jobs"
 msgstr ""
 
@@ -3278,7 +3199,7 @@ msgid "Sync tickets"
 msgstr ""
 
 #: funnel/templates/project_cfp.html.jinja2:4
-#: funnel/templates/project_settings.html.jinja2:66
+#: funnel/templates/project_settings.html.jinja2:67
 msgid "Add submission guidelines and timing"
 msgstr ""
 
@@ -3290,12 +3211,84 @@ msgstr ""
 msgid "Open later"
 msgstr ""
 
-#: funnel/templates/project_layout.html.jinja2:43
+#: funnel/templates/project_comments.html.jinja2:4
+#: funnel/templates/project_layout.html.jinja2:221
+#: funnel/templates/proposal.html.jinja2:203 funnel/views/search.py:270
+#: funnel/views/siteadmin.py:241
+msgid "Comments"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:28
+msgid "Update livestream URLs"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:34
+msgid "Update banner image"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:42 funnel/views/session.py:212
+msgid "This project will not be listed as it has no sessions in the schedule"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:47
+msgid "This project is not published. Visit settings to publish"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:57
+msgid "Related events"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:156
+#: funnel/templates/project_layout.html.jinja2:273
+msgid "Add schedule"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:169
+#: funnel/templates/project_layout.html.jinja2:286
+#: funnel/templates/project_submissions.html.jinja2:16
+msgid "Open submissions"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:170
+#: funnel/templates/project_layout.html.jinja2:287
+msgid "Add submission guidelines"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:176
+#: funnel/templates/project_layout.html.jinja2:293
+#: funnel/templates/project_submissions.html.jinja2:36
+msgid "Submissions are closed for this project"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:180
+#: funnel/templates/project_layout.html.jinja2:297
+#: funnel/templates/venues.html.jinja2:35 funnel/views/venue.py:52
+msgid "Add venue"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:200
+msgid "Loading..."
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:218
+msgid "Project overview"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:219
+msgid "Jobs"
+msgstr ""
+
+#: funnel/templates/js/update.js.jinja2:65
+#: funnel/templates/project_layout.html.jinja2:242
+msgid "This update is for participants only"
+msgstr ""
+
+#: funnel/templates/project_layout.html.jinja2:302
 msgid "This project is brought to you by"
 msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:58
-#: funnel/templates/project_layout.html.jinja2:54
+#: funnel/templates/project_layout.html.jinja2:313
 msgid "Read more"
 msgstr ""
 
@@ -3308,100 +3301,104 @@ msgstr ""
 msgid "%(title)s by %(speaker)s, %(project)s"
 msgstr ""
 
-#: funnel/templates/project_schedule.html.jinja2:64
-#: funnel/templates/project_settings.html.jinja2:74
+#: funnel/templates/project_schedule.html.jinja2:65
+#: funnel/templates/project_settings.html.jinja2:75
 msgid "Edit schedule"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:10
+#: funnel/templates/project_settings.html.jinja2:11
 #, python-format
 msgid "Status: %(status)s"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:21
+#: funnel/templates/project_settings.html.jinja2:22
 #, python-format
 msgid "Submission status: %(status)s"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:47
+#: funnel/templates/project_settings.html.jinja2:48
 msgid "Edit project details"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:52
+#: funnel/templates/project_settings.html.jinja2:53
 msgid "Update project URL"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:57 funnel/views/project.py:387
+#: funnel/templates/project_settings.html.jinja2:58 funnel/views/project.py:387
 msgid "Add or edit livestream URLs"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:62
+#: funnel/templates/project_settings.html.jinja2:63
 #: funnel/templates/venues.html.jinja2:15
 msgid "Manage venues"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:70
+#: funnel/templates/project_settings.html.jinja2:71
 msgid "Modify submission guidelines and timing"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:84
+#: funnel/templates/project_settings.html.jinja2:85
 msgid "Setup ticketed events for check-in"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:89
+#: funnel/templates/project_settings.html.jinja2:90
 msgid "Scan badges to check-in"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:99
+#: funnel/templates/project_settings.html.jinja2:100
 msgid "Downloads"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:102
+#: funnel/templates/project_settings.html.jinja2:103
 msgid "Download JSON"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:102
+#: funnel/templates/project_settings.html.jinja2:103
 msgid "JSON"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:103
+#: funnel/templates/project_settings.html.jinja2:104
 msgid "View schedule JSON"
 msgstr ""
 
-#: funnel/templates/project_settings.html.jinja2:103
+#: funnel/templates/project_settings.html.jinja2:104
 msgid "Schedule JSON"
 msgstr ""
 
-#: funnel/templates/project_submissions.html.jinja2:9
+#: funnel/templates/project_submissions.html.jinja2:10
 msgid "Submission guidelines"
 msgstr ""
 
-#: funnel/templates/project_submissions.html.jinja2:16
+#: funnel/templates/project_submissions.html.jinja2:17
 msgid "Modify guidelines and timing"
 msgstr ""
 
-#: funnel/templates/project_submissions.html.jinja2:16
+#: funnel/templates/project_submissions.html.jinja2:17
 msgid "Modify guidelines"
 msgstr ""
 
-#: funnel/templates/project_submissions.html.jinja2:21
+#: funnel/templates/project_submissions.html.jinja2:27
 msgid "Add guidelines and timing"
 msgstr ""
 
-#: funnel/templates/project_submissions.html.jinja2:37
+#: funnel/templates/project_submissions.html.jinja2:45
 msgid "All submissions"
 msgstr ""
 
-#: funnel/templates/project_updates.html.jinja2:10
+#: funnel/templates/project_updates.html.jinja2:11
 msgid "Add new update"
 msgstr ""
 
-#: funnel/templates/project_updates.html.jinja2:14
+#: funnel/templates/project_updates.html.jinja2:15
 msgid "Post an update…"
 msgstr ""
 
-#: funnel/templates/project_updates.html.jinja2:20
+#: funnel/templates/project_updates.html.jinja2:21
 msgid "This project has not posted any updates yet."
+msgstr ""
+
+#: funnel/templates/project_videos.html.jinja2:14
+msgid "This project has not posted any videos yet."
 msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:23
