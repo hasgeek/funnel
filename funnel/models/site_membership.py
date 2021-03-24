@@ -77,7 +77,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     # Singular, as only one can be active
     active_site_membership = db.relationship(
         SiteMembership,

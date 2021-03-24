@@ -155,7 +155,7 @@ with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_pa
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     @property
     def rooms(self):
         return [room for venue in self.venues for room in venue.rooms]

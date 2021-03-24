@@ -317,7 +317,7 @@ auto_init_default(Update._state)
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     updates: BaseQuery
 
     @with_roles(read={'all'})  # type: ignore[misc]
