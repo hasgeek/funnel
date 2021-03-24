@@ -26,7 +26,13 @@ double_quote_re = re.compile(r'["“”]')
 
 @Project.forms('main')
 class ProjectForm(forms.Form):
-    __expects__ = ['profile']
+    """
+    Form to create or edit a project.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
 
     title = forms.StringField(
         __("Title"),
@@ -148,7 +154,13 @@ class ProjectNameForm(forms.Form):
 
 
 class ProjectBannerForm(forms.Form):
-    __expects__ = ['profile']
+    """
+    Form for project banner.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
 
     bg_image = forms.ImgeeField(
         __("Banner image"),

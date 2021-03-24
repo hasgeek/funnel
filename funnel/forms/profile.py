@@ -15,9 +15,13 @@ __all__ = [
 
 @Profile.forms('main')
 class ProfileForm(OrganizationForm):
-    """Edit a profile."""
+    """
+    Edit a profile.
 
-    __expects__ = ['profile']
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
 
     description = forms.MarkdownField(
         __("Welcome message"),
@@ -79,7 +83,13 @@ class ProfileTransitionForm(forms.Form):
 
 @Profile.forms('logo')
 class ProfileLogoForm(forms.Form):
-    __expects__ = ['profile']
+    """
+    Form for profile logo.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
 
     logo_url = forms.ImgeeField(
         __("Profile image"),
@@ -97,7 +107,13 @@ class ProfileLogoForm(forms.Form):
 
 @Profile.forms('banner_image')
 class ProfileBannerForm(forms.Form):
-    __expects__ = ['profile']
+    """
+    Form for profile banner.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
 
     banner_image_url = forms.ImgeeField(
         __("Banner image"),
