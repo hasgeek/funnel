@@ -205,9 +205,9 @@ def upgrade():
     progress.start()
 
     proposals = conn.execute(
-        sa.select([proposal.c.id, proposal.c.commentset_id]).order_by(
-            proposal.c.id.desc()
-        )
+        sa.select(
+            [proposal.c.id, proposal.c.user_id, proposal.c.commentset_id]
+        ).order_by(proposal.c.id.desc())
     )
     for counter, proposal_item in enumerate(proposals):
         existing_counter = conn.scalar(
