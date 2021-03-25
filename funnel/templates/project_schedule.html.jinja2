@@ -70,7 +70,7 @@
 {% block baseheadline_title %}{% trans %}Schedule{% endtrans %}{% endblock %}
 
 {% block base_content_inner %}
-  <div class="page-card">
+  <div class="page-card page-card--nomargin">
     <div class="project-section" id="schedule">
       {% if project.view_for('edit_schedule').is_available() %}
         <div><p class="mui--text-right"><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.urls['edit_schedule'] }}">{% trans %}Edit schedule{% endtrans %}</a></p></div>

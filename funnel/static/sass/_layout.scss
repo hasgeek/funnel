@@ -116,16 +116,12 @@
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 
-.page-content {
-  padding-top: 16px;
-}
-
 .page-content--mob-nav {
-  padding-top: 70px;
+  padding-top: 53px;
 }
 
 @media (min-width: 768px) {
-  .page-content--mob-nav {
+  .page-content {
     padding-top: 16px;
   }
 }
@@ -1049,7 +1045,7 @@ a.loginbutton.hidden,
 
 .page-card {
   padding: 0;
-  margin: $mui-grid-padding 0;
+  margin: $mui-grid-padding 0 0;
   margin-right: -$mui-grid-padding;
   margin-left: -$mui-grid-padding;
   position: relative;
@@ -1059,11 +1055,19 @@ a.loginbutton.hidden,
   .page-card__card {
     margin-bottom: 0;
     box-shadow: none;
+    border: 0;
     border-bottom: 1px solid $mui-divider-color;
+    border-radius: 0;
+    background: $mui-bg-color-primary;
+    padding: 0;
   }
   li:last-child .page-card__card {
     border-bottom: none;
   }
+}
+
+.page-card--nomargin {
+  margin-top: 0;
 }
 
 @media (min-width: 768px) {

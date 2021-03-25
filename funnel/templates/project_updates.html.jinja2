@@ -6,7 +6,7 @@
 
 
 {% block base_content_inner %}
-  <div class="page-card">
+  <div class="page-card page-card--nomargin">
     <div class="project-section" id="updates">
       {% if project.features.post_update() -%}
         <a class="update-form-block" href="{{ project.url_for('new_update') }}" aria-label="{% trans %}Add new update{% endtrans %}" data-cy-btn="add-update">

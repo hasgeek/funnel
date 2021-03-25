@@ -22,7 +22,7 @@
 {% endblock %}
 
 {% block baseheadline %}
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
       <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block baseheadline_title %}{{ self.title() }}{% endblock %}</span>
     </div>
@@ -41,6 +41,19 @@
   {% endif %}
 {% endmacro %}
 
+{% macro pinned_update(project) %}
+  {% with pinned_update = project.pinned_update %}{%- if pinned_update %}
+    <ul class="mui-list--unstyled page-card pinned {% if current_page != 'project' %}pinned--inner{%- endif %}">
+      <li>
+        <p class="top-padding left-padding right-padding zero-bottom-margin">{{ faicon(icon='thumbtack', baseline=false, css_class='mui--text-light mui--align-middle fa-icon--margin') }}<span class="pinned__heading mui--text-subhead mui--text-light">{% trans %}Pinned update{% endtrans %}</span></p>
+        <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
+          <p class="pinned__update__heading mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}{{ pinned_update.body.html|preview }}{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
+        </a>
+      </li>
+    </ul>
+  {%- endif %}{%- endwith %}
+{% endmacro %}
+
 {% macro project_about(project) %}
   <div class="page-card">
     <div class="project-section">
@@ -54,18 +67,23 @@
         </div>
       {% endif %}
       <div class="about" id="about">
-        <div class="about__details">{{ project.description.html }}</div>
+        {% if project.description.html|length > 300 %}
+          <div class="js-htmltruncate-expand text-expand">{{ project.description.html|preview(300) }}<span class="mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
+          <div class="js-htmltruncate-full mui--hide">{{ project.description.html }}</div>
+        {%- else %}
+          <div>{{ project.description.html }}</div>
+        {% endif %}
         {%- if project.subprojects %}
           <hr class="mui-divider">
-          <h2 class="mui--text-headline mui--text-left mui--text-bold">{% trans %}Related events{% endtrans %}</h2>
+          <h3 class="mui--text-left">{% trans %}Related events{% endtrans %}</h3>
           <ul class="grid grid-no-left-padding grid-no-right-padding">
             {% for subproject in project.subprojects %}
               <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6">
                 <a href="{{ subproject.url_for() }}" class="clickable-card card" aria-label="{{ subproject.title }}" data-ga="View subproject">
                   <div class="card__header">
                     <div class="card__header__title">
-                      <h3 class="mui--text-title card__title__heading">{{ subproject.title }}</h3>
-                      <h4 class="mui--text-subhead card__title__heading">{{ subproject.datelocation }}</h4>
+                      <h4 class="card__title__heading">{{ subproject.title }}</h4>
+                      <p class="card__title__heading">{{ subproject.datelocation }}</p>
                     </div>
                   </div>
                   {% if subproject.tagline %}
@@ -86,7 +104,7 @@
 {% block basecontent %}
   <div class="mui--bg-primary project-header-wrapper">
     <div class="mui-container">
-      <div class="grid page-content {% if current_page == 'project' %}page-content--mob-nav{%- endif %}">
+      <div class="grid page-content">
         <div class="grid__col-sm-12">
           <div class="project-banner {% if current_page != 'project' %}project-banner--inner{%- endif %}">
             {% if project.livestream_urls %}
@@ -144,9 +162,9 @@
                   {% endif %}
                   <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                 </div>
-                <h1 class="mui--text-headline mui--text-bold zero-top-margin zero-bottom-margin">{{ project.title }}
+                <h1 class="mui--text-bold zero-top-margin zero-bottom-margin">{{ project.title }}
                 </h1>
-                <p class="mui--text-subhead mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
+                <p class="mui--text-heading mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
               </div>
             </div>
             <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header">
@@ -210,7 +228,7 @@
   {% if not project.schedule_state.PAST and project.features.tickets() -%}
     <div class="tickets-wrapper">
       <div class="tickets-wrapper__modal">
-        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl tickets-wrapper__modal__back">
+        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl tickets-wrapper__modal__back mobile-nav-wrapper">
           <div class="mobile-nav mui--z1">
             <a href="javascript:void(0)" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" id="close-ticket-widget" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Tickets{% endtrans %}</span>
           </div>
@@ -227,6 +245,7 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-sm-12 mui--hidden-md mui--hidden-lg mui--hidden-xl">
+          {{ pinned_update(project) }}
           {{ project_about(project) }}
         </div>
       </div>
@@ -264,18 +283,9 @@
   <div class="mui-container">
     <div class="grid">
       <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8">
-        {% with pinned_update = project.pinned_update %}{%- if pinned_update %}
-          <ul class="mui-list--unstyled page-card pinned {% if current_page != 'project' %}pinned--inner{%- endif %}">
-            <li>
-              <p class="top-padding left-padding right-padding zero-bottom-margin">{{ faicon(icon='thumbtack', baseline=false, css_class='mui--text-light mui--align-middle fa-icon--margin') }}<span class="pinned__heading mui--text-subhead mui--text-light">{% trans %}Pinned update{% endtrans %}</span></p>
-              <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
-                <p class="pinned__update__heading mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span><span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}<span class="js-truncate" data-truncate-lines="1">{{ pinned_update.body.html|firstline }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
-              </a>
-            </li>
-          </ul>
-        {%- endif %}{%- endwith %}
         {% if current_page == 'project' %}
           <div class="mui--hidden-xs mui--hidden-sm">
+            {{ pinned_update(project) }}
             {{ project_about(project) }}
           </div>
         {%- endif %}
@@ -338,7 +348,7 @@
                 </div>
               </div>
             </div>
-            <p class="mui--text-caption mui--text-light">{% trans %}This project is brought to you by{% endtrans %}</p>
+            <p class="mui--text-caption mui--text-light">{% trans %}Hosted by{% endtrans %}</p>
             <div class="card card--shaped">
               <div class="card__body project-banner">
                 <div class="project-details__box">
@@ -350,7 +360,7 @@
                     {% endif %}
                     <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                   </div>
-                  <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|firstline|truncate(150) }} <a href="{{ project.profile.url_for() }}" class="mui--text-body2">{% trans %}Read more{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', css_class='fa-icon--left-margin') }}</a></div>
+                  <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(200) }}{% if project.profile.description.html|length > 200 %}<a href="{{ project.profile.url_for() }}" class="mui--text-body2 mui--text-hyperlink">{% trans %}more{% endtrans %}</a></div>{% endif %}
                 </div>
               </div>
             </div>

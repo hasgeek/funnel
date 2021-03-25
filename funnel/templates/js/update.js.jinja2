@@ -2,7 +2,7 @@
   {% raw %}
     <div id="updates-wrapper" v-cloak>
       <div v-if="isEditor">
-        <h2 class="mui--text-headline mui--text-left" v-if="draft">{{ gettext('Draft') }}</h2>
+        <h2 class="mui--text-left" v-if="draft">{{ gettext('Draft') }}</h2>
         <ul v-if="draft" class="draft-updates">
           <li v-for="update in draft"><a :href="update.urls.view">{{ update.title }}</a></li>
         </ul>
@@ -13,7 +13,7 @@
     </div>
 
     <script type="text/x-template" id="update-template">
-      <li class="update user" :id="'#update-' + update.uuid_b58">
+      <li class="update user page-card__card" :id="'#update-' + update.uuid_b58">
         <div class="mui--clearfix">
           <div class="update__heading">
             <ul class="bullet-separated-list--flex mui--text-light mui--text-body2 update__date" v-if="update.number">
@@ -35,7 +35,7 @@
             <a href="javascript:void(0)" class="mui--text-light hg-link-btn mui--hide link-icon" :data-title="update.title" :data-url="update.urls.view + '?utm_campaign=webshare'"><faicon :icon="'share-alt'" :icon_size="'caption'" :baseline=true></faicon></a>
             <div class="mui-dropdown mui-dropdown--update" v-if="iseditor">
               <a href="javascript:void(0)" class="mui--text-light link-icon" data-mui-toggle="dropdown"><faicon :icon="'ellipsis-v'" :icon_size="'subhead'"></faicon></a>
-              <ul class="mui-dropdown__menu mui-dropdown__menu--hg-link mui-dropdown__menu--small" data-cy="share-dropdown">
+              <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--hg-link mui-dropdown__menu--small" data-cy="share-dropdown">
                 <li><a class="mui--text-body2" v-if="update.urls.edit" :href="update.urls.edit"><faicon :icon="'edit'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Edit</a></li>
                 <li><a  class="mui--text-body2" v-if="update.urls.delete" :href="update.urls.delete"><faicon :icon="'trash-alt'" :icon_size="'caption'" :baseline=true :css_class="'mui--text-light fa-icon--margin'"></faicon>Delete</a></li>
               </ul>

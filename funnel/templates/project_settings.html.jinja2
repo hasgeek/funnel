@@ -3,9 +3,9 @@
 {% block title %}{% trans %}Settings{% endtrans %}{% endblock %}
 
 {% block base_content_inner %}
-  <div class="page-card">
+  <div class="page-card page-card--nomargin">
     <div class="project-section" id="admin-panel">
-      <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Admin panel{% endtrans %}</h2>
+      <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Admin panel{% endtrans %}</h2>
       <div>
         {%- if project.current_roles.editor %}
           {%- if transition_form %}

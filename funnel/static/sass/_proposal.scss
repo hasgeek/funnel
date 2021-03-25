@@ -135,6 +135,9 @@
   .proposal-card__body {
     .proposal-card__body__inner {
       .proposal-card__body__inner__headline {
+        .proposal-card__body__inner__headline__content {
+          margin-bottom: $mui-grid-padding/2;
+        }
         .proposal-card__body__inner__headline__info__icon {
           position: relative;
           top: 3px;
@@ -155,6 +158,7 @@
         .proposal-card__body__inner__details__video {
           position: relative;
           width: 120px;
+          margin-right: $mui-grid-padding/2;
           .proposal-card__body__inner__details__video__thumbnail {
             position: relative;
             width: 100%;
@@ -177,9 +181,6 @@
             transform: translate(-50%, -50%);
           }
         }
-      }
-      .proposal-card__body__inner__details__txt {
-        margin-left: $mui-grid-padding;
       }
     }
   }
@@ -214,7 +215,7 @@
           .proposal-card__body__inner__details__txt {
             position: absolute;
             left: 0;
-            bottom: $mui-grid-padding;
+            bottom: $mui-grid-padding/2;
           }
         }
       }

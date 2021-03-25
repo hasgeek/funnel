@@ -537,7 +537,7 @@
                   <a href="{{ profile.url_for('update_logo') }}" class="profile__logo__upload mui--text-dark js-modal-form" rel="modal:open" data-hash="edit_logo">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</a>
                 {% endif %}
                 <div class="mui--hidden-xs mui--hidden-sm profile__logo__details">
-                  <h2 class="mui--text-headline mui--text-dark mui--text-bold zero-bottom-margin"><a class="mui--text-dark" data-cy="profile-title" href="{{ profile.url_for() }}">{{ profile.title }}</a></h2>
+                  <h2 class="mui--text-dark mui--text-bold zero-bottom-margin"><a class="mui--text-dark" data-cy="profile-title" href="{{ profile.url_for() }}">{{ profile.title }}</a></h2>
                   <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
                 </div>
               </div>
@@ -579,7 +579,7 @@
       <div class="grid__col-12">
         <div>
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
-          <h2 class="mui--text-headline mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
+          <h2 class="mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
         </div>
         <ul class="bullet-separated-list">
@@ -735,49 +735,51 @@
         {%- endif -%}
         <div class="proposal-card__body__inner {%- if full_width %} proposal-card__body__inner--flex {%- endif -%}">
           <div class="proposal-card__body__inner__headline {% if proposal.video and proposal.video.thumbnail %}proposal-card__body__inner__headline--smaller{% endif %}">
-            <h3 class="mui--text-subhead mui--text-bold zero-top-margin zero-bottom-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
-            <div class="mui--text-light mui--text-body2 zero-bottom-margin">{{ proposal.body.html|truncate(100) }}<span class="mui--text-body2 proposal-card__details__txt__read mui--text-light primary-color-txt">Read more{{ faicon(icon='arrow-right', icon_size='caption', css_class='fa-icon--left-margin') }}</span></div>
+            <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
+            <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(200) }}<span class="mui--text-body2 proposal-card__details__txt__read mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
             {% if details %}
-              <ul class="mui-list--inline mui--text-light mui--text-body2 zero-bottom-margin list-item-rgborder proposal-card__body__inner__headline__info">
-                {%- if project and proposal.project.title != project.title %}
-                  <li>{{ proposal.project.short_title }}</li>
-                {% endif %}
-                {%- if proposal.commentset %}
-                  <li>{{ proposal.commentset.count }} comments</li>
-                {% endif %}
-                <li>
-                  {{ proposal.state.label.title }}
-                </li>
-                <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</li>
-                {% if proposal.video %}
-                  <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
-                    {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
+              <div class="proposal-card__body__inner__headline__info">
+                <ul class="mui-list--inline mui--text-light mui--text-body2 zero-bottom-margin list-item-rgborder">
+                  {%- if project and proposal.project.title != project.title %}
+                    <li>{{ proposal.project.short_title }}</li>
+                  {% endif %}
+                  {%- if proposal.commentset %}
+                    <li>{{ proposal.commentset.count }} comments</li>
+                  {% endif %}
+                  <li>
+                    {{ proposal.state.label.title }}
                   </li>
-                {% endif %}
-                {% if proposal.slides.url %}
-                  <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" aria-label="{% trans %}This proposal has slides{% endtrans %}">
-                    {{ faicon(icon='presentation', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
-                  </li>
-                {% endif %}
-                {%- if project and project.current_roles.editor %}
-                  {%- if proposal.has_outstation_speaker %}
-                    <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}Outstation speaker{% endtrans %}" aria-label="{% trans %}Outstation speaker{% endtrans %}">{{ faicon(icon='plane', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}</li>
+                  <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</li>
+                  {% if proposal.video %}
+                    <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
+                      {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
+                    </li>
+                  {% endif %}
+                  {% if proposal.slides.url %}
+                    <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" aria-label="{% trans %}This proposal has slides{% endtrans %}">
+                      {{ faicon(icon='presentation', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
+                    </li>
+                  {% endif %}
+                  {%- if project and project.current_roles.editor %}
+                    {%- if proposal.has_outstation_speaker %}
+                      <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}Outstation speaker{% endtrans %}" aria-label="{% trans %}Outstation speaker{% endtrans %}">{{ faicon(icon='plane', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}</li>
+                    {%- endif %}
                   {%- endif %}
-                {%- endif %}
-              </ul>
-              <div>
-                {%- for label in proposal.labels %}
-                  {% if not label.restricted %}
-                    <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
-                  {%- endif %}
-                {%- endfor %}
-                {%- if proposal.current_roles.project_editor %}
+                </ul>
+                <div class="margin-top">
                   {%- for label in proposal.labels %}
-                    {%- if label.restricted %}
+                    {% if not label.restricted %}
                       <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
                     {%- endif %}
                   {%- endfor %}
-                {% endif %}
+                  {%- if proposal.current_roles.project_editor %}
+                    {%- for label in proposal.labels %}
+                      {%- if label.restricted %}
+                        <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+                      {%- endif %}
+                    {%- endfor %}
+                  {% endif %}
+                </div>
               </div>
             {%- endif -%}
           </div>

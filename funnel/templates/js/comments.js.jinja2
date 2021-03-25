@@ -41,7 +41,7 @@
   {% raw %}
     <script type="text/x-template" id="comment-template">
       <li class="comment" :class="[formOpened ? 'comment--modal' : '']"  :id="'c-' + comment.uuid_b58">
-        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="formOpened">
+        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper" v-if="formOpened">
           <div class="mobile-nav mui--z1">
             <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-ga="Close comment form" @click="closeAllForms($event)"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ commentFormTitle }}</span>
           </div>

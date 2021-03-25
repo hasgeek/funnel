@@ -84,7 +84,7 @@
       </div>
     </div>
   </div>
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
       <a href="{{ proposal.project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
       <div class="mui--pull-right mobile-nav__icon">
@@ -96,7 +96,7 @@
 
 {% block basecontent %}
   <div class="mui-container">
-    <div class="page-content page-content--mob-nav">
+    <div class="page-content">
       <div class="grid">
         {% if proposal.featured and ('edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor) %}
           <div class="grid__col-sm-12 margin-bottom">
@@ -107,7 +107,7 @@
           {%- if proposal.getnext() -%}
             <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block margin-bottom mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
           {%- endif -%}
-          <div class="page-card">
+          <div class="page-card page-card--nomargin">
             <div class="details">
               {% if proposal.session and proposal.session.video or proposal.video or 'edit_proposal' in proposal.permissions(current_auth.user) %}
                 <div class="details__box mui-tabs__bar">
@@ -189,7 +189,7 @@
                   {{ share_widget() }}
                 </div>
               </div>
-              <h1 class="mui--text-title mui--text-bold zero-bottom-margin" data-cy="proposal-title">{{ proposal.title }}</h1>
+              <h2 class="mui--text-bold zero-bottom-margin" data-cy="proposal-title">{{ proposal.title }}</h2>
               {%- if proposal.speaker %}
                 <div class="user">
                   <div class="user__box">
@@ -243,7 +243,7 @@
 
         <div class="grid__col-sm-5 grid__col-md-4 mui--hidden-xs mui--hidden-sm">
           {%- if proposal.getnext() -%}
-            <h2 class="mui--text-subhead mui--text-bold mui--text-uppercase zero-top-margin">{% trans %}Up next{% endtrans %}</h2>
+            <h4 class="mui--text-subhead mui--text-bold mui--text-uppercase zero-top-margin">{% trans %}Up next{% endtrans %}</h4>
             {{ proposal_card(proposal.getnext(), project=project) }}
           {%- endif -%}
         </div>
