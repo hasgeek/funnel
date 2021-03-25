@@ -5562,9 +5562,6 @@ body > .proposal-box.ui-draggable {
 .update .update__action-btn {
   float: right;
 }
-.update .update__header {
-  margin-bottom: 16px;
-}
 .update .update__date {
   margin-bottom: 10px;
 }
