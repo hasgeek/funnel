@@ -1384,17 +1384,17 @@
       "Team &amp; careers": [null, "टीम &amp; करियर"],
       "Contact": [null, "संपर्क"],
       "Site policies": [null, "साइट नीतियां"],
-      "Outstation speaker": [null, "दूसरे शहर से आने वाले स्पीकर"],
+      "(No sessions have been submitted)": [
+        null,
+        "(सेशन की कोई जानकारी नहीं दी गई है)"
+      ],
       "(proposing)": [null, "(प्रस्तुत कर रहे हैं)"],
       "This proposal has a preview video": [
         null,
         "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
       ],
       "This proposal has slides": [null, "इस प्रस्ताव में स्लाइड मौजूद है"],
-      "(No sessions have been submitted)": [
-        null,
-        "(सेशन की कोई जानकारी नहीं दी गई है)"
-      ],
+      "Outstation speaker": [null, "दूसरे शहर से आने वाले स्पीकर"],
       "Manage membership": [null, "सदस्यता प्रबंधित करें"],
       "You have been invited to %(project)s.": [
         null,
@@ -1520,6 +1520,7 @@
       "Loading...": [null, ""],
       "Project overview": [null, ""],
       "Jobs": [null, "नौकरियां"],
+      "Pinned update": [null, ""],
       "This update is for participants only": [
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
@@ -1558,8 +1559,8 @@
       "Submission guidelines": [null, ""],
       "Modify guidelines and timing": [null, ""],
       "Modify guidelines": [null, ""],
+      "more": [null, ""],
       "Add guidelines and timing": [null, ""],
-      "All submissions": [null, "सारे सबमिशन"],
       "Add new update": [null, "नई जानकारी डालें"],
       "Post an update…": [null, "नई जानकारी पोस्ट करें…"],
       "This project has not posted any updates yet.": [
