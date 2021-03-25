@@ -324,7 +324,7 @@
           border-radius: 2px;
           background: $mui-primary-color-lighter;
           color: $mui-text-dark;
-          left: 44%;
+          left: -42px;
           margin: auto;
           padding: 4px;
           width: 160px;
@@ -333,7 +333,6 @@
           z-index: 3;
           transition: opacity 0.1s;
           -webkit-transition: opacity 0.1s;
-          transform: translate(-50%, 0);
         }
 
         .calendar__weekdays__dates__date--showtime:hover:after,
@@ -351,14 +350,18 @@
         }
 
         .calendar__weekdays__dates__date--1 .calendar__weekdays__dates__time {
-          left: 0;
+          left: 8px;
           transform: translate(0, 0);
+        }
+
+        .calendar__weekdays__dates__date--6 .calendar__weekdays__dates__time {
+          transform: translate(-26px, 0);
         }
 
         .calendar__weekdays__dates__date--7 .calendar__weekdays__dates__time {
           left: unset;
           transform: translate(0, 0);
-          right: 0;
+          right: 8px;
         }
 
         .calendar__weekdays__dates__date--year {

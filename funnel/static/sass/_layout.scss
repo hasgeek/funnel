@@ -117,7 +117,7 @@
 }
 
 .page-content {
-  padding-top: 38px;
+  padding-top: 16px;
 }
 
 .page-content--mob-nav {
@@ -125,9 +125,8 @@
 }
 
 @media (min-width: 768px) {
-  .page-content,
   .page-content--mob-nav {
-    padding-top: 24px;
+    padding-top: 16px;
   }
 }
 
@@ -1051,10 +1050,12 @@ a.loginbutton.hidden,
 .page-card {
   padding: 0;
   margin: $mui-grid-padding 0;
+  margin-right: -$mui-grid-padding;
+  margin-left: -$mui-grid-padding;
   position: relative;
   background: $mui-bg-color-primary;
-  border-radius: 16px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.23);
+  overflow: hidden;
   .page-card__card {
     margin-bottom: 0;
     box-shadow: none;
@@ -1068,6 +1069,7 @@ a.loginbutton.hidden,
 @media (min-width: 768px) {
   .page-card {
     margin: 0 0 $mui-grid-padding;
+    border-radius: 16px;
   }
 }
 

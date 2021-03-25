@@ -9,7 +9,7 @@
      {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
       <div class="about__details" id="call-for-proposal">
         {%- if project.instructions and project.instructions != "None" %}
-          <h2 class="mui--text-display1 project-section__headline mui--text-left mui--text-bold">{% trans %}Submission guidelines{% endtrans %}</h2>
+          <h2 class="mui--text-headline project-section__headline mui--text-left mui--text-bold">{% trans %}Submission guidelines{% endtrans %}</h2>
           <div class="about__details__description">
             {% if project.view_for('cfp').is_available() -%}
               <p>
@@ -23,7 +23,7 @@
               </p>
             {%- endif %}
             {% if project.instructions.html|length > 300 %}
-              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|truncate(300)|striptags }}...</div>
+              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|truncate(300)|striptags }}<span class="mui--text-light">{% trans %}more{% endtrans %}</span></div>
               <div class="js-htmltruncate-full mui--hide">{{ project.instructions.html }}</div>
             {%- else %}
               <div>{{ project.instructions.html }}</div>
@@ -53,7 +53,7 @@
   <div class="page-card">
     {% if project.cfp_state.HAS_PROPOSALS -%}
       <div class="project-section" id="submissions">
-        <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}All submissions{% endtrans %}</h2>
+        <h2 class="mui--text-headline mui--text-left project-section__headline">{% trans %}Submissions{% endtrans %}</h2>
         {%- if project.current_roles.editor %}
           <div>
             <form class="mui-form mui--pull-left search search--50 mui--z1">
@@ -62,10 +62,9 @@
               </div>
             </form>
           </div>
-          <hr class="separator">
         {%- endif %}
-        {{ proposal_list(project.proposals, project) }}
       </div>
+      {{ proposal_list(project.proposals, project) }}
     {%- endif %}
   </div>
 {% endblock %}

@@ -49,7 +49,8 @@
 }
 
 .project-header-wrapper {
-  margin-bottom: $mui-grid-padding;
+  margin: 0 0 $mui-grid-padding;
+  padding: 0 0 $mui-grid-padding;
 }
 
 @media (min-width: 768px) {
@@ -62,7 +63,7 @@
   .project-details-sticky {
     position: -webkit-sticky;
     position: sticky;
-    top: 70px;
+    top: 134px;
   }
 }
 
@@ -330,6 +331,9 @@
 }
 
 .pinned {
+  .pinned__heading {
+    font-weight: 500;
+  }
   .pinned__update {
     text-decoration: none !important;
     display: inline-block;
@@ -337,9 +341,7 @@
     padding: $mui-grid-padding/2 0;
     border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   }
-
   .pinned__update__heading {
-    margin-bottom: 0;
     padding: 0 $mui-grid-padding;
     display: none;
   }
@@ -388,7 +390,8 @@
   .reg-modal__txt {
     margin-bottom: $mui-grid-padding;
     width: calc(100% - 16px);
-    line-height: 1;
+    position: relative;
+    top: -5px;
   }
   .reg-modal__txt,
   .reg-modal__body {
