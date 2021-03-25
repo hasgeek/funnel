@@ -98,7 +98,7 @@ def user_death(db_session):
     user = User(
         username='death',
         fullname="Death",
-        created_at=datetime(1970, 1, 1, tzinfo=utc),
+        created_at=utc.localize(datetime(1970, 1, 1)),
     )
     db_session.add(user)
     return user
@@ -113,7 +113,7 @@ def user_mort(db_session):
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
-    user = User(fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=utc))
+    user = User(fullname="Mort", created_at=utc.localize(datetime(1987, 11, 12)))
     db_session.add(user)
     return user
 
@@ -281,9 +281,7 @@ def org_ankhmorpork(db_session, user_vetinari):
     Havelock Vetinari is the Patrician (aka dictator), and sponsors various projects to
     develop the city.
     """
-    org = OrganizationMembership(
-        name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari
-    )
+    org = Organization(name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari)
     db_session.add(org)
     return org
 
@@ -360,7 +358,7 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2010",
-        subtitle="Welcome to Ankh-Morpork, tourists!",
+        tagline="Welcome to Ankh-Morpork, tourists!",
         description="The city doesn't have tourists. Let's change that.",
     )
     db_session.add(project)
@@ -374,7 +372,7 @@ def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2011",
-        subtitle="Welcome back, our pub's changed",
+        tagline="Welcome back, our pub's changed",
         description="The Broken Drum is gone, but we have The Mended Drum now.",
     )
     db_session.add(project)
@@ -392,7 +390,7 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
         profile=org_uu.profile,
         user=user_ponder_stibbons,
         title="Soul Music",
-        subtitle="Hex makes an initial appearance",
+        tagline="Hex makes an initial appearance",
         description="Hex has its origins in a device that briefly appeared in Soul"
         " Music, created by Ponder Stibbons and some student Wizards in the High Energy"
         " Magic building. In this form it was simply a complex network of glass tubes,"
@@ -415,7 +413,7 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
         profile=org_uu.profile,
         user=user_ponder_stibbons,
         title="Interesting Times",
-        subtitle="Hex invents parts for itself",
+        tagline="Hex invents parts for itself",
         description="Hex has become a lot more complex, and is constantly reinventing"
         " itself, meaning several new components of it are mysteries to those at UU.",
     )
@@ -433,7 +431,13 @@ def client_hex(db_session, org_uu):
 
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
-    client = AuthClient(title="Hex", owner=org_uu)
+    # TODO: AuthClient needs to move to profile as parent
+    client = AuthClient(
+        title="Hex",
+        organization=org_uu,
+        confidential=True,
+        website='https://example.org/',
+    )
     db_session.add(client)
     return client
 
@@ -447,22 +451,18 @@ TEST_DATA = {
         'testuser': {
             'name': "testuser",
             'fullname': "Test User",
-            'email': "testuser@example.com",
         },
         'testuser2': {
             'name': "testuser2",
             'fullname': "Test User 2",
-            'email': "testuser2@example.com",
         },
         'test-org-owner': {
             'name': "test-org-owner",
             'fullname': "Test User 2",
-            'email': "testorgowner@example.com",
         },
         'test-org-admin': {
             'name': "test-org-admin",
             'fullname': "Test User 3",
-            'email': "testorgadmin@example.com",
         },
     }
 }

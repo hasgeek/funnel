@@ -1142,7 +1142,7 @@ class NotificationPreferences(BaseMixin, db.Model):
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     all_notifications = with_roles(
         db.relationship(
             UserNotification,

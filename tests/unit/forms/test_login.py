@@ -9,7 +9,7 @@ from funnel.models import User
 def user(db_session):
     user = User(username='user', fullname="User", password='test_password')
     db_session.add(user)
-    db_session.flush()
+    db_session.commit()
     return user
 
 
@@ -18,7 +18,7 @@ def user_nameless(db_session):
     user = User(fullname="Nameless User", password='test_password_nameless')
     db_session.add(user)
     user.add_email('nameless@example.com')
-    db_session.flush()
+    db_session.commit()
     return user
 
 
@@ -29,7 +29,7 @@ def user_named(db_session):
     )
     db_session.add(user)
     user.add_email('named@example.com')
-    db_session.flush()
+    db_session.commit()
     return user
 
 

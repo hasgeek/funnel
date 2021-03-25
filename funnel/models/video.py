@@ -211,9 +211,9 @@ class VideoMixin:
 
                         data['duration'] = vimeo_video['duration']
                         # Vimeo returns naive datetime, we will add utc timezone to it
-                        data['uploaded_at'] = parse_isoformat(
-                            vimeo_video['upload_date'], delimiter=' '
-                        ).replace(tzinfo=utc)
+                        data['uploaded_at'] = utc.localize(
+                            parse_isoformat(vimeo_video['upload_date'], delimiter=' ')
+                        )
                         data['thumbnail'] = vimeo_video['thumbnail_medium']
                     elif vimeo_resp.status_code == 404:
                         # Video doesn't exist on Vimeo anymore

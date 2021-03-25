@@ -26,6 +26,14 @@ double_quote_re = re.compile(r'["“”]')
 
 @Project.forms('main')
 class ProjectForm(forms.Form):
+    """
+    Form to create or edit a project.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -80,8 +88,7 @@ class ProjectForm(forms.Form):
             )
 
     def set_queries(self):
-        if self.edit_obj is not None:
-            self.bg_image.profile = self.edit_obj.profile.name
+        self.bg_image.profile = self.profile.name
 
 
 @Project.forms('featured')
@@ -147,6 +154,14 @@ class ProjectNameForm(forms.Form):
 
 
 class ProjectBannerForm(forms.Form):
+    """
+    Form for project banner.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
+
     bg_image = forms.ImgeeField(
         __("Banner image"),
         validators=[
@@ -158,8 +173,7 @@ class ProjectBannerForm(forms.Form):
 
     def set_queries(self):
         self.bg_image.widget_type = 'modal'
-        if self.edit_obj:
-            self.bg_image.profile = self.edit_obj.profile.name
+        self.bg_image.profile = self.profile.name
 
 
 @Project.forms('cfp')

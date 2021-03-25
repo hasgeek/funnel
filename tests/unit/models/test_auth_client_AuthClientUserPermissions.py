@@ -16,45 +16,6 @@ class TestUserClientPermissions(TestDatabaseFixture):
         self.db_session.commit()
         assert isinstance(result, models.AuthClientUserPermissions)
 
-    def test_userclientpermissions_migrate_user(self):
-        """Test for migrating users and transfering their client permissions."""
-        # scenario 1: when *only* olduser has UserClientPermissions instance
-        old_crusoe = self.fixtures.crusoe
-        new_crusoe = models.User(username='chef-crusoe')
-        models.AuthClientUserPermissions.migrate_user(old_crusoe, new_crusoe)
-        for each in new_crusoe.client_permissions:
-            assert isinstance(each, models.AuthClientUserPermissions)
-        assert new_crusoe.client_permissions[0].user == new_crusoe
-
-        # scenario 2: when *both* olduser and newuser have UserClientPermissions instances
-        old_oakley = self.fixtures.oakley
-        auth_client = self.fixtures.auth_client
-        access_permissions_old_oakley = 'siteadmin'
-        access_permissions_new_oakley = 'siteeditor'
-        old_oakley_userclientperms = models.AuthClientUserPermissions(
-            user=old_oakley,
-            auth_client=auth_client,
-            access_permissions=access_permissions_old_oakley,
-        )
-        new_oakley = models.User(username='oakley-the-stud')
-        new_oakley_userclientperms = models.AuthClientUserPermissions(
-            user=new_oakley,
-            auth_client=auth_client,
-            access_permissions=access_permissions_new_oakley,
-        )
-        self.db_session.add(old_oakley_userclientperms)
-        self.db_session.add(new_oakley_userclientperms)
-        self.db_session.commit()
-        models.AuthClientUserPermissions.migrate_user(old_oakley, new_oakley)
-        result = new_oakley.client_permissions[0]
-        for each in new_oakley.client_permissions:
-            assert isinstance(each, models.AuthClientUserPermissions)
-        received_access_permissions = str(result.access_permissions)
-        expected_access_permissions = " ".join(
-            [access_permissions_old_oakley, access_permissions_new_oakley]
-        )
-        assert expected_access_permissions == received_access_permissions
-
     def test_userclientpermissions_pickername(self):
         """Test for UserClientPermissions' pickername."""
         finnick = models.User(username='finnick', fullname="Finnick Odair")
@@ -74,3 +35,69 @@ class TestUserClientPermissions(TestDatabaseFixture):
             user=beetee, auth_client=district3, access_permissions=access_permissions
         )
         assert result.buid == beetee.buid
+
+
+def test_userclientpermissions_migrate_user_move(
+    db_session, user_twoflower, user_rincewind, client_hex
+):
+    """Migrating client permissions from old user to new user."""
+    # Scenario 1: Twoflower has a permission and it is transferred to Rincewind
+    userperms = models.AuthClientUserPermissions(
+        user=user_twoflower,
+        auth_client=client_hex,
+        access_permissions='perm_for_twoflower',
+    )
+    db_session.add(userperms)
+
+    # Transfer assets from Twoflower to Rincewind
+    models.AuthClientUserPermissions.migrate_user(user_twoflower, user_rincewind)
+    assert userperms.user == user_rincewind
+
+
+def test_userclientpermissions_migrate_user_retain(
+    db_session, user_twoflower, user_rincewind, client_hex
+):
+    """Retaining new user's client permissions when migrating assets from old user."""
+    # Scenario 2: Rincewind has a permission, and keeps it after merging Twoflower
+    userperms = models.AuthClientUserPermissions(
+        user=user_rincewind,
+        auth_client=client_hex,
+        access_permissions='perm_for_rincewind',
+    )
+    db_session.add(userperms)
+
+    # Transfer assets from Twoflower to Rincewind
+    models.AuthClientUserPermissions.migrate_user(user_twoflower, user_rincewind)
+    assert userperms.user == user_rincewind
+
+
+def test_userclientpermissions_migrate_user_merge(
+    db_session, user_twoflower, user_rincewind, client_hex
+):
+    """Merging permissions granted to two users when migrating from one to other."""
+    # Scenario 3: Twoflower and Rincewind each have permissions, and they get merged
+    userperms1 = models.AuthClientUserPermissions(
+        user=user_twoflower,
+        auth_client=client_hex,
+        access_permissions='perm_for_twoflower',
+    )
+    userperms2 = models.AuthClientUserPermissions(
+        user=user_rincewind,
+        auth_client=client_hex,
+        access_permissions='perm_for_rincewind',
+    )
+    db_session.add_all([userperms1, userperms2])
+    db_session.commit()  # A commit is required since one of the two will be deleted
+
+    # Transfer assets from Twoflower to Rincewind
+    models.AuthClientUserPermissions.migrate_user(user_twoflower, user_rincewind)
+    db_session.commit()  # Commit required or the db_session fixture will break
+
+    assert len(user_twoflower.client_permissions) == 0
+    assert len(user_rincewind.client_permissions) == 1
+    assert len(client_hex.user_permissions) == 1
+    assert client_hex.user_permissions[0].user == user_rincewind
+    assert (
+        client_hex.user_permissions[0].access_permissions
+        == 'perm_for_rincewind perm_for_twoflower'
+    )

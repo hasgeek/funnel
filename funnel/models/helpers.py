@@ -176,7 +176,7 @@ def reopen(cls: Type[T]):
     Usage::
 
         @reopen(ExistingClass)
-        class ExistingClass:
+        class __ExistingClass:
             @property
             def new_property(self):
                 pass

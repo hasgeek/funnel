@@ -88,7 +88,7 @@ const Ticketing = {
     $(document).on(
       'boxofficeShowPriceEvent',
       (event, prices, currency, quantityAvailable) => {
-        let price, maxPrice, minPrice, isTicketAvailable;
+        let price, minPrice, maxPrice, isTicketAvailable;
         isTicketAvailable =
           quantityAvailable.length > 0 ? Math.min(...quantityAvailable) : 0;
         minPrice = prices.length > 0 ? Math.min(...prices) : 0;

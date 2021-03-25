@@ -21,9 +21,8 @@ def abort_null(text: Optional[str]) -> Optional[str]:
 
     Throws HTTP (400) Bad Request if text is tainted, returns text otherwise.
     """
-    if text is not None:
-        if '\x00' in text:
-            abort(400)
+    if text is not None and '\x00' in text:
+        abort(400)
     return text
 
 
@@ -58,10 +57,10 @@ def mask_email(email: str) -> str:
     """
     Mask an email address.
 
-    >>> mask_email(u'foobar@example.com')
-    u'f****@e****'
-    >>> mask_email(u'not-email')
-    u'n****'
+    >>> mask_email('foobar@example.com')
+    'f****@e****'
+    >>> mask_email('not-email')
+    'n****'
     """
     if '@' not in email:
         return '{e}****'.format(e=email[0])
@@ -104,7 +103,7 @@ def extract_twitter_handle(handle: str) -> Optional[str]:
     Usage::
 
         >>> extract_twitter_handle('https://twitter.com/marscuriosity')
-        u'marscuriosity'
+        'marscuriosity'
 
     **Notes**
 

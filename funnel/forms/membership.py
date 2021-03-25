@@ -16,7 +16,7 @@ class OrganizationMembershipForm(forms.Form):
     # add a member to a project
     user = forms.UserSelectField(
         __("User"),
-        validators=[forms.validators.DataRequired(_(u"Please select a user"))],
+        validators=[forms.validators.DataRequired(_("Please select a user"))],
         description=__("Find a user by their name or email address"),
     )
     is_owner = forms.RadioField(
@@ -38,7 +38,7 @@ class ProjectCrewMembershipForm(forms.Form):
     # add a member to a project
     user = forms.UserSelectField(
         __("User"),
-        validators=[forms.validators.DataRequired(_(u"Please select a user"))],
+        validators=[forms.validators.DataRequired(_("Please select a user"))],
         description=__("Find a user by their name or email address"),
     )
     is_editor = forms.BooleanField(
@@ -74,5 +74,5 @@ class ProjectCrewMembershipInviteForm(forms.Form):
     action = forms.SelectField(
         __("Choice"),
         choices=[('accept', __("Accept")), ('decline', __("Decline"))],
-        validators=[forms.validators.DataRequired(_(u"Please make a choice"))],
+        validators=[forms.validators.DataRequired(_("Please make a choice"))],
     )
