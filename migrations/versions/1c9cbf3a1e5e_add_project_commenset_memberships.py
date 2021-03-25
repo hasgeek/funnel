@@ -47,6 +47,15 @@ commentset = table(
 )
 
 
+proposal = table(
+    'proposal',
+    column('id', sa.Integer()),
+    column('uuid', UUIDType(binary=False)),
+    column('user_id', sa.Integer()),
+    column('commentset_id', sa.Integer()),
+)
+
+
 commentset_membership = table(
     'commentset_membership',
     column('id', UUIDType(binary=False)),
@@ -60,6 +69,15 @@ commentset_membership = table(
     column('revoked_at', sa.TIMESTAMP(timezone=True)),
     column('created_at', sa.TIMESTAMP(timezone=True)),
     column('updated_at', sa.TIMESTAMP(timezone=True)),
+)
+
+
+project_crew_membership = table(
+    'project_crew_membership',
+    column('id', UUIDType(binary=False)),
+    column('user_id', sa.Integer()),
+    column('project_id', sa.Integer()),
+    column('revoked_at', sa.TIMESTAMP(timezone=True)),
 )
 
 
@@ -99,6 +117,7 @@ def upgrade():
         sa.select([project.c.id, project.c.commentset_id]).order_by(project.c.id.desc())
     )
     for counter, project_item in enumerate(projects):
+        # Create membership for existing RSVP
         rsvp_count = conn.scalar(
             sa.select([sa.func.count('*')])
             .where(rsvp.c.project_id == project_item.id)
@@ -141,10 +160,82 @@ def upgrade():
                         }
                     )
                 )
+
+        # Create membership for existing project crew
+        crews = conn.execute(
+            sa.select([project_crew_membership.c.user_id])
+            .where(project_crew_membership.c.project_id == project_item.id)
+            .where(project_crew_membership.c.revoked_at.is_(None))
+            .select_from(project_crew_membership)
+        )
+
+        for crew in crews:
+            existing_counter = conn.scalar(
+                sa.select([sa.func.count('*')])
+                .where(
+                    commentset_membership.c.commentset_id == project_item.commentset_id
+                )
+                .where(commentset_membership.c.user_id == crew.user_id)
+                .where(commentset_membership.c.revoked_at.is_(None))
+                .select_from(commentset_membership)
+            )
+            if existing_counter == 0:
+                conn.execute(
+                    commentset_membership.insert().values(
+                        {
+                            'id': uuid4(),
+                            'user_id': crew.user_id,
+                            'commentset_id': project_item.commentset_id,
+                            'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
+                            'granted_by_id': crew.user_id,  # because user registered
+                            'granted_at': sa.func.utcnow(),
+                            'created_at': sa.func.utcnow(),
+                            'updated_at': sa.func.utcnow(),
+                            'is_muted': sa.sql.expression.false(),
+                            'last_seen_at': sa.func.utcnow(),
+                        }
+                    )
+                )
         progress.update(counter)
     progress.finish()
 
-    # TODO: Add commentset memberships for project crew
+    # Create commentset membershir for existing proposal proposers
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(proposal))
+    progress = get_progressbar("Proposals", count)
+    progress.start()
+
+    proposals = conn.execute(
+        sa.select([proposal.c.id, proposal.c.commentset_id]).order_by(
+            proposal.c.id.desc()
+        )
+    )
+    for counter, proposal_item in enumerate(proposals):
+        existing_counter = conn.scalar(
+            sa.select([sa.func.count('*')])
+            .where(commentset_membership.c.commentset_id == proposal_item.commentset_id)
+            .where(commentset_membership.c.user_id == proposal_item.user_id)
+            .where(commentset_membership.c.revoked_at.is_(None))
+            .select_from(commentset_membership)
+        )
+        if existing_counter == 0:
+            conn.execute(
+                commentset_membership.insert().values(
+                    {
+                        'id': uuid4(),
+                        'user_id': proposal_item.user_id,
+                        'commentset_id': proposal_item.commentset_id,
+                        'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
+                        'granted_by_id': proposal_item.user_id,  # because user registered
+                        'granted_at': sa.func.utcnow(),
+                        'created_at': sa.func.utcnow(),
+                        'updated_at': sa.func.utcnow(),
+                        'is_muted': sa.sql.expression.false(),
+                        'last_seen_at': sa.func.utcnow(),
+                    }
+                )
+            )
+        progress.update(counter)
+    progress.finish()
 
 
 def downgrade():
@@ -159,6 +250,31 @@ def downgrade():
         commentset_memberships = conn.execute(
             sa.select([commentset_membership.c.id])
             .where(commentset_membership.c.commentset_id == project_item.commentset_id)
+            .where(commentset_membership.c.revoked_at is None)
+            .select_from(commentset_membership)
+        )
+        for membership_item in commentset_memberships:
+            conn.execute(
+                sa.delete(commentset_membership).where(
+                    commentset_membership.c.id == membership_item.id
+                )
+            )
+        progress.update(counter)
+    progress.finish()
+
+    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(proposal))
+    progress = get_progressbar("Proposals", count)
+    progress.start()
+
+    proposals = conn.execute(
+        sa.select([proposal.c.id, proposal.c.commentset_id]).order_by(
+            proposal.c.id.desc()
+        )
+    )
+    for counter, proposal_item in enumerate(proposals):
+        commentset_memberships = conn.execute(
+            sa.select([commentset_membership.c.id])
+            .where(commentset_membership.c.commentset_id == proposal_item.commentset_id)
             .where(commentset_membership.c.revoked_at is None)
             .select_from(commentset_membership)
         )
