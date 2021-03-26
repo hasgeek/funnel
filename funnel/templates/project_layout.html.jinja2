@@ -155,7 +155,7 @@
                       <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
                     </a>
                   {% endif %}
-                  <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+                  <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                 </div>
                 <h1 class="mui--text-bold zero-top-margin zero-bottom-margin">{{ project.title }}
                 </h1>
@@ -207,7 +207,7 @@
                     </div>
                   {%- endif %}
                   {%- if project.primary_venue %}
-                    <p class="project-venue"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-ga="View venue">{{ faicon(icon='map-marker-alt') }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
+                    <p class="project-venue"><a class="mui--text-hyperlink mui--text-subhead nounderline {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-ga="View venue">{{ faicon(icon='map-marker-alt') }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
                   {% elif project.view_for('venues').is_available() %}
                     <a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui--d-block mui-btn--dark">{% trans %}Add venue{% endtrans %}</a>
                   {%- endif %}
@@ -353,7 +353,7 @@
                         <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
                       </a>
                     {% endif %}
-                    <a href="{{ project.profile.url_for() }}" class="mui--text-subhead mui--text-bold project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+                    <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                   </div>
                   <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(200) }}{% if project.profile.description.html|length > 200 %}<a href="{{ project.profile.url_for() }}" class="mui--text-body2 mui--text-hyperlink">{% trans %}more{% endtrans %}</a></div>{% endif %}
                 </div>
