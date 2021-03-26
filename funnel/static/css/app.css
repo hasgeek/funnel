@@ -1862,14 +1862,19 @@ a.loginbutton.hidden,
   text-decoration: line-through;
 }
 
-.page-with-banner .alert-wrapper {
+.hg-app.no-sticky-header.page-with-banner .alert-wrapper {
   position: absolute;
-  top: 0;
+  top: 36px;
   z-index: 12;
   left: 0;
   right: 0;
 }
 
+@media (min-width: 768px) {
+  .hg-app.no-sticky-header.page-with-banner .alert-wrapper {
+    top: 0;
+  }
+}
 .projects-wrapper {
   padding: 16px 0;
 }
