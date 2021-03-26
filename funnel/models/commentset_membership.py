@@ -15,7 +15,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
 
     __tablename__ = 'commentset_membership'
 
-    __data_columns__ = ('last_seen_at',)
+    __data_columns__ = ('last_seen_at', 'is_muted')
 
     __roles__ = {
         'subject': {
@@ -23,6 +23,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
                 'urls',
                 'user',
                 'commentset',
+                'is_muted',
                 'last_seen_at',
             }
         }
@@ -48,7 +49,9 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
     parent = immutable(db.synonym('commentset'))
     parent_id = immutable(db.synonym('commentset_id'))
 
-    #: when the user visited this commentset last
+    #: Flag to indicate notifications are muted
+    is_muted = db.Column(db.Boolean, nullable=False, default=False)
+    #: When the user visited this commentset last
     last_seen_at = db.Column(
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
