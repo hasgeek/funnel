@@ -125,11 +125,9 @@ export const Utils = {
       });
     });
 
-    $('body')
-      .on('click', '.js-read-more')
-      .click(function () {
-        $(this).parent('.js-truncate-readmore').trunk8('revert');
-      });
+    $('body').on('click', '.js-read-more', function () {
+      $(this).parent('.js-truncate-readmore').trunk8('revert');
+    });
   },
   showTimeOnCalendar() {
     const singleDay = 24 * 60 * 60 * 1000;
