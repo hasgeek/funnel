@@ -129,7 +129,7 @@
   .project-banner__profile-details {
     display: flex;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: $mui-grid-padding/2;
 
     .project-banner__profile-details__logo-wrapper {
       display: inline-block;

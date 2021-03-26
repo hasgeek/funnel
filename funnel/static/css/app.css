@@ -3599,7 +3599,7 @@ a.loginbutton.hidden,
 .project-banner .project-banner__profile-details {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .project-banner
   .project-banner__profile-details
