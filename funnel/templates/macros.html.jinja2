@@ -734,7 +734,15 @@
           <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
         {%- endif -%}
         <div class="proposal-card__body__inner {%- if full_width %} proposal-card__body__inner--flex {%- endif -%}">
-          <div class="proposal-card__body__inner__headline {% if proposal.video and proposal.video.thumbnail %}proposal-card__body__inner__headline--smaller{% endif %}">
+          {% if proposal.video and proposal.video.thumbnail %}
+            <div class="proposal-card__body__inner__details">
+              <div class="proposal-card__body__inner__details__video">
+                <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.video.thumbnail }}"></div>
+                <div class="proposal-card__body__inner__details__video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+              </div>
+            </div>
+          {%- endif -%}
+          <div class="proposal-card__body__inner__headline">
             <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
             <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(200) }}<span class="mui--text-body2 proposal-card__details__txt__read mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
             {% if details %}
@@ -781,30 +789,12 @@
                   {% endif %}
                 </div>
               </div>
+            {%- else -%}
+              <div class="proposal-card__body__inner__headline__info">
+                <p class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</p>
+              </div>
             {%- endif -%}
           </div>
-          {% if proposal.video and proposal.video.thumbnail %}
-            <div class="proposal-card__body__inner__details">
-              <div class="proposal-card__body__inner__details__video">
-                <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.video.thumbnail }}"></div>
-                <div class="proposal-card__body__inner__details__video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
-              </div>
-              {% if not details %}
-                <div class="proposal-card__body__inner__details__txt">
-                  <ul class="bullet-separated-list--flex mui--text-caption mui--text-light">
-                    <li>{{ proposal.datetime|date }}</li>
-                    {%- if proposal.video.duration %}<li><span class="bullet-separated-list__span">{{ proposal.video.duration|timedelta }}</span></li>{%- endif %}
-                  </ul>
-                </div>
-              {%- endif -%}
-            </div>
-          {% elif not details %}
-            <div class="proposal-card__body__inner__details">
-              <div class="proposal-card__body__inner__details__txt">
-                <p class="mui--text-caption mui--text-light zero-bottom-margin">{{ proposal.datetime|date }}</p>
-              </div>
-            </div>
-          {%- endif -%}
         </div>
       </div>
     </div>

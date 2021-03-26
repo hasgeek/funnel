@@ -3530,12 +3530,7 @@ a.loginbutton.hidden,
 .project-header-wrapper {
   margin: 0;
   padding: 0;
-  background-image: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    #ffffff 94%,
-    #000000 200%
-  );
+  background-image: linear-gradient(#ffffff, #f9f9f9);
 }
 
 @media (min-width: 768px) {
@@ -3600,7 +3595,6 @@ a.loginbutton.hidden,
 }
 .project-banner {
   padding: 0 !important;
-  border-radius: 16px 16px 0 0;
 }
 .project-banner .project-banner__profile-details {
   display: flex;
@@ -3769,7 +3763,7 @@ a.loginbutton.hidden,
     margin: 0;
   }
   .project-banner .project-banner__left .embed-video-wrapper--shaped {
-    border-radius: 0;
+    border-radius: 16px;
   }
   .project-banner .project-banner__right {
     width: 33%;
@@ -4191,23 +4185,6 @@ a.loginbutton.hidden,
 .proposal-card
   .proposal-card__body
   .proposal-card__body__inner
-  .proposal-card__body__inner__headline--smaller {
-  position: relative;
-}
-.proposal-card
-  .proposal-card__body
-  .proposal-card__body__inner
-  .proposal-card__body__inner__headline--smaller
-  .proposal-card__body__inner__headline__info {
-  position: absolute;
-  right: 0;
-  width: calc(100% - 120px);
-  padding-left: 8px;
-  padding-top: 4px;
-}
-.proposal-card
-  .proposal-card__body
-  .proposal-card__body__inner
   .proposal-card__body__inner__details {
   display: flex;
 }
@@ -4217,8 +4194,9 @@ a.loginbutton.hidden,
   .proposal-card__body__inner__details
   .proposal-card__body__inner__details__video {
   position: relative;
-  width: 120px;
+  width: 100%;
   margin-right: 8px;
+  margin-bottom: 8px;
 }
 .proposal-card
   .proposal-card__body
@@ -4259,25 +4237,11 @@ a.loginbutton.hidden,
 }
 
 @media (min-width: 1200px) {
-  .proposal-card
-    .proposal-card__body
-    .proposal-card__body__inner
-    .proposal-card__body__inner__headline--smaller
-    .proposal-card__body__inner__headline__info {
-    position: static;
-    padding: 0;
-    width: 100%;
-  }
   .proposal-card .proposal-card__body .proposal-card__body__inner--flex {
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-  .proposal-card
-    .proposal-card__body
-    .proposal-card__body__inner--flex
-    .proposal-card__body__inner__headline {
-    padding-bottom: 16px;
+    flex-direction: row-reverse;
   }
   .proposal-card
     .proposal-card__body
