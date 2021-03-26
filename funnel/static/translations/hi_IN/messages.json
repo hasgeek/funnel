@@ -1389,6 +1389,7 @@
         "(सेशन की कोई जानकारी नहीं दी गई है)"
       ],
       "(proposing)": [null, "(प्रस्तुत कर रहे हैं)"],
+      "more": [null, ""],
       "This proposal has a preview video": [
         null,
         "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
@@ -1500,6 +1501,11 @@
       "Comments": [null, "कमेंट"],
       "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
       "Update banner image": [null, "बैनर इमेज को बदलें"],
+      "Pinned update": [null, ""],
+      "This update is for participants only": [
+        null,
+        "यह जानकारी केवल प्रतिभागियों के लिए है"
+      ],
       "This project will not be listed as it has no sessions in the schedule": [
         null,
         ""
@@ -1517,16 +1523,9 @@
         "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
       ],
       "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
-      "Loading...": [null, ""],
       "Project overview": [null, ""],
       "Jobs": [null, "नौकरियां"],
-      "Pinned update": [null, ""],
-      "This update is for participants only": [
-        null,
-        "यह जानकारी केवल प्रतिभागियों के लिए है"
-      ],
-      "This project is brought to you by": [null, ""],
-      "Read more": [null, ""],
+      "Hosted by": [null, ""],
       "Participants": [null, "प्रतिभागी"],
       "%(title)s by %(speaker)s, %(project)s": [
         null,
@@ -1559,7 +1558,6 @@
       "Submission guidelines": [null, ""],
       "Modify guidelines and timing": [null, ""],
       "Modify guidelines": [null, ""],
-      "more": [null, ""],
       "Add guidelines and timing": [null, ""],
       "Add new update": [null, "नई जानकारी डालें"],
       "Post an update…": [null, "नई जानकारी पोस्ट करें…"],
@@ -1567,7 +1565,7 @@
         null,
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है."
       ],
-      "This project has not posted any videos yet.": [null, ""],
+      "No videos": [null, ""],
       "Proposal menu": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
@@ -1581,15 +1579,15 @@
       "No video": [null, "कोई वीडियो नहीं है"],
       "Session video": [null, "सेशन वीडियो"],
       "Proposal video": [null, "प्रस्ताव वीडियो"],
-      "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
       "Submitted by %(speaker)s on %(date)s": [
         null,
         "%(speaker)s के द्वारा %(date)s पर"
       ],
-      "This is a proposal requesting for someone to speak on this topic.\n                  If you’d like to speak, leave a comment.": [
+      "This is a proposal requesting for someone to present on this topic.\n                    If you’d like to present, leave a comment.": [
         null,
-        "यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें."
+        ""
       ],
+      "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
       "This proposal has been added to the schedule": [
         null,
         "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
@@ -1689,6 +1687,7 @@
       "Agenda view": [null, ""],
       "Calender view": [null, ""],
       "Update": [null, "अपडेट करें"],
+      "Read more": [null, ""],
       "Hide": [null, ""],
       "You wrote:": [null, "आपने लिखा:"],
       "View comment": [null, "कमेंट देखें"],
@@ -2549,7 +2548,7 @@
         null,
         "आपने और छे अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Eight registrations so far?": [null, "अब तक आठ रजिस्ट्रेशन"],
+      "Eight registrations so far": [null, ""],
       "You and seven others have registered": [
         null,
         "आपने और सात अन्य व्यक्ति ने रजिस्टर कर लिया है"

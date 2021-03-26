@@ -585,7 +585,7 @@
         <ul class="bullet-separated-list">
           <li class="">{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
           {% if profile.website %}
-            <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow" >{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
+            <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
           {% endif %}
         </ul>
         <div>{{ profile.description.html }}</div>
@@ -744,7 +744,7 @@
           {%- endif -%}
           <div class="proposal-card__body__inner__headline">
             <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
-            <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(200) }}<span class="mui--text-body2 proposal-card__details__txt__read mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
+            <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=200) }}<span class="mui--text-body2 proposal-card__details__txt__read mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
             {% if details %}
               <div class="proposal-card__body__inner__headline__info">
                 <ul class="mui-list--inline mui--text-light mui--text-body2 zero-bottom-margin list-item-rgborder">
