@@ -156,7 +156,7 @@
                           <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
                             <img src="{{ proposal.session.video.thumbnail }}" class="img-responsive" data-cy="session-video-thumbnail">
                             <div class="overlay"></div>
-                            <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+                            <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
                           </a>
                         </div>
                         {% set seq = seq + 1 %}
@@ -167,7 +167,7 @@
                           <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
                             <img src="{{ proposal.video.thumbnail }}" class="img-responsive" data-cy="proposal-video-thumbnail">
                             <div class="overlay"></div>
-                            <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+                            <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
                           </a>
                         </div>
                         {%- else %}
@@ -183,30 +183,30 @@
               {% endif %}
             </div>
             <section class="proposal__section grid__col--bleed-y">
-              <div class="mui--d-inlineblock">
-                <p class="mui--text-caption mui--text-light zero-bottom-margin mui--pull-left">{% trans date=proposal.datetime|date %}Submitted {{ date }} {% endtrans %}</p>
-                <div class="mui--pull-right mui--hidden-xs mui--hidden-sm">
+              <div class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
+                {%- if proposal.speaker %}
+                  <div class="user mui--pull-left">
+                    <div class="user__box">
+                      {{ useravatar(proposal.speaker) }}
+                      <div class="user__box__header">
+                        <p class="mui--text-body2 user__box__fullname">{{ proposal.speaker.fullname }}</p>
+                        {%- if proposal.speaker.username %}<p class="mui--text-caption user__box__userid">@{{ proposal.speaker.username }}</p>{%- endif -%}
+                      </div>
+                    </div>
+                  </div>
+                {%- else %}
+                  <p>{% trans speaker=proposal.user.pickername, date=proposal.datetime|date  %}Submitted by {{ speaker }} on {{ date }}{% endtrans %}</p>
+                  <p class="zero-bottom-margin">
+                    <em>{% trans %}This is a proposal requesting for someone to speak on this topic.
+                    If you’d like to speak, leave a comment.{% endtrans %}</em>
+                  </p>
+                {%- endif -%}
+                <div class="mui--hidden-xs mui--hidden-sm">
                   {{ share_widget() }}
                 </div>
               </div>
-              <h2 class="mui--text-bold zero-bottom-margin" data-cy="proposal-title">{{ proposal.title }}</h2>
-              {%- if proposal.speaker %}
-                <div class="user">
-                  <div class="user__box">
-                    {{ useravatar(proposal.speaker) }}
-                    <div class="user__box__header">
-                      <p class="mui--text-body2 user__box__fullname">{{ proposal.speaker.fullname }}</p>
-                      {%- if proposal.speaker.username %}<p class="mui--text-caption user__box__userid">@{{ proposal.speaker.username }}</p>{%- endif -%}
-                    </div>
-                  </div>
-                </div>
-              {%- else %}
-                <p>{% trans speaker=proposal.user.pickername, date=proposal.datetime|date  %}Submitted by {{ speaker }} on {{ date }}{% endtrans %}</p>
-                <p class="zero-bottom-margin">
-                  <em>{% trans %}This is a proposal requesting for someone to speak on this topic.
-                  If you’d like to speak, leave a comment.{% endtrans %}</em>
-                </p>
-              {%- endif -%}
+              <h2 class="mui--text-bold" data-cy="proposal-title">{{ proposal.title }}</h2>
+              <p class="mui--text-caption mui--text-light">{% trans date=proposal.datetime|date %}Submitted {{ date }} {% endtrans %}</p>
               <div class="proposal__section__labels">
                 {%- for label in proposal.labels %}
                   {% if not label.restricted %}

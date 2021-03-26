@@ -67,12 +67,7 @@
         </div>
       {% endif %}
       <div class="about" id="about">
-        {% if project.description.html|length > 300 %}
-          <div class="js-htmltruncate-expand text-expand">{{ project.description.html|preview(300) }}<span class="mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
-          <div class="js-htmltruncate-full mui--hide">{{ project.description.html }}</div>
-        {%- else %}
-          <div>{{ project.description.html }}</div>
-        {% endif %}
+        <div>{{ project.description.html }}</div>
         {%- if project.subprojects %}
           <hr class="mui-divider">
           <h3 class="mui--text-left">{% trans %}Related events{% endtrans %}</h3>
@@ -268,7 +263,7 @@
           {%- if project.schedule_state.PUBLISHED %}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- endif %}" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
-          {% if project.sessions_with_video %}
+          {% if project.has_sessions_with_video %}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'videos' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'videos' -%}{{ project.url_for('session_videos') }}{%- endif %}" data-cy-navbar="videos">{% trans %}Videos{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
           <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'crew' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'crew' -%}{{ project.url_for('crew') }}{%- endif %}" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>

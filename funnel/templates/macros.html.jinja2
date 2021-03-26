@@ -657,7 +657,7 @@
     <a class="video__thumbnail {%- if not (session.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}"  data-ga="view session video">
       {%- if session.video.thumbnail %}
         <img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
-        <div class="video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+        <div class="video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
       {%- elif session.banner_image_url.url %}
         <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
       {%- endif %}
@@ -738,7 +738,7 @@
             <div class="proposal-card__body__inner__details">
               <div class="proposal-card__body__inner__details__video">
                 <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.video.thumbnail }}"></div>
-                <div class="proposal-card__body__inner__details__video__thumbnail__icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+                <div class="proposal-card__body__inner__details__video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
               </div>
             </div>
           {%- endif -%}
