@@ -733,7 +733,7 @@
         {%- else -%}
           <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
         {%- endif -%}
-        <div class="proposal-card__body__inner {%- if full_width %} proposal-card__body__inner--flex {%- endif -%}">
+        <div class="proposal-card__body__inner {%- if full_width and proposal.video and proposal.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
           {% if proposal.video and proposal.video.thumbnail %}
             <div class="proposal-card__body__inner__details">
               <div class="proposal-card__body__inner__details__video">

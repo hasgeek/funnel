@@ -102,13 +102,7 @@
               <a class="card clickable-card page-card__card" href="{{ session.url_for() }}" aria-label="{{ session.title }}" data-ga="View session">
                 <div class="card__body proposal-card">
                   <div class="proposal-card__body">
-                    <div class="proposal-card__body__inner proposal-card__body__inner--flex">
-                      <div class="proposal-card__body__inner__headline">
-                        <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
-                        <p class="mui--text-body2">{{ session.speaker }}</p>
-                        <div class="mui--text-light margin-bottom">{{ session.description.html|preview(200) }}</div>
-                        <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ session.start_at|datetime(format='dd MMM YYYY, h:mm a') }}</p>
-                      </div>
+                    <div class="proposal-card__body__inner {% if session.banner_image_url.url %}proposal-card__body__inner--flex{%- endif %}">
                       {% if session.banner_image_url.url %}
                         <div class="proposal-card__body__inner__details">
                           <div class="proposal-card__body__inner__details__video">
@@ -116,6 +110,12 @@
                           </div>
                         </div>
                       {%- endif %}
+                      <div class="proposal-card__body__inner__headline">
+                        <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
+                        <p class="mui--text-body2">{{ session.speaker }}</p>
+                        <div class="mui--text-light margin-bottom">{{ session.description.html|preview(200) }}</div>
+                        <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ session.start_at|datetime(format='dd MMM YYYY, h:mm a') }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
