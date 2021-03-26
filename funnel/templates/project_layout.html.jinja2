@@ -104,6 +104,7 @@
           <div class="project-banner {% if current_page != 'project' %}project-banner--inner{%- endif %}">
             {% if project.livestream_urls %}
               <div role="tabpanel" class="livestream-box project-banner__left" id="livestream">
+                {% if project.livestream_urls|length > 2 %}
                 <ul class="mui-tabs__bar project-banner__box" role="tablist">
                   {%- for stream in project.livestream_urls %}
                     <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
@@ -111,6 +112,7 @@
                     </li>
                   {%- endfor %}
                 </ul>
+                {% endif %}
 
                 {%- for stream in project.livestream_urls %}
                   <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
