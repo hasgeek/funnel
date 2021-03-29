@@ -391,6 +391,17 @@ def test_password_hash_upgrade(user_twoflower):
     assert user_twoflower.pw_hash.startswith('$argon2id$')
 
 
+def test_password_not_truncated(user_twoflower):
+    """Argon2 passwords are not truncated at up to 1000 characters."""
+    # Bcrypt passwords are truncated at 72 characters, making larger length limits
+    # pointless. Argon2 passwords are not truncated for a very large size. Passlib has
+    # a default max size of 4096 chars.
+    # https://passlib.readthedocs.io/en/stable/lib/passlib.exc.html#passlib.exc.PasswordSizeError
+    user_twoflower.password = '1' * 999 + 'a'
+    assert user_twoflower.password_is('1' * 999 + 'a')
+    assert not user_twoflower.password_is('1' * 999 + 'b')
+
+
 def test_user_merged_user(db_session, user_death, user_rincewind):
     """Test for checking if user had a old id."""
     db_session.commit()
