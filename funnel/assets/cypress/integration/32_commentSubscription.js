@@ -9,7 +9,7 @@ describe('Confirm submission comment subscription', function () {
     cy.server();
     cy.route('POST', '**/new').as('post-comment');
     cy.route('GET', '**/comments').as('fetch-comment-sidebar');
-    cy.route('POST', '**/update_subscribe').as('post-subscribe');
+    cy.route('POST', '**/subscribe').as('post-subscribe');
 
     cy.login('/', member.username, member.password);
     cy.get('a[data-cy="profile"]').click();

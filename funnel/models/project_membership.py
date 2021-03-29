@@ -97,6 +97,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     def __table_args__(cls):
         """Table arguments."""
         args = list(super().__table_args__)
+        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         args.append(
             db.CheckConstraint(
                 db.or_(
@@ -107,20 +108,20 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
                 name='project_crew_membership_has_role',
             )
         )
+        if kwargs:
+            args.append(kwargs)
         return tuple(args)
 
     @cached_property
     def offered_roles(self):
         """Roles offered by this membership record."""
-        roles = set()
+        roles = {'crew', 'participant'}
         if self.is_editor:
             roles.add('editor')
         if self.is_promoter:
             roles.add('promoter')
         if self.is_usher:
             roles.add('usher')
-        roles.add('crew')
-        roles.add('participant')
         return roles
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:

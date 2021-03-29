@@ -59,6 +59,7 @@ from ..models import (
     SavedProject,
     db,
 )
+from ..signals import project_role_change
 from .decorators import legacy_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
@@ -591,21 +592,6 @@ class ProjectView(
             abort(403)
         return redirect(self.obj.url_for())
 
-    @route('rsvp', methods=['POST'])
-    @requires_login
-    @requires_roles({'reader'})
-    def rsvp_transition(self):
-        form = RsvpTransitionForm()
-        if form.validate_on_submit():
-            rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
-            transition = getattr(rsvp, form.transition.data)
-            transition()
-            db.session.commit()
-            flash(transition.data['message'], 'success')
-        else:
-            flash(_("This response is not valid"), 'error')
-        return redirect(self.obj.url_for(), code=303)
-
     @route('register', methods=['POST'])
     @requires_login
     def register(self):
@@ -613,9 +599,10 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             if not rsvp.state.YES:
-                rsvp.rsvp_yes(subscribe_comments=True)
+                rsvp.rsvp_yes()
                 db.session.commit()
-                flash(_("You have successfully registered"), 'success')
+                project_role_change.send(self.obj, current_auth.user)
+                db.session.commit()
                 dispatch_notification(
                     RegistrationConfirmationNotification(document=rsvp)
                 )
@@ -632,7 +619,8 @@ class ProjectView(
             if rsvp is not None and not rsvp.state.NO:
                 rsvp.rsvp_no()
                 db.session.commit()
-                flash(_("Your registration has been cancelled"), 'info')
+                project_role_change.send(self.obj, current_auth.user)
+                db.session.commit()
                 dispatch_notification(
                     RegistrationCancellationNotification(document=rsvp)
                 )
@@ -786,11 +774,9 @@ class ProjectView(
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
-        subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
             return jsonify(
                 {
-                    'subscribed': subscribed,
                     'comments': comments,
                 }
             )
@@ -798,7 +784,6 @@ class ProjectView(
             commentform = CommentForm(model=Comment)
             return {
                 'project': self.obj,
-                'subscribed': subscribed,
                 'comments': comments,
                 'commentform': commentform,
                 'delcommentform': forms.Form(),

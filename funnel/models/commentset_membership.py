@@ -85,21 +85,18 @@ class __User:
 
 @reopen(Commentset)
 class __Commentset:
-    active_memberships = with_roles(
-        db.relationship(
-            CommentsetMembership,
-            lazy='dynamic',
-            primaryjoin=db.and_(
-                CommentsetMembership.commentset_id == Commentset.id,
-                CommentsetMembership.is_active,
-            ),
-            viewonly=True,
+    active_memberships = db.relationship(
+        CommentsetMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            CommentsetMembership.commentset_id == Commentset.id,
+            CommentsetMembership.is_active,
         ),
-        grants_via={'user': {'document_subscriber'}},
+        viewonly=True,
     )
 
     # Send notifications only to subscribers who haven't muted
-    active_memberships_to_notify = with_roles(
+    active_memberships_unmuted = with_roles(
         db.relationship(
             CommentsetMembership,
             lazy='dynamic',
@@ -110,37 +107,38 @@ class __Commentset:
             ),
             viewonly=True,
         ),
-        grants_via={'user': {'document_subscriber_unmuted'}},
+        grants_via={'user': {'document_subscriber'}},
     )
 
     def update_last_seen_at(self, user: User) -> None:
-        existing_ms = CommentsetMembership.query.filter_by(
+        existing = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
-        if existing_ms is not None:
-            existing_ms.last_seen_at = db.func.utcnow()
+        if existing is not None:
+            existing.last_seen_at = db.func.utcnow()
 
     def add_subscriber(self, actor: User, user: User) -> bool:
         """Return True is subscriber is added, False if already exists."""
-        existing_ms = CommentsetMembership.query.filter_by(
+        existing = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
-        if existing_ms is None:
-            new_ms = CommentsetMembership(
-                commentset=self,
-                user=user,
-                granted_by=actor,
+        if existing is None:
+            db.session.add(
+                CommentsetMembership(
+                    commentset=self,
+                    user=user,
+                    granted_by=actor,
+                )
             )
-            db.session.add(new_ms)
             return True
         return False
 
     def remove_subscriber(self, actor: User, user: User) -> bool:
         """Return True is subscriber is removed, False if already removed."""
-        existing_ms = CommentsetMembership.query.filter_by(
+        existing = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
-        if existing_ms is not None:
-            existing_ms.revoke(actor=actor)
+        if existing is not None:
+            existing.revoke(actor=actor)
             return True
         return False

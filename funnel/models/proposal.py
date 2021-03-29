@@ -127,7 +127,7 @@ class Proposal(
             primaryjoin=user_id == User.id,
             backref=db.backref('proposals', cascade='all', lazy='dynamic'),
         ),
-        grants={'creator'},
+        grants={'creator', 'participant'},
     )
 
     speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
@@ -138,7 +138,7 @@ class Proposal(
             lazy='joined',
             backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
         ),
-        grants={'presenter'},
+        grants={'presenter', 'participant'},
     )
 
     # TODO: Remove this, phone is in user account anyway
@@ -679,13 +679,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
 
 @reopen(Commentset)
 class __Commentset:
-    proposal = with_roles(
-        db.relationship(Proposal, uselist=False, back_populates='commentset'),
-        # TODO: Remove creator to subscriber mapping when proposals use memberships
-        grants_via={
-            None: {'presenter': 'document_subscriber', 'creator': 'document_subscriber'}
-        },
-    )
+    proposal = db.relationship(Proposal, uselist=False, back_populates='commentset')
 
 
 @reopen(Project)

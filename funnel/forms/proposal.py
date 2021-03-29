@@ -197,6 +197,6 @@ class ProposalMoveForm(forms.Form):
 class ProposalSubscribeForm(forms.Form):
     subscribe = forms.BooleanField(
         '',
-        description=__("Get notification"),
+        description=__("Get notifications"),
         validators=[forms.validators.InputRequired()],
     )

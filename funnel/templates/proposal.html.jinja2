@@ -26,7 +26,27 @@
     <a href="javascript:void(0)" class="project-links mui-text-light" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
     {{ share_dropdown(proposal.url_for(_external=true), proposal.title, css_class='mui-dropdown__menu--right') }}
   </div>
-  {% if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
+  {%- if current_auth.is_authenticated %}
+    <div class="mui-dropdown">
+      <a href="javascript:void(0)" class="mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">
+        {% if subscribed %}
+          {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light js-subscribed mui--hide') }}
+          {{ faicon(icon='bell-slash', icon_size='title', baseline=false, css_class='mui--text-light js-unsubscribed') }}
+        {% else %}
+          {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light js-subscribed') }}
+          {{ faicon(icon='bell-slash', icon_size='title', baseline=false, css_class='mui--text-light js-unsubscribed mui--hide') }}
+        {% endif %}
+      </a>
+      <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
+        <form action="{{ proposal.url_for('subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
+          {{ proposal.forms.subscribe().hidden_tag() }}
+          <li class="js-subscribed {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label for="cancel-subscription" data-cy="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Stop notifications{% endtrans %}</label></li>
+          <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Get notifications{% endtrans %}</label></li>
+        </form>
+      </ul>
+    </div>
+  {%- endif %}
+  {%- if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
     <div class="mui--d-inlineblock mui-dropdown">
       <a href="javascript:void(0)" class="mui--text-light" data-mui-toggle="dropdown" aria-label="{% trans %}Proposal menu{% endtrans %}" data-cy="proposal-menu">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
       <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
@@ -59,7 +79,7 @@
               </span>
           </a></li>
         {%- endif %}
-        {% if proposal.state.SCHEDULED %}
+        {%- if proposal.state.SCHEDULED %}
           <li><a class="mui--text-subhead"  href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session" aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit session{% endtrans %}</span></a></li>
           <li><a class="mui--text-subhead" href="{{ proposal.session.url_for('edit') }}#field-video_url" data-cy="edit-session-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">
             {%- if proposal.session.video  %}
@@ -71,25 +91,7 @@
         {%- endif %}
       </ul>
     </div>
-  {% endif %}
-  <div class="mui-dropdown">
-    <a href="javascript:void(0)" class="mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">
-      {% if subscribed %}
-        {{ faicon(icon='bell-slash', icon_size='title', baseline=false, css_class='mui--text-light js-subscribed mui--hide') }}
-        {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light js-unsubscribed') }}
-      {% else %}
-        {{ faicon(icon='bell-slash', icon_size='title', baseline=false, css_class='mui--text-light js-subscribed') }}
-        {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--text-light js-unsubscribed mui--hide') }}
-      {% endif %}
-    </a>
-    <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
-      <form action="{{ proposal.url_for('update_subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
-        {{ proposal.forms.subscribe().hidden_tag() }}
-        <li class="js-subscribed  {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label for="cancel-subscription" data-cy="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Mute this submission{% endtrans %}</label></li>
-        <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Get notification{% endtrans %}</label></li>
-      </form>
-    </ul>
-  </div>
+  {%- endif %}
 {% endmacro %}
 
 {% block contenthead %}
