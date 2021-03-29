@@ -62,7 +62,7 @@
                     </button>
                     <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                       <li>
-                        <a href="{{ url_for('contacts_project_date_csv', uuid_b58=project.uuid_b58, datestr=daterow.date) }}" download arial-label="{% trans %}Download contacts CSV{% endtrans %}" >
+                        <a href="{{ url_for('contacts_project_date_csv', uuid_b58=project.uuid_b58, datestr=daterow.date) }}" download arial-label="{% trans %}Download contacts CSV{% endtrans %}">
                           {{ faicon(icon='download', icon_size='subhead') }} {% trans %}CSV{% endtrans %}
                         </a>
                       </li>

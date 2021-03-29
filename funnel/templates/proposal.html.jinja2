@@ -21,14 +21,14 @@
 {% endblock %}
 
 {% macro share_widget(formid='desktop') %}
-  <a href="javascript:void(0)" class="hg-link-btn mui--hide mui--text-title mui-text-light" data-ga="Share dropdown" data-cy="share-project" data-url="{{ proposal.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
+  <a href="javascript:void(0)" class="hg-link-btn mui--hide pmui-text-light" data-ga="Share dropdown" data-cy="share-project" data-url="{{ proposal.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
   <div class="mui-dropdown">
-    <a href="javascript:void(0)" class="project-links mui--text-title mui-text-light" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
+    <a href="javascript:void(0)" class="project-links mui-text-light" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt', icon_size='title', baseline=false, css_class='mui--text-light fa-icon--margin ') }}</a>
     {{ share_dropdown(proposal.url_for(_external=true), proposal.title, css_class='mui-dropdown__menu--right') }}
   </div>
   {% if 'edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor %}
     <div class="mui--d-inlineblock mui-dropdown">
-      <a href="javascript:void(0)" class="mui--text-title mui--text-light" data-mui-toggle="dropdown" aria-label="{% trans %}Proposal menu{% endtrans %}" data-cy="proposal-menu">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+      <a href="javascript:void(0)" class="mui--text-light" data-mui-toggle="dropdown" aria-label="{% trans %}Proposal menu{% endtrans %}" data-cy="proposal-menu">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
       <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
         {%- if proposal.current_permissions.edit_proposal %}
           <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
@@ -84,7 +84,7 @@
       </div>
     </div>
   </div>
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
       <a href="{{ proposal.project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
       <div class="mui--pull-right mobile-nav__icon">
@@ -96,7 +96,7 @@
 
 {% block basecontent %}
   <div class="mui-container">
-    <div class="page-content page-content--mob-nav">
+    <div class="page-content">
       <div class="grid">
         {% if proposal.featured and ('edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor) %}
           <div class="grid__col-sm-12 margin-bottom">
@@ -107,7 +107,7 @@
           {%- if proposal.getnext() -%}
             <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block margin-bottom mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
           {%- endif -%}
-          <div class="page-card">
+          <div class="page-card page-card--nomargin">
             <div class="details">
               {% if proposal.session and proposal.session.video or proposal.video or 'edit_proposal' in proposal.permissions(current_auth.user) %}
                 <div class="details__box mui-tabs__bar">
@@ -156,7 +156,7 @@
                           <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
                             <img src="{{ proposal.session.video.thumbnail }}" class="img-responsive" data-cy="session-video-thumbnail">
                             <div class="overlay"></div>
-                            <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+                            <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
                           </a>
                         </div>
                         {% set seq = seq + 1 %}
@@ -167,7 +167,7 @@
                           <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
                             <img src="{{ proposal.video.thumbnail }}" class="img-responsive" data-cy="proposal-video-thumbnail">
                             <div class="overlay"></div>
-                            <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play-circle', icon_size='headline', baseline=false) }}</div>
+                            <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
                           </a>
                         </div>
                         {%- else %}
@@ -183,30 +183,30 @@
               {% endif %}
             </div>
             <section class="proposal__section grid__col--bleed-y">
-              <div class="mui--d-inlineblock">
-                <p class="mui--text-caption mui--text-light zero-bottom-margin mui--pull-left">{% trans date=proposal.datetime|date %}Submitted {{ date }} {% endtrans %}</p>
-                <div class="mui--pull-right mui--hidden-xs mui--hidden-sm">
+              <div class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between">
+                {%- if proposal.speaker %}
+                  <div class="user mui--pull-left">
+                    <div class="user__box">
+                      {{ useravatar(proposal.speaker) }}
+                      <div class="user__box__header">
+                        <p class="mui--text-body2 user__box__fullname">{{ proposal.speaker.fullname }}</p>
+                        {%- if proposal.speaker.username %}<p class="mui--text-caption user__box__userid">@{{ proposal.speaker.username }}</p>{%- endif -%}
+                      </div>
+                    </div>
+                  </div>
+                {%- else %}
+                  <p>{% trans speaker=proposal.user.pickername, date=proposal.datetime|date  %}Submitted by {{ speaker }} on {{ date }}{% endtrans %}</p>
+                  <p class="zero-bottom-margin">
+                    <em>{% trans %}This is a proposal requesting for someone to present on this topic.
+                    If you’d like to present, leave a comment.{% endtrans %}</em>
+                  </p>
+                {%- endif -%}
+                <div class="mui--hidden-xs mui--hidden-sm">
                   {{ share_widget() }}
                 </div>
               </div>
-              <h1 class="mui--text-title mui--text-bold zero-bottom-margin" data-cy="proposal-title">{{ proposal.title }}</h1>
-              {%- if proposal.speaker %}
-                <div class="user">
-                  <div class="user__box">
-                    {{ useravatar(proposal.speaker) }}
-                    <div class="user__box__header">
-                      <p class="mui--text-body2 user__box__fullname">{{ proposal.speaker.fullname }}</p>
-                      {%- if proposal.speaker.username %}<p class="mui--text-caption user__box__userid">@{{ proposal.speaker.username }}</p>{%- endif -%}
-                    </div>
-                  </div>
-                </div>
-              {%- else %}
-                <p>{% trans speaker=proposal.user.pickername, date=proposal.datetime|date  %}Submitted by {{ speaker }} on {{ date }}{% endtrans %}</p>
-                <p class="zero-bottom-margin">
-                  <em>{% trans %}This is a proposal requesting for someone to speak on this topic.
-                  If you’d like to speak, leave a comment.{% endtrans %}</em>
-                </p>
-              {%- endif -%}
+              <h2 class="mui--text-bold" data-cy="proposal-title">{{ proposal.title }}</h2>
+              <p class="mui--text-caption mui--text-light">{% trans date=proposal.datetime|date %}Submitted {{ date }} {% endtrans %}</p>
               <div class="proposal__section__labels">
                 {%- for label in proposal.labels %}
                   {% if not label.restricted %}
@@ -243,8 +243,8 @@
 
         <div class="grid__col-sm-5 grid__col-md-4 mui--hidden-xs mui--hidden-sm">
           {%- if proposal.getnext() -%}
-            <h2 class="mui--text-subhead mui--text-bold mui--text-uppercase zero-top-margin">{% trans %}Up next{% endtrans %}</h2>
-            {{ proposal_card(proposal.getnext()) }}
+            <h4 class="mui--text-subhead mui--text-bold mui--text-uppercase zero-top-margin">{% trans %}Up next{% endtrans %}</h4>
+            {{ proposal_card(proposal.getnext(), project=project) }}
           {%- endif -%}
         </div>
       </div>

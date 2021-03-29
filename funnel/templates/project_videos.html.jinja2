@@ -1,15 +1,21 @@
 {% set current_page = 'videos' %}
 {% extends "project_layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import project_header, video_thumbnail %}
+{%- from "macros.html.jinja2" import video_thumbnail %}
 {% block title %}{% trans %}Videos{% endtrans %}{% endblock %}
 
 
 {% block base_content_inner %}
-  <div class="grid project-section" id="videos">
-    {% for session in project.sessions_with_video %}
-      <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
-        {{ video_thumbnail(session) }}
-      </div>
-    {% endfor %}
+  <div class="page-card page-card--nomargin">
+    <div class="grid top-padding" id="videos">
+      {% for session in project.sessions_with_video %}
+        <div class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4">
+          {{ video_thumbnail(session) }}
+        </div>
+      {%- else %}
+        <div class="grid__col-xs-12">
+          <p>{% trans %}No videos{% endtrans %}</p>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 {% endblock %}

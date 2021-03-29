@@ -97,7 +97,7 @@ registration_count_messages = [
         _("You and six others have registered"),
     ),
     CountWords(
-        _("Eight registrations so far?"),
+        _("Eight registrations so far"),
         _("You and seven others have registered"),
     ),
     CountWords(
