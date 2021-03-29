@@ -95,6 +95,7 @@ from sqlalchemy import event
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Query as BaseQuery
 from sqlalchemy.orm.collections import column_mapped_collection
+from sqlalchemy.orm.exc import NoResultFound
 
 from werkzeug.utils import cached_property
 
@@ -482,6 +483,11 @@ class Notification(NoIdMixin, db.Model):
         """Return ``cls.allow_<transport>``."""
         return getattr(cls, 'allow_' + transport)
 
+    @property
+    def role_provider_obj(self):
+        """Return fragment if exists, document otherwise, indicating role provider."""
+        return self.fragment or self.document
+
     def dispatch(self) -> Generator[UserNotification, None, None]:
         """
         Create :class:`UserNotification` instances and yield in an iterator.
@@ -493,7 +499,7 @@ class Notification(NoIdMixin, db.Model):
         Subclasses wanting more control over how their notifications are dispatched
         should override this method.
         """
-        for user, role in (self.fragment or self.document).actors_with(
+        for user, role in self.role_provider_obj.actors_with(
             self.roles, with_role=True
         ):
             # If this notification requires that it not be sent to the actor that
@@ -576,6 +582,14 @@ class UserNotificationMixin:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
+    def is_not_deleted(self):
+        """Return True if the document and optional fragment are still present."""
+        try:
+            return bool(self.fragment and self.document or self.document)
+        except NoResultFound:
+            pass
+        return False
+
 
 class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     """
@@ -588,17 +602,20 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     # Primary key is a compound of (user_id, eventid).
 
-    #: Id of user being notified (not immutable, to support account merge)
-    user_id = db.Column(
-        None,
-        db.ForeignKey('user.id', ondelete='CASCADE'),
-        primary_key=True,
-        nullable=False,
+    #: Id of user being notified
+    user_id = immutable(
+        db.Column(
+            None,
+            db.ForeignKey('user.id', ondelete='CASCADE'),
+            primary_key=True,
+            nullable=False,
+        )
     )
 
     #: User being notified (backref defined below, outside the model)
-    #: (not immutable, to support account merge)
-    user = with_roles(db.relationship(User), read={'owner'}, grants={'owner'})
+    user = with_roles(
+        immutable(db.relationship(User)), read={'owner'}, grants={'owner'}
+    )
 
     #: Random eventid, shared with the Notification instance
     eventid = with_roles(
@@ -953,8 +970,9 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             # if the two copies are for different notifications under the same eventid.
             if existing:
                 db.session.delete(user_notification)
-            else:
-                user_notification.user_id = new_user.id
+        cls.query.filter_by(user_id=old_user.id).update(
+            {'user_id': new_user.id}, synchronize_session=False
+        )
         return None
 
 
@@ -1107,10 +1125,11 @@ class NotificationPreferences(BaseMixin, db.Model):
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         for ntype, prefs in list(old_user.notification_preferences.items()):
-            if ntype not in new_user.notification_preferences:
-                prefs.user = new_user
-            else:
+            if ntype in new_user.notification_preferences:
                 db.session.delete(prefs)
+        NotificationPreferences.query.filter_by(user_id=old_user.id).update(
+            {'user_id': new_user.id}, synchronize_session=False
+        )
         return None
 
     @db.validates('notification_type')
@@ -1123,7 +1142,7 @@ class NotificationPreferences(BaseMixin, db.Model):
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     all_notifications = with_roles(
         db.relationship(
             UserNotification,

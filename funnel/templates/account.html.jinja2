@@ -31,7 +31,7 @@
       <div class="grid__col-xs-12">
         <div class="user user--bigger">
           <div class="user__box mui--clearfix">
-            {{ useravatar(current_auth.user) }}
+            {{ useravatar(current_auth.user, size='big') }}
             <div class="user__box__header">
               <p class="mui--text-title user__box__fullname">{{ current_auth.user.fullname }}</p>
               {% if current_auth.user.username %}
@@ -85,7 +85,7 @@
             <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
               {% for extid in current_auth.user.externalids %}
                 <li>
-                  {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username }} <small class="subitem"><em>{% trans last_used_at=extid.last_used_at|age %}Last used {{ last_used_at }}{% endtrans %}</em></small></span>
+                  {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class='mui--text-light icon-img icon-img--smaller') }}<span class="item">{{ extid.username or login_registry[extid.service]['title'] }} <small class="subitem"><em>{% trans last_used_at=extid.last_used_at|age %}Last used {{ last_used_at }}{% endtrans %}</em></small></span>
                   <a href="{{ url_for('remove_extid', service=extid.service, userid=extid.userid) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
               {% endfor %}
@@ -223,8 +223,9 @@
 
       <div class="grid__col-xs-12">
         <div class="card">
-          <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">{% trans %}Organizations{% endtrans %}</h3>
+          <div class="card__header mui--clearfix">
+            <h3 class="mui--text-title margin-top mui--text-bold mui--pull-left">{% trans %}Organizations{% endtrans %}</h3>
+            <a class="mui--text-subhead margin-top mui--pull-right" href="/new">{{ faicon(icon='plus', css_class='fa-icon--margin') }}<span>{% trans %}New{% endtrans %}</span></a>
           </div>
           <div class="card__body">
             <ol class="mui-list--aligned mui-list--border zero-bottom-margin">

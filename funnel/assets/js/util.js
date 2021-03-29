@@ -1,8 +1,9 @@
+/* global gettext */
+
 import Gettext from './gettext';
 import * as timeago from 'timeago.js';
 /*eslint camelcase: ["error", {allow: ["hi_IN"]}]*/
 import hi_IN from 'timeago.js/lib/lang/hi_IN';
-// Strings used in window.gettext fn are in  templates/js/translations_only.js.jinja2
 
 /* global ga */
 export const Utils = {
@@ -104,9 +105,10 @@ export const Utils = {
     }
   },
   truncate() {
-    let readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${window.gettext(
+    let readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${gettext(
       'read more'
     )}</span>`;
+
     $('.js-truncate').each(function () {
       let linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
@@ -119,10 +121,11 @@ export const Utils = {
       $(this).trunk8({
         lines: linesLimit,
         fill: readMoreTxt,
+        parseHTML: true,
       });
     });
 
-    $('.js-read-more').click(function () {
+    $('body').on('click', '.js-read-more', function () {
       $(this).parent('.js-truncate-readmore').trunk8('revert');
     });
   },
@@ -136,7 +139,9 @@ export const Utils = {
         : $(this).find('.calendar__weekdays__dates--latest');
 
       firstActiveWeek
-        .find('.calendar__weekdays__dates__date--showtime:first')
+        .find(
+          '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first'
+        )
         .addClass('calendar__weekdays__dates__date--display');
 
       $(this)
@@ -152,20 +157,24 @@ export const Utils = {
         .find('.calendar__weekdays__dates__date--showtime')
         .mouseleave(function () {
           firstActiveWeek
-            .find('.calendar__weekdays__dates__date--showtime:first')
+            .find(
+              '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first'
+            )
             .addClass('calendar__weekdays__dates__date--display');
         });
 
-      let todayDate = $(this).find('.calendar__counting').data('today');
+      let todayDate = $(this).find('.calendar__month__counting').data('today');
       let nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
-        .find('.calendar__weekdays__dates__date--active')
+        .find(
+          '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest'
+        )
         .first();
       let eventDate = nextEventElem.data('event-date');
       let eventMonth = nextEventElem.data('event-month');
       let monthElem = $(this)
-        .find('.calendar__month-name')
+        .find('.calendar__month')
         .find("[data-month='" + eventMonth + "']");
 
       // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
@@ -175,12 +184,17 @@ export const Utils = {
       // Find the difference between event and today's date in UTC
       let counting = Math.round((eventDay - today) / singleDay);
       // Defined these strings in project_countdown macro in calendar_snippet.js.jinja2
-      let dayText = ['Today', 'Tomorrow', 'Day after', 'In %d days'];
+      let dayText = [
+        gettext('Today'),
+        gettext('Tomorrow'),
+        gettext('Day after'),
+        gettext('In %d days', counting),
+      ];
       // Show number of days on the widget only if it is less than 32 days
       if (counting >= 0 && counting < 3) {
-        monthElem.text(window.gettext(dayText[counting]));
+        monthElem.text(dayText[counting]);
       } else if (counting > 2 && counting < 32) {
-        monthElem.text(window.gettext(dayText[3], counting));
+        monthElem.text(dayText[3]);
       }
     });
   },
@@ -193,7 +207,7 @@ export const Utils = {
     // Add server error strings for translations in server_error.js.jinja2
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg = window.gettext(
+        errorMsg = gettext(
           'An internal server error occurred. Our support team has been notified and will investigate.'
         );
       } else if (
@@ -207,7 +221,7 @@ export const Utils = {
         errorMsg = response.responseJSON.error_description;
       }
     } else {
-      errorMsg = window.gettext(
+      errorMsg = gettext(
         'Unable to connect. Check connection and tap to reload.'
       );
     }
@@ -320,7 +334,7 @@ export const Utils = {
         selection.removeAllRanges();
         selection.addRange(range);
         document.execCommand('copy');
-        window.toastr.success('Link copied');
+        window.toastr.success(gettext('Link copied'));
         selection.removeAllRanges();
       });
     }
@@ -362,6 +376,33 @@ export const Utils = {
     timeago.register('hi_IN', hi_IN);
     return timeago;
   },
+  activateToggleSwitch() {
+    $('.js-toggle').on('change', function () {
+      let checkbox = $(this);
+      let currentState = this.checked;
+      let previousState = !currentState;
+      let formData = $(checkbox).parent('form').serializeArray();
+      if (!currentState) {
+        formData.push({ name: $(this).attr('name'), value: 'false' });
+      }
+      $.ajax({
+        type: 'POST',
+        url: $(checkbox).parent('form').attr('action'),
+        data: formData,
+        dataType: 'json',
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          if (responseData && responseData.message) {
+            window.toastr.success(responseData.message);
+          }
+        },
+        error: function (response) {
+          Utils.handleAjaxError(response);
+          $(checkbox).prop('checked', previousState);
+        },
+      });
+    });
+  },
 };
 
 export const ScrollActiveMenu = {
@@ -392,29 +433,6 @@ export const ScrollActiveMenu = {
       }
     });
     this.activeNavItem = '';
-
-    if (document.getElementById('ticket-wrapper')) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (
-              !entry.isIntersecting &&
-              entry.intersectionRatio > 0.5 &&
-              entry.boundingClientRect.y < 0
-            ) {
-              $('#ticket-btn').addClass('sub-navbar__item--fixed');
-            } else if (entry.isIntersecting && entry.intersectionRatio === 1) {
-              $('#ticket-btn').removeClass('sub-navbar__item--fixed');
-            }
-          });
-        },
-        {
-          rootMargin: '0px',
-          threshold: 1,
-        }
-      );
-      observer.observe(document.getElementById('ticket-wrapper'));
-    }
   },
 
   handleObserver(entries) {
@@ -487,7 +505,7 @@ export const SaveProject = function ({
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
             window.toastr.success(
-              window.gettext('Project added to Account > My saves')
+              gettext('Project added to Account > My saves')
             );
           }
         }
@@ -615,105 +633,4 @@ TableSearch.prototype.searchRows = function (q) {
   }
 
   return matchedIds;
-};
-
-export const Comments = {
-  init() {
-    const newCommentUrl = $('#comment-form').attr('action');
-
-    $('.comment .js-collapse').click(function () {
-      $(this).addClass('mui--hide');
-      $(this).siblings('.js-uncollapse').removeClass('mui--hide');
-      $(this).parent().siblings('.comment--body').slideUp('fast');
-      $(this).parent().siblings('.comment--children').slideUp('fast');
-      return false;
-    });
-
-    $('.comment .js-uncollapse').click(function () {
-      $(this).addClass('mui--hide');
-      $(this).siblings('.js-collapse').removeClass('mui--hide');
-      $(this).parent().siblings('.comment--body').slideDown('fast');
-      $(this).parent().siblings('.comment--children').slideDown('fast');
-      return false;
-    });
-
-    $('.comment .js-comment-reply').click(function () {
-      const cfooter = $(this).parent();
-      $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
-      $('#comment-form  input[name="comment_edit_id"]').val('');
-      $('#toplevel-comment, #comment-cancel').removeClass('mui--hide');
-      $('#comment-submit').val('Reply'); // i18n gotcha
-      cfooter.after($('#comment-form'));
-      $('#comment-form textarea').focus();
-      return false;
-    });
-
-    $('.comment .js-comment-report').click(function (e) {
-      const commentdiv = $(this).parent();
-      if (window.confirm('Do you want to mark this comments as spam?')) {
-        var reporturl = $(commentdiv).attr('data-report-url');
-        $(`<form action="${reporturl}" method="POST"/>`)
-          .append(
-            $('<input type="hidden" name="csrf_token">').val(
-              $('meta[name="csrf-token"]').attr('content')
-            )
-          )
-          .appendTo($(commentdiv))
-          .submit();
-      } else {
-        e.preventDefault();
-      }
-    });
-
-    $('#toplevel-comment a, #comment-cancel').click(function () {
-      $('#comment-form').attr('action', newCommentUrl);
-      $('#comment-form  input[name="parent_id"]').val('');
-      $('#comment-form  input[name="comment_edit_id"]').val('');
-      $('#comment-submit').val('Post comment'); // i18n gotcha
-      $('#comment-form .message .CodeMirror')[0].CodeMirror.setValue('');
-      $('#toplevel-comment a').parent().after($('#comment-form'));
-      $('#toplevel-comment a').parent().addClass('mui--hide');
-      $('#toplevel-comment, #comment-cancel').addClass('mui--hide');
-      $('#comment-form textarea').focus();
-      return false;
-    });
-
-    $('.comment .js-comment-delete').click(function () {
-      const cfooter = $(this).parent();
-      $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
-      $('#delcomment').attr('action', cfooter.attr('data-delete-url'));
-      $('#delcomment')
-        .removeClass('mui--hide')
-        .hide()
-        .insertAfter(cfooter)
-        .slideDown('fast');
-      return false;
-    });
-
-    $('#comment-delete-cancel').click(() => {
-      $('#delcomment').slideUp('fast');
-      return false;
-    });
-
-    $('.comment .js-comment-edit').click(function () {
-      const cfooter = $(this).parent();
-      const cid = cfooter.attr('data-id');
-      const editUrl = cfooter.attr('data-json-url');
-      $(cfooter).find('.loading').removeClass('mui--hide');
-      $('#comment-form').attr('action', cfooter.attr('data-edit-url'));
-      $.getJSON(editUrl, (data) => {
-        $('#comment-form .message .CodeMirror')[0].CodeMirror.setValue(
-          data.message
-        );
-      });
-      $('#comment-form input[name="parent_id"]').val('');
-      $('#comment-form input[name="comment_edit_id"]').val(cid);
-      $('#toplevel-comment').removeClass('mui--hide');
-      $(cfooter).find('.loading').addClass('mui--hide');
-      $('#comment-submit').val('Save changes');
-      cfooter.after($('#comment-form'));
-      $('#comment-form textarea').focus();
-      return false;
-    });
-  },
 };

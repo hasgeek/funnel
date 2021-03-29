@@ -15,7 +15,13 @@ __all__ = [
 
 @Profile.forms('main')
 class ProfileForm(OrganizationForm):
-    """Edit a profile."""
+    """
+    Edit a profile.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
 
     description = forms.MarkdownField(
         __("Welcome message"),
@@ -46,8 +52,7 @@ class ProfileForm(OrganizationForm):
     )
 
     def set_queries(self):
-        if self.edit_obj:
-            self.logo_url.profile = self.edit_obj.name
+        self.logo_url.profile = self.profile.name
 
     def make_for_user(self):
         self.title.label.text = __("Your name")
@@ -78,6 +83,14 @@ class ProfileTransitionForm(forms.Form):
 
 @Profile.forms('logo')
 class ProfileLogoForm(forms.Form):
+    """
+    Form for profile logo.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
+
     logo_url = forms.ImgeeField(
         __("Profile image"),
         validators=[
@@ -89,12 +102,19 @@ class ProfileLogoForm(forms.Form):
 
     def set_queries(self):
         self.logo_url.widget_type = 'modal'
-        if self.edit_obj:
-            self.logo_url.profile = self.edit_obj.name
+        self.logo_url.profile = self.profile.name
 
 
 @Profile.forms('banner_image')
 class ProfileBannerForm(forms.Form):
+    """
+    Form for profile banner.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
+
     banner_image_url = forms.ImgeeField(
         __("Banner image"),
         validators=[
@@ -106,5 +126,4 @@ class ProfileBannerForm(forms.Form):
 
     def set_queries(self):
         self.banner_image_url.widget_type = 'modal'
-        if self.edit_obj:
-            self.banner_image_url.profile = self.edit_obj.name
+        self.banner_image_url.profile = self.profile.name

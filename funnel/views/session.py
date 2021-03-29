@@ -1,6 +1,6 @@
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, forms, localize_timezone, request_is_xhr
+from baseframe import _, localize_timezone, request_is_xhr
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -55,8 +55,7 @@ def session_form(project, proposal=None, session=None):
     else:
         form = SessionForm()
         if proposal:
-            form.description.data = proposal.outline
-            form.speaker_bio.data = proposal.bio
+            form.description.data = proposal.body
             form.speaker.data = proposal.owner.fullname
             form.title.data = proposal.title
 
@@ -143,7 +142,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('')
-    @render_with('schedule.html.jinja2', json=True)
+    @render_with('project_schedule.html.jinja2', json=True)
     def view(self):
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
@@ -178,7 +177,6 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'schedule': schedule_data(
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
-            'csrf_form': forms.Form(),
         }
 
     @route('viewsession-popup')
@@ -211,7 +209,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return jsonify(
                 status=True,
                 modal_url=modal_url,
-                msg=_(
+                message=_(
                     "This project will not be listed as it has no sessions in the "
                     "schedule"
                 ),

@@ -362,8 +362,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 )
             db.session.delete(useremail)
 
-    @with_roles(read={'owner'})
-    @cached_property
+    @property
     def email(self) -> Union[str, UserEmail]:
         """Return primary email address for user."""
         # Look for a primary address
@@ -382,8 +381,38 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # to get the email address as a string.
         return ''
 
-    @with_roles(read={'owner'})
-    @cached_property
+    with_roles(email, read={'owner'})
+
+    def add_phone(
+        self,
+        phone: str,
+        primary: bool = False,
+        type: Optional[str] = None,  # NOQA: A002  # skipcq: PYL-W0622
+        private: bool = False,
+    ) -> UserPhone:
+        userphone = UserPhone(user=self, phone=phone, type=type, private=private)
+        userphone = failsafe_add(
+            db.session, userphone, user=self, phone=userphone.phone
+        )
+        if primary:
+            self.primary_phone = userphone
+        return userphone
+        # FIXME: This should remove competing instances of UserPhoneClaim
+
+    def del_phone(self, phone: str) -> None:
+        userphone = UserPhone.get_for(user=self, phone=phone)
+        if userphone:
+            if self.primary_phone in (userphone, None):
+                self.primary_phone = (
+                    UserPhone.query.filter(
+                        UserPhone.user == self, UserPhone.id != userphone.id
+                    )
+                    .order_by(UserPhone.created_at.desc())
+                    .first()
+                )
+            db.session.delete(userphone)
+
+    @property
     def phone(self) -> Union[str, UserPhone]:
         """Return primary phone number for user."""
         # Look for a primary phone number
@@ -401,6 +430,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # to support the common use case, where the caller will use str(user.phone)
         # to get the phone number as a string.
         return ''
+
+    with_roles(phone, read={'owner'})
 
     def is_profile_complete(self) -> bool:
         """Verify if profile is complete (fullname, username and contacts present)."""
@@ -617,7 +648,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def all(  # NOQA: A003
         cls,
         buids: Iterable[str] = None,
-        userids: Iterable[str] = None,
         usernames: Iterable[str] = None,
         defercols: bool = False,
     ) -> List[User]:
@@ -625,15 +655,13 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         Return all matching users.
 
         :param list buids: Buids to look up
-        :param list userids: Alias for ``buids`` (deprecated)
         :param list usernames: Usernames to look up
         :param bool defercols: Defer loading non-critical columns
         """
         users = set()
-        if userids and not buids:
-            buids = userids
         if buids and usernames:
-            query = cls.query.join(Profile).filter(
+            # Use .outerjoin(Profile) or users without usernames will be excluded
+            query = cls.query.outerjoin(Profile).filter(
                 db.or_(
                     cls.buid.in_(buids),
                     db.func.lower(Profile.name).in_(
@@ -650,7 +678,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 )
             )
         else:
-            raise Exception
+            raise TypeError("A parameter is required")
 
         if defercols:
             query = query.options(*cls._defercols)
@@ -688,7 +716,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
         # base_users is used in two of the three possible queries below
         base_users = (
-            cls.query.join(Profile)
+            # Use outerjoin(Profile) to find users without profiles (not inner join)
+            cls.query.outerjoin(Profile)
             .filter(
                 cls.state.ACTIVE,
                 db.or_(
@@ -697,6 +726,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 ),
             )
             .options(*cls._defercols)
+            .order_by(User.fullname)
             .limit(20)
         )
 

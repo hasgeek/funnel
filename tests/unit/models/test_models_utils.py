@@ -1,122 +1,97 @@
-from os import environ
-
-from funnel import db
 import funnel.models as models
 
-from .test_db import TestDatabaseFixture
+
+def test_merge_users_older_newer(db_session, user_death, user_rincewind):
+    """Test to verify merger of user accounts and return new user (older first)."""
+    # Scenario 1: if first user's created_at date is older than second user's
+    # created_at
+    db_session.commit()
+    merged = models.merge_users(user_death, user_rincewind)
+    assert merged == user_death
+    assert isinstance(merged, models.User)
+    # because the logic is to merge into older account
+    assert user_death.state.ACTIVE
+    assert user_rincewind.state.MERGED
 
 
-class TestModels(TestDatabaseFixture):
-    def test_merge_users(self):
-        """Test to verify merger of user accounts and return new user."""
-        # Scenario 1: if first user's created_at date is older than second user's
-        # created_at
-        crusoe = self.fixtures.crusoe
-        bathound = models.User(username="bathound", fullname="Bathound")
-        db.session.add(bathound)
-        db.session.commit()
-        with self.app.test_request_context('/'):
-            merged = models.merge_users(crusoe, bathound)
-            assert merged == crusoe
-            assert isinstance(merged, models.User)
-            # because the logic is to merge into older account
-            assert crusoe.state.ACTIVE
-            assert bathound.state.MERGED
+def test_merge_users_newer_older(db_session, user_death, user_rincewind):
+    """Test to verify merger of user accounts and return new user (newer first)."""
+    # Scenario 2: if second user's created_at date is older than first user's
+    # created_at
+    db_session.commit()
+    merged = models.merge_users(user_rincewind, user_death)
+    assert merged == user_death
+    assert isinstance(merged, models.User)
+    # because the logic is to merge into older account
+    assert user_death.state.ACTIVE
+    assert user_rincewind.state.MERGED
 
-        # Scenario 2: if second user's created_at date is older than first user's
-        # created_at
-        tyrion = models.User(username='tyrion', fullname="Tyrion Lannister")
-        db.session.add(tyrion)
-        db.session.commit()
-        subramanian = models.User(username='subramanian', fullname="Tyrion Subramanian")
-        db.session.add(subramanian)
-        db.session.commit()
-        with self.app.test_request_context('/'):
-            merged = models.merge_users(subramanian, tyrion)
-            assert merged == tyrion
-            assert isinstance(merged, models.User)
-            # because the logic is to merge into older account
-            assert tyrion.state.ACTIVE
-            assert subramanian.state.MERGED
 
-    def test_getuser(self):
-        """Test for retrieving username by prepending @."""
-        # scenario 1: with @ starting in name and extid
-        crusoe = self.fixtures.crusoe
-        service_twitter = 'twitter'
-        oauth_token = environ.get('TWITTER_OAUTH_TOKEN')
-        oauth_token_type = 'Bearer'  # NOQA: S105
-        externalid = models.UserExternalId(
-            service=service_twitter,
-            user=crusoe,
-            userid=crusoe.email.email,
-            username=crusoe.username,
-            oauth_token=oauth_token,
-            oauth_token_type=oauth_token_type,
-        )
-        db.session.add(externalid)
-        db.session.commit()
-        result1 = models.getuser('@crusoe')
-        assert isinstance(result1, models.User)
-        assert result1 == crusoe
+def test_getuser(db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang):
+    """Test for retrieving username by prepending @."""
+    # Convert fixtures are as we need them to be
+    assert user_twoflower.username is None
+    assert user_rincewind.username == 'rincewind'
+    assert user_mort.username is None
 
-        # scenario 2: with @ in name and not extid
-        d_email = 'd@dothraki.vly'
-        daenerys = models.User(
-            username='daenerys', fullname="Daenerys Targaryen", email=d_email
-        )
-        daenerys_email = models.UserEmail(email=d_email, user=daenerys)
-        db.session.add_all([daenerys, daenerys_email])
-        db.session.commit()
-        result2 = models.getuser(d_email)
-        assert isinstance(result2, models.User)
-        assert result2 == daenerys
-        result3 = models.getuser('@daenerys')
-        assert result3 is None
+    # Add additional fixtures
 
-        # scenario 3: with no @ starting in name, check by UserEmailClaim
-        j_email = 'jonsnow@nightswatch.co.uk'
-        jonsnow = models.User(username='jonsnow', fullname="Jon Snow")
-        jonsnow_email_claimed = models.UserEmailClaim(email=j_email, user=jonsnow)
-        db.session.add_all([jonsnow, jonsnow_email_claimed])
-        db.session.commit()
-        result4 = models.getuser(j_email)
-        assert isinstance(result4, models.User)
-        assert result4 == jonsnow
+    # Email claim (not verified)
+    # User Wolfgang is attempting to claim someone else's email address
+    emailclaim1 = models.UserEmailClaim(
+        user=user_wolfgang, email='twoflower@example.org'
+    )
+    emailclaim2 = models.UserEmailClaim(
+        user=user_wolfgang, email='rincewind@example.org'
+    )
+    db_session.add_all([emailclaim1, emailclaim2])
+    db_session.commit()
 
-        # scenario 5: with no @ anywhere in name, fetch username
-        arya = models.User(username='arya', fullname="Arya Stark")
-        db.session.add(arya)
-        db.session.commit()
-        result5 = models.getuser('arya')
-        assert result5 == arya
+    # Verified email addresses:
+    user_twoflower.add_email('twoflower@example.org')  # This does not remove the claim
+    user_rincewind.add_email('rincewind@example.com')
+    user_mort.add_email('mort@example.net')
 
-        # scenario 6: with no starting with @ name and no UserEmailClaim or UserEmail
-        cersei = models.User(username='cersei', fullname="Cersei Lannister")
-        db.session.add(cersei)
-        db.session.commit()
-        result6 = models.getuser('cersei@thelannisters.co.uk')
-        assert result6 is None
+    # Now the tests
 
-    def test_getextid(self):
-        """Test for retrieving user given service and userid."""
-        crusoe = self.fixtures.crusoe
-        email = crusoe.email.email
-        service_facebook = 'facebook'
+    # Twoflower has no username, so these calls don't find anyone
+    assert models.getuser('twoflower') is None
+    assert models.getuser('@twoflower') is None
 
-        externalid = models.UserExternalId(  # NOQA: S106
-            service=service_facebook,
-            user=crusoe,
-            userid=crusoe.email.email,
-            username=crusoe.email.email,
-            oauth_token=environ.get('FACEBOOK_OAUTH_TOKEN'),
-            oauth_token_type='Bearer',
-        )
+    # Rincewind has a username, so both variations of the call work
+    assert models.getuser('rincewind') == user_rincewind
+    assert models.getuser('@rincewind') == user_rincewind
+    assert models.getuser('~rincewind') == user_rincewind
 
-        db.session.add(externalid)
-        db.session.commit()
-        result = models.getextid(service_facebook, userid=email)
-        assert isinstance(result, models.UserExternalId)
-        assert '<UserExternalId {service}:{username} of {user}>'.format(
-            service=service_facebook, username=email, user=repr(crusoe)[1:-1]
-        ) in repr(result)
+    # Retrieval by email works
+    assert models.getuser('rincewind@example.com') == user_rincewind
+    assert models.getuser('mort@example.net') == user_mort
+
+    # Retrival by email claim only works when there is no verified email address
+    assert models.getuser('twoflower@example.org') != user_wolfgang  # Claim ignored
+    assert models.getuser('twoflower@example.org') == user_twoflower  # Because verified
+    assert models.getuser('rincewind@example.org') == user_wolfgang  # Claim works
+
+    # Using an unknown email address retrieves nothing
+    assert models.getuser('unknown@example.org') is None
+
+
+def test_getextid(db_session, user_rincewind):
+    """Retrieve user given service and userid."""
+    service = 'sample-service'
+    userid = 'rincewind@sample-service'
+
+    externalid = models.UserExternalId(  # NOQA: S106
+        service=service,
+        user=user_rincewind,
+        userid=userid,
+        username='rincewind',
+        oauth_token='sample-service-token',
+        oauth_token_type='Bearer',
+    )
+
+    db_session.add(externalid)
+    db_session.commit()
+    result = models.getextid(service, userid=userid)
+    assert isinstance(result, models.UserExternalId)
+    assert result == externalid

@@ -2,7 +2,7 @@
 {% block content -%}
 
   <p>{% trans project=project.title, actor=actor.pickername %}
-    <b>{{ actor }}</b> has added you to <b>{{ project }}</b> as a crew member.
+    {{ actor }} has added you to ‘{{ project }}’ as a crew member.
   {% endtrans %}</p>
 
   <p class="btn-bar">

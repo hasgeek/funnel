@@ -1,7 +1,7 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "macros.html.jinja2" import embed_video_player, video_action_bar %}
 <div class="modal__header mui--bg-accent">
-  <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times',  icon_size='title') }}</a>
+  <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}
@@ -51,7 +51,7 @@
     </div>
   {%- endif %}
   {% if session.proposal %}
-    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}Open proposal for this session{% endtrans %}</a></p>
+    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}Open submission for this session{% endtrans %}</a></p>
   {% endif %}
   {% if session.video or session.proposal %}
   <hr class="modal__body__separator">
@@ -60,12 +60,6 @@
     <div class="modal__body__section">
       <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Description{% endtrans %}</strong></h3>
       <div class="mui--text-body2 image-wrapper">{{ session.description }}</div>
-    </div>
-  {% endif %}
-  {% if session.speaker_bio %}
-    <div class="modal__body__section">
-      <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Speaker Bio{% endtrans %}</strong></h3>
-      <div class="mui--text-body2">{{ session.speaker_bio }}</div>
     </div>
   {% endif %}
 </div>

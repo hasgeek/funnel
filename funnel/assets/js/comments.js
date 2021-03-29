@@ -5,13 +5,13 @@ import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
 const Comments = {
   init({
     newCommentUrl,
+    commentsUrl,
     divElem,
     commentTemplate,
     isuserloggedin,
-    isuserparticipant,
-    iscommentmoderator,
     user,
     loginUrl,
+    lastSeenUrl,
   }) {
     const COMMENTACTIONS = {
       REPLY: 0,
@@ -29,7 +29,7 @@ const Comments = {
 
     const commentUI = Vue.component('comment', {
       template: commentTemplate,
-      props: ['comment', 'user', 'isuserparticipant', 'iscommentmoderator'],
+      props: ['comment', 'user', 'isuserloggedin'],
       data() {
         return {
           errorMsg: '',
@@ -64,7 +64,6 @@ const Comments = {
             this.formAction.forEach((commentForm) => {
               this[commentForm.form] = false;
             });
-            $('#js-header').removeClass('header--lowzindex');
             this.$parent.refreshCommentsTimer();
           }
         },
@@ -151,13 +150,12 @@ const Comments = {
           newCommentUrl,
           comments: [],
           isuserloggedin,
-          isuserparticipant,
-          iscommentmoderator,
           user,
           commentForm: false,
           textarea: '',
           errorMsg: '',
           loginUrl,
+          lastSeenUrl,
           refreshTimer: '',
           headerHeight: '',
           svgIconUrl: window.Hasgeek.config.svgIconUrl,
@@ -176,7 +174,6 @@ const Comments = {
           this.activateForm(this.COMMENTACTIONS.NEW, textareaId);
         },
         activateForm(action, textareaId, parentApp = app) {
-          $('#js-header').addClass('header--lowzindex');
           if (textareaId) {
             this.$nextTick(() => {
               let editor = window.CodeMirror.fromTextArea(
@@ -206,7 +203,6 @@ const Comments = {
             this.commentForm = false;
             this.formTitle = '';
             this.showmodal = false;
-            $('#js-header').removeClass('header--lowzindex');
             this.refreshCommentsTimer();
           }
         },
@@ -250,6 +246,7 @@ const Comments = {
         },
         fetchCommentsList() {
           $.ajax({
+            url: commentsUrl,
             type: 'GET',
             timeout: window.Hasgeek.config.ajaxTimeout,
             dataType: 'json',
@@ -293,6 +290,32 @@ const Comments = {
         $(window).resize(() => {
           this.headerHeight = Utils.getPageHeaderHeight();
         });
+
+        const commentSection = document.querySelector(divElem);
+        if (commentSection && lastSeenUrl) {
+          const observer = new IntersectionObserver(
+            function (entries) {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  $.ajax({
+                    url: lastSeenUrl,
+                    type: 'POST',
+                    data: {
+                      csrf_token: $('meta[name="csrf-token"]').attr('content'),
+                    },
+                    dataType: 'json',
+                  });
+                  observer.unobserve(commentSection);
+                }
+              });
+            },
+            {
+              rootMargin: '0px',
+              threshold: 0,
+            }
+          );
+          observer.observe(commentSection);
+        }
       },
       updated() {
         if (this.initialLoad && window.location.hash) {

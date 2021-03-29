@@ -13,15 +13,8 @@ from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles
 from coaster.utils import utcnow
 
-from . import (
-    BaseScopedIdNameMixin,
-    MarkdownColumn,
-    TSVectorType,
-    UrlType,
-    UuidMixin,
-    db,
-)
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from . import BaseScopedIdNameMixin, MarkdownColumn, TSVectorType, UuidMixin, db
+from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
@@ -43,7 +36,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     )
     parent = db.synonym('project')
     description = MarkdownColumn('description', default='', nullable=False)
-    speaker_bio = MarkdownColumn('speaker_bio', default='', nullable=False)
     proposal_id = db.Column(
         None, db.ForeignKey('proposal.id'), nullable=True, unique=True
     )
@@ -57,19 +49,17 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
     is_break = db.Column(db.Boolean, default=False, nullable=False)
     featured = db.Column(db.Boolean, default=False, nullable=False)
-    banner_image_url = db.Column(UrlType, nullable=True)
+    banner_image_url = db.Column(ImgeeType, nullable=True)
 
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
                 'title',
                 'description_text',
-                'speaker_bio_text',
                 'speaker',
                 weights={
                     'title': 'A',
                     'description_text': 'B',
-                    'speaker_bio_text': 'B',
                     'speaker': 'A',
                 },
                 regconfig='english',
@@ -78,7 +68,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                     Session.title,
                     Session.speaker,
                     Session.description_html,
-                    Session.speaker_bio_html,
                 ),
             ),
             nullable=False,
@@ -105,7 +94,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                 'user',
                 'featured',
                 'description',
-                'speaker_bio',
                 'start_at',
                 'end_at',
                 'venue_room',
@@ -129,7 +117,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',
@@ -145,7 +132,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',
@@ -161,7 +147,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             'user',
             'featured',
             'description',
-            'speaker_bio',
             'start_at',
             'end_at',
             'venue_room',
@@ -209,7 +194,6 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             session_obj = cls(
                 title=proposal.title,
                 description=proposal.outline,
-                speaker_bio=proposal.bio,
                 project=proposal.project,
                 proposal=proposal,
             )
@@ -233,7 +217,7 @@ add_search_trigger(Session, 'search_vector')
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     # Project schedule column expressions
     # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(

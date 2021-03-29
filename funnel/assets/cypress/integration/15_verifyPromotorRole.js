@@ -1,15 +1,17 @@
-describe('Verify roles of concierge', function () {
-  const concierge = require('../fixtures/user.json').concierge;
+describe('Verify roles of promoter', function () {
+  const promoter = require('../fixtures/user.json').promoter;
   const project = require('../fixtures/project.json');
 
-  it('Access available for concierge in project settings', function () {
-    cy.login('/', concierge.username, concierge.password);
+  it('Access available for promoter in project settings', function () {
+    cy.login('/', promoter.username, promoter.password);
 
     cy.get('[data-cy-title="' + project.title + '"]')
       .first()
       .click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.wait(1000);
+    cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="edit"]').should('not.exist');
     cy.get('a[data-cy="add-livestream"]').should('not.exist');

@@ -19,10 +19,10 @@ describe('Remove video to session', function () {
     cy.get('#session-modal').should('be.visible');
     cy.get('[data-cy="edit-video"]').click();
     cy.get('#video_url').clear();
-    cy.get('button').contains('save session').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
     cy.get('#session-modal').find('iframe').should('not.exist');
     cy.get('[data-cy="close-modal"]').click();
-    cy.get('[data-cy-navbar="video"]').click();
+    cy.get('[data-cy-navbar="about"]').click();
     cy.get('[data-cy="title"]').contains(proposal.title).should('not.exist');
   });
 });

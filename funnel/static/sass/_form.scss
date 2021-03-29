@@ -239,6 +239,10 @@
       right: 0;
       padding: $mui-grid-padding;
       z-index: 1003;
+      .mui-btn--primary {
+        position: relative;
+        top: 8px;
+      }
     }
   }
 }
@@ -370,8 +374,9 @@
       .CodeMirror {
         border: 1px solid $mui-primary-color;
         border-radius: 16px 16px 0 16px;
-        min-height: 16px;
-        padding: 16px;
+        min-height: 56px;
+        padding: $mui-grid-padding;
+        height: auto;
       }
       .CodeMirror ~ .CodeMirror {
         display: none;
@@ -457,6 +462,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  margin: 0 0 $mui-grid-padding;
   .post-form {
     cursor: pointer;
     text-decoration: none !important;

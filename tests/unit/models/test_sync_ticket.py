@@ -1,5 +1,7 @@
 import unittest
 
+import pytest
+
 from coaster.utils import uuid_b58
 from funnel import app
 from funnel.models import (
@@ -12,7 +14,6 @@ from funnel.models import (
     TicketParticipant,
     TicketType,
     User,
-    db,
 )
 
 from .event_models_fixtures import (
@@ -42,29 +43,30 @@ def bulk_upsert(project, ticket_event_list):
             ticket_event.ticket_types.append(ticket_type)
 
 
+@pytest.mark.usefixtures('db_session')
 class TestEventModels(unittest.TestCase):
     app = app
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def fixture_setup(self, request, db_session):
+        self.db_session = db_session
         self.ctx = self.app.test_request_context()
         self.ctx.push()
-        db.create_all()
         # Initial Setup
         random_user_id = uuid_b58()
         self.user = User(
             username='lukes{userid}'.format(userid=random_user_id.lower()),
             fullname="Luke Skywalker",
-            email='luke{userid}@dagobah.org'.format(userid=random_user_id),
         )
 
-        db.session.add(self.user)
-        db.session.commit()
+        self.db_session.add(self.user)
+        self.db_session.commit()
 
         self.organization = Organization(
             name='spacecon', title="SpaceCon", owner=self.user
         )
-        db.session.add(self.organization)
-        db.session.commit()
+        self.db_session.add(self.organization)
+        self.db_session.commit()
         self.profile = self.organization.profile
 
         self.project = Project(
@@ -73,9 +75,9 @@ class TestEventModels(unittest.TestCase):
             profile=self.profile,
             user=self.user,
         )
-        db.session.add(self.project)
+        self.db_session.add(self.project)
         self.project.make_name()
-        db.session.commit()
+        self.db_session.commit()
 
         self.ticket_client = TicketClient(
             name="test client",
@@ -85,18 +87,17 @@ class TestEventModels(unittest.TestCase):
             client_access_token='123',
             project=self.project,
         )
-        db.session.add(self.ticket_client)
-        db.session.commit()
+        self.db_session.add(self.ticket_client)
+        self.db_session.commit()
 
         bulk_upsert(self.project, event_ticket_types)
-        db.session.commit()
+        self.db_session.commit()
 
-        self.session = db.session
+        self.session = self.db_session
 
-    def tearDown(self):
-        self.session.rollback()
-        db.drop_all()
-        self.ctx.pop()
+        @request.addfinalizer
+        def tearDown():
+            self.ctx.pop()
 
     def test_import_from_list(self):
         # test bookings

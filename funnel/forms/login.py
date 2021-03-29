@@ -2,7 +2,7 @@ from baseframe import _, __
 import baseframe.forms as forms
 
 from ..models import User, UserSession, getuser
-from .account import password_policy
+from .account import PASSWORD_MAX_LENGTH, password_policy
 
 __all__ = [
     'LoginPasswordResetException',
@@ -26,29 +26,58 @@ class LoginForm(forms.Form):
 
     username = forms.StringField(
         __("Username or Email"),
-        validators=[forms.validators.DataRequired()],
+        validators=[
+            forms.validators.DataRequired(
+                __("An email address or username is required")
+            )
+        ],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(
         __("Password"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
+        validators=[
+            forms.validators.DataRequired(__("Password is required")),
+            forms.validators.Length(
+                max=PASSWORD_MAX_LENGTH,
+                message=__("Password must be under %(max)s characters"),
+            ),
+        ],
     )
 
     # These two validators depend on being called in sequence
     def validate_username(self, field):
         self.user = getuser(field.data)
         if self.user is None:
-            raise forms.ValidationError(_("User does not exist"))
+            raise forms.ValidationError(_("This user could not be identified"))
 
     def validate_password(self, field):
-        if not self.user:
-            # Can't validate password without a user
+        # If there is already an error in the password field, don't bother validating.
+        # This will be a `Length` validation error, but that one unfortunately does not
+        # raise `StopValidation`, so we'll get called with potentially too much data
+        if field.errors:
             return
+
+        # Use `getattr` as `self.user` won't be set if the `DataRequired` validator
+        # failed, as `validate_username` will not be called then
+        if not getattr(self, 'user', None):
+            # Can't validate password without a user. However, perform a safety check
+            if not self.username.errors:  # pragma: no cover
+                # This should never happen. Fields are validated in sequence, so
+                # `username` must be validated before `password`, unless (a) someone
+                # re-orders the fields, or (b) a future version of WTForms introduces
+                # out-of-order processing (including single-field processing)
+                raise ValueError("Password validated before username")
+            # Username field has errors. We don't need to raise an error then
+            return
+
+        # If user does not have a password, ask for a password reset
         if not self.user.pw_hash:
             raise LoginPasswordResetException()
+
+        # Check password. If valid but using a deprecated algorithm like bcrypt, also
+        # perform an automatic hash upgrade
         if not self.user.password_is(field.data, upgrade_hash=True):
-            if not self.username.errors:
-                raise forms.ValidationError(_("Incorrect password"))
+            raise forms.ValidationError(_("Incorrect password"))
 
         # Test for weak password. This gives us two options:
         #

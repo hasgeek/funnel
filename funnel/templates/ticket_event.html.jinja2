@@ -3,6 +3,7 @@
 {%- from "js/event_checkin.js.jinja2" import checkin_count, participant_list %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% from "baseframe/components.html.jinja2" import faicon %}
+{% from "macros.html.jinja2" import csrf_tag %}
 {% block title %}{% trans %}Setup events{% endtrans %}{% endblock %}
 {% block pageheaders %}
 {% endblock %}
@@ -18,7 +19,7 @@
       <div>
         <form method="POST" id="csrf_form" enctype="multipart/form-data" class="mui-form mui--pull-right">
           <div class="form-group">
-            {{ csrf_form.hidden_tag() }}
+            {{ csrf_tag() }}
             <input type="hidden" name="form.id" value="csrf_form"/>
           </div>
           <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--accent" type="submit">{% trans %}Sync tickets{% endtrans %}</button>
@@ -90,7 +91,7 @@
     9. There are two check-in counters & one counters has internet and the other counter doesn't: They have checked-in few same participants. Verify both counters have the recent check-in status of participants, once internet is up.*/
     var ticketEventConfig = {};
     ticketEventConfig.checkin = {
-      isConcierge: {%- if project.current_roles.concierge %} true {% else %} false {%- endif %},
+      IsPromoter: {%- if project.current_roles.promoter %} true {% else %} false {%- endif %},
       isUsher: {%- if project.current_roles.usher %} true {% else %} false {%- endif %},
       checkinUrl: "{{ ticket_event.url_for('checkin') }}",
       participantlistUrl: "{{ ticket_event.url_for('participants_json') }}",

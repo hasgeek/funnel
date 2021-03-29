@@ -29,6 +29,7 @@ from . import (
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .helpers import (
     RESERVED_NAMES,
+    ImgeeType,
     add_search_trigger,
     reopen,
     valid_name,
@@ -157,7 +158,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     bg_image = with_roles(
-        db.Column(UrlType, nullable=True),
+        db.Column(ImgeeType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
@@ -173,7 +174,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.Column(JsonDict, nullable=False, server_default='{}'),
         # This is an attribute, but we deliberately use `call` instead of `read` to
         # block this from dictionary enumeration. FIXME: Break up this dictionary into
-        # individual columns with `all` access for ticket embed id and `concierge`
+        # individual columns with `all` access for ticket embed id and `promoter`
         # access for ticket sync access token.
         call={'all'},
     )
@@ -409,13 +410,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         super(Project, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROJECT)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
-        # Add the creator as editor and concierge
+        # Add the creator as editor and promoter
         new_membership = ProjectCrewMembership(
             parent=self,
             user=self.user,
             granted_by=self.user,
             is_editor=True,
-            is_concierge=True,
+            is_promoter=True,
         )
         db.session.add(new_membership)
 
@@ -739,7 +740,7 @@ add_search_trigger(Project, 'search_vector')
 
 
 @reopen(Profile)
-class Profile:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Profile:
     listed_projects = db.relationship(
         Project,
         lazy='dynamic',
@@ -893,7 +894,7 @@ class ProjectLocation(TimestampMixin, db.Model):
 
 
 @reopen(Commentset)
-class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Commentset:
     project = with_roles(
         db.relationship(Project, uselist=False, back_populates='commentset'),
         grants_via={None: {'editor': 'document_subscriber'}},

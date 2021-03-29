@@ -90,7 +90,10 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
     @property
     def has_sudo(self):
-        return self.sudo_enabled_at > utcnow() - timedelta(minutes=15)
+        return (
+            self.sudo_enabled_at is None  # New session, not yet written to db
+            or self.sudo_enabled_at > utcnow() - timedelta(minutes=15)
+        )
 
     def set_sudo(self):
         self.sudo_enabled_at = db.func.utcnow()
@@ -127,7 +130,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     active_user_sessions = db.relationship(
         UserSession,
         lazy='dynamic',

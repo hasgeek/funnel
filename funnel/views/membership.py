@@ -1,6 +1,6 @@
 from flask import abort, g, redirect, request
 
-from baseframe import _, forms
+from baseframe import _
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import (
@@ -140,7 +140,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
         membership_form_html = render_form(
             form=membership_form,
             title='',
-            submit=u'Add member',
+            submit='Add member',
             ajax=False,
             with_chrome=False,
         )
@@ -201,7 +201,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
                             'status': 'error',
                             'error_description': _(
                                 "This member’s record was edited elsewhere."
-                                " Please refresh the page"
+                                " Reload the page"
                             ),
                             'form_nonce': membership_form.form_nonce.data,
                         },
@@ -243,7 +243,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
         membership_form_html = render_form(
             form=membership_form,
             title='',
-            submit=u'Edit membership',
+            submit='Edit membership',
             ajax=False,
             with_chrome=False,
         )
@@ -326,7 +326,6 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                 membership.current_access(datasets=('without_parent', 'related'))
                 for membership in self.obj.active_crew_memberships
             ],
-            'csrf_form': forms.Form(),
         }
 
     @route('new', methods=['GET', 'POST'])
@@ -408,7 +407,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
         membership_form_html = render_form(
             form=membership_form,
             title='',
-            submit=u'Add member',
+            submit='Add member',
             ajax=False,
             with_chrome=False,
         )
@@ -516,7 +515,7 @@ class ProjectCrewMembershipView(
                     previous_membership.replace(
                         actor=current_auth.user,
                         is_editor=form.is_editor.data,
-                        is_concierge=form.is_concierge.data,
+                        is_promoter=form.is_promoter.data,
                         is_usher=form.is_usher.data,
                     )
                 except MembershipRevokedError:
@@ -525,7 +524,7 @@ class ProjectCrewMembershipView(
                             'status': 'error',
                             'error_description': _(
                                 "The member’s record was edited elsewhere."
-                                " Please refresh the page"
+                                " Reload the page"
                             ),
                             'form_nonce': form.form_nonce.data,
                         },
@@ -556,7 +555,7 @@ class ProjectCrewMembershipView(
         membership_form_html = render_form(
             form=form,
             title='',
-            submit=u'Edit membership',
+            submit='Edit membership',
             ajax=False,
             with_chrome=False,
         )

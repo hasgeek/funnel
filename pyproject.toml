@@ -53,8 +53,9 @@ default_section = 'THIRDPARTY'
 sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
 
 [tool.pytest.ini_options]
-norecursedirs = 'tests/integration/*'
 addopts = '--cov-report=term-missing'
+filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
+mocked-sessions = 'coaster.db.db.session'
 
 [tool.curlylint]
 include = '\.jinja2$'

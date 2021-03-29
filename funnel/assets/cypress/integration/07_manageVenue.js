@@ -10,7 +10,9 @@ describe('Manage project venue', function () {
       editor.password
     );
 
-    cy.get('a[data-cy-navbar="settings"]').click();
+    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.wait(1000);
+    cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="manage-venues"]').click();
     cy.location('pathname').should('contain', '/venues');
@@ -28,7 +30,7 @@ describe('Manage project venue', function () {
         cy.get('#city').type(venue.venue_city);
         cy.get('#state').type(venue.venue_state);
         cy.get('#postcode').type(venue.venue_postcode);
-        cy.get('button').contains('Add venue').click();
+        cy.get('button[data-cy="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',
           '/testcypressproject/' + project.url + '/venues'
@@ -51,7 +53,7 @@ describe('Manage project venue', function () {
           .find('.CodeMirror textarea')
           .type(venue.room.description, { force: true });
         cy.get('#bgcolor').clear().type(venue.room.bgcolor);
-        cy.get('button').contains('Create').click();
+        cy.get('button[data-cy="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',
           '/testcypressproject/' + project.url + '/venues'

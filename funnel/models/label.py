@@ -131,6 +131,20 @@ class Label(BaseScopedNameMixin, db.Model):
         }
     }
 
+    __datasets__ = {
+        'related': {
+            'name',
+            'title',
+            'project',
+            'seq',
+            'restricted',
+            'required',
+            'archived',
+            'main_label',
+            'icon_emoji',
+        }
+    }
+
     @property
     def title_for_name(self):
         if self.main_label:
@@ -352,7 +366,7 @@ class ProposalLabelProxy(object):
 
 
 @reopen(Proposal)
-class Proposal:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Proposal:
     #: For reading and setting labels from the edit form
     formlabels = ProposalLabelProxy()
 

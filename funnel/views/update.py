@@ -28,7 +28,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     __decorators__ = [legacy_redirect]
 
     @route('', methods=['GET'])
-    @render_with('updates.html.jinja2', json=True)
+    @render_with('project_updates.html.jinja2', json=True)
     @requires_roles({'reader'})
     def updates(self):
         return {
@@ -46,7 +46,6 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
                 for update in self.obj.published_updates
             ],
             'new_update': self.obj.url_for('new_update'),
-            'csrf_form': forms.Form(),
         }
 
     @route('new', methods=['GET', 'POST'])
@@ -132,10 +131,7 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
                 dispatch_notification(NewUpdateNotification(document=self.obj))
         else:
             flash(
-                _(
-                    "There was an error publishing this update. "
-                    "Please refresh and try again"
-                ),
+                _("There was an error publishing this update. Reload and try again"),
                 'error',
             )
         return redirect(self.obj.project.url_for('updates'))

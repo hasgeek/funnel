@@ -96,7 +96,7 @@ const Queue = function (queueName) {
 
 const ParticipantTable = {
   init({
-    isConcierge,
+    IsPromoter,
     isUsher,
     checkinUrl,
     participantlistUrl,
@@ -119,7 +119,7 @@ const ParticipantTable = {
         checkinUrl,
         checkinQ: new Queue(`${ticketEventName}-checkin-queue`),
         cancelcheckinQ: new Queue(`${ticketEventName}-cancelcheckin-queue`),
-        isConcierge,
+        IsPromoter,
         isUsher,
         getCsrfToken() {
           return $('meta[name="csrf-token"]').attr('content');

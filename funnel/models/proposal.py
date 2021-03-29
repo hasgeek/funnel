@@ -14,7 +14,6 @@ from ..utils import geonameid_from_location
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
-    CoordinatesMixin,
     MarkdownColumn,
     TimestampMixin,
     TSVectorType,
@@ -113,9 +112,8 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 
 class Proposal(
     UuidMixin,
-    EmailAddressMixin,
+    EmailAddressMixin,  # TODO: Remove this, email is in user account anyway
     BaseScopedIdNameMixin,
-    CoordinatesMixin,
     VideoMixin,
     db.Model,
 ):
@@ -143,8 +141,9 @@ class Proposal(
         grants={'presenter'},
     )
 
+    # TODO: Remove this, phone is in user account anyway
     phone = db.Column(db.Unicode(80), nullable=True)
-    bio = MarkdownColumn('bio', nullable=True)
+
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(
@@ -156,11 +155,18 @@ class Proposal(
     )
     parent = db.synonym('project')
 
+    # TODO: Deprecated
     abstract = MarkdownColumn('abstract', nullable=True)
+    # TODO: Deprecated
     outline = MarkdownColumn('outline', nullable=True)
+    # TODO: Deprecated
     requirements = MarkdownColumn('requirements', nullable=True)
+    # TODO: Deprecated
     slides = db.Column(UrlType, nullable=True)
+    # TODO: Deprecated
     links = db.Column(db.Text, default='', nullable=True)
+    # TODO: Deprecated
+    bio = MarkdownColumn('bio', nullable=True)
 
     _state = db.Column(
         'state',
@@ -186,38 +192,33 @@ class Proposal(
         back_populates='proposal',
     )
 
+    body = MarkdownColumn('body', nullable=False, default='')
+    description = db.Column(db.Unicode, nullable=False, default='')
+    custom_description = db.Column(db.Boolean, nullable=False, default=False)
+    template = db.Column(db.Boolean, nullable=False, default=False)
+    featured = db.Column(db.Boolean, nullable=False, default=False)
+
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    location = db.Column(db.Unicode(80), nullable=False)
+    # TODO: Deprecated, take from proposer profile
+    location = db.Column(db.Unicode(80), nullable=False, default='')
 
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
                 'title',
-                'abstract_text',
-                'outline_text',
-                'requirements_text',
-                'slides',
-                'links',
-                'bio_text',
+                'description',
+                'body_text',
                 weights={
                     'title': 'A',
-                    'abstract_text': 'B',
-                    'outline_text': 'B',
-                    'requirements_text': 'B',
-                    'slides': 'B',
-                    'links': 'B',
-                    'bio_text': 'B',
+                    'description': 'B',
+                    'body_text': 'B',
                 },
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
                     visual_field_delimiter,
                     Proposal.title,
                     User.fullname,
-                    Proposal.abstract_html,
-                    Proposal.outline_html,
-                    Proposal.requirements_html,
-                    Proposal.links,
-                    Proposal.bio_html,
+                    Proposal.body_html,
                 ),
             ),
             nullable=False,
@@ -236,21 +237,19 @@ class Proposal(
                 'uuid_b58',
                 'url_name_uuid_b58',
                 'title',
+                'body',
                 'user',
                 'speaker',
                 'owner',
                 'speaking',
-                'bio',
-                'abstract',
-                'outline',
-                'requirements',
-                'slides',
+                'bio',  # TODO: Deprecated
+                'abstract',  # TODO: Deprecated
+                'outline',  # TODO: Deprecated
+                'requirements',  # TODO: Deprecated
+                'slides',  # TODO: Deprecated
                 'video',
-                'links',
-                'location',
-                'latitude',
-                'longitude',
-                'coordinates',
+                'links',  # TODO: Deprecated
+                'location',  # TODO: Deprecated
                 'session',
                 'project',
                 'datetime',
@@ -267,47 +266,43 @@ class Proposal(
             'uuid_b58',
             'url_name_uuid_b58',
             'title',
+            'body',
             'user',
             'speaker',
             'speaking',
-            'bio',
-            'abstract',
-            'outline',
-            'requirements',
-            'slides',
+            'bio',  # TODO: Deprecated
+            'abstract',  # TODO: Deprecated
+            'outline',  # TODO: Deprecated
+            'requirements',  # TODO: Deprecated
+            'slides',  # TODO: Deprecated
             'video',
-            'links',
-            'location',
-            'latitude',
-            'longitude',
-            'coordinates',
+            'links',  # TODO: Deprecated
+            'location',  # TODO: Deprecated
             'session',
             'project',
-            'email',
-            'phone',
+            'email',  # TODO: Deprecated
+            'phone',  # TODO: Deprecated
         },
         'without_parent': {
             'urls',
             'uuid_b58',
             'url_name_uuid_b58',
             'title',
+            'body',
             'user',
             'speaker',
             'speaking',
-            'bio',
-            'abstract',
-            'outline',
-            'requirements',
-            'slides',
+            'bio',  # TODO: Deprecated
+            'abstract',  # TODO: Deprecated
+            'outline',  # TODO: Deprecated
+            'requirements',  # TODO: Deprecated
+            'slides',  # TODO: Deprecated
             'video',
-            'links',
-            'location',
-            'latitude',
-            'longitude',
-            'coordinates',
+            'links',  # TODO: Deprecated
+            'location',  # TODO: Deprecated
             'session',
-            'email',
-            'phone',
+            'email',  # TODO: Deprecated
+            'phone',  # TODO: Deprecated
         },
         'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
     }
@@ -531,10 +526,20 @@ class Proposal(
         return self.created_at  # Until proposals have a workflow-driven datetime
 
     @cached_property
-    def has_outstation_speaker(self):
+    def has_outstation_speaker(self) -> bool:
         """Verify if geocoded proposal location field differs from project location."""
+        if not self.location:
+            return False
         geonameid = geonameid_from_location(self.location)
         return bool(geonameid) and self.project.location_geonameid.isdisjoint(geonameid)
+
+    def update_description(self) -> None:
+        if not self.custom_description:
+            body = self.body_text.strip()
+            if body:
+                self.description = body.splitlines()[0]
+            else:
+                self.description = ''
 
     def getnext(self):
         return (
@@ -673,7 +678,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
 
 
 @reopen(Commentset)
-class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Commentset:
     proposal = with_roles(
         db.relationship(Proposal, uselist=False, back_populates='commentset'),
         # TODO: Remove creator to subscriber mapping when proposals use memberships
@@ -684,7 +689,7 @@ class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     @property
     def proposals_all(self):
         if self.subprojects:

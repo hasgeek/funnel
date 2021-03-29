@@ -9,7 +9,7 @@ describe('Profile', function () {
     cy.visit('/new');
     cy.get('#title').type(profile.title);
     cy.get('#name').type(profile.title);
-    cy.get('button').contains('Next').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
     cy.logout();
   });
 });

@@ -17,7 +17,7 @@ __all__ = ['ProjectCrewMembership', 'project_child_role_map']
 # Roles in a project and their remapped names in objects attached to a project
 project_child_role_map: Dict[str, str] = {
     'editor': 'project_editor',
-    'concierge': 'project_concierge',
+    'promoter': 'project_promoter',
     'usher': 'project_usher',
     'crew': 'project_crew',
     'participant': 'project_participant',
@@ -30,11 +30,11 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     __tablename__ = 'project_crew_membership'
 
     # List of is_role columns in this model
-    __data_columns__ = ('is_editor', 'is_concierge', 'is_usher')
+    __data_columns__ = ('is_editor', 'is_promoter', 'is_usher')
 
     __roles__ = {
         'all': {
-            'read': {'urls', 'user', 'is_editor', 'is_concierge', 'is_usher', 'project'}
+            'read': {'urls', 'user', 'is_editor', 'is_promoter', 'is_usher', 'project'}
         }
     }
     __datasets__ = {
@@ -43,7 +43,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             'uuid_b58',
             'offered_roles',
             'is_editor',
-            'is_concierge',
+            'is_promoter',
             'is_usher',
             'user',
             'project',
@@ -53,7 +53,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             'uuid_b58',
             'offered_roles',
             'is_editor',
-            'is_concierge',
+            'is_promoter',
             'is_usher',
             'user',
         },
@@ -62,7 +62,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             'uuid_b58',
             'offered_roles',
             'is_editor',
-            'is_concierge',
+            'is_promoter',
             'is_usher',
         },
     }
@@ -85,10 +85,10 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
     #: Editors can edit all common and editorial details of an event
     is_editor = db.Column(db.Boolean, nullable=False, default=False)
-    #: Concierges are responsible for logistics and have write access
+    #: Promoters are responsible for promotion and have write access
     #: to common details plus read access to everything else. Unlike
     #: editors, they cannot edit the schedule
-    is_concierge = db.Column(db.Boolean, nullable=False, default=False)
+    is_promoter = db.Column(db.Boolean, nullable=False, default=False)
     #: Ushers help participants find their way around an event and have
     #: the ability to scan badges at the door
     is_usher = db.Column(db.Boolean, nullable=False, default=False)
@@ -101,7 +101,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             db.CheckConstraint(
                 db.or_(
                     cls.is_editor.is_(True),
-                    cls.is_concierge.is_(True),
+                    cls.is_promoter.is_(True),
                     cls.is_usher.is_(True),
                 ),
                 name='project_crew_membership_has_role',
@@ -115,8 +115,8 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         roles = set()
         if self.is_editor:
             roles.add('editor')
-        if self.is_concierge:
-            roles.add('concierge')
+        if self.is_promoter:
+            roles.add('promoter')
         if self.is_usher:
             roles.add('usher')
         roles.add('crew')
@@ -134,7 +134,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
 
 # Project relationships: all crew, vs specific roles
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     active_crew_memberships = with_roles(
         db.relationship(
             ProjectCrewMembership,
@@ -145,7 +145,7 @@ class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
             ),
             viewonly=True,
         ),
-        grants_via={'user': {'editor', 'concierge', 'usher', 'participant', 'crew'}},
+        grants_via={'user': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
     )
 
     active_editor_memberships = db.relationship(
@@ -159,13 +159,13 @@ class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
         viewonly=True,
     )
 
-    active_concierge_memberships = db.relationship(
+    active_promoter_memberships = db.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=db.and_(
             ProjectCrewMembership.project_id == Project.id,
             ProjectCrewMembership.is_active,
-            ProjectCrewMembership.is_concierge.is_(True),
+            ProjectCrewMembership.is_promoter.is_(True),
         ),
         viewonly=True,
     )
@@ -183,13 +183,13 @@ class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
 
     crew = DynamicAssociationProxy('active_crew_memberships', 'user')
     editors = DynamicAssociationProxy('active_editor_memberships', 'user')
-    concierges = DynamicAssociationProxy('active_concierge_memberships', 'user')
+    promoters = DynamicAssociationProxy('active_promoter_memberships', 'user')
     ushers = DynamicAssociationProxy('active_usher_memberships', 'user')
 
 
 # Similarly for users (add as needs come up)
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
     projects_as_crew_memberships = db.relationship(

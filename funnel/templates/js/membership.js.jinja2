@@ -67,7 +67,7 @@
           <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">{{ gettext('Members you add will appear here…') }}</p>
         </div>
         <div id="member-form" class="modal modal--form" :class="[activeMember ? 'modal--form--edit' : '']">
-          <a class="modal__close mui--text-dark" href="javascript:void(0);" :aria-label="gettext('Close')" rel="modal:close"  data-action="close modal">
+          <a class="modal__close mui--text-dark" href="javascript:void(0);" :aria-label="gettext('Close')" rel="modal:close"  data-ga="close view member modal">
             <faicon :icon="'times'" :icon_size="'title'"></faicon>
           </a>
           <component :is="Form"></component>
@@ -118,7 +118,7 @@
         </div>
         <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
           <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Editor') }}</li>
-          <li v-if="member.is_concierge" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Concierge') }}</li>
+          <li v-if="member.is_promoter" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Promoter') }}</li>
           <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Usher') }}</li>
           <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0 && rolesCount(member) < 3">{{ gettext('+ %d more role', rolesCount(member)) }}</li>
           <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-else>{{ gettext('+ %d more roles', rolesCount(member)) }}</li>

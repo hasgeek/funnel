@@ -120,8 +120,12 @@ class Vote(NoIdMixin, db.Model):
 
 class Commentset(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'commentset'
+    #: Type of parent object
     settype = db.Column('type', db.Integer, nullable=True)
+    #: Count of comments, stored to avoid count(*) queries
     count = db.Column(db.Integer, default=0, nullable=False)
+    #: Timestamp of last comment, for ordering.
+    last_comment_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     __roles__ = {
         'all': {
@@ -244,6 +248,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def __init__(self, **kwargs) -> None:
         super(Comment, self).__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
+        self.commentset.last_comment_at = db.func.utcnow()
 
     @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
@@ -378,7 +383,7 @@ add_search_trigger(Comment, 'search_vector')
 
 
 @reopen(Commentset)
-class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Commentset:
     toplevel_comments = db.relationship(
         Comment,
         lazy='dynamic',

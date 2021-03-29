@@ -26,6 +26,14 @@ double_quote_re = re.compile(r'["“”]')
 
 @Project.forms('main')
 class ProjectForm(forms.Form):
+    """
+    Form to create or edit a project.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -80,8 +88,14 @@ class ProjectForm(forms.Form):
             )
 
     def set_queries(self):
-        if self.edit_obj is not None:
-            self.bg_image.profile = self.edit_obj.profile.name
+        self.bg_image.profile = self.profile.name
+
+
+@Project.forms('featured')
+class ProjectFeaturedForm(forms.Form):
+    featured = forms.BooleanField(
+        __("Feature this project"), validators=[forms.validators.InputRequired()]
+    )
 
 
 class ProjectLivestreamForm(forms.Form):
@@ -140,6 +154,14 @@ class ProjectNameForm(forms.Form):
 
 
 class ProjectBannerForm(forms.Form):
+    """
+    Form for project banner.
+
+    A `profile` keyword argument is necessary for the ImgeeField.
+    """
+
+    __expects__ = ('profile',)
+
     bg_image = forms.ImgeeField(
         __("Banner image"),
         validators=[
@@ -151,34 +173,32 @@ class ProjectBannerForm(forms.Form):
 
     def set_queries(self):
         self.bg_image.widget_type = 'modal'
-        if self.edit_obj:
-            self.bg_image.profile = self.edit_obj.profile.name
+        self.bg_image.profile = self.profile.name
 
 
 @Project.forms('cfp')
 class CfpForm(forms.Form):
     instructions = forms.MarkdownField(
-        __("Proposal guidelines"),
+        __("Guidelines"),
         validators=[forms.validators.DataRequired()],
         default='',
         description=__(
-            "Set guidelines for the type of sessions"
-            "(talks, workshops, other format) your project is accepting, "
-            "your review process and any other info for participants"
+            "Set guidelines for the type of submissions your project is accepting,"
+            " your review process, and anything else relevant to the submission"
         ),
     )
     cfp_start_at = forms.DateTimeField(
-        __("Proposal submissions open at"),
+        __("Submissions open at"),
         validators=[forms.validators.Optional()],
         naive=False,
     )
     cfp_end_at = forms.DateTimeField(
-        __("Proposal submissions close at"),
+        __("Submissions close at"),
         validators=[
             forms.validators.Optional(),
             forms.validators.AllowedIf(
                 'cfp_start_at',
-                message=__("This requires open time for submissions to be specified"),
+                message=__("This requires an opening time to be specified"),
             ),
             forms.validators.GreaterThanEqualTo(
                 'cfp_start_at', __("Submissions cannot close before they open")

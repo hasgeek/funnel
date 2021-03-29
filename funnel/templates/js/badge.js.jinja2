@@ -25,7 +25,7 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-action="close contact modal" on-click="closeModal(event)" aria-label="{{ gettext('Close') }}"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
+            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-ga="close checkin modal" on-click="closeModal(event)" aria-label="{{ gettext('Close') }}"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
             <h3 class="mui--text-title">{{ gettext('Check in status') }}</h3>
           </div>
           <div class="modal__body">
@@ -33,7 +33,7 @@
               <h4 class="mui--text-headline mui--align-middle">{{ gettext('Scanning') }} <faicon icon='spinner'></faicon></h4>
             {{elseif attendeeFound}}
               <h4>{{ gettext('Hello %s', attendeeName) }},</h4>
-              <p>{{ gettext('Thank you for choosing to participate in  %(title)s and for being a part of this growing community.', {title:projectTitle}) }}</p>
+              <p>{{ gettext('Thank you for choosing to participate in %(title)s and for being a part of this growing community', {title:projectTitle}) }}</p>
               <p>{{ gettext('Hasgeek') }}</p>
             {{else}}
               <h4>{{ gettext('Attendee details not found') }}</h4>
@@ -63,7 +63,7 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" tabindex="-1" role="dialog">
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-action="close modal"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
+            <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-ga="close contact details modal"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
           </div>
           <div class="modal__body">
             {{#if scanning}}
@@ -92,7 +92,7 @@
         {{/if}}
         <div class="scanned-contacts mui--hidden-xs mui--hidden-sm mui--hidden-md">
           <div class="mui--clearfix">
-            <h2 class="mui--text-title mui--pull-left">{{ gettext('Recently scanned contacts') }}</h2>
+            <h3 class="mui--text-title mui--pull-left">{{ gettext('Recently scanned contacts') }}</h3>
             <a href="/account" class="mui-btn mui-btn--small mui-btn--accent mui--pull-right">{{ gettext('My account') }}</a>
           </div>
           {{#each contacts:i}}

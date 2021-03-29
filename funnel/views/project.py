@@ -71,41 +71,41 @@ CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
 
 registration_count_messages = [
     CountWords(_("Be the first to register!"), None),
-    CountWords(_("One registration so far. Be the second?"), _("You have registered")),
+    CountWords(_("One registration so far"), _("You have registered")),
     CountWords(
-        _("Two registrations so far. Be the third?"),
+        _("Two registrations so far"),
         _("You and one other have registered"),
     ),
     CountWords(
-        _("Three registrations so far. Be the fourth?"),
+        _("Three registrations so far"),
         _("You and two others have registered"),
     ),
     CountWords(
-        _("Four registrations so far. Be the next one?"),
+        _("Four registrations so far"),
         _("You and three others have registered"),
     ),
     CountWords(
-        _("Five registrations so far. Be the next one?"),
+        _("Five registrations so far"),
         _("You and four others have registered"),
     ),
     CountWords(
-        _("Six registrations so far. Be the next one?"),
+        _("Six registrations so far"),
         _("You and five others have registered"),
     ),
     CountWords(
-        _("Seven registrations so far. Be the next one?"),
+        _("Seven registrations so far"),
         _("You and six others have registered"),
     ),
     CountWords(
-        _("Eight registrations so far. Be the next one?"),
+        _("Eight registrations so far"),
         _("You and seven others have registered"),
     ),
     CountWords(
-        _("Nine registrations so far. Be the next one?"),
+        _("Nine registrations so far"),
         _("You and eight others have registered"),
     ),
     CountWords(
-        _("Ten registrations so far. Be the next one?"),
+        _("Ten registrations so far"),
         _("You and nine others have registered"),
     ),
 ]
@@ -121,7 +121,7 @@ def get_registration_text(count, registered=False):
         if registered:
             return _("You and {num} others have registered").format(num=count - 1)
         else:
-            return _("{num} registrations so far. Be the next one?").format(num=count)
+            return _("{num} registrations so far").format(num=count)
 
 
 def project_data(project):
@@ -226,7 +226,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'admin'})
     def new_project(self):
-        form = ProjectForm(model=Project, parent=self.obj)
+        form = ProjectForm(model=Project, profile=self.obj)
 
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
@@ -275,34 +275,32 @@ class ProjectView(
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
+        featured_proposals = self.obj.proposals.filter_by(featured=True)
         return {
             'project': self.obj.current_access(),
             'current_rsvp': current_rsvp,
-            'csrf_form': forms.Form(),
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
             'schedule_transition_form': schedule_transition_form,
+            'featured_proposals': featured_proposals,
         }
 
+    @route('sub')
     @route('proposals')
-    @render_with('proposals.html.jinja2')
+    @render_with('project_submissions.html.jinja2')
     @requires_roles({'reader'})
     def view_proposals(self):
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj,
             'cfp_transition_form': cfp_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('videos')
-    @render_with('session_videos.html.jinja2')
+    @render_with('project_videos.html.jinja2')
     def session_videos(self):
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj,
-            'cfp_transition_form': cfp_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('json')
@@ -403,7 +401,7 @@ class ProjectView(
             # WTForms will ignore formdata if it's None.
             form = ProjectForm(
                 obj=self.obj,
-                parent=self.obj.profile,
+                profile=self.obj.profile,
                 model=Project,
                 formdata=initial_formdata,
             )
@@ -422,7 +420,9 @@ class ProjectView(
             if getbool(request.args.get('form.autosave')):
                 return self.autosave_post()
             else:
-                form = ProjectForm(obj=self.obj, parent=self.obj.profile, model=Project)
+                form = ProjectForm(
+                    obj=self.obj, profile=self.obj.profile, model=Project
+                )
                 if form.validate_on_submit():
                     form.populate_obj(self.obj)
                     db.session.commit()
@@ -452,9 +452,9 @@ class ProjectView(
         """Delete project if safe to do so."""
         if not self.obj.is_safe_to_delete():
             return render_message(
-                title=_("This project has proposals"),
+                title=_("This project has submissions"),
                 message=_(
-                    "Proposals must be deleted or transferred before the project"
+                    "Submissions must be deleted or transferred before the project"
                     " can be deleted."
                 ),
             )
@@ -477,7 +477,7 @@ class ProjectView(
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'editor'})
     def update_banner(self):
-        form = ProjectBannerForm()
+        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         edit_logo_url = self.obj.url_for('edit_banner')
         return {
             'edit_logo_url': edit_logo_url,
@@ -488,7 +488,7 @@ class ProjectView(
     @requires_login
     @requires_roles({'editor'})
     def edit_banner(self):
-        form = ProjectBannerForm(obj=self.obj)
+        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -521,7 +521,7 @@ class ProjectView(
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def edit_boxoffice_data(self):
         form = ProjectBoxofficeForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
@@ -613,7 +613,7 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             if not rsvp.state.YES:
-                rsvp.rsvp_yes()
+                rsvp.rsvp_yes(subscribe_comments=True)
                 db.session.commit()
                 flash(_("You have successfully registered"), 'success')
                 dispatch_notification(
@@ -646,7 +646,7 @@ class ProjectView(
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list(self):
         return {
             'project': self.obj,
@@ -692,14 +692,14 @@ class ProjectView(
 
     @route('rsvp_list/yes.csv')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list_yes_csv(self):
         """Return a CSV of RSVP participants who answered Yes."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.YES)
 
     @route('rsvp_list/maybe.csv')
     @requires_login
-    @requires_roles({'concierge'})
+    @requires_roles({'promoter'})
     def rsvp_list_maybe_csv(self):
         """Return a CSV of RSVP participants who answered Maybe."""
         return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
@@ -731,45 +731,45 @@ class ProjectView(
                 {
                     'status': 'error',
                     'error': 'project_save_form_invalid',
-                    'error_description': _(
-                        "Something went wrong, please reload and try again"
-                    ),
+                    'error_description': _("This page timed out. Reload and try again"),
                     'form_nonce': form.form_nonce.data,
                 },
                 400,
             )
 
     @route('admin', methods=['GET', 'POST'])
-    @render_with('admin.html.jinja2')
+    @render_with('project_admin.html.jinja2')
     @requires_login
-    @requires_roles({'concierge', 'usher'})
+    @requires_roles({'promoter', 'usher'})
     def admin(self):
+        """Render admin panel for at-venue promoter operations."""
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
-            for ticket_client in self.obj.ticket_clients:
-                if ticket_client and ticket_client.name.lower() in [
-                    'explara',
-                    'boxoffice',
-                ]:
-                    import_tickets.queue(ticket_client.id)
-            flash(
-                _(
-                    "Importing tickets from vendors...Refresh the page in about 30 seconds..."
-                ),
-                'info',
-            )
+            if request.form.get('form.id') == 'sync-tickets':
+                for ticket_client in self.obj.ticket_clients:
+                    if ticket_client and ticket_client.name.lower() in [
+                        'explara',
+                        'boxoffice',
+                    ]:
+                        import_tickets.queue(ticket_client.id)
+                flash(
+                    _(
+                        "Importing tickets from vendors…"
+                        " Reload the page in about 30 seconds…"
+                    ),
+                    'info',
+                )
             return redirect(self.obj.url_for('admin'), code=303)
         return {
             'profile': self.obj.profile,
             'project': self.obj,
             'ticket_events': self.obj.ticket_events,
-            'csrf_form': forms.Form(),
         }
 
     @route('settings', methods=['GET', 'POST'])
-    @render_with('settings.html.jinja2')
+    @render_with('project_settings.html.jinja2')
     @requires_login
-    @requires_roles({'editor', 'concierge', 'usher'})
+    @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
@@ -779,7 +779,6 @@ class ProjectView(
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
             'schedule_transition_form': schedule_transition_form,
-            'csrf_form': forms.Form(),
         }
 
     @route('comments', methods=['GET'])
@@ -787,26 +786,39 @@ class ProjectView(
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
+        subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
-            return jsonify({'comments': comments})
+            return jsonify(
+                {
+                    'subscribed': subscribed,
+                    'comments': comments,
+                }
+            )
         else:
             commentform = CommentForm(model=Comment)
             return {
                 'project': self.obj,
+                'subscribed': subscribed,
                 'comments': comments,
                 'commentform': commentform,
                 'delcommentform': forms.Form(),
-                'csrf_form': forms.Form(),
             }
 
-    @route('toggle_featured', methods=['POST'])
-    def toggle_featured(self):
+    @route('update_featured', methods=['POST'])
+    def update_featured(self):
         if not current_auth.user.is_site_editor:
             return abort(403)
-        featured_form = forms.Form()
+        featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
-            self.obj.featured = not self.obj.featured
+            featured_form.populate_obj(self.obj)
             db.session.commit()
+            if self.obj.featured:
+                return {'status': 'ok', 'message': 'This project has been featured.'}
+            else:
+                return {
+                    'status': 'ok',
+                    'message': 'This project is no longer featured.',
+                }
         return redirect(get_next_url(referrer=True), 303)
 
 

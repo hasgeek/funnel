@@ -2,6 +2,7 @@
 {% set title_suffix = project.title %}
 {% from "baseframe/forms.html.jinja2" import renderfield %}
 {% from "baseframe/components.html.jinja2" import faicon %}
+{% from "macros.html.jinja2" import csrf_tag %}
 {% block title %}{% trans %}Setup events for check-in{% endtrans %}{% endblock %}
 
 {% block top_title %}
@@ -25,12 +26,12 @@
         <ol class="mui-list--aligned">
           {%- for ticket_event in ticket_events %}
             <li>
-              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ ticket_event.title }}" data-action="View {{ ticket_event.title }}">{{ ticket_event.title }}</a>{%- if project.current_roles.concierge %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}"  data-action="edit {{ ticket_event.title }}">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ ticket_event.title }}" data-ga="View event">{{ ticket_event.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="edit event">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
       </div>
-      {%- if project.current_roles.concierge %}
+      {%- if project.current_roles.promoter %}
       <div class="mui-divider"></div>
       <div class="card__footer">
         <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-event">{% trans %}New ticketed event{% endtrans %}</a>
@@ -42,7 +43,7 @@
     </div>
   </div>
 
- {%- if project.current_roles.concierge %}
+ {%- if project.current_roles.promoter %}
   <div class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4">
     <div class="card">
       <div class="card__header">
@@ -52,7 +53,7 @@
         <ol class="mui-list--aligned">
           {%- for ticket_type in project.ticket_types -%}
             <li data-cy-ticket="{{ ticket_type.title }}">
-              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead" data-action="View {{ ticket_type.title }}">{{ ticket_type.title }}</a>{%- if project.current_roles.concierge %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-cy="ticket-edit"  data-action="edit {{ ticket_type.title }}">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead" data-ga="View ticket type">{{ ticket_type.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-cy="ticket-edit"  data-ga="edit ticket type">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -74,7 +75,7 @@
         <ol class="mui-list--aligned">
           {%- for client in project.ticket_clients %}
             <li>
-              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.concierge %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}"  data-action="Edit {{ client.name }}">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
+              <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}"  data-ga="Edit ticket client">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
           {%- endfor %}
         </ol>
@@ -85,7 +86,8 @@
           {%- if project.ticket_clients %}
             <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form inline-form">
               <div class="form-group">
-                {{ csrf_form.hidden_tag() }}
+                {{ csrf_tag() }}
+                <input type="hidden" name="form.id" value="sync-tickets" />
               </div>
               <button id="csrf_form-submit" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" data-cy="sync-tickets">{% trans %}Sync tickets{% endtrans %}</button>
             </form>

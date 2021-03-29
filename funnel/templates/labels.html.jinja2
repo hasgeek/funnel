@@ -15,7 +15,7 @@
   <div class="grid__col-xs-12">
     <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}">
       <div class="card__body mui--text-center">
-        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-action="Create new label">{{ faicon(icon='plus', icon_size='title') }}  <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
+        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-ga="Create new label">{{ faicon(icon='plus', icon_size='title') }}  <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
       </div>
     </div>
   </div>
@@ -41,9 +41,9 @@
           <div class="label-box__icon-wrapper">
             <a class="label-box__icon label-box__icon--right" href="{{ label.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='title') }}</a>
             {% if label.has_proposals %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}">{{ faicon(icon='archive', icon_size='title') }}</a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}" title="{% trans %}Archive{% endtrans %}">{{ faicon(icon='archive', icon_size='title') }}</a>
             {% else %}
-              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
+              <a class="label-box__icon label-box__icon--right js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}" title="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
             {% endif %}
           </div>
         </div>

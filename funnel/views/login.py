@@ -14,7 +14,7 @@ from flask import (
 )
 import itsdangerous
 
-from baseframe import _, __, forms, request_is_xhr
+from baseframe import _, __, forms, request_is_xhr, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
@@ -58,7 +58,6 @@ from .login_session import (
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@lastuserapp.route('/login', methods=['GET', 'POST'])
 def login():
     # If user is already logged in, send them back
     if current_auth.is_authenticated:
@@ -284,7 +283,6 @@ def account_logout():
 
 
 @app.route('/account/register', methods=['GET', 'POST'])
-@lastuserapp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_auth.is_authenticated:
         return redirect(url_for('index'), code=303)
@@ -311,7 +309,6 @@ def register():
 
 
 @app.route('/login/<service>', methods=['GET', 'POST'])
-@lastuserapp.route('/login/<service>', methods=['GET', 'POST'])
 def login_service(service):
     """Handle login with a registered service."""
     if service not in login_registry:
@@ -321,6 +318,7 @@ def login_service(service):
     callback_url = url_for(
         '.login_service_callback', service=service, next=next_url, _external=True
     )
+    statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
     try:
         return provider.do(callback_url=callback_url)
     except (LoginInitError, LoginCallbackError) as e:
@@ -351,6 +349,7 @@ def login_service_callback(service):
             return redirect(get_next_url(referrer=False), code=303)
         else:
             return redirect(url_for('login'), code=303)
+    statsd.gauge('login.progress', -1, delta=True, tags={'service': service})
     return login_service_postcallback(service, userdata)
 
 
@@ -549,6 +548,24 @@ def account_merge():
         ref_id='form-mergeaccounts',
         title=_("Merge accounts"),
     )
+
+
+# --- Lastuser login legacy endpoints --------------------------------------------------
+
+
+@lastuserapp.route('/login', endpoint='login')
+def lastuserapp_login():
+    return redirect(app_url_for(app, 'login'), code=301)
+
+
+@lastuserapp.route('/register', endpoint='register')
+def lastuserapp_register():
+    return redirect(app_url_for(app, 'register'), code=301)
+
+
+@lastuserapp.route('/login/<service>', endpoint='login_service')
+def lastuserapp_login_service(service):
+    return redirect(app_url_for(app, 'login_service', service=service), code=301)
 
 
 # --- Talkfunnel login -----------------------------------------------------------------

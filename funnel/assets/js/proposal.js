@@ -1,9 +1,11 @@
-import { Video, Comments } from './util';
-
 export const Proposal = {
   init() {
     $('button[name="transition"][value="delete"]').click(function (e) {
-      if (!window.confirm('Do you really want to delete this proposal?')) {
+      if (
+        !window.confirm(
+          window.gettext('Do you really want to delete this proposal?')
+        )
+      ) {
         e.preventDefault();
       }
     });
@@ -92,16 +94,8 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.Hasgeek.ProposalInit = function ({
-    videoWrapper = '',
-    videoUrl = '',
-  }) {
+  window.Hasgeek.ProposalInit = function () {
     Proposal.init();
-    Comments.init();
     LabelsWidget.init();
-
-    if (videoWrapper) {
-      Video.embedIframe(videoWrapper, videoUrl);
-    }
   };
 });

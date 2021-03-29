@@ -48,6 +48,9 @@ supported_locales = {
     'hi': __("Hindi (beta; incomplete)"),
 }
 
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MAX_LENGTH = 100
+
 
 class PasswordStrengthValidator:
     default_message = _(
@@ -120,7 +123,7 @@ class RegisterForm(forms.RecaptchaForm):
         __("Password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
         ],
     )
@@ -128,7 +131,7 @@ class RegisterForm(forms.RecaptchaForm):
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -140,7 +143,10 @@ class PasswordForm(forms.Form):
 
     password = forms.PasswordField(
         __("Password"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=PASSWORD_MAX_LENGTH),
+        ],
     )
 
     def validate_password(self, field):
@@ -152,7 +158,10 @@ class PasswordForm(forms.Form):
 class PasswordPolicyForm(forms.Form):
     password = forms.PasswordField(
         __("Password"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=PASSWORD_MAX_LENGTH),
+        ],
     )
 
 
@@ -180,7 +189,7 @@ class PasswordCreateForm(forms.Form):
         __("New password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
     )
@@ -188,7 +197,7 @@ class PasswordCreateForm(forms.Form):
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -209,7 +218,7 @@ class PasswordResetForm(forms.RecaptchaForm):
         __("New password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(user_input_fields=['username']),
         ],
     )
@@ -217,7 +226,7 @@ class PasswordResetForm(forms.RecaptchaForm):
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -240,13 +249,16 @@ class PasswordChangeForm(forms.Form):
 
     old_password = forms.PasswordField(
         __("Current password"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=PASSWORD_MAX_LENGTH),
+        ],
     )
     password = forms.PasswordField(
         __("New password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
     )
@@ -254,7 +266,7 @@ class PasswordChangeForm(forms.Form):
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -441,10 +453,10 @@ class NewPhoneForm(forms.RecaptchaForm):
     # type = forms.RadioField(__("Type"), coerce=nullstr,
     #     validators=[forms.validators.Optional()],
     #     choices=[
-    #         (__(u"Mobile"), __(u"Mobile")),
-    #         (__(u"Home"), __(u"Home")),
-    #         (__(u"Work"), __(u"Work")),
-    #         (__(u"Other"), __(u"Other"))])
+    #         (__("Mobile"), __("Mobile")),
+    #         (__("Home"), __("Home")),
+    #         (__("Work"), __("Work")),
+    #         (__("Other"), __("Other"))])
 
     enable_notifications = forms.BooleanField(
         __("Send notifications by SMS"),
