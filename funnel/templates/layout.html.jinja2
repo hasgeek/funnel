@@ -113,11 +113,11 @@
         <button type="submit" class="search-form__submit"></button>
       </form>
       {% if not current_auth.is_anonymous -%}
-        {%- if config['ENABLE-COMMENT-SIDEBAR'] %}<a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" >{{ faicon(icon='comment-alt-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>{% endif %}
+        {%- if config['ENABLE_COMMENT_SIDEBAR'] %}<a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" >{{ faicon(icon='comment-alt-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>{% endif %}
         <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
         <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
         <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-          {%- if config['ENABLE-COMMENT-SIDEBAR'] %}<a href="javascript:void(0)" class="header__nav-links header__nav-links--right js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar">{{ faicon(icon='comment-alt', css_class='header__nav-links__icon') }}</a>{% endif %}
+          {%- if config['ENABLE_COMMENT_SIDEBAR'] %}<a href="javascript:void(0)" class="header__nav-links header__nav-links--right js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar">{{ faicon(icon='comment-alt', css_class='header__nav-links__icon') }}</a>{% endif %}
           <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
           <a href="{{ url_for('account') }}" class="header__nav-links header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account" data-cy="my-account">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
           {% if current_auth.user.profile %}
@@ -236,7 +236,7 @@
     window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
     window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
     window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
-    {%- if config['ENABLE-COMMENT-SIDEBAR'] %}
+    {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
       window.Hasgeek.config.commentSidebarElem = '#js-unread-comments';
       window.Hasgeek.config.unreadCommentUrl = {{ url_for('comments')|tojson }};
     {% endif %}
