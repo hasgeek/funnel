@@ -370,9 +370,10 @@ class AccountDeleteForm(forms.Form):
     confirm2 = forms.BooleanField(
         __(
             "I understand that deleting my account will remove personal details such as"
-            " my name and contact details, but not documents such as proposals and job"
-            " posts"
+            " my name and contact details, but not messages sent to other users, or"
+            " public content such as comments, job posts and submissions to projects"
         ),
+        description=__("Public content must be deleted individually"),
         validators=[forms.validators.DataRequired(__("You must accept this"))],
     )
 
