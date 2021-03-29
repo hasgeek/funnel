@@ -18,7 +18,7 @@
       {{ alertbox('warning', 'This project will not be listed as it has no sessions in the schedule') }}
     </div>
   {% endif %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
+  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
   {%- if schedule_transition_form %}
     <div>
       <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="schedule-state">{% trans %}Schedule status{% endtrans %}: {{ project.schedule_state.label.title }}</p>
