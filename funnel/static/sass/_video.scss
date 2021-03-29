@@ -16,7 +16,8 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      color: $mui-accent-color;
+      color: $mui-text-white;
+      -webkit-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
     }
   }

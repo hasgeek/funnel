@@ -165,6 +165,12 @@ $(() => {
       SaveProject(saveProjectConfig);
     }
 
+    $('.js-htmltruncate-expand').click(function (event) {
+      event.preventDefault();
+      $(this).addClass('mui--hide');
+      $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
+    });
+
     // Adding the embed video player
     if ($('.js-embed-video').length > 0) {
       $('.js-embed-video').each(function () {

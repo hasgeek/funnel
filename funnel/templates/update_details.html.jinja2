@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import renderform %}
 {% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import project_header, project_mini_header %}
+{%- from "macros.html.jinja2" import project_mini_header %}
 {%- from "js/update.js.jinja2" import updates_template %}
 {% block title %}{{ update.title }}{% endblock %}
 
@@ -19,7 +19,7 @@
 
 {% block basecontent %}
   <div class="mui-container">
-    <div class="grid project-section">
+    <div class="grid">
       <div class="grid__col-xs-12">
         {{ updates_template() }}
         {% if update.features.publish() %}

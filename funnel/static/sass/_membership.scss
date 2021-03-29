@@ -1,10 +1,7 @@
 @media (min-width: 768px) {
   .membership-wrapper--half {
     float: left;
-  }
-
-  .membership-wrapper--half + .membership-wrapper--half {
-    padding-left: $mui-grid-padding;
+    margin-right: $mui-grid-padding;
   }
 }
 
