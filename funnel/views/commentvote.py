@@ -182,6 +182,7 @@ class AllCommentsView(ClassView):
                 'parent': cm.commentset.parent.current_access(
                     datasets=('primary', 'related')
                 ),
+                'parent_type': cm.commentset.parent_type,
                 'commentset_url': cm.commentset.url_for(_external=True),
                 'last_seen_at': cm.last_seen_at,
                 'new_comments_count': (
