@@ -152,6 +152,13 @@
     <hr class="zero-bottom-margin zero-top-margin">
     <span class="loading js-loading left-padding separator"></span>
     <ul class="comments-list" id="js-unread-comments">
+      <li class="js-no-comments mui--hide">
+        <div class="top-padding bottom-padding mui--text-center">
+          <div class="comment-sidebar__nocomment-icon">{{ faicon(icon='comment-alt', icon_size='headline', css_class='') }}</div>
+          <p class="mui--text-title margin-bottom">{% trans %}No comments yet{% endtrans %}</p>
+          <p class="mui--text-subhead mui--text-light margin-bottom">{% trans %}Join a project to start a discussion{% endtrans %}</p>
+        </div>
+      </li>
     </ul>
   </div>
 {%- endblock %}

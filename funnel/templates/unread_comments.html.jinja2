@@ -5,11 +5,18 @@
     <li class="user">
       <a class="clickable-card" href="{{ membership.commentset_url }}">
         <div class="user__box">
-          {% if membership.parent.bg_image.url %}
-            <div class="user__box__banner"><div class="user__box__banner__wrapper"><img src="{{ membership.parent.bg_image }}" alt="{{ membership.parent.title }}"/></div></div>
-          {% else %}
-            <div class="user__box__banner"><div class="user__box__banner__wrapper"><img src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ membership.parent.title }}"/></div></div>
-          {% endif %}
+          <div class="user__box__banner">
+            <div class="user__box__banner__wrapper">
+              {% if membership.parent.bg_image.url %}
+                <img src="{{ membership.parent.bg_image }}" alt="{{ membership.parent.title }}" />
+              {% else %}
+                <img src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ membership.parent.title }}" />
+              {% endif %}
+              {% if membership.parent_type == 'project' %}
+                {{ faicon(icon='file-solid', baseline=false, css_class='user__box__banner__wrapper__icon') }}
+              {% endif %}
+            </div>
+          </div>
           <div class="user__box__header comment__details" data-cy="unread-comment">
             {% if membership.last_comment %}
               <h3 class="mui--text-body2 user__box__fullname"><span class="mui--text-bold truncated-text" data-cy="comment-username">{{ membership.parent.title }}</span><span class="mui--text-caption mui--pull-right comment__details__age">{{ membership.last_comment.created_at|age }}</span></h3>

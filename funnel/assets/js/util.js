@@ -415,9 +415,16 @@ export const Utils = {
           timeout: window.Hasgeek.config.ajaxTimeout,
           success(responseData) {
             $('.js-loading').addClass('mui--hide');
-            $(window.Hasgeek.config.commentSidebarElem).append(
-              responseData.data.trim()
-            );
+            if (responseData.data) {
+              $(window.Hasgeek.config.commentSidebarElem).append(
+                responseData.data.trim()
+              );
+            } else {
+              $(window.Hasgeek.config.commentSidebarElem)
+                .find('li')
+                .first()
+                .removeClass('mui--hide');
+            }
             firstLoad = false;
           },
         });

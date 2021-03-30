@@ -391,6 +391,17 @@ html.touch .collapsible__body--disable {
   width: 100%;
   height: 100%;
 }
+.user
+  .user__box__banner
+  .user__box__banner__wrapper
+  .user__box__banner__wrapper__icon {
+  position: absolute;
+  bottom: 50%;
+  right: 4px;
+  color: #ffffff;
+  -webkit-transform: translate(0, 50%);
+  transform: translate(0, 50%);
+}
 
 .user--standalone .user__box {
   padding: 0;
@@ -1410,6 +1421,16 @@ a.loginbutton.hidden,
 .hg-app .comments-sidebar .comments-list {
   list-style: none;
   padding: 0;
+}
+.hg-app .comments-sidebar .comments-list .comment-sidebar__nocomment-icon {
+  background: #f9f9f9;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .hg-app .comments-sidebar .comments-list li.user {
   padding: 0 16px;
