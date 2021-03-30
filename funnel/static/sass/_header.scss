@@ -187,9 +187,16 @@
     -webkit-transform: translate(-100%, 0);
     overflow: scroll;
     background: $mui-bg-color-primary;
-    .comments-sidebar__heading {
-      margin: 0;
-      padding: 15px $mui-grid-padding 14px;
+    .comments-sidebar__header {
+      display: flex;
+      align-items: center;
+      padding: $mui-grid-padding 0;
+      .comments-sidebar__header__close {
+        padding: 0 $mui-grid-padding;
+      }
+      .comments-sidebar__header__title {
+        line-height: 1;
+      }
     }
     .comments-list {
       list-style: none;
@@ -200,23 +207,29 @@
         .user__box {
           align-items: end;
           .user__box__header.comment__details {
-            width: calc(100% - 48px);
+            width: calc(100% - 75px - 16px);
             .user__box__fullname {
-              margin: 0 0 2px;
-            }
-            .comment__details__age {
-              position: relative;
-              top: 4px;
+              margin: 0 0 5px;
+              display: flex;
+              align-items: baseline;
+              justify-content: space-between;
+              .truncated-text {
+                width: calc(100% - 85px);
+              }
             }
             .user__box__subcontent {
               margin: 0 0 0;
+              display: flex;
+              justify-content: space-between;
               .truncated-text {
-                width: calc(100% - 25px);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                display: inline-block;
+                width: calc(100% - 30px);
               }
+            }
+            .truncated-text {
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              display: inline-block;
             }
           }
         }
@@ -291,7 +304,7 @@
             .logo-about {
               position: absolute !important;
               left: 46px;
-              top: 5px;
+              top: 7px;
               font-size: 12px;
               padding: 2px 10px;
               border-radius: 4px;
@@ -318,6 +331,7 @@
 
             .header__site-title__home__logo {
               height: 30px;
+              margin: 0;
             }
 
             .header__nav-links--search {
@@ -408,6 +422,10 @@
       max-width: 390px;
       transform: translate(100%, 0);
       -webkit-transform: translate(100%, 0);
+      .comments-sidebar__header {
+        height: 56px;
+        padding: 0;
+      }
     }
     .content-wrapper {
       padding-top: 56px;

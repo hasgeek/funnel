@@ -147,8 +147,8 @@
     </div>
   </header>
   <div class="comments-sidebar" id="js-comments-dropdown">
-    <span class="js-close-comments mui--pull-right right-padding top-padding">{{ faicon(icon='times', baseline=false, css_class='mui--align-bottom') }}</span>
-    <h3 class="comments-sidebar__heading">{{ faicon(icon='comment-alt', css_class='fa-icon--margin') }}<span>{% trans %}Comments{% endtrans %}</span></h3>
+    <div class="comments-sidebar__header mui--z1">
+      <span class="js-close-comments mui--text-dark comments-sidebar__header__close">{{ faicon(icon='arrow-left', icon_size='title') }}</span><span class="mui--text-dark mui--text-heading comments-sidebar__header__title">{% trans %}Comments{% endtrans %}</span></div>
     <hr class="zero-bottom-margin zero-top-margin">
     <span class="loading js-loading left-padding separator"></span>
     <ul class="comments-list" id="js-unread-comments">
