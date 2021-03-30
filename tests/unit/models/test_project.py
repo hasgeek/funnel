@@ -299,4 +299,10 @@ def test_project_featured_proposal(db_session, user_twoflower, new_project):
     db_session.add(proposal)
     db_session.commit()
 
+    assert new_project.has_featured_proposals is False
+
+    proposal.under_evaluation()
+    proposal.confirm()
+    db_session.commit()
+
     assert new_project.has_featured_proposals is True

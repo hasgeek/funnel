@@ -737,5 +737,7 @@ class __Project:
     @property
     def has_featured_proposals(self):
         return db.session.query(
-            self.proposals_all.filter_by(featured=True).exists()
+            self.proposals_all.filter_by(featured=True)
+            .filter(Proposal.state.CONFIRMED)
+            .exists()
         ).scalar()
