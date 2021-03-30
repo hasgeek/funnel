@@ -287,6 +287,7 @@ def test_project_rename(
 def test_project_featured_proposal(db_session, user_twoflower, new_project):
     assert new_project.has_featured_proposals is False
 
+    # A proposal is created, default state is `Submitted`
     proposal = Proposal(
         project=new_project,
         user=user_twoflower,
@@ -299,10 +300,13 @@ def test_project_featured_proposal(db_session, user_twoflower, new_project):
     db_session.add(proposal)
     db_session.commit()
 
+    # If there are no confirmed featured proposals, the flag will return False
     assert new_project.has_featured_proposals is False
 
+    # Proposal gets confirmed
     proposal.under_evaluation()
     proposal.confirm()
     db_session.commit()
 
+    # The flag returns True
     assert new_project.has_featured_proposals is True
