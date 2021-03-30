@@ -647,8 +647,9 @@ html.touch .collapsible__body--disable {
       top: 50%;
     }
 
-    .mui-btn--primary {
+    .mui-btn {
       width: 100%;
+      margin: $mui-grid-padding/4 0;
     }
 
     .mui-form {

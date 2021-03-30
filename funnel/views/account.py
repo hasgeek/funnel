@@ -869,7 +869,7 @@ class AccountView(ClassView):
             title=_("You are about to delete your account permanently"),
             submit=("Delete account"),
             ajax=False,
-            template='account_formlayout.html.jinja2',
+            template='account_delete.html.jinja2',
             cancel_url=url_for('account'),
         )
 
