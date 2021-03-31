@@ -734,7 +734,7 @@ class __Project:
             .all(),
         }
 
-    @property
+    @cached_property
     def has_featured_proposals(self):
         return db.session.query(
             self.proposals_all.filter_by(featured=True)
