@@ -809,11 +809,10 @@ class DuckTypeUser(RoleMixin):
         self.fullname = self.title = self.pickername = representation
 
     def __str__(self) -> str:
-        """
-        Represent user account as a string.
-
-        `str()` because `__str__()` needs to return a string object.
-        """
+        """Represent user account as a string."""
+        # `str()` because `__str__()` needs to return a string object, but
+        # by default `pickername` is `LazyString` because we initiate the
+        # instance like `DuckTypeUser(__("[deleted]"))`
         return str(self.pickername)
 
 
