@@ -18,7 +18,7 @@ Flask-Migrate==2.7.0
 Flask-OAuth==0.12
 Flask-Redis==0.4.0
 Flask-RQ2==18.3
-Flask-SQLAlchemy==2.4.4
+Flask-SQLAlchemy==2.5.1
 Flask-WTF==0.14.3
 geoip2==4.1.0
 html2text==2020.1.16
