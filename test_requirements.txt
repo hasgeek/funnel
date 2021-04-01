@@ -1,5 +1,5 @@
 coverage==5.5
-coveralls==3.0.0
+coveralls==3.0.1
 fakeredis==1.4.5
 mock==4.0.3
 pytest==6.2.2
