@@ -193,4 +193,26 @@
       window.Hasgeek.ProjectInit(projectConfig);
     });
   </script>
+  <script type="text/javascript">
+    $(function() {
+      if ($('.language-vega-lite').length > 0) {
+        var vegaliteCDN = ["https://cdn.jsdelivr.net/npm/vega@5", "https://cdn.jsdelivr.net/npm/vega-lite@5","https://cdn.jsdelivr.net/npm/vega-embed@6"];
+        var vegaliteUrl = 0;
+        function loadVegaScript() {
+          $.getScript({url: vegaliteCDN[vegaliteUrl], cache: true}).success(function() {
+            if(vegaliteUrl < vegaliteCDN.length) {
+              vegaliteUrl++;
+              loadScript()
+            }
+            if(vegaliteUrl === vegaliteCDN.length) {
+              $('.language-vega-lite').each(function() {
+                vegaEmbed(this, JSON.parse($(this).find('code').text()));
+              });
+            }
+          });
+        }
+        loadVegaScript();
+      }
+    });
+  </script>
 {% endblock %}

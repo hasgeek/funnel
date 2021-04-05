@@ -4049,6 +4049,17 @@ a.loginbutton.hidden,
   outline: none;
 }
 
+.language-placeholder {
+  display: none;
+}
+
+.language-placeholder.language-vega-lite.vega-embed {
+  display: block;
+}
+.language-placeholder.language-vega-lite.vega-embed canvas {
+  max-width: 100% !important;
+}
+
 .page-card .proposal__wrapper__alert {
   padding: 8px 16px;
   margin: 0 0 16px;

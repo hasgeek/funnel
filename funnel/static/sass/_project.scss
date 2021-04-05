@@ -590,3 +590,14 @@
   position: relative;
   outline: none;
 }
+
+.language-placeholder {
+  display: none;
+}
+
+.language-placeholder.language-vega-lite.vega-embed {
+  display: block;
+  canvas {
+    max-width: 100% !important;
+  }
+}
