@@ -70,7 +70,12 @@ $(() => {
             // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
             if (vegaliteUrl === vegaliteCDN.length) {
               $('.language-vega-lite').each(function () {
-                vegaEmbed(this, JSON.parse($(this).find('code').text()));
+                vegaEmbed(this, JSON.parse($(this).find('code').text()), {
+                  actions: {
+                    export: true,
+                    source: false,
+                  },
+                });
               });
             }
           }
