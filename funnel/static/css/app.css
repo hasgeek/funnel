@@ -1031,6 +1031,17 @@ a.loginbutton.hidden,
   cursor: pointer;
 }
 
+.language-placeholder {
+  display: none;
+}
+
+.language-placeholder.language-vega-lite.vega-embed {
+  display: block;
+}
+.language-placeholder.language-vega-lite.vega-embed canvas {
+  max-width: 100% !important;
+}
+
 @media (max-width: 767px) {
   #root_footer {
     padding-top: 32px;
