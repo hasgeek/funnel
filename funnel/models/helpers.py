@@ -1,3 +1,4 @@
+from copy import deepcopy
 from textwrap import dedent
 from typing import Dict, Iterable, Optional, Set, Type, Union
 import re
@@ -11,6 +12,12 @@ from flask import current_app
 
 from furl import furl
 from zxcvbn import zxcvbn
+import pymdownx.superfences
+
+from coaster.utils import (
+    default_markdown_extension_configs,
+    default_markdown_extensions,
+)
 
 from ..typing import T
 from . import UrlType, db
@@ -18,6 +25,7 @@ from . import UrlType, db
 __all__ = [
     'RESERVED_NAMES',
     'password_policy',
+    'markdown_content_options',
     'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
@@ -141,6 +149,25 @@ _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
 visual_field_delimiter = ' ¦ '
+
+markdown_content_options: dict = {
+    'extensions': deepcopy(default_markdown_extensions),
+    'extension_configs': deepcopy(default_markdown_extension_configs),
+}
+markdown_content_options['extension_configs'].setdefault('pymdownx.superfences', {})[
+    'custom_fences'
+] = [
+    {
+        'name': 'mermaid',
+        'class': 'language-placeholder language-mermaid',
+        'format': pymdownx.superfences.fence_div_format,
+    },
+    {
+        'name': 'vega-lite',
+        'class': 'language-placeholder language-vega-lite',
+        'format': pymdownx.superfences.fence_div_format,
+    },
+]
 
 
 def add_to_class(cls: Type, name: Optional[str] = None):
