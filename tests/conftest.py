@@ -614,8 +614,7 @@ def new_proposal(db_session, new_user, new_project):
         speaker=new_user,
         project=new_project,
         title="Test Proposal",
-        outline="Test proposal description",
-        location="Bangalore",
+        body="Test proposal description",
     )
     db_session.add(proposal)
     db_session.commit()

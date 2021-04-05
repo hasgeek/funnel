@@ -1,6 +1,4 @@
-from flask import Markup, abort, escape, flash, jsonify, redirect
-
-from bleach import linkify
+from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, __, request_is_xhr
 from baseframe.forms import render_delete_sqla, render_form
@@ -198,16 +196,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if request_is_xhr():
             return jsonify({'comments': self.obj.commentset.views.json_comments()})
 
-        links = [
-            Markup(linkify(str(escape(link))))
-            for link in self.obj.links.replace('\r\n', '\n').split('\n')
-            if link
-        ]
-
         return {
             'project': self.obj.project,
             'proposal': self.obj,
-            'links': links,
         }
 
     @route('admin')
