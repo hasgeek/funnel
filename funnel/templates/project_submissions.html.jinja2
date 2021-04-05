@@ -23,7 +23,7 @@
               </p>
             {%- endif %}
             {% if project.instructions.html|length > 300 %}
-              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|preview(min=200, max=300) }}{% if project.profile.description.html|preview(max=200)|length < 200 %}<span aria-label="hidden">…</span>{% endif %}<span class="mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
+              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|preview(min=200, max=300) }}{% if project.profile.description.html|preview(max=300)|length < 300 %}<span aria-label="hidden">…</span>{% endif %}<span class="mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
               <div class="js-htmltruncate-full mui--hide">{{ project.instructions.html }}</div>
             {%- else %}
               <div>{{ project.instructions.html }}</div>
