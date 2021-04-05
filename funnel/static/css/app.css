@@ -1255,15 +1255,15 @@ a.loginbutton.hidden,
 }
 
 @media (max-width: 767px) {
+  .hg-app .content-wrapper {
+    padding-top: 0;
+  }
+
   .hg-app.no-sticky-header .header--fixed {
     display: none;
   }
   .hg-app.no-sticky-header .footer {
     display: none;
-  }
-
-  .hg-app.content-wrapper {
-    padding-top: 0;
   }
 
   .hg-app.mobile-header .content-wrapper {
@@ -1777,9 +1777,6 @@ a.loginbutton.hidden,
   width: 100%;
   left: 0;
 }
-.tabs-wrapper--sticky .grid__col-12 {
-  padding-right: 0;
-}
 
 @media (min-width: 768px) {
   .tabs-navbar .header {
@@ -1791,9 +1788,10 @@ a.loginbutton.hidden,
     width: 100%;
     left: 0;
   }
-  .tabs-wrapper--sticky .grid__col-12 {
+  .tabs-wrapper--sticky .tabs {
     padding-left: 16px;
     padding-right: 16px;
+    width: auto;
   }
   .tabs-wrapper--sticky .tabs__item-control {
     display: none;

@@ -113,7 +113,7 @@
                       <div class="proposal-card__body__inner__headline">
                         <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
                         <p class="mui--text-body2">{{ session.speaker }}</p>
-                        <div class="mui--text-light margin-bottom">{{ session.description.html|preview(max=200) }}{% if session.description.html|preview(max=200)|length < 200 %}<span aria-label="hidden">…</span>{% endif %}<span class="mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
+                        <div class="mui--text-light margin-bottom">{{ session.description.html|preview(min=100, max=200) }} <span class="chip mui--text-body2">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=true, css_class='mui--align-bottom') }}</span></div>
                         <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ session.start_at|datetime(format='dd MMM YYYY, h:mm a') }}</p>
                       </div>
                     </div>

@@ -152,6 +152,10 @@
 }
 
 @media (max-width: 767px) {
+  .hg-app .content-wrapper {
+    padding-top: 0;
+  }
+
   .hg-app.no-sticky-header {
     .header--fixed {
       display: none;
@@ -159,10 +163,6 @@
     .footer {
       display: none;
     }
-  }
-
-  .hg-app.content-wrapper {
-    padding-top: 0;
   }
 
   .hg-app.mobile-header .content-wrapper {
@@ -604,10 +604,6 @@
   z-index: 1000;
   width: 100%;
   left: 0;
-
-  .grid__col-12 {
-    padding-right: 0;
-  }
 }
 
 @media (min-width: 768px) {
@@ -619,9 +615,10 @@
     width: 100%;
     left: 0;
 
-    .grid__col-12 {
+    .tabs {
       padding-left: $mui-grid-padding;
       padding-right: $mui-grid-padding;
+      width: auto;
     }
 
     .tabs__item-control {

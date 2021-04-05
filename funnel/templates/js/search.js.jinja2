@@ -4,14 +4,10 @@
     <script id='search-template' type='text/ractive'>
       <div class="tabs-wrapper tabs-wrapper--sticky">
         <div class="mui-container">
-          <div class="grid">
-            <div class="grid__col-12">
-              <div class="tabs" id="scrollable-tabs">
-                {{#each tabs}}
-                  <p class="tabs__item tabs__item--badge mui--text-body2 {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="mui--text-caption badge badge--tab {{#if activeTab == type}}badge--primary {{/if}}">{{ count }}</span></p>
-                {{/each}}
-              </div>
-            </div>
+          <div class="tabs" id="scrollable-tabs">
+            {{#each tabs}}
+              <p class="tabs__item tabs__item--badge mui--text-body2 {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="mui--text-caption badge badge--tab {{#if activeTab == type}}badge--primary {{/if}}">{{ count }}</span></p>
+            {{/each}}
           </div>
         </div>
       </div>

@@ -668,7 +668,7 @@
           {%- endif -%}
           <div class="proposal-card__body__inner__headline">
             <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
-            <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=200) }}{% if proposal.body.html|preview(max=200)|length < 200 %}<span aria-label="hidden">…</span>{% endif %}<span class="mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
+            <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=200) }} <span class="chip mui--text-body2">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=true, css_class='mui--align-bottom') }}</span></div>
             {% if details %}
               <div class="proposal-card__body__inner__headline__info">
                 <ul class="mui-list--inline mui--text-light mui--text-body2 zero-bottom-margin list-item-rgborder">
