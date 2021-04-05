@@ -129,42 +129,6 @@
   text-decoration: none !important;
 }
 
-.badge {
-  position: relative;
-  color: #ffffff;
-  min-width: 16px;
-  line-height: 16px;
-  min-height: 16px;
-  text-align: center;
-  display: inline-block;
-  background-color: #f06a5e;
-  border-radius: 3px;
-  padding: 2px;
-  font-size: 12px;
-}
-
-.badge--round {
-  border-radius: 50%;
-  width: 25px;
-  line-height: 25px;
-  padding: 0;
-}
-
-.badge--round-smaller {
-  width: 16px;
-  line-height: 16px;
-}
-
-.badge--tab {
-  margin-left: 4px;
-  color: #4d5763;
-  background: #ffffff;
-}
-
-.badge--primary {
-  color: #0f73ed;
-}
-
 .select2-inline {
   display: inline-block;
   margin-right: 5px;
@@ -2037,7 +2001,7 @@ a.loginbutton.hidden,
 .profile .profile__banner .profile__logo {
   position: absolute;
   bottom: -60px;
-  left: 10px;
+  left: 16px;
   width: 120px;
   height: 120px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
@@ -2166,7 +2130,7 @@ a.loginbutton.hidden,
     top: 2px;
   }
   .profile .profile__banner .profile__logo {
-    left: 32px;
+    left: 0;
     bottom: -72px;
   }
   .profile .profile__banner .profile__logo .profile__logo__details {
@@ -2183,7 +2147,7 @@ a.loginbutton.hidden,
   }
 
   .profile-details {
-    padding: 32px 16px 0;
+    padding: 32px 0 0;
   }
 }
 .profile--hg {
@@ -3895,27 +3859,19 @@ a.loginbutton.hidden,
   word-break: break-word;
   padding-bottom: 16px;
 }
-.about .about__details h1,
-.about .about__details h2,
-.about .about__details h3,
-.about .about__details h4,
-.about .about__details h5 {
+.about h1,
+.about h2,
+.about h3,
+.about h4,
+.about h5 {
   font-weight: 400;
   font-size: 18px;
   line-height: 27px;
 }
-.about .about__details img {
+.about img {
   width: 100%;
 }
 
-@media (min-width: 768px) {
-  .about .about__details {
-    float: none;
-  }
-  .about .about__details hr {
-    overflow: hidden;
-  }
-}
 .tickets-wrapper .tickets-wrapper__modal {
   display: none;
 }

@@ -130,42 +130,6 @@
   text-decoration: none !important;
 }
 
-.badge {
-  position: relative;
-  color: $mui-text-white;
-  min-width: $mui-grid-padding;
-  line-height: $mui-grid-padding;
-  min-height: $mui-grid-padding;
-  text-align: center;
-  display: inline-block;
-  background-color: $mui-accent-color;
-  border-radius: 3px;
-  padding: 2px;
-  font-size: 12px;
-}
-
-.badge--round {
-  border-radius: 50%;
-  width: 25px;
-  line-height: 25px;
-  padding: 0;
-}
-
-.badge--round-smaller {
-  width: 16px;
-  line-height: 16px;
-}
-
-.badge--tab {
-  margin-left: 4px;
-  color: $mui-text-light;
-  background: $mui-bg-color-primary;
-}
-
-.badge--primary {
-  color: $mui-primary-color;
-}
-
 .select2-inline {
   display: inline-block;
   margin-right: 5px;

@@ -416,30 +416,18 @@
   word-break: break-word;
   padding-bottom: $mui-grid-padding;
 
-  .about__details h1,
-  .about__details h2,
-  .about__details h3,
-  .about__details h4,
-  .about__details h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-weight: 400;
     font-size: 18px;
     line-height: 27px;
   }
 
-  .about__details img {
+  img {
     width: 100%;
-  }
-}
-
-@media (min-width: 768px) {
-  .about {
-    .about__details {
-      float: none;
-
-      hr {
-        overflow: hidden;
-      }
-    }
   }
 }
 

@@ -8,7 +8,7 @@
             <div class="grid__col-12">
               <div class="tabs" id="scrollable-tabs">
                 {{#each tabs}}
-                  <p class="tabs__item mui--text-body2 {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="badge badge--round badge--tab {{#if activeTab == type}}badge--primary {{/if}}">{{ count }}</span></p>
+                  <p class="tabs__item tabs__item--badge mui--text-body2 {{#if activeTab == type}}tabs__item--active{{/if}}" on-click="updateTabContent(type)">{{ label }} <span class="mui--text-caption badge badge--tab {{#if activeTab == type}}badge--primary {{/if}}">{{ count }}</span></p>
                 {{/each}}
               </div>
             </div>
