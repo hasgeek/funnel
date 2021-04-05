@@ -74,7 +74,7 @@
       <div class="project-section" id="submissions">
         <div class="project-section__headline">
           <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--flat mui-btn--primary" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
@@ -92,7 +92,7 @@
       <div class="project-section" id="sessions">
         <div class="project-section__headline">
           <h2 class="mui--text-left zero-top-margin">{% trans %}Sessions{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--flat mui-btn--primary" href="{{ project.url_for('schedule') }}">{% trans %}See all{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised" href="{{ project.url_for('schedule') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
@@ -113,7 +113,9 @@
                       <div class="proposal-card__body__inner__headline">
                         <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
                         <p class="mui--text-body2">{{ session.speaker }}</p>
-                        <div class="mui--text-light margin-bottom">{{ session.description.html|preview(min=100, max=200) }} <span class="chip mui--text-body2">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=true, css_class='mui--align-bottom') }}</span></div>
+                        {% if session.description.html %}
+                          <div class="mui--text-light margin-bottom">{{ session.description.html|preview(min=100, max=200) }} <span class="chip mui--text-body2">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=true, css_class='mui--align-bottom') }}</span></div>
+                        {%- endif %}
                         <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ session.start_at|datetime(format='dd MMM YYYY, h:mm a') }}</p>
                       </div>
                     </div>
@@ -132,7 +134,7 @@
       <div class="project-section" id="videos">
         <div class="project-section__headline" id="videos">
           <h2 class="mui--text-left zero-top-margin">{% trans %}Videos{% endtrans %}</h2>
-          <a class="mui--text-subhead mui--text-capitalize" href="{{ project.url_for('session_videos') }}">{% trans %}See all{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised" href="{{ project.url_for('session_videos') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <div class="grid">

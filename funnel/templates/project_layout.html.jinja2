@@ -84,17 +84,17 @@
         <div>
           {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
             <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#{{modalid}}-register-modal" id="{{modalid}}-register-btn">{% trans %}Register{% endtrans %}</a>
-            <div class="modal reg-modal" id="{{modalid}}-register-modal">
+            <div class="modal" id="{{modalid}}-register-modal">
               <div class="modal__header">
                 <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-                <p class="mui--text-title mui--text-bold mui--text-dark reg-modal__txt">{{ faicon(icon='info-circle', baseline=false, icon_size='heading', css_class='mui--align-bottom') }}</p>
+                <p class="mui--text-title mui--text-bold mui--text-dark">{{ faicon(icon='info-circle', baseline=false, icon_size='heading') }}</p>
               </div>
               <div class="modal__body">
-                <p class="mui--text-body2 reg-modal__body">{% trans %}This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
+                <p class="mui--text-body2">{% trans %}This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time.{% endtrans %}</p>
                 <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
                   {{ csrf_tag() }}
-                  <div class="mui--text-right modal__body__btn">
-                    <button class="mui-btn mui-btn--flat mui-btn--nostyle mui-btn--primary reg-modal__btn" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
+                  <div class="mui--text-right">
+                    <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
                   </div>
                 </form>
               </div>
@@ -106,17 +106,17 @@
               <ul class="mui-dropdown__menu mui-dropdown__menu--right">
                 {% if project.features.rsvp_registered() %}
                   <li><a class="mui--text-body2 js-register-btn" href="#{{modalid}}-register-modal">{% trans %}Cancel registration{% endtrans %}</a></li>
-                  <div class="modal reg-modal" id="{{modalid}}-register-modal">
+                  <div class="modal" id="{{modalid}}-register-modal">
                     <div class="modal__header">
                       <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                       <p class="mui--text-title mui--text-bold mui--text-dark reg-modal__txt">{{ project.title }}</p>
                     </div>
                     <div class="modal__body">
-                      <p class="mui--text-subhead reg-modal__body">{% trans %}Can’t make it?{% endtrans %}</p>
+                      <p class="mui--text-subhead">{% trans %}Can’t make it?{% endtrans %}</p>
                       <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
                         {{ csrf_tag() }}
-                        <div class="mui--text-right modal__body__btn">
-                          <button class="mui-btn mui-btn--flat mui-btn--nostyle mui-btn--primary reg-modal__btn" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% trans %}Confirm cancellation{% endtrans %}</button>
+                        <div class="mui--text-right">
+                          <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% trans %}Confirm cancellation{% endtrans %}</button>
                         </div>
                       </form>
                     </div>
@@ -440,7 +440,9 @@
                     {% endif %}
                     <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                   </div>
-                  <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(min=200, max=300) }} <a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=true, css_class='mui--align-bottom') }}</a></div>
+                  {% if project.profile.description.html %}
+                    <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(min=200, max=300) }} <a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=true, css_class='mui--align-bottom') }}</a></div>
+                  {% endif %}
                 </div>
               </div>
             </div>

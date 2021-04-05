@@ -1621,9 +1621,9 @@ a.loginbutton.hidden,
     display: none;
   }
 }
-@media (max-width: 767px) {
-  .alert-wrapper {
-    padding: 0 16px;
+@media (min-width: 768px) {
+  .alert-wrapper .alert {
+    margin: 16px;
   }
 }
 .project-page .alert-wrapper {
@@ -3814,23 +3814,6 @@ a.loginbutton.hidden,
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.jquery-modal.blocker.current .modal.reg-modal {
-  padding: 16px 0 0 0;
-}
-.jquery-modal.blocker.current .modal.reg-modal .reg-modal__txt {
-  margin-bottom: 16px;
-  width: calc(100% - 16px);
-  position: relative;
-  top: -5px;
-}
-.jquery-modal.blocker.current .modal.reg-modal .reg-modal__txt,
-.jquery-modal.blocker.current .modal.reg-modal .reg-modal__body {
-  padding: 0 16px;
-}
-.jquery-modal.blocker.current .modal.reg-modal .reg-modal__btn {
-  padding: 16px;
 }
 
 .about {

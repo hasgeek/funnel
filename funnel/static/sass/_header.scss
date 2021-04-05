@@ -430,11 +430,12 @@
   }
 }
 
-@media (max-width: 767px) {
-  .alert-wrapper {
-    padding: 0 16px;
+@media (min-width: 768px) {
+  .alert-wrapper .alert {
+    margin: 16px;
   }
 }
+
 .project-page .alert-wrapper {
   background: $mui-bg-color-primary;
 }
