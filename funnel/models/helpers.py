@@ -154,18 +154,21 @@ markdown_content_options: dict = {
     'extensions': deepcopy(default_markdown_extensions),
     'extension_configs': deepcopy(default_markdown_extension_configs),
 }
+
+# Custom fences must use <pre><code> blocks and not <div> blocks, as linkify will mess
+# with links inside <div> blocks
 markdown_content_options['extension_configs'].setdefault('pymdownx.superfences', {})[
     'custom_fences'
 ] = [
     {
         'name': 'mermaid',
         'class': 'language-placeholder language-mermaid',
-        'format': pymdownx.superfences.fence_div_format,
+        'format': pymdownx.superfences.fence_code_format,
     },
     {
         'name': 'vega-lite',
         'class': 'language-placeholder language-vega-lite',
-        'format': pymdownx.superfences.fence_div_format,
+        'format': pymdownx.superfences.fence_code_format,
     },
 ]
 
