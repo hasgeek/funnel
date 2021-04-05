@@ -202,7 +202,7 @@
           $.getScript({url: vegaliteCDN[vegaliteUrl], cache: true}).success(function() {
             if(vegaliteUrl < vegaliteCDN.length) {
               vegaliteUrl++;
-              loadScript()
+              loadVegaScript()
             }
             if(vegaliteUrl === vegaliteCDN.length) {
               $('.language-vega-lite').each(function() {
