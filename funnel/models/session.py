@@ -201,7 +201,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         if session_obj is None and create:
             session_obj = cls(
                 title=proposal.title,
-                description=proposal.outline,
+                description=proposal.body,
                 project=proposal.project,
                 proposal=proposal,
             )

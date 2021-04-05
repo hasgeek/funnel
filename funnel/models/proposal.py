@@ -17,12 +17,10 @@ from . import (
     MarkdownColumn,
     TimestampMixin,
     TSVectorType,
-    UrlType,
     UuidMixin,
     db,
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
-from .email_address import EmailAddressMixin
 from .helpers import (
     add_search_trigger,
     markdown_content_options,
@@ -117,7 +115,6 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 
 class Proposal(
     UuidMixin,
-    EmailAddressMixin,  # TODO: Remove this, email is in user account anyway
     BaseScopedIdNameMixin,
     VideoMixin,
     db.Model,
@@ -146,9 +143,6 @@ class Proposal(
         grants={'presenter'},
     )
 
-    # TODO: Remove this, phone is in user account anyway
-    phone = db.Column(db.Unicode(80), nullable=True)
-
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(
@@ -159,19 +153,6 @@ class Proposal(
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
-
-    # TODO: Deprecated
-    abstract = MarkdownColumn('abstract', nullable=True)
-    # TODO: Deprecated
-    outline = MarkdownColumn('outline', nullable=True)
-    # TODO: Deprecated
-    requirements = MarkdownColumn('requirements', nullable=True)
-    # TODO: Deprecated
-    slides = db.Column(UrlType, nullable=True)
-    # TODO: Deprecated
-    links = db.Column(db.Text, default='', nullable=True)
-    # TODO: Deprecated
-    bio = MarkdownColumn('bio', nullable=True)
 
     _state = db.Column(
         'state',
@@ -206,8 +187,6 @@ class Proposal(
     featured = db.Column(db.Boolean, nullable=False, default=False)
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    # TODO: Deprecated, take from proposer profile
-    location = db.Column(db.Unicode(80), nullable=False, default='')
 
     search_vector = db.deferred(
         db.Column(
@@ -249,14 +228,7 @@ class Proposal(
                 'speaker',
                 'owner',
                 'speaking',
-                'bio',  # TODO: Deprecated
-                'abstract',  # TODO: Deprecated
-                'outline',  # TODO: Deprecated
-                'requirements',  # TODO: Deprecated
-                'slides',  # TODO: Deprecated
                 'video',
-                'links',  # TODO: Deprecated
-                'location',  # TODO: Deprecated
                 'session',
                 'project',
                 'datetime',
@@ -277,18 +249,9 @@ class Proposal(
             'user',
             'speaker',
             'speaking',
-            'bio',  # TODO: Deprecated
-            'abstract',  # TODO: Deprecated
-            'outline',  # TODO: Deprecated
-            'requirements',  # TODO: Deprecated
-            'slides',  # TODO: Deprecated
             'video',
-            'links',  # TODO: Deprecated
-            'location',  # TODO: Deprecated
             'session',
             'project',
-            'email',  # TODO: Deprecated
-            'phone',  # TODO: Deprecated
         },
         'without_parent': {
             'urls',
@@ -299,17 +262,8 @@ class Proposal(
             'user',
             'speaker',
             'speaking',
-            'bio',  # TODO: Deprecated
-            'abstract',  # TODO: Deprecated
-            'outline',  # TODO: Deprecated
-            'requirements',  # TODO: Deprecated
-            'slides',  # TODO: Deprecated
             'video',
-            'links',  # TODO: Deprecated
-            'location',  # TODO: Deprecated
             'session',
-            'email',  # TODO: Deprecated
-            'phone',  # TODO: Deprecated
         },
         'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
     }
