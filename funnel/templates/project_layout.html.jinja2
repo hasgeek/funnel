@@ -441,7 +441,7 @@
                     <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                   </div>
                   {% if project.profile.description.html %}
-                    <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(min=200, max=300) }} <a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=true, css_class='mui--align-bottom') }}</a></div>
+                    <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(min=200, max=300) }} <a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-bottom') }}</a></div>
                   {% endif %}
                 </div>
               </div>
