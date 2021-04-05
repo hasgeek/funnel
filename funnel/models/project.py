@@ -31,6 +31,7 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
+    markdown_content_options,
     reopen,
     valid_name,
     visual_field_delimiter,
@@ -98,10 +99,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         datasets={'primary', 'without_parent', 'related'},
     )
     description = with_roles(
-        MarkdownColumn('description', default='', nullable=False), read={'all'}
+        MarkdownColumn(
+            'description', default='', nullable=False, options=markdown_content_options
+        ),
+        read={'all'},
     )
     instructions = with_roles(
-        MarkdownColumn('instructions', default='', nullable=True), read={'all'}
+        MarkdownColumn(
+            'instructions', default='', nullable=True, options=markdown_content_options
+        ),
+        read={'all'},
     )
 
     location = with_roles(

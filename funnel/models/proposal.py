@@ -23,7 +23,12 @@ from . import (
 )
 from .commentvote import SET_TYPE, Commentset, Voteset
 from .email_address import EmailAddressMixin
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .helpers import (
+    add_search_trigger,
+    markdown_content_options,
+    reopen,
+    visual_field_delimiter,
+)
 from .project import Project
 from .project_membership import project_child_role_map
 from .user import User
@@ -192,7 +197,9 @@ class Proposal(
         back_populates='proposal',
     )
 
-    body = MarkdownColumn('body', nullable=False, default='')
+    body = MarkdownColumn(
+        'body', nullable=False, default='', options=markdown_content_options
+    )
     description = db.Column(db.Unicode, nullable=False, default='')
     custom_description = db.Column(db.Boolean, nullable=False, default=False)
     template = db.Column(db.Boolean, nullable=False, default=False)
