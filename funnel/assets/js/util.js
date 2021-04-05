@@ -1,4 +1,4 @@
-/* global gettext */
+/* global gettext, vegaEmbed */
 
 import Gettext from './gettext';
 import * as timeago from 'timeago.js';
@@ -402,6 +402,39 @@ export const Utils = {
         },
       });
     });
+  },
+  addVegaSupport() {
+    console.log('length', $('.language-vega-lite').length);
+    if ($('.language-vega-lite').length > 0) {
+      let vegaliteCDN = [
+        'https://cdn.jsdelivr.net/npm/vega@5',
+        'https://cdn.jsdelivr.net/npm/vega-lite@5',
+        'https://cdn.jsdelivr.net/npm/vega-embed@6',
+      ];
+      let vegaliteUrl = 0;
+      let loadVegaScript = function () {
+        $.getScript({ url: vegaliteCDN[vegaliteUrl], cache: true }).success(
+          function () {
+            if (vegaliteUrl < vegaliteCDN.length) {
+              vegaliteUrl += 1;
+              loadVegaScript();
+            }
+            // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
+            if (vegaliteUrl === vegaliteCDN.length) {
+              $('.language-vega-lite').each(function () {
+                vegaEmbed(this, JSON.parse($(this).find('code').text()), {
+                  actions: {
+                    export: true,
+                    source: false,
+                  },
+                });
+              });
+            }
+          }
+        );
+      };
+      loadVegaScript();
+    }
   },
 };
 
