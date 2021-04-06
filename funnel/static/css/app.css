@@ -1002,7 +1002,8 @@ a.loginbutton.hidden,
 .language-placeholder.language-vega-lite.vega-embed {
   display: block;
 }
-.language-placeholder.language-vega-lite.vega-embed canvas {
+.language-placeholder.language-vega-lite.vega-embed canvas,
+.language-placeholder.language-vega-lite.vega-embed svg {
   max-width: 100% !important;
 }
 
