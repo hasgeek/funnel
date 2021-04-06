@@ -423,9 +423,11 @@ export const Utils = {
             if (vegaliteUrl === vegaliteCDN.length) {
               $('.language-vega-lite').each(function () {
                 vegaEmbed(this, JSON.parse($(this).find('code').text()), {
+                  renderer: 'svg',
                   actions: {
-                    export: true,
                     source: false,
+                    editor: false,
+                    compiled: false,
                   },
                 });
               });

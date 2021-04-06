@@ -1,15 +1,18 @@
 .page-card {
-  .proposal__wrapper__alert {
-    padding: $mui-grid-padding/2 $mui-grid-padding;
-    margin: 0 0 $mui-grid-padding;
-    border-radius: 0;
-  }
   .details {
-    border-radius: 16px 16px 0 0;
+    border-radius: 0;
     overflow: hidden;
     .details__box {
       position: relative;
       overflow: visible;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .page-card {
+    .details {
+      border-radius: 16px 16px 0 0;
     }
   }
 }

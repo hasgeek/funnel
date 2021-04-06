@@ -130,42 +130,6 @@
   text-decoration: none !important;
 }
 
-.badge {
-  position: relative;
-  color: $mui-text-white;
-  min-width: $mui-grid-padding;
-  line-height: $mui-grid-padding;
-  min-height: $mui-grid-padding;
-  text-align: center;
-  display: inline-block;
-  background-color: $mui-accent-color;
-  border-radius: 3px;
-  padding: 2px;
-  font-size: 12px;
-}
-
-.badge--round {
-  border-radius: 50%;
-  width: 25px;
-  line-height: 25px;
-  padding: 0;
-}
-
-.badge--round-smaller {
-  width: 16px;
-  line-height: 16px;
-}
-
-.badge--tab {
-  margin-left: 4px;
-  color: $mui-text-light;
-  background: $mui-bg-color-primary;
-}
-
-.badge--primary {
-  color: $mui-primary-color;
-}
-
 .select2-inline {
   display: inline-block;
   margin-right: 5px;
@@ -597,6 +561,11 @@ html.touch .collapsible__body--disable {
 
 .fa-icon--left-margin {
   margin-left: 8px;
+}
+
+.fa5-icon.mui--align-middle {
+  position: relative;
+  top: -1px;
 }
 
 .login-page {
@@ -1051,7 +1020,6 @@ a.loginbutton.hidden,
   position: relative;
   background: $mui-bg-color-primary;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.23);
-  overflow: hidden;
   .page-card__card {
     margin-bottom: 0;
     box-shadow: none;
@@ -1063,6 +1031,9 @@ a.loginbutton.hidden,
   }
   li:last-child .page-card__card {
     border-bottom: none;
+  }
+  .alert {
+    border: none;
   }
 }
 
@@ -1086,10 +1057,6 @@ a.loginbutton.hidden,
   hr {
     margin: 0;
   }
-  .fa5-icon.mui--align-middle {
-    position: relative;
-    top: -1px;
-  }
   .dropdown-menu__form {
     max-width: calc(100% - 25px);
     .dropdown-menu__form__label {
@@ -1108,13 +1075,10 @@ a.loginbutton.hidden,
   cursor: pointer;
 }
 
-.language-placeholder {
-  display: none;
-}
-
 .language-placeholder.language-vega-lite.vega-embed {
   display: block;
-  canvas {
+  canvas,
+  svg {
     max-width: 100% !important;
   }
 }
