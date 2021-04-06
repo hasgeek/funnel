@@ -689,11 +689,6 @@
                       {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
                     </li>
                   {% endif %}
-                  {% if proposal.slides.url %}
-                    <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has slides{% endtrans %}" aria-label="{% trans %}This proposal has slides{% endtrans %}">
-                      {{ faicon(icon='presentation', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
-                    </li>
-                  {% endif %}
                   {%- if project and project.current_roles.editor %}
                     {%- if proposal.has_outstation_speaker %}
                       <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}Outstation speaker{% endtrans %}" aria-label="{% trans %}Outstation speaker{% endtrans %}">{{ faicon(icon='plane', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}</li>

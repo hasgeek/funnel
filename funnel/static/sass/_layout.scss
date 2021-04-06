@@ -1071,3 +1071,14 @@ a.loginbutton.hidden,
 .text-expand {
   cursor: pointer;
 }
+
+.language-placeholder {
+  display: none;
+}
+
+.language-placeholder.language-vega-lite.vega-embed {
+  display: block;
+  canvas {
+    max-width: 100% !important;
+  }
+}

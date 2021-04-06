@@ -14,6 +14,7 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
+    markdown_content_options,
     valid_username,
     visual_field_delimiter,
 )
@@ -94,7 +95,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     )
     state = StateManager('_state', PROFILE_STATE, doc="Current state of the profile")
 
-    description = MarkdownColumn('description', default='', nullable=False)
+    description = MarkdownColumn(
+        'description', default='', nullable=False, options=markdown_content_options
+    )
     website = db.Column(UrlType, nullable=True)
     logo_url = db.Column(ImgeeType, nullable=True)
     banner_image_url = db.Column(ImgeeType, nullable=True)
