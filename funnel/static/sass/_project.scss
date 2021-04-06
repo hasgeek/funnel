@@ -191,13 +191,17 @@
   }
 
   .project-details__box {
-    padding: $mui-grid-padding 0;
     position: relative;
 
-    .card__calendar {
-      padding-top: 0;
-      padding-bottom: $mui-grid-padding/2;
+    .project-details__box__content {
+      padding: $mui-grid-padding 0;
+    }
+    .project-details__box__content--lesspadding {
+      padding: 0;
+    }
 
+    .card__calendar {
+      padding: 0;
       .calendar {
         .calendar__month--unique {
           display: none;
@@ -218,14 +222,11 @@
         }
       }
     }
-    .register-block {
-      margin-top: $mui-grid-padding-double;
-    }
     .project-venue {
-      margin: 10px 0;
+      margin: $mui-grid-padding 0;
     }
     .propose {
-      margin: 8px 0 0;
+      margin: $mui-grid-padding 0;
       .propose__txt {
         font-size: 12px;
         svg {
@@ -264,8 +265,13 @@
       }
     }
     .project-details__box {
-      padding: $mui-grid-padding;
       width: 100%;
+      .project-details__box__content {
+        padding: $mui-grid-padding;
+      }
+      .project-details__box__content--lesspadding {
+        padding: 0 $mui-grid-padding;
+      }
       .propose {
         .propose__txt {
           font-size: 14px;
@@ -298,7 +304,7 @@
 @media (min-width: 992px) {
   .project-banner {
     .profile-text {
-      margin: 0 0 5px;
+      margin: 0 0 $mui-grid-padding/4;
 
       p {
         margin: 0;
@@ -306,22 +312,6 @@
     }
     .project-details__box {
       margin: 0;
-      .propose {
-        align-items: baseline;
-        margin-left: $mui-grid-padding;
-        width: calc(100% - #{$mui-grid-padding});
-      }
-      .propose--lessmargin {
-        margin: 10px 0 0;
-        padding: 0;
-        width: 100%;
-      }
-      .propose--lessmargin.mui--d-inlineblock {
-        width: auto;
-      }
-      .propose__btn-wrapper {
-        padding-left: 10px;
-      }
     }
   }
 }
@@ -395,51 +385,22 @@
   justify-content: space-between;
 }
 
-.jquery-modal.blocker.current .modal.reg-modal {
-  padding: $mui-grid-padding 0 0 0;
-  .reg-modal__txt {
-    margin-bottom: $mui-grid-padding;
-    width: calc(100% - 16px);
-    position: relative;
-    top: -5px;
-  }
-  .reg-modal__txt,
-  .reg-modal__body {
-    padding: 0 $mui-grid-padding;
-  }
-  .reg-modal__btn {
-    padding: $mui-grid-padding;
-  }
-}
-
 .about {
   word-break: break-word;
   padding-bottom: $mui-grid-padding;
 
-  .about__details h1,
-  .about__details h2,
-  .about__details h3,
-  .about__details h4,
-  .about__details h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-weight: 400;
     font-size: 18px;
     line-height: 27px;
   }
 
-  .about__details img {
+  img {
     width: 100%;
-  }
-}
-
-@media (min-width: 768px) {
-  .about {
-    .about__details {
-      float: none;
-
-      hr {
-        overflow: hidden;
-      }
-    }
   }
 }
 

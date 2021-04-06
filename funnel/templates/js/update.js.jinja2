@@ -55,8 +55,8 @@
             <div class="update__content mui--text-light" v-if="truncated" :inner-html.prop="truncate(update.body.html, 250)"></div>
             <div class="update__content mui--text-light fullcontent" v-else v-html="update.body.html"></div>
             <p class="mui--text-body2">
-              <a @click="readMore($event, false)" v-if="setReadMore" class="read-more" :aria-label="gettext('Read more')"><faicon :icon="'caret-circle-down'" :icon_size="'caption'" :css_class="'fa-icon--margin'"></faicon>{{ gettext('Read more') }}</a></p>
-              <a @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="read-more" :aria-label="gettext('Hide')"><faicon :icon="'caret-circle-up'" :icon_size="'caption'"></faicon>{{ gettext('Hide') }}</a>
+              <span @click="readMore($event, false)" v-if="setReadMore" class="chip mui--text-body2" :aria-label="gettext('expand')">{{ gettext('expand') }} <faicon :icon="'caret-down-solid'" :icon_size="'caption'" :css_class="'fa-icon--margin'"></faicon></span>
+              <span @click="readMore($event, true)" v-if="!truncated && !setReadMore" class="chip mui--text-body2" :aria-label="gettext('collapse')">{{ gettext('collapse') }} <faicon :icon="'caret-up-solid'" :icon_size="'caption'"></faicon></span>
             </p>
           </div>
           <div class="update__content mui--text-light" v-else v-html="update.body.html"></div>

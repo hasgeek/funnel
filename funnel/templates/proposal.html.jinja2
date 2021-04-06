@@ -14,7 +14,7 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-accent hg-app no-sticky-header proposal-page">
+    <body class="mui--bg-accent hg-app no-sticky-header mobile-header proposal-page">
   {%- else %}
     <body class="mui--bg-accent no-sticky-header proposal-page">
   {%- endif %}
@@ -98,15 +98,22 @@
   <div class="mui-container">
     <div class="page-content">
       <div class="grid">
-        {% if proposal.featured and ('edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor) %}
-          <div class="grid__col-sm-12 margin-bottom">
-            {{ alertbox('success', gettext("This is a featured submission")) }}
-          </div>
-        {% endif %}
         <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8">
           {%- if proposal.getnext() -%}
-            <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block margin-bottom mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
+            <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block top-padding margin-bottom mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
           {%- endif -%}
+          {% if proposal.featured and ('edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor) %}
+            <div class="page-card">
+              {{ alertbox('success', gettext("This is a featured submission"), dismissable=false, css_class='zero-top-margin zero-bottom-margin') }}
+            </div>
+          {% endif %}
+          {% if proposal.state.SCHEDULED %}
+            <div class="page-card">
+              <div class="alert alert--info zero-top-margin zero-bottom-margin">
+                <a class="mui--text-body2" href="{{ proposal.session.url_for() }}">{% trans %}This proposal has been added to the schedule{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', baseline=false, css_class='primary-color-txt fa-icon--left-margin mui--align-middle') }}</a>
+              </div>
+            </div>
+          {% endif %}
           <div class="page-card page-card--nomargin">
             <div class="details">
               {% if proposal.session and proposal.session.video or proposal.video or 'edit_proposal' in proposal.permissions(current_auth.user) %}
@@ -222,10 +229,6 @@
                 {% endif %}
               </div>
             </section>
-
-            {% if proposal.state.SCHEDULED %}
-              <div class="alert alert--info proposal__wrapper__alert"><a class="mui--text-body2" href="{{ proposal.session.url_for() }}">{% trans %}This proposal has been added to the schedule{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', baseline=false, css_class='primary-color-txt fa-icon--left-margin mui--align-middle') }}</a></div>
-            {% endif %}
 
             <section class="proposal__section proposal__section--bleed-x proposal__section--border">
               <div class="proposal-content">
