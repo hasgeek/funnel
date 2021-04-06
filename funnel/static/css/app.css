@@ -941,7 +941,6 @@ a.loginbutton.hidden,
   position: relative;
   background: #ffffff;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.23);
-  overflow: hidden;
 }
 .page-card .page-card__card {
   margin-bottom: 0;
@@ -2521,7 +2520,7 @@ a.loginbutton.hidden,
   position: relative;
   clear: both;
   width: 100%;
-  margin: 0;
+  margin: 0 0 16px;
 }
 .ajax-form .mui-form {
   display: flex;
@@ -2578,6 +2577,7 @@ a.loginbutton.hidden,
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
     background-color: #f9f9f9;
     z-index: 1001;
+    margin: 0;
   }
   .ajax-form.ajax-form--mob .mui-form .mui-form__fields .CodeMirror {
     border: none;

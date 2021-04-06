@@ -1,7 +1,7 @@
 {% macro comments_tree() %}
   {% raw %}
     <div id="comments-wrapper" v-cloak>
-      <p><a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn" v-if="!isuserloggedin">{{ gettext('Login to leave a comment') }}</a></p>
+      <p v-if="!isuserloggedin"><a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" :href="loginUrl" data-cy="login-btn">{{ gettext('Login to leave a comment') }}</a></p>
       <a href="javascript:void(0)" class="post-form-block nounderline js-new-comment-form" :class="[commentForm ? 'mui--hide' : '']" @click="showNewCommentForm($event, 'comment_message')" :aria-label="gettext('Post comment')" data-cy="post-comment" v-else role="button">
         <span class="post-form mui--hidden-xs mui--hidden-sm">{{ gettext('Post a comment…') }}</span>
         <div class="user mui--hidden-xs mui--hidden-sm">
@@ -11,7 +11,7 @@
         </div>
         <span class="comment-new-mobile mui--text-hyperlink mui--hidden-md mui--hidden-lg mui--hidden-xl"><faicon :icon="'comment-alt'" :icon_size="'subhead'" :css_class="'fa-icon--margin'"></faicon>{{ gettext('New comment') }}</span>
       </a>
-      <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl" v-if="showmodal">
+      <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper" v-if="showmodal">
         <div class="mobile-nav mui--z1">
           <span :aria-label="gettext('Close')" class="mui--text-dark mobile-nav__icon" data-ga="Close new comment form" @click="closeNewCommentForm($event)"><faicon :icon="'times'" :icon_size="'title'"></faicon></span><span class="mui--text-dark mobile-nav__headline">{{ formTitle }}</span>
         </div>
