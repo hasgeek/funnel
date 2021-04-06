@@ -226,7 +226,7 @@
       margin: $mui-grid-padding 0;
     }
     .propose {
-      margin: $mui-grid-padding/2 0 0;
+      margin: $mui-grid-padding 0;
       .propose__txt {
         font-size: 12px;
         svg {
@@ -312,15 +312,6 @@
     }
     .project-details__box {
       margin: 0;
-      .propose {
-        align-items: baseline;
-        margin-left: $mui-grid-padding;
-        width: calc(100% - #{$mui-grid-padding});
-      }
-      .propose--lessmargin {
-        margin: $mui-grid-padding/2 0 0;
-        width: 100%;
-      }
     }
   }
 }

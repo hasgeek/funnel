@@ -195,10 +195,10 @@
     {% endif %}
     <div>
       {% if project.view_for('edit_schedule').is_available() and not project.schedule_state.PUBLISHED %}
-        <p class="project-details__box__content--lesspadding"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
+        <p class="project-details__box__content--lesspadding"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block propose" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
       {%- endif %}
       {% if project.cfp_state.OPEN -%}
-        <div class="project-details__box__content--lesspadding">
+        <div class="project-details__box__content--lesspadding propose">
           <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block propose__btn" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
           {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light mui--text-body2">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
         </div>
@@ -213,7 +213,7 @@
           </a>
         </div>
       {%- elif project.cfp_state.UNAVAILABLE %}
-        <div class="project-details__box__content--lesspadding propose propose--lessmargin">
+        <div class="project-details__box__content--lesspadding propose">
           <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block propose__btn propose__btn--strike" data-cy="Make a submission">{% trans %}Make a submission{% endtrans %}</a>
           <p class="mui--text-light mui--text-caption mui--text-center zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
         </div>

@@ -100,7 +100,7 @@
       <div class="grid">
         <div class="grid__col-xs-12 grid__col-sm-7 grid__col-md-8">
           {%- if proposal.getnext() -%}
-            <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block top-padding mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
+            <p class="mui--text-subhead mui--text-bold mui--text-uppercase mui--visible-xs-block mui--visible-sm-block top-padding margin-bottom mui--text-right"><a href="{{ proposal.getnext().url_for() }}">{% trans %}Up next{% endtrans %}{{ faicon(icon='arrow-right', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a></p>
           {%- endif -%}
           {% if proposal.featured and ('edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor) %}
             <div class="page-card">

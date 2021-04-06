@@ -3673,7 +3673,7 @@ a.loginbutton.hidden,
   margin: 16px 0;
 }
 .project-banner .project-details__box .propose {
-  margin: 8px 0 0;
+  margin: 16px 0;
 }
 .project-banner .project-details__box .propose .propose__txt {
   font-size: 12px;
@@ -3753,15 +3753,6 @@ a.loginbutton.hidden,
   }
   .project-banner .project-details__box {
     margin: 0;
-  }
-  .project-banner .project-details__box .propose {
-    align-items: baseline;
-    margin-left: 16px;
-    width: calc(100% - 16px);
-  }
-  .project-banner .project-details__box .propose--lessmargin {
-    margin: 8px 0 0;
-    width: 100%;
   }
 }
 @media (max-width: 767px) {
@@ -3979,13 +3970,8 @@ a.loginbutton.hidden,
   outline: none;
 }
 
-.page-card .proposal__wrapper__alert {
-  padding: 8px 16px;
-  margin: 0 0 16px;
-  border-radius: 0;
-}
 .page-card .details {
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
   overflow: hidden;
 }
 .page-card .details .details__box {
@@ -3993,6 +3979,11 @@ a.loginbutton.hidden,
   overflow: visible;
 }
 
+@media (min-width: 768px) {
+  .page-card .details {
+    border-radius: 16px 16px 0 0;
+  }
+}
 .proposal__section {
   padding: 16px;
   overflow-wrap: break-word;
