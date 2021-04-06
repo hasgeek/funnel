@@ -669,7 +669,7 @@
           <div class="proposal-card__body__inner__headline">
             <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
             {% if proposal.body.html %}
-              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=200) }} <span class="chip mui--text-body2">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-bottom') }}</span></div>
+              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=200) }} <span class="chip mui--text-body2">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span></div>
             {%- endif -%}
             {% if details %}
               <div class="proposal-card__body__inner__headline__info">

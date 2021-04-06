@@ -563,6 +563,11 @@ html.touch .collapsible__body--disable {
   margin-left: 8px;
 }
 
+.fa5-icon.mui--align-middle {
+  position: relative;
+  top: -1px;
+}
+
 .login-page {
   background-color: $mui-bg-color-primary;
   .login-page__back {
@@ -1028,6 +1033,9 @@ a.loginbutton.hidden,
   li:last-child .page-card__card {
     border-bottom: none;
   }
+  .alert {
+    border: none;
+  }
 }
 
 .page-card--nomargin {
@@ -1050,10 +1058,6 @@ a.loginbutton.hidden,
   hr {
     margin: 0;
   }
-  .fa5-icon.mui--align-middle {
-    position: relative;
-    top: -1px;
-  }
   .dropdown-menu__form {
     max-width: calc(100% - 25px);
     .dropdown-menu__form__label {
@@ -1070,10 +1074,6 @@ a.loginbutton.hidden,
 
 .text-expand {
   cursor: pointer;
-}
-
-.language-placeholder {
-  display: none;
 }
 
 .language-placeholder.language-vega-lite.vega-embed {

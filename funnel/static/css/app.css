@@ -520,6 +520,11 @@ html.touch .collapsible__body--disable {
   margin-left: 8px;
 }
 
+.fa5-icon.mui--align-middle {
+  position: relative;
+  top: -1px;
+}
+
 .login-page {
   background-color: #ffffff;
 }
@@ -950,6 +955,9 @@ a.loginbutton.hidden,
 .page-card li:last-child .page-card__card {
   border-bottom: none;
 }
+.page-card .alert {
+  border: none;
+}
 
 .page-card--nomargin {
   margin-top: 0;
@@ -971,10 +979,6 @@ a.loginbutton.hidden,
 .dropdown-menu hr {
   margin: 0;
 }
-.dropdown-menu .fa5-icon.mui--align-middle {
-  position: relative;
-  top: -1px;
-}
 .dropdown-menu .dropdown-menu__form {
   max-width: calc(100% - 25px);
 }
@@ -993,10 +997,6 @@ a.loginbutton.hidden,
 
 .text-expand {
   cursor: pointer;
-}
-
-.language-placeholder {
-  display: none;
 }
 
 .language-placeholder.language-vega-lite.vega-embed {
@@ -3616,12 +3616,18 @@ a.loginbutton.hidden,
   display: block;
 }
 .project-banner .project-details__box {
-  padding: 16px 0;
   position: relative;
 }
+.project-banner .project-details__box .project-details__box__content {
+  padding: 16px 0;
+}
+.project-banner
+  .project-details__box
+  .project-details__box__content--lesspadding {
+  padding: 0;
+}
 .project-banner .project-details__box .card__calendar {
-  padding-top: 0;
-  padding-bottom: 8px;
+  padding: 0;
 }
 .project-banner
   .project-details__box
@@ -3662,11 +3668,8 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates:last-child {
   padding-bottom: 0;
 }
-.project-banner .project-details__box .register-block {
-  margin-top: 32px;
-}
 .project-banner .project-details__box .project-venue {
-  margin: 10px 0;
+  margin: 16px 0;
 }
 .project-banner .project-details__box .propose {
   margin: 8px 0 0;
@@ -3706,8 +3709,15 @@ a.loginbutton.hidden,
     right: 60px;
   }
   .project-banner .project-details__box {
-    padding: 16px;
     width: 100%;
+  }
+  .project-banner .project-details__box .project-details__box__content {
+    padding: 16px;
+  }
+  .project-banner
+    .project-details__box
+    .project-details__box__content--lesspadding {
+    padding: 0 16px;
   }
   .project-banner .project-details__box .propose .propose__txt {
     font-size: 14px;
@@ -3735,7 +3745,7 @@ a.loginbutton.hidden,
 }
 @media (min-width: 992px) {
   .project-banner .profile-text {
-    margin: 0 0 5px;
+    margin: 0 0 4px;
   }
   .project-banner .profile-text p {
     margin: 0;
@@ -3749,17 +3759,8 @@ a.loginbutton.hidden,
     width: calc(100% - 16px);
   }
   .project-banner .project-details__box .propose--lessmargin {
-    margin: 10px 0 0;
-    padding: 0;
+    margin: 8px 0 0;
     width: 100%;
-  }
-  .project-banner
-    .project-details__box
-    .propose--lessmargin.mui--d-inlineblock {
-    width: auto;
-  }
-  .project-banner .project-details__box .propose__btn-wrapper {
-    padding-left: 10px;
   }
 }
 @media (max-width: 767px) {
