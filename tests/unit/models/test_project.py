@@ -284,12 +284,14 @@ def test_project_rename(
     assert new_redirect.project == new_project2
 
 
-def test_project_featured_proposal(db_session, user_twoflower, new_project):
-    assert new_project.has_featured_proposals is False
+def test_project_featured_proposal(db_session, user_twoflower, project_expo2010):
+    # `has_featured_proposals` returns None if the project has no proposals
+    assert project_expo2010.has_featured_proposals is None
+    assert bool(project_expo2010.has_featured_proposals) is False
 
     # A proposal is created, default state is `Submitted`
     proposal = Proposal(
-        project=new_project,
+        project=project_expo2010,
         user=user_twoflower,
         title="Test Proposal",
         body="Test body",
@@ -301,12 +303,12 @@ def test_project_featured_proposal(db_session, user_twoflower, new_project):
     db_session.commit()
 
     # If there are no confirmed featured proposals, the flag will return False
-    assert new_project.has_featured_proposals is False
+    assert project_expo2010.has_featured_proposals is False
 
     # Proposal gets confirmed
-    proposal.under_evaluation()
-    proposal.confirm()
+    proposal.under_evaluation()  # type:ignore[unreachable]
+    proposal.confirm()  # type:ignore[unreachable]
     db_session.commit()
 
     # The flag returns True
-    assert new_project.has_featured_proposals is True
+    assert project_expo2010.has_featured_proposals is True

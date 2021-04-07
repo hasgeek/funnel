@@ -734,10 +734,11 @@ class __Project:
             .all(),
         }
 
-    @cached_property
-    def has_featured_proposals(self):
-        return db.session.query(
-            self.proposals_all.filter_by(featured=True)
-            .filter(Proposal.state.CONFIRMED)
-            .exists()
-        ).scalar()
+    has_featured_proposals = db.column_property(
+        db.exists()
+        .where(Proposal.project_id == Project.id)
+        .where(Proposal.featured.is_(True))
+        .where(Proposal.state.CONFIRMED)
+        .correlate_except(Proposal),
+        deferred=True,
+    )

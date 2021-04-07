@@ -354,6 +354,8 @@ def org_citywatch(db_session, user_vetinari, user_vimes):
 @pytest.fixture
 def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2010 expo."""
+    db_session.flush()
+
     project = Project(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
@@ -368,6 +370,8 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
 @pytest.fixture
 def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2011 expo."""
+    db_session.flush()
+
     project = Project(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
@@ -386,6 +390,8 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
 
     Based on Soul Music, which features the first appearance of Hex, published 1994.
     """
+    db_session.flush()
+
     project = Project(
         profile=org_uu.profile,
         user=user_ponder_stibbons,
@@ -409,6 +415,8 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
 
     Based on Interesting Times.
     """
+    db_session.flush()
+
     project = Project(
         profile=org_uu.profile,
         user=user_ponder_stibbons,
