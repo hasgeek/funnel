@@ -354,7 +354,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             target_user = proposal_transfer_form.user.data
             self.obj.current_access().transfer_to(target_user)
             db.session.commit()
-            flash(_("This submission has been transfered."), 'success')
+            flash(_("This submission has been transferred."), 'success')
         else:
             flash(
                 _("Please choose the user you want to transfer this submission to."),
