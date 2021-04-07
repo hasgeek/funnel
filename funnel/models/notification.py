@@ -937,16 +937,15 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
-    def web_notifications_for(cls, user: User) -> BaseQuery:
-        return (
-            UserNotification.query.join(Notification)
-            .filter(
-                Notification.type.in_(notification_web_types),
-                UserNotification.user == user,
-                UserNotification.revoked_at.is_(None),
-            )
-            .order_by(Notification.created_at.desc())
+    def web_notifications_for(cls, user: User, unread_only: bool = False) -> BaseQuery:
+        query = UserNotification.query.join(Notification).filter(
+            Notification.type.in_(notification_web_types),
+            UserNotification.user == user,
+            UserNotification.revoked_at.is_(None),
         )
+        if unread_only:
+            query = query.filter(UserNotification.read_at.is_(None))
+        return query.order_by(Notification.created_at.desc())
 
     @classmethod
     def unread_count_for(cls, user: User) -> int:
