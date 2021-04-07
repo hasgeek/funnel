@@ -1006,6 +1006,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1305,19 +1308,6 @@
       "Settings": [null, "सेटिंग्स"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
       "Featured projects appear under Spotlight on the home page": [null, ""],
-      "Tickets available": [null, ""],
-      "Sales closed": [null, ""],
-      "Get tickets": [null, "टिकट पाएं"],
-      "Free": [null, ""],
-      "Register": [null, "रजिस्टर करें"],
-      "This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.": [
-        null,
-        "इसे करने से आपके नाम और ईमेल पते को प्रोजेक्ट के दल के सदस्यों के साथ साझा किया जाएगा ताकि आपको इससे जुड़ी जानकारियों से अवगत रख सकें. आप किसी भी समय अपना रजिस्ट्रेशन रद्द कर सकते हैं."
-      ],
-      "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
-      "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
-      "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
-      "View participants": [null, "प्रतिभागियों को देखें"],
       "Preview video": [null, "प्रीव्यू वीडियो"],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
@@ -1394,7 +1384,6 @@
         null,
         "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
       ],
-      "This proposal has slides": [null, "इस प्रस्ताव में स्लाइड मौजूद है"],
       "Outstation speaker": [null, "दूसरे शहर से आने वाले स्पीकर"],
       "Manage membership": [null, "सदस्यता प्रबंधित करें"],
       "You have been invited to %(project)s.": [
@@ -1402,6 +1391,7 @@
         "आपको %(project)s में आमंत्रित किया गया है."
       ],
       "Loading…": [null, "लोडिंग…"],
+      "Unread updates": [null, "अपठित अपडेट"],
       "To receive timely notifications by SMS, add a phone number": [
         null,
         "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें"
@@ -1506,6 +1496,19 @@
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
       ],
+      "Tickets available": [null, ""],
+      "Sales closed": [null, ""],
+      "Get tickets": [null, "टिकट पाएं"],
+      "Free": [null, ""],
+      "Register": [null, "रजिस्टर करें"],
+      "This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time.": [
+        null,
+        ""
+      ],
+      "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
+      "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
+      "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
+      "View participants": [null, "प्रतिभागियों को देखें"],
       "This project will not be listed as it has no sessions in the schedule": [
         null,
         ""
@@ -1558,6 +1561,7 @@
       "Submission guidelines": [null, ""],
       "Modify guidelines and timing": [null, ""],
       "Modify guidelines": [null, ""],
+      "expand": [null, ""],
       "Add guidelines and timing": [null, ""],
       "Add new update": [null, "नई जानकारी डालें"],
       "Post an update…": [null, "नई जानकारी पोस्ट करें…"],
@@ -1574,8 +1578,12 @@
       "Featured submissions appear on the project page": [null, ""],
       "Replace session video": [null, ""],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
-      "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "Up next": [null, "अगला आने वाला"],
+      "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
+      "This proposal has been added to the schedule": [
+        null,
+        "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
+      ],
       "No video": [null, "कोई वीडियो नहीं है"],
       "Session video": [null, "सेशन वीडियो"],
       "Proposal video": [null, "प्रस्ताव वीडियो"],
@@ -1588,10 +1596,6 @@
         ""
       ],
       "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
-      "This proposal has been added to the schedule": [
-        null,
-        "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
-      ],
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
@@ -1687,8 +1691,7 @@
       "Agenda view": [null, ""],
       "Calender view": [null, ""],
       "Update": [null, "अपडेट करें"],
-      "Read more": [null, ""],
-      "Hide": [null, ""],
+      "collapse": [null, ""],
       "You wrote:": [null, "आपने लिखा:"],
       "View comment": [null, "कमेंट देखें"],
       "View in context": [null, "संदर्भ के साथ देखें"],
@@ -2645,7 +2648,10 @@
         null,
         ""
       ],
-      "This submission has been transfered.": [null, ""],
+      "This submission has been transferred.": [
+        null,
+        "यह प्रस्ताव भेज दिया गया है."
+      ],
       "Please choose the user you want to transfer this submission to.": [
         null,
         ""
