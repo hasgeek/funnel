@@ -7,7 +7,6 @@
 
 {% block content %}
 	<form id="{{ formid }}" method="POST" accept-charset="UTF-8" class="mui-form">
-    {{ form.hidden_tag() }}
 	  {{ renderform_inner(form, formid or None) }}
     {%- if not request_is_xhr() %}
       {{ rendersubmit([("Save session", "save session", '')]) }}
