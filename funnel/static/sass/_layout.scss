@@ -1041,6 +1041,10 @@ a.loginbutton.hidden,
   margin-top: 0;
 }
 
+.page-card--nooverflow {
+  overflow: hidden;
+}
+
 @media (min-width: 768px) {
   .page-card {
     margin: 0 0 $mui-grid-padding;
