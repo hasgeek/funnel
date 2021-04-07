@@ -136,12 +136,12 @@
 
 {% macro project_about(project) %}
   {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
-    <div class="page-card">
+    <div class="page-card page-card--nooverflow">
       {{ alertbox('warning', message=gettext("This project will not be listed as it has no sessions in the schedule"), dismissable=false, css_class='zero-top-margin zero-bottom-margin') }}
     </div>
   {% endif %}
   {% if project.view_for('edit').is_available() and project.state.DRAFT %}
-    <div class="page-card">
+    <div class="page-card page-card--nooverflow">
       <div class="alert alert--warning zero-top-margin zero-bottom-margin">
         <a href="{{ project.url_for('settings') }}" class="alert__text nounderline">{% trans %}This project is not published. Visit settings to publish{% endtrans %} {{ faicon(icon='arrow-right') }}</a>
       </div>
@@ -392,7 +392,7 @@
                       <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                     </div>
                     {% if project.profile.description.html %}
-                      <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(min=200, max=300) }} <a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a></div>
+                      <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(min=200, max=300) }}<a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a></div>
                     {% endif %}
                   </div>
                 </div>
