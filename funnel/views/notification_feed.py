@@ -14,15 +14,17 @@ from .login_session import requires_login
 class AllNotificationsView(ClassView):
     current_section = 'notifications'  # needed for showing active tab
 
-    @route('', endpoint='notifications')
+    @route('', endpoint='notifications', defaults={'unread_only': False})
+    @route('unread', endpoint='notifications_unread', defaults={'unread_only': True})
     @requires_login
     @render_with('notification_feed.html.jinja2', json=True)
     @requestargs(('page', int), ('per_page', int))
-    def view(self, page=1, per_page=10):
-        pagination = UserNotification.web_notifications_for(current_auth.user).paginate(
-            page=page, per_page=per_page, max_per_page=100
-        )
+    def view(self, unread_only, page=1, per_page=10):
+        pagination = UserNotification.web_notifications_for(
+            current_auth.user, unread_only
+        ).paginate(page=page, per_page=per_page, max_per_page=100)
         return {
+            'unread_only': unread_only,
             'show_transport_alert': not current_auth.user.has_transport_sms(),
             'notifications': [
                 {
