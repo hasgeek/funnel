@@ -734,7 +734,9 @@ class __Project:
             .all(),
         }
 
-    has_featured_proposals = db.column_property(
+    # Whether the project has any featured proposals. Returns `None` instead of
+    # a boolean if the project does not have any proposal.
+    _has_featured_proposals = db.column_property(
         db.exists()
         .where(Proposal.project_id == Project.id)
         .where(Proposal.featured.is_(True))
@@ -742,3 +744,7 @@ class __Project:
         .correlate_except(Proposal),
         deferred=True,
     )
+
+    @property
+    def has_featured_proposals(self):
+        return bool(self._has_featured_proposals)

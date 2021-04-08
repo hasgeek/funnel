@@ -286,8 +286,7 @@ def test_project_rename(
 
 def test_project_featured_proposal(db_session, user_twoflower, project_expo2010):
     # `has_featured_proposals` returns None if the project has no proposals
-    assert project_expo2010.has_featured_proposals is None
-    assert bool(project_expo2010.has_featured_proposals) is False
+    assert project_expo2010.has_featured_proposals is False
 
     # A proposal is created, default state is `Submitted`
     proposal = Proposal(
