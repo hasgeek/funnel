@@ -69,7 +69,7 @@
 {% endblock %}
 
 {% block base_content_inner %}
-  {% if featured_proposals.count() > 0 %}
+  {% if project.has_featured_proposals %}
     <div class="page-card">
       <div class="project-section" id="submissions">
         <div class="project-section__headline">

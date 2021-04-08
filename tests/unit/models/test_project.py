@@ -6,7 +6,7 @@ from werkzeug.utils import invalidate_cached_property  # type: ignore[attr-defin
 import pytest
 
 from coaster.utils import utcnow
-from funnel.models import Organization, Project, ProjectRedirect, Session
+from funnel.models import Organization, Project, ProjectRedirect, Proposal, Session
 
 
 def test_project_state_conditional(db_session):
@@ -282,3 +282,32 @@ def test_project_rename(
     assert new_redirect is not None
     assert new_redirect == redirect
     assert new_redirect.project == new_project2
+
+
+def test_project_featured_proposal(db_session, user_twoflower, project_expo2010):
+    # `has_featured_proposals` returns None if the project has no proposals
+    assert project_expo2010.has_featured_proposals is False
+
+    # A proposal is created, default state is `Submitted`
+    proposal = Proposal(
+        project=project_expo2010,
+        user=user_twoflower,
+        title="Test Proposal",
+        body="Test body",
+        description="Test",
+        featured=True,
+        location="Test location",
+    )
+    db_session.add(proposal)
+    db_session.commit()
+
+    # If there are no confirmed featured proposals, the flag will return False
+    assert project_expo2010.has_featured_proposals is False
+
+    # Proposal gets confirmed
+    proposal.under_evaluation()  # type:ignore[unreachable]
+    proposal.confirm()  # type:ignore[unreachable]
+    db_session.commit()
+
+    # The flag returns True
+    assert project_expo2010.has_featured_proposals is True
