@@ -605,9 +605,9 @@
   <table id="submissions-table" class="proposal-list-table mui-table">
     <tbody>
       {% for proposal in proposals %}
-        <tr id="{{ proposal.uuid_b58 }}">
-          <td class='js-searchable'>
-            {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project) }}
+        <tr id="{{ proposal.uuid_b58 }}" {%- if project.current_roles.editor %}class="sortable"{%- endif %} data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+          <td class="js-searchable label-box label-box--no-border {%- if project.current_roles.editor %} ui-dragable-box{%- endif %}">
+            {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project, draggable=true) }}
           </td>
         </tr>
       {% else %}
@@ -636,27 +636,32 @@
   {% if user.profile_url and add_profile_link%}</a>{% endif %}
 {%- endmacro %}
 
-{%- macro proposal_card(proposal, full_width=false, details=false, css_class='', project='') %}
+{%- macro proposal_card(proposal, full_width=false, details=false, css_class='', project='', draggable=false) %}
   <a class="card clickable-card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
-        {% if not project %}
-          <span class="mui--text-subhead">{{ proposal.project.title }}</span>
-        {%- elif proposal.speaker -%}
-          <div class="user user--smaller">
-            <div class="user__box">
-              {{ useravatar(proposal.speaker, add_profile_link=false, size='small') }}
-              <div class="user__box__header">
-                <p class="mui--text-caption user__box__fullname">{{ proposal.speaker.fullname }}</p>
-                {%- if proposal.user != proposal.speaker %}
-                  <p class="mui--text-caption user__box__userid">via {{ proposal.user.pickername }}</p>
-                {%- endif %}
+        <div class="label-box__inner">
+          {% if draggable %}
+            {{ faicon(icon='grip-vertical', baseline=false, css_class='label-box__inner__drag-icon') }}
+          {%- endif -%}
+          {% if not project %}
+            <span class="mui--text-subhead">{{ proposal.project.title }}</span>
+          {%- elif proposal.speaker -%}
+            <div class="user user--smaller">
+              <div class="user__box">
+                {{ useravatar(proposal.speaker, add_profile_link=false, size='small') }}
+                <div class="user__box__header">
+                  <p class="mui--text-caption user__box__fullname">{{ proposal.speaker.fullname }}</p>
+                  {%- if proposal.user != proposal.speaker %}
+                    <p class="mui--text-caption user__box__userid">via {{ proposal.user.pickername }}</p>
+                  {%- endif %}
+                </div>
               </div>
             </div>
-          </div>
-        {%- else -%}
-          <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
-        {%- endif -%}
+          {%- else -%}
+            <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
+          {%- endif -%}
+        </div>
         <div class="proposal-card__body__inner {%- if full_width and proposal.video and proposal.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
           {% if proposal.video and proposal.video.thumbnail %}
             <div class="proposal-card__body__inner__details">

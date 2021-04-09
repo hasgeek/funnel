@@ -5103,39 +5103,35 @@ body > .proposal-box.ui-draggable {
   margin: 16px 0;
   padding: 16px;
 }
-.label-box .label-box__icon {
-  float: left;
-  margin-top: 22px;
+.label-box .label-box__inner {
+  display: flex;
+  align-items: center;
 }
-.label-box .label-box__icon--right {
-  padding: 0 16px;
+.label-box .label-box__inner .label-box__inner__drag-icon {
+  margin-right: 8px;
+}
+.label-box .label-box__inner .label-box__inner__heading {
+  width: calc(100% - 30px);
+}
+.label-box .label-box__inner .label-box__inner__icon {
+  padding: 0 0 0 16px;
   box-shadow: none;
   border: none;
   cursor: pointer;
 }
-.label-box .label-box__heading {
-  margin: 16px 0 16px 8px;
-  display: inline-block;
-  width: calc(100% - 30px);
+.label-box .label-box__inner .label-box__inner__icon-wrapper {
+  display: flex;
 }
-@media (min-width: 1200px) {
-  .label-box .sublabel-wrapper {
-    display: inline-block;
-    max-width: 80%;
-    vertical-align: middle;
-    margin-top: -5px;
-  }
+.label-box .label-box__inner__options {
+  padding-left: 20px;
 }
-.label-box .label-box__subheading {
-  margin-right: 10px;
+.label-box .label-box__inner__options .label-box__inner__options__option {
+  margin-right: 4px;
 }
-.label-box .label-box__action {
-  float: right;
-}
-.label-box .label-box__icon-wrapper {
-  position: absolute;
-  top: 10px;
-  right: 0;
+
+.label-box--no-border {
+  border: none;
+  border-radius: none;
 }
 
 .label-box--new {
