@@ -32,7 +32,10 @@
         null,
         ""
       ],
-      "This device has no internet connection": [null, ""],
+      "This device has no internet connection": [
+        null,
+        "इस उपकरण का कोई इंटरनेट कनेक्शन नहीं है"
+      ],
       "Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com ": [
         null,
         ""
@@ -1003,6 +1006,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1302,62 +1308,20 @@
       "Settings": [null, "सेटिंग्स"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
       "Featured projects appear under Spotlight on the home page": [null, ""],
-      "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
-      "Update banner image": [null, "बैनर इमेज को बदलें"],
-      "Tickets available": [null, ""],
-      "Sales closed": [null, ""],
-      "Get tickets": [null, "टिकट पाएं"],
-      "Free": [null, ""],
-      "Register": [null, "रजिस्टर करें"],
-      "This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.": [
-        null,
-        "इसे करने से आपके नाम और ईमेल पते को प्रोजेक्ट के दल के सदस्यों के साथ साझा किया जाएगा ताकि आपको इससे जुड़ी जानकारियों से अवगत रख सकें. आप किसी भी समय अपना रजिस्ट्रेशन रद्द कर सकते हैं."
-      ],
-      "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
-      "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
-      "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
-      "View participants": [null, "प्रतिभागियों को देखें"],
-      "Add schedule to enable registrations": [
-        null,
-        "रजिस्ट्रेशन शुरू करने के लिए समय-सूची जोड़ें"
-      ],
-      "Add schedule": [null, ""],
-      "Make a submission": [null, "एक सबमिशन भेजें"],
-      "Submissions close %(date)s": [null, ""],
-      "Open submissions": [null, "सबमिशन को खोलें"],
-      "Add submission guidelines": [
-        null,
-        "सबमिशन की दिशा-निर्देश और समय-सूची जोड़ें"
-      ],
-      "Submissions are closed for this project": [
-        null,
-        "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
-      ],
-      "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
-      "Livestream": [null, "लाइवस्ट्रीम"],
       "Preview video": [null, "प्रीव्यू वीडियो"],
-      "About": [null, "परिचय"],
-      "Jobs": [null, "नौकरियां"],
-      "Comments": [null, "कमेंट"],
-      "Submissions": [null, "सबमिशन"],
-      "Schedule": [null, "कार्यक्रम"],
-      "This update is for participants only": [
-        null,
-        "यह जानकारी केवल प्रतिभागियों के लिए है"
-      ],
-      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
-      "Tickets": [null, "टिकटें"],
-      "Loading...": [null, ""],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
       "Notifications": [null, "नोटिफिकेशन"],
       "My saves": [null, "मेरी सेव किये गए प्रोजेक्ट"],
       "Scan badge": [null, "बैज स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
+      "Submissions close %(date)s": [null, ""],
       "Live schedule": [null, "लाइव कार्यक्रम"],
+      "Livestream": [null, "लाइवस्ट्रीम"],
       "Livestream and schedule": [null, "लाइवस्ट्रीम और कार्यक्रम"],
       "Session starts at %(session)s": [null, "सेशन %(session)s शुरू होगा"],
       "Watch livestream": [null, "लाइवस्ट्रीम देखें"],
+      "Schedule": [null, "कार्यक्रम"],
       "Spotlight": [null, "झलकियां"],
       "Accepting submissions": [null, "सब्मिशन स्वीकार कर रहे हैं"],
       "Show more": [null, "और दिखाएं"],
@@ -1403,27 +1367,31 @@
       "Admins": [null, "एडमिन"],
       "Sessions": [null, "सेशन"],
       "Projects": [null, "प्रोजेक्ट"],
+      "Submissions": [null, "सबमिशन"],
+      "Tickets": [null, "टिकटें"],
       "Attend": [null, "हिस्सा लें"],
+      "Make a submission": [null, "एक सबमिशन भेजें"],
       "Team &amp; careers": [null, "टीम &amp; करियर"],
       "Contact": [null, "संपर्क"],
       "Site policies": [null, "साइट नीतियां"],
-      "Outstation speaker": [null, "दूसरे शहर से आने वाले स्पीकर"],
-      "(proposing)": [null, "(प्रस्तुत कर रहे हैं)"],
-      "This proposal has a preview video": [
-        null,
-        "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
-      ],
-      "This proposal has slides": [null, "इस प्रस्ताव में स्लाइड मौजूद है"],
       "(No sessions have been submitted)": [
         null,
         "(सेशन की कोई जानकारी नहीं दी गई है)"
       ],
+      "(proposing)": [null, "(प्रस्तुत कर रहे हैं)"],
+      "more": [null, ""],
+      "This proposal has a preview video": [
+        null,
+        "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
+      ],
+      "Outstation speaker": [null, "दूसरे शहर से आने वाले स्पीकर"],
       "Manage membership": [null, "सदस्यता प्रबंधित करें"],
       "You have been invited to %(project)s.": [
         null,
         "आपको %(project)s में आमंत्रित किया गया है."
       ],
       "Loading…": [null, "लोडिंग…"],
+      "Unread updates": [null, "अपठित अपडेट"],
       "To receive timely notifications by SMS, add a phone number": [
         null,
         "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें"
@@ -1462,9 +1430,9 @@
       ],
       "Continue": [null, "जारी रखें"],
       "Offline": [null, "ऑफलाइन"],
-      "This page cannot be loaded at the moment. You may be offline, or your ad blocker may be blocking this page.": [
+      "This device has no internet connection, or an ad blocker is blocking this page": [
         null,
-        "यह पेज फिलहाल लोड नहीं किया जा सकता. हो सकता है कि आप ऑफलाइन हों, या फिर आपका ऐड ब्लॉकर ने इस पेज को ब्लॉक कर रखा हो."
+        "इस उपकरण का कोई इंटरनेट कनेक्शन नहीं है, या एक विज्ञापन अवरोधक इस पृष्ठ को अवरुद्ध कर रहा है"
       ],
       "Hasgeek": [null, "Hasgeek"],
       "Search Hasgeek for projects, discussions and more": [
@@ -1488,14 +1456,8 @@
         "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं."
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
-      "This project will not be listed as it has no sessions in the schedule": [
-        null,
-        ""
-      ],
-      "This project is not published. Visit settings to publish": [null, ""],
-      "Related events": [null, "सम्बंधित ईवेंट"],
+      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "See all": [null, "सारे देखें"],
-      "View Schedule": [null, "कार्यक्रम देखें"],
       "Videos": [null, "वीडियो"],
       "Related jobs": [null, "सम्बंधित नौकरियां"],
       "Setup events for check-in": [null, "चेक-इन के लिए ईवेंट सेटअप करें"],
@@ -1526,8 +1488,47 @@
       ],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
-      "This project is brought to you by": [null, ""],
-      "Read more": [null, ""],
+      "Comments": [null, "कमेंट"],
+      "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
+      "Update banner image": [null, "बैनर इमेज को बदलें"],
+      "Pinned update": [null, ""],
+      "This update is for participants only": [
+        null,
+        "यह जानकारी केवल प्रतिभागियों के लिए है"
+      ],
+      "Tickets available": [null, ""],
+      "Sales closed": [null, ""],
+      "Get tickets": [null, "टिकट पाएं"],
+      "Free": [null, ""],
+      "Register": [null, "रजिस्टर करें"],
+      "This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time.": [
+        null,
+        ""
+      ],
+      "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
+      "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
+      "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
+      "View participants": [null, "प्रतिभागियों को देखें"],
+      "This project will not be listed as it has no sessions in the schedule": [
+        null,
+        ""
+      ],
+      "This project is not published. Visit settings to publish": [null, ""],
+      "Related events": [null, "सम्बंधित ईवेंट"],
+      "Add schedule": [null, ""],
+      "Open submissions": [null, "सबमिशन को खोलें"],
+      "Add submission guidelines": [
+        null,
+        "सबमिशन की दिशा-निर्देश और समय-सूची जोड़ें"
+      ],
+      "Submissions are closed for this project": [
+        null,
+        "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
+      ],
+      "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
+      "Project overview": [null, ""],
+      "Jobs": [null, "नौकरियां"],
+      "Hosted by": [null, ""],
       "Participants": [null, "प्रतिभागी"],
       "%(title)s by %(speaker)s, %(project)s": [
         null,
@@ -1560,14 +1561,15 @@
       "Submission guidelines": [null, ""],
       "Modify guidelines and timing": [null, ""],
       "Modify guidelines": [null, ""],
+      "expand": [null, ""],
       "Add guidelines and timing": [null, ""],
-      "All submissions": [null, "सारे सबमिशन"],
       "Add new update": [null, "नई जानकारी डालें"],
       "Post an update…": [null, "नई जानकारी पोस्ट करें…"],
       "This project has not posted any updates yet.": [
         null,
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है."
       ],
+      "No videos": [null, ""],
       "Proposal menu": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
@@ -1576,24 +1578,24 @@
       "Featured submissions appear on the project page": [null, ""],
       "Replace session video": [null, ""],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
-      "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "Up next": [null, "अगला आने वाला"],
-      "No video": [null, "कोई वीडियो नहीं है"],
-      "Session video": [null, "सेशन वीडियो"],
-      "Proposal video": [null, "प्रस्ताव वीडियो"],
-      "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
-      "Submitted by %(speaker)s on %(date)s": [
-        null,
-        "%(speaker)s के द्वारा %(date)s पर"
-      ],
-      "This is a proposal requesting for someone to speak on this topic.\n                  If you’d like to speak, leave a comment.": [
-        null,
-        "यह प्रस्ताव किसी और के इस विषय पर बोलने के लिए निवेदित करता है.\n            अगर आप इस विषय पर बोलना चाहेंगे, तो फिर कमेंट पोस्ट करें."
-      ],
+      "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "This proposal has been added to the schedule": [
         null,
         "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
       ],
+      "No video": [null, "कोई वीडियो नहीं है"],
+      "Session video": [null, "सेशन वीडियो"],
+      "Proposal video": [null, "प्रस्ताव वीडियो"],
+      "Submitted by %(speaker)s on %(date)s": [
+        null,
+        "%(speaker)s के द्वारा %(date)s पर"
+      ],
+      "This is a proposal requesting for someone to present on this topic.\n                    If you’d like to present, leave a comment.": [
+        null,
+        ""
+      ],
+      "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
@@ -1689,7 +1691,7 @@
       "Agenda view": [null, ""],
       "Calender view": [null, ""],
       "Update": [null, "अपडेट करें"],
-      "Hide": [null, ""],
+      "collapse": [null, ""],
       "You wrote:": [null, "आपने लिखा:"],
       "View comment": [null, "कमेंट देखें"],
       "View in context": [null, "संदर्भ के साथ देखें"],
@@ -2549,7 +2551,7 @@
         null,
         "आपने और छे अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "Eight registrations so far?": [null, "अब तक आठ रजिस्ट्रेशन"],
+      "Eight registrations so far": [null, ""],
       "You and seven others have registered": [
         null,
         "आपने और सात अन्य व्यक्ति ने रजिस्टर कर लिया है"
@@ -2646,7 +2648,10 @@
         null,
         ""
       ],
-      "This submission has been transfered.": [null, ""],
+      "This submission has been transferred.": [
+        null,
+        "यह प्रस्ताव भेज दिया गया है."
+      ],
       "Please choose the user you want to transfer this submission to.": [
         null,
         ""

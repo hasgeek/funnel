@@ -89,13 +89,14 @@ const Ticketing = {
       'boxofficeShowPriceEvent',
       (event, prices, currency, quantityAvailable) => {
         let price, minPrice, maxPrice, isTicketAvailable;
-        isTicketAvailable = Math.min(...quantityAvailable);
-        if (!isTicketAvailable) {
+        isTicketAvailable =
+          quantityAvailable.length > 0 ? Math.min(...quantityAvailable) : 0;
+        minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+        if (!isTicketAvailable || !minPrice) {
           $('.js-tickets-available').addClass('mui--hide');
           $('.js-tickets-not-available').removeClass('mui--hide');
           $('.js-open-ticket-widget').addClass('register-block__txt--strike');
         } else {
-          minPrice = Math.min(...prices);
           price = `${currency}${minPrice}`;
           if (prices.length > 1) {
             maxPrice = Math.max(...prices);
@@ -163,6 +164,12 @@ $(() => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
     }
+
+    $('.js-htmltruncate-expand').click(function (event) {
+      event.preventDefault();
+      $(this).addClass('mui--hide');
+      $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
+    });
 
     // Adding the embed video player
     if ($('.js-embed-video').length > 0) {

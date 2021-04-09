@@ -1,368 +1,441 @@
 from datetime import timedelta
 
-from sqlalchemy.orm.collections import InstrumentedList
-
 import pytest
 
 from coaster.utils import utcnow
 import funnel.models as models
 
-from .test_db import TestDatabaseFixture
+
+def test_user(db_session):
+    """Test for creation of user object from User model."""
+    user = models.User(username='hrun', fullname="Hrun the Barbarian")
+    db_session.add(user)
+    db_session.commit()
+    hrun = models.User.get(username='hrun')
+    assert isinstance(hrun, models.User)
+    assert user.username == 'hrun'
+    assert user.fullname == "Hrun the Barbarian"
+    assert user.state.ACTIVE
+    assert hrun == user
 
 
-class TestUser(TestDatabaseFixture):
-    def test_user(self):
-        """Test for creation of user object from User model."""
-        user = models.User(username='lena', fullname="Lena Audrey Dachshund")
-        self.db_session.add_all([user])
-        self.db_session.commit()
-        lena = models.User.get(username='lena')
-        assert isinstance(lena, models.User)
-        assert user.username == 'lena'
-        assert user.fullname == "Lena Audrey Dachshund"
+def test_user_pickername(user_twoflower, user_rincewind):
+    """Test to verify pickername contains fullname and optional username."""
+    assert user_twoflower.pickername == "Twoflower"
+    assert user_rincewind.pickername == "Rincewind (@rincewind)"
 
-    def test_user_pickername(self):
-        """Test to verify fullname and username (if any)."""
-        # scenario 1: when username exists
-        crusoe = models.User.get(username='crusoe')
-        result = crusoe.pickername
-        expected_result = '{fullname} (@{username})'.format(
-            fullname=crusoe.fullname, username=crusoe.username
+
+def test_user_is_profile_complete(db_session, user_twoflower, user_rincewind):
+    """
+    Test to check if user profile is complete.
+
+    That is fullname, username and email are present.
+    """
+    # Both fixtures start out incomplete
+    assert user_twoflower.is_profile_complete() is False
+    assert user_rincewind.is_profile_complete() is False
+
+    # Rincewind claims an email address, but it is not verified
+    db_session.add(
+        models.UserEmailClaim(user=user_rincewind, email='rincewind@example.org')
+    )
+    db_session.commit()
+    assert user_rincewind.is_profile_complete() is False
+
+    # Rincewind's profile is complete when a verified email address is added
+    user_rincewind.add_email('rincewind@example.org')
+    assert user_rincewind.is_profile_complete() is True
+
+    # Email is insufficient for Twoflower
+    user_twoflower.add_email('twoflower@example.org')
+    assert user_twoflower.is_profile_complete() is False
+
+    # Twoflower also needs a username
+    user_twoflower.username = 'twoflower'
+    assert user_twoflower.is_profile_complete() is True
+
+
+def test_user_organization_owned(user_ridcully, org_uu):
+    """Test for verifying organizations a user is a owner of."""
+    assert list(user_ridcully.organizations_as_owner) == [org_uu]
+
+
+def test_user_email(db_session, user_twoflower):
+    """Add and retrieve an email address."""
+    assert user_twoflower.email == ''
+    useremail = user_twoflower.add_email('twoflower@example.org')
+    assert isinstance(useremail, models.UserEmail)
+    db_session.commit()
+    assert useremail.primary is False
+    # When there is no primary, accessing the `email` property will promote existing
+    assert user_twoflower.email == useremail
+    assert useremail.primary is True
+
+    useremail2 = user_twoflower.add_email(  # type: ignore[unreachable]
+        'twoflower@example.com', primary=True
+    )
+    db_session.commit()
+
+    # The primary has changed
+    assert user_twoflower.email == useremail2
+    assert useremail.primary is False
+    assert useremail2.primary is True
+
+
+def test_user_del_email(db_session, user_twoflower):
+    """Delete an email address from a user's account."""
+    assert user_twoflower.primary_email is None
+    assert len(user_twoflower.emails) == 0
+    user_twoflower.add_email('twoflower@example.org', primary=True)
+    user_twoflower.add_email('twoflower@example.com')
+    user_twoflower.add_email('twoflower@example.net')
+    db_session.commit()
+
+    assert len(user_twoflower.emails) == 3  # type: ignore[unreachable]
+    assert user_twoflower.primary_email is not None
+    assert str(user_twoflower.primary_email) == 'twoflower@example.org'  # type: ignore[unreachable]
+    assert {str(e) for e in user_twoflower.emails} == {
+        'twoflower@example.org',
+        'twoflower@example.com',
+        'twoflower@example.net',
+    }
+
+    # Delete a non-primary email address. It will be removed
+    user_twoflower.del_email('twoflower@example.net')
+    db_session.commit()
+
+    assert len(user_twoflower.emails) == 2
+    assert user_twoflower.primary_email is not None
+    assert str(user_twoflower.primary_email) == 'twoflower@example.org'
+    assert {str(e) for e in user_twoflower.emails} == {
+        'twoflower@example.org',
+        'twoflower@example.com',
+    }
+
+    # Delete a primary email address. The next available address will be made primary
+    user_twoflower.del_email('twoflower@example.org')
+    db_session.commit()
+
+    assert len(user_twoflower.emails) == 1
+    assert user_twoflower.primary_email is not None
+    assert str(user_twoflower.primary_email) == 'twoflower@example.com'
+    assert {str(e) for e in user_twoflower.emails} == {
+        'twoflower@example.com',
+    }
+
+    # Delete last remaining email address. Primary will be removed
+    user_twoflower.del_email('twoflower@example.com')
+    db_session.commit()
+
+    assert len(user_twoflower.emails) == 0
+    assert user_twoflower.primary_email is None
+    assert user_twoflower.email == ''
+
+
+def test_user_phone(db_session, user_twoflower):
+    """Test to retrieve UserPhone property phone."""
+    assert user_twoflower.phone == ''
+    userphone = user_twoflower.add_phone('+12345678900')
+    assert isinstance(userphone, models.UserPhone)
+    db_session.commit()
+    assert userphone.primary is False
+    # When there is no primary, accessing the `phone` property will promote existing
+    assert user_twoflower.phone == userphone
+    assert userphone.primary is True
+
+    userphone2 = user_twoflower.add_phone(  # type: ignore[unreachable]
+        '+12345678901', primary=True
+    )
+    db_session.commit()
+
+    # The primary has changed
+    assert user_twoflower.phone == userphone2
+    assert userphone.primary is False
+    assert userphone2.primary is True
+
+
+def test_user_del_phone(db_session, user_twoflower):
+    """Delete an phone address from a user's account."""
+    assert user_twoflower.primary_phone is None
+    assert len(user_twoflower.phones) == 0
+    user_twoflower.add_phone('+12345678900', primary=True)
+    user_twoflower.add_phone('+12345678901')
+    user_twoflower.add_phone('+12345678902')
+    db_session.commit()
+
+    assert len(user_twoflower.phones) == 3  # type: ignore[unreachable]
+    assert user_twoflower.primary_phone is not None
+    assert str(user_twoflower.primary_phone) == '+12345678900'  # type: ignore[unreachable]
+    assert {str(e) for e in user_twoflower.phones} == {
+        '+12345678900',
+        '+12345678901',
+        '+12345678902',
+    }
+
+    # Delete a non-primary phone address. It will be removed
+    user_twoflower.del_phone('+12345678902')
+    db_session.commit()
+
+    assert len(user_twoflower.phones) == 2
+    assert user_twoflower.primary_phone is not None
+    assert str(user_twoflower.primary_phone) == '+12345678900'
+    assert {str(e) for e in user_twoflower.phones} == {
+        '+12345678900',
+        '+12345678901',
+    }
+
+    # Delete a primary phone address. The next available address will be made primary
+    user_twoflower.del_phone('+12345678900')
+    db_session.commit()
+
+    assert len(user_twoflower.phones) == 1
+    assert user_twoflower.primary_phone is not None
+    assert str(user_twoflower.primary_phone) == '+12345678901'
+    assert {str(e) for e in user_twoflower.phones} == {
+        '+12345678901',
+    }
+
+    # Delete last remaining phone address. Primary will be removed
+    user_twoflower.del_phone('+12345678901')
+    db_session.commit()
+
+    assert len(user_twoflower.phones) == 0
+    assert user_twoflower.primary_phone is None
+    assert user_twoflower.phone == ''
+
+
+def test_user_autocomplete(
+    db_session, user_twoflower, user_rincewind, user_dibbler, user_librarian
+):
+    """
+    Test for User autocomplete method.
+
+    Queries valid users defined in fixtures, as well as input that should not return
+    a response.
+    """
+    user_rincewind.add_email('rincewind@example.org')
+    db_session.commit()
+
+    # A typical lookup with part of someone's name will find matches
+    assert models.User.autocomplete('Dib') == [user_dibbler]
+
+    # Spurious characters like `[` and `]` are ignored
+    assert models.User.autocomplete('[tw]') == [user_twoflower]
+
+    # Multiple users with the same starting character(s), sorted alphabetically
+    # Both users with and without usernames are found
+    assert user_librarian.fullname.startswith('The')  # The `The` prefix is tested here
+    assert user_twoflower.username is None
+    assert user_librarian.username is not None
+    assert models.User.autocomplete('t') == [user_librarian, user_twoflower]
+
+    # Lookup by email address
+    assert models.User.autocomplete('rincewind@example.org') == [user_rincewind]
+
+    # More spurious characters
+    assert models.User.autocomplete('[]twofl') == [user_twoflower]
+
+    # Empty searches
+    assert models.User.autocomplete('@[') == []
+    assert models.User.autocomplete('[[]]') == []
+    assert models.User.autocomplete('[%') == []
+
+    # TODO: Test for @username searches against external ids (requires fixtures)
+
+
+@pytest.mark.parametrize('defercols', [False, True])
+def test_user_all(
+    db_session,
+    user_twoflower,
+    user_rincewind,
+    user_ridcully,
+    user_dibbler,
+    user_death,
+    user_mort,
+    defercols,
+):
+    """Retrieve all users matching specified criteria."""
+    # Some fixtures are not used in the tests because the test determines that they
+    # won't show up in the query unless specifically asked for
+
+    db_session.commit()  # Commit required to generate UUID (userid/buid)
+    # A parameter is required
+    with pytest.raises(TypeError):
+        models.User.all()
+
+    with pytest.raises(TypeError):
+        models.User.all(defercols=True)
+
+    # Scenario 1: Lookup by buids only
+    assert set(
+        models.User.all(
+            buids=[user_twoflower.buid, user_rincewind.buid], defercols=defercols
         )
-        assert result == expected_result
-        # scenario 2: when username doesnt exist
-        mr_fedrick = models.User(fullname='Mr. Fedrick')
-        result = mr_fedrick.pickername
-        expected_result = '{fullname}'.format(fullname=mr_fedrick.fullname)
-        assert result == expected_result
+    ) == {
+        user_twoflower,
+        user_rincewind,
+    }
 
-    def test_user_is_profile_complete(self):
-        """
-        Test to check if user profile is complete.
-
-        That is fullname, username and email are present.
-        """
-        crusoe = models.User.get(username='crusoe')
-        assert crusoe.is_profile_complete() is True
-        lena = models.User()
-        self.db_session.add(lena)
-        self.db_session.commit()
-        assert lena.is_profile_complete() is False
-
-    def test_user_organization_owned(self):
-        """Test for verifying organizations a user is a owner of."""
-        crusoe = models.User.get(username='crusoe')
-        batdog = models.Organization.get(name='batdog')
-        result = crusoe.organizations_as_owner
-        assert list(result) == [batdog]
-
-    def test_user_organizations_as_owner(self):
-        """Test for verifying list of organizations this user is an owner of."""
-        oakley = models.User.get(username='oakley')
-        specialdachs = models.Organization.get(name='specialdachs')
-        result = oakley.organizations_as_owner
-        assert list(result) == [specialdachs]
-
-    def test_user_username(self):
-        """Test to retrieve User property username."""
-        crusoe = models.User.get(username='crusoe')
-        result = crusoe.username
-        assert isinstance(result, str)
-        assert crusoe.username == result
-
-    def test_user_email(self):
-        """Test to retrieve UserEmail property email."""
-        # scenario 1: when there is primary email address
-        crusoe = models.User.get(username='crusoe')
-        assert isinstance(crusoe.email, models.UserEmail)
-        assert crusoe.email == crusoe.email
-        # scenario 2: when there is no primary email address
-        mr_pilkington = models.User(username='pilkington')
-        mr_pilkington_email = models.UserEmail(
-            user=mr_pilkington, email='pilkington@animalfarm.co.uk'
+    # Scenario 2: lookup by buid or username
+    assert (
+        set(
+            models.User.all(
+                buids=[user_twoflower.buid, user_rincewind.buid],
+                usernames=[user_ridcully.username, user_dibbler.username],
+                defercols=defercols,
+            )
         )
-        self.db_session.add_all([mr_pilkington, mr_pilkington_email])
-        self.db_session.commit()
-        assert mr_pilkington.email.email == mr_pilkington_email.email
-        assert mr_pilkington.email.primary is True
-        # scenario 3: when no email address is on db
-        clover = models.User(username='clover')
-        self.db_session.add(clover)
-        self.db_session.commit()
-        assert clover.email == ''
+        == {user_twoflower, user_rincewind, user_ridcully, user_dibbler}
+    )
 
-    def test_user_del_email(self):
-        """Test to delete email address for a user."""
-        mr_jones = models.User(username='mrjones')
-        mr_jones_primary_email = models.UserEmail(
-            email='mrjones@animalfarm.co.uk', user=mr_jones, primary=True
+    # Scenario 3: lookup by usernames only
+    assert (
+        set(
+            models.User.all(
+                usernames=[user_ridcully.username, user_dibbler.username],
+                defercols=defercols,
+            )
         )
-        mr_jones_secondary_email = models.UserEmail(
-            email='jones@animalfarm.co.uk', user=mr_jones
+        == {user_ridcully, user_dibbler}
+    )
+
+    # Scenario 4: querying for a merged user buid
+    models.merge_users(user_death, user_rincewind)
+    db_session.commit()
+
+    assert set(
+        models.User.all(
+            buids=[user_twoflower.buid, user_rincewind.buid], defercols=defercols
         )
-        mr_jones_spare_email = models.UserEmail(
-            email='j@animalfarm.co.uk', user=mr_jones
-        )
-        self.db_session.add_all(
-            [
-                mr_jones,
-                mr_jones_primary_email,
-                mr_jones_secondary_email,
-                mr_jones_spare_email,
-            ]
-        )
-        self.db_session.commit()
-        # scenario 1: when email requested to be deleted is primary
-        primary_email = mr_jones_primary_email.email
-        mr_jones.del_email(primary_email)
-        self.db_session.commit()
-        result1 = mr_jones.emails
-        assert isinstance(result1, list)
-        assert set(result1) == {mr_jones_secondary_email, mr_jones_spare_email}
-        assert mr_jones_secondary_email.primary is True
-        # scenario 2: when email requested to be delete is not primary
-        spare_email = mr_jones_spare_email.email
-        mr_jones.del_email(spare_email)
-        self.db_session.commit()
-        result2 = mr_jones.emails
-        assert isinstance(result2, list)
-        assert result2 == [mr_jones_secondary_email]
-        assert mr_jones_secondary_email.primary is True
+    ) == {
+        user_twoflower,
+        user_death,
+    }
 
-    def test_user_phone(self):
-        """Test to retrieve UserPhone property phone."""
-        # scenario 1: when there is a phone set as primary
-        crusoe = models.User.get(username='crusoe')
-        crusoe_phone = (
-            models.UserPhone.query.join(models.User)
-            .filter(models.User.username == 'crusoe')
-            .one()
-        )
-        assert isinstance(crusoe.phone, models.UserPhone)
-        assert crusoe_phone == crusoe.phone
-        assert crusoe.phone.primary is True
-        # scenario 2: when there is a phone but not as primary
-        snowball = models.User(username='snowball')
-        snowball_phone = models.UserPhone(phone='+918574808032', user=snowball)
-        self.db_session.add_all([snowball, snowball_phone])
-        self.db_session.commit()
-        assert isinstance(snowball.phone, models.UserPhone)
-        assert snowball_phone == snowball.phone
-        assert snowball.phone.primary is True
-        # scenario 3: when there is no phone on db
-        piglet = models.User.get(username='piglet')
-        assert piglet.phone == ''
 
-    def test_user_password(self):
-        """Test to set user password."""
-        # Scenario 1: Set None as password
-        castle = models.User(username='castle', fullname='Rick Castle')
-        castle.password = None
-        assert castle.pw_hash is None
-        # Scenario 2: Set valid password
-        kate = models.User(username='kate', fullname='Detective Kate Beckette')
-        kate.password = '12thprecinct'
-        self.db_session.add(kate)
-        self.db_session.commit()
-        result = models.User.get(buid=kate.buid)
-        assert len(result.pw_hash) == 77  # Argon2 hash
-        assert result.password_is('12thprecinct') is True
-        assert result.pw_expires_at > result.pw_set_at
+def test_user_add_email(db_session, user_rincewind):
+    """Test to add email address for a user."""
+    # scenario 1: if primary flag is True and user has no existing email
+    email1 = 'rincewind@example.org'
+    useremail1 = user_rincewind.add_email(email1, primary=True)
+    db_session.commit()
+    assert user_rincewind.email == useremail1
+    assert useremail1.email == email1
+    assert useremail1.primary is True
+    # scenario 2: when primary flag is True but user has existing primary email
+    email2 = 'rincewind@example.com'
+    useremail2 = user_rincewind.add_email(email2, primary=True)
+    db_session.commit()
+    assert useremail2.email == email2
+    assert useremail2.primary is True
+    assert useremail1.primary is False
+    assert user_rincewind.email == useremail2  # type: ignore[unreachable]
 
-    def test_user_password_has_expired(self):
-        """Test to check if password for a user has expired."""
-        alexis = models.User(username='alexis', fullname='Alexis Castle')
-        alexis.password = 'unfortunateincidents'
-        alexis.pw_expires_at = utcnow() + timedelta(0, 0, 1)
-        self.db_session.add(alexis)
-        self.db_session.commit()
-        result = models.User.get(buid=alexis.buid)
-        assert result is not None
-        assert alexis.password_has_expired() is True
+    # scenario 3: when primary flag is True but user has that existing email
+    useremail3 = user_rincewind.add_email(  # type: ignore[unreachable]
+        email1, primary=True
+    )
+    db_session.commit()
+    assert useremail3 == useremail1
+    assert useremail3.primary is True
+    assert useremail2.primary is False
 
-    def test_user_password_is(self):
-        """Test to retrieve hashed password for a user."""
-        # scenario 1: no password been set
-        oldmajor = models.User(username='oldmajor')
-        assert oldmajor.password_is('oinkoink') is False
-        # scenario 3: if password has been set
-        dumbeldore = models.User('dumbeldore', fullname='Albus Dumberldore')
-        dumbeldore_password = 'dissendium'
-        dumbeldore.password = dumbeldore_password
-        assert dumbeldore.password_is(dumbeldore_password) is True
 
-    def test_password_hash_upgrade(self):
-        """Test for password hash upgrade."""
-        # pw_hash contains bcrypt.hash('password')
-        weaksauce = models.User(
-            fullname="Weak Password",
-            pw_hash='$2b$12$q/TiZH08kbgiUk2W0I99sOaW5hKQ1ETgJxoAv8TvV.5WxB3dYQINO',
-        )
-        assert weaksauce.pw_hash.startswith('$2b$')
-        assert not weaksauce.password_is('incorrect')
-        assert weaksauce.pw_hash.startswith('$2b$')
-        assert not weaksauce.password_is('incorrect', upgrade_hash=True)
-        assert weaksauce.pw_hash.startswith('$2b$')
-        assert weaksauce.password_is('password')
-        assert weaksauce.pw_hash.startswith('$2b$')
-        assert weaksauce.password_is('password', upgrade_hash=True)
-        # Transparent upgrade to Argon2 after a successful password validation
-        assert weaksauce.pw_hash.startswith('$argon2id$')
+def test_make_email_primary(user_rincewind):
+    """Test to make an email primary for a user."""
+    email = 'rincewind@example.org'
+    useremail = user_rincewind.add_email(email)
+    assert useremail.email == email
+    assert useremail.primary is False
+    assert user_rincewind.primary_email is None
+    user_rincewind.primary_email = useremail
+    assert useremail.primary is True
 
-    def test_user_autocomplete(self):
-        """
-        Test for User's autocomplete method.
 
-        Queries valid users defined in fixtures, as well as input that should not return
-        a response.
-        """
-        crusoe = models.User.get(username='crusoe')
-        oakley = models.User.get(username='oakley')
-        piglet = models.User.get(username='piglet')
-        # lena = models.User.get(username=u'lena')
-        # FIXME # scenario 1: when empty query passed
-        # result1 = models.User.autocomplete(u'*')
-        # self.assertEqual(result1 or lena)
-        # scenario 2: when query passed
-        assert models.User.autocomplete('[oa]') == [oakley]
-        assert models.User.autocomplete('Pig') == [piglet]
-        assert models.User.autocomplete('crusoe@keepballin.ca') == [crusoe]
-        assert models.User.autocomplete('[]cruso') == [crusoe]
-        assert models.User.autocomplete('@[') == []  # Test for empty searches
-        assert models.User.autocomplete('[[]]') == []
+def test_user_password(user_twoflower):
+    """Test to set user password."""
+    # User account starts out with no password
+    assert user_twoflower.pw_hash is None
+    # User account can set a password
+    user_twoflower.password = 'test-password'
+    assert user_twoflower.password_is('test-password') is True
+    assert user_twoflower.password_is('wrong-password') is False
 
-    def test_user_merged_user(self):
-        """Test for checking if user had a old id."""
-        # ## Merge a user onto an older user ###
-        crusoe = models.User.get(username='crusoe')
-        crusoe2 = models.User(username="crusoe2", fullname="Crusoe2")
-        self.db_session.add(crusoe2)
-        self.db_session.commit()
-        with self.app.test_request_context('/'):
-            merged_user = models.merge_users(crusoe, crusoe2)
-            self.db_session.commit()
-            # ## DONE ###
-            assert isinstance(merged_user, models.User)
-            # because the logic is to merge into older account so merge status set on newer account
-            assert crusoe.state.ACTIVE
-            assert crusoe2.state.MERGED
-            assert merged_user.username == "crusoe"
-            assert isinstance(merged_user.oldids, InstrumentedList)
-            assert set(crusoe.oldids) == set(merged_user.oldids)
 
-    def test_user_get(self):
-        """Test for User's get method."""
-        # scenario 1: if both username and buid not passed
-        with pytest.raises(TypeError):
-            models.User.get()
-        crusoe = models.User.get(username='crusoe')
-        piglet = models.User.get(username='piglet')
-        # scenario 2: if buid is passed
-        lookup_by_buid = models.User.get(buid=crusoe.buid)
-        assert isinstance(lookup_by_buid, models.User)
-        assert lookup_by_buid.buid == crusoe.buid
-        # scenario 3: if username is passed
-        lookup_by_username = models.User.get(username="crusoe")
-        assert isinstance(lookup_by_username, models.User)
-        assert lookup_by_username.username == "crusoe"
-        # scenario 4: if defercols is set to True
-        lookup_by_username = models.User.get(username="crusoe", defercols=True)
-        assert isinstance(lookup_by_username, models.User)
-        assert lookup_by_username.username == "crusoe"
-        # scenario 5: when user.state.ACTIVE
-        lector = models.User()
-        assert lector.state.ACTIVE
-        self.db_session.add(lector)
-        self.db_session.commit()
-        lookup_by_buid_status = models.User.get(buid=lector.buid)
-        assert lookup_by_buid_status == lector
-        # scenario 6 : when user.state.MERGED
-        piglet = models.User.get(username='piglet', fullname="Piglet")
-        piggy = models.User(username='piggy', fullname="Piggy")
-        self.db_session.add(piggy)
-        self.db_session.commit()
-        with self.app.test_request_context('/'):
-            models.merge_users(piglet, piggy)
-            self.db_session.commit()
-            lookup_by_buid_merged = models.User.get(buid=piggy.buid)
-            assert isinstance(lookup_by_buid_merged, models.User)
-            assert lookup_by_buid_merged.username == piglet.username
+def test_user_password_has_expired(db_session, user_twoflower):
+    """Test to check if password for a user has expired."""
+    assert user_twoflower.pw_hash is None
+    user_twoflower.password = 'test-password'
+    db_session.commit()  # Required to set pw_expires_at and pw_set_at
+    assert user_twoflower.pw_expires_at > user_twoflower.pw_set_at
+    assert user_twoflower.password_has_expired() is False
+    user_twoflower.pw_expires_at = utcnow() - timedelta(seconds=1)
+    assert user_twoflower.password_has_expired() is True
 
-    def test_user_all(self):
-        """Test for User's all method."""
-        # scenario 1: when neither buids or usernames are passed
-        with pytest.raises(Exception):
-            models.User.all()
-        crusoe = models.User.get(username='crusoe')
-        oakley = models.User.get(username='oakley')
-        expected_result = [oakley, crusoe]
-        # scenario 2: when both buids and usernames are passed
-        lookup_by_both = models.User.all(
-            buids=[crusoe.buid], usernames=[oakley.username]
-        )
-        assert isinstance(lookup_by_both, list)
-        assert set(lookup_by_both) == set(expected_result)
-        # scenario 3: when only buids are passed
-        lookup_by_buids = models.User.all(buids=[crusoe.buid, oakley.buid])
-        assert isinstance(lookup_by_buids, list)
-        assert set(lookup_by_buids) == set(expected_result)
-        # scenario 4: when only usernames are passed
-        lookup_by_usernames = models.User.all(
-            usernames=[crusoe.username, oakley.username]
-        )
-        assert isinstance(lookup_by_usernames, list)
-        assert set(lookup_by_usernames) == set(expected_result)
-        # scenario 5: when defercols is set to True
-        lookup_by_usernames = models.User.all(
-            usernames=[crusoe.username, oakley.username], defercols=True
-        )
-        assert isinstance(lookup_by_usernames, list)
-        assert set(lookup_by_usernames) == set(expected_result)
-        # scenario 6: when user.state.ACTIVE
-        hannibal = models.User(username='hannibal')
-        assert hannibal.state.ACTIVE
-        self.db_session.add(hannibal)
-        self.db_session.commit()
-        lookup_by_usernames = models.User.all(usernames=[hannibal.username])
-        assert len(lookup_by_usernames) == 1
-        assert lookup_by_usernames[0] == hannibal
-        # scenario 7 : when user.state.MERGED
-        jykll = models.User()
-        hyde = models.User()
-        self.db_session.add_all([jykll, hyde])
-        self.db_session.commit()
-        with self.app.test_request_context('/'):
-            models.merge_users(jykll, hyde)
-            self.db_session.commit()
-            lookup_by_buid_merged = models.User.all(buids=[hyde.buid])
-            assert isinstance(lookup_by_buid_merged, list)
-            assert lookup_by_buid_merged[0].username == jykll.username
 
-    def test_user_add_email(self):
-        """Test to add email address for a user."""
-        # scenario 1: if primary flag is True and user has no existing email
-        mr_whymper = models.User(username='whymper')
-        whymper_email = 'whmmm@animalfarm.co.uk'
-        whymper_result = mr_whymper.add_email(whymper_email, primary=True)
-        self.db_session.flush()
-        assert whymper_result.email == whymper_email
-        # # scenario 2: when primary flag is True but user has existing primary email
-        crusoe = models.User.get(username='crusoe')
-        crusoe_new_email = 'crusoe@batdog.ca'
-        crusoe_result = crusoe.add_email(email=crusoe_new_email, primary=True)
-        self.db_session.flush()
-        assert crusoe_result.email == crusoe_new_email
-        # # scenario 3: when primary flag is True but user has existing email same as one passed
-        crusoe_existing_email = 'crusoe@keepballin.ca'
-        crusoe_result = crusoe.add_email(crusoe_existing_email, primary=True)
-        self.db_session.flush()
-        assert crusoe_result.email == crusoe_existing_email
+def test_password_hash_upgrade(user_twoflower):
+    """Test for password hash upgrade."""
+    # pw_hash contains bcrypt.hash('password')
+    user_twoflower.pw_hash = (
+        '$2b$12$q/TiZH08kbgiUk2W0I99sOaW5hKQ1ETgJxoAv8TvV.5WxB3dYQINO'
+    )
+    assert user_twoflower.pw_hash.startswith('$2b$')
+    assert not user_twoflower.password_is('incorrect')
+    assert user_twoflower.pw_hash.startswith('$2b$')
+    assert not user_twoflower.password_is('incorrect', upgrade_hash=True)
+    assert user_twoflower.pw_hash.startswith('$2b$')
+    assert user_twoflower.password_is('password')
+    assert user_twoflower.pw_hash.startswith('$2b$')
+    assert user_twoflower.password_is('password', upgrade_hash=True)
+    # Transparent upgrade to Argon2 after a successful password validation
+    assert user_twoflower.pw_hash.startswith('$argon2id$')
 
-    def test_make_email_primary(self):
-        """Test to make an email primary for a user."""
-        mr_whymper = models.User(username='whymmper')
-        whymper_email = 'whmmmm@animalfarm.co.uk'
-        whymper_result = mr_whymper.add_email(whymper_email)
-        mr_whymper.primary_email = whymper_result
-        assert whymper_result.email == whymper_email
-        assert whymper_result.primary is True
+
+def test_password_not_truncated(user_twoflower):
+    """Argon2 passwords are not truncated at up to 1000 characters."""
+    # Bcrypt passwords are truncated at 72 characters, making larger length limits
+    # pointless. Argon2 passwords are not truncated for a very large size. Passlib has
+    # a default max size of 4096 chars.
+    # https://passlib.readthedocs.io/en/stable/lib/passlib.exc.html#passlib.exc.PasswordSizeError
+    user_twoflower.password = '1' * 999 + 'a'
+    assert user_twoflower.password_is('1' * 999 + 'a')
+    assert not user_twoflower.password_is('1' * 999 + 'b')
+
+
+def test_user_merged_user(db_session, user_death, user_rincewind):
+    """Test for checking if user had a old id."""
+    db_session.commit()
+    assert user_death.state.ACTIVE
+    assert user_rincewind.state.ACTIVE
+    models.merge_users(user_death, user_rincewind)
+    assert user_death.state.ACTIVE
+    assert user_rincewind.state.MERGED
+    assert {o.uuid for o in user_death.oldids} == {user_rincewind.uuid}
+
+
+def test_user_get(db_session, user_twoflower, user_rincewind, user_death):
+    """Test for User's get method."""
+    # scenario 1: if both username and buid not passed
+    db_session.commit()
+    with pytest.raises(TypeError):
+        models.User.get()
+
+    # scenario 2: if buid is passed
+    lookup_by_buid = models.User.get(buid=user_twoflower.buid)
+    assert lookup_by_buid == user_twoflower
+
+    # scenario 3: if username is passed
+    lookup_by_username = models.User.get(username='rincewind')
+    assert lookup_by_username == user_rincewind
+
+    # scenario 4: if defercols is set to True
+    lookup_by_username = models.User.get(username='rincewind', defercols=True)
+    assert lookup_by_username == user_rincewind
+
+    # scenario 5: when user.state.MERGED
+    assert user_rincewind.state.ACTIVE
+    models.merge_users(user_death, user_rincewind)
+    assert user_rincewind.state.MERGED
+
+    lookup_by_buid = models.User.get(buid=user_rincewind.buid)
+    assert lookup_by_buid == user_death

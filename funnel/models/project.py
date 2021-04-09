@@ -31,6 +31,7 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
+    markdown_content_options,
     reopen,
     valid_name,
     visual_field_delimiter,
@@ -98,10 +99,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         datasets={'primary', 'without_parent', 'related'},
     )
     description = with_roles(
-        MarkdownColumn('description', default='', nullable=False), read={'all'}
+        MarkdownColumn(
+            'description', default='', nullable=False, options=markdown_content_options
+        ),
+        read={'all'},
     )
     instructions = with_roles(
-        MarkdownColumn('instructions', default='', nullable=True), read={'all'}
+        MarkdownColumn(
+            'instructions', default='', nullable=True, options=markdown_content_options
+        ),
+        read={'all'},
     )
 
     location = with_roles(
@@ -740,7 +747,7 @@ add_search_trigger(Project, 'search_vector')
 
 
 @reopen(Profile)
-class Profile:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Profile:
     listed_projects = db.relationship(
         Project,
         lazy='dynamic',
@@ -894,7 +901,7 @@ class ProjectLocation(TimestampMixin, db.Model):
 
 
 @reopen(Commentset)
-class Commentset:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Commentset:
     project = with_roles(
         db.relationship(Project, uselist=False, back_populates='commentset'),
         grants_via={None: {'editor': 'document_subscriber'}},

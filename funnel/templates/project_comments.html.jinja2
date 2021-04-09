@@ -11,10 +11,12 @@
 {% endblock %}
 
 {% block base_content_inner %}
-  <div class="project-section" id="comments">
-    {{ comments_tree() }}
+  <div class="page-card page-card--nomargin">
+    <div class="project-section" id="comments">
+      {{ comments_tree() }}
+    </div>
+    {{ comment_template() }}
   </div>
-  {{ comment_template() }}
 {% endblock %}
 
 {% block pagescripts %}

@@ -29,6 +29,9 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         }
     }
 
+    #: SiteMembership doesn't have a container limiting its scope
+    parent_id = None
+
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
@@ -74,7 +77,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
 
 
 @reopen(User)
-class User:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __User:
     # Singular, as only one can be active
     active_site_membership = db.relationship(
         SiteMembership,

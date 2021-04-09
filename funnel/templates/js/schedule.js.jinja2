@@ -9,7 +9,7 @@
           </div>
         </div>
         <div class="schedule" v-for="schedule in schedules">
-          <h2 class="mui--text-heading schedule__date" :class="[schedule.upcoming ? 'schedule__date--upcoming' : '']">{{ schedule.dateStr }}</h2>
+          <h3 class="schedule__date" :class="[schedule.upcoming ? 'schedule__date--upcoming' : '']">{{ schedule.dateStr }}</h3>
           <div class="mui--bg-accent schedule__table">
             <div class="schedule__row schedule__row--sticky">
               <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><faicon :icon="'clock'" :icon_size="'subhead'"></faicon></p>

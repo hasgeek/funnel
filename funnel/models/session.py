@@ -14,7 +14,13 @@ from coaster.sqlalchemy import with_roles
 from coaster.utils import utcnow
 
 from . import BaseScopedIdNameMixin, MarkdownColumn, TSVectorType, UuidMixin, db
-from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
+from .helpers import (
+    ImgeeType,
+    add_search_trigger,
+    markdown_content_options,
+    reopen,
+    visual_field_delimiter,
+)
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
@@ -35,7 +41,9 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
-    description = MarkdownColumn('description', default='', nullable=False)
+    description = MarkdownColumn(
+        'description', default='', nullable=False, options=markdown_content_options
+    )
     proposal_id = db.Column(
         None, db.ForeignKey('proposal.id'), nullable=True, unique=True
     )
@@ -193,7 +201,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         if session_obj is None and create:
             session_obj = cls(
                 title=proposal.title,
-                description=proposal.outline,
+                description=proposal.body,
                 project=proposal.project,
                 proposal=proposal,
             )
@@ -217,7 +225,7 @@ add_search_trigger(Session, 'search_vector')
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     # Project schedule column expressions
     # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(

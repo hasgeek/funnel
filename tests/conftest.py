@@ -98,7 +98,7 @@ def user_death(db_session):
     user = User(
         username='death',
         fullname="Death",
-        created_at=datetime(1970, 1, 1, tzinfo=utc),
+        created_at=utc.localize(datetime(1970, 1, 1)),
     )
     db_session.add(user)
     return user
@@ -113,7 +113,7 @@ def user_mort(db_session):
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
-    user = User(fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=utc))
+    user = User(fullname="Mort", created_at=utc.localize(datetime(1987, 11, 12)))
     db_session.add(user)
     return user
 
@@ -355,6 +355,8 @@ def org_citywatch(db_session, user_vetinari, user_vimes):
 @pytest.fixture
 def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2010 expo."""
+    db_session.flush()
+
     project = Project(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
@@ -369,6 +371,8 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
 @pytest.fixture
 def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2011 expo."""
+    db_session.flush()
+
     project = Project(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
@@ -387,6 +391,8 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
 
     Based on Soul Music, which features the first appearance of Hex, published 1994.
     """
+    db_session.flush()
+
     project = Project(
         profile=org_uu.profile,
         user=user_ponder_stibbons,
@@ -410,6 +416,8 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
 
     Based on Interesting Times.
     """
+    db_session.flush()
+
     project = Project(
         profile=org_uu.profile,
         user=user_ponder_stibbons,
@@ -432,7 +440,13 @@ def client_hex(db_session, org_uu):
 
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
-    client = AuthClient(title="Hex", owner=org_uu)
+    # TODO: AuthClient needs to move to profile as parent
+    client = AuthClient(
+        title="Hex",
+        organization=org_uu,
+        confidential=True,
+        website='https://example.org/',
+    )
     db_session.add(client)
     return client
 
@@ -446,22 +460,18 @@ TEST_DATA = {
         'testuser': {
             'name': "testuser",
             'fullname': "Test User",
-            'email': "testuser@example.com",
         },
         'testuser2': {
             'name': "testuser2",
             'fullname': "Test User 2",
-            'email': "testuser2@example.com",
         },
         'test-org-owner': {
             'name': "test-org-owner",
             'fullname': "Test User 2",
-            'email': "testorgowner@example.com",
         },
         'test-org-admin': {
             'name': "test-org-admin",
             'fullname': "Test User 3",
-            'email': "testorgadmin@example.com",
         },
     }
 }
@@ -613,8 +623,7 @@ def new_proposal(db_session, new_user, new_project):
         speaker=new_user,
         project=new_project,
         title="Test Proposal",
-        description="Test proposal description",
-        location="Bangalore",
+        body="Test proposal description",
     )
     db_session.add(proposal)
     db_session.commit()

@@ -6,7 +6,7 @@
 
 {% block bodytag %}
   {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app">
+    <body class="mui--bg-primary hg-app mobile-header">
   {%- else %}
     <body class="mui--bg-primary">
   {%- endif %}
@@ -15,7 +15,7 @@
 {% block contenthead %}{% endblock %}
 
 {% block baseheadline %}
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl  mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
       <a href="{{profile.url_for() }}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Admins{% endtrans %}</span>
     </div>

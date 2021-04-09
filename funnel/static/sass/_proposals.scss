@@ -7,8 +7,9 @@
 
 .proposal-list-table {
   width: 100%;
-  border-spacing: 0 $mui-grid-padding;
+  border-spacing: 0;
+  margin: 0;
   tbody > tr > td {
-    padding: 0 $mui-grid-padding;
+    padding: 0;
   }
 }

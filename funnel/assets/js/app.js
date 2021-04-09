@@ -40,6 +40,7 @@ $(() => {
   }
   Utils.addWebShare();
   Utils.activateToggleSwitch();
+  Utils.addVegaSupport();
 
   const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {

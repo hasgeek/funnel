@@ -471,7 +471,7 @@ class SyncTicket(BaseMixin, db.Model):
 
 
 @reopen(Project)
-class Project:  # type: ignore[no-redef]  # skipcq: PYL-E0102
+class __Project:
     # XXX: This relationship exposes an edge case in RoleMixin. It previously expected
     # TicketParticipant.user to be unique per project, meaning one user could have one
     # participant ticket only. This is not guaranteed by the model as tickets are unique

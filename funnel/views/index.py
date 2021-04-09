@@ -6,13 +6,12 @@ from flask import Response, g, jsonify, redirect, render_template, url_for
 from baseframe import _, __
 from baseframe.filters import date_filter
 from coaster.auth import current_auth
-from coaster.views import ClassView, jsonp, load_model, render_with, requestargs, route
+from coaster.views import ClassView, load_model, render_with, requestargs, route
 
 from .. import app, funnelapp, lastuserapp, pages
 from ..forms import SavedProjectForm
 from ..models import Project, Proposal, db
 from .helpers import app_url_for
-from .project import project_data
 
 
 class PolicyPage(NamedTuple):
@@ -147,16 +146,6 @@ def past_projects_json(page=1, per_page=10):
             for p in pagination.items
         ],
     }
-
-
-@funnelapp.route('/json')
-def funnelapp_all_projects_json():
-    g.profile = None
-    projects = Project.fetch_sorted().all()
-    return jsonp(
-        projects=list(map(project_data, projects)),
-        spaces=list(map(project_data, projects)),
-    )  # FIXME: Remove when the native app switches over
 
 
 @funnelapp.route('/<project>/<int:id>-<name>')

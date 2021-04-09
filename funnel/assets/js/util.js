@@ -1,4 +1,4 @@
-/* global gettext */
+/* global gettext, vegaEmbed */
 
 import Gettext from './gettext';
 import * as timeago from 'timeago.js';
@@ -108,6 +108,7 @@ export const Utils = {
     let readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${gettext(
       'read more'
     )}</span>`;
+
     $('.js-truncate').each(function () {
       let linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
@@ -120,10 +121,11 @@ export const Utils = {
       $(this).trunk8({
         lines: linesLimit,
         fill: readMoreTxt,
+        parseHTML: true,
       });
     });
 
-    $('.js-read-more').click(function () {
+    $('body').on('click', '.js-read-more', function () {
       $(this).parent('.js-truncate-readmore').trunk8('revert');
     });
   },
@@ -161,7 +163,7 @@ export const Utils = {
             .addClass('calendar__weekdays__dates__date--display');
         });
 
-      let todayDate = $(this).find('.calendar__counting').data('today');
+      let todayDate = $(this).find('.calendar__month__counting').data('today');
       let nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
@@ -172,7 +174,7 @@ export const Utils = {
       let eventDate = nextEventElem.data('event-date');
       let eventMonth = nextEventElem.data('event-month');
       let monthElem = $(this)
-        .find('.calendar__month-name')
+        .find('.calendar__month')
         .find("[data-month='" + eventMonth + "']");
 
       // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
@@ -400,6 +402,41 @@ export const Utils = {
         },
       });
     });
+  },
+  addVegaSupport() {
+    console.log('length', $('.language-vega-lite').length);
+    if ($('.language-vega-lite').length > 0) {
+      let vegaliteCDN = [
+        'https://cdn.jsdelivr.net/npm/vega@5',
+        'https://cdn.jsdelivr.net/npm/vega-lite@5',
+        'https://cdn.jsdelivr.net/npm/vega-embed@6',
+      ];
+      let vegaliteUrl = 0;
+      let loadVegaScript = function () {
+        $.getScript({ url: vegaliteCDN[vegaliteUrl], cache: true }).success(
+          function () {
+            if (vegaliteUrl < vegaliteCDN.length) {
+              vegaliteUrl += 1;
+              loadVegaScript();
+            }
+            // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
+            if (vegaliteUrl === vegaliteCDN.length) {
+              $('.language-vega-lite').each(function () {
+                vegaEmbed(this, JSON.parse($(this).find('code').text()), {
+                  renderer: 'svg',
+                  actions: {
+                    source: false,
+                    editor: false,
+                    compiled: false,
+                  },
+                });
+              });
+            }
+          }
+        );
+      };
+      loadVegaScript();
+    }
   },
 };
 
@@ -631,105 +668,4 @@ TableSearch.prototype.searchRows = function (q) {
   }
 
   return matchedIds;
-};
-
-export const Comments = {
-  init() {
-    const newCommentUrl = $('#comment-form').attr('action');
-
-    $('.comment .js-collapse').click(function () {
-      $(this).addClass('mui--hide');
-      $(this).siblings('.js-uncollapse').removeClass('mui--hide');
-      $(this).parent().siblings('.comment--body').slideUp('fast');
-      $(this).parent().siblings('.comment--children').slideUp('fast');
-      return false;
-    });
-
-    $('.comment .js-uncollapse').click(function () {
-      $(this).addClass('mui--hide');
-      $(this).siblings('.js-collapse').removeClass('mui--hide');
-      $(this).parent().siblings('.comment--body').slideDown('fast');
-      $(this).parent().siblings('.comment--children').slideDown('fast');
-      return false;
-    });
-
-    $('.comment .js-comment-reply').click(function () {
-      const cfooter = $(this).parent();
-      $('#comment-form input[name="parent_id"]').val(cfooter.attr('data-id'));
-      $('#comment-form  input[name="comment_edit_id"]').val('');
-      $('#toplevel-comment, #comment-cancel').removeClass('mui--hide');
-      $('#comment-submit').val('Reply'); // i18n gotcha
-      cfooter.after($('#comment-form'));
-      $('#comment-form textarea').focus();
-      return false;
-    });
-
-    $('.comment .js-comment-report').click(function (e) {
-      const commentdiv = $(this).parent();
-      if (window.confirm('Do you want to mark this comments as spam?')) {
-        var reporturl = $(commentdiv).attr('data-report-url');
-        $(`<form action="${reporturl}" method="POST"/>`)
-          .append(
-            $('<input type="hidden" name="csrf_token">').val(
-              $('meta[name="csrf-token"]').attr('content')
-            )
-          )
-          .appendTo($(commentdiv))
-          .submit();
-      } else {
-        e.preventDefault();
-      }
-    });
-
-    $('#toplevel-comment a, #comment-cancel').click(function () {
-      $('#comment-form').attr('action', newCommentUrl);
-      $('#comment-form  input[name="parent_id"]').val('');
-      $('#comment-form  input[name="comment_edit_id"]').val('');
-      $('#comment-submit').val('Post comment'); // i18n gotcha
-      $('#comment-form .message .CodeMirror')[0].CodeMirror.setValue('');
-      $('#toplevel-comment a').parent().after($('#comment-form'));
-      $('#toplevel-comment a').parent().addClass('mui--hide');
-      $('#toplevel-comment, #comment-cancel').addClass('mui--hide');
-      $('#comment-form textarea').focus();
-      return false;
-    });
-
-    $('.comment .js-comment-delete').click(function () {
-      const cfooter = $(this).parent();
-      $('#delcomment input[name="comment_id"]').val(cfooter.attr('data-id'));
-      $('#delcomment').attr('action', cfooter.attr('data-delete-url'));
-      $('#delcomment')
-        .removeClass('mui--hide')
-        .hide()
-        .insertAfter(cfooter)
-        .slideDown('fast');
-      return false;
-    });
-
-    $('#comment-delete-cancel').click(() => {
-      $('#delcomment').slideUp('fast');
-      return false;
-    });
-
-    $('.comment .js-comment-edit').click(function () {
-      const cfooter = $(this).parent();
-      const cid = cfooter.attr('data-id');
-      const editUrl = cfooter.attr('data-json-url');
-      $(cfooter).find('.loading').removeClass('mui--hide');
-      $('#comment-form').attr('action', cfooter.attr('data-edit-url'));
-      $.getJSON(editUrl, (data) => {
-        $('#comment-form .message .CodeMirror')[0].CodeMirror.setValue(
-          data.message
-        );
-      });
-      $('#comment-form input[name="parent_id"]').val('');
-      $('#comment-form input[name="comment_edit_id"]').val(cid);
-      $('#toplevel-comment').removeClass('mui--hide');
-      $(cfooter).find('.loading').addClass('mui--hide');
-      $('#comment-submit').val('Save changes');
-      cfooter.after($('#comment-form'));
-      $('#comment-form textarea').focus();
-      return false;
-    });
-  },
 };

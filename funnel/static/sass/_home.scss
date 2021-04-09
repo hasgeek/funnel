@@ -172,7 +172,7 @@
     .profile__logo {
       position: absolute;
       bottom: -60px;
-      left: 10px;
+      left: $mui-grid-padding;
       width: 120px;
       height: 120px;
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
@@ -295,7 +295,7 @@
         }
       }
       .profile__logo {
-        left: $mui-grid-padding * 2;
+        left: 0;
         bottom: -72px;
 
         .profile__logo__details {
@@ -314,7 +314,7 @@
     }
   }
   .profile-details {
-    padding: 2 * $mui-grid-padding $mui-grid-padding 0;
+    padding: 2 * $mui-grid-padding 0 0;
   }
 }
 

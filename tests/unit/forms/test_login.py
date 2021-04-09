@@ -9,7 +9,7 @@ from funnel.models import User
 def user(db_session):
     user = User(username='user', fullname="User", password='test_password')
     db_session.add(user)
-    db_session.flush()
+    db_session.commit()
     return user
 
 
@@ -18,7 +18,7 @@ def user_nameless(db_session):
     user = User(fullname="Nameless User", password='test_password_nameless')
     db_session.add(user)
     user.add_email('nameless@example.com')
-    db_session.flush()
+    db_session.commit()
     return user
 
 
@@ -29,7 +29,7 @@ def user_named(db_session):
     )
     db_session.add(user)
     user.add_email('named@example.com')
-    db_session.flush()
+    db_session.commit()
     return user
 
 
@@ -150,13 +150,13 @@ def test_login_wrong_password(user):
 def test_login_long_password(user):
     """Login fails if password candidate is too long."""
     with app.test_request_context(
-        method='POST', data={'username': 'user', 'password': 'a' * 50}
+        method='POST', data={'username': 'user', 'password': 'a' * 101}
     ):
         form = LoginForm(meta={'csrf': False})
         assert form.validate() is False
         assert form.user == user
         assert form.username.errors == []
-        assert form.password.errors == ["Password must be under 40 characters"]
+        assert form.password.errors == ["Password must be under 100 characters"]
 
 
 def test_login_pass(user):

@@ -2,7 +2,7 @@ from baseframe import _, __
 import baseframe.forms as forms
 
 from ..models import User, UserSession, getuser
-from .account import password_policy
+from .account import PASSWORD_MAX_LENGTH, password_policy
 
 __all__ = [
     'LoginPasswordResetException',
@@ -38,7 +38,8 @@ class LoginForm(forms.Form):
         validators=[
             forms.validators.DataRequired(__("Password is required")),
             forms.validators.Length(
-                max=40, message=__("Password must be under %(max)s characters")
+                max=PASSWORD_MAX_LENGTH,
+                message=__("Password must be under %(max)s characters"),
             ),
         ],
     )
