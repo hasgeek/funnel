@@ -605,9 +605,13 @@
   <table id="submissions-table" class="proposal-list-table mui-table">
     <tbody>
       {% for proposal in proposals %}
-        <tr id="{{ proposal.uuid_b58 }}" {%- if project.current_roles.editor %}class="sortable"{%- endif %} data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
-          <td class="js-searchable label-box label-box--no-border {%- if project.current_roles.editor %} ui-dragable-box{%- endif %}">
-            {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project, draggable=true) }}
+        <tr id="{{ proposal.uuid_b58 }}" {%- if project.current_roles.editor %}class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true"{%- endif %}>
+          <td class="js-searchable {%- if project.current_roles.editor %} label-box label-box--no-border ui-dragable-box{%- endif %}">
+            {%- if project.current_roles.editor %}
+              {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project, draggable=true) }}
+            {%- else %}
+              {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project, draggable=false) }}
+            {%- endif %}
           </td>
         </tr>
       {% else %}
