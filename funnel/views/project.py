@@ -507,6 +507,30 @@ class ProjectView(
             template='img_upload_formlayout.html.jinja2',
         )
 
+    @route('remove_banner', methods=['POST'])
+    @render_with(json=True)
+    @requires_login
+    @requires_roles({'editor'})
+    def remove_banner(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.bg_image = None
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("The banner image has been removed from this project"),
+            }
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing project banner."
+            )
+            return {
+                'status': 'error',
+                'message': _(
+                    "There was an issue removing this banner image. Reload and try again."
+                ),
+            }
+
     @route('cfp', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})

@@ -1,4 +1,12 @@
-from flask import Response, abort, flash, redirect, render_template, request
+from flask import (
+    Response,
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+)
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -301,6 +309,30 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             template='img_upload_formlayout.html.jinja2',
         )
 
+    @route('remove_logo', methods=['POST'])
+    @render_with(json=True)
+    @requires_login
+    @requires_roles({'admin'})
+    def remove_logo(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.logo_url = None
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("The logo image has been removed from this profile"),
+            }
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing profile logo."
+            )
+            return {
+                'status': 'error',
+                'message': _(
+                    "There was an issue removing this logo image. Reload and try again."
+                ),
+            }
+
     @route('update_banner', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
@@ -333,6 +365,30 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ajax=True,
             template='img_upload_formlayout.html.jinja2',
         )
+
+    @route('remove_banner', methods=['POST'])
+    @render_with(json=True)
+    @requires_login
+    @requires_roles({'admin'})
+    def remove_banner(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.banner_image_url = None
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("The banner image has been removed from this profile"),
+            }
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing profile banner."
+            )
+            return {
+                'status': 'error',
+                'message': _(
+                    "There was an issue removing this banner image. Reload and try again."
+                ),
+            }
 
     @route('transition', methods=['POST'])
     @requires_login
