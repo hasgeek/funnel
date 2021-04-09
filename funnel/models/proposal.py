@@ -567,28 +567,35 @@ class Proposal(
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
     def reorder(self, below_proposal: Optional[Proposal] = None) -> int:
-        ordered_siblings = self.project.proposals.order_by(Proposal.url_id.asc()).all()
+        ordered_siblings: list = self.project.proposals.order_by(
+            Proposal.url_id.asc()
+        ).all()
+        # keep a copy of all url_ids, ordered
+        url_ids = [p.url_id for p in ordered_siblings]
+
+        ordered_siblings.remove(self)
 
         if below_proposal is None:
             # current item was moved to the top of the list
-            if len(ordered_siblings) <= 1:
-                # when the project has only one or no proposal, and the sorting
-                # endpoint gets called somehow by mistake or with any malicious
-                # intention
-                new_seq = 10000
-            else:
-                # there are more than one proposal and the current item was
-                # dragged to the beginning of the list
-                new_seq = ordered_siblings[0].url_id - 10000
-        elif below_proposal == ordered_siblings[-1]:
-            # current item has been pulled to the end of the list
-            new_seq = below_proposal.url_id + 10000
+            ordered_siblings.insert(0, self)
         else:
-            next_proposal = ordered_siblings[ordered_siblings.index(below_proposal) + 1]
-            new_seq = (below_proposal.url_id + next_proposal.url_id) // 2
+            ordered_siblings.insert(ordered_siblings.index(below_proposal) + 1, self)
 
-        self.url_id = new_seq
-        return self.url_id
+        db.session.bulk_update_mappings(
+            self.__class__,
+            [
+                {'id': p.id, 'project_id': p.project_id, 'url_id': url_ids[idx] * 10000}
+                for idx, p in enumerate(ordered_siblings)
+            ],
+        )
+        db.session.bulk_update_mappings(
+            self.__class__,
+            [
+                {'id': p.id, 'project_id': p.project_id, 'url_id': url_ids[idx]}
+                for idx, p in enumerate(ordered_siblings)
+            ],
+        )
+        return ordered_siblings.index(self) + 1
 
 
 add_search_trigger(Proposal, 'search_vector')
