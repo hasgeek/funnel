@@ -283,7 +283,6 @@ def org_ankhmorpork(db_session, user_vetinari):
     """
     org = Organization(name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari)
     db_session.add(org)
-    db_session.commit()
     return org
 
 
