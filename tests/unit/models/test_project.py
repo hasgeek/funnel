@@ -296,7 +296,6 @@ def test_project_featured_proposal(db_session, user_twoflower, project_expo2010)
         body="Test body",
         description="Test",
         featured=True,
-        location="Test location",
     )
     db_session.add(proposal)
     db_session.commit()
