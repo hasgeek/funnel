@@ -36,6 +36,8 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
                 'user',
                 'is_active',
                 'is_invite',
+                'is_self_granted',
+                'is_self_revoked',
             }
         },
     }
