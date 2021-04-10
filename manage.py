@@ -121,37 +121,6 @@ def project_starting_alert():
 
 
 @periodic.command
-def reset_proposal_order():
-    """Reset Proposal.url_id to same interval.
-
-    Reseting the url_id with multiple of 10000 might cause collition because it's
-    possible for an item to get a url_id that's multiple of 10000 after dragging around.
-
-    So we decrease the url_id to the base order starting from 1 so that it doesn't
-    cause collision with existing items, and then reset them to multiples of 10000.
-
-    There is a chance that this might cause an issue if somebody drags items around
-    in between these 2 commits. but that's a very slim chance.
-    """
-    projects = models.Project.query.all()
-    for project in projects:
-        app.logger.info(project.title)
-        app.logger.info("Resetting url_id to bare index value")
-        for idx, proposal in enumerate(
-            project.proposals.order_by(models.Proposal.url_id.asc()).all()
-        ):
-            proposal.url_id = idx + 1
-        db.session.commit()
-
-        app.logger.info("Setting url_id to multiplied value")
-        for idx, proposal in enumerate(
-            project.proposals.order_by(models.Proposal.url_id.asc()).all()
-        ):
-            proposal.url_id = (idx + 1) * 10000
-        db.session.commit()
-
-
-@periodic.command
 def growthstats():
     """Publish growth statistics to Telegram (midnight)."""
     if not app.config.get('TELEGRAM_STATS_BOT_TOKEN') or not app.config.get(
