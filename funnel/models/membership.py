@@ -135,7 +135,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         return db.relationship(User, foreign_keys=[cls.granted_by_id])
 
     @hybrid_property
-    def is_active(self):
+    def is_active(self) -> bool:
         return (
             self.revoked_at is None
             and self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
@@ -151,8 +151,20 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(read={'subject', 'editor'})
     @hybrid_property
-    def is_invite(self):
+    def is_invite(self) -> bool:
         return self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
+
+    @with_roles(read={'subject', 'editor'})
+    @hybrid_property
+    def is_self_granted(self) -> bool:
+        """Return True if the subject of this record is also the granting actor."""
+        return self.user_id == self.granted_by_id
+
+    @with_roles(read={'subject', 'editor'})
+    @hybrid_property
+    def is_self_revoked(self) -> bool:
+        """Return True if the subject of this record is also the revoking actor."""
+        return self.user_id == self.revoked_by_id
 
     @declared_attr
     def __table_args__(cls):
