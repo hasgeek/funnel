@@ -38,35 +38,35 @@ def test_reorder(db_session, user_twoflower, project_expo2010):
     assert proposal1.title == "Test Proposal 1"
     assert proposal1.url_id < proposal2.url_id < proposal3.url_id
 
-    proposal1.reorder(below_proposal=proposal2)
+    proposal1.reorder_after(proposal2)
     db_session.commit()
 
     assert proposal2.url_id == 1
     assert proposal1.url_id == 2
     assert proposal3.url_id == 3
 
-    proposal1.reorder(below_proposal=proposal3)
+    proposal1.reorder_after(proposal3)
     db_session.commit()
 
     assert proposal2.url_id == 1
     assert proposal3.url_id == 2
     assert proposal1.url_id == 3
 
-    proposal2.reorder(below_proposal=proposal1)
+    proposal2.reorder_after(proposal1)
     db_session.commit()
 
     assert proposal3.url_id == 1
     assert proposal1.url_id == 2
     assert proposal2.url_id == 3
 
-    proposal1.reorder()  # below_proposal=None; move to the top of the list
+    proposal1.reorder_before(proposal3)
     db_session.commit()
 
     assert proposal1.url_id == 1
     assert proposal3.url_id == 2
     assert proposal2.url_id == 3
 
-    proposal2.reorder(below_proposal=proposal1)
+    proposal3.reorder_after(proposal2)
     db_session.commit()
 
     assert proposal1.url_id == 1

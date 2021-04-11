@@ -29,6 +29,7 @@ from .helpers import (
 )
 from .project import Project
 from .project_membership import project_child_role_map
+from .reorder import ReorderMixin
 from .user import User
 from .video import VideoMixin
 
@@ -113,12 +114,7 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    VideoMixin,
-    db.Model,
-):
+class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model):
     __tablename__ = 'proposal'
     __email_for__ = 'owner'
 
@@ -154,7 +150,17 @@ class Proposal(
         ),
         grants_via={None: project_child_role_map},
     )
+    parent_id = db.synonym('project_id')
     parent = db.synonym('project')
+
+    #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
+    #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
+    #: Old values are required to be stable for permalink redirects from old URLs.
+    #: This number is not considered suitable for public display because it is assigned
+    #: to all proposals, including drafts. A user-facing sequence will have gaps.
+    #: Should numbering be required in the product, see `Update.number` for a better
+    #: implementation.
+    seq = db.synonym('url_id')
 
     _state = db.Column(
         'state',
@@ -214,7 +220,9 @@ class Proposal(
     )
 
     __table_args__ = (
-        db.UniqueConstraint('project_id', 'url_id'),
+        db.UniqueConstraint(
+            'project_id', 'url_id', name='proposal_project_id_url_id_key'
+        ),
         db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
@@ -565,37 +573,6 @@ class Proposal(
     @classmethod
     def all_public(cls):
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
-
-    def reorder(self, below_proposal: Optional[Proposal] = None) -> int:
-        ordered_siblings: list = self.project.proposals.order_by(
-            Proposal.url_id.asc()
-        ).all()
-        # keep a copy of all url_ids, ordered
-        url_ids = [p.url_id for p in ordered_siblings]
-
-        ordered_siblings.remove(self)
-
-        if below_proposal is None:
-            # current item was moved to the top of the list
-            ordered_siblings.insert(0, self)
-        else:
-            ordered_siblings.insert(ordered_siblings.index(below_proposal) + 1, self)
-
-        db.session.bulk_update_mappings(
-            self.__class__,
-            [
-                {'id': p.id, 'project_id': p.project_id, 'url_id': url_ids[idx] * 10000}
-                for idx, p in enumerate(ordered_siblings)
-            ],
-        )
-        db.session.bulk_update_mappings(
-            self.__class__,
-            [
-                {'id': p.id, 'project_id': p.project_id, 'url_id': url_ids[idx]}
-                for idx, p in enumerate(ordered_siblings)
-            ],
-        )
-        return ordered_siblings.index(self) + 1
 
 
 add_search_trigger(Proposal, 'search_vector')
