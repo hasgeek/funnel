@@ -73,7 +73,7 @@ class ReorderMixin:
         while items_to_reorder[0].id != self.id:
             items_to_reorder.pop(0)
 
-        # Move up the list (largest sequence to smallest), reassigning numbers
+        # Move down the list (reversed if `before`), reassigning numbers
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
         self.seq = db.select(
