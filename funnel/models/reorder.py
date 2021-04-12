@@ -73,7 +73,13 @@ class ReorderMixin:
         while items_to_reorder[0].id != self.id:
             items_to_reorder.pop(0)
 
-        # Move down the list (reversed if `before`), reassigning numbers
+        # Reordering! Move down the list (reversed if `before`), reassigning numbers.
+        # This list will always start with `self` and end with `other` (with a possible
+        # tail of items that share the same sequence number as `other`). We assign
+        # self's sequence number to the next item in the list, and that one's to the
+        # next and so on until we reach `other`. Then we assign other's sequence
+        # number to self and we're done.
+
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
         self.seq = db.select(
@@ -90,7 +96,7 @@ class ReorderMixin:
             # bulk_update_mappings will be required
             db.session.flush()
             if reorderable_item.id == other.id:
-                # Don't bother reordering anything after `other` that has the same seq
+                # Don't bother reordering anything after `other`
                 break
         # Assign other's previous sequence number to self
         self.seq = new_seq_number
