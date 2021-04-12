@@ -300,13 +300,4 @@ def test_project_featured_proposal(db_session, user_twoflower, project_expo2010)
     db_session.add(proposal)
     db_session.commit()
 
-    # If there are no confirmed featured proposals, the flag will return False
-    assert project_expo2010.has_featured_proposals is False
-
-    # Proposal gets confirmed
-    proposal.under_evaluation()  # type:ignore[unreachable]
-    proposal.confirm()  # type:ignore[unreachable]
-    db_session.commit()
-
-    # The flag returns True
     assert project_expo2010.has_featured_proposals is True

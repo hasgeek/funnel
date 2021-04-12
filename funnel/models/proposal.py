@@ -711,7 +711,6 @@ class __Project:
         db.exists()
         .where(Proposal.project_id == Project.id)
         .where(Proposal.featured.is_(True))
-        .where(Proposal.state.CONFIRMED)
         .correlate_except(Proposal),
         deferred=True,
     )
