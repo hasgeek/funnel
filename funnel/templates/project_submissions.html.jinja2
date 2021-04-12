@@ -87,6 +87,42 @@
         }
       };
       window.Hasgeek.ProposalsInit(config);
+
+      if (config.sort.permission) {
+        $('.proposal-list-table tbody').sortable({
+          cursor: 'move',
+          placeholder: 'proposal-placeholder',
+          update: function (event, ui) {
+            console.log('event', ui);
+            var sortedIDs = $(this).sortable('toArray');
+            var currentID = $(ui.item).attr('id');
+            var currentIndex = sortedIDs.indexOf(currentID);
+            // True if moved up
+            var direction = ui.position.top - ui.originalPosition.top > 0 ? false : true;
+            if(direction) {
+              itemId =  currentID === 0 ? null : sortedIDs[currentIndex - 1];
+            } else {
+              itemId =  currentID === sortedIDs.length - 1 ? null : sortedIDs[currentIndex + 1],
+            }
+            $.ajax({
+              url: config.sort.url,
+              type: 'POST',
+              data: {
+                csrf_token: $('meta[name="csrf-token"]').attr('content'),
+                currentItemId: currentID,
+                direction: direction,
+                itemId: itemId,
+              },
+              dataType: 'json',
+              error: function (response) {
+                // Utils.handleAjaxError(errorResponse);
+                $('.proposal-list-table tbody').sortable('cancel');
+              },
+            });
+          },
+        });
+      }
+
     });
   </script>
 {% endblock %}
