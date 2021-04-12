@@ -56,7 +56,11 @@ class GoogleProvider(LoginProvider):
                     )
                 },
             ).json()
-        except Exception as e:
+        except (
+            requests.RequestException,
+            requests.ConnectionError,
+            requests.Timeout,
+        ) as e:
             raise LoginCallbackError(
                 _(
                     "Unable to authenticate via Google. Internal details: {error}"

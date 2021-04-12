@@ -74,11 +74,8 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
                         room_obj.bgcolor = room['color'].lstrip('#')
                         room_obj.seq = room['seq']
                         db.session.add(room_obj)
-        try:
-            db.session.commit()
-            return {'status': True}
-        except Exception as e:
-            return {'error': str(e)}, 400
+        db.session.commit()
+        return {'status': True}
 
     @route('makeprimary', methods=['POST'])
     @requires_login
