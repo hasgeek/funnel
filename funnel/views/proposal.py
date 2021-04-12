@@ -1,15 +1,16 @@
-from flask import abort, flash, jsonify, redirect, request
+from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, __, request_is_xhr
 from baseframe.forms import Form, render_delete_sqla, render_form
 from coaster.auth import current_auth
-from coaster.utils import make_name
+from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
     UrlChangeCheck,
     UrlForView,
     jsonp,
     render_with,
+    requestform,
     requires_permission,
     requires_roles,
     route,
@@ -159,21 +160,23 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
         )
 
     @requires_login
-    def reorder_proposals(self):
+    @requires_roles({'editor'})
+    @requestform('target', 'other', ('before', getbool))
+    def reorder_proposals(self, target: str, other: str, before: bool):
         if Form().validate_on_submit():
-            current_proposal = Proposal.query.filter_by(
-                uuid_b58=request.form['currentItemId']
-            ).one_or_404()
-            previous_proposal = (
-                Proposal.query.filter_by(uuid_b58=request.form['previousItemId']).one()
-                if request.form.get('previousItemId', None)
-                else None
+            proposal: Proposal = (
+                Proposal.query.filter_by(uuid_b58=target)
+                .options(db.load_only(Proposal.id, Proposal.seq))
+                .one_or_404()
             )
-            if previous_proposal:
-                current_proposal.reorder_after(previous_proposal)
-                db.session.commit()
-
-                return {'status': 'ok'}
+            other_proposal: Proposal = (
+                Proposal.query.filter_by(uuid_b58=other)
+                .options(db.load_only(Proposal.id, Proposal.seq))
+                .one_or_404()
+            )
+            proposal.reorder_item(other_proposal, before)
+            db.session.commit()
+            return {'status': 'ok'}
         return {'status': 'error'}, 400
 
 
@@ -187,9 +190,7 @@ ProjectProposalView.add_route_for(
     'new_proposal', 'proposals/new', methods=['GET', 'POST']
 )
 ProjectProposalView.add_route_for('new_proposal', 'sub/new', methods=['GET', 'POST'])
-ProjectProposalView.add_route_for(
-    'reorder_proposals', 'sub/reorder', methods=['GET', 'POST']
-)
+ProjectProposalView.add_route_for('reorder_proposals', 'sub/reorder', methods=['POST'])
 ProjectProposalView.init_app(app)
 
 

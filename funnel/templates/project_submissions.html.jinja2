@@ -103,8 +103,8 @@
             var currentID = $(ui.item).attr('id');
             var currentIndex = sortedIDs.indexOf(currentID);
             // True if moved up
-            var direction = ui.position.top - ui.originalPosition.top > 0 ? false : true;
-            if(direction) {
+            var before = ui.position.top - ui.originalPosition.top > 0 ? false : true;
+            if(before) {
               itemId =  currentID === 0 ? null : sortedIDs[currentIndex - 1];
             } else {
               itemId =  currentID === sortedIDs.length - 1 ? null : sortedIDs[currentIndex + 1];
@@ -114,9 +114,9 @@
               type: 'POST',
               data: {
                 csrf_token: $('meta[name="csrf-token"]').attr('content'),
-                currentItemId: currentID,
-                direction: direction,
-                itemId: itemId,
+                target: currentID,
+                other: itemId,
+                before: before,
               },
               dataType: 'json',
               error: function (response) {
