@@ -14,7 +14,7 @@ __all__ = ['GitHubProvider']
 class GitHubProvider(LoginProvider):
     at_username = True
     auth_url = 'https://github.com/login/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}'
-    token_url = 'https://github.com/login/oauth/access_token'
+    token_url = 'https://github.com/login/oauth/access_token'  # nosec
     user_info = 'https://api.github.com/user'
     user_emails = 'https://api.github.com/user/emails'
 
