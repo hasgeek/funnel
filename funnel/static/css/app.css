@@ -2302,7 +2302,7 @@ a.loginbutton.hidden,
   border-radius: 3px;
   border: 1px solid #c0ccda;
   background: #ffffff;
-  cursor: pointer;
+  cursor: move;
   position: relative;
   margin: 10px 16px;
 }
@@ -4608,10 +4608,13 @@ a.loginbutton.hidden,
   padding: 0;
 }
 
+.ui-dragable-box .clickable-card {
+  cursor: move;
+}
+
 .proposal-placeholder {
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   background: #f9f9f9;
-  height: 200px;
 }
 
 .schedule-grid {

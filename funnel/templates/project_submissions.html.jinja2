@@ -90,10 +90,15 @@
 
       if (config.sort.permission) {
         $('.proposal-list-table tbody').sortable({
-          cursor: 'move',
+          cursor: 'drag',
           placeholder: 'proposal-placeholder',
+          forcePlaceholderSize: true,
+          revert: true,
+          scroll: true,
+          start: function(event, ui) {
+            $('.proposal-placeholder').height($(ui.item).height());
+          },
           update: function (event, ui) {
-            console.log('event', ui);
             var sortedIDs = $(this).sortable('toArray');
             var currentID = $(ui.item).attr('id');
             var currentIndex = sortedIDs.indexOf(currentID);
@@ -115,6 +120,7 @@
               },
               dataType: 'json',
               error: function (response) {
+                console.log('error');
                 // Utils.handleAjaxError(errorResponse);
                 $('.proposal-list-table tbody').sortable('cancel');
               },
