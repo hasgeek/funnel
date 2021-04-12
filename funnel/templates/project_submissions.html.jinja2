@@ -102,7 +102,7 @@
             if(direction) {
               itemId =  currentID === 0 ? null : sortedIDs[currentIndex - 1];
             } else {
-              itemId =  currentID === sortedIDs.length - 1 ? null : sortedIDs[currentIndex + 1],
+              itemId =  currentID === sortedIDs.length - 1 ? null : sortedIDs[currentIndex + 1];
             }
             $.ajax({
               url: config.sort.url,
