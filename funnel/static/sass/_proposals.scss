@@ -12,6 +12,16 @@
   tbody > tr > td {
     padding: 0;
   }
+  tbody > tr:last-child > td {
+    border-radius: 0 0 16px 16px;
+    overflow: hidden;
+  }
+  .ui-sortable-helper .ui-draggable-box {
+    width: inherit;
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  }
 }
 
 .ui-draggable-box .clickable-card {
