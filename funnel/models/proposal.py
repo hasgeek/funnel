@@ -706,5 +706,7 @@ class __Project:
     )
 
     @property
-    def has_featured_proposals(self):
+    def has_featured_proposals(self) -> bool:
         return bool(self._has_featured_proposals)
+
+    with_roles(has_featured_proposals, read={'all'})
