@@ -58,11 +58,6 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         'proposal_id': session.proposal_id,
         'description': session.description,
         'url': session.url_for(_external=True),
-        'json_url': (
-            session.proposal.url_for('json', _external=True)
-            if session.proposal
-            else None
-        ),
         'proposal_url': (
             session.proposal.url_for(_external=True) if session.proposal else None
         ),

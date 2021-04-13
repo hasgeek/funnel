@@ -1,14 +1,15 @@
 from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, __, request_is_xhr
-from baseframe.forms import render_delete_sqla, render_form
+from baseframe.forms import Form, render_delete_sqla, render_form
 from coaster.auth import current_auth
-from coaster.utils import make_name
+from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
     UrlChangeCheck,
     UrlForView,
     render_with,
+    requestform,
     requires_permission,
     requires_roles,
     route,
@@ -89,6 +90,26 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             message=markdown_message,
         )
 
+    @requires_login
+    @requires_roles({'editor'})
+    @requestform('target', 'other', ('before', getbool))
+    def reorder_proposals(self, target: str, other: str, before: bool):
+        if Form().validate_on_submit():
+            proposal: Proposal = (
+                Proposal.query.filter_by(uuid_b58=target)
+                .options(db.load_only(Proposal.id, Proposal.seq))
+                .one_or_404()
+            )
+            other_proposal: Proposal = (
+                Proposal.query.filter_by(uuid_b58=other)
+                .options(db.load_only(Proposal.id, Proposal.seq))
+                .one_or_404()
+            )
+            proposal.reorder_item(other_proposal, before)
+            db.session.commit()
+            return {'status': 'ok'}
+        return {'status': 'error'}, 400
+
 
 @Project.views('proposal_new')
 @route('/<profile>/<project>')
@@ -100,6 +121,7 @@ ProjectProposalView.add_route_for(
     'new_proposal', 'proposals/new', methods=['GET', 'POST']
 )
 ProjectProposalView.add_route_for('new_proposal', 'sub/new', methods=['GET', 'POST'])
+ProjectProposalView.add_route_for('reorder_proposals', 'sub/reorder', methods=['POST'])
 ProjectProposalView.init_app(app)
 
 
