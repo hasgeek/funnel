@@ -705,6 +705,7 @@ class __Project:
         deferred=True,
     )
 
-    @property
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})  # type: ignore
+    @property  # type: ignore
     def has_featured_proposals(self):
         return bool(self._has_featured_proposals)
