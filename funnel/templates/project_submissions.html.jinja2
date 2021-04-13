@@ -50,7 +50,7 @@
     </div>
   </div>
 
-  <div class="page-card">
+  <div class="page-card page-card--nooverflow">
     {% if project.cfp_state.HAS_PROPOSALS -%}
       <div class="project-section" id="submissions">
         <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
@@ -87,48 +87,6 @@
         }
       };
       window.Hasgeek.ProposalsInit(config);
-
-      if (config.sort.permission) {
-        $('.proposal-list-table tbody').sortable({
-          cursor: 'drag',
-          placeholder: 'proposal-placeholder',
-          forcePlaceholderSize: true,
-          revert: true,
-          scroll: true,
-          start: function(event, ui) {
-            $('.proposal-placeholder').height($(ui.item).height());
-          },
-          update: function (event, ui) {
-            var sortedIDs = $(this).sortable('toArray');
-            var currentID = $(ui.item).attr('id');
-            var currentIndex = sortedIDs.indexOf(currentID);
-            // True if moved up
-            var before = ui.position.top - ui.originalPosition.top > 0 ? false : true;
-            if(before) {
-              itemId =  currentID === 0 ? null : sortedIDs[currentIndex - 1];
-            } else {
-              itemId =  currentID === sortedIDs.length - 1 ? null : sortedIDs[currentIndex + 1];
-            }
-            $.ajax({
-              url: config.sort.url,
-              type: 'POST',
-              data: {
-                csrf_token: $('meta[name="csrf-token"]').attr('content'),
-                target: currentID,
-                other: itemId,
-                before: before,
-              },
-              dataType: 'json',
-              error: function (response) {
-                console.log('error');
-                // Utils.handleAjaxError(errorResponse);
-                $('.proposal-list-table tbody').sortable('cancel');
-              },
-            });
-          },
-        });
-      }
-
     });
   </script>
 {% endblock %}
