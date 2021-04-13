@@ -645,9 +645,6 @@
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
         <div class="label-box__inner">
-          {% if draggable %}
-            {{ faicon(icon='grip-vertical', baseline=false, css_class='label-box__inner__drag-icon') }}
-          {%- endif -%}
           {% if not project %}
             <span class="mui--text-subhead">{{ proposal.project.title }}</span>
           {%- elif proposal.speaker -%}
