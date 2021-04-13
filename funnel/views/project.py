@@ -27,7 +27,6 @@ from coaster.views import (
     UrlChangeCheck,
     UrlForView,
     get_next_url,
-    jsonp,
     render_with,
     requires_roles,
     route,
@@ -52,7 +51,6 @@ from ..models import (
     Comment,
     Profile,
     Project,
-    Proposal,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
@@ -64,8 +62,6 @@ from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
-from .proposal import proposal_data, proposal_data_flat, proposal_headers
-from .schedule import schedule_data
 
 CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
 
@@ -122,36 +118,6 @@ def get_registration_text(count, registered=False):
             return _("You and {num} others have registered").format(num=count - 1)
         else:
             return _("{num} registrations so far").format(num=count)
-
-
-def project_data(project):
-    return {
-        'id': project.id,
-        'name': project.name,
-        'title': project.title,
-        'datelocation': project.datelocation,
-        'timezone': project.timezone.zone,
-        'start_at': (
-            project.schedule_start_at.astimezone(project.timezone).date().isoformat()
-            if project.schedule_start_at
-            else None
-        ),
-        'end_at': (
-            project.schedule_end_at.astimezone(project.timezone).date().isoformat()
-            if project.schedule_end_at
-            else None
-        ),
-        'status': project.state.value,
-        'state': project.state.label.name,
-        'url': project.url_for(_external=True),
-        'website': project.website.url if project.website is not None else "",
-        'json_url': project.url_for('json', _external=True),
-        'bg_image': project.bg_image.url if project.bg_image is not None else "",
-        'calendar_weeks_full': project.calendar_weeks_full,
-        'calendar_weeks_compact': project.calendar_weeks_compact,
-        'rsvp_count_going': project.rsvp_count_going,
-        'registration_header_text': project.views.registration_text(),
-    }
 
 
 @Project.features('rsvp')
@@ -302,58 +268,6 @@ class ProjectView(
         return {
             'project': self.obj,
         }
-
-    @route('json')
-    @render_with(json=True)
-    @requires_roles({'reader'})
-    def json(self):
-        proposals = (
-            Proposal.query.filter_by(project=self.obj)
-            .order_by(db.desc('created_at'))
-            .all()
-        )
-        return jsonp(
-            **{
-                'project': project_data(self.obj),
-                'venues': [
-                    venue.current_access(datasets=('without_parent',))
-                    for venue in self.obj.venues
-                ],
-                'rooms': [
-                    room.current_access(datasets=('without_parent',))
-                    for room in self.obj.rooms
-                ],
-                'proposals': [proposal_data(proposal) for proposal in proposals],
-                'schedule': schedule_data(self.obj),
-            }
-        )
-
-    @route('csv')
-    @requires_roles({'reader'})
-    def csv(self):
-        proposals = (
-            Proposal.query.filter_by(project=self.obj)
-            .order_by(db.desc('created_at'))
-            .all()
-        )
-        outfile = io.StringIO()
-        out = csv.writer(outfile)
-        out.writerow(proposal_headers + ['status'])
-        for proposal in proposals:
-            out.writerow(proposal_data_flat(proposal))
-        outfile.seek(0)
-        return Response(
-            outfile.getvalue(),
-            content_type='text/csv',
-            headers=[
-                (
-                    'Content-Disposition',
-                    'attachment;filename="{profile}-{project}.csv"'.format(
-                        profile=self.obj.profile.name, project=self.obj.name
-                    ),
-                )
-            ],
-        )
 
     @route('editslug', methods=['GET', 'POST'])
     @requires_login
