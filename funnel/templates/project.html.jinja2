@@ -69,6 +69,8 @@
 {% endblock %}
 
 {% block base_content_inner %}
+   featured_proposals.count: {{ featured_proposals.count() }}
+   has_featured_proposals:  {{ project.has_featured_proposals }}
   {% if project.has_featured_proposals %}
     <div class="page-card">
       <div class="project-section" id="submissions">
