@@ -29,6 +29,7 @@ from .helpers import (
 )
 from .project import Project
 from .project_membership import project_child_role_map
+from .reorder import ReorderMixin
 from .user import User
 from .video import VideoMixin
 
@@ -113,12 +114,7 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(
-    UuidMixin,
-    BaseScopedIdNameMixin,
-    VideoMixin,
-    db.Model,
-):
+class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model):
     __tablename__ = 'proposal'
     __email_for__ = 'owner'
 
@@ -148,11 +144,23 @@ class Proposal(
         db.relationship(
             Project,
             primaryjoin=project_id == Project.id,
-            backref=db.backref('proposals', cascade='all', lazy='dynamic'),
+            backref=db.backref(
+                'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
+            ),
         ),
         grants_via={None: project_child_role_map},
     )
+    parent_id = db.synonym('project_id')
     parent = db.synonym('project')
+
+    #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
+    #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
+    #: Old values are required to be stable for permalink redirects from old URLs.
+    #: This number is not considered suitable for public display because it is assigned
+    #: to all proposals, including drafts. A user-facing sequence will have gaps.
+    #: Should numbering be required in the product, see `Update.number` for a better
+    #: implementation.
+    seq = db.synonym('url_id')
 
     _state = db.Column(
         'state',
@@ -212,7 +220,9 @@ class Proposal(
     )
 
     __table_args__ = (
-        db.UniqueConstraint('project_id', 'url_id'),
+        db.UniqueConstraint(
+            'project_id', 'url_id', name='proposal_project_id_url_id_key'
+        ),
         db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
 

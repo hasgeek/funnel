@@ -70,13 +70,21 @@
 {% endblock %}
 
 {% block footerinnerscripts %}
+  {% assets "js_sortable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('proposals')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var config = {};
-      config.search = {
-        tableId: 'submissions-table',
-        inputId: 'search'
+      var config = {
+        search: {
+          tableId: 'submissions-table',
+          inputId: 'search'
+        },
+        sort: {
+          url: '{{ project.url_for("reorder_proposals") }}',
+          permission: {{ project.current_roles.editor|tojson }},
+        }
       };
       window.Hasgeek.ProposalsInit(config);
     });

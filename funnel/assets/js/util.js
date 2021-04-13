@@ -404,7 +404,6 @@ export const Utils = {
     });
   },
   addVegaSupport() {
-    console.log('length', $('.language-vega-lite').length);
     if ($('.language-vega-lite').length > 0) {
       let vegaliteCDN = [
         'https://cdn.jsdelivr.net/npm/vega@5',
