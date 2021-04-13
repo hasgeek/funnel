@@ -33,27 +33,27 @@ describe('Add labels to project', function () {
 
         if (label.label1) {
           cy.get('#add-sublabel-form').click();
-          cy.get('#child-form > .ui-dragable-box').eq(0).should('be.visible');
-          cy.get('#child-form > .ui-dragable-box')
+          cy.get('#child-form > .ui-draggable-box').eq(0).should('be.visible');
+          cy.get('#child-form > .ui-draggable-box')
             .eq(0)
             .find('#title')
             .type(label.label1);
-          //   cy.get('#child-form > .ui-dragable-box')
+          //   cy.get('#child-form > .ui-draggable-box')
           //     .eq(0)
           //     .find('.emojionearea-button')
           //     .click();
-          //   cy.get('#child-form > .ui-dragable-box')
+          //   cy.get('#child-form > .ui-draggable-box')
           //     .eq(0)
           //     .find('.emojionearea-picker')
           //     .should('be.visible');
           //   // Emoji Relaxed is throwing not a valid emoji error
-          //   cy.get('#child-form > .ui-dragable-box')
+          //   cy.get('#child-form > .ui-draggable-box')
           //     .eq(0)
           //     .find(
           //       '.emojionearea-category[name="smileys_people"] i[title="Joy"]'
           //     )
           //     .click();
-          //   cy.get('#child-form > .ui-dragable-box')
+          //   cy.get('#child-form > .ui-draggable-box')
           //     .eq(0)
           //     .find('.emojionearea-picker')
           //     .should('be.hidden');
@@ -61,26 +61,26 @@ describe('Add labels to project', function () {
 
         if (label.label2) {
           cy.get('#add-sublabel-form').click();
-          cy.get('#child-form > .ui-dragable-box').eq(1).should('be.visible');
-          cy.get('#child-form > .ui-dragable-box')
+          cy.get('#child-form > .ui-draggable-box').eq(1).should('be.visible');
+          cy.get('#child-form > .ui-draggable-box')
             .eq(1)
             .find('#title')
             .type(label.label2);
-          //   cy.get('#child-form > .ui-dragable-box')
+          //   cy.get('#child-form > .ui-draggable-box')
           //     .eq(1)
           //     .find('.emojionearea-button')
           //     .click();
-          //   cy.get('#child-form > .ui-dragable-box')
+          //   cy.get('#child-form > .ui-draggable-box')
           //     .eq(1)
           //     .find('.emojionearea-picker')
           //     .should('be.visible');
-          //   cy.get('#child-form > .ui-dragable-box')
+          //   cy.get('#child-form > .ui-draggable-box')
           //     .eq(1)
           //     .find(
           //       '.emojionearea-category[name="smileys_people"] i[title="Smile"]'
           //     )
           //     .click();
-          //   cy.get('#child-form > .ui-dragable-box')
+          //   cy.get('#child-form > .ui-draggable-box')
           //     .eq(1)
           //     .find('.emojionearea-picker')
           //     .should('be.hidden');
@@ -94,7 +94,7 @@ describe('Add labels to project', function () {
       });
     });
 
-    cy.get('.ui-dragable-box')
+    cy.get('.ui-draggable-box')
       .eq(0)
       .trigger('mouseover', { which: 1, force: true, view: window })
       .trigger('mousedown', { which: 1, force: true, view: window })
@@ -108,7 +108,7 @@ describe('Add labels to project', function () {
 
     cy.get('button[data-cy="save-label-seq"]').click();
 
-    cy.get('.ui-dragable-box')
+    cy.get('.ui-draggable-box')
       .eq(0)
       .find('.label-box__heading')
       .contains(labels[1].title);

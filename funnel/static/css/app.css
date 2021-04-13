@@ -2297,7 +2297,7 @@ a.loginbutton.hidden,
   left: 80px;
 }
 
-.ui-dragable-box {
+.ui-draggable-box {
   padding: 25px 10px 10px 20px;
   border-radius: 3px;
   border: 1px solid #c0ccda;
@@ -2306,26 +2306,26 @@ a.loginbutton.hidden,
   position: relative;
   margin: 10px 16px;
 }
-.ui-dragable-box .drag-icon {
+.ui-draggable-box .drag-icon {
   position: absolute;
   left: 5px;
   top: 5px;
 }
 
-.ui-dragable-box--header {
+.ui-draggable-box--header {
   padding: 0;
   margin: 10px 0;
 }
 
-.ui-dragable-box--header .collapsible__header {
+.ui-draggable-box--header .collapsible__header {
   margin: 0;
 }
 
-.ui-dragable-box label {
+.ui-draggable-box label {
   cursor: pointer;
 }
 
-.ui-dragable-box:hover {
+.ui-draggable-box:hover {
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
     0 1px 2px rgba(158, 158, 158, 0.24);
@@ -2366,7 +2366,7 @@ a.loginbutton.hidden,
   outline: none;
 }
 
-.ui-dragable-box .sp-replacer {
+.ui-draggable-box .sp-replacer {
   margin-top: 5px;
   margin-left: 5px;
 }
@@ -4608,7 +4608,7 @@ a.loginbutton.hidden,
   padding: 0;
 }
 
-.ui-dragable-box .clickable-card {
+.ui-draggable-box .clickable-card {
   cursor: move;
 }
 

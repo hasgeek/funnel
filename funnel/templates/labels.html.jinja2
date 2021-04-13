@@ -23,7 +23,7 @@
     <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
       {{ form.hidden_tag() }}
       {%- for label in labels %}
-        <div class="ui-dragable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+        <div class="ui-draggable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
           <div class="label-box__inner">
             {{ faicon(icon='grip-vertical', baseline=false, css_class='label-box__inner__drag-icon') }}
             <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
