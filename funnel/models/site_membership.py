@@ -4,7 +4,7 @@ from werkzeug.utils import cached_property
 
 from . import User, db
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['SiteMembership']
 

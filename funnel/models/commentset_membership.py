@@ -5,7 +5,7 @@ from coaster.sqlalchemy import immutable, with_roles
 from . import User, db
 from .commentvote import Commentset
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['CommentsetMembership']
 
