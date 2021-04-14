@@ -29,9 +29,9 @@ from .helpers import (
 )
 from .project import Project
 from .project_membership import project_child_role_map
-from .reorder import ReorderMixin
+from .reorder_mixin import ReorderMixin
 from .user import User
-from .video import VideoMixin
+from .video_mixin import VideoMixin
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect', 'ProposalSuuidRedirect']
 
