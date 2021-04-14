@@ -604,10 +604,11 @@
 {%- macro proposal_list(proposals, project='') %}
   <table id="submissions-table" class="proposal-list-table mui-table">
     <tbody>
+      {%- with reorderable=project and project.features.reorder_proposals() %}
       {% for proposal in proposals %}
-        <tr id="{{ proposal.uuid_b58 }}" {%- if project and project.current_roles.editor %}class="sortable" data-drag-placeholder="proposal-placeholder" draggable="true"{%- endif %}>
-          <td class="js-searchable {%- if project and project.current_roles.editor %} label-box label-box--no-border ui-draggable-box{%- endif %}">
-            {%- if project and project.current_roles.editor %}
+        <tr id="{{ proposal.uuid_b58 }}" {%- if reorderable %}class="sortable" data-drag-placeholder="proposal-placeholder" draggable="true"{%- endif %}>
+          <td class="js-searchable {%- if reorderable %} label-box label-box--no-border ui-draggable-box{%- endif %}">
+            {%- if project and reorderable %}
               {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project, draggable=true) }}
             {%- else %}
               {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project, draggable=false) }}
@@ -619,6 +620,7 @@
           <td><em>{% trans %}(No sessions have been submitted){% endtrans %}</em></td>
         </tr>
       {% endfor %}
+      {%- endwith %}
     </tbody>
   </table>
 {%- endmacro %}
