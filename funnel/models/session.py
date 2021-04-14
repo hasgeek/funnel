@@ -25,7 +25,7 @@ from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
 from .venue import VenueRoom
-from .video import VideoMixin
+from .video_mixin import VideoMixin
 
 __all__ = ['Session']
 
