@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Iterable, Optional, Set
 
-from sqlalchemy.ext.orderinglist import ordering_list
-
 from flask import current_app
 from werkzeug.utils import cached_property
 
@@ -250,24 +248,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
-
-    venues = with_roles(
-        db.relationship(
-            'Venue',
-            cascade='all',
-            order_by='Venue.seq',
-            collection_class=ordering_list('seq', count_from=1),
-        ),
-        read={'all'},
-    )
-    labels = db.relationship(
-        'Label',
-        cascade='all',
-        primaryjoin='and_(Label.project_id == Project.id, Label.main_label_id == None, Label._archived == False)',
-        order_by='Label.seq',
-        collection_class=ordering_list('seq', count_from=1),
-    )
-    all_labels = db.relationship('Label', lazy='dynamic')
 
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
@@ -756,6 +736,7 @@ class __Profile:
             Project.parent_id.is_(None),
             Project.state.PUBLISHED,
         ),
+        viewonly=True,
     )
     draft_projects = db.relationship(
         Project,
@@ -766,6 +747,7 @@ class __Profile:
             Project.parent_id.is_(None),
             db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
         ),
+        viewonly=True,
     )
 
     def draft_projects_for(self, user):

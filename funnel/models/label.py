@@ -365,6 +365,26 @@ class ProposalLabelProxy(object):
             return self
 
 
+@reopen(Project)
+class __Project:
+    labels = db.relationship(
+        Label,
+        cascade='all',
+        primaryjoin=db.and_(
+            Label.project_id == Project.id,
+            Label.main_label_id.is_(None),
+            Label._archived.is_(False),
+        ),
+        order_by=Label.seq,
+        viewonly=True,
+    )
+    all_labels = db.relationship(
+        Label,
+        collection_class=ordering_list('seq', count_from=1),
+        back_populates='project',
+    )
+
+
 @reopen(Proposal)
 class __Proposal:
     #: For reading and setting labels from the edit form

@@ -58,8 +58,8 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
             ),
         )
     )
-    parent = immutable(db.synonym('proposal'))
-    parent_id = immutable(db.synonym('proposal_id'))
+    parent = db.synonym('proposal')
+    parent_id = db.synonym('proposal_id')
 
     # Proposal roles (at least one must be True):
 

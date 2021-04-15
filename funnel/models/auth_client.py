@@ -464,7 +464,12 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         db.UniqueConstraint('user_session_id', 'auth_client_id'),
     )
 
-    __roles__ = {'owner': {'read': {'created_at'}}}
+    __roles__ = {
+        'owner': {
+            'read': {'created_at', 'user'},
+            'granted_by': {'user'},
+        }
+    }
 
     @property
     def user(self) -> User:
@@ -477,9 +482,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     def user(self, value: User):
         self._user = value
 
-    user = with_roles(
-        db.synonym('_user', descriptor=user), read={'owner'}, grants={'owner'}
-    )
+    user = db.synonym('_user', descriptor=user)
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
