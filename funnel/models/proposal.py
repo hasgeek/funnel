@@ -246,7 +246,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             'call': {'url_for', 'state', 'commentset'},
         },
         'reviewer': {'read': {'email', 'phone'}},
-        'project_editor': {'read': {'email', 'phone'}},
+        'project_editor': {
+            'read': {'email', 'phone'},
+            'call': {'reorder_item', 'reorder_before', 'reorder_after'},
+        },
     }
 
     __datasets__ = {

@@ -43,7 +43,12 @@ markdown_message = __(
 
 @Proposal.features('comment_new')
 def proposal_comment_new(obj):
-    return obj.current_roles.commenter is True
+    return obj.current_roles.commenter
+
+
+@Project.features('reorder_proposals')
+def proposals_can_be_reordered(obj):
+    return obj.current_roles.editor
 
 
 # --- Routes ------------------------------------------------------------------
@@ -105,7 +110,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 .options(db.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
-            proposal.reorder_item(other_proposal, before)
+            proposal.current_access().reorder_item(other_proposal, before)
             db.session.commit()
             return {'status': 'ok'}
         return {'status': 'error'}, 400
