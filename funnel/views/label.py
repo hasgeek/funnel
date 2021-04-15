@@ -60,9 +60,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             )
             label.restricted = form.data.get('restricted')
             label.make_name()
-            self.obj.labels.append(label)
-            self.obj.labels.reorder()
-            db.session.add(label)
+            self.obj.all_labels.append(label)
+            self.obj.all_labels.reorder()
 
             for idx in range(len(titlelist)):
                 subform = LabelOptionForm(

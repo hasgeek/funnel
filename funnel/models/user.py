@@ -112,8 +112,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
 
-    # XXX: Deprecated, still here for Baseframe compatibility
-    userid = db.synonym('buid')
     #: The user's fullname
     fullname: db.Column = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
@@ -763,6 +761,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def organization_links(self) -> List:
         return []
 
+
+# XXX: Deprecated, still here for Baseframe compatibility
+User.userid = User.uuid_b64
 
 auto_init_default(User._state)  # skipcq: PYL-W0212
 add_search_trigger(User, 'search_vector')

@@ -46,8 +46,8 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
         )
     )
 
-    parent = immutable(db.synonym('commentset'))
-    parent_id = immutable(db.synonym('commentset_id'))
+    parent = db.synonym('commentset')
+    parent_id = db.synonym('commentset_id')
 
     #: Flag to indicate notifications are muted
     is_muted = db.Column(db.Boolean, nullable=False, default=False)
