@@ -100,7 +100,6 @@ class TicketEvent(GetTitleMixin, db.Model):
         secondary='ticket_event_participant',
         backref='ticket_events',
         lazy='dynamic',
-        viewonly=True,
     )
     badge_template = db.Column(db.Unicode(250), nullable=True)
 
