@@ -100,6 +100,7 @@ class TicketEvent(GetTitleMixin, db.Model):
         secondary='ticket_event_participant',
         backref='ticket_events',
         lazy='dynamic',
+        viewonly=True,
     )
     badge_template = db.Column(db.Unicode(250), nullable=True)
 
@@ -184,7 +185,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     )
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
-        db.relationship(Project),
+        db.relationship(Project, back_populates='ticket_participants'),
         read={'promoter', 'subject', 'scanner'},
         grants_via={None: project_child_role_map},
     )
@@ -481,7 +482,9 @@ class __Project:
     # expose a new edge case in future in case the TicketParticipant model adds an
     # `offered_roles` method, as only the first matching record's method will be called
     ticket_participants = with_roles(
-        db.relationship(TicketParticipant, lazy='dynamic', cascade='all'),
+        db.relationship(
+            TicketParticipant, lazy='dynamic', cascade='all', back_populates='project'
+        ),
         grants_via={'user': {'participant'}},
     )
 

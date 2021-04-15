@@ -78,8 +78,8 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             ),
         )
     )
-    parent = immutable(db.synonym('project'))
-    parent_id = immutable(db.synonym('project_id'))
+    parent = db.synonym('project')
+    parent_id = db.synonym('project_id')
 
     # Project crew roles (at least one must be True):
 

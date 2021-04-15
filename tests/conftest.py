@@ -565,14 +565,9 @@ def new_main_label(db_session, new_project):
     main_label_a = Label(
         title="Parent Label A", project=new_project, description="A test parent label"
     )
-    new_project.labels.append(main_label_a)
-    db_session.add(main_label_a)
-
+    new_project.all_labels.append(main_label_a)
     label_a1 = Label(title="Label A1", icon_emoji="👍", project=new_project)
-    db_session.add(label_a1)
-
     label_a2 = Label(title="Label A2", project=new_project)
-    db_session.add(label_a2)
 
     main_label_a.options.append(label_a1)
     main_label_a.options.append(label_a2)
@@ -588,14 +583,9 @@ def new_main_label_unrestricted(db_session, new_project):
     main_label_b = Label(
         title="Parent Label B", project=new_project, description="A test parent label"
     )
-    new_project.labels.append(main_label_b)
-    db_session.add(main_label_b)
-
+    new_project.all_labels.append(main_label_b)
     label_b1 = Label(title="Label B1", icon_emoji="👍", project=new_project)
-    db_session.add(label_b1)
-
     label_b2 = Label(title="Label B2", project=new_project)
-    db_session.add(label_b2)
 
     main_label_b.options.append(label_b1)
     main_label_b.options.append(label_b2)
@@ -609,7 +599,7 @@ def new_main_label_unrestricted(db_session, new_project):
 @pytest.fixture
 def new_label(db_session, new_project):
     label_b = Label(title="Label B", icon_emoji="🔟", project=new_project)
-    new_project.labels.append(label_b)
+    new_project.all_labels.append(label_b)
     db_session.add(label_b)
     db_session.commit()
     return label_b

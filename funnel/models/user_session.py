@@ -140,4 +140,5 @@ class __User:
             UserSession.revoked_at.is_(None),
         ),
         order_by=UserSession.accessed_at.desc(),
+        viewonly=True,
     )
