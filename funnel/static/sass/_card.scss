@@ -60,16 +60,16 @@
   transition: 200ms linear;
   -webkit-transition: 200ms linear;
 
+  .card__body__location {
+    float: left;
+  }
+
   .card__body__bookmark {
     float: right;
-    position: relative;
-    top: 10px;
-    height: 0;
-    z-index: 4;
-    line-height: 1;
+    margin-top: 4px;
   }
   .card__calendar {
-    padding: 0 0 25px;
+    padding: 0 0 40px;
   }
   .card__image-wrapper {
     border-radius: 0 0 0 20px;

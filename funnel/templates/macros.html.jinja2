@@ -306,12 +306,6 @@
                   {% if featured_project.tagline %}
                   <p class="card__body__subtitle mui--text-subhead zero-top-margin js-truncate mui--text-light" data-truncate-lines="3">{{ featured_project.tagline }}</p>
                   {% endif %}
-                  {%- if not current_auth.is_anonymous %}
-                    {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
-                    <div class="card__body__bookmark">
-                      {{ saveprojectform(featured_project, formid=save_form_id) }}
-                    </div>
-                  {% endif %}
                   {% if featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
                     <div aria-label="{{ featured_project.datelocation }}">
                       {{ calendarwidget(featured_project.calendar_weeks_compact) }}
@@ -321,6 +315,12 @@
                     <p class="card__body__location mui--text-light">{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>
                   {% elif featured_project.location %}
                     <p class="card__body__location mui--text-light">{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}</p>
+                  {% endif %}
+                  {%- if not current_auth.is_anonymous %}
+                    {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
+                    <div class="card__body__bookmark">
+                      {{ saveprojectform(featured_project, formid=save_form_id) }}
+                    </div>
                   {% endif %}
                 </div>
               </a>
