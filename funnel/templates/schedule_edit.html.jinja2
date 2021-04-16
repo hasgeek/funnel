@@ -56,7 +56,26 @@
         </ul>
         <div id="list" class="schedule-settings">
           {%- for proposal in proposals['unscheduled'] %}
-            <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
+            <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">
+              {%- if proposal.speaker %}
+                <div class="user user--smaller">
+                  <div class="user__box">
+                    {{ useravatar(proposal.speaker) }}
+                    <div class="user__box__header">
+                      <p class="mui--text-caption user__box__fullname">{{ proposal.speaker.fullname }}</p>
+                    </div>
+                  </div>
+                </div>
+              {%- else %}
+                <div>
+                  <p class="margin-bottom">{% trans speaker=proposal.user.pickername %}Submitted by {{ speaker }}{% endtrans %}</p>
+                </div>
+              {%- endif -%}
+              <p class="mui--text-subhead margin-bottom">{{ proposal.title }}</p>
+              {%- for label in proposal.labels %}
+                <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+              {%- endfor %}
+            </div>
           {%- endfor %}
         </div>
         <div id="settings" class="schedule-settings">

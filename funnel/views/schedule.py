@@ -274,7 +274,13 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         proposals = {
             'unscheduled': [
-                {'title': proposal.title, 'modal_url': proposal.url_for('schedule')}
+                {
+                    'title': proposal.title,
+                    'modal_url': proposal.url_for('schedule'),
+                    'speaker': proposal.speaker,
+                    'user': proposal.user,
+                    'labels': list(proposal.labels),
+                }
                 for proposal in self.obj.proposals_all.filter(
                     Proposal.state.CONFIRMED
                 ).order_by(Proposal.title)
