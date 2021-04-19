@@ -210,11 +210,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
         submitted_proposals = (
             self.obj.user.speaker_at.join(Project)
-            .filter(
-                ~(Project.state.DRAFT),
-                ~(Proposal.state.DRAFT),
-                ~(Proposal.state.DELETED),
-            )
+            .filter(Project.state.PUBLISHED, Proposal.state.PUBLIC)
             .all()
         )
 
