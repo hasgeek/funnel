@@ -58,11 +58,6 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
         'proposal_id': session.proposal_id,
         'description': session.description,
         'url': session.url_for(_external=True),
-        'json_url': (
-            session.proposal.url_for('json', _external=True)
-            if session.proposal
-            else None
-        ),
         'proposal_url': (
             session.proposal.url_for(_external=True) if session.proposal else None
         ),
@@ -279,7 +274,13 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         proposals = {
             'unscheduled': [
-                {'title': proposal.title, 'modal_url': proposal.url_for('schedule')}
+                {
+                    'title': proposal.title,
+                    'modal_url': proposal.url_for('schedule'),
+                    'speaker': proposal.speaker,
+                    'user': proposal.user,
+                    'labels': list(proposal.labels),
+                }
                 for proposal in self.obj.proposals_all.filter(
                     Proposal.state.CONFIRMED
                 ).order_by(Proposal.title)

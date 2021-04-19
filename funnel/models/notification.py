@@ -1027,7 +1027,9 @@ class NotificationPreferences(BaseMixin, db.Model):
     )
     #: User whose preferences are represented here
     user = with_roles(
-        immutable(db.relationship(User)), read={'owner'}, grants={'owner'}
+        immutable(db.relationship(User, back_populates='notification_preferences')),
+        read={'owner'},
+        grants={'owner'},
     )
 
     # Notification type, corresponding to Notification.type (a class attribute there)
@@ -1074,34 +1076,35 @@ class NotificationPreferences(BaseMixin, db.Model):
             ('by_telegram', 'default_telegram'),
             ('by_whatsapp', 'default_whatsapp'),
         )
-        if not self.user.notification_preferences:
-            # No existing preferences. Get defaults from notification type's class
-            if (
-                self.notification_type
-                and self.notification_type in notification_type_registry
-            ):
-                type_cls = notification_type_registry[self.notification_type]
-                for t_attr, d_attr in transport_attrs:
-                    if getattr(self, t_attr) is None:
-                        setattr(self, t_attr, getattr(type_cls, d_attr))
+        with db.session.no_autoflush:
+            if not self.user.notification_preferences:
+                # No existing preferences. Get defaults from notification type's class
+                if (
+                    self.notification_type
+                    and self.notification_type in notification_type_registry
+                ):
+                    type_cls = notification_type_registry[self.notification_type]
+                    for t_attr, d_attr in transport_attrs:
+                        if getattr(self, t_attr) is None:
+                            setattr(self, t_attr, getattr(type_cls, d_attr))
+                else:
+                    # No notification type class either. Turn on everything.
+                    for t_attr, d_attr in transport_attrs:
+                        if getattr(self, t_attr) is None:
+                            setattr(self, t_attr, True)
             else:
-                # No notification type class either. Turn on everything.
                 for t_attr, d_attr in transport_attrs:
                     if getattr(self, t_attr) is None:
-                        setattr(self, t_attr, True)
-        else:
-            for t_attr, d_attr in transport_attrs:
-                if getattr(self, t_attr) is None:
-                    # If this transport is enabled for any existing notification type,
-                    # also enable here.
-                    setattr(
-                        self,
-                        t_attr,
-                        any(
-                            getattr(np, t_attr)
-                            for np in self.user.notification_preferences.values()
-                        ),
-                    )
+                        # If this transport is enabled for any existing notification type,
+                        # also enable here.
+                        setattr(
+                            self,
+                            t_attr,
+                            any(
+                                getattr(np, t_attr)
+                                for np in self.user.notification_preferences.values()
+                            ),
+                        )
 
     @with_roles(call={'owner'})
     def by_transport(self, transport: str) -> bool:
@@ -1147,6 +1150,7 @@ class __User:
             UserNotification,
             lazy='dynamic',
             order_by=UserNotification.created_at.desc(),
+            viewonly=True,
         ),
         read={'owner'},
     )
@@ -1156,6 +1160,7 @@ class __User:
         collection_class=column_mapped_collection(
             NotificationPreferences.notification_type
         ),
+        back_populates='user',
     )
 
     # This relationship is wrapped in a property that creates it on first access
@@ -1166,12 +1171,13 @@ class __User:
             NotificationPreferences.notification_type == '',
         ),
         uselist=False,
+        viewonly=True,
     )
 
-    @property
+    @cached_property
     def main_notification_preferences(self) -> NotificationPreferences:
         if not self._main_notification_preferences:
-            self._main_notification_preferences = NotificationPreferences(
+            main = NotificationPreferences(
                 user=self,
                 notification_type='',
                 by_email=True,
@@ -1180,7 +1186,8 @@ class __User:
                 by_telegram=False,
                 by_whatsapp=False,
             )
-            db.session.add(self._main_notification_preferences)
+            db.session.add(main)
+            return main
         return self._main_notification_preferences
 
 

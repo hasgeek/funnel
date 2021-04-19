@@ -31,10 +31,7 @@ class DecisionFactor(NamedTuple):
             (self.is_subject is is_subject)
             and (not self.rtypes or record_type in self.rtypes)
             and (self.is_owner is None or self.is_owner is membership.is_owner)
-            and (
-                self.is_actor is None
-                or (self.is_actor is bool(membership.user == membership.granted_by))
-            )
+            and (self.is_actor is None or (self.is_actor is membership.is_self_granted))
         )
 
 

@@ -1,15 +1,15 @@
 from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, __, request_is_xhr
-from baseframe.forms import render_delete_sqla, render_form
+from baseframe.forms import Form, render_delete_sqla, render_form
 from coaster.auth import current_auth
-from coaster.utils import make_name
+from coaster.utils import getbool, make_name
 from coaster.views import (
     ModelView,
     UrlChangeCheck,
     UrlForView,
-    jsonp,
     render_with,
+    requestform,
     requires_permission,
     requires_roles,
     route,
@@ -35,83 +35,20 @@ from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .notification import dispatch_notification
 
-proposal_headers = [
-    'id',
-    'title',
-    'url',
-    'fullname',
-    'proposer',
-    'speaker',
-    'email',
-    'slides',
-    'video_url',
-    'phone',
-    'type',
-    'level',
-    'votes',
-    'comments',
-    'submitted',
-    'confirmed',
-]
-
-
 markdown_message = __(
     'This form uses <a target="_blank" rel="noopener noreferrer"'
     ' href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
 )
 
 
-def proposal_data(proposal):
-    """
-    Return proposal data suitable for a JSON dump.
-
-    Request helper, not to be used standalone.
-    """
-    return dict(
-        [
-            ('id', proposal.uuid_b58),
-            ('name', proposal.url_name_uuid_b58),
-            ('legacy_id', proposal.url_id),
-            ('legacy_name', proposal.url_name),
-            ('title', proposal.title),
-            ('url', proposal.url_for(_external=True)),
-            ('json_url', proposal.url_for('json', _external=True)),
-            ('fullname', proposal.owner.fullname),
-            ('proposer', proposal.user.pickername),
-            ('speaker', proposal.speaker.pickername if proposal.speaker else None),
-            ('description', proposal.description),
-            ('body', proposal.body.html),
-            ('video', proposal.video),
-            ('votes', proposal.voteset.count),
-            ('comments', proposal.commentset.count),
-            ('submitted', proposal.created_at.isoformat()),
-            ('confirmed', bool(proposal.state.CONFIRMED)),
-        ]
-        + (
-            [
-                ('email', proposal.email),
-                ('phone', proposal.phone),
-                ('location', proposal.location),
-                ('votes_count', proposal.votes_count()),
-                ('status', proposal.state.value),
-                ('state', proposal.state.label.name),
-            ]
-            if proposal.current_roles.project_editor
-            else []
-        )
-    )
-
-
-def proposal_data_flat(proposal):
-    data = proposal_data(proposal)
-    cols = [data.get(header) for header in proposal_headers]
-    cols.append(proposal.state.label.name)
-    return cols
-
-
 @Proposal.features('comment_new')
 def proposal_comment_new(obj):
-    return obj.current_roles.commenter is True
+    return obj.current_roles.commenter
+
+
+@Project.features('reorder_proposals')
+def proposals_can_be_reordered(obj):
+    return obj.current_roles.editor
 
 
 # --- Routes ------------------------------------------------------------------
@@ -158,6 +95,26 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             message=markdown_message,
         )
 
+    @requires_login
+    @requires_roles({'editor'})
+    @requestform('target', 'other', ('before', getbool))
+    def reorder_proposals(self, target: str, other: str, before: bool):
+        if Form().validate_on_submit():
+            proposal: Proposal = (
+                Proposal.query.filter_by(uuid_b58=target)
+                .options(db.load_only(Proposal.id, Proposal.seq))
+                .one_or_404()
+            )
+            other_proposal: Proposal = (
+                Proposal.query.filter_by(uuid_b58=other)
+                .options(db.load_only(Proposal.id, Proposal.seq))
+                .one_or_404()
+            )
+            proposal.current_access().reorder_item(other_proposal, before)
+            db.session.commit()
+            return {'status': 'ok'}
+        return {'status': 'error'}, 400
+
 
 @Project.views('proposal_new')
 @route('/<profile>/<project>')
@@ -169,6 +126,7 @@ ProjectProposalView.add_route_for(
     'new_proposal', 'proposals/new', methods=['GET', 'POST']
 )
 ProjectProposalView.add_route_for('new_proposal', 'sub/new', methods=['GET', 'POST'])
+ProjectProposalView.add_route_for('reorder_proposals', 'sub/reorder', methods=['POST'])
 ProjectProposalView.init_app(app)
 
 
@@ -224,11 +182,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'proposal_transfer_form': proposal_transfer_form,
             'proposal_label_admin_form': proposal_label_admin_form,
         }
-
-    @route('json')
-    @requires_permission('view')
-    def json(self):
-        return jsonp(proposal_data(self.obj))
 
     @route('comments', methods=['GET'])
     @render_with(json=True)

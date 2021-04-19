@@ -4,7 +4,7 @@ from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 from .user import Organization, User
 
 __all__ = ['OrganizationMembership']
@@ -36,6 +36,8 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
                 'user',
                 'is_active',
                 'is_invite',
+                'is_self_granted',
+                'is_self_revoked',
             }
         },
     }
@@ -69,8 +71,8 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
             grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
         )
     )
-    parent = immutable(db.synonym('organization'))
-    parent_id = immutable(db.synonym('organization_id'))
+    parent = db.synonym('organization')
+    parent_id = db.synonym('organization_id')
 
     # Organization roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))

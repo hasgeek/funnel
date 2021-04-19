@@ -8,7 +8,7 @@ from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 from .project import Project
 from .user import User
 
@@ -78,8 +78,8 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             ),
         )
     )
-    parent = immutable(db.synonym('project'))
-    parent_id = immutable(db.synonym('project_id'))
+    parent = db.synonym('project')
+    parent_id = db.synonym('project_id')
 
     # Project crew roles (at least one must be True):
 

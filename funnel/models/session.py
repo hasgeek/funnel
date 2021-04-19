@@ -25,7 +25,7 @@ from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
 from .venue import VenueRoom
-from .video import VideoMixin
+from .video_mixin import VideoMixin
 
 __all__ = ['Session']
 
@@ -224,6 +224,15 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
 add_search_trigger(Session, 'search_vector')
 
 
+@reopen(VenueRoom)
+class __VenueRoom:
+    scheduled_sessions = db.relationship(
+        Session,
+        primaryjoin=db.and_(Session.venue_room_id == VenueRoom.id, Session.scheduled),
+        viewonly=True,
+    )
+
+
 @reopen(Project)
 class __Project:
     # Project schedule column expressions
@@ -234,6 +243,7 @@ class __Project:
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
+            # .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -246,6 +256,7 @@ class __Project:
             .where(Session.start_at > db.func.utcnow())
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
+            # .scalar_subquery()
         ),
         read={'all'},
     )
@@ -256,6 +267,7 @@ class __Project:
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
+            # .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -291,6 +303,7 @@ class __Project:
             primaryjoin=db.and_(
                 Session.project_id == Project.id, Session.featured.is_(True)
             ),
+            viewonly=True,
         ),
         read={'all'},
     )
@@ -299,6 +312,7 @@ class __Project:
             Session,
             order_by=Session.start_at.asc(),
             primaryjoin=db.and_(Session.project_id == Project.id, Session.scheduled),
+            viewonly=True,
         ),
         read={'all'},
     )
@@ -310,6 +324,7 @@ class __Project:
                 Session.project_id == Project.id,
                 Session.scheduled.isnot(True),  # type: ignore[attr-defined]
             ),
+            viewonly=True,
         ),
         read={'all'},
     )
@@ -323,6 +338,7 @@ class __Project:
                 Session.video_id.isnot(None),
                 Session.video_source.isnot(None),
             ),
+            viewonly=True,
         ),
         read={'all'},
     )
@@ -418,21 +434,22 @@ class __Project:
         # session_dates is a list of tuples in this format -
         # (date, day_start_at, day_end_at, event_count)
         session_dates = list(
-            db.session.query('date', 'day_start_at', 'day_end_at', 'count')
-            .from_statement(
-                db.text(
-                    '''
-                    SELECT
-                        DATE_TRUNC('day', "start_at" AT TIME ZONE :timezone) AS date,
-                        MIN(start_at) as day_start_at,
-                        MAX(end_at) as day_end_at,
-                        COUNT(*) AS count
-                    FROM "session" WHERE "project_id" = :project_id AND "start_at" IS NOT NULL AND "end_at" IS NOT NULL
-                    GROUP BY date ORDER BY date;
-                    '''
-                )
+            db.session.query(
+                db.func.date_trunc(
+                    'day', db.func.timezone(self.timezone.zone, Session.start_at)
+                ).label('date'),
+                db.func.min(Session.start_at).label('day_start_at'),
+                db.func.max(Session.end_at).label('day_end_at'),
+                db.func.count().label('count'),
             )
-            .params(timezone=self.timezone.zone, project_id=self.id)
+            .select_from(Session)
+            .filter(
+                Session.project == self,
+                Session.start_at.isnot(None),
+                Session.end_at.isnot(None),
+            )
+            .group_by('date')
+            .order_by('date')
         )
 
         session_dates_dict = {

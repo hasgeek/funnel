@@ -5,7 +5,7 @@ from coaster.sqlalchemy import immutable, with_roles
 from . import User, db
 from .commentvote import Commentset
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableMembershipMixin
 
 __all__ = ['CommentsetMembership']
 
@@ -46,8 +46,8 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
         )
     )
 
-    parent = immutable(db.synonym('commentset'))
-    parent_id = immutable(db.synonym('commentset_id'))
+    parent = db.synonym('commentset')
+    parent_id = db.synonym('commentset_id')
 
     #: Flag to indicate notifications are muted
     is_muted = db.Column(db.Boolean, nullable=False, default=False)

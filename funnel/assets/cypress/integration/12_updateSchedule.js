@@ -35,7 +35,7 @@ describe('Add session to schedule and publish', function () {
     cy.get('#title').type(session.title);
     cy.get('select#venue_room_id').select(session.room, { force: true });
     cy.get('#field-speaker').type(session.speaker);
-    cy.get('#field-banner_image_url').type(session.bg);
+    // cy.get('#field-banner_image_url').type(session.bg);
     cy.get('#field-is_break').find('label').click();
     cy.get('#field-video_url').type(session.video);
     cy.get('#session-save').click();
