@@ -393,8 +393,10 @@ class ProjectView(
     def update_banner(self):
         form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         edit_logo_url = self.obj.url_for('edit_banner')
+        delete_logo_url = self.obj.url_for('remove_banner')
         return {
             'edit_logo_url': edit_logo_url,
+            'delete_logo_url': delete_logo_url,
             'form': form,
         }
 
@@ -430,20 +432,16 @@ class ProjectView(
         if form.validate_on_submit():
             self.obj.bg_image = None
             db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("The banner image has been removed from this project"),
-            }
+            flash(_("The banner image has been removed"), 'info')
+            return render_redirect(self.obj.url_for(), code=303)
         else:
             current_app.logger.error(
                 "CSRF form validation error when removing project banner."
             )
-            return {
-                'status': 'error',
-                'message': _(
-                    "There was an issue removing this banner image. Reload and try again."
-                ),
-            }
+            flash(
+                _("There was an issue removing the banner image. Try again."), 'error'
+            )
+            return render_redirect(self.obj.url_for(), code=303)
 
     @route('cfp', methods=['GET', 'POST'])
     @requires_login
