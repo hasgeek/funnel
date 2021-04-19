@@ -208,9 +208,15 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        submitted_proposals = self.obj.user.speaker_at.filter(
-            ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-        ).all()
+        submitted_proposals = (
+            self.obj.user.speaker_at.join(Project)
+            .filter(
+                ~(Project.state.DRAFT),
+                ~(Proposal.state.DRAFT),
+                ~(Proposal.state.DELETED),
+            )
+            .all()
+        )
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
