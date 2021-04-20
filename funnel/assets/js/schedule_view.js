@@ -243,6 +243,7 @@ const Schedule = {
         this.handleBrowserHistory();
         $('#session-modal').on($.modal.OPEN, () => {
           Utils.addVegaSupport();
+          activateZoomPopup();
         });
       },
     });
