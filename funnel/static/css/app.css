@@ -2134,7 +2134,7 @@ a.loginbutton.hidden,
 }
 
 .profile-create-btn--mobile {
-  width: calc(100% - 58px);
+  width: calc(100% - 65px);
 }
 .profile-create-btn--mobile .mui-btn {
   width: 100%;
@@ -2543,6 +2543,9 @@ a.loginbutton.hidden,
   min-height: 56px;
   padding: 16px;
   height: auto;
+}
+.ajax-form .mui-form .mui-form__fields .CodeMirror .CodeMirror-sizer {
+  min-height: 29px !important;
 }
 .ajax-form .mui-form .mui-form__fields .CodeMirror ~ .CodeMirror {
   display: none;
@@ -4438,6 +4441,10 @@ a.loginbutton.hidden,
     top: -12px;
     right: 0;
     height: 0;
+    margin: 0;
+  }
+  .proposal__section .post-form-block .comment-new-mobile {
+    font-size: 18px;
   }
 }
 .comment {

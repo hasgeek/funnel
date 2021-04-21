@@ -25,7 +25,7 @@ describe('Confirm proposal', function () {
     cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
     cy.wait('@fetch-admin-panel');
     cy.get('#label-select').click();
-    cy.get('#label-dropdown label').contains(labels[2].title).click();
+    cy.get('#label-dropdown label').contains(labels[1].title).click();
     cy.get('#label-dropdown label').contains(labels[3].title).click();
     cy.get('#label-select').click();
     cy.get('form.add-label-form')
