@@ -4443,6 +4443,9 @@ a.loginbutton.hidden,
     height: 0;
     margin: 0;
   }
+  .proposal__section .post-form-block .comment-new-mobile {
+    font-size: 18px;
+  }
 }
 .comment {
   margin: 16px 0 0;
