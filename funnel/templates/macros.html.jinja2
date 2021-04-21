@@ -114,7 +114,7 @@
           {%- endif %}
           {% if current_auth.user.is_site_editor %}
             <li>
-              <a href="javascript:void(0)" class="mui--text-body2 mui--clearfix">
+              <div class="mui--text-body2 mui--clearfix">
               {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--pull-left mui--align-middle') }}
               <span class="mui--pull-right dropdown-menu__form">
                 <span class="mui--d-inlineblock dropdown-menu__form__label">
@@ -127,7 +127,7 @@
                   <label class="switch-label mui--pull-right" for="featured-project"></label>
                 </form>
               </span>
-              </a>
+              </div>
             </li>
           {%- endif %}
         </ul>
@@ -690,7 +690,7 @@
                   <li>
                     {{ proposal.state.label.title }}
                   </li>
-                  <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM YYYY') }}</li>
+                  <li class="no-border">{{ proposal.datetime|datetime(format='dd MMM YYYY') }}</li>
                   {% if proposal.video %}
                     <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
                       {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
@@ -719,7 +719,7 @@
               </div>
             {%- else -%}
               <div class="proposal-card__body__inner__headline__info">
-                <p class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.datetime|datetime(format='EEE, dd MMM YYYY') }}</p>
+                <p class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.datetime|datetime(format='dd MMM YYYY') }}</p>
               </div>
             {%- endif -%}
           </div>

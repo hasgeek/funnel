@@ -971,7 +971,8 @@ a.loginbutton.hidden,
   z-index: 4;
   min-width: 270px;
 }
-.dropdown-menu > li > a {
+.dropdown-menu > li > a,
+.dropdown-menu > li > div {
   padding: 16px;
 }
 .dropdown-menu hr {
