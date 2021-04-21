@@ -86,7 +86,7 @@ class SharedProfileMixin:
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self) -> Optional[str]:
-        return Profile.url_for() if self.profile is not None else None
+        return self.profile.url_for() if self.profile is not None else None
 
 
 class USER_STATE(LabeledEnum):  # NOQA: N801
