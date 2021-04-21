@@ -284,7 +284,7 @@
     }
     .project-banner__left {
       width: 67%;
-      margin: 0;
+      margin: 0 $mui-grid-padding 0 0;
       .embed-video-wrapper--shaped {
         border-radius: 16px;
       }
@@ -386,22 +386,7 @@
 }
 
 .about {
-  word-break: break-word;
   padding-bottom: $mui-grid-padding;
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5 {
-    font-weight: 400;
-    font-size: 18px;
-    line-height: 27px;
-  }
-
-  img {
-    width: 100%;
-  }
 }
 
 .tickets-wrapper {
