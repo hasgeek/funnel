@@ -63,11 +63,6 @@
   justify-content: space-between;
 }
 
-.image-wrapper img {
-  max-width: 100%;
-  display: block;
-}
-
 .material-icons {
   display: none;
 }
@@ -976,7 +971,8 @@ a.loginbutton.hidden,
   z-index: 4;
   min-width: 270px;
 }
-.dropdown-menu > li > a {
+.dropdown-menu > li > a,
+.dropdown-menu > li > div {
   padding: 16px;
 }
 .dropdown-menu hr {
@@ -1720,9 +1716,10 @@ a.loginbutton.hidden,
   background: #ffffff;
 }
 
-.sub-navbar {
+.sub-navbar-container--sticky {
   margin-top: 16px;
 }
+
 .sub-navbar .sub-navbar__item {
   display: block;
   padding: 16px;
@@ -1762,6 +1759,7 @@ a.loginbutton.hidden,
     top: 52px;
     order: 1;
     z-index: 3;
+    margin-top: 0;
     margin-bottom: 16px;
   }
 
@@ -3733,7 +3731,7 @@ a.loginbutton.hidden,
   }
   .project-banner .project-banner__left {
     width: 67%;
-    margin: 0;
+    margin: 0 16px 0 0;
   }
   .project-banner .project-banner__left .embed-video-wrapper--shaped {
     border-radius: 16px;
@@ -3825,20 +3823,7 @@ a.loginbutton.hidden,
 }
 
 .about {
-  word-break: break-word;
   padding-bottom: 16px;
-}
-.about h1,
-.about h2,
-.about h3,
-.about h4,
-.about h5 {
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 27px;
-}
-.about img {
-  width: 100%;
 }
 
 .tickets-wrapper .tickets-wrapper__modal {
@@ -4611,15 +4596,16 @@ a.loginbutton.hidden,
 .proposal-list-table tbody > tr > td {
   padding: 0;
 }
-.proposal-list-table tbody > tr:last-child > td {
-  border-radius: 0 0 16px 16px;
-  overflow: hidden;
-}
 .proposal-list-table .ui-sortable-helper .ui-draggable-box {
   width: inherit;
   border: none;
   border-radius: 0;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+}
+
+.page-card .proposal-list-table tbody > tr:last-child > td {
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
 }
 
 .ui-draggable-box .clickable-card {

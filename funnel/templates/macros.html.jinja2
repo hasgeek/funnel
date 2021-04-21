@@ -114,7 +114,7 @@
           {%- endif %}
           {% if current_auth.user.is_site_editor %}
             <li>
-              <a href="javascript:void(0)" class="mui--text-body2 mui--clearfix">
+              <div class="mui--text-body2 mui--clearfix">
               {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--pull-left mui--align-middle') }}
               <span class="mui--pull-right dropdown-menu__form">
                 <span class="mui--d-inlineblock dropdown-menu__form__label">
@@ -127,7 +127,7 @@
                   <label class="switch-label mui--pull-right" for="featured-project"></label>
                 </form>
               </span>
-              </a>
+              </div>
             </li>
           {%- endif %}
         </ul>
@@ -494,10 +494,9 @@
       </div>
     </div>
   </div>
-  <div class="mui-container profile-details">
+  <div class="mui-container profile-details {% if class %}{{ class }}{% endif %}">
     <div class="grid">
       <div class="grid__col-12">
-        <div>
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
           <h2 class="mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
           <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
@@ -511,12 +510,12 @@
         <div>{{ profile.description.html }}</div>
         <div class="mui--visible-xs-block mui--visible-sm-block">
           {% if profile.features.new_project() %}
-            <p class="mui--d-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
+            <div class="mui--d-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></div>
           {% elif profile.features.make_public() %}
-            <p class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
+            <div class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a></div>
           {% endif %}
           {%- if profile.current_roles.admin %}
-            <div class="mui--d-inlineblock {% if profile.features.new_user_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</p></div>
+            <div class="mui--d-inlineblock {% if profile.features.new_user_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</div>
           {% endif %}
         </div>
       </div>
@@ -601,7 +600,7 @@
   </div>
 {% endmacro %}
 
-{%- macro proposal_list(proposals, project='') %}
+{%- macro proposal_list(proposals, project='', css_class='') %}
   <table id="submissions-table" class="proposal-list-table mui-table">
     <tbody>
       {%- with reorderable=project and project.features.reorder_proposals() %}
@@ -609,9 +608,9 @@
         <tr id="{{ proposal.uuid_b58 }}" {%- if reorderable %}class="sortable" data-drag-placeholder="proposal-placeholder" draggable="true"{%- endif %}>
           <td class="js-searchable {%- if reorderable %} label-box label-box--no-border ui-draggable-box{%- endif %}">
             {%- if project and reorderable %}
-              {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project, draggable=true) }}
+              {{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=project, draggable=true) }}
             {%- else %}
-              {{ proposal_card(proposal, full_width=true, details=true, css_class='page-card__card', project=project, draggable=false) }}
+              {{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=project, draggable=false) }}
             {%- endif %}
           </td>
         </tr>
@@ -648,7 +647,7 @@
       <div class="proposal-card__body">
         <div class="label-box__inner">
           {% if not project %}
-            <span class="mui--text-subhead">{{ proposal.project.title }}</span>
+            <p class="mui--text-title margin-bottom">{{ proposal.project.title }}</p>
           {%- elif proposal.speaker -%}
             <div class="user user--smaller">
               <div class="user__box">
@@ -691,7 +690,7 @@
                   <li>
                     {{ proposal.state.label.title }}
                   </li>
-                  <li class="no-border">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</li>
+                  <li class="no-border">{{ proposal.datetime|datetime(format='dd MMM YYYY') }}</li>
                   {% if proposal.video %}
                     <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
                       {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
@@ -720,7 +719,7 @@
               </div>
             {%- else -%}
               <div class="proposal-card__body__inner__headline__info">
-                <p class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.datetime|datetime(format='EEE, dd MMM') }}</p>
+                <p class="mui--text-light mui--text-body2 margin-bottom">{{ proposal.datetime|datetime(format='dd MMM YYYY') }}</p>
               </div>
             {%- endif -%}
           </div>

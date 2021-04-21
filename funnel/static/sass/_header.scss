@@ -440,8 +440,11 @@
   background: $mui-bg-color-primary;
 }
 
-.sub-navbar {
+.sub-navbar-container--sticky {
   margin-top: $mui-grid-padding;
+}
+
+.sub-navbar {
   .sub-navbar__item {
     display: block;
     padding: $mui-grid-padding;
@@ -486,6 +489,7 @@
     top: $mui-header-height;
     order: 1;
     z-index: 3;
+    margin-top: 0;
     margin-bottom: $mui-grid-padding;
   }
 

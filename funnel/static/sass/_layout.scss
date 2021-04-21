@@ -63,11 +63,6 @@
   justify-content: space-between;
 }
 
-.image-wrapper img {
-  max-width: 100%;
-  display: block;
-}
-
 .material-icons {
   display: none;
 }
@@ -1055,7 +1050,8 @@ a.loginbutton.hidden,
 .dropdown-menu {
   z-index: 4;
   min-width: 270px;
-  > li > a {
+  > li > a,
+  > li > div {
     padding: $mui-grid-padding;
   }
   hr {

@@ -150,7 +150,7 @@
   {% endif %}
   <div class="page-card">
     <div class="project-section">
-      <div class="about" id="about">
+      <div class="about markdown" id="about">
         <div>{{ project.description.html }}</div>
         {%- if project.subprojects %}
           <hr class="mui-divider">
@@ -261,7 +261,7 @@
                   </div>
                 {%- endfor %}
               </div>
-            {% else %}
+            {% elif project.banner_video_url.url or project.bg_image.url or project.view_for('edit_livestream').is_available() or project.view_for('update_banner').is_available() %}
               <div class="project-banner__box project-banner__box--banner project-banner__left {% if current_page != 'project' or not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %}">
                 <div class="embed-video-wrapper embed-video-wrapper--shaped">
                   {{ livestream_edit_btn(project) }}
@@ -282,7 +282,7 @@
               </div>
             {% endif %}
             <div class="project-details__box mui--clearfix project-banner__right {% if current_page != 'project' and not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %}">
-              <div class="project-details__box__content project-details__box__title">
+              <div class="top-padding bottom-padding project-details__box__title">
                 <div class="project-banner__profile-details">
                   {%- if project.profile.logo_url.url %}
                     <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
