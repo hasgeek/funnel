@@ -3,7 +3,7 @@ from sqlalchemy.exc import StatementError
 from furl import furl
 import pytest
 
-from funnel.models import Profile
+from funnel.models import ImgeeFurl, Profile
 
 
 def test_profile_urltype_valid(db_session, new_organization):
@@ -27,3 +27,26 @@ def test_profile_urltype_invalid(db_session, new_organization):
 
 def test_validate_name(db_session, new_organization):
     assert Profile.validate_name_candidate(new_organization.profile.name) == 'org'
+
+
+def test_user_avatar(db_session, user_twoflower, user_rincewind):
+    """User.avatar returns a coherent value despite content variations."""
+    # Test fixture has what we need
+    assert user_twoflower.profile is None
+    assert user_rincewind.profile is not None
+    assert user_rincewind.profile.logo_url is None
+    db_session.commit()
+
+    # Now test avatar is Optional[ImgeeFurl]
+    assert user_twoflower.avatar is None
+    assert user_rincewind.avatar is None
+
+    user_rincewind.profile.logo_url = ''
+    db_session.commit()
+    assert str(user_rincewind.profile.logo_url) == ''
+    assert user_rincewind.avatar is None
+
+    user_rincewind.profile.logo_url = 'https://images.example.com/p.jpg'
+    db_session.commit()
+    assert str(user_rincewind.profile.logo_url) == 'https://images.example.com/p.jpg'
+    assert user_rincewind.avatar == ImgeeFurl('https://images.example.com/p.jpg')
