@@ -59,6 +59,10 @@
   align-items: baseline;
 }
 
+.flex-wrapper--center {
+  align-items: center;
+}
+
 .flex-wrapper--space-between {
   justify-content: space-between;
 }
@@ -285,6 +289,10 @@ html.touch .collapsible__body--disable {
 
     .user__box__wrapper {
       height: 40px;
+    }
+
+    a {
+      line-height: 1;
     }
 
     .user__box__gravatar {

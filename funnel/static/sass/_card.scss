@@ -602,6 +602,10 @@
   max-width: 400px;
 }
 
+.card--lessmargin {
+  margin-bottom: $mui-grid-padding;
+}
+
 .card__body {
   .label-edit {
     display: inline-block;
