@@ -3632,6 +3632,11 @@ a.loginbutton.hidden,
   .project-details__box__content--lesspadding {
   padding: 0;
 }
+.project-banner
+  .project-details__box
+  .project-details__box__content--nopadding {
+  padding: 0 !important;
+}
 .project-banner .project-details__box .card__calendar {
   padding: 0;
 }

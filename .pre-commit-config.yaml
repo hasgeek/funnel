@@ -14,7 +14,7 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.7.0
+    rev: v5.8.0
     hooks:
       - id: isort
         additional_dependencies:
@@ -56,12 +56,12 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.790
+    rev: v0.812
     hooks:
       - id: mypy
         additional_dependencies: [sqlalchemy-stubs==0.4]
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 3.9.1
     hooks:
       - id: flake8
         additional_dependencies:

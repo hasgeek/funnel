@@ -379,9 +379,9 @@
                 {{ project_details(project) }}
               </div>
             </div>
-            <p class="mui--text-caption mui--text-light">{% trans %}Hosted by{% endtrans %}</p>
+            <p class="mui--text-subhead mui--text-bold mui--text-light">{% trans %}Hosted by{% endtrans %}</p>
             <div class="card card--shaped">
-              <div class="card__body project-banner">
+              <div class="card__body project-banner margin-bottom">
                 <div class="project-details__box">
                   <div class="project-details__box__content">
                     <div class="project-banner__profile-details">
@@ -389,16 +389,56 @@
                         <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
                           <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
                         </a>
+                      {%- else %}
+                        <div class="user user--smaller">
+                          <div class="user__box">
+                            <a href="{{ project.profile.url_for() }}" class="nounderline">
+                              <div class="user__box__gravatar user__box__gravatar--initials">{{ project.profile.title|initials }}</div>
+                            </a>
+                          </div>
+                        </div>
                       {% endif %}
                       <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                     </div>
                     {% if project.profile.description.html %}
-                      <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(min=200, max=300) }}<a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a></div>
+                      <div class="mui--text-body2 mui--text-light">{{ project.profile.description.html|preview(min=200, max=300) }} <a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a></div>
                     {% endif %}
                   </div>
                 </div>
               </div>
             </div>
+            {% if project.sponsor_memberships %}
+            <p class="mui--text-subhead mui--text-bold top-padding mui--text-light">{% trans %}Supported by{% endtrans %}</p>
+            {%- endif %}
+            {% for sponsor in project.sponsor_memberships %}
+              <div class="card card--shaped">
+                <div class="card__body project-banner margin-bottom">
+                  <div class="project-details__box">
+                    <div class="project-details__box__content">
+                      <div class="project-banner__profile-details">
+                        {%- if sponsor.profile.logo_url.url %}
+                          <a href="{{ sponsor.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
+                            <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
+                          </a>
+                        {%- else %}
+                          <div class="user user--smaller">
+                            <div class="user__box">
+                              <a href="{{ project.profile.url_for() }}" class="nounderline">
+                                <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
+                              </a>
+                            </div>
+                          </div>
+                        {% endif %}
+                        <a href="{{ sponsor.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ sponsor.profile.title }}</a>
+                      </div>
+                      {% if sponsor.profile.description.html %}
+                        <div class="mui--text-body2 mui--text-light">{{ sponsor.profile.description.html|preview(min=200, max=300) }} <a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a></div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
             {% block basecontentcolumninner %}{% endblock %}
           </div>
         </div>
