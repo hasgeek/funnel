@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declared_attr
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
@@ -112,15 +112,18 @@ class SponsorMembership(ReorderMixin, ImmutableProfileMembershipMixin, db.Model)
 
 @reopen(Project)
 class __Project:
-    active_sponsor_memberships = db.relationship(
-        SponsorMembership,
-        lazy='dynamic',
-        primaryjoin=db.and_(
-            SponsorMembership.project_id == Project.id,
-            SponsorMembership.is_active,
+    active_sponsor_memberships = with_roles(
+        db.relationship(
+            SponsorMembership,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                SponsorMembership.project_id == Project.id,
+                SponsorMembership.is_active,
+            ),
+            order_by=SponsorMembership.seq,
+            viewonly=True,
         ),
-        order_by=SponsorMembership.seq,
-        viewonly=True,
+        read={'all'},
     )
 
     sponsors = DynamicAssociationProxy('active_sponsor_memberships', 'profile')
@@ -128,25 +131,31 @@ class __Project:
 
 @reopen(Profile)
 class __Profile:
-    active_sponsor_memberships = db.relationship(
-        SponsorMembership,
-        lazy='dynamic',
-        primaryjoin=db.and_(
-            SponsorMembership.profile_id == Profile.id,
-            SponsorMembership.is_active,
+    active_sponsor_memberships = with_roles(
+        db.relationship(
+            SponsorMembership,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                SponsorMembership.profile_id == Profile.id,
+                SponsorMembership.is_active,
+            ),
+            order_by=SponsorMembership.granted_at.desc(),
+            viewonly=True,
         ),
-        order_by=SponsorMembership.granted_at.desc(),
-        viewonly=True,
+        read={'all'},
     )
 
-    active_sponsor_membership_invites = db.relationship(
-        SponsorMembership,
-        lazy='dynamic',
-        primaryjoin=db.and_(
-            SponsorMembership.profile_id == Profile.id,
-            SponsorMembership.record_type == MEMBERSHIP_RECORD_TYPE.INVITE,  # type: ignore[has-type]
-            SponsorMembership.is_active,
+    active_sponsor_membership_invites = with_roles(
+        db.relationship(
+            SponsorMembership,
+            lazy='dynamic',
+            primaryjoin=db.and_(
+                SponsorMembership.profile_id == Profile.id,
+                SponsorMembership.record_type == MEMBERSHIP_RECORD_TYPE.INVITE,  # type: ignore[has-type]
+                SponsorMembership.is_active,
+            ),
+            order_by=SponsorMembership.granted_at.desc(),
+            viewonly=True,
         ),
-        order_by=SponsorMembership.granted_at.desc(),
-        viewonly=True,
+        read={'admin'},
     )
