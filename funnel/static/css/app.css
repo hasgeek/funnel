@@ -59,6 +59,10 @@
   align-items: baseline;
 }
 
+.flex-wrapper--center {
+  align-items: center;
+}
+
 .flex-wrapper--space-between {
   justify-content: space-between;
 }
@@ -278,6 +282,9 @@ html.touch .collapsible__body--disable {
 }
 .user .user__box .user__box__wrapper {
   height: 40px;
+}
+.user .user__box a {
+  line-height: 1;
 }
 .user .user__box .user__box__gravatar {
   width: 40px;
@@ -865,13 +872,13 @@ a.loginbutton.hidden,
   }
 }
 .circle-icon {
-  display: inline-block;
+  display: inline-flex;
   background: #f9f9f9;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  text-align: center;
-  vertical-align: middle;
+  justify-content: center;
+  align-items: center;
 }
 
 .link-icon {
@@ -3358,6 +3365,10 @@ a.loginbutton.hidden,
 
 .card--small {
   max-width: 400px;
+}
+
+.card--lessmargin {
+  margin-bottom: 16px;
 }
 
 .card__body .label-edit {
