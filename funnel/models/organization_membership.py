@@ -1,16 +1,18 @@
+from typing import Set
+
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
-from .membership_mixin import ImmutableMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin
 from .user import Organization, User
 
 __all__ = ['OrganizationMembership']
 
 
-class OrganizationMembership(ImmutableMembershipMixin, db.Model):
+class OrganizationMembership(ImmutableUserMembershipMixin, db.Model):
     """
     A user can be an administrator of an organization and optionally an owner.
 
@@ -21,7 +23,10 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
 
     __tablename__ = 'organization_membership'
 
-    # List of role columns in this model
+    # Legacy data has no granted_by
+    __null_granted_by__ = True
+
+    #: List of role columns in this model
     __data_columns__ = ('is_owner',)
 
     __roles__ = {
@@ -78,7 +83,7 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
 
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set[str]:
         """Roles offered by this membership record."""
         roles = {'admin'}
         if self.is_owner:

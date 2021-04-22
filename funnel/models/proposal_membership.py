@@ -1,3 +1,5 @@
+from typing import Set
+
 from sqlalchemy.ext.declarative import declared_attr
 
 from werkzeug.utils import cached_property
@@ -6,14 +8,14 @@ from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
-from .membership_mixin import ImmutableMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin
 from .proposal import Proposal
 from .user import User
 
 __all__ = ['ProposalMembership']
 
 
-class ProposalMembership(ImmutableMembershipMixin, db.Model):
+class ProposalMembership(ImmutableUserMembershipMixin, db.Model):
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
@@ -81,7 +83,7 @@ class ProposalMembership(ImmutableMembershipMixin, db.Model):
         return tuple(args)
 
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set[str]:
         """Roles offered by this membership record."""
         roles = set()
         if self.is_reviewer:
