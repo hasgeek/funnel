@@ -517,21 +517,21 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     def getnext(self):
         return (
-            Proposal.query.filter(Proposal.project == self.project)
-            .filter(Proposal.id != self.id)
-            .filter(Proposal._state == self.state.value)
-            .filter(Proposal.created_at < self.created_at)
-            .order_by(db.desc('created_at'))
+            Proposal.query.filter(
+                Proposal.project == self.project,
+                Proposal.seq > self.seq,
+            )
+            .order_by(Proposal.seq.asc())
             .first()
         )
 
     def getprev(self):
         return (
-            Proposal.query.filter(Proposal.project == self.project)
-            .filter(Proposal.id != self.id)
-            .filter(Proposal._state == self.state.value)
-            .filter(Proposal.created_at > self.created_at)
-            .order_by('created_at')
+            Proposal.query.filter(
+                Proposal.project == self.project,
+                Proposal.seq < self.seq,
+            )
+            .order_by(Proposal.seq.desc())
             .first()
         )
 
