@@ -388,6 +388,14 @@
                       <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
                         <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
                       </a>
+                    {%- else %}
+                      <div class="user user--smaller">
+                        <div class="user__box">
+                          <a href="{{ project.profile.url_for() }}" class="nounderline">
+                            <div class="user__box__gravatar user__box__gravatar--initials">{{ project.profile.title|initials }}</div>
+                          </a>
+                        </div>
+                      </div>
                     {% endif %}
                     <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
                   </div>
@@ -409,6 +417,14 @@
                         <a href="{{ sponsor.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
                           <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
                         </a>
+                      {%- else %}
+                        <div class="user user--smaller">
+                          <div class="user__box">
+                            <a href="{{ project.profile.url_for() }}" class="nounderline">
+                              <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
+                            </a>
+                          </div>
+                        </div>
                       {% endif %}
                       <a href="{{ sponsor.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ sponsor.profile.title }}</a>
                     </div>
