@@ -35,7 +35,7 @@ class SponsorMembership(ReorderMixin, ImmutableProfileMembershipMixin, db.Model)
         db.relationship(
             Project,
             backref=db.backref(
-                'sponsor_memberships',
+                'all_sponsor_memberships',
                 lazy='dynamic',
                 cascade='all',
                 passive_deletes=True,
@@ -112,7 +112,7 @@ class SponsorMembership(ReorderMixin, ImmutableProfileMembershipMixin, db.Model)
 
 @reopen(Project)
 class __Project:
-    active_sponsor_memberships = with_roles(
+    sponsor_memberships = with_roles(
         db.relationship(
             SponsorMembership,
             lazy='dynamic',
@@ -126,26 +126,23 @@ class __Project:
         read={'all'},
     )
 
-    sponsors = DynamicAssociationProxy('active_sponsor_memberships', 'profile')
+    sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
 
 
 @reopen(Profile)
 class __Profile:
-    active_sponsor_memberships = with_roles(
-        db.relationship(
-            SponsorMembership,
-            lazy='dynamic',
-            primaryjoin=db.and_(
-                SponsorMembership.profile_id == Profile.id,
-                SponsorMembership.is_active,
-            ),
-            order_by=SponsorMembership.granted_at.desc(),
-            viewonly=True,
+    sponsor_memberships = db.relationship(
+        SponsorMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            SponsorMembership.profile_id == Profile.id,
+            SponsorMembership.is_active,
         ),
-        read={'all'},
+        order_by=SponsorMembership.granted_at.desc(),
+        viewonly=True,
     )
 
-    active_sponsor_membership_invites = with_roles(
+    sponsor_membership_invites = with_roles(
         db.relationship(
             SponsorMembership,
             lazy='dynamic',
