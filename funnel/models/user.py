@@ -70,27 +70,26 @@ class SharedProfileMixin:
 
     @property
     def has_public_profile(self) -> bool:
-        """Return the visibility state of a public profile."""
-        return self.profile is not None and self.profile.state.PUBLIC
+        """Return the visibility state of a profile."""
+        profile = self.profile
+        return profile is not None and bool(profile.state.PUBLIC)
 
     with_roles(has_public_profile, read={'all'}, write={'owner'})
 
     @property
     def avatar(self) -> str:
+        profile = self.profile
         return (
-            self.profile.logo_url
-            if self.profile and self.profile.logo_url and self.profile.logo_url.url
+            profile.logo_url.url
+            if profile is not None and profile.logo_url is not None
             else ''
         )
 
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self) -> Optional[str]:
-        # Use a cast because mypy does not recognise that self.has_public_profile
-        # already asserts `self.profile is not None`
-        return (
-            cast(Profile, self.profile).url_for() if self.has_public_profile else None
-        )
+        profile = self.profile
+        return profile.url_for() if profile is not None else None
 
 
 class USER_STATE(LabeledEnum):  # NOQA: N801
