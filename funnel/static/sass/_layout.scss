@@ -59,6 +59,10 @@
   align-items: baseline;
 }
 
+.flex-wrapper--center {
+  align-items: center;
+}
+
 .flex-wrapper--space-between {
   justify-content: space-between;
 }
@@ -285,6 +289,10 @@ html.touch .collapsible__body--disable {
 
     .user__box__wrapper {
       height: 40px;
+    }
+
+    a {
+      line-height: 1;
     }
 
     .user__box__gravatar {
@@ -942,13 +950,13 @@ a.loginbutton.hidden,
 }
 
 .circle-icon {
-  display: inline-block;
-  background: $mui-bg-color-accent;
+  display: inline-flex;
+  background: #f9f9f9;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  text-align: center;
-  vertical-align: middle;
+  justify-content: center;
+  align-items: center;
 }
 
 .link-icon {
