@@ -30,7 +30,7 @@ from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 from ..typing import OptionalMigratedTables
 from . import BaseMixin, LocaleType, TimezoneType, TSVectorType, UuidMixin, db
 from .email_address import EmailAddress, EmailAddressMixin
-from .helpers import add_search_trigger
+from .helpers import ImgeeFurl, add_search_trigger
 
 __all__ = [
     'USER_STATE',
@@ -77,12 +77,14 @@ class SharedProfileMixin:
     with_roles(has_public_profile, read={'all'}, write={'owner'})
 
     @property
-    def avatar(self) -> str:
+    def avatar(self) -> Optional[ImgeeFurl]:
         profile = self.profile
         return (
-            profile.logo_url.url
-            if profile is not None and profile.logo_url is not None
-            else ''
+            profile.logo_url
+            if profile is not None
+            and profile.logo_url is not None
+            and profile.logo_url.url != ''
+            else None
         )
 
     @with_roles(read={'all'})  # type: ignore[misc]
