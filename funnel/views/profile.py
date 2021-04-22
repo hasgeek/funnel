@@ -320,13 +320,14 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             self.obj.logo_url = None
             db.session.commit()
-            flash(_("The banner image has been removed from this profile"), 'info')
             return render_redirect(self.obj.url_for(), code=303)
         else:
             current_app.logger.error(
                 "CSRF form validation error when removing profile logo."
             )
-            flash(_("There was an issue removing the logo. Try again."), 'error')
+            flash(
+                _("Were you trying to remove the logo? Try again to confirm."), 'error'
+            )
             return render_redirect(self.obj.url_for(), code=303)
 
     @route('update_banner', methods=['GET', 'POST'])
@@ -372,14 +373,14 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             self.obj.banner_image_url = None
             db.session.commit()
-            flash(_("The banner image has been removed from this profile"), 'info')
             return render_redirect(self.obj.url_for(), code=303)
         else:
             current_app.logger.error(
                 "CSRF form validation error when removing profile banner."
             )
             flash(
-                _("There was an issue removing the banner image. Try again."), 'error'
+                _("Were you trying to remove the banner? Try again to confirm."),
+                'error',
             )
             return render_redirect(self.obj.url_for(), code=303)
 

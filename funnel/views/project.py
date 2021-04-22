@@ -432,14 +432,14 @@ class ProjectView(
         if form.validate_on_submit():
             self.obj.bg_image = None
             db.session.commit()
-            flash(_("The banner image has been removed"), 'info')
             return render_redirect(self.obj.url_for(), code=303)
         else:
             current_app.logger.error(
                 "CSRF form validation error when removing project banner."
             )
             flash(
-                _("There was an issue removing the banner image. Try again."), 'error'
+                _("Were you trying to remove the banner? Try again to confirm."),
+                'error',
             )
             return render_redirect(self.obj.url_for(), code=303)
 
