@@ -33,6 +33,7 @@ __all__ = [
     'password_policy',
     'valid_name',
     'valid_username',
+    'ImgeeFurl',
     'ImgeeType',
 ]
 
