@@ -8,7 +8,7 @@ from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
-from .membership_mixin import ImmutableMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
 from .user import User
 
@@ -24,12 +24,15 @@ project_child_role_map: Dict[str, str] = {
 }
 
 
-class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
+class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_crew_membership'
 
-    # List of is_role columns in this model
+    #: Legacy data has no granted_by
+    __null_granted_by__ = True
+
+    #: List of is_role columns in this model
     __data_columns__ = ('is_editor', 'is_promoter', 'is_usher')
 
     __roles__ = {
@@ -110,7 +113,7 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
         return tuple(args)
 
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set[str]:
         """Roles offered by this membership record."""
         roles = set()
         if self.is_editor:

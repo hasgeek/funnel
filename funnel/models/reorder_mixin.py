@@ -31,6 +31,18 @@ class ReorderMixin:
     #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
     query: Query
 
+    @property
+    def parent_scoped_reorder_query_filter(self: Reorderable):
+        """
+        Return a query filter that includes a scope limitation to the parent.
+
+        Used alongside the :attr:`seq` column to retrieve a sequence value. Subclasses
+        may need to override if they have additional criteria relative to the parent,
+        such as needing to exclude revoked membership records.
+        """
+        cls = self.__class__
+        return cls.parent_id == self.parent_id
+
     def reorder_item(self: Reorderable, other: Reorderable, before: bool) -> None:
         """Reorder self before or after other item."""
         cls = self.__class__
@@ -60,7 +72,7 @@ class ReorderMixin:
 
         items_to_reorder = (
             cls.query.filter(
-                cls.parent_id == self.parent_id,
+                self.parent_scoped_reorder_query_filter,
                 cls.seq >= min(self.seq, other.seq),
                 cls.seq <= max(self.seq, other.seq),
             )
@@ -82,9 +94,8 @@ class ReorderMixin:
 
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
-        self.seq = db.select(
-            [db.func.coalesce(db.func.max(cls.seq) + 1, 1)],
-            cls.parent_id == self.parent_id,
+        self.seq = db.select([db.func.coalesce(db.func.max(cls.seq) + 1, 1)]).where(
+            self.parent_scoped_reorder_query_filter
         )
         # Flush it so the db doesn't complain when there's a unique constraint
         db.session.flush()

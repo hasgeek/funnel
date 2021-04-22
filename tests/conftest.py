@@ -320,7 +320,7 @@ def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
 
 
 @pytest.fixture
-def org_citywatch(db_session, user_vetinari, user_vimes):
+def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
     """
     City Watch of Ankh-Morpork (a sub-organization).
 
