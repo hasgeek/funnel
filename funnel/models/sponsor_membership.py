@@ -27,6 +27,35 @@ class SponsorMembership(ReorderMixin, ImmutableProfileMembershipMixin, db.Model)
     __roles__ = {
         'all': {'read': {'urls', 'profile', 'project', 'is_promoted', 'label', 'seq'}}
     }
+    __datasets__ = {
+        'primary': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_promoted',
+            'label',
+            'seq',
+            'profile',
+            'project',
+        },
+        'without_parent': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_promoted',
+            'label',
+            'seq',
+            'profile',
+        },
+        'related': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'is_promoted',
+            'label',
+            'seq',
+        },
+    }
 
     project_id = immutable(
         db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
