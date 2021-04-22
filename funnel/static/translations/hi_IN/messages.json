@@ -1006,9 +1006,6 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
-      "${}": [null, ""],
-      ".": [null, ""],
-      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1281,8 +1278,8 @@
       "Spotlight:": [null, "सुर्खियां:"],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाएं"],
-      "(No labels)": [null, "(कोई लेबल नहीं है)"],
       "Archive": [null, "पुरालेख"],
+      "(No labels)": [null, "(कोई लेबल नहीं है)"],
       "Please review the indicated issues": [
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
@@ -1554,8 +1551,6 @@
       ],
       "Scan badges to check-in": [null, "चेक-इन के लिए बैच स्कैन करें"],
       "Downloads": [null, "डाउनलोड"],
-      "Download JSON": [null, "JSON डाउनलोड करें"],
-      "JSON": [null, "JSON"],
       "View schedule JSON": [null, "कार्यक्रम की JSON फाइल देखें"],
       "Schedule JSON": [null, "कार्यक्रम की JSON फाइल"],
       "Submission guidelines": [null, ""],
@@ -1591,7 +1586,7 @@
         null,
         "%(speaker)s के द्वारा %(date)s पर"
       ],
-      "This is a proposal requesting for someone to present on this topic.\n                    If you’d like to present, leave a comment.": [
+      "This is a proposal requesting for someone to present on this topic. If you’d like to present, leave a comment.": [
         null,
         ""
       ],
@@ -1602,6 +1597,7 @@
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
       "Unscheduled proposals": [null, ""],
+      "Submitted by %(speaker)s": [null, ""],
       "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
@@ -2510,7 +2506,9 @@
       ],
       "Edit profile details": [null, "प्रोफाइल विवरण संपादित करें"],
       "Save logo": [null, "लोगो सेव करें"],
+      "Were you trying to remove the logo? Try again to confirm.": [null, ""],
       "Save banner": [null, "बैनर सेव करें"],
+      "Were you trying to remove the banner? Try again to confirm.": [null, ""],
       "There was a problem saving your changes. Please try again": [
         null,
         "आपके परिवर्तनों को सेव करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
