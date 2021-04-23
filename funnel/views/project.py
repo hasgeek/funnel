@@ -438,7 +438,7 @@ class ProjectView(
                 "CSRF form validation error when removing project banner."
             )
             flash(
-                _("Were you trying to remove the banner? Try again to confirm."),
+                _("Were you trying to remove the banner? Try again to confirm"),
                 'error',
             )
             return render_redirect(self.obj.url_for(), code=303)

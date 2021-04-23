@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-04-22 11:54+0530\n"
+"POT-Creation-Date: 2021-04-23 12:17+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -5324,7 +5324,7 @@ msgid "Save logo"
 msgstr "लोगो सेव करें"
 
 #: funnel/views/profile.py:329
-msgid "Were you trying to remove the logo? Try again to confirm."
+msgid "Were you trying to remove the logo? Try again to confirm"
 msgstr ""
 
 #: funnel/views/profile.py:358 funnel/views/profile.py:363
@@ -5333,7 +5333,7 @@ msgid "Save banner"
 msgstr "बैनर सेव करें"
 
 #: funnel/views/profile.py:382 funnel/views/project.py:441
-msgid "Were you trying to remove the banner? Try again to confirm."
+msgid "Were you trying to remove the banner? Try again to confirm"
 msgstr ""
 
 #: funnel/views/profile.py:399
@@ -7009,4 +7009,10 @@ msgstr "{project} में अपडेट: {update} {url}"
 #~ msgid ""
 #~ "This is a proposal requesting for someone to present on this topic.\n"
 #~ "                    If you’d like to present, leave a comment."
+#~ msgstr ""
+
+#~ msgid "Were you trying to remove the logo? Try again to confirm."
+#~ msgstr ""
+
+#~ msgid "Were you trying to remove the banner? Try again to confirm."
 #~ msgstr ""

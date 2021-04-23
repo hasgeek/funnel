@@ -2506,9 +2506,9 @@
       ],
       "Edit profile details": [null, "प्रोफाइल विवरण संपादित करें"],
       "Save logo": [null, "लोगो सेव करें"],
-      "Were you trying to remove the logo? Try again to confirm.": [null, ""],
+      "Were you trying to remove the logo? Try again to confirm": [null, ""],
       "Save banner": [null, "बैनर सेव करें"],
-      "Were you trying to remove the banner? Try again to confirm.": [null, ""],
+      "Were you trying to remove the banner? Try again to confirm": [null, ""],
       "There was a problem saving your changes. Please try again": [
         null,
         "आपके परिवर्तनों को सेव करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
