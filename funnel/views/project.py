@@ -393,8 +393,10 @@ class ProjectView(
     def update_banner(self):
         form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         edit_logo_url = self.obj.url_for('edit_banner')
+        delete_logo_url = self.obj.url_for('remove_banner')
         return {
             'edit_logo_url': edit_logo_url,
+            'delete_logo_url': delete_logo_url,
             'form': form,
         }
 
@@ -420,6 +422,26 @@ class ProjectView(
             ajax=True,
             template='img_upload_formlayout.html.jinja2',
         )
+
+    @route('remove_banner', methods=['POST'])
+    @render_with(json=True)
+    @requires_login
+    @requires_roles({'editor'})
+    def remove_banner(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.bg_image = None
+            db.session.commit()
+            return render_redirect(self.obj.url_for(), code=303)
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing project banner."
+            )
+            flash(
+                _("Were you trying to remove the banner? Try again to confirm"),
+                'error',
+            )
+            return render_redirect(self.obj.url_for(), code=303)
 
     @route('cfp', methods=['GET', 'POST'])
     @requires_login
