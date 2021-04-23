@@ -1,4 +1,12 @@
-from flask import Response, abort, flash, redirect, render_template, request
+from flask import (
+    Response,
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+)
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -276,8 +284,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def update_logo(self):
         form = ProfileLogoForm(profile=self.obj)
         edit_logo_url = self.obj.url_for('edit_logo_url')
+        delete_logo_url = self.obj.url_for('remove_logo')
         return {
             'edit_logo_url': edit_logo_url,
+            'delete_logo_url': delete_logo_url,
             'form': form,
         }
 
@@ -303,14 +313,35 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             template='img_upload_formlayout.html.jinja2',
         )
 
+    @route('remove_logo', methods=['POST'])
+    @render_with(json=True)
+    @requires_login
+    @requires_roles({'admin'})
+    def remove_logo(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.logo_url = None
+            db.session.commit()
+            return render_redirect(self.obj.url_for(), code=303)
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing profile logo."
+            )
+            flash(
+                _("Were you trying to remove the logo? Try again to confirm"), 'error'
+            )
+            return render_redirect(self.obj.url_for(), code=303)
+
     @route('update_banner', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self):
         form = ProfileBannerForm(profile=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
+        delete_logo_url = self.obj.url_for('remove_banner')
         return {
             'edit_logo_url': edit_logo_url,
+            'delete_logo_url': delete_logo_url,
             'form': form,
         }
 
@@ -335,6 +366,25 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ajax=True,
             template='img_upload_formlayout.html.jinja2',
         )
+
+    @route('remove_banner', methods=['POST'])
+    @requires_login
+    @requires_roles({'admin'})
+    def remove_banner(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.banner_image_url = None
+            db.session.commit()
+            return render_redirect(self.obj.url_for(), code=303)
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing profile banner."
+            )
+            flash(
+                _("Were you trying to remove the banner? Try again to confirm"),
+                'error',
+            )
+            return render_redirect(self.obj.url_for(), code=303)
 
     @route('transition', methods=['POST'])
     @requires_login

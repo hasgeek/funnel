@@ -31,6 +31,7 @@ class ProjectViewMixin(object):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
     SavedProjectForm = SavedProjectForm
+    CsrfForm = forms.Form
 
     def loader(self, profile, project, session=None):
         proj = (
@@ -74,6 +75,7 @@ class ProfileViewMixin(object):
     model = Profile
     route_model_map = {'profile': 'name'}
     SavedProjectForm = SavedProjectForm
+    CsrfForm = forms.Form
 
     def loader(self, profile):
         profile = self.model.get(profile)
