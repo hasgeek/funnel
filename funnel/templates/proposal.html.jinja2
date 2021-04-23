@@ -31,7 +31,7 @@
       <a href="javascript:void(0)" class="mui--text-light" data-mui-toggle="dropdown" aria-label="{% trans %}Proposal menu{% endtrans %}" data-cy="proposal-menu">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
       <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
         {%- if proposal.current_permissions.edit_proposal %}
-          <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
+          <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit submission{% endtrans %}</span></a></li>
           <li><a class="mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video_url" data-cy="edit-proposal-video" aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">
             {%- if proposal.video %}
               {% trans %}Replace video{% endtrans %}
@@ -44,12 +44,12 @@
         {%- endif %}
         {%- if proposal.current_roles.project_editor %}
           <li><a href="{{ proposal.url_for('admin') }}" class="mui--text-subhead" rel="modal:open" aria-label="{% trans %}Editor panel{% endtrans %}" data-cy="editor-panel">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Editor panel{% endtrans %}</span></a></li>
-          <li><a href="javascript:void(0)" class="mui--text-body2 mui--clearfix">
+          <li><div class="mui--text-body2 mui--clearfix js-dropdown-toggle">
               {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--pull-left mui--align-middle') }}
               <span class="mui--pull-right dropdown-menu__form">
                 <span class="mui--d-inlineblock dropdown-menu__form__label">
                   <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
-                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear on the project page{% endtrans %}</span>
+                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear in the overview{% endtrans %}</span>
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
                   {{ csrf_tag() }}
@@ -57,7 +57,7 @@
                   <label class="switch-label mui--pull-right" for="featured-proposal-{{formid}}"></label>
                 </form>
               </span>
-          </a></li>
+          </div></li>
         {%- endif %}
         {% if proposal.state.SCHEDULED %}
           <li><a class="mui--text-subhead"  href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session" aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit session{% endtrans %}</span></a></li>
@@ -232,7 +232,7 @@
             </section>
 
             <section class="proposal__section proposal__section--bleed-x proposal__section--border">
-              <div class="proposal-content">
+              <div class="proposal-content markdown">
                 {{ proposal.body }}
               </div>
             </section>

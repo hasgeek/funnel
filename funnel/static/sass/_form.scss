@@ -302,6 +302,9 @@
         min-height: 56px;
         padding: $mui-grid-padding;
         height: auto;
+        .CodeMirror-sizer {
+          min-height: 29px !important;
+        }
       }
       .CodeMirror ~ .CodeMirror {
         display: none;

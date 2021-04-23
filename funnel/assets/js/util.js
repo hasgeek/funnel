@@ -402,6 +402,10 @@ export const Utils = {
         },
       });
     });
+
+    $('.js-dropdown-toggle').on('click', function (event) {
+      event.stopPropagation();
+    });
   },
   addVegaSupport() {
     if ($('.language-vega-lite').length > 0) {

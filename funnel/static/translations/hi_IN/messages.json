@@ -1523,9 +1523,10 @@
         "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
       ],
       "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
+      "Hosted by": [null, ""],
+      "Supported by": [null, ""],
       "Project overview": [null, ""],
       "Jobs": [null, "नौकरियां"],
-      "Hosted by": [null, ""],
       "Participants": [null, "प्रतिभागी"],
       "%(title)s by %(speaker)s, %(project)s": [
         null,
@@ -1566,11 +1567,12 @@
       ],
       "No videos": [null, ""],
       "Proposal menu": [null, ""],
+      "Edit submission": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
       "Add video": [null, "वीडियो जोड़ें"],
       "Editor panel": [null, ""],
-      "Featured submissions appear on the project page": [null, ""],
+      "Featured submissions appear in the overview": [null, ""],
       "Replace session video": [null, ""],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
       "Up next": [null, "अगला आने वाला"],
@@ -1666,6 +1668,7 @@
       "Login to leave a comment": [null, ""],
       "Post a comment…": [null, "कमेंट पोस्ट करें…"],
       "New comment": [null, ""],
+      "No comments posted yet": [null, ""],
       "edited %s": [null, ""],
       "Reply": [null, ""],
       "Report": [null, ""],
@@ -2632,7 +2635,6 @@
         "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
       ],
       "Your submission has been submitted": [null, ""],
-      "Edit submission": [null, ""],
       "Delete your submission ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,
         ""
