@@ -49,7 +49,7 @@
               <span class="mui--pull-right dropdown-menu__form">
                 <span class="mui--d-inlineblock dropdown-menu__form__label">
                   <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
-                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear on the project page{% endtrans %}</span>
+                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear in the overview{% endtrans %}</span>
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
                   {{ csrf_tag() }}
