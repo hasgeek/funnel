@@ -162,9 +162,7 @@ markdown_content_options['extension_configs']['toc'] = {
     # Make headings link to themselves, for easier sharing
     'anchorlink': True,
     # Add a `h-` prefix to the heading id, to avoid conflict with template identifiers
-    'slugify': lambda value, separator: (
-        'h' + separator + make_name(value, delim=separator)
-    ),
+    'slugify': lambda value, separator: ('h:' + make_name(value, delim=separator)),
 }
 
 # Custom fences must use <pre><code> blocks and not <div> blocks, as linkify will mess
