@@ -157,6 +157,7 @@ markdown_content_options: dict = {
 }
 
 markdown_content_options['extensions'].append('toc')  # Allow a table of contents
+markdown_content_options['extension_configs']['toc'] = {'anchorlink': True}
 
 # Custom fences must use <pre><code> blocks and not <div> blocks, as linkify will mess
 # with links inside <div> blocks
