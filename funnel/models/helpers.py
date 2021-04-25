@@ -156,6 +156,8 @@ markdown_content_options: dict = {
     'extension_configs': deepcopy(default_markdown_extension_configs),
 }
 
+markdown_content_options['extensions'].append('toc')  # Allow a table of contents
+
 # Custom fences must use <pre><code> blocks and not <div> blocks, as linkify will mess
 # with links inside <div> blocks
 markdown_content_options['extension_configs'].setdefault('pymdownx.superfences', {})[
