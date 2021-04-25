@@ -17,6 +17,7 @@ import pymdownx.superfences
 from coaster.utils import (
     default_markdown_extension_configs,
     default_markdown_extensions,
+    make_name,
 )
 
 from ..typing import T
@@ -157,7 +158,14 @@ markdown_content_options: dict = {
 }
 
 markdown_content_options['extensions'].append('toc')  # Allow a table of contents
-markdown_content_options['extension_configs']['toc'] = {'anchorlink': True}
+markdown_content_options['extension_configs']['toc'] = {
+    # Make headings link to themselves, for easier sharing
+    'anchorlink': True,
+    # Add a `h-` prefix to the heading id, to avoid conflict with template identifiers
+    'slugify': lambda value, separator: (
+        'h' + separator + make_name(value, delim=separator)
+    ),
+}
 
 # Custom fences must use <pre><code> blocks and not <div> blocks, as linkify will mess
 # with links inside <div> blocks
