@@ -654,9 +654,6 @@
                 {{ useravatar(proposal.speaker, add_profile_link=false, size='small') }}
                 <div class="user__box__header">
                   <p class="mui--text-caption user__box__fullname">{{ proposal.speaker.fullname }}</p>
-                  {%- if proposal.user != proposal.speaker %}
-                    <p class="mui--text-caption user__box__userid">via {{ proposal.user.pickername }}</p>
-                  {%- endif %}
                 </div>
               </div>
             </div>
