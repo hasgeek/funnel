@@ -3757,10 +3757,11 @@ a.loginbutton.hidden,
   .project-banner .project-banner__right {
     width: 33%;
   }
-  .project-banner .project-banner__left--smaller {
+
+  .project-banner.project-banner--inner .project-banner__left--smaller {
     width: 25%;
   }
-  .project-banner .project-banner__right--smaller {
+  .project-banner.project-banner--inner .project-banner__right--smaller {
     width: 75%;
   }
 }

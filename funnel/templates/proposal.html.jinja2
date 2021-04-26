@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "baseframe/components.html.jinja2" import faicon, alertbox %}
-{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, comments_tree,  project_mini_header, useravatar, share_dropdown, proposal_card, csrf_tag %}
+{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, comments_tree, useravatar, share_dropdown, proposal_card, csrf_tag, project_header %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}{{ proposal.description }}{% endblock %}
@@ -79,7 +79,9 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-xs-12">
-          {{ project_mini_header(project) }}
+          <div class="project-banner project-banner--inner">
+            {{ project_header(project) }}
+          </div>
         </div>
       </div>
     </div>
@@ -263,23 +265,25 @@
 {% endblock %}
 
 {% block footerscripts %}
-<script src="{{ url_for('static', filename=asset_path('proposal')) }}" type="text/javascript"></script>
-<script src="{{ url_for('static', filename=asset_path('comments')) }}" type="text/javascript"></script>
-<script type="text/javascript">
-  $(function() {
-    var commentsConfig = {
-      newCommentUrl: "{{ proposal.commentset.url_for('new_comment') }}",
-      commentsUrl: "{{ proposal.url_for('comments') }}",
-      divElem: "#comments-wrapper",
-      commentTemplate: '#comment-template',
-      isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-      user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
-      loginUrl: "{{ url_for('login') }}",
-      lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
-    };
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('proposal')) }}" type="text/javascript"></script>
+  <script src="{{ url_for('static', filename=asset_path('comments')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var commentsConfig = {
+        newCommentUrl: "{{ proposal.commentset.url_for('new_comment') }}",
+        commentsUrl: "{{ proposal.url_for('comments') }}",
+        divElem: "#comments-wrapper",
+        commentTemplate: '#comment-template',
+        isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
+        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
+        loginUrl: "{{ url_for('login') }}",
+        lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
+      };
 
-    window.Hasgeek.Comments(commentsConfig);
-  });
-</script>
-<script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+      window.Hasgeek.Comments(commentsConfig);
+      window.Hasgeek.ProjectHeaderInit();
+    });
+  </script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
 {% endblock %}

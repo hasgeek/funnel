@@ -541,26 +541,79 @@
 </div>
 {% endmacro %}
 
-{% macro project_mini_header(project) %}
-  <h1 class="mui--text-headline mui--text-bold zero-top-margin"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
-  <p class="mui--text-subhead mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
-  <div>
-  {% if project.features.tickets_or_rsvp() and project.features.rsvp_unregistered() %}
-    <a class="mui-btn mui-btn--primary mui--d-inlineblock" href="{{ project.url_for() }}#tickets">
-      {%- if project.features.tickets() -%}
-        {% if project.boxoffice_data.buy_btn_text -%}
-          {{ project.boxoffice_data.buy_btn_text }}
-        {% else %}
-          {% trans %}Tickets{% endtrans %}
+{% macro livestream_edit_btn(project) %}
+  {% if project.view_for('edit_livestream').is_available() %}
+    <a href="{{ project.url_for('edit_livestream') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn" aria-label="{% trans %}Update livestream URLs{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a>
+  {% endif %}
+{% endmacro %}
+
+{% macro banner_edit_btn(project) %}
+  {% if project.view_for('update_banner').is_available() %}
+    <a href="{{ project.url_for('update_banner') }}" class="mui-btn mui-btn--raised icon-btn project-banner__box__add-btn project-banner__box__add-btn--second js-modal-form" data-cy="add-project-banner" aria-label="{% trans %}Update banner image{% endtrans %}" rel="modal:open" data-ga="Update project banner">{{ faicon(icon='camera', baseline=false) }}</a>
+  {% endif %}
+{% endmacro %}
+
+{% macro project_header(project) %}
+  {% if project.livestream_urls %}
+    <div role="tabpanel" class="livestream-box project-banner__left" id="livestream">
+      {% if project.livestream_urls|length > 2 %}
+      <ul class="mui-tabs__bar project-banner__box" role="tablist">
+        {%- for stream in project.livestream_urls %}
+          <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
+            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}">{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{loop.index}}{% endif %}</a>
+          </li>
+        {%- endfor %}
+      </ul>
+      {% endif %}
+
+      {%- for stream in project.livestream_urls %}
+        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
+          <div class="project-banner__box">
+            {{ livestream_edit_btn(project) }}
+            {{ banner_edit_btn(project) }}
+            <div class="embed-video-wrapper js-embed-video" data-video-src="{{ stream }}">
+              <p class="video_txt">
+                {{ faicon(icon='video', icon_size='display1') }}<br>
+                <a href="{{ stream }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      {%- endfor %}
+    </div>
+  {% elif project.banner_video_url.url or project.bg_image.url or project.view_for('edit_livestream').is_available() or project.view_for('update_banner').is_available() %}
+    <div class="project-banner__box project-banner__box--banner project-banner__left {% if not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %}">
+      <div class="embed-video-wrapper embed-video-wrapper--shaped">
+        {{ livestream_edit_btn(project) }}
+        {{ banner_edit_btn(project) }}
+        {% if project.banner_video_url.url %}
+          <div class="embed-video-wrapper js-embed-video" data-video-src="{{ project.banner_video_url }}">
+            <p class="video_txt">
+              {{ faicon(icon='video', icon_size='display1') }}<br>
+              <a href="{{ project.banner_video_url }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+            </p>
+          </div>
+        {%- elif project.bg_image.url %}
+          <img class="project-banner__box__image" src="{{ project.bg_image.resize(banner_img) }}" alt="{{ project.title }}" data-cy="bg_image"/>
+        {%- else %}
+          <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
         {% endif %}
-      {%- else -%}
-        {% trans %}Attend{% endtrans %}
-      {%- endif %}
-    </a>
+      </div>
+    </div>
   {% endif %}
-  {% if project.cfp_state.OPEN -%}
-    <a class="mui-btn mui-btn--flat mui-btn--nopadding" href="{{ project.url_for('new_proposal') }}">{{ faicon(icon='microphone-alt') }} {% trans %}Make a submission{% endtrans %}</a>
-  {% endif %}
+  <div class="project-details__box mui--clearfix project-banner__right {% if not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %}">
+    <div class="top-padding bottom-padding project-details__box__title">
+      <div class="project-banner__profile-details">
+        {%- if project.profile.logo_url.url %}
+          <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
+            <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+          </a>
+        {% endif %}
+        <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+      </div>
+      <h1 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline">{{ project.title }}</a></h1>
+      <p class="mui--text-heading mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
+    </div>
   </div>
 {% endmacro %}
 

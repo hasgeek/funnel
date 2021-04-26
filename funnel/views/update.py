@@ -14,7 +14,7 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import UpdateForm
+from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
 from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
@@ -94,6 +94,7 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
+    SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, update):
         obj = (

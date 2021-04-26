@@ -1,42 +1,23 @@
-{% extends "layout.html.jinja2" %}
+{% extends "project_layout.html.jinja2" %}
 {% from "baseframe/forms.html.jinja2" import renderform %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import project_mini_header %}
 {%- from "js/update.js.jinja2" import updates_template %}
 {% block title %}{{ update.title }}{% endblock %}
 
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app no-sticky-header">
-  {%- else %}
-    <body class="mui--bg-primary no-sticky-header">
-  {%- endif %}
-{% endblock %}
-
-{% block top_title %}
-  {{ project_mini_header(project) }}
-{% endblock %}
-
-{% block basecontent %}
-  <div class="mui-container">
-    <div class="grid">
-      <div class="grid__col-xs-12">
-        {{ updates_template() }}
-        {% if update.features.publish() %}
-          <div class="publish-form">
-            {{ renderform(form=publish_form, submit="Publish update", action=update.url_for('publish')) }}
-          </div>
-        {% endif %}
+{% block base_content_inner %}
+   <div class="page-card page-card--nomargin">
+    <div class="project-section">
+      {{ updates_template() }}
+      {% if update.features.publish() %}
+        <div class="publish-form">
+          {{ renderform(form=publish_form, submit="Publish update", action=update.url_for('publish')) }}
         </div>
-      </div>
+      {% endif %}
     </div>
   </div>
 {% endblock %}
 
-{% block pagescripts %}
-{% endblock %}
-
 {% block footerscripts %}
+  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
   <script src="{{ url_for('static', filename=asset_path('update')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
@@ -51,6 +32,7 @@
       };
 
       window.Hasgeek.UpdatesInit(updateConfig);
+      window.Hasgeek.ProjectHeaderInit();
     });
   </script>
 {% endblock %}
