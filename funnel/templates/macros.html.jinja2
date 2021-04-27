@@ -123,7 +123,7 @@
                 </span>
                 <form action="{{ project.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
                   {{ csrf_tag() }}
-                  <input type="checkbox" name="featured" id="featured-project" class="switch-input js-toggle" {%- if project.site_featured %}checked{%- endif %}/>
+                  <input type="checkbox" name="site_featured" id="featured-project" class="switch-input js-toggle" {%- if project.site_featured %}checked{%- endif %}/>
                   <label class="switch-label mui--pull-right" for="featured-project"></label>
                 </form>
               </span>

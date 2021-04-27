@@ -723,7 +723,7 @@ class ProjectView(
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()
-            if self.obj.featured:
+            if self.obj.site_featured:
                 return {'status': 'ok', 'message': 'This project has been featured.'}
             else:
                 return {
