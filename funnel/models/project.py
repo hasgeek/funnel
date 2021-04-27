@@ -56,6 +56,7 @@ class CFP_STATE(LabeledEnum):  # NOQA: N801
     NONE = (0, 'none', __("None"))
     PUBLIC = (1, 'public', __("Public"))
     CLOSED = (2, 'closed', __("Closed"))
+    ANY = {NONE, PUBLIC, CLOSED}
     OPENABLE = {NONE, CLOSED}
     EXISTS = {PUBLIC, CLOSED}
 
@@ -346,13 +347,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     cfp_state.add_conditional_state(
         'HAS_PROPOSALS',
-        cfp_state.EXISTS,
+        cfp_state.ANY,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
         label=('has_proposals', __("Has proposals")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
-        cfp_state.EXISTS,
+        cfp_state.ANY,
         lambda project: db.session.query(project.sessions.exists()).scalar(),
         label=('has_sessions', __("Has sessions")),
     )
