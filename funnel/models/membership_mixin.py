@@ -289,7 +289,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
                     cls.parent_id.name,
                     'user_id',
                     unique=True,
-                    postgresql_where=db.text('revoked_at IS NULL'),
+                    postgresql_where=db.column('revoked_at').is_(None),
                 ),
             )
         else:
@@ -298,7 +298,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
                     'ix_' + cls.__tablename__ + '_active',
                     'user_id',
                     unique=True,
-                    postgresql_where=db.text('revoked_at IS NULL'),
+                    postgresql_where=db.column('revoked_at').is_(None),
                 ),
             )
 
@@ -394,7 +394,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
                     cls.parent_id.name,
                     'profile_id',
                     unique=True,
-                    postgresql_where=db.text('revoked_at IS NULL'),
+                    postgresql_where=db.column('revoked_at').is_(None),
                 ),
             )
         else:
@@ -403,7 +403,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
                     'ix_' + cls.__tablename__ + '_active',
                     'profile_id',
                     unique=True,
-                    postgresql_where=db.text('revoked_at IS NULL'),
+                    postgresql_where=db.column('revoked_at').is_(None),
                 ),
             )
 

@@ -182,7 +182,7 @@
 
 {% macro project_details(project) %}
   <div class="project-details__box">
-    {% if project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+    {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
       <div class="project-details__box__content">
         <div aria-label="{{ project.datelocation }}">
           {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
@@ -195,8 +195,8 @@
       </div>
     {% endif %}
     <div>
-      {% if project.view_for('edit_schedule').is_available() and not project.schedule_state.PUBLISHED %}
-        <p class="project-details__box__content--lesspadding"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block propose" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
+      {% if project.view_for('edit_schedule').is_available() and not project.start_at %}
+        <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
       {%- endif %}
       {% if project.cfp_state.OPEN -%}
         <div class="project-details__box__content--lesspadding propose">
@@ -204,7 +204,7 @@
           {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light mui--text-body2">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
         </div>
       {% elif project.view_for('cfp').is_available() -%}
-        <div class="project-details__box__content--lesspadding">
+        <div class="project-details__box__content--lesspadding propose">
           <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark mui--d-block">
             {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
               {% trans %}Open submissions{% endtrans %}
@@ -221,8 +221,6 @@
       {%- endif %}
       {%- if project.primary_venue %}
         <p class="project-venue project-details__box__content--lesspadding"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-ga="View venue">{{ faicon(icon='map-marker-alt') }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
-      {% elif project.view_for('venues').is_available() %}
-        <p class="project-venue project-details__box__content--lesspadding"><a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui--d-block mui-btn--dark">{% trans %}Add venue{% endtrans %}</a></p>
       {%- endif %}
     </div>
   </div>
@@ -251,7 +249,7 @@
       {% endif %}
     </div>
   </div>
-  {% if project.sponsor_memberships %}
+  {%- if project.has_sponsors %}
   <p class="mui--text-subhead mui--text-bold mui--text-light">{% trans %}Supported by{% endtrans %}</p>
   {%- endif %}
   {% for sponsor in project.sponsor_memberships %}
@@ -356,7 +354,7 @@
     </div>
   </div>
 
-  {% if not project.schedule_state.PAST and project.features.tickets() -%}
+  {% if not project.state.PAST and project.features.tickets() -%}
     <div class="tickets-wrapper">
       <div class="tickets-wrapper__modal">
         <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl tickets-wrapper__modal__back mobile-nav-wrapper">
@@ -399,7 +397,7 @@
           {%- if project.current_roles.editor or not project.cfp_state.NONE -%}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'submissions' -%}{{ project.url_for('view_proposals') }}{%- endif %}" data-cy-navbar="submissions">{% trans %}Submissions{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
-          {%- if project.schedule_state.PUBLISHED %}
+          {%- if project.current_roles.editor or project.schedule_start_at or current_page == 'schedule' %}
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- endif %}" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {%- endif %}
           {% if project.has_sessions_with_video %}

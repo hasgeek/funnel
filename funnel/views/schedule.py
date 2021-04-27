@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta
 from time import mktime
+from types import SimpleNamespace
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -15,8 +16,6 @@ from coaster.views import (
     ModelView,
     UrlChangeCheck,
     UrlForView,
-    cors,
-    jsonp,
     render_with,
     requestargs,
     requires_permission,
@@ -25,7 +24,6 @@ from coaster.views import (
 )
 
 from .. import app, funnelapp
-from ..forms import ProjectScheduleTransitionForm
 from ..models import Project, Proposal, Session, VenueRoom, db
 from .decorators import legacy_redirect
 from .helpers import localize_date
@@ -136,7 +134,30 @@ def schedule_ical(project, rsvp=None):
     cal.add('x-published-ttl', 'PT12H')
     for session in project.scheduled_sessions:
         cal.add_component(session_ical(session, rsvp))
+    if not project.scheduled_sessions and project.start_at:
+        cal.add_component(session_ical(project_as_session(project), rsvp))
     return cal.to_ical()
+
+
+def project_as_session(project):
+    """Return a Project as a namespace that resembles a Session object."""
+    return SimpleNamespace(
+        project=project,
+        scheduled=True,
+        uuid_b58=project.uuid_b58,
+        created_at=project.published_at or project.created_at,
+        updated_at=project.updated_at,
+        title=project.title,
+        description=project.description,
+        start_at=project.start_at,
+        start_at_localized=project.start_at_localized,
+        end_at=project.end_at,
+        end_at_localized=project.end_at_localized,
+        location=f'{project.location} - {project.url_for(_external=True)}',
+        venue_room=None,
+        proposal=SimpleNamespace(labels=()),  # Proposal is used to get a permalink
+        url_for=project.url_for,
+    )
 
 
 def session_ical(session, rsvp=None):
@@ -173,17 +194,10 @@ def session_ical(session, rsvp=None):
     # Strangely, these two don't need localization with `astimezone`
     event.add('created', session.created_at)
     event.add('last-modified', session.updated_at)
-    if session.venue_room:
-        location = [session.venue_room.title + " - " + session.venue_room.venue.title]
-        if session.venue_room.venue.city:
-            location.append(session.venue_room.venue.city)
-        if session.venue_room.venue.country:
-            location[len(location) - 1] += ", " + session.venue_room.venue.country
-        else:
-            location.append(session.venue_room.venue.country)
-        event.add('location', "\n".join(location))
-        if session.venue_room.venue.has_coordinates:
-            event.add('geo', session.venue_room.venue.coordinates)
+    if session.location:
+        event.add('location', session.location)
+    if session.venue_room and session.venue_room.venue.has_coordinates:
+        event.add('geo', session.venue_room.venue.coordinates)
     if session.description:
         event.add('description', session.description.text)
     if session.proposal:
@@ -213,7 +227,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @render_with('project_schedule.html.jinja2')
     @requires_roles({'reader'})
     def schedule(self):
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         scheduled_sessions_list = session_list_data(
             self.obj.scheduled_sessions, with_modal_url='view_popup'
         )
@@ -227,7 +240,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             'schedule': schedule_data(
                 self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
             ),
-            'schedule_transition_form': schedule_transition_form,
         }
 
     @route('subscribe')
@@ -236,30 +248,12 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     def subscribe_schedule(self):
         return {'project': self.obj, 'venues': self.obj.venues, 'rooms': self.obj.rooms}
 
-    @route('json')
-    @cors('*')
-    @requires_roles({'reader'})
-    def schedule_json(self):
-        scheduled_sessions_list = session_list_data(self.obj.scheduled_sessions)
-        return jsonp(
-            schedule=schedule_data(
-                self.obj, with_slots=True, scheduled_sessions=scheduled_sessions_list
-            ),
-            venues=[
-                venue.current_access(datasets=('without_parent',))
-                for venue in self.obj.venues
-            ],
-            rooms=[
-                room.current_access(datasets=('without_parent',))
-                for room in self.obj.rooms
-            ],
-        )
-
     @route('ical')
     @requires_roles({'reader'})
     def schedule_ical_download(self):
         return Response(
             schedule_ical(self.obj),
+            mimetype='text/calendar',
             headers={
                 'Content-Disposition': f'attachment;filename='
                 f'"{self.obj.profile.name}-{self.obj.name}.ics"'
@@ -271,7 +265,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @requires_login
     @requires_roles({'editor'})
     def edit_schedule(self):
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         proposals = {
             'unscheduled': [
                 {
@@ -294,18 +287,10 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             'project': self.obj,
             'proposals': proposals,
             'from_date': (
-                localize_timezone(
-                    self.obj.schedule_start_at, tz=self.obj.timezone
-                ).isoformat()
-                if self.obj.schedule_start_at
-                else None
+                self.obj.start_at_localized.isoformat() if self.obj.start_at else None
             ),
             'to_date': (
-                localize_timezone(
-                    self.obj.schedule_end_at, tz=self.obj.timezone
-                ).isoformat()
-                if self.obj.schedule_start_at
-                else None
+                self.obj.end_at_localized.isoformat() if self.obj.end_at else None
             ),
             'timezone': self.obj.timezone.zone,
             'venues': [venue.current_access() for venue in self.obj.venues],
@@ -317,7 +302,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 }
                 for room in self.obj.rooms
             },
-            'schedule_transition_form': schedule_transition_form,
         }
 
     @route('update', methods=['POST'])
@@ -340,6 +324,8 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                     project=self.obj.name,
                     session=session,
                 )
+        self.obj.update_schedule_timestamps()
+        db.session.commit()
         return jsonify(status=True)
 
 

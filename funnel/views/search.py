@@ -82,7 +82,7 @@ search_types = OrderedDict(
                     Profile.state.PUBLIC,
                     Project.state.PUBLISHED,
                     db.or_(
-                        # Search conditions:
+                        # Search conditions. Any of:
                         # 1. Project has search terms
                         Project.search_vector.match(q),
                         # 2. Project's profile (for org) has a match in the org title
@@ -104,18 +104,33 @@ search_types = OrderedDict(
                         ).exists(),
                     ),
                 )
-                # TODO: Replace `schedule_start_at` with a new `nearest_session_at`
+                # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
+                # The existing `next_session_at` is not suitable as it is future-only.
                 # Also add a CHECK constraint on session.start_at/end_at to enforce 24
                 # hour max duration.
                 .order_by(
                     # Order by:
-                    # 1. Projects with schedule (start_at is None == False),
-                    # 2. Projects without schedule (start_at is None == True)
-                    Project.schedule_start_at.is_(None),
+                    # 1. Projects with start_at/published_at (ts is None == False)
+                    # 2. Projects without those (ts is None == True)
+                    db.case(
+                        [(Project.start_at.is_(None), Project.published_at)],
+                        else_=Project.start_at,
+                    ).is_(None),
                     # Second, order by distance from present
                     db.func.abs(
                         db.func.extract(
-                            'epoch', db.func.utcnow() - Project.schedule_start_at
+                            'epoch',
+                            db.func.utcnow()
+                            - db.case(
+                                [
+                                    (Project.start_at.isnot(None), Project.start_at),
+                                    (
+                                        Project.published_at.isnot(None),
+                                        Project.published_at,
+                                    ),
+                                ],
+                                else_=Project.created_at,
+                            ),
                         )
                     ),
                     # Third, order by relevance of search results
@@ -126,15 +141,43 @@ search_types = OrderedDict(
                 .filter(
                     Project.profile == profile,
                     Project.state.PUBLISHED,
-                    Project.search_vector.match(q),
+                    db.or_(
+                        # Search conditions. Any of:
+                        # 1. Project has search terms
+                        Project.search_vector.match(q),
+                        # 2. Update has search terms
+                        Update.query.filter(
+                            Update.project_id == Project.id,
+                            Update.search_vector.match(q),
+                        ).exists(),
+                    ),
                 )
                 .order_by(
-                    Project.schedule_start_at.is_(None),
+                    # Order by:
+                    # 1. Projects with start_at/published_at (ts is None == False)
+                    # 2. Projects without those (ts is None == True)
+                    db.case(
+                        [(Project.start_at.is_(None), Project.published_at)],
+                        else_=Project.start_at,
+                    ).is_(None),
+                    # Second, order by distance from present
                     db.func.abs(
                         db.func.extract(
-                            'epoch', db.func.utcnow() - Project.schedule_start_at
+                            'epoch',
+                            db.func.utcnow()
+                            - db.case(
+                                [
+                                    (Project.start_at.isnot(None), Project.start_at),
+                                    (
+                                        Project.published_at.isnot(None),
+                                        Project.published_at,
+                                    ),
+                                ],
+                                else_=Project.created_at,
+                            ),
                         )
                     ),
+                    # Third, order by relevance of search results
                     db.desc(db.func.ts_rank_cd(Project.search_vector, q)),
                 ),
                 # No project search inside projects:

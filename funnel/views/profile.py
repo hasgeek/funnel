@@ -98,36 +98,44 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
             # `order_by(None)` clears any existing order defined in relationship.
             # We're using it because we want to define our own order here.
+            # listed_projects already includes a filter on Project.state.PUBLISHED
             projects = self.obj.listed_projects.order_by(None)
             all_projects = (
                 projects.filter(
-                    Project.state.PUBLISHED,
                     db.or_(
-                        Project.schedule_state.LIVE, Project.schedule_state.UPCOMING
+                        Project.state.LIVE,
+                        Project.state.UPCOMING,
+                        db.and_(
+                            Project.start_at.is_(None), Project.published_at.isnot(None)
+                        ),
                     ),
                 )
-                .order_by(Project.schedule_start_at.asc())
+                .order_by(Project.order_by_date())
                 .all()
             )
+
             upcoming_projects = all_projects[:3]
             all_projects = all_projects[3:]
             featured_project = (
                 projects.filter(
-                    Project.state.PUBLISHED,
                     db.or_(
-                        Project.schedule_state.LIVE, Project.schedule_state.UPCOMING
+                        Project.state.LIVE,
+                        Project.state.UPCOMING,
+                        db.and_(
+                            Project.start_at.is_(None), Project.published_at.isnot(None)
+                        ),
                     ),
-                    Project.featured.is_(True),
+                    Project.site_featured.is_(True),
                 )
-                .order_by(Project.schedule_start_at.asc())
+                .order_by(Project.order_by_date())
                 .limit(1)
                 .first()
             )
             if featured_project in upcoming_projects:
                 upcoming_projects.remove(featured_project)
             open_cfp_projects = (
-                projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
-                .order_by(Project.schedule_start_at.asc())
+                projects.filter(Project.cfp_state.OPEN)
+                .order_by(Project.order_by_date())
                 .all()
             )
 
@@ -136,7 +144,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             if self.obj.current_roles.admin:
                 draft_projects = self.obj.draft_projects
                 unscheduled_projects = self.obj.projects.filter(
-                    Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS
+                    Project.state.PUBLISHED_WITHOUT_SESSIONS
                 ).all()
             else:
                 draft_projects = self.obj.draft_projects_for(current_auth.user)
@@ -197,9 +205,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
         participated_projects = Project.query.filter(
             Project.state.PUBLISHED,
-            Project.schedule_start_at.isnot(None),
             Project.id.in_(set(participated_project_ids)),
-        ).order_by(Project.schedule_start_at.desc())
+        ).order_by(Project.order_by_date())
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
@@ -234,9 +241,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requestargs(('page', int), ('per_page', int))
     def past_projects_json(self, page=1, per_page=10):
         projects = self.obj.listed_projects.order_by(None)
-        past_projects = projects.filter(
-            Project.state.PUBLISHED, Project.schedule_state.PAST
-        ).order_by(Project.schedule_start_at.desc())
+        past_projects = projects.filter(Project.state.PAST).order_by(
+            Project.order_by_date()
+        )
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {
             'status': 'ok',
@@ -249,9 +256,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'past_projects': [
                 {
                     'title': p.title,
-                    'datetime': date_filter(
-                        p.schedule_end_at_localized, format='dd MMM yyyy'
-                    ),
+                    'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
                     'venue': p.primary_venue.city if p.primary_venue else p.location,
                     'url': p.url_for(),
                 }

@@ -7,7 +7,7 @@ describe('Test comments feature', function () {
   it('Post comment on project page', function () {
     cy.server();
     cy.route('GET', '**/new').as('get-form');
-    cy.route('GET', '**/updates/*').as('fetch-updates');
+    cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
     cy.route('POST', '**/edit').as('edit-comment');
     cy.route('POST', '**/reply').as('reply-comment');
