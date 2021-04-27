@@ -9,7 +9,6 @@
      {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
       <div class="about__details" id="call-for-proposal">
         {%- if project.instructions and project.instructions != "None" %}
-          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Submission guidelines{% endtrans %}</h2>
           <div class="about__details__description bottom-padding">
             {% if project.view_for('cfp').is_available() -%}
               <p>
@@ -53,7 +52,6 @@
   <div class="page-card">
     {% if project.cfp_state.HAS_PROPOSALS -%}
       <div class="project-section" id="submissions">
-        <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
         {%- if project.current_roles.editor %}
           <div>
             <form class="mui-form mui--pull-left search search--50 mui--z1">
