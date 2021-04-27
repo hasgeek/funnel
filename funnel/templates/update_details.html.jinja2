@@ -4,8 +4,8 @@
 {% block title %}{{ update.title }}{% endblock %}
 
 {% block base_content_inner %}
-   <div class="page-card page-card--nomargin">
-    <div class="project-section">
+  <div class="page-card page-card--nomargin left-padding right-padding">
+    <div class="left-padding right-padding">
       {{ updates_template() }}
       {% if update.features.publish() %}
         <div class="publish-form">
