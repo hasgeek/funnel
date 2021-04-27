@@ -93,7 +93,7 @@
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
     <a href="javascript:void(0)" class="hg-link-btn mui--hide left-padding" data-url="{{ project.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
-    {% if project.schedule_state.PUBLISHED %}
+    {% if project.start_at %}
       <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-ga="Add to calendar" data-cy="add-to-calendar">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
     {% endif %}
     {%- if project.current_roles.crew or current_auth.user.is_site_editor -%}
@@ -201,11 +201,11 @@
         <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
       {% endif %}
       {%- if include_calendar%}
-        {% if calendarwidget_compact and project.schedule_state.PUBLISHED and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
+        {% if calendarwidget_compact and project.start_at and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_compact) }}
           </div>
-        {% elif project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+        {% elif project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>

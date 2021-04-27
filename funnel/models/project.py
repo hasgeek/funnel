@@ -60,11 +60,6 @@ class CFP_STATE(LabeledEnum):  # NOQA: N801
     EXISTS = {PUBLIC, CLOSED}
 
 
-class SCHEDULE_STATE(LabeledEnum):  # NOQA: N801
-    DRAFT = (0, 'draft', __("Draft"))
-    PUBLISHED = (1, 'published', __("Published"))
-
-
 # --- Models ------------------------------------------------------------------
 
 
@@ -133,6 +128,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         StateManager.check_constraint('state', PROJECT_STATE),
         default=PROJECT_STATE.DRAFT,
         nullable=False,
+        index=True,
     )
     state = with_roles(
         StateManager('_state', PROJECT_STATE, doc="Project state"), call={'all'}
@@ -143,24 +139,38 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         StateManager.check_constraint('cfp_state', CFP_STATE),
         default=CFP_STATE.NONE,
         nullable=False,
+        index=True,
     )
     cfp_state = with_roles(
         StateManager('_cfp_state', CFP_STATE, doc="CfP state"), call={'all'}
     )
-    _schedule_state = db.Column(
-        'schedule_state',
-        db.Integer,
-        StateManager.check_constraint('schedule_state', SCHEDULE_STATE),
-        default=SCHEDULE_STATE.DRAFT,
-        nullable=False,
+
+    #: Audit timestamp to detect re-publishing to re-surface a project
+    first_published_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of when this project was most recently published
+    published_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        read={'all'},
+        write={'promoter'},
+        datasets={'primary', 'without_parent', 'related'},
     )
-    schedule_state = with_roles(
-        StateManager('_schedule_state', SCHEDULE_STATE, doc="Schedule state"),
-        call={'all'},
+    #: Optional start time for schedule, cached from column property schedule_start_at
+    start_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        read={'all'},
+        write={'editor'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
+    #: Optional end time for schedule, cached from column property schedule_end_at
+    end_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        read={'all'},
+        write={'editor'},
+        datasets={'primary', 'without_parent', 'related'},
     )
 
-    cfp_start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    cfp_start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
+    cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     bg_image = with_roles(
         db.Column(ImgeeType, nullable=True),
@@ -292,40 +302,38 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         },
     }
 
-    schedule_state.add_conditional_state(
+    state.add_conditional_state(
         'PAST',
-        schedule_state.PUBLISHED,
-        lambda project: project.schedule_end_at is not None
-        and utcnow() >= project.schedule_end_at,
-        lambda project: db.func.utcnow() >= project.schedule_end_at,
+        state.PUBLISHED,
+        lambda project: project.end_at is not None and utcnow() >= project.end_at,
+        lambda project: db.func.utcnow() >= project.end_at,
         label=('past', __("Past")),
     )
-    schedule_state.add_conditional_state(
+    state.add_conditional_state(
         'LIVE',
-        schedule_state.PUBLISHED,
+        state.PUBLISHED,
         lambda project: (
-            project.schedule_start_at is not None
-            and project.schedule_start_at <= utcnow() < project.schedule_end_at
+            project.start_at is not None
+            and project.start_at <= utcnow() < project.end_at
         ),
         lambda project: db.and_(
-            project.schedule_start_at <= db.func.utcnow(),
-            db.func.utcnow() < project.schedule_end_at,
+            project.start_at <= db.func.utcnow(),
+            db.func.utcnow() < project.end_at,
         ),
         label=('live', __("Live")),
     )
-    schedule_state.add_conditional_state(
+    state.add_conditional_state(
         'UPCOMING',
-        schedule_state.PUBLISHED,
-        lambda project: project.schedule_start_at is not None
-        and utcnow() < project.schedule_start_at,
-        lambda project: db.func.utcnow() < project.schedule_start_at,
+        state.PUBLISHED,
+        lambda project: project.start_at is not None and utcnow() < project.start_at,
+        lambda project: db.func.utcnow() < project.start_at,
         label=('upcoming', __("Upcoming")),
     )
-    schedule_state.add_conditional_state(
+    state.add_conditional_state(
         'PUBLISHED_WITHOUT_SESSIONS',
-        schedule_state.PUBLISHED,
-        lambda project: project.schedule_start_at is None,
-        lambda project: project.schedule_start_at.is_(None),
+        state.PUBLISHED,
+        lambda project: project.start_at is None,
+        lambda project: project.start_at.is_(None),
         label=('published_without_sessions', __("Published without sessions")),
     )
 
@@ -438,28 +446,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         pass
 
     @with_roles(call={'editor'})
-    @schedule_state.transition(
-        schedule_state.DRAFT,
-        schedule_state.PUBLISHED,
-        title=__("Publish schedule"),
-        message=__("The schedule has been published"),
-        type='success',
-    )
-    def publish_schedule(self):
-        pass
-
-    @with_roles(call={'editor'})
-    @schedule_state.transition(
-        schedule_state.PUBLISHED,
-        schedule_state.DRAFT,
-        title=__("Unpublish schedule"),
-        message=__("The schedule has been moved to draft state"),
-        type='success',
-    )
-    def unpublish_schedule(self):
-        pass
-
-    @with_roles(call={'editor'})
     @state.transition(
         state.PUBLISHABLE,
         state.PUBLISHED,
@@ -468,7 +454,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         type='success',
     )
     def publish(self):
-        pass
+        if not self.first_published_at:
+            self.first_published_at = db.func.utcnow()
+        self.published_at = db.func.utcnow()
 
     @with_roles(call={'editor'})
     @state.transition(
@@ -533,9 +521,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """
         # FIXME: Replace strftime with Babel formatting
         daterange = ''
-        if self.schedule_start_at is not None and self.schedule_end_at is not None:
-            schedule_start_at_date = self.schedule_start_at_localized.date()
-            schedule_end_at_date = self.schedule_end_at_localized.date()
+        if self.start_at is not None and self.end_at is not None:
+            schedule_start_at_date = self.start_at_localized.date()
+            schedule_end_at_date = self.end_at_localized.date()
             daterange_format = '{start_date}–{end_date} {year}'
             if schedule_start_at_date == schedule_end_at_date:
                 # if both dates are same, in case of single day project
@@ -601,6 +589,29 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @cached_property
     def location_geonameid(self):
         return geonameid_from_location(self.location) if self.location else set()
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
+    @cached_property
+    def start_at_localized(self):
+        """Return localized start_at timestamp."""
+        return (
+            localize_timezone(self.start_at, tz=self.timezone)
+            if self.start_at
+            else None
+        )
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
+    @cached_property
+    def end_at_localized(self):
+        """Return localized end_at timestamp."""
+        return localize_timezone(self.end_at, tz=self.timezone) if self.end_at else None
+
+    def update_schedule_timestamps(self):
+        """Update cached timestamps from sessions."""
+        if self.schedule_start_at is not None:
+            self.start_at = self.schedule_start_at
+        if self.schedule_end_at is not None:
+            self.end_at = self.schedule_end_at
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         # TODO: Remove permission system entirely
@@ -670,6 +681,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return self.proposals.count() == 0
 
     @classmethod
+    def order_by_date(cls, desc: bool = True):
+        """
+        Return an order by clause for the project's start_at or published_at.
+
+        param bool desc: Use descending order (default True)
+        """
+        clause = db.case(
+            [(cls.start_at.isnot(None), cls.start_at)], else_=cls.published_at
+        )
+        if desc:
+            return clause.desc()
+        return clause.asc()
+
+    @classmethod
     def all_unsorted(cls, legacy=None):
         """Return query of all published projects, without ordering criteria."""
         projects = cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
@@ -680,19 +705,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @classmethod  # NOQA: A003
     def all(cls, legacy=None):  # NOQA: A003
         """Return all published projects, ordered by date."""
-        return cls.all_unsorted(legacy).order_by(cls.schedule_start_at.desc())
+        return cls.all_unsorted(legacy).order_by(cls.order_by_date())
 
     @classmethod
     def fetch_sorted(cls, legacy=None):
-        currently_listed_projects = cls.query.filter_by(parent_project=None).filter(
-            cls.state.PUBLISHED
-        )
+        currently_listed_projects = cls.query.filter(cls.state.PUBLISHED)
         if legacy is not None:
             currently_listed_projects = currently_listed_projects.join(Profile).filter(
                 Profile.legacy == legacy
             )
         currently_listed_projects = currently_listed_projects.order_by(
-            cls.schedule_start_at.desc()
+            cls.order_by_date()
         )
         return currently_listed_projects
 
@@ -733,7 +756,6 @@ class __Profile:
         lazy='dynamic',
         primaryjoin=db.and_(
             Profile.id == Project.profile_id,
-            Project.parent_id.is_(None),
             Project.state.PUBLISHED,
         ),
         viewonly=True,
@@ -743,8 +765,6 @@ class __Profile:
         lazy='dynamic',
         primaryjoin=db.and_(
             Profile.id == Project.profile_id,
-            # TODO: parent projects are deprecated
-            Project.parent_id.is_(None),
             db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
         ),
         viewonly=True,
@@ -759,8 +779,6 @@ class __Profile:
                 ).filter(
                     # Project is attached to this profile
                     Project.profile_id == self.id,
-                    # Project is not a sub-project (TODO: Deprecated, remove this)
-                    Project.parent_id.is_(None),
                     # Project is in draft state OR has a draft call for proposals
                     db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
                 )
@@ -776,10 +794,8 @@ class __Profile:
                 ).filter(
                     # Project is attached to this profile
                     Project.profile_id == self.id,
-                    # Project is not a sub-project (TODO: Deprecated, remove this)
-                    Project.parent_id.is_(None),
                     # Project is in draft state OR has a draft call for proposals
-                    db.or_(Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS),
+                    db.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
                 )
             ]
         return []

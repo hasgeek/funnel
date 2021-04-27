@@ -1,6 +1,6 @@
 from flask import abort, jsonify, redirect, render_template, request
 
-from baseframe import _, localize_timezone, request_is_xhr
+from baseframe import _, request_is_xhr
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -45,7 +45,7 @@ def rooms_list(project):
     return []
 
 
-def session_form(project, proposal=None, session=None):
+def session_edit(project, proposal=None, session=None):
     # Look for any existing unscheduled session
     if proposal and not session:
         session = Session.for_proposal(proposal)
@@ -89,6 +89,8 @@ def session_form(project, proposal=None, session=None):
             else:
                 db.session.add(session)
         db.session.commit()
+        session.project.update_schedule_timestamps()
+        db.session.commit()
         if request_is_xhr():
             data = {
                 'id': session.url_id,
@@ -124,7 +126,7 @@ class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     @requires_login
     @requires_roles({'editor'})
     def new_session(self):
-        return session_form(self.obj)
+        return session_edit(self.obj)
 
 
 @route('/<project>/sessions', subdomain='<profile>')
@@ -150,17 +152,13 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return {
             'project': self.obj.project,
             'from_date': (
-                localize_timezone(
-                    self.obj.project.schedule_start_at, tz=self.obj.project.timezone
-                ).isoformat()
-                if self.obj.project.schedule_start_at
+                self.obj.project.start_at_localized.isoformat()
+                if self.obj.project.start_at
                 else None
             ),
             'to_date': (
-                localize_timezone(
-                    self.obj.project.schedule_end_at, tz=self.obj.project.timezone
-                ).isoformat()
-                if self.obj.project.schedule_end_at
+                self.obj.project.end_at.localized.isoformat()
+                if self.obj.project.end_at
                 else None
             ),
             'active_session': session_data(self.obj, with_modal_url='view_popup'),
@@ -193,7 +191,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_permission('edit-session')
     def edit(self):
-        return session_form(self.obj.project, session=self.obj)
+        return session_edit(self.obj.project, session=self.obj)
 
     @route('deletesession', methods=['POST'])
     @requires_login
@@ -204,6 +202,8 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.delete(self.obj)
         else:
             self.obj.make_unscheduled()
+        db.session.commit()
+        self.obj.project.update_schedule_timestamps()
         db.session.commit()
         if self.obj.project.features.schedule_no_sessions():
             return jsonify(

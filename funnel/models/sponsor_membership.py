@@ -86,7 +86,15 @@ class SponsorMembership(ReorderMixin, ImmutableProfileMembershipMixin, db.Model)
     is_promoted = immutable(db.Column(db.Boolean, nullable=False))
 
     #: Optional label, indicating the type of sponsor
-    label = immutable(db.Column(db.Unicode, nullable=True))
+    label = immutable(
+        db.Column(
+            db.Unicode,
+            db.CheckConstraint(
+                db.column('label') != '', name='sponsor_membership_label_check'
+            ),
+            nullable=True,
+        )
+    )
 
     # This model does not offer a large text field for promotional messages, since
     # revision control on such a field is a distinct problem from membership
@@ -104,7 +112,7 @@ class SponsorMembership(ReorderMixin, ImmutableProfileMembershipMixin, db.Model)
                 'project_id',
                 'seq',
                 unique=True,
-                postgresql_where=db.text('revoked_at IS NULL'),
+                postgresql_where=db.column('revoked_at').is_(None),
             ),
         )
         return tuple(args)

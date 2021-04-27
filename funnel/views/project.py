@@ -42,7 +42,6 @@ from ..forms import (
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
-    ProjectScheduleTransitionForm,
     ProjectTransitionForm,
     RsvpTransitionForm,
 )
@@ -123,24 +122,24 @@ def get_registration_text(count, registered=False):
 @Project.features('rsvp')
 def feature_project_rsvp(obj):
     return (
-        obj.schedule_state.PUBLISHED
+        obj.state.PUBLISHED
         and (
             obj.boxoffice_data is None
             or 'item_collection_id' not in obj.boxoffice_data
             or not obj.boxoffice_data['item_collection_id']
         )
-        and not obj.schedule_state.PAST
+        and (obj.start_at is None or not obj.state.PAST)
     )
 
 
 @Project.features('tickets')
 def feature_project_tickets(obj):
     return (
-        obj.schedule_state.PUBLISHED
+        obj.start_at is not None
         and obj.boxoffice_data is not None
         and 'item_collection_id' in obj.boxoffice_data
         and obj.boxoffice_data['item_collection_id']
-        and not obj.schedule_state.PAST
+        and not obj.state.PAST
     )
 
 
@@ -163,7 +162,7 @@ def feature_project_deregister(obj):
 
 @Project.features('schedule_no_sessions')
 def feature_project_has_no_sessions(obj):
-    return obj.schedule_state.PUBLISHED and not obj.schedule_start_at
+    return obj.state.PUBLISHED and not obj.start_at
 
 
 @Project.features('comment_new')
@@ -238,7 +237,6 @@ class ProjectView(
     @requires_roles({'reader'})
     def view(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
         featured_proposals = self.obj.proposals.filter_by(featured=True)
@@ -247,7 +245,6 @@ class ProjectView(
             'current_rsvp': current_rsvp,
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
-            'schedule_transition_form': schedule_transition_form,
             'featured_proposals': featured_proposals,
         }
 
@@ -507,26 +504,6 @@ class ProjectView(
             abort(403)
         return redirect(self.obj.url_for('view_proposals'))
 
-    @route('schedule_transition', methods=['POST'])
-    @requires_login
-    @requires_roles({'editor'})
-    def schedule_transition(self):
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        if (
-            schedule_transition_form.validate_on_submit()
-        ):  # check if the provided transition is valid
-            transition = getattr(
-                self.obj.current_access(),
-                schedule_transition_form.schedule_transition.data,
-            )
-            transition()  # call the transition
-            db.session.commit()
-            flash(transition.data['message'], 'success')
-        else:
-            flash(_("Invalid transition for this project's schedule"), 'error')
-            abort(403)
-        return redirect(self.obj.url_for())
-
     @route('rsvp', methods=['POST'])
     @requires_login
     @requires_roles({'reader'})
@@ -708,13 +685,11 @@ class ProjectView(
     @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj,
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
-            'schedule_transition_form': schedule_transition_form,
         }
 
     @route('comments', methods=['GET'])

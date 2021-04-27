@@ -10,9 +10,9 @@ from funnel.models import Organization, Project, ProjectRedirect, Proposal, Sess
 
 
 def test_project_state_conditional(db_session):
-    past_projects = Project.query.filter(Project.schedule_state.PAST).all()
+    past_projects = Project.query.filter(Project.state.PAST).all()
     assert len(past_projects) >= 0
-    upcoming_projects = Project.query.filter(Project.schedule_state.UPCOMING).all()
+    upcoming_projects = Project.query.filter(Project.state.UPCOMING).all()
     assert len(upcoming_projects) >= 0
 
 
@@ -99,17 +99,22 @@ def test_project_dates(db_session, new_project):
     db_session.add(new_session_a)
     db_session.add(new_session_b)
     db_session.commit()
+    new_project.update_schedule_timestamps()
 
     # now project.schedule_start_at will be the first session's start date
     # and project.schedule_end_at will be the last session's end date
     assert new_project.sessions.count() == 2
     assert new_project.schedule_start_at.date() == new_session_a.start_at.date()
     assert new_project.schedule_end_at.date() == new_session_b.end_at.date()
+    assert new_project.start_at.date() == new_session_a.start_at.date()
+    assert new_project.end_at.date() == new_session_b.end_at.date()
 
     # Invalidate property cache
     invalidate_cached_property(new_project, 'datelocation')
     invalidate_cached_property(new_project, 'schedule_start_at_localized')
     invalidate_cached_property(new_project, 'schedule_end_at_localized')
+    invalidate_cached_property(new_project, 'start_at_localized')
+    invalidate_cached_property(new_project, 'end_at_localized')
 
     # both session dates are in same month, hence the format below.
     assert (
@@ -137,11 +142,14 @@ def test_project_dates(db_session, new_project):
         new_project.timezone.localize(datetime(2019, 7, 1, 14, 15, 0))
     )
     db_session.commit()
+    new_project.update_schedule_timestamps()
 
     # Invalidate property cache
     invalidate_cached_property(new_project, 'datelocation')
     invalidate_cached_property(new_project, 'schedule_start_at_localized')
     invalidate_cached_property(new_project, 'schedule_end_at_localized')
+    invalidate_cached_property(new_project, 'start_at_localized')
+    invalidate_cached_property(new_project, 'end_at_localized')
 
     assert new_project.datelocation == "{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
         start_date=new_session_a.start_at.strftime("%d"),
@@ -166,11 +174,14 @@ def test_project_dates(db_session, new_project):
         new_project.timezone.localize(datetime(2019, 6, 28, 14, 15, 0))
     )
     db_session.commit()
+    new_project.update_schedule_timestamps()
 
     # Invalidate property cache
     invalidate_cached_property(new_project, 'datelocation')
     invalidate_cached_property(new_project, 'schedule_start_at_localized')
     invalidate_cached_property(new_project, 'schedule_end_at_localized')
+    invalidate_cached_property(new_project, 'start_at_localized')
+    invalidate_cached_property(new_project, 'end_at_localized')
 
     assert (
         new_project.datelocation
@@ -196,11 +207,14 @@ def test_project_dates(db_session, new_project):
         new_project.timezone.localize(datetime(2019, 1, 1, 14, 15, 0))
     )
     db_session.commit()
+    new_project.update_schedule_timestamps()
 
     # Invalidate property cache
     invalidate_cached_property(new_project, 'datelocation')
     invalidate_cached_property(new_project, 'schedule_start_at_localized')
     invalidate_cached_property(new_project, 'schedule_end_at_localized')
+    invalidate_cached_property(new_project, 'start_at_localized')
+    invalidate_cached_property(new_project, 'end_at_localized')
 
     assert new_project.datelocation == "{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
         start_date=new_session_a.start_at.strftime("%d"),

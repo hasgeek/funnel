@@ -195,6 +195,20 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             else None
         )
 
+    @property
+    def location(self) -> str:
+        """Return location as a formatted string, if available."""
+        loc = []
+        if self.venue_room:
+            loc.append(self.venue_room.title + " - " + self.venue_room.venue.title)
+            if self.venue_room.venue.city:
+                loc.append(self.venue_room.venue.city)
+            if self.venue_room.venue.country:
+                loc.append(self.venue_room.venue.country)
+        elif self.project.location:
+            loc.append(self.project.location)
+        return '\n'.join(loc)
+
     @classmethod
     def for_proposal(cls, proposal, create=False):
         session_obj = cls.query.filter_by(proposal=proposal).first()
@@ -216,9 +230,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
 
     @classmethod
     def all_public(cls):
-        return cls.query.join(Project).filter(
-            Project.state.PUBLISHED, Project.schedule_state.PUBLISHED, cls.scheduled
-        )
+        return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.scheduled)
 
 
 add_search_trigger(Session, 'search_vector')
@@ -402,14 +414,12 @@ class __Project:
                 )
             )
             .join(Session.project)
-            .filter(Project.state.PUBLISHED, Project.schedule_state.PUBLISHED)
+            .filter(Project.state.PUBLISHED)
         )
 
     @with_roles(call={'all'})
     def current_sessions(self):
-        if self.schedule_start_at is None or (
-            self.schedule_start_at > utcnow() + timedelta(minutes=30)
-        ):
+        if self.start_at is None or (self.start_at > utcnow() + timedelta(minutes=30)):
             return
 
         current_sessions = (
