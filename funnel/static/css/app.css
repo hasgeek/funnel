@@ -2932,6 +2932,7 @@ a.loginbutton.hidden,
   flex-wrap: wrap;
   padding: 0;
   position: relative;
+  margin: 0 10px;
 }
 .card__calendar
   .calendar
@@ -3193,7 +3194,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__icon--left {
   position: absolute;
-  left: -4px;
+  left: -16px;
   line-height: 30px;
   height: 36px;
 }
@@ -3203,7 +3204,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__icon--right {
   position: absolute;
-  right: -4px;
+  right: -16px;
   line-height: 30px;
   height: 36px;
 }

@@ -22,6 +22,7 @@ from ..forms import (
     ProposalMoveForm,
     ProposalTransferForm,
     ProposalTransitionForm,
+    SavedProjectForm,
 )
 from ..models import (
     Project,
@@ -144,6 +145,7 @@ FunnelProjectProposalView.init_app(funnelapp)
 @route('/<profile>/<project>/sub/<url_name_uuid_b58>')
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
+    SavedProjectForm = SavedProjectForm
 
     @route('')
     @render_with('proposal.html.jinja2')

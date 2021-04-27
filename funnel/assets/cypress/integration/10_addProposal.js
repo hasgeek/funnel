@@ -9,7 +9,7 @@ describe('Add a new proposal', function () {
   it('Add proposal', function () {
     cy.server();
     cy.route('GET', '**/admin').as('fetch-admin-panel');
-    cy.route('GET', '**/updates/*').as('fetch-updates');
+    cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
 
     cy.login('/' + profile.title, user.username, user.password);

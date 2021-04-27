@@ -233,6 +233,7 @@
         flex-wrap: wrap;
         padding: 0;
         position: relative;
+        margin: 0 10px;
 
         .calendar__weekdays__dates__date {
           position: relative;
@@ -407,13 +408,13 @@
         }
         .calendar__weekdays__dates__icon--left {
           position: absolute;
-          left: -$mui-grid-padding/4;
+          left: -$mui-grid-padding;
           line-height: 30px;
           height: 36px;
         }
         .calendar__weekdays__dates__icon--right {
           position: absolute;
-          right: -$mui-grid-padding/4;
+          right: -$mui-grid-padding;
           line-height: 30px;
           height: 36px;
         }

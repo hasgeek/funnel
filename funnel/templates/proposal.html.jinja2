@@ -1,8 +1,6 @@
-{% extends "layout.html.jinja2" %}
-{% set title_suffix = project.title %}
-{% from "baseframe/components.html.jinja2" import faicon, alertbox %}
-{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, comments_tree, useravatar, share_dropdown, proposal_card, csrf_tag, project_header %}
+{% extends "project_layout.html.jinja2" %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
+{%- from "macros.html.jinja2" import proposal_card %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}{{ proposal.description }}{% endblock %}
 
@@ -74,25 +72,9 @@
   {% endif %}
 {% endmacro %}
 
-{% block contenthead %}
-  <div class="content-head content-head--top-padding mui--bg-primary mui--hidden-xs mui--hidden-sm">
-    <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-xs-12">
-          <div class="project-banner project-banner--inner">
-            {{ project_header(project) }}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
-    <div class="mobile-nav mui--z1">
-      <a href="{{ proposal.project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
-      <div class="mui--pull-right mobile-nav__icon">
-        {{ share_widget(formid='mob') }}
-      </div>
-    </div>
+{% block baseheadline_inner %}
+  <div class="mui--pull-right mobile-nav__icon">
+     {{ share_widget(formid='mob') }}
   </div>
 {% endblock %}
 
