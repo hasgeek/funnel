@@ -110,9 +110,12 @@ search_types = OrderedDict(
                 # hour max duration.
                 .order_by(
                     # Order by:
-                    # 1. Projects with schedule (start_at is None == False),
-                    # 2. Projects without schedule (start_at is None == True)
-                    Project.start_at.is_(None),
+                    # 1. Projects with start_at/published_at (ts is None == False)
+                    # 2. Projects without those (ts is None == True)
+                    db.case(
+                        [(Project.start_at.is_(None), Project.published_at)],
+                        else_=Project.start_at,
+                    ).is_(None),
                     # Second, order by distance from present
                     db.func.abs(
                         db.func.extract(
@@ -150,7 +153,14 @@ search_types = OrderedDict(
                     ),
                 )
                 .order_by(
-                    Project.start_at.is_(None),
+                    # Order by:
+                    # 1. Projects with start_at/published_at (ts is None == False)
+                    # 2. Projects without those (ts is None == True)
+                    db.case(
+                        [(Project.start_at.is_(None), Project.published_at)],
+                        else_=Project.start_at,
+                    ).is_(None),
+                    # Second, order by distance from present
                     db.func.abs(
                         db.func.extract(
                             'epoch',
@@ -167,6 +177,7 @@ search_types = OrderedDict(
                             ),
                         )
                     ),
+                    # Third, order by relevance of search results
                     db.desc(db.func.ts_rank_cd(Project.search_vector, q)),
                 ),
                 # No project search inside projects:
