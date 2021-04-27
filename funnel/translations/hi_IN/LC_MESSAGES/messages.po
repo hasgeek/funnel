@@ -3882,7 +3882,7 @@ msgid "Agenda view"
 msgstr ""
 
 #: funnel/templates/js/schedule.js.jinja2:8
-msgid "Calender view"
+msgid "Calendar view"
 msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:20 funnel/views/proposal.py:213
@@ -6639,7 +6639,7 @@ msgstr "{project} में अपडेट: {update} {url}"
 #~ msgid "Agenda view"
 #~ msgstr "एजेंडा देखें"
 
-#~ msgid "Calender view"
+#~ msgid "Calendar view"
 #~ msgstr "कैलेंडर देखें"
 
 #~ msgid "Read more"
