@@ -163,6 +163,11 @@ class __Project:
         read={'all'},
     )
 
+    @with_roles(read={'all'})
+    @cached_property
+    def has_sponsors(self):
+        return db.session.query(self.sponsor_memberships.exists()).scalar()
+
     sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
 
 

@@ -251,7 +251,7 @@
       {% endif %}
     </div>
   </div>
-  {%- if project.sponsor_memberships|length %}
+  {%- if project.has_sponsors %}
   <p class="mui--text-subhead mui--text-bold mui--text-light">{% trans %}Supported by{% endtrans %}</p>
   {%- endif %}
   {% for sponsor in project.sponsor_memberships %}
