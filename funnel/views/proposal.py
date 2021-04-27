@@ -34,6 +34,7 @@ from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .notification import dispatch_notification
+from .session import session_edit
 
 markdown_message = __(
     'This form uses <a target="_blank" rel="noopener noreferrer"'
@@ -342,8 +343,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_permission('new-session')
     def schedule(self):
-        from .session import session_edit
-
         return session_edit(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])

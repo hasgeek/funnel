@@ -218,7 +218,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or profile admins.
-    featured = with_roles(
+    site_featured = with_roles(
         db.Column(db.Boolean, default=False, nullable=False),
         read={'all'},
         write={'site_editor'},
@@ -615,10 +615,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def update_schedule_timestamps(self):
         """Update cached timestamps from sessions."""
-        if self.schedule_start_at is not None:
-            self.start_at = self.schedule_start_at
-        if self.schedule_end_at is not None:
-            self.end_at = self.schedule_end_at
+        self.start_at = self.schedule_start_at
+        self.end_at = self.schedule_end_at
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         # TODO: Remove permission system entirely

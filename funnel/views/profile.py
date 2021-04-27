@@ -125,7 +125,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                             Project.start_at.is_(None), Project.published_at.isnot(None)
                         ),
                     ),
-                    Project.featured.is_(True),
+                    Project.site_featured.is_(True),
                 )
                 .order_by(Project.order_by_date())
                 .limit(1)

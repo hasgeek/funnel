@@ -48,7 +48,7 @@ class IndexView(ClassView):
                     db.and_(
                         Project.start_at.is_(None),
                         Project.published_at.isnot(None),
-                        Project.featured.is_(True),
+                        Project.site_featured.is_(True),
                     ),
                 ),
             )
@@ -67,7 +67,7 @@ class IndexView(ClassView):
                         Project.start_at.is_(None), Project.published_at.isnot(None)
                     ),
                 ),
-                Project.featured.is_(True),
+                Project.site_featured.is_(True),
             )
             .order_by(Project.next_session_at.asc())
             .limit(1)
