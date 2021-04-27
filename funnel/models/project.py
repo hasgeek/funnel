@@ -262,6 +262,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __table_args__ = (
         db.UniqueConstraint('profile_id', 'name'),
         db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
+        db.CheckConstraint(
+            db.or_(
+                db.and_(start_at.is_(None), end_at.is_(None)),
+                db.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+            ),
+            'project_start_at_end_at_check',
+        ),
     )
 
     __roles__ = {

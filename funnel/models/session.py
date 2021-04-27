@@ -85,7 +85,10 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     __table_args__ = (
         db.UniqueConstraint('project_id', 'url_id'),
         db.CheckConstraint(
-            '("start_at" IS NULL AND "end_at" IS NULL) OR ("start_at" IS NOT NULL AND "end_at" IS NOT NULL)',
+            db.or_(
+                db.and_(start_at.is_(None), end_at.is_(None)),
+                db.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+            ),
             'session_start_at_end_at_check',
         ),
         db.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
