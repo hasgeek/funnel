@@ -196,7 +196,7 @@
     {% endif %}
     <div>
       {% if project.view_for('edit_schedule').is_available() and not project.start_at %}
-        <p class="project-details__box__content--lesspadding"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block propose" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
+        <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
       {%- endif %}
       {% if project.cfp_state.OPEN -%}
         <div class="project-details__box__content--lesspadding propose">
@@ -204,7 +204,7 @@
           {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light mui--text-body2">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
         </div>
       {% elif project.view_for('cfp').is_available() -%}
-        <div class="project-details__box__content--lesspadding">
+        <div class="project-details__box__content--lesspadding propose">
           <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark mui--d-block">
             {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
               {% trans %}Open submissions{% endtrans %}
