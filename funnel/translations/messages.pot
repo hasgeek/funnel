@@ -3753,7 +3753,7 @@ msgid "Agenda view"
 msgstr ""
 
 #: funnel/templates/js/schedule.js.jinja2:8
-msgid "Calender view"
+msgid "Calendar view"
 msgstr ""
 
 #: funnel/templates/js/update.js.jinja2:20 funnel/views/proposal.py:213
