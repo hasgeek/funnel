@@ -61,7 +61,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     def new_proposal(self):
         # This along with the `reader` role makes it possible for
         # anyone to submit a proposal if the CFP is open.
-        if not self.obj.cfp_state.OPEN:
+        if not self.obj.cfp_state.OPEN and not self.obj.current_roles.editor:
             flash(_("This project is not accepting submissions"), 'error')
             return redirect(self.obj.url_for(), code=303)
 
