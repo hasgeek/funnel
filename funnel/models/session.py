@@ -446,24 +446,50 @@ class __Project:
     def calendar_weeks(self, leading_weeks=True):
         # session_dates is a list of tuples in this format -
         # (date, day_start_at, day_end_at, event_count)
-        session_dates = list(
-            db.session.query(
-                db.func.date_trunc(
-                    'day', db.func.timezone(self.timezone.zone, Session.start_at)
-                ).label('date'),
-                db.func.min(Session.start_at).label('day_start_at'),
-                db.func.max(Session.end_at).label('day_end_at'),
-                db.func.count().label('count'),
+        if self.schedule_start_at:
+            session_dates = list(
+                db.session.query(
+                    db.func.date_trunc(
+                        'day', db.func.timezone(self.timezone.zone, Session.start_at)
+                    ).label('date'),
+                    db.func.min(Session.start_at).label('day_start_at'),
+                    db.func.max(Session.end_at).label('day_end_at'),
+                    db.func.count().label('count'),
+                )
+                .select_from(Session)
+                .filter(
+                    Session.project == self,
+                    Session.start_at.isnot(None),
+                    Session.end_at.isnot(None),
+                )
+                .group_by('date')
+                .order_by('date')
             )
-            .select_from(Session)
-            .filter(
-                Session.project == self,
-                Session.start_at.isnot(None),
-                Session.end_at.isnot(None),
-            )
-            .group_by('date')
-            .order_by('date')
-        )
+        elif self.start_at:
+            start_at = self.start_at_localized
+            end_at = self.end_at_localized
+            if start_at.date() == end_at.date():
+                session_dates = [(start_at, start_at, end_at, 1)]
+            else:
+                session_dates = [
+                    (
+                        start_at + timedelta(days=plusdays),
+                        start_at + timedelta(days=plusdays),
+                        end_at - timedelta(days=plusdays),
+                        1,
+                    )
+                    for plusdays in range(
+                        (
+                            end_at.replace(hour=1, minute=0, second=0, microsecond=0)
+                            - start_at.replace(
+                                hour=0, minute=0, second=0, microsecond=0
+                            )
+                        ).days
+                        + 1
+                    )
+                ]
+        else:
+            session_dates = []
 
         session_dates_dict = {
             date.date(): {
