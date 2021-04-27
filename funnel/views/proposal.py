@@ -34,6 +34,7 @@ from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .notification import dispatch_notification
+from .session import session_edit
 
 markdown_message = __(
     'This form uses <a target="_blank" rel="noopener noreferrer"'
@@ -60,7 +61,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
     def new_proposal(self):
         # This along with the `reader` role makes it possible for
         # anyone to submit a proposal if the CFP is open.
-        if not self.obj.cfp_state.OPEN:
+        if not self.obj.cfp_state.OPEN and not self.obj.current_roles.editor:
             flash(_("This project is not accepting submissions"), 'error')
             return redirect(self.obj.url_for(), code=303)
 
@@ -342,9 +343,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_permission('new-session')
     def schedule(self):
-        from .session import session_form
-
-        return session_form(self.obj.project, proposal=self.obj)
+        return session_edit(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])
     @requires_login

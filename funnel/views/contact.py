@@ -159,11 +159,9 @@ class ContactView(ClassView):
                 jsonify(status='error', message="Attendee details not found"), 404
             )
         project = ticket_participant.project
-        if project.schedule_end_at:
+        if project.end_at:
             if (
-                midnight_to_utc(
-                    project.schedule_end_at + timedelta(days=1), project.timezone
-                )
+                midnight_to_utc(project.end_at + timedelta(days=1), project.timezone)
                 < utcnow()
             ):
                 return make_response(

@@ -9,10 +9,10 @@ describe('Confirm proposal', function () {
   it('Confirm proposal', function () {
     cy.server();
     cy.route('GET', '**/admin').as('fetch-admin-panel');
-    cy.route('GET', '**/updates/*').as('fetch-updates');
+    cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
 
-    cy.login('/' + profile.title, editor.username, editor.password);
+    cy.login('/', editor.username, editor.password);
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);

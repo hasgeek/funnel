@@ -59,7 +59,7 @@
               <div class="card__footer">
                 {% if project.cfp_state.OPEN -%}
                   <a href="{{ project.url_for('new_proposal') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Propose a session</a>
-                {%- elif project.schedule_state.PUBLISHED -%}
+                {%- elif project.start_at -%}
                   <a href="{{ project.url_for('schedule') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Schedule</a>
                 {%- elif project.cfp_state.HAS_PROPOSALS -%}
                   <a href="{{ project.url_for('view_proposals') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">Submissions</a>

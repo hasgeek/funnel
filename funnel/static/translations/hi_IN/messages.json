@@ -577,6 +577,10 @@
         "यदि यह प्रोजेक्ट केवल-ऑनलाइन हो, तो “ऑनलाइन” का इस्तेमाल करें"
       ],
       "%(max)d characters maximum": [null, "अधिकतर %(max)d वर्ण"],
+      "Optional - Starting time": [null, ""],
+      "Optional - Ending time": [null, ""],
+      "An ending time is required": [null, ""],
+      "This must be after the starting time": [null, ""],
       "The timezone in which this event occurs": [
         null,
         "वह समय-क्षेत्र जिसमें यह ईवेंट होगा"
@@ -621,7 +625,6 @@
         "जमा करने के प्रक्रिया खुलने से पहले बंद नहीं की जा सकती"
       ],
       "Status": [null, "स्थिति"],
-      "Schedule status": [null, "कार्यक्रम की स्तिथि"],
       "CfP status": [null, "CfP की स्थिति"],
       "Save this project?": [null, "इस प्रोजेक्ट को सहेजें?"],
       "Note to self": [null, "खुद याद रखने की बात"],
@@ -918,13 +921,6 @@
         null,
         "अब प्रस्ताव जमा नहीं किए जा सकते"
       ],
-      "Publish schedule": [null, "समय सूची प्रकाशित करें"],
-      "The schedule has been published": [null, "समय-सूची प्रकाशित कर दी गई"],
-      "Unpublish schedule": [null, "समय सूची को प्रकाशित न करें"],
-      "The schedule has been moved to draft state": [
-        null,
-        "समय सूची को अप्रकाशित कर दिया गया"
-      ],
       "Publish project": [null, "प्रोजेक्ट प्रकाशित करें"],
       "The project has been published": [
         null,
@@ -1006,6 +1002,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated.": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1522,7 +1521,6 @@
         null,
         "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
       ],
-      "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
       "Hosted by": [null, ""],
       "Supported by": [null, ""],
       "Project overview": [null, ""],
@@ -1551,9 +1549,6 @@
         "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
       ],
       "Scan badges to check-in": [null, "चेक-इन के लिए बैच स्कैन करें"],
-      "Downloads": [null, "डाउनलोड"],
-      "View schedule JSON": [null, "कार्यक्रम की JSON फाइल देखें"],
-      "Schedule JSON": [null, "कार्यक्रम की JSON फाइल"],
       "Submission guidelines": [null, ""],
       "Modify guidelines and timing": [null, ""],
       "Modify guidelines": [null, ""],
@@ -1653,6 +1648,7 @@
       "No submissions": [null, "कोई भी सबमिशन नही"],
       "Venues": [null, "ईवेंट का स्थान"],
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
+      "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
       "Add room": [null, "रूम जोड़ें"],
       "Select camera": [null, ""],
@@ -2600,10 +2596,6 @@
       "Invalid transition for this project's CfP": [
         null,
         "इस प्रोजेक्ट के CfP के लिए अमान्य परिवर्तन"
-      ],
-      "Invalid transition for this project's schedule": [
-        null,
-        "इस प्रोजेक्ट के शेड्यूल के लिए अमान्य परिवर्तन"
       ],
       "This response is not valid": [null, "यह प्रतिक्रिया मान्य नहीं है"],
       "You have successfully registered": [

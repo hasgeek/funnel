@@ -14,7 +14,6 @@ __all__ = [
     'ProjectForm',
     'ProjectLivestreamForm',
     'ProjectNameForm',
-    'ProjectScheduleTransitionForm',
     'ProjectTransitionForm',
     'ProjectBannerForm',
     'RsvpTransitionForm',
@@ -60,6 +59,25 @@ class ProjectForm(forms.Form):
         ],
         filters=[forms.filters.strip()],
     )
+    start_at = forms.DateTimeField(
+        __("Optional - Starting time"),
+        validators=[forms.validators.Optional()],
+        naive=False,
+    )
+    end_at = forms.DateTimeField(
+        __("Optional - Ending time"),
+        validators=[
+            forms.validators.RequiredIf(
+                'start_at',
+                message=__("An ending time is required"),
+            ),
+            forms.validators.Optional(),
+            forms.validators.GreaterThanEqualTo(
+                'start_at', __("This must be after the starting time")
+            ),
+        ],
+        naive=False,
+    )
     timezone = forms.SelectField(
         __("Timezone"),
         description=__("The timezone in which this event occurs"),
@@ -93,7 +111,7 @@ class ProjectForm(forms.Form):
 
 @Project.forms('featured')
 class ProjectFeaturedForm(forms.Form):
-    featured = forms.BooleanField(
+    site_featured = forms.BooleanField(
         __("Feature this project"), validators=[forms.validators.InputRequired()]
     )
 
@@ -216,18 +234,6 @@ class ProjectTransitionForm(forms.Form):
 
     def set_queries(self):
         self.transition.choices = list(self.edit_obj.state.transitions().items())
-
-
-@Project.forms('schedule_transition')
-class ProjectScheduleTransitionForm(forms.Form):
-    schedule_transition = forms.SelectField(
-        __("Schedule status"), validators=[forms.validators.DataRequired()]
-    )
-
-    def set_queries(self):
-        self.schedule_transition.choices = list(
-            self.edit_obj.schedule_state.transitions().items()
-        )
 
 
 @Project.forms('cfp_transition')
