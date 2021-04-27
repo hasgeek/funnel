@@ -342,9 +342,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_permission('new-session')
     def schedule(self):
-        from .session import session_form
+        from .session import session_edit
 
-        return session_form(self.obj.project, proposal=self.obj)
+        return session_edit(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])
     @requires_login
