@@ -554,7 +554,11 @@
           {% trans %}Tickets{% endtrans %}
         {% endif %}
       {%- else -%}
-        {% trans %}Attend{% endtrans %}
+        {%- if project.start_at %}
+          {% trans %}Register{% endtrans %}
+        {%- else %}
+          {% trans %}Follow{% endtrans %}
+        {%- endif %}
       {%- endif %}
     </a>
   {% endif %}
