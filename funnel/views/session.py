@@ -157,7 +157,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 else None
             ),
             'to_date': (
-                self.obj.project.end_at.localized.isoformat()
+                self.obj.project.end_at_localized.isoformat()
                 if self.obj.project.end_at
                 else None
             ),
