@@ -60,9 +60,6 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
             session.proposal.url_for(_external=True) if session.proposal else None
         ),
         'proposal': session.proposal.uuid_b58 if session.proposal else None,
-        'feedback_url': (
-            session.url_for('feedback', _external=True) if session.proposal else None
-        ),
         'room': (session.venue_room.scoped_name if session.venue_room else None),
     }
     if with_modal_url:
