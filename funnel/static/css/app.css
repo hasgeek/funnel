@@ -4487,11 +4487,12 @@ a.loginbutton.hidden,
   margin: 16px 0 0;
 }
 .comment .comment__header {
-  display: inline-block;
+  display: flex;
   width: 100%;
+  align-content: center;
 }
-.comment .comment__header button {
-  vertical-align: bottom;
+.comment .comment__header .comment__header__expand {
+  margin-right: 4px;
 }
 .comment .comment__header .mui-btn--nostyle + .mui-btn--nostyle {
   margin-left: 0;

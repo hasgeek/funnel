@@ -48,10 +48,10 @@
           </div>
         </div>
         <div class="comment__header">
-          <button class="mui-btn mui-btn--nostyle" :aria-label="gettext('Hide comment')" aria-expanded="true" v-if="!hide" @click="collapse(true)">
+          <button class="mui-btn mui-btn--nostyle comment__header__expand" :aria-label="gettext('Hide comment')" aria-expanded="true" v-if="!hide" @click="collapse(true)">
             <faicon :icon="'caret-circle-up'" :icon_size="'subhead'"></faicon>
           </button>
-          <button class="mui-btn mui-btn--nostyle" aria-expanded="false" :aria-label="gettext('Collapse comment')" v-else @click="collapse(false)">
+          <button class="mui-btn mui-btn--nostyle comment__header__expand" aria-expanded="false" :aria-label="gettext('Collapse comment')" v-else @click="collapse(false)">
             <faicon :icon="'caret-circle-down'" :icon_size="'subhead'"></faicon>
           </button>
           <div class="comment__header__details user">
