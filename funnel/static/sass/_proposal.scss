@@ -17,9 +17,19 @@
   }
 }
 
+.nav-btn-wrapper {
+  padding: $mui-grid-padding 0;
+}
+
+@media (min-width: 768px) {
+  .nav-btn-wrapper {
+    padding: 0 0 $mui-grid-padding;
+  }
+}
+
 .prev-next-btn-wrapper {
   margin-bottom: 21px;
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 .proposal__section {

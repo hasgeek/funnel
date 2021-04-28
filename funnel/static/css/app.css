@@ -3993,9 +3993,18 @@ a.loginbutton.hidden,
     border-radius: 16px 16px 0 0;
   }
 }
+.nav-btn-wrapper {
+  padding: 16px 0;
+}
+
+@media (min-width: 768px) {
+  .nav-btn-wrapper {
+    padding: 0 0 16px;
+  }
+}
 .prev-next-btn-wrapper {
   margin-bottom: 21px;
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 .proposal__section {
