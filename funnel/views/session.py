@@ -1,4 +1,4 @@
-from flask import abort, jsonify, redirect, render_template, request
+from flask import jsonify, redirect, render_template, request
 
 from baseframe import _, request_is_xhr
 from coaster.auth import current_auth
@@ -8,7 +8,6 @@ from coaster.views import (
     UrlChangeCheck,
     UrlForView,
     render_with,
-    requestargs,
     requires_permission,
     requires_roles,
     route,
@@ -16,16 +15,8 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import SavedSessionForm, SessionForm
-from ..models import (
-    FEEDBACK_AUTH_TYPE,
-    Project,
-    ProposalFeedback,
-    SavedSession,
-    Session,
-    db,
-)
+from ..models import Project, SavedSession, Session, db
 from ..typing import ReturnRenderWith
-from ..utils import abort_null
 from .decorators import legacy_redirect
 from .helpers import localize_date
 from .login_session import requires_login
@@ -215,53 +206,6 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 ),
             )
         return jsonify(status=True, modal_url=modal_url)
-
-    @route('feedback', methods=['POST'])
-    @requires_permission('view')
-    @requestargs(
-        ('id_type', abort_null),
-        ('userid', abort_null),
-        ('content', int),
-        ('presentation', int),
-        ('min_scale', int),
-        ('max_scale', int),
-    )
-    def feedback(
-        self, id_type, userid, content, presentation, min_scale=0, max_scale=2
-    ):
-        if not self.obj.proposal:
-            abort(400)
-        # Process feedback
-        if not min_scale <= content <= max_scale:
-            abort(400)
-        if not min_scale <= presentation <= max_scale:
-            abort(400)
-        if id_type not in ('email', 'deviceid'):
-            abort(400)
-
-        # Was feedback already submitted?
-        feedback = ProposalFeedback.query.filter_by(
-            proposal=self.obj.proposal,
-            auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
-            id_type=id_type,
-            userid=userid,
-        ).first()
-        if feedback is not None:
-            return "Dupe\n", 403
-        else:
-            feedback = ProposalFeedback(
-                proposal=self.obj.proposal,
-                auth_type=FEEDBACK_AUTH_TYPE.NOAUTH,
-                id_type=id_type,
-                userid=userid,
-                min_scale=min_scale,
-                max_scale=max_scale,
-                content=content,
-                presentation=presentation,
-            )
-            db.session.add(feedback)
-            db.session.commit()
-            return "Saved\n", 201
 
     @route('save', methods=['POST'])
     @render_with(json=True)

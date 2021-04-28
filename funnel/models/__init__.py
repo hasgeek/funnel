@@ -37,7 +37,6 @@ from .commentvote import *  # isort:skip
 from .draft import *  # isort:skip
 from .sync_ticket import *  # isort:skip
 from .contact_exchange import *  # isort:skip
-from .feedback import *  # isort:skip
 from .label import *  # isort:skip
 from .profile import *  # isort:skip
 from .project import *  # isort:skip
