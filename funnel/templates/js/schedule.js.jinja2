@@ -3,7 +3,7 @@
     <script type="text/x-template" id="scheduletemplate">
       <div>
         <div class="tabs-wrapper mui--hidden-xs mui--hidden-sm">
-          <div class="tabs">
+          <div class="tabs zero-top-margin">
             <button class="tabs__item" :class="(view === 'agenda') ? 'tabs__item--active' : ''" @click="toggleView($event, 'agenda')">{{ gettext('Agenda view') }}</button>
             <button class="tabs__item" :class="(view === 'calendar') ? 'tabs__item--active' : ''" @click="toggleView($event, 'calendar')">{{ gettext('Calendar view') }}</button>
           </div>

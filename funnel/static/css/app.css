@@ -514,7 +514,7 @@ html.touch .collapsible__body--disable {
 }
 
 .icon-img--smaller,
-.fa-icon--margin {
+.fa-icon--right-margin {
   margin-right: 8px;
 }
 
@@ -2932,7 +2932,7 @@ a.loginbutton.hidden,
   flex-wrap: wrap;
   padding: 0;
   position: relative;
-  margin: 0 10px;
+  margin: 0 4px;
 }
 .card__calendar
   .calendar
@@ -3194,7 +3194,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__icon--left {
   position: absolute;
-  left: -10px;
+  left: -4px;
   line-height: 30px;
   height: 36px;
 }
@@ -3204,7 +3204,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__icon--right {
   position: absolute;
-  right: -10px;
+  right: -4px;
   line-height: 30px;
   height: 36px;
 }
@@ -3993,6 +3993,11 @@ a.loginbutton.hidden,
     border-radius: 16px 16px 0 0;
   }
 }
+.prev-next-btn-wrapper {
+  margin-bottom: 21px;
+  margin-top: 8px;
+}
+
 .proposal__section {
   padding: 16px;
   overflow-wrap: break-word;
