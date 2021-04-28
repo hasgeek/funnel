@@ -3194,7 +3194,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__icon--left {
   position: absolute;
-  left: -16px;
+  left: -10px;
   line-height: 30px;
   height: 36px;
 }
@@ -3204,7 +3204,7 @@ a.loginbutton.hidden,
   .calendar__weekdays__dates
   .calendar__weekdays__dates__icon--right {
   position: absolute;
-  right: -16px;
+  right: -10px;
   line-height: 30px;
   height: 36px;
 }
@@ -4765,7 +4765,7 @@ a.loginbutton.hidden,
   position: -webkit-sticky;
   top: 52px;
   order: 1;
-  z-index: 3;
+  z-index: 2;
   border: none;
   display: flex;
   box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);

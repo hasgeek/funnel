@@ -58,7 +58,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
+      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the home{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project home">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
     </div>
   </div>
   {% if project.features.tickets() or project.features.rsvp() %}
@@ -68,7 +68,31 @@
   {% endif %}
 {% endblock %}
 
-{% block base_content_inner %}
+{% block project_banner_inner %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header">
+    {{ project_details(project) }}
+  </div>
+{% endblock %}
+
+{% block before_navbar %}
+  <div class="mui-container">
+    <div class="grid">
+      <div class="grid__col-sm-12 mui--hidden-md mui--hidden-lg mui--hidden-xl">
+        {{ pinned_update(project) }}
+        {{ project_about(project) }}
+        <div class="top-padding">
+          {{ project_host_sponsor(project) }}
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endblock %}
+
+{% block left_col %}
+  <div class="mui--hidden-xs mui--hidden-sm">
+    {{ pinned_update(project) }}
+    {{ project_about(project) }}
+  </div>
   {% if project.has_featured_proposals %}
     <div class="page-card">
       <div class="project-section" id="submissions">

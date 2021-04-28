@@ -149,7 +149,7 @@
         {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
         <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
       {% endif %}
-      {%- if include_calendar%}
+      {%- if include_calendar %}
         {% if calendarwidget_compact and project.schedule_state.PUBLISHED and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_compact) }}
@@ -159,7 +159,7 @@
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
         {% endif %}
-        <h3 class="card__body__title mui--text-subhead {% if not include_calendar %} card__body__title--smaller {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
+        <h3 class="card__body__title mui--text-subhead {% if not project.schedule_state.PUBLISHED %} card__body__subtitle {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
         <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</p>
         {%- if not current_auth.is_anonymous %}
           {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
@@ -168,8 +168,10 @@
       {% else %}
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
         <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
-        <hr class="separator">
-        {% if project.cfp_end_at_localized %}<p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
+        {% if project.cfp_end_at_localized %}
+          <hr class="separator">
+          <p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>
+        {% endif %}
       {% endif %}
     </div>
   </a>
@@ -558,7 +560,7 @@
   {%- else %}
     {%- set imgsize = 48 %}
   {% endif %}
-  {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}">{% endif %}
+  {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}" class="nounderline">{% endif %}
   {% if user and user.avatar %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}"/>
   {%- else %}
