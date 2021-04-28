@@ -85,7 +85,7 @@
       {%- endfor %}
     </div>
   {% elif project.banner_video_url.url or project.bg_image.url or project.view_for('edit_livestream').is_available() or project.view_for('update_banner').is_available() %}
-    <div class="project-banner__box project-banner__box--banner project-banner__left {% if not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %}">
+    <div class="project-banner__box project-banner__box--banner project-banner__left {% if current_page != 'project' or not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %}">
       <div class="embed-video-wrapper embed-video-wrapper--shaped">
         {{ livestream_edit_btn(project) }}
         {{ banner_edit_btn(project) }}

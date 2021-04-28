@@ -3999,7 +3999,7 @@ a.loginbutton.hidden,
 
 @media (min-width: 768px) {
   .nav-btn-wrapper {
-    padding: 0 0 16px;
+    padding: 0 16px 16px 0;
   }
 }
 .prev-next-btn-wrapper {
@@ -4007,6 +4007,11 @@ a.loginbutton.hidden,
   margin-top: 5px;
 }
 
+@media (min-width: 768px) {
+  .prev-next-btn-wrapper {
+    padding: 0 0 0 16px;
+  }
+}
 .proposal__section {
   padding: 16px;
   overflow-wrap: break-word;

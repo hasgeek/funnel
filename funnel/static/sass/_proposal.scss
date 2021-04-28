@@ -23,13 +23,19 @@
 
 @media (min-width: 768px) {
   .nav-btn-wrapper {
-    padding: 0 0 $mui-grid-padding;
+    padding: 0 $mui-grid-padding $mui-grid-padding 0;
   }
 }
 
 .prev-next-btn-wrapper {
   margin-bottom: 21px;
   margin-top: 5px;
+}
+
+@media (min-width: 768px) {
+  .prev-next-btn-wrapper {
+    padding: 0 0 0 $mui-grid-padding;
+  }
 }
 
 .proposal__section {
