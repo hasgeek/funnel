@@ -12,7 +12,7 @@ describe('Confirm proposal', function () {
     cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
 
-    cy.login('/' + profile.title, editor.username, editor.password);
+    cy.login('/', editor.username, editor.password);
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);

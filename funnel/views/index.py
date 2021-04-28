@@ -42,7 +42,15 @@ class IndexView(ClassView):
         all_projects = (
             projects.filter(
                 Project.state.PUBLISHED,
-                db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
+                db.or_(
+                    Project.state.LIVE,
+                    Project.state.UPCOMING,
+                    db.and_(
+                        Project.start_at.is_(None),
+                        Project.published_at.isnot(None),
+                        Project.site_featured.is_(True),
+                    ),
+                ),
             )
             .order_by(Project.next_session_at.asc())
             .all()
@@ -52,8 +60,14 @@ class IndexView(ClassView):
         featured_project = (
             projects.filter(
                 Project.state.PUBLISHED,
-                db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
-                Project.featured.is_(True),
+                db.or_(
+                    Project.state.LIVE,
+                    Project.state.UPCOMING,
+                    db.and_(
+                        Project.start_at.is_(None), Project.published_at.isnot(None)
+                    ),
+                ),
+                Project.site_featured.is_(True),
             )
             .order_by(Project.next_session_at.asc())
             .limit(1)
@@ -124,9 +138,9 @@ def whoami():
 def past_projects_json(page=1, per_page=10):
     g.profile = None
     projects = Project.all_unsorted(legacy=False)
-    past_projects = projects.filter(
-        Project.state.PUBLISHED, Project.schedule_state.PAST
-    ).order_by(Project.schedule_start_at.desc())
+    past_projects = projects.filter(Project.state.PAST).order_by(
+        Project.start_at.desc()
+    )
     pagination = past_projects.paginate(page=page, per_page=per_page)
     return {
         'status': 'ok',
@@ -137,9 +151,7 @@ def past_projects_json(page=1, per_page=10):
         'past_projects': [
             {
                 'title': p.title,
-                'datetime': date_filter(
-                    p.schedule_end_at_localized, format='dd MMM yyyy'
-                ),
+                'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
                 'venue': p.primary_venue.city if p.primary_venue else p.location,
                 'url': p.url_for(),
             }

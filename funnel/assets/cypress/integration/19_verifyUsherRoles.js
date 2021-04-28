@@ -21,6 +21,5 @@ describe('Verify roles of usher', function () {
     cy.get('a[data-cy="manage-labels"]').should('not.exist');
     cy.get('a[data-cy="setup-ticket-events"]').should('exist');
     cy.get('a[data-cy="scan-checkin"]').should('exist');
-    cy.get('a[data-cy="download-schedule-json"]').should('exist');
   });
 });

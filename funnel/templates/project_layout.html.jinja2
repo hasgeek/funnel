@@ -149,7 +149,7 @@
       {% if not current_auth.is_anonymous %}
         <div>
           {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
-            <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#{{modalid}}-register-modal" id="{{modalid}}-register-btn">{% trans %}Register{% endtrans %}</a>
+            <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#{{modalid}}-register-modal" id="{{modalid}}-register-btn">{% if project.start_at %}{% trans %}Register{% endtrans %}{% else %}{% trans %}Follow{% endtrans %}{% endif %}</a>
             <div class="modal" id="{{modalid}}-register-modal">
               <div class="modal__header">
                 <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
@@ -298,7 +298,7 @@
 
 {% macro project_details(project) %}
   <div class="project-details__box">
-    {% if project.schedule_state.PUBLISHED and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+    {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
       <div class="project-details__box__content">
         <div aria-label="{{ project.datelocation }}">
           {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
@@ -311,8 +311,8 @@
       </div>
     {% endif %}
     <div>
-      {% if project.view_for('edit_schedule').is_available() and not project.schedule_state.PUBLISHED %}
-        <p class="project-details__box__content--lesspadding"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block propose" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
+      {% if project.view_for('edit_schedule').is_available() and not project.start_at %}
+        <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
       {%- endif %}
       {% if project.cfp_state.OPEN -%}
         <div class="project-details__box__content--lesspadding propose">
@@ -320,7 +320,7 @@
           {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light mui--text-body2">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
         </div>
       {% elif project.view_for('cfp').is_available() -%}
-        <div class="project-details__box__content--lesspadding">
+        <div class="project-details__box__content--lesspadding propose">
           <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark mui--d-block">
             {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
               {% trans %}Open submissions{% endtrans %}
@@ -337,8 +337,6 @@
       {%- endif %}
       {%- if project.primary_venue %}
         <p class="project-venue project-details__box__content--lesspadding"><a class="mui--text-hyperlink mui--text-subhead {% if current_page == 'project' %}js-smooth-scroll{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#venue" data-ga="View venue">{{ faicon(icon='map-marker-alt') }} <span>{{ project.primary_venue.title }}</span>{%- if project.primary_venue.city %}, <span>{{ project.primary_venue.city }}</span>{%- endif %}</a></p>
-      {% elif project.view_for('venues').is_available() %}
-        <p class="project-venue project-details__box__content--lesspadding"><a href="{{ project.url_for('venues') }}" class="mui-btn mui-btn--raised mui--d-block mui-btn--dark">{% trans %}Add venue{% endtrans %}</a></p>
       {%- endif %}
     </div>
   </div>
@@ -367,7 +365,7 @@
       {% endif %}
     </div>
   </div>
-  {% if project.sponsor_memberships %}
+  {%- if project.has_sponsors %}
   <p class="mui--text-subhead mui--text-bold mui--text-light">{% trans %}Supported by{% endtrans %}</p>
   {%- endif %}
   {% for sponsor in project.sponsor_memberships %}
@@ -410,7 +408,7 @@
       </div>
     </div>
 
-    {% if not project.schedule_state.PAST and project.features.tickets() -%}
+    {% if not project.state.PAST and project.features.tickets() -%}
       <div class="tickets-wrapper">
         <div class="tickets-wrapper__modal">
           <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl tickets-wrapper__modal__back mobile-nav-wrapper">

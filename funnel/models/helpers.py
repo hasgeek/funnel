@@ -161,7 +161,7 @@ markdown_content_options['extensions'].append('toc')  # Allow a table of content
 markdown_content_options['extension_configs']['toc'] = {
     # Make headings link to themselves, for easier sharing
     'anchorlink': True,
-    # Add a `h-` prefix to the heading id, to avoid conflict with template identifiers
+    # Add a `h:` prefix to the heading id, to avoid conflict with template identifiers
     'slugify': lambda value, separator: ('h:' + make_name(value, delim=separator)),
 }
 
