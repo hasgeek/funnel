@@ -72,12 +72,12 @@
   {% endif %}
 {% endmacro %}
 
-{% macro prev_next_btn(proposal, css_class='') %}
+{% macro prev_next_btn(proposal, prev_icon='caret-left-solid', next_icon='caret-right-solid') %}
   {%- if proposal.getprev() -%}
-    <a href="{{ proposal.getprev().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline {% if css_class %}{{ css_class }}{%- endif %}">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--right-margin") }}{% trans %}Previous{% endtrans %}</a>
+    <a href="{{ proposal.getprev().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline right-padding">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--right-margin") }}{% trans %}Previous{% endtrans %}</a>
   {%- endif -%}
   {%- if proposal.getnext() -%}
-    <a href="{{ proposal.getnext().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline {% if css_class %}{{ css_class }}{%- endif %}">{% trans %}Next{% endtrans %}{{ faicon(icon='caret-right-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a>
+    <a href="{{ proposal.getnext().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{% trans %}Next{% endtrans %}{{ faicon(icon=next_icon, icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a>
   {%- endif -%}
 {% endmacro %}
 
@@ -93,7 +93,7 @@
   <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
     <a class="mui-btn mui-btn--small mui-btn--raised zero-top-margin zero-bottom-margin" href="{{ project.url_for('view_proposals') }}">{% trans %}All submissions{% endtrans %}</a>
     <div class="mui--visible-xs-block mui--visible-sm-block">
-      {{ prev_next_btn(proposal, css_class='right-padding') }}
+      {{ prev_next_btn(proposal) }}
     </div>
     <div class="mui--hidden-xs mui--hidden-sm">
       {{ share_widget(formid='desktop', icon_size='subhead') }}
@@ -186,7 +186,7 @@
         </div>
       {% endif %}
     </div>
-    <section class="proposal__section grid__col--bleed-y">
+    <section class="proposal__section">
       <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
         {%- if proposal.speaker %}
           <div class="user mui--pull-left">
@@ -223,23 +223,22 @@
           {%- endfor %}
         {% endif %}
       </div>
-    </section>
-
-    <section class="proposal__section proposal__section--bleed-x">
-      <div class="proposal-content markdown">
+      <div class="proposal-content markdown top-padding">
         {{ proposal.body }}
       </div>
     </section>
   </div>
 
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl flex-wrapper flex-wrapper--center flex-wrapper--space-between top-padding bottom-padding">
+  <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
     <a class="mui-btn mui-btn--small mui-btn--raised zero-top-margin zero-bottom-margin" href="{{ project.url_for('view_proposals') }}">{% trans %}All submissions{% endtrans %}</a>
-    {{ prev_next_btn(proposal) }}
+    <div>
+      {{ prev_next_btn(proposal) }}
+    </div>
   </div>
 
   <div class="page-card page-card--nomargin">
     <section class="proposal__section">
-      <h3 id="comments" class="mui--text-title mui--text-bold">{% trans %}Comments{% endtrans %}</h3>
+      <h3 id="comments" class="mui--text-title mui--text-bold zero-top-margin">{% trans %}Comments{% endtrans %}</h3>
       {{ comments_tree() }}
       {{ comment_template() }}
     </section>
@@ -249,12 +248,7 @@
 {% block right_col %}
   <div class="mui--hidden-xs mui--hidden-sm grid__col-sm-6 grid__col-md-5 grid__col-lg-4">
     <div class="flex-wrapper flex-wrapper--center prev-next-btn-wrapper">
-      {%- if proposal.getprev() -%}
-        <a href="{{ proposal.getprev().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline right-padding">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--right-margin") }}{% trans %}Previous{% endtrans %}</a>
-      {%- endif -%}
-      {%- if proposal.getnext() -%}
-        <a href="{{ proposal.getnext().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{% trans %}Next{% endtrans %}{{ faicon(icon='caret-down-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle fa-icon--left-margin") }}</a>
-      {%- endif -%}
+      {{ prev_next_btn(proposal, prev_icon='caret-left-solid', next_icon='caret-down-solid') }}
     </div>
     {%- if proposal.getnext() -%}
       {{ proposal_card(proposal.getnext(), project=project) }}

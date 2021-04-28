@@ -30,7 +30,7 @@
         </form>
         <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
       </div>
-      <ul class="mui-list--unstyled comment-wrapper" v-for="comment in comments">
+      <ul class="mui-list--unstyled comment-wrapper zero-bottom-margin" v-for="comment in comments">
         <comment :comment="comment" :user='user' :isuserloggedin="isuserloggedin"></comment>
       </ul>
       <p v-if="comments.length == 0" class="mui--hidden-md mui--hidden-lg mui--hidden-xl">{{ gettext('No comments posted yet') }}</p>
