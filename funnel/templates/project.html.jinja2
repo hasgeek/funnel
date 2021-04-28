@@ -97,8 +97,8 @@
     <div class="page-card">
       <div class="project-section" id="submissions">
         <div class="project-section__headline">
-          <h2 class="project-section__headline mui--text-left zero-top-margin zero-bottom-margin">{% trans %}Submissions{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--raised zero-top-margin zero-bottom-margin" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
+          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
@@ -116,7 +116,7 @@
       <div class="project-section" id="sessions">
         <div class="project-section__headline">
           <h2 class="mui--text-left zero-top-margin">{% trans %}Sessions{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--raised" href="{{ project.url_for('schedule') }}">{% trans %}See all{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('schedule') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
@@ -157,8 +157,8 @@
    <div class="page-card">
       <div class="project-section" id="videos">
         <div class="project-section__headline" id="videos">
-          <h2 class="mui--text-left zero-top-margin zero-top-margin zero-bottom-margin">{% trans %}Videos{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--raised zero-top-margin zero-bottom-margin" href="{{ project.url_for('session_videos') }}">{% trans %}See all{% endtrans %}</a>
+          <h2 class="mui--text-left zero-top-margin zero-top-margin">{% trans %}Videos{% endtrans %}</h2>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('session_videos') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <div class="grid top-padding">
