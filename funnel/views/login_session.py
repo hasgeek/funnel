@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Type
+from typing import Optional, Type
 
 from flask import (
     Response,
@@ -16,6 +16,8 @@ from flask import (
 )
 import itsdangerous
 
+import geoip2.errors
+
 from baseframe import _, request_is_xhr, statsd
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
@@ -25,6 +27,7 @@ from coaster.views import get_current_url
 from .. import app, funnelapp, lastuserapp
 from ..forms import PasswordForm
 from ..models import (
+    AuthClient,
     AuthClientCredential,
     User,
     UserSession,
@@ -162,7 +165,12 @@ LoginManager.usermanager = LoginManager
 
 
 @UserSession.views('mark_accessed')
-def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
+def session_mark_accessed(
+    obj: UserSession,
+    auth_client: Optional[AuthClient] = None,
+    ipaddr: Optional[str] = None,
+    user_agent: Optional[str] = None,
+):
     """
     Mark a session as currently active.
 
@@ -177,7 +185,7 @@ def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
         if auth_client:
             if (
                 auth_client not in obj.auth_clients
-            ):  # self.auth_clients is defined via Client.user_sessions
+            ):  # self.auth_clients is defined via AuthClient.user_sessions
                 obj.auth_clients.append(auth_client)
             else:
                 # If we've seen this client in this session before, only update the
@@ -189,12 +197,40 @@ def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
                     .values(accessed_at=db.func.utcnow())
                 )
         else:
-            obj.ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
-            obj.user_agent = (
+            ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
+            # Attempt to save geonameid and ASN from IP address
+            try:
+                if app.geoip_city is not None and (
+                    obj.geonameid_city is None or ipaddr != obj.ipaddr
+                ):
+                    city_lookup = app.geoip_city.city(ipaddr)
+                    obj.geonameid_city = city_lookup.city.geoname_id
+                    obj.geonameid_subdivision = (
+                        city_lookup.subdivisions.most_specific.geoname_id
+                    )
+                    obj.geonameid_country = city_lookup.country.geoname_id
+            except (ValueError, geoip2.errors.GeoIP2Error):
+                obj.geonameid_city = None
+                obj.geonameid_subdivision = None
+                obj.geonameid_country = None
+            try:
+                if app.geoip_asn is not None and (
+                    obj.geoip_asn is None or ipaddr != obj.ipaddr
+                ):
+                    asn_lookup = app.geoip_asn.asn(ipaddr)
+                    obj.geoip_asn = asn_lookup.autonomous_system_number
+            except (ValueError, geoip2.errors.GeoIP2Error):
+                obj.geoip_asn = None
+            # Save IP address and user agent if they've changed
+            if ipaddr != obj.ipaddr:
+                obj.ipaddr = ipaddr
+            user_agent = (
                 (str(request.user_agent.string[:250]) or '')
                 if user_agent is None
                 else user_agent
             )
+            if user_agent != obj.user_agent:
+                obj.user_agent = user_agent
 
     # Use integer id instead of uuid_b58 here because statsd documentation is
     # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
