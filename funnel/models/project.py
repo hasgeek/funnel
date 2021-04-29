@@ -461,10 +461,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         message=__("The project has been published"),
         type='success',
     )
-    def publish(self):
+    def publish(self) -> bool:
+        """Publish a project and return a flag if this is the first publishing."""
+        first_published = False
         if not self.first_published_at:
             self.first_published_at = db.func.utcnow()
+            first_published = True
         self.published_at = db.func.utcnow()
+        return first_published
 
     @with_roles(call={'editor'})
     @state.transition(
@@ -477,18 +481,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
-    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})  # type: ignore[misc]
     @property
-    def title_inline(self):
+    def title_inline(self) -> str:
         """Suffix a colon if the title does not end in ASCII sentence punctuation."""
         if self.title and self.tagline:
             if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
                 return self.title + ':'
         return self.title
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(title_inline, read={'all'}, datasets={'primary', 'without_parent'})
+
     @property
-    def title_suffix(self):
+    def title_suffix(self) -> str:
         """
         Return the profile's title if the project's title doesn't derive from it.
 
@@ -498,8 +502,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             return self.profile.title
         return ''
 
+    with_roles(title_suffix, read={'all'})
+
     @with_roles(call={'all'})
-    def joined_title(self, sep='›'):
+    def joined_title(self, sep: str = '›') -> str:
         """Return the project's title joined with the profile's title, if divergent."""
         if self.short_title == self.title:
             # Project title does not derive from profile title, so use both
@@ -509,7 +515,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
     @cached_property
-    def datelocation(self):
+    def datelocation(self) -> str:
         """
         Return a date and location string for the project.
 

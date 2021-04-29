@@ -6,6 +6,7 @@ from typing import Any, Dict, Iterable, Set, TypeVar
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql.expression import ClauseList
 
 from werkzeug.utils import cached_property
 
@@ -511,8 +512,8 @@ class ReorderMembershipMixin(ReorderMixin):
         )
         return tuple(args)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)  # type: ignore[call-arg]
         # Assign a default value to `seq`
         if self.seq is None:
             self.seq = db.select(
@@ -520,7 +521,7 @@ class ReorderMembershipMixin(ReorderMixin):
             ).where(self.parent_scoped_reorder_query_filter)
 
     @property
-    def parent_scoped_reorder_query_filter(self):
+    def parent_scoped_reorder_query_filter(self) -> ClauseList:
         """
         Return a query filter that includes a scope limitation to active records.
 
@@ -532,5 +533,11 @@ class ReorderMembershipMixin(ReorderMixin):
         # During __init__, if the constructor only received `parent`, it doesn't yet
         # know `parent_id`. Therefore we have to be prepared for two possible returns
         if self.parent_id is not None:
-            return db.and_(cls.parent_id == self.parent_id, cls.is_active)
-        return db.and_(cls.parent == self.parent, cls.is_active)
+            return db.and_(
+                cls.parent_id == self.parent_id,
+                cls.is_active,  # type: ignore[attr-defined]
+            )
+        return db.and_(
+            cls.parent == self.parent,  # type: ignore[attr-defined]
+            cls.is_active,  # type: ignore[attr-defined]
+        )
