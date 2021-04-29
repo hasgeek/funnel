@@ -31,11 +31,12 @@
   margin: $mui-grid-padding 0 0;
 
   .comment__header {
-    display: inline-block;
+    display: flex;
     width: 100%;
+    align-content: center;
 
-    button {
-      vertical-align: bottom;
+    .comment__header__expand {
+      margin-right: $mui-grid-padding/4;
     }
     .mui-btn--nostyle + .mui-btn--nostyle {
       margin-left: 0;
