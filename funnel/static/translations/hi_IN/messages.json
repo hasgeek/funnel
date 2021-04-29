@@ -1508,10 +1508,6 @@
       "Settings": [null, "सेटिंग्स"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
       "Featured projects appear under Spotlight on the home page": [null, ""],
-      "This project will not be listed as it has no sessions in the schedule": [
-        null,
-        ""
-      ],
       "This project is not published. Visit settings to publish": [null, ""],
       "Related events": [null, "सम्बंधित ईवेंट"],
       "Add schedule": [null, ""],
@@ -1576,7 +1572,6 @@
       "Previous": [null, ""],
       "Next": [null, "आगे"],
       "All submissions": [null, ""],
-      "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "This proposal has been added to the schedule": [
         null,
         "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
@@ -2686,6 +2681,10 @@
       "Profiles": [null, "प्रोफाइल"],
       "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
+      "This project will not be listed as it has no sessions in the schedule": [
+        null,
+        ""
+      ],
       "Something went wrong, please reload and try again": [
         null,
         "कुछ गड़बड़ी हुई है, कृपया दोबारा लोड करें और दोबारा प्रयास करें"
