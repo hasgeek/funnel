@@ -139,17 +139,14 @@ def get_registration_text(count, registered=False, follow_mode=False):
             return registration_count_messages[count].unregistered
         elif registered and follow_mode:
             return registration_count_messages[count].following
-        else:
-            return registration_count_messages[count].not_following
-    else:
-        if registered and not follow_mode:
-            return _("You and {num} others have registered").format(num=count - 1)
-        elif registered and not follow_mode:
-            return _("{num} registrations so far").format(num=count)
-        elif registered and follow_mode:
-            return _("You and {num} others are following").format(num=count - 1)
-        else:
-            return _("{num} followers so far").format(num=count)
+        return registration_count_messages[count].not_following
+    if registered and not follow_mode:
+        return _("You and {num} others have registered").format(num=count - 1)
+    elif registered and not follow_mode:
+        return _("{num} registrations so far").format(num=count)
+    elif registered and follow_mode:
+        return _("You and {num} others are following").format(num=count - 1)
+    return _("{num} followers so far").format(num=count)
 
 
 @Project.features('rsvp')

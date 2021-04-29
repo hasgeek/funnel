@@ -1299,11 +1299,6 @@
       "Logging out…": [null, "लॉग आउट हो रहा है…"],
       "Copy link": [null, "लिंक कॉपी करें"],
       "Facebook": [null, "Facebook"],
-      "Edit URL": [null, ""],
-      "Edit description": [null, ""],
-      "Settings": [null, "सेटिंग्स"],
-      "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
-      "Featured projects appear under Spotlight on the home page": [null, ""],
       "Preview video": [null, "प्रीव्यू वीडियो"],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
@@ -1364,9 +1359,6 @@
       "Sessions": [null, "सेशन"],
       "Projects": [null, "प्रोजेक्ट"],
       "Submissions": [null, "सबमिशन"],
-      "Tickets": [null, "टिकटें"],
-      "Attend": [null, "हिस्सा लें"],
-      "Make a submission": [null, "एक सबमिशन भेजें"],
       "Team &amp; careers": [null, "टीम &amp; करियर"],
       "Contact": [null, "संपर्क"],
       "Site policies": [null, "साइट नीतियां"],
@@ -1452,7 +1444,7 @@
         "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं."
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
-      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
+      "Back to the home": [null, ""],
       "See all": [null, "सारे देखें"],
       "Videos": [null, "वीडियो"],
       "Related jobs": [null, "सम्बंधित नौकरियां"],
@@ -1470,6 +1462,7 @@
         null,
         "जिन प्रतिभागियों के पास टिकट है उन्हें जोड़ें"
       ],
+      "Tickets": [null, "टिकटें"],
       "New ticket": [null, "नया टिकट"],
       "Ticket clients": [null, "टिकट क्लाइंट्स"],
       "Add ticket client to import tickets": [
@@ -1485,26 +1478,36 @@
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
       "Comments": [null, "कमेंट"],
-      "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
-      "Update banner image": [null, "बैनर इमेज को बदलें"],
+      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "Pinned update": [null, ""],
       "This update is for participants only": [
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
       ],
+      "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
+      "Update banner image": [null, "बैनर इमेज को बदलें"],
       "Tickets available": [null, ""],
       "Sales closed": [null, ""],
       "Get tickets": [null, "टिकट पाएं"],
+      "Free updates": [null, ""],
       "Free": [null, ""],
+      "Follow": [null, ""],
       "Register": [null, "रजिस्टर करें"],
       "This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time.": [
         null,
         ""
       ],
+      "Stop following": [null, ""],
       "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
+      "No longer interested?": [null, ""],
       "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
       "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
       "View participants": [null, "प्रतिभागियों को देखें"],
+      "Edit URL": [null, ""],
+      "Edit description": [null, ""],
+      "Settings": [null, "सेटिंग्स"],
+      "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
+      "Featured projects appear under Spotlight on the home page": [null, ""],
       "This project will not be listed as it has no sessions in the schedule": [
         null,
         ""
@@ -1512,6 +1515,7 @@
       "This project is not published. Visit settings to publish": [null, ""],
       "Related events": [null, "सम्बंधित ईवेंट"],
       "Add schedule": [null, ""],
+      "Make a submission": [null, "एक सबमिशन भेजें"],
       "Open submissions": [null, "सबमिशन को खोलें"],
       "Add submission guidelines": [
         null,
@@ -1549,7 +1553,6 @@
         "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
       ],
       "Scan badges to check-in": [null, "चेक-इन के लिए बैच स्कैन करें"],
-      "Submission guidelines": [null, ""],
       "Modify guidelines and timing": [null, ""],
       "Modify guidelines": [null, ""],
       "expand": [null, ""],
@@ -1570,7 +1573,9 @@
       "Featured submissions appear in the overview": [null, ""],
       "Replace session video": [null, ""],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
-      "Up next": [null, "अगला आने वाला"],
+      "Previous": [null, ""],
+      "Next": [null, "आगे"],
+      "All submissions": [null, ""],
       "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "This proposal has been added to the schedule": [
         null,
@@ -2474,7 +2479,6 @@
         "संगठन बनाने के लिए आपके पास एक वेरिफाइड ईमेल पता या फोन नंबर होना चाहिए"
       ],
       "Create a new organization": [null, "एक नया संगठन बनाएं"],
-      "Next": [null, "आगे"],
       "Protected profile": [null, "संरक्षित प्रोफाइल"],
       "This organization has a protected profile and cannot be deleted.": [
         null,
@@ -2516,58 +2520,81 @@
         null,
         "रजिस्टर करने वाले पहले व्यक्ति बनें!"
       ],
+      "Be the first follower!": [null, ""],
       "One registration so far": [null, "अब तक एक रजिस्ट्रेशन"],
       "You have registered": [null, "आपने रजिस्टर कर लिया है"],
+      "One follower so far": [null, ""],
+      "You are following this": [null, ""],
       "Two registrations so far": [null, "अब तक दो रजिस्ट्रेशन"],
       "You and one other have registered": [
         null,
         "आपने और एक अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Two followers so far": [null, ""],
+      "You and one other are following": [null, ""],
       "Three registrations so far": [null, "अब तक तीन रजिस्ट्रेशन"],
       "You and two others have registered": [
         null,
         "आपने और दो अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Three followers so far": [null, ""],
+      "You and two others are following": [null, ""],
       "Four registrations so far": [null, "अब तक चार रजिस्ट्रेशन"],
       "You and three others have registered": [
         null,
         "आपने और तीन अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Four followers so far": [null, ""],
+      "You and three others are following": [null, ""],
       "Five registrations so far": [null, "अब तक पांच रजिस्ट्रेशन"],
       "You and four others have registered": [
         null,
         "आपने और चार अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Five followers so far": [null, ""],
+      "You and four others are following": [null, ""],
       "Six registrations so far": [null, "अब तक छे रजिस्ट्रेशन"],
       "You and five others have registered": [
         null,
         "आपने और पांच अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Six followers so far": [null, ""],
+      "You and five others are following": [null, ""],
       "Seven registrations so far": [null, "अब तक सात रजिस्ट्रेशन"],
       "You and six others have registered": [
         null,
         "आपने और छे अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Seven followers so far": [null, ""],
+      "You and six others are following": [null, ""],
       "Eight registrations so far": [null, ""],
       "You and seven others have registered": [
         null,
         "आपने और सात अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Eight followers so far": [null, ""],
+      "You and seven others are following": [null, ""],
       "Nine registrations so far": [null, "अब तक नौ रजिस्ट्रेशन"],
       "You and eight others have registered": [
         null,
         "आपने और आठ अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Nine followers so far": [null, ""],
+      "You and eight others are following": [null, ""],
       "Ten registrations so far": [null, "अब तक दस रजिस्ट्रेशन"],
       "You and nine others have registered": [
         null,
         "आपने और नौ अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Ten followers so far": [null, ""],
+      "You and nine others are following": [null, ""],
       "You and {num} others have registered": [
         null,
         "आपने और {num} अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
       "{num} registrations so far": [null, "अब तक {num} रजिस्ट्रेशन"],
+      "You and {num} others are following": [null, ""],
+      "{num} followers so far": [null, ""],
       "Your new project has been created": [
         null,
         "आपका नया प्रोजेक्ट बना दिया गया है"
