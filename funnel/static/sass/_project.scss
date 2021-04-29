@@ -36,7 +36,7 @@
   position: fixed;
   width: calc(100% - 32px);
   bottom: 0;
-  padding: 16px;
+  padding: $mui-grid-padding/4 $mui-grid-padding;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
   z-index: 1000;
@@ -237,12 +237,6 @@
           height: 12px;
         }
       }
-      .propose__btn--strike {
-        text-decoration: line-through;
-      }
-      .propose-btn--strike:hover {
-        text-decoration: line-through;
-      }
     }
   }
 }
@@ -295,6 +289,8 @@
     .project-banner__right {
       width: 33%;
     }
+  }
+  .project-banner.project-banner--inner {
     .project-banner__left--smaller {
       width: 25%;
     }

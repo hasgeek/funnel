@@ -58,7 +58,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
+      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the home{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project home">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
     </div>
   </div>
   {% if project.features.tickets() or project.features.rsvp() %}
@@ -68,13 +68,37 @@
   {% endif %}
 {% endblock %}
 
-{% block base_content_inner %}
+{% block project_banner_inner %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header">
+    {{ project_details(project) }}
+  </div>
+{% endblock %}
+
+{% block before_navbar %}
+  <div class="mui-container">
+    <div class="grid">
+      <div class="grid__col-sm-12 mui--hidden-md mui--hidden-lg mui--hidden-xl">
+        {{ pinned_update(project) }}
+        {{ project_about(project) }}
+        <div class="top-padding">
+          {{ project_host_sponsor(project) }}
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endblock %}
+
+{% block left_col %}
+  <div class="mui--hidden-xs mui--hidden-sm">
+    {{ pinned_update(project) }}
+    {{ project_about(project) }}
+  </div>
   {% if project.has_featured_proposals %}
     <div class="page-card">
       <div class="project-section" id="submissions">
         <div class="project-section__headline">
-          <h2 class="project-section__headline mui--text-left">{% trans %}Submissions{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--raised" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
+          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
@@ -91,8 +115,8 @@
     <div class="page-card">
       <div class="project-section" id="sessions">
         <div class="project-section__headline">
-          <h2 class="mui--text-left">{% trans %}Sessions{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--raised" href="{{ project.url_for('schedule') }}">{% trans %}See all{% endtrans %}</a>
+          <h2 class="mui--text-left zero-top-margin">{% trans %}Sessions{% endtrans %}</h2>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('schedule') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
@@ -133,8 +157,8 @@
    <div class="page-card">
       <div class="project-section" id="videos">
         <div class="project-section__headline" id="videos">
-          <h2 class="mui--text-left">{% trans %}Videos{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--raised" href="{{ project.url_for('session_videos') }}">{% trans %}See all{% endtrans %}</a>
+          <h2 class="mui--text-left zero-top-margin zero-top-margin">{% trans %}Videos{% endtrans %}</h2>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('session_videos') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <div class="grid top-padding">
@@ -150,7 +174,7 @@
   {% if project.hasjob_embed_url.url -%}
     <div class="page-card">
       <div class="project-section" id="related-jobs">
-        <h2 class="mui--text-left project-section__headline">{% trans %}Related jobs{% endtrans %}</h2>
+        <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Related jobs{% endtrans %}</h2>
         <div class="hasjob-embed top-padding" data-href="{{ project.hasjob_embed_url }}" {% if project.hasjob_embed_limit -%}data-jobpost-limit="{{ project.hasjob_embed_limit }}"{%- else %}data-jobpost-limit="8"{%- endif %}></div>
         <script src="{{ config['HASJOB_SERVER']|url_join('embed.js') }}" type="text/javascript"></script>
       </div>
