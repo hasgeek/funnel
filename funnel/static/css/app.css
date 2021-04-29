@@ -1905,10 +1905,12 @@ a.loginbutton.hidden,
 
 .mui-btn--strike {
   text-decoration: line-through;
+  -webkit-text-decoration-line: line-through;
 }
 
 .mui-btn--strike:hover {
   text-decoration: line-through;
+  -webkit-text-decoration-line: line-through;
 }
 
 .projects-wrapper {
@@ -3491,7 +3493,7 @@ a.loginbutton.hidden,
   position: fixed;
   width: calc(100% - 32px);
   bottom: 0;
-  padding: 16px;
+  padding: 4px 16px;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
   z-index: 1000;
@@ -3702,12 +3704,6 @@ a.loginbutton.hidden,
 .project-banner .project-details__box .propose .propose__txt svg {
   width: 12px;
   height: 12px;
-}
-.project-banner .project-details__box .propose .propose__btn--strike {
-  text-decoration: line-through;
-}
-.project-banner .project-details__box .propose .propose-btn--strike:hover {
-  text-decoration: line-through;
 }
 
 .project-banner__left,
@@ -3996,20 +3992,31 @@ a.loginbutton.hidden,
 .nav-btn-wrapper {
   padding: 16px 0;
 }
+.nav-btn-wrapper .prev-btn {
+  margin-right: 16px;
+}
+
+.nav-btn-wrapper .btn-margin-right,
+.prev-next-btn-wrapper .btn-margin-right {
+  margin-right: 4px;
+}
+.nav-btn-wrapper .btn-margin-left,
+.prev-next-btn-wrapper .btn-margin-left {
+  margin-left: 4px;
+}
+
+.prev-next-btn-wrapper {
+  margin-bottom: 16px;
+  margin-top: 2px;
+}
 
 @media (min-width: 768px) {
   .nav-btn-wrapper {
-    padding: 0 16px 16px 0;
+    padding: 0 16px 16px;
   }
-}
-.prev-next-btn-wrapper {
-  margin-bottom: 21px;
-  margin-top: 5px;
-}
 
-@media (min-width: 768px) {
   .prev-next-btn-wrapper {
-    padding: 0 0 0 16px;
+    padding: 0 16px;
   }
 }
 .proposal__section {
@@ -4424,6 +4431,9 @@ a.loginbutton.hidden,
     .mui-select
     .mui-select__menu {
     max-width: 100%;
+  }
+  .proposal-page .jquery-modal.blocker.current .modal.markdown-modal {
+    border-radius: 8px;
   }
 }
 .video {

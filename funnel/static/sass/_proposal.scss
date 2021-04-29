@@ -19,22 +19,32 @@
 
 .nav-btn-wrapper {
   padding: $mui-grid-padding 0;
+  .prev-btn {
+    margin-right: $mui-grid-padding;
+  }
 }
 
-@media (min-width: 768px) {
-  .nav-btn-wrapper {
-    padding: 0 $mui-grid-padding $mui-grid-padding 0;
+.nav-btn-wrapper,
+.prev-next-btn-wrapper {
+  .btn-margin-right {
+    margin-right: $mui-grid-padding/4;
+  }
+  .btn-margin-left {
+    margin-left: $mui-grid-padding/4;
   }
 }
 
 .prev-next-btn-wrapper {
-  margin-bottom: 21px;
-  margin-top: 5px;
+  margin-bottom: 16px;
+  margin-top: 2px;
 }
 
 @media (min-width: 768px) {
+  .nav-btn-wrapper {
+    padding: 0 $mui-grid-padding $mui-grid-padding;
+  }
   .prev-next-btn-wrapper {
-    padding: 0 0 0 $mui-grid-padding;
+    padding: 0 $mui-grid-padding;
   }
 }
 
@@ -448,6 +458,9 @@
       .mui-select .mui-select__menu {
         max-width: 100%;
       }
+    }
+    .jquery-modal.blocker.current .modal.markdown-modal {
+      border-radius: 8px;
     }
   }
 }
