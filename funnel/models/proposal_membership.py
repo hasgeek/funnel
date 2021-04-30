@@ -2,7 +2,6 @@ from typing import Optional, Set
 
 from werkzeug.utils import cached_property
 
-from coaster.auth import current_auth
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import db
@@ -118,27 +117,14 @@ class __Proposal:
         grants_via={'user': {'submitter', 'editor'}},
     )
 
-    @property
-    def speaker(self) -> Optional[User]:
-        """Return the first credited member on the proposal."""
-        for membership in self.memberships:
-            if not membership.is_uncredited:
-                return membership.user
-        return None
-
-    @speaker.setter
-    def speaker(self, value: Optional[User]):
-        """Replace a member on a proposal."""
+    @with_roles(call={'project_editor'})
+    def transfer_to(self, user: User, actor: User):
+        """Replace the sole credited member on a proposal."""
         credited_memberships = [m for m in self.memberships if not m.is_uncredited]
         if len(credited_memberships) > 1:
             raise ValueError("Too many speakers, don't know which to replace")
-
-        # This is a hack to make the `speaker` property behave for legacy code. Modern
-        # code should send in an explicit actor
-        actor = current_auth.actor if current_auth and current_auth.actor else self.user
-
         if credited_memberships:
-            if credited_memberships[0].user == value:
+            if credited_memberships[0].user == user:
                 # Existing speaker is the same as new speaker.
                 # Nothing to do, just return
                 return
@@ -150,7 +136,20 @@ class __Proposal:
         # the expected value. A database commit is necessary to refresh the list. This
         # poor behaviour is only tolerable because the `speaker` property is support for
         # legacy code pending upgrade
-        db.session.add(ProposalMembership(proposal=self, user=value, granted_by=actor))
+        db.session.add(ProposalMembership(proposal=self, user=user, granted_by=actor))
+
+    @property
+    def speaker(self) -> Optional[User]:
+        """Return the first credited member on the proposal."""
+        for membership in self.memberships:
+            if not membership.is_uncredited:
+                return membership.user
+        return None
+
+    @speaker.setter
+    def speaker(self, value: User):
+        """Replace a member on a proposal."""
+        self.transfer_to(value, self.user)
 
 
 @reopen(User)

@@ -62,6 +62,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __data_columns__: Iterable[str] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
     parent_id: db.Column
+    #: Subject of this membership (subclasses must define)
+    subject = None
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
@@ -143,6 +145,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @hybrid_property
     def is_invite(self) -> bool:
         return self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
+
+    def __repr__(self):
+        return (
+            f'<{self.__class__.__name__} {self.subject!r} in {self.parent!r} '
+            + ('active' if self.is_active else 'revoked')
+            + '>'
+        )
 
     @cached_property
     def offered_roles(self) -> Set[str]:
@@ -283,6 +292,10 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     def user(cls):
         return immutable(db.relationship(User, foreign_keys=[cls.user_id]))
 
+    @declared_attr
+    def subject(cls):
+        return db.synonym('user')
+
     @declared_attr  # type: ignore[no-redef]
     def __table_args__(cls):
         if cls.parent_id is not None:
@@ -389,6 +402,15 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
             index=True,
         )
 
+    @with_roles(read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}})
+    @declared_attr
+    def profile(cls):
+        return immutable(db.relationship(Profile, foreign_keys=[cls.profile_id]))
+
+    @declared_attr
+    def subject(cls):
+        return db.synonym('profile')
+
     @declared_attr  # type: ignore[no-redef]
     def __table_args__(cls) -> tuple:
         if cls.parent_id is not None:
@@ -425,11 +447,6 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 
     def copy_template(self: MembershipType, **kwargs) -> MembershipType:
         return type(self)(profile=self.profile, **kwargs)
-
-    @with_roles(read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}})
-    @declared_attr
-    def profile(cls):
-        return immutable(db.relationship(Profile, foreign_keys=[cls.profile_id]))
 
     @classmethod
     def migrate_profile(

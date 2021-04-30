@@ -116,7 +116,6 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model):
     __tablename__ = 'proposal'
-    __email_for__ = 'owner'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = with_roles(
@@ -224,8 +223,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
                 'body',
                 'user',
                 'speaker',
-                'owner',
-                'speaking',
                 'video',
                 'session',
                 'project',
@@ -249,7 +246,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             'body',
             'user',
             'speaker',
-            'speaking',
             'video',
             'session',
             'project',
@@ -262,7 +258,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             'body',
             'user',
             'speaker',
-            'speaking',
             'video',
             'session',
         },
@@ -277,7 +272,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def __repr__(self):
         """Represent :class:`Proposal` as a string."""
         return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
-            proposal=self.title, project=self.project.title, user=self.owner.fullname
+            proposal=self.title, project=self.project.title, user=self.user.fullname
         )
 
     @db.validates('project')
@@ -462,27 +457,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         self.url_id = None
         self.make_id()
 
-    @with_roles(call={'project_editor', 'reviewer'})
-    def transfer_to(self, user):
-        """Transfer the proposal to a new user and speaker."""
-        self.speaker = user
-
-    @property
-    def owner(self):
-        return self.speaker or self.user
-
-    @property
-    def speaking(self):
-        return self.speaker == self.user
-
-    @speaking.setter
-    def speaking(self, value):
-        if value:
-            self.speaker = self.user
-        else:
-            if self.speaker == self.user:
-                self.speaker = None  # Reset only if it's currently set to user
-
     @hybrid_property
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
@@ -535,10 +509,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         else:
             roles.add('reader')
 
-        # remove the owner check after proposal membership is implemented
-        if self.owner == actor or roles.has_any(
-            ('project_participant', 'presenter', 'reviewer')
-        ):
+        if roles.has_any(('project_participant', 'submitter')):
             roles.add('commenter')
 
         return roles

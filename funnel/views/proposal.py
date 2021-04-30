@@ -81,7 +81,6 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 current_auth.user
             )  # Vote up your own proposal by default
             db.session.commit()
-            flash(_("Your submission has been submitted"), 'info')
             dispatch_notification(
                 ProposalSubmittedNotification(document=proposal),
                 ProposalReceivedNotification(
@@ -309,7 +308,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         proposal_transfer_form = ProposalTransferForm()
         if proposal_transfer_form.validate_on_submit():
             target_user = proposal_transfer_form.user.data
-            self.obj.current_access().transfer_to(target_user)
+            self.obj.current_access().transfer_to(target_user, actor=current_auth.actor)
             db.session.commit()
             flash(_("This submission has been transferred."), 'success')
         else:
