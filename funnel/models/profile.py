@@ -374,7 +374,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return []
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Profile, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         perms.add('view')
         if 'admin' in self.roles_for(user):
             perms.add('edit-profile')
