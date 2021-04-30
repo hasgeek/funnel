@@ -543,7 +543,7 @@ class ProjectView(
             db.session.commit()
             flash(transition.data['message'], 'success')
         else:
-            flash(_("Invalid transition for this project's CfP"), 'error')
+            flash(_("Invalid transition for this project’s CfP"), 'error')
             abort(403)
         return redirect(self.obj.url_for('view_proposals'))
 
@@ -571,12 +571,11 @@ class ProjectView(
             if not rsvp.state.YES:
                 rsvp.rsvp_yes(subscribe_comments=True)
                 db.session.commit()
-                flash(_("You have successfully registered"), 'success')
                 dispatch_notification(
                     RegistrationConfirmationNotification(document=rsvp)
                 )
         else:
-            flash(_("There was a problem registering. Please try again"), 'error')
+            flash(_("Were you trying to register? Try again to confirm"), 'error')
         return redirect(get_next_url(referrer=request.referrer), code=303)
 
     @route('deregister', methods=['POST'])
@@ -588,13 +587,12 @@ class ProjectView(
             if rsvp is not None and not rsvp.state.NO:
                 rsvp.rsvp_no()
                 db.session.commit()
-                flash(_("Your registration has been cancelled"), 'info')
                 dispatch_notification(
                     RegistrationCancellationNotification(document=rsvp)
                 )
         else:
             flash(
-                _("There was a problem cancelling your registration. Please try again"),
+                _("Were you trying to cancel your registration? Try again to confirm"),
                 'error',
             )
         return redirect(get_next_url(referrer=request.referrer), code=303)
