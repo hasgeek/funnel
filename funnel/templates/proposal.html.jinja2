@@ -183,9 +183,9 @@
       {% endif %}
     </div>
     <section class="proposal__section">
-      <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
+      <div class="flex-wrapper flex-wrapper--center flex-wrapper--wrap">
         {% for member in proposal.memberships %}{%- if not member.is_uncredited %}
-          <div class="user mui--pull-left">
+          <div class="user right-padding">
             <div class="user__box">
               {{ useravatar(member.user) }}
               <div class="user__box__header">

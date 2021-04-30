@@ -67,6 +67,10 @@
   justify-content: space-between;
 }
 
+.flex-wrapper--wrap {
+  flex-wrap: wrap;
+}
+
 .material-icons {
   display: none;
 }
@@ -3618,7 +3622,7 @@ a.loginbutton.hidden,
   position: absolute;
   bottom: 16px;
   right: 16px;
-  z-index: 3;
+  z-index: 2;
 }
 .project-banner .project-banner__box .project-banner__box__add-btn--second {
   right: 60px;
@@ -4064,7 +4068,7 @@ a.loginbutton.hidden,
   position: absolute;
   bottom: 16px;
   right: 16px;
-  z-index: 3;
+  z-index: 2;
 }
 
 .details__box__control {
