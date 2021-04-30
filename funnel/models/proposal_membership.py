@@ -1,38 +1,38 @@
-from typing import Set
-
-from sqlalchemy.ext.declarative import declared_attr
+from typing import Optional, Set
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.auth import current_auth
+from coaster.sqlalchemy import immutable, with_roles
 
 from . import db
 from .helpers import reopen
-from .membership_mixin import ImmutableUserMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin, ReorderMembershipMixin
 from .proposal import Proposal
 from .user import User
 
 __all__ = ['ProposalMembership']
 
 
-class ProposalMembership(ImmutableUserMembershipMixin, db.Model):
+class ProposalMembership(
+    ReorderMembershipMixin, ImmutableUserMembershipMixin, db.Model
+):
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
 
     # List of is_role columns in this model
-    __data_columns__ = ('is_reviewer', 'is_presenter')
+    __data_columns__ = ('seq', 'is_uncredited', 'label')
 
-    __roles__ = {
-        'all': {'read': {'urls', 'user', 'is_reviewer', 'is_presenter', 'proposal'}}
-    }
+    __roles__ = {'all': {'read': {'urls', 'user', 'seq', 'is_uncredited', 'label'}}}
     __datasets__ = {
         'primary': {
             'urls',
             'uuid_b58',
             'offered_roles',
-            'is_reviewer',
-            'is_presenter',
+            'seq',
+            'is_uncredited',
+            'label',
             'user',
             'proposal',
         },
@@ -40,11 +40,19 @@ class ProposalMembership(ImmutableUserMembershipMixin, db.Model):
             'urls',
             'uuid_b58',
             'offered_roles',
-            'is_reviewer',
-            'is_presenter',
+            'seq',
+            'is_uncredited',
+            'label',
             'user',
         },
-        'related': {'urls', 'uuid_b58', 'offered_roles', 'is_reviewer', 'is_presenter'},
+        'related': {
+            'urls',
+            'uuid_b58',
+            'offered_roles',
+            'seq',
+            'is_uncredited',
+            'label',
+        },
     }
 
     proposal_id = immutable(
@@ -56,84 +64,93 @@ class ProposalMembership(ImmutableUserMembershipMixin, db.Model):
         db.relationship(
             Proposal,
             backref=db.backref(
-                'memberships', lazy='dynamic', cascade='all', passive_deletes=True
+                'all_memberships',
+                lazy='dynamic',
+                cascade='all',
+                passive_deletes=True,
             ),
         )
     )
     parent = db.synonym('proposal')
     parent_id = db.synonym('proposal_id')
 
-    # Proposal roles (at least one must be True):
+    #: Uncredited members are not listed in the main display, but can edit and may be
+    #: listed in a details section. Uncredited memberships are for support roles such
+    #: as copy editors.
+    is_uncredited = db.Column(db.Boolean, nullable=False, default=False)
 
-    #: Reviewers can change state of proposal
-    is_reviewer = db.Column(db.Boolean, nullable=False, default=False)
-    #: Presenters can edit and withdraw proposals
-    is_presenter = db.Column(db.Boolean, nullable=False, default=False)
-
-    @declared_attr
-    def __table_args__(cls):
-        """Table arguments."""
-        args = list(super().__table_args__)
-        args.append(
+    #: Optional label, indicating the member's role on the proposal
+    label = immutable(
+        db.Column(
+            db.Unicode,
             db.CheckConstraint(
-                db.or_(cls.is_reviewer.is_(True), cls.is_presenter.is_(True)),
-                name='proposal_membership_has_role',
-            )
+                db.column('label') != '', name='proposal_membership_label_check'
+            ),
+            nullable=True,
         )
-        return tuple(args)
+    )
 
     @cached_property
     def offered_roles(self) -> Set[str]:
         """Roles offered by this membership record."""
-        roles = set()
-        if self.is_reviewer:
-            roles.add('reviewer')
-        elif self.is_presenter:
-            roles.add('presenter')
-        return roles
+        # This method is not used. See the `Proposal.memberships` relationship below.
+        return {'submitter', 'editor'}
 
 
-# Project relationships: all crew, vs specific roles
+# Project relationships
 @reopen(Proposal)
 class __Proposal:
-    active_memberships = with_roles(
+    user: User
+
+    # This relationship does not use `lazy='dynamic'` because it is expected to contain
+    # <2 records on average, and won't exceed 50 in the most extreme cases
+    memberships = with_roles(
         db.relationship(
             ProposalMembership,
-            lazy='dynamic',
             primaryjoin=db.and_(
                 ProposalMembership.proposal_id == Proposal.id,
                 ProposalMembership.is_active,
             ),
+            order_by=ProposalMembership.seq,
             viewonly=True,
         ),
-        grants_via={'user': {'reviewer', 'presenter'}},
+        # These grants are authoritative and used instead of `offered_roles` above
+        grants_via={'user': {'submitter', 'editor'}},
     )
 
-    active_reviewer_memberships = db.relationship(
-        ProposalMembership,
-        lazy='dynamic',
-        primaryjoin=db.and_(
-            ProposalMembership.proposal_id == Proposal.id,
-            ProposalMembership.is_active,
-            ProposalMembership.is_reviewer.is_(True),
-        ),
-        viewonly=True,
-    )
+    @property
+    def speaker(self) -> Optional[User]:
+        """Return the first credited member on the proposal."""
+        for membership in self.memberships:
+            if not membership.is_uncredited:
+                return membership.user
+        return None
 
-    active_presenter_memberships = db.relationship(
-        ProposalMembership,
-        lazy='dynamic',
-        primaryjoin=db.and_(
-            ProposalMembership.proposal_id == Proposal.id,
-            ProposalMembership.is_active,
-            ProposalMembership.is_presenter.is_(True),
-        ),
-        viewonly=True,
-    )
+    @speaker.setter
+    def speaker(self, value: Optional[User]):
+        """Replace a member on a proposal."""
+        credited_memberships = [m for m in self.memberships if not m.is_uncredited]
+        if len(credited_memberships) > 1:
+            raise ValueError("Too many speakers, don't know which to replace")
 
-    members = DynamicAssociationProxy('active_memberships', 'user')
-    reviewers = DynamicAssociationProxy('active_reviewer_memberships', 'user')
-    presenters = DynamicAssociationProxy('active_presenters_memberships', 'user')
+        # This is a hack to make the `speaker` property behave for legacy code. Modern
+        # code should send in an explicit actor
+        actor = current_auth.actor if current_auth and current_auth.actor else self.user
+
+        if credited_memberships:
+            if credited_memberships[0].user == value:
+                # Existing speaker is the same as new speaker.
+                # Nothing to do, just return
+                return
+            # There is an existing `speaker`. Revoke their membership
+            credited_memberships[0].revoke(actor)
+
+        # Add a membership. XXX: This does not append to the `self.memberships` list, so
+        # reading the `speaker` property immediately after setting it will not return
+        # the expected value. A database commit is necessary to refresh the list. This
+        # poor behaviour is only tolerable because the `speaker` property is support for
+        # legacy code pending upgrade
+        db.session.add(ProposalMembership(proposal=self, user=value, granted_by=actor))
 
 
 @reopen(User)

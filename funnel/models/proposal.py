@@ -128,17 +128,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         grants={'creator'},
     )
 
-    speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    speaker = with_roles(
-        db.relationship(
-            User,
-            primaryjoin=speaker_id == User.id,
-            lazy='joined',
-            backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
-        ),
-        grants={'presenter'},
-    )
-
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(
@@ -211,7 +200,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
                 hltext=lambda: db.func.concat_ws(
                     visual_field_delimiter,
                     Proposal.title,
-                    User.fullname,
                     Proposal.body_html,
                 ),
             ),
@@ -537,24 +525,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     def votes_count(self):
         return len(self.voteset.votes)
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Proposal, self).permissions(user, inherited)
-        if user is not None:
-            perms.update(('vote_proposal', 'new_comment', 'vote_comment'))
-            if user == self.owner:
-                perms.update(
-                    (
-                        'view-proposal',
-                        'edit_proposal',
-                        'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
-                        'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
-                        'transfer-proposal',
-                    )
-                )
-                if self.speaker != self.user:
-                    perms.add('decline-proposal')  # Decline speaking
-        return perms
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super(Proposal, self).roles_for(actor, anchors)

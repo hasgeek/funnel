@@ -25,6 +25,7 @@ from ..models import (
     Profile,
     Project,
     Proposal,
+    ProposalMembership,
     Session,
     Update,
     User,
@@ -221,7 +222,6 @@ search_types = OrderedDict(
                 lambda q: Session.query.join(Project, Session.project)
                 .join(Profile, Project.profile)
                 .outerjoin(Proposal, Session.proposal)
-                .outerjoin(User, Proposal.speaker)
                 .filter(
                     Profile.state.PUBLIC,
                     Project.state.PUBLISHED,
@@ -231,7 +231,6 @@ search_types = OrderedDict(
                 # Profile search:
                 lambda q, profile: Session.query.join(Project, Session.project)
                 .outerjoin(Proposal, Session.proposal)
-                .outerjoin(User, Proposal.speaker)
                 .filter(
                     Project.state.PUBLISHED,
                     Project.profile == profile,
@@ -239,9 +238,7 @@ search_types = OrderedDict(
                     Session.search_vector.match(q),
                 ),
                 # Project search:
-                lambda q, project: Session.query.outerjoin(Proposal)
-                .outerjoin(User, Proposal.speaker)
-                .filter(
+                lambda q, project: Session.query.outerjoin(Proposal).filter(
                     Session.project == project,
                     Session.scheduled,
                     Session.search_vector.match(q),
@@ -258,7 +255,6 @@ search_types = OrderedDict(
                 # Site search:
                 lambda q: Proposal.query.join(Project, Proposal.project)
                 .join(Profile, Project.profile)
-                .outerjoin(User, Proposal.speaker)
                 .filter(
                     Profile.state.PUBLIC,
                     Project.state.PUBLISHED,
@@ -267,39 +263,52 @@ search_types = OrderedDict(
                     # transferred into labels, reserving proposal state for submission.
                     db.or_(
                         Proposal.search_vector.match(q),
-                        User.query.filter(
-                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        ProposalMembership.query.join(User, ProposalMembership.user)
+                        .filter(
+                            ProposalMembership.proposal_id == Proposal.id,
+                            ProposalMembership.user_id == User.id,
+                            ProposalMembership.is_uncredited.is_(False),
+                            ProposalMembership.is_active,
+                            User.search_vector.match(q),
                         )
                         .exists()
                         .correlate(Proposal),
                     ),
                 ),
                 # Profile search
-                lambda q, profile: Proposal.query.join(Project, Proposal.project)
-                .outerjoin(User, Proposal.speaker)
-                .filter(
+                lambda q, profile: Proposal.query.join(
+                    Project, Proposal.project
+                ).filter(
                     Project.state.PUBLISHED,
                     Project.profile == profile,
                     # TODO: Filter condition for Proposal being visible
                     db.or_(
                         Proposal.search_vector.match(q),
-                        User.query.filter(
-                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        ProposalMembership.query.join(User, ProposalMembership.user)
+                        .filter(
+                            ProposalMembership.proposal_id == Proposal.id,
+                            ProposalMembership.user_id == User.id,
+                            ProposalMembership.is_uncredited.is_(False),
+                            ProposalMembership.is_active,
+                            User.search_vector.match(q),
                         )
                         .exists()
                         .correlate(Proposal),
                     ),
                 ),
                 # Project search:
-                lambda q, project: Proposal.query.outerjoin(
-                    User, Proposal.speaker
-                ).filter(
+                lambda q, project: Proposal.query.filter(
                     Proposal.project == project,
                     # TODO: Filter condition for Proposal being visible
                     db.or_(
                         Proposal.search_vector.match(q),
-                        User.query.filter(
-                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        ProposalMembership.query.join(User, ProposalMembership.user)
+                        .filter(
+                            ProposalMembership.proposal_id == Proposal.id,
+                            ProposalMembership.user_id == User.id,
+                            ProposalMembership.is_uncredited.is_(False),
+                            ProposalMembership.is_active,
+                            User.search_vector.match(q),
                         )
                         .exists()
                         .correlate(Proposal),

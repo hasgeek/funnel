@@ -162,13 +162,6 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             return parent.__tablename__
         return None
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if user is not None:
-            perms.add('new_comment')
-            perms.add('vote_comment')
-        return perms
-
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         parent_roles = self.parent.roles_for(actor, anchors)
@@ -359,16 +352,6 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     def sorted_replies(self) -> List[Comment]:
         return sorted(self.replies, key=lambda comment: comment.voteset.count)
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Comment, self).permissions(user, inherited)
-        perms.add('view')
-        if user is not None:
-            perms.add('vote_comment')
-            if user == self._user:
-                perms.add('edit_comment')
-                perms.add('delete_comment')
-        return perms
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super(Comment, self).roles_for(actor, anchors)

@@ -197,7 +197,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit_proposal')
+    @requires_roles({'editor'})
     def edit(self):
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
         if form.validate_on_submit():
@@ -218,8 +218,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('delete-proposal')
+    @requires_roles({'editor'})
     def delete(self):
+        # FIXME: Prevent deletion of confirmed proposals
         return render_delete_sqla(
             self.obj,
             db,
@@ -235,7 +236,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('transition', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('confirm-proposal')
+    @requires_roles({'project_editor'})
     def transition(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
         if (
