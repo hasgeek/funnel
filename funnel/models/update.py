@@ -310,6 +310,26 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )
 
+    def getnext(self):
+        return (
+            Update.query.filter(
+                Update.project == self.project,
+                Update.number > self.number,
+            )
+            .order_by(Update.number.asc())
+            .first()
+        )
+
+    def getprev(self):
+        return (
+            Update.query.filter(
+                Update.project == self.project,
+                Update.number < self.number,
+            )
+            .order_by(Update.number.desc())
+            .first()
+        )
+
 
 add_search_trigger(Update, 'search_vector')
 auto_init_default(Update._visibility_state)
