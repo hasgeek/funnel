@@ -252,11 +252,6 @@
 {% endmacro %}
 
 {% macro project_about(project) %}
-  {% if project.view_for('edit').is_available() and project.features.schedule_no_sessions() %}
-    <div class="page-card page-card--nooverflow">
-      {{ alertbox('warning', message=gettext("This project will not be listed as it has no sessions in the schedule"), dismissable=false, css_class='zero-top-margin zero-bottom-margin') }}
-    </div>
-  {% endif %}
   {% if project.view_for('edit').is_available() and project.state.DRAFT %}
     <div class="page-card page-card--nooverflow">
       <div class="alert alert--warning zero-top-margin zero-bottom-margin">

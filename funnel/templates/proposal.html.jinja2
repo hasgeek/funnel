@@ -100,11 +100,6 @@
       {{ share_widget(formid='desktop', icon_size='subhead') }}
     </div>
   </div>
-  {% if proposal.featured and ('edit_proposal' in proposal.permissions(current_auth.user) or proposal.current_roles.project_editor) %}
-    <div class="page-card page-card--nooverflow">
-      {{ alertbox('success', gettext("This is a featured submission"), dismissable=false, css_class='zero-top-margin zero-bottom-margin') }}
-    </div>
-  {% endif %}
   {% if proposal.state.SCHEDULED %}
     <div class="page-card page-card--nooverflow">
       <div class="alert alert--info zero-top-margin zero-bottom-margin">
