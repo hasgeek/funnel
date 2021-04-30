@@ -232,7 +232,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def __init__(self, password: str = None, **kwargs) -> None:
         self.password = password
-        super(User, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     name: Optional[str]
 
@@ -928,7 +928,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 
     def __init__(self, owner: User, *args, **kwargs) -> None:
-        super(Organization, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         db.session.add(
             OrganizationMembership(
                 organization=self, user=owner, granted_by=owner, is_owner=True
@@ -1116,7 +1116,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
         return self.title
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Team, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         if user and user in self.organization.admin_users:
             perms.add('edit')
             perms.add('delete')
@@ -1359,7 +1359,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         return self.email
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserEmailClaim, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         if user and user == self.user:
             perms.add('verify')
         return perms
@@ -1524,7 +1524,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
 
     def __init__(self, phone, **kwargs) -> None:
-        super(UserPhone, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._phone = phone
 
     @hybrid_property
@@ -1608,7 +1608,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('user_id', 'phone'),)
 
     def __init__(self, phone, **kwargs) -> None:
-        super(UserPhoneClaim, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.verification_code = newpin()
         self._phone = phone
 
@@ -1652,7 +1652,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
         return self.verification_attempts >= 3
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserPhoneClaim, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         if user and user == self.user:
             perms.add('verify')
         return perms
@@ -1765,7 +1765,7 @@ class UserExternalId(BaseMixin, db.Model):
         return cls.query.filter_by(**{param: value, 'service': service}).one_or_none()
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserExternalId, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         if user and user == self.user:
             perms.add('delete_extid')
         return perms
