@@ -5,14 +5,7 @@ from flask import abort, flash, jsonify, redirect, request
 from baseframe import _, forms, request_is_xhr
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
-from coaster.views import (
-    ModelView,
-    UrlForView,
-    render_with,
-    requires_permission,
-    requires_roles,
-    route,
-)
+from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app, funnelapp
 from ..forms import CommentForm
@@ -64,7 +57,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
 
     @route('voteup', methods=['POST'])
     @requires_login
-    @requires_permission('vote_proposal')
+    @requires_roles({'reader'})
     def voteup(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
@@ -79,7 +72,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
 
     @route('votedown', methods=['POST'])
     @requires_login
-    @requires_permission('vote_proposal')
+    @requires_roles({'reader'})
     def votedown(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():
@@ -94,7 +87,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
 
     @route('delete_vote', methods=['POST'])
     @requires_login
-    @requires_permission('vote_proposal')
+    @requires_roles({'reader'})
     def delete_vote(self):
         csrf_form = forms.Form()
         if not csrf_form.validate_on_submit():

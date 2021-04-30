@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
-from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple, Union, overload
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Union, overload
 import urllib.parse
 
 from sqlalchemy.ext.declarative import declared_attr
@@ -214,22 +214,9 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
     def owner(self):
         return self.user or self.organization
 
-    def owner_is(self, user: User):
-        if not user:
-            return False
-        return self.user == user or (
-            self.organization and self.organization in user.organizations_as_owner
-        )
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        perms.add('view')
-        if user and self.owner_is(user):
-            perms.add('edit')
-            perms.add('delete')
-            perms.add('assign-permissions')
-            perms.add('new-resource')
-        return perms
+    def owner_is(self, user: User) -> bool:
+        # Legacy method for ownership test
+        return 'owner' in self.roles_for(user)
 
     def authtoken_for(
         self, user: User, user_session: Optional[UserSession] = None
@@ -313,14 +300,17 @@ class AuthClientCredential(BaseMixin, db.Model):
 
     __tablename__ = 'auth_client_credential'
     auth_client_id = db.Column(None, db.ForeignKey('auth_client.id'), nullable=False)
-    auth_client: AuthClient = db.relationship(
-        AuthClient,
-        primaryjoin=auth_client_id == AuthClient.id,
-        backref=db.backref(
-            'credentials',
-            cascade='all',
-            collection_class=attribute_mapped_collection('name'),
+    auth_client: AuthClient = with_roles(
+        db.relationship(
+            AuthClient,
+            primaryjoin=auth_client_id == AuthClient.id,
+            backref=db.backref(
+                'credentials',
+                cascade='all',
+                collection_class=attribute_mapped_collection('name'),
+            ),
         ),
+        grants_via={None: {'owner'}},
     )
 
     #: OAuth client key
@@ -371,13 +361,6 @@ class AuthClientCredential(BaseMixin, db.Model):
             'blake2b$32$' + blake2b(secret.encode(), digest_size=32).hexdigest()
         )
         return cred, secret
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if user and self.auth_client.owner_is(user):
-            perms.add('view')
-            perms.add('delete')
-        return perms
 
 
 class AuthCode(ScopeMixin, BaseMixin, db.Model):
@@ -655,10 +638,13 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
     auth_client_id = db.Column(
         None, db.ForeignKey('auth_client.id'), nullable=False, index=True
     )
-    auth_client: AuthClient = db.relationship(
-        AuthClient,
-        primaryjoin=auth_client_id == AuthClient.id,
-        backref=db.backref('user_permissions', cascade='all'),
+    auth_client: AuthClient = with_roles(
+        db.relationship(
+            AuthClient,
+            primaryjoin=auth_client_id == AuthClient.id,
+            backref=db.backref('user_permissions', cascade='all'),
+        ),
+        grants_via={None: {'owner'}},
     )
     #: The permissions as a string of tokens
     access_permissions = db.Column(
@@ -704,11 +690,6 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
     def all_forclient(cls, auth_client: AuthClient) -> QueryBaseClass:
         return cls.query.filter_by(auth_client=auth_client)
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        perms.update(self.auth_client.permissions(user, inherited))
-        return perms
-
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
@@ -725,10 +706,13 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     auth_client_id = db.Column(
         None, db.ForeignKey('auth_client.id'), nullable=False, index=True
     )
-    auth_client: AuthClient = db.relationship(
-        AuthClient,
-        primaryjoin=auth_client_id == AuthClient.id,
-        backref=db.backref('team_permissions', cascade='all'),
+    auth_client: AuthClient = with_roles(
+        db.relationship(
+            AuthClient,
+            primaryjoin=auth_client_id == AuthClient.id,
+            backref=db.backref('team_permissions', cascade='all'),
+        ),
+        grants_via={None: {'owner'}},
     )
     #: The permissions as a string of tokens
     access_permissions = db.Column(
@@ -761,8 +745,3 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     @classmethod
     def all_forclient(cls, auth_client: AuthClient) -> QueryBaseClass:
         return cls.query.filter_by(auth_client=auth_client)
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        perms.update(self.auth_client.permissions(user, inherited))
-        return perms
