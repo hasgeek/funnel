@@ -2615,26 +2615,15 @@
         null,
         "इस प्रोजेक्ट के लिए अमान्य परिवर्तन"
       ],
-      "Invalid transition for this project's CfP": [
+      "Invalid transition for this project’s CfP": [
         null,
         "इस प्रोजेक्ट के CfP के लिए अमान्य परिवर्तन"
       ],
       "This response is not valid": [null, "यह प्रतिक्रिया मान्य नहीं है"],
-      "You have successfully registered": [
+      "Were you trying to register? Try again to confirm": [null, ""],
+      "Were you trying to cancel your registration? Try again to confirm": [
         null,
-        "आपने सफलतापूर्वक रजिस्टर कर लिया है"
-      ],
-      "There was a problem registering. Please try again": [
-        null,
-        "रजिस्टर करने में समस्या थी. कृपया दोबारा प्रयास करें"
-      ],
-      "Your registration has been cancelled": [
-        null,
-        "आपका रजिस्ट्रेशन रद्द कर दिया गया है"
-      ],
-      "There was a problem cancelling your registration. Please try again": [
-        null,
-        "आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
+        ""
       ],
       "Importing tickets from vendors… Reload the page in about 30 seconds…": [
         null,

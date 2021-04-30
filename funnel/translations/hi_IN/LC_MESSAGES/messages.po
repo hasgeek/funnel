@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-04-30 01:53+0530\n"
+"POT-Creation-Date: 2021-04-30 07:22+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -4835,7 +4835,7 @@ msgid "Subscribed to this comment thread"
 msgstr ""
 
 #: funnel/views/commentvote.py:200 funnel/views/commentvote.py:220
-#: funnel/views/commentvote.py:237 funnel/views/project.py:690
+#: funnel/views/commentvote.py:237 funnel/views/project.py:688
 msgid "This page timed out. Reload and try again"
 msgstr ""
 "इस पेज को लोड होने का समय समाप्त हो चुका है. पेज को रिलोड करने के बाद फिर"
@@ -5586,32 +5586,22 @@ msgid "Invalid transition for this project"
 msgstr "इस प्रोजेक्ट के लिए अमान्य परिवर्तन"
 
 #: funnel/views/project.py:546
-msgid "Invalid transition for this project's CfP"
+msgid "Invalid transition for this project’s CfP"
 msgstr "इस प्रोजेक्ट के CfP के लिए अमान्य परिवर्तन"
 
 #: funnel/views/project.py:562
 msgid "This response is not valid"
 msgstr "यह प्रतिक्रिया मान्य नहीं है"
 
-#: funnel/views/project.py:574
-msgid "You have successfully registered"
-msgstr "आपने सफलतापूर्वक रजिस्टर कर लिया है"
-
-#: funnel/views/project.py:579
-msgid "There was a problem registering. Please try again"
-msgstr "रजिस्टर करने में समस्या थी. कृपया दोबारा प्रयास करें"
-
-#: funnel/views/project.py:591
-msgid "Your registration has been cancelled"
-msgstr "आपका रजिस्ट्रेशन रद्द कर दिया गया है"
-
-#: funnel/views/project.py:597
-msgid "There was a problem cancelling your registration. Please try again"
+#: funnel/views/project.py:578
+msgid "Were you trying to register? Try again to confirm"
 msgstr ""
-"आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा "
-"प्रयास करें"
 
-#: funnel/views/project.py:712 funnel/views/ticket_event.py:149
+#: funnel/views/project.py:595
+msgid "Were you trying to cancel your registration? Try again to confirm"
+msgstr ""
+
+#: funnel/views/project.py:710 funnel/views/ticket_event.py:149
 msgid "Importing tickets from vendors… Reload the page in about 30 seconds…"
 msgstr "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिलोड करें…"
 
@@ -7159,3 +7149,18 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "This is a featured submission"
 #~ msgstr "यह मुख्य सबमिशन है"
+
+#~ msgid "You have successfully registered"
+#~ msgstr "आपने सफलतापूर्वक रजिस्टर कर लिया है"
+
+#~ msgid "There was a problem registering. Please try again"
+#~ msgstr "रजिस्टर करने में समस्या थी. कृपया दोबारा प्रयास करें"
+
+#~ msgid "Your registration has been cancelled"
+#~ msgstr "आपका रजिस्ट्रेशन रद्द कर दिया गया है"
+
+#~ msgid "There was a problem cancelling your registration. Please try again"
+#~ msgstr ""
+#~ "आपका रजिस्ट्रेशन रद्द करने में एक "
+#~ "समस्या उत्पन्न हुई थी. कृपया दोबारा "
+#~ "प्रयास करें"

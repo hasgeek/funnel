@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-30 01:53+0530\n"
+"POT-Creation-Date: 2021-04-30 07:22+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4644,7 +4644,7 @@ msgid "Subscribed to this comment thread"
 msgstr ""
 
 #: funnel/views/commentvote.py:200 funnel/views/commentvote.py:220
-#: funnel/views/commentvote.py:237 funnel/views/project.py:690
+#: funnel/views/commentvote.py:237 funnel/views/project.py:688
 msgid "This page timed out. Reload and try again"
 msgstr ""
 
@@ -5355,30 +5355,22 @@ msgid "Invalid transition for this project"
 msgstr ""
 
 #: funnel/views/project.py:546
-msgid "Invalid transition for this project's CfP"
+msgid "Invalid transition for this project’s CfP"
 msgstr ""
 
 #: funnel/views/project.py:562
 msgid "This response is not valid"
 msgstr ""
 
-#: funnel/views/project.py:574
-msgid "You have successfully registered"
+#: funnel/views/project.py:578
+msgid "Were you trying to register? Try again to confirm"
 msgstr ""
 
-#: funnel/views/project.py:579
-msgid "There was a problem registering. Please try again"
+#: funnel/views/project.py:595
+msgid "Were you trying to cancel your registration? Try again to confirm"
 msgstr ""
 
-#: funnel/views/project.py:591
-msgid "Your registration has been cancelled"
-msgstr ""
-
-#: funnel/views/project.py:597
-msgid "There was a problem cancelling your registration. Please try again"
-msgstr ""
-
-#: funnel/views/project.py:712 funnel/views/ticket_event.py:149
+#: funnel/views/project.py:710 funnel/views/ticket_event.py:149
 msgid "Importing tickets from vendors… Reload the page in about 30 seconds…"
 msgstr ""
 
