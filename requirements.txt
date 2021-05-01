@@ -29,7 +29,7 @@ jsmin==2.2.2
 oauth2client==4.1.3
 passlib==1.7.4
 phonenumbers==8.12.22
-premailer==3.7.0
+premailer==3.8.0
 progressbar2==3.53.1
 psycopg2==2.8.6
 pycountry==20.7.3
