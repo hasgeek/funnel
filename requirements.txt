@@ -45,6 +45,6 @@ six==1.15.0
 SQLAlchemy==1.4.12
 sqlalchemy_utils==0.37.0
 tweepy==3.10.0
-twilio==6.55.0
+twilio==6.57.0
 user-agents==2.2.0
 zxcvbn==4.4.28
