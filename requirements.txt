@@ -7,7 +7,7 @@ bcrypt==3.2.0
 blinker==1.4
 git+https://github.com/hasgeek/coaster.git#egg=coaster
 cryptography==3.4.7
-dataclasses-json==0.5.2
+dataclasses-json==0.5.3
 Flask==1.1.2
 Flask-Assets==2.0
 Flask-Executor==0.9.4
