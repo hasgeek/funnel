@@ -69,9 +69,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
         form = ProposalForm(model=Proposal, parent=self.obj)
 
         if form.validate_on_submit():
-            proposal = Proposal(
-                user=current_auth.user, speaker=current_auth.user, project=self.obj
-            )
+            proposal = Proposal(user=current_auth.user, project=self.obj)
             db.session.add(proposal)
             with db.session.no_autoflush:
                 form.populate_obj(proposal)
@@ -149,7 +147,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('')
     @render_with('proposal.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def view(self):
         # FIXME: Use a separate endpoint for comments as this is messing with browser
         # cache. View Source on proposal pages shows comments tree instead of source
@@ -308,7 +306,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         proposal_transfer_form = ProposalTransferForm()
         if proposal_transfer_form.validate_on_submit():
             target_user = proposal_transfer_form.user.data
-            self.obj.current_access().transfer_to(target_user, actor=current_auth.actor)
+            self.obj.current_access().transfer_to(
+                [target_user], actor=current_auth.actor
+            )
             db.session.commit()
             flash(_("This submission has been transferred."), 'success')
         else:

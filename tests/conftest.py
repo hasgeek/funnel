@@ -609,7 +609,6 @@ def new_label(db_session, new_project):
 def new_proposal(db_session, new_user, new_project):
     proposal = Proposal(
         user=new_user,
-        speaker=new_user,
         project=new_project,
         title="Test Proposal",
         body="Test proposal description",

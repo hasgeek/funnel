@@ -4,13 +4,10 @@ from typing import Iterable, Optional, Set
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from werkzeug.utils import cached_property
-
 from baseframe import __
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..utils import geonameid_from_location
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
@@ -222,7 +219,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
                 'title',
                 'body',
                 'user',
-                'speaker',
+                'first_user',
                 'video',
                 'session',
                 'project',
@@ -245,7 +242,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             'title',
             'body',
             'user',
-            'speaker',
+            'first_user',
             'video',
             'session',
             'project',
@@ -257,7 +254,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             'title',
             'body',
             'user',
-            'speaker',
+            'first_user',
             'video',
             'session',
         },
@@ -268,6 +265,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         super().__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
+        # Assume self.user is set. Fail if not.
+        db.session.add(
+            ProposalMembership(proposal=self, user=self.user, granted_by=self.user)
+        )
 
     def __repr__(self):
         """Represent :class:`Proposal` as a string."""
@@ -460,14 +461,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     @hybrid_property
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
-
-    @cached_property
-    def has_outstation_speaker(self) -> bool:
-        """Verify if geocoded proposal location field differs from project location."""
-        if not self.location:
-            return False
-        geonameid = geonameid_from_location(self.location)
-        return bool(geonameid) and self.project.location_geonameid.isdisjoint(geonameid)
 
     def update_description(self) -> None:
         if not self.custom_description:
@@ -664,3 +657,7 @@ class __Project:
         return bool(self._has_featured_proposals)
 
     with_roles(has_featured_proposals, read={'all'})
+
+
+# Tail imports
+from .proposal_membership import ProposalMembership  # isort:skip

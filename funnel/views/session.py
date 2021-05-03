@@ -47,7 +47,7 @@ def session_edit(project, proposal=None, session=None):
         form = SessionForm()
         if proposal:
             form.description.data = proposal.body
-            form.speaker.data = proposal.speaker.fullname
+            form.speaker.data = proposal.first_user.fullname
             form.title.data = proposal.title
 
     form.venue_room_id.choices = rooms_list(project)

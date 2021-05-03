@@ -1,4 +1,4 @@
-from typing import Optional, Set
+from typing import List, Set
 
 from werkzeug.utils import cached_property
 
@@ -118,43 +118,39 @@ class __Proposal:
     )
 
     @with_roles(call={'project_editor'})
-    def transfer_to(self, user: User, actor: User):
-        """Replace the sole credited member on a proposal."""
-        credited_memberships = [m for m in self.memberships if not m.is_uncredited]
-        if len(credited_memberships) > 1:
-            raise ValueError("Too many speakers, don't know which to replace")
-        if credited_memberships:
-            if credited_memberships[0].user == user:
-                # Existing speaker is the same as new speaker.
-                # Nothing to do, just return
-                return
-            # There is an existing `speaker`. Revoke their membership
-            credited_memberships[0].revoke(actor)
+    def transfer_to(self, users: List[User], actor: User):
+        """Replace the members on a proposal."""
+        userset = set(users)  # Make a copy to work on
+        for member in self.memberships:
+            if member.user not in userset:
+                # Revoke this membership
+                member.revoke(actor=actor)
+            else:
+                # Don't need to modify this membership
+                userset.remove(member.user)
 
         # Add a membership. XXX: This does not append to the `self.memberships` list, so
-        # reading the `speaker` property immediately after setting it will not return
+        # reading the `first_user` property immediately after setting it will not return
         # the expected value. A database commit is necessary to refresh the list. This
-        # poor behaviour is only tolerable because the `speaker` property is support for
-        # legacy code pending upgrade
-        db.session.add(ProposalMembership(proposal=self, user=user, granted_by=actor))
+        # poor behaviour is only tolerable because the `first_user` property is support
+        # for legacy code pending upgrade
+        for user in userset:
+            db.session.add(
+                ProposalMembership(proposal=self, user=user, granted_by=actor)
+            )
 
     @property
-    def speaker(self) -> Optional[User]:
-        """Return the first credited member on the proposal."""
+    def first_user(self) -> User:
+        """Return the first credited member on the proposal, or creator if none."""
         for membership in self.memberships:
             if not membership.is_uncredited:
                 return membership.user
-        return None
-
-    @speaker.setter
-    def speaker(self, value: User):
-        """Replace a member on a proposal."""
-        self.transfer_to(value, self.user)
+        return self.user
 
 
 @reopen(User)
 class __User:
-    proposal_memberships = db.relationship(
+    all_proposal_memberships = db.relationship(
         ProposalMembership,
         lazy='dynamic',
         foreign_keys=[ProposalMembership.user_id],

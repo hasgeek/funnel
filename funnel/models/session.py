@@ -171,7 +171,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     @hybrid_property
     def user(self):
         if self.proposal:
-            return self.proposal.speaker
+            return self.proposal.first_user
 
     @hybrid_property
     def scheduled(self):

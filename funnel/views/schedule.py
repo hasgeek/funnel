@@ -267,7 +267,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 {
                     'title': proposal.title,
                     'modal_url': proposal.url_for('schedule'),
-                    'speaker': proposal.speaker,
+                    'speaker': proposal.first_user,
                     'user': proposal.user,
                     'labels': list(proposal.labels),
                 }
