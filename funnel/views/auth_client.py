@@ -8,7 +8,7 @@ from coaster.views import (
     ModelView,
     UrlForView,
     render_with,
-    requires_permission,
+    requires_roles,
     route,
 )
 
@@ -103,7 +103,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('', methods=['GET'])
     @render_with('auth_client.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'all'})
     def view(self):
         if self.obj.user:
             permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
@@ -113,7 +113,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit')
+    @requires_roles({'owner'})
     def edit(self):
         form = AuthClientForm(obj=self.obj, model=AuthClient)
         form.edit_user = current_auth.user
@@ -156,7 +156,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('delete')
+    @requires_roles({'owner'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -199,7 +199,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('cred', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit')
+    @requires_roles({'owner'})
     def cred_new(self):
         form = AuthClientCredentialForm()
         if request.method == 'GET' and not self.obj.credentials:
@@ -224,7 +224,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('perms/new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
+    @requires_roles({'owner'})
     def permission_user_new(self):
         if self.obj.user:
             form = UserPermissionAssignForm()
@@ -315,7 +315,7 @@ class AuthClientCredentialView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('delete')
+    @requires_roles({'owner'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -352,12 +352,11 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
+    @requires_roles({'owner'})
     def edit(self):
         form = AuthClientPermissionEditForm()
-        if request.method == 'GET':
-            if self.obj:
-                form.perms.data = self.obj.access_permissions
+        if request.method == 'GET' and self.obj:
+            form.perms.data = self.obj.access_permissions
         if form.validate_on_submit():
             perms = ' '.join(sorted(form.perms.data.split()))
             if not perms:
@@ -390,7 +389,7 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('assign-permissions')
+    @requires_roles({'owner'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -426,12 +425,11 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
+    @requires_roles({'owner'})
     def edit(self):
         form = AuthClientPermissionEditForm()
-        if request.method == 'GET':
-            if self.obj:
-                form.perms.data = self.obj.access_permissions
+        if request.method == 'GET' and self.obj:
+            form.perms.data = self.obj.access_permissions
         if form.validate_on_submit():
             perms = ' '.join(sorted(form.perms.data.split()))
             if not perms:
@@ -464,7 +462,7 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('assign-permissions')
+    @requires_roles({'owner'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
