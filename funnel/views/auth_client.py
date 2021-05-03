@@ -355,9 +355,8 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
     @requires_roles({'owner'})
     def edit(self):
         form = AuthClientPermissionEditForm()
-        if request.method == 'GET':
-            if self.obj:
-                form.perms.data = self.obj.access_permissions
+        if request.method == 'GET' and self.obj:
+            form.perms.data = self.obj.access_permissions
         if form.validate_on_submit():
             perms = ' '.join(sorted(form.perms.data.split()))
             if not perms:
@@ -429,9 +428,8 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
     @requires_roles({'owner'})
     def edit(self):
         form = AuthClientPermissionEditForm()
-        if request.method == 'GET':
-            if self.obj:
-                form.perms.data = self.obj.access_permissions
+        if request.method == 'GET' and self.obj:
+            form.perms.data = self.obj.access_permissions
         if form.validate_on_submit():
             perms = ' '.join(sorted(form.perms.data.split()))
             if not perms:
