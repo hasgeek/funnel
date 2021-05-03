@@ -265,7 +265,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     }
 
     def __init__(self, **kwargs) -> None:
-        super(Proposal, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
 
@@ -501,7 +501,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         return len(self.voteset.votes)
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(Proposal, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:
                 # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439

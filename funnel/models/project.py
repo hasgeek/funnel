@@ -410,7 +410,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
 
     def __init__(self, **kwargs) -> None:
-        super(Project, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROJECT)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
         # Add the creator as editor and promoter
@@ -627,7 +627,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
         # TODO: Remove permission system entirely
-        perms = super(Project, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         perms.add('view')
         if user is not None:
             if self.cfp_state.OPEN:

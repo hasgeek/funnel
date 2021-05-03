@@ -200,7 +200,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     }
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(TicketParticipant, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
                 roles.add('subject')
@@ -210,7 +210,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         return roles
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(TicketParticipant, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         if self.project is not None:
             return self.project.permissions(user) | perms
         return perms
@@ -405,7 +405,7 @@ class TicketClient(BaseMixin, db.Model):
                 ticket.ticket_participant.add_events(ticket_type.ticket_events)
 
     def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(TicketClient, self).permissions(user, inherited)
+        perms = super().permissions(user, inherited)
         if self.project is not None:
             return self.project.permissions(user) | perms
         return perms

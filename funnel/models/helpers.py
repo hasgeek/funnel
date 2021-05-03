@@ -453,7 +453,7 @@ class ImgeeType(UrlType):
     url_parser = ImgeeFurl
 
     def process_bind_param(self, value, dialect):
-        value = super(UrlType, self).process_bind_param(value, dialect)
+        value = super().process_bind_param(value, dialect)
         if value:
             allowed_domains = current_app.config.get('IMAGE_URL_DOMAINS', [])
             allowed_schemes = current_app.config.get('IMAGE_URL_SCHEMES', [])

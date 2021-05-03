@@ -187,7 +187,7 @@ class TicketParticipantView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        return super(TicketParticipantView, self).after_loader()
+        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})
