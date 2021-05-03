@@ -312,27 +312,29 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     @with_roles(read={'all'})
     def getnext(self):
-        return (
-            Update.query.filter(
-                Update.project == self.project,
-                Update.state.PUBLISHED,
-                Update.number > self.number,
+        if self.state.PUBLISHED:
+            return (
+                Update.query.filter(
+                    Update.project == self.project,
+                    Update.state.PUBLISHED,
+                    Update.number > self.number,
+                )
+                .order_by(Update.number.asc())
+                .first()
             )
-            .order_by(Update.number.asc())
-            .first()
-        )
 
     @with_roles(read={'all'})
     def getprev(self):
-        return (
-            Update.query.filter(
-                Update.project == self.project,
-                Update.state.PUBLISHED,
-                Update.number < self.number,
+        if self.state.PUBLISHED:
+            return (
+                Update.query.filter(
+                    Update.project == self.project,
+                    Update.state.PUBLISHED,
+                    Update.number < self.number,
+                )
+                .order_by(Update.number.desc())
+                .first()
             )
-            .order_by(Update.number.desc())
-            .first()
-        )
 
 
 add_search_trigger(Update, 'search_vector')
