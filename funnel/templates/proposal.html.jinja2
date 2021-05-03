@@ -74,12 +74,14 @@
 {% endmacro %}
 
 {% macro prev_next_btn(proposal, prev_icon='caret-left-solid', next_icon='caret-right-solid') %}
-  {%- if proposal.getprev() -%}
-    <a href="{{ proposal.getprev().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Previous{% endtrans %}</a>
+  {% with prev_proposal = proposal.getprev(), next_proposal = proposal.getnext() %}
+  {%- if prev_proposal -%}
+    <a href="{{ prev_proposal.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Previous{% endtrans %}</a>
   {%- endif -%}
-  {%- if proposal.getnext() -%}
-    <a href="{{ proposal.getnext().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{% trans %}Next{% endtrans %}{{ faicon(icon=next_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
+  {%- if next_proposal -%}
+    <a href="{{ next_proposal.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{% trans %}Next{% endtrans %}{{ faicon(icon=next_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
   {%- endif -%}
+   {% endwith %}
 {% endmacro %}
 
 {% block mobile_header_title %}{% endblock %}
@@ -251,9 +253,11 @@
     <div class="flex-wrapper flex-wrapper--space-between flex-wrapper--center prev-next-btn-wrapper">
       {{ prev_next_btn(proposal, prev_icon='caret-left-solid', next_icon='caret-down-solid') }}
     </div>
-    {%- if proposal.getnext() -%}
-      {{ proposal_card(proposal.getnext(), project=project) }}
-    {%- endif -%}
+    {% with next_proposal = proposal.getnext() %}
+      {%- if next_proposal -%}
+        {{ proposal_card(next_proposal, project=project) }}
+      {%- endif -%}
+    {% endwith %}
   </div>
 {% endblock %}
 

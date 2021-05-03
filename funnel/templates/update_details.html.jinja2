@@ -8,14 +8,16 @@
 
 {% block left_col %}
   <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
-    <a class="mui--text-dark mui--text-body2 nounderline" href="{{ project.url_for('updates') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All submissions{% endtrans %}</a>
+    <a class="mui--text-dark mui--text-body2 nounderline" href="{{ project.url_for('updates') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All updates{% endtrans %}</a>
     <div>
-      {%- if update.getprev() -%}
-        <a href="{{ update.getprev().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Previous{% endtrans %}</a>
+      {% with prev_update = update.getprev(), next_update = update.getnext() %}
+      {%- if prev_update -%}
+        <a href="{{ prev_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Previous{% endtrans %}</a>
       {%- endif -%}
-      {%- if update.getnext() -%}
-        <a href="{{ update.getnext().url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{% trans %}Next{% endtrans %}{{ faicon(icon=next_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
+      {%- if next_update -%}
+        <a href="{{ next_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{% trans %}Next{% endtrans %}{{ faicon(icon='caret-right-solid', icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
       {%- endif -%}
+      {% endwith %}
     </div>
   </div>
   <div class="page-card page-card--nomargin left-padding right-padding">

@@ -310,20 +310,24 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )
 
+    @with_roles(read={'all'})
     def getnext(self):
         return (
             Update.query.filter(
                 Update.project == self.project,
+                Update.state.PUBLISHED,
                 Update.number > self.number,
             )
             .order_by(Update.number.asc())
             .first()
         )
 
+    @with_roles(read={'all'})
     def getprev(self):
         return (
             Update.query.filter(
                 Update.project == self.project,
+                Update.state.PUBLISHED,
                 Update.number < self.number,
             )
             .order_by(Update.number.desc())

@@ -184,22 +184,6 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
             cancel_url=self.obj.url_for(),
         )
 
-    @route('next')  # NOQA: A003
-    def next(self):  # NOQA: A003
-        nextobj = self.obj.getnext()
-        if nextobj:
-            return redirect(nextobj.url_for())
-        else:
-            return redirect(self.obj.project.url_for())
-
-    @route('prev')
-    def prev(self):
-        prevobj = self.obj.getprev()
-        if prevobj:
-            return redirect(prevobj.url_for())
-        else:
-            return redirect(self.obj.project.url_for())
-
 
 @route('/<project>/updates/<update>', subdomain='<profile>')
 class FunnelUpdateView(UpdateView):
