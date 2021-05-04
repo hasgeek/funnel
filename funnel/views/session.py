@@ -135,7 +135,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('')
     @render_with('project_schedule.html.jinja2', json=True)
-    @requires_roles({'reader'})
+    # @requires_roles({'reader'})
     def view(self):
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
@@ -170,7 +170,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('viewsession-popup')
     @render_with('session_view_popup.html.jinja2')
-    @requires_roles({'reader'})
+    # @requires_roles({'reader'})
     def view_popup(self):
         return {
             'session': self.obj.current_access(),
@@ -210,7 +210,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('save', methods=['POST'])
     @render_with(json=True)
     @requires_login
-    @requires_roles({'reader'})
+    # @requires_roles({'reader'})
     def save(self) -> ReturnRenderWith:
         form = SavedSessionForm()
         if form.validate_on_submit():
