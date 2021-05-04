@@ -10,7 +10,6 @@ from coaster.views import (
     UrlForView,
     render_with,
     requestform,
-    requires_permission,
     requires_roles,
     route,
 )
@@ -161,7 +160,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('admin')
     @render_with('proposal_admin_panel.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'project_editor'})
     def admin(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
         proposal_transfer_form = ProposalTransferForm()
@@ -215,7 +214,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_roles({'editor'})
+    @requires_roles({'editor', 'project_editor'})
     def delete(self):
         # FIXME: Prevent deletion of confirmed proposals
         return render_delete_sqla(
@@ -254,29 +253,9 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             abort(403)
         return redirect(self.obj.url_for())
 
-    @route('next')  # NOQA: A003
-    @requires_permission('view')
-    def next(self):  # NOQA: A003
-        nextobj = self.obj.getnext()
-        if nextobj:
-            return redirect(nextobj.url_for())
-        else:
-            flash(_("You were at the last submission"), 'info')
-            return redirect(self.obj.project.url_for())
-
-    @route('prev')
-    @requires_permission('view')
-    def prev(self):
-        prevobj = self.obj.getprev()
-        if prevobj:
-            return redirect(prevobj.url_for())
-        else:
-            flash(_("You were at the first submission"), 'info')
-            return redirect(self.obj.project.url_for())
-
     @route('move', methods=['POST'])
     @requires_login
-    @requires_permission('move-proposal')
+    @requires_roles({'editor', 'project_editor'})
     def moveto(self):
         proposal_move_form = ProposalMoveForm()
         if proposal_move_form.validate_on_submit():
@@ -301,7 +280,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('transfer', methods=['POST'])
     @requires_login
-    @requires_permission('move-proposal')
+    @requires_roles({'editor', 'project_editor'})
     def transfer_to(self):
         proposal_transfer_form = ProposalTransferForm()
         if proposal_transfer_form.validate_on_submit():
@@ -320,7 +299,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('update_featured', methods=['POST'])
     @requires_login
-    @requires_permission('move-proposal')
+    @requires_roles({'project_editor'})
     def update_featured(self):
         featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
@@ -343,13 +322,13 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('schedule', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('new-session')
+    @requires_roles({'project_editor'})
     def schedule(self):
         return session_edit(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('admin')
+    @requires_roles({'project_editor'})
     def edit_labels(self):
         form = ProposalLabelsAdminForm(
             model=Proposal, obj=self.obj, parent=self.obj.project

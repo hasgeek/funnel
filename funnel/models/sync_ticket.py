@@ -209,12 +209,6 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
                 roles.add('scanner')
         return roles
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if self.project is not None:
-            return self.project.permissions(user) | perms
-        return perms
-
     @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def avatar(self):
@@ -403,12 +397,6 @@ class TicketClient(BaseMixin, db.Model):
                 )
                 # Ensure that the new or updated participant has access to events
                 ticket.ticket_participant.add_events(ticket_type.ticket_events)
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if self.project is not None:
-            return self.project.permissions(user) | perms
-        return perms
 
 
 class SyncTicket(BaseMixin, db.Model):

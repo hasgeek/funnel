@@ -18,7 +18,6 @@ from coaster.views import (
     UrlForView,
     render_with,
     requestargs,
-    requires_permission,
     requires_roles,
     route,
 )
@@ -341,7 +340,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     __decorators__ = [legacy_redirect]
 
     @route('ical')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def schedule_room_ical(self):
         cal = Calendar()
         cal.add('prodid', "-//Hasgeek//NONSGML Funnel//EN"),
@@ -386,7 +385,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
 
     @route('updates')
     @render_with('room_updates.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def updates(self):
         now = utcnow()
         current_session = Session.query.filter(

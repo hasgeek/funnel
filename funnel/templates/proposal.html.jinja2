@@ -190,7 +190,7 @@
               {{ useravatar(member.user) }}
               <div class="user__box__header">
                 <p class="mui--text-body2 user__box__fullname">{{ member.user.fullname }}</p>
-                {%- if member.user.username %}<p class="mui--text-caption user__box__userid">@{{ member.user.username }} {%- if member.label %}<span class="badge">{{ member.label }}</span>{% endif %}</p>{%- endif -%}
+                {%- if member.user.username %}<p class="mui--text-caption user__box__userid">@{{ member.user.username }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif -%}</p>{%- endif -%}
               </div>
             </div>
           </div>

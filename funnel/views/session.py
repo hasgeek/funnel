@@ -8,7 +8,6 @@ from coaster.views import (
     UrlChangeCheck,
     UrlForView,
     render_with,
-    requires_permission,
     requires_roles,
     route,
 )
@@ -170,7 +169,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('viewsession-popup')
     @render_with('session_view_popup.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def view_popup(self):
         return {
             'session': self.obj,
@@ -180,13 +179,13 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('editsession', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit-session')
+    @requires_roles({'project_editor'})
     def edit(self):
         return session_edit(self.obj.project, session=self.obj)
 
     @route('deletesession', methods=['POST'])
     @requires_login
-    @requires_permission('edit-session')
+    @requires_roles({'project_editor'})
     def delete(self):
         modal_url = self.obj.proposal.url_for('schedule') if self.obj.proposal else None
         if not self.obj.proposal:
@@ -210,7 +209,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('save', methods=['POST'])
     @render_with(json=True)
     @requires_login
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def save(self) -> ReturnRenderWith:
         form = SavedSessionForm()
         if form.validate_on_submit():

@@ -625,61 +625,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        # TODO: Remove permission system entirely
-        perms = super().permissions(user, inherited)
-        perms.add('view')
-        if user is not None:
-            if self.cfp_state.OPEN:
-                perms.add('new-proposal')
-            if 'editor' in self.roles_for(user):
-                perms.update(
-                    (
-                        'view_contactinfo',
-                        'edit_project',
-                        'delete-project',
-                        'view-venue',
-                        'new-venue',
-                        'edit-venue',
-                        'delete-venue',
-                        'edit-schedule',
-                        'move-proposal',
-                        'view_rsvps',
-                        'new-session',
-                        'edit-session',
-                        'new-event',
-                        'new-ticket-type',
-                        'new_ticket_client',
-                        'edit_ticket_client',
-                        'delete_ticket_client',
-                        'edit_event',
-                        'delete_event',
-                        'admin',
-                        'checkin_event',
-                        'view-event',
-                        'view_ticket_type',
-                        'delete_ticket_type',
-                        'edit-participant',
-                        'view-participant',
-                        'new-participant',
-                        'view_contactinfo',
-                        'view_voteinfo',
-                        'view_status',
-                        'delete-proposal',
-                        'edit-schedule',
-                        'new-session',
-                        'edit-session',
-                        'view-event',
-                        'view_ticket_type',
-                        'edit-participant',
-                        'view-participant',
-                        'new-participant',
-                    )
-                )
-            if 'usher' in self.roles_for(user):
-                perms.add('checkin_event')
-        return perms
-
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
