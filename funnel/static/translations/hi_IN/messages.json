@@ -1366,13 +1366,11 @@
         null,
         "(सेशन की कोई जानकारी नहीं दी गई है)"
       ],
-      "(proposing)": [null, "(प्रस्तुत कर रहे हैं)"],
       "more": [null, ""],
       "This proposal has a preview video": [
         null,
         "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
       ],
-      "Outstation speaker": [null, "दूसरे शहर से आने वाले स्पीकर"],
       "Manage membership": [null, "सदस्यता प्रबंधित करें"],
       "You have been invited to %(project)s.": [
         null,
@@ -1579,14 +1577,6 @@
       "No video": [null, "कोई वीडियो नहीं है"],
       "Session video": [null, "सेशन वीडियो"],
       "Proposal video": [null, "प्रस्ताव वीडियो"],
-      "Submitted by %(speaker)s on %(date)s": [
-        null,
-        "%(speaker)s के द्वारा %(date)s पर"
-      ],
-      "This is a proposal requesting for someone to present on this topic. If you’d like to present, leave a comment.": [
-        null,
-        ""
-      ],
       "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
@@ -1594,7 +1584,6 @@
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
       "Unscheduled proposals": [null, ""],
-      "Submitted by %(speaker)s": [null, ""],
       "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
@@ -2637,15 +2626,12 @@
         null,
         "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
       ],
-      "Your submission has been submitted": [null, ""],
       "Delete your submission ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,
         ""
       ],
       "Your submission has been deleted": [null, ""],
       "Invalid transition for this submission.": [null, ""],
-      "You were at the last submission": [null, ""],
-      "You were at the first submission": [null, ""],
       "This submission has been moved to {project}.": [null, ""],
       "Please choose the project you want to move this submission to.": [
         null,

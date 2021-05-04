@@ -21,6 +21,7 @@ project_child_role_map: Dict[str, str] = {
     'usher': 'project_usher',
     'crew': 'project_crew',
     'participant': 'project_participant',
+    'reader': 'reader',
 }
 
 

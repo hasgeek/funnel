@@ -255,7 +255,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('move', methods=['POST'])
     @requires_login
-    @requires_roles({'editor', 'project_editor'})
+    @requires_roles({'project_editor'})
     def moveto(self):
         proposal_move_form = ProposalMoveForm()
         if proposal_move_form.validate_on_submit():
@@ -280,7 +280,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('transfer', methods=['POST'])
     @requires_login
-    @requires_roles({'editor', 'project_editor'})
+    @requires_roles({'project_editor'})
     def transfer_to(self):
         proposal_transfer_form = ProposalTransferForm()
         if proposal_transfer_form.validate_on_submit():

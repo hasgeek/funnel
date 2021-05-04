@@ -227,9 +227,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             },
             'call': {'url_for', 'state', 'commentset'},
         },
-        'reviewer': {'read': {'email', 'phone'}},
         'project_editor': {
-            'read': {'email', 'phone'},
             'call': {'reorder_item', 'reorder_before', 'reorder_after'},
         },
     }
@@ -324,7 +322,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     # TODO: remove project_editor once ProposalMembership UI
     # has been implemented
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.UNDO_TO_SUBMITTED,
         state.SUBMITTED,
@@ -335,7 +333,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def undo_to_submitted(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.CONFIRMABLE,
         state.CONFIRMED,
@@ -346,7 +344,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def confirm(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.CONFIRMED,
         state.SUBMITTED,
@@ -357,7 +355,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def unconfirm(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.WAITLISTABLE,
         state.WAITLISTED,
@@ -368,7 +366,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def waitlist(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.REJECTABLE,
         state.REJECTED,
@@ -401,7 +399,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def undo_cancel(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.SUBMITTED,
         state.AWAITING_DETAILS,
@@ -412,7 +410,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def awaiting_details(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.EVALUATEABLE,
         state.UNDER_EVALUATION,
@@ -434,24 +432,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def delete(self):
         pass
 
-    # These 3 transitions are not in the editorial workflow anymore - Feb 23 2018
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SUBMITTED, state.SHORTLISTED, title=__("Shortlist"), message=__("This proposal has been shortlisted"), type='success')
-    # def shortlist(self):
-    #     pass
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title=__("Shortlist for rehearsal"), message=__("This proposal has been shortlisted for rehearsal"), type='success')
-    # def shortlist_for_rehearsal(self):
-    #     pass
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title=__("Rehearsal ongoing"), message=__("Rehearsal is now ongoing for this proposal"), type='success')
-    # def rehearsal_ongoing(self):
-    #     pass
-
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     def move_to(self, project):
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project

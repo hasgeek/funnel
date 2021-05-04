@@ -135,12 +135,13 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('')
     @render_with('project_schedule.html.jinja2', json=True)
+    @requires_roles({'reader'})
     def view(self):
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
         )
         return {
-            'project': self.obj.project,
+            'project': self.obj.project.current_access(),
             'from_date': (
                 self.obj.project.start_at_localized.isoformat()
                 if self.obj.project.start_at
@@ -172,7 +173,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'reader'})
     def view_popup(self):
         return {
-            'session': self.obj,
+            'session': self.obj.current_access(),
             'timezone': self.obj.project.timezone.zone,
             'localize_date': localize_date,
         }
