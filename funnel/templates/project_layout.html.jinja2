@@ -114,7 +114,7 @@
         {% endif %}
         <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
       </div>
-      <h1 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline">{{ project.title }}</a></h1>
+      <h1 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-cy="project-page">{{ project.title }}</a></h1>
       <p class="mui--text-heading mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
     </div>
   </div>
