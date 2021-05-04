@@ -111,7 +111,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             proposal.current_access().reorder_item(other_proposal, before)
             db.session.commit()
             return {'status': 'ok'}
-        return {'status': 'error'}, 400
+        return {'status': 'error'}, 422
 
 
 @Project.views('proposal_new')
@@ -317,7 +317,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 'status': 'error',
                 'error_description': featured_form.errors,
             },
-            400,
+            422,
         )
 
     @route('schedule', methods=['GET', 'POST'])
