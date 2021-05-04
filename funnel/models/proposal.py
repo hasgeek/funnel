@@ -119,7 +119,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         db.relationship(
             User,
             primaryjoin=user_id == User.id,
-            backref=db.backref('proposals', cascade='all', lazy='dynamic'),
+            backref=db.backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator'},
     )

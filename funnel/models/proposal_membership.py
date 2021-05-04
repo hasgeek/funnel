@@ -2,11 +2,12 @@ from typing import List, Set
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import immutable, with_roles
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin, ReorderMembershipMixin
+from .project import Project
 from .proposal import Proposal
 from .user import User
 
@@ -155,4 +156,29 @@ class __User:
         lazy='dynamic',
         foreign_keys=[ProposalMembership.user_id],
         viewonly=True,
+    )
+
+    proposal_memberships = db.relationship(
+        ProposalMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProposalMembership.user_id == User.id,
+            ProposalMembership.is_active,
+        ),
+        viewonly=True,
+    )
+
+    proposals = DynamicAssociationProxy('proposal_memberships', 'proposal')
+
+    @property
+    def public_proposal_memberships(self):
+        """Query for all proposal memberships to proposals that are public."""
+        return (
+            self.proposal_memberships.join(Proposal, ProposalMembership.proposal)
+            .join(Project, Proposal.project)
+            .filter()
+        )
+
+    public_proposals = DynamicAssociationProxy(
+        'public_proposal_memberships', 'proposal'
     )

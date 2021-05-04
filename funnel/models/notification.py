@@ -154,8 +154,6 @@ notification_categories: SimpleNamespace = SimpleNamespace(
         # Criteria: User has registered or proposed
         lambda user: (
             db.session.query(user.rsvps.exists()).scalar()
-            or db.session.query(user.proposals.exists()).scalar()
-            or db.session.query(user.speaker_at.exists()).scalar()
             or db.session.query(user.proposal_memberships.exists()).scalar()
         ),
     ),
