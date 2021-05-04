@@ -4548,6 +4548,7 @@ a.loginbutton.hidden,
 .comment .comment__body .comment--children {
   padding-left: 8px;
   word-break: break-word;
+  margin-bottom: 14px;
 }
 .comment .comment__body .js-comment-form .ajax-form {
   margin-top: 8px;
@@ -4570,6 +4571,11 @@ a.loginbutton.hidden,
   border-left: 1px solid #f06a5e;
 }
 
+@media (min-width: 1200px) {
+  .comment .comment__body .comment--children {
+    margin-bottom: 16px;
+  }
+}
 .comment:first-child {
   margin: 0;
 }
