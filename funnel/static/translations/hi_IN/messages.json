@@ -1366,13 +1366,11 @@
         null,
         "(सेशन की कोई जानकारी नहीं दी गई है)"
       ],
-      "(proposing)": [null, "(प्रस्तुत कर रहे हैं)"],
       "more": [null, ""],
       "This proposal has a preview video": [
         null,
         "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
       ],
-      "Outstation speaker": [null, "दूसरे शहर से आने वाले स्पीकर"],
       "Manage membership": [null, "सदस्यता प्रबंधित करें"],
       "You have been invited to %(project)s.": [
         null,
@@ -1508,10 +1506,6 @@
       "Settings": [null, "सेटिंग्स"],
       "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
       "Featured projects appear under Spotlight on the home page": [null, ""],
-      "This project will not be listed as it has no sessions in the schedule": [
-        null,
-        ""
-      ],
       "This project is not published. Visit settings to publish": [null, ""],
       "Related events": [null, "सम्बंधित ईवेंट"],
       "Add schedule": [null, ""],
@@ -1576,7 +1570,6 @@
       "Previous": [null, ""],
       "Next": [null, "आगे"],
       "All submissions": [null, ""],
-      "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
       "This proposal has been added to the schedule": [
         null,
         "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
@@ -1584,14 +1577,6 @@
       "No video": [null, "कोई वीडियो नहीं है"],
       "Session video": [null, "सेशन वीडियो"],
       "Proposal video": [null, "प्रस्ताव वीडियो"],
-      "Submitted by %(speaker)s on %(date)s": [
-        null,
-        "%(speaker)s के द्वारा %(date)s पर"
-      ],
-      "This is a proposal requesting for someone to present on this topic. If you’d like to present, leave a comment.": [
-        null,
-        ""
-      ],
       "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
@@ -1599,7 +1584,6 @@
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
       "Unscheduled proposals": [null, ""],
-      "Submitted by %(speaker)s": [null, ""],
       "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
@@ -2620,26 +2604,15 @@
         null,
         "इस प्रोजेक्ट के लिए अमान्य परिवर्तन"
       ],
-      "Invalid transition for this project's CfP": [
+      "Invalid transition for this project’s CfP": [
         null,
         "इस प्रोजेक्ट के CfP के लिए अमान्य परिवर्तन"
       ],
       "This response is not valid": [null, "यह प्रतिक्रिया मान्य नहीं है"],
-      "You have successfully registered": [
+      "Were you trying to register? Try again to confirm": [null, ""],
+      "Were you trying to cancel your registration? Try again to confirm": [
         null,
-        "आपने सफलतापूर्वक रजिस्टर कर लिया है"
-      ],
-      "There was a problem registering. Please try again": [
-        null,
-        "रजिस्टर करने में समस्या थी. कृपया दोबारा प्रयास करें"
-      ],
-      "Your registration has been cancelled": [
-        null,
-        "आपका रजिस्ट्रेशन रद्द कर दिया गया है"
-      ],
-      "There was a problem cancelling your registration. Please try again": [
-        null,
-        "आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
+        ""
       ],
       "Importing tickets from vendors… Reload the page in about 30 seconds…": [
         null,
@@ -2653,15 +2626,12 @@
         null,
         "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
       ],
-      "Your submission has been submitted": [null, ""],
       "Delete your submission ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
         null,
         ""
       ],
       "Your submission has been deleted": [null, ""],
       "Invalid transition for this submission.": [null, ""],
-      "You were at the last submission": [null, ""],
-      "You were at the first submission": [null, ""],
       "This submission has been moved to {project}.": [null, ""],
       "Please choose the project you want to move this submission to.": [
         null,
@@ -2686,6 +2656,10 @@
       "Profiles": [null, "प्रोफाइल"],
       "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
+      "This project will not be listed as it has no sessions in the schedule": [
+        null,
+        ""
+      ],
       "Something went wrong, please reload and try again": [
         null,
         "कुछ गड़बड़ी हुई है, कृपया दोबारा लोड करें और दोबारा प्रयास करें"

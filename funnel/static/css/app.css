@@ -67,6 +67,10 @@
   justify-content: space-between;
 }
 
+.flex-wrapper--wrap {
+  flex-wrap: wrap;
+}
+
 .material-icons {
   display: none;
 }
@@ -3619,7 +3623,7 @@ a.loginbutton.hidden,
   position: absolute;
   bottom: 16px;
   right: 16px;
-  z-index: 3;
+  z-index: 2;
 }
 .project-banner .project-banner__box .project-banner__box__add-btn--second {
   right: 60px;
@@ -4065,7 +4069,7 @@ a.loginbutton.hidden,
   position: absolute;
   bottom: 16px;
   right: 16px;
-  z-index: 3;
+  z-index: 2;
 }
 
 .details__box__control {
@@ -4522,15 +4526,11 @@ a.loginbutton.hidden,
   .comment__header__details__user {
   min-height: 40px;
 }
-.comment
-  .comment__header
-  .comment__header__details
-  .comment__header__details__user
-  .badge {
-  margin-right: 4px;
-}
 .comment .comment__header .comment__header__details .user__box {
   padding-bottom: 0;
+}
+.comment .comment__header .comment__header__details .badge {
+  margin-left: 4px;
 }
 .comment .comment__body {
   border-left: 1px solid rgba(132, 146, 166, 0.3);

@@ -48,6 +48,6 @@ describe('View schedule of p roject', function () {
     cy.get('[data-cy-session="room"]').contains(proposal.venue_room);
     cy.get('[data-cy="view-proposal"]').should('have.exist');
     cy.get('[data-cy="view-proposal"]').invoke('removeAttr', 'target').click();
-    cy.get('a[data-cy="proposal-menu"]').should('not.exist');
+    cy.get('a[data-cy="proposal-menu"]:visible').should('not.exist');
   });
 });

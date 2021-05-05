@@ -8,7 +8,6 @@ from coaster.views import (
     UrlChangeCheck,
     UrlForView,
     render_with,
-    requires_permission,
     requires_roles,
     route,
 )
@@ -47,7 +46,7 @@ def session_edit(project, proposal=None, session=None):
         form = SessionForm()
         if proposal:
             form.description.data = proposal.body
-            form.speaker.data = proposal.owner.fullname
+            form.speaker.data = proposal.first_user.fullname
             form.title.data = proposal.title
 
     form.venue_room_id.choices = rooms_list(project)
@@ -136,12 +135,13 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('')
     @render_with('project_schedule.html.jinja2', json=True)
+    # @requires_roles({'reader'})
     def view(self):
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
         )
         return {
-            'project': self.obj.project,
+            'project': self.obj.project.current_access(),
             'from_date': (
                 self.obj.project.start_at_localized.isoformat()
                 if self.obj.project.start_at
@@ -170,23 +170,23 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('viewsession-popup')
     @render_with('session_view_popup.html.jinja2')
-    @requires_permission('view')
+    # @requires_roles({'reader'})
     def view_popup(self):
         return {
-            'session': self.obj,
+            'session': self.obj.current_access(),
             'timezone': self.obj.project.timezone.zone,
             'localize_date': localize_date,
         }
 
     @route('editsession', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit-session')
+    @requires_roles({'project_editor'})
     def edit(self):
         return session_edit(self.obj.project, session=self.obj)
 
     @route('deletesession', methods=['POST'])
     @requires_login
-    @requires_permission('edit-session')
+    @requires_roles({'project_editor'})
     def delete(self):
         modal_url = self.obj.proposal.url_for('schedule') if self.obj.proposal else None
         if not self.obj.proposal:
@@ -210,7 +210,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('save', methods=['POST'])
     @render_with(json=True)
     @requires_login
-    @requires_permission('view')
+    # @requires_roles({'reader'})
     def save(self) -> ReturnRenderWith:
         form = SavedSessionForm()
         if form.validate_on_submit():

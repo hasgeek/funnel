@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Iterable, List, Optional, Set, Union, cast, overload
+from typing import Iterable, List, Optional, Union, cast, overload
 from uuid import UUID
 import hashlib
 
@@ -232,7 +232,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def __init__(self, password: str = None, **kwargs) -> None:
         self.password = password
-        super(User, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     name: Optional[str]
 
@@ -928,7 +928,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 
     def __init__(self, owner: User, *args, **kwargs) -> None:
-        super(Organization, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         db.session.add(
             OrganizationMembership(
                 organization=self, user=owner, granted_by=owner, is_owner=True
@@ -987,24 +987,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             .options(db.joinedload(User.teams))
             .order_by(db.func.lower(User.fullname))
         )
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if 'view' in perms:
-            perms.remove('view')
-        if 'edit' in perms:
-            perms.remove('edit')
-        if 'delete' in perms:
-            perms.remove('delete')
-
-        if user and user in self.admin_users:
-            perms.add('view')
-            perms.add('edit')
-            perms.add('view-teams')
-            perms.add('new-team')
-        if user and user in self.owner_users:
-            perms.add('delete')
-        return perms
 
     @overload
     @classmethod
@@ -1114,13 +1096,6 @@ class Team(UuidMixin, BaseMixin, db.Model):
     @property
     def pickername(self) -> str:
         return self.title
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Team, self).permissions(user, inherited)
-        if user and user in self.organization.admin_users:
-            perms.add('edit')
-            perms.add('delete')
-        return perms
 
     @classmethod
     def migrate_user(cls, olduser: User, newuser: User) -> Optional[Iterable[str]]:
@@ -1358,12 +1333,6 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         """Return email as a string."""
         return self.email
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserEmailClaim, self).permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('verify')
-        return perms
-
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         emails = {claim.email for claim in new_user.emailclaims}
@@ -1524,7 +1493,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
 
     def __init__(self, phone, **kwargs) -> None:
-        super(UserPhone, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._phone = phone
 
     @hybrid_property
@@ -1608,7 +1577,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('user_id', 'phone'),)
 
     def __init__(self, phone, **kwargs) -> None:
-        super(UserPhoneClaim, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.verification_code = newpin()
         self._phone = phone
 
@@ -1650,12 +1619,6 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     @hybrid_property
     def verification_expired(self) -> bool:
         return self.verification_attempts >= 3
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserPhoneClaim, self).permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('verify')
-        return perms
 
     @classmethod
     def get_for(cls, user: User, phone: str) -> Optional[UserPhoneClaim]:
@@ -1763,12 +1726,6 @@ class UserExternalId(BaseMixin, db.Model):
         """
         param, value = require_one_of(True, userid=userid, username=username)
         return cls.query.filter_by(**{param: value, 'service': service}).one_or_none()
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserExternalId, self).permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('delete_extid')
-        return perms
 
 
 user_email_primary_table = add_primary_relationship(

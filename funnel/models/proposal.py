@@ -4,13 +4,10 @@ from typing import Iterable, Optional, Set
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from werkzeug.utils import cached_property
-
 from baseframe import __
 from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..utils import geonameid_from_location
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
@@ -116,27 +113,15 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 
 class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model):
     __tablename__ = 'proposal'
-    __email_for__ = 'owner'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = with_roles(
         db.relationship(
             User,
             primaryjoin=user_id == User.id,
-            backref=db.backref('proposals', cascade='all', lazy='dynamic'),
+            backref=db.backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator'},
-    )
-
-    speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    speaker = with_roles(
-        db.relationship(
-            User,
-            primaryjoin=speaker_id == User.id,
-            lazy='joined',
-            backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
-        ),
-        grants={'presenter'},
     )
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
@@ -211,7 +196,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
                 hltext=lambda: db.func.concat_ws(
                     visual_field_delimiter,
                     Proposal.title,
-                    User.fullname,
                     Proposal.body_html,
                 ),
             ),
@@ -235,9 +219,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
                 'title',
                 'body',
                 'user',
-                'speaker',
-                'owner',
-                'speaking',
+                'first_user',
                 'video',
                 'session',
                 'project',
@@ -245,9 +227,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             },
             'call': {'url_for', 'state', 'commentset'},
         },
-        'reviewer': {'read': {'email', 'phone'}},
         'project_editor': {
-            'read': {'email', 'phone'},
             'call': {'reorder_item', 'reorder_before', 'reorder_after'},
         },
     }
@@ -260,8 +240,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             'title',
             'body',
             'user',
-            'speaker',
-            'speaking',
+            'first_user',
             'video',
             'session',
             'project',
@@ -273,8 +252,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             'title',
             'body',
             'user',
-            'speaker',
-            'speaking',
+            'first_user',
             'video',
             'session',
         },
@@ -282,14 +260,18 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     }
 
     def __init__(self, **kwargs) -> None:
-        super(Proposal, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
+        # Assume self.user is set. Fail if not.
+        db.session.add(
+            ProposalMembership(proposal=self, user=self.user, granted_by=self.user)
+        )
 
     def __repr__(self):
         """Represent :class:`Proposal` as a string."""
         return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
-            proposal=self.title, project=self.project.title, user=self.owner.fullname
+            proposal=self.title, project=self.project.title, user=self.user.fullname
         )
 
     @db.validates('project')
@@ -340,7 +322,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     # TODO: remove project_editor once ProposalMembership UI
     # has been implemented
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.UNDO_TO_SUBMITTED,
         state.SUBMITTED,
@@ -351,7 +333,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def undo_to_submitted(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.CONFIRMABLE,
         state.CONFIRMED,
@@ -362,7 +344,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def confirm(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.CONFIRMED,
         state.SUBMITTED,
@@ -373,7 +355,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def unconfirm(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.WAITLISTABLE,
         state.WAITLISTED,
@@ -384,7 +366,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def waitlist(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.REJECTABLE,
         state.REJECTED,
@@ -417,7 +399,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def undo_cancel(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.SUBMITTED,
         state.AWAITING_DETAILS,
@@ -428,7 +410,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def awaiting_details(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     @state.transition(
         state.EVALUATEABLE,
         state.UNDER_EVALUATION,
@@ -450,62 +432,16 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def delete(self):
         pass
 
-    # These 3 transitions are not in the editorial workflow anymore - Feb 23 2018
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SUBMITTED, state.SHORTLISTED, title=__("Shortlist"), message=__("This proposal has been shortlisted"), type='success')
-    # def shortlist(self):
-    #     pass
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title=__("Shortlist for rehearsal"), message=__("This proposal has been shortlisted for rehearsal"), type='success')
-    # def shortlist_for_rehearsal(self):
-    #     pass
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title=__("Rehearsal ongoing"), message=__("Rehearsal is now ongoing for this proposal"), type='success')
-    # def rehearsal_ongoing(self):
-    #     pass
-
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     def move_to(self, project):
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
         self.url_id = None
         self.make_id()
 
-    @with_roles(call={'project_editor', 'reviewer'})
-    def transfer_to(self, user):
-        """Transfer the proposal to a new user and speaker."""
-        self.speaker = user
-
-    @property
-    def owner(self):
-        return self.speaker or self.user
-
-    @property
-    def speaking(self):
-        return self.speaker == self.user
-
-    @speaking.setter
-    def speaking(self, value):
-        if value:
-            self.speaker = self.user
-        else:
-            if self.speaker == self.user:
-                self.speaker = None  # Reset only if it's currently set to user
-
     @hybrid_property
     def datetime(self):
         return self.created_at  # Until proposals have a workflow-driven datetime
-
-    @cached_property
-    def has_outstation_speaker(self) -> bool:
-        """Verify if geocoded proposal location field differs from project location."""
-        if not self.location:
-            return False
-        geonameid = geonameid_from_location(self.location)
-        return bool(geonameid) and self.project.location_geonameid.isdisjoint(geonameid)
 
     def update_description(self) -> None:
         if not self.custom_description:
@@ -538,26 +474,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def votes_count(self):
         return len(self.voteset.votes)
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Proposal, self).permissions(user, inherited)
-        if user is not None:
-            perms.update(('vote_proposal', 'new_comment', 'vote_comment'))
-            if user == self.owner:
-                perms.update(
-                    (
-                        'view-proposal',
-                        'edit_proposal',
-                        'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
-                        'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
-                        'transfer-proposal',
-                    )
-                )
-                if self.speaker != self.user:
-                    perms.add('decline-proposal')  # Decline speaking
-        return perms
-
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(Proposal, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:
                 # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
@@ -565,10 +483,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         else:
             roles.add('reader')
 
-        # remove the owner check after proposal membership is implemented
-        if self.owner == actor or roles.has_any(
-            ('project_participant', 'presenter', 'reviewer')
-        ):
+        if roles.has_any(('project_participant', 'submitter')):
             roles.add('commenter')
 
         return roles
@@ -723,3 +638,7 @@ class __Project:
         return bool(self._has_featured_proposals)
 
     with_roles(has_featured_proposals, read={'all'})
+
+
+# Tail imports
+from .proposal_membership import ProposalMembership  # isort:skip

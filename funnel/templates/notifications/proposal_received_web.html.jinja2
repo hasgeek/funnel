@@ -11,7 +11,7 @@
     </p>
     <ol class="mui-list--aligned">
       {%- for proposal in view.fragments %}
-      <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.owner.pickername, age=proposal.datetime|age %}
+      <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.user.pickername, age=proposal.datetime|age %}
         <a href="{{ url }}">{{ proposal }}</a> by {{ actor }} {{ age }}
           {% endtrans %}
       </li>

@@ -50,12 +50,12 @@
       }
       .comment__header__details__user {
         min-height: 40px;
-        .badge {
-          margin-right: 4px;
-        }
       }
       .user__box {
         padding-bottom: 0;
+      }
+      .badge {
+        margin-left: $mui-grid-padding/4;
       }
     }
   }

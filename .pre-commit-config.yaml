@@ -20,7 +20,7 @@ repos:
         additional_dependencies:
           - toml
   - repo: https://github.com/ambv/black
-    rev: 20.8b1
+    rev: 21.4b2
     hooks:
       - id: black
   # Enable after indentation issue is fixed: https://github.com/thibaudcolas/curlylint/issues/6
@@ -33,7 +33,7 @@ repos:
     hooks:
       - id: check-added-large-files
       - id: check-ast
-      - id: check-byte-order-marker
+      - id: fix-byte-order-marker
       - id: check-case-conflict
       - id: check-docstring-first
       - id: check-executables-have-shebangs

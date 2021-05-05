@@ -55,7 +55,7 @@ class Voteset(BaseMixin, db.Model):
     count = cached(db.Column(db.Integer, default=0, nullable=False))
 
     def __init__(self, **kwargs) -> None:
-        super(Voteset, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.count = 0
 
     def vote(self, user: User, votedown: bool = False) -> Vote:
@@ -140,7 +140,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     }
 
     def __init__(self, **kwargs) -> None:
-        super(Commentset, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.count = 0
 
     @with_roles(read={'all'})  # type: ignore[misc]
@@ -161,13 +161,6 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         if parent:
             return parent.__tablename__
         return None
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if user is not None:
-            perms.add('new_comment')
-            perms.add('vote_comment')
-        return perms
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
@@ -246,7 +239,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     )
 
     def __init__(self, **kwargs) -> None:
-        super(Comment, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.voteset = Voteset(settype=SET_TYPE.COMMENT)
         self.commentset.last_comment_at = db.func.utcnow()
 
@@ -360,18 +353,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def sorted_replies(self) -> List[Comment]:
         return sorted(self.replies, key=lambda comment: comment.voteset.count)
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Comment, self).permissions(user, inherited)
-        perms.add('view')
-        if user is not None:
-            perms.add('vote_comment')
-            if user == self._user:
-                perms.add('edit_comment')
-                perms.add('delete_comment')
-        return perms
-
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(Comment, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         roles.add('reader')
         if actor is not None:
             if actor == self._user:

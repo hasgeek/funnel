@@ -446,7 +446,7 @@ class ProjectCrewMembershipMixin(object):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
-        super(ProjectCrewMembershipMixin, self).after_loader()
+        super().after_loader()
 
 
 @ProjectCrewMembership.views('invite')

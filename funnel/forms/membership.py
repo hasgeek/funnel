@@ -62,7 +62,7 @@ class ProjectCrewMembershipForm(forms.Form):
     )
 
     def validate(self, extra_validators=None):
-        is_valid = super(ProjectCrewMembershipForm, self).validate(extra_validators)
+        is_valid = super().validate(extra_validators)
         if not any([self.is_editor.data, self.is_promoter.data, self.is_usher.data]):
             self.is_usher.errors.append("Please select one or more roles")
             is_valid = False

@@ -17,7 +17,7 @@ class GoogleProvider(LoginProvider):
     def __init__(self, name, title, client_id, **kwargs) -> None:
         self.client_id = client_id
         self.secret = kwargs['secret']
-        super(GoogleProvider, self).__init__(name, title, **kwargs)
+        super().__init__(name, title, **kwargs)
 
     def flow(self, callback_url):
         return client.OAuth2WebServerFlow(
