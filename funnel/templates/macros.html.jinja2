@@ -101,7 +101,7 @@
     <p class="zero-bottom-margin mui--pull-left"><a href="https://videoken.com" target="_blank" rel="noopener" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
   {%- endif %}
 
-  {%- if proposal and 'edit_proposal' in proposal.permissions(current_auth.user) %}
+  {%- if proposal and proposal.current_roles.editor %}
     <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-video" aria-label="{% trans %}Edit submission video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
   {% elif session and session.project.current_roles.editor %}
     <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
@@ -573,21 +573,21 @@
   <a class="card clickable-card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
-        <div class="label-box__inner">
+        <div class="label-box__inner flex-wrapper flex-wrapper--center flex-wrapper--wrap">
           {% if not project %}
             <p class="mui--text-title margin-bottom">{{ proposal.project.title }}</p>
-          {%- elif proposal.speaker -%}
-            <div class="user user--smaller">
-              <div class="user__box">
-                {{ useravatar(proposal.speaker, add_profile_link=false, size='small') }}
-                <div class="user__box__header">
-                  <p class="mui--text-caption user__box__fullname">{{ proposal.speaker.fullname }}</p>
+          {%- else -%}
+            {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
+              <div class="user user--smaller right-padding">
+                <div class="user__box">
+                  {{ useravatar(member.user, add_profile_link=false, size='small') }}
+                  <div class="user__box__header">
+                    <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          {%- else -%}
-            <span class="mui--text-subhead">{{ proposal.user.pickername }}</span> <em class="mui--text-caption mui--text-accent">{% trans %}(proposing){% endtrans %}</em>
-          {%- endif -%}
+            {%- endif %}{% endfor %}
+          {%- endif %}
         </div>
         <div class="proposal-card__body__inner {%- if full_width and proposal.video and proposal.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
           {% if proposal.video and proposal.video.thumbnail %}
@@ -621,11 +621,6 @@
                       {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
                     </li>
                   {% endif %}
-                  {%- if project and project.current_roles.editor %}
-                    {%- if proposal.has_outstation_speaker %}
-                      <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}Outstation speaker{% endtrans %}" aria-label="{% trans %}Outstation speaker{% endtrans %}">{{ faicon(icon='plane', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}</li>
-                    {%- endif %}
-                  {%- endif %}
                 </ul>
                 <div class="margin-top">
                   {%- for label in proposal.labels %}

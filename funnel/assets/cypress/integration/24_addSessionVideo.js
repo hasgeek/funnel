@@ -26,9 +26,9 @@ describe('Add video to session', function () {
     cy.get('[data-cy="session-video"]').find('iframe').should('be.visible');
     cy.get('img[data-cy="proposal-video-thumbnail"]').should('be.visible');
     cy.get('img[data-cy="session-video-thumbnail"]').should('be.visible');
-    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
+    cy.get('a[data-cy="editor-panel"]:visible').click();
     cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="edit-session-video"]').should('exist');
   });
