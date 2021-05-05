@@ -134,8 +134,8 @@ def do_migrate_instances(
                         # The target column (typically user_id) is part of a unique
                         # or primary key constraint. We can't migrate automatically.
                         current_app.logger.error(
-                            "do_migrate_table interrupted because column is part of a "
-                            "unique constraint: %s",
+                            "do_migrate_table interrupted because column is part of a"
+                            " unique constraint: %s",
                             column,
                         )
                         return False
@@ -177,8 +177,8 @@ def do_migrate_instances(
                 except IncompleteUserMigration:
                     safe_to_remove_instance = False
                     current_app.logger.error(
-                        "_do_merge_into interrupted because IncompleteUserMigration "
-                        "raised by %s",
+                        "_do_merge_into interrupted because IncompleteUserMigration"
+                        " raised by %s",
                         model,
                     )
             else:

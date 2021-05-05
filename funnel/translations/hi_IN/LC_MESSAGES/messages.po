@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-05-06 02:08+0530\n"
+"POT-Creation-Date: 2021-05-06 02:33+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -55,7 +55,7 @@ msgid ""
 "Unable to connect. If this device is behind a firewall or using any "
 "script blocking extension (like Privacy Badger), please ensure your "
 "browser can load boxoffice.hasgeek.com, api.razorpay.com and "
-"checkout.razorpay.com "
+"checkout.razorpay.com"
 msgstr ""
 
 #: funnel/assets/js/proposal.js:6
@@ -405,11 +405,11 @@ msgstr ""
 "एक डॉट-आधारित नेमस्पेस जो विचित्र रूप से आपके क्लाइंट ऐप्लिकेशन की पहचान "
 "करता है"
 
-#: funnel/forms/auth_client.py:86 funnel/templates/auth_client.html.jinja2:45
+#: funnel/forms/auth_client.py:88 funnel/templates/auth_client.html.jinja2:45
 msgid "Redirect URLs"
 msgstr "रीडायरेक्ट URLs"
 
-#: funnel/forms/auth_client.py:92
+#: funnel/forms/auth_client.py:94
 msgid ""
 "OAuth2 Redirect URL. If your app is available on multiple hostnames, list"
 " each redirect URL on a separate line"
@@ -417,21 +417,21 @@ msgstr ""
 "OAuth2 रीडायरेक्ट URL. अगर आपका ऐप कई होस्टनेम पर उपलब्ध है, तो हर "
 "अलग-अलग लाइन पर प्रत्येक रीडायरेक्ट URLलिस्ट करें"
 
-#: funnel/forms/auth_client.py:98 funnel/templates/auth_client.html.jinja2:49
+#: funnel/forms/auth_client.py:100 funnel/templates/auth_client.html.jinja2:49
 msgid "Notification URL"
 msgstr "नोटिफिकेशन URL"
 
-#: funnel/forms/auth_client.py:100
+#: funnel/forms/auth_client.py:102
 msgid ""
 "When the user's data changes, Lastuser will POST a notice to this URL. "
 "Other notices may be posted too"
 msgstr "जब यूजर का डेटा बदल जाता है, तो Lastuser इस URL को एक नोटिस पोस्ट करेगा"
 
-#: funnel/forms/auth_client.py:106
+#: funnel/forms/auth_client.py:108
 msgid "Allow anyone to login"
 msgstr "किसी को भी लॉगिन करने दें"
 
-#: funnel/forms/auth_client.py:108
+#: funnel/forms/auth_client.py:110
 msgid ""
 "If your application requires access to be restricted to specific users, "
 "uncheck this, and only users who have been assigned a permission to the "
@@ -441,61 +441,61 @@ msgstr ""
 "की ज़रूरत है, तो इसे अनचेक करें, और वे यूजर जिन्हें ऐप्लिकेशन की अनुमति "
 "दी गई है, केवल वे लॉगिन करने में सक्षम होंगे"
 
-#: funnel/forms/auth_client.py:125
+#: funnel/forms/auth_client.py:128
 msgid "Invalid owner"
 msgstr "अवैध ओनर"
 
-#: funnel/forms/auth_client.py:144 funnel/forms/auth_client.py:150
-#: funnel/forms/auth_client.py:156
+#: funnel/forms/auth_client.py:147 funnel/forms/auth_client.py:153
+#: funnel/forms/auth_client.py:159
 msgid "The scheme, domain and port must match that of the website URL"
 msgstr "स्कीम, डोमेन और पोर्ट वेबसाइट URL से मेल खाना चाहिए"
 
-#: funnel/forms/auth_client.py:163
+#: funnel/forms/auth_client.py:166
 msgid "The namespace should be derived from your application’s website domain"
 msgstr "नेमस्पेस आपके ऐप्लिकेशन के वेबसाइट डोमेन से लिया जाना चाहिए"
 
-#: funnel/forms/auth_client.py:172
+#: funnel/forms/auth_client.py:175
 msgid "This namespace has been claimed by another client app"
 msgstr "इस नेमस्पेस को एक अन्य ग्राहक ऐप द्वारा इस्तेमाल कर लिया गया है"
 
-#: funnel/forms/auth_client.py:181
+#: funnel/forms/auth_client.py:184
 msgid "What’s this for?"
 msgstr "यह किस लिए है?"
 
-#: funnel/forms/auth_client.py:183
+#: funnel/forms/auth_client.py:186
 msgid "Add a description to help yourself remember why this was generated"
 msgstr ""
 "खुद को यह याद रखने में मदद करने के लिए विवरण डालें कि यह क्यों बनाया गया "
 "था"
 
-#: funnel/forms/auth_client.py:194
+#: funnel/forms/auth_client.py:197
 msgid "Permission ‘{perm}’ is malformed"
 msgstr "अनुमति ‘{perm}’ गलत बनाया गया है"
 
-#: funnel/forms/auth_client.py:206 funnel/forms/membership.py:18
+#: funnel/forms/auth_client.py:209 funnel/forms/membership.py:18
 #: funnel/forms/membership.py:40
 #: funnel/templates/siteadmin_comments.html.jinja2:46
 msgid "User"
 msgstr "यूजर"
 
-#: funnel/forms/auth_client.py:208 funnel/forms/organization.py:92
+#: funnel/forms/auth_client.py:211 funnel/forms/organization.py:92
 msgid "Lookup a user by their username or email address"
 msgstr "किसी यूजर को उनके यूजरनेम या ईमेल पते से खोजें"
 
-#: funnel/forms/auth_client.py:211 funnel/forms/auth_client.py:227
-#: funnel/forms/auth_client.py:243 funnel/templates/auth_client.html.jinja2:126
+#: funnel/forms/auth_client.py:214 funnel/forms/auth_client.py:230
+#: funnel/forms/auth_client.py:246 funnel/templates/auth_client.html.jinja2:126
 msgid "Permissions"
 msgstr "अनुमतियां"
 
-#: funnel/forms/auth_client.py:222
+#: funnel/forms/auth_client.py:225
 msgid "Team"
 msgstr "टीम"
 
-#: funnel/forms/auth_client.py:224
+#: funnel/forms/auth_client.py:227
 msgid "Select a team to assign permissions to"
 msgstr "अनुमति देने के लिए टीम का चयन करें"
 
-#: funnel/forms/auth_client.py:234
+#: funnel/forms/auth_client.py:237
 msgid "Unknown team"
 msgstr "अज्ञात टीम"
 
@@ -2201,7 +2201,7 @@ msgstr "इस डिवाइस से"
 msgid "Edit"
 msgstr "संपादित करें"
 
-#: funnel/templates/account.html.jinja2:63 funnel/views/account.py:474
+#: funnel/templates/account.html.jinja2:63 funnel/views/account.py:475
 msgid "Change password"
 msgstr "पासवर्ड बदलें"
 
@@ -2227,8 +2227,8 @@ msgstr "आखरी बार इस्तेमाल %(last_used_at)s"
 #: funnel/templates/account.html.jinja2:108
 #: funnel/templates/account.html.jinja2:114
 #: funnel/templates/account.html.jinja2:146
-#: funnel/templates/account.html.jinja2:154 funnel/views/account.py:620
-#: funnel/views/account.py:770 funnel/views/account.py:846
+#: funnel/templates/account.html.jinja2:154 funnel/views/account.py:621
+#: funnel/views/account.py:771 funnel/views/account.py:847
 #: funnel/views/membership.py:302 funnel/views/membership.py:602
 msgid "Remove"
 msgstr "हटाएं"
@@ -2259,7 +2259,7 @@ msgstr "(वेरीफिकेशन बाकी है)"
 msgid "Set as primary"
 msgstr "प्राथमिक बनाएं"
 
-#: funnel/templates/account.html.jinja2:124 funnel/views/account.py:525
+#: funnel/templates/account.html.jinja2:124 funnel/views/account.py:526
 msgid "Add an email address"
 msgstr "अन्य ईमेल पता जोड़ें"
 
@@ -4263,164 +4263,164 @@ msgid ""
 "verified"
 msgstr "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका"
 
-#: funnel/views/account.py:451
+#: funnel/views/account.py:452
 msgid "This was not for you"
 msgstr "यह आपके लिए नहीं था"
 
-#: funnel/views/account.py:452
+#: funnel/views/account.py:453
 msgid ""
 "You’ve opened an email verification link that was meant for another user."
 " If you are managing multiple accounts, please login with the correct "
 "account and open the link again"
 msgstr "आपने एक ईमेल वेरिफिकेशन लिंक खोला है जो किसी अन्य यूजर के लिए था"
 
-#: funnel/views/account.py:460
+#: funnel/views/account.py:461
 msgid "Expired confirmation link"
 msgstr "एक्स्पायर हुई पुष्टि लिंक"
 
-#: funnel/views/account.py:461
+#: funnel/views/account.py:462
 msgid "The confirmation link you clicked on is either invalid or has expired"
 msgstr "आपके द्वारा क्लिक की गई पुष्टि लिंक या तो अमान्य है या एक्स्पायर हो गई है"
 
-#: funnel/views/account.py:471
+#: funnel/views/account.py:472
 msgid "Set password"
 msgstr "पासवर्ड सेट करें"
 
-#: funnel/views/account.py:487
+#: funnel/views/account.py:488
 msgid "Your new password has been saved"
 msgstr "आपका नया पासवर्ड सेव किया जा चुका है"
 
-#: funnel/views/account.py:520
+#: funnel/views/account.py:521
 msgid "We sent you an email to confirm your address"
 msgstr "आपके पते की पुष्टि के लिए हमने आपको एक ईमेल भेजा है"
 
-#: funnel/views/account.py:527
+#: funnel/views/account.py:528
 msgid "Add email"
 msgstr "ईमेल दर्ज करें"
 
-#: funnel/views/account.py:539
+#: funnel/views/account.py:540
 msgid "This is already your primary email address"
 msgstr "यह पहले से ही आपका प्राथमिक ईमेल पता है"
 
-#: funnel/views/account.py:546
+#: funnel/views/account.py:547
 msgid "Your primary email address has been updated"
 msgstr "आपका प्राथमिक ईमेल पता अपडेट कर दिया गया है"
 
-#: funnel/views/account.py:549
+#: funnel/views/account.py:550
 msgid "No such email address is linked to this user account"
 msgstr "ऐसा कोई भी ईमेल पता इस खाते से नहीं जुड़ा है"
 
-#: funnel/views/account.py:552
+#: funnel/views/account.py:553
 msgid "Please select an email address"
 msgstr "कृपया एक ईमेल पता चुनें"
 
-#: funnel/views/account.py:562
+#: funnel/views/account.py:563
 msgid "This is already your primary phone number"
 msgstr "यह पहले से ही आपका प्राथमिक फोन नंबर है"
 
-#: funnel/views/account.py:569
+#: funnel/views/account.py:570
 msgid "Your primary phone number has been updated"
 msgstr "आपका प्राथमिक फोन नंबर अपडेट कर दिया गया है"
 
-#: funnel/views/account.py:572
+#: funnel/views/account.py:573
 msgid "No such phone number is linked to this user account"
 msgstr "ऐसा कोई फोन नंबर इस खाते से नहीं जुड़ा है"
 
-#: funnel/views/account.py:575
+#: funnel/views/account.py:576
 msgid "Please select a phone number"
 msgstr "कृपया एक फोन नंबर चुनें"
 
-#: funnel/views/account.py:599 funnel/views/account.py:748
+#: funnel/views/account.py:600 funnel/views/account.py:749
 msgid "Your account requires at least one verified email address or phone number"
 msgstr "आपके खाते के लिए कम से कम एक वेरिफाइड ईमेल पता या फोन नंबर की आवश्यकता है"
 
-#: funnel/views/account.py:612 funnel/views/account.py:762
-#: funnel/views/account.py:836 funnel/views/membership.py:298
+#: funnel/views/account.py:613 funnel/views/account.py:763
+#: funnel/views/account.py:837 funnel/views/membership.py:298
 #: funnel/views/membership.py:598
 msgid "Confirm removal"
 msgstr "हटाने की पुष्टि करें"
 
-#: funnel/views/account.py:613
+#: funnel/views/account.py:614
 msgid "Remove email address {email} from your account?"
 msgstr "अपने खाते से ईमेल पता {email} हटाएं?"
 
-#: funnel/views/account.py:616
+#: funnel/views/account.py:617
 msgid "You have removed your email address {email}"
 msgstr "आपने अपना ईमेल पता {email} हटा दिया है"
 
-#: funnel/views/account.py:644
+#: funnel/views/account.py:645
 msgid "This email address is already verified"
 msgstr "यह ईमेल पता पहले से ही वेरिफाइड है"
 
-#: funnel/views/account.py:660
+#: funnel/views/account.py:661
 msgid "The verification email has been sent to this address"
 msgstr "वेरिफिकेशन ईमेल इस पते पर भेजा गया है"
 
-#: funnel/views/account.py:664
+#: funnel/views/account.py:665
 msgid "Resend the verification email?"
 msgstr "वेरिफिकेशन ईमेल दोबारा भेजना चाहते हैं?"
 
-#: funnel/views/account.py:666
+#: funnel/views/account.py:667
 msgid "We will resend the verification email to {email}"
 msgstr "हम वेरिफिकेशन ईमेल को {email} पर दोबारा भेज देंगे"
 
-#: funnel/views/account.py:671
+#: funnel/views/account.py:672
 msgid "Send"
 msgstr "भेजें"
 
-#: funnel/views/account.py:702
+#: funnel/views/account.py:703
 msgid "Unable to send a message right now. Try again later"
 msgstr "फिलहाल मैसेज भेजने में असमर्थ रहा. बाद में दोबारा प्रयास करें"
 
-#: funnel/views/account.py:708
+#: funnel/views/account.py:709
 msgid "A verification code has been sent to your phone number"
 msgstr "आपके फोन नंबर पर एक वेरिफिकेशन कोड भेजा गया है"
 
-#: funnel/views/account.py:717
+#: funnel/views/account.py:718
 msgid "Add a phone number"
 msgstr "एक फोन नंबर दर्ज करें"
 
-#: funnel/views/account.py:719
+#: funnel/views/account.py:720
 msgid "Verify phone"
 msgstr "फोन वेरिफाई करें"
 
-#: funnel/views/account.py:734
+#: funnel/views/account.py:735
 msgid "This number has been blocked due to too many failed verification attempts"
 msgstr "बहुत से विफल वेरिफिकेशन कोशिशों के कारण इस नंबर को ब्लॉक कर दिया गया है"
 
-#: funnel/views/account.py:763
+#: funnel/views/account.py:764
 msgid "Remove phone number {phone} from your account?"
 msgstr "अपने खाते से फोन नंबर {phone} हटाना चाहते हैं?"
 
-#: funnel/views/account.py:766
+#: funnel/views/account.py:767
 msgid "You have removed your number {phone}"
 msgstr "आपने अपना नंबर {phone} हटा दिया है"
 
-#: funnel/views/account.py:780
+#: funnel/views/account.py:781
 msgid "You provided an incorrect verification code too many times"
 msgstr "आपने कई बार गलत वेरिफिकेशन कोड डाला है"
 
-#: funnel/views/account.py:800
+#: funnel/views/account.py:801
 msgid "Your phone number has been verified"
 msgstr "आपका फोन नंबर वेरिफाई कर दिया गया है"
 
-#: funnel/views/account.py:806
+#: funnel/views/account.py:807
 msgid "This phone number has already been claimed by another user"
 msgstr "यह फोन नंबर पहले ही किसी अन्य यूजर द्वारा इस्तेमाल किया जा चुका है"
 
-#: funnel/views/account.py:814
+#: funnel/views/account.py:815
 msgid "Verify phone number"
 msgstr "फोन नंबर वेरिफाई करें"
 
-#: funnel/views/account.py:816
+#: funnel/views/account.py:817
 msgid "Verify"
 msgstr "वेरिफाई करें"
 
-#: funnel/views/account.py:837
+#: funnel/views/account.py:838
 msgid "Remove {service} account ‘{username}’ from your account?"
 msgstr "अपने खाते से {service} खाता ‘{username}’ हटाएं?"
 
-#: funnel/views/account.py:842
+#: funnel/views/account.py:843
 msgid "You have removed the {service} account ‘{username}’"
 msgstr "आपने {service} खाता ‘{username}’ हटा दिया है"
 

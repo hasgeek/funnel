@@ -41,8 +41,8 @@ class AuthClientForm(forms.Form):
         __("Owner"),
         validators=[forms.validators.DataRequired()],
         description=__(
-            "User or organization that owns this application. Changing the owner "
-            "will revoke all currently assigned permissions for this app"
+            "User or organization that owns this application. Changing the owner"
+            " will revoke all currently assigned permissions for this app"
         ),
     )
     confidential = forms.RadioField(
@@ -75,9 +75,11 @@ class AuthClientForm(forms.Form):
         filters=[forms.filters.none_if_empty()],
         description=Markup(
             __(
-                "A dot-based namespace that uniquely identifies your client application. "
-                "For example, if your client website is <code>https://auth.hasgeek.com</code>, "
-                "use <code>com.hasgeek.auth</code>. Only required if your client app provides resources"
+                "A dot-based namespace that uniquely identifies your client"
+                " application. For example, if your client website is"
+                " <code>https://auth.hasgeek.com</code>, use"
+                " <code>com.hasgeek.auth</code>. Only required if your client app"
+                " provides resources"
             )
         ),
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
@@ -90,24 +92,25 @@ class AuthClientForm(forms.Form):
         ],
         filters=[forms.strip_each()],
         description=__(
-            "OAuth2 Redirect URL. If your app is available on multiple hostnames, "
-            "list each redirect URL on a separate line"
+            "OAuth2 Redirect URL. If your app is available on multiple hostnames,"
+            " list each redirect URL on a separate line"
         ),
     )
     notification_uri = forms.URLField(
         __("Notification URL"),
         validators=[forms.validators.Optional(), forms.validators.URL()],
         description=__(
-            "When the user's data changes, Lastuser will POST a notice to this URL. "
-            "Other notices may be posted too"
+            "When the user's data changes, Lastuser will POST a notice to this URL."
+            " Other notices may be posted too"
         ),
     )
     allow_any_login = forms.BooleanField(
         __("Allow anyone to login"),
         default=True,
         description=__(
-            "If your application requires access to be restricted to specific users, uncheck this, "
-            "and only users who have been assigned a permission to the app will be able to login"
+            "If your application requires access to be restricted to specific users,"
+            " uncheck this, and only users who have been assigned a permission to the"
+            " app will be able to login"
         ),
     )
 

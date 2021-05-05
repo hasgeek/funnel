@@ -69,8 +69,8 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         if not current_auth.user.has_verified_contact_info:
             flash(
                 _(
-                    "You need to have a verified email address "
-                    "or phone number to create an organization"
+                    "You need to have a verified email address"
+                    " or phone number to create an organization"
                 ),
                 'error',
             )

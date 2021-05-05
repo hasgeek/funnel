@@ -555,9 +555,9 @@ def search_results(squery, stype, page=1, per_page=20, profile=None, project=Non
         regconfig,
         hltext,
         db.func.to_tsquery(squery),
-        'MaxFragments=2, FragmentDelimiter="%s", '
-        'MinWords=5, MaxWords=20, '
-        'StartSel="%s", StopSel="%s"' % (pg_delimiter, pg_startsel, pg_stopsel),
+        'MaxFragments=2, FragmentDelimiter="%s",'
+        ' MinWords=5, MaxWords=20,'
+        ' StartSel="%s", StopSel="%s"' % (pg_delimiter, pg_startsel, pg_stopsel),
         type_=db.UnicodeText,
     )
 

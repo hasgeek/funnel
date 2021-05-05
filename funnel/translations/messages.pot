@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-06 02:08+0530\n"
+"POT-Creation-Date: 2021-05-06 02:33+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgid ""
 "Unable to connect. If this device is behind a firewall or using any "
 "script blocking extension (like Privacy Badger), please ensure your "
 "browser can load boxoffice.hasgeek.com, api.razorpay.com and "
-"checkout.razorpay.com "
+"checkout.razorpay.com"
 msgstr ""
 
 #: funnel/assets/js/proposal.js:6
@@ -386,90 +386,90 @@ msgid ""
 " Only required if your client app provides resources"
 msgstr ""
 
-#: funnel/forms/auth_client.py:86 funnel/templates/auth_client.html.jinja2:45
+#: funnel/forms/auth_client.py:88 funnel/templates/auth_client.html.jinja2:45
 msgid "Redirect URLs"
 msgstr ""
 
-#: funnel/forms/auth_client.py:92
+#: funnel/forms/auth_client.py:94
 msgid ""
 "OAuth2 Redirect URL. If your app is available on multiple hostnames, list"
 " each redirect URL on a separate line"
 msgstr ""
 
-#: funnel/forms/auth_client.py:98 funnel/templates/auth_client.html.jinja2:49
+#: funnel/forms/auth_client.py:100 funnel/templates/auth_client.html.jinja2:49
 msgid "Notification URL"
 msgstr ""
 
-#: funnel/forms/auth_client.py:100
+#: funnel/forms/auth_client.py:102
 msgid ""
 "When the user's data changes, Lastuser will POST a notice to this URL. "
 "Other notices may be posted too"
 msgstr ""
 
-#: funnel/forms/auth_client.py:106
+#: funnel/forms/auth_client.py:108
 msgid "Allow anyone to login"
 msgstr ""
 
-#: funnel/forms/auth_client.py:108
+#: funnel/forms/auth_client.py:110
 msgid ""
 "If your application requires access to be restricted to specific users, "
 "uncheck this, and only users who have been assigned a permission to the "
 "app will be able to login"
 msgstr ""
 
-#: funnel/forms/auth_client.py:125
+#: funnel/forms/auth_client.py:128
 msgid "Invalid owner"
 msgstr ""
 
-#: funnel/forms/auth_client.py:144 funnel/forms/auth_client.py:150
-#: funnel/forms/auth_client.py:156
+#: funnel/forms/auth_client.py:147 funnel/forms/auth_client.py:153
+#: funnel/forms/auth_client.py:159
 msgid "The scheme, domain and port must match that of the website URL"
 msgstr ""
 
-#: funnel/forms/auth_client.py:163
+#: funnel/forms/auth_client.py:166
 msgid "The namespace should be derived from your application’s website domain"
 msgstr ""
 
-#: funnel/forms/auth_client.py:172
+#: funnel/forms/auth_client.py:175
 msgid "This namespace has been claimed by another client app"
 msgstr ""
 
-#: funnel/forms/auth_client.py:181
+#: funnel/forms/auth_client.py:184
 msgid "What’s this for?"
 msgstr ""
 
-#: funnel/forms/auth_client.py:183
+#: funnel/forms/auth_client.py:186
 msgid "Add a description to help yourself remember why this was generated"
 msgstr ""
 
-#: funnel/forms/auth_client.py:194
+#: funnel/forms/auth_client.py:197
 msgid "Permission ‘{perm}’ is malformed"
 msgstr ""
 
-#: funnel/forms/auth_client.py:206 funnel/forms/membership.py:18
+#: funnel/forms/auth_client.py:209 funnel/forms/membership.py:18
 #: funnel/forms/membership.py:40
 #: funnel/templates/siteadmin_comments.html.jinja2:46
 msgid "User"
 msgstr ""
 
-#: funnel/forms/auth_client.py:208 funnel/forms/organization.py:92
+#: funnel/forms/auth_client.py:211 funnel/forms/organization.py:92
 msgid "Lookup a user by their username or email address"
 msgstr ""
 
-#: funnel/forms/auth_client.py:211 funnel/forms/auth_client.py:227
-#: funnel/forms/auth_client.py:243 funnel/templates/auth_client.html.jinja2:126
+#: funnel/forms/auth_client.py:214 funnel/forms/auth_client.py:230
+#: funnel/forms/auth_client.py:246 funnel/templates/auth_client.html.jinja2:126
 msgid "Permissions"
 msgstr ""
 
-#: funnel/forms/auth_client.py:222
+#: funnel/forms/auth_client.py:225
 msgid "Team"
 msgstr ""
 
-#: funnel/forms/auth_client.py:224
+#: funnel/forms/auth_client.py:227
 msgid "Select a team to assign permissions to"
 msgstr ""
 
-#: funnel/forms/auth_client.py:234
+#: funnel/forms/auth_client.py:237
 msgid "Unknown team"
 msgstr ""
 
@@ -2117,7 +2117,7 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: funnel/templates/account.html.jinja2:63 funnel/views/account.py:474
+#: funnel/templates/account.html.jinja2:63 funnel/views/account.py:475
 msgid "Change password"
 msgstr ""
 
@@ -2143,8 +2143,8 @@ msgstr ""
 #: funnel/templates/account.html.jinja2:108
 #: funnel/templates/account.html.jinja2:114
 #: funnel/templates/account.html.jinja2:146
-#: funnel/templates/account.html.jinja2:154 funnel/views/account.py:620
-#: funnel/views/account.py:770 funnel/views/account.py:846
+#: funnel/templates/account.html.jinja2:154 funnel/views/account.py:621
+#: funnel/views/account.py:771 funnel/views/account.py:847
 #: funnel/views/membership.py:302 funnel/views/membership.py:602
 msgid "Remove"
 msgstr ""
@@ -2173,7 +2173,7 @@ msgstr ""
 msgid "Set as primary"
 msgstr ""
 
-#: funnel/templates/account.html.jinja2:124 funnel/views/account.py:525
+#: funnel/templates/account.html.jinja2:124 funnel/views/account.py:526
 msgid "Add an email address"
 msgstr ""
 
@@ -4101,164 +4101,164 @@ msgid ""
 "verified"
 msgstr ""
 
-#: funnel/views/account.py:451
+#: funnel/views/account.py:452
 msgid "This was not for you"
 msgstr ""
 
-#: funnel/views/account.py:452
+#: funnel/views/account.py:453
 msgid ""
 "You’ve opened an email verification link that was meant for another user."
 " If you are managing multiple accounts, please login with the correct "
 "account and open the link again"
 msgstr ""
 
-#: funnel/views/account.py:460
+#: funnel/views/account.py:461
 msgid "Expired confirmation link"
 msgstr ""
 
-#: funnel/views/account.py:461
+#: funnel/views/account.py:462
 msgid "The confirmation link you clicked on is either invalid or has expired"
 msgstr ""
 
-#: funnel/views/account.py:471
+#: funnel/views/account.py:472
 msgid "Set password"
 msgstr ""
 
-#: funnel/views/account.py:487
+#: funnel/views/account.py:488
 msgid "Your new password has been saved"
 msgstr ""
 
-#: funnel/views/account.py:520
+#: funnel/views/account.py:521
 msgid "We sent you an email to confirm your address"
 msgstr ""
 
-#: funnel/views/account.py:527
+#: funnel/views/account.py:528
 msgid "Add email"
 msgstr ""
 
-#: funnel/views/account.py:539
+#: funnel/views/account.py:540
 msgid "This is already your primary email address"
 msgstr ""
 
-#: funnel/views/account.py:546
+#: funnel/views/account.py:547
 msgid "Your primary email address has been updated"
 msgstr ""
 
-#: funnel/views/account.py:549
+#: funnel/views/account.py:550
 msgid "No such email address is linked to this user account"
 msgstr ""
 
-#: funnel/views/account.py:552
+#: funnel/views/account.py:553
 msgid "Please select an email address"
 msgstr ""
 
-#: funnel/views/account.py:562
+#: funnel/views/account.py:563
 msgid "This is already your primary phone number"
 msgstr ""
 
-#: funnel/views/account.py:569
+#: funnel/views/account.py:570
 msgid "Your primary phone number has been updated"
 msgstr ""
 
-#: funnel/views/account.py:572
+#: funnel/views/account.py:573
 msgid "No such phone number is linked to this user account"
 msgstr ""
 
-#: funnel/views/account.py:575
+#: funnel/views/account.py:576
 msgid "Please select a phone number"
 msgstr ""
 
-#: funnel/views/account.py:599 funnel/views/account.py:748
+#: funnel/views/account.py:600 funnel/views/account.py:749
 msgid "Your account requires at least one verified email address or phone number"
 msgstr ""
 
-#: funnel/views/account.py:612 funnel/views/account.py:762
-#: funnel/views/account.py:836 funnel/views/membership.py:298
+#: funnel/views/account.py:613 funnel/views/account.py:763
+#: funnel/views/account.py:837 funnel/views/membership.py:298
 #: funnel/views/membership.py:598
 msgid "Confirm removal"
 msgstr ""
 
-#: funnel/views/account.py:613
+#: funnel/views/account.py:614
 msgid "Remove email address {email} from your account?"
 msgstr ""
 
-#: funnel/views/account.py:616
+#: funnel/views/account.py:617
 msgid "You have removed your email address {email}"
 msgstr ""
 
-#: funnel/views/account.py:644
+#: funnel/views/account.py:645
 msgid "This email address is already verified"
 msgstr ""
 
-#: funnel/views/account.py:660
+#: funnel/views/account.py:661
 msgid "The verification email has been sent to this address"
 msgstr ""
 
-#: funnel/views/account.py:664
+#: funnel/views/account.py:665
 msgid "Resend the verification email?"
 msgstr ""
 
-#: funnel/views/account.py:666
+#: funnel/views/account.py:667
 msgid "We will resend the verification email to {email}"
 msgstr ""
 
-#: funnel/views/account.py:671
+#: funnel/views/account.py:672
 msgid "Send"
 msgstr ""
 
-#: funnel/views/account.py:702
+#: funnel/views/account.py:703
 msgid "Unable to send a message right now. Try again later"
 msgstr ""
 
-#: funnel/views/account.py:708
+#: funnel/views/account.py:709
 msgid "A verification code has been sent to your phone number"
 msgstr ""
 
-#: funnel/views/account.py:717
+#: funnel/views/account.py:718
 msgid "Add a phone number"
 msgstr ""
 
-#: funnel/views/account.py:719
+#: funnel/views/account.py:720
 msgid "Verify phone"
 msgstr ""
 
-#: funnel/views/account.py:734
+#: funnel/views/account.py:735
 msgid "This number has been blocked due to too many failed verification attempts"
 msgstr ""
 
-#: funnel/views/account.py:763
+#: funnel/views/account.py:764
 msgid "Remove phone number {phone} from your account?"
 msgstr ""
 
-#: funnel/views/account.py:766
+#: funnel/views/account.py:767
 msgid "You have removed your number {phone}"
 msgstr ""
 
-#: funnel/views/account.py:780
+#: funnel/views/account.py:781
 msgid "You provided an incorrect verification code too many times"
 msgstr ""
 
-#: funnel/views/account.py:800
+#: funnel/views/account.py:801
 msgid "Your phone number has been verified"
 msgstr ""
 
-#: funnel/views/account.py:806
+#: funnel/views/account.py:807
 msgid "This phone number has already been claimed by another user"
 msgstr ""
 
-#: funnel/views/account.py:814
+#: funnel/views/account.py:815
 msgid "Verify phone number"
 msgstr ""
 
-#: funnel/views/account.py:816
+#: funnel/views/account.py:817
 msgid "Verify"
 msgstr ""
 
-#: funnel/views/account.py:837
+#: funnel/views/account.py:838
 msgid "Remove {service} account ‘{username}’ from your account?"
 msgstr ""
 
-#: funnel/views/account.py:842
+#: funnel/views/account.py:843
 msgid "You have removed the {service} account ‘{username}’"
 msgstr ""
 

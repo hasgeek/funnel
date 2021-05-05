@@ -102,8 +102,8 @@ def verifyscope(scope: Iterable, auth_client: AuthClient):
                     else:
                         raise ScopeException(
                             _(
-                                "This application does not have access to all "
-                                "resources of app ‘{title}’"
+                                "This application does not have access to all"
+                                " resources of app ‘{title}’"
                             ).format(title=resource_client.title)
                         )
                 else:

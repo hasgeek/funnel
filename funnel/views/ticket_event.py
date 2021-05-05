@@ -147,8 +147,8 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                             import_tickets.queue(ticket_client.id)
                     flash(
                         _(
-                            "Importing tickets from vendors… "
-                            "Reload the page in about 30 seconds…"
+                            "Importing tickets from vendors…"
+                            " Reload the page in about 30 seconds…"
                         ),
                         'info',
                     )
