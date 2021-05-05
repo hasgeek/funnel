@@ -452,14 +452,14 @@ class AccountView(ClassView):
                 message=_(
                     "You’ve opened an email verification link that was meant for"
                     " another user. If you are managing multiple accounts, please login"
-                    " with the correct account and open the link again."
+                    " with the correct account and open the link again"
                 ),
                 code=403,
             )
         return render_message(
             title=_("Expired confirmation link"),
             message=_(
-                "The confirmation link you clicked on is either invalid or has expired."
+                "The confirmation link you clicked on is either invalid or has expired"
             ),
             code=404,
         )

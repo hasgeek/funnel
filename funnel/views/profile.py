@@ -316,7 +316,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return render_redirect(self.obj.url_for(), code=303)
         else:
             current_app.logger.error(
-                "CSRF form validation error when removing profile logo."
+                "CSRF form validation error when removing profile logo"
             )
             flash(
                 _("Were you trying to remove the logo? Try again to confirm"), 'error'
@@ -369,7 +369,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return render_redirect(self.obj.url_for(), code=303)
         else:
             current_app.logger.error(
-                "CSRF form validation error when removing profile banner."
+                "CSRF form validation error when removing profile banner"
             )
             flash(
                 _("Were you trying to remove the banner? Try again to confirm"),

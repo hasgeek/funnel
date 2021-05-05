@@ -161,7 +161,7 @@ class ProjectNameForm(forms.Form):
             forms.validators.ValidName(
                 __(
                     "This URL contains unsupported characters. It can contain "
-                    "lowercase letters, numbers and hyphens only."
+                    "lowercase letters, numbers and hyphens only"
                 )
             ),
             AvailableName(),

@@ -604,7 +604,7 @@ def funnelapp_login(cookietest=False):
         # No support for cookies. Abort login
         return render_message(
             title=_("Cookies required"),
-            message=_("Please enable cookies in your browser."),
+            message=_("Please enable cookies in your browser"),
         )
     # 2. Nonce has been set. Create a request code
     request_code = talkfunnel_serializer().dumps({'nonce': session['login_nonce']})

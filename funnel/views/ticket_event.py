@@ -70,7 +70,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This event already exists."), 'info')
+                flash(_("This event already exists"), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(form=form, title=_("New Event"), submit=_("Add event"))
 
@@ -89,7 +89,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This ticket type already exists."), 'info')
+                flash(_("This ticket type already exists"), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
             form=form, title=_("New Ticket Type"), submit=_("Add ticket type")
@@ -108,7 +108,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This ticket client already exists."), 'info')
+                flash(_("This ticket client already exists"), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
             form=form, title=_("New Ticket Client"), submit=_("Add ticket client")
@@ -199,7 +199,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Delete event ‘{title}’? This operation is permanent and cannot be"
-                " undone."
+                " undone"
             ).format(title=self.obj.title),
             success=_("This event has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -293,7 +293,7 @@ class TicketTypeView(UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Delete ticket type ‘{title}’? This operation is permanent and cannot"
-                " be undone."
+                " be undone"
             ).format(title=self.obj.title),
             success=_("This ticket type has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -360,7 +360,7 @@ class TicketClientView(UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Delete ticket client ‘{title}’? This operation is permanent and cannot"
-                " be undone."
+                " be undone"
             ).format(title=self.obj.name),
             success=_("This event has been deleted"),
             next=self.obj.project.url_for('admin'),

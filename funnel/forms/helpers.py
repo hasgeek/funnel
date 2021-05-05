@@ -53,14 +53,14 @@ class EmailAddressAvailable:
             )
         elif is_valid == 'invalid':
             raise forms.validators.StopValidation(
-                _("This does not appear to be a valid email address.")
+                _("This does not appear to be a valid email address")
             )
         elif is_valid == 'nomx':
             raise forms.validators.StopValidation(
                 _(
                     "The domain name of this email address is missing a DNS MX record."
                     " We require an MX record as missing MX is a strong indicator of"
-                    " spam. Please ask your tech person to add MX to DNS."
+                    " spam. Please ask your tech person to add MX to DNS"
                 )
             )
         elif is_valid == 'not_new':

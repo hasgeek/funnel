@@ -145,7 +145,7 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This participant already exists."), 'info')
+                flash(_("This participant already exists"), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
             form=form, title=_("New ticketed participant"), submit=_("Add participant")

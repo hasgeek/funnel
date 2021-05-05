@@ -351,7 +351,7 @@ def oauth_authorize():
             # User said no. Return "access_denied" error (OAuth2 spec)
             return oauth_auth_error(redirect_uri, state, 'access_denied')
         else:
-            raise ValueError("Received an authorize form without a valid action.")
+            raise ValueError("Received an authorize form without a valid action")
 
     # GET request or POST with invalid CSRF
     return (

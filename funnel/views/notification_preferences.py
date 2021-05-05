@@ -352,7 +352,7 @@ class AccountNotificationView(ClassView):
                 title=_("Unauthorized unsubscribe link"),
                 message=_(
                     "This unsubscribe link is for someone else’s account. Please logout"
-                    " or use an incognito/private browsing session to use this link."
+                    " or use an incognito/private browsing session to use this link"
                 ),
             )
 
