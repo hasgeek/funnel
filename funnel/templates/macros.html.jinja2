@@ -582,7 +582,7 @@
                 <div class="user__box">
                   {{ useravatar(member.user, add_profile_link=false, size='small') }}
                   <div class="user__box__header">
-                    <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} ({{ member.label }}){% endif %}</p>
+                    <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
                   </div>
                 </div>
               </div>
