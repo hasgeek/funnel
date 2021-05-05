@@ -31,24 +31,9 @@ class TestClient(TestDatabaseFixture):
         """Test if client's owner is a user."""
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
-        with pytest.raises(AttributeError):
-            assert not auth_client.owner_is(self.fixtures.batdog)
+        assert not auth_client.owner_is(self.fixtures.batdog)
         assert auth_client.owner_is(crusoe)
         assert not auth_client.owner_is(None)
-
-    def test_client_permissions(self):
-        """Test that the owner of an AuthClient has appropriate permissions."""
-        crusoe = self.fixtures.crusoe
-        auth_client = self.fixtures.auth_client
-        permissions_expected = {
-            'view',
-            'edit',
-            'delete',
-            'assign-permissions',
-            'new-resource',
-        }
-        permissions_received = auth_client.permissions(crusoe)
-        assert permissions_expected == permissions_received
 
     def test_client_authtoken_for(self):
         """Test for retrieving authtoken for confidential auth clients."""

@@ -25,7 +25,7 @@ from coaster.views import (
 
 from .. import app, funnelapp
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
-from ..models import Profile, Project, Proposal, db
+from ..models import Profile, Project, db
 from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
@@ -75,9 +75,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_user_profile:
             template_name = 'user_profile.html.jinja2'
 
-            submitted_proposals = self.obj.user.speaker_at.filter(
-                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-            ).all()
+            submitted_proposals = self.obj.user.public_proposals
 
             tagged_sessions = [
                 proposal.session
@@ -195,18 +193,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        submitted_proposals = self.obj.user.speaker_at.filter(
-            ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-        ).all()
-
-        participated_project_ids = [
-            proposal.project_id for proposal in submitted_proposals
-        ] + [project.id for project in self.obj.user.projects_as_crew]
-
-        participated_projects = Project.query.filter(
-            Project.state.PUBLISHED,
-            Project.id.in_(set(participated_project_ids)),
-        ).order_by(Project.order_by_date())
+        participated_projects = set(self.obj.user.projects_as_crew) | {
+            _p.project for _p in self.obj.user.public_proposals
+        }
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
@@ -216,18 +205,15 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ],
         }
 
-    @route('in/proposals')
+    @route('in/submissions')
+    @route('in/proposals')  # Legacy route, will be auto-redirected to `in/submissions`
     @render_with('user_profile_proposals.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
     def user_proposals(self):
         if self.obj.is_organization_profile:
             abort(404)
 
-        submitted_proposals = (
-            self.obj.user.speaker_at.join(Project)
-            .filter(Project.state.PUBLISHED, Proposal.state.PUBLIC)
-            .all()
-        )
+        submitted_proposals = self.obj.user.public_proposals
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
