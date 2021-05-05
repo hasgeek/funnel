@@ -1627,6 +1627,7 @@
         "प्रतिभागियों को चेक-इन करने के लिए एक ईवेंट चुनें"
       ],
       " View %(title)s attendees": [null, "%(title)s प्रतिभागियों को देखें"],
+      "All updates": [null, ""],
       "New image": [null, "नया इमेज"],
       "Remove image": [null, "इमेज हटाएं"],
       "No tagged sessions yet": [null, "फिलहाल कोई सेशन टैग किया हुआ नहीं है"],
@@ -1775,13 +1776,13 @@
         "%(actor)s ने <a href=\"%(project_url)s\">%(project)s</a> में एक नई जानकारी पोस्ट की है:"
       ],
       "Read on the website": [null, "वेबसाइट पर जाकर पढ़ें"],
-      "Your password has been updated. If you did this, no further action is necessary": [
+      "Your password has been updated. If you did this, no further action is necessary.": [
         null,
-        "आपके पासवर्ड को बदल दिया गया है. अगर आपने ही यह किया है, तो कुछ और करने की ज़रूरत नहीं है"
+        "आपके पासवर्ड को बदल दिया गया है. अगर आपने ही यह किया है, तो कुछ और करने की ज़रूरत नहीं है."
       ],
-      "If this was not authorized, consider resetting with a more secure password. Contact support if further assistance is required": [
+      "If this was not authorized, consider resetting with a more secure password. Contact support if further assistance is required.": [
         null,
-        "अगर आपने यह नहीं किया है, तो एक अधिक सुरक्षित पासवर्ड के साथ इसे रिसेट करें. यदि और किसी मदद की ज़रूरत हो, तो हमारे सहयोगी दल से संपर्क करें"
+        "अगर आपने यह नहीं किया है, तो एक अधिक सुरक्षित पासवर्ड के साथ इसे रिसेट करें. यदि और किसी मदद की ज़रूरत हो, तो हमारे सहयोगी दल से संपर्क करें."
       ],
       "Reset password": [null, "पासवर्ड रिसेट करें"],
       "Contact support": [null, "सहयोगी दल से संपर्क करें"],
@@ -2795,10 +2796,6 @@
       "You are receiving this because you are a site admin": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप साइट एडमिन हैं"
-      ],
-      "A comment has been reported as spam": [
-        null,
-        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है"
       ],
       "A comment has been reported as spam. {url}": [
         null,

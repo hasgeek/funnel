@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-05-04 15:29+0530\n"
+"POT-Creation-Date: 2021-05-06 02:08+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -1028,7 +1028,7 @@ msgid "One line description of the project"
 msgstr "प्रोजेक्ट का संक्षिप्त विवरण"
 
 #: funnel/forms/project.py:48 funnel/forms/venue.py:62
-#: funnel/views/index.py:148 funnel/views/profile.py:251
+#: funnel/views/index.py:148 funnel/views/profile.py:237
 msgid "Location"
 msgstr "स्थान"
 
@@ -1546,40 +1546,40 @@ msgstr "मेरे सदस्यता और बिल"
 msgid "Projects I am participating in"
 msgstr "मेरे द्वारा भाग लिए प्रोजेक्ट"
 
-#: funnel/models/notification.py:164
+#: funnel/models/notification.py:162
 msgid "Projects I am a crew member in"
 msgstr "प्रोजेक्ट, जिनमें मैं दल का हिस्सा हूं"
 
-#: funnel/models/notification.py:172
+#: funnel/models/notification.py:170
 msgid "Organizations I manage"
 msgstr "मेरे द्वारा प्रबंधित संगठन"
 
-#: funnel/models/notification.py:180
+#: funnel/models/notification.py:178
 msgid "As a website administrator"
 msgstr "वेबसाइट एडमिनिस्ट्रेटर के तौर पर"
 
-#: funnel/models/notification.py:191
+#: funnel/models/notification.py:189
 msgid "Queued"
 msgstr "श्रेणीबद्ध"
 
-#: funnel/models/notification.py:192
+#: funnel/models/notification.py:190
 msgid "Pending"
 msgstr "लंबित"
 
-#: funnel/models/notification.py:193
+#: funnel/models/notification.py:191
 msgid "Delivered"
 msgstr "पहुंचाए हुए"
 
-#: funnel/models/notification.py:194
+#: funnel/models/notification.py:192
 msgid "Failed"
 msgstr "विफल रहे"
 
-#: funnel/models/notification.py:195
+#: funnel/models/notification.py:193
 #: funnel/templates/auth_client.html.jinja2:75
 msgid "Unknown"
 msgstr "अज्ञात"
 
-#: funnel/models/notification.py:254
+#: funnel/models/notification.py:252
 msgid "Unspecified notification type"
 msgstr "अनिर्धारित नोटिफिकेशन प्रकार"
 
@@ -1697,6 +1697,7 @@ msgstr "निजी बनाएं"
 #: funnel/models/project.py:47 funnel/models/project.py:374
 #: funnel/models/proposal.py:44 funnel/models/proposal.py:305
 #: funnel/models/update.py:30 funnel/templates/js/update.js.jinja2:5
+#: funnel/templates/js/update.js.jinja2:30
 msgid "Draft"
 msgstr "ड्राफ्ट"
 
@@ -1903,7 +1904,7 @@ msgstr "इस प्रस्ताव को मूल्यांकन क�
 #: funnel/models/proposal.py:428 funnel/templates/auth_client.html.jinja2:16
 #: funnel/templates/auth_client.html.jinja2:145
 #: funnel/templates/delete.html.jinja2:11
-#: funnel/templates/js/comments.js.jinja2:90
+#: funnel/templates/js/comments.js.jinja2:89
 #: funnel/templates/labels.html.jinja2:39
 #: funnel/templates/organization_teams.html.jinja2:36
 #: funnel/templates/proposal.html.jinja2:31 funnel/views/commentvote.py:366
@@ -2110,8 +2111,7 @@ msgstr "वेबसाइट मरम्मत के लिए बंद क�
 #, python-format
 msgid ""
 "We should be back in a few seconds. If it is taking longer, write to us "
-"at <a href=\"mailto:%(support_email)s\">%(support_email)s</a> for "
-"updates"
+"at <a href=\"mailto:%(support_email)s\">%(support_email)s</a> for updates"
 msgstr ""
 "हम कुछ ही देर में इसे शुरू कर देंगे. पर यदि देरी होती है, तो जानकारी पाने"
 " के लिए हमें <a href=\"mailto:%(support_email)s\">%(support_email)s</a> "
@@ -2191,7 +2191,7 @@ msgstr "इस डिवाइस से"
 
 #: funnel/templates/account.html.jinja2:62
 #: funnel/templates/auth_client.html.jinja2:144
-#: funnel/templates/js/comments.js.jinja2:89
+#: funnel/templates/js/comments.js.jinja2:88
 #: funnel/templates/labels.html.jinja2:35
 #: funnel/templates/organization_teams.html.jinja2:35
 #: funnel/templates/project_admin.html.jinja2:25
@@ -2614,8 +2614,8 @@ msgid ""
 "You &ndash; or someone claiming to be you &ndash; asked for your password"
 " to be reset. This link is valid for 24 hours."
 msgstr ""
-"आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति &ndash; ने आपके पासवर्ड"
-" को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
+"आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति &ndash; ने आपके "
+"पासवर्ड को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
 
 #: funnel/templates/email_account_reset.html.jinja2:8 funnel/views/email.py:32
 msgid "Reset your password"
@@ -3252,7 +3252,7 @@ msgstr "बाद में खोलें"
 
 #: funnel/templates/project_comments.html.jinja2:4
 #: funnel/templates/project_layout.html.jinja2:391
-#: funnel/templates/proposal.html.jinja2:197 funnel/views/search.py:322
+#: funnel/templates/proposal.html.jinja2:199 funnel/views/search.py:322
 #: funnel/views/siteadmin.py:241
 msgid "Comments"
 msgstr "कमेंट"
@@ -3267,7 +3267,7 @@ msgstr "प्रोजेक्ट पर वापस जाएं"
 msgid "Pinned update"
 msgstr ""
 
-#: funnel/templates/js/update.js.jinja2:66
+#: funnel/templates/js/update.js.jinja2:67
 #: funnel/templates/project_layout.html.jinja2:33
 msgid "This update is for participants only"
 msgstr "यह जानकारी केवल प्रतिभागियों के लिए है"
@@ -3477,7 +3477,7 @@ msgstr ""
 msgid "Modify guidelines"
 msgstr ""
 
-#: funnel/templates/js/update.js.jinja2:59
+#: funnel/templates/js/update.js.jinja2:60
 #: funnel/templates/project_submissions.html.jinja2:20
 msgid "expand"
 msgstr ""
@@ -3506,7 +3506,7 @@ msgstr ""
 msgid "Proposal menu"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:24 funnel/views/proposal.py:210
+#: funnel/templates/proposal.html.jinja2:24 funnel/views/proposal.py:211
 msgid "Edit submission"
 msgstr ""
 
@@ -3519,7 +3519,7 @@ msgid "Replace video"
 msgstr ""
 
 #: funnel/templates/proposal.html.jinja2:28
-#: funnel/templates/proposal.html.jinja2:120
+#: funnel/templates/proposal.html.jinja2:122
 msgid "Add video"
 msgstr "वीडियो जोड़ें"
 
@@ -3540,36 +3540,39 @@ msgstr ""
 msgid "Add session video"
 msgstr "सेशन की वीडियो जोड़ें"
 
-#: funnel/templates/proposal.html.jinja2:60
+#: funnel/templates/proposal.html.jinja2:61
+#: funnel/templates/update_details.html.jinja2:13
 msgid "Previous"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:62 funnel/views/organization.py:92
+#: funnel/templates/proposal.html.jinja2:63
+#: funnel/templates/update_details.html.jinja2:15
+#: funnel/views/organization.py:92
 msgid "Next"
 msgstr "आगे"
 
-#: funnel/templates/proposal.html.jinja2:75
-#: funnel/templates/proposal.html.jinja2:189
+#: funnel/templates/proposal.html.jinja2:77
+#: funnel/templates/proposal.html.jinja2:191
 msgid "All submissions"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:86
+#: funnel/templates/proposal.html.jinja2:88
 msgid "This proposal has been added to the schedule"
 msgstr "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
 
-#: funnel/templates/proposal.html.jinja2:118
+#: funnel/templates/proposal.html.jinja2:120
 msgid "No video"
 msgstr "कोई वीडियो नहीं है"
 
-#: funnel/templates/proposal.html.jinja2:132
+#: funnel/templates/proposal.html.jinja2:134
 msgid "Session video"
 msgstr "सेशन वीडियो"
 
-#: funnel/templates/proposal.html.jinja2:142
+#: funnel/templates/proposal.html.jinja2:144
 msgid "Proposal video"
 msgstr "प्रस्ताव वीडियो"
 
-#: funnel/templates/proposal.html.jinja2:175
+#: funnel/templates/proposal.html.jinja2:177
 #, python-format
 msgid "Submitted %(date)s "
 msgstr "%(date)s को सबमिट "
@@ -3699,6 +3702,10 @@ msgstr "प्रतिभागियों को चेक-इन करन�
 msgid " View %(title)s attendees"
 msgstr "%(title)s प्रतिभागियों को देखें"
 
+#: funnel/templates/update_details.html.jinja2:10
+msgid "All updates"
+msgstr ""
+
 #: funnel/templates/update_logo_modal.html.jinja2:8
 msgid "New image"
 msgstr "नया इमेज"
@@ -3788,24 +3795,24 @@ msgstr ""
 msgid "No comments posted yet"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:77
+#: funnel/templates/js/comments.js.jinja2:76
 #, python-format
 msgid "edited %s"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:79
+#: funnel/templates/js/comments.js.jinja2:78
 msgid "Reply"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:80
+#: funnel/templates/js/comments.js.jinja2:79
 msgid "Report"
 msgstr ""
 
-#: funnel/templates/js/comments.js.jinja2:82
+#: funnel/templates/js/comments.js.jinja2:81
 msgid "Share"
 msgstr "साझा करें"
 
-#: funnel/templates/js/comments.js.jinja2:87
+#: funnel/templates/js/comments.js.jinja2:86
 msgid "More"
 msgstr ""
 
@@ -3871,11 +3878,11 @@ msgstr ""
 msgid "Calendar view"
 msgstr ""
 
-#: funnel/templates/js/update.js.jinja2:21 funnel/views/proposal.py:211
+#: funnel/templates/js/update.js.jinja2:21 funnel/views/proposal.py:212
 msgid "Update"
 msgstr "अपडेट करें"
 
-#: funnel/templates/js/update.js.jinja2:60
+#: funnel/templates/js/update.js.jinja2:61
 msgid "collapse"
 msgstr ""
 
@@ -3916,6 +3923,7 @@ msgid "See all comments"
 msgstr "सभी कमेंट देखें"
 
 #: funnel/templates/notifications/comment_report_received_email.html.jinja2:3
+#: funnel/views/notifications/commentvote_notification.py:33
 msgid "A comment has been reported as spam"
 msgstr "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है"
 
@@ -4214,10 +4222,10 @@ msgstr "खाता संपादित करें"
 
 #: funnel/views/account.py:382 funnel/views/auth_client.py:153
 #: funnel/views/auth_client.py:386 funnel/views/auth_client.py:459
-#: funnel/views/profile.py:281 funnel/views/project.py:322
+#: funnel/views/profile.py:267 funnel/views/project.py:322
 #: funnel/views/project.py:335 funnel/views/project.py:369
 #: funnel/views/project.py:398 funnel/views/project.py:509
-#: funnel/views/proposal.py:345 funnel/views/ticket_event.py:190
+#: funnel/views/proposal.py:346 funnel/views/ticket_event.py:190
 #: funnel/views/ticket_event.py:283 funnel/views/ticket_event.py:350
 #: funnel/views/ticket_participant.py:203
 msgid "Save changes"
@@ -4546,7 +4554,7 @@ msgstr "ऐप्लिकेशन संपादित करें"
 #: funnel/views/auth_client.py:164 funnel/views/auth_client.py:323
 #: funnel/views/auth_client.py:397 funnel/views/auth_client.py:470
 #: funnel/views/organization.py:123 funnel/views/organization.py:211
-#: funnel/views/project.py:418 funnel/views/proposal.py:223
+#: funnel/views/project.py:418 funnel/views/proposal.py:224
 #: funnel/views/ticket_event.py:199 funnel/views/ticket_event.py:293
 #: funnel/views/ticket_event.py:360 funnel/views/update.py:173
 msgid "Confirm delete"
@@ -4899,15 +4907,15 @@ msgstr "कम्यूनिटी दिशा-निर्देश"
 msgid "Code of conduct"
 msgstr "आचार संहिता"
 
-#: funnel/views/index.py:147 funnel/views/profile.py:250
+#: funnel/views/index.py:147 funnel/views/profile.py:236
 msgid "Past sessions"
 msgstr ""
 
-#: funnel/views/index.py:148 funnel/views/profile.py:251
+#: funnel/views/index.py:148 funnel/views/profile.py:237
 msgid "Date"
 msgstr "डेट"
 
-#: funnel/views/index.py:148 funnel/views/profile.py:251
+#: funnel/views/index.py:148 funnel/views/profile.py:237
 msgid "Project"
 msgstr "प्रोजेक्ट"
 
@@ -4923,11 +4931,11 @@ msgstr "इंटरनेट"
 msgid "Online"
 msgstr "ऑनलाइन"
 
-#: funnel/views/label.py:34 funnel/views/profile.py:276
-#: funnel/views/profile.py:307 funnel/views/profile.py:361
-#: funnel/views/profile.py:403 funnel/views/project.py:383
+#: funnel/views/label.py:34 funnel/views/profile.py:262
+#: funnel/views/profile.py:293 funnel/views/profile.py:347
+#: funnel/views/profile.py:389 funnel/views/project.py:383
 #: funnel/views/project.py:452 funnel/views/project.py:494
-#: funnel/views/project.py:506 funnel/views/proposal.py:206
+#: funnel/views/project.py:506 funnel/views/proposal.py:207
 #: funnel/views/ticket_event.py:188 funnel/views/ticket_event.py:280
 #: funnel/views/ticket_event.py:347 funnel/views/ticket_participant.py:200
 msgid "Your changes have been saved"
@@ -5171,7 +5179,7 @@ msgstr ""
 "आपके पिछले संपादन के बाद से इस ड्राफ्ट में बदलाव किए गए हैं. कृपया रीलोड "
 "करें"
 
-#: funnel/views/mixins.py:351
+#: funnel/views/mixins.py:352
 msgid ""
 "Invalid revision ID or the existing changes have been submitted already. "
 "Please reload"
@@ -5179,7 +5187,7 @@ msgstr ""
 "अमान्य संशोधन ID या मौजूदा परिवर्तन पहले ही जमा किए जा चुके हैं. कृपया "
 "रीलोड करें"
 
-#: funnel/views/mixins.py:373
+#: funnel/views/mixins.py:375
 msgid "Invalid CSRF token"
 msgstr "अमान्य CSRF टोकन"
 
@@ -5271,9 +5279,7 @@ msgstr "इस संगठन के पास कुछ प्रोजेक�
 msgid ""
 "Projects must be deleted or transferred before the organization can be "
 "deleted"
-msgstr ""
-"संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना "
-"चाहिए"
+msgstr "संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना चाहिए"
 
 #: funnel/views/organization.py:124
 msgid ""
@@ -5304,28 +5310,28 @@ msgstr "{title} टीम मिटाएं?"
 msgid "You have deleted team ‘{team}’ from organization ‘{org}’"
 msgstr "आपने ‘{org}’ संगठन से ‘{team}’ टीम को मिटा दिया है"
 
-#: funnel/views/profile.py:280
+#: funnel/views/profile.py:266
 msgid "Edit profile details"
 msgstr "प्रोफाइल विवरण संपादित करें"
 
-#: funnel/views/profile.py:311 funnel/views/profile.py:316
+#: funnel/views/profile.py:297 funnel/views/profile.py:302
 msgid "Save logo"
 msgstr "लोगो सेव करें"
 
-#: funnel/views/profile.py:336
+#: funnel/views/profile.py:322
 msgid "Were you trying to remove the logo? Try again to confirm"
 msgstr ""
 
-#: funnel/views/profile.py:365 funnel/views/profile.py:370
+#: funnel/views/profile.py:351 funnel/views/profile.py:356
 #: funnel/views/project.py:456 funnel/views/project.py:461
 msgid "Save banner"
 msgstr "बैनर सेव करें"
 
-#: funnel/views/profile.py:389 funnel/views/project.py:481
+#: funnel/views/profile.py:375 funnel/views/project.py:481
 msgid "Were you trying to remove the banner? Try again to confirm"
 msgstr ""
 
-#: funnel/views/profile.py:406
+#: funnel/views/profile.py:392
 msgid "There was a problem saving your changes. Please try again"
 msgstr ""
 "आपके परिवर्तनों को सेव करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा "
@@ -5595,45 +5601,45 @@ msgstr ""
 msgid "This project is not accepting submissions"
 msgstr "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
 
-#: funnel/views/proposal.py:224
+#: funnel/views/proposal.py:225
 msgid ""
 "Delete your submission ‘{title}’? This will remove all votes and comments"
 " as well. This operation is permanent and cannot be undone"
 msgstr ""
 
-#: funnel/views/proposal.py:228
+#: funnel/views/proposal.py:229
 msgid "Your submission has been deleted"
 msgstr ""
 
-#: funnel/views/proposal.py:252
+#: funnel/views/proposal.py:253
 msgid "Invalid transition for this submission"
 msgstr ""
 
-#: funnel/views/proposal.py:268
+#: funnel/views/proposal.py:269
 msgid "This submission has been moved to {project}"
 msgstr ""
 
-#: funnel/views/proposal.py:276
+#: funnel/views/proposal.py:277
 msgid "Please choose the project you want to move this submission to"
 msgstr ""
 
-#: funnel/views/proposal.py:292
+#: funnel/views/proposal.py:293
 msgid "This submission has been transferred"
 msgstr "यह प्रस्ताव भेज दिया गया है"
 
-#: funnel/views/proposal.py:295
+#: funnel/views/proposal.py:296
 msgid "Please choose the user you want to transfer this submission to"
 msgstr ""
 
-#: funnel/views/proposal.py:339
+#: funnel/views/proposal.py:340
 msgid "Labels have been saved for this submission"
 msgstr ""
 
-#: funnel/views/proposal.py:342
+#: funnel/views/proposal.py:343
 msgid "Labels could not be saved for this submission"
 msgstr ""
 
-#: funnel/views/proposal.py:346
+#: funnel/views/proposal.py:347
 msgid "Edit labels for '{}'"
 msgstr "'{}' के लिए लेबल संपादित करें"
 
@@ -5816,9 +5822,7 @@ msgid "The update has been deleted"
 msgstr "अपडेट मिटा दिया गया है"
 
 #: funnel/views/update.py:174
-msgid ""
-"Delete this draft update? This operation is permanent and cannot be "
-"undone"
+msgid "Delete this draft update? This operation is permanent and cannot be undone"
 msgstr ""
 "इस ड्राफ्ट अपडेट को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे "
 "वापस पहले जैसा नहीं किया जा सकता"
@@ -5910,10 +5914,6 @@ msgstr ""
 #: funnel/views/notifications/commentvote_notification.py:25
 msgid "You are receiving this because you are a site admin"
 msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप साइट एडमिन हैं"
-
-#: funnel/views/notifications/commentvote_notification.py:33
-msgid "A comment has been reported as spam"
-msgstr "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है"
 
 #: funnel/views/notifications/commentvote_notification.py:41
 msgid "A comment has been reported as spam. {url}"
@@ -6279,8 +6279,8 @@ msgstr "{project} में अपडेट: {update} {url}"
 #~ msgid ""
 #~ "\n"
 #~ "    <b>%(actor)s</b> has removed you as"
-#~ " a crew member from <b>%(project)s</b>"
-#~ "\n"
+#~ " a crew member from <b>%(project)s</b>\n"
+#~ ""
 #~ "  "
 #~ msgstr ""
 #~ "\n"
@@ -6676,9 +6676,6 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "No members found"
 #~ msgstr "कोई सदस्य नहीं पाया गया"
-
-msgid "Members you add will appear here…"
-msgstr "आपके द्वारा जोड़े गए सदस्य यहां दिखाई देंगे…"
 
 #~ msgid "Remove this member"
 #~ msgstr "इस सदस्य को हटाएं"
