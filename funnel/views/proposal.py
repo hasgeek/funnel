@@ -91,6 +91,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             title=_("Make a submission"),
             submit=_("Submit"),
             message=markdown_message,
+            cancel_url=self.obj.url_for(),
         )
 
     @requires_login

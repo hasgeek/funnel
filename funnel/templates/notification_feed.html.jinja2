@@ -6,7 +6,7 @@
 {% block title %}{% if unread_only %}{% trans %}Unread updates{% endtrans %}{% else %}{% trans %}Updates{% endtrans %}{% endif %}{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1">{{ self.title()|e }}</h1>
+  <h1 class="mui--text-headline">{{ self.title()|e }}</h1>
 {% endblock %}
 
 {% block basecontent %}

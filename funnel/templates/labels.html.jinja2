@@ -6,8 +6,8 @@
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
-  <p class="mui--text-headline">{% trans %}Manage labels{% endtrans %}</p>
+  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <p class="mui--text-subhead">{% trans %}Manage labels{% endtrans %}</p>
 {% endblock %}
 
 {% block contentwrapper %}
