@@ -129,7 +129,7 @@ $(function () {
               data: JSON.stringify(json),
               success: function (result) {
                 toastr.success(
-                  gettext('The room sequence and colours have been updated.')
+                  gettext('The room sequence and colours have been updated')
                 );
               },
               complete: function (xhr, type) {

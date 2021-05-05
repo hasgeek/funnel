@@ -2612,10 +2612,10 @@ msgstr "नमस्ते %(fullname)s,"
 #: funnel/templates/email_account_reset.html.jinja2:6
 msgid ""
 "You &ndash; or someone claiming to be you &ndash; asked for your password"
-" to be reset. This link is valid for 24 hours"
+" to be reset. This link is valid for 24 hours."
 msgstr ""
-"आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति;  ने आपके पासवर्ड"
-" को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा"
+"आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति &ndash; ने आपके पासवर्ड"
+" को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
 
 #: funnel/templates/email_account_reset.html.jinja2:8 funnel/views/email.py:32
 msgid "Reset your password"
@@ -2623,8 +2623,8 @@ msgstr "अपना पासवर्ड रिसेट करें"
 
 #: funnel/templates/email_account_reset.html.jinja2:10
 #: funnel/templates/email_account_verify.html.jinja2:8
-msgid "If you did not ask for this, you may safely ignore this email"
-msgstr "अगर आपने इसकी अनुरोध नहीं की है, तो फिर आप इस ईमेल को अनदेखा कर दें"
+msgid "If you did not ask for this, you may safely ignore this email."
+msgstr "अगर आपने इसकी अनुरोध नहीं की है, तो फिर आप इस ईमेल को अनदेखा कर दें."
 
 #: funnel/templates/email_account_verify.html.jinja2:6
 msgid "Confirm your email address"

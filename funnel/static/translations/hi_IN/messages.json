@@ -1226,14 +1226,14 @@
         "इस फॉर्म की समय सीमा समाप्त हो गई क्योंकि यह काफी देर से खुली हुई थी. कृपया दोबारा जमा करें"
       ],
       "Hello %(fullname)s,": [null, "नमस्ते %(fullname)s,"],
-      "You &ndash; or someone claiming to be you &ndash; asked for your password to be reset. This link is valid for 24 hours": [
+      "You &ndash; or someone claiming to be you &ndash; asked for your password to be reset. This link is valid for 24 hours.": [
         null,
-        "आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति;  ने आपके पासवर्ड को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा"
+        "आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति &ndash; ने आपके पासवर्ड को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
       ],
       "Reset your password": [null, "अपना पासवर्ड रिसेट करें"],
-      "If you did not ask for this, you may safely ignore this email": [
+      "If you did not ask for this, you may safely ignore this email.": [
         null,
-        "अगर आपने इसकी अनुरोध नहीं की है, तो फिर आप इस ईमेल को अनदेखा कर दें"
+        "अगर आपने इसकी अनुरोध नहीं की है, तो फिर आप इस ईमेल को अनदेखा कर दें."
       ],
       "Confirm your email address": [null, "अपने ईमेल पते की पुष्टि करें"],
       "\n    %(actor)s has added you to ‘%(project)s’ as a crew member.\n  ": [

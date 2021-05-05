@@ -2518,7 +2518,7 @@ msgstr ""
 #: funnel/templates/email_account_reset.html.jinja2:6
 msgid ""
 "You &ndash; or someone claiming to be you &ndash; asked for your password"
-" to be reset. This link is valid for 24 hours"
+" to be reset. This link is valid for 24 hours."
 msgstr ""
 
 #: funnel/templates/email_account_reset.html.jinja2:8 funnel/views/email.py:32
@@ -2527,7 +2527,7 @@ msgstr ""
 
 #: funnel/templates/email_account_reset.html.jinja2:10
 #: funnel/templates/email_account_verify.html.jinja2:8
-msgid "If you did not ask for this, you may safely ignore this email"
+msgid "If you did not ask for this, you may safely ignore this email."
 msgstr ""
 
 #: funnel/templates/email_account_verify.html.jinja2:6
