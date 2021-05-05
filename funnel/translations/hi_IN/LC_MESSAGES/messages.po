@@ -4090,18 +4090,18 @@ msgstr "वेबसाइट पर जाकर पढ़ें"
 #: funnel/templates/notifications/user_password_set_email.html.jinja2:2
 msgid ""
 "Your password has been updated. If you did this, no further action is "
-"necessary"
+"necessary."
 msgstr ""
 "आपके पासवर्ड को बदल दिया गया है. अगर आपने ही यह किया है, तो कुछ और करने "
-"की ज़रूरत नहीं है"
+"की ज़रूरत नहीं है."
 
 #: funnel/templates/notifications/user_password_set_email.html.jinja2:5
 msgid ""
 "If this was not authorized, consider resetting with a more secure "
-"password. Contact support if further assistance is required"
+"password. Contact support if further assistance is required."
 msgstr ""
 "अगर आपने यह नहीं किया है, तो एक अधिक सुरक्षित पासवर्ड के साथ इसे रिसेट "
-"करें. यदि और किसी मदद की ज़रूरत हो, तो हमारे सहयोगी दल से संपर्क करें"
+"करें. यदि और किसी मदद की ज़रूरत हो, तो हमारे सहयोगी दल से संपर्क करें."
 
 #: funnel/templates/notifications/user_password_set_email.html.jinja2:9
 #: funnel/views/account_reset.py:121 funnel/views/account_reset.py:276

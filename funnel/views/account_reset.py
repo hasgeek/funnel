@@ -155,7 +155,7 @@ def reset_email(token, cookietest=False):
 def reset_email_legacy(buid, secret):
     flash(
         _(
-            "This password reset link is invalid"
+            "This password reset link is invalid."
             " If you still need to reset your password, you may request a new link"
         ),
         'info',
@@ -263,10 +263,10 @@ def reset_email_do():
             if counter is None
             else ngettext(
                 "Your password has been changed. As a precaution, you have been logged"
-                " out of one other device. You may now login with your new password.",
+                " out of one other device. You may now login with your new password",
                 "Your password has been changed. As a precaution, you have been logged"
                 " out of %(num)d other devices. You may now login with your new"
-                " password.",
+                " password",
                 counter + 1,
             ),
         )

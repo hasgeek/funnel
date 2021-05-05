@@ -3,7 +3,7 @@
 {% block content %}
 <p>
   {% trans url=url_for('siteadmin_review_comment', report=view.report.uuid_b58) -%}
-    A comment has been reported as spam. <a href="{{ url }}">Review comment</a>.
+    A comment has been reported as spam. <a href="{{ url }}">Review comment</a>
   {%- endtrans %}
 </p>
 {% endblock %}

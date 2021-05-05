@@ -663,7 +663,7 @@ class AccountView(ClassView):
             form=verify_form,
             title=_("Resend the verification email?"),
             message=_(
-                "We will resend the verification email to {email}.".format(
+                "We will resend the verification email to {email}".format(
                     email=emailclaim.email
                 )
             ),
