@@ -138,7 +138,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             title="Confirm delete",
             message=_(
                 "Delete venue “{title}”? This operation is permanent and cannot be"
-                " undone."
+                " undone"
             ).format(title=self.obj.title),
             success=_("You have deleted venue “{title}”".format(title=self.obj.title)),
             next=self.obj.project.url_for('venues'),
@@ -209,7 +209,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             title="Confirm delete",
             message=_(
                 "Delete room “{title}”? This operation is permanent and cannot be"
-                " undone."
+                " undone"
             ).format(title=self.obj.title),
             success=_("You have deleted room “{title}”".format(title=self.obj.title)),
             next=self.obj.venue.project.url_for('venues'),

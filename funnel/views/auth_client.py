@@ -165,7 +165,7 @@ class AuthClientView(UrlForView, ModelView):
             message=_(
                 "Delete application ‘{title}’? This will also delete all associated"
                 " content including access tokens issued on behalf of users. This"
-                " operation is permanent and cannot be undone."
+                " operation is permanent and cannot be undone"
             ).format(title=self.obj.title),
             success=_(
                 "You have deleted application ‘{title}’ and all its associated"
@@ -188,7 +188,7 @@ class AuthClientView(UrlForView, ModelView):
             message=_(
                 "Disconnect application {app}? This will not remove any of your data in"
                 " this app, but will prevent it from accessing any further data from"
-                " your Hasgeek account."
+                " your Hasgeek account"
             ).format(app=self.obj.title),
             delete_text=_("Disconnect"),
             success=_("You have disconnected {app} from your account").format(
@@ -284,7 +284,7 @@ class AuthClientView(UrlForView, ModelView):
             message=Markup(
                 _(
                     'Add and edit teams from <a href="{url}">your organization’s teams'
-                    ' page</a>.'
+                    ' page</a>'
                 ).format(url=self.obj.organization.url_for('teams'))
             )
             if self.obj.organization

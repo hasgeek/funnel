@@ -236,24 +236,24 @@ def growthstats():
         f"*Active users*, of which\n"
         f"↝ also using other apps, and\n"
         f"⟳ returning new users from last period\n\n"
-        f"*{display_date.strftime('%A')}:* {stats['user_sessions']['day']} "
-        f"↝ {stats['app_user_sessions']['day']} "
-        f"⟳ {stats['returning_users']['day']}\n"
-        f"*Week:* {stats['user_sessions']['week']} "
-        f"↝ {stats['app_user_sessions']['week']} "
-        f"⟳ {stats['returning_users']['week']}\n"
-        f"*Month:* {stats['user_sessions']['month']} "
-        f"↝ {stats['app_user_sessions']['month']} "
-        f"⟳ {stats['returning_users']['month']}\n"
+        f"*{display_date.strftime('%A')}:* {stats['user_sessions']['day']}"
+        f" ↝ {stats['app_user_sessions']['day']}"
+        f" ⟳ {stats['returning_users']['day']}\n"
+        f"*Week:* {stats['user_sessions']['week']}"
+        f" ↝ {stats['app_user_sessions']['week']}"
+        f" ⟳ {stats['returning_users']['week']}\n"
+        f"*Month:* {stats['user_sessions']['month']}"
+        f" ↝ {stats['app_user_sessions']['month']}"
+        f" ⟳ {stats['returning_users']['month']}\n"
         f"\n"
     )
     for key, data in stats.items():
         if key not in ('user_sessions', 'app_user_sessions', 'returning_users'):
             message += (
                 f"*{key}:*\n"
-                f"{data['day_trend']}{data['weekday_trend']} {data['day']} day, "
-                f"{data['week_trend']} {data['week']} week, "
-                f"{data['month_trend']} {data['month']} month\n"
+                f"{data['day_trend']}{data['weekday_trend']} {data['day']} day,"
+                f" {data['week_trend']} {data['week']} week,"
+                f" {data['month_trend']} {data['month']} month\n"
                 f"\n"
             )
 

@@ -347,18 +347,18 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         cal.add('version', "2.0")
         cal.add(
             'name',
-            f'{self.obj.venue.project.title} @ '
-            f'{self.obj.venue.title} / {self.obj.title}',
+            f"{self.obj.venue.project.title} @"
+            f" {self.obj.venue.title} / {self.obj.title}",
         )
         cal.add(
             'x-wr-calname',
-            f'{self.obj.venue.project.title} @ '
-            f'{self.obj.venue.title} / {self.obj.title}',
+            f"{self.obj.venue.project.title} @"
+            f" {self.obj.venue.title} / {self.obj.title}",
         )
         cal.add(
             'summary',
-            f'{self.obj.venue.project.title} @ '
-            f'{self.obj.venue.title} / {self.obj.title}',
+            f"{self.obj.venue.project.title} @"
+            f" {self.obj.venue.title} / {self.obj.title}",
         )
         cal.add('timezone-id', self.obj.venue.project.timezone.zone)
         cal.add('x-wr-timezone', self.obj.venue.project.timezone.zone)

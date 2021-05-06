@@ -38,7 +38,7 @@ from .session import session_edit
 
 markdown_message = __(
     'This form uses <a target="_blank" rel="noopener noreferrer"'
-    ' href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
+    ' href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting'
 )
 
 
@@ -224,7 +224,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Delete your submission ‘{title}’? This will remove all votes and"
-                " comments as well. This operation is permanent and cannot be undone."
+                " comments as well. This operation is permanent and cannot be undone"
             ).format(title=self.obj.title),
             success=_("Your submission has been deleted"),
             next=self.obj.project.url_for(),
@@ -250,7 +250,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 # if the proposal is deleted, don't redirect to proposal page
                 return redirect(self.obj.project.url_for('view_proposals'))
         else:
-            flash(_("Invalid transition for this submission."), 'error')
+            flash(_("Invalid transition for this submission"), 'error')
             abort(403)
         return redirect(self.obj.url_for())
 
@@ -266,7 +266,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
             flash(
                 _(
-                    "This submission has been moved to {project}.".format(
+                    "This submission has been moved to {project}".format(
                         project=target_project.title
                     )
                 ),
@@ -274,7 +274,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             )
         else:
             flash(
-                _("Please choose the project you want to move this submission to."),
+                _("Please choose the project you want to move this submission to"),
                 'error',
             )
         return redirect(self.obj.url_for(), 303)
@@ -290,10 +290,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 [target_user], actor=current_auth.actor
             )
             db.session.commit()
-            flash(_("This submission has been transferred."), 'success')
+            flash(_("This submission has been transferred"), 'success')
         else:
             flash(
-                _("Please choose the user you want to transfer this submission to."),
+                _("Please choose the user you want to transfer this submission to"),
                 'error',
             )
         return redirect(self.obj.url_for(), 303)
@@ -307,11 +307,11 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             featured_form.populate_obj(self.obj)
             db.session.commit()
             if self.obj.featured:
-                return {'status': 'ok', 'message': 'This submission has been featured.'}
+                return {'status': 'ok', 'message': 'This submission has been featured'}
             else:
                 return {
                     'status': 'ok',
-                    'message': 'This submission is no longer featured.',
+                    'message': 'This submission is no longer featured',
                 }
         return (
             {
@@ -337,10 +337,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
-            flash(_("Labels have been saved for this submission."), 'info')
+            flash(_("Labels have been saved for this submission"), 'info')
             return redirect(self.obj.url_for(), 303)
         else:
-            flash(_("Labels could not be saved for this submission."), 'error')
+            flash(_("Labels could not be saved for this submission"), 'error')
             return render_form(
                 form,
                 submit=_("Save changes"),

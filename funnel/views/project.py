@@ -409,7 +409,7 @@ class ProjectView(
                 title=_("This project has submissions"),
                 message=_(
                     "Submissions must be deleted or transferred before the project"
-                    " can be deleted."
+                    " can be deleted"
                 ),
             )
         return render_delete_sqla(
@@ -418,7 +418,7 @@ class ProjectView(
             title=_("Confirm delete"),
             message=_(
                 "Delete project ‘{title}’? This will delete everything in the project."
-                " This operation is permanent and cannot be undone."
+                " This operation is permanent and cannot be undone"
             ).format(title=self.obj.title),
             success=_(
                 "You have deleted project ‘{title}’ and all its associated content"
@@ -475,7 +475,7 @@ class ProjectView(
             return render_redirect(self.obj.url_for(), code=303)
         else:
             current_app.logger.error(
-                "CSRF form validation error when removing project banner."
+                "CSRF form validation error when removing project banner"
             )
             flash(
                 _("Were you trying to remove the banner? Try again to confirm"),

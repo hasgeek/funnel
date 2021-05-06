@@ -272,7 +272,7 @@ class DraftViewMixin(object):
         if draft is not None:
             db.session.delete(draft)
         else:
-            raise ValueError(_("There is no draft for the given object."))
+            raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
         self, obj: Optional[UuidMixin] = None
@@ -297,7 +297,7 @@ class DraftViewMixin(object):
                 {
                     'status': 'error',
                     'error': 'form_missing_revision_field',
-                    'error_description': _("Form must contain a revision ID."),
+                    'error_description': _("Form must contain a revision ID"),
                 },
                 400,
             )
@@ -325,7 +325,8 @@ class DraftViewMixin(object):
                             'status': 'error',
                             'error': 'missing_or_invalid_revision',
                             'error_description': _(
-                                "There have been changes to this draft since you last edited it. Please reload."
+                                "There have been changes to this draft since you last"
+                                " edited it. Please reload"
                             ),
                         },
                         400,
@@ -349,7 +350,8 @@ class DraftViewMixin(object):
                         'status': 'error',
                         'error': 'invalid_or_expired_revision',
                         'error_description': _(
-                            "Invalid revision ID or the existing changes have been submitted already. Please reload."
+                            "Invalid revision ID or the existing changes have been"
+                            " submitted already. Please reload"
                         ),
                     },
                     400,

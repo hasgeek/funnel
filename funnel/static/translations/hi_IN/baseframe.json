@@ -119,28 +119,28 @@
       "Longitude": [null, "देशांतर"],
       "Image URL": [null, "इमेज URL"],
       "Bad Request": [null, "अमान्य रिक्वेस्ट"],
-      "This request was malformed and could not be processed.": [
+      "This request was malformed and could not be processed": [
         null,
         "यह रिक्वेस्ट विकृत होने के कारण प्रोसेस नहीं हो पायी"
       ],
       "Access denied": [null, "पहुँच निषेध"],
-      "You do not have access to that page.": [
+      "You do not have access to that page": [
         null,
-        "आपके पास उस पेज को खोलने की पहुंच नहीं है."
+        "आपके पास उस पेज को खोलने की पहुंच नहीं है"
       ],
       "Not Found": [null, "नहीं मिला"],
-      "The page you were looking for does not exist.": [
+      "The page you were looking for does not exist": [
         null,
-        "जिस पेज की आप तलाश कर रहे थे वह मौजूद नहीं है."
+        "जिस पेज की आप तलाश कर रहे थे वह मौजूद नहीं है"
       ],
       "Unprocessable Entity": [null, ""],
       "Too Many Requests": [null, "बहुत अधिक अनुरोध"],
-      "You have exceeded the rate limit and must try after some time.": [
+      "You have exceeded the rate limit and must try after some time": [
         null,
-        "आपने दर सीमा पार कर दी है और आपको थोड़ी देर बाद कोशिश करनी होगी."
+        "आपने दर सीमा पार कर दी है और आपको थोड़ी देर बाद कोशिश करनी होगी"
       ],
       "Internal Server Error": [null, "आंतरिक सर्वर त्रुटि"],
-      "Something broke inside. A report has been sent to the server’s administrator. Our apologies for the inconvenience.": [
+      "Something broke inside. A report has been sent to the server’s administrator. Our apologies for the inconvenience": [
         null,
         ""
       ],
