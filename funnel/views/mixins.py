@@ -92,8 +92,11 @@ class ProposalViewMixin(object):
     }
 
     def loader(
-        self, profile: str, project: str, proposal: str
+        self, profile: str, project: str, proposal: str  # skipcq: PYL-W0613
     ) -> Union[Proposal, ProposalSuuidRedirect]:
+        # `profile` and `project` are part of the URL, but unnecessary for loading
+        # a proposal since it has a unique id embedded. The function parameters are not
+        # used in the query.
         obj = (
             self.model.query.join(Project, Profile)
             .filter(Proposal.url_name_uuid_b58 == proposal)
@@ -106,8 +109,7 @@ class ProposalViewMixin(object):
                     .filter(ProposalSuuidRedirect.suuid == proposal.split('-')[-1])
                     .first_or_404()
                 )
-            else:
-                abort(404)
+            abort(404)
 
         if obj.project.state.DELETED or obj.state.DELETED:
             abort(410)

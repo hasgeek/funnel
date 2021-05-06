@@ -12,10 +12,12 @@ from funnel.views.helpers import app_url_for, cleanurl_filter
 
 @pytest.fixture
 def testapp():
+    """Create a test app with an `index` view."""
     testapp = Flask(__name__)
 
     @testapp.route('/')
-    def index():
+    def index():  # skipcq: PTC-W0065
+        """Unused index view, only referred to via url_for."""
         return 'test_index'
 
     return testapp

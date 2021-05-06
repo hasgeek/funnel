@@ -55,6 +55,8 @@ def proposals_can_be_reordered(obj):
 @Project.views('proposal_new')
 @route('/<profile>/<project>')
 class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+    """Views for proposal management (new/reorder)."""
+
     @route('sub/new', methods=['GET', 'POST'])
     @route('proposals/new', methods=['GET', 'POST'])
     @requires_login
