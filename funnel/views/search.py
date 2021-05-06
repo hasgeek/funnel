@@ -18,7 +18,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..models import (
     Comment,
     Organization,
@@ -33,7 +33,6 @@ from ..models import (
     visual_field_delimiter,
 )
 from ..utils import abort_null
-from .decorators import legacy_redirect
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 # --- Definitions -------------------------------------------------------------
@@ -622,14 +621,11 @@ class SearchView(ClassView):
 
 
 SearchView.init_app(app)
-SearchView.init_app(funnelapp)
 
 
 @Profile.views('search')
 @route('/<profile>')
 class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('search')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
@@ -657,20 +653,12 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/', subdomain='<profile>')
-class FunnelProfileSearchView(ProfileSearchView):
-    pass
-
-
 ProfileSearchView.init_app(app)
-FunnelProfileSearchView.init_app(funnelapp)
 
 
 @Project.views('search')
 @route('/<profile>/<project>/')
 class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('search')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'crew', 'participant'})
@@ -698,10 +686,4 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/', subdomain='<profile>')
-class FunnelProjectSearchView(ProjectSearchView):
-    pass
-
-
 ProjectSearchView.init_app(app)
-FunnelProjectSearchView.init_app(app)

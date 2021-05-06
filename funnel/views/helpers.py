@@ -15,7 +15,7 @@ import pyshorteners
 
 from baseframe import cache, statsd
 
-from .. import app, funnelapp, lastuserapp
+from .. import app, lastuserapp
 from ..forms import supported_locales
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
@@ -283,14 +283,12 @@ def delete_cached_token(token):
 
 
 @app.template_filter('url_join')
-@funnelapp.template_filter('url_join')
 @lastuserapp.template_filter('url_join')
 def url_join(base, url=''):
     return urljoin(base, url)
 
 
 @app.template_filter('cleanurl')
-@funnelapp.template_filter('cleanurl')
 @lastuserapp.template_filter('cleanurl')
 def cleanurl_filter(url):
     if not isinstance(url, furl):
@@ -299,15 +297,7 @@ def cleanurl_filter(url):
     return furl().set(netloc=url.netloc, path=url.path).url.lstrip('//').rstrip('/')
 
 
-@funnelapp.url_defaults
-def add_profile_parameter(endpoint, values):
-    if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
-        if 'profile' not in values:
-            values['profile'] = g.profile.name if g.profile else None
-
-
 @app.template_filter('shortlink')
-@funnelapp.template_filter('shortlink')
 @lastuserapp.template_filter('shortlink')
 def shortlink(url):
     """Return a short link suitable for SMS."""
@@ -329,7 +319,6 @@ def shortlink(url):
 
 
 @app.after_request
-@funnelapp.after_request
 @lastuserapp.after_request
 def cache_expiry_headers(response):
     if 'Expires' not in response.headers:
@@ -364,7 +353,6 @@ def forget_email_in_request_teardown(sender):
 
 
 @app.after_request
-@funnelapp.after_request
 @lastuserapp.after_request
 def forget_email_in_background_job(response):
     if hasattr(g, 'forget_email_hashes'):

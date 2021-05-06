@@ -13,7 +13,7 @@ from baseframe.forms import (
 from coaster.auth import current_auth
 from coaster.views import ClassView, get_next_url, render_with, route
 
-from .. import app, funnelapp, lastuserapp
+from .. import app, lastuserapp
 from ..forms import (
     AccountForm,
     EmailPrimaryForm,
@@ -859,7 +859,6 @@ class OtherAppAccountView(ClassView):
 
 
 AccountView.init_app(app)
-OtherAppAccountView.init_app(funnelapp)
 OtherAppAccountView.init_app(lastuserapp)
 
 
@@ -890,8 +889,7 @@ def lastuser_account_edit(newprofile: bool) -> ReturnResponse:
 
 # --- Compatibility routes -------------------------------------------------------------
 
-
-@funnelapp.route('/account/sudo', endpoint='account_sudo')
+# Retained for future hasjob integration
 @lastuserapp.route('/account/sudo', endpoint='account_sudo')
 def otherapp_account_sudo() -> ReturnResponse:
     next_url = request.args.get('next')

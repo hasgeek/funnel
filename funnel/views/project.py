@@ -32,7 +32,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import (
     CfpForm,
     CommentForm,
@@ -56,7 +56,6 @@ from ..models import (
     SavedProject,
     db,
 )
-from .decorators import legacy_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -222,8 +221,6 @@ def project_registration_text(obj):
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'admin'})
@@ -253,13 +250,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         )
 
 
-@route('/', subdomain='<profile>')
-class FunnelProfileProjectView(ProfileProjectView):
-    pass
-
-
 ProfileProjectView.init_app(app)
-FunnelProfileProjectView.init_app(funnelapp)
 
 
 @Project.views('main')
@@ -267,8 +258,6 @@ FunnelProfileProjectView.init_app(funnelapp)
 class ProjectView(
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with('project.html.jinja2')
     @requires_roles({'reader'})
@@ -774,10 +763,4 @@ class ProjectView(
         return redirect(get_next_url(referrer=True), 303)
 
 
-@route('/<project>/', subdomain='<profile>')
-class FunnelProjectView(ProjectView):
-    pass
-
-
 ProjectView.init_app(app)
-FunnelProjectView.init_app(funnelapp)

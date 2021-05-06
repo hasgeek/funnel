@@ -650,29 +650,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return clause.asc()
 
     @classmethod
-    def all_unsorted(cls, legacy=None):
+    def all_unsorted(cls):
         """Return query of all published projects, without ordering criteria."""
-        projects = cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
-        if legacy is not None:
-            projects = projects.join(Profile).filter(Profile.legacy == legacy)
-        return projects
+        return cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
 
     @classmethod  # NOQA: A003
-    def all(cls, legacy=None):  # NOQA: A003
+    def all(cls):  # NOQA: A003
         """Return all published projects, ordered by date."""
-        return cls.all_unsorted(legacy).order_by(cls.order_by_date())
+        return cls.all_unsorted().order_by(cls.order_by_date())
 
     @classmethod
-    def fetch_sorted(cls, legacy=None):
-        currently_listed_projects = cls.query.filter(cls.state.PUBLISHED)
-        if legacy is not None:
-            currently_listed_projects = currently_listed_projects.join(Profile).filter(
-                Profile.legacy == legacy
-            )
-        currently_listed_projects = currently_listed_projects.order_by(
-            cls.order_by_date()
-        )
-        return currently_listed_projects
+    def fetch_sorted(cls):
+        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.order_by_date())
 
     @classmethod
     def get(cls, profile_project):

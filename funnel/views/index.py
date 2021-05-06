@@ -6,11 +6,11 @@ from flask import Response, g, jsonify, redirect, render_template, url_for
 from baseframe import _, __
 from baseframe.filters import date_filter
 from coaster.auth import current_auth
-from coaster.views import ClassView, load_model, render_with, requestargs, route
+from coaster.views import ClassView, render_with, requestargs, route
 
-from .. import app, funnelapp, lastuserapp, pages
+from .. import app, lastuserapp, pages
 from ..forms import SavedProjectForm
-from ..models import Project, Proposal, db
+from ..models import Project, db
 from .helpers import app_url_for
 
 
@@ -34,10 +34,11 @@ class IndexView(ClassView):
     current_section = 'home'
     SavedProjectForm = SavedProjectForm
 
+    @route('', endpoint='index')
     @render_with('index.html.jinja2')
     def home(self):
         g.profile = None
-        projects = Project.all_unsorted(legacy=False)
+        projects = Project.all_unsorted()
         # TODO: Move these queries into the Project class
         all_projects = (
             projects.filter(
@@ -109,23 +110,10 @@ class IndexView(ClassView):
         }
 
 
-@route('/')
-class FunnelIndexView(ClassView):
-    @render_with('funnelindex.html.jinja2')
-    def home(self):
-        g.profile = None
-        projects = Project.fetch_sorted(legacy=True).all()
-        return {'projects': projects}
-
-
-IndexView.add_route_for('home', '', endpoint='index')
 IndexView.init_app(app)
-FunnelIndexView.add_route_for('home', '', endpoint='index')
-FunnelIndexView.init_app(funnelapp)
 
 
 @app.route('/api/whoami')
-@funnelapp.route('/api/whoami')
 def whoami():
     if current_auth.user:
         return jsonify(message="Hey {0}!".format(current_auth.user.fullname), code=200)
@@ -137,7 +125,7 @@ def whoami():
 @requestargs(('page', int), ('per_page', int))
 def past_projects_json(page=1, per_page=10):
     g.profile = None
-    projects = Project.all_unsorted(legacy=False)
+    projects = Project.all_unsorted()
     past_projects = projects.filter(Project.state.PAST).order_by(
         Project.start_at.desc()
     )
@@ -158,13 +146,6 @@ def past_projects_json(page=1, per_page=10):
             for p in pagination.items
         ],
     }
-
-
-@funnelapp.route('/<project>/<int:id>-<name>')
-@funnelapp.route('/<project>/<int:id>')
-@load_model(Proposal, {'id': 'id'}, 'proposal')
-def proposal_redirect(proposal):
-    return redirect(proposal.url_for())
 
 
 @app.route('/about')

@@ -14,7 +14,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import (
     ProposalForm,
     ProposalLabelsAdminForm,
@@ -30,7 +30,6 @@ from ..models import (
     ProposalSubmittedNotification,
     db,
 )
-from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .notification import dispatch_notification
@@ -53,9 +52,11 @@ def proposals_can_be_reordered(obj):
 
 
 # --- Routes ------------------------------------------------------------------
-class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
+@Project.views('proposal_new')
+@route('/<profile>/<project>')
+class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+    @route('sub/new', methods=['GET', 'POST'])
+    @route('proposals/new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'reader'})
     def new_proposal(self):
@@ -94,6 +95,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             cancel_url=self.obj.url_for(),
         )
 
+    @route('sub/reorder', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
     @requestform('target', 'other', ('before', getbool))
@@ -115,34 +117,13 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
         return {'status': 'error'}, 422
 
 
-@Project.views('proposal_new')
-@route('/<profile>/<project>')
-class ProjectProposalView(BaseProjectProposalView):
-    pass
-
-
-ProjectProposalView.add_route_for(
-    'new_proposal', 'proposals/new', methods=['GET', 'POST']
-)
-ProjectProposalView.add_route_for('new_proposal', 'sub/new', methods=['GET', 'POST'])
-ProjectProposalView.add_route_for('reorder_proposals', 'sub/reorder', methods=['POST'])
 ProjectProposalView.init_app(app)
 
 
-@route('/<project>', subdomain='<profile>')
-class FunnelProjectProposalView(BaseProjectProposalView):
-    pass
-
-
-FunnelProjectProposalView.add_route_for('new_proposal', 'new', methods=['GET', 'POST'])
-FunnelProjectProposalView.init_app(funnelapp)
-
-
 @Proposal.views('main')
-@route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
-@route('/<profile>/<project>/sub/<url_name_uuid_b58>')
+@route('/<profile>/<project>/proposals/<proposal>')
+@route('/<profile>/<project>/sub/<proposal>')
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
     SavedProjectForm = SavedProjectForm
 
     @route('')
@@ -348,10 +329,4 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             )
 
 
-@route('/<project>/<url_id_name>', subdomain='<profile>')
-class FunnelProposalView(ProposalView):
-    pass
-
-
 ProposalView.init_app(app)
-FunnelProposalView.init_app(funnelapp)

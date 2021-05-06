@@ -1,5 +1,4 @@
 import urllib.parse
-import uuid
 
 from flask import (
     abort,
@@ -15,13 +14,12 @@ from flask import (
 import itsdangerous
 
 from baseframe import _, __, forms, request_is_xhr, statsd
-from baseframe.forms import render_message, render_redirect
+from baseframe.forms import render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool
 from coaster.views import get_next_url, requestargs
 
-from .. import app, funnelapp, lastuserapp
+from .. import app, lastuserapp
 from ..forms import (
     LoginForm,
     LoginPasswordResetException,
@@ -52,7 +50,6 @@ from .login_session import (
     logout_internal,
     register_internal,
     requires_login,
-    requires_login_no_message,
     set_loginmethod_cookie,
 )
 
@@ -589,48 +586,53 @@ def lastuserapp_login_service(service):
 #     3. Redirects user back to where they came from, or '/'
 
 
-@funnelapp.route('/login', endpoint='login')
-@requestargs(('cookietest', getbool))
-def funnelapp_login(cookietest=False):
-    # 1. Create a login nonce (single use, unlike CSRF)
-    session['login_nonce'] = str(uuid.uuid4())
-    if not cookietest:
-        # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
-        if request.query_string:
-            return redirect(request.url + '&cookietest=1')
-        return redirect(request.url + '?cookietest=1')
+# Retained for future hasjob integration
 
-    if 'login_nonce' not in session:
-        # No support for cookies. Abort login
-        return render_message(
-            title=_("Cookies required"),
-            message=_("Please enable cookies in your browser"),
-        )
-    # 2. Nonce has been set. Create a request code
-    request_code = talkfunnel_serializer().dumps({'nonce': session['login_nonce']})
-    # 3. Redirect user
-    return redirect(app_url_for(app, 'login_talkfunnel', code=request_code))
+# @funnelapp.route('/login', endpoint='login')
+# @requestargs(('cookietest', getbool))
+# def funnelapp_login(cookietest=False):
+#     # 1. Create a login nonce (single use, unlike CSRF)
+#     session['login_nonce'] = str(uuid.uuid4())
+#     if not cookietest:
+#         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
+#         if request.query_string:
+#             return redirect(request.url + '&cookietest=1')
+#         return redirect(request.url + '?cookietest=1')
 
-
-@app.route('/login/talkfunnel')
-@requires_login_no_message  # 1. Ensure user login
-@requestargs('code')
-def login_talkfunnel(code):
-    # 2. Verify signature of code
-    try:
-        request_code = talkfunnel_serializer().loads(code)
-    except itsdangerous.exc.BadData:
-        current_app.logger.warning("funnelapp login code is bad: %s", code)
-        return redirect(url_for('index'))
-    # 3. Create token
-    token = talkfunnel_serializer().dumps(
-        {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
-    )
-    # 4. Redirect user
-    return redirect(app_url_for(funnelapp, 'login_callback', token=token))
+#     if 'login_nonce' not in session:
+#         # No support for cookies. Abort login
+#         return render_message(
+#             title=_("Cookies required"),
+#             message=_("Please enable cookies in your browser"),
+#         )
+#     # 2. Nonce has been set. Create a request code
+#     request_code = talkfunnel_serializer().dumps({'nonce': session['login_nonce']})
+#     # 3. Redirect user
+#     return redirect(app_url_for(app, 'login_talkfunnel', code=request_code))
 
 
-@funnelapp.route('/login/callback', endpoint='login_callback')
+# Retained for future hasjob integration
+
+# @app.route('/login/talkfunnel')
+# @requires_login_no_message  # 1. Ensure user login
+# @requestargs('code')
+# def login_talkfunnel(code):
+#     # 2. Verify signature of code
+#     try:
+#         request_code = talkfunnel_serializer().loads(code)
+#     except itsdangerous.exc.BadData:
+#         current_app.logger.warning("funnelapp login code is bad: %s", code)
+#         return redirect(url_for('index'))
+#     # 3. Create token
+#     token = talkfunnel_serializer().dumps(
+#         {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
+#     )
+#     # 4. Redirect user
+#     return redirect(app_url_for(funnelapp, 'login_callback', token=token))
+
+
+# Retained for future hasjob integration
+# @funnelapp.route('/login/callback', endpoint='login_callback')
 @requestargs('token')
 def funnelapp_login_callback(token):
     nonce = session.pop('login_nonce', None)
@@ -674,7 +676,8 @@ def funnelapp_login_callback(token):
     return redirect(url_for('index'))
 
 
-@funnelapp.route('/logout', endpoint='logout')
+# Retained for future hasjob integration
+# @funnelapp.route('/logout', endpoint='logout')
 def funnelapp_logout():
     # Revoke session and redirect to homepage. Don't bother to ask `app` to logout
     # as well since the session is revoked. `app` will notice and drop cookies on

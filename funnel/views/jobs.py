@@ -5,7 +5,7 @@ import requests
 
 from baseframe import __, statsd
 
-from .. import app, funnelapp, rq
+from .. import app, rq
 from ..extapi.boxoffice import Boxoffice
 from ..extapi.explara import ExplaraAPI
 from ..models import EmailAddress, Project, ProjectLocation, TicketClient, db
@@ -13,7 +13,7 @@ from ..models import EmailAddress, Project, ProjectLocation, TicketClient, db
 
 @rq.job('funnel')
 def import_tickets(ticket_client_id):
-    with funnelapp.app_context():
+    with app.app_context():
         ticket_client = TicketClient.query.get(ticket_client_id)
         if ticket_client:
             if ticket_client.name.lower() == 'explara':

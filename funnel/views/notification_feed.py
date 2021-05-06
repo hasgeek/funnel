@@ -4,7 +4,7 @@ from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 import baseframe.forms as forms
 
-from .. import app, funnelapp, lastuserapp
+from .. import app, lastuserapp
 from ..models import UserNotification, db
 from .helpers import app_url_for
 from .login_session import requires_login
@@ -126,5 +126,4 @@ class OtherAppNotificationsView(ClassView):
         }
 
 
-OtherAppNotificationsView.init_app(funnelapp)
 OtherAppNotificationsView.init_app(lastuserapp)

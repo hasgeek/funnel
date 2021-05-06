@@ -24,7 +24,7 @@ from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url
 
-from .. import app, funnelapp, lastuserapp
+from .. import app, lastuserapp
 from ..forms import PasswordForm
 from ..models import (
     AuthClient,
@@ -245,7 +245,6 @@ def discard_temp_token():
 
 
 @app.before_request
-@funnelapp.before_request
 @lastuserapp.before_request
 def clear_expired_temp_token():
     """
@@ -267,7 +266,6 @@ def clear_expired_temp_token():
 
 
 @app.after_request
-@funnelapp.after_request
 @lastuserapp.after_request
 def clear_old_session(response):
     for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
@@ -280,7 +278,6 @@ def clear_old_session(response):
 
 
 @app.after_request
-@funnelapp.after_request
 @lastuserapp.after_request
 def set_lastuser_cookie(response):
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
@@ -324,7 +321,6 @@ def set_lastuser_cookie(response):
 
 
 @app.after_request
-@funnelapp.after_request
 @lastuserapp.after_request
 def update_user_session_timestamp(response):
     """Mark a user session as accessed at the end of every request."""
@@ -579,7 +575,7 @@ def login_internal(user, user_session=None, login_service=None):
     """
     Login a user and create a session.
 
-    If the login is from funnelapp, reuse the existing session.
+    If the login is from funnelapp (future hasjob), reuse the existing session.
     """
     add_auth_attribute('user', user)
     if not user_session or user_session.user != user:
@@ -604,7 +600,7 @@ def logout_internal():
     session.pop('merge_buid', None)
     session.pop('userid_external', None)
     session.pop('avatar_url', None)
-    session.pop('login_nonce', None)  # Used by funnelapp
+    session.pop('login_nonce', None)  # Used by funnelapp (future: hasjob)
     current_auth.cookie.pop('sessionid', None)
     current_auth.cookie.pop('userid', None)
     session.permanent = False

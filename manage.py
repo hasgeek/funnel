@@ -9,7 +9,7 @@ import requests
 
 from coaster.manage import Manager, init_manager, manager
 from coaster.utils import midnight_to_utc, utcnow
-from funnel import app, funnelapp, lastuserapp, models
+from funnel import app, lastuserapp, models
 from funnel.models import db
 from funnel.views.notification import dispatch_notification
 
@@ -269,8 +269,6 @@ def growthstats():
 
 
 if __name__ == "__main__":
-    manager = init_manager(
-        app, db, models=models, funnelapp=funnelapp, lastuserapp=lastuserapp
-    )
+    manager = init_manager(app, db, models=models, lastuserapp=lastuserapp)
     manager.add_command('periodic', periodic)
     manager.run()
