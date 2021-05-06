@@ -111,15 +111,15 @@ def login():
                 db.session.commit()
                 if loginform.weak_password:
                     current_app.logger.info(
-                        "Login successful for %r, but weak password detected. "
-                        "Possible redirect URL is '%s' after password change",
+                        "Login successful for %r, but weak password detected."
+                        " Possible redirect URL is '%s' after password change",
                         user,
                         session.get('next', ''),
                     )
                     flash(
                         _(
-                            "You have a weak password. To ensure the safety of "
-                            "your account, please choose a stronger password"
+                            "You have a weak password. To ensure the safety of"
+                            " your account, please choose a stronger password"
                         ),
                         category='danger',
                     )
@@ -129,15 +129,15 @@ def login():
                     )
                 elif user.password_has_expired():
                     current_app.logger.info(
-                        "Login successful for %r, but password has expired. "
-                        "Possible redirect URL is '%s' after password change",
+                        "Login successful for %r, but password has expired."
+                        " Possible redirect URL is '%s' after password change",
                         user,
                         session.get('next', ''),
                     )
                     flash(
                         _(
-                            "Your password is a year old. To ensure the safety of "
-                            "your account, please choose a new password"
+                            "Your password is a year old. To ensure the safety of"
+                            " your account, please choose a new password"
                         ),
                         category='warning',
                     )
@@ -159,9 +159,9 @@ def login():
         except LoginPasswordResetException:
             flash(
                 _(
-                    "Your account does not have a password set. Please enter your "
-                    "username or email address to request a reset code and set a "
-                    "new password"
+                    "Your account does not have a password set. Please enter your"
+                    " username or email address to request a reset code and set a"
+                    " new password"
                 ),
                 category='danger',
             )
@@ -171,9 +171,9 @@ def login():
         except LoginPasswordWeakException:
             flash(
                 _(
-                    "Your account has a weak password. Please enter your "
-                    "username or email address to request a reset code and set a "
-                    "new password"
+                    "Your account has a weak password. Please enter your"
+                    " username or email address to request a reset code and set a"
+                    " new password"
                 )
             )
             return render_redirect(
@@ -604,7 +604,7 @@ def funnelapp_login(cookietest=False):
         # No support for cookies. Abort login
         return render_message(
             title=_("Cookies required"),
-            message=_("Please enable cookies in your browser."),
+            message=_("Please enable cookies in your browser"),
         )
     # 2. Nonce has been set. Create a request code
     request_code = talkfunnel_serializer().dumps({'nonce': session['login_nonce']})

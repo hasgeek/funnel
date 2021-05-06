@@ -692,8 +692,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         for project in old_profile.projects:
             if project.name in names:
                 current_app.logger.warning(
-                    "Project %r had a conflicting name in profile migration, "
-                    "so renaming by adding adding random value to name",
+                    "Project %r had a conflicting name in profile migration,"
+                    " so renaming by adding adding random value to name",
                     project,
                 )
                 project.name += '-' + buid()

@@ -2,7 +2,7 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 {% block title %}{% if profile %}{{ profile.title }}{% else %}{{ config['SITE_TITLE'] }}{% endif %}{% endblock %}
 
-{% block description %}{% if g.profile %}{{ g.profile.description.html|firstline }}{% else %}{% trans %}Talkfunnel hosts proposal submissions and reviews for events.{% endtrans %}{% endif %}{% endblock %}
+{% block description %}{% if g.profile %}{{ g.profile.description.html|firstline }}{% else %}{% trans %}Talkfunnel hosts proposal submissions and reviews for events{% endtrans %}{% endif %}{% endblock %}
 
 {% block contenthead %}
   {%- if not g.profile %}
@@ -24,7 +24,7 @@
     </div>
     <div class="grid">
       <div class="grid__col-sm-12">
-        <h1 class="mui--text-headline">{% trans %}Talkfunnel is a space for peer review for technology and critical infrastructure projects. Submit a proposal to any of the events to get started.{% endtrans %}</h1>
+        <h1 class="mui--text-headline">{% trans %}Talkfunnel is a space for peer review for technology and critical infrastructure projects. Submit a proposal to any of the events to get started{% endtrans %}</h1>
       </div>
   {% endif %}
   {% if projects %}
@@ -76,7 +76,7 @@
   {% else %}
   <div class="grid">
     <div class="grid__col-sm-12">
-      <p class="mui--text-headline">{% trans %}There are no projects at this time.{% endtrans %}
+      <p class="mui--text-headline">{% trans %}There are no projects at this time{% endtrans %}
         {% if g.profile and g.profile.current_roles.admin %}<a href="{{ g.profile.url_for('new_project') }}">{% trans %}Create one{% endtrans %}</a>.{% endif %}
       </p>
     </div>

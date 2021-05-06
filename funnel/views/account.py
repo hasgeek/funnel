@@ -439,8 +439,9 @@ class AccountView(ClassView):
                     title=_("Email address verified"),
                     message=Markup(
                         _(
-                            "Hello, {fullname}! "
-                            "Your email address <code>{email}</code> has now been verified"
+                            "Hello, {fullname}!"
+                            " Your email address <code>{email}</code> has now been"
+                            " verified"
                         ).format(
                             fullname=escape(useremail.user.fullname),
                             email=escape(useremail.email),
@@ -452,14 +453,14 @@ class AccountView(ClassView):
                 message=_(
                     "You’ve opened an email verification link that was meant for"
                     " another user. If you are managing multiple accounts, please login"
-                    " with the correct account and open the link again."
+                    " with the correct account and open the link again"
                 ),
                 code=403,
             )
         return render_message(
             title=_("Expired confirmation link"),
             message=_(
-                "The confirmation link you clicked on is either invalid or has expired."
+                "The confirmation link you clicked on is either invalid or has expired"
             ),
             code=404,
         )
@@ -663,7 +664,7 @@ class AccountView(ClassView):
             form=verify_form,
             title=_("Resend the verification email?"),
             message=_(
-                "We will resend the verification email to {email}.".format(
+                "We will resend the verification email to {email}".format(
                     email=emailclaim.email
                 )
             ),

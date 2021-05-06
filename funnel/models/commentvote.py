@@ -197,7 +197,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         default=COMMENT_STATE.SUBMITTED,
         nullable=False,
     )
-    state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment.")
+    state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
 
     voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
     voteset = db.relationship(Voteset, uselist=False)

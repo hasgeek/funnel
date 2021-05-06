@@ -44,7 +44,7 @@
         var waitingForResponse = false;
         var lastSavedData = '';
 
-        $('input[name="form.revision"]').val() ? $('#autosave-msg').text('These changes have not been published yet.') : '';
+        $('input[name="form.revision"]').val() ? $('#autosave-msg').text(gettext('These changes have not been published yet')) : '';
 
         $('#{{ ref_id }}').on('change', function(e) {
           autosaveForm();

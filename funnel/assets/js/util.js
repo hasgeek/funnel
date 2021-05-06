@@ -208,7 +208,7 @@ export const Utils = {
     if (response.readyState === 4) {
       if (response.status === 500) {
         errorMsg = gettext(
-          'An internal server error occurred. Our support team has been notified and will investigate.'
+          'An internal server error occurred. Our support team has been notified and will investigate'
         );
       } else if (
         response.status === 422 &&
@@ -222,7 +222,7 @@ export const Utils = {
       }
     } else {
       errorMsg = gettext(
-        'Unable to connect. Check connection and tap to reload.'
+        'Unable to connect. Check connection and tap to reload'
       );
     }
     return errorMsg;

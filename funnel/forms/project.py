@@ -119,8 +119,8 @@ class ProjectFeaturedForm(forms.Form):
 class ProjectLivestreamForm(forms.Form):
     livestream_urls = forms.TextListField(
         __(
-            "Livestream URLs. One per line. Must be on YouTube or Vimeo. "
-            "Must begin with https://"
+            "Livestream URLs. One per line. Must be on YouTube or Vimeo."
+            " Must begin with https://"
         ),
         filters=[forms.filters.strip_each()],
         validators=[
@@ -151,17 +151,17 @@ class ProjectNameForm(forms.Form):
     name = forms.AnnotatedTextField(
         __("Custom URL"),
         description=__(
-            "Customize the URL of your project. "
-            "Use lowercase letters, numbers and dashes only. "
-            "Including a date is recommended"
+            "Customize the URL of your project."
+            " Use lowercase letters, numbers and dashes only."
+            " Including a date is recommended"
         ),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=Project.__name_length__),
             forms.validators.ValidName(
                 __(
-                    "This URL contains unsupported characters. It can contain "
-                    "lowercase letters, numbers and hyphens only."
+                    "This URL contains unsupported characters. It can contain"
+                    " lowercase letters, numbers and hyphens only"
                 )
             ),
             AvailableName(),
