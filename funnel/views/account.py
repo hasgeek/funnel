@@ -13,7 +13,7 @@ from baseframe.forms import (
 from coaster.auth import current_auth
 from coaster.views import ClassView, get_next_url, render_with, route
 
-from .. import app, lastuserapp
+from .. import app
 from ..forms import (
     AccountForm,
     EmailPrimaryForm,
@@ -143,7 +143,6 @@ def user_session_login_service(obj):
 
 
 @app.route('/api/1/account/password_policy', methods=['POST'])
-@lastuserapp.route('/api/1/account/password_policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check():
     policy_form = PasswordPolicyForm()
@@ -196,7 +195,6 @@ def password_policy_check():
 
 
 @app.route('/api/1/account/username_available', methods=['POST'])
-@lastuserapp.route('/api/1/account/username_available', methods=['POST'])
 @render_with(json=True)
 def account_username_availability():
     form = UsernameAvailableForm(edit_user=current_auth.user)
@@ -848,49 +846,13 @@ class AccountView(ClassView):
         )
 
 
-@route('/account')
-class OtherAppAccountView(ClassView):
-    """Redirect /account from Talkfunnel to Hasgeek."""
-
-    @route('', endpoint='account')
-    @requires_login
-    def account(self) -> ReturnResponse:
-        return redirect(app_url_for(app, 'account', _external=True))
-
-
 AccountView.init_app(app)
-OtherAppAccountView.init_app(lastuserapp)
-
-
-# --- Lastuserapp legacy routes --------------------------------------------------------
-
-# Redirect from old URL in previously sent out verification emails
-@lastuserapp.route('/profile/email/<email_hash>/verify')
-def verify_email_old(email_hash) -> ReturnResponse:
-    return redirect(app_url_for(app, 'verify_email', email_hash=email_hash), code=301)
-
-
-# Redirect from Lastuser's account edit page
-@lastuserapp.route(
-    '/account/edit',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': False},
-    endpoint='account_edit',
-)
-@lastuserapp.route(
-    '/account/new',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': True},
-    endpoint='account_new',
-)
-def lastuser_account_edit(newprofile: bool) -> ReturnResponse:
-    return redirect(app_url_for(app, 'account_new' if newprofile else 'account_edit'))
 
 
 # --- Compatibility routes -------------------------------------------------------------
 
 # Retained for future hasjob integration
-@lastuserapp.route('/account/sudo', endpoint='account_sudo')
+# @hasjobapp.route('/account/sudo', endpoint='account_sudo')
 def otherapp_account_sudo() -> ReturnResponse:
     next_url = request.args.get('next')
     if next_url:

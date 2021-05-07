@@ -297,19 +297,17 @@ class ProjectView(
     @requires_roles({'editor'})
     def edit_slug(self):
         form = ProjectNameForm(obj=self.obj)
-        # Profile URLs:
-        # Hasgeek: https://hasgeek.com/rootconf (no /)
-        # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
         form.name.prefix = self.obj.profile.url_for(_external=True)
+        # Hasgeek profile URLs currently do not have a trailing slash, but this form
+        # should not depend on this being guaranteed. Add a trailing slash if one is
+        # required.
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             return redirect(self.obj.url_for())
-        return render_form(
-            form=form, title=_("Customize the URL"), submit=_("Save changes")
-        )
+        return render_form(form=form, title=_("Customize the URL"), submit=_("Save"))
 
     @route('editlivestream', methods=['GET', 'POST'])
     @requires_login

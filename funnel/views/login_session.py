@@ -24,7 +24,7 @@ from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url
 
-from .. import app, lastuserapp
+from .. import app
 from ..forms import PasswordForm
 from ..models import (
     AuthClient,
@@ -244,8 +244,8 @@ def discard_temp_token():
     session.pop('temp_token_at', None)
 
 
+# Also add future hasjob app here
 @app.before_request
-@lastuserapp.before_request
 def clear_expired_temp_token():
     """
     Clear temp_token from session if it's not used (user abandoned the attempt).
@@ -265,8 +265,8 @@ def clear_expired_temp_token():
         session.pop('temp_token')
 
 
+# Also add future hasjob app here
 @app.after_request
-@lastuserapp.after_request
 def clear_old_session(response):
     for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
         if cookie_name in request.cookies:
@@ -277,8 +277,8 @@ def clear_old_session(response):
     return response
 
 
+# Also add future hasjob app here
 @app.after_request
-@lastuserapp.after_request
 def set_lastuser_cookie(response):
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if request_has_auth() and hasattr(current_auth, 'cookie'):
@@ -320,8 +320,8 @@ def set_lastuser_cookie(response):
     return response
 
 
+# Also add future hasjob app here
 @app.after_request
-@lastuserapp.after_request
 def update_user_session_timestamp(response):
     """Mark a user session as accessed at the end of every request."""
     if request_has_auth() and current_auth.session:

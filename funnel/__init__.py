@@ -18,9 +18,8 @@ import coaster.app
 
 from ._version import __version__
 
-# Three apps
+# App. Add additional apps here
 app = Flask(__name__, instance_relative_config=True)
-lastuserapp = Flask(__name__, instance_relative_config=True)
 
 mail = Mail()
 pages = FlatPages()
@@ -54,30 +53,27 @@ from .models import db  # isort:skip
 
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
-coaster.app.init_app(lastuserapp, init_logging=False)
+# For additional apps, do not install additional log handlers:
+# coaster.app.init_app(hasjobapp, init_logging=False)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
 # provided as example.
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
-coaster.app.load_config_from_file(lastuserapp, 'lastuserapp.py')
 
 # TODO: Move this into Baseframe
 app.jinja_env.globals['get_locale'] = get_locale
-lastuserapp.jinja_env.globals['get_locale'] = get_locale
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
 # from coaster.auth. It attempts to call `current_app.login_manager._load_user`
 app.login_manager = views.login_session.LoginManager()
 
 db.init_app(app)
-db.init_app(lastuserapp)
 db.app = app
 
 migrate = Migrate(app, db)
 
 mail.init_app(app)
-mail.init_app(lastuserapp)
 
 app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
 pages.init_app(app)
@@ -85,7 +81,6 @@ pages.init_app(app)
 redis_store.init_app(app)
 
 rq.init_app(app)
-rq.init_app(lastuserapp)
 
 executor.init_app(app)
 
@@ -103,16 +98,8 @@ baseframe.init_app(
     theme='mui',
     asset_modules=('baseframe_private_assets',),
 )
-baseframe.init_app(
-    lastuserapp,
-    requires=['funnel'],
-    ext_requires=['pygments', 'toastr', 'baseframe-mui', 'pace'],
-    theme='mui',
-    asset_modules=('baseframe_private_assets',),
-)
 
 loginproviders.init_app(app)
-loginproviders.init_app(lastuserapp)
 
 # Load GeoIP2 databases
 app.geoip_city = None

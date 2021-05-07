@@ -1,17 +1,16 @@
 from typing import NamedTuple
 import os.path
 
-from flask import Response, g, jsonify, redirect, render_template, url_for
+from flask import Response, g, jsonify, render_template, url_for
 
 from baseframe import _, __
 from baseframe.filters import date_filter
 from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 
-from .. import app, lastuserapp, pages
+from .. import app, pages
 from ..forms import SavedProjectForm
 from ..models import Project, db
-from .helpers import app_url_for
 
 
 class PolicyPage(NamedTuple):
@@ -230,11 +229,3 @@ def opensearch():
 @app.route('/robots.txt')
 def robotstxt():
     return Response(render_template('robots.txt.jinja2'), mimetype='text/plain')
-
-
-# --- Lastuser legacy routes -----------------------------------------------------------
-
-
-@lastuserapp.route('/', endpoint='index')
-def lastuser_index():
-    return redirect(app_url_for(app, 'index'))

@@ -5,7 +5,7 @@ from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import jsonp, requestargs
 
-from .. import app, lastuserapp
+from .. import app
 from ..models import (
     AuthClientCredential,
     AuthClientTeamPermissions,
@@ -134,7 +134,6 @@ def api_result(status, _jsonp=False, **params):
 # the token is indeed valid for the resource being requested. However, with the
 # removal of client resources, the only valid resource now is the '*' wildcard.
 @app.route('/api/1/token/verify', methods=['POST'])
-@lastuserapp.route('/api/1/token/verify', methods=['POST'])
 @requires_client_login
 def token_verify():
     token = abort_null(request.form.get('access_token'))
@@ -190,7 +189,6 @@ def token_verify():
 
 
 @app.route('/api/1/token/get_scope', methods=['POST'])
-@lastuserapp.route('/api/1/token/get_scope', methods=['POST'])
 @requires_client_login
 def token_get_scope():
     token = abort_null(request.form.get('access_token'))
@@ -241,7 +239,6 @@ def token_get_scope():
 
 
 @app.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
-@lastuserapp.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
 @requires_user_or_client_login
 def user_get_by_userid():
     """Return user or organization with the given userid (Lastuser internal buid)."""
@@ -281,7 +278,6 @@ def user_get_by_userid():
 
 
 @app.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
-@lastuserapp.route('/api/1/user/get_by_userids', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
 @requestargs(('userid[]', abort_null))
 def user_get_by_userids(userid):
@@ -330,7 +326,6 @@ def user_get_by_userids(userid):
 
 
 @app.route('/api/1/user/get', methods=['GET', 'POST'])
-@lastuserapp.route('/api/1/user/get', methods=['GET', 'POST'])
 @requires_user_or_client_login
 @requestargs(('name', abort_null))
 def user_get(name):
@@ -356,7 +351,6 @@ def user_get(name):
 
 
 @app.route('/api/1/user/getusers', methods=['GET', 'POST'])
-@lastuserapp.route('/api/1/user/getusers', methods=['GET', 'POST'])
 @requires_user_or_client_login
 @requestargs(('name[]', abort_null))
 def user_getall(name):
@@ -390,7 +384,6 @@ def user_getall(name):
 
 
 @app.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
-@lastuserapp.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
 def user_autocomplete():
     """
@@ -446,7 +439,6 @@ def user_autocomplete():
 
 
 @app.route('/api/1/login/beacon.html')
-@lastuserapp.route('/api/1/login/beacon.html')
 @requestargs(('client_id', abort_null), ('login_url', abort_null))
 def login_beacon_iframe(client_id, login_url):
     cred = AuthClientCredential.get(client_id)
@@ -468,7 +460,6 @@ def login_beacon_iframe(client_id, login_url):
 
 
 @app.route('/api/1/login/beacon.json')
-@lastuserapp.route('/api/1/login/beacon.json')
 @requestargs(('client_id', abort_null))
 def login_beacon_json(client_id):
     cred = AuthClientCredential.get(client_id)
@@ -489,7 +480,6 @@ def login_beacon_json(client_id):
 
 
 @app.route('/api/1/id')
-@lastuserapp.route('/api/1/id')
 @resource_registry.resource('id', __("Read your name and basic profile data"))
 def resource_id(authtoken, args, files=None):
     """Return user's basic identity."""
@@ -506,7 +496,6 @@ def resource_id(authtoken, args, files=None):
 
 
 @app.route('/api/1/session/verify', methods=['POST'])
-@lastuserapp.route('/api/1/session/verify', methods=['POST'])
 @resource_registry.resource('session/verify', __("Verify user session"), scope='id')
 def session_verify(authtoken, args, files=None):
     """Verify a UserSession."""
@@ -527,7 +516,6 @@ def session_verify(authtoken, args, files=None):
 
 
 @app.route('/api/1/email')
-@lastuserapp.route('/api/1/email')
 @resource_registry.resource('email', __("Read your email address"))
 def resource_email(authtoken, args, files=None):
     """Return user's email addresses."""
@@ -540,7 +528,6 @@ def resource_email(authtoken, args, files=None):
 
 
 @app.route('/api/1/phone')
-@lastuserapp.route('/api/1/phone')
 @resource_registry.resource('phone', __("Read your phone number"))
 def resource_phone(authtoken, args, files=None):
     """Return user's phone numbers."""
@@ -553,7 +540,6 @@ def resource_phone(authtoken, args, files=None):
 
 
 @app.route('/api/1/user/externalids')
-@lastuserapp.route('/api/1/user/externalids')
 @resource_registry.resource(
     'user/externalids',
     __("Access your external account information such as Twitter and Google"),
@@ -576,7 +562,6 @@ def resource_login_providers(authtoken, args, files=None):
 
 
 @app.route('/api/1/organizations')
-@lastuserapp.route('/api/1/organizations')
 @resource_registry.resource(
     'organizations', __("Read the organizations you are a member of")
 )
@@ -591,7 +576,6 @@ def resource_organizations(authtoken, args, files=None):
 
 
 @app.route('/api/1/teams')
-@lastuserapp.route('/api/1/teams')
 @resource_registry.resource('teams', __("Read the list of teams in your organizations"))
 def resource_teams(authtoken, args, files=None):
     """Return user's organizations' teams."""

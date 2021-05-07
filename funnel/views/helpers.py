@@ -15,7 +15,7 @@ import pyshorteners
 
 from baseframe import cache, statsd
 
-from .. import app, lastuserapp
+from .. import app
 from ..forms import supported_locales
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
@@ -283,13 +283,11 @@ def delete_cached_token(token):
 
 
 @app.template_filter('url_join')
-@lastuserapp.template_filter('url_join')
 def url_join(base, url=''):
     return urljoin(base, url)
 
 
 @app.template_filter('cleanurl')
-@lastuserapp.template_filter('cleanurl')
 def cleanurl_filter(url):
     if not isinstance(url, furl):
         url = furl(url)
@@ -298,7 +296,6 @@ def cleanurl_filter(url):
 
 
 @app.template_filter('shortlink')
-@lastuserapp.template_filter('shortlink')
 def shortlink(url):
     """Return a short link suitable for SMS."""
     cache_key = 'shortlink/' + blake2b(url.encode(), digest_size=16).hexdigest()
@@ -319,7 +316,6 @@ def shortlink(url):
 
 
 @app.after_request
-@lastuserapp.after_request
 def cache_expiry_headers(response):
     if 'Expires' not in response.headers:
         response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
@@ -353,7 +349,6 @@ def forget_email_in_request_teardown(sender):
 
 
 @app.after_request
-@lastuserapp.after_request
 def forget_email_in_background_job(response):
     if hasattr(g, 'forget_email_hashes'):
         for email_hash in g.forget_email_hashes:

@@ -139,8 +139,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
     #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
-    #: Old values are required to be stable for permalink redirects from old URLs.
-    #: This number is not considered suitable for public display because it is assigned
+    #: Old values are now served as redirects from Nginx config, so the column is
+    #: redundant and can be renamed pending a patch to the base class in Coaster. This
+    #: number is no longer considered suitable for public display because it is assigned
     #: to all proposals, including drafts. A user-facing sequence will have gaps.
     #: Should numbering be required in the product, see `Update.number` for a better
     #: implementation.
