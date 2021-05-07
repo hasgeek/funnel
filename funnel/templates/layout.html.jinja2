@@ -1,6 +1,6 @@
 {% extends "baseframe.html.jinja2" -%}
 {% from "baseframe/components.html.jinja2" import hgtopnav, faicon %}
-{%- from "macros.html.jinja2" import useravatar %}
+{%- from "macros.html.jinja2" import useravatar, csrf_tag %}
 
 {%- block titletags %}
   <title>{% block titleblock %}{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif title_suffix == '' %}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}{%- endblock %}</title>
@@ -63,6 +63,64 @@
 {%- endblock %}
 
 {% block header -%}
+  {% macro account_dropdown(css_class='') %}
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right header__dropdown {% if css_class %}{{ css_class }}{% endif %}">
+      {% if current_auth.user.profile %}
+        <li>
+          <div class="header__dropdown__item">
+            <div class="user">
+              <div class="user__box">
+                {{ useravatar(current_auth.user, add_profile_link=true) }}
+                {% if current_auth.user.profile_url %}
+                  <a href="{{ current_auth.user.profile_url }}" class="user__box__header nounderline">
+                {%- else %}
+                  <div class="user__box__header">
+                {% endif %}
+                  <p class="mui--text-subhead mui--text-bold mui--text-dark zero-bottom-margin">{{ current_auth.user.fullname }}</p>
+                  <p class="mui--text-caption mui--text-light zero-bottom-margin">{% trans %}View profile{% endtrans %}</p>
+                {% if current_auth.user.profile_url %}
+                  </a>
+                {%- else %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </li>
+        <hr class="separator">
+      {%- endif %}
+      <li>
+        <p class="header__dropdown__item mui--tex-body2 mui--tex-bold zero-bottom-margin">{% trans %}Organizations{% endtrans %}</p>
+      </li>
+      {% for org in current_auth.user.organizations_as_admin %}
+      <li>
+        <a href="{{ org.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex">
+          <span class="header__circle-icon margin-right">
+            {%- if org.profile.logo_url.url %}
+              <img class="profile__logo__img" src="{{ org.profile.logo_url.resize(40) }}" alt="{{ org.title }}"/>
+            {% else %}
+              {{ faicon(icon='user-solid', css_class='mui--text-light') }}
+            {% endif %}
+          </span>
+          <span class="mui--text-body2 mui--text-light">{{ org.profile.title }}</span>
+        </a>
+      </li>
+      {% else %}
+        <p class="mui--tex-body2 mui--tex-bold">{% trans %}No organization{% endtrans %}</p>
+      {%- endfor %}
+      <hr class="separator">
+      <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="account"><span class="header__circle-icon margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false) }}</span>{% trans %}Account{% endtrans %}</a></li>
+      <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="header__circle-icon margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false) }}</span>{% trans %}Notifications{% endtrans %}</a></li>
+      <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="header__circle-icon margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false) }}</span>{% trans %}My saves{% endtrans %}</a></li>
+      <li>
+        <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
+          {{ csrf_tag() }}
+          <button class="mui-btn mui-btn--nostyle mui--text-capitalize header__dropdown__item header__dropdown__item--flex" type="submit" data-cy="Logout"><span class="header__circle-icon margin-right">{{ faicon(icon='sign-out', baseline=false) }}</span>{% trans %}Logout{% endtrans %}</button>
+        </form>
+      </li>
+    </ul>
+  {% endmacro %}
+
   {% macro site_title() %}
     {%- if config['LEGACY'] -%}
       {%- if g.profile -%}
@@ -102,17 +160,32 @@
       <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-ga="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
       {% if not current_auth.is_anonymous -%}
         <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
-        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
+        <div class="mui-dropdown">
+          <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}"  data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
+            <div class="user__box">
+              {{ useravatar(current_auth.user, css_class='header__nav-links__icon header__nav-links__icon--user', add_profile_link=false) }}
+            </div>
+            <span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span>
+          </a>
+          {{ account_dropdown(css_class='header_dropdown--mobile') }}
+        </div>
         <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-          <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
-          <a href="{{ url_for('account') }}" class="header__nav-links header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account" data-cy="my-account">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
-          {% if current_auth.user.profile %}
-            <a href="{{ current_auth.user.profile.url_for() }}" class="header__nav-links user user--standalone js-account-dropdown  {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" data-cy="profile" data-ga="Profile">
+          <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates header__circle-icon" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
+          <div class="mui-dropdown">
+ <!--            <a class="header__nav-links user user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
               <div class="user__box">
                 {{ useravatar(current_auth.user, add_profile_link=false) }}
               </div>
+            </a> -->
+            <a class="header__nav-links header__nav-links--user user user--smaller user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
+              <div class="user__box margin-right">
+                {{ useravatar(current_auth.user, add_profile_link=false) }}
+              </div>
+              <p class="mui--text-body2 zero-bottom-margin header__nav-links--user__name margin-right">{{ current_auth.user.fullname }}</p>
+              {{ faicon(icon='caret-down-solid', baseline=false) }}
             </a>
-          {%- endif %}
+            {{ account_dropdown() }}
+          </div>
         </div>
       {%- elif request.endpoint != 'login' %}
         <a href="{{ url_for('login') }}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>

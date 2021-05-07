@@ -15,6 +15,8 @@ describe('Creating a new user account', function () {
     cy.get('button[data-cy="form-submit-btn"]').click();
     cy.get('.alert--success').should('visible');
     cy.get('a[data-cy="my-account"]').click();
+    cy.wait(1000);
+    cy.get('a[data-cy="account"]').click();
     cy.get('a[data-cy="edit"]').click();
     cy.get('#username').type(newuser.username);
     cy.get('button[data-cy="form-submit-btn"]').click();
