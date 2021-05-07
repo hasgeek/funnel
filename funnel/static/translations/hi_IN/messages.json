@@ -1253,23 +1253,6 @@
         null,
         "\n    %(actor)s ने आपको ‘%(project)s’ के दल के सदस्य से हटा दिया है.\n  "
       ],
-      "Talkfunnel hosts proposal submissions and reviews for events": [
-        null,
-        "Talkfunnel, ईवेंट के लिए प्रस्ताव शामिल करने और उसकी समीक्षा करने का काम करता है"
-      ],
-      "Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use ": [
-        null,
-        "Talkfunnel के सेवा 2020 में ख़त्म हो जाएगी और यह नए प्रोजेक्ट स्वीकार नहीं करेगा. कृपया इसका उपयोग करे "
-      ],
-      "Talkfunnel is a space for peer review for technology and critical infrastructure projects. Submit a proposal to any of the events to get started": [
-        null,
-        "Talkfunnel, तकनीकी और महत्वपूर्ण बुनियादी ढांचे वाले प्रोजेक्ट की सामूहिक समीक्षा की एक जगह है. इससे जुड़ने के लिए नीचे मौजूद किसी भी इवेंट में एक प्रस्ताव जमा करें"
-      ],
-      "There are no projects at this time": [
-        null,
-        "फिलहाल कोई प्रोजेक्ट उपलब्ध नहीं है"
-      ],
-      "Create one": [null, "एक प्रोजेक्ट बनाएं"],
       "Explore your passions with communities of like-minded geeks": [
         null,
         "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें"
