@@ -11,11 +11,11 @@
     <a class="mui--text-dark mui--text-body2 nounderline" href="{{ project.url_for('updates') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All updates{% endtrans %}</a>
     <div>
       {% with prev_update = update.getprev(), next_update = update.getnext() %}
-      {%- if prev_update -%}
-        <a href="{{ prev_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Previous{% endtrans %}</a>
-      {%- endif -%}
       {%- if next_update -%}
-        <a href="{{ next_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{% trans %}Next{% endtrans %}{{ faicon(icon='caret-right-solid', icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
+        <a href="{{ next_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Next{% endtrans %}</a>
+      {%- endif -%}
+      {%- if prev_update -%}
+        <a href="{{ prev_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline next-btn">{% trans %}Previous{% endtrans %}{{ faicon(icon='caret-right-solid', icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
       {%- endif -%}
       {% endwith %}
     </div>
