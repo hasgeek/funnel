@@ -84,9 +84,9 @@
         <hr class="separator">
       {%- endif %}
       <li>
-        <p class="header__dropdown__item mui--tex-body2 mui--tex-bold zero-bottom-margin">{% trans %}Organizations{% endtrans %}</p>
+        <p class="left-padding right-padding mui--text-body2 mui--text-bold zero-bottom-margin">{% trans %}Organizations{% endtrans %}</p>
       </li>
-      {% for org in current_auth.user.organizations_as_admin %}
+      {% for org in current_auth.user.views.recent_organizations() %}
       <li>
         <a href="{{ org.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex">
           <span class="header__circle-icon margin-right">
@@ -100,7 +100,7 @@
         </a>
       </li>
       {% else %}
-        <p class="mui--tex-body2 mui--tex-bold">{% trans %}No organization{% endtrans %}</p>
+        <p class="mui--tex-body2 mui--text-light left-padding right-padding margin-top"><em>{% trans %}No organization{% endtrans %}</em></p>
       {%- endfor %}
       <hr class="separator">
       <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="account"><span class="header__circle-icon margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false) }}</span>{% trans %}Account{% endtrans %}</a></li>
@@ -132,7 +132,7 @@
     <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-ga="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
     {% if not current_auth.is_anonymous -%}
       <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
-      <div class="mui-dropdown">
+      <div class="mui-dropdown header__nav-links--dropdown">
         <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}"  data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
           <div class="user__box">
             {{ useravatar(current_auth.user, css_class='header__nav-links__icon header__nav-links__icon--user', add_profile_link=false) }}
@@ -143,18 +143,11 @@
       </div>
       <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
         <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates header__circle-icon" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
-        <div class="mui-dropdown">
-<!--            <a class="header__nav-links user user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
+        <div class="mui-dropdown header__nav-links--dropdown">
+           <a class="header__nav-links user user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
             <div class="user__box">
-              {{ useravatar(current_auth.user, add_profile_link=false) }}
+              {{ useravatar(current_auth.user, add_profile_link=false, css_class='header__nav-links__icon header__nav-links__icon--user') }}
             </div>
-          </a> -->
-          <a class="header__nav-links header__nav-links--user user user--smaller user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
-            <div class="user__box margin-right">
-              {{ useravatar(current_auth.user, add_profile_link=false) }}
-            </div>
-            <p class="mui--text-body2 zero-bottom-margin header__nav-links--user__name margin-right">{{ current_auth.user.fullname }}</p>
-            {{ faicon(icon='caret-down-solid', baseline=false) }}
           </a>
           {{ account_dropdown() }}
         </div>

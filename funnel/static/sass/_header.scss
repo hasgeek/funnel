@@ -85,10 +85,6 @@
             display: inline-block;
           }
 
-          .mui-dropdown {
-            line-height: 1;
-          }
-
           .header__nav-links {
             text-decoration: none !important;
             .header__nav-links__text {
@@ -105,9 +101,6 @@
             .header__nav-links__icon--user {
               border: 2px solid;
               padding: 1px;
-            }
-            .mui-caret {
-              color: $mui-text-light;
             }
           }
           .header__nav-links--active {
@@ -137,20 +130,8 @@
           .header__nav-links--updates--unread:after {
             display: inline-block;
           }
-          .header__nav-links--user {
-            background: transparentize($mui-primary-color, 0.85);
-            border: 1px solid transparentize($mui-primary-color, 0.8);
-            display: flex;
-            align-items: center;
-            border-radius: 16px;
-            padding: $mui-grid-padding/4 $mui-grid-padding/2;
-            max-width: 125px;
-            justify-content: space-between;
-            .header__nav-links--user__name {
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              overflow: auto;
-            }
+          .header__nav-links--dropdown {
+            line-height: 1;
           }
           .header__circle-icon {
             position: relative;
@@ -166,6 +147,11 @@
             svg {
               width: 16px;
               height: 16px;
+            }
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
             }
           }
           .header__dropdown {
@@ -185,7 +171,7 @@
             position: fixed;
             top: 0 !important;
             margin: 0;
-            bottom: 51px;
+            bottom: 52px;
             border-radius: 0;
             left: 0;
             right: 0;
@@ -325,16 +311,10 @@
             }
 
             .header__nav-links {
-              .header__nav-links__icon {
-                width: 22px;
-                height: 22px;
-                margin: 0;
-              }
-              .header__nav-links__text {
-                display: inline-block;
-                margin-left: 8px;
-                font-size: 20px;
-                font-weight: 400;
+              .header__nav-links__icon--user {
+                width: 34px;
+                height: 34px;
+                margin-bottom: 0;
               }
             }
 
@@ -347,8 +327,8 @@
 
             .header__site-title__title__settings {
               display: flex;
-              width: 152px;
               justify-content: flex-end;
+              align-items: center;
             }
             .header__nav-links--right {
               margin-left: $mui-grid-padding;
