@@ -3407,9 +3407,8 @@ msgstr ""
 msgid "All submissions"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:87
-msgid "This proposal has been added to the schedule"
-msgstr ""
+#: funnel/templates/proposal.html.jinja2:88
+msgid "This submission has been added to the schedule"
 
 #: funnel/templates/proposal.html.jinja2:119
 msgid "No video"

@@ -471,6 +471,7 @@
 
     .card__body__subtitle {
       margin: 8px 0;
+      max-width: calc(100% - 20px);
     }
 
     .card__body__location {
