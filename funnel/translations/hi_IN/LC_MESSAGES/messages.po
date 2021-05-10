@@ -3525,9 +3525,8 @@ msgstr "आगे"
 msgid "All submissions"
 msgstr ""
 
-#: funnel/templates/proposal.html.jinja2:87
-msgid "This proposal has been added to the schedule"
-msgstr "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
+#: funnel/templates/proposal.html.jinja2:88
+msgid "This submission has been added to the schedule"
 
 #: funnel/templates/proposal.html.jinja2:119
 msgid "No video"
