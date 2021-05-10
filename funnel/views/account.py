@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 import geoip2.errors
@@ -97,25 +99,14 @@ def user_timezone(obj):
 
 
 @User.views()
-def recent_organizations(obj, limit=3):
-    return [
+def recent_organizations(obj, recent=3, overflow=4):
+    orgs = [
         _om.organization.current_access()
         for _om in obj.active_organization_admin_memberships.order_by(
             OrganizationMembership.granted_at.desc()
-        ).limit(limit)
+        ).limit(recent + overflow)
     ]
-
-
-@User.views()
-def less_recent_organizations(obj, offset=3, limit=4):
-    return [
-        _om.organization.current_access()
-        for _om in obj.active_organization_admin_memberships.order_by(
-            OrganizationMembership.granted_at.desc()
-        )
-        .offset(offset)
-        .limit(limit)
-    ]
+    return SimpleNamespace(recent=orgs[:recent], overflow=orgs[recent:])
 
 
 @UserSession.views('user_agent_details')
