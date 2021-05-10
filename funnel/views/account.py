@@ -34,6 +34,7 @@ from ..forms import (
 from ..models import (
     AccountPasswordNotification,
     AuthClient,
+    OrganizationMembership,
     SMSMessage,
     User,
     UserEmail,
@@ -93,6 +94,28 @@ def user_timezone(obj):
     return timezone_identifiers.get(
         str(obj.timezone) if obj.timezone else None, obj.timezone
     )
+
+
+@User.views()
+def recent_organizations(obj, limit=3):
+    return [
+        _om.organization.current_access()
+        for _om in obj.active_organization_admin_memberships.order_by(
+            OrganizationMembership.granted_at.desc()
+        ).limit(limit)
+    ]
+
+
+@User.views()
+def less_recent_organizations(obj, offset=3, limit=4):
+    return [
+        _om.organization.current_access()
+        for _om in obj.active_organization_admin_memberships.order_by(
+            OrganizationMembership.granted_at.desc()
+        )
+        .offset(offset)
+        .limit(limit)
+    ]
 
 
 @UserSession.views('user_agent_details')
