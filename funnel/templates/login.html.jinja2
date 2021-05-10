@@ -2,11 +2,7 @@
 {% from "password_login_form.html.jinja2" import passwordlogin %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="login-page login-page--artwork hg-app no-sticky-header">
-  {%- else %}
-    <body class="login-page login-page--artwork no-sticky-header">
-  {%- endif %}
+  <body class="login-page login-page--artwork hg-app no-sticky-header">
 {% endblock %}
 
 {% block beforeformcontent %}

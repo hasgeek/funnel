@@ -20,7 +20,7 @@ from baseframe.forms import render_form, render_message
 from coaster.utils import getbool
 from coaster.views import requestargs
 
-from .. import app, lastuserapp
+from .. import app
 from ..forms import PasswordResetForm, PasswordResetRequestForm
 from ..models import AccountPasswordNotification, User, db
 from ..registry import login_registry
@@ -40,7 +40,6 @@ def str_pw_set_at(user):
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])
-@lastuserapp.route('/reset', methods=['GET', 'POST'])
 def reset():
     # User wants to reset password
     # Ask for username or email, verify it, and send a reset code
@@ -127,7 +126,6 @@ def reset():
 
 
 @app.route('/account/reset/<token>')
-@lastuserapp.route('/reset/<token>')
 @requestargs(('cookietest', getbool))
 def reset_email(token, cookietest=False):
     """Move token into session cookie and redirect to a token-free URL."""
@@ -151,7 +149,6 @@ def reset_email(token, cookietest=False):
 
 
 @app.route('/account/reset/<buid>/<secret>')
-@lastuserapp.route('/reset/<buid>/<secret>')
 def reset_email_legacy(buid, secret):
     flash(
         _(
@@ -164,7 +161,6 @@ def reset_email_legacy(buid, secret):
 
 
 @app.route('/account/reset/do', methods=['GET', 'POST'])
-@lastuserapp.route('/reset/do', methods=['GET', 'POST'])
 def reset_email_do():
 
     # Validate the token

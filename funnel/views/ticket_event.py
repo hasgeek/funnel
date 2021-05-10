@@ -7,7 +7,7 @@ from baseframe.forms import render_delete_sqla, render_form
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import (
     TicketClientForm,
     TicketEventForm,
@@ -24,7 +24,6 @@ from ..models import (
     TicketType,
     db,
 )
-from .decorators import legacy_redirect
 from .jobs import import_tickets
 from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, TicketEventViewMixin
@@ -33,8 +32,6 @@ from .mixins import ProjectViewMixin, TicketEventViewMixin
 @Project.views('ticket_event')
 @route('/<profile>/<project>/ticket_event')
 class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with('ticket_event_list.html.jinja2')
     @requires_login
@@ -115,19 +112,13 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
         )
 
 
-@route('/<project>/ticket_event', subdomain='<profile>')
-class FunnelProjectTicketEventView(ProjectTicketEventView):
-    pass
-
-
 ProjectTicketEventView.init_app(app)
-FunnelProjectTicketEventView.init_app(funnelapp)
 
 
 @TicketEvent.views('main')
 @route('/<profile>/<project>/ticket_event/<name>')
 class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+    __decorators__ = [requires_login]
 
     @route('', methods=['GET', 'POST'])
     @render_with('ticket_event.html.jinja2')
@@ -217,19 +208,13 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/ticket_event/<name>', subdomain='<profile>')
-class FunnelTicketEventView(TicketEventView):
-    pass
-
-
 TicketEventView.init_app(app)
-FunnelTicketEventView.init_app(funnelapp)
 
 
 @TicketType.views('main')
 @route('/<profile>/<project>/ticket_type/<name>')
 class TicketTypeView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+    __decorators__ = [requires_login]
     model = TicketType
     route_model_map = {
         'profile': 'project.profile.name',
@@ -301,19 +286,13 @@ class TicketTypeView(UrlForView, ModelView):
         )
 
 
-@route('/<project>/ticket_type/<name>', subdomain='<profile>', methods=['GET'])
-class FunnelTicketTypeView(TicketTypeView):
-    pass
-
-
 TicketTypeView.init_app(app)
-FunnelTicketTypeView.init_app(funnelapp)
 
 
 @TicketClient.views('main')
 @route('/<profile>/<project>/ticket_client/<client_id>')
 class TicketClientView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+    __decorators__ = [requires_login]
     model = TicketClient
     route_model_map = {
         'profile': 'project.profile.name',
@@ -368,10 +347,4 @@ class TicketClientView(UrlForView, ModelView):
         )
 
 
-@route('/<project>/ticket_client/<client_id>', subdomain='<profile>')
-class FunnelTicketClientView(TicketClientView):
-    pass
-
-
 TicketClientView.init_app(app)
-FunnelTicketClientView.init_app(funnelapp)

@@ -7,7 +7,7 @@ from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import CommentForm
 from ..models import (
     Comment,
@@ -20,7 +20,6 @@ from ..models import (
     Voteset,
     db,
 )
-from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProposalViewMixin
 from .notification import dispatch_notification
@@ -50,11 +49,9 @@ def commentset_json(obj):
 
 
 @Proposal.views('vote')
-@route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
-@route('/<profile>/<project>/sub/<url_name_uuid_b58>')
+@route('/<profile>/<project>/proposals/<proposal>')
+@route('/<profile>/<project>/sub/<proposal>')
 class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('voteup', methods=['POST'])
     @requires_login
     @requires_roles({'reader'})
@@ -101,13 +98,7 @@ class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
         return redirect(self.obj.url_for(), code=303)
 
 
-@route('/<project>/<url_id_name>', subdomain='<profile>')
-class FunnelProposalVoteView(ProposalVoteView):
-    pass
-
-
 ProposalVoteView.init_app(app)
-FunnelProposalVoteView.init_app(funnelapp)
 
 
 @Commentset.views('url')
@@ -125,8 +116,7 @@ class CommentsetView(UrlForView, ModelView):
     model = Commentset
     route_model_map = {'commentset': 'uuid_b58'}
 
-    def loader(self, commentset, profile=None):
-        # `profile` remains for funnelapp even though it's not used.
+    def loader(self, commentset):
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
     @route('', methods=['GET'])
@@ -232,13 +222,7 @@ class CommentsetView(UrlForView, ModelView):
             }, 422
 
 
-@route('/comments/<commentset>', subdomain='<profile>')
-class FunnelCommentsetView(CommentsetView):
-    pass
-
-
 CommentsetView.init_app(app)
-FunnelCommentsetView.init_app(funnelapp)
 
 
 @route('/comments/<commentset>/<comment>')
@@ -460,10 +444,4 @@ class CommentView(UrlForView, ModelView):
         return {'form': reportspamform_html}
 
 
-@route('/comments/<commentset>/<comment>', subdomain='<profile>')
-class FunnelCommentView(CommentView):
-    pass
-
-
 CommentView.init_app(app)
-FunnelCommentView.init_app(funnelapp)
