@@ -53,8 +53,8 @@ PASSWORD_MAX_LENGTH = 100
 
 class PasswordStrengthValidator:
     default_message = _(
-        "This password is too simple. Add complexity by making it longer and using "
-        "a mix of upper and lower case letters, numbers and symbols"
+        "This password is too simple. Add complexity by making it longer and using"
+        " a mix of upper and lower case letters, numbers and symbols"
     )
 
     def __init__(self, user_input_fields=(), message=None) -> None:
@@ -235,8 +235,8 @@ class PasswordResetForm(forms.RecaptchaForm):
         if user is None or user != self.edit_user:
             raise forms.ValidationError(
                 _(
-                    "This username or email does not match the user the reset code is "
-                    "for"
+                    "This username or email does not match the user the reset code is"
+                    " for"
                 )
             )
 
@@ -320,8 +320,8 @@ class AccountForm(forms.Form):
     username = forms.AnnotatedTextField(
         __("Username"),
         description=__(
-            "Single word that can contain letters, numbers and dashes. "
-            "You need a username to have a public profile"
+            "Single word that can contain letters, numbers and dashes."
+            " You need a username to have a public profile"
         ),
         validators=[
             forms.validators.DataRequired(),
@@ -334,8 +334,8 @@ class AccountForm(forms.Form):
     timezone = forms.SelectField(
         __("Timezone"),
         description=__(
-            "Where in the world are you? Dates and times will be shown in your local "
-            "timezone"
+            "Where in the world are you? Dates and times will be shown in your local"
+            " timezone"
         ),
         validators=[forms.validators.DataRequired()],
         choices=timezones,

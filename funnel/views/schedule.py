@@ -18,14 +18,12 @@ from coaster.views import (
     UrlForView,
     render_with,
     requestargs,
-    requires_permission,
     requires_roles,
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..models import Project, Proposal, Session, VenueRoom, db
-from .decorators import legacy_redirect
 from .helpers import localize_date
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
@@ -218,8 +216,6 @@ def session_ical(session, rsvp=None):
 @Project.views('schedule')
 @route('/<profile>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with('project_schedule.html.jinja2')
     @requires_roles({'reader'})
@@ -267,7 +263,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 {
                     'title': proposal.title,
                     'modal_url': proposal.url_for('schedule'),
-                    'speaker': proposal.speaker,
+                    'speaker': proposal.first_user,
                     'user': proposal.user,
                     'labels': list(proposal.labels),
                 }
@@ -326,40 +322,32 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         return jsonify(status=True)
 
 
-@route('/<project>/schedule', subdomain='<profile>')
-class FunnelProjectScheduleView(ProjectScheduleView):
-    pass
-
-
 ProjectScheduleView.init_app(app)
-FunnelProjectScheduleView.init_app(funnelapp)
 
 
 @VenueRoom.views('schedule')
 @route('/<profile>/<project>/schedule/<venue>/<room>')
 class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('ical')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def schedule_room_ical(self):
         cal = Calendar()
         cal.add('prodid', "-//Hasgeek//NONSGML Funnel//EN"),
         cal.add('version', "2.0")
         cal.add(
             'name',
-            f'{self.obj.venue.project.title} @ '
-            f'{self.obj.venue.title} / {self.obj.title}',
+            f"{self.obj.venue.project.title} @"
+            f" {self.obj.venue.title} / {self.obj.title}",
         )
         cal.add(
             'x-wr-calname',
-            f'{self.obj.venue.project.title} @ '
-            f'{self.obj.venue.title} / {self.obj.title}',
+            f"{self.obj.venue.project.title} @"
+            f" {self.obj.venue.title} / {self.obj.title}",
         )
         cal.add(
             'summary',
-            f'{self.obj.venue.project.title} @ '
-            f'{self.obj.venue.title} / {self.obj.title}',
+            f"{self.obj.venue.project.title} @"
+            f" {self.obj.venue.title} / {self.obj.title}",
         )
         cal.add('timezone-id', self.obj.venue.project.timezone.zone)
         cal.add('x-wr-timezone', self.obj.venue.project.timezone.zone)
@@ -386,7 +374,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
 
     @route('updates')
     @render_with('room_updates.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def updates(self):
         now = utcnow()
         current_session = Session.query.filter(
@@ -429,10 +417,4 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/schedule/<venue>/<room>', subdomain='<profile>')
-class FunnelScheduleVenueRoomView(ScheduleVenueRoomView):
-    pass
-
-
 ScheduleVenueRoomView.init_app(app)
-FunnelScheduleVenueRoomView.init_app(funnelapp)

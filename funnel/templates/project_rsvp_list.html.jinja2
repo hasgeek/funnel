@@ -9,8 +9,8 @@
 {% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
-  <p class="mui--text-headline">
+  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <p class="mui--text-subhead">
     {% trans %}Participants{% endtrans %} ({{ going_rsvps.count() }})
   </p>
 {% endblock %}

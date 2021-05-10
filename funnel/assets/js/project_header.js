@@ -55,7 +55,7 @@ const Ticketing = {
               );
             } else {
               errorMsg = window.gettext(
-                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com '
+                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com'
               );
             }
 

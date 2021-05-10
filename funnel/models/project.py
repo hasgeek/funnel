@@ -461,10 +461,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         message=__("The project has been published"),
         type='success',
     )
-    def publish(self):
+    def publish(self) -> bool:
+        """Publish a project and return a flag if this is the first publishing."""
+        first_published = False
         if not self.first_published_at:
             self.first_published_at = db.func.utcnow()
+            first_published = True
         self.published_at = db.func.utcnow()
+        return first_published
 
     @with_roles(call={'editor'})
     @state.transition(
@@ -477,18 +481,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def withdraw(self):
         pass
 
-    @with_roles(read={'all'}, datasets={'primary', 'without_parent'})  # type: ignore[misc]
     @property
-    def title_inline(self):
+    def title_inline(self) -> str:
         """Suffix a colon if the title does not end in ASCII sentence punctuation."""
         if self.title and self.tagline:
             if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
                 return self.title + ':'
         return self.title
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(title_inline, read={'all'}, datasets={'primary', 'without_parent'})
+
     @property
-    def title_suffix(self):
+    def title_suffix(self) -> str:
         """
         Return the profile's title if the project's title doesn't derive from it.
 
@@ -498,8 +502,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             return self.profile.title
         return ''
 
+    with_roles(title_suffix, read={'all'})
+
     @with_roles(call={'all'})
-    def joined_title(self, sep='›'):
+    def joined_title(self, sep: str = '›') -> str:
         """Return the project's title joined with the profile's title, if divergent."""
         if self.short_title == self.title:
             # Project title does not derive from profile title, so use both
@@ -509,7 +515,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
     @cached_property
-    def datelocation(self):
+    def datelocation(self) -> str:
         """
         Return a date and location string for the project.
 
@@ -619,63 +625,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        # TODO: Remove permission system entirely
-        perms = super().permissions(user, inherited)
-        perms.add('view')
-        if user is not None:
-            if self.cfp_state.OPEN:
-                perms.add('new-proposal')
-            if 'editor' in self.roles_for(user):
-                perms.update(
-                    (
-                        'view_contactinfo',
-                        'edit_project',
-                        'delete-project',
-                        'confirm-proposal',
-                        'view-venue',
-                        'new-venue',
-                        'edit-venue',
-                        'delete-venue',
-                        'edit-schedule',
-                        'move-proposal',
-                        'view_rsvps',
-                        'new-session',
-                        'edit-session',
-                        'new-event',
-                        'new-ticket-type',
-                        'new_ticket_client',
-                        'edit_ticket_client',
-                        'delete_ticket_client',
-                        'edit_event',
-                        'delete_event',
-                        'admin',
-                        'checkin_event',
-                        'view-event',
-                        'view_ticket_type',
-                        'delete_ticket_type',
-                        'edit-participant',
-                        'view-participant',
-                        'new-participant',
-                        'view_contactinfo',
-                        'confirm-proposal',
-                        'view_voteinfo',
-                        'view_status',
-                        'delete-proposal',
-                        'edit-schedule',
-                        'new-session',
-                        'edit-session',
-                        'view-event',
-                        'view_ticket_type',
-                        'edit-participant',
-                        'view-participant',
-                        'new-participant',
-                    )
-                )
-            if 'usher' in self.roles_for(user):
-                perms.add('checkin_event')
-        return perms
-
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
@@ -701,29 +650,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return clause.asc()
 
     @classmethod
-    def all_unsorted(cls, legacy=None):
+    def all_unsorted(cls):
         """Return query of all published projects, without ordering criteria."""
-        projects = cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
-        if legacy is not None:
-            projects = projects.join(Profile).filter(Profile.legacy == legacy)
-        return projects
+        return cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
 
     @classmethod  # NOQA: A003
-    def all(cls, legacy=None):  # NOQA: A003
+    def all(cls):  # NOQA: A003
         """Return all published projects, ordered by date."""
-        return cls.all_unsorted(legacy).order_by(cls.order_by_date())
+        return cls.all_unsorted().order_by(cls.order_by_date())
 
     @classmethod
-    def fetch_sorted(cls, legacy=None):
-        currently_listed_projects = cls.query.filter(cls.state.PUBLISHED)
-        if legacy is not None:
-            currently_listed_projects = currently_listed_projects.join(Profile).filter(
-                Profile.legacy == legacy
-            )
-        currently_listed_projects = currently_listed_projects.order_by(
-            cls.order_by_date()
-        )
-        return currently_listed_projects
+    def fetch_sorted(cls):
+        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.order_by_date())
 
     @classmethod
     def get(cls, profile_project):
@@ -743,8 +681,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         for project in old_profile.projects:
             if project.name in names:
                 current_app.logger.warning(
-                    "Project %r had a conflicting name in profile migration, "
-                    "so renaming by adding adding random value to name",
+                    "Project %r had a conflicting name in profile migration,"
+                    " so renaming by adding adding random value to name",
                     project,
                 )
                 project.name += '-' + buid()

@@ -50,12 +50,12 @@
       }
       .comment__header__details__user {
         min-height: 40px;
-        .badge {
-          margin-right: 4px;
-        }
       }
       .user__box {
         padding-bottom: 0;
+      }
+      .badge {
+        margin-left: $mui-grid-padding/4;
       }
     }
   }
@@ -77,6 +77,7 @@
     .comment--children {
       padding-left: $mui-grid-padding/2;
       word-break: break-word;
+      margin-bottom: 14px;
     }
     .js-comment-form {
       .ajax-form {
@@ -93,6 +94,16 @@
   }
   .comment__body:hover {
     border-left: 1px solid $mui-accent-color;
+  }
+}
+
+@media (min-width: 1200px) {
+  .comment {
+    .comment__body {
+      .comment--children {
+        margin-bottom: 16px;
+      }
+    }
   }
 }
 

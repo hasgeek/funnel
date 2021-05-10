@@ -71,6 +71,10 @@
   justify-content: space-between;
 }
 
+.flex-wrapper--wrap {
+  flex-wrap: wrap;
+}
+
 .material-icons {
   display: none;
 }
@@ -117,6 +121,7 @@
   padding-top: $mui-grid-padding;
   padding-bottom: $mui-grid-padding;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  margin-bottom: $mui-grid-padding/2;
 }
 
 .page-content--mob-nav {

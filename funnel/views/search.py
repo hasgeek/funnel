@@ -18,13 +18,14 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..models import (
     Comment,
     Organization,
     Profile,
     Project,
     Proposal,
+    ProposalMembership,
     Session,
     Update,
     User,
@@ -32,7 +33,6 @@ from ..models import (
     visual_field_delimiter,
 )
 from ..utils import abort_null
-from .decorators import legacy_redirect
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 # --- Definitions -------------------------------------------------------------
@@ -221,7 +221,6 @@ search_types = OrderedDict(
                 lambda q: Session.query.join(Project, Session.project)
                 .join(Profile, Project.profile)
                 .outerjoin(Proposal, Session.proposal)
-                .outerjoin(User, Proposal.speaker)
                 .filter(
                     Profile.state.PUBLIC,
                     Project.state.PUBLISHED,
@@ -231,7 +230,6 @@ search_types = OrderedDict(
                 # Profile search:
                 lambda q, profile: Session.query.join(Project, Session.project)
                 .outerjoin(Proposal, Session.proposal)
-                .outerjoin(User, Proposal.speaker)
                 .filter(
                     Project.state.PUBLISHED,
                     Project.profile == profile,
@@ -239,9 +237,7 @@ search_types = OrderedDict(
                     Session.search_vector.match(q),
                 ),
                 # Project search:
-                lambda q, project: Session.query.outerjoin(Proposal)
-                .outerjoin(User, Proposal.speaker)
-                .filter(
+                lambda q, project: Session.query.outerjoin(Proposal).filter(
                     Session.project == project,
                     Session.scheduled,
                     Session.search_vector.match(q),
@@ -258,7 +254,6 @@ search_types = OrderedDict(
                 # Site search:
                 lambda q: Proposal.query.join(Project, Proposal.project)
                 .join(Profile, Project.profile)
-                .outerjoin(User, Proposal.speaker)
                 .filter(
                     Profile.state.PUBLIC,
                     Project.state.PUBLISHED,
@@ -267,39 +262,52 @@ search_types = OrderedDict(
                     # transferred into labels, reserving proposal state for submission.
                     db.or_(
                         Proposal.search_vector.match(q),
-                        User.query.filter(
-                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        ProposalMembership.query.join(User, ProposalMembership.user)
+                        .filter(
+                            ProposalMembership.proposal_id == Proposal.id,
+                            ProposalMembership.user_id == User.id,
+                            ProposalMembership.is_uncredited.is_(False),
+                            ProposalMembership.is_active,
+                            User.search_vector.match(q),
                         )
                         .exists()
                         .correlate(Proposal),
                     ),
                 ),
                 # Profile search
-                lambda q, profile: Proposal.query.join(Project, Proposal.project)
-                .outerjoin(User, Proposal.speaker)
-                .filter(
+                lambda q, profile: Proposal.query.join(
+                    Project, Proposal.project
+                ).filter(
                     Project.state.PUBLISHED,
                     Project.profile == profile,
                     # TODO: Filter condition for Proposal being visible
                     db.or_(
                         Proposal.search_vector.match(q),
-                        User.query.filter(
-                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        ProposalMembership.query.join(User, ProposalMembership.user)
+                        .filter(
+                            ProposalMembership.proposal_id == Proposal.id,
+                            ProposalMembership.user_id == User.id,
+                            ProposalMembership.is_uncredited.is_(False),
+                            ProposalMembership.is_active,
+                            User.search_vector.match(q),
                         )
                         .exists()
                         .correlate(Proposal),
                     ),
                 ),
                 # Project search:
-                lambda q, project: Proposal.query.outerjoin(
-                    User, Proposal.speaker
-                ).filter(
+                lambda q, project: Proposal.query.filter(
                     Proposal.project == project,
                     # TODO: Filter condition for Proposal being visible
                     db.or_(
                         Proposal.search_vector.match(q),
-                        User.query.filter(
-                            Proposal.speaker_id == User.id, User.search_vector.match(q)
+                        ProposalMembership.query.join(User, ProposalMembership.user)
+                        .filter(
+                            ProposalMembership.proposal_id == Proposal.id,
+                            ProposalMembership.user_id == User.id,
+                            ProposalMembership.is_uncredited.is_(False),
+                            ProposalMembership.is_active,
+                            User.search_vector.match(q),
                         )
                         .exists()
                         .correlate(Proposal),
@@ -546,9 +554,9 @@ def search_results(squery, stype, page=1, per_page=20, profile=None, project=Non
         regconfig,
         hltext,
         db.func.to_tsquery(squery),
-        'MaxFragments=2, FragmentDelimiter="%s", '
-        'MinWords=5, MaxWords=20, '
-        'StartSel="%s", StopSel="%s"' % (pg_delimiter, pg_startsel, pg_stopsel),
+        'MaxFragments=2, FragmentDelimiter="%s",'
+        ' MinWords=5, MaxWords=20,'
+        ' StartSel="%s", StopSel="%s"' % (pg_delimiter, pg_startsel, pg_stopsel),
         type_=db.UnicodeText,
     )
 
@@ -613,14 +621,11 @@ class SearchView(ClassView):
 
 
 SearchView.init_app(app)
-SearchView.init_app(funnelapp)
 
 
 @Profile.views('search')
 @route('/<profile>')
 class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('search')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
@@ -648,20 +653,12 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/', subdomain='<profile>')
-class FunnelProfileSearchView(ProfileSearchView):
-    pass
-
-
 ProfileSearchView.init_app(app)
-FunnelProfileSearchView.init_app(funnelapp)
 
 
 @Project.views('search')
 @route('/<profile>/<project>/')
 class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('search')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'crew', 'participant'})
@@ -689,10 +686,4 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/', subdomain='<profile>')
-class FunnelProjectSearchView(ProjectSearchView):
-    pass
-
-
 ProjectSearchView.init_app(app)
-FunnelProjectSearchView.init_app(app)

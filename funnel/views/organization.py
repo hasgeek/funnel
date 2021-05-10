@@ -69,8 +69,8 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         if not current_auth.user.has_verified_contact_info:
             flash(
                 _(
-                    "You need to have a verified email address "
-                    "or phone number to create an organization"
+                    "You need to have a verified email address"
+                    " or phone number to create an organization"
                 ),
                 'error',
             )
@@ -102,7 +102,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             return render_message(
                 title=_("Protected profile"),
                 message=_(
-                    "This organization has a protected profile and cannot be deleted."
+                    "This organization has a protected profile and cannot be deleted"
                 ),
             )
         if not self.obj.profile.is_safe_to_delete():
@@ -110,7 +110,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                 title=_("This organization has projects"),
                 message=_(
                     "Projects must be deleted or transferred before the organization"
-                    " can be deleted."
+                    " can be deleted"
                 ),
             )
 
@@ -124,7 +124,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             message=_(
                 "Delete organization ‘{title}’? This will delete everything including"
                 " projects, proposals and videos. This operation is permanent and"
-                " cannot be undone."
+                " cannot be undone"
             ).format(title=self.obj.title),
             success=_(
                 "You have deleted organization ‘{title}’ and all its associated content"

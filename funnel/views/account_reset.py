@@ -20,7 +20,7 @@ from baseframe.forms import render_form, render_message
 from coaster.utils import getbool
 from coaster.views import requestargs
 
-from .. import app, lastuserapp
+from .. import app
 from ..forms import PasswordResetForm, PasswordResetRequestForm
 from ..models import AccountPasswordNotification, User, db
 from ..registry import login_registry
@@ -40,7 +40,6 @@ def str_pw_set_at(user):
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])
-@lastuserapp.route('/reset', methods=['GET', 'POST'])
 def reset():
     # User wants to reset password
     # Ask for username or email, verify it, and send a reset code
@@ -48,7 +47,7 @@ def reset():
     if getbool(request.args.get('expired')):
         message = _(
             "Your password has expired. Please enter your username or email address to"
-            " request a reset code and set a new password."
+            " request a reset code and set a new password"
         )
     else:
         message = None
@@ -79,7 +78,7 @@ def reset():
                         _(
                             "Your account does not have an email address. However, it"
                             " is linked to {service} with the ID {username}. You can"
-                            " use that to login."
+                            " use that to login"
                         ).format(
                             service=login_registry[extid.service].title,
                             username=extid.username or extid.userid,
@@ -93,7 +92,7 @@ def reset():
                     _(
                         'Your account does not have an email address. Please'
                         ' contact <a href="mailto:{email}">{email}</a> for'
-                        ' assistance.'
+                        ' assistance'
                     ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
                 ),
             )
@@ -113,7 +112,7 @@ def reset():
                 "You have been sent an email with a link to reset your password, to"
                 " your address {masked_email}. If it doesn’t arrive in a few minutes,"
                 " it may have landed in your spam or junk folder. The reset link is"
-                " valid for 24 hours."
+                " valid for 24 hours"
             ).format(masked_email=mask_email(email)),
         )
     return render_form(
@@ -127,7 +126,6 @@ def reset():
 
 
 @app.route('/account/reset/<token>')
-@lastuserapp.route('/reset/<token>')
 @requestargs(('cookietest', getbool))
 def reset_email(token, cookietest=False):
     """Move token into session cookie and redirect to a token-free URL."""
@@ -151,7 +149,6 @@ def reset_email(token, cookietest=False):
 
 
 @app.route('/account/reset/<buid>/<secret>')
-@lastuserapp.route('/reset/<buid>/<secret>')
 def reset_email_legacy(buid, secret):
     flash(
         _(
@@ -164,7 +161,6 @@ def reset_email_legacy(buid, secret):
 
 
 @app.route('/account/reset/do', methods=['GET', 'POST'])
-@lastuserapp.route('/reset/do', methods=['GET', 'POST'])
 def reset_email_do():
 
     # Validate the token
@@ -179,7 +175,7 @@ def reset_email_do():
         # the form in time. We no longer know what user this is for. Inform the user
         return render_message(
             title=_("Please try again"),
-            message=_("This page timed out. Please open the reset link again."),
+            message=_("This page timed out. Please open the reset link again"),
         )
 
     # 2. There's a token in the session. Is it valid?
@@ -258,15 +254,15 @@ def reset_email_do():
             title=_("Password reset complete"),
             message=_(
                 "Your password has been changed. You may now login with your new"
-                " password."
+                " password"
             )
             if counter is None
             else ngettext(
                 "Your password has been changed. As a precaution, you have been logged"
-                " out of one other device. You may now login with your new password.",
+                " out of one other device. You may now login with your new password",
                 "Your password has been changed. As a precaution, you have been logged"
                 " out of %(num)d other devices. You may now login with your new"
-                " password.",
+                " password",
                 counter + 1,
             ),
         )
@@ -277,7 +273,7 @@ def reset_email_do():
         formid='password-change',
         submit=_("Reset password"),
         message=Markup(
-            _("Hello, {fullname}. You may now choose a new password.").format(
+            _("Hello, {fullname}. You may now choose a new password").format(
                 fullname=escape(user.fullname)
             )
         ),

@@ -34,8 +34,8 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
                 video_source = 'youtube'
             else:
                 raise ValueError(
-                    f"{video_url}: YouTube video URLs need to be in the format: "
-                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    f"{video_url}: YouTube video URLs need to be in the format:"
+                    " https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                 )
         elif parsed.path.startswith('/embed'):
             video_id = parsed.path.lstrip('/embed/')
@@ -44,13 +44,13 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
                 video_source = 'youtube'
             else:
                 raise ValueError(
-                    f"{video_url}: YouTube video URLs need to be in the format: "
-                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    f"{video_url}: YouTube video URLs need to be in the format:"
+                    " https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                 )
         else:
             raise ValueError(
-                f"{video_url}: YouTube video URLs need to be in the format: "
-                "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                f"{video_url}: YouTube video URLs need to be in the format:"
+                " https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             )
     elif parsed.netloc == 'youtu.be':
         video_id = parsed.path.lstrip('/')
@@ -59,8 +59,8 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
             video_source = 'youtube'
         else:
             raise ValueError(
-                "YouTube short URLs need to be in the format: "
-                "https://youtu.be/dQw4w9WgXcQ"
+                "YouTube short URLs need to be in the format:"
+                " https://youtu.be/dQw4w9WgXcQ"
             )
     elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
         video_id = parsed.path.lstrip('/')
@@ -69,8 +69,8 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
             video_source = 'vimeo'
         else:
             raise ValueError(
-                "Vimeo video URLs need to be in the format: "
-                "https://vimeo.com/336892869"
+                "Vimeo video URLs need to be in the format:"
+                " https://vimeo.com/336892869"
             )
     elif parsed.netloc == 'drive.google.com':
         if parsed.path.startswith('/open'):
@@ -80,18 +80,18 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
                 video_source = 'googledrive'
             else:
                 raise ValueError(
-                    f"{video_url}: Google drive video URLs need to be in the format: "
-                    "https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or "
-                    "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
+                    f"{video_url}: Google drive video URLs need to be in the format:"
+                    " https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or"
+                    " https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
                 )
         elif parsed.path.startswith('/file/d/'):
             video_id = parsed.path.lstrip('/file/d/').rstrip('/view').rstrip('/preview')
             video_source = 'googledrive'
         else:
             raise ValueError(
-                f"{video_url}: Google drive video URLs need to be in the format: "
-                "https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or "
-                "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
+                f"{video_url}: Google drive video URLs need to be in the format:"
+                " https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or"
+                " https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
             )
     return video_source, video_id
 

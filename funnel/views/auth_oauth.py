@@ -7,7 +7,7 @@ from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import newsecret
 
-from .. import app, lastuserapp
+from .. import app
 from ..models import (
     AuthClient,
     AuthClientCredential,
@@ -102,8 +102,8 @@ def verifyscope(scope: Iterable, auth_client: AuthClient):
                     else:
                         raise ScopeException(
                             _(
-                                "This application does not have access to all "
-                                "resources of app ‘{title}’"
+                                "This application does not have access to all"
+                                " resources of app ‘{title}’"
                             ).format(title=resource_client.title)
                         )
                 else:
@@ -207,8 +207,6 @@ def oauth_auth_error(
 
 
 @app.route('/api/1/auth', methods=['GET', 'POST'])
-@lastuserapp.route('/api/1/auth', methods=['GET', 'POST'])
-@lastuserapp.route('/auth', methods=['GET', 'POST'])
 @requires_login_no_message
 def oauth_authorize():
     """Provide authorization endpoint for OAuth2 server."""
@@ -351,7 +349,7 @@ def oauth_authorize():
             # User said no. Return "access_denied" error (OAuth2 spec)
             return oauth_auth_error(redirect_uri, state, 'access_denied')
         else:
-            raise ValueError("Received an authorize form without a valid action.")
+            raise ValueError("Received an authorize form without a valid action")
 
     # GET request or POST with invalid CSRF
     return (
@@ -429,8 +427,6 @@ def oauth_token_success(token, **params):
 
 
 @app.route('/api/1/token', methods=['POST'])
-@lastuserapp.route('/api/1/token', methods=['POST'])
-@lastuserapp.route('/token', methods=['POST'])
 @requires_client_login
 def oauth_token():
     """Provide token endpoint for OAuth2 server."""

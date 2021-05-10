@@ -71,6 +71,10 @@
   justify-content: space-between;
 }
 
+.flex-wrapper--wrap {
+  flex-wrap: wrap;
+}
+
 .material-icons {
   display: none;
 }
@@ -117,6 +121,7 @@
   padding-top: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  margin-bottom: 8px;
 }
 
 .page-content--mob-nav {
@@ -2064,54 +2069,6 @@ a.loginbutton.hidden,
     margin: 16px auto 0;
   }
 }
-.funnel-banner {
-  position: relative;
-  overflow: hidden;
-}
-.funnel-banner .banner__img {
-  width: 100%;
-  display: block;
-}
-.funnel-banner .banner__headline {
-  color: #816894;
-  font-size: 32px;
-  line-height: 40px;
-  padding: 0 16px;
-  z-index: 2;
-}
-.funnel-banner .banner__headline-txt {
-  color: #f0a40c;
-}
-
-@media (min-width: 992px) {
-  .funnel-banner {
-    border-bottom: 2px solid rgba(132, 146, 166, 0.3);
-  }
-  .funnel-banner .banner__headline {
-    position: absolute;
-    top: 50%;
-    left: 16px;
-    right: 0;
-    transform: translate(0%, -50%);
-    font-size: 24px;
-    line-height: 32px;
-  }
-}
-@media (min-width: 1200px) {
-  .funnel-banner .banner__headline {
-    font-size: 29px;
-    line-height: 40px;
-    left: -40px;
-  }
-}
-.funnel-notice .alert__text {
-  font-size: 24px;
-  line-height: 32px;
-}
-.funnel-notice .alert__text .funnel-notice-txt {
-  color: #f0a40c;
-}
-
 .project-headline {
   margin-bottom: 40px;
   position: relative;
@@ -3722,7 +3679,7 @@ a.loginbutton.hidden,
   position: absolute;
   bottom: 16px;
   right: 16px;
-  z-index: 3;
+  z-index: 2;
 }
 .project-banner .project-banner__box .project-banner__box__add-btn--second {
   right: 60px;
@@ -4074,7 +4031,7 @@ a.loginbutton.hidden,
   height: 400px;
   width: 100%;
   z-index: 0;
-  margin: 16px 0;
+  margin: 0 0 16px;
   position: relative;
   outline: none;
 }
@@ -4168,7 +4125,7 @@ a.loginbutton.hidden,
   position: absolute;
   bottom: 16px;
   right: 16px;
-  z-index: 3;
+  z-index: 2;
 }
 
 .details__box__control {
@@ -4625,15 +4582,11 @@ a.loginbutton.hidden,
   .comment__header__details__user {
   min-height: 40px;
 }
-.comment
-  .comment__header
-  .comment__header__details
-  .comment__header__details__user
-  .badge {
-  margin-right: 4px;
-}
 .comment .comment__header .comment__header__details .user__box {
   padding-bottom: 0;
+}
+.comment .comment__header .comment__header__details .badge {
+  margin-left: 4px;
 }
 .comment .comment__body {
   border-left: 1px solid rgba(132, 146, 166, 0.3);
@@ -4651,6 +4604,7 @@ a.loginbutton.hidden,
 .comment .comment__body .comment--children {
   padding-left: 8px;
   word-break: break-word;
+  margin-bottom: 14px;
 }
 .comment .comment__body .js-comment-form .ajax-form {
   margin-top: 8px;
@@ -4673,6 +4627,11 @@ a.loginbutton.hidden,
   border-left: 1px solid #f06a5e;
 }
 
+@media (min-width: 1200px) {
+  .comment .comment__body .comment--children {
+    margin-bottom: 16px;
+  }
+}
 .comment:first-child {
   margin: 0;
 }
@@ -4975,7 +4934,7 @@ a.loginbutton.hidden,
   }
   .schedule-grid .schedule .schedule__row .schedule__row__column {
     position: relative;
-    background-image: url('../img/schedule-box-background.png?1598540764');
+    background-image: url('../img/schedule-box-background.png?1545455242');
     background-size: 20px 10px;
   }
   .schedule-grid

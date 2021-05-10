@@ -49,63 +49,6 @@
   }
 }
 
-.funnel-banner {
-  position: relative;
-  overflow: hidden;
-
-  .banner__img {
-    width: 100%;
-    display: block;
-  }
-
-  .banner__headline {
-    color: #816894;
-    font-size: 32px;
-    line-height: 40px;
-    padding: 0 $mui-grid-padding;
-    z-index: 2;
-  }
-
-  .banner__headline-txt {
-    color: #f0a40c;
-  }
-}
-
-@media (min-width: 992px) {
-  .funnel-banner {
-    border-bottom: 2px solid rgba(132, 146, 166, 0.3);
-
-    .banner__headline {
-      position: absolute;
-      top: 50%;
-      left: $mui-grid-padding;
-      right: 0;
-      transform: translate(0%, -50%);
-      font-size: 24px;
-      line-height: 32px;
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .funnel-banner {
-    .banner__headline {
-      font-size: 29px;
-      line-height: 40px;
-      left: -40px;
-    }
-  }
-}
-
-.funnel-notice .alert__text {
-  font-size: 24px;
-  line-height: 32px;
-
-  .funnel-notice-txt {
-    color: #f0a40c;
-  }
-}
-
 .project-headline {
   margin-bottom: 40px;
   position: relative;

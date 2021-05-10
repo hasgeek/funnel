@@ -101,8 +101,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     website = db.Column(UrlType, nullable=True)
     logo_url = db.Column(ImgeeType, nullable=True)
     banner_image_url = db.Column(ImgeeType, nullable=True)
-    #: Legacy profiles are available via funnelapp, non-legacy in the main app
-    legacy = db.Column(db.Boolean, default=False, nullable=False)
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
@@ -372,16 +370,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return self.organization.teams
         else:
             return []
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        perms.add('view')
-        if 'admin' in self.roles_for(user):
-            perms.add('edit-profile')
-            perms.add('new_project')
-            perms.add('delete-project')
-            perms.add('edit_project')
-        return perms
 
     @with_roles(call={'owner'})
     @state.transition(None, state.PUBLIC, title=__("Make public"))

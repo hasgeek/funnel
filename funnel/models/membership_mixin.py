@@ -6,6 +6,7 @@ from typing import Any, Dict, Iterable, Set, TypeVar
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql.expression import ClauseList
 
 from werkzeug.utils import cached_property
 
@@ -16,6 +17,7 @@ from coaster.utils import LabeledEnum
 from ..typing import OptionalMigratedTables
 from . import BaseMixin, UuidMixin, db
 from .profile import Profile
+from .reorder_mixin import ReorderMixin
 from .user import User
 
 __all__ = [
@@ -60,6 +62,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __data_columns__: Iterable[str] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
     parent_id: db.Column
+    #: Subject of this membership (subclasses must define)
+    subject = None
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
@@ -141,6 +145,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @hybrid_property
     def is_invite(self) -> bool:
         return self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
+
+    def __repr__(self):
+        return (
+            f'<{self.__class__.__name__} {self.subject!r} in {self.parent!r} '
+            + ('active' if self.is_active else 'revoked')
+            + '>'
+        )
 
     @cached_property
     def offered_roles(self) -> Set[str]:
@@ -265,6 +276,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
     # mypy type declaration
     user_id: db.Column
+    __table_args__: tuple
 
     @declared_attr  # type: ignore[no-redef]
     def user_id(cls):  # skipcq: PYL-E0102
@@ -281,6 +293,10 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         return immutable(db.relationship(User, foreign_keys=[cls.user_id]))
 
     @declared_attr
+    def subject(cls):
+        return db.synonym('user')
+
+    @declared_attr  # type: ignore[no-redef]
     def __table_args__(cls):
         if cls.parent_id is not None:
             return (
@@ -375,6 +391,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 
     # mypy type declaration
     profile_id: db.Column
+    __table_args__: tuple
 
     @declared_attr  # type: ignore[no-redef]
     def profile_id(cls):  # skipcq: PYL-E0102
@@ -385,8 +402,17 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
             index=True,
         )
 
+    @with_roles(read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}})
     @declared_attr
-    def __table_args__(cls):
+    def profile(cls):
+        return immutable(db.relationship(Profile, foreign_keys=[cls.profile_id]))
+
+    @declared_attr
+    def subject(cls):
+        return db.synonym('profile')
+
+    @declared_attr  # type: ignore[no-redef]
+    def __table_args__(cls) -> tuple:
         if cls.parent_id is not None:
             return (
                 db.Index(
@@ -421,11 +447,6 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 
     def copy_template(self: MembershipType, **kwargs) -> MembershipType:
         return type(self)(profile=self.profile, **kwargs)
-
-    @with_roles(read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}})
-    @declared_attr
-    def profile(cls):
-        return immutable(db.relationship(Profile, foreign_keys=[cls.profile_id]))
 
     @classmethod
     def migrate_profile(
@@ -473,3 +494,67 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
         )
         db.session.flush()
         return None
+
+
+class ReorderMembershipMixin(ReorderMixin):
+    """Customizes ReorderMixin for membership models."""
+
+    # mypy type declaration
+    seq: db.Column
+    parent_id: db.Column
+    __table_args__: tuple
+
+    #: Sequence number. Not immutable, and may be overwritten by ReorderMixin as a
+    #: side-effect of reordering other records. This is not considered a revision.
+    #: However, it can be argued that relocating a sponsor in the list constitutes a
+    #: change that must be recorded as a revision. We may need to change our opinion
+    #: on `seq` being mutable in a future iteration.
+    @declared_attr  # type: ignore[no-redef]
+    def seq(cls) -> db.Column:
+        return db.Column(db.Integer, nullable=False)
+
+    @declared_attr  # type: ignore[no-redef]
+    def __table_args__(cls) -> tuple:
+        """Table arguments."""
+        args = list(super().__table_args__)  # type: ignore[misc]
+        # Add unique constraint on :attr:`seq` for active records
+        args.append(
+            db.Index(
+                'ix_' + cls.__tablename__ + '_seq',  # type: ignore[attr-defined]
+                cls.parent_id.name,
+                'seq',
+                unique=True,
+                postgresql_where=db.column('revoked_at').is_(None),
+            ),
+        )
+        return tuple(args)
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)  # type: ignore[call-arg]
+        # Assign a default value to `seq`
+        if self.seq is None:
+            self.seq = db.select(
+                [db.func.coalesce(db.func.max(self.__class__.seq) + 1, 1)]
+            ).where(self.parent_scoped_reorder_query_filter)
+
+    @property
+    def parent_scoped_reorder_query_filter(self) -> ClauseList:
+        """
+        Return a query filter that includes a scope limitation to active records.
+
+        Used by:
+        * :meth:`__init__` to assign an initial sequence number, and
+        * :class:`ReorderMixin` to reassign sequence numbers
+        """
+        cls = self.__class__
+        # During __init__, if the constructor only received `parent`, it doesn't yet
+        # know `parent_id`. Therefore we have to be prepared for two possible returns
+        if self.parent_id is not None:
+            return db.and_(
+                cls.parent_id == self.parent_id,
+                cls.is_active,  # type: ignore[attr-defined]
+            )
+        return db.and_(
+            cls.parent == self.parent,  # type: ignore[attr-defined]
+            cls.is_active,  # type: ignore[attr-defined]
+        )

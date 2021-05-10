@@ -10,12 +10,11 @@ from coaster.views import (
     UrlForView,
     render_with,
     requestform,
-    requires_permission,
     requires_roles,
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import (
     ProposalForm,
     ProposalLabelsAdminForm,
@@ -31,7 +30,6 @@ from ..models import (
     ProposalSubmittedNotification,
     db,
 )
-from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, ProposalViewMixin
 from .notification import dispatch_notification
@@ -39,7 +37,7 @@ from .session import session_edit
 
 markdown_message = __(
     'This form uses <a target="_blank" rel="noopener noreferrer"'
-    ' href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting.'
+    ' href="https://www.markdownguide.org/basic-syntax/">Markdown</a> for formatting'
 )
 
 
@@ -54,9 +52,13 @@ def proposals_can_be_reordered(obj):
 
 
 # --- Routes ------------------------------------------------------------------
-class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
+@Project.views('proposal_new')
+@route('/<profile>/<project>')
+class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
+    """Views for proposal management (new/reorder)."""
 
+    @route('sub/new', methods=['GET', 'POST'])
+    @route('proposals/new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'reader'})
     def new_proposal(self):
@@ -69,9 +71,7 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
         form = ProposalForm(model=Proposal, parent=self.obj)
 
         if form.validate_on_submit():
-            proposal = Proposal(
-                user=current_auth.user, speaker=current_auth.user, project=self.obj
-            )
+            proposal = Proposal(user=current_auth.user, project=self.obj)
             db.session.add(proposal)
             with db.session.no_autoflush:
                 form.populate_obj(proposal)
@@ -81,7 +81,6 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
                 current_auth.user
             )  # Vote up your own proposal by default
             db.session.commit()
-            flash(_("Your submission has been submitted"), 'info')
             dispatch_notification(
                 ProposalSubmittedNotification(document=proposal),
                 ProposalReceivedNotification(
@@ -95,8 +94,10 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             title=_("Make a submission"),
             submit=_("Submit"),
             message=markdown_message,
+            cancel_url=self.obj.url_for(),
         )
 
+    @route('sub/reorder', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
     @requestform('target', 'other', ('before', getbool))
@@ -115,42 +116,21 @@ class BaseProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, Mode
             proposal.current_access().reorder_item(other_proposal, before)
             db.session.commit()
             return {'status': 'ok'}
-        return {'status': 'error'}, 400
+        return {'status': 'error'}, 422
 
 
-@Project.views('proposal_new')
-@route('/<profile>/<project>')
-class ProjectProposalView(BaseProjectProposalView):
-    pass
-
-
-ProjectProposalView.add_route_for(
-    'new_proposal', 'proposals/new', methods=['GET', 'POST']
-)
-ProjectProposalView.add_route_for('new_proposal', 'sub/new', methods=['GET', 'POST'])
-ProjectProposalView.add_route_for('reorder_proposals', 'sub/reorder', methods=['POST'])
 ProjectProposalView.init_app(app)
 
 
-@route('/<project>', subdomain='<profile>')
-class FunnelProjectProposalView(BaseProjectProposalView):
-    pass
-
-
-FunnelProjectProposalView.add_route_for('new_proposal', 'new', methods=['GET', 'POST'])
-FunnelProjectProposalView.init_app(funnelapp)
-
-
 @Proposal.views('main')
-@route('/<profile>/<project>/proposals/<url_name_uuid_b58>')
-@route('/<profile>/<project>/sub/<url_name_uuid_b58>')
+@route('/<profile>/<project>/proposals/<proposal>')
+@route('/<profile>/<project>/sub/<proposal>')
 class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
     SavedProjectForm = SavedProjectForm
 
     @route('')
     @render_with('proposal.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'reader'})
     def view(self):
         # FIXME: Use a separate endpoint for comments as this is messing with browser
         # cache. View Source on proposal pages shows comments tree instead of source
@@ -164,7 +144,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('admin')
     @render_with('proposal_admin_panel.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'project_editor'})
     def admin(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
         proposal_transfer_form = ProposalTransferForm()
@@ -197,7 +177,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit_proposal')
+    @requires_roles({'editor'})
     def edit(self):
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
         if form.validate_on_submit():
@@ -218,15 +198,16 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('delete-proposal')
+    @requires_roles({'editor', 'project_editor'})
     def delete(self):
+        # FIXME: Prevent deletion of confirmed proposals
         return render_delete_sqla(
             self.obj,
             db,
             title=_("Confirm delete"),
             message=_(
                 "Delete your submission ‘{title}’? This will remove all votes and"
-                " comments as well. This operation is permanent and cannot be undone."
+                " comments as well. This operation is permanent and cannot be undone"
             ).format(title=self.obj.title),
             success=_("Your submission has been deleted"),
             next=self.obj.project.url_for(),
@@ -235,7 +216,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('transition', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('confirm-proposal')
+    @requires_roles({'project_editor'})
     def transition(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
         if (
@@ -252,33 +233,13 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 # if the proposal is deleted, don't redirect to proposal page
                 return redirect(self.obj.project.url_for('view_proposals'))
         else:
-            flash(_("Invalid transition for this submission."), 'error')
+            flash(_("Invalid transition for this submission"), 'error')
             abort(403)
         return redirect(self.obj.url_for())
 
-    @route('next')  # NOQA: A003
-    @requires_permission('view')
-    def next(self):  # NOQA: A003
-        nextobj = self.obj.getnext()
-        if nextobj:
-            return redirect(nextobj.url_for())
-        else:
-            flash(_("You were at the last submission"), 'info')
-            return redirect(self.obj.project.url_for())
-
-    @route('prev')
-    @requires_permission('view')
-    def prev(self):
-        prevobj = self.obj.getprev()
-        if prevobj:
-            return redirect(prevobj.url_for())
-        else:
-            flash(_("You were at the first submission"), 'info')
-            return redirect(self.obj.project.url_for())
-
     @route('move', methods=['POST'])
     @requires_login
-    @requires_permission('move-proposal')
+    @requires_roles({'project_editor'})
     def moveto(self):
         proposal_move_form = ProposalMoveForm()
         if proposal_move_form.validate_on_submit():
@@ -288,7 +249,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
             flash(
                 _(
-                    "This submission has been moved to {project}.".format(
+                    "This submission has been moved to {project}".format(
                         project=target_project.title
                     )
                 ),
@@ -296,60 +257,62 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             )
         else:
             flash(
-                _("Please choose the project you want to move this submission to."),
+                _("Please choose the project you want to move this submission to"),
                 'error',
             )
         return redirect(self.obj.url_for(), 303)
 
     @route('transfer', methods=['POST'])
     @requires_login
-    @requires_permission('move-proposal')
+    @requires_roles({'project_editor'})
     def transfer_to(self):
         proposal_transfer_form = ProposalTransferForm()
         if proposal_transfer_form.validate_on_submit():
             target_user = proposal_transfer_form.user.data
-            self.obj.current_access().transfer_to(target_user)
+            self.obj.current_access().transfer_to(
+                [target_user], actor=current_auth.actor
+            )
             db.session.commit()
-            flash(_("This submission has been transferred."), 'success')
+            flash(_("This submission has been transferred"), 'success')
         else:
             flash(
-                _("Please choose the user you want to transfer this submission to."),
+                _("Please choose the user you want to transfer this submission to"),
                 'error',
             )
         return redirect(self.obj.url_for(), 303)
 
     @route('update_featured', methods=['POST'])
     @requires_login
-    @requires_permission('move-proposal')
+    @requires_roles({'project_editor'})
     def update_featured(self):
         featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()
             if self.obj.featured:
-                return {'status': 'ok', 'message': 'This submission has been featured.'}
+                return {'status': 'ok', 'message': 'This submission has been featured'}
             else:
                 return {
                     'status': 'ok',
-                    'message': 'This submission is no longer featured.',
+                    'message': 'This submission is no longer featured',
                 }
         return (
             {
                 'status': 'error',
                 'error_description': featured_form.errors,
             },
-            400,
+            422,
         )
 
     @route('schedule', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('new-session')
+    @requires_roles({'project_editor'})
     def schedule(self):
         return session_edit(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('admin')
+    @requires_roles({'project_editor'})
     def edit_labels(self):
         form = ProposalLabelsAdminForm(
             model=Proposal, obj=self.obj, parent=self.obj.project
@@ -357,10 +320,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
-            flash(_("Labels have been saved for this submission."), 'info')
+            flash(_("Labels have been saved for this submission"), 'info')
             return redirect(self.obj.url_for(), 303)
         else:
-            flash(_("Labels could not be saved for this submission."), 'error')
+            flash(_("Labels could not be saved for this submission"), 'error')
             return render_form(
                 form,
                 submit=_("Save changes"),
@@ -368,10 +331,4 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             )
 
 
-@route('/<project>/<url_id_name>', subdomain='<profile>')
-class FunnelProposalView(ProposalView):
-    pass
-
-
 ProposalView.init_app(app)
-FunnelProposalView.init_app(funnelapp)

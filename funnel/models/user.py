@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Iterable, List, Optional, Set, Union, cast, overload
+from typing import Iterable, List, Optional, Union, cast, overload
 from uuid import UUID
 import hashlib
 
@@ -988,24 +988,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             .order_by(db.func.lower(User.fullname))
         )
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if 'view' in perms:
-            perms.remove('view')
-        if 'edit' in perms:
-            perms.remove('edit')
-        if 'delete' in perms:
-            perms.remove('delete')
-
-        if user and user in self.admin_users:
-            perms.add('view')
-            perms.add('edit')
-            perms.add('view-teams')
-            perms.add('new-team')
-        if user and user in self.owner_users:
-            perms.add('delete')
-        return perms
-
     @overload
     @classmethod
     def get(
@@ -1114,13 +1096,6 @@ class Team(UuidMixin, BaseMixin, db.Model):
     @property
     def pickername(self) -> str:
         return self.title
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if user and user in self.organization.admin_users:
-            perms.add('edit')
-            perms.add('delete')
-        return perms
 
     @classmethod
     def migrate_user(cls, olduser: User, newuser: User) -> Optional[Iterable[str]]:
@@ -1357,12 +1332,6 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     def __str__(self):
         """Return email as a string."""
         return self.email
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('verify')
-        return perms
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
@@ -1651,12 +1620,6 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     def verification_expired(self) -> bool:
         return self.verification_attempts >= 3
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('verify')
-        return perms
-
     @classmethod
     def get_for(cls, user: User, phone: str) -> Optional[UserPhoneClaim]:
         """
@@ -1763,12 +1726,6 @@ class UserExternalId(BaseMixin, db.Model):
         """
         param, value = require_one_of(True, userid=userid, username=username)
         return cls.query.filter_by(**{param: value, 'service': service}).one_or_none()
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('delete_extid')
-        return perms
 
 
 user_email_primary_table = add_primary_relationship(

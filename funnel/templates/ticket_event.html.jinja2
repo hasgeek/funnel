@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock %}
 
@@ -114,7 +114,7 @@
       if ($('#badge_form select.field-badge_printed').val() === '') {
         return false;
       } else {
-        return window.confirm('Are you sure? Selected action will apply to all listed participants.');
+        return window.confirm(gettext('Are you sure? Selected action will apply to all listed participants'));
       }
     });
   });
