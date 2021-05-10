@@ -12,11 +12,10 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import SavedSessionForm, SessionForm
 from ..models import Project, SavedSession, Session, db
 from ..typing import ReturnRenderWith
-from .decorators import legacy_redirect
 from .helpers import localize_date
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
@@ -110,8 +109,6 @@ def session_edit(project, proposal=None, session=None):
 @Project.views('session_new')
 @route('/<profile>/<project>/sessions')
 class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
@@ -119,20 +116,12 @@ class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         return session_edit(self.obj)
 
 
-@route('/<project>/sessions', subdomain='<profile>')
-class FunnelProjectSessionView(ProjectSessionView):
-    pass
-
-
 ProjectSessionView.init_app(app)
-FunnelProjectSessionView.init_app(funnelapp)
 
 
 @Session.views('main')
 @route('/<profile>/<project>/schedule/<session>')
 class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with('project_schedule.html.jinja2', json=True)
     # @requires_roles({'reader'})
@@ -241,10 +230,4 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
 
-@route('/<project>/schedule/<session>', subdomain='<profile>')
-class FunnelSessionView(SessionView):
-    pass
-
-
 SessionView.init_app(app)
-FunnelSessionView.init_app(funnelapp)

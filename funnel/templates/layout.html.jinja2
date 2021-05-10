@@ -34,19 +34,14 @@
     <link rel="image_src" href="{{ profile.logo_url }}" />
     <meta property="og:image" content="{{ profile.logo_url }}" />
     <meta name="twitter:image" content="{{ profile.logo_url }}" />
-  {%- elif not config['LEGACY'] %}
+  {%- else %}
     <link rel="image_src" href="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
     <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
     <meta name="twitter:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
-  {%- else  %}
-    <link rel="image_src" href="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
-    <meta property="og:image" content="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
-    <meta name="twitter:image" content="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
   {% endif -%}
 {%- endblock %}
 
 {%- block layoutheaders %}
-  {%- if not config['LEGACY'] %}
   <link rel="manifest" href="/manifest.webmanifest" />
   <!-- Repeat manifest in upper case for filters -->
   <LINK REL="MANIFEST" HREF="/manifest.webmanifest" />
@@ -55,7 +50,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="#e3e1e1" />
   <meta name="apple-mobile-web-app-title" content="js" />
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png', v=2, _external=true) }}" />
-  {%- endif -%}
   {% block pageheaders %}{% endblock %}
 {%- endblock %}
 
@@ -64,78 +58,47 @@
 
 {% block header -%}
   {% macro site_title() %}
-    {%- if config['LEGACY'] -%}
-      {%- if g.profile -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}" data-ga="Home">
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
-        </a>
-        {{ faicon(icon='chevron-right', icon_size='subhead') }}
-        <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
-        {%- if project %}
-          {%- if project.parent_project %}
-            {{ faicon(icon='chevron-right', icon_size='subhead') }}
-            <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title }}">{{ project.parent_project.short_title }}</a>
-          {%- endif %}
-          {{ faicon(icon='chevron-right', icon_size='subhead') }}
-          <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title }}">{{ project.short_title }}</a>
+    <a href="{{ url_for('index') }}" class="header__site-title__title__home mui--hidden-xs mui--hidden-sm" data-cy="home-desktop" data-ga="Home" aria-label="Home">
+      <img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>
+    </a>
+    <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
+    <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-ga="Home">
+      {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
+    </a>
+    <form action="/search" class="search-form js-search-form">
+      <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">
+      {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
+      <input type="text" name="type" value="project" hidden>
+      <button type="submit" class="search-form__submit"></button>
+    </form>
+    <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-ga="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
+    {% if not current_auth.is_anonymous -%}
+      <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
+      <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
+      <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
+        <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
+        <a href="{{ url_for('account') }}" class="header__nav-links header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account" data-cy="my-account">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
+        {% if current_auth.user.profile %}
+          <a href="{{ current_auth.user.profile.url_for() }}" class="header__nav-links user user--standalone js-account-dropdown  {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" data-cy="profile" data-ga="Profile">
+            <div class="user__box">
+              {{ useravatar(current_auth.user, add_profile_link=false) }}
+            </div>
+          </a>
         {%- endif %}
-      {%- else -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
-          {{ config['SITE_TITLE'] }}
-        </a>
-      {%- endif %}
-    {%- else -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__title__home mui--hidden-xs mui--hidden-sm" data-cy="home-desktop" data-ga="Home" aria-label="Home">
-        <img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>
-      </a>
-      <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
-      <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-ga="Home">
-        {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
-      </a>
-      <form action="/search" class="search-form js-search-form">
-        <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">
-        {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
-        <input type="text" name="type" value="project" hidden>
-        <button type="submit" class="search-form__submit"></button>
-      </form>
-      <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-ga="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
-      {% if not current_auth.is_anonymous -%}
-        <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
-        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
-        <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-          <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
-          <a href="{{ url_for('account') }}" class="header__nav-links header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account" data-cy="my-account">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
-          {% if current_auth.user.profile %}
-            <a href="{{ current_auth.user.profile.url_for() }}" class="header__nav-links user user--standalone js-account-dropdown  {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" data-cy="profile" data-ga="Profile">
-              <div class="user__box">
-                {{ useravatar(current_auth.user, add_profile_link=false) }}
-              </div>
-            </a>
-          {%- endif %}
-        </div>
-      {%- elif request.endpoint != 'login' %}
-        <a href="{{ url_for('login') }}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
-      {%- else %}
-        {#- On the login page, remove the login button but occupy the spot #}
-        <div></div>
-      {%- endif %}
+      </div>
+    {%- elif request.endpoint != 'login' %}
+      <a href="{{ url_for('login') }}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
+    {%- else %}
+      {#- On the login page, remove the login button but occupy the spot #}
+      <div></div>
     {%- endif %}
   {% endmacro %}
 
-  {%- if config['LEGACY'] -%}
-    {{ hgtopnav(site_title=site_title()) }}
-  {%- else %}
-    {{ hgtopnav(site_title=site_title(), site_links=[], auth=false, network=false) }}
-  {%- endif %}
+  {{ hgtopnav(site_title=site_title(), site_links=[], auth=false, network=false) }}
 {%- endblock %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
+  <body class="mui--bg-primary hg-app">
 {% endblock %}
 
 {% block contenthead %}
@@ -217,7 +180,6 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
-  {%- if not config['LEGACY'] -%}
   <script type="text/javascript">
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -241,6 +203,5 @@
       });
     }
   </script>
-  {%- endif -%}
   {% block footerscripts %}{% endblock %}
 {% endblock %}

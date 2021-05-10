@@ -10,7 +10,6 @@ from flask import (
     current_app,
     jsonify,
     make_response,
-    redirect,
     render_template,
     request,
 )
@@ -20,10 +19,9 @@ from coaster.auth import current_auth
 from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
-from .. import app, funnelapp
+from .. import app
 from ..models import ContactExchange, Project, TicketParticipant, db
 from ..utils import abort_null, format_twitter_handle
-from .helpers import app_url_for
 from .login_session import requires_login
 
 
@@ -186,16 +184,4 @@ class ContactView(ClassView):
             )
 
 
-@route('/account/contacts')
-class FunnelContactView(ClassView):
-    @route('', endpoint='contacts')
-    def contacts(self):
-        return redirect(app_url_for(app, 'contacts', _external=True))
-
-    @route('', endpoint='scan_contact')
-    def scan(self):
-        return redirect(app_url_for(app, 'scan_contact', _external=True))
-
-
 ContactView.init_app(app)
-FunnelContactView.init_app(funnelapp)

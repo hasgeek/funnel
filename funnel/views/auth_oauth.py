@@ -7,7 +7,7 @@ from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import newsecret
 
-from .. import app, lastuserapp
+from .. import app
 from ..models import (
     AuthClient,
     AuthClientCredential,
@@ -207,8 +207,6 @@ def oauth_auth_error(
 
 
 @app.route('/api/1/auth', methods=['GET', 'POST'])
-@lastuserapp.route('/api/1/auth', methods=['GET', 'POST'])
-@lastuserapp.route('/auth', methods=['GET', 'POST'])
 @requires_login_no_message
 def oauth_authorize():
     """Provide authorization endpoint for OAuth2 server."""
@@ -429,8 +427,6 @@ def oauth_token_success(token, **params):
 
 
 @app.route('/api/1/token', methods=['POST'])
-@lastuserapp.route('/api/1/token', methods=['POST'])
-@lastuserapp.route('/token', methods=['POST'])
 @requires_client_login
 def oauth_token():
     """Provide token endpoint for OAuth2 server."""

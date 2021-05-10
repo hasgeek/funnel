@@ -14,8 +14,8 @@ def lastuser_serializer() -> KeyRotationWrapper:
     )
 
 
-# Talkfunnel login support
-def talkfunnel_serializer() -> KeyRotationWrapper:
+# Future Hasjob login support
+def crossapp_serializer() -> KeyRotationWrapper:
     return KeyRotationWrapper(
         itsdangerous.URLSafeTimedSerializer, app.config['LASTUSER_SECRET_KEYS']
     )
