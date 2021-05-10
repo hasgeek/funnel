@@ -107,7 +107,7 @@
       <hr class="separator">
       <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="account"><span class="header__circle-icon margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false) }}</span>{% trans %}Account{% endtrans %}</a></li>
       <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="header__circle-icon margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false) }}</span>{% trans %}Notifications{% endtrans %}</a></li>
-      <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="header__circle-icon margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false) }}</span>{% trans %}My saves{% endtrans %}</a></li>
+      <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="header__circle-icon margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false) }}</span>{% trans %}Saved projects{% endtrans %}</a></li>
       <li>
         <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
           {{ csrf_tag() }}

@@ -543,7 +543,7 @@ export const SaveProject = function ({
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
             window.toastr.success(
-              gettext('Project added to Account > My saves')
+              gettext('Project added to Account > Saved projects')
             );
           }
         }
