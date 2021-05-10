@@ -105,7 +105,7 @@
   {% if proposal.state.SCHEDULED %}
     <div class="page-card page-card--nooverflow">
       <div class="alert alert--info zero-top-margin zero-bottom-margin">
-        <a class="mui--text-body2" href="{{ proposal.session.url_for() }}">{% trans %}This proposal has been added to the schedule{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', baseline=false, css_class='primary-color-txt fa-icon--left-margin mui--align-middle') }}</a>
+        <a class="mui--text-body2" href="{{ proposal.session.url_for() }}">{% trans %}This submission has been added to the schedule{% endtrans %}{{ faicon(icon='arrow-right', icon_size='caption', baseline=false, css_class='primary-color-txt fa-icon--left-margin mui--align-middle') }}</a>
       </div>
     </div>
   {% endif %}
