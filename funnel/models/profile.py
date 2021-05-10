@@ -101,8 +101,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     website = db.Column(UrlType, nullable=True)
     logo_url = db.Column(ImgeeType, nullable=True)
     banner_image_url = db.Column(ImgeeType, nullable=True)
-    #: Legacy profiles are available via funnelapp, non-legacy in the main app
-    legacy = db.Column(db.Boolean, default=False, nullable=False)
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:

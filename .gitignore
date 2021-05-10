@@ -33,9 +33,7 @@ ghostdriver.log
 
 # Instance Files that should not be checked-in.
 instance/development.py
-instance/funnelapp.py
 instance/hasgeekapp.py
-instance/lastuserapp.py
 instance/production.py
 instance/settings.py
 

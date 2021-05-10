@@ -5,14 +5,13 @@ from typing import Iterable, Optional, Set
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from baseframe import __
-from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
+from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
     MarkdownColumn,
-    TimestampMixin,
     TSVectorType,
     UuidMixin,
     db,
@@ -30,7 +29,7 @@ from .reorder_mixin import ReorderMixin
 from .user import User
 from .video_mixin import VideoMixin
 
-__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect', 'ProposalSuuidRedirect']
+__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
 
 _marker = object()
 
@@ -140,8 +139,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
     #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
-    #: Old values are required to be stable for permalink redirects from old URLs.
-    #: This number is not considered suitable for public display because it is assigned
+    #: Old values are now served as redirects from Nginx config, so the column is
+    #: redundant and can be renamed pending a patch to the base class in Coaster. This
+    #: number is no longer considered suitable for public display because it is assigned
     #: to all proposals, including drafts. A user-facing sequence will have gaps.
     #: Should numbering be required in the product, see `Update.number` for a better
     #: implementation.
@@ -273,22 +273,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
             proposal=self.title, project=self.project.title, user=self.user.fullname
         )
-
-    @db.validates('project')
-    def _validate_project(self, key, value):
-        if not value:
-            raise ValueError(value)
-
-        if value != self.project and self.project is not None:
-            redirect = ProposalRedirect.query.get((self.project_id, self.url_id))
-            if redirect is None:
-                redirect = ProposalRedirect(
-                    project=self.project, url_id=self.url_id, proposal=self
-                )
-                db.session.add(redirect)
-            else:
-                redirect.proposal = self
-        return value
 
     # State transitions
     state.add_conditional_state(
@@ -494,64 +478,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
 
 add_search_trigger(Proposal, 'search_vector')
-
-
-class ProposalRedirect(TimestampMixin, db.Model):
-    __tablename__ = 'proposal_redirect'
-
-    project_id = db.Column(
-        None, db.ForeignKey('project.id'), nullable=False, primary_key=True
-    )
-    project = db.relationship(
-        Project,
-        primaryjoin=project_id == Project.id,
-        backref=db.backref('proposal_redirects', cascade='all'),
-    )
-    parent = db.synonym('project')
-    url_id = db.Column(db.Integer, nullable=False, primary_key=True)
-
-    proposal_id = db.Column(
-        None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True
-    )
-    proposal = db.relationship(Proposal, backref='redirects')
-
-    @hybrid_property
-    def url_id_name(self):
-        """
-        Return :attr:`url_id` as a string.
-
-        This property is also available as :attr:`url_name` for legacy reasons. This
-        property will likely never be called directly on an instance. It exists for the
-        SQL comparator that will be called to load the instance.
-        """
-        return str(self.url_id)
-
-    @url_id_name.comparator  # type: ignore[no-redef]
-    def url_id_name(cls):  # NOQA: N805
-        return SqlSplitIdComparator(cls.url_id, splitindex=0)
-
-    url_name = url_id_name  # Legacy name
-
-    def __repr__(self):
-        """Represent :class:`ProposalRedirect` as a string."""
-        return '<ProposalRedirect %s/%s/%s: %s/%s/%s>' % (
-            self.project.profile.name,
-            self.project.name,
-            self.url_id,
-            self.proposal.project.profile.name if self.proposal else "(none)",
-            self.proposal.project.name if self.proposal else "(none)",
-            self.proposal.url_id if self.proposal else "(none)",
-        )
-
-    def redirect_view_args(self):
-        if self.proposal:
-            return {
-                'profile': self.proposal.project.profile.name,
-                'project': self.proposal.project.name,
-                'proposal': self.proposal.url_name,
-            }
-        else:
-            return {}
 
 
 class ProposalSuuidRedirect(BaseMixin, db.Model):

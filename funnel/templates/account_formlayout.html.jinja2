@@ -4,11 +4,7 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="login-page hg-app no-sticky-header">
-  {%- else %}
-    <body class="login-page no-sticky-header">
-  {%- endif %}
+  <body class="login-page hg-app no-sticky-header">
 {% endblock %}
 
 {% block headline %}{% endblock %}

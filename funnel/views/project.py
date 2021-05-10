@@ -32,7 +32,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import (
     CfpForm,
     CommentForm,
@@ -56,7 +56,6 @@ from ..models import (
     SavedProject,
     db,
 )
-from .decorators import legacy_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -222,8 +221,6 @@ def project_registration_text(obj):
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'admin'})
@@ -253,13 +250,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         )
 
 
-@route('/', subdomain='<profile>')
-class FunnelProfileProjectView(ProfileProjectView):
-    pass
-
-
 ProfileProjectView.init_app(app)
-FunnelProfileProjectView.init_app(funnelapp)
 
 
 @Project.views('main')
@@ -267,8 +258,6 @@ FunnelProfileProjectView.init_app(funnelapp)
 class ProjectView(
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with('project.html.jinja2')
     @requires_roles({'reader'})
@@ -308,19 +297,17 @@ class ProjectView(
     @requires_roles({'editor'})
     def edit_slug(self):
         form = ProjectNameForm(obj=self.obj)
-        # Profile URLs:
-        # Hasgeek: https://hasgeek.com/rootconf (no /)
-        # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
         form.name.prefix = self.obj.profile.url_for(_external=True)
+        # Hasgeek profile URLs currently do not have a trailing slash, but this form
+        # should not depend on this being guaranteed. Add a trailing slash if one is
+        # required.
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             return redirect(self.obj.url_for())
-        return render_form(
-            form=form, title=_("Customize the URL"), submit=_("Save changes")
-        )
+        return render_form(form=form, title=_("Customize the URL"), submit=_("Save"))
 
     @route('editlivestream', methods=['GET', 'POST'])
     @requires_login
@@ -774,10 +761,4 @@ class ProjectView(
         return redirect(get_next_url(referrer=True), 303)
 
 
-@route('/<project>/', subdomain='<profile>')
-class FunnelProjectView(ProjectView):
-    pass
-
-
 ProjectView.init_app(app)
-FunnelProjectView.init_app(funnelapp)

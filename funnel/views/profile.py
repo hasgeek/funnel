@@ -23,10 +23,9 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
 from ..models import Profile, Project, db
-from .decorators import legacy_redirect
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
 
@@ -63,8 +62,6 @@ def template_switcher(templateargs):
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with({'*/*': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
@@ -394,14 +391,4 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return redirect(get_next_url(referrer=True), code=303)
 
 
-@route('/', subdomain='<profile>')
-class FunnelProfileView(ProfileView):
-    @route('')
-    @render_with('funnelindex.html.jinja2')
-    @requires_roles({'reader'})
-    def view(self):
-        return {'profile': self.obj, 'projects': self.obj.listed_projects}
-
-
 ProfileView.init_app(app)
-FunnelProfileView.init_app(funnelapp)

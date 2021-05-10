@@ -12,11 +12,7 @@
 {% endblock %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-accent hg-app no-sticky-header mobile-header proposal-page">
-  {%- else %}
-    <body class="mui--bg-accent no-sticky-header proposal-page">
-  {%- endif %}
+  <body class="mui--bg-accent hg-app no-sticky-header mobile-header proposal-page">
 {% endblock %}
 
 {% macro share_widget(formid='desktop', icon_size='body') %}

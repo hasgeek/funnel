@@ -13,10 +13,9 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
-from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
 from .notification import dispatch_notification
 from .project import ProjectViewMixin
@@ -25,8 +24,6 @@ from .project import ProjectViewMixin
 @Project.views('updates')
 @route('/<profile>/<project>/updates')
 class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('', methods=['GET'])
     @render_with('project_updates.html.jinja2', json=True)
     @requires_roles({'reader'})
@@ -70,13 +67,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         )
 
 
-@route('/<project>/updates', subdomain='<profile>')
-class FunnelProjectUpdatesView(ProjectUpdatesView):
-    pass
-
-
 ProjectUpdatesView.init_app(app)
-FunnelProjectUpdatesView.init_app(funnelapp)
 
 
 @Update.features('publish')
@@ -87,7 +78,6 @@ def update_publishable(obj):
 @Update.views('project')
 @route('/<profile>/<project>/updates/<update>')
 class UpdateView(UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
     model = Update
     route_model_map = {
         'profile': 'project.profile.name',
@@ -185,10 +175,4 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
         )
 
 
-@route('/<project>/updates/<update>', subdomain='<profile>')
-class FunnelUpdateView(UpdateView):
-    pass
-
-
 UpdateView.init_app(app)
-FunnelUpdateView.init_app(funnelapp)
