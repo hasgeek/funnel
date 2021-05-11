@@ -148,7 +148,7 @@
         <div class="mui-dropdown header__nav-links--dropdown">
            <a class="header__nav-links user user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
             <div class="user__box">
-              {{ useravatar(current_auth.user, add_profile_link=false, css_class='header__nav-links__icon header__nav-links__icon--user') }}
+              {{ useravatar(current_auth.user, add_profile_link=false) }}
             </div>
           </a>
           {{ account_dropdown() }}

@@ -99,8 +99,8 @@
               margin: 0 auto 4px;
             }
             .header__nav-links__icon--user {
-              border: 2px solid;
-              padding: 1px;
+              width: 31px;
+              height: 31px;
             }
           }
           .header__nav-links--active {
@@ -129,9 +129,6 @@
           }
           .header__nav-links--updates--unread:after {
             display: inline-block;
-          }
-          .header__nav-links--dropdown {
-            line-height: 1;
           }
           .header__circle-icon {
             position: relative;
@@ -310,14 +307,6 @@
               }
             }
 
-            .header__nav-links {
-              .header__nav-links__icon--user {
-                width: 34px;
-                height: 34px;
-                margin-bottom: 0;
-              }
-            }
-
             .header__nav-links.user--standalone {
               margin-left: $mui-grid-padding;
               .user__box .user__box__gravatar {
@@ -338,6 +327,9 @@
             }
             .header__nav-links--updates:hover:after {
               top: 4px;
+            }
+            .header__nav-links--dropdown {
+              height: 40px;
             }
           }
         }
