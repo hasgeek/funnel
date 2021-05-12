@@ -119,18 +119,11 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
     website = with_roles(
         db.Column(db.UnicodeText, nullable=False), read={'all'}, write={'owner'}
     )
-    # TODO: Remove namespace as resources are deprecated
-    #: Namespace: determines inter-app resource access
-    namespace = with_roles(
-        db.Column(db.UnicodeText, nullable=True, unique=True),
-        read={'all'},
-        write={'owner'},
-    )
     #: Redirect URIs (one or more)
     _redirect_uris = db.Column(
         'redirect_uri', db.UnicodeText, nullable=True, default=''
     )
-    #: Back-end notification URI
+    #: Back-end notification URI (TODO: deprecated, needs better architecture)
     notification_uri = with_roles(
         db.Column(db.UnicodeText, nullable=True, default=''), rw={'owner'}
     )
@@ -243,28 +236,16 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
                 return True
         return False
 
-    @overload
     @classmethod
-    def get(cls, *, buid: str) -> Optional[AuthClient]:
-        ...
-
-    @overload
-    @classmethod
-    def get(cls, *, namespace: str) -> Optional[AuthClient]:
-        ...
-
-    @classmethod
-    def get(
-        cls, *, buid: Optional[str] = None, namespace: Optional[str] = None
-    ) -> Optional[AuthClient]:
+    def get(cls, buid: str) -> Optional[AuthClient]:
         """
-        Return a AuthClient identified by its client buid or namespace. Only returns active clients.
+        Return a AuthClient identified by its client buid or namespace.
+
+        Only returns active clients.
 
         :param str buid: AuthClient buid to lookup
-        :param str namespace: AuthClient namespace to lookup
         """
-        param, value = require_one_of(True, buid=buid, namespace=namespace)
-        return cls.query.filter_by(**{param: value, 'active': True}).one_or_none()
+        return cls.query.filter_by(buid=buid, active=True).one_or_none()
 
     @classmethod
     def all_for(cls, user: Optional[User]):

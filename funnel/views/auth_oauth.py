@@ -30,7 +30,6 @@ class ScopeException(Exception):
 def verifyscope(scope: Iterable, auth_client: AuthClient):
     """Verify if requested scope is valid for this client."""
     internal_resources = []  # Names of internal resources
-    full_client_access = []  # Clients linked to namespace:* scope
 
     for item in scope:
         if item == '*':
@@ -48,10 +47,8 @@ def verifyscope(scope: Iterable, auth_client: AuthClient):
                 )
             internal_resources.append(item)
         else:
-
-            # Validation 0: Is this an internal wildcard resource?
+            # Is this an internal wildcard resource?
             if item.endswith('/*'):
-                found_internal = False
                 wildcard_base = item[:-2]
                 for key in resource_registry:
                     if key == wildcard_base or key.startswith(wildcard_base + '/'):
@@ -62,59 +59,9 @@ def verifyscope(scope: Iterable, auth_client: AuthClient):
                             # Skip over trusted resources if the client is not trusted
                             continue
                         internal_resources.append(key)
-                        found_internal = True
-                if found_internal:
-                    continue  # Continue to next item in scope, skipping the following
-
-            # Further validation is only required for non-internal resources
-            # Validation 1: namespace:resource/action is properly formatted
-            if ':' not in item:
-                raise ScopeException(
-                    _(
-                        "No namespace specified for external resource ‘{scope}’ in scope"
-                    ).format(scope=item)
-                )
-            itemparts = item.split(':')
-            if len(itemparts) != 2:
-                raise ScopeException(
-                    _("Too many ‘:’ characters in ‘{scope}’ in scope").format(
-                        scope=item
-                    )
-                )
-            namespace, subitem = itemparts
-            if '/' in subitem:
-                parts = subitem.split('/')
-                if len(parts) != 2:
-                    raise ScopeException(
-                        _("Too many ‘/’ characters in ‘{scope}’ in scope").format(
-                            scope=item
-                        )
-                    )
-                resource_name, action_name = parts
-            else:
-                resource_name = subitem
-                action_name = None
-            if resource_name == '*' and not action_name:
-                resource_client = AuthClient.get(namespace=namespace)
-                if resource_client:
-                    if resource_client.owner == auth_client.owner:
-                        full_client_access.append(resource_client)
-                    else:
-                        raise ScopeException(
-                            _(
-                                "This application does not have access to all"
-                                " resources of app ‘{title}’"
-                            ).format(title=resource_client.title)
-                        )
-                else:
-                    raise ScopeException(
-                        _("Unknown resource namespace ‘{namespace}’ in scope").format(
-                            namespace=namespace
-                        )
-                    )
 
     internal_resources.sort()
-    return internal_resources, full_client_access
+    return internal_resources
 
 
 def oauth_auth_403(reason):
@@ -273,7 +220,7 @@ def oauth_authorize():
 
     # Validation 3.2: Is scope valid?
     try:
-        internal_resources, full_client_access = verifyscope(scope, auth_client)
+        internal_resources = verifyscope(scope, auth_client)
     except ScopeException as scopeex:
         return oauth_auth_error(redirect_uri, state, 'invalid_scope', str(scopeex))
 
@@ -359,7 +306,6 @@ def oauth_authorize():
             auth_client=auth_client,
             redirect_uri=redirect_uri,
             internal_resources=internal_resources,
-            full_client_access=full_client_access,
             resource_registry=resource_registry,
         ),
         200,
