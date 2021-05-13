@@ -654,11 +654,7 @@
     margin-bottom: 1em;
   }
 }
-.mui-btn--strike {
-  text-decoration: line-through;
-  -webkit-text-decoration-line: line-through;
-}
-.mui-btn--strike:hover {
-  text-decoration: line-through;
-  -webkit-text-decoration-line: line-through;
+
+.body-scroll-lock {
+  overflow: hidden;
 }

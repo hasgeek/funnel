@@ -274,6 +274,16 @@ html.touch .collapsible__body--disable {
   background: transparent !important;
 }
 
+.mui-btn--strike {
+  text-decoration: line-through;
+  -webkit-text-decoration-line: line-through;
+}
+
+.mui-btn--strike:hover {
+  text-decoration: line-through;
+  -webkit-text-decoration-line: line-through;
+}
+
 .count-chip {
   color: #f06a5e;
   position: relative;
@@ -1970,14 +1980,8 @@ a.loginbutton.hidden,
   margin-bottom: 1em;
 }
 
-.mui-btn--strike {
-  text-decoration: line-through;
-  -webkit-text-decoration-line: line-through;
-}
-
-.mui-btn--strike:hover {
-  text-decoration: line-through;
-  -webkit-text-decoration-line: line-through;
+.body-scroll-lock {
+  overflow: hidden;
 }
 
 .projects-wrapper {

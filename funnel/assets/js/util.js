@@ -93,6 +93,12 @@ export const Utils = {
       }
     });
   },
+  headerMenuDropdown() {
+    $('.js-acc-menu').on('click', function () {
+      // To disable body scroll in the background when account menu is open in mobile
+      $('body').toggleClass('body-scroll-lock');
+    });
+  },
   sendToGA(category, action, label, value = 0) {
     if (typeof ga !== 'undefined') {
       ga('send', {
