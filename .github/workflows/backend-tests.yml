@@ -1,11 +1,11 @@
-name: Coverage check
+name: Backend tests
 
 on:
   pull_request:
     branches: [master]
 
 jobs:
-  coverage-job:
+  backend-tests-job:
     runs-on: ubuntu-latest
 
     # Service containers to run with `container-job`
