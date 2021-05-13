@@ -1296,8 +1296,15 @@ a.loginbutton.hidden,
   .header__site-title__title
   .header__nav-links
   .header__nav-links__icon--user {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
+  min-width: auto;
+  font-size: 10px;
+  border: 2px solid #4d5763;
+  padding: 2px;
+  background: #4d5763;
+  color: #ffffff;
+  background-clip: content-box;
 }
 .hg-app
   .header--fixed
@@ -1321,6 +1328,16 @@ a.loginbutton.hidden,
   .header__nav-links--active
   .mui-caret {
   color: #0f73ed;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__nav-links--active
+  .header__nav-links__icon--user {
+  border: 2px solid #0f73ed;
+  color: #ffffff;
 }
 .hg-app
   .header--fixed

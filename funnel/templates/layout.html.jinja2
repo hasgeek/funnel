@@ -101,7 +101,7 @@
         </a>
       </li>
       {%- else %}
-        <p class="mui--tex-body2 mui--text-light left-padding right-padding margin-top"><em>{% trans %}No organization{% endtrans %}</em></p>
+        <p class="mui--text-body2 mui--text-light top-padding left-padding right-padding zero-bottom-margin"><em>{% trans %}No organization{% endtrans %}</em></p>
       {%- endfor %}
       <li><a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="org"><span class="profile-avatar margin-right">{{ faicon(icon='ellipsis-h', icon_size='subhead', baseline=false) }}</span>{% trans %}Manage organizations{% endtrans %}</a></li>
       {%- endwith %}
