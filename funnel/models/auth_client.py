@@ -310,6 +310,7 @@ class AuthClientCredential(BaseMixin, db.Model):
                 == 'blake2b$32$'
                 + blake2b(candidate.encode(), digest_size=32).hexdigest()
             )
+        # Older credentials, before the switch to Blake2b:
         if self.secret_hash.startswith('sha256$'):
             matches = (
                 self.secret_hash == 'sha256$' + sha256(candidate.encode()).hexdigest()

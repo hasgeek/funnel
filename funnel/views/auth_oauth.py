@@ -168,8 +168,8 @@ def oauth_authorize():
     # Validation 1.1: Client_id present
     if not client_id:
         return oauth_auth_403(_("Missing client_id"))
-    # Validation 1.2: AuthClient exists
 
+    # Validation 1.2: AuthClient exists
     credential = AuthClientCredential.get(client_id)
     if credential:
         auth_client = credential.auth_client
