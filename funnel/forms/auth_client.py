@@ -1,9 +1,7 @@
 from urllib.parse import urlparse
 
-from flask import Markup
-
 from baseframe import _, __
-from coaster.utils import domain_namespace_match, getbool
+from coaster.utils import getbool
 import baseframe.forms as forms
 
 from ..models import (
@@ -69,21 +67,6 @@ class AuthClientForm(forms.Form):
         validators=[forms.validators.DataRequired(), forms.validators.URL()],
         description=__("Website where users may access this application"),
     )
-    namespace = forms.StringField(
-        __("Client namespace"),
-        validators=[forms.validators.Optional()],
-        filters=[forms.filters.none_if_empty()],
-        description=Markup(
-            __(
-                "A dot-based namespace that uniquely identifies your client"
-                " application. For example, if your client website is"
-                " <code>https://auth.hasgeek.com</code>, use"
-                " <code>com.hasgeek.auth</code>. Only required if your client app"
-                " provides resources"
-            )
-        ),
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
-    )
     redirect_uris = forms.TextListField(
         __("Redirect URLs"),
         validators=[
@@ -94,14 +77,6 @@ class AuthClientForm(forms.Form):
         description=__(
             "OAuth2 Redirect URL. If your app is available on multiple hostnames,"
             " list each redirect URL on a separate line"
-        ),
-    )
-    notification_uri = forms.URLField(
-        __("Notification URL"),
-        validators=[forms.validators.Optional(), forms.validators.URL()],
-        description=__(
-            "When the user's data changes, Lastuser will POST a notice to this URL."
-            " Other notices may be posted too"
         ),
     )
     allow_any_login = forms.BooleanField(
@@ -146,34 +121,6 @@ class AuthClientForm(forms.Form):
             raise forms.ValidationError(
                 _("The scheme, domain and port must match that of the website URL")
             )
-
-    def validate_notification_uri(self, field):
-        if not self._urls_match(self.website.data, field.data):
-            raise forms.ValidationError(
-                _("The scheme, domain and port must match that of the website URL")
-            )
-
-    def validate_resource_uri(self, field):
-        if not self._urls_match(self.website.data, field.data):
-            raise forms.ValidationError(
-                _("The scheme, domain and port must match that of the website URL")
-            )
-
-    def validate_namespace(self, field):
-        if field.data:
-            if not domain_namespace_match(self.website.data, field.data):
-                raise forms.ValidationError(
-                    _(
-                        "The namespace should be derived from your application’s website domain"
-                    )
-                )
-            auth_client = self.edit_model.get(namespace=field.data)
-            if auth_client:
-                if auth_client == self.edit_obj:
-                    return
-                raise forms.ValidationError(
-                    _("This namespace has been claimed by another client app")
-                )
 
 
 @AuthClientCredential.forms('main')

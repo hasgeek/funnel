@@ -53,7 +53,6 @@ class Fixtures(object):
             title="Batdog Adventures",
             organization=batdog,
             confidential=True,
-            namespace='fun.batdogadventures.com',
             website="http://batdogadventures.com",
         )
         db_session.add(auth_client)

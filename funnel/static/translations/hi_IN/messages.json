@@ -201,7 +201,7 @@
         null,
         "OAuth2 रीडायरेक्ट URL. अगर आपका ऐप कई होस्टनेम पर उपलब्ध है, तो हर अलग-अलग लाइन पर प्रत्येक रीडायरेक्ट URLलिस्ट करें"
       ],
-      "Notification URL": [null, "नोटिफिकेशन URL"],
+      "Notification URL (deprecated)": [null, "नोटिफिकेशन URL (पुराना)"],
       "When the user's data changes, Lastuser will POST a notice to this URL. Other notices may be posted too": [
         null,
         "जब यूजर का डेटा बदल जाता है, तो Lastuser इस URL को एक नोटिस पोस्ट करेगा"
