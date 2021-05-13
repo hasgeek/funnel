@@ -113,9 +113,7 @@ def test_vimeo(db_session, new_proposal):
     assert check_video['url'] == check_proposal.video_url
     assert check_video['duration'] == 212
     assert check_video['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 15, 48, 2))
-    assert (
-        check_video['thumbnail'] == 'https://i.vimeocdn.com/video/783856813_200x150.jpg'
-    )
+    assert check_video['thumbnail'] == 'https://i.vimeocdn.com/video/783856813_200x150'
 
     # let's try to check the cache directly
     check_cached = check_proposal._video_cache
@@ -125,7 +123,4 @@ def test_vimeo(db_session, new_proposal):
     assert check_cached['url'] == check_proposal.video_url
     assert check_cached['duration'] == 212
     assert check_cached['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 15, 48, 2))
-    assert (
-        check_cached['thumbnail']
-        == 'https://i.vimeocdn.com/video/783856813_200x150.jpg'
-    )
+    assert check_cached['thumbnail'] == 'https://i.vimeocdn.com/video/783856813_200x150'
