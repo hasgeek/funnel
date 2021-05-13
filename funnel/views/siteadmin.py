@@ -301,7 +301,6 @@ class SiteadminView(ClassView):
         ).one_or_404()
 
         if comment_report.comment.is_reviewed_by(current_auth.user):
-            # current report should be in the existing unreviewed reports
             flash(_("You cannot review same comment twice"), 'error')
             return redirect(url_for('siteadmin_review_comments_random'))
 
