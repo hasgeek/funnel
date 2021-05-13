@@ -83,7 +83,7 @@ class TestClient(TestDatabaseFixture):
         auth_client = self.fixtures.auth_client
         batdog = self.fixtures.batdog
         key = auth_client.buid
-        # scenario 1: when no key or namespace
+        # scenario 1: without key
         with pytest.raises(TypeError):
             models.AuthClient.get()  # type: ignore[call-overload]
         # scenario 2: when given key
@@ -91,9 +91,3 @@ class TestClient(TestDatabaseFixture):
         assert isinstance(result1, models.AuthClient)
         assert result1.buid == key
         assert result1.owner == batdog
-        # scenario 3: when given namespace
-        namespace = 'fun.batdogadventures.com'
-        result2 = models.AuthClient.get(namespace=namespace)
-        assert isinstance(result2, models.AuthClient)
-        assert result2.namespace == namespace
-        assert result2.owner == batdog

@@ -397,7 +397,7 @@ msgid ""
 msgstr ""
 
 #: funnel/forms/auth_client.py:100 funnel/templates/auth_client.html.jinja2:49
-msgid "Notification URL"
+msgid "Notification URL (deprecated)"
 msgstr ""
 
 #: funnel/forms/auth_client.py:102

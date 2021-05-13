@@ -1,4 +1,5 @@
 from datetime import datetime
+from types import SimpleNamespace
 
 from pytz import utc
 import pytest
@@ -6,6 +7,7 @@ import pytest
 from funnel import app
 from funnel.models import (
     AuthClient,
+    AuthClientCredential,
     Label,
     Organization,
     OrganizationMembership,
@@ -445,9 +447,17 @@ def client_hex(db_session, org_uu):
         organization=org_uu,
         confidential=True,
         website='https://example.org/',
+        redirect_uris=['https://example.org/callback'],
     )
     db_session.add(client)
     return client
+
+
+@pytest.fixture
+def client_hex_credential(db_session, client_hex):
+    cred, secret = AuthClientCredential.new(client_hex)
+    db_session.add(cred)
+    return SimpleNamespace(cred=cred, secret=secret)
 
 
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
