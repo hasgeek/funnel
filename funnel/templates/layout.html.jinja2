@@ -61,9 +61,9 @@
     <ul class="mui-dropdown__menu mui-dropdown__menu--right header__dropdown {% if css_class %}{{ css_class }}{% endif %}">
       {% if current_auth.user.profile %}
         <li>
-          <div class="header__dropdown__item">
+          <div class="left-padding right-padding">
             <div class="user">
-              <div class="user__box">
+              <div class="user__box top-padding bottom-padding">
                 {{ useravatar(current_auth.user, add_profile_link=true) }}
                 {% if current_auth.user.profile_url %}
                   <a href="{{ current_auth.user.profile_url }}" class="user__box__header nounderline">
@@ -81,37 +81,38 @@
             </div>
           </div>
         </li>
-        <hr class="separator">
+        <hr class="separator zero-top-margin zero-bottom-margin">
       {%- endif %}
       <li>
-        <p class="left-padding right-padding mui--text-body2 mui--text-bold zero-bottom-margin">{% trans %}Organizations{% endtrans %}</p>
+        <p class="top-padding left-padding right-padding mui--text-body2 mui--text-bold zero-bottom-margin">{% trans %}Organizations{% endtrans %}</p>
       </li>
       {%- with orglist = current_auth.user.views.recent_organizations() %}
       {%- for org in orglist.recent %}
       <li>
         <a href="{{ org.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex">
-          <span class="header__circle-icon margin-right">
+          <span class="profile-avatar margin-right">
             {%- if org.profile.logo_url.url %}
-              <img class="profile__logo__img" src="{{ org.profile.logo_url.resize(40) }}" alt="{{ org.title }}"/>
+              <img src="{{ org.profile.logo_url.resize(80) }}" alt="{{ org.title }}" alt="{{ org.title }}"/>
             {% else %}
-              {{ faicon(icon='user-solid', css_class='mui--text-light') }}
+              <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ org.title }}"/>
             {% endif %}
           </span>
-          <span class="mui--text-body2 mui--text-light">{{ org.profile.title }}</span>
+          <span class="mui--text-body2 profile-avatar-title">{{ org.profile.title }}</span>
         </a>
       </li>
       {%- else %}
         <p class="mui--tex-body2 mui--text-light left-padding right-padding margin-top"><em>{% trans %}No organization{% endtrans %}</em></p>
       {%- endfor %}
+      <li><a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="org"><span class="profile-avatar margin-right">{{ faicon(icon='ellipsis-h', icon_size='subhead', baseline=false) }}</span>{% trans %}Manage organizations{% endtrans %}</a></li>
       {%- endwith %}
-      <hr class="separator">
-      <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="account"><span class="header__circle-icon margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false) }}</span>{% trans %}Account{% endtrans %}</a></li>
-      <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="header__circle-icon margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false) }}</span>{% trans %}Notifications{% endtrans %}</a></li>
-      <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="header__circle-icon margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false) }}</span>{% trans %}Saved projects{% endtrans %}</a></li>
+      <hr class="separator zero-top-margin zero-bottom-margin">
+      <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="account"><span class="profile-avatar margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false) }}</span>{% trans %}Account{% endtrans %}</a></li>
+      <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="profile-avatar margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false) }}</span>{% trans %}Notifications{% endtrans %}</a></li>
+      <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="profile-avatar margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false) }}</span>{% trans %}Saved projects{% endtrans %}</a></li>
       <li>
         <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
           {{ csrf_tag() }}
-          <button class="mui-btn mui-btn--nostyle mui--text-capitalize header__dropdown__item header__dropdown__item--flex" type="submit" data-cy="Logout"><span class="header__circle-icon margin-right">{{ faicon(icon='sign-out', baseline=false) }}</span>{% trans %}Logout{% endtrans %}</button>
+          <button class="mui-btn mui-btn--nostyle mui--text-capitalize header__dropdown__item header__dropdown__item--flex" type="submit" data-cy="Logout"><span class="profile-avatar margin-right">{{ faicon(icon='sign-out', baseline=false) }}</span>{% trans %}Logout{% endtrans %}</button>
         </form>
       </li>
     </ul>
@@ -144,7 +145,7 @@
         {{ account_dropdown(css_class='header_dropdown--mobile') }}
       </div>
       <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-        <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates header__circle-icon" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
+        <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
         <div class="mui-dropdown header__nav-links--dropdown">
            <a class="header__nav-links user user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
             <div class="user__box">

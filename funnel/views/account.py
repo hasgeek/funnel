@@ -311,6 +311,11 @@ class AccountView(ClassView):
     def saved(self) -> ReturnRenderWith:
         return {'saved_projects': current_auth.user.saved_projects}
 
+    @route('organizations', endpoint='organizations')
+    @render_with('account_organizations.html.jinja2')
+    def organizations(self) -> ReturnRenderWith:
+        return {}
+
     @route(
         'edit',
         methods=['GET', 'POST'],

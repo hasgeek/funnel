@@ -1,0 +1,63 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import account_tabs, useravatar %}
+
+{% block title %}{% trans %}Organizations{% endtrans %}{% endblock %}
+
+{% block bodytag %}
+  <body class="mui--bg-primary hg-app tabs-navbar">
+{% endblock %}
+
+{% block headline -%}
+  <div class="tabs-wrapper tabs-wrapper--sticky">
+    <div class="mui-container">
+      {{ account_tabs(active_tab='organizations') }}
+    </div>
+  </div>
+{%- endblock %}
+
+{% block basecontent %}
+  <div class="mui-container tab-content">
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        <div class="card">
+          <div class="card__body">
+            <ul class="mui-list--unstyled mui-list--aligned zero-bottom-margin">
+              <li class="bottom-padding">
+                 <a href="/new" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
+                  <span class="profile-avatar margin-right">
+                    {{ faicon(icon='plus') }}
+                  </span>
+                  <span class="mui--text-hyperlink mui--text-body2 mui--text-bold">{% trans %}Add new organization{% endtrans %}</span>
+                </a>
+              </li>
+              {% for org in current_auth.user.organizations_as_admin %}
+                <li class="bottom-padding">
+                  <a href="{{ org.profile.url_for() }}" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
+                    <span class="profile-avatar margin-right">
+                      {%- if org.profile.logo_url.url %}
+                        <img src="{{ org.profile.logo_url.resize(80) }}" alt="{{ org.title }}" alt="{{ org.title }}"/>
+                      {% else %}
+                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ org.title }}"/>
+                      {% endif %}
+                    </span>
+                    <div>
+                      <p class="profile-avatar-title mui--text-dark mui--text-body2 mui--text-bold">{{ org.profile.title }}</p>
+                      {% if not org.profile.state.PUBLIC %}
+                        <p class="mui--text-light mui--text-caption zero-bottom-margin">{{ faicon(icon='lock-alt') }} {% trans %}Private{% endtrans %}</p>
+                      {% endif %}
+                    </div>
+                  </a>
+                </li>
+              {%- endfor %}
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+{% endblock %}

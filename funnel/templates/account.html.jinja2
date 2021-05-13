@@ -215,29 +215,6 @@
 
       <div class="grid__col-xs-12">
         <div class="card">
-          <div class="card__header mui--clearfix">
-            <h3 class="mui--text-title margin-top mui--text-bold mui--pull-left">{% trans %}Organizations{% endtrans %}</h3>
-            <a class="mui--text-subhead margin-top mui--pull-right" href="/new">{{ faicon(icon='plus', css_class='fa-icon--right-margin') }}<span>{% trans %}New{% endtrans %}</span></a>
-          </div>
-          <div class="card__body">
-            <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
-              {% for org in current_auth.user.organizations_as_admin %}
-              <li class="top-padding bottom-padding">
-                <p class="mui--text-body2 zero-bottom-margin">
-                  <a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a>
-                  {% if not org.profile.state.PUBLIC %}
-                    <span class="mui--pull-right">{{ faicon(icon='lock-alt') }} {% trans %}Private{% endtrans %}</span>
-                  {% endif %}
-                </p>
-              </li>
-              {%- endfor %}
-            </ol>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid__col-xs-12">
-        <div class="card">
           <div class="card__header">
             <h3 class="mui--text-title mui--text-bold">{% trans %}Login sessions{% endtrans %}</h3>
           </div>
