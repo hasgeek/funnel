@@ -418,8 +418,8 @@ msgstr ""
 "अलग-अलग लाइन पर प्रत्येक रीडायरेक्ट URLलिस्ट करें"
 
 #: funnel/forms/auth_client.py:100 funnel/templates/auth_client.html.jinja2:49
-msgid "Notification URL"
-msgstr "नोटिफिकेशन URL"
+msgid "Notification URL (deprecated)"
+msgstr "नोटिफिकेशन URL (पुराना)"
 
 #: funnel/forms/auth_client.py:102
 msgid ""
