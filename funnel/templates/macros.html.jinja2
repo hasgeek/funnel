@@ -354,17 +354,17 @@
 
 {% macro profile_admin_buttons(profile) %}
   <div class="mui-dropdown mui--d-inlineblock">
-    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
-    <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" role="button">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}<span class="mui--hide" id="profile-edit-menu">{% trans %}Profile menu{% endtrans %}</span></a>
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="profile-edit-menu">
       {%- if profile.organization %}<li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>{% endif %}
       <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>
-      {%- if profile.features.make_private() %}<li><a href="#make-private-modal" rel="modal:open">{% trans %}Make profile private{% endtrans %}</a></li>{% endif %}
+      {%- if profile.features.make_private() %}<li><a href="#make-private-modal" rel="modal:open" role="button">{% trans %}Make profile private{% endtrans %}</a></li>{% endif %}
     </ul>
   </div>
-  <div class="modal" id="make-private-modal">
+  <div class="modal" id="make-private-modal" role="dialog" aria-labelledby="make-private-title" aria-modal="true">
     <div class="modal__header">
       <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-      <p class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Make this profile private?{% endtrans %}</p>
+      <p class="mui--text-title mui--text-bold mui--text-dark" id="make-private-title">{% trans %}Make this profile private?{% endtrans %}</p>
     </div>
     <div class="modal__body">
       <ul class="mui-list--aligned mui--text-body2">

@@ -133,7 +133,7 @@
           <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% if project.features.follow_mode() %}{% trans %}Free updates{% endtrans %}{% else %}{% trans %}Free{% endtrans %}{% endif %}</p>
           <p class="mui--text-caption mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
         </div>
-        <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin"  href="{{ url_for('login', next=request.path) }}">Register</a>
+        <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin" href="{{ url_for('login', next=request.path) }}">{% trans %}Register{% endtrans %}</a>
       {% elif project.features.rsvp_unregistered() -%}
         <div class="register-block__txt {% if project.view_for('rsvp_list').is_available() %}register-block__txt--short{%- endif %}">
           <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% if project.features.follow_mode() %}{% trans %}Free updates{% endtrans %}{% else %}{% trans %}Free{% endtrans %}{% endif %}</p>
@@ -145,14 +145,15 @@
       {% if not current_auth.is_anonymous %}
         <div>
           {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
-            <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#{{modalid}}-register-modal" id="{{modalid}}-register-btn">{% if project.features.follow_mode() %}{% trans %}Follow{% endtrans %}{% else %}{% trans %}Register{% endtrans %}{% endif %}</a>
-            <div class="modal" id="{{modalid}}-register-modal">
+            <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#{{modalid}}-register-modal" id="{{modalid}}-register-btn" role="button">{% if project.features.follow_mode() %}{% trans %}Follow{% endtrans %}{% else %}{% trans %}Register{% endtrans %}{% endif %}</a>
+            <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-describedby="confirm-rsvp-desc" aria-modal="true">
               <div class="modal__header">
-                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                 <p class="mui--text-title mui--text-bold mui--text-dark">{{ faicon(icon='info-circle', baseline=false, icon_size='heading') }}</p>
+                <p class="mui--hide" id="confirm-rsvp">{% trans %}Register{% endtrans %}</p>
               </div>
               <div class="modal__body">
-                <p class="mui--text-body2">{% trans %}This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
+                <p class="mui--text-body2" id="confirm-rsvp-desc">{% trans %}This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
                 <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
                   {{ csrf_tag() }}
                   <div class="mui--text-right">
@@ -164,17 +165,17 @@
           {%- endif %}
           {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %}
             <div class="mui-dropdown mui--align-middle register-block__right__menu">
-              <a href="javascript:void(0)" class="mui--align-middle" data-mui-toggle="dropdown" data-cy="rsvp-menu">{{ faicon(icon='ellipsis-v', icon_size='subhead') }}</a>
-              <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+              <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="rsvp-menu" aria-haspopup="true">{{ faicon(icon='ellipsis-v', icon_size='subhead') }}<span class="mui--hide" id="rsvp-menu">{% trans %}Registration menu{% endtrans %}</span></button>
+              <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="rsvp-menu">
                 {% if project.features.rsvp_registered() %}
                   <li><a class="mui--text-body2 js-register-btn" href="#{{modalid}}-register-modal">{% if project.features.follow_mode() %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Cancel registration{% endtrans %}{% endif %}</a></li>
-                  <div class="modal" id="{{modalid}}-register-modal">
+                  <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-describedby="cancel-rsvp-desc" aria-modal="true">
                     <div class="modal__header">
-                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-                      <p class="mui--text-title mui--text-bold mui--text-dark reg-modal__txt">{{ project.title }}</p>
+                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+                      <p class="mui--hide" id="cancel-rsvp">{% trans %}Cancel registration{% endtrans %}</p>
                     </div>
                     <div class="modal__body">
-                      <p class="mui--text-subhead">{% if project.features.follow_mode() %}{% trans %}No longer interested?{% endtrans %}{% else %}{% trans %}Can’t make it?{% endtrans %}{% endif %}</p>
+                      <p class="mui--text-subhead" id="cancel-rsvp-desc">{% if project.features.follow_mode() %}{% trans %}No longer interested?{% endtrans %}{% else %}{% trans %}Can’t make it?{% endtrans %}{% endif %}</p>
                       <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
                         {{ csrf_tag() }}
                         <div class="mui--text-right">
