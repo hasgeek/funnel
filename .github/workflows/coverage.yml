@@ -45,4 +45,4 @@ jobs:
       - name: Run tests
         run: ./runtests.sh
         env:
-          SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@postgres/funnel_testing
+          SQLALCHEMY_DATABASE_URI: postgresql://postgres:postgres@localhost/funnel_testing
