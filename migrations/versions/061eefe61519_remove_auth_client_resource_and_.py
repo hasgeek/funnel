@@ -19,7 +19,6 @@ depends_on = None
 def upgrade():
     op.drop_constraint('auth_client_namespace_key', 'auth_client', type_='unique')
     op.drop_column('auth_client', 'namespace')
-    # ### end Alembic commands ###
 
 
 def downgrade():
