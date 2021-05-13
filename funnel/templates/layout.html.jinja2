@@ -106,8 +106,8 @@
       <li><a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="org"><span class="profile-avatar margin-right">{{ faicon(icon='ellipsis-h', icon_size='subhead', baseline=false) }}</span>{% trans %}Manage organizations{% endtrans %}</a></li>
       {%- endwith %}
       <hr class="separator zero-top-margin zero-bottom-margin">
-      <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="account"><span class="profile-avatar margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false) }}</span>{% trans %}Account{% endtrans %}</a></li>
-      <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="profile-avatar margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false) }}</span>{% trans %}Notifications{% endtrans %}</a></li>
+      <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="account"><span class="profile-avatar margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false) }}</span>{% trans %}Account settings{% endtrans %}</a></li>
+      <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="profile-avatar margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false) }}</span>{% trans %}Manage notifications{% endtrans %}</a></li>
       <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="profile-avatar margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false) }}</span>{% trans %}Saved projects{% endtrans %}</a></li>
       <li>
         <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
