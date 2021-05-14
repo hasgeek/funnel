@@ -146,7 +146,7 @@
         <div>
           {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
             <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#{{modalid}}-register-modal" id="{{modalid}}-register-btn" role="button">{% if project.features.follow_mode() %}{% trans %}Follow{% endtrans %}{% else %}{% trans %}Register{% endtrans %}{% endif %}</a>
-            <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-describedby="confirm-rsvp-desc" aria-modal="true">
+            <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-describedby="confirm-rsvp-desc" aria-modal="true" tabindex="-1">
               <div class="modal__header">
                 <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                 <p class="mui--text-title mui--text-bold mui--text-dark">{{ faicon(icon='info-circle', baseline=false, icon_size='heading') }}</p>
@@ -169,7 +169,7 @@
               <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="rsvp-menu">
                 {% if project.features.rsvp_registered() %}
                   <li><a class="mui--text-body2 js-register-btn" href="#{{modalid}}-register-modal">{% if project.features.follow_mode() %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Cancel registration{% endtrans %}{% endif %}</a></li>
-                  <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-describedby="cancel-rsvp-desc" aria-modal="true">
+                  <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-describedby="cancel-rsvp-desc" aria-modal="true" tabindex="-1">
                     <div class="modal__header">
                       <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                       <p class="mui--hide" id="cancel-rsvp">{% trans %}Cancel registration{% endtrans %}</p>
