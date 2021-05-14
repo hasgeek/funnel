@@ -361,9 +361,9 @@
       {%- if profile.features.make_private() %}<li><a href="#make-private-modal" rel="modal:open" role="button">{% trans %}Make profile private{% endtrans %}</a></li>{% endif %}
     </ul>
   </div>
-  <div class="modal" id="profile-private-modal-title" role="dialog" aria-labelledby="make-private-title" aria-modal="true" tabindex="-1">
+  <div class="modal" id="profile-private-modal-title" role="dialog" aria-labelledby="make-private-title" aria-modal="true">
     <div class="modal__header">
-      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <button class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</button>
       <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-private-modal-title">{% trans %}Make this profile private?{% endtrans %}</p>
     </div>
     <div class="modal__body">
@@ -417,9 +417,9 @@
                   <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
                 {% elif profile.features.make_public() %}
                   <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open" role="button">{% trans %}Make profile public{% endtrans %}</a>
-                  <div class="modal" id="make-public-modal" aria-labelledby="profile-public-modal-title" aria-modal="true" tabindex="-1" tabindex="-1">
+                  <div class="modal" id="make-public-modal" aria-labelledby="profile-public-modal-title" aria-modal="true">
                     <div class="modal__header">
-                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+                      <button class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</button>
                       <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-public-modal-title">{% trans %}Make this profile public?{% endtrans %}</p>
                     </div>
                     <div class="modal__body">

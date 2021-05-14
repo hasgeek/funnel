@@ -1,7 +1,7 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 
 <div class="modal__header" data-cy="schedule-subscribe">
-  <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+  <button class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal">{{ faicon(icon='times', baseline=false, icon_size='title') }}</button>
   <p class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Subscribe to the schedule{% endtrans %}</p>
 </div>
 <div class="modal__body">

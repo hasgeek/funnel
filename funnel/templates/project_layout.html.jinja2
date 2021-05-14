@@ -146,9 +146,9 @@
         <div>
           {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
             <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#{{modalid}}-register-modal" id="{{modalid}}-register-btn" role="button">{% if project.features.follow_mode() %}{% trans %}Follow{% endtrans %}{% else %}{% trans %}Register{% endtrans %}{% endif %}</a>
-            <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-describedby="confirm-rsvp-desc" aria-modal="true" tabindex="-1">
+            <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-describedby="confirm-rsvp-desc" aria-modal="true">
               <div class="modal__header">
-                <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+                <button class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</button>
                 <p class="mui--text-title mui--text-bold mui--text-dark">{{ faicon(icon='info-circle', baseline=false, icon_size='heading') }}</p>
                 <p class="mui--hide" id="confirm-rsvp">{% trans %}Register{% endtrans %}</p>
               </div>
@@ -169,9 +169,9 @@
               <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="rsvp-menu">
                 {% if project.features.rsvp_registered() %}
                   <li><a class="mui--text-body2 js-register-btn" href="#{{modalid}}-register-modal">{% if project.features.follow_mode() %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Cancel registration{% endtrans %}{% endif %}</a></li>
-                  <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-describedby="cancel-rsvp-desc" aria-modal="true" tabindex="-1">
+                  <div class="modal" id="{{modalid}}-register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-describedby="cancel-rsvp-desc" aria-modal="true">
                     <div class="modal__header">
-                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+                      <button class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</button>
                       <p class="mui--hide" id="cancel-rsvp">{% trans %}Cancel registration{% endtrans %}</p>
                     </div>
                     <div class="modal__body">
@@ -206,7 +206,7 @@
     </div>
     <a href="javascript:void(0)" class="hg-link-btn mui--hide left-padding" data-url="{{ project.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
     {% if project.state.PUBLISHED %}
-      <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-ga="Add to calendar" data-cy="add-to-calendar">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
+      <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-ga="Add to calendar" data-cy="add-to-calendar" role="button">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
     {% endif %}
     {%- if project.current_roles.crew or current_auth.user.is_site_editor -%}
       <div class="mui-dropdown left-padding">
