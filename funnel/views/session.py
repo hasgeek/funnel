@@ -130,7 +130,9 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
         )
         return {
-            'project': self.obj.project.current_access(),
+            'project': self.obj.project.current_access(
+                datasets=('without_parent', 'related')
+            ),
             'from_date': (
                 self.obj.project.start_at_localized.isoformat()
                 if self.obj.project.start_at
