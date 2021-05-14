@@ -362,6 +362,9 @@
   {% for sponsor in project.sponsor_memberships %}
     <div class="card card--shaped card--lessmargin">
       <div class="card__body margin-bottom">
+        {% if sponsor.label %}
+          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
+        {% endif %}
         <div class="flex-wrapper flex-wrapper--center">
           <div class="user user--smaller">
             <div class="user__box">
@@ -378,6 +381,9 @@
         </div>
         {% if sponsor.profile.description.html %}
           <div class="mui--text-body2 mui--text-light margin-bottom">{{ sponsor.profile.description.html|preview(min=200, max=300) }} <a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a></div>
+        {% endif %}
+        {% if sponsor.is_promoted %}
+          <div class="margin-bottom"><p class="mui--text-body2 mui--text-bold mui--text-light zero-bottom-margin">{{ faicon(icon='bullseye-pointer', baseline=false, css_class='mui--text-light fa-icon--right-margin mui--align-middle') }}{% trans %}Promoted{% endtrans %}</p></div>
         {% endif %}
       </div>
     </div>
