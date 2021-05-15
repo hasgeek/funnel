@@ -562,6 +562,7 @@ class UserNotificationMixin:
     """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
 
     notification: Notification
+    is_revoked: bool
 
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
@@ -580,12 +581,20 @@ class UserNotificationMixin:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
-    def is_not_deleted(self):
-        """Return True if the document and optional fragment are still present."""
+    def is_not_deleted(self, revoke: bool = False) -> bool:
+        """
+        Return True if the document and optional fragment are still present.
+
+        :param bool revoke: Mark the notification as revoked if document or fragment
+            is missing
+        """
         try:
             return bool(self.fragment and self.document or self.document)
         except NoResultFound:
             pass
+        if revoke:
+            self.is_revoked = True
+            # Do not set self.rollupid because this is not a rollup
         return False
 
 
@@ -650,9 +659,10 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     )
 
     #: Timestamp when/if the notification is revoked. This can happen if:
-    #: 1. The action that caused the notification has been undone (future use), or
+    #: 1. The action that caused the notification has been undone (future use)
     #: 2. A new notification has been raised for the same document and this user was
-    #:    a recipient of the new notification.
+    #:    a recipient of the new notification
+    #: 3. The underlying document or fragment has been deleted
     revoked_at = with_roles(
         db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'owner'},

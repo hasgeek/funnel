@@ -22,7 +22,7 @@ class AllNotificationsView(ClassView):
         pagination = UserNotification.web_notifications_for(
             current_auth.user, unread_only
         ).paginate(page=page, per_page=per_page, max_per_page=100)
-        return {
+        results = {
             'unread_only': unread_only,
             'show_transport_alert': not current_auth.user.has_transport_sms(),
             'notifications': [
@@ -43,7 +43,7 @@ class AllNotificationsView(ClassView):
                     else None,
                 }
                 for un in pagination.items
-                if un.is_not_deleted()
+                if un.is_not_deleted(revoke=True)
             ],
             'has_next': pagination.has_next,
             'has_prev': pagination.has_prev,
@@ -54,6 +54,8 @@ class AllNotificationsView(ClassView):
             'prev_num': pagination.prev_num,
             'count': pagination.total,
         }
+        db.session.commit()
+        return results
 
     def unread_count(self):
         return UserNotification.unread_count_for(current_auth.user)
