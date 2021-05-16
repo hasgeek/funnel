@@ -6,12 +6,12 @@ from uuid import UUID
 import hashlib
 
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.expression import Select
 
 from werkzeug.utils import cached_property
 
 from passlib.hash import argon2, bcrypt
+from typing_extensions import Literal
 import base58
 import phonenumbers
 
@@ -28,7 +28,15 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
-from . import BaseMixin, LocaleType, TimezoneType, TSVectorType, UuidMixin, db
+from . import (
+    BaseMixin,
+    LocaleType,
+    TimezoneType,
+    TSVectorType,
+    UuidMixin,
+    db,
+    hybrid_property,
+)
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import ImgeeFurl, add_search_trigger
 
@@ -234,17 +242,15 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         self.password = password
         super().__init__(**kwargs)
 
-    name: Optional[str]
-
-    @hybrid_property  # type: ignore[no-redef]
-    def name(self) -> Optional[str]:  # skipcq: PYL-E0102
+    @hybrid_property  # type: ignore[override]
+    def name(self) -> Optional[str]:  # type: ignore[override]
         if self.profile:
             return self.profile.name
         return None
 
-    @name.setter  # type: ignore[no-redef]
+    @name.setter
     def name(self, value: Optional[str]):
-        if not value:
+        if value is None or not value.strip():
             if self.profile is not None:
                 raise ValueError("Name is required")
         else:
@@ -253,12 +259,12 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             else:
                 self.profile = Profile(name=value, user=self, uuid=self.uuid)
 
-    @name.expression  # type: ignore[no-redef]
+    @name.expression
     def name(cls):  # NOQA: N805
         return db.select([Profile.name]).where(Profile.user_id == cls.id).label('name')
 
     with_roles(name, read={'all'})
-    username = name
+    username: Optional[str] = name  # type: ignore[assignment]
 
     @cached_property
     def verified_contact_count(self) -> int:
@@ -350,7 +356,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def del_email(self, email: str) -> None:
         useremail = UserEmail.get_for(user=self, email=email)
-        if useremail:
+        if useremail is not None:
             if self.primary_email in (useremail, None):
                 self.primary_email = (
                     UserEmail.query.filter(
@@ -362,15 +368,15 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             db.session.delete(useremail)
 
     @property
-    def email(self) -> Union[str, UserEmail]:
+    def email(self) -> Union[Literal[''], UserEmail]:
         """Return primary email address for user."""
         # Look for a primary address
         useremail = self.primary_email
-        if useremail:
+        if useremail is not None:
             return useremail
         # No primary? Maybe there's one that's not set as primary?
         useremail = UserEmail.query.filter_by(user=self).first()
-        if useremail:
+        if useremail is not None:
             # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_email = useremail
@@ -400,7 +406,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def del_phone(self, phone: str) -> None:
         userphone = UserPhone.get_for(user=self, phone=phone)
-        if userphone:
+        if userphone is not None:
             if self.primary_phone in (userphone, None):
                 self.primary_phone = (
                     UserPhone.query.filter(
@@ -412,15 +418,15 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             db.session.delete(userphone)
 
     @property
-    def phone(self) -> Union[str, UserPhone]:
+    def phone(self) -> Union[Literal[''], UserPhone]:
         """Return primary phone number for user."""
         # Look for a primary phone number
         userphone = self.primary_phone
-        if userphone:
+        if userphone is not None:
             return userphone
         # No primary? Maybe there's one that's not set as primary?
         userphone = UserPhone.query.filter_by(user=self).first()
-        if userphone:
+        if userphone is not None:
             # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_phone = userphone
@@ -873,6 +879,8 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
 
+    profile: Profile
+
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
@@ -935,26 +943,24 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         )
 
-    name: Optional[str]
+    @hybrid_property  # type: ignore[override]
+    def name(self) -> str:  # type: ignore[override]
+        return self.profile.name
 
-    @hybrid_property  # type: ignore[no-redef]
-    def name(self) -> Optional[str]:  # skipcq: PYL-E0102
-        if self.profile:
-            return self.profile.name
-        return None
-
-    @name.setter  # type: ignore[no-redef]
+    @name.setter
     def name(self, value: Optional[str]) -> None:
-        if not value:
-            if self.profile is not None:
-                raise ValueError("Name is required")
+        if value is None or not value.strip():
+            raise ValueError("Name is required")
         else:
             if self.profile is not None:
                 self.profile.name = value
             else:
-                self.profile = Profile(name=value, organization=self, uuid=self.uuid)
+                # This code will only be reachable during `__init__`
+                self.profile = Profile(  # type: ignore[unreachable]
+                    name=value, organization=self, uuid=self.uuid
+                )
 
-    @name.expression  # type: ignore[no-redef]
+    @name.expression
     def name(cls) -> Select:  # NOQA: N805
         return (
             db.select([Profile.name])

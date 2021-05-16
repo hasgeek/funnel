@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, List, Optional, Set
 
 from flask import current_app
 from werkzeug.utils import cached_property
@@ -695,6 +695,8 @@ add_search_trigger(Project, 'search_vector')
 
 @reopen(Profile)
 class __Profile:
+    id: db.Column  # NOQA: A003
+
     listed_projects = db.relationship(
         Project,
         lazy='dynamic',
@@ -714,8 +716,8 @@ class __Profile:
         viewonly=True,
     )
 
-    def draft_projects_for(self, user):
-        if user:
+    def draft_projects_for(self, user: Optional[User]) -> List[Project]:
+        if user is not None:
             return [
                 membership.project
                 for membership in user.projects_as_crew_active_memberships.join(
@@ -729,8 +731,8 @@ class __Profile:
             ]
         return []
 
-    def unscheduled_projects_for(self, user):
-        if user:
+    def unscheduled_projects_for(self, user: Optional[User]) -> List[Project]:
+        if user is not None:
             return [
                 membership.project
                 for membership in user.projects_as_crew_active_memberships.join(

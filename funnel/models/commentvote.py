@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Iterable, List, Optional, Set, Union
 
-from sqlalchemy.ext.hybrid import hybrid_property
-
 from flask import Markup, current_app
 
 from baseframe import _, __
@@ -11,7 +9,15 @@ from coaster.sqlalchemy import RoleAccessProxy, StateManager, cached, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import BaseMixin, MarkdownColumn, NoIdMixin, TSVectorType, UuidMixin, db
+from . import (
+    BaseMixin,
+    MarkdownColumn,
+    NoIdMixin,
+    TSVectorType,
+    UuidMixin,
+    db,
+    hybrid_property,
+)
 from .helpers import add_search_trigger, reopen
 from .user import DuckTypeUser, User, deleted_user, removed_user
 
@@ -60,7 +66,7 @@ class Voteset(BaseMixin, db.Model):
 
     def vote(self, user: User, votedown: bool = False) -> Vote:
         voteob = Vote.query.filter_by(user=user, voteset=self).first()
-        if not voteob:
+        if voteob is None:
             voteob = Vote(user=user, voteset=self, votedown=votedown)
             self.count += 1 if not votedown else -1
             db.session.add(voteob)
@@ -72,7 +78,7 @@ class Voteset(BaseMixin, db.Model):
 
     def cancelvote(self, user: User) -> None:
         voteob = Vote.query.filter_by(user=user, voteset=self).first()
-        if voteob:
+        if voteob is not None:
             self.count += 1 if voteob.votedown else -1
             db.session.delete(voteob)
 
@@ -158,7 +164,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     @property
     def parent_type(self) -> Optional[str]:
         parent = self.parent
-        if parent:
+        if parent is not None:
             return parent.__tablename__
         return None
 
@@ -252,9 +258,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             if reply.state.PUBLIC
         ]
 
-    user: Union[User, DuckTypeUser]
-
-    @hybrid_property  # type: ignore[no-redef]
+    @hybrid_property
     def user(self) -> Union[User, DuckTypeUser]:
         return (
             deleted_user
@@ -264,19 +268,17 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             else self._user
         )
 
-    @user.setter  # type: ignore[no-redef]
+    @user.setter
     def user(self, value: Optional[User]) -> None:
         self._user = value
 
-    @user.expression  # type: ignore[no-redef]
+    @user.expression
     def user(cls):  # NOQA: N805
         return cls._user
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json'})
 
-    message: Union[str, Markup]
-
-    @hybrid_property  # type: ignore[no-redef]
+    @hybrid_property
     def message(self) -> Union[str, Markup]:
         return (
             _('[deleted]')
@@ -286,11 +288,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             else self._message
         )
 
-    @message.setter  # type: ignore[no-redef]
+    @message.setter
     def message(self, value: str) -> None:
         self._message = value
 
-    @message.expression  # type: ignore[no-redef]
+    @message.expression
     def message(cls):  # NOQA: N805
         return cls._message
 
@@ -305,7 +307,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @property
     def title(self) -> str:
         obj = self.commentset.parent
-        if obj:
+        if obj is not None:
             return _("{user} commented on {obj}").format(
                 user=self.user.pickername, obj=obj.title
             )

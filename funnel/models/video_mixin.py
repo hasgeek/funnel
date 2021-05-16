@@ -40,7 +40,6 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
         elif parsed.path.startswith('/embed'):
             video_id = parsed.path.lstrip('/embed/')
             if video_id:
-                video_id = video_id
                 video_source = 'youtube'
             else:
                 raise ValueError(
@@ -55,7 +54,6 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
     elif parsed.netloc == 'youtu.be':
         video_id = parsed.path.lstrip('/')
         if video_id:
-            video_id = video_id
             video_source = 'youtube'
         else:
             raise ValueError(
@@ -65,7 +63,6 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
     elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
         video_id = parsed.path.lstrip('/')
         if video_id:
-            video_id = video_id
             video_source = 'vimeo'
         else:
             raise ValueError(

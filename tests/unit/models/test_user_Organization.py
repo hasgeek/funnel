@@ -71,7 +71,9 @@ class TestOrganization(TestDatabaseFixture):
     def test_organization_pickername(self):
         """Test for checking Organization's pickername."""
         # scenario 1: when only title is given
-        abnegation = models.Organization(title="Abnegation", owner=self.fixtures.crusoe)
+        abnegation = models.Organization(
+            title="Abnegation", name='abnegation', owner=self.fixtures.crusoe
+        )
         assert isinstance(abnegation.pickername, str)
         assert abnegation.pickername == abnegation.title
 
@@ -90,7 +92,7 @@ class TestOrganization(TestDatabaseFixture):
 
     def test_organization_name(self):
         """Test for retrieving and setting an Organization's name."""
-        insurgent = models.Organization(title='Insurgent', owner=self.fixtures.crusoe)
+        insurgent = models.Organization(title="Insurgent", owner=self.fixtures.crusoe)
         with pytest.raises(ValueError):
             insurgent.name = '35453496*%&^$%^'
         with pytest.raises(ValueError):

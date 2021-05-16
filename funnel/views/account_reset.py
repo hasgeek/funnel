@@ -25,6 +25,7 @@ from ..forms import PasswordResetForm, PasswordResetRequestForm
 from ..models import AccountPasswordNotification, User, db
 from ..registry import login_registry
 from ..serializers import token_serializer
+from ..typing import ReturnView
 from ..utils import abort_null, mask_email
 from .email import send_password_reset_link
 from .helpers import metarefresh_redirect, validate_rate_limit
@@ -127,7 +128,7 @@ def reset():
 
 @app.route('/account/reset/<token>')
 @requestargs(('cookietest', getbool))
-def reset_email(token, cookietest=False):
+def reset_email(token: str, cookietest=False) -> ReturnView:
     """Move token into session cookie and redirect to a token-free URL."""
     if not cookietest:
         session['temp_token'] = token
@@ -161,7 +162,7 @@ def reset_email_legacy(buid, secret):
 
 
 @app.route('/account/reset/do', methods=['GET', 'POST'])
-def reset_email_do():
+def reset_email_do() -> ReturnView:
 
     # Validate the token
     # 1. Do we have a token? User may have accidentally landed here
@@ -209,7 +210,7 @@ def reset_email_do():
 
     # 3. We have a token and it's not expired. Is there a user?
     user = User.get(buid=token['buid'])
-    if not user:
+    if user is None:
         # If the user has disappeared, it's likely because of account deletion.
         session.pop('temp_token', None)
         session.pop('temp_token_at', None)

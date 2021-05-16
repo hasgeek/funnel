@@ -213,7 +213,7 @@ logout_errormsg = __("Are you trying to logout? Please try again to confirm")
 def logout_client():
     """Process auth client-initiated logout."""
     cred = AuthClientCredential.get(abort_null(request.args['client_id']))
-    auth_client = cred.auth_client if cred else None
+    auth_client = cred.auth_client if cred is not None else None
 
     if (
         auth_client is None
@@ -457,7 +457,7 @@ def login_service_postcallback(service, userdata):
     if userdata.get('emails'):
         for email in userdata['emails']:
             existing = UserEmail.get(email)
-            if existing:
+            if existing is not None:
                 if existing.user != user and 'merge_buid' not in session:
                     session['merge_buid'] = existing.user.buid
             else:
@@ -515,7 +515,7 @@ def account_merge():
     if form.validate_on_submit():
         if 'merge' in request.form:
             new_user = merge_users(current_auth.user, other_user)
-            if new_user:
+            if new_user is not None:
                 login_internal(
                     new_user,
                     login_service=current_auth.session.login_service
@@ -639,7 +639,7 @@ def hasjobapp_login_callback(token):
 
     # 2. Load user session and 3. Redirect user back to where they came from
     user_session = UserSession.get(request_token['sessionid'])
-    if user_session:
+    if user_session is not None:
         user = user_session.user
         login_internal(user, user_session)
         db.session.commit()

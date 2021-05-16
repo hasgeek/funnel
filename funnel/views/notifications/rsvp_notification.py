@@ -25,14 +25,18 @@ class RegistrationBase:
         # works for a single session and shows the date, while application/ics shows all
         # sessions without a single prominent date. Behaviour in other mail clients is
         # untested at this time.
-        session_count = self.rsvp.project.session_count
-        if session_count:
+        if self.rsvp.project.start_at:
+            # Session count will be 0 when there are no scheduled sessions, but the
+            # Project has an independent `start_at`. If 0 or 1, treat as one session
+            session_count = self.rsvp.project.session_count
             return [
                 email.EmailAttachment(
                     content=schedule_ical(self.rsvp.project, self.rsvp),
                     filename='event.ics',
                     mimetype=(
-                        'text/calendar' if session_count == 1 else 'application/ics'
+                        'text/calendar'
+                        if session_count in (0, 1)
+                        else 'application/ics'
                     ),
                 )
             ]
@@ -70,9 +74,10 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             ),
         )
 
-    def sms(self):
-        next_session_at = self.rsvp.project.next_session_at
-        if next_session_at:
+    def sms(self) -> str:
+        project = self.rsvp.project
+        next_at = project.next_starting_at()
+        if next_at:
             template = _(
                 "You have registered for {project}."
                 " The next session starts {datetime}."
@@ -81,12 +86,10 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
         else:
             template = _("You have registered for {project} {url}")
         return template.format(
-            project=self.rsvp.project.joined_title('>'),
-            url=shortlink(
-                self.rsvp.project.url_for(_external=True, **self.tracking_tags('sms'))
-            ),
+            project=project.joined_title('>'),
+            url=shortlink(project.url_for(_external=True, **self.tracking_tags('sms'))),
             datetime=datetime_filter(
-                next_session_at, self.datetime_format_sms, locale=get_locale()
+                next_at, self.datetime_format_sms, locale=get_locale()
             ),
         )
 

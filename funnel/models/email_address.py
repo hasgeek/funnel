@@ -5,7 +5,6 @@ import hashlib
 
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm.attributes import NO_VALUE
 from sqlalchemy.sql.expression import BinaryExpression
@@ -27,7 +26,7 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
-from . import BaseMixin, db
+from . import BaseMixin, db, hybrid_property
 
 __all__ = [
     'EMAIL_DELIVERY_STATE',
@@ -534,7 +533,7 @@ class EmailAddress(BaseMixin, db.Model):
         is syntactically invalid.
         """
         existing = cls._get_existing(email)
-        if existing:
+        if existing is not None:
             # Restore the email column if it's not present. Do not modify it otherwise
             if not existing.email:
                 existing.email = email
@@ -552,7 +551,7 @@ class EmailAddress(BaseMixin, db.Model):
         exclusive relationship with another owner.
         """
         existing = cls._get_existing(email)
-        if existing:
+        if existing is not None:
             if not existing.is_available_for(owner):
                 raise EmailAddressInUseError("This email address is in use")
             # No exclusive lock found? Let it be used then
@@ -591,7 +590,7 @@ class EmailAddress(BaseMixin, db.Model):
             existing = cls._get_existing(email)
         except EmailAddressBlockedError:
             return False
-        if not existing:
+        if existing is None:
             diagnosis = cls.is_valid_email_address(
                 email, check_dns=check_dns, diagnose=True
             )

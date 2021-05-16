@@ -1,10 +1,9 @@
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, TSVectorType, db
+from . import BaseScopedNameMixin, TSVectorType, db, hybrid_property
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -306,7 +305,7 @@ class ProposalLabelProxyWrapper(object):
         label = Label.query.filter(
             Label.name == name, Label.project == self._obj.project
         ).one_or_none()
-        if not label:
+        if label is None:
             raise AttributeError
 
         if not label.has_options:
@@ -324,7 +323,7 @@ class ProposalLabelProxyWrapper(object):
             Label.project == self._obj.project,
             Label._archived.is_(False),
         ).one_or_none()
-        if not label:
+        if label is None:
             raise AttributeError
 
         if not label.has_options:
@@ -340,7 +339,7 @@ class ProposalLabelProxyWrapper(object):
             option_label = Label.query.filter_by(
                 main_label=label, _archived=False, name=value
             ).one_or_none()
-            if not option_label:
+            if option_label is None:
                 raise ValueError("Invalid option for this label")
 
             # Scan for conflicting labels and remove them. Iterate over a copy
