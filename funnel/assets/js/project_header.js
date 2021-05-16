@@ -184,7 +184,7 @@ $(() => {
     });
 
     if (window.location.hash.includes('register-modal')) {
-      $('a.js-register-btn:visible').modal('show');
+      $('a.js-register-btn').modal('show');
     }
 
     if (tickets) {
