@@ -92,8 +92,6 @@ from typing import (
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Query as BaseQuery
 from sqlalchemy.orm.collections import column_mapped_collection
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -101,6 +99,7 @@ from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import (
+    Query,
     SqlUuidB58Comparator,
     auto_init_default,
     immutable,
@@ -110,7 +109,7 @@ from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from .. import models  # For locals() namespace, to discover models from type defn
 from ..typing import OptionalMigratedTables, T
-from . import BaseMixin, NoIdMixin, UuidMixin, UUIDType, db
+from . import BaseMixin, NoIdMixin, UuidMixin, UUIDType, db, hybrid_property
 from .helpers import reopen
 from .user import User, UserEmail, UserPhone
 
@@ -396,11 +395,11 @@ class Notification(NoIdMixin, db.Model):
     renderers: Dict[str, Type] = {}  # Can't import RenderNotification from views here
 
     def __init__(self, document=None, fragment=None, **kwargs) -> None:
-        if document:
+        if document is not None:
             if not isinstance(document, self.document_model):
                 raise TypeError(f"{document!r} is not of type {self.document_model!r}")
             kwargs['document_uuid'] = document.uuid
-        if fragment:
+        if fragment is not None:
             if self.fragment_model is None:
                 raise TypeError(f"{self.__class__} is not expecting a fragment")
             if not isinstance(fragment, self.fragment_model):
@@ -525,7 +524,7 @@ class Notification(NoIdMixin, db.Model):
             # Since this query uses SQLAlchemy's session cache, we don't have to
             # bother with a local cache for the first case.
             existing_notification = UserNotification.query.get((user.id, self.eventid))
-            if not existing_notification:
+            if existing_notification is None:
                 user_notification = UserNotification(
                     eventid=self.eventid,
                     user_id=user.id,
@@ -562,7 +561,6 @@ class UserNotificationMixin:
     """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
 
     notification: Notification
-    is_revoked: bool
 
     @with_roles(read={'owner'})  # type: ignore[misc]
     @property
@@ -580,6 +578,16 @@ class UserNotificationMixin:
     def fragment(self) -> Optional[db.Model]:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
+
+    # This dummy property is required because of a pending mypy issue:
+    # https://github.com/python/mypy/issues/4125
+    @property
+    def is_revoked(self) -> bool:
+        raise NotImplementedError("Subclass must provide this property")
+
+    @is_revoked.setter
+    def is_revoked(self, value: bool) -> None:
+        raise NotImplementedError("Subclass must provide this property")
 
     def is_not_deleted(self, revoke: bool = False) -> bool:
         """
@@ -746,7 +754,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """Whether this notification has been marked as read."""
         return self.read_at is not None
 
-    @is_read.setter  # type: ignore[no-redef]
+    @is_read.setter
     def is_read(self, value: bool) -> None:
         if value:
             if not self.read_at:
@@ -754,15 +762,13 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         else:
             self.read_at = None
 
-    @is_read.expression  # type: ignore[no-redef]
+    @is_read.expression
     def is_read(cls):  # NOQA: N805
         return cls.read_at.isnot(None)
 
     with_roles(is_read, rw={'owner'})
 
-    is_revoked: bool
-
-    @hybrid_property  # type: ignore[no-redef]
+    @hybrid_property
     def is_revoked(self) -> bool:
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
@@ -786,7 +792,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     def user_preferences(self) -> NotificationPreferences:
         """Return the user's notification preferences for this notification type."""
         prefs = self.user.notification_preferences.get(self.notification_type)
-        if not prefs:
+        if prefs is None:
             prefs = NotificationPreferences(
                 user=self.user, notification_type=self.notification_type
             )
@@ -921,7 +927,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                 previous.is_revoked = True
                 previous.rollupid = self.rollupid
 
-    def rolledup_fragments(self) -> Optional[BaseQuery]:
+    def rolledup_fragments(self) -> Optional[Query]:
         """Return all fragments in the rolled up batch as a base query."""
         if not self.notification.fragment_model:
             return None
@@ -945,7 +951,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
-    def web_notifications_for(cls, user: User, unread_only: bool = False) -> BaseQuery:
+    def web_notifications_for(cls, user: User, unread_only: bool = False) -> Query:
         query = UserNotification.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
             UserNotification.user == user,
@@ -975,7 +981,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             # TODO: Instead of dropping old_user's dupe notifications, check which of
             # the two has a higher priority role and keep that. This may not be possible
             # if the two copies are for different notifications under the same eventid.
-            if existing:
+            if existing is not None:
                 db.session.delete(user_notification)
         cls.query.filter_by(user_id=old_user.id).update(
             {'user_id': new_user.id}, synchronize_session=False
@@ -1007,7 +1013,7 @@ class NotificationFor(UserNotificationMixin):
                     return role
         return None
 
-    def rolledup_fragments(self) -> Optional[BaseQuery]:
+    def rolledup_fragments(self) -> Optional[Query]:
         """Return a query to load the notification fragment."""
         if not self.notification.fragment_model:
             return None

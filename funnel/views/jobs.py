@@ -16,7 +16,7 @@ def import_tickets(ticket_client_id):
     """Import tickets from Boxoffice."""
     with app.app_context():
         ticket_client = TicketClient.query.get(ticket_client_id)
-        if ticket_client:
+        if ticket_client is not None:
             if ticket_client.name.lower() == 'explara':
                 ticket_list = ExplaraAPI(
                     access_token=ticket_client.client_access_token

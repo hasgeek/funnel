@@ -27,14 +27,14 @@ def getuser(name: str) -> Optional[User]:
         # EmailAddress model directly, doing a join with UserEmail and UserEmailClaim.
         useremail: Union[None, UserEmail, UserEmailClaim]
         useremail = UserEmail.get(email=name)
-        if not useremail:
+        if useremail is None:
             # If there's no verified email address, look for a claim.
             useremail = (
                 UserEmailClaim.all(email=name)
                 .order_by(UserEmailClaim.created_at)
                 .first()
             )
-        if useremail and useremail.user is not None and useremail.user.state.ACTIVE:
+        if useremail is not None and useremail.user.state.ACTIVE:
             # Return user only if in active state
             return useremail.user
         return None

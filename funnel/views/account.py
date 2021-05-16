@@ -1,3 +1,5 @@
+from typing import Union
+
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
 import geoip2.errors
@@ -580,13 +582,14 @@ class AccountView(ClassView):
         endpoint='remove_email',
     )
     def remove_email(self, email_hash: str) -> ReturnView:
+        useremail: Union[None, UserEmail, UserEmailClaim]
         try:
             useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
-            if not useremail:
+            if useremail is None:
                 useremail = UserEmailClaim.get_for(
                     user=current_auth.user, email_hash=email_hash
                 )
-            if not useremail:
+            if useremail is None:
                 abort(404)
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
@@ -635,7 +638,7 @@ class AccountView(ClassView):
             useremail = UserEmail.get(email_hash=email_hash)
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
-        if useremail and useremail.user == current_auth.user:
+        if useremail is not None and useremail.user == current_auth.user:
             # If an email address is already verified (this should not happen unless the
             # user followed a stale link), tell them it's done -- but only if the email
             # address belongs to this user, to prevent this endpoint from being used as
@@ -650,7 +653,7 @@ class AccountView(ClassView):
             )
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
-        if not emailclaim:
+        if emailclaim is None:
             abort(404)
         verify_form = VerifyEmailForm()
         if verify_form.validate_on_submit():
@@ -723,10 +726,11 @@ class AccountView(ClassView):
     @route('phone/<number>/remove', methods=['GET', 'POST'], endpoint='remove_phone')
     @requires_sudo
     def remove_phone(self, number: str) -> ReturnView:
+        userphone: Union[None, UserPhone, UserPhoneClaim]
         userphone = UserPhone.get(phone=number)
         if userphone is None or userphone.user != current_auth.user:
             userphone = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
-            if not userphone:
+            if userphone is None:
                 abort(404)
             if userphone.verification_expired:
                 flash(

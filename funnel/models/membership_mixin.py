@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Set, TypeVar
+from typing import Any, Iterable, Set, TypeVar
 
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.expression import ClauseList
 
 from werkzeug.utils import cached_property
@@ -15,7 +14,7 @@ from coaster.sqlalchemy import StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import BaseMixin, UuidMixin, db
+from . import BaseMixin, UuidMixin, db, hybrid_property
 from .profile import Profile
 from .reorder_mixin import ReorderMixin
 from .user import User
@@ -141,10 +140,11 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     with_roles(is_active, read={'subject'})
 
-    @with_roles(read={'subject', 'editor'})
     @hybrid_property
     def is_invite(self) -> bool:
         return self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
+
+    with_roles(is_invite, read={'subject', 'editor'})
 
     def __repr__(self):
         return (
@@ -176,7 +176,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'editor'})
     def replace(
-        self: MembershipType, actor: User, accept=False, **roles: Dict[str, Any]
+        self: MembershipType, actor: User, accept=False, **roles: Any
     ) -> MembershipType:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:
@@ -318,17 +318,19 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
                 ),
             )
 
-    @with_roles(read={'subject', 'editor'})
     @hybrid_property
     def is_self_granted(self) -> bool:
         """Return True if the subject of this record is also the granting actor."""
         return self.user_id == self.granted_by_id
 
-    @with_roles(read={'subject', 'editor'})
+    with_roles(is_self_granted, read={'subject', 'editor'})
+
     @hybrid_property
     def is_self_revoked(self) -> bool:
         """Return True if the subject of this record is also the revoking actor."""
         return self.user_id == self.revoked_by_id
+
+    with_roles(is_self_revoked, read={'subject', 'editor'})
 
     def copy_template(self: MembershipType, **kwargs) -> MembershipType:
         return type(self)(user=self.user, **kwargs)
@@ -433,17 +435,19 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
                 ),
             )
 
-    @with_roles(read={'subject', 'editor'})
     @hybrid_property
     def is_self_granted(self) -> bool:
         """Return True if the subject of this record is also the granting actor."""
         return 'subject' in self.roles_for(self.granted_by)
 
-    @with_roles(read={'subject', 'editor'})
+    with_roles(is_self_granted, read={'subject', 'editor'})
+
     @hybrid_property
     def is_self_revoked(self) -> bool:
         """Return True if the subject of this record is also the revoking actor."""
         return 'subject' in self.roles_for(self.revoked_by)
+
+    with_roles(is_self_revoked, read={'subject', 'editor'})
 
     def copy_template(self: MembershipType, **kwargs) -> MembershipType:
         return type(self)(profile=self.profile, **kwargs)

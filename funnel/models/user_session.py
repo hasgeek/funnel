@@ -131,7 +131,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
         # Not silent? Raise exceptions on expired and revoked sessions
         user_session = cls.query.filter(cls.buid == buid).one_or_none()
-        if user_session:
+        if user_session is not None:
             if user_session.accessed_at <= utcnow() - user_session_validity_period:
                 raise UserSessionExpired(user_session)
             if user_session.revoked_at is not None:
