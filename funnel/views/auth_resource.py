@@ -188,56 +188,6 @@ def token_verify():
     return api_result('ok', **params)
 
 
-@app.route('/api/1/token/get_scope', methods=['POST'])
-@requires_client_login
-def token_get_scope():
-    token = abort_null(request.form.get('access_token'))
-    if not token:
-        # No token specified by caller
-        return resource_error('no_token')
-
-    if not current_auth.auth_client.namespace:
-        # This client has not defined any resources
-        return api_result('error', error='client_no_resources')
-
-    authtoken = AuthToken.get(token=token)
-    if not authtoken:
-        # No such auth token
-        return api_result('error', error='no_token')
-
-    client_resources = []
-    nsprefix = current_auth.auth_client.namespace + ':'
-    for item in authtoken.effective_scope:
-        if item.startswith(nsprefix):
-            client_resources.append(item[len(nsprefix) :])
-
-    if not client_resources:
-        return api_result('error', error='no_access')
-
-    # All validations passed. Token is valid for this client. Return with information on
-    # the token.
-    # TODO: Don't return validity. Set the HTTP cache headers instead.
-    params = {
-        'validity': 120
-    }  # Period (in seconds) for which this assertion may be cached.
-    if authtoken.user:
-        params['userinfo'] = get_userinfo(
-            authtoken.user, current_auth.auth_client, scope=authtoken.effective_scope
-        )
-    params['clientinfo'] = {
-        'title': authtoken.auth_client.title,
-        'userid': authtoken.auth_client.owner.buid,
-        'buid': authtoken.auth_client.owner.buid,
-        'uuid': authtoken.auth_client.owner.uuid,
-        'owner_title': authtoken.auth_client.owner.pickername,
-        'website': authtoken.auth_client.website,
-        'key': authtoken.auth_client.buid,
-        'trusted': authtoken.auth_client.trusted,
-        'scope': client_resources,
-    }
-    return api_result('ok', **params)
-
-
 @app.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
 @requires_user_or_client_login
 def user_get_by_userid():
