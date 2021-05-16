@@ -54,7 +54,7 @@ ticket_event_ticket_type = db.Table(
 class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
     def get(cls, parent, current_name=None, current_title=None):
-        if not bool(current_name) ^ bool(current_title):
+        if not (bool(current_name) ^ bool(current_title)):
             raise TypeError("Expects current_name xor current_title")
         if current_name:
             return cls.query.filter_by(parent=parent, name=current_name).one_or_none()
@@ -64,7 +64,7 @@ class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
     def upsert(cls, parent, current_name=None, current_title=None, **fields):
         instance = cls.get(parent, current_name, current_title)
-        if instance:
+        if instance is not None:
             instance._set_fields(fields)
         else:
             fields.pop('title', None)
@@ -238,11 +238,11 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     def upsert(cls, current_project, current_email, **fields):
         ticket_participant = cls.get(current_project, current_email)
         useremail = UserEmail.get(current_email)
-        if useremail:
+        if useremail is not None:
             user = useremail.user
         else:
             user = None
-        if ticket_participant:
+        if ticket_participant is not None:
             ticket_participant.user = user
             ticket_participant._set_fields(fields)
         else:
@@ -440,7 +440,7 @@ class SyncTicket(BaseMixin, db.Model):
         was previously associated with or None if there was no earlier participant.
         """
         ticket = cls.get(ticket_client, order_no, ticket_no)
-        if ticket:
+        if ticket is not None:
             ticket._set_fields(fields)
         else:
             fields.pop('ticket_client', None)

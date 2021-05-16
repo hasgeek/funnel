@@ -49,13 +49,16 @@ def ticket_participant_badge_data(ticket_participants, project):
                         puk=ticket_participant.puk, key=ticket_participant.key
                     )
                 ),
-                'order_no': ticket.order_no if ticket else '',
+                'order_no': ticket.order_no if ticket is not None else '',
             }
         )
     return badges
 
 
-def ticket_participant_data(ticket_participant, project_id, full=False):
+# FIXME: Do not process integer primary keys
+def ticket_participant_data(
+    ticket_participant: TicketParticipant, project_id: int, full=False
+):
     data = {
         '_id': ticket_participant.id,
         'puk': ticket_participant.puk,
@@ -327,7 +330,7 @@ class TicketEventParticipantCheckinView(ClassView):
             .first_or_404()
         )
         attendee = TicketEventParticipant.get(ticket_event, ticket_participant.uuid_b58)
-        if not attendee:
+        if attendee is None:
             return (
                 {'error': 'not_found', 'error_description': "Attendee not found"},
                 404,

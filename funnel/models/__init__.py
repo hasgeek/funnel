@@ -1,5 +1,7 @@
 # flake8: noqa
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 
 from coaster.db import db
@@ -19,6 +21,11 @@ from coaster.sqlalchemy import (
     UuidMixin,
     with_roles,
 )
+
+if TYPE_CHECKING:
+    hybrid_property = property
+else:
+    from sqlalchemy.ext.hybrid import hybrid_property
 
 TimestampMixin.__with_timezone__ = True
 

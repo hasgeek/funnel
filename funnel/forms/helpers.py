@@ -31,7 +31,7 @@ class EmailAddressAvailable:
             obj = form.edit_obj
             if obj and hasattr(obj, '__email_for__'):
                 actor = getattr(obj, obj.__email_for__)
-        if not actor:
+        if actor is None:
             actor = current_auth.actor
 
         # Call validator
@@ -41,7 +41,7 @@ class EmailAddressAvailable:
 
         # Interpret code
         if not is_valid:
-            if actor:
+            if actor is not None:
                 raise forms.validators.StopValidation(
                     _("This email address has been claimed by someone else")
                 )

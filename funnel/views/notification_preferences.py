@@ -181,7 +181,7 @@ class AccountNotificationView(ClassView):
             return redirect(url_for('notification_preferences'), code=303)
 
         user = User.get(buid=payload['buid'])
-        if not user:
+        if user is None:
             app.logger.error(
                 "Auto unsubscribe view cannot find user with buid %s", payload['buid']
             )
@@ -192,7 +192,7 @@ class AccountNotificationView(ClassView):
         # Check transport again in case this endpoint is extended to other transports
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
-            if not email_address:
+            if email_address is None:
                 app.logger.error(
                     "Auto unsubscribe view cannot find email address with hash %s",
                     payload['hash'],
@@ -359,7 +359,7 @@ class AccountNotificationView(ClassView):
         # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
         user = User.get(buid=payload['buid'])
-        if not user:
+        if user is None:
             app.logger.error(
                 "Unsubscribe view cannot find user with buid %s", payload['buid']
             )
@@ -369,7 +369,7 @@ class AccountNotificationView(ClassView):
             )
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
-            if not email_address:
+            if email_address is None:
                 app.logger.error(
                     "Unsubscribe view cannot find email address with hash %s",
                     payload['hash'],

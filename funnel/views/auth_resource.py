@@ -44,7 +44,7 @@ def get_userinfo(user, auth_client, scope=(), user_session=None, get_permissions
     else:
         userinfo = {}
 
-    if user_session:
+    if user_session is not None:
         userinfo['sessionid'] = user_session.buid
 
     if '*' in scope or 'email' in scope or 'email/*' in scope:
@@ -78,7 +78,7 @@ def get_userinfo(user, auth_client, scope=(), user_session=None, get_permissions
     if get_permissions:
         if auth_client.user:
             perms = AuthClientUserPermissions.get(auth_client=auth_client, user=user)
-            if perms:
+            if perms is not None:
                 userinfo['permissions'] = perms.access_permissions.split(' ')
         else:
             permsset = set()
@@ -155,7 +155,7 @@ def token_verify():
         return api_result('error', error='client_no_resources')
 
     authtoken = AuthToken.get(token=token)
-    if not authtoken:
+    if authtoken is None:
         # No such auth token
         return api_result('error', error='no_token')
     if (
@@ -246,7 +246,7 @@ def user_get_by_userid():
     if not buid:
         return api_result('error', error='no_userid_provided')
     user = User.get(buid=buid, defercols=True)
-    if user:
+    if user is not None:
         return api_result(
             'ok',
             _jsonp=True,
@@ -262,7 +262,7 @@ def user_get_by_userid():
             olduuids=[o.uuid for o in user.oldids],
         )
     org = Organization.get(buid=buid, defercols=True)
-    if org:
+    if org is not None:
         return api_result(
             'ok',
             _jsonp=True,
@@ -333,7 +333,7 @@ def user_get(name):
     if not name:
         return api_result('error', error='no_name_provided')
     user = getuser(name)
-    if user:
+    if user is not None:
         return api_result(
             'ok',
             type='user',
@@ -442,9 +442,9 @@ def user_autocomplete():
 @requestargs(('client_id', abort_null), ('login_url', abort_null))
 def login_beacon_iframe(client_id, login_url):
     cred = AuthClientCredential.get(client_id)
-    auth_client = cred.auth_client if cred else None
-    if auth_client is None:
+    if cred is None:
         abort(404)
+    auth_client = cred.auth_client
     if not auth_client.host_matches(login_url):
         abort(400)
     return (
@@ -463,9 +463,9 @@ def login_beacon_iframe(client_id, login_url):
 @requestargs(('client_id', abort_null))
 def login_beacon_json(client_id):
     cred = AuthClientCredential.get(client_id)
-    auth_client = cred.auth_client if cred else None
-    if auth_client is None:
+    if cred is None:
         abort(404)
+    auth_client = cred.auth_client
     if current_auth.is_authenticated:
         token = auth_client.authtoken_for(current_auth.user)
     else:

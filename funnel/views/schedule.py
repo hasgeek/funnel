@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta
-from time import mktime
 from types import SimpleNamespace
+from typing import Any, Dict, List, Optional, cast
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -23,13 +23,18 @@ from coaster.views import (
 )
 
 from .. import app
-from ..models import Project, Proposal, Session, VenueRoom, db
+from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import localize_date
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 
+# TODO: Replace the arbitrary dicts in the `_data` functions with dataclasses
 
-def session_data(session, with_modal_url=False, with_delete_url=False):
+
+def session_data(
+    session: Session, with_modal_url: Optional[str] = None, with_delete_url=False
+):
     data = {
         'id': session.url_id,
         'title': session.title,
@@ -67,24 +72,22 @@ def session_data(session, with_modal_url=False, with_delete_url=False):
     return data
 
 
-def session_list_data(sessions, with_modal_url=False, with_delete_url=False):
+def session_list_data(
+    sessions: List[Session], with_modal_url=False, with_delete_url=False
+):
     return [
         session_data(session, with_modal_url, with_delete_url) for session in sessions
     ]
 
 
-def date_js(d):
-    if not d:
-        return None
-    return mktime(d.timetuple()) * 1000
-
-
-def schedule_data(project, with_slots=True, scheduled_sessions=None):
+def schedule_data(
+    project: Project, with_slots=True, scheduled_sessions=None
+) -> List[dict]:
     scheduled_sessions = scheduled_sessions or session_list_data(
         project.scheduled_sessions
     )
-    data = defaultdict(lambda: defaultdict(list))
-    start_end_datetime = defaultdict(dict)
+    data: Dict[str, Dict[str, list]] = defaultdict(lambda: defaultdict(list))
+    start_end_datetime: Dict[str, dict] = defaultdict(dict)
     for session in scheduled_sessions:
         day = str(session['start_at'].date())
         # calculate the start and end time for the day
@@ -105,7 +108,7 @@ def schedule_data(project, with_slots=True, scheduled_sessions=None):
             data[day] = {}
     schedule = []
     for day in sorted(data):
-        daydata = {'date': day, 'slots': []}
+        daydata: Dict[str, Any] = {'date': day, 'slots': []}
         daydata['start_at'] = start_end_datetime[day]['start_at'].isoformat()
         daydata['end_at'] = start_end_datetime[day]['end_at'].isoformat()
         for slot in sorted(data[day]):
@@ -114,7 +117,7 @@ def schedule_data(project, with_slots=True, scheduled_sessions=None):
     return schedule
 
 
-def schedule_ical(project, rsvp=None):
+def schedule_ical(project: Project, rsvp: Optional[Rsvp] = None):
     cal = Calendar()
     cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
     cal.add('version', '2.0')
@@ -130,11 +133,15 @@ def schedule_ical(project, rsvp=None):
     for session in project.scheduled_sessions:
         cal.add_component(session_ical(session, rsvp))
     if not project.scheduled_sessions and project.start_at:
-        cal.add_component(session_ical(project_as_session(project), rsvp))
+        cal.add_component(
+            # project_as_session does NOT return a Session instance, but since we are
+            # ducktyping here, we use `cast` to tell mypy it's okay
+            session_ical(cast(Session, project_as_session(project)), rsvp)
+        )
     return cal.to_ical()
 
 
-def project_as_session(project):
+def project_as_session(project: Project) -> SimpleNamespace:
     """Return a Project as a namespace that resembles a Session object."""
     return SimpleNamespace(
         project=project,
@@ -155,10 +162,10 @@ def project_as_session(project):
     )
 
 
-def session_ical(session, rsvp=None):
+def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
     # This function is only called with scheduled sessions.
-    # If for some reason it is used somewhere else and called with an unscheduled session,
-    # this function should fail.
+    # If for some reason it is used somewhere else and called with an unscheduled
+    # session, this function should fail.
     if not session.scheduled:
         raise Exception("{0!r} is not scheduled".format(session))
 
@@ -219,7 +226,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @route('')
     @render_with('project_schedule.html.jinja2')
     @requires_roles({'reader'})
-    def schedule(self):
+    def schedule(self) -> ReturnRenderWith:
         scheduled_sessions_list = session_list_data(
             self.obj.scheduled_sessions, with_modal_url='view_popup'
         )
@@ -238,12 +245,12 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @route('subscribe')
     @render_with('schedule_subscribe.html.jinja2')
     @requires_roles({'reader'})
-    def subscribe_schedule(self):
+    def subscribe_schedule(self) -> ReturnRenderWith:
         return {'project': self.obj, 'venues': self.obj.venues, 'rooms': self.obj.rooms}
 
     @route('ical')
     @requires_roles({'reader'})
-    def schedule_ical_download(self):
+    def schedule_ical_download(self) -> ReturnView:
         return Response(
             schedule_ical(self.obj),
             mimetype='text/calendar',
@@ -257,7 +264,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @render_with('schedule_edit.html.jinja2')
     @requires_login
     @requires_roles({'editor'})
-    def edit_schedule(self):
+    def edit_schedule(self) -> ReturnRenderWith:
         proposals = {
             'unscheduled': [
                 {
@@ -298,11 +305,10 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         }
 
     @route('update', methods=['POST'])
-    @render_with('schedule_edit.html.jinja2')
     @requires_login
     @requires_roles({'editor'})
     @requestargs(('sessions', json.loads))
-    def update_schedule(self, sessions):
+    def update_schedule(self, sessions) -> ReturnView:
         for session in sessions:
             try:
                 s = Session.query.filter_by(
@@ -330,7 +336,7 @@ ProjectScheduleView.init_app(app)
 class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('ical')
     @requires_roles({'reader'})
-    def schedule_room_ical(self):
+    def schedule_room_ical(self) -> Response:
         cal = Calendar()
         cal.add('prodid', "-//Hasgeek//NONSGML Funnel//EN"),
         cal.add('version', "2.0")
@@ -375,7 +381,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('updates')
     @render_with('room_updates.html.jinja2')
     @requires_roles({'reader'})
-    def updates(self):
+    def updates(self) -> ReturnRenderWith:
         now = utcnow()
         current_session = Session.query.filter(
             Session.start_at <= now,
@@ -392,7 +398,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             .order_by(Session.start_at)
             .first()
         )
-        if current_session:
+        if current_session is not None:
             current_session.start_at = localize_date(
                 current_session.start_at, to_tz=self.obj.venue.project.timezone
             )
@@ -400,7 +406,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
                 current_session.end_at, to_tz=self.obj.venue.project.timezone
             )
         nextdiff = None
-        if next_session:
+        if next_session is not None:
             next_session.start_at = localize_date(
                 next_session.start_at, to_tz=self.obj.venue.project.timezone
             )
