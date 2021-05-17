@@ -42,6 +42,7 @@ assets['schedule-print.css'][version] = 'css/schedule-print.css'
 # --- Import rest of the app --------------------------------------------------
 
 from . import (  # NOQA  # isort:skip
+    cli,
     models,
     signals,
     forms,
