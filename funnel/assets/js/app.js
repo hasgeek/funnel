@@ -106,20 +106,6 @@ $(() => {
   if ($.cookie('timezone') === null) {
     $.cookie('timezone', jstz.determine().name(), { path: '/' });
   }
-
-  $.ajax({
-    type: 'GET',
-    url: window.Hasgeek.config.notificationCount,
-    dataType: 'json',
-    timeout: window.Hasgeek.config.ajaxTimeout,
-    success: function (responseData) {
-      if (responseData.unread) {
-        $('.header__nav-links--updates').addClass(
-          'header__nav-links--updates--unread'
-        );
-      }
-    },
-  });
 });
 
 if (
