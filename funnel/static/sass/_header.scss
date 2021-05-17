@@ -144,14 +144,21 @@
           .header__dropdown {
             min-width: 290px;
             > li .header__dropdown__item {
-              padding: $mui-grid-padding $mui-grid-padding $mui-grid-padding/2;
+              padding: $mui-grid-padding/2 $mui-grid-padding/2
+                $mui-grid-padding/4;
             }
             > li .header__dropdown__item.header__dropdown__item--flex {
               display: flex;
               align-items: center;
+              width: 100%;
             }
             > li:last-child .header__dropdown__item {
-              padding-bottom: $mui-grid-padding;
+              padding-bottom: $mui-grid-padding/2;
+            }
+            .header__dropdown__item__more-icon {
+              position: relative;
+              left: -37px;
+              z-index: 2;
             }
           }
           .header_dropdown--mobile {

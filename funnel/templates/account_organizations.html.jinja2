@@ -43,9 +43,16 @@
                   </span>
                   <div>
                     <p class="profile-avatar-title mui--text-dark mui--text-body2 mui--text-bold">{{ orgmem.organization.profile.title }}</p>
-                    {% if not orgmem.organization.profile.state.PUBLIC %}
-                      <p class="mui--text-light mui--text-caption zero-bottom-margin">{{ faicon(icon='lock-alt') }} {% trans %}Private{% endtrans %}</p>
-                    {% endif %}
+                    <p class="mui--text-light mui--text-caption zero-bottom-margin">
+                      {% if orgmem.is_owner %}
+                        {% trans %}Owner{% endtrans %}
+                      {% else %}
+                        {% trans %}Admin{% endtrans %}
+                      {% endif %}
+                      {% if not orgmem.organization.profile.state.PUBLIC %}
+                        {{ faicon(icon='lock-alt', css_class='margin-left') }} {% trans %}Private{% endtrans %}
+                      {% endif %}
+                    </p>
                   </div>
                 </a>
               </li>
