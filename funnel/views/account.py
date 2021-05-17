@@ -102,11 +102,13 @@ def user_timezone(obj):
 @User.views()
 def recent_organizations(obj, recent=3, overflow=4):
     orgs = [
-        _om.organization.current_access()
+        _om.current_access()
         for _om in obj.active_organization_admin_memberships.order_by(
             OrganizationMembership.granted_at.desc()
         ).limit(recent + overflow)
     ]
+    if orgs:
+        orgs.sort(key=lambda orgmem: orgmem.organization.title)
     return SimpleNamespace(recent=orgs[:recent], overflow=orgs[recent:])
 
 
