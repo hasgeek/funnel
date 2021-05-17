@@ -86,18 +86,19 @@
       <li>
         <p class="top-padding left-padding right-padding mui--text-body2 mui--text-bold zero-bottom-margin">{% trans %}Organizations{% endtrans %}</p>
       </li>
-      {%- with orglist = current_auth.user.views.recent_organizations() %}
-      {%- for org in orglist.recent %}
+      {%- with orgmemlist = current_auth.user.views.recent_organizations() %}
+      {%- for orgmem in orgmemlist.recent %}
       <li>
-        <a href="{{ org.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex">
+        <a href="{{ orgmem.org.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex">
           <span class="profile-avatar margin-right">
-            {%- if org.profile.logo_url.url %}
-              <img src="{{ org.profile.logo_url.resize(80) }}" alt="{{ org.title }}" alt="{{ org.title }}"/>
+          {{ orgmem.is_owner }}
+            {%- if orgmem.org.profile.logo_url.url %}
+              <img src="{{ orgmem.org.profile.logo_url.resize(80) }}" alt="{{ orgmem.org.title }}" alt="{{ orgmem.org.title }}"/>
             {% else %}
-              <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ org.title }}"/>
+              <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.org.title }}"/>
             {% endif %}
           </span>
-          <span class="mui--text-body2 profile-avatar-title">{{ org.profile.title }}</span>
+          <span class="mui--text-body2 profile-avatar-title">{{ orgmem.org.profile.title }}</span>
         </a>
       </li>
       {%- else %}
