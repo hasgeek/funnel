@@ -61,16 +61,20 @@
       <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the home{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project home">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
     </div>
   </div>
-  {% if project.features.tickets() or project.features.rsvp() %}
-    <div class="project-footer mui--visible-xs-block mui--visible-sm-block">
-      {{ registerblock(project) }}
-    </div>
-  {% endif %}
 {% endblock %}
 
 {% block project_banner_inner %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header">
-    {{ project_details(project) }}
+    <div class="project-details__box">
+      {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+        <div class="project-details__box__content">
+          <div aria-label="{{ project.datelocation }}">
+            {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
+          </div>
+        </div>
+      {% endif %}
+      {{ project_details(project) }}
+    </div>
   </div>
 {% endblock %}
 

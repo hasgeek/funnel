@@ -180,11 +180,11 @@ $(() => {
     }
 
     $('a.js-register-btn').click(function () {
-      $(this).modal();
+      $(this).modal('show');
     });
 
     if (window.location.hash.includes('register-modal')) {
-      $('a.js-register-btn:visible').modal();
+      $('a.js-register-btn').modal('show');
     }
 
     if (tickets) {

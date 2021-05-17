@@ -94,9 +94,9 @@
         </div>
       </div>
     </div>
-    <div id="popup" class="modal modal-form session-modal">
+    <div id="popup" class="modal modal-form session-modal" role="dialog" aria-modal="true" tabindex="-1">
       <div class="modal__header">
-        <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
         <h3 class="js-modal-title mui--text-headline session-modal__title">{{ session.title }}</h3>
       </div>
       <hr class="mui-divider mui-divider--custom">
