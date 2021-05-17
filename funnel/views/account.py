@@ -37,7 +37,7 @@ from ..forms import (
 from ..models import (
     AccountPasswordNotification,
     AuthClient,
-    OrganizationMembership,
+    Organization,
     SMSMessage,
     User,
     UserEmail,
@@ -100,15 +100,29 @@ def user_timezone(obj):
 
 
 @User.views()
+def organizations_as_admin(obj, owner=False, limit=None):
+    if owner:
+        orgmems = obj.active_organization_owner_memberships
+    else:
+        orgmems = obj.active_organization_admin_memberships
+    orgmems = orgmems.join(Organization).order_by(db.func.lower(Organization.title))
+
+    if limit is not None:
+        orgmems = orgmems.limit(limit)
+
+    orgs = [_om.current_access() for _om in orgmems]
+    return orgs
+
+
+@User.views()
+def organizations_as_owner(obj, limit=None):
+    return obj.views.organizations_as_admin(owner=True, limit=limit)
+
+
+@User.views()
 def recent_organizations(obj, recent=3, overflow=4):
-    orgs = [
-        _om.current_access()
-        for _om in obj.active_organization_admin_memberships.order_by(
-            OrganizationMembership.granted_at.desc()
-        ).limit(recent + overflow)
-    ]
-    if orgs:
-        orgs.sort(key=lambda orgmem: orgmem.organization.title)
+    orgs = obj.views.organizations_as_admin(limit=recent + overflow)
+    orgs.sort(key=lambda om: om.granted_at, reverse=True)
     return SimpleNamespace(recent=orgs[:recent], overflow=orgs[recent:])
 
 

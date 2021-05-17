@@ -31,19 +31,19 @@
                 <span class="mui--text-hyperlink mui--text-body2 mui--text-bold">{% trans %}Add new organization{% endtrans %}</span>
               </a>
             </li>
-            {% for org in current_auth.user.organizations_as_admin %}
+            {% for orgmem in current_auth.user.views.organizations_as_admin() %}
               <li class="bottom-padding">
-                <a href="{{ org.profile.url_for() }}" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
+                <a href="{{ orgmem.organization.profile.url_for() }}" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
                   <span class="profile-avatar margin-right">
-                    {%- if org.profile.logo_url.url %}
-                      <img src="{{ org.profile.logo_url.resize(80) }}" alt="{{ org.title }}" alt="{{ org.title }}"/>
+                    {%- if orgmem.organization.profile.logo_url.url %}
+                      <img src="{{ orgmem.organization.profile.logo_url.resize(80) }}" alt="{{ orgmem.organization.title }}" alt="{{ orgmem.organization.title }}"/>
                     {% else %}
-                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ org.title }}"/>
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
                     {% endif %}
                   </span>
                   <div>
-                    <p class="profile-avatar-title mui--text-dark mui--text-body2 mui--text-bold">{{ org.profile.title }}</p>
-                    {% if not org.profile.state.PUBLIC %}
+                    <p class="profile-avatar-title mui--text-dark mui--text-body2 mui--text-bold">{{ orgmem.organization.profile.title }}</p>
+                    {% if not orgmem.organization.profile.state.PUBLIC %}
                       <p class="mui--text-light mui--text-caption zero-bottom-margin">{{ faicon(icon='lock-alt') }} {% trans %}Private{% endtrans %}</p>
                     {% endif %}
                   </div>
