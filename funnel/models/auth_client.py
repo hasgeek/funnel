@@ -212,7 +212,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
         return 'owner' in self.roles_for(user)
 
     def authtoken_for(
-        self, user: User, user_session: Optional[UserSession] = None
+        self, user: Optional[User], user_session: Optional[UserSession] = None
     ) -> Optional[AuthToken]:
         """
         Return the authtoken for this user and client.
@@ -220,6 +220,8 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
         Only works for confidential clients.
         """
         if self.confidential:
+            if user is None:
+                raise ValueError("User not provided")
             return AuthToken.get_for(auth_client=self, user=user)
         elif user_session and user_session.user == user:
             return AuthToken.get_for(auth_client=self, user_session=user_session)
@@ -569,7 +571,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         user_session: Optional[UserSession] = None,
     ) -> Optional[AuthToken]:
         require_one_of(user=user, user_session=user_session)
-        if user:
+        if user is not None:
             return cls.query.filter_by(auth_client=auth_client, user=user).one_or_none()
         else:
             return cls.query.filter_by(

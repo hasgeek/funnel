@@ -64,12 +64,12 @@
     {{ current_view.SavedProjectForm().hidden_tag() }}
     <div class="no-jshidden bookmark-wrapper">
       {%- if current_auth.is_anonymous %}
-        <a class="mui--text-light"  href="{{ url_for('login', next=request.path) }}" data-ga="Login to save project">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class='mui--text-light') }}</a>
+        <a class="mui--text-light"  href="{{ url_for('login', next=request.path) }}" data-ga="Login to save project" aria-label="{% trans %}Login to save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class='mui--text-light') }}</a>
       {%- else %}
         <input type="hidden" name="save" value="">
-        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Save this project" onclick="this.form.save.value=this.value" data-cy="bookmark">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class='mui--text-light') }}
+        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Save this project" onclick="this.form.save.value=this.value" data-cy="bookmark" aria-label="{% trans %}Save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class='mui--text-light') }}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Unsave this project" onclick="this.form.save.value=this.value" data-cy="bookmarked">{{ faicon(icon='bookmark-solid', baseline=true, icon_size=iconsize, css_class='bookmarked') }}</button>
+        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Unsave this project" onclick="this.form.save.value=this.value" data-cy="bookmarked" aria-label="{% trans %}Unsave this project{% endtrans %}">{{ faicon(icon='bookmark-solid', baseline=true, icon_size=iconsize, css_class='bookmarked') }}</button>
       {%- endif %}
     </div>
   </form>
@@ -77,11 +77,11 @@
 
 {% macro share_dropdown(url, title, css_class='') %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--hg-link {% if css_class %}{{ css_class }}{%- endif %}" data-cy="share-dropdown">
-    <li><a class="mui--text-body2 js-copy-link" href="javascript:void(0)" data-ga="Copy link to share">{{ faicon(icon='copy', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url}}?utm_campaign=webshare</span></a></li>
-    <li><a class="mui--text-body2" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-ga="Email">{{ faicon(icon='envelope', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Email{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-ga="Tweet">{{ faicon(icon='twitter-square', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Twitter{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-ga="Share on facebook">{{ faicon(icon='facebook-square', baseline=true,css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Facebook{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-ga="Share on linkedin">{{ faicon(icon='linkedin', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}LinkedIn{% endtrans %}</a></li>
+    <li><a class="mui--text-body2 js-copy-link" href="javascript:void(0)" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url}}?utm_campaign=webshare</span></a></li>
+    <li><a class="mui--text-body2" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-ga="Email" role="menuitem">{{ faicon(icon='envelope', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Email{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-ga="Tweet" role="menuitem">{{ faicon(icon='twitter-square', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Twitter{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Facebook{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-ga="Share on linkedin" role="menuitem">{{ faicon(icon='linkedin', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}LinkedIn{% endtrans %}</a></li>
   </ul>
 {% endmacro %}
 
@@ -355,17 +355,17 @@
 
 {% macro profile_admin_buttons(profile) %}
   <div class="mui-dropdown mui--d-inlineblock">
-    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
-    <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" role="button" aria-label="{% trans %}Profile menu{% endtrans %}">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="profile-edit-menu">
       {%- if profile.organization %}<li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>{% endif %}
       <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>
-      {%- if profile.features.make_private() %}<li><a href="#make-private-modal" rel="modal:open">{% trans %}Make profile private{% endtrans %}</a></li>{% endif %}
+      {%- if profile.features.make_private() %}<li><a href="#make-private-modal" rel="modal:open" role="button" aria-haspopup="true">{% trans %}Make profile private{% endtrans %}</a></li>{% endif %}
     </ul>
   </div>
-  <div class="modal" id="make-private-modal">
+  <div class="modal" id="profile-private-modal-title" role="dialog" aria-labelledby="make-private-title" aria-modal="true" tabindex="-1">
     <div class="modal__header">
-      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-      <p class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Make this profile private?{% endtrans %}</p>
+      <a class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-private-modal-title">{% trans %}Make this profile private?{% endtrans %}</p>
     </div>
     <div class="modal__body">
       <ul class="mui-list--aligned mui--text-body2">
@@ -397,7 +397,7 @@
           <div class="grid">
             <div class="grid__col-12">
               {%- if profile.current_roles.admin %}
-                <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" aria-label="{% trans %}Add cover photo url{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}Add cover photo{% endtrans %}</span></a>
+                <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" aria-label="{% trans %}Add cover photo url{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner" aria-haspopup="true">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}Add cover photo{% endtrans %}</span></a>
               {% endif %}
               <div class="profile__logo">
                 {%- if profile.logo_url.url %}
@@ -406,7 +406,7 @@
                   <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class='profile__logo__icon') }}</span>
                 {% endif %}
                 {%- if profile.current_roles.admin %}
-                  <a href="{{ profile.url_for('update_logo') }}" class="profile__logo__upload mui--text-dark js-modal-form" rel="modal:open" data-hash="edit_logo">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</a>
+                  <a href="{{ profile.url_for('update_logo') }}" class="profile__logo__upload mui--text-dark js-modal-form" rel="modal:open" data-hash="edit_logo" role="button" aria-haspopup="true">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</a>
                 {% endif %}
                 <div class="mui--hidden-xs mui--hidden-sm profile__logo__details">
                   <h2 class="mui--text-dark mui--text-bold zero-bottom-margin"><a class="mui--text-dark" data-cy="profile-title" href="{{ profile.url_for() }}">{{ profile.title }}</a></h2>
@@ -417,11 +417,11 @@
                 {% if profile.features.new_project()  %}
                   <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
                 {% elif profile.features.make_public() %}
-                  <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a>
-                  <div class="modal" id="make-public-modal">
+                  <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open" role="button" aria-haspopup="true">{% trans %}Make profile public{% endtrans %}</a>
+                  <div class="modal" id="make-public-modal" role="dialog" aria-labelledby="profile-public-modal-title" aria-modal="true" tabindex="-1">
                     <div class="modal__header">
-                      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-                      <p class="mui--text-title mui--text-bold mui--text-dark">{% trans %}Make this profile public?{% endtrans %}</p>
+                      <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+                      <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-public-modal-title">{% trans %}Make this profile public?{% endtrans %}</p>
                     </div>
                     <div class="modal__body">
                       <ul class="mui-list--aligned mui--text-body2">
@@ -563,9 +563,9 @@
   {% endif %}
   {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}" class="nounderline">{% endif %}
   {% if user and user.avatar %}
-    <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}"/>
+    <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}" alt="{{ user.title }}"/>
   {%- else %}
-    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}">{{ user.title|initials }}</div>
+    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}">{{ user.title|initials }}</div>
   {% endif %}
   {% if user.profile_url and add_profile_link%}</a>{% endif %}
 {%- endmacro %}

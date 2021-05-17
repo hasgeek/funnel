@@ -140,7 +140,7 @@ class TicketParticipantForm(forms.Form):
         result = super().validate()
         with db.session.no_autoflush:
             useremail = UserEmail.get(email=self.email.data)
-            if useremail:
+            if useremail is not None:
                 self.user = useremail.user
             else:
                 self.user = None

@@ -40,7 +40,6 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
         elif parsed.path.startswith('/embed'):
             video_id = parsed.path.lstrip('/embed/')
             if video_id:
-                video_id = video_id
                 video_source = 'youtube'
             else:
                 raise ValueError(
@@ -55,7 +54,6 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
     elif parsed.netloc == 'youtu.be':
         video_id = parsed.path.lstrip('/')
         if video_id:
-            video_id = video_id
             video_source = 'youtube'
         else:
             raise ValueError(
@@ -65,7 +63,6 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
     elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
         video_id = parsed.path.lstrip('/')
         if video_id:
-            video_id = video_id
             video_source = 'vimeo'
         else:
             raise ValueError(
@@ -124,13 +121,13 @@ class VideoMixin:
         raise VideoException("No video source or ID to create a cache key")
 
     @property
-    def _video_cache(self) -> Dict[str, Union[str, int, datetime]]:
+    def _video_cache(self) -> Dict[str, Union[str, float, datetime]]:
         data = redis_store.hgetall(self.video_cache_key)
         if data:
             if 'uploaded_at' in data and data['uploaded_at']:
                 data['uploaded_at'] = parse_isoformat(data['uploaded_at'], naive=False)
             if 'duration' in data and data['duration']:
-                data['duration'] = int(data['duration'])
+                data['duration'] = float(data['duration'])
         return data
 
     @_video_cache.setter
@@ -138,8 +135,8 @@ class VideoMixin:
         copied_data = data.copy()
         if copied_data['uploaded_at']:
             copied_data['uploaded_at'] = copied_data['uploaded_at'].isoformat()
-        if copied_data['duration'] and not isinstance(copied_data['duration'], int):
-            copied_data['duration'] = int(copied_data['duration'])
+        if copied_data['duration'] and not isinstance(copied_data['duration'], float):
+            copied_data['duration'] = float(copied_data['duration'])
         redis_store.hmset(self.video_cache_key, copied_data)
 
         # if video exists at source, cache for 2 days, if not, for 6 hours
@@ -149,7 +146,7 @@ class VideoMixin:
     # TODO: Create a dataclass for data
 
     @property
-    def video(self) -> Optional[Dict[str, Union[str, int, datetime]]]:
+    def video(self) -> Optional[Dict[str, Union[str, float, datetime]]]:
         data = None
         if self.video_source and self.video_id:
             # Check for cached data
@@ -161,7 +158,7 @@ class VideoMixin:
                     'id': self.video_id,
                     'url': cast(str, self.video_url),
                     'embeddable_url': cast(str, self.embeddable_video_url),
-                    'duration': 0,
+                    'duration': 0.0,
                     'uploaded_at': '',
                     'thumbnail': '',
                 }

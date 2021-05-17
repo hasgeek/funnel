@@ -1,9 +1,11 @@
+from typing import Optional
+
 from baseframe import __
 from baseframe.forms.sqlalchemy import QuerySelectField
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import Proposal
+from ..models import Project, Proposal
 
 __all__ = [
     'ProposalForm',
@@ -22,7 +24,7 @@ __all__ = [
 # Do not add UGC field names to a form. Override populate_obj instead
 
 
-def proposal_label_form(project, proposal):
+def proposal_label_form(project: Project, proposal: Optional[Proposal]):
     """Return a label form for the given project and proposal."""
     if not project.labels:
         return
@@ -52,13 +54,13 @@ def proposal_label_form(project, proposal):
             )
 
     form = ProposalLabelForm(
-        obj=proposal.formlabels if proposal else None, meta={'csrf': False}
+        obj=proposal.formlabels if proposal is not None else None, meta={'csrf': False}
     )
     del form.form_nonce
     return form
 
 
-def proposal_label_admin_form(project, proposal):
+def proposal_label_admin_form(project: Project, proposal: Optional[Proposal]):
     """Return a label form to use in admin panel for given project and proposal."""
 
     class ProposalLabelAdminForm(forms.Form):
@@ -93,7 +95,7 @@ def proposal_label_admin_form(project, proposal):
             )
 
     form = ProposalLabelAdminForm(
-        obj=proposal.formlabels if proposal else None, meta={'csrf': False}
+        obj=proposal.formlabels if proposal is not None else None, meta={'csrf': False}
     )
     del form.form_nonce
     return form

@@ -1,3 +1,5 @@
+from typing import Optional, cast
+
 from flask import jsonify, redirect, render_template, request
 
 from baseframe import _, request_is_xhr
@@ -14,8 +16,8 @@ from coaster.views import (
 
 from .. import app
 from ..forms import SavedSessionForm, SessionForm
-from ..models import Project, SavedSession, Session, db
-from ..typing import ReturnRenderWith
+from ..models import Project, Proposal, SavedSession, Session, db
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import localize_date
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
@@ -34,16 +36,20 @@ def rooms_list(project):
     return []
 
 
-def session_edit(project, proposal=None, session=None):
+def session_edit(
+    project: Project,
+    proposal: Optional[Proposal] = None,
+    session: Optional[Session] = None,
+) -> ReturnView:
     # Look for any existing unscheduled session
-    if proposal and not session:
+    if proposal is not None and session is None:
         session = Session.for_proposal(proposal)
 
-    if session:
+    if session is not None:
         form = SessionForm(obj=session, model=Session)
     else:
         form = SessionForm()
-        if proposal:
+        if proposal is not None:
             form.description.data = proposal.body
             form.speaker.data = proposal.first_user.fullname
             form.title.data = proposal.title
@@ -60,10 +66,10 @@ def session_edit(project, proposal=None, session=None):
         )
     if form.validate_on_submit():
         new = False
-        if not session:
+        if session is None:
             new = True
             session = Session()
-        if proposal:
+        if proposal is not None:
             session.proposal = proposal
         form.populate_obj(session)
         if new:
@@ -78,6 +84,7 @@ def session_edit(project, proposal=None, session=None):
             else:
                 db.session.add(session)
         db.session.commit()
+        session = cast(Session, session)  # Tell mypy session is not None
         session.project.update_schedule_timestamps()
         db.session.commit()
         if request_is_xhr():
@@ -85,7 +92,9 @@ def session_edit(project, proposal=None, session=None):
                 'id': session.url_id,
                 'title': session.title,
                 'room_scoped_name': (
-                    session.venue_room.scoped_name if session.venue_room else None
+                    session.venue_room.scoped_name
+                    if session.venue_room is not None
+                    else None
                 ),
                 'is_break': session.is_break,
                 'modal_url': session.url_for('edit'),
@@ -112,7 +121,7 @@ class ProjectSessionView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
-    def new_session(self):
+    def new_session(self) -> ReturnView:
         return session_edit(self.obj)
 
 
@@ -130,7 +139,9 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
         )
         return {
-            'project': self.obj.project.current_access(),
+            'project': self.obj.project.current_access(
+                datasets=('without_parent', 'related')
+            ),
             'from_date': (
                 self.obj.project.start_at_localized.isoformat()
                 if self.obj.project.start_at
@@ -170,15 +181,19 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('editsession', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         return session_edit(self.obj.project, session=self.obj)
 
     @route('deletesession', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
     def delete(self):
-        modal_url = self.obj.proposal.url_for('schedule') if self.obj.proposal else None
-        if not self.obj.proposal:
+        modal_url = (
+            self.obj.proposal.url_for('schedule')
+            if self.obj.proposal is not None
+            else None
+        )
+        if self.obj.proposal is None:
             db.session.delete(self.obj)
         else:
             self.obj.make_unscheduled()

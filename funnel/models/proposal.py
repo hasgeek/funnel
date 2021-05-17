@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Iterable, Optional, Set
 
-from sqlalchemy.ext.hybrid import hybrid_property
-
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
@@ -146,6 +144,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     #: Should numbering be required in the product, see `Update.number` for a better
     #: implementation.
     seq = db.synonym('url_id')
+
+    # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
+    datetime = db.synonym('created_at')
 
     _state = db.Column(
         'state',
@@ -422,10 +423,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         self.project = project
         self.url_id = None
         self.make_id()
-
-    @hybrid_property
-    def datetime(self):
-        return self.created_at  # Until proposals have a workflow-driven datetime
 
     def update_description(self) -> None:
         if not self.custom_description:

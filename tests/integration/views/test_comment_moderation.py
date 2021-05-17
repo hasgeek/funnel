@@ -19,9 +19,13 @@ def test_comment_report_same(
     new_project,
 ):
     # Let's give new_user site_editor role
-    sm = SiteMembership(user=new_user, is_comment_moderator=True)
-    sm2 = SiteMembership(user=new_user_admin, is_comment_moderator=True)
-    sm3 = SiteMembership(user=new_user_owner, is_comment_moderator=True)
+    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
+    sm2 = SiteMembership(
+        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+    )
+    sm3 = SiteMembership(
+        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+    )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
 
@@ -45,6 +49,8 @@ def test_comment_report_same(
     db_session.add(report1)
     db_session.commit()
     report1_id = report1.id
+
+    assert comment.is_reviewed_by(new_user_admin)
 
     with client.session_transaction() as session:
         session['userid'] = new_user.userid
@@ -77,6 +83,21 @@ def test_comment_report_opposing(
     new_user_owner,
     new_project,
 ):
+    # Let's give new_user site_editor role
+    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
+    sm2 = SiteMembership(
+        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+    )
+    sm3 = SiteMembership(
+        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+    )
+    db_session.add_all([sm, sm2, sm3])
+    db_session.commit()
+
+    assert new_user.is_comment_moderator is True
+    assert new_user_admin.is_comment_moderator is True
+    assert new_user_owner.is_comment_moderator is True
+
     # Let's make another comment
     comment2 = Comment(
         user=new_user2,
@@ -110,6 +131,7 @@ def test_comment_report_opposing(
     assert bool(comment2_refetched.state.SPAM) is False
     assert bool(comment2_refetched.state.PUBLIC) is True
     # a new report will be created
+    assert comment2_refetched.is_reviewed_by(new_user)
     assert (
         CommentModeratorReport.query.filter_by(
             comment=comment2_refetched,
@@ -129,6 +151,21 @@ def test_comment_report_majority_spam(
     new_user_owner,
     new_project,
 ):
+    # Let's give new_user site_editor role
+    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
+    sm2 = SiteMembership(
+        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+    )
+    sm3 = SiteMembership(
+        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+    )
+    db_session.add_all([sm, sm2, sm3])
+    db_session.commit()
+
+    assert new_user.is_comment_moderator is True
+    assert new_user_admin.is_comment_moderator is True
+    assert new_user_owner.is_comment_moderator is True
+
     # Let's make another comment
     comment3 = Comment(
         user=new_user2,
@@ -189,6 +226,21 @@ def test_comment_report_majority_ok(
     new_user_owner,
     new_project,
 ):
+    # Let's give new_user site_editor role
+    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
+    sm2 = SiteMembership(
+        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+    )
+    sm3 = SiteMembership(
+        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+    )
+    db_session.add_all([sm, sm2, sm3])
+    db_session.commit()
+
+    assert new_user.is_comment_moderator is True
+    assert new_user_admin.is_comment_moderator is True
+    assert new_user_owner.is_comment_moderator is True
+
     # Let's make another comment
     comment4 = Comment(
         user=new_user2,

@@ -182,8 +182,8 @@ class RenderShared:
         # There are four record types: invite, accept, direct_add, amend
         return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name  # type: ignore[misc]
 
-    def activity_html(self, membership: OrganizationMembership = None) -> Markup:
-        if not membership:
+    def activity_html(self, membership: OrganizationMembership = None) -> str:
+        if membership is None:
             membership = self.membership
         actor = self.membership_actor(membership)
         return Markup(self.activity_template(membership)).format(
@@ -220,7 +220,7 @@ class RenderShared:
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=(actor.pickername if actor else _("(unknown)")),
+            actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
 
     def sms(self) -> str:
@@ -228,7 +228,7 @@ class RenderShared:
         return self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=(actor.pickername if actor else _("(unknown)")),
+            actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
 
 
@@ -253,7 +253,7 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
 
         Accepts an optional membership object for use in rollups.
         """
-        if not membership:
+        if membership is None:
             membership = self.membership
         for df in decision_factors:
             if df.match(
@@ -295,7 +295,7 @@ class RenderOrganizationAdminMembershipRevokedNotification(
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
         """Return a single line summary of changes."""
-        if not membership:
+        if membership is None:
             membership = self.membership
         # LHS = user object, RHS = role proxy, so compare uuid
         if self.user_notification.user.uuid == membership.user.uuid:

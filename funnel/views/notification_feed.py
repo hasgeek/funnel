@@ -6,6 +6,7 @@ import baseframe.forms as forms
 
 from .. import app
 from ..models import UserNotification, db
+from ..typing import ReturnRenderWith
 from .login_session import requires_login
 
 
@@ -18,11 +19,11 @@ class AllNotificationsView(ClassView):
     @requires_login
     @render_with('notification_feed.html.jinja2', json=True)
     @requestargs(('page', int), ('per_page', int))
-    def view(self, unread_only, page=1, per_page=10):
+    def view(self, unread_only: bool, page=1, per_page=10) -> ReturnRenderWith:
         pagination = UserNotification.web_notifications_for(
             current_auth.user, unread_only
         ).paginate(page=page, per_page=per_page, max_per_page=100)
-        return {
+        results = {
             'unread_only': unread_only,
             'show_transport_alert': not current_auth.user.has_transport_sms(),
             'notifications': [
@@ -43,7 +44,7 @@ class AllNotificationsView(ClassView):
                     else None,
                 }
                 for un in pagination.items
-                if un.is_not_deleted()
+                if un.is_not_deleted(revoke=True)
             ],
             'has_next': pagination.has_next,
             'has_prev': pagination.has_prev,
@@ -54,13 +55,15 @@ class AllNotificationsView(ClassView):
             'prev_num': pagination.prev_num,
             'count': pagination.total,
         }
+        db.session.commit()
+        return results
 
-    def unread_count(self):
+    def unread_count(self) -> int:
         return UserNotification.unread_count_for(current_auth.user)
 
     @route('count', endpoint='notifications_count')
     @render_with(json=True)
-    def unread(self):
+    def unread(self) -> ReturnRenderWith:
         # This view must NOT have a `@requires_login` decorator as that will insert
         # it as the next page after login
         if current_auth.user:
@@ -75,12 +78,12 @@ class AllNotificationsView(ClassView):
     )
     @requires_login
     @render_with(json=True)
-    def mark_read(self, eventid_b58):
+    def mark_read(self, eventid_b58: str) -> ReturnRenderWith:
         form = forms.Form()
         del form.form_nonce
         if form.validate_on_submit():
             un = UserNotification.get_for(current_auth.user, eventid_b58)
-            if not un:
+            if un is None:
                 abort(404)
             un.is_read = True
             db.session.commit()
@@ -94,12 +97,12 @@ class AllNotificationsView(ClassView):
     )
     @requires_login
     @render_with(json=True)
-    def mark_unread(self, eventid_b58):
+    def mark_unread(self, eventid_b58: str) -> ReturnRenderWith:
         form = forms.Form()
         del form.form_nonce
         if forms.validate_on_submit():
             un = UserNotification.get_for(current_auth.user, eventid_b58)
-            if not un:
+            if un is None:
                 abort(404)
             un.is_read = False
             db.session.commit()

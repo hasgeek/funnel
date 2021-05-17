@@ -2,14 +2,20 @@ from __future__ import annotations
 
 from typing import Iterable, List, Optional, Set, Union
 
-from sqlalchemy.ext.hybrid import hybrid_property
-
 from baseframe import __
 from coaster.sqlalchemy import Query, StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import BaseMixin, MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
+from . import (
+    BaseMixin,
+    MarkdownColumn,
+    TSVectorType,
+    UrlType,
+    UuidMixin,
+    db,
+    hybrid_property,
+)
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
@@ -327,7 +333,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             )
             .one_or_none()
         )
-        if existing:
+        if existing is not None:
             if existing.reserved:
                 return 'reserved'
             elif existing.user_id:
@@ -352,16 +358,17 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
-        if old_user.profile and not new_user.profile:
+        if old_user.profile is not None and new_user.profile is None:
             # New user doesn't have a profile. Simply transfer ownership.
             new_user.profile = old_user.profile
-        elif old_user.profile and new_user.profile:
+        elif old_user.profile is not None and new_user.profile is not None:
             # Both have profiles. Move everything that refers to old profile
             done = do_migrate_instances(
                 old_user.profile, new_user.profile, 'migrate_profile'
             )
             if done:
                 db.session.delete(old_user.profile)
+        # Do nothing if old_user.profile is None and new_user.profile is not None
         return None
 
     @property

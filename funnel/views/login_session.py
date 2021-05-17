@@ -182,7 +182,7 @@ def session_mark_accessed(
     # `accessed_at` won't be updated at that time.
     obj.accessed_at = db.func.utcnow()
     with db.session.no_autoflush:
-        if auth_client:
+        if auth_client is not None:
             if (
                 auth_client not in obj.auth_clients
             ):  # self.auth_clients is defined via AuthClient.user_sessions
@@ -480,7 +480,7 @@ def _client_login_inner():
             401,
             {'WWW-Authenticate': 'Basic realm="Client credentials"'},
         )
-    if credential:
+    if credential is not None:
         credential.accessed_at = db.func.utcnow()
         db.session.commit()
     add_auth_attribute('auth_client', credential.auth_client, actor=True)

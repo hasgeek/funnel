@@ -1,5 +1,6 @@
 from collections import OrderedDict, namedtuple
 from html import unescape as html_unescape
+from typing import Optional
 from urllib.parse import quote as urlquote
 import re
 
@@ -37,7 +38,7 @@ from .mixins import ProfileViewMixin, ProjectViewMixin
 
 # --- Definitions -------------------------------------------------------------
 
-# PostgreSQL ts_headline markers, picked for low probability of conflict with db content
+# PostgreSQL ts_headline markers
 pg_startsel = '<b>'
 pg_stopsel = '</b>'
 pg_delimiter = ' … '
@@ -422,7 +423,7 @@ search_types = OrderedDict(
 # --- Utilities ---------------------------------------------------------------
 
 
-def escape_quotes(text):
+def escape_quotes(text: str) -> Markup:
     """
     Escape quotes in text returned by PostgreSQL's ``ts_headline``.
 
@@ -432,7 +433,7 @@ def escape_quotes(text):
     return Markup(text.replace('"', '&quot;').replace("'", '&#39;'))
 
 
-def get_squery(text):
+def get_squery(text: Optional[str]) -> str:
     """
     Parse a web search query into a PostgreSQL ``tsquery``.
 
@@ -444,7 +445,7 @@ def get_squery(text):
     return db.session.query(db.func.websearch_to_tsquery(text or '')).scalar()
 
 
-def clean_matched_text(text):
+def clean_matched_text(text: str) -> str:
     return urlquote(
         html_unescape(
             html_whitespace_re.sub(' ', match_text_breakpoint_re.sub('', text)).strip()
@@ -455,9 +456,11 @@ def clean_matched_text(text):
 # --- Search functions --------------------------------------------------------
 
 # @cache.memoize(timeout=300)
-def search_counts(squery, profile=None, project=None):
+def search_counts(
+    squery: str, profile: Optional[Profile] = None, project: Optional[Project] = None
+):
     """Return counts of search results."""
-    if project:
+    if project is not None:
         return [
             {
                 'type': k,
@@ -469,7 +472,7 @@ def search_counts(squery, profile=None, project=None):
             for k, v in search_types.items()
             if v.project_query_filter is not None
         ]
-    if profile:
+    if profile is not None:
         return [
             {
                 'type': k,
@@ -495,7 +498,14 @@ def search_counts(squery, profile=None, project=None):
 
 
 # @cache.memoize(timeout=300)
-def search_results(squery, stype, page=1, per_page=20, profile=None, project=None):
+def search_results(
+    squery: str,
+    stype: str,
+    page=1,
+    per_page=20,
+    profile: Optional[Profile] = None,
+    project: Optional[Project] = None,
+):
     """Return search results."""
     # Pick up model data for the given type string
     st = search_types[stype]
@@ -503,14 +513,14 @@ def search_results(squery, stype, page=1, per_page=20, profile=None, project=Non
 
     # Construct a basic query, sorted by matching column priority followed by date.
     # TODO: Pick a better date column than "created_at".
-    if project:
+    if project is not None:
         query = st.project_query_filter(squery, project)
         if not st.has_order:
             query = query.order_by(
                 db.desc(db.func.ts_rank_cd(st.model.search_vector, squery)),
                 st.model.created_at.desc(),
             )
-    elif profile:
+    elif profile is not None:
         query = st.profile_query_filter(squery, profile)
         if not st.has_order:
             query = query.order_by(

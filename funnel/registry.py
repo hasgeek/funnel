@@ -65,7 +65,7 @@ class ResourceRegistry(OrderedDict):
                     token_match = auth_bearer_re.search(
                         request.headers['Authorization']
                     )
-                    if token_match:
+                    if token_match is not None:
                         token = token_match.group(1)
                     else:
                         # Unrecognized Authorization header
@@ -78,7 +78,7 @@ class ResourceRegistry(OrderedDict):
                         _("An access token is required to access this resource")
                     )
                 authtoken = AuthToken.get(token=token)
-                if not authtoken:
+                if authtoken is None:
                     return resource_auth_error(_("Unknown access token"))
                 if not authtoken.is_valid():
                     return resource_auth_error(_("Access token has expired"))

@@ -1,6 +1,7 @@
 import six
 
 from datetime import datetime, timedelta
+from typing import Dict, Optional
 import csv
 
 from sqlalchemy.exc import IntegrityError
@@ -25,15 +26,14 @@ from ..utils import abort_null, format_twitter_handle
 from .login_session import requires_login
 
 
-def contact_details(ticket_participant):
-    if ticket_participant:
-        return {
-            'fullname': ticket_participant.fullname,
-            'company': ticket_participant.company,
-            'email': ticket_participant.email,
-            'twitter': format_twitter_handle(ticket_participant.twitter),
-            'phone': ticket_participant.phone,
-        }
+def contact_details(ticket_participant: TicketParticipant) -> Dict[str, Optional[str]]:
+    return {
+        'fullname': ticket_participant.fullname,
+        'company': ticket_participant.company,
+        'email': ticket_participant.email,
+        'twitter': format_twitter_handle(ticket_participant.twitter),
+        'phone': ticket_participant.phone,
+    }
 
 
 @route('/account/contacts')
@@ -152,7 +152,7 @@ class ContactView(ClassView):
     def connect(self, puk, key):
         """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
-        if not ticket_participant:
+        if ticket_participant is None:
             return make_response(
                 jsonify(status='error', message="Attendee details not found"), 404
             )

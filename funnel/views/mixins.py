@@ -77,7 +77,7 @@ class ProfileViewMixin(object):
 
     def loader(self, profile):
         profile = self.model.get(profile)
-        if not profile:
+        if profile is None:
             abort(404)
         g.profile = profile
         return profile

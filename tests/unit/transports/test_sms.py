@@ -15,6 +15,8 @@ TWILIO_NO_SMS_SERVICE = "+15005550009"
 
 # Exotel Numbers to test. They are just made up numbers.
 EXOTEL_TO = "+919999999999"
+# Exotel callbacks use zero-prefixed numbers
+EXOTEL_CALLBACK_TO = "09999999999"
 
 # Dummy Message
 MESSAGE = "Test Message"
@@ -58,19 +60,19 @@ def test_twilio_failures():
 
 def test_exotel_nonce(client):
     """Test if the exotel nonce works as expected."""
-    # The random case.
+    # Make a token
     token = make_exotel_token(EXOTEL_TO)
-    valid = validate_exotel_token(token, EXOTEL_TO)
-    assert valid
-
-    # Pretend that we got another one within X days
+    assert validate_exotel_token(token, EXOTEL_TO)
+    # A second callback will pass as it's a signed token and usage is not tracked
     assert validate_exotel_token(token, EXOTEL_TO)
 
+    # Make a fresh token and test the view
+    token = make_exotel_token(EXOTEL_TO)
     # Now call the callback using POST and see if it works.
     # URL and Headers for the post call
     url = '/api/1/sms/exotel_event/' + token
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    data = {'To': EXOTEL_TO, 'SmsSid': 'Some-long-string', 'Status': 'sent'}
+    data = {'To': EXOTEL_CALLBACK_TO, 'SmsSid': 'Some-long-string', 'Status': 'sent'}
     resp: Response = client.post(url, headers=headers, data=data)
     assert resp.status_code == 200
     data = resp.get_json()

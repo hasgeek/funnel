@@ -1,7 +1,6 @@
 from collections import OrderedDict, defaultdict
-from datetime import timedelta
-
-from sqlalchemy.ext.hybrid import hybrid_property
+from datetime import datetime, timedelta
+from typing import Optional, Type, cast
 
 from flask_babelhg import get_locale
 from werkzeug.utils import cached_property
@@ -13,7 +12,14 @@ from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles
 from coaster.utils import utcnow
 
-from . import BaseScopedIdNameMixin, MarkdownColumn, TSVectorType, UuidMixin, db
+from . import (
+    BaseScopedIdNameMixin,
+    MarkdownColumn,
+    TSVectorType,
+    UuidMixin,
+    db,
+    hybrid_property,
+)
 from .helpers import (
     ImgeeType,
     add_search_trigger,
@@ -248,6 +254,10 @@ class __VenueRoom:
     )
 
 
+# For casting in classmethod
+TypeProject = Type[Project]
+
+
 @reopen(Project)
 class __Project:
     # Project schedule column expressions
@@ -268,7 +278,7 @@ class __Project:
         db.column_property(
             db.select([db.func.min(Session.start_at)])
             .where(Session.start_at.isnot(None))
-            .where(Session.start_at > db.func.utcnow())
+            .where(Session.start_at >= db.func.utcnow())
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
             # .scalar_subquery()
@@ -373,8 +383,39 @@ class __Project:
             .first()
         )
 
+    @with_roles(call={'all'})
+    def next_starting_at(
+        self, timestamp: Optional[datetime] = None
+    ) -> Optional[datetime]:
+        """
+        Return timestamp of next session from given timestamp.
+
+        Supplements :attr:`next_session_at` to also consider projects without sessions.
+        """
+        self = cast(Project, self)
+        # If there's no `self.start_at`, there is no session either
+        if self.start_at is not None:
+            if timestamp is None:
+                timestamp = utcnow()
+            # If `self.start_at` is in the future, it is guaranteed to be the closest
+            # timestamp, so return it directly
+            if self.start_at >= timestamp:
+                return self.start_at
+            # In the past? Then look for a session and return that timestamp, if any
+            return (
+                db.session.query(db.func.min(Session.start_at))
+                .filter(
+                    Session.start_at.isnot(None),
+                    Session.start_at >= timestamp,
+                    Session.project == self,
+                )
+                .scalar()
+            )
+
+        return None
+
     @classmethod
-    def starting_at(cls, timestamp, within, gap):
+    def starting_at(cls, timestamp: datetime, within: timedelta, gap: timedelta):
         """
         Return projects that are about to start, for sending notifications.
 
@@ -389,6 +430,10 @@ class __Project:
         """
         # As a rule, start_at is queried with >= and <, end_at with > and <= because
         # they represent inclusive lower and upper bounds.
+
+        # Check project starting time before looking for individual sessions, as some
+        # projects will have no sessions
+        cls = cast(TypeProject, cls)
         return (
             cls.query.filter(
                 cls.id.in_(
@@ -417,7 +462,14 @@ class __Project:
                 )
             )
             .join(Session.project)
-            .filter(Project.state.PUBLISHED)
+            .filter(cls.state.PUBLISHED)
+        ).union(
+            cls.query.filter(
+                cls.state.PUBLISHED,
+                cls.start_at.isnot(None),
+                cls.start_at >= timestamp,
+                cls.start_at < timestamp + within,
+            )
         )
 
     @with_roles(call={'all'})
