@@ -18,7 +18,7 @@ describe('Responding yes to attend a project', function () {
     cy.get('button[data-cy="confirm"]:visible').click();
     cy.get('[data-cy="registered"]').should('exist');
     cy.wait(2000);
-    cy.get('a[data-cy="rsvp-menu"]:visible').click();
+    cy.get('button[data-cy="rsvp-menu"]:visible').click();
     cy.get('a.js-register-btn:visible').click();
     cy.wait(2000);
     cy.get('button[data-cy="cancel-rsvp"]:visible').click();
