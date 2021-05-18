@@ -452,7 +452,7 @@
               <div class="card__body project-banner">
                 <div class="project-details__box">
                   {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
-                    <div class="project-details__box__content mui--hidden-xs mui--hidden-sm ">
+                    <div class="project-details__box__content mui--hidden-xs mui--hidden-sm">
                       <div aria-label="{{ project.datelocation }}">
                         {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
                       </div>
@@ -469,7 +469,9 @@
                 </div>
               </div>
             </div>
-            {{ project_host_sponsor(project) }}
+            <div class="mui--hidden-xs mui--hidden-sm">
+              {{ project_host_sponsor(project) }}
+            </div>
           </div>
         </div>
       {% endblock %}
