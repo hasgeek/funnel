@@ -121,13 +121,13 @@ def organizations_as_owner(obj, limit=None):
 
 @User.views()
 def recent_organizations(obj, recent=3, overflow=4):
-    orgs = obj.views.organizations_as_admin(limit=recent + overflow)
-    total_orgs = obj.views.organizations_as_admin()
-    orgs.sort(key=lambda om: om.granted_at, reverse=True)
+    orgs = obj.views.organizations_as_admin()  # sorted by Organization title by default
+    total_orgs_count = len(orgs)
+    orgs.sort(key=lambda om: om.granted_at, reverse=True)  # Re-sorted by granted_at
     return SimpleNamespace(
         recent=orgs[:recent],
-        overflow=orgs[recent:],
-        count=len(total_orgs) - recent - overflow,
+        overflow=orgs[recent : recent + overflow],
+        count=total_orgs_count - recent - overflow,
     )
 
 
