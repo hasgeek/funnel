@@ -58,11 +58,11 @@
 
 {% block header -%}
   {% macro account_dropdown(css_class='') %}
-    <ul class="mui-dropdown__menu mui-dropdown__menu--right header__dropdown {% if css_class %}{{ css_class }}{% endif %}">
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right header__dropdown {% if css_class %}{{ css_class }}{% endif %}" role="list">
       {% if current_auth.user.profile %}
-        <li>
+        <li class="mui--bg-accent">
           <div class="header__dropdown__item">
-            <div class="user user--medium">
+            <div class="user">
               <div class="user__box">
                 {{ useravatar(current_auth.user, add_profile_link=true, size='big') }}
                 {% if current_auth.user.profile_url %}
@@ -70,9 +70,12 @@
                 {%- else %}
                   <div class="user__box__header">
                 {% endif %}
-                  <p class="mui--text-subhead mui--text-bold mui--text-dark zero-bottom-margin">{{ current_auth.user.fullname }}</p>
-                  <p class="mui--text-caption mui--text-light zero-bottom-margin">{{ current_auth.user.username }}</p>
+                  <div class="user__box__header__details">
+                    <p class="mui--text-subhead mui--text-bold mui--text-dark zero-bottom-margin">{{ current_auth.user.fullname }}</p>
+                    <p class="mui--text-caption mui--text-light zero-bottom-margin">{{ current_auth.user.username }}</p>
+                  </div>
                 {% if current_auth.user.profile_url %}
+                  {{ faicon(icon='arrow-right', icon_size='caption', baseline=false, css_class='mui--text-dark') }}
                   </a>
                 {%- else %}
                   </div>
@@ -81,45 +84,45 @@
             </div>
           </div>
         </li>
-        <hr class="separator zero-top-margin zero-bottom-margin">
       {%- endif %}
       {%- with orgmemlist = current_auth.user.views.recent_organizations() %}
-      {%- if orgmemlist.recent|length -%}
-        <li>
-          <a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="org"><span class="profile-avatar margin-right">{{ faicon(icon='sitemap', icon_size='subhead', baseline=false) }}</span>{% trans %}Organizations{% endtrans %}</a>
-        </li>
-      {%- endif %}
-      {%- for orgmem in orgmemlist.recent %}
-      <li>
-        <a href="{{ orgmem.organization.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex">
-          <span class="profile-avatar margin-right">
-            {%- if orgmem.organization.profile.logo_url.url %}
-              <img src="{{ orgmem.organization.profile.logo_url.resize(80) }}" alt="{{ orgmem.organization.title }}"/>
-            {% else %}
-              <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
-            {% endif %}
-          </span>
-          <span class="mui--text-body2 profile-avatar-title">{{ orgmem.organization.profile.title }}</span>
-        </a>
-      </li>
-      {%- endfor %}
-      {%- if orgmemlist.overflow|length -%}
-      <li>
-        <a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex">
-        {%- for orgmem in orgmemlist.overflow %}
-          <span class="profile-avatar margin-right">
-            {%- if orgmem.organization.profile.logo_url.url %}
-              <img src="{{ orgmem.organization.profile.logo_url.resize(80) }}" alt="{{ orgmem.organization.title }}"/>
-            {% else %}
-              <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
-            {% endif %}
-          </span>
-        {%- endfor %}
-        {%- if orgmemlist.count -%}{{ faicon(icon='ellipsis-h', icon_size='subhead', css_class='header__dropdown__item__more-icon') }}<span class="mui--text-body2 header__dropdown__item__more-icon left-padding">{{ faicon(icon='plus', icon_size='caption') }} {% trans count=orgmemlist.count %}more {{count}}{% endtrans %}</span>{%- endif %}
-        </a>
-      </li>
-      {%- endif %}
-      <hr class="separator zero-top-margin zero-bottom-margin">
+        {%- if orgmemlist.recent|length -%}
+          <li class="page-card">
+            <ul class="header__dropdown mui-list--unstyled" role="list">
+              <li><a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-dark" data-cy="org"><span class="profile-avatar margin-right">{{ faicon(icon='sitemap', icon_size='subhead', baseline=false) }}</span>{% trans %}Organizations{% endtrans %}</a></li>
+              {%- for orgmem in orgmemlist.recent %}
+              <li>
+                <a href="{{ orgmem.organization.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex mui--text-dark">
+                  <span class="profile-avatar margin-right">
+                    {%- if orgmem.organization.profile.logo_url.url %}
+                      <img src="{{ orgmem.organization.profile.logo_url.resize(80) }}" alt="{{ orgmem.organization.title }}"/>
+                    {% else %}
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
+                    {% endif %}
+                  </span>
+                  <span class="mui--text-body2 profile-avatar-title">{{ orgmem.organization.profile.title }}</span>
+                </a>
+              </li>
+              {%- endfor %}
+              {%- if orgmemlist.overflow|length -%}
+              <li>
+                <a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-dark">
+                {%- for orgmem in orgmemlist.overflow %}
+                  <span class="profile-avatar margin-right">
+                    {%- if orgmem.organization.profile.logo_url.url %}
+                      <img src="{{ orgmem.organization.profile.logo_url.resize(80) }}" alt="{{ orgmem.organization.title }}"/>
+                    {% else %}
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
+                    {% endif %}
+                  </span>
+                {%- endfor %}
+                {%- if orgmemlist.count -%}{{ faicon(icon='ellipsis-h', icon_size='subhead', css_class='header__dropdown__item__more-icon') }}<span class="mui--text-body2 header__dropdown__item__more-icon left-padding mui--text-dark">{{ faicon(icon='plus', icon_size='caption') }} {% trans count=orgmemlist.count %}more {{count}}{% endtrans %}</span>{%- endif %}
+                </a>
+              </li>
+              {%- endif %}
+            </ul>
+          </li>
+        {%- endif %}
       <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex" data-cy="account"><span class="profile-avatar margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false) }}</span>{% trans %}Account settings{% endtrans %}</a></li>
       <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex"><span class="profile-avatar margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false) }}</span>{% trans %}Notification settings{% endtrans %}</a></li>
       {%- if not orgmemlist.recent|length -%}
