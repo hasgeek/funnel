@@ -331,7 +331,7 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
 
     To extract the SQL required in a migration:
 
-        $ python manage.py shell
+        $ flask shell
         >>> print(models.add_search_trigger(models.MyModel, 'search_vector')['trigger'])
 
     Available keys: ``update``, ``trigger`` (for upgrades) and ``drop`` (for downgrades).
