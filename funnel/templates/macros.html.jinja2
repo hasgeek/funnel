@@ -113,9 +113,9 @@
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       {{ share_dropdown(url, title) }}
     </div>
   {%- endif %}
@@ -355,7 +355,7 @@
 
 {% macro profile_admin_buttons(profile) %}
   <div class="mui-dropdown mui--d-inlineblock">
-    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" role="button" aria-label="{% trans %}Profile menu{% endtrans %}">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" aria-label="{% trans %}Profile menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
     <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="profile-edit-menu">
       {%- if profile.organization %}<li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>{% endif %}
       <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>

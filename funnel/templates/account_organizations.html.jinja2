@@ -36,7 +36,7 @@
                 <a href="{{ orgmem.organization.profile.url_for() }}" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
                   <span class="profile-avatar margin-right">
                     {%- if orgmem.organization.profile.logo_url.url %}
-                      <img src="{{ orgmem.organization.profile.logo_url.resize(80) }}" alt="{{ orgmem.organization.title }}" alt="{{ orgmem.organization.title }}"/>
+                      <img src="{{ orgmem.organization.profile.logo_url }}" alt="{{ orgmem.organization.title }}"/>
                     {% else %}
                       <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
                     {% endif %}

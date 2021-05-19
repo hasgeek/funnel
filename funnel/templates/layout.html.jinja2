@@ -58,7 +58,7 @@
 
 {% block header -%}
   {% macro account_dropdown(css_class='') %}
-    <ul class="mui-dropdown__menu mui-dropdown__menu--right header__dropdown {% if css_class %}{{ css_class }}{% endif %}" role="list">
+    <ul class="mui-dropdown__menu mui-dropdown__menu--right header__dropdown {% if css_class %}{{ css_class }}{% endif %}" role="menu">
       {% if current_auth.user.profile %}
         <li class="mui--bg-accent">
           <div class="header__dropdown__item">
@@ -95,7 +95,7 @@
                 <a href="{{ orgmem.organization.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex mui--text-dark">
                   <span class="profile-avatar margin-right">
                     {%- if orgmem.organization.profile.logo_url.url %}
-                      <img src="{{ orgmem.organization.profile.logo_url.resize(80) }}" alt="{{ orgmem.organization.title }}"/>
+                      <img src="{{ orgmem.organization.profile.logo_url }}" alt="{{ orgmem.organization.title }}"/>
                     {% else %}
                       <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
                     {% endif %}
@@ -110,7 +110,7 @@
                 {%- for orgmem in orgmemlist.overflow %}
                   <span class="profile-avatar margin-right">
                     {%- if orgmem.organization.profile.logo_url.url %}
-                      <img src="{{ orgmem.organization.profile.logo_url.resize(80) }}" alt="{{ orgmem.organization.title }}"/>
+                      <img src="{{ orgmem.organization.profile.logo_url }}" alt="{{ orgmem.organization.title }}"/>
                     {% else %}
                       <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
                     {% endif %}
@@ -159,7 +159,7 @@
     {% if not current_auth.is_anonymous -%}
       <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
       <div class="mui-dropdown header__nav-links">
-        <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %} js-acc-menu" aria-label="{% trans %}Account{% endtrans %}"  data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
+        <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %} js-acc-menu"  data-mui-toggle="dropdown" data-cy="my-account" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
           <div class="user__box">
             {{ useravatar(current_auth.user, css_class='header__nav-links__icon header__nav-links__icon--user', add_profile_link=false) }}
           </div>
@@ -170,7 +170,7 @@
       <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
         <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
         <div class="mui-dropdown header__nav-links--dropdown">
-           <a class="header__nav-links user user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account">
+          <a class="header__nav-links user user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
             <div class="user__box">
               {{ useravatar(current_auth.user, add_profile_link=false) }}
             </div>
