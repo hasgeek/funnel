@@ -4,9 +4,12 @@ from datetime import datetime
 from typing import Dict, Optional, Tuple, Union, cast
 import urllib.parse
 
+from flask import current_app
+
 from pytz import utc
 from simplejson import JSONDecodeError
 import requests
+import vimeo
 
 from coaster.utils import parse_duration, parse_isoformat
 
@@ -201,17 +204,24 @@ class VideoMixin:
                             video_url,
                         )
                 elif self.video_source == 'vimeo':
-                    video_url = f'https://vimeo.com/api/v2/video/{self.video_id}.json'
-                    vimeo_resp = requests.get(video_url)
+                    vimeo_client = vimeo.VimeoClient(
+                        token=current_app.config.get('VIMEO_ACCESS_TOKEN'),
+                        key=current_app.config.get('VIMEO_CLIENT_ID'),
+                        secret=current_app.config.get('VIMEO_CLIENT_SECRET'),
+                    )
+
+                    video_url = f'/videos/{self.video_id}'
+                    vimeo_resp = vimeo_client.get(video_url)
+                    # vimeo_resp = requests.get(video_url)
                     if vimeo_resp.status_code == 200:
-                        vimeo_video = vimeo_resp.json()[0]
+                        vimeo_video = vimeo_resp.json()
 
                         data['duration'] = vimeo_video['duration']
                         # Vimeo returns naive datetime, we will add utc timezone to it
                         data['uploaded_at'] = utc.localize(
-                            parse_isoformat(vimeo_video['upload_date'], delimiter=' ')
+                            parse_isoformat(vimeo_video['release_time'])
                         )
-                        data['thumbnail'] = vimeo_video['thumbnail_medium']
+                        data['thumbnail'] = vimeo_video['pictures']['sizes'][1]['link']
                     elif vimeo_resp.status_code == 404:
                         # Video doesn't exist on Vimeo anymore
                         self._source_video_exists = False
