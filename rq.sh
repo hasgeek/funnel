@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
-rqworker -c rqinit funnel
+flask rq worker funnel

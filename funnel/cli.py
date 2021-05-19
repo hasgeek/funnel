@@ -1,62 +1,76 @@
-#! /usr/bin/env python
 from collections import namedtuple
 from datetime import timedelta
 import sys
+
+from flask.cli import AppGroup
 
 from dateutil.relativedelta import relativedelta
 import pytz
 import requests
 
-from coaster.manage import Manager, init_manager, manager
+from baseframe import baseframe_translations
 from coaster.utils import midnight_to_utc, utcnow
-from funnel import app, models
-from funnel.models import db
-from funnel.views.notification import dispatch_notification
+
+from . import app, models
+from .models import db
+from .views.notification import dispatch_notification
+
+# --- Shell context --------------------------------------------------------------------
+
+
+@app.shell_context_processor
+def shell_context():
+    return {'db': db, 'models': models}
+
 
 # --- Data sources ---------------------------------------------------------------------
 
 DataSource = namedtuple('DataSource', ['basequery', 'datecolumn'])
-data_sources = {
-    # `user_sessions`, `app_user_sessions` and `returning_users` (added below) are
-    # lookup keys, while the others are titles
-    'user_sessions': DataSource(
-        models.UserSession.query.distinct(models.UserSession.user_id),
-        models.UserSession.accessed_at,
-    ),
-    'app_user_sessions': DataSource(
-        db.session.query(db.func.distinct(models.UserSession.user_id))
-        .select_from(models.auth_client_user_session, models.UserSession)
-        .filter(
-            models.auth_client_user_session.c.user_session_id == models.UserSession.id
+
+
+def data_sources():
+    return {
+        # `user_sessions`, `app_user_sessions` and `returning_users` (added below) are
+        # lookup keys, while the others are titles
+        'user_sessions': DataSource(
+            models.UserSession.query.distinct(models.UserSession.user_id),
+            models.UserSession.accessed_at,
         ),
-        models.auth_client_user_session.c.accessed_at,
-    ),
-    "New users": DataSource(
-        models.User.query.filter(models.User.state.ACTIVE),
-        models.User.created_at,
-    ),
-    "RSVPs": DataSource(
-        models.Rsvp.query.filter(models.Rsvp.state.YES), models.Rsvp.created_at
-    ),
-    "Saved projects": DataSource(
-        models.SavedProject.query, models.SavedProject.saved_at
-    ),
-    "Saved sessions": DataSource(
-        models.SavedSession.query, models.SavedSession.saved_at
-    ),
-}
+        'app_user_sessions': DataSource(
+            db.session.query(db.func.distinct(models.UserSession.user_id))
+            .select_from(models.auth_client_user_session, models.UserSession)
+            .filter(
+                models.auth_client_user_session.c.user_session_id
+                == models.UserSession.id
+            ),
+            models.auth_client_user_session.c.accessed_at,
+        ),
+        "New users": DataSource(
+            models.User.query.filter(models.User.state.ACTIVE),
+            models.User.created_at,
+        ),
+        "RSVPs": DataSource(
+            models.Rsvp.query.filter(models.Rsvp.state.YES), models.Rsvp.created_at
+        ),
+        "Saved projects": DataSource(
+            models.SavedProject.query, models.SavedProject.saved_at
+        ),
+        "Saved sessions": DataSource(
+            models.SavedSession.query, models.SavedSession.saved_at
+        ),
+    }
 
 
 # --- Commands -------------------------------------------------------------------------
 
 
-@manager.command
+@app.cli.command('dbconfig')
 def dbconfig():
     """Show required database configuration."""
     print(  # NOQA: T001
         '''
 -- Pipe this into psql as a super user. Example:
--- ./manage.py dbconfig | sudo -u postgres psql funnel
+-- flask dbconfig | sudo -u postgres psql funnel
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS unaccent;
@@ -66,61 +80,61 @@ CREATE EXTENSION IF NOT EXISTS hll;
     )
 
 
-@manager.command
+@app.cli.command('baseframe_translations_path')
 def baseframe_translations_path():
-    from baseframe import baseframe_translations
-
-    sys.stdout.write(baseframe_translations.dirname)
-
-
-periodic = Manager(usage="Periodic tasks from cron (with recommended intervals)")
+    """Show path to Baseframe translations."""
+    print(baseframe_translations.dirname)  # NOQA: T001
 
 
-@periodic.command
+periodic = AppGroup(
+    'periodic', help="Periodic tasks from cron (with recommended intervals)"
+)
+
+
+@periodic.command('phoneclaims')
 def phoneclaims():
     """Sweep phone claims to close all unclaimed beyond expiry period (10m)."""
     models.UserPhoneClaim.delete_expired()
     db.session.commit()
 
 
-@periodic.command
+@periodic.command('project_starting_alert')
 def project_starting_alert():
     """Send notifications for projects that are about to start schedule (5m)."""
-    with app.app_context():
-        # Rollback to the most recent 5 minute interval, to account for startup delay
-        # for periodic job processes.
-        use_now = db.session.query(
-            db.func.date_trunc('hour', db.func.utcnow())
-            + db.cast(db.func.date_part('minute', db.func.utcnow()), db.Integer)
-            / 5
-            * timedelta(minutes=5)
-        ).scalar()
+    # Rollback to the most recent 5 minute interval, to account for startup delay
+    # for periodic job processes.
+    use_now = db.session.query(
+        db.func.date_trunc('hour', db.func.utcnow())
+        + db.cast(db.func.date_part('minute', db.func.utcnow()), db.Integer)
+        / 5
+        * timedelta(minutes=5)
+    ).scalar()
 
-        # Find all projects that have a session starting between 10 and 15 minutes from
-        # use_now, and where the same project did not have a session ending within
-        # the prior hour.
+    # Find all projects that have a session starting between 10 and 15 minutes from
+    # use_now, and where the same project did not have a session ending within
+    # the prior hour.
 
-        # Any eager-loading columns and relationships should be deferred with
-        # db.defer(column) and db.noload(relationship). There are none as of this
-        # commit.
-        for project in (
-            models.Project.starting_at(
-                use_now + timedelta(minutes=10),
-                timedelta(minutes=5),
-                timedelta(minutes=60),
+    # Any eager-loading columns and relationships should be deferred with
+    # db.defer(column) and db.noload(relationship). There are none as of this
+    # commit.
+    for project in (
+        models.Project.starting_at(
+            use_now + timedelta(minutes=10),
+            timedelta(minutes=5),
+            timedelta(minutes=60),
+        )
+        .options(db.load_only(models.Project.uuid))
+        .all()
+    ):
+        dispatch_notification(
+            models.ProjectStartingNotification(
+                document=project,
+                fragment=project.next_session_from(use_now + timedelta(minutes=10)),
             )
-            .options(db.load_only(models.Project.uuid))
-            .all()
-        ):
-            dispatch_notification(
-                models.ProjectStartingNotification(
-                    document=project,
-                    fragment=project.next_session_from(use_now + timedelta(minutes=10)),
-                )
-            )
+        )
 
 
-@periodic.command
+@periodic.command('growthstats')
 def growthstats():
     """Publish growth statistics to Telegram (midnight)."""
     if not app.config.get('TELEGRAM_STATS_BOT_TOKEN') or not app.config.get(
@@ -169,7 +183,7 @@ def growthstats():
                 ds.datecolumn >= two_months_ago, ds.datecolumn < last_month
             ).count(),
         }
-        for key, ds in data_sources.items()
+        for key, ds in data_sources().items()
     }
 
     stats.update(
@@ -268,7 +282,4 @@ def growthstats():
     )
 
 
-if __name__ == "__main__":
-    manager = init_manager(app, db, models=models)
-    manager.add_command('periodic', periodic)
-    manager.run()
+app.cli.add_command(periodic)
