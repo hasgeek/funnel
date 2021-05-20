@@ -384,6 +384,7 @@ class ProjectView(
                         title=_("Edit project"),
                         submit=_("Save changes"),
                         autosave=True,
+                        draft_revision=request.form.get('form.revision'),
                     )
 
     @route('delete', methods=['GET', 'POST'])
