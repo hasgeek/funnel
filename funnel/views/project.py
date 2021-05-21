@@ -141,7 +141,7 @@ def get_registration_text(count, registered=False, follow_mode=False):
         return registration_count_messages[count].not_following
     if registered and not follow_mode:
         return _("You and {num} others have registered").format(num=count - 1)
-    elif registered and not follow_mode:
+    elif not registered and not follow_mode:
         return _("{num} registrations so far").format(num=count)
     elif registered and follow_mode:
         return _("You and {num} others are following").format(num=count - 1)
