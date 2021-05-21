@@ -71,7 +71,10 @@ class ProjectForm(forms.Form):
                 'start_at',
                 message=__("An ending time is required"),
             ),
-            forms.validators.Optional(),
+            forms.validators.AllowedIf(
+                'start_at', message=__("This requires a starting time too")
+            ),
+            forms.validators.Optional(),  # Stop the next validator if field is empty
             forms.validators.GreaterThanEqualTo(
                 'start_at', __("This must be after the starting time")
             ),
