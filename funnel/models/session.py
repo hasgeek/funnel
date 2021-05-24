@@ -218,6 +218,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             loc.append(self.project.location)
         return '\n'.join(loc)
 
+    with_roles(location, read={'all'})
+
     @classmethod
     def for_proposal(cls, proposal, create=False):
         session_obj = cls.query.filter_by(proposal=proposal).first()
