@@ -95,7 +95,6 @@ class ProjectForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
-        filters=[forms.filters.strip()],
     )
     description = forms.MarkdownField(
         __("Project description"),
@@ -192,7 +191,6 @@ class ProjectBannerForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
-        filters=[forms.filters.strip()],
     )
 
     def set_queries(self):
