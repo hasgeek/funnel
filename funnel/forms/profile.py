@@ -39,6 +39,7 @@ class ProfileForm(OrganizationForm):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=[forms.filters.strip()],
     )
     website = forms.URLField(
         __("Website URL"),
@@ -48,7 +49,7 @@ class ProfileForm(OrganizationForm):
             forms.validators.URL(),
             forms.validators.ValidUrl(),
         ],
-        filters=[forms.filters.none_if_empty()],
+        filters=[forms.filters.strip(), forms.filters.none_if_empty()],
     )
 
     def set_queries(self):
@@ -98,6 +99,7 @@ class ProfileLogoForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=[forms.filters.strip()],
     )
 
     def set_queries(self):
@@ -122,6 +124,7 @@ class ProfileBannerForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=[forms.filters.strip()],
     )
 
     def set_queries(self):

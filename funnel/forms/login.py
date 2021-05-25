@@ -31,6 +31,7 @@ class LoginForm(forms.Form):
                 __("An email address or username is required")
             )
         ],
+        filters=[forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(

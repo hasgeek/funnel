@@ -44,11 +44,35 @@ def _db(database):
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
 @pytest.fixture(autouse=True)
-def client(db_session):
+def client(request, db_session):
     """Provide a test client."""
+    if 'noclient' in request.keywords:
+        # To use this, annotate a test with:
+        # @pytest.mark.noclient
+        return None
     with app.app_context():  # Not required for test_client, but required for autouse
         with app.test_client() as test_client:
             yield test_client
+
+
+@pytest.fixture
+def varfixture(request):
+    """
+    Return a variable fixture.
+
+    Usage::
+
+        @pytest.mark.parametrize('varfixture', ['fixture1', 'fixture2'], indirect=True)
+        def test_me(varfixture):
+            ...
+
+    This fixture can also be ignored, and a test can access a variable fixture directly:
+
+    1. Don't use `indirect=True`
+    2. Accept `request` as a parameter
+    3. Get the actual fixture with `request.getfixturevalue(varfixture)`
+    """
+    return request.getfixturevalue(request.param)
 
 
 # --- Sample data: users, organizations, projects, etc ---------------------------------

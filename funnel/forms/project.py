@@ -95,6 +95,7 @@ class ProjectForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=[forms.filters.strip()],
     )
     description = forms.MarkdownField(
         __("Project description"),
@@ -169,6 +170,7 @@ class ProjectNameForm(forms.Form):
             ),
             AvailableName(),
         ],
+        filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/<profile>/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -190,6 +192,7 @@ class ProjectBannerForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=[forms.filters.strip()],
     )
 
     def set_queries(self):
