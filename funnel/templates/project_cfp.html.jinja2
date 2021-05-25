@@ -55,7 +55,7 @@
       $('button[name="open-now"]').click(function(event) {
         event.preventDefault();
         var now = new Date(new Date().getTime() + new Date().getTimezoneOffset() * -60 * 1000);
-        $('#cfp_start_at').val(now.toISOString().slice(0, 19));
+        $('#cfp_start_at').val(now.toISOString().slice(0, 16));
         $('.js-cfp-start-at, .js-cfp-end-at').removeClass('mui--hide');
       });
 
