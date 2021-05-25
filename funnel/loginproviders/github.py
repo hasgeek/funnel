@@ -100,7 +100,7 @@ class GitHubProvider(LoginProvider):
             'emails': emails,
             'userid': ghinfo['login'],
             'username': ghinfo['login'],
-            'fullname': ghinfo.get('name'),
+            'fullname': ghinfo.get('name').strip(),
             'avatar_url': ghinfo.get('avatar_url'),
             'oauth_token': response['access_token'],
             'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets
