@@ -20,6 +20,7 @@ class OrganizationForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=Organization.__title_length__),
         ],
+        filters=[forms.filters.strip()],
     )
     name = forms.AnnotatedTextField(
         __("Username"),
@@ -33,6 +34,7 @@ class OrganizationForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=Profile.__name_length__),
         ],
+        filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -85,6 +87,7 @@ class TeamForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=Team.__title_length__),
         ],
+        filters=[forms.filters.strip()],
     )
     users = forms.UserSelectMultiField(
         __("Users"),

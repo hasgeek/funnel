@@ -154,6 +154,7 @@ class ProposalForm(forms.Form):
             forms.validators.URL(),
             forms.validators.ValidUrl(),
         ],
+        filters=[forms.filters.strip()],
         description=__("YouTube or Vimeo URL (optional)"),
     )
     formlabels = forms.FormField(forms.Form, __("Labels"))

@@ -129,7 +129,7 @@ class LinkedInProvider(LoginProvider):
             'username': None,
             'fullname': (
                 info.get('localizedFirstName') + ' ' + info.get('localizedLastName')
-            ),
+            ).strip(),
             'avatar_url': '',
             'oauth_token': response['access_token'],
             'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets

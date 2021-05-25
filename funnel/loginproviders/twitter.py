@@ -118,7 +118,7 @@ class TwitterProvider(LoginProvider):
             'email': email,
             'userid': resp['user_id'],
             'username': resp['screen_name'],
-            'fullname': fullname,
+            'fullname': fullname.strip(),
             'avatar_url': avatar_url,
             'oauth_token': resp['oauth_token'],
             'oauth_token_secret': resp['oauth_token_secret'],
