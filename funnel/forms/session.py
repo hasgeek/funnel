@@ -37,7 +37,6 @@ class SessionForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
-        filters=[forms.filters.strip()],
     )
     is_break = forms.BooleanField(__("This session is a break period"), default=False)
     featured = forms.BooleanField(__("This is a featured session"), default=False)
@@ -55,7 +54,6 @@ class SessionForm(forms.Form):
             forms.validators.ValidUrl(),
             forms.validators.Length(max=2000),
         ],
-        filters=[forms.filters.strip()],
     )
 
 
