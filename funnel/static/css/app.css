@@ -403,15 +403,14 @@ html.touch .collapsible__body--disable {
 
 .profile-avatar {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 24px;
+  height: 24px;
   background: #f9f9f9;
   border-radius: 50%;
   border: 1px solid #f1f1f1;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
   overflow: hidden;
 }
 .profile-avatar svg {
@@ -429,7 +428,12 @@ html.touch .collapsible__body--disable {
 }
 
 .profile-avatar + .profile-avatar {
-  margin-left: -28px;
+  margin-left: -20px;
+}
+
+.profile-avatar--bigger {
+  width: 40px;
+  height: 40px;
 }
 
 .read-more,
@@ -1426,7 +1430,7 @@ a.loginbutton.hidden,
   .header__dropdown
   .user__box__header {
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   width: calc(100% - 50px);
   flex-direction: row;
 }
@@ -1459,9 +1463,31 @@ a.loginbutton.hidden,
   .header__site-title
   .header__site-title__title
   .header__dropdown
+  .user__box__header
+  .user__box__header__details
+  .user__box__header__icon {
+  position: relative;
+  top: 3px;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__dropdown
   li
   .header__dropdown__item {
-  padding: 8px 8px 4px;
+  padding: 8px 16px 8px;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__dropdown
+  li
+  .header__dropdown__item--morepadding {
+  padding-left: 24px;
 }
 .hg-app
   .header--fixed
@@ -1481,9 +1507,18 @@ a.loginbutton.hidden,
   .header__site-title
   .header__site-title__title
   .header__dropdown
+  .header__dropdown__item.header__dropdown__item:hover {
+  background-color: #f9f9f9;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__dropdown
   li:last-child
   .header__dropdown__item {
-  padding-bottom: 8px;
+  padding-bottom: 16px;
 }
 .hg-app
   .header--fixed
@@ -1493,7 +1528,7 @@ a.loginbutton.hidden,
   .header__dropdown
   .header__dropdown__item__more-icon {
   position: relative;
-  left: -37px;
+  left: -28px;
   z-index: 2;
 }
 .hg-app
@@ -1502,9 +1537,26 @@ a.loginbutton.hidden,
   .header__site-title
   .header__site-title__title
   .header__dropdown
-  .page-card {
-  margin: -8px 8px 8px;
-  border-radius: 16px;
+  .header__dropdown__item__more-icon--ellipsis {
+  position: relative;
+}
+.hg-app
+  .header--fixed
+  .header__nav
+  .header__site-title
+  .header__site-title__title
+  .header__dropdown
+  .header__dropdown__item__more-icon--ellipsis:before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -3px;
+  width: 24px;
+  height: 24px;
+  left: -33px;
+  border: solid 1px #f1f1f1;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
 }
 .hg-app
   .header--fixed
@@ -5636,6 +5688,11 @@ body > .proposal-box.ui-draggable {
     font-size: 14px;
   }
 }
+.org-members-wrapper {
+  padding-left: 47px;
+  margin-top: 8px;
+}
+
 .draft-updates {
   margin-bottom: 32px;
 }

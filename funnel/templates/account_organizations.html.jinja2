@@ -25,7 +25,7 @@
           <ul class="mui-list--unstyled mui-list--aligned top-padding right-padding left-paddin margin-bottom">
             <li class="bottom-padding">
                <a href="/new" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
-                <span class="profile-avatar margin-right">
+                <span class="profile-avatar profile-avatar--bigger margin-right">
                   {{ faicon(icon='plus', baseline=false) }}
                 </span>
                 <span class="mui--text-hyperlink mui--text-body2 mui--text-bold">{% trans %}Add new organization{% endtrans %}</span>
@@ -34,7 +34,7 @@
             {% for orgmem in current_auth.user.views.organizations_as_admin() %}
               <li class="bottom-padding">
                 <a href="{{ orgmem.organization.profile.url_for() }}" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
-                  <span class="profile-avatar margin-right">
+                  <span class="profile-avatar profile-avatar--bigger margin-right">
                     {%- if orgmem.organization.profile.logo_url.url %}
                       <img src="{{ orgmem.organization.profile.logo_url }}" alt="{{ orgmem.organization.title }}"/>
                     {% else %}
@@ -43,18 +43,25 @@
                   </span>
                   <div>
                     <p class="profile-avatar-title mui--text-dark mui--text-body2 mui--text-bold">{{ orgmem.organization.profile.title }}</p>
-                    <p class="mui--text-light mui--text-caption zero-bottom-margin">
+                    <ul class="bullet-separated-list mui--text-light mui--text-caption zero-bottom-margin">
                       {% if orgmem.is_owner %}
-                        {% trans %}Owner{% endtrans %}
+                        <li>{% trans %}Owner{% endtrans %}</li>
                       {% else %}
-                        {% trans %}Admin{% endtrans %}
+                        <li>{% trans %}Admin{% endtrans %}</li>
                       {% endif %}
                       {% if not orgmem.organization.profile.state.PUBLIC %}
-                        {{ faicon(icon='lock-alt', css_class='margin-left') }} {% trans %}Private{% endtrans %}
+                        <li>{% trans %}Private{% endtrans %}</li>
                       {% endif %}
-                    </p>
+                    </ul>
                   </div>
                 </a>
+                <div class="org-members-wrapper">
+                  <p class="mui--text-light">
+                  {% for membership in orgmem.organization.active_admin_memberships %}
+                    {{ membership.user.fullname }}
+                  {%- endfor %}
+                  </p>
+                </div>
               </li>
             {%- endfor %}
           </ul>

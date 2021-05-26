@@ -145,7 +145,7 @@
             min-width: 290px;
             .user__box__header {
               justify-content: space-between;
-              align-items: center;
+              align-items: baseline;
               width: calc(100% - 50px);
               flex-direction: row;
               .user__box__header__details {
@@ -155,29 +155,48 @@
                   overflow: hidden;
                   text-overflow: ellipsis;
                 }
+                .user__box__header__icon {
+                  position: relative;
+                  top: 3px;
+                }
               }
             }
             li .header__dropdown__item {
-              padding: $mui-grid-padding/2 $mui-grid-padding/2
-                $mui-grid-padding/4;
+              padding: $mui-grid-padding/2 $mui-grid-padding $mui-grid-padding/2;
+            }
+            li .header__dropdown__item--morepadding {
+              padding-left: 24px;
             }
             li .header__dropdown__item.header__dropdown__item--flex {
               display: flex;
               align-items: center;
               width: 100%;
             }
+            .header__dropdown__item.header__dropdown__item:hover {
+              background-color: $mui-bg-color-accent;
+            }
             li:last-child .header__dropdown__item {
-              padding-bottom: $mui-grid-padding/2;
+              padding-bottom: $mui-grid-padding;
             }
             .header__dropdown__item__more-icon {
               position: relative;
-              left: -37px;
+              left: -28px;
               z-index: 2;
             }
-            .page-card {
-              margin: -$mui-grid-padding/2 $mui-grid-padding/2
-                $mui-grid-padding/2;
-              border-radius: 16px;
+            .header__dropdown__item__more-icon--ellipsis {
+              position: relative;
+            }
+            .header__dropdown__item__more-icon--ellipsis:before {
+              content: '';
+              display: block;
+              position: absolute;
+              top: -3px;
+              width: 24px;
+              height: 24px;
+              left: -33px;
+              border: solid 1px $mui-bg-color-primary-dark;
+              background-color: rgba(255, 255, 255, 0.8);
+              border-radius: 50%;
             }
           }
           .header_dropdown--mobile {
