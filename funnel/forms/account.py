@@ -117,7 +117,7 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.DataRequired(),
             EmailAddressAvailable(purpose='register'),
         ],
-        filters=[forms.filters.strip()],
+        filters=[str, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(
@@ -211,7 +211,6 @@ class PasswordResetForm(forms.RecaptchaForm):
     username = forms.StringField(
         __("Username or Email"),
         validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
         description=__("Please reconfirm your username or email address"),
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -319,7 +318,7 @@ class AccountForm(forms.Form):
             forms.validators.DataRequired(),
             EmailAddressAvailable(purpose='use'),
         ],
-        filters=[forms.filters.strip()],
+        filters=[str, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
@@ -332,7 +331,7 @@ class AccountForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=Profile.__name_length__),
         ],
-        filters=[forms.filters.strip(), forms.filters.none_if_empty()],
+        filters=[forms.filters.none_if_empty()],
         prefix="https://hasgeek.com/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -396,7 +395,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             validate_emailclaim,
             EmailAddressAvailable(purpose='claim'),
         ],
-        filters=[forms.filters.strip()],
+        filters=[str, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     type = forms.RadioField(  # NOQA: A003
@@ -416,7 +415,7 @@ class EmailPrimaryForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
+        filters=[str, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
@@ -431,7 +430,7 @@ class NewPhoneForm(forms.RecaptchaForm):
     phone = forms.TelField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
+        filters=[str, forms.filters.strip()],
         description=__("Mobile numbers only, in Indian or international format"),
     )
 
