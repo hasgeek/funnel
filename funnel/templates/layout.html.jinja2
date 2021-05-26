@@ -72,7 +72,7 @@
                 {% endif %}
                   <div class="user__box__header__details">
                     <p class="mui--text-title mui--text-bold mui--text-dark zero-bottom-margin">{{ current_auth.user.fullname }}</p>
-                    <p class="mui--text-caption mui--text-light zero-bottom-margin">{{ current_auth.user.username }}</p>
+                    {% if current_auth.user.username %}<p class="mui--text-caption mui--text-light zero-bottom-margin">@{{ current_auth.user.username }}</p>{% endif %}
                   </div>
                 {% if current_auth.user.profile_url %}
                   {{ faicon(icon='chevron-right', icon_size='subhead', baseline=false, css_class='user__box__header__icon mui--text-dark') }}
@@ -167,7 +167,7 @@
       <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
         <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
         <div class="mui-dropdown header__nav-links--dropdown">
-          <a class="header__nav-links user user--standalone" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
+          <a class="header__nav-links user user--standalone js-acc-menu" data-mui-toggle="dropdown" data-cy="my-account" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
             <div class="user__box">
               {{ useravatar(current_auth.user, add_profile_link=false) }}
             </div>

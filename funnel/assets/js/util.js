@@ -94,9 +94,19 @@ export const Utils = {
     });
   },
   headerMenuDropdown() {
-    $('.js-acc-menu').on('click', function () {
+    $('.js-acc-menu').on('click', function (event) {
+      event.stopPropagation();
       // To disable body scroll in the background when account menu is open in mobile
       $('body').toggleClass('body-scroll-lock');
+    });
+    $('body').on('click', function (event) {
+      if (
+        $('.header__dropdown').hasClass('mui--is-open') &&
+        !$(event.target).is('.js-acc-menu') &&
+        !$.contains($('.js-acc-menu')[0], event.target)
+      ) {
+        $('body').removeClass('body-scroll-lock');
+      }
     });
   },
   sendToGA(category, action, label, value = 0) {
