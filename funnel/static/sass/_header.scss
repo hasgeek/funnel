@@ -155,10 +155,10 @@
                   overflow: hidden;
                   text-overflow: ellipsis;
                 }
-                .user__box__header__icon {
-                  position: relative;
-                  top: 3px;
-                }
+              }
+              .user__box__header__icon {
+                position: relative;
+                top: 3px;
               }
             }
             li .header__dropdown__item {
@@ -171,6 +171,9 @@
               display: flex;
               align-items: center;
               width: 100%;
+              font-weight: 500;
+              color: $mui-text-light;
+              box-sizing: border-box;
             }
             .header__dropdown__item.header__dropdown__item:hover {
               background-color: $mui-bg-color-accent;
@@ -203,7 +206,7 @@
             position: fixed;
             top: 0 !important;
             margin: 0;
-            bottom: 52px;
+            bottom: 53px;
             border-radius: 0;
             left: 0;
             right: 0;

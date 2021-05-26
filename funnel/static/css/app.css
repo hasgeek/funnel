@@ -414,8 +414,8 @@ html.touch .collapsible__body--disable {
   overflow: hidden;
 }
 .profile-avatar svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .profile-avatar img {
   width: 100%;
@@ -424,7 +424,7 @@ html.touch .collapsible__body--disable {
 }
 
 .profile-avatar-title {
-  margin-bottom: 4px !important;
+  margin-bottom: 0;
 }
 
 .profile-avatar + .profile-avatar {
@@ -434,6 +434,11 @@ html.touch .collapsible__body--disable {
 .profile-avatar--bigger {
   width: 40px;
   height: 40px;
+}
+
+.profile-avatar--new {
+  background: #0f73ed;
+  color: #ffffff;
 }
 
 .read-more,
@@ -1464,7 +1469,6 @@ a.loginbutton.hidden,
   .header__site-title__title
   .header__dropdown
   .user__box__header
-  .user__box__header__details
   .user__box__header__icon {
   position: relative;
   top: 3px;
@@ -1500,6 +1504,9 @@ a.loginbutton.hidden,
   display: flex;
   align-items: center;
   width: 100%;
+  font-weight: 500;
+  color: #4d5763;
+  box-sizing: border-box;
 }
 .hg-app
   .header--fixed
@@ -1567,7 +1574,7 @@ a.loginbutton.hidden,
   position: fixed;
   top: 0 !important;
   margin: 0;
-  bottom: 52px;
+  bottom: 53px;
   border-radius: 0;
   left: 0;
   right: 0;
