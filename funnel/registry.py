@@ -13,6 +13,7 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AuthToken, UserExternalId
+from .typing import ReturnLoginProvider
 
 # Bearer token, as per http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
 auth_bearer_re = re.compile('^Bearer ([a-zA-Z0-9_.~+/-]+=*)$')
@@ -217,7 +218,7 @@ class LoginProvider(object):
     def do(self, callback_url: str):
         raise NotImplementedError
 
-    def callback(self, *args, **kwargs):
+    def callback(self) -> ReturnLoginProvider:
         raise NotImplementedError
 
         # Template for subclasses:

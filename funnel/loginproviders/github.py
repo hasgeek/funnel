@@ -7,6 +7,7 @@ import requests
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginProvider
+from ..typing import ReturnLoginProvider
 
 __all__ = ['GitHubProvider']
 
@@ -37,7 +38,7 @@ class GitHubProvider(LoginProvider):
             )
         )
 
-    def callback(self):
+    def callback(self) -> ReturnLoginProvider:
         if request.args.get('error'):
             if request.args['error'] == 'user_denied':
                 raise LoginCallbackError(_("You denied the GitHub login request"))
@@ -100,7 +101,7 @@ class GitHubProvider(LoginProvider):
             'emails': emails,
             'userid': ghinfo['login'],
             'username': ghinfo['login'],
-            'fullname': ghinfo.get('name'),
+            'fullname': (ghinfo.get('name') or '').strip(),
             'avatar_url': ghinfo.get('avatar_url'),
             'oauth_token': response['access_token'],
             'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets

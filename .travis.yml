@@ -36,7 +36,7 @@ install:
 before_script:
   - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
   - psql -c 'create database funnel_testing;' -U postgres
-  - './manage.py dbconfig | sudo -u postgres psql funnel_testing'
+  - 'flask dbconfig | sudo -u postgres psql funnel_testing'
 script:
   - './runtests.sh'
   - './runfrontendtests.sh'

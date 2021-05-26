@@ -6,6 +6,7 @@ import requests
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginProvider
+from ..typing import ReturnLoginProvider
 
 __all__ = ['GoogleProvider']
 
@@ -31,7 +32,7 @@ class GoogleProvider(LoginProvider):
         session['google_callback'] = callback_url
         return redirect(self.flow(callback_url).step1_get_authorize_url())
 
-    def callback(self):
+    def callback(self) -> ReturnLoginProvider:
         if 'google_callback' in session:
             callback_url = session.pop('google_callback')
         else:
@@ -76,7 +77,7 @@ class GoogleProvider(LoginProvider):
             'email': credentials.id_token['email'],
             'userid': credentials.id_token['email'],
             'username': credentials.id_token['email'],
-            'fullname': response.get('name', ''),
+            'fullname': (response.get('name') or '').strip(),
             'avatar_url': response.get('picture'),
             'oauth_token': credentials.access_token,
             'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets
