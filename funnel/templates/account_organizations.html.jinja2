@@ -57,8 +57,8 @@
                 </a>
                 <div class="org-members-wrapper">
                   <p class="mui--text-light">
-                  {% for membership in orgmem.organization.active_admin_memberships %}
-                    {{ membership.user.fullname }}
+                  {%- for user in orgmem.organization.admin_users %}
+                    {{ user.pickername }} {%- if not loop.last %},{% endif %}
                   {%- endfor %}
                   </p>
                 </div>

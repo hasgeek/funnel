@@ -131,8 +131,12 @@ class __Organization:
         viewonly=True,
     )
 
-    owner_users = DynamicAssociationProxy('active_owner_memberships', 'user')
-    admin_users = DynamicAssociationProxy('active_admin_memberships', 'user')
+    owner_users = with_roles(
+        DynamicAssociationProxy('active_owner_memberships', 'user'), read={'all'}
+    )
+    admin_users = with_roles(
+        DynamicAssociationProxy('active_admin_memberships', 'user'), read={'all'}
+    )
 
 
 # User.active_organization_memberships is a future possibility.
