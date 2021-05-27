@@ -141,6 +141,9 @@
           .header__dropdown {
             min-width: 290px;
             overflow: auto;
+            .user {
+              margin: $mui-grid-padding/2 auto;
+            }
             .user__box__header {
               justify-content: space-between;
               align-items: baseline;
@@ -210,9 +213,19 @@
             overflow: auto;
             box-shadow: none;
             border-bottom: 1px solid $mui-divider-color;
-            height: 100%;
+            height: 120%;
             li .header__dropdown__item.header__dropdown__item--flex {
               max-width: 250px;
+            }
+            .header__dropdown__close {
+              background-color: $mui-bg-color-accent;
+              padding: $mui-grid-padding;
+              display: block;
+              width: 100%;
+              box-sizing: content-box;
+            }
+            .user {
+              margin: 0 auto;
             }
           }
         }

@@ -57,12 +57,15 @@
 {%- endblock %}
 
 {% block header -%}
-  {% macro account_dropdown(css_class='') %}
+  {% macro account_dropdown(css_class='', mobile_screen=false) %}
     <ul class="mui-dropdown__menu mui-dropdown__menu--right header__dropdown {% if css_class %}{{ css_class }}{% endif %}" role="menu">
+      {% if mobile_screen  %}
+        <span class="header__dropdown__close">{{ faicon(icon='arrow-left', icon_size='subhead', baseline=false, css_class='mui--text-dark') }}</span>
+      {% endif %}
       {% if current_auth.user.profile %}
         <li class="mui--bg-accent">
           <div class="header__dropdown__item">
-            <div class="user margin-top margin-bottom">
+            <div class="user">
               <div class="user__box">
                 {{ useravatar(current_auth.user, add_profile_link=true, size='big') }}
                 {% if current_auth.user.profile_url %}
@@ -75,7 +78,7 @@
                     {% if current_auth.user.username %}<p class="mui--text-caption mui--text-light zero-bottom-margin">@{{ current_auth.user.username }}</p>{% endif %}
                   </div>
                 {% if current_auth.user.profile_url %}
-                  {{ faicon(icon='chevron-right', icon_size='subhead', baseline=false, css_class='user__box__header__icon mui--text-dark') }}
+                    {{ faicon(icon='chevron-right', icon_size='subhead', baseline=false, css_class='user__box__header__icon mui--text-dark') }}
                   </a>
                 {%- else %}
                   </div>
@@ -162,7 +165,7 @@
           </div>
           <span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span>
         </a>
-        {{ account_dropdown(css_class='header_dropdown--mobile') }}
+        {{ account_dropdown(css_class='header_dropdown--mobile', mobile_screen=true) }}
       </div>
       <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
         <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
