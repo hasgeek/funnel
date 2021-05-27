@@ -42,21 +42,18 @@
                     {% endif %}
                   </span>
                   <div>
-                    <p class="profile-avatar-title mui--text-dark mui--text-subhead mui--text-bold">{{ orgmem.organization.profile.title }}</p>
-                    <ul class="bullet-separated-list mui--text-light mui--text-caption zero-bottom-margin">
+                    <p class="profile-avatar-title mui--text-dark mui--text-subhead mui--text-bold">{{ orgmem.organization.profile.title }}{% if not orgmem.organization.profile.state.PUBLIC %} {{ faicon(icon='lock-alt', icon_size='caption', baseline=false, css_class='margin-left') }}{% endif %}</p>
+                    <p class="mui--text-light mui--text-caption zero-bottom-margin">
                       {% if orgmem.is_owner %}
-                        <li>{% trans %}Owner{% endtrans %}</li>
+                        {% trans %}Owner{% endtrans %}
                       {% else %}
-                        <li>{% trans %}Admin{% endtrans %}</li>
+                        {% trans %}Admin{% endtrans %}
                       {% endif %}
-                      {% if not orgmem.organization.profile.state.PUBLIC %}
-                        <li>{% trans %}Private{% endtrans %}</li>
-                      {% endif %}
-                    </ul>
+                    </p>
                   </div>
                 </a>
                 <div class="org-members-wrapper">
-                  <p class="mui--text-light">
+                  <p class="mui--text-light zero-bottom-margin">
                   {%- for user in orgmem.organization.admin_users %}
                     {{ user.pickername }} {%- if not loop.last %},{% endif %}
                   {%- endfor %}
