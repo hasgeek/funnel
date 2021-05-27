@@ -111,7 +111,12 @@ export const Utils = {
     // Open full screen account menu in mobile
     $('.js-acc-menu-mobile').on('click', function (event) {
       event.stopPropagation();
-      $('.header_dropdown--mobile').slideToggle();
+      if ($(this).hasClass('header__nav-links--active')) {
+        $('.header_dropdown--mobile').animate({ top: '100vh' });
+      } else {
+        $('.header_dropdown--mobile').animate({ top: '0' });
+      }
+      $(this).toggleClass('header__nav-links--active');
       $('body').toggleClass('body-scroll-lock');
     });
   },

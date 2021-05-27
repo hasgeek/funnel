@@ -194,7 +194,7 @@
   }
   .header_dropdown--mobile {
     position: fixed;
-    top: 0 !important;
+    top: 100vh;
     left: 0;
     right: 0;
     bottom: 0;
@@ -205,6 +205,7 @@
     border-bottom: 1px solid $mui-divider-color;
     height: 150%;
     z-index: 999; // Less than fixed bottom header
+    display: block;
   }
 }
 
@@ -347,6 +348,9 @@
     .header__dropdown {
       max-width: 300px;
       max-height: 90vh;
+    }
+    .header_dropdown--mobile {
+      display: none;
     }
   }
 }

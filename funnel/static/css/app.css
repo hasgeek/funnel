@@ -1456,7 +1456,7 @@ a.loginbutton.hidden,
 }
 .hg-app .header_dropdown--mobile {
   position: fixed;
-  top: 0 !important;
+  top: 100vh;
   left: 0;
   right: 0;
   bottom: 0;
@@ -1467,6 +1467,7 @@ a.loginbutton.hidden,
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   height: 150%;
   z-index: 999;
+  display: block;
 }
 
 .hg-app .header--fixed.header--lowzindex {
@@ -1680,6 +1681,9 @@ a.loginbutton.hidden,
   .hg-app .header__dropdown {
     max-width: 300px;
     max-height: 90vh;
+  }
+  .hg-app .header_dropdown--mobile {
+    display: none;
   }
 }
 @media (min-width: 1200px) {

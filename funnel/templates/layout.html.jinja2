@@ -158,7 +158,7 @@
     {% if not current_auth.is_anonymous -%}
       <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
       <div class="mui-dropdown header__nav-links">
-        <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %} js-acc-menu-mobile" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
+        <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone js-acc-menu-mobile" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
           <div class="user__box">
             {{ useravatar(current_auth.user, css_class='header__nav-links__icon header__nav-links__icon--user', add_profile_link=false) }}
           </div>
