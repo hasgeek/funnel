@@ -1531,6 +1531,14 @@ a.loginbutton.hidden,
     border-radius: 4px;
     width: auto;
     display: block;
+    font-weight: 600;
+    line-height: 1.33;
+    letter-spacing: 0.43px;
+    text-align: left;
+    color: #0f73ed;
+    position: relative;
+    background-color: #e1eefd;
+    text-decoration: none;
   }
   .hg-app
     .header--fixed

@@ -262,6 +262,14 @@
               border-radius: 4px;
               width: auto;
               display: block;
+              font-weight: 600;
+              line-height: 1.33;
+              letter-spacing: 0.43px;
+              text-align: left;
+              color: $mui-primary-color;
+              position: relative;
+              background-color: $mui-primary-color-lighter;
+              text-decoration: none;
               .emoji-hand {
                 display: none;
               }
