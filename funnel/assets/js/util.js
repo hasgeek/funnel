@@ -111,8 +111,7 @@ export const Utils = {
     // Open full screen account menu in mobile
     $('.js-acc-menu-mobile').on('click', function (event) {
       event.stopPropagation();
-      $('.header_dropdown--mobile').toggleClass('mui--is-open');
-      $('.js-logo-about').toggleClass('mui--hide');
+      $('.header_dropdown--mobile').slideToggle();
       $('body').toggleClass('body-scroll-lock');
     });
   },
