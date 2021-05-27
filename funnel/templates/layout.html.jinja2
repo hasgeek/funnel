@@ -60,7 +60,7 @@
   {% macro account_dropdown(css_class='', mobile_screen=false) %}
     <ul class="mui-dropdown__menu mui-dropdown__menu--right header__dropdown {% if css_class %}{{ css_class }}{% endif %}" role="menu">
       {% if mobile_screen  %}
-        <span class="header__dropdown__close">{{ faicon(icon='arrow-left', icon_size='subhead', baseline=false, css_class='mui--text-dark') }}</span>
+        <span class="header__dropdown__close mui--z1">{{ faicon(icon='arrow-left', icon_size='subhead', baseline=false, css_class='mui--text-dark') }}</span>
       {% endif %}
       {% if current_auth.user.profile %}
         <li class="mui--bg-accent">

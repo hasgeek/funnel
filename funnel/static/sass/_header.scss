@@ -214,15 +214,14 @@
             box-shadow: none;
             border-bottom: 1px solid $mui-divider-color;
             height: 120%;
-            li .header__dropdown__item.header__dropdown__item--flex {
-              max-width: 250px;
-            }
             .header__dropdown__close {
-              background-color: $mui-bg-color-accent;
+              background-color: $mui-bg-color-primary;
               padding: $mui-grid-padding;
               display: block;
               width: 100%;
               box-sizing: content-box;
+              position: relative;
+              z-index: 2;
             }
             .user {
               margin: 0 auto;

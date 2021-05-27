@@ -1595,22 +1595,14 @@ a.loginbutton.hidden,
   .header__site-title
   .header__site-title__title
   .header_dropdown--mobile
-  li
-  .header__dropdown__item.header__dropdown__item--flex {
-  max-width: 250px;
-}
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header_dropdown--mobile
   .header__dropdown__close {
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   padding: 16px;
   display: block;
   width: 100%;
   box-sizing: content-box;
+  position: relative;
+  z-index: 2;
 }
 .hg-app
   .header--fixed
