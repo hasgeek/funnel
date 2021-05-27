@@ -1459,6 +1459,7 @@ a.loginbutton.hidden,
   top: 0 !important;
   left: 0;
   right: 0;
+  bottom: 0;
   margin: 0;
   border-radius: 0;
   overflow: auto;
@@ -1741,6 +1742,10 @@ a.loginbutton.hidden,
   .hg-app .header--fixed .header__nav .header__site-title a.header__button {
     height: 24px;
     line-height: 24px;
+  }
+  .hg-app .header_dropdown--mobile {
+    height: auto;
+    padding-bottom: 35px;
   }
 }
 .header__site-title__item {
