@@ -1416,95 +1416,42 @@ a.loginbutton.hidden,
   .header__nav-links--updates--unread:after {
   display: inline-block;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown {
+.hg-app .header--fixed .header__nav .header__right-nav {
+  display: none;
+}
+.hg-app .header--fixed .header__nav a.header__button {
+  line-height: 30.6px;
+  margin: 6px 0;
+}
+.hg-app .header__dropdown {
   min-width: 290px;
   overflow: auto;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .user {
-  margin: 8px auto;
-}
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .user__box__header {
+.hg-app .header__dropdown .user__box__header {
   justify-content: space-between;
   align-items: baseline;
   width: calc(100% - 50px);
   flex-direction: row;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .user__box__header
-  .user__box__header__details {
+.hg-app .header__dropdown .user__box__header .user__box__header__details {
   width: 90%;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .user__box__header
-  .user__box__header__details
-  p {
+.hg-app .header__dropdown .user__box__header .user__box__header__details p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .user__box__header
-  .user__box__header__icon {
+.hg-app .header__dropdown .user__box__header .user__box__header__icon {
   position: relative;
   top: 3px;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  li
-  .header__dropdown__item {
+.hg-app .header__dropdown li .header__dropdown__item {
   padding: 8px 16px 8px;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  li
-  .header__dropdown__item--morepadding {
+.hg-app .header__dropdown li .header__dropdown__item--morepadding {
   padding-left: 24px;
 }
 .hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
   .header__dropdown
   li
   .header__dropdown__item.header__dropdown__item--flex {
@@ -1515,52 +1462,21 @@ a.loginbutton.hidden,
   color: #4d5763;
   box-sizing: border-box;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .header__dropdown__item.header__dropdown__item:hover {
+.hg-app .header__dropdown .header__dropdown__item.header__dropdown__item:hover {
   background-color: #f9f9f9;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  li:last-child
-  .header__dropdown__item {
+.hg-app .header__dropdown li:last-child .header__dropdown__item {
   padding-bottom: 16px;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .header__dropdown__item__more-icon {
+.hg-app .header__dropdown .header__dropdown__item__more-icon {
   position: relative;
   left: -28px;
   z-index: 2;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .header__dropdown__item__more-icon--ellipsis {
+.hg-app .header__dropdown .header__dropdown__item__more-icon--ellipsis {
   position: relative;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header__dropdown
-  .header__dropdown__item__more-icon--ellipsis:before {
+.hg-app .header__dropdown .header__dropdown__item__more-icon--ellipsis:before {
   content: '';
   display: block;
   position: absolute;
@@ -1572,53 +1488,18 @@ a.loginbutton.hidden,
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
 }
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header_dropdown--mobile {
+.hg-app .header_dropdown--mobile {
   position: fixed;
   top: 0 !important;
-  margin: 0;
-  border-radius: 0;
   left: 0;
   right: 0;
+  margin: 0;
+  border-radius: 0;
   overflow: auto;
   box-shadow: none;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   height: 120%;
-}
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header_dropdown--mobile
-  .header__dropdown__close {
-  background-color: #ffffff;
-  padding: 16px;
-  display: block;
-  width: 100%;
-  box-sizing: content-box;
-  position: relative;
-  z-index: 2;
-}
-.hg-app
-  .header--fixed
-  .header__nav
-  .header__site-title
-  .header__site-title__title
-  .header_dropdown--mobile
-  .user {
-  margin: 0 auto;
-}
-.hg-app .header--fixed .header__nav .header__right-nav {
-  display: none;
-}
-.hg-app .header--fixed .header__nav a.header__button {
-  line-height: 30.6px;
-  margin: 6px 0;
+  z-index: 999;
 }
 
 .hg-app .header--fixed.header--lowzindex {
@@ -1833,12 +1714,7 @@ a.loginbutton.hidden,
     .header__nav-links--dropdown {
     height: 40px;
   }
-  .hg-app
-    .header--fixed
-    .header__nav
-    .header__site-title
-    .header__site-title__title
-    .header__dropdown {
+  .hg-app .header__dropdown {
     max-width: 300px;
     max-height: 90vh;
   }
@@ -2121,7 +1997,7 @@ a.loginbutton.hidden,
   position: sticky;
   order: 1;
   top: 0;
-  z-index: 1000;
+  z-index: 998;
   width: 100%;
   left: 0;
 }
@@ -2595,7 +2471,7 @@ a.loginbutton.hidden,
   left: 0;
   border-top: 1px solid rgba(132, 146, 166, 0.3);
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-  z-index: 1002;
+  z-index: 1001;
 }
 .modal--form .modal--form__action-box--revoke {
   position: absolute;
@@ -2612,7 +2488,7 @@ a.loginbutton.hidden,
   bottom: 0;
   right: 0;
   padding: 16px;
-  z-index: 1003;
+  z-index: 1001;
 }
 .modal--form .mui-form .form-actions .mui-btn--primary {
   position: relative;
@@ -4076,7 +3952,7 @@ a.loginbutton.hidden,
   left: 0;
   right: 0;
   padding: 16px;
-  z-index: 100001;
+  z-index: 1001;
   bottom: 0;
   overflow: auto;
 }
@@ -4803,7 +4679,7 @@ a.loginbutton.hidden,
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1002;
+    z-index: 1001;
     background: #ffffff;
     padding: 8px 16px 56px;
     margin: 0;

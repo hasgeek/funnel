@@ -108,6 +108,13 @@ export const Utils = {
         $('body').removeClass('body-scroll-lock');
       }
     });
+    // Open full screen account menu in mobile
+    $('.js-acc-menu-mobile').on('click', function (event) {
+      event.stopPropagation();
+      $('.header_dropdown--mobile').toggleClass('mui--is-open');
+      $('.js-logo-about').toggleClass('mui--hide');
+      $('body').toggleClass('body-scroll-lock');
+    });
   },
   sendToGA(category, action, label, value = 0) {
     if (typeof ga !== 'undefined') {
