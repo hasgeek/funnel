@@ -2464,7 +2464,7 @@ a.loginbutton.hidden,
   left: 0;
   border-top: 1px solid rgba(132, 146, 166, 0.3);
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-  z-index: 1001;
+  z-index: 1002;
 }
 .modal--form .modal--form__action-box--revoke {
   position: absolute;
@@ -2481,7 +2481,7 @@ a.loginbutton.hidden,
   bottom: 0;
   right: 0;
   padding: 16px;
-  z-index: 1001;
+  z-index: 1003;
 }
 .modal--form .mui-form .form-actions .mui-btn--primary {
   position: relative;
@@ -4672,7 +4672,7 @@ a.loginbutton.hidden,
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1001;
+    z-index: 1002;
     background: #ffffff;
     padding: 8px 16px 56px;
     margin: 0;
