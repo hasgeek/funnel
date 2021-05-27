@@ -175,6 +175,10 @@
       position: relative;
       left: -28px;
       z-index: 2;
+      line-height: 1;
+    }
+    .header__dropdown__item__more-icon--align {
+      top: 2px;
     }
     .header__dropdown__item__more-icon--ellipsis {
       position: relative;
@@ -187,7 +191,6 @@
       width: 24px;
       height: 24px;
       left: -33px;
-      border: solid 1px $mui-bg-color-primary-dark;
       background-color: rgba(255, 255, 255, 0.8);
       border-radius: 50%;
     }

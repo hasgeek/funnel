@@ -1438,6 +1438,10 @@ a.loginbutton.hidden,
   position: relative;
   left: -28px;
   z-index: 2;
+  line-height: 1;
+}
+.hg-app .header__dropdown .header__dropdown__item__more-icon--align {
+  top: 2px;
 }
 .hg-app .header__dropdown .header__dropdown__item__more-icon--ellipsis {
   position: relative;
@@ -1450,7 +1454,6 @@ a.loginbutton.hidden,
   width: 24px;
   height: 24px;
   left: -33px;
-  border: solid 1px #f1f1f1;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
 }

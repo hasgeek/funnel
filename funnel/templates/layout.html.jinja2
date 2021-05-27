@@ -114,7 +114,7 @@
               {% endif %}
             </span>
           {%- endfor %}
-          {%- if orgmemlist.count -%}<span class="header__dropdown__item__more-icon--ellipsis">{{ faicon(icon='ellipsis-h', icon_size='subhead', css_class='header__dropdown__item__more-icon') }}</span><span class="mui--text-body2 header__dropdown__item__more-icon margin-left mui--text-dark">{{ faicon(icon='plus', icon_size='caption') }} {% trans count=orgmemlist.count %}{{count}} more{% endtrans %}</span>{%- endif %}
+          {%- if orgmemlist.count -%}<span class="header__dropdown__item__more-icon--ellipsis">{{ faicon(icon='ellipsis-h', icon_size='subhead', baseline=false, css_class='header__dropdown__item__more-icon header__dropdown__item__more-icon--align') }}</span><span class="mui--text-body2 header__dropdown__item__more-icon margin-left mui--text-dark">{{ faicon(icon='plus', icon_size='caption') }} {% trans count=orgmemlist.count %}{{count}} more{% endtrans %}</span>{%- endif %}
           </a>
         </li>
         {%- endif %}
@@ -211,9 +211,6 @@
 
 
 {%- block basecontentbox %}
-  {%- block menumobile %}
-    {{ account_dropdown(css_class='header_dropdown--mobile') }}
-  {% endblock %}
   {%- block messages %}
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -243,6 +240,9 @@
         {% endblock %}
       </div>
     </div>
+  {% endblock %}
+  {%- block menumobile %}
+    {{ account_dropdown(css_class='header_dropdown--mobile') }}
   {% endblock %}
 {% endblock %}
 
