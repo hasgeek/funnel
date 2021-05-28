@@ -1,8 +1,8 @@
 name: 'Staging workflow'
 on:
-  pull_request:
+  push:
     branches:
-      - master
+      - gh-actions-staging
 env:
   VENV_BIN_PATH: /var/www/hasgeek/venv/bin
   PROJECT_PATH: /var/www/hasgeek/funnel-master
