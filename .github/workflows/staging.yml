@@ -6,6 +6,7 @@ on:
 env:
   VENV_BIN_PATH: /var/www/hasgeek/venv/bin
   PROJECT_PATH: /var/www/hasgeek/funnel-master/
+  # update this branch to deploy staging using a different baseframe branch
   BASEFRAME_BRANCH: master
 jobs:
   deploy-staging:
