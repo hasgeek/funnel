@@ -5,16 +5,17 @@ on:
       - master
 env:
   VENV_BIN_PATH: /var/www/hasgeek/venv/bin
-  PROJECT_PATH: /var/www/hasgeek/funnel-master
+  PROJECT_PATH: /var/www/hasgeek/funnel-master/
   BASEFRAME_BRANCH: master
 jobs:
   deploy-staging:
     runs-on: self-hosted
     steps:
+      - uses: actions/checkout@v2
       - run: echo "branch - ${{ github.head_ref }}, ${{ github.sha }}"
       - run: echo $GITHUB_WORKSPACE
-      - run: cd /var/www/hasgeek/test/; wget -O repo.zip https://github.com/hasgeek/funnel/zipball/${{ github.head_ref }}/; unzip repo.zip
-      - run: ${{ env.sVENV_BIN_PATH }}/pip uninstall -y baseframe
-      - run: ${{ env.sVENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ env.BASEFRAME_BRANCH }}#egg=baseframe
+      - run: mv $GITHUB_WORKSPACE/* ${{ env.PROJECT_PATH }}
+      - run: ${{ env.VENV_BIN_PATH }}/pip uninstall -y baseframe
+      - run: ${{ env.VENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ env.BASEFRAME_BRANCH }}#egg=baseframe
       - run: cd ${{ env.PROJECT_PATH }}; make
       - run: sudo systemctl restart hasgeek
