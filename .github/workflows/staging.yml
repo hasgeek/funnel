@@ -20,4 +20,5 @@ jobs:
       - run: ${{ env.VENV_BIN_PATH }}/pip uninstall -y baseframe
       - run: ${{ env.VENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ env.BASEFRAME_BRANCH }}#egg=baseframe
       - run: cd ${{ env.PROJECT_PATH }}; make
+      - run: cd ${{ env.PROJECT_PATH }}; ./clonedb.sh
       - run: touch /home/hasgeek/touch-reload/staging
