@@ -16,5 +16,5 @@ jobs:
       - run: cd $PROJECT_PATH; git checkout ${{ github.ref }}; git pull origin ${{ github.ref }}
       - run: ${{ VENV_BIN_PATH }}/pip uninstall -y baseframe
       - run: ${{ VENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ BASEFRAME_BRANCH }}#egg=baseframe
-      - run: make
+      - run: cd $PROJECT_PATH; make
       - run: sudo systemctl restart hasgeek
