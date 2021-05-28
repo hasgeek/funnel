@@ -13,7 +13,7 @@ jobs:
     steps:
       - run: echo "branch - ${{ github.head_ref }}, ${{ github.sha }}"
       - run: echo $GITHUB_WORKSPACE
-      - run: /var/www/hasgeek/test/; wget -O repo.zip https://github.com/hasgeek/funnel/zipball/${{ github.head_ref }}/; unzip repo.zip
+      - run: cd /var/www/hasgeek/test/; wget -O repo.zip https://github.com/hasgeek/funnel/zipball/${{ github.head_ref }}/; unzip repo.zip
       - run: ${{ env.sVENV_BIN_PATH }}/pip uninstall -y baseframe
       - run: ${{ env.sVENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ env.BASEFRAME_BRANCH }}#egg=baseframe
       - run: cd ${{ env.PROJECT_PATH }}; make
