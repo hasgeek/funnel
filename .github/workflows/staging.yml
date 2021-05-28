@@ -1,8 +1,8 @@
 name: 'Staging workflow'
 on:
-  push:
+  pull_request:
     branches:
-      - gh-actions-staging
+      - master
 env:
   VENV_BIN_PATH: /var/www/hasgeek/venv/bin
   PROJECT_PATH: /var/www/hasgeek/funnel-master
@@ -13,8 +13,8 @@ jobs:
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo $GITHUB_WORKSPACE
-      - run: cd $PROJECT_PATH; git checkout ${{ github.ref }}; git pull origin ${{ github.ref }}
-      - run: ${{ VENV_BIN_PATH }}/pip uninstall -y baseframe
-      - run: ${{ VENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ BASEFRAME_BRANCH }}#egg=baseframe
-      - run: cd $PROJECT_PATH; make
+      - run: cd ${{ env.PROJECT_PATH }}; git checkout ${{ github.ref }}; git pull origin ${{ github.ref }}
+      - run: ${{ env.sVENV_BIN_PATH }}/pip uninstall -y baseframe
+      - run: ${{ env.sVENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ env.BASEFRAME_BRANCH }}#egg=baseframe
+      - run: cd ${{ env.PROJECT_PATH }}; make
       - run: sudo systemctl restart hasgeek
