@@ -1,0 +1,15 @@
+name: 'Staging workflow'
+on:
+  pull_request:
+    branches:
+      # Update this branch name to deploy it to staging
+      - gh-actions-staging
+env:
+  PROJECT_PATH: /var/www/hasgeek/funnel-master
+  BASEFRAME_BRANCH: master
+jobs:
+  deploy-staging:
+    runs-on: self-hosted
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo $GITHUB_WORKSPACE
