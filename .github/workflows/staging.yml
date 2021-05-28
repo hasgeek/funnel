@@ -4,6 +4,7 @@ on:
     branches:
       - master
 env:
+  VENV_BIN_PATH: /var/www/hasgeek/venv/bin
   PROJECT_PATH: /var/www/hasgeek/funnel-master
   BASEFRAME_BRANCH: master
 jobs:
@@ -12,3 +13,8 @@ jobs:
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo $GITHUB_WORKSPACE
+      - run: cd $PROJECT_PATH; git checkout ${{ github.ref }}; git pull origin ${{ github.ref }}
+      - run: ${{ VENV_BIN_PATH }}/pip uninstall -y baseframe
+      - run: ${{ VENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ BASEFRAME_BRANCH }}#egg=baseframe
+      - run: make
+      - run: sudo systemctl restart hasgeek
