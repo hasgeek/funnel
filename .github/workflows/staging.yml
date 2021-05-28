@@ -11,7 +11,7 @@ jobs:
   deploy-staging:
     runs-on: self-hosted
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "branch - ${{ github.head_ref }}, ${{ github.ref }}"
       - run: echo $GITHUB_WORKSPACE
       - run: cd ${{ env.PROJECT_PATH }}; git checkout ${{ github.ref }}; git pull origin ${{ github.ref }}
       - run: ${{ env.sVENV_BIN_PATH }}/pip uninstall -y baseframe
