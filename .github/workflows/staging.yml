@@ -1,11 +1,12 @@
 name: 'Staging workflow'
 on:
-  pull_request:
+  push:
     branches:
-      - master
+      # update this to the branch of funnel that needs to be staged
+      - gh-actions-staging
 env:
-  VENV_BIN_PATH: /var/www/hasgeek/venv/bin
-  PROJECT_PATH: /var/www/hasgeek/funnel-master/
+  VENV_BIN_PATH: /var/www/funnel/venvs/staging37/bin
+  PROJECT_PATH: /var/www/funnel/staging
   # update this branch to deploy staging using a different baseframe branch
   BASEFRAME_BRANCH: master
 jobs:
@@ -19,4 +20,4 @@ jobs:
       - run: ${{ env.VENV_BIN_PATH }}/pip uninstall -y baseframe
       - run: ${{ env.VENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ env.BASEFRAME_BRANCH }}#egg=baseframe
       - run: cd ${{ env.PROJECT_PATH }}; make
-      - run: sudo systemctl restart hasgeek
+      - run: touch /home/hasgeek/touch-reload/staging
