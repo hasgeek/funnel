@@ -7,7 +7,7 @@ on:
 env:
   VENV_BIN_PATH: /var/www/funnel/venvs/staging37/bin
   PROJECT_PATH: /var/www/funnel/staging
-  # update this branch to deploy staging using a different baseframe branch
+  # update this branch the branch of baseframe that needs to be staged
   BASEFRAME_BRANCH: master
 jobs:
   deploy-staging:
