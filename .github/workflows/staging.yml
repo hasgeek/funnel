@@ -2,8 +2,7 @@ name: 'Staging workflow'
 on:
   pull_request:
     branches:
-      # Update this branch name to deploy it to staging
-      - gh-actions-staging
+      - master
 env:
   PROJECT_PATH: /var/www/hasgeek/funnel-master
   BASEFRAME_BRANCH: master
