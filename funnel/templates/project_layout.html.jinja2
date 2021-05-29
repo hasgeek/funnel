@@ -33,7 +33,7 @@
       <li>
         <p class="top-padding left-padding right-padding zero-bottom-margin">{{ faicon(icon='thumbtack', baseline=false, css_class='mui--text-light mui--align-middle fa-icon--right-margin') }}<span class="pinned__heading mui--text-subhead mui--text-light">{% trans %}Pinned update{% endtrans %}</span></p>
         <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
-          <p class="pinned__update__heading mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}{{ pinned_update.body.html|preview }}{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
+          <p class="pinned__update__heading mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}{{ pinned_update.body.html|preview }} <span class="chip">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
         </a>
       </li>
     </ul>
