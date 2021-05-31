@@ -5,7 +5,6 @@ on:
       # update this to the branch of funnel that needs to be staged
       - gh-actions-staging
 env:
-  VENV_BIN_PATH: /var/www/funnel/venvs/staging37/bin
   PROJECT_PATH: /var/www/funnel/staging
   # update this branch the branch of baseframe that needs to be staged
   BASEFRAME_BRANCH: master
@@ -13,12 +12,4 @@ jobs:
   deploy-staging:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v2
-      - run: echo "branch - ${{ github.head_ref }}, ${{ github.sha }}"
-      - run: echo $GITHUB_WORKSPACE
-      - run: cp -R $GITHUB_WORKSPACE/* ${{ env.PROJECT_PATH }}
-      - run: ${{ env.VENV_BIN_PATH }}/pip uninstall -y baseframe
-      - run: ${{ env.VENV_BIN_PATH }}/pip install git+https://github.com/hasgeek/baseframe.git@${{ env.BASEFRAME_BRANCH }}#egg=baseframe
-      - run: cd ${{ env.PROJECT_PATH }}; make
-      - run: cd ${{ env.PROJECT_PATH }}; ./clonedb.sh
-      - run: touch /home/hasgeek/touch-reload/staging
+      - run: cd ${{ env.PROJECT_PATH }}; ./deploy.sh ${{ github.head_ref }} ${{ env.BASEFRAME_BRANCH }}
