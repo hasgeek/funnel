@@ -170,9 +170,8 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'is_organization_profile',
                 'is_user_profile',
                 'owner',
-                'state',
             },
-            'call': {'url_for', 'features', 'forms'},
+            'call': {'url_for', 'features', 'forms', 'state'},
         }
     }
 

@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from typing import Union
+from typing import List, Optional, Union
 
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
@@ -14,6 +14,7 @@ from baseframe.forms import (
     render_redirect,
 )
 from coaster.auth import current_auth
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, get_next_url, render_with, route
 
 from .. import app
@@ -38,6 +39,7 @@ from ..models import (
     AccountPasswordNotification,
     AuthClient,
     Organization,
+    OrganizationMembership,
     SMSMessage,
     User,
     UserEmail,
@@ -100,12 +102,21 @@ def user_timezone(obj):
 
 
 @User.views()
-def organizations_as_admin(obj, owner=False, limit=None):
+def organizations_as_admin(
+    obj: User,
+    owner: bool = False,
+    limit: Optional[int] = None,
+    order_by_grant: bool = False,
+) -> List[RoleAccessProxy]:
     if owner:
         orgmems = obj.active_organization_owner_memberships
     else:
         orgmems = obj.active_organization_admin_memberships
-    orgmems = orgmems.join(Organization).order_by(db.func.lower(Organization.title))
+    orgmems = orgmems.join(Organization)
+    if order_by_grant:
+        orgmems = orgmems.order_by(OrganizationMembership.granted_at.desc())
+    else:
+        orgmems = orgmems.order_by(db.func.lower(Organization.title))
 
     if limit is not None:
         orgmems = orgmems.limit(limit)
@@ -115,19 +126,27 @@ def organizations_as_admin(obj, owner=False, limit=None):
 
 
 @User.views()
-def organizations_as_owner(obj, limit=None):
-    return obj.views.organizations_as_admin(owner=True, limit=limit)
+def organizations_as_owner(
+    obj: User, limit: Optional[int] = None, order_by_grant: bool = False
+) -> List[RoleAccessProxy]:
+    return obj.views.organizations_as_admin(
+        owner=True, limit=limit, order_by_grant=order_by_grant
+    )
 
 
 @User.views()
-def recent_organizations(obj, recent=3, overflow=4):
-    orgs = obj.views.organizations_as_admin()  # sorted by Organization title by default
-    total_orgs_count = len(orgs)
-    orgs.sort(key=lambda om: om.granted_at, reverse=True)  # Re-sorted by granted_at
+def recent_organization_memberships(
+    obj: User, recent: int = 3, overflow: int = 4
+) -> SimpleNamespace:
+    orgs = obj.views.organizations_as_admin(
+        limit=recent + overflow, order_by_grant=True
+    )
     return SimpleNamespace(
         recent=orgs[:recent],
         overflow=orgs[recent : recent + overflow],
-        count=total_orgs_count - recent - overflow,
+        extra_count=max(
+            0, obj.active_organization_admin_memberships.count() - recent - overflow
+        ),
     )
 
 
