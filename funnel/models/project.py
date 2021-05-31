@@ -280,6 +280,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'short_title',  # From BaseScopedNameMixin
                 'title',  # From BaseScopedNameMixin
                 'urls',  # From UrlForMixin
+                'created_at',  # From TimestampMixin, used for ical render timestamp
                 'updated_at',  # From TimestampMixin, used for ical render timestamp
             },
             'call': {
