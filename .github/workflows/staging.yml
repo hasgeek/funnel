@@ -12,4 +12,10 @@ jobs:
   deploy-staging:
     runs-on: self-hosted
     steps:
-      - run: cd ${{ env.PROJECT_PATH }}; ./deploy.sh ${{ github.head_ref }} ${{ env.BASEFRAME_BRANCH }}
+      - uses: actions/checkout@v2
+
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+
+      - run: cd ${{ env.PROJECT_PATH }}; ./deploy.sh ${{ steps.vars.outputs.short_ref }} ${{ env.BASEFRAME_BRANCH }}
