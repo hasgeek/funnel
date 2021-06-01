@@ -9,7 +9,7 @@ click==8.0.1
 git+https://github.com/hasgeek/coaster.git#egg=coaster
 cryptography==3.4.7
 dataclasses-json==0.5.3
-Flask==1.1.2
+Flask==2.0.1
 Flask-Assets==2.0
 Flask-Executor==0.9.4
 git+https://github.com/hasgeek/Flask-FlatPages.git#egg=Flask-FlatPages
