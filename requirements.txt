@@ -45,7 +45,7 @@ requests==2.25.1
 rq==1.8.1
 six==1.16.0
 SQLAlchemy==1.4.17
-sqlalchemy_utils==0.37.0
+sqlalchemy_utils==0.37.5
 tweepy==3.10.0
 twilio==6.57.0
 typing-extensions==3.10.0.0
