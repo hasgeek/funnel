@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import current_app, flash
 
 from baseframe import _, __
@@ -109,3 +111,10 @@ def image_url_validator():
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )
+
+
+def tostr(value: Any) -> str:
+    """Cast truthy values to a string."""
+    if value:
+        return str(value)
+    return ''
