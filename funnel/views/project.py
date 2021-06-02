@@ -357,12 +357,6 @@ class ProjectView(
                 formdata=initial_formdata,
             )
 
-            # Don't allow user to directly manipulate timestamps when it's done via
-            # Session objects
-            if self.obj.schedule_start_at:
-                del form.start_at
-                del form.end_at
-
             if not self.obj.timezone:
                 form.timezone.data = str(current_auth.user.timezone)
 
