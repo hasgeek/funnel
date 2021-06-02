@@ -894,22 +894,10 @@
       "Private draft": [null, "निजी ड्राफ्ट"],
       "Open": [null, "जारी"],
       "Expired": [null, "अवधि समाप्त"],
-      "Enable proposal submissions": [
-        null,
-        "प्रस्ताव जामा करने की सुविधा सक्षम करें"
-      ],
-      "Proposals can be now submitted": [
-        null,
-        "अब प्रस्ताव जमा किए जा सकते हैं"
-      ],
-      "Disable proposal submissions": [
-        null,
-        "प्रस्ताव जमा करने की सुविधा अक्षम करें"
-      ],
-      "Proposals will no longer be accepted": [
-        null,
-        "अब प्रस्ताव जमा नहीं किए जा सकते"
-      ],
+      "Enable submissions": [null, ""],
+      "Submissions will be accepted within valid dates": [null, ""],
+      "Disable submissions": [null, ""],
+      "Submissions will no longer be accepted": [null, ""],
       "Publish project": [null, "प्रोजेक्ट प्रकाशित करें"],
       "The project has been published": [
         null,
@@ -2605,7 +2593,6 @@
       ],
       "{session} in 5 minutes": [null, "5 मिनट में {session}"],
       "Profiles": [null, "प्रोफाइल"],
-      "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
       "This project will not be listed as it has no sessions in the schedule": [
         null,

@@ -15,7 +15,7 @@ from ..models import (
     getuser,
     password_policy,
 )
-from .helpers import EmailAddressAvailable
+from .helpers import EmailAddressAvailable, tostr
 
 __all__ = [
     'RegisterForm',
@@ -117,7 +117,7 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.DataRequired(),
             EmailAddressAvailable(purpose='register'),
         ],
-        filters=[str, forms.filters.strip()],
+        filters=[tostr, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(
@@ -318,7 +318,7 @@ class AccountForm(forms.Form):
             forms.validators.DataRequired(),
             EmailAddressAvailable(purpose='use'),
         ],
-        filters=[str, forms.filters.strip()],
+        filters=[tostr, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
@@ -395,7 +395,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             validate_emailclaim,
             EmailAddressAvailable(purpose='claim'),
         ],
-        filters=[str, forms.filters.strip()],
+        filters=[tostr, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     type = forms.RadioField(  # NOQA: A003
@@ -415,7 +415,7 @@ class EmailPrimaryForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         validators=[forms.validators.DataRequired()],
-        filters=[str, forms.filters.strip()],
+        filters=[tostr, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
@@ -430,7 +430,7 @@ class NewPhoneForm(forms.RecaptchaForm):
     phone = forms.TelField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
-        filters=[str, forms.filters.strip()],
+        filters=[tostr, forms.filters.strip()],
         description=__("Mobile numbers only, in Indian or international format"),
     )
 

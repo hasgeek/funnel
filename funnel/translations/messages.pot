@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-02 21:57+0530\n"
+"POT-Creation-Date: 2021-06-02 21:58+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -456,54 +456,54 @@ msgstr ""
 msgid "Unknown team"
 msgstr ""
 
-#: funnel/forms/helpers.py:46
+#: funnel/forms/helpers.py:48
 msgid "This email address has been claimed by someone else"
 msgstr ""
 
-#: funnel/forms/helpers.py:49
+#: funnel/forms/helpers.py:51
 msgid ""
 "This email address is already registered. You may want to try logging in "
 "or resetting your password"
 msgstr ""
 
-#: funnel/forms/helpers.py:56
+#: funnel/forms/helpers.py:58
 msgid "This does not appear to be a valid email address"
 msgstr ""
 
-#: funnel/forms/helpers.py:60
+#: funnel/forms/helpers.py:62
 msgid ""
 "The domain name of this email address is missing a DNS MX record. We "
 "require an MX record as missing MX is a strong indicator of spam. Please "
 "ask your tech person to add MX to DNS"
 msgstr ""
 
-#: funnel/forms/helpers.py:68
+#: funnel/forms/helpers.py:70
 msgid "You have already registered this email address"
 msgstr ""
 
-#: funnel/forms/helpers.py:74
+#: funnel/forms/helpers.py:76
 msgid ""
 "This email address appears to be having temporary problems with receiving"
 " email. Please use another if necessary"
 msgstr ""
 
-#: funnel/forms/helpers.py:82
+#: funnel/forms/helpers.py:84
 msgid ""
 "This email address is no longer valid. If you believe this to be "
 "incorrect, email {support} asking for the address to be activated"
 msgstr ""
 
-#: funnel/forms/helpers.py:97
+#: funnel/forms/helpers.py:99
 msgid ""
 "You or someone else has made an account with this email address but has "
 "not confirmed it. Do you need to reset your password?"
 msgstr ""
 
-#: funnel/forms/helpers.py:109 funnel/forms/project.py:144
+#: funnel/forms/helpers.py:111 funnel/forms/project.py:149
 msgid "A https:// URL is required"
 msgstr ""
 
-#: funnel/forms/helpers.py:110
+#: funnel/forms/helpers.py:112
 msgid "Images must be hosted at images.hasgeek.com"
 msgstr ""
 
@@ -936,7 +936,7 @@ msgid "Project status"
 msgstr ""
 
 #: funnel/forms/profile.py:119 funnel/forms/project.py:92
-#: funnel/forms/project.py:188
+#: funnel/forms/project.py:193
 msgid "Banner image"
 msgstr ""
 
@@ -1009,76 +1009,76 @@ msgstr ""
 msgid "Quotes are not necessary in the location name"
 msgstr ""
 
-#: funnel/forms/project.py:118 funnel/templates/project_layout.html.jinja2:211
+#: funnel/forms/project.py:123 funnel/templates/project_layout.html.jinja2:211
 msgid "Feature this project"
 msgstr ""
 
-#: funnel/forms/project.py:124
+#: funnel/forms/project.py:129
 msgid ""
 "Livestream URLs. One per line. Must be on YouTube or Vimeo. Must begin "
 "with https://"
 msgstr ""
 
-#: funnel/forms/project.py:145
+#: funnel/forms/project.py:150
 msgid "Livestream must be on YouTube or Vimeo"
 msgstr ""
 
-#: funnel/forms/project.py:155
+#: funnel/forms/project.py:160
 msgid "Custom URL"
 msgstr ""
 
-#: funnel/forms/project.py:156
+#: funnel/forms/project.py:161
 msgid ""
 "Customize the URL of your project. Use lowercase letters, numbers and "
 "dashes only. Including a date is recommended"
 msgstr ""
 
-#: funnel/forms/project.py:165
+#: funnel/forms/project.py:170
 msgid ""
 "This URL contains unsupported characters. It can contain lowercase "
 "letters, numbers and hyphens only"
 msgstr ""
 
-#: funnel/forms/project.py:204
+#: funnel/forms/project.py:209
 msgid "Guidelines"
 msgstr ""
 
-#: funnel/forms/project.py:207
+#: funnel/forms/project.py:212
 msgid ""
 "Set guidelines for the type of submissions your project is accepting, "
 "your review process, and anything else relevant to the submission"
 msgstr ""
 
-#: funnel/forms/project.py:213
+#: funnel/forms/project.py:218
 msgid "Submissions open at"
 msgstr ""
 
-#: funnel/forms/project.py:218
+#: funnel/forms/project.py:223
 msgid "Submissions close at"
 msgstr ""
 
-#: funnel/forms/project.py:223
+#: funnel/forms/project.py:228
 msgid "This requires an opening time to be specified"
 msgstr ""
 
-#: funnel/forms/project.py:226
+#: funnel/forms/project.py:231
 msgid "Submissions cannot close before they open"
 msgstr ""
 
-#: funnel/forms/project.py:236 funnel/forms/project.py:270
+#: funnel/forms/project.py:241 funnel/forms/project.py:275
 #: funnel/forms/proposal.py:174
 msgid "Status"
 msgstr ""
 
-#: funnel/forms/project.py:246
+#: funnel/forms/project.py:251
 msgid "CfP status"
 msgstr ""
 
-#: funnel/forms/project.py:258
+#: funnel/forms/project.py:263
 msgid "Save this project?"
 msgstr ""
 
-#: funnel/forms/project.py:261 funnel/forms/session.py:65
+#: funnel/forms/project.py:266 funnel/forms/session.py:65
 msgid "Note to self"
 msgstr ""
 
@@ -1614,7 +1614,7 @@ msgstr ""
 msgid "Make private"
 msgstr ""
 
-#: funnel/models/project.py:47 funnel/models/project.py:375
+#: funnel/models/project.py:47 funnel/models/project.py:376
 #: funnel/models/proposal.py:41 funnel/models/proposal.py:290
 #: funnel/models/update.py:30 funnel/templates/js/update.js.jinja2:5
 #: funnel/templates/js/update.js.jinja2:30
@@ -1637,72 +1637,72 @@ msgstr ""
 msgid "Closed"
 msgstr ""
 
-#: funnel/models/project.py:319
+#: funnel/models/project.py:320
 msgid "Past"
 msgstr ""
 
-#: funnel/models/project.py:332
+#: funnel/models/project.py:333
 msgid "Live"
 msgstr ""
 
-#: funnel/models/project.py:339 funnel/models/project.py:385
+#: funnel/models/project.py:340 funnel/models/project.py:386
 #: funnel/templates/macros.html.jinja2:261
 msgid "Upcoming"
 msgstr ""
 
-#: funnel/models/project.py:346
+#: funnel/models/project.py:347
 msgid "Published without sessions"
 msgstr ""
 
-#: funnel/models/project.py:353
+#: funnel/models/project.py:354
 msgid "Has proposals"
 msgstr ""
 
-#: funnel/models/project.py:359
+#: funnel/models/project.py:360
 msgid "Has sessions"
 msgstr ""
 
-#: funnel/models/project.py:368
+#: funnel/models/project.py:369
 msgid "Private draft"
 msgstr ""
 
-#: funnel/models/project.py:398
+#: funnel/models/project.py:399
 msgid "Open"
 msgstr ""
 
-#: funnel/models/project.py:408
+#: funnel/models/project.py:409
 msgid "Expired"
 msgstr ""
 
-#: funnel/models/project.py:439
-msgid "Enable proposal submissions"
-msgstr ""
-
 #: funnel/models/project.py:440
-msgid "Proposals can be now submitted"
+msgid "Enable submissions"
 msgstr ""
 
-#: funnel/models/project.py:450
-msgid "Disable proposal submissions"
+#: funnel/models/project.py:441
+msgid "Submissions will be accepted within valid dates"
 msgstr ""
 
 #: funnel/models/project.py:451
-msgid "Proposals will no longer be accepted"
+msgid "Disable submissions"
 msgstr ""
 
-#: funnel/models/project.py:461
-msgid "Publish project"
+#: funnel/models/project.py:452
+msgid "Submissions will no longer be accepted"
 msgstr ""
 
 #: funnel/models/project.py:462
+msgid "Publish project"
+msgstr ""
+
+#: funnel/models/project.py:463
 msgid "The project has been published"
 msgstr ""
 
-#: funnel/models/project.py:478
+#: funnel/models/project.py:479
 msgid "Withdraw project"
 msgstr ""
 
-#: funnel/models/project.py:479
+#: funnel/models/project.py:480
 msgid "The project has been withdrawn and is no longer listed"
 msgstr ""
 
@@ -2867,6 +2867,7 @@ msgstr ""
 #: funnel/templates/project_layout.html.jinja2:383
 #: funnel/templates/project_submissions.html.jinja2:3
 #: funnel/templates/user_profile_proposals.html.jinja2:10
+#: funnel/views/search.py:251
 msgid "Submissions"
 msgstr ""
 
@@ -2889,6 +2890,7 @@ msgstr ""
 
 #: funnel/templates/macros.html.jinja2:528
 #: funnel/templates/project.html.jinja2:134
+#: funnel/templates/project_layout.html.jinja2:32
 #: funnel/templates/project_layout.html.jinja2:307
 #: funnel/templates/project_layout.html.jinja2:331
 msgid "more"
@@ -4058,8 +4060,8 @@ msgstr ""
 #: funnel/views/account.py:440 funnel/views/auth_client.py:154
 #: funnel/views/auth_client.py:387 funnel/views/auth_client.py:460
 #: funnel/views/profile.py:264 funnel/views/project.py:338
-#: funnel/views/project.py:372 funnel/views/project.py:401
-#: funnel/views/project.py:513 funnel/views/proposal.py:329
+#: funnel/views/project.py:366 funnel/views/project.py:395
+#: funnel/views/project.py:507 funnel/views/proposal.py:329
 #: funnel/views/ticket_event.py:181 funnel/views/ticket_event.py:268
 #: funnel/views/ticket_event.py:329 funnel/views/ticket_participant.py:197
 msgid "Save changes"
@@ -4367,7 +4369,7 @@ msgstr ""
 #: funnel/views/auth_client.py:165 funnel/views/auth_client.py:324
 #: funnel/views/auth_client.py:398 funnel/views/auth_client.py:471
 #: funnel/views/organization.py:127 funnel/views/organization.py:215
-#: funnel/views/project.py:422 funnel/views/proposal.py:207
+#: funnel/views/project.py:416 funnel/views/proposal.py:207
 #: funnel/views/ticket_event.py:190 funnel/views/ticket_event.py:278
 #: funnel/views/ticket_event.py:339 funnel/views/update.py:163
 msgid "Confirm delete"
@@ -4606,7 +4608,7 @@ msgid "Subscribed to this comment thread"
 msgstr ""
 
 #: funnel/views/commentvote.py:183 funnel/views/commentvote.py:203
-#: funnel/views/commentvote.py:220 funnel/views/project.py:692
+#: funnel/views/commentvote.py:220 funnel/views/project.py:686
 msgid "This page timed out. Reload and try again"
 msgstr ""
 
@@ -4716,9 +4718,9 @@ msgstr ""
 
 #: funnel/views/label.py:31 funnel/views/profile.py:259
 #: funnel/views/profile.py:290 funnel/views/profile.py:344
-#: funnel/views/profile.py:386 funnel/views/project.py:386
-#: funnel/views/project.py:456 funnel/views/project.py:498
-#: funnel/views/project.py:510 funnel/views/proposal.py:190
+#: funnel/views/profile.py:386 funnel/views/project.py:380
+#: funnel/views/project.py:450 funnel/views/project.py:492
+#: funnel/views/project.py:504 funnel/views/proposal.py:190
 #: funnel/views/ticket_event.py:179 funnel/views/ticket_event.py:265
 #: funnel/views/ticket_event.py:326 funnel/views/ticket_participant.py:194
 msgid "Your changes have been saved"
@@ -5076,11 +5078,11 @@ msgid "Were you trying to remove the logo? Try again to confirm"
 msgstr ""
 
 #: funnel/views/profile.py:348 funnel/views/profile.py:353
-#: funnel/views/project.py:460 funnel/views/project.py:465
+#: funnel/views/project.py:454 funnel/views/project.py:459
 msgid "Save banner"
 msgstr ""
 
-#: funnel/views/profile.py:372 funnel/views/project.py:485
+#: funnel/views/profile.py:372 funnel/views/project.py:479
 msgid "Were you trying to remove the banner? Try again to confirm"
 msgstr ""
 
@@ -5288,55 +5290,55 @@ msgstr ""
 msgid "Customize the URL"
 msgstr ""
 
-#: funnel/views/project.py:371 funnel/views/project.py:400
+#: funnel/views/project.py:365 funnel/views/project.py:394
 msgid "Edit project"
 msgstr ""
 
-#: funnel/views/project.py:413
+#: funnel/views/project.py:407
 msgid "This project has submissions"
 msgstr ""
 
-#: funnel/views/project.py:414
+#: funnel/views/project.py:408
 msgid ""
 "Submissions must be deleted or transferred before the project can be "
 "deleted"
 msgstr ""
 
-#: funnel/views/project.py:423
+#: funnel/views/project.py:417
 msgid ""
 "Delete project ‘{title}’? This will delete everything in the project. "
 "This operation is permanent and cannot be undone"
 msgstr ""
 
-#: funnel/views/project.py:427
+#: funnel/views/project.py:421
 msgid "You have deleted project ‘{title}’ and all its associated content"
 msgstr ""
 
-#: funnel/views/project.py:513
+#: funnel/views/project.py:507
 msgid "Edit ticket client details"
 msgstr ""
 
-#: funnel/views/project.py:531
+#: funnel/views/project.py:525
 msgid "Invalid transition for this project"
 msgstr ""
 
-#: funnel/views/project.py:550
+#: funnel/views/project.py:544
 msgid "Invalid transition for this project’s CfP"
 msgstr ""
 
-#: funnel/views/project.py:566
+#: funnel/views/project.py:560
 msgid "This response is not valid"
 msgstr ""
 
-#: funnel/views/project.py:582
+#: funnel/views/project.py:576
 msgid "Were you trying to register? Try again to confirm"
 msgstr ""
 
-#: funnel/views/project.py:599
+#: funnel/views/project.py:593
 msgid "Were you trying to cancel your registration? Try again to confirm"
 msgstr ""
 
-#: funnel/views/project.py:714 funnel/views/ticket_event.py:140
+#: funnel/views/project.py:708 funnel/views/ticket_event.py:140
 msgid "Importing tickets from vendors… Reload the page in about 30 seconds…"
 msgstr ""
 
@@ -5403,10 +5405,6 @@ msgstr ""
 
 #: funnel/views/search.py:191
 msgid "Profiles"
-msgstr ""
-
-#: funnel/views/search.py:251
-msgid "Proposals"
 msgstr ""
 
 #: funnel/views/session.py:29

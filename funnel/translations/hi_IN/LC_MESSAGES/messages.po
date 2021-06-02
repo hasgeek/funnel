@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-06-02 21:57+0530\n"
+"POT-Creation-Date: 2021-06-02 21:58+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -480,11 +480,11 @@ msgstr "अनुमति देने के लिए टीम का चय
 msgid "Unknown team"
 msgstr "अज्ञात टीम"
 
-#: funnel/forms/helpers.py:46
+#: funnel/forms/helpers.py:48
 msgid "This email address has been claimed by someone else"
 msgstr "इस ईमेल पते का इस्तेमाल किसी और के द्वारा किया जा चुका है"
 
-#: funnel/forms/helpers.py:49
+#: funnel/forms/helpers.py:51
 msgid ""
 "This email address is already registered. You may want to try logging in "
 "or resetting your password"
@@ -492,11 +492,11 @@ msgstr ""
 "यह ईमेल पता पहले से रजिस्टर है. आपको लॉगिन करनी चाहिए या फिर अपने पासवर्ड"
 " को रीसेट करनी चाहिए"
 
-#: funnel/forms/helpers.py:56
+#: funnel/forms/helpers.py:58
 msgid "This does not appear to be a valid email address"
 msgstr "यह ईमेल पता सही नहीं लग रहा है"
 
-#: funnel/forms/helpers.py:60
+#: funnel/forms/helpers.py:62
 msgid ""
 "The domain name of this email address is missing a DNS MX record. We "
 "require an MX record as missing MX is a strong indicator of spam. Please "
@@ -506,11 +506,11 @@ msgstr ""
 "आवश्यकता होती है क्योंकि गैर-मौजूद MX वाले ईमेल को फर्ज़ी माना जाता है. "
 "कृपया अपने वेबसाइट निर्माणकर्ता से DNS में MX जोड़ने को बोलें"
 
-#: funnel/forms/helpers.py:68
+#: funnel/forms/helpers.py:70
 msgid "You have already registered this email address"
 msgstr "आपने पहले ही इस ईमेल को रजिस्टर कर लिया है"
 
-#: funnel/forms/helpers.py:74
+#: funnel/forms/helpers.py:76
 msgid ""
 "This email address appears to be having temporary problems with receiving"
 " email. Please use another if necessary"
@@ -518,7 +518,7 @@ msgstr ""
 "इस ईमेल पते पर फिलहाल ईमेल पाए जाने में समस्या नज़र आ रही है. अगर कुछ "
 "महत्वपूर्ण ह"
 
-#: funnel/forms/helpers.py:82
+#: funnel/forms/helpers.py:84
 msgid ""
 "This email address is no longer valid. If you believe this to be "
 "incorrect, email {support} asking for the address to be activated"
@@ -526,7 +526,7 @@ msgstr ""
 "यह ईमेल पता अब वैध नहीं है. अगर फिर भी आपको ये गलत लगता है, तो इस पते को "
 "सक्रिय करने के लिए {support} को ईमेल भेजें"
 
-#: funnel/forms/helpers.py:97
+#: funnel/forms/helpers.py:99
 msgid ""
 "You or someone else has made an account with this email address but has "
 "not confirmed it. Do you need to reset your password?"
@@ -534,11 +534,11 @@ msgstr ""
 "आपने या किसी और ने इसे ईमेल पते से एक अकाउंट बनाया था, पर उसकी पुष्टि "
 "नहीं की है. क्या आप अपना पासवर्ड रीसेट करना चाहेंगे?"
 
-#: funnel/forms/helpers.py:109 funnel/forms/project.py:144
+#: funnel/forms/helpers.py:111 funnel/forms/project.py:149
 msgid "A https:// URL is required"
 msgstr "https:// URL आवश्यक है"
 
-#: funnel/forms/helpers.py:110
+#: funnel/forms/helpers.py:112
 msgid "Images must be hosted at images.hasgeek.com"
 msgstr "तस्वीरें images.hasgeek.com पर होस्ट की जानी चाहिए"
 
@@ -989,7 +989,7 @@ msgid "Project status"
 msgstr "प्रोजेक्ट की स्थिति"
 
 #: funnel/forms/profile.py:119 funnel/forms/project.py:92
-#: funnel/forms/project.py:188
+#: funnel/forms/project.py:193
 msgid "Banner image"
 msgstr "बैनर का चित्र"
 
@@ -1062,11 +1062,11 @@ msgstr "लैंडिंग पेज की सामग्रियां"
 msgid "Quotes are not necessary in the location name"
 msgstr "स्थान के नाम में क्वोट लगाना आवश्यक नहीं है"
 
-#: funnel/forms/project.py:118 funnel/templates/project_layout.html.jinja2:211
+#: funnel/forms/project.py:123 funnel/templates/project_layout.html.jinja2:211
 msgid "Feature this project"
 msgstr ""
 
-#: funnel/forms/project.py:124
+#: funnel/forms/project.py:129
 msgid ""
 "Livestream URLs. One per line. Must be on YouTube or Vimeo. Must begin "
 "with https://"
@@ -1074,15 +1074,15 @@ msgstr ""
 "लाइवस्ट्रीम URLs. प्रति लाइन में एक. YouTube या Vimeo पर ही होनी चाहिए. "
 "https:// से ही शुरुआत होनी चाहिए"
 
-#: funnel/forms/project.py:145
+#: funnel/forms/project.py:150
 msgid "Livestream must be on YouTube or Vimeo"
 msgstr "लाइवस्ट्रीम YouTube या Vimeo पर ही होनी चाहिए"
 
-#: funnel/forms/project.py:155
+#: funnel/forms/project.py:160
 msgid "Custom URL"
 msgstr "कस्टम URL"
 
-#: funnel/forms/project.py:156
+#: funnel/forms/project.py:161
 msgid ""
 "Customize the URL of your project. Use lowercase letters, numbers and "
 "dashes only. Including a date is recommended"
@@ -1090,7 +1090,7 @@ msgstr ""
 "अपने प्रोजेक्ट के URL को अपने अनुकूल बनाएं. केवल लोअरकेस अक्षर, नंबर और "
 "डैश का ही इस्तेमाल करें. आप इसमें कोई तिथि भी जोड़ सकते हैं"
 
-#: funnel/forms/project.py:165
+#: funnel/forms/project.py:170
 msgid ""
 "This URL contains unsupported characters. It can contain lowercase "
 "letters, numbers and hyphens only"
@@ -1098,46 +1098,46 @@ msgstr ""
 "इस URL में कुछ गैर-उपयोगी वर्ण मौजूद हैं. इसमें केवल लोअरकेस अक्षर, नंबर "
 "और हायफ़न ही रह सकते हैं"
 
-#: funnel/forms/project.py:204
+#: funnel/forms/project.py:209
 msgid "Guidelines"
 msgstr "दिशानिर्देश"
 
-#: funnel/forms/project.py:207
+#: funnel/forms/project.py:212
 msgid ""
 "Set guidelines for the type of submissions your project is accepting, "
 "your review process, and anything else relevant to the submission"
 msgstr ""
 
-#: funnel/forms/project.py:213
+#: funnel/forms/project.py:218
 msgid "Submissions open at"
 msgstr "सबमिशन खुलने का समय"
 
-#: funnel/forms/project.py:218
+#: funnel/forms/project.py:223
 msgid "Submissions close at"
 msgstr "सबमिशन बंद होने का समय"
 
-#: funnel/forms/project.py:223
+#: funnel/forms/project.py:228
 msgid "This requires an opening time to be specified"
 msgstr "इस के लिए शुरू होने का के समय को उल्लिखित करना ज़रूरी है"
 
-#: funnel/forms/project.py:226
+#: funnel/forms/project.py:231
 msgid "Submissions cannot close before they open"
 msgstr "जमा करने के प्रक्रिया खुलने से पहले बंद नहीं की जा सकती"
 
-#: funnel/forms/project.py:236 funnel/forms/project.py:270
+#: funnel/forms/project.py:241 funnel/forms/project.py:275
 #: funnel/forms/proposal.py:174
 msgid "Status"
 msgstr "स्थिति"
 
-#: funnel/forms/project.py:246
+#: funnel/forms/project.py:251
 msgid "CfP status"
 msgstr "CfP की स्थिति"
 
-#: funnel/forms/project.py:258
+#: funnel/forms/project.py:263
 msgid "Save this project?"
 msgstr "इस प्रोजेक्ट को सहेजें?"
 
-#: funnel/forms/project.py:261 funnel/forms/session.py:65
+#: funnel/forms/project.py:266 funnel/forms/session.py:65
 msgid "Note to self"
 msgstr "खुद याद रखने की बात"
 
@@ -1679,7 +1679,7 @@ msgstr "सार्वजनिक बनाएं"
 msgid "Make private"
 msgstr "निजी बनाएं"
 
-#: funnel/models/project.py:47 funnel/models/project.py:375
+#: funnel/models/project.py:47 funnel/models/project.py:376
 #: funnel/models/proposal.py:41 funnel/models/proposal.py:290
 #: funnel/models/update.py:30 funnel/templates/js/update.js.jinja2:5
 #: funnel/templates/js/update.js.jinja2:30
@@ -1702,72 +1702,72 @@ msgstr "कोई नहीं"
 msgid "Closed"
 msgstr "ख़त्म हो चुके"
 
-#: funnel/models/project.py:319
+#: funnel/models/project.py:320
 msgid "Past"
 msgstr "गुज़रे हुए"
 
-#: funnel/models/project.py:332
+#: funnel/models/project.py:333
 msgid "Live"
 msgstr "लाइव"
 
-#: funnel/models/project.py:339 funnel/models/project.py:385
+#: funnel/models/project.py:340 funnel/models/project.py:386
 #: funnel/templates/macros.html.jinja2:261
 msgid "Upcoming"
 msgstr "आने वाले"
 
-#: funnel/models/project.py:346
+#: funnel/models/project.py:347
 msgid "Published without sessions"
 msgstr "बिना सेशन के प्रकाशित कर दिया गया"
 
-#: funnel/models/project.py:353
+#: funnel/models/project.py:354
 msgid "Has proposals"
 msgstr "जिनमें प्रस्ताव हों"
 
-#: funnel/models/project.py:359
+#: funnel/models/project.py:360
 msgid "Has sessions"
 msgstr "जिनमें सेशन हों"
 
-#: funnel/models/project.py:368
+#: funnel/models/project.py:369
 msgid "Private draft"
 msgstr "निजी ड्राफ्ट"
 
-#: funnel/models/project.py:398
+#: funnel/models/project.py:399
 msgid "Open"
 msgstr "जारी"
 
-#: funnel/models/project.py:408
+#: funnel/models/project.py:409
 msgid "Expired"
 msgstr "अवधि समाप्त"
 
-#: funnel/models/project.py:439
-msgid "Enable proposal submissions"
-msgstr "प्रस्ताव जामा करने की सुविधा सक्षम करें"
-
 #: funnel/models/project.py:440
-msgid "Proposals can be now submitted"
-msgstr "अब प्रस्ताव जमा किए जा सकते हैं"
+msgid "Enable submissions"
+msgstr ""
 
-#: funnel/models/project.py:450
-msgid "Disable proposal submissions"
-msgstr "प्रस्ताव जमा करने की सुविधा अक्षम करें"
+#: funnel/models/project.py:441
+msgid "Submissions will be accepted within valid dates"
+msgstr ""
 
 #: funnel/models/project.py:451
-msgid "Proposals will no longer be accepted"
-msgstr "अब प्रस्ताव जमा नहीं किए जा सकते"
+msgid "Disable submissions"
+msgstr ""
 
-#: funnel/models/project.py:461
+#: funnel/models/project.py:452
+msgid "Submissions will no longer be accepted"
+msgstr ""
+
+#: funnel/models/project.py:462
 msgid "Publish project"
 msgstr "प्रोजेक्ट प्रकाशित करें"
 
-#: funnel/models/project.py:462
+#: funnel/models/project.py:463
 msgid "The project has been published"
 msgstr "प्रोजेक्ट को प्रकाशित कर दिया गया"
 
-#: funnel/models/project.py:478
+#: funnel/models/project.py:479
 msgid "Withdraw project"
 msgstr "प्रोजेक्ट को निवर्तित करें"
 
-#: funnel/models/project.py:479
+#: funnel/models/project.py:480
 msgid "The project has been withdrawn and is no longer listed"
 msgstr "प्रोजेक्ट को निवर्तित कर दिया गया और अब सूचीबद्ध नहीं है"
 
@@ -2973,6 +2973,7 @@ msgstr "प्रोजेक्ट"
 #: funnel/templates/project_layout.html.jinja2:383
 #: funnel/templates/project_submissions.html.jinja2:3
 #: funnel/templates/user_profile_proposals.html.jinja2:10
+#: funnel/views/search.py:251
 msgid "Submissions"
 msgstr "सबमिशन"
 
@@ -2995,6 +2996,7 @@ msgstr "(सेशन की कोई जानकारी नहीं दी
 
 #: funnel/templates/macros.html.jinja2:528
 #: funnel/templates/project.html.jinja2:134
+#: funnel/templates/project_layout.html.jinja2:32
 #: funnel/templates/project_layout.html.jinja2:307
 #: funnel/templates/project_layout.html.jinja2:331
 msgid "more"
@@ -4209,8 +4211,8 @@ msgstr "खाता संपादित करें"
 #: funnel/views/account.py:440 funnel/views/auth_client.py:154
 #: funnel/views/auth_client.py:387 funnel/views/auth_client.py:460
 #: funnel/views/profile.py:264 funnel/views/project.py:338
-#: funnel/views/project.py:372 funnel/views/project.py:401
-#: funnel/views/project.py:513 funnel/views/proposal.py:329
+#: funnel/views/project.py:366 funnel/views/project.py:395
+#: funnel/views/project.py:507 funnel/views/proposal.py:329
 #: funnel/views/ticket_event.py:181 funnel/views/ticket_event.py:268
 #: funnel/views/ticket_event.py:329 funnel/views/ticket_participant.py:197
 msgid "Save changes"
@@ -4539,7 +4541,7 @@ msgstr "ऐप्लिकेशन संपादित करें"
 #: funnel/views/auth_client.py:165 funnel/views/auth_client.py:324
 #: funnel/views/auth_client.py:398 funnel/views/auth_client.py:471
 #: funnel/views/organization.py:127 funnel/views/organization.py:215
-#: funnel/views/project.py:422 funnel/views/proposal.py:207
+#: funnel/views/project.py:416 funnel/views/proposal.py:207
 #: funnel/views/ticket_event.py:190 funnel/views/ticket_event.py:278
 #: funnel/views/ticket_event.py:339 funnel/views/update.py:163
 msgid "Confirm delete"
@@ -4788,7 +4790,7 @@ msgid "Subscribed to this comment thread"
 msgstr ""
 
 #: funnel/views/commentvote.py:183 funnel/views/commentvote.py:203
-#: funnel/views/commentvote.py:220 funnel/views/project.py:692
+#: funnel/views/commentvote.py:220 funnel/views/project.py:686
 msgid "This page timed out. Reload and try again"
 msgstr ""
 "इस पेज को लोड होने का समय समाप्त हो चुका है. पेज को रिलोड करने के बाद फिर"
@@ -4902,9 +4904,9 @@ msgstr "ऑनलाइन"
 
 #: funnel/views/label.py:31 funnel/views/profile.py:259
 #: funnel/views/profile.py:290 funnel/views/profile.py:344
-#: funnel/views/profile.py:386 funnel/views/project.py:386
-#: funnel/views/project.py:456 funnel/views/project.py:498
-#: funnel/views/project.py:510 funnel/views/proposal.py:190
+#: funnel/views/profile.py:386 funnel/views/project.py:380
+#: funnel/views/project.py:450 funnel/views/project.py:492
+#: funnel/views/project.py:504 funnel/views/proposal.py:190
 #: funnel/views/ticket_event.py:179 funnel/views/ticket_event.py:265
 #: funnel/views/ticket_event.py:326 funnel/views/ticket_participant.py:194
 msgid "Your changes have been saved"
@@ -5292,11 +5294,11 @@ msgid "Were you trying to remove the logo? Try again to confirm"
 msgstr ""
 
 #: funnel/views/profile.py:348 funnel/views/profile.py:353
-#: funnel/views/project.py:460 funnel/views/project.py:465
+#: funnel/views/project.py:454 funnel/views/project.py:459
 msgid "Save banner"
 msgstr "बैनर सेव करें"
 
-#: funnel/views/profile.py:372 funnel/views/project.py:485
+#: funnel/views/profile.py:372 funnel/views/project.py:479
 msgid "Were you trying to remove the banner? Try again to confirm"
 msgstr ""
 
@@ -5506,21 +5508,21 @@ msgstr "प्रोजेक्ट बनाएं"
 msgid "Customize the URL"
 msgstr "URL कस्टमाइज़ करें"
 
-#: funnel/views/project.py:371 funnel/views/project.py:400
+#: funnel/views/project.py:365 funnel/views/project.py:394
 msgid "Edit project"
 msgstr "प्रोजेक्ट संपादित करें"
 
-#: funnel/views/project.py:413
+#: funnel/views/project.py:407
 msgid "This project has submissions"
 msgstr ""
 
-#: funnel/views/project.py:414
+#: funnel/views/project.py:408
 msgid ""
 "Submissions must be deleted or transferred before the project can be "
 "deleted"
 msgstr ""
 
-#: funnel/views/project.py:423
+#: funnel/views/project.py:417
 msgid ""
 "Delete project ‘{title}’? This will delete everything in the project. "
 "This operation is permanent and cannot be undone"
@@ -5528,35 +5530,35 @@ msgstr ""
 "‘{title}’ प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना "
 "इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
 
-#: funnel/views/project.py:427
+#: funnel/views/project.py:421
 msgid "You have deleted project ‘{title}’ and all its associated content"
 msgstr "आपने ‘{title}’ प्रोजेक्ट और उससे जुड़ी सारी सामग्री हटा दी है"
 
-#: funnel/views/project.py:513
+#: funnel/views/project.py:507
 msgid "Edit ticket client details"
 msgstr "टिकट क्लाइंट विवरण संपादित करें"
 
-#: funnel/views/project.py:531
+#: funnel/views/project.py:525
 msgid "Invalid transition for this project"
 msgstr "इस प्रोजेक्ट के लिए अमान्य परिवर्तन"
 
-#: funnel/views/project.py:550
+#: funnel/views/project.py:544
 msgid "Invalid transition for this project’s CfP"
 msgstr "इस प्रोजेक्ट के CfP के लिए अमान्य परिवर्तन"
 
-#: funnel/views/project.py:566
+#: funnel/views/project.py:560
 msgid "This response is not valid"
 msgstr "यह प्रतिक्रिया मान्य नहीं है"
 
-#: funnel/views/project.py:582
+#: funnel/views/project.py:576
 msgid "Were you trying to register? Try again to confirm"
 msgstr ""
 
-#: funnel/views/project.py:599
+#: funnel/views/project.py:593
 msgid "Were you trying to cancel your registration? Try again to confirm"
 msgstr ""
 
-#: funnel/views/project.py:714 funnel/views/ticket_event.py:140
+#: funnel/views/project.py:708 funnel/views/ticket_event.py:140
 msgid "Importing tickets from vendors… Reload the page in about 30 seconds…"
 msgstr "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिलोड करें…"
 
@@ -5627,10 +5629,6 @@ msgstr "5 मिनट में {session}"
 #: funnel/views/search.py:191
 msgid "Profiles"
 msgstr "प्रोफाइल"
-
-#: funnel/views/search.py:251
-msgid "Proposals"
-msgstr "प्रस्ताव"
 
 #: funnel/views/session.py:29
 msgid "Select Room"
@@ -7017,3 +7015,18 @@ msgstr "{project} में अपडेट: {update} {url}"
 
 #~ msgid "Proposal menu"
 #~ msgstr ""
+
+#~ msgid "Enable proposal submissions"
+#~ msgstr "प्रस्ताव जामा करने की सुविधा सक्षम करें"
+
+#~ msgid "Proposals can be now submitted"
+#~ msgstr "अब प्रस्ताव जमा किए जा सकते हैं"
+
+#~ msgid "Disable proposal submissions"
+#~ msgstr "प्रस्ताव जमा करने की सुविधा अक्षम करें"
+
+#~ msgid "Proposals will no longer be accepted"
+#~ msgstr "अब प्रस्ताव जमा नहीं किए जा सकते"
+
+#~ msgid "Proposals"
+#~ msgstr "प्रस्ताव"

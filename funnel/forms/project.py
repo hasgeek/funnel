@@ -110,6 +110,11 @@ class ProjectForm(forms.Form):
 
     def set_queries(self):
         self.bg_image.profile = self.profile.name
+        if self.edit_obj and self.edit_obj.schedule_start_at:
+            # Don't allow user to directly manipulate timestamps when it's done via
+            # Session objects
+            del self.start_at
+            del self.end_at
 
 
 @Project.forms('featured')
