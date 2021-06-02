@@ -266,7 +266,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.CheckConstraint(
             db.or_(
                 db.and_(start_at.is_(None), end_at.is_(None)),
-                db.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+                db.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
             ),
             'project_start_at_end_at_check',
         ),
