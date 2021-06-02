@@ -1244,6 +1244,7 @@
         "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें"
       ],
       "Spotlight:": [null, "सुर्खियां:"],
+      "What’s this about?": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाएं"],
       "Archive": [null, "पुरालेख"],
@@ -1252,11 +1253,11 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
+      "Add username": [null, ""],
       "%(count)s more": [null, ""],
       "Account settings": [null, ""],
       "Notification settings": [null, ""],
       "Saved projects": [null, ""],
-      "What’s this about?": [null, ""],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
