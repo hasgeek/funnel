@@ -4568,6 +4568,7 @@ a.loginbutton.hidden,
 }
 .video .video__txt {
   margin-bottom: 3px;
+  word-wrap: break-word;
 }
 
 @media (max-width: 767px) {

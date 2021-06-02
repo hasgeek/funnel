@@ -84,6 +84,10 @@
             </div>
           </div>
         </li>
+      {% else %}
+        <li class="mui--bg-accent">
+          <a href="{{ url_for('account_edit') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-dark nounderline mui--text-subhead mui--text-light"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='plus', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Add username{% endtrans %}</a></a>
+        </li>
       {%- endif %}
       {%- with orgmemlist = current_auth.user.views.recent_organization_memberships() %}
       {%- if orgmemlist.recent|length -%}
