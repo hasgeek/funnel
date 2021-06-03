@@ -22,7 +22,7 @@ describe('Test search feature', function () {
       .contains('testcypressproject');
 
     cy.get('input[name="q"]').clear().type(proposal.title).type('{enter}');
-    cy.get('.tabs__item').contains('Proposals').click();
+    cy.get('.tabs__item').contains('Submissions').click();
     cy.wait('@search');
     cy.get('.tab-content__results').contains(proposal.title);
 
