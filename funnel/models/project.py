@@ -266,9 +266,21 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         db.CheckConstraint(
             db.or_(
                 db.and_(start_at.is_(None), end_at.is_(None)),
-                db.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+                db.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
             ),
             'project_start_at_end_at_check',
+        ),
+        db.CheckConstraint(
+            db.or_(
+                db.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
+                db.and_(cfp_start_at.isnot(None), cfp_end_at.is_(None)),
+                db.and_(
+                    cfp_start_at.isnot(None),
+                    cfp_end_at.isnot(None),
+                    cfp_end_at > cfp_start_at,
+                ),
+            ),
+            'project_cfp_start_at_cfp_end_at_check',
         ),
     )
 

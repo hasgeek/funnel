@@ -93,7 +93,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         db.CheckConstraint(
             db.or_(
                 db.and_(start_at.is_(None), end_at.is_(None)),
-                db.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+                db.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
             ),
             'session_start_at_end_at_check',
         ),
