@@ -28,12 +28,6 @@
         null,
         "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
       ],
-      "Changes saved but not published": [null, ""],
-      "These changes have not been published yet": [null, ""],
-      "You have unsaved changes on this page. Do you want to leave this page?": [
-        null,
-        ""
-      ],
       "The server is experiencing difficulties. Try again in a few minutes": [
         null,
         ""
@@ -605,14 +599,9 @@
       ],
       "Submissions open at": [null, "सबमिशन खुलने का समय"],
       "Submissions close at": [null, "सबमिशन बंद होने का समय"],
-      "This requires an opening time to be specified": [
-        null,
-        "इस के लिए शुरू होने का के समय को उल्लिखित करना ज़रूरी है"
-      ],
-      "Submissions cannot close before they open": [
-        null,
-        "जमा करने के प्रक्रिया खुलने से पहले बंद नहीं की जा सकती"
-      ],
+      "Optional – Leave blank to have no closing date": [null, ""],
+      "This requires an opening date to be specified": [null, ""],
+      "This must be after the opening date and time": [null, ""],
       "Status": [null, "स्थिति"],
       "CfP status": [null, "CfP की स्थिति"],
       "Save this project?": [null, "इस प्रोजेक्ट को सहेजें?"],
@@ -979,6 +968,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,

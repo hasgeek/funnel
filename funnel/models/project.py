@@ -270,6 +270,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             ),
             'project_start_at_end_at_check',
         ),
+        db.CheckConstraint(
+            db.or_(
+                db.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
+                db.and_(cfp_start_at.isnot(None), cfp_end_at.is_(None)),
+                db.and_(
+                    cfp_start_at.isnot(None),
+                    cfp_end_at.isnot(None),
+                    cfp_end_at > cfp_start_at,
+                ),
+            ),
+            'project_cfp_start_at_cfp_end_at_check',
+        ),
     )
 
     __roles__ = {
