@@ -28,6 +28,12 @@
         null,
         "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
       ],
+      "Changes saved but not published": [null, ""],
+      "These changes have not been published yet": [null, ""],
+      "You have unsaved changes on this page. Do you want to leave this page?": [
+        null,
+        ""
+      ],
       "The server is experiencing difficulties. Try again in a few minutes": [
         null,
         ""
@@ -59,7 +65,7 @@
       ],
       "Unable to connect. Check connection and tap to reload": [null, ""],
       "Link copied": [null, ""],
-      "Project added to Account > My saves": [null, ""],
+      "Project added to Account > Saved projects": [null, ""],
       "English": [null, "अंग्रेज़ी"],
       "Hindi (beta; incomplete)": [null, "हिंदी (बीटा; अधूरा)"],
       "This password is too simple. Add complexity by making it longer and using a mix of upper and lower case letters, numbers and symbols": [
@@ -973,9 +979,6 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
-      "${}": [null, ""],
-      ".": [null, ""],
-      "@": [null, ""],
       "The room sequence and colours have been updated": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1094,9 +1097,6 @@
         "%(since)s से स्थापित – आखरी बार इस्तेमाल %(last_used)s"
       ],
       "Since %(since)s": [null, "%(since)s से स्थापित"],
-      "Organizations": [null, "संगठन"],
-      "New": [null, ""],
-      "Open profile": [null, "प्रोफाइल खोलें"],
       "Login sessions": [null, "लॉगिन सेशन"],
       "Since %(since)s via %(login_service)s – last active %(last_active)s": [
         null,
@@ -1127,6 +1127,9 @@
       "Logged in account": [null, "अकाउंट में लॉग इन हो गया"],
       "Other account": [null, "अन्य अकाउंट"],
       "Skip": [null, "बाद में"],
+      "Organizations": [null, "संगठन"],
+      "Add new organization": [null, ""],
+      "Admin": [null, ""],
       "Client application information": [null, "क्लाइंट एप्लीकेशन की जानकारी"],
       "Admin panel": [null, "एडमिन पैनल"],
       "Edit this application": [null, "इस एप्लीकेशन को संपादित करें"],
@@ -1229,6 +1232,7 @@
         "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें"
       ],
       "Spotlight:": [null, "सुर्खियां:"],
+      "What’s this about?": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाएं"],
       "Archive": [null, "पुरालेख"],
@@ -1237,11 +1241,16 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "What’s this about?": [null, ""],
+      "Add username": [null, ""],
+      "%(count)s more": [null, ""],
+      "Account settings": [null, ""],
+      "Notification settings": [null, ""],
+      "Saved projects": [null, ""],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
       "Updates": [null, "अपडेट"],
+      "Account menu": [null, ""],
       "Account": [null, "अकाउंट"],
       "Login": [null, "लॉगिन"],
       "or use your password instead": [
@@ -1259,8 +1268,8 @@
       "Preview video": [null, "प्रीव्यू वीडियो"],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
+      "Share": [null, "साझा करें"],
       "Notifications": [null, "नोटिफिकेशन"],
-      "My saves": [null, "मेरी सेव किये गए प्रोजेक्ट"],
       "Scan badge": [null, "बैज स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
       "Submissions close %(date)s": [null, ""],
@@ -1454,8 +1463,8 @@
       "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
       "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
       "View participants": [null, "प्रतिभागियों को देखें"],
-      "Share this project menu": [null, ""],
       "Share this project": [null, ""],
+      "Menu": [null, ""],
       "Edit URL": [null, ""],
       "Edit description": [null, ""],
       "Settings": [null, "सेटिंग्स"],
@@ -1514,7 +1523,6 @@
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है"
       ],
       "No videos": [null, ""],
-      "Proposal menu": [null, ""],
       "Edit submission": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
@@ -1608,7 +1616,6 @@
       "edited %s": [null, ""],
       "Reply": [null, ""],
       "Report": [null, ""],
-      "Share": [null, "साझा करें"],
       "More": [null, ""],
       "Show badge": [null, ""],
       "Show label badge": [null, ""],
@@ -1620,7 +1627,6 @@
       "No members found": [null, ""],
       "Members you add will appear here…": [null, ""],
       "Remove this member": [null, ""],
-      "Admin": [null, ""],
       "+ %d more role": [null, ""],
       "+ %d more roles": [null, ""],
       "Agenda view": [null, ""],

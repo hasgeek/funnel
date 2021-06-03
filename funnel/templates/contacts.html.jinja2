@@ -11,11 +11,7 @@
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          {{ account_tabs(active_tab='contacts') }}
-        </div>
-      </div>
+      {{ account_tabs(active_tab='contacts') }}
     </div>
   </div>
 {%- endblock %}
