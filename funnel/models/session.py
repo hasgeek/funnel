@@ -270,7 +270,7 @@ class __Project:
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
-            # .scalar_subquery()
+            .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -283,7 +283,7 @@ class __Project:
             .where(Session.start_at >= db.func.utcnow())
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
-            # .scalar_subquery()
+            .scalar_subquery()
         ),
         read={'all'},
     )
@@ -294,7 +294,7 @@ class __Project:
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
-            # .scalar_subquery()
+            .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
