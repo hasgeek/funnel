@@ -1,6 +1,5 @@
-import six
-
 from datetime import datetime, timedelta
+from io import StringIO
 from typing import Dict, Optional
 import csv
 
@@ -61,7 +60,7 @@ class ContactView(ClassView):
 
     def contacts_to_csv(self, contacts, timezone, filename):
         """Return a CSV of given contacts."""
-        outfile = six.StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(
             [
