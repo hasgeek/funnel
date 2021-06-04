@@ -43,12 +43,15 @@ def db_connection(database):
     return database.engine.connect()
 
 
+# This fixture borrowed from
+# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46#issuecomment-829694672
 @pytest.fixture(scope='function')
 def db_session(database, db_connection):
     """Create a nested transaction for the test and roll it back after."""
+    original_session = database.session
     transaction = db_connection.begin()
     database.session = database.create_scoped_session(
-        options={"bind": db_connection, "binds": {}}
+        options={'bind': db_connection, 'binds': {}}
     )
     database.session.begin_nested()
 
@@ -64,6 +67,7 @@ def db_session(database, db_connection):
 
     database.session.close()
     transaction.rollback()
+    database.session = original_session
 
 
 # Enable autouse to guard against tests that have implicit database access, or assume
