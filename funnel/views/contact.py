@@ -60,7 +60,7 @@ class ContactView(ClassView):
 
     def contacts_to_csv(self, contacts, timezone, filename):
         """Return a CSV of given contacts."""
-        outfile = StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(
             [

@@ -120,7 +120,7 @@ class SiteadminView(ClassView):
             .order_by('month')
         )
 
-        outfile = StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile, 'excel')
         out.writerow(['month', 'count'])
         for month, count in users_by_month:
@@ -195,7 +195,7 @@ class SiteadminView(ClassView):
             reverse=True,
         )
 
-        outfile = StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile, 'excel')
         out.writerow(
             ['title', 'hour', 'day', 'week', 'month', 'quarter', 'halfyear', 'year']
