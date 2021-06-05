@@ -70,8 +70,7 @@
 
     blockquote {
       border-left: 3px solid $mui-text-accent;
-      margin: 0;
-      padding: $mui-grid-padding/2 0 0 $mui-grid-padding/2;
+      padding: 0 0 0 $mui-grid-padding/2;
     }
     .comment__body__inner,
     .comment--children {
