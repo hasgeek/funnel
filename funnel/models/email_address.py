@@ -274,7 +274,8 @@ class EmailAddress(BaseMixin, db.Model):
         To set this flag, call :classmethod:`mark_blocked` using the email address. The
         flag will be simultaneously set on all matching instances.
         """
-        return self._is_blocked
+        with db.session.no_autoflush:
+            return self._is_blocked
 
     @hybrid_property
     def domain(self) -> Optional[str]:
