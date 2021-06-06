@@ -1,4 +1,5 @@
-from typing import Union
+from types import SimpleNamespace
+from typing import List, Optional, Union
 
 from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
 
@@ -13,6 +14,7 @@ from baseframe.forms import (
     render_redirect,
 )
 from coaster.auth import current_auth
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, get_next_url, render_with, route
 
 from .. import app
@@ -36,6 +38,8 @@ from ..forms import (
 from ..models import (
     AccountPasswordNotification,
     AuthClient,
+    Organization,
+    OrganizationMembership,
     SMSMessage,
     User,
     UserEmail,
@@ -94,6 +98,55 @@ def user_timezone(obj):
     """Human-friendly identifier for user's timezone, defaulting to timezone name."""
     return timezone_identifiers.get(
         str(obj.timezone) if obj.timezone else None, obj.timezone
+    )
+
+
+@User.views()
+def organizations_as_admin(
+    obj: User,
+    owner: bool = False,
+    limit: Optional[int] = None,
+    order_by_grant: bool = False,
+) -> List[RoleAccessProxy]:
+    if owner:
+        orgmems = obj.active_organization_owner_memberships
+    else:
+        orgmems = obj.active_organization_admin_memberships
+    orgmems = orgmems.join(Organization)
+    if order_by_grant:
+        orgmems = orgmems.order_by(OrganizationMembership.granted_at.desc())
+    else:
+        orgmems = orgmems.order_by(db.func.lower(Organization.title))
+
+    if limit is not None:
+        orgmems = orgmems.limit(limit)
+
+    orgs = [_om.current_access() for _om in orgmems]
+    return orgs
+
+
+@User.views()
+def organizations_as_owner(
+    obj: User, limit: Optional[int] = None, order_by_grant: bool = False
+) -> List[RoleAccessProxy]:
+    return obj.views.organizations_as_admin(
+        owner=True, limit=limit, order_by_grant=order_by_grant
+    )
+
+
+@User.views()
+def recent_organization_memberships(
+    obj: User, recent: int = 3, overflow: int = 4
+) -> SimpleNamespace:
+    orgs = obj.views.organizations_as_admin(
+        limit=recent + overflow, order_by_grant=True
+    )
+    return SimpleNamespace(
+        recent=orgs[:recent],
+        overflow=orgs[recent : recent + overflow],
+        extra_count=max(
+            0, obj.active_organization_admin_memberships.count() - recent - overflow
+        ),
     )
 
 
@@ -298,6 +351,11 @@ class AccountView(ClassView):
     @render_with('account_saved.html.jinja2')
     def saved(self) -> ReturnRenderWith:
         return {'saved_projects': current_auth.user.saved_projects}
+
+    @route('organizations', endpoint='organizations')
+    @render_with('account_organizations.html.jinja2')
+    def organizations(self) -> ReturnRenderWith:
+        return {}
 
     @route(
         'edit',

@@ -26,6 +26,7 @@ $(() => {
   Utils.collapse();
   Utils.smoothScroll();
   Utils.navSearchForm();
+  Utils.headerMenuDropdown();
   Utils.scrollTabs();
   Utils.truncate();
   Utils.showTimeOnCalendar();

@@ -59,7 +59,7 @@
       ],
       "Unable to connect. Check connection and tap to reload": [null, ""],
       "Link copied": [null, ""],
-      "Project added to Account > My saves": [null, ""],
+      "Project added to Account > Saved projects": [null, ""],
       "English": [null, "अंग्रेज़ी"],
       "Hindi (beta; incomplete)": [null, "हिंदी (बीटा; अधूरा)"],
       "This password is too simple. Add complexity by making it longer and using a mix of upper and lower case letters, numbers and symbols": [
@@ -599,14 +599,9 @@
       ],
       "Submissions open at": [null, "सबमिशन खुलने का समय"],
       "Submissions close at": [null, "सबमिशन बंद होने का समय"],
-      "This requires an opening time to be specified": [
-        null,
-        "इस के लिए शुरू होने का के समय को उल्लिखित करना ज़रूरी है"
-      ],
-      "Submissions cannot close before they open": [
-        null,
-        "जमा करने के प्रक्रिया खुलने से पहले बंद नहीं की जा सकती"
-      ],
+      "Optional – Leave blank to have no closing date": [null, ""],
+      "This requires an opening date to be specified": [null, ""],
+      "This must be after the opening date and time": [null, ""],
       "Status": [null, "स्थिति"],
       "CfP status": [null, "CfP की स्थिति"],
       "Save this project?": [null, "इस प्रोजेक्ट को सहेजें?"],
@@ -888,22 +883,10 @@
       "Private draft": [null, "निजी ड्राफ्ट"],
       "Open": [null, "जारी"],
       "Expired": [null, "अवधि समाप्त"],
-      "Enable proposal submissions": [
-        null,
-        "प्रस्ताव जामा करने की सुविधा सक्षम करें"
-      ],
-      "Proposals can be now submitted": [
-        null,
-        "अब प्रस्ताव जमा किए जा सकते हैं"
-      ],
-      "Disable proposal submissions": [
-        null,
-        "प्रस्ताव जमा करने की सुविधा अक्षम करें"
-      ],
-      "Proposals will no longer be accepted": [
-        null,
-        "अब प्रस्ताव जमा नहीं किए जा सकते"
-      ],
+      "Enable submissions": [null, ""],
+      "Submissions will be accepted within valid dates": [null, ""],
+      "Disable submissions": [null, ""],
+      "Submissions will no longer be accepted": [null, ""],
       "Publish project": [null, "प्रोजेक्ट प्रकाशित करें"],
       "The project has been published": [
         null,
@@ -1106,9 +1089,6 @@
         "%(since)s से स्थापित – आखरी बार इस्तेमाल %(last_used)s"
       ],
       "Since %(since)s": [null, "%(since)s से स्थापित"],
-      "Organizations": [null, "संगठन"],
-      "New": [null, ""],
-      "Open profile": [null, "प्रोफाइल खोलें"],
       "Login sessions": [null, "लॉगिन सेशन"],
       "Since %(since)s via %(login_service)s – last active %(last_active)s": [
         null,
@@ -1139,6 +1119,9 @@
       "Logged in account": [null, "अकाउंट में लॉग इन हो गया"],
       "Other account": [null, "अन्य अकाउंट"],
       "Skip": [null, "बाद में"],
+      "Organizations": [null, "संगठन"],
+      "Add new organization": [null, ""],
+      "Admin": [null, ""],
       "Client application information": [null, "क्लाइंट एप्लीकेशन की जानकारी"],
       "Admin panel": [null, "एडमिन पैनल"],
       "Edit this application": [null, "इस एप्लीकेशन को संपादित करें"],
@@ -1241,6 +1224,7 @@
         "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें"
       ],
       "Spotlight:": [null, "सुर्खियां:"],
+      "What’s this about?": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाएं"],
       "Archive": [null, "पुरालेख"],
@@ -1249,11 +1233,16 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "What’s this about?": [null, ""],
+      "Add username": [null, ""],
+      "%(count)s more": [null, ""],
+      "Account settings": [null, ""],
+      "Notification settings": [null, ""],
+      "Saved projects": [null, ""],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
       "Updates": [null, "अपडेट"],
+      "Account menu": [null, ""],
       "Account": [null, "अकाउंट"],
       "Login": [null, "लॉगिन"],
       "or use your password instead": [
@@ -1271,8 +1260,8 @@
       "Preview video": [null, "प्रीव्यू वीडियो"],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
+      "Share": [null, "साझा करें"],
       "Notifications": [null, "नोटिफिकेशन"],
-      "My saves": [null, "मेरी सेव किये गए प्रोजेक्ट"],
       "Scan badge": [null, "बैज स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
       "Submissions close %(date)s": [null, ""],
@@ -1466,8 +1455,8 @@
       "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
       "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
       "View participants": [null, "प्रतिभागियों को देखें"],
-      "Share this project menu": [null, ""],
       "Share this project": [null, ""],
+      "Menu": [null, ""],
       "Edit URL": [null, ""],
       "Edit description": [null, ""],
       "Settings": [null, "सेटिंग्स"],
@@ -1526,7 +1515,6 @@
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है"
       ],
       "No videos": [null, ""],
-      "Proposal menu": [null, ""],
       "Edit submission": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
@@ -1620,7 +1608,6 @@
       "edited %s": [null, ""],
       "Reply": [null, ""],
       "Report": [null, ""],
-      "Share": [null, "साझा करें"],
       "More": [null, ""],
       "Show badge": [null, ""],
       "Show label badge": [null, ""],
@@ -1632,7 +1619,6 @@
       "No members found": [null, ""],
       "Members you add will appear here…": [null, ""],
       "Remove this member": [null, ""],
-      "Admin": [null, ""],
       "+ %d more role": [null, ""],
       "+ %d more roles": [null, ""],
       "Agenda view": [null, ""],
@@ -2599,7 +2585,6 @@
       ],
       "{session} in 5 minutes": [null, "5 मिनट में {session}"],
       "Profiles": [null, "प्रोफाइल"],
-      "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
       "This project will not be listed as it has no sessions in the schedule": [
         null,
