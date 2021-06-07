@@ -113,9 +113,9 @@
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       {{ share_dropdown(url, title) }}
     </div>
   {%- endif %}
@@ -124,8 +124,9 @@
 {% macro account_tabs(active_tab='account') %}
   <div class="tabs" id="jquery-scroll-tabs">
     <a {% if active_tab != 'account' %}href="{{ url_for('account') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'account' %}tabs__item--active{%- endif %}">{% trans %}Account{% endtrans %}</a>
+    <a {% if active_tab != 'organizations' %}href="{{ url_for('organizations') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'organizations' %}tabs__item--active{%- endif %}">{% trans %}Organizations{% endtrans %}</a>
     <a {% if active_tab != 'notification_preferences' %}href="{{ url_for('notification_preferences') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'notification_preferences' %}tabs__item--active{%- endif %}">{% trans %}Notifications{% endtrans %}</a>
-    <a {% if active_tab != 'saved' %}href="{{ url_for('saved') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'saved' %}tabs__item--active{%- endif %}">{% trans %}My saves{% endtrans %}</a>
+    <a {% if active_tab != 'saved' %}href="{{ url_for('saved') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'saved' %}tabs__item--active{%- endif %}">{% trans %}Saved projects{% endtrans %}</a>
     <a {% if active_tab != 'scan' %}href="{{ url_for('scan_contact') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'scan' %}tabs__item--active{%- endif %}">{% trans %}Scan badge{% endtrans %}</a>
     <a {% if active_tab != 'contacts' %}href="{{ url_for('contacts') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'contacts' %}tabs__item--active{%- endif %}">{% trans %}Contacts{% endtrans %}</a>
   </div>
@@ -354,7 +355,7 @@
 
 {% macro profile_admin_buttons(profile) %}
   <div class="mui-dropdown mui--d-inlineblock">
-    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" role="button" aria-label="{% trans %}Profile menu{% endtrans %}">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" aria-label="{% trans %}Profile menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
     <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="profile-edit-menu">
       {%- if profile.organization %}<li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>{% endif %}
       <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>

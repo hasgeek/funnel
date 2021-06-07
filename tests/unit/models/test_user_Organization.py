@@ -75,7 +75,7 @@ class TestOrganization(TestDatabaseFixture):
             title="Abnegation", name='abnegation', owner=self.fixtures.crusoe
         )
         assert isinstance(abnegation.pickername, str)
-        assert abnegation.pickername == abnegation.title
+        assert abnegation.pickername == f'{abnegation.title} (@{abnegation.name})'
 
         # scenario 2: when both name and title are given
         name = 'cullens'

@@ -171,7 +171,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'is_user_profile',
                 'owner',
             },
-            'call': {'url_for', 'features', 'forms'},
+            'call': {'url_for', 'features', 'forms', 'state'},
         }
     }
 

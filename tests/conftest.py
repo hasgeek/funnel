@@ -1,6 +1,8 @@
 from datetime import datetime
 from types import SimpleNamespace
 
+from sqlalchemy import event
+
 from pytz import utc
 import pytest
 
@@ -36,19 +38,70 @@ def database(request):
 
 
 @pytest.fixture(scope='session')
-def _db(database):
-    """Dependency for db_session and db_engine fixtures."""
-    return database
+def db_connection(database):
+    """Return a database connection."""
+    return database.engine.connect()
+
+
+# This fixture borrowed from
+# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46#issuecomment-829694672
+@pytest.fixture(scope='function')
+def db_session(database, db_connection):
+    """Create a nested transaction for the test and roll it back after."""
+    original_session = database.session
+    transaction = db_connection.begin()
+    database.session = database.create_scoped_session(
+        options={'bind': db_connection, 'binds': {}}
+    )
+    database.session.begin_nested()
+
+    # for handling tests that actually call `session.rollback()`
+    # https://docs.sqlalchemy.org/en/13/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
+    @event.listens_for(database.session, 'after_transaction_end')
+    def restart_savepoint(session, transaction_in):
+        if transaction_in.nested and not transaction_in._parent.nested:
+            session.expire_all()
+            session.begin_nested()
+
+    yield database.session
+
+    database.session.close()
+    transaction.rollback()
+    database.session = original_session
 
 
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
 @pytest.fixture(autouse=True)
-def client(db_session):
+def client(request, db_session):
     """Provide a test client."""
+    if 'noclient' in request.keywords:
+        # To use this, annotate a test with:
+        # @pytest.mark.noclient
+        return None
     with app.app_context():  # Not required for test_client, but required for autouse
         with app.test_client() as test_client:
             yield test_client
+
+
+@pytest.fixture
+def varfixture(request):
+    """
+    Return a variable fixture.
+
+    Usage::
+
+        @pytest.mark.parametrize('varfixture', ['fixture1', 'fixture2'], indirect=True)
+        def test_me(varfixture):
+            ...
+
+    This fixture can also be ignored, and a test can access a variable fixture directly:
+
+    1. Don't use `indirect=True`
+    2. Accept `request` as a parameter
+    3. Get the actual fixture with `request.getfixturevalue(varfixture)`
+    """
+    return request.getfixturevalue(request.param)
 
 
 # --- Sample data: users, organizations, projects, etc ---------------------------------

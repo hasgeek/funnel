@@ -46,3 +46,6 @@ ReturnRenderWith = Union[
 
 #: Return type for Response objects
 ReturnResponse = Response
+
+#: Return type for login providers
+ReturnLoginProvider = Dict[str, Union[None, str, List[str]]]

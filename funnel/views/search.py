@@ -248,7 +248,7 @@ search_types = OrderedDict(
         (
             'proposal',
             SearchModel(
-                __("Proposals"),
+                __("Submissions"),
                 Proposal,
                 True,
                 False,

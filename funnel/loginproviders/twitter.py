@@ -11,6 +11,7 @@ from tweepy import TweepError
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginInitError, LoginProvider
+from ..typing import ReturnLoginProvider
 from .flask_oauth import OAuth, OAuthException  # type: ignore[attr-defined]
 
 __all__ = ['TwitterProvider']
@@ -94,7 +95,7 @@ class TwitterProvider(LoginProvider):
                 _("Twitter had an intermittent error. Please try again")
             )
 
-    def unwrapped_callback(self, resp):
+    def unwrapped_callback(self, resp) -> ReturnLoginProvider:
         if resp is None:
             raise LoginCallbackError(_("You denied the request to login"))
 
@@ -106,11 +107,11 @@ class TwitterProvider(LoginProvider):
             twinfo = api.verify_credentials(
                 include_entities='false', skip_status='true', include_email='true'
             )
-            fullname = twinfo.name
+            fullname = twinfo.name or ''
             avatar_url = twinfo.profile_image_url_https.replace('_normal.', '_bigger.')
             email = getattr(twinfo, 'email', None)
         except TweepError:
-            fullname = None
+            fullname = ''
             avatar_url = None
             email = None
 
@@ -118,7 +119,7 @@ class TwitterProvider(LoginProvider):
             'email': email,
             'userid': resp['user_id'],
             'username': resp['screen_name'],
-            'fullname': fullname,
+            'fullname': fullname.strip(),
             'avatar_url': avatar_url,
             'oauth_token': resp['oauth_token'],
             'oauth_token_secret': resp['oauth_token_secret'],

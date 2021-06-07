@@ -10,6 +10,7 @@ import requests
 from baseframe import _
 
 from ..registry import LoginCallbackError, LoginProvider
+from ..typing import ReturnLoginProvider
 
 __all__ = ['LinkedInProvider']
 
@@ -44,7 +45,7 @@ class LinkedInProvider(LoginProvider):
             )
         )
 
-    def callback(self):
+    def callback(self) -> ReturnLoginProvider:
         state = session.pop('linkedin_state', None)
         callback_url = session.pop('linkedin_callback', None)
         if state is None or request.args.get('state') != state:
@@ -128,8 +129,10 @@ class LinkedInProvider(LoginProvider):
             'userid': info.get('id'),
             'username': None,
             'fullname': (
-                info.get('localizedFirstName') + ' ' + info.get('localizedLastName')
-            ),
+                (info.get('localizedFirstName') or '')
+                + ' '
+                + (info.get('localizedLastName') or '')
+            ).strip(),
             'avatar_url': '',
             'oauth_token': response['access_token'],
             'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets

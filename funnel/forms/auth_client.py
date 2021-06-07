@@ -28,6 +28,7 @@ class AuthClientForm(forms.Form):
     title = forms.StringField(
         __("Application title"),
         validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()],
         description=__("The name of your application"),
     )
     description = forms.TextAreaField(
@@ -130,6 +131,7 @@ class AuthClientCredentialForm(forms.Form):
     title = forms.StringField(
         __("What’s this for?"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
+        filters=[forms.filters.strip()],
         description=__(
             "Add a description to help yourself remember why this was generated"
         ),

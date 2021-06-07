@@ -59,7 +59,7 @@
       ],
       "Unable to connect. Check connection and tap to reload": [null, ""],
       "Link copied": [null, ""],
-      "Project added to Account > My saves": [null, ""],
+      "Project added to Account > Saved projects": [null, ""],
       "English": [null, "अंग्रेज़ी"],
       "Hindi (beta; incomplete)": [null, "हिंदी (बीटा; अधूरा)"],
       "This password is too simple. Add complexity by making it longer and using a mix of upper and lower case letters, numbers and symbols": [
@@ -191,20 +191,10 @@
         null,
         "वेबसाइट जहां यूजर इस ऐप्लिकेशन का उपयोग कर सकते हैं"
       ],
-      "Client namespace": [null, "क्लाइंट नेमस्पेस"],
-      "A dot-based namespace that uniquely identifies your client application. For example, if your client website is <code>https://auth.hasgeek.com</code>, use <code>com.hasgeek.auth</code>. Only required if your client app provides resources": [
-        null,
-        "एक डॉट-आधारित नेमस्पेस जो विचित्र रूप से आपके क्लाइंट ऐप्लिकेशन की पहचान करता है"
-      ],
       "Redirect URLs": [null, "रीडायरेक्ट URLs"],
       "OAuth2 Redirect URL. If your app is available on multiple hostnames, list each redirect URL on a separate line": [
         null,
         "OAuth2 रीडायरेक्ट URL. अगर आपका ऐप कई होस्टनेम पर उपलब्ध है, तो हर अलग-अलग लाइन पर प्रत्येक रीडायरेक्ट URLलिस्ट करें"
-      ],
-      "Notification URL (deprecated)": [null, "नोटिफिकेशन URL (पुराना)"],
-      "When the user's data changes, Lastuser will POST a notice to this URL. Other notices may be posted too": [
-        null,
-        "जब यूजर का डेटा बदल जाता है, तो Lastuser इस URL को एक नोटिस पोस्ट करेगा"
       ],
       "Allow anyone to login": [null, "किसी को भी लॉगिन करने दें"],
       "If your application requires access to be restricted to specific users, uncheck this, and only users who have been assigned a permission to the app will be able to login": [
@@ -215,14 +205,6 @@
       "The scheme, domain and port must match that of the website URL": [
         null,
         "स्कीम, डोमेन और पोर्ट वेबसाइट URL से मेल खाना चाहिए"
-      ],
-      "The namespace should be derived from your application’s website domain": [
-        null,
-        "नेमस्पेस आपके ऐप्लिकेशन के वेबसाइट डोमेन से लिया जाना चाहिए"
-      ],
-      "This namespace has been claimed by another client app": [
-        null,
-        "इस नेमस्पेस को एक अन्य ग्राहक ऐप द्वारा इस्तेमाल कर लिया गया है"
       ],
       "What’s this for?": [null, "यह किस लिए है?"],
       "Add a description to help yourself remember why this was generated": [
@@ -580,6 +562,7 @@
       "Optional - Starting time": [null, ""],
       "Optional - Ending time": [null, ""],
       "An ending time is required": [null, ""],
+      "This requires a starting time too": [null, ""],
       "This must be after the starting time": [null, ""],
       "The timezone in which this event occurs": [
         null,
@@ -616,14 +599,9 @@
       ],
       "Submissions open at": [null, "सबमिशन खुलने का समय"],
       "Submissions close at": [null, "सबमिशन बंद होने का समय"],
-      "This requires an opening time to be specified": [
-        null,
-        "इस के लिए शुरू होने का के समय को उल्लिखित करना ज़रूरी है"
-      ],
-      "Submissions cannot close before they open": [
-        null,
-        "जमा करने के प्रक्रिया खुलने से पहले बंद नहीं की जा सकती"
-      ],
+      "Optional – Leave blank to have no closing date": [null, ""],
+      "This requires an opening date to be specified": [null, ""],
+      "This must be after the opening date and time": [null, ""],
       "Status": [null, "स्थिति"],
       "CfP status": [null, "CfP की स्थिति"],
       "Save this project?": [null, "इस प्रोजेक्ट को सहेजें?"],
@@ -905,22 +883,10 @@
       "Private draft": [null, "निजी ड्राफ्ट"],
       "Open": [null, "जारी"],
       "Expired": [null, "अवधि समाप्त"],
-      "Enable proposal submissions": [
-        null,
-        "प्रस्ताव जामा करने की सुविधा सक्षम करें"
-      ],
-      "Proposals can be now submitted": [
-        null,
-        "अब प्रस्ताव जमा किए जा सकते हैं"
-      ],
-      "Disable proposal submissions": [
-        null,
-        "प्रस्ताव जमा करने की सुविधा अक्षम करें"
-      ],
-      "Proposals will no longer be accepted": [
-        null,
-        "अब प्रस्ताव जमा नहीं किए जा सकते"
-      ],
+      "Enable submissions": [null, ""],
+      "Submissions will be accepted within valid dates": [null, ""],
+      "Disable submissions": [null, ""],
+      "Submissions will no longer be accepted": [null, ""],
       "Publish project": [null, "प्रोजेक्ट प्रकाशित करें"],
       "The project has been published": [
         null,
@@ -1123,9 +1089,6 @@
         "%(since)s से स्थापित – आखरी बार इस्तेमाल %(last_used)s"
       ],
       "Since %(since)s": [null, "%(since)s से स्थापित"],
-      "Organizations": [null, "संगठन"],
-      "New": [null, ""],
-      "Open profile": [null, "प्रोफाइल खोलें"],
       "Login sessions": [null, "लॉगिन सेशन"],
       "Since %(since)s via %(login_service)s – last active %(last_active)s": [
         null,
@@ -1156,6 +1119,9 @@
       "Logged in account": [null, "अकाउंट में लॉग इन हो गया"],
       "Other account": [null, "अन्य अकाउंट"],
       "Skip": [null, "बाद में"],
+      "Organizations": [null, "संगठन"],
+      "Add new organization": [null, ""],
+      "Admin": [null, ""],
       "Client application information": [null, "क्लाइंट एप्लीकेशन की जानकारी"],
       "Admin panel": [null, "एडमिन पैनल"],
       "Edit this application": [null, "इस एप्लीकेशन को संपादित करें"],
@@ -1165,7 +1131,7 @@
       "OAuth2 Type": [null, "OAuth2 प्रकार"],
       "Confidential": [null, "कॉन्फिडेंशियल"],
       "Website": [null, "वेबसाइट"],
-      "Namespace": [null, "नेमस्पेस"],
+      "Notification URL (deprecated)": [null, "नोटिफिकेशन URL (पुराना)"],
       "Active?": [null, "सक्रिय है?"],
       "Allow anyone to login?": [null, "लॉगिन की किसी को अनुमति दें?"],
       "Registered date": [null, "स्थापित डेट"],
@@ -1258,6 +1224,7 @@
         "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें"
       ],
       "Spotlight:": [null, "सुर्खियां:"],
+      "What’s this about?": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाएं"],
       "Archive": [null, "पुरालेख"],
@@ -1266,11 +1233,16 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "What’s this about?": [null, ""],
+      "Add username": [null, ""],
+      "%(count)s more": [null, ""],
+      "Account settings": [null, ""],
+      "Notification settings": [null, ""],
+      "Saved projects": [null, ""],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
       "Updates": [null, "अपडेट"],
+      "Account menu": [null, ""],
       "Account": [null, "अकाउंट"],
       "Login": [null, "लॉगिन"],
       "or use your password instead": [
@@ -1280,13 +1252,16 @@
       "Don’t have an account?": [null, "अकाउंट नहीं है?"],
       "Sign up with email": [null, "ईमेल के ज़रिए साइन अप करें"],
       "Logging out…": [null, "लॉग आउट हो रहा है…"],
+      "Login to save this project": [null, ""],
+      "Save this project": [null, ""],
+      "Unsave this project": [null, ""],
       "Copy link": [null, "लिंक कॉपी करें"],
       "Facebook": [null, "Facebook"],
       "Preview video": [null, "प्रीव्यू वीडियो"],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
+      "Share": [null, "साझा करें"],
       "Notifications": [null, "नोटिफिकेशन"],
-      "My saves": [null, "मेरी सेव किये गए प्रोजेक्ट"],
       "Scan badge": [null, "बैज स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
       "Submissions close %(date)s": [null, ""],
@@ -1300,6 +1275,7 @@
       "Accepting submissions": [null, "सब्मिशन स्वीकार कर रहे हैं"],
       "Show more": [null, "और दिखाएं"],
       "All projects": [null, "सभी प्रोजेक्ट"],
+      "Profile menu": [null, ""],
       "Manage admins": [null, "एडमिंस को प्रबंधित करें"],
       "View admins": [null, "एडमिंस को देखें"],
       "Edit this profile": [null, "इस प्रोफाइल को संपादित करें"],
@@ -1369,7 +1345,6 @@
         null,
         "इस श्रेणी में कोई भी नोटिफिकेशन नहीं है"
       ],
-      "Forbidden": [null, "निषिद्ध"],
       "There was an error in the authorization request:": [
         null,
         "ऑथराइजेशन की अनुरोध में कोई समस्या उत्पन्न हुई:"
@@ -1381,10 +1356,6 @@
       ],
       "Application name": [null, "ऐप्लिकेशन का नाम"],
       "Access scope": [null, "एक्सेस की सीमा"],
-      "Full access to all your data in %(title)s (%(website)s)": [
-        null,
-        "%(title)s (%(website)s) में आपके पूरे डेटा का एक्सेस"
-      ],
       "You should authorize this only if you initiated the request and trust the application with your data": [
         null,
         "आपको इसे अपने डेटा की अनुमति तभी देनी चाहिए, अगर आपने ही इसकी अनुरोध की थी और आपको इस एप्लीकेशन पर यकीन हो"
@@ -1472,18 +1443,20 @@
       "Get tickets": [null, "टिकट पाएं"],
       "Free updates": [null, ""],
       "Free": [null, ""],
-      "Follow": [null, ""],
       "Register": [null, "रजिस्टर करें"],
       "This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time": [
         null,
         ""
       ],
+      "Registration menu": [null, ""],
       "Stop following": [null, ""],
       "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
       "No longer interested?": [null, ""],
       "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
       "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
       "View participants": [null, "प्रतिभागियों को देखें"],
+      "Share this project": [null, ""],
+      "Menu": [null, ""],
       "Edit URL": [null, ""],
       "Edit description": [null, ""],
       "Settings": [null, "सेटिंग्स"],
@@ -1504,6 +1477,7 @@
       ],
       "Hosted by": [null, ""],
       "Supported by": [null, ""],
+      "Promoted": [null, ""],
       "Project overview": [null, ""],
       "Jobs": [null, "नौकरियां"],
       "Participants": [null, "प्रतिभागी"],
@@ -1541,7 +1515,6 @@
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है"
       ],
       "No videos": [null, ""],
-      "Proposal menu": [null, ""],
       "Edit submission": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
@@ -1553,10 +1526,7 @@
       "Previous": [null, ""],
       "Next": [null, "आगे"],
       "All submissions": [null, ""],
-      "This submission has been added to the schedule": [
-        null,
-        "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
-      ],
+      "This submission has been added to the schedule": [null, ""],
       "No video": [null, "कोई वीडियो नहीं है"],
       "Session video": [null, "सेशन वीडियो"],
       "Proposal video": [null, "प्रस्ताव वीडियो"],
@@ -1566,7 +1536,7 @@
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
-      "Unscheduled proposals": [null, ""],
+      "Unscheduled submissions": [null, ""],
       "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
@@ -1638,7 +1608,6 @@
       "edited %s": [null, ""],
       "Reply": [null, ""],
       "Report": [null, ""],
-      "Share": [null, "साझा करें"],
       "More": [null, ""],
       "Show badge": [null, ""],
       "Show label badge": [null, ""],
@@ -1650,7 +1619,6 @@
       "No members found": [null, ""],
       "Members you add will appear here…": [null, ""],
       "Remove this member": [null, ""],
-      "Admin": [null, ""],
       "+ %d more role": [null, ""],
       "+ %d more roles": [null, ""],
       "Agenda view": [null, ""],
@@ -2110,26 +2078,6 @@
         null,
         "साधन {scope} केवल ट्रस्टेड क्लाइंट के लिए उपलब्ध है"
       ],
-      "No namespace specified for external resource ‘{scope}’ in scope": [
-        null,
-        "स्कोप में बाहरी संसाधन ‘{scope}’ के लिए कोई नेमस्पेस निर्दिष्ट नहीं है"
-      ],
-      "Too many ‘:’ characters in ‘{scope}’ in scope": [
-        null,
-        "स्कोप में ‘{scope}’ में बहुत सारे ‘:’ वर्ण"
-      ],
-      "Too many ‘/’ characters in ‘{scope}’ in scope": [
-        null,
-        "स्कोप में ‘{scope}’ में बहुत सारे ‘/‘ वर्ण"
-      ],
-      "This application does not have access to all resources of app ‘{title}’": [
-        null,
-        "इस एप्लिकेशन के पास ‘{title}’ ऐप के सभी संसाधनों तक ऐक्सेस नहीं है"
-      ],
-      "Unknown resource namespace ‘{namespace}’ in scope": [
-        null,
-        "स्कोप में अज्ञात संसाधन ‘{namespace}’ नेमस्पेस"
-      ],
       "Missing client_id": [null, "नामौजूद client_id"],
       "Unknown client_id": [null, "अज्ञात client_id"],
       "No redirect URI specified": [
@@ -2148,6 +2096,7 @@
       "Scope not specified": [null, "स्कोप निर्दिष्ट नहीं है"],
       "Missing grant_type": [null, "grant_type नामौजूद"],
       "Untrusted client app": [null, "अविश्वसनीय क्लाइंट ऐप"],
+      "Auth code not specified": [null, ""],
       "Unknown auth code": [null, "अज्ञात ऑथ कोड"],
       "Expired auth code": [null, "एक्स्पायर्ड ऑथ कोड"],
       "Scope is blank": [null, "स्कोप खाली है"],
@@ -2553,13 +2502,14 @@
       ],
       "Ten followers so far": [null, ""],
       "You and nine others are following": [null, ""],
+      "{num} registrations so far": [null, "अब तक {num} रजिस्ट्रेशन"],
       "You and {num} others have registered": [
         null,
         "आपने और {num} अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "{num} registrations so far": [null, "अब तक {num} रजिस्ट्रेशन"],
-      "You and {num} others are following": [null, ""],
       "{num} followers so far": [null, ""],
+      "You and {num} others are following": [null, ""],
+      "Follow": [null, ""],
       "Your new project has been created": [
         null,
         "आपका नया प्रोजेक्ट बना दिया गया है"
@@ -2635,7 +2585,6 @@
       ],
       "{session} in 5 minutes": [null, "5 मिनट में {session}"],
       "Profiles": [null, "प्रोफाइल"],
-      "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
       "This project will not be listed as it has no sessions in the schedule": [
         null,
@@ -2657,13 +2606,13 @@
         null,
         "इस समय समीक्षा करने के लिए कोई कमेंट रिपोर्ट नहीं है"
       ],
-      "You cannot review your own report": [
-        null,
-        "आप अपने रिपोर्ट की समीक्षा नहीं कर सकते"
-      ],
       "You cannot review same comment twice": [
         null,
         "आप एक ही कमेंट की दो बार समीक्षा नहीं कर सकते"
+      ],
+      "You cannot review your own report": [
+        null,
+        "आप अपने रिपोर्ट की समीक्षा नहीं कर सकते"
       ],
       "This comment has already been marked as spam": [
         null,
@@ -2790,12 +2739,14 @@
       ],
       "{actor} commented on a project you are in": [null, ""],
       "{actor} commented on your submission": [null, ""],
+      "{actor} replied to you": [null, ""],
       "{actor} replied to your comment:": [
         null,
         "{actor} ने आपके कमेंट का जवाब दिया:"
       ],
       "{actor} commented on a project you are in:": [null, ""],
       "{actor} commented on your submission:": [null, ""],
+      "{actor} replied to you:": [null, ""],
       "You have been invited as an owner of {organization} by {actor}": [
         null,
         "आपको {actor} द्वारा {organization} के ओनर के रूप में आमंत्रित किया गया है"

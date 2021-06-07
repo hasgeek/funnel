@@ -71,8 +71,11 @@ class ProjectForm(forms.Form):
                 'start_at',
                 message=__("An ending time is required"),
             ),
-            forms.validators.Optional(),
-            forms.validators.GreaterThanEqualTo(
+            forms.validators.AllowedIf(
+                'start_at', message=__("This requires a starting time too")
+            ),
+            forms.validators.Optional(),  # Stop the next validator if field is empty
+            forms.validators.GreaterThan(
                 'start_at', __("This must be after the starting time")
             ),
         ],
@@ -107,6 +110,11 @@ class ProjectForm(forms.Form):
 
     def set_queries(self):
         self.bg_image.profile = self.profile.name
+        if self.edit_obj and self.edit_obj.schedule_start_at:
+            # Don't allow user to directly manipulate timestamps when it's done via
+            # Session objects
+            del self.start_at
+            del self.end_at
 
 
 @Project.forms('featured')
@@ -166,6 +174,7 @@ class ProjectNameForm(forms.Form):
             ),
             AvailableName(),
         ],
+        filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/<profile>/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -212,14 +221,15 @@ class CfpForm(forms.Form):
     )
     cfp_end_at = forms.DateTimeField(
         __("Submissions close at"),
+        description=__("Optional – Leave blank to have no closing date"),
         validators=[
             forms.validators.Optional(),
             forms.validators.AllowedIf(
                 'cfp_start_at',
-                message=__("This requires an opening time to be specified"),
+                message=__("This requires an opening date to be specified"),
             ),
-            forms.validators.GreaterThanEqualTo(
-                'cfp_start_at', __("Submissions cannot close before they open")
+            forms.validators.GreaterThan(
+                'cfp_start_at', __("This must be after the opening date and time")
             ),
         ],
         naive=False,

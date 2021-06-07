@@ -93,7 +93,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         db.CheckConstraint(
             db.or_(
                 db.and_(start_at.is_(None), end_at.is_(None)),
-                db.and_(start_at.isnot(None), end_at.isnot(None), end_at >= start_at),
+                db.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
             ),
             'session_start_at_end_at_check',
         ),
@@ -218,6 +218,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
             loc.append(self.project.location)
         return '\n'.join(loc)
 
+    with_roles(location, read={'all'})
+
     @classmethod
     def for_proposal(cls, proposal, create=False):
         session_obj = cls.query.filter_by(proposal=proposal).first()
@@ -268,7 +270,7 @@ class __Project:
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
-            # .scalar_subquery()
+            .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -281,7 +283,7 @@ class __Project:
             .where(Session.start_at >= db.func.utcnow())
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
-            # .scalar_subquery()
+            .scalar_subquery()
         ),
         read={'all'},
     )
@@ -292,7 +294,7 @@ class __Project:
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
-            # .scalar_subquery()
+            .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},

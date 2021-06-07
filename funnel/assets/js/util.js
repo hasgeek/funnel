@@ -93,6 +93,33 @@ export const Utils = {
       }
     });
   },
+  headerMenuDropdown() {
+    $('.js-acc-menu').on('click', function (event) {
+      event.stopPropagation();
+      // To disable body scroll in the background when account menu is open in mobile
+      $('body').toggleClass('body-scroll-lock');
+    });
+    $('body').on('click', function (event) {
+      if (
+        $('.header__dropdown').hasClass('mui--is-open') &&
+        !$(event.target).is('.js-acc-menu') &&
+        !$.contains($('.js-acc-menu')[0], event.target)
+      ) {
+        $('body').removeClass('body-scroll-lock');
+      }
+    });
+    // Open full screen account menu in mobile
+    $('.js-acc-menu-mobile').on('click', function (event) {
+      event.stopPropagation();
+      if ($(this).hasClass('header__nav-links--active')) {
+        $('.header_dropdown--mobile').animate({ top: '100vh' });
+      } else {
+        $('.header_dropdown--mobile').animate({ top: '0' });
+      }
+      $(this).toggleClass('header__nav-links--active');
+      $('body').toggleClass('body-scroll-lock');
+    });
+  },
   sendToGA(category, action, label, value = 0) {
     if (typeof ga !== 'undefined') {
       ga('send', {
@@ -543,7 +570,7 @@ export const SaveProject = function ({
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
             window.toastr.success(
-              gettext('Project added to Account > My saves')
+              gettext('Project added to Account > Saved projects')
             );
           }
         }

@@ -13,7 +13,7 @@ from flask import (
     request,
 )
 
-from baseframe import _, forms, request_is_xhr
+from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -66,71 +66,79 @@ CountWords = namedtuple(
 )
 
 registration_count_messages = [
-    CountWords(_("Be the first to register!"), None, _("Be the first follower!"), None),
     CountWords(
-        _("One registration so far"),
-        _("You have registered"),
-        _("One follower so far"),
-        _("You are following this"),
+        __("Be the first to register!"), None, __("Be the first follower!"), None
     ),
     CountWords(
-        _("Two registrations so far"),
-        _("You and one other have registered"),
-        _("Two followers so far"),
-        _("You and one other are following"),
+        __("One registration so far"),
+        __("You have registered"),
+        __("One follower so far"),
+        __("You are following this"),
     ),
     CountWords(
-        _("Three registrations so far"),
-        _("You and two others have registered"),
-        _("Three followers so far"),
-        _("You and two others are following"),
+        __("Two registrations so far"),
+        __("You and one other have registered"),
+        __("Two followers so far"),
+        __("You and one other are following"),
     ),
     CountWords(
-        _("Four registrations so far"),
-        _("You and three others have registered"),
-        _("Four followers so far"),
-        _("You and three others are following"),
+        __("Three registrations so far"),
+        __("You and two others have registered"),
+        __("Three followers so far"),
+        __("You and two others are following"),
     ),
     CountWords(
-        _("Five registrations so far"),
-        _("You and four others have registered"),
-        _("Five followers so far"),
-        _("You and four others are following"),
+        __("Four registrations so far"),
+        __("You and three others have registered"),
+        __("Four followers so far"),
+        __("You and three others are following"),
     ),
     CountWords(
-        _("Six registrations so far"),
-        _("You and five others have registered"),
-        _("Six followers so far"),
-        _("You and five others are following"),
+        __("Five registrations so far"),
+        __("You and four others have registered"),
+        __("Five followers so far"),
+        __("You and four others are following"),
     ),
     CountWords(
-        _("Seven registrations so far"),
-        _("You and six others have registered"),
-        _("Seven followers so far"),
-        _("You and six others are following"),
+        __("Six registrations so far"),
+        __("You and five others have registered"),
+        __("Six followers so far"),
+        __("You and five others are following"),
     ),
     CountWords(
-        _("Eight registrations so far"),
-        _("You and seven others have registered"),
-        _("Eight followers so far"),
-        _("You and seven others are following"),
+        __("Seven registrations so far"),
+        __("You and six others have registered"),
+        __("Seven followers so far"),
+        __("You and six others are following"),
     ),
     CountWords(
-        _("Nine registrations so far"),
-        _("You and eight others have registered"),
-        _("Nine followers so far"),
-        _("You and eight others are following"),
+        __("Eight registrations so far"),
+        __("You and seven others have registered"),
+        __("Eight followers so far"),
+        __("You and seven others are following"),
     ),
     CountWords(
-        _("Ten registrations so far"),
-        _("You and nine others have registered"),
-        _("Ten followers so far"),
-        _("You and nine others are following"),
+        __("Nine registrations so far"),
+        __("You and eight others have registered"),
+        __("Nine followers so far"),
+        __("You and eight others are following"),
+    ),
+    CountWords(
+        __("Ten registrations so far"),
+        __("You and nine others have registered"),
+        __("Ten followers so far"),
+        __("You and nine others are following"),
     ),
 ]
+greater_than_10_count = CountWords(
+    __("{num} registrations so far"),
+    __("You and {num} others have registered"),
+    __("{num} followers so far"),
+    __("You and {num} others are following"),
+)
 
 
-def get_registration_text(count, registered=False, follow_mode=False):
+def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
     if count <= 10:
         if registered and not follow_mode:
             return registration_count_messages[count].registered
@@ -140,16 +148,16 @@ def get_registration_text(count, registered=False, follow_mode=False):
             return registration_count_messages[count].following
         return registration_count_messages[count].not_following
     if registered and not follow_mode:
-        return _("You and {num} others have registered").format(num=count - 1)
-    elif registered and not follow_mode:
-        return _("{num} registrations so far").format(num=count)
+        return greater_than_10_count.registered.format(num=count - 1)
+    elif not registered and not follow_mode:
+        return greater_than_10_count.unregistered.format(num=count)
     elif registered and follow_mode:
-        return _("You and {num} others are following").format(num=count - 1)
-    return _("{num} followers so far").format(num=count)
+        return greater_than_10_count.following.format(num=count - 1)
+    return greater_than_10_count.not_following.format(num=count)
 
 
 @Project.features('rsvp')
-def feature_project_rsvp(obj):
+def feature_project_rsvp(obj: Project) -> bool:
     return (
         obj.state.PUBLISHED
         and (
@@ -162,7 +170,7 @@ def feature_project_rsvp(obj):
 
 
 @Project.features('tickets')
-def feature_project_tickets(obj):
+def feature_project_tickets(obj: Project) -> bool:
     return (
         obj.start_at is not None
         and obj.boxoffice_data is not None
@@ -173,49 +181,57 @@ def feature_project_tickets(obj):
 
 
 @Project.features('tickets_or_rsvp')
-def feature_project_tickets_or_rsvp(obj):
+def feature_project_tickets_or_rsvp(obj: Project) -> bool:
     return obj.features.tickets() or obj.features.rsvp()
 
 
 @Project.features('rsvp_unregistered')
-def feature_project_register(obj):
+def feature_project_register(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is None or not rsvp.state.YES
 
 
 @Project.features('rsvp_registered')
-def feature_project_deregister(obj):
+def feature_project_deregister(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is not None and rsvp.state.YES
 
 
 @Project.features('schedule_no_sessions')
-def feature_project_has_no_sessions(obj):
+def feature_project_has_no_sessions(obj: Project) -> bool:
     return obj.state.PUBLISHED and not obj.start_at
 
 
 @Project.features('comment_new')
-def feature_project_comment_new(obj):
+def feature_project_comment_new(obj: Project) -> bool:
     return obj.current_roles.participant
 
 
 @Project.features('post_update')
-def feature_project_post_update(obj):
+def feature_project_post_update(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
 @Project.features('follow_mode')
-def project_follow_mode(obj):
+def project_follow_mode(obj: Project) -> bool:
     return obj.start_at is None
 
 
 @Project.views('registration_text')
-def project_registration_text(obj):
+def project_registration_text(obj: Project) -> str:
     return get_registration_text(
         count=obj.rsvp_count_going,
         registered=obj.features.rsvp_registered(),
         follow_mode=obj.features.follow_mode(),
     )
+
+
+@Project.views('register_button_text')
+def project_register_button_text(obj: Project) -> str:
+    if obj.features.follow_mode():
+        return _("Follow")
+    else:
+        return _("Register")
 
 
 @Profile.views('project_new')
@@ -341,12 +357,6 @@ class ProjectView(
                 formdata=initial_formdata,
             )
 
-            # Don't allow user to directly manipulate timestamps when it's done via
-            # Session objects
-            if self.obj.schedule_start_at:
-                del form.start_at
-                del form.end_at
-
             if not self.obj.timezone:
                 form.timezone.data = str(current_auth.user.timezone)
 
@@ -384,6 +394,7 @@ class ProjectView(
                         title=_("Edit project"),
                         submit=_("Save changes"),
                         autosave=True,
+                        draft_revision=request.form.get('form.revision'),
                     )
 
     @route('delete', methods=['GET', 'POST'])
@@ -595,7 +606,7 @@ class ProjectView(
         }
 
     def get_rsvp_state_csv(self, state):
-        outfile = io.StringIO()
+        outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(['fullname', 'email', 'created_at'])
         for rsvp in self.obj.rsvps_with(state):

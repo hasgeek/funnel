@@ -33,7 +33,7 @@
       <li>
         <p class="top-padding left-padding right-padding zero-bottom-margin">{{ faicon(icon='thumbtack', baseline=false, css_class='mui--text-light mui--align-middle fa-icon--right-margin') }}<span class="pinned__heading mui--text-subhead mui--text-light">{% trans %}Pinned update{% endtrans %}</span></p>
         <a href="{{ pinned_update.urls['view'] }}" class="pinned__update">
-          <p class="pinned__update__heading mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}{{ pinned_update.body.html|preview }}{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
+          <p class="pinned__update__heading mui-container"><span class="mui--text-subhead mui--text-bold mui--text-dark">{{ pinned_update.title }}</span> <span class="mui--text-subhead mui--text-light pinned__update__body">{%- if not pinned_update.is_currently_restricted %}{{ pinned_update.body.html|preview }} <span class="chip">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span>{% else %}<em>{% trans %}This update is for participants only{% endtrans %}</em>{%- endif %}</span></p>
         </a>
       </li>
     </ul>
@@ -133,7 +133,7 @@
           <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% if project.features.follow_mode() %}{% trans %}Free updates{% endtrans %}{% else %}{% trans %}Free{% endtrans %}{% endif %}</p>
           <p class="mui--text-caption mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
         </div>
-        <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin" href="{{ url_for('login', next=request.path) }}">{% trans %}Register{% endtrans %}</a>
+        <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin" href="{{ url_for('login', next=request.path) }}">{{ project.views.register_button_text() }}</a>
       {% elif project.features.rsvp_unregistered() -%}
         <div class="register-block__txt {% if project.view_for('rsvp_list').is_available() %}register-block__txt--short{%- endif %}">
           <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% if project.features.follow_mode() %}{% trans %}Free updates{% endtrans %}{% else %}{% trans %}Free{% endtrans %}{% endif %}</p>
@@ -145,7 +145,7 @@
       {% if not current_auth.is_anonymous %}
         <div>
           {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
-            <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#register-modal" role="button" aria-haspopup="true">{% if project.features.follow_mode() %}{% trans %}Follow{% endtrans %}{% else %}{% trans %}Register{% endtrans %}{% endif %}</a>
+            <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
             <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">
               <div class="modal__header">
                 <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
@@ -165,7 +165,7 @@
           {%- endif %}
           {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %}
             <div class="mui-dropdown mui--align-middle register-block__right__menu">
-              <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="rsvp-menu" role="menu" aria-label="{% trans %}Registration menu{% endtrans %}">{{ faicon(icon='ellipsis-v', icon_size='subhead') }}</button>
+              <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="rsvp-menu" aria-label="{% trans %}Registration menu{% endtrans %}" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='subhead') }}</button>
               <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="rsvp-menu">
                 {% if project.features.rsvp_registered() %}
                   <li><a class="mui--text-body2 js-register-btn" href="#register-modal" aria-haspopup="true">{% if project.features.follow_mode() %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Cancel registration{% endtrans %}{% endif %}</a></li>
@@ -200,7 +200,7 @@
   <div class="project-header">
     <div class="bookmark">{{ saveprojectform(project, iconsize='title') }}</div>
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="menu" aria-label="{% trans %}Share this project menu{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
+      <a href="javascript:void(0)" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
     <a href="javascript:void(0)" class="hg-link-btn mui--hide left-padding" data-url="{{ project.url_for(_external=true) }}?utm_campaign=webshare" role="button" aria-label="{% trans %}Share this project{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
@@ -209,7 +209,7 @@
     {% endif %}
     {%- if project.current_roles.crew or current_auth.user.is_site_editor -%}
       <div class="mui-dropdown left-padding">
-        <a href="javascript:void(0)" data-mui-toggle="dropdown" data-ga="Project menu" data-cy="project-menu">{{ faicon(icon='ellipsis-v', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
+        <a href="javascript:void(0)" data-mui-toggle="dropdown" data-ga="Project menu" data-cy="project-menu" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Menu{% endtrans %}">{{ faicon(icon='ellipsis-v', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
         <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
           {%- if project.current_roles.crew -%}
             {% if project.view_for('edit_slug').is_available() %}

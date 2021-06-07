@@ -1,0 +1,72 @@
+{% extends "layout.html.jinja2" %}
+{% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import account_tabs, useravatar %}
+
+{% block title %}{% trans %}Organizations{% endtrans %}{% endblock %}
+
+{% block bodytag %}
+  <body class="mui--bg-primary hg-app tabs-navbar">
+{% endblock %}
+
+{% block headline -%}
+  <div class="tabs-wrapper tabs-wrapper--sticky">
+    <div class="mui-container">
+      {{ account_tabs(active_tab='organizations') }}
+    </div>
+  </div>
+{%- endblock %}
+
+{% block basecontent %}
+  <div class="mui-container page-content">
+    <div class="grid">
+      <div class="grid__col-xs-12">
+        <div class="page-card zero-top-margin">
+          <ul class="mui-list--unstyled mui-list--aligned top-padding right-padding left-paddin margin-bottom">
+            <li class="bottom-padding">
+               <a href="/new" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
+                <span class="profile-avatar profile-avatar--bigger profile-avatar--new margin-right">
+                  {{ faicon(icon='plus', baseline=false) }}
+                </span>
+                <span class="mui--text-hyperlink mui--text-subhead mui--text-bold">{% trans %}Add new organization{% endtrans %}</span>
+              </a>
+            </li>
+            {% for orgmem in current_auth.user.views.organizations_as_admin() %}
+              <li class="bottom-padding">
+                <a href="{{ orgmem.organization.profile.url_for() }}" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
+                  <span class="profile-avatar profile-avatar--bigger margin-right">
+                    {%- if orgmem.organization.profile.logo_url.url %}
+                      <img src="{{ orgmem.organization.profile.logo_url }}" alt="{{ orgmem.organization.title }}"/>
+                    {% else %}
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
+                    {% endif %}
+                  </span>
+                  <div>
+                    <p class="profile-avatar-title mui--text-dark mui--text-subhead mui--text-bold">{{ orgmem.organization.profile.title }}{% if not orgmem.organization.profile.state.PUBLIC %} {{ faicon(icon='lock-alt', icon_size='caption', baseline=false, css_class='margin-left') }}{% endif %}</p>
+                    <p class="mui--text-light mui--text-caption zero-bottom-margin">
+                      {% if orgmem.is_owner %}
+                        {% trans %}Owner{% endtrans %}
+                      {% else %}
+                        {% trans %}Admin{% endtrans %}
+                      {% endif %}
+                    </p>
+                  </div>
+                </a>
+                <div class="org-members-wrapper">
+                  <p class="mui--text-light zero-bottom-margin">
+                  {%- for user in orgmem.organization.admin_users %}
+                    {{ user.pickername }} {%- if not loop.last %},{% endif %}
+                  {%- endfor %}
+                  </p>
+                </div>
+              </li>
+            {%- endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+{% endblock %}
