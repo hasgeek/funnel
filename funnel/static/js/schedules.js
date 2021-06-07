@@ -84,9 +84,8 @@ $(function () {
           });
           this.color_form.find('input[type=reset]').click(function () {
             settings.color_form.find('input[type=text]').each(function () {
-              ROOMS[$(this).attr('data-room-id')].bgcolor = $(this).attr(
-                'data-color'
-              );
+              ROOMS[$(this).attr('data-room-id')].bgcolor =
+                $(this).attr('data-color');
               $(this).spectrum('set', $(this).attr('data-color'));
             });
             calendar.render();
@@ -837,9 +836,8 @@ $(function () {
   (function () {
     settings.init();
     if (from_date) {
-      document.getElementById('select-date').value = getDateProjectTZ(
-        from_date
-      );
+      document.getElementById('select-date').value =
+        getDateProjectTZ(from_date);
       $('#select-date').trigger('change');
     }
   })();
