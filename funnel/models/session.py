@@ -31,7 +31,7 @@ from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
 from .venue import VenueRoom
-from .video_mixin import VideoMixin
+from .video_mixin import VideoMixin, _video_property
 
 __all__ = ['Session']
 
@@ -122,7 +122,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                 'video',
                 'proposal',
             },
-            'call': {'url_for'},
+            'call': {'url_for', 'views'},
         }
     }
 
@@ -245,6 +245,11 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
 
 
 add_search_trigger(Session, 'search_vector')
+
+
+@Session.views('video', cached_property=True)
+def session_video_property(obj):
+    return _video_property(obj)
 
 
 @reopen(VenueRoom)
