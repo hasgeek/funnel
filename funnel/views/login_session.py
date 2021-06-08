@@ -285,6 +285,7 @@ def clear_old_session(response):
 def set_lastuser_cookie(response):
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if request_has_auth() and hasattr(current_auth, 'cookie'):
+        response.vary.add('Cookie')
         expires = utcnow() + timedelta(days=365)
         response.set_cookie(
             'lastuser',
