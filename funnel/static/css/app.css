@@ -1174,6 +1174,7 @@ a.loginbutton.hidden,
   height: 52px;
   padding: 0 16px;
   justify-content: space-between;
+  background: #ffffff;
 }
 .hg-app .header--fixed .header__nav .header__site-title {
   padding: 0;
@@ -1390,8 +1391,10 @@ a.loginbutton.hidden,
   margin: 6px 0;
 }
 .hg-app .header__dropdown {
-  min-width: 290px;
+  padding: 0;
+  list-style: none;
   overflow: auto;
+  background: #ffffff;
 }
 .hg-app .header__dropdown .user__box__header {
   justify-content: space-between;
@@ -1457,7 +1460,7 @@ a.loginbutton.hidden,
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
 }
-.hg-app .header_dropdown--mobile {
+.hg-app .mobile-account-menu .header__dropdown {
   position: fixed;
   top: 100vh;
   left: 0;
@@ -1681,11 +1684,17 @@ a.loginbutton.hidden,
     .header__nav-links--dropdown {
     height: 40px;
   }
-  .hg-app .header__dropdown {
+  .hg-app .desktop-account-menu .header__dropdown {
     max-width: 300px;
     max-height: 90vh;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+    border-radius: 16px 0 16px 16px;
+    position: absolute;
+    top: -100vh;
+    right: 0;
+    z-index: -1;
   }
-  .hg-app .header_dropdown--mobile {
+  .hg-app .mobile-account-menu .header_dropdown--mobile {
     display: none;
   }
 }

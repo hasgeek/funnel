@@ -94,30 +94,60 @@ export const Utils = {
     });
   },
   headerMenuDropdown() {
-    $('.js-acc-menu').on('click', function (event) {
-      event.stopPropagation();
-      // To disable body scroll in the background when account menu is open in mobile
-      $('body').toggleClass('body-scroll-lock');
-    });
-    $('body').on('click', function (event) {
-      if (
-        $('.header__dropdown').hasClass('mui--is-open') &&
-        !$(event.target).is('.js-acc-menu') &&
-        !$.contains($('.js-acc-menu')[0], event.target)
-      ) {
-        $('body').removeClass('body-scroll-lock');
-      }
-    });
+    var fetchMenu = function (menuId, openMenu) {
+      $.ajax({
+        type: 'GET',
+        url: window.Hasgeek.config.accountMenu,
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          $(menuId).empty().append(responseData);
+          openMenu();
+        },
+      });
+    };
     // Open full screen account menu in mobile
-    $('.js-acc-menu-mobile').on('click', function (event) {
+    $('.js-menu-btn').on('click', function (event) {
       event.stopPropagation();
+      let self = this;
+      let mobile = $(self).data('menu-size') === 'mobile' ? true : false;
+      let menuId = `#${$(self).data('menu-id')}`;
+      let openMenu = function () {
+        if (mobile) {
+          $(menuId).find('.js-account-menu').animate({ top: '0' });
+        } else {
+          $(menuId).find('.js-account-menu').animate({ top: '55px' });
+        }
+      };
       if ($(this).hasClass('header__nav-links--active')) {
-        $('.header_dropdown--mobile').animate({ top: '100vh' });
+        if (mobile) {
+          $(menuId).find('.js-account-menu').animate({ top: '100vh' });
+        } else {
+          $(menuId).find('.js-account-menu').animate({ top: '-100vh' });
+        }
       } else {
-        $('.header_dropdown--mobile').animate({ top: '0' });
+        fetchMenu(menuId, openMenu);
       }
       $(this).toggleClass('header__nav-links--active');
       $('body').toggleClass('body-scroll-lock');
+    });
+
+    $('body').on('click', function (event) {
+      if (
+        $('.js-menu-btn').hasClass('header__nav-links--active') &&
+        !$(event.target).is('.js-menu-btn') &&
+        !$.contains($('.js-menu-btn')[0], event.target)
+      ) {
+        let menuBtn = $('.js-menu-btn.header__nav-links--active');
+        let mobile = $(menuBtn).data('menu-size') === 'mobile' ? true : false;
+        let menuId = `#${$(menuBtn).data('menu-id')}`;
+        if (mobile) {
+          $(menuId).find('.js-account-menu').animate({ top: '100vh' });
+        } else {
+          $(menuId).find('.js-account-menu').animate({ top: '-100vh' });
+        }
+        $(menuBtn).removeClass('header__nav-links--active');
+        $('body').removeClass('body-scroll-lock');
+      }
     });
   },
   sendToGA(category, action, label, value = 0) {
