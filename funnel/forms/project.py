@@ -69,7 +69,7 @@ class ProjectForm(forms.Form):
         validators=[
             forms.validators.RequiredIf(
                 'start_at',
-                message=__("An ending time is required"),
+                message=__("This is required when starting time is specified"),
             ),
             forms.validators.AllowedIf(
                 'start_at', message=__("This requires a starting time too")

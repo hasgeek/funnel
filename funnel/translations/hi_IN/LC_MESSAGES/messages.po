@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-06-03 15:47+0530\n"
+"POT-Creation-Date: 2021-06-08 18:23+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -1023,7 +1023,7 @@ msgid "Optional - Ending time"
 msgstr ""
 
 #: funnel/forms/project.py:72
-msgid "An ending time is required"
+msgid "This is required when starting time is specified"
 msgstr ""
 
 #: funnel/forms/project.py:75
@@ -1462,11 +1462,11 @@ msgstr "मिटाए हुए"
 msgid "Verified"
 msgstr "सत्यापित"
 
-#: funnel/models/commentvote.py:284 funnel/models/user.py:854
+#: funnel/models/commentvote.py:284 funnel/models/user.py:853
 msgid "[deleted]"
 msgstr "[मिटाया हुआ]"
 
-#: funnel/models/commentvote.py:286 funnel/models/user.py:855
+#: funnel/models/commentvote.py:286 funnel/models/user.py:854
 msgid "[removed]"
 msgstr "[हटाए हुए]"
 
@@ -1821,7 +1821,7 @@ msgstr "जमा किए पर वापस भेजें"
 
 #: funnel/models/proposal.py:325
 #: funnel/templates/project_layout.html.jinja2:160
-#: funnel/views/commentvote.py:440 funnel/views/login_session.py:458
+#: funnel/views/commentvote.py:440 funnel/views/login_session.py:461
 msgid "Confirm"
 msgstr "स्वीकृती दें"
 
@@ -2962,13 +2962,13 @@ msgid "Admins"
 msgstr "एडमिन"
 
 #: funnel/templates/macros.html.jinja2:485
-#: funnel/templates/project.html.jinja2:122 funnel/views/search.py:217
+#: funnel/templates/project.html.jinja2:122 funnel/views/search.py:244
 msgid "Sessions"
 msgstr "सेशन"
 
 #: funnel/templates/macros.html.jinja2:486
 #: funnel/templates/user_profile_projects.html.jinja2:10
-#: funnel/views/search.py:77
+#: funnel/views/search.py:99
 msgid "Projects"
 msgstr "प्रोजेक्ट"
 
@@ -2977,7 +2977,7 @@ msgstr "प्रोजेक्ट"
 #: funnel/templates/project_layout.html.jinja2:425
 #: funnel/templates/project_submissions.html.jinja2:4
 #: funnel/templates/user_profile_proposals.html.jinja2:10
-#: funnel/views/search.py:251
+#: funnel/views/search.py:288
 msgid "Submissions"
 msgstr "सबमिशन"
 
@@ -3243,7 +3243,7 @@ msgstr "बाद में खोलें"
 
 #: funnel/templates/project_comments.html.jinja2:5
 #: funnel/templates/project_layout.html.jinja2:423
-#: funnel/templates/proposal.html.jinja2:228 funnel/views/search.py:322
+#: funnel/templates/proposal.html.jinja2:228 funnel/views/search.py:363
 #: funnel/views/siteadmin.py:241
 msgid "Comments"
 msgstr "कमेंट"
@@ -4830,11 +4830,11 @@ msgstr ""
 "इस कमेंट को रिपोर्ट करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा "
 "प्रयास करें"
 
-#: funnel/views/contact.py:166
+#: funnel/views/contact.py:165
 msgid "This project has concluded"
 msgstr "यह प्रोजेक्ट समाप्त हो गई है"
 
-#: funnel/views/contact.py:183
+#: funnel/views/contact.py:182
 msgid "Unauthorized contact exchange"
 msgstr "अनधिकृत संपर्क विनिमय"
 
@@ -5044,11 +5044,11 @@ msgstr ""
 "आपका लॉगिन सेशन अन्य डिवाइस से रद्द कर दिया गया था. कृपया दोबारा लॉगिन "
 "करें"
 
-#: funnel/views/login_session.py:359 funnel/views/login_session.py:398
+#: funnel/views/login_session.py:362 funnel/views/login_session.py:401
 msgid "You need to be logged in for that page"
 msgstr "आपको उस पेज के लिए लॉगिन होना चाहिए"
 
-#: funnel/views/login_session.py:406
+#: funnel/views/login_session.py:409
 msgid ""
 "This operation requires you to confirm your password. However, your "
 "account does not have a password, so you must set one first"
@@ -5056,11 +5056,11 @@ msgstr ""
 "इस प्रक्रिया के लिए आपको अपने पासवर्ड की पुष्टि करनी होगी. हालांकि, आपके "
 "खाते में पासवर्ड सेट नहीं है, इसलिए आपको पहले एक पासवर्ड सेट करना होगा"
 
-#: funnel/views/login_session.py:443
+#: funnel/views/login_session.py:446
 msgid "This request must be confirmed with your password"
 msgstr "इस अनुरोध की पुष्टि आपके पासवर्ड से की जानी चाहिए"
 
-#: funnel/views/login_session.py:456
+#: funnel/views/login_session.py:459
 msgid "Confirm with your password to proceed"
 msgstr "आगे बढ़ने के लिए अपने पासवर्ड से पुष्टि करें"
 
@@ -5187,7 +5187,7 @@ msgstr ""
 " खाते से प्रबंधित कर सकते हैं"
 
 #: funnel/views/notification_preferences.py:190
-#: funnel/views/notification_preferences.py:368
+#: funnel/views/notification_preferences.py:370
 msgid "This unsubscribe link is for a non-existent user"
 msgstr "यह सदस्यता समाप्त लिंक एक गैर-मौजूद यूजर के लिए है"
 
@@ -5195,11 +5195,11 @@ msgstr "यह सदस्यता समाप्त लिंक एक ग�
 msgid "You have been unsubscribed from this notification type"
 msgstr "आपको इस प्रकार की नोटिफिकेशन की सदस्यता से हटा दिया गया है"
 
-#: funnel/views/notification_preferences.py:352
+#: funnel/views/notification_preferences.py:354
 msgid "Unauthorized unsubscribe link"
 msgstr "अनधिकृत सदस्यता समाप्त वाली लिंक"
 
-#: funnel/views/notification_preferences.py:353
+#: funnel/views/notification_preferences.py:355
 msgid ""
 "This unsubscribe link is for someone else’s account. Please logout or use"
 " an incognito/private browsing session to use this link"
@@ -5208,23 +5208,23 @@ msgstr ""
 "करने के लिए कृपया किसी गुप्त/निजी ब्राउज़िंग सेशन का उपयोग करें या लॉग "
 "आउट हो जाएं"
 
-#: funnel/views/notification_preferences.py:367
+#: funnel/views/notification_preferences.py:369
 msgid "Unknown user account"
 msgstr "अज्ञात यूजर खाता"
 
-#: funnel/views/notification_preferences.py:402
+#: funnel/views/notification_preferences.py:404
 msgid "Preferences saved"
 msgstr "प्राथमिकताएं सहेजी गईं"
 
-#: funnel/views/notification_preferences.py:403
+#: funnel/views/notification_preferences.py:405
 msgid "Your notification preferences have been updated"
 msgstr "आपकी नोटिफिकेशन प्राथमिकताएं अपडेट कर दी गई हैं"
 
-#: funnel/views/notification_preferences.py:407
+#: funnel/views/notification_preferences.py:409
 msgid "Notification preferences"
 msgstr "नोटिफिकेशन प्राथमिकताएं"
 
-#: funnel/views/notification_preferences.py:409
+#: funnel/views/notification_preferences.py:411
 msgid "Save preferences"
 msgstr "प्राथमिकताएं सेव करें"
 
@@ -5630,7 +5630,7 @@ msgstr "5 मिनट में {venue} में {session}"
 msgid "{session} in 5 minutes"
 msgstr "5 मिनट में {session}"
 
-#: funnel/views/search.py:191
+#: funnel/views/search.py:219
 msgid "Profiles"
 msgstr "प्रोफाइल"
 
@@ -7051,4 +7051,7 @@ msgstr "{project} में अपडेट: {update} {url}"
 #~ msgstr "इस के लिए शुरू होने का के समय को उल्लिखित करना ज़रूरी है"
 
 #~ msgid "This must be after the opening time"
+#~ msgstr ""
+
+#~ msgid "An ending time is required"
 #~ msgstr ""
