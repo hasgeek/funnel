@@ -93,7 +93,73 @@ export const Utils = {
       }
     });
   },
-  headerMenuDropdown() {},
+  headerMenuDropdown() {
+    let menuBtn = $('.js-menu-btn');
+    let menu = '.js-account-menu';
+    let topMargin = 3;
+    let headerHeight = $('.header').height() + topMargin;
+
+    let openMenu = function (mobile, menuId, activeMenuBtn) {
+      if (mobile) {
+        $(menuId).find(menu).animate({ top: '0' });
+      } else {
+        $(menuId).find(menu).animate({ top: headerHeight });
+      }
+      $(activeMenuBtn).addClass('header__nav-links--active');
+      $('body').addClass('body-scroll-lock');
+    };
+
+    let closeMenu = function (mobile, menuId) {
+      if (mobile) {
+        $(menuId).find(menu).animate({ top: '100vh' });
+      } else {
+        $(menuId).find(menu).animate({ top: '-100vh' });
+      }
+      menuBtn.removeClass('header__nav-links--active');
+      $('body').removeClass('body-scroll-lock');
+    };
+
+    var fetchMenu = function (mobile, menuId, activeMenuBtn) {
+      $.ajax({
+        type: 'GET',
+        url: window.Hasgeek.config.accountMenu,
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          $(menuId).empty().append(responseData);
+          openMenu(mobile, menuId, activeMenuBtn);
+        },
+      });
+    };
+
+    // Open full screen account menu in mobile
+    menuBtn.on('click', function (event) {
+      event.stopPropagation();
+      let self = this;
+      let mobile = $(self).data('menu-size') === 'mobile' ? true : false;
+      let menuId = `#${$(self).data('menu-id')}`;
+      if ($(this).hasClass('header__nav-links--active')) {
+        closeMenu(mobile, menuId);
+      } else if (!$(menuId).find(menu).length) {
+        fetchMenu(mobile, menuId);
+      } else {
+        openMenu(mobile, menuId, self);
+      }
+    });
+
+    $('body').on('click', function (event) {
+      if (
+        $('.js-menu-btn').hasClass('header__nav-links--active') &&
+        !$(event.target).is('.js-menu-btn') &&
+        !$.contains($('.js-menu-btn')[0], event.target)
+      ) {
+        let activeMenuBtn = $('.js-menu-btn.header__nav-links--active');
+        let mobile =
+          activeMenuBtn.data('menu-size') === 'mobile' ? true : false;
+        let menuId = `#${activeMenuBtn.data('menu-id')}`;
+        closeMenu(mobile, menuId);
+      }
+    });
+  },
   sendToGA(category, action, label, value = 0) {
     if (typeof ga !== 'undefined') {
       ga('send', {
