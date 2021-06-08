@@ -657,8 +657,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         param bool desc: Use descending order (default True)
         """
         clause = db.case(
-            [(cls.start_at.isnot(None), cls.start_at.asc())],
-            else_=cls.published_at.desc(),
+            [(cls.start_at.isnot(None), cls.start_at)],
+            else_=cls.published_at,
         )
         return clause
 
