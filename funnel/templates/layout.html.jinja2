@@ -61,7 +61,7 @@
     <a href="{{ url_for('index') }}" class="header__site-title__title__home mui--hidden-xs mui--hidden-sm" data-cy="home-desktop" data-ga="Home" aria-label="Home">
       <img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>
     </a>
-    <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about???{% endtrans %}</a>
+    <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
     <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-ga="Home">
       {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
     </a>
