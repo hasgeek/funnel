@@ -650,18 +650,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         return self.proposals.count() == 0
 
     @classmethod
-    def order_by_date(cls, desc: bool = True):
+    def order_by_date(cls):
         """
         Return an order by clause for the project's start_at or published_at.
 
         param bool desc: Use descending order (default True)
         """
         clause = db.case(
-            [(cls.start_at.isnot(None), cls.start_at)], else_=cls.published_at
+            [(cls.start_at.isnot(None), cls.start_at.asc())],
+            else_=cls.published_at.desc(),
         )
-        if desc:
-            return clause.desc()
-        return clause.asc()
+        return clause
 
     @classmethod
     def all_unsorted(cls):
