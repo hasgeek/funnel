@@ -380,6 +380,11 @@ class AccountView(ClassView):
                 rendered_template = cache_data['rendered_template']
                 chash = cache_data['blake2b']
                 etag = cache_data['etag']
+                last_modified = cache_data['last_modified']
+                # TODO: Decorator version's ETag hash should be based on request Accept
+                # headers as well, as that changes the response. Or, all headers
+                # that are in `response.vary`, although some values for that header are
+                # set in `after_request` processors and won't be available here.
                 if (
                     etag
                     != blake2b(
@@ -388,24 +393,27 @@ class AccountView(ClassView):
                 ):
                     rendered_template = None
             except KeyError:
-                # If any of `rendered_template`, `chash` or `etag` are missing, discard
-                # the cache
+                # If any of `rendered_template`, `chash`, `etag` or `last_modified` are
+                # missing, discard the cache
                 rendered_template = None
         if rendered_template is None:
             rendered_template = render_template('account_menu.html.jinja2')
             chash = blake2b(rendered_template.encode()).hexdigest()
             etag = blake2b(f'{current_auth.user.uuid_b64}/{chash}'.encode()).hexdigest()
+            last_modified = datetime.utcnow()
             cache.set(
                 cache_key,
                 {
                     'rendered_template': rendered_template,
                     'blake2b': chash,
                     'etag': etag,
+                    'last_modified': last_modified,
                 },
                 timeout=max_age,
             )
         response = make_response(rendered_template)
         response.set_etag(etag)
+        response.last_modified = last_modified
         response.cache_control.max_age = max_age
         response.expires = (response.last_modified or datetime.utcnow()) + timedelta(
             seconds=max_age
