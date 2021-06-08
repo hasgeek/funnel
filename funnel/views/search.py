@@ -132,8 +132,6 @@ class ProjectSearch(SearchInProfileProvider):
             )
             # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
             # The existing `next_session_at` is not suitable as it is future-only.
-            # Also add a CHECK constraint on session.start_at/end_at to enforce 24
-            # hour max duration.
             .order_by(
                 # Order by:
                 # 1. Projects with start_at/published_at (ts is None == False)
