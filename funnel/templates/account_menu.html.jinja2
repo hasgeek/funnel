@@ -68,15 +68,15 @@
       {%- endif %}
       <hr class="margin-top margin-bottom">
     {%- endif %}
-    <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light" data-cy="account"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Account settings{% endtrans %}</a></li>
-    <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Notification settings{% endtrans %}</a></li>
+    <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline" data-cy="account"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Account settings{% endtrans %}</a></li>
+    <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Notification settings{% endtrans %}</a></li>
     {%- if not orgmemlist.recent|length -%}
       <li>
-        <a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light" data-cy="org"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='sitemap', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Organizations{% endtrans %}</a>
+        <a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline" data-cy="org"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='sitemap', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Organizations{% endtrans %}</a>
       </li>
     {%- endif %}
     {%- endwith %}
-    <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false,  css_class='mui--text-light') }}</span>{% trans %}Saved projects{% endtrans %}</a></li>
+    <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false,  css_class='mui--text-light') }}</span>{% trans %}Saved projects{% endtrans %}</a></li>
     <li>
       <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
         {{ csrf_tag() }}

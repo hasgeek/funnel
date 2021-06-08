@@ -140,7 +140,7 @@ export const Utils = {
       if ($(this).hasClass('header__nav-links--active')) {
         closeMenu(mobile, menuId);
       } else if (!$(menuId).find(menu).length) {
-        fetchMenu(mobile, menuId);
+        fetchMenu(mobile, menuId, self);
       } else {
         openMenu(mobile, menuId, self);
       }
