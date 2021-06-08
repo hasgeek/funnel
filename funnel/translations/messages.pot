@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-03 15:47+0530\n"
+"POT-Creation-Date: 2021-06-08 18:23+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -970,7 +970,7 @@ msgid "Optional - Ending time"
 msgstr ""
 
 #: funnel/forms/project.py:72
-msgid "An ending time is required"
+msgid "This is required when starting time is specified"
 msgstr ""
 
 #: funnel/forms/project.py:75
@@ -1397,11 +1397,11 @@ msgstr ""
 msgid "Verified"
 msgstr ""
 
-#: funnel/models/commentvote.py:284 funnel/models/user.py:854
+#: funnel/models/commentvote.py:284 funnel/models/user.py:853
 msgid "[deleted]"
 msgstr ""
 
-#: funnel/models/commentvote.py:286 funnel/models/user.py:855
+#: funnel/models/commentvote.py:286 funnel/models/user.py:854
 msgid "[removed]"
 msgstr ""
 
@@ -1756,7 +1756,7 @@ msgstr ""
 
 #: funnel/models/proposal.py:325
 #: funnel/templates/project_layout.html.jinja2:160
-#: funnel/views/commentvote.py:440 funnel/views/login_session.py:458
+#: funnel/views/commentvote.py:440 funnel/views/login_session.py:461
 msgid "Confirm"
 msgstr ""
 
@@ -2856,13 +2856,13 @@ msgid "Admins"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:485
-#: funnel/templates/project.html.jinja2:122 funnel/views/search.py:217
+#: funnel/templates/project.html.jinja2:122 funnel/views/search.py:244
 msgid "Sessions"
 msgstr ""
 
 #: funnel/templates/macros.html.jinja2:486
 #: funnel/templates/user_profile_projects.html.jinja2:10
-#: funnel/views/search.py:77
+#: funnel/views/search.py:99
 msgid "Projects"
 msgstr ""
 
@@ -2871,7 +2871,7 @@ msgstr ""
 #: funnel/templates/project_layout.html.jinja2:425
 #: funnel/templates/project_submissions.html.jinja2:4
 #: funnel/templates/user_profile_proposals.html.jinja2:10
-#: funnel/views/search.py:251
+#: funnel/views/search.py:288
 msgid "Submissions"
 msgstr ""
 
@@ -3127,7 +3127,7 @@ msgstr ""
 
 #: funnel/templates/project_comments.html.jinja2:5
 #: funnel/templates/project_layout.html.jinja2:423
-#: funnel/templates/proposal.html.jinja2:228 funnel/views/search.py:322
+#: funnel/templates/proposal.html.jinja2:228 funnel/views/search.py:363
 #: funnel/views/siteadmin.py:241
 msgid "Comments"
 msgstr ""
@@ -4644,11 +4644,11 @@ msgstr ""
 msgid "There was an issue reporting this comment. Please try again"
 msgstr ""
 
-#: funnel/views/contact.py:166
+#: funnel/views/contact.py:165
 msgid "This project has concluded"
 msgstr ""
 
-#: funnel/views/contact.py:183
+#: funnel/views/contact.py:182
 msgid "Unauthorized contact exchange"
 msgstr ""
 
@@ -4846,21 +4846,21 @@ msgstr ""
 msgid "Your login session was revoked from another device. Please login again"
 msgstr ""
 
-#: funnel/views/login_session.py:359 funnel/views/login_session.py:398
+#: funnel/views/login_session.py:362 funnel/views/login_session.py:401
 msgid "You need to be logged in for that page"
 msgstr ""
 
-#: funnel/views/login_session.py:406
+#: funnel/views/login_session.py:409
 msgid ""
 "This operation requires you to confirm your password. However, your "
 "account does not have a password, so you must set one first"
 msgstr ""
 
-#: funnel/views/login_session.py:443
+#: funnel/views/login_session.py:446
 msgid "This request must be confirmed with your password"
 msgstr ""
 
-#: funnel/views/login_session.py:456
+#: funnel/views/login_session.py:459
 msgid "Confirm with your password to proceed"
 msgstr ""
 
@@ -4976,7 +4976,7 @@ msgid ""
 msgstr ""
 
 #: funnel/views/notification_preferences.py:190
-#: funnel/views/notification_preferences.py:368
+#: funnel/views/notification_preferences.py:370
 msgid "This unsubscribe link is for a non-existent user"
 msgstr ""
 
@@ -4984,33 +4984,33 @@ msgstr ""
 msgid "You have been unsubscribed from this notification type"
 msgstr ""
 
-#: funnel/views/notification_preferences.py:352
+#: funnel/views/notification_preferences.py:354
 msgid "Unauthorized unsubscribe link"
 msgstr ""
 
-#: funnel/views/notification_preferences.py:353
+#: funnel/views/notification_preferences.py:355
 msgid ""
 "This unsubscribe link is for someone else’s account. Please logout or use"
 " an incognito/private browsing session to use this link"
 msgstr ""
 
-#: funnel/views/notification_preferences.py:367
+#: funnel/views/notification_preferences.py:369
 msgid "Unknown user account"
 msgstr ""
 
-#: funnel/views/notification_preferences.py:402
+#: funnel/views/notification_preferences.py:404
 msgid "Preferences saved"
 msgstr ""
 
-#: funnel/views/notification_preferences.py:403
+#: funnel/views/notification_preferences.py:405
 msgid "Your notification preferences have been updated"
 msgstr ""
 
-#: funnel/views/notification_preferences.py:407
+#: funnel/views/notification_preferences.py:409
 msgid "Notification preferences"
 msgstr ""
 
-#: funnel/views/notification_preferences.py:409
+#: funnel/views/notification_preferences.py:411
 msgid "Save preferences"
 msgstr ""
 
@@ -5407,7 +5407,7 @@ msgstr ""
 msgid "{session} in 5 minutes"
 msgstr ""
 
-#: funnel/views/search.py:191
+#: funnel/views/search.py:219
 msgid "Profiles"
 msgstr ""
 
