@@ -4651,8 +4651,7 @@ a.loginbutton.hidden,
 }
 .comment .comment__body blockquote {
   border-left: 3px solid #c0ccda;
-  margin: 0;
-  padding: 8px 0 0 8px;
+  padding: 0 0 0 8px;
 }
 .comment .comment__body .comment__body__inner,
 .comment .comment__body .comment--children {

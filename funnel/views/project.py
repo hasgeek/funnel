@@ -606,7 +606,7 @@ class ProjectView(
         }
 
     def get_rsvp_state_csv(self, state):
-        outfile = io.StringIO()
+        outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(['fullname', 'email', 'created_at'])
         for rsvp in self.obj.rsvps_with(state):

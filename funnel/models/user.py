@@ -740,19 +740,18 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         elif '@' in query and not query.startswith('@'):
             # Query has an @ in the middle. Match email address (exact match only).
-            # Use `query` instead of `like_query` because it's not a LIKE query.
+            # Use param `query` instead of `like_query` because it's not a LIKE query.
             # Combine results with regular user search
             users = (
-                cls.query.join(UserEmail, EmailAddress)
+                cls.query.join(UserEmail)
+                .join(EmailAddress)
                 .filter(
-                    UserEmail.user_id == cls.id,
-                    UserEmail.email_address_id == EmailAddress.id,
                     EmailAddress.get_filter(email=query),
                     cls.state.ACTIVE,
                 )
                 .options(*cls._defercols)
                 .limit(20)
-                .union(base_users)
+                # .union(base_users)  # FIXME: Broken in SQLAlchemy 1.4.17
                 .all()
             )
         else:
