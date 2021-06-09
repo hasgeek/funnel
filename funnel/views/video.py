@@ -22,7 +22,7 @@ def _video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
         # Check for cached data
         data = obj._video_cache
 
-        if data:
+        if not data:
             data = {
                 'source': obj.video_source,
                 'id': obj.video_id,
@@ -104,11 +104,5 @@ def _video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
     return data
 
 
-@Proposal.views('video', cached_property=True)
-def proposal_video_property(obj):
-    return _video_property(obj)
-
-
-@Session.views('video', cached_property=True)
-def session_video_property(obj):
-    return _video_property(obj)
+Proposal.views('video', cached_property=True)(_video_property)
+Session.views('video', cached_property=True)(_video_property)
