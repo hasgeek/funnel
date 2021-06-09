@@ -37,4 +37,5 @@ from . import (
     ticket_participant,
     update,
     venue,
+    video,
 )

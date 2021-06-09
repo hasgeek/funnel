@@ -25,7 +25,7 @@ from .project import Project
 from .project_membership import project_child_role_map
 from .reorder_mixin import ReorderMixin
 from .user import User
-from .video_mixin import VideoMixin, _video_property
+from .video_mixin import VideoMixin
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
 
@@ -475,11 +475,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
 
 add_search_trigger(Proposal, 'search_vector')
-
-
-@Proposal.views('video', cached_property=True)
-def proposal_video_property(obj):
-    return _video_property(obj)
 
 
 class ProposalSuuidRedirect(BaseMixin, db.Model):
