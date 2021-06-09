@@ -335,7 +335,9 @@ class AccountNotificationView(ClassView):
                 discard_temp_token()
                 flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
-            if payload['timestamp'] < datetime.utcnow() - timedelta(days=7):
+            if payload['timestamp'].replace(
+                tzinfo=None
+            ) < datetime.utcnow() - timedelta(days=7):
                 # Link older than a week. Expire it
                 discard_temp_token()
                 flash(unsubscribe_link_expired, 'error')

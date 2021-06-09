@@ -254,10 +254,13 @@ def clear_expired_temp_token():
     :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`.
     """
     if 'temp_token_at' in session:
-        # Use naive datetime as the session can't handle tz-aware datetimes
+        # Use naive datetime as Flask 1.0 sessions can't handle tz-aware datetimes,
+        # while Flask 2.0 sessions convert naive datetimes into UTC.
         # Give the user 10 minutes to complete the action. Remove the token if it's
         # been longer than 10 minutes.
-        if session['temp_token_at'] < datetime.utcnow() - timedelta(minutes=10):
+        if session['temp_token_at'].replace(
+            tzinfo=None
+        ) < datetime.utcnow() - timedelta(minutes=10):
             discard_temp_token()
             current_app.logger.info("Cleared expired temp_token from session cookie")
     elif 'temp_token' in session:

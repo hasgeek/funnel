@@ -561,7 +561,7 @@
       "%(max)d characters maximum": [null, "अधिकतर %(max)d वर्ण"],
       "Optional - Starting time": [null, ""],
       "Optional - Ending time": [null, ""],
-      "An ending time is required": [null, ""],
+      "This is required when starting time is specified": [null, ""],
       "This requires a starting time too": [null, ""],
       "This must be after the starting time": [null, ""],
       "The timezone in which this event occurs": [
