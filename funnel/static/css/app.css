@@ -1390,11 +1390,31 @@ a.loginbutton.hidden,
   line-height: 30.6px;
   margin: 6px 0;
 }
+.hg-app .js-account-menu-wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
 .hg-app .header__dropdown {
+  position: fixed;
+  top: 100vh;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  border-radius: 0;
+  overflow: auto;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  height: 150%;
+  z-index: 999;
+  display: block;
   padding: 0;
   list-style: none;
   overflow: auto;
   background: #ffffff;
+  z-index: -1;
 }
 .hg-app .header__dropdown .user__box__header {
   justify-content: space-between;
@@ -1459,21 +1479,6 @@ a.loginbutton.hidden,
   left: -33px;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
-}
-.hg-app .mobile-account-menu .header__dropdown {
-  position: fixed;
-  top: 100vh;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: 0;
-  border-radius: 0;
-  overflow: auto;
-  box-shadow: none;
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-  height: 150%;
-  z-index: 999;
-  display: block;
 }
 
 .hg-app .header--fixed.header--lowzindex {
@@ -1684,7 +1689,7 @@ a.loginbutton.hidden,
     .header__nav-links--dropdown {
     height: 40px;
   }
-  .hg-app .desktop-account-menu .header__dropdown {
+  .hg-app .header__dropdown {
     max-width: 300px;
     max-height: 90vh;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
@@ -1692,10 +1697,9 @@ a.loginbutton.hidden,
     position: absolute;
     top: -100vh;
     right: 0;
-    z-index: -1;
-  }
-  .hg-app .mobile-account-menu .header_dropdown--mobile {
-    display: none;
+    height: auto;
+    left: auto;
+    bottom: auto;
   }
 }
 @media (min-width: 1200px) {
