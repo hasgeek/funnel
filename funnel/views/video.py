@@ -9,14 +9,17 @@ import requests
 import vimeo
 
 from coaster.utils import parse_duration, parse_isoformat
-from funnel.models import Proposal, Session
+
+from ..models import Proposal, Session
 
 
 class YoutubeApiException(Exception):
     pass
 
 
-def _video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
+@Proposal.views('video', cached_property=True)
+@Session.views('video', cached_property=True)
+def video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
     data = None
     if obj.video_source and obj.video_id:
         # Check for cached data
@@ -102,7 +105,3 @@ def _video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
                     )
             obj._video_cache = data  # using _video_cache setter to set cache
     return data
-
-
-Proposal.views('video', cached_property=True)(_video_property)
-Session.views('video', cached_property=True)(_video_property)
