@@ -368,7 +368,6 @@ class ProposalLabelProxy(object):
 class __Project:
     labels = db.relationship(
         Label,
-        cascade='all',
         primaryjoin=db.and_(
             Label.project_id == Project.id,
             Label.main_label_id.is_(None),

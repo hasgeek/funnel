@@ -69,13 +69,13 @@ class ProjectForm(forms.Form):
         validators=[
             forms.validators.RequiredIf(
                 'start_at',
-                message=__("An ending time is required"),
+                message=__("This is required when starting time is specified"),
             ),
             forms.validators.AllowedIf(
                 'start_at', message=__("This requires a starting time too")
             ),
             forms.validators.Optional(),  # Stop the next validator if field is empty
-            forms.validators.GreaterThanEqualTo(
+            forms.validators.GreaterThan(
                 'start_at', __("This must be after the starting time")
             ),
         ],
@@ -221,14 +221,15 @@ class CfpForm(forms.Form):
     )
     cfp_end_at = forms.DateTimeField(
         __("Submissions close at"),
+        description=__("Optional – Leave blank to have no closing date"),
         validators=[
             forms.validators.Optional(),
             forms.validators.AllowedIf(
                 'cfp_start_at',
-                message=__("This requires an opening time to be specified"),
+                message=__("This requires an opening date to be specified"),
             ),
-            forms.validators.GreaterThanEqualTo(
-                'cfp_start_at', __("Submissions cannot close before they open")
+            forms.validators.GreaterThan(
+                'cfp_start_at', __("This must be after the opening date and time")
             ),
         ],
         naive=False,

@@ -1,12 +1,25 @@
+from datetime import datetime, timedelta
+from hashlib import blake2b
 from types import SimpleNamespace
 from typing import List, Optional, Union
 
-from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
+from flask import (
+    Markup,
+    abort,
+    current_app,
+    escape,
+    flash,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
 import geoip2.errors
 import user_agents
 
-from baseframe import _
+from baseframe import _, cache
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -353,9 +366,59 @@ class AccountView(ClassView):
         return {'saved_projects': current_auth.user.saved_projects}
 
     @route('menu', endpoint='account_menu')
-    @render_with('account_menu.html.jinja2')
     def menu(self):
-        return {}
+        """Render account menu."""
+        # This is an experimental implementation of caching with ETag. It needs to be
+        # generalized into a view decorator
+        max_age = 900  # 900 seconds = 15 minutes
+        template_version = 1  # Update this number when the template changes
+        cache_key = f'account_menu/{template_version}/{current_auth.user.uuid_b64}'
+        cache_data = cache.get(cache_key)
+        rendered_template = None
+        if cache_data:
+            try:
+                rendered_template = cache_data['rendered_template']
+                chash = cache_data['blake2b']
+                etag = cache_data['etag']
+                last_modified = cache_data['last_modified']
+                # TODO: Decorator version's ETag hash should be based on request Accept
+                # headers as well, as that changes the response. Or, all headers
+                # that are in `response.vary`, although some values for that header are
+                # set in `after_request` processors and won't be available here.
+                if (
+                    etag
+                    != blake2b(
+                        f'{current_auth.user.uuid_b64}/{chash}'.encode()
+                    ).hexdigest()
+                ):
+                    rendered_template = None
+            except KeyError:
+                # If any of `rendered_template`, `chash`, `etag` or `last_modified` are
+                # missing, discard the cache
+                rendered_template = None
+        if rendered_template is None:
+            rendered_template = render_template('account_menu.html.jinja2')
+            chash = blake2b(rendered_template.encode()).hexdigest()
+            etag = blake2b(f'{current_auth.user.uuid_b64}/{chash}'.encode()).hexdigest()
+            last_modified = datetime.utcnow()
+            cache.set(
+                cache_key,
+                {
+                    'rendered_template': rendered_template,
+                    'blake2b': chash,
+                    'etag': etag,
+                    'last_modified': last_modified,
+                },
+                timeout=max_age,
+            )
+        response = make_response(rendered_template)
+        response.set_etag(etag)
+        response.last_modified = last_modified
+        response.cache_control.max_age = max_age
+        response.expires = (response.last_modified or datetime.utcnow()) + timedelta(
+            seconds=max_age
+        )
+        return response.make_conditional(request)
 
     @route('organizations', endpoint='organizations')
     @render_with('account_organizations.html.jinja2')
