@@ -94,30 +94,71 @@ export const Utils = {
     });
   },
   headerMenuDropdown() {
-    $('.js-acc-menu').on('click', function (event) {
-      event.stopPropagation();
-      // To disable body scroll in the background when account menu is open in mobile
-      $('body').toggleClass('body-scroll-lock');
-    });
-    $('body').on('click', function (event) {
-      if (
-        $('.header__dropdown').hasClass('mui--is-open') &&
-        !$(event.target).is('.js-acc-menu') &&
-        !$.contains($('.js-acc-menu')[0], event.target)
-      ) {
-        $('body').removeClass('body-scroll-lock');
+    let menuBtn = $('.js-menu-btn');
+    let menuWrapper = '.js-account-menu-wrapper';
+    let menu = '.js-account-menu';
+    let topMargin = 1;
+    let headerHeight = $('.header').height() + topMargin;
+
+    let openMenu = function () {
+      if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+        $(menuWrapper).find(menu).animate({ top: '0' });
+      } else {
+        $(menuWrapper).find(menu).animate({ top: headerHeight });
       }
-    });
+      menuBtn.addClass('header__nav-links--active');
+      $('body').addClass('body-scroll-lock');
+    };
+
+    let closeMenu = function () {
+      if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+        $(menuWrapper).find(menu).animate({ top: '100vh' });
+      } else {
+        $(menuWrapper).find(menu).animate({ top: '-100vh' });
+      }
+      menuBtn.removeClass('header__nav-links--active');
+      $('body').removeClass('body-scroll-lock');
+    };
+
+    var fetchMenu = function (openMenuFn = '') {
+      $.ajax({
+        type: 'GET',
+        url: window.Hasgeek.config.accountMenu,
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          $(menuWrapper).empty().append(responseData);
+          if (openMenuFn) {
+            openMenuFn();
+          }
+        },
+      });
+    };
+
+    //If user logged in, preload menu
+    if ($(menuWrapper).length) {
+      fetchMenu();
+    }
+
     // Open full screen account menu in mobile
-    $('.js-acc-menu-mobile').on('click', function (event) {
+    menuBtn.on('click', function (event) {
       event.stopPropagation();
       if ($(this).hasClass('header__nav-links--active')) {
-        $('.header_dropdown--mobile').animate({ top: '100vh' });
+        closeMenu();
+      } else if (!$(menuWrapper).find(menu).length) {
+        fetchMenu(openMenu);
       } else {
-        $('.header_dropdown--mobile').animate({ top: '0' });
+        openMenu();
       }
-      $(this).toggleClass('header__nav-links--active');
-      $('body').toggleClass('body-scroll-lock');
+    });
+
+    $('body').on('click', function (event) {
+      if (
+        $('.js-menu-btn').hasClass('header__nav-links--active') &&
+        !$(event.target).is('.js-menu-btn') &&
+        !$.contains($('.js-menu-btn')[0], event.target)
+      ) {
+        closeMenu();
+      }
     });
   },
   sendToGA(category, action, label, value = 0) {
