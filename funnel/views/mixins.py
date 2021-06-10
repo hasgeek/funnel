@@ -25,7 +25,23 @@ from ..models import (
 from ..typing import ReturnRenderWith
 
 
-class ProjectViewMixin(object):
+class ProfileCheckMixin:
+    """Base class checks for suspended profiles."""
+
+    profile = None
+
+    def after_loader(self):
+        profile = self.profile
+        if profile is None:
+            raise ValueError("Subclass must set self.profile")
+        g.profile = profile
+        if profile.user is not None and not profile.user.state.ACTIVE:
+            abort(410)
+
+        return super().after_loader()
+
+
+class ProjectViewMixin(ProfileCheckMixin):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
     SavedProjectForm = SavedProjectForm
@@ -57,12 +73,11 @@ class ProjectViewMixin(object):
     def after_loader(self):
         if isinstance(self.obj, ProjectRedirect):
             if self.obj.project:
-                g.profile = self.obj.project.profile
+                self.profile = self.obj.project.profile
                 return redirect(self.obj.project.url_for())
             else:
                 abort(410)
-        g.profile = self.obj.profile
-        g.profile.views.suspension_check()
+        self.profile = self.obj.profile
         return super().after_loader()
 
     @property
@@ -70,7 +85,7 @@ class ProjectViewMixin(object):
         return self.obj.is_saved_by(current_auth.user)
 
 
-class ProfileViewMixin(object):
+class ProfileViewMixin(ProfileCheckMixin):
     model = Profile
     route_model_map = {'profile': 'name'}
     SavedProjectForm = SavedProjectForm
@@ -83,12 +98,11 @@ class ProfileViewMixin(object):
         return profile
 
     def after_loader(self):
-        g.profile = self.obj
-        g.profile.views.suspension_check()
+        self.profile = self.obj
         return super().after_loader()
 
 
-class ProposalViewMixin(object):
+class ProposalViewMixin(ProfileCheckMixin):
     model = Proposal
     route_model_map = {
         'profile': 'project.profile.name',
@@ -123,16 +137,15 @@ class ProposalViewMixin(object):
     def after_loader(self):
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
-                g.profile = self.obj.proposal.project.profile
+                self.profile = self.obj.proposal.project.profile
                 return redirect(self.obj.proposal.url_for())
             else:
                 abort(410)
-        g.profile = self.obj.project.profile
-        g.profile.views.suspension_check()
+        self.profile = self.obj.project.profile
         return super().after_loader()
 
 
-class SessionViewMixin(object):
+class SessionViewMixin(ProfileCheckMixin):
     model = Session
     route_model_map = {
         'profile': 'project.profile.name',
@@ -154,8 +167,7 @@ class SessionViewMixin(object):
         return session
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        g.profile.views.suspension_check()
+        self.profile = self.obj.project.profile
         return super().after_loader()
 
     @property
@@ -163,7 +175,7 @@ class SessionViewMixin(object):
         return self.obj.project.is_saved_by(current_auth.user)
 
 
-class VenueViewMixin(object):
+class VenueViewMixin(ProfileCheckMixin):
     model = Venue
     route_model_map = {
         'profile': 'project.profile.name',
@@ -184,12 +196,11 @@ class VenueViewMixin(object):
         return venue
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        g.profile.views.suspension_check()
+        self.profile = self.obj.project.profile
         return super().after_loader()
 
 
-class VenueRoomViewMixin(object):
+class VenueRoomViewMixin(ProfileCheckMixin):
     model = VenueRoom
     route_model_map = {
         'profile': 'venue.project.profile.name',
@@ -212,12 +223,11 @@ class VenueRoomViewMixin(object):
         return room
 
     def after_loader(self):
-        g.profile = self.obj.venue.project.profile
-        g.profile.views.suspension_check()
+        self.profile = self.obj.venue.project.profile
         return super().after_loader()
 
 
-class TicketEventViewMixin(object):
+class TicketEventViewMixin(ProfileCheckMixin):
     model = TicketEvent
     route_model_map = {
         'profile': 'project.profile.name',
@@ -237,8 +247,7 @@ class TicketEventViewMixin(object):
         )
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        g.profile.views.suspension_check()
+        self.profile = self.obj.project.profile
         return super().after_loader()
 
 

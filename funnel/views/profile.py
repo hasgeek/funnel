@@ -54,12 +54,6 @@ def feature_profile_make_private(obj):
     return obj.current_roles.admin and bool(obj.state.PUBLIC)
 
 
-@Profile.views('suspension_check')
-def profile_suspension_check(obj):
-    if obj.user is not None and not obj.user.state.ACTIVE:
-        abort(410)
-
-
 def template_switcher(templateargs):
     template = templateargs.pop('template')
     return Response(render_template(template, **templateargs), mimetype='text/html')

@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from flask import abort, flash, g, jsonify, redirect, request, url_for
+from flask import abort, flash, jsonify, redirect, request, url_for
 
 from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
@@ -28,7 +28,7 @@ from ..models import (
 from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
 from .helpers import mask_email
 from .login_session import requires_login
-from .mixins import ProjectViewMixin, TicketEventViewMixin
+from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
 
 
 def ticket_participant_badge_data(ticket_participants, project):
@@ -157,7 +157,7 @@ ProjectTicketParticipantView.init_app(app)
 
 @TicketParticipant.views('main')
 @route('/<profile>/<project>/ticket_participant/<ticket_participant>')
-class TicketParticipantView(UrlForView, ModelView):
+class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
 
     model = TicketParticipant
@@ -180,8 +180,7 @@ class TicketParticipantView(UrlForView, ModelView):
         return ticket_participant
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        g.profile.views.suspension_check()
+        self.profile = self.obj.project.profile
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
