@@ -32,7 +32,7 @@ __all__ = [
 ]
 
 
-class ScopeMixin(object):
+class ScopeMixin:
     __scope_null_allowed__ = False
 
     _scope: str
