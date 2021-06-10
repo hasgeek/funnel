@@ -62,6 +62,7 @@ class ProjectViewMixin(object):
             else:
                 abort(410)
         g.profile = self.obj.profile
+        g.profile.views.suspension_check()
         return super().after_loader()
 
     @property
@@ -79,8 +80,12 @@ class ProfileViewMixin(object):
         profile = self.model.get(profile)
         if profile is None:
             abort(404)
-        g.profile = profile
         return profile
+
+    def after_loader(self):
+        g.profile = self.obj
+        g.profile.views.suspension_check()
+        return super().after_loader()
 
 
 class ProposalViewMixin(object):
@@ -123,6 +128,7 @@ class ProposalViewMixin(object):
             else:
                 abort(410)
         g.profile = self.obj.project.profile
+        g.profile.views.suspension_check()
         return super().after_loader()
 
 
@@ -149,6 +155,7 @@ class SessionViewMixin(object):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
+        g.profile.views.suspension_check()
         return super().after_loader()
 
     @property
@@ -174,8 +181,12 @@ class VenueViewMixin(object):
             )
             .first_or_404()
         )
-        g.profile = venue.project.profile
         return venue
+
+    def after_loader(self):
+        g.profile = self.obj.project.profile
+        g.profile.views.suspension_check()
+        return super().after_loader()
 
 
 class VenueRoomViewMixin(object):
@@ -198,8 +209,12 @@ class VenueRoomViewMixin(object):
             )
             .first_or_404()
         )
-        g.profile = room.venue.project.profile
         return room
+
+    def after_loader(self):
+        g.profile = self.obj.venue.project.profile
+        g.profile.views.suspension_check()
+        return super().after_loader()
 
 
 class TicketEventViewMixin(object):
@@ -223,6 +238,7 @@ class TicketEventViewMixin(object):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
+        g.profile.views.suspension_check()
         return super().after_loader()
 
 

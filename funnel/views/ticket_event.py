@@ -236,6 +236,7 @@ class TicketTypeView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
+        g.profile.views.suspension_check()
         return super().after_loader()
 
     @route('')
@@ -314,6 +315,7 @@ class TicketClientView(UrlForView, ModelView):
 
     def after_loader(self):
         g.profile = self.obj.project.profile
+        g.profile.views.suspension_check()
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])

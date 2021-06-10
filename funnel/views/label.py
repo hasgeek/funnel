@@ -113,8 +113,12 @@ class LabelView(UrlForView, ModelView):
             .first_or_404()
         )
         label = self.model.query.filter_by(project=proj, name=label).first_or_404()
-        g.profile = proj.profile
         return label
+
+    def after_loader(self):
+        g.profile = self.obj.project.profile
+        g.profile.suspension_check()
+        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login

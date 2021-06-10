@@ -93,9 +93,12 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-
-        g.profile = obj.project.profile
         return obj
+
+    def after_loader(self):
+        g.profile = self.obj.project.profile
+        g.profile.views.suspension_check()
+        return super().after_loader()
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
