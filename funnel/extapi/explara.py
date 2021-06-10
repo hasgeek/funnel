@@ -9,7 +9,7 @@ def strip_or_empty(val):
     return val.strip() if val else ''
 
 
-class ExplaraAPI(object):
+class ExplaraAPI:
     """
     Interface that enables data retrieval from Explara.
 

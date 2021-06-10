@@ -1,2 +1,2 @@
-class TestProfileViews(object):
+class TestProfileViews:
     pass

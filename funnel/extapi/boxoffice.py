@@ -9,7 +9,7 @@ from ..utils import extract_twitter_handle
 __all__ = ['Boxoffice']
 
 
-class Boxoffice(object):
+class Boxoffice:
     """Interface that enables data retrieval from Boxoffice."""
 
     def __init__(self, access_token, base_url=None) -> None:

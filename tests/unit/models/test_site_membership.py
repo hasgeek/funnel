@@ -15,7 +15,11 @@ def invalidate_cache(user):
         'is_user_moderator',
         'is_site_editor',
     ):
-        invalidate_cached_property(user, attr)
+        try:
+            invalidate_cached_property(user, attr)
+        except KeyError:
+            # Not cached, ignore
+            pass
 
 
 def test_siteadmin_roles(db_session, user_mort, user_death):
