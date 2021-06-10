@@ -226,7 +226,7 @@ class TicketEventViewMixin(object):
         return super().after_loader()
 
 
-class DraftViewMixin(object):
+class DraftViewMixin:
     obj: UuidMixin
     model: Type[UuidMixin]
 

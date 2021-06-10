@@ -166,7 +166,7 @@ class LoginCallbackError(Exception):
     """External service login failure (during callback)."""
 
 
-class LoginProvider(object):
+class LoginProvider:
     """
     Base class for login providers.
 

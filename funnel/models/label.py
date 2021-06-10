@@ -289,7 +289,7 @@ class Label(BaseScopedNameMixin, db.Model):
 add_search_trigger(Label, 'search_vector')
 
 
-class ProposalLabelProxyWrapper(object):
+class ProposalLabelProxyWrapper:
     def __init__(self, obj) -> None:
         object.__setattr__(self, '_obj', obj)
 
@@ -355,7 +355,7 @@ class ProposalLabelProxyWrapper(object):
                 self._obj.labels.append(option_label)
 
 
-class ProposalLabelProxy(object):
+class ProposalLabelProxy:
     def __get__(self, obj, cls=None):
         """Get proposal label proxy."""
         if obj is not None:
