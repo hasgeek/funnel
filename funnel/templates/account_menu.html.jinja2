@@ -1,0 +1,87 @@
+{%- from "macros.html.jinja2" import useravatar, csrf_tag %}
+{% from "baseframe/components.html.jinja2" import faicon %}
+
+{%- if current_auth -%}
+  <ul class="header__dropdown js-account-menu" role="menu">
+    {% if current_auth.user.profile %}
+      <li class="mui--bg-accent">
+        <div class="header__dropdown__item">
+          <div class="user">
+            <div class="user__box">
+              {{ useravatar(current_auth.user, add_profile_link=true, size='big') }}
+              {% if current_auth.user.profile_url %}
+                <a href="{{ current_auth.user.profile_url }}" class="user__box__header nounderline">
+              {%- else %}
+                <div class="user__box__header">
+              {% endif %}
+                <div class="user__box__header__details">
+                  <p class="mui--text-title mui--text-bold mui--text-dark zero-bottom-margin">{{ current_auth.user.fullname }}</p>
+                  {% if current_auth.user.username %}<p class="mui--text-caption mui--text-light zero-bottom-margin">@{{ current_auth.user.username }}</p>{% endif %}
+                </div>
+              {% if current_auth.user.profile_url %}
+                  {{ faicon(icon='chevron-right', icon_size='subhead', baseline=false, css_class='user__box__header__icon mui--text-dark') }}
+                </a>
+              {%- else %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </li>
+    {% else %}
+      <li class="mui--bg-accent">
+        <a href="{{ url_for('account_edit') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-dark nounderline mui--text-subhead mui--text-light"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='plus', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Add username{% endtrans %}</a></a>
+      </li>
+    {%- endif %}
+    {%- with orgmemlist = current_auth.user.views.recent_organization_memberships() %}
+    {%- if orgmemlist.recent|length -%}
+      <li><a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-dark nounderline mui--text-subhead mui--text-light" data-cy="org"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='sitemap', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Organizations{% endtrans %}</a></li>
+      {%- for orgmem in orgmemlist.recent %}
+      <li>
+        <a href="{{ orgmem.organization.profile.url_for() }}" class="header__dropdown__item header__dropdown__item--flex header__dropdown__item--morepadding mui--text-dark nounderline">
+          <span class="profile-avatar margin-right">
+            {%- if orgmem.organization.profile.logo_url.url %}
+              <img src="{{ orgmem.organization.profile.logo_url }}" alt="{{ orgmem.organization.title }}"/>
+            {% else %}
+              <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
+            {% endif %}
+          </span>
+          <span class="mui--text-body2 profile-avatar-title mui--text-dark">{{ orgmem.organization.profile.title }}</span>
+        </a>
+      </li>
+      {%- endfor %}
+      {%- if orgmemlist.overflow|length -%}
+      <li>
+        <a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex header__dropdown__item--morepadding mui--text-dark nounderline">
+        {%- for orgmem in orgmemlist.overflow %}
+          <span class="profile-avatar margin-right">
+            {%- if orgmem.organization.profile.logo_url.url %}
+              <img src="{{ orgmem.organization.profile.logo_url }}" alt="{{ orgmem.organization.title }}"/>
+            {% else %}
+              <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
+            {% endif %}
+          </span>
+        {%- endfor %}
+        {%- if orgmemlist.extra_count -%}<span class="header__dropdown__item__more-icon--ellipsis">{{ faicon(icon='ellipsis-h', icon_size='subhead', baseline=false, css_class='header__dropdown__item__more-icon header__dropdown__item__more-icon--align') }}</span><span class="mui--text-body2 header__dropdown__item__more-icon margin-left mui--text-dark">{{ faicon(icon='plus', icon_size='caption') }} {% trans count=orgmemlist.extra_count %}{{count}} more{% pluralize count %}{{count}} more{% endtrans %}</span>{%- endif %}
+        </a>
+      </li>
+      {%- endif %}
+      <hr class="margin-top margin-bottom">
+    {%- endif %}
+    <li><a href="{{ url_for('account') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline" data-cy="account"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Account settings{% endtrans %}</a></li>
+    <li><a href="{{ url_for('notification_preferences') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='bell', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Notification settings{% endtrans %}</a></li>
+    {%- if not orgmemlist.recent|length -%}
+      <li>
+        <a href="{{ url_for('organizations') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline" data-cy="org"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='sitemap', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span>{% trans %}Organizations{% endtrans %}</a>
+      </li>
+    {%- endif %}
+    {%- endwith %}
+    <li><a href="{{ url_for('saved') }}" class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false,  css_class='mui--text-light') }}</span>{% trans %}Saved projects{% endtrans %}</a></li>
+    <li>
+      <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
+        {{ csrf_tag() }}
+        <button class="mui-btn mui-btn--nostyle mui--text-capitalize header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light" type="submit" data-cy="Logout"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='sign-out', baseline=false) }}</span>{% trans %}Logout{% endtrans %}</button>
+      </form>
+    </li>
+  </ul>
+{%- endif %}
