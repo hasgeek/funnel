@@ -11,7 +11,7 @@ from funnel.models import (
 )
 
 
-class Fixtures(object):
+class Fixtures:
     def make_fixtures(self, db_session):
         """
         Create fixtures.
