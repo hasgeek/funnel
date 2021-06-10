@@ -27,6 +27,15 @@
 
 {% block layoutscripts %}
   <script type="text/javascript">
+    window.Hasgeek = {};
+    window.Hasgeek.config = {};
+    window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
+    window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
+    window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
+    window.Hasgeek.config.accountMenu = {{ url_for('account_menu')|tojson }};
+  </script>
+  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  <script type="text/javascript">
     $(function() {
       var hash = window.location.hash;
       if (hash) {

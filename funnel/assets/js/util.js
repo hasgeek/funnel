@@ -134,8 +134,10 @@ export const Utils = {
       });
     };
 
-    //Preload menu
-    fetchMenu();
+    //If user logged in, preload menu
+    if ($(menuWrapper).length) {
+      fetchMenu();
+    }
 
     // Open full screen account menu in mobile
     menuBtn.on('click', function (event) {
