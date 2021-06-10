@@ -22,12 +22,12 @@ depends_on = ${repr(depends_on)}
 
 def upgrade(engine_name=''):
     # Do not modify. Edit `upgrade_` instead
-    globals()['upgrade_%s' % engine_name]()
+    globals().get('upgrade_%s' % engine_name, lambda: None)()
 
 
 def downgrade(engine_name=''):
     # Do not modify. Edit `downgrade_` instead
-    globals()['downgrade_%s' % engine_name]()
+    globals().get('downgrade_%s' % engine_name, lambda: None)()
 
 <%
     from flask import current_app

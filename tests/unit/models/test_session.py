@@ -2,6 +2,8 @@
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 
+import sqlalchemy.exc
+
 from pytz import utc
 import pytest
 
@@ -174,3 +176,40 @@ def test_project_starting_at(db_session, block_of_sessions):
     assert found_projects == {
         utc.localize(datetime(2010, 10, 9, 8, 59)): [block_of_sessions.new_project],
     }
+
+
+def test_long_session_fail(db_session, new_project):
+    """Sessions cannot exceed 24 hours."""
+    # Less than 24 hours is fine:
+    db_session.add(
+        Session(
+            project=new_project,
+            start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
+            end_at=utc.localize(datetime(2010, 10, 10, 8, 59, 59)),
+            title="Less than 24 hours by 1 second",
+        )
+    )
+    db_session.commit()
+
+    # Exactly 24 hours is fine:
+    db_session.add(
+        Session(
+            project=new_project,
+            start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
+            end_at=utc.localize(datetime(2010, 10, 10, 9, 0)),
+            title="Exactly 24 hours",
+        )
+    )
+    db_session.commit()
+
+    # Anything above 24 hours will fail:
+    db_session.add(
+        Session(
+            project=new_project,
+            start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
+            end_at=utc.localize(datetime(2010, 10, 10, 9, 0, 1)),
+            title="Longer than 24 hours by 1 second",
+        )
+    )
+    with pytest.raises(sqlalchemy.exc.IntegrityError):
+        db_session.commit()
