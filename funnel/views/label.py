@@ -1,4 +1,4 @@
-from flask import flash, g, redirect, request
+from flask import flash, redirect, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
@@ -9,7 +9,7 @@ from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
 from ..utils import abort_null
 from .login_session import requires_login, requires_sudo
-from .mixins import ProjectViewMixin
+from .mixins import ProfileCheckMixin, ProjectViewMixin
 
 
 @Project.views('label')
@@ -94,7 +94,7 @@ ProjectLabelView.init_app(app)
 
 @Label.views('main')
 @route('/<profile>/<project>/labels/<label>')
-class LabelView(UrlForView, ModelView):
+class LabelView(ProfileCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Label
     route_model_map = {
@@ -113,8 +113,11 @@ class LabelView(UrlForView, ModelView):
             .first_or_404()
         )
         label = self.model.query.filter_by(project=proj, name=label).first_or_404()
-        g.profile = proj.profile
         return label
+
+    def after_loader(self):
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login

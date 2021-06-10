@@ -1,4 +1,4 @@
-from flask import abort, g, redirect, request
+from flask import abort, redirect, request
 
 from baseframe import _
 from baseframe.forms import Form, render_form
@@ -30,7 +30,7 @@ from ..models import (
     db,
 )
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileViewMixin, ProjectViewMixin
+from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
 
@@ -149,7 +149,9 @@ OrganizationMembersView.init_app(app)
 
 @OrganizationMembership.views('main')
 @route('/<profile>/members/<membership>')
-class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
+class OrganizationMembershipView(
+    ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView
+):
     model = OrganizationMembership
 
     route_model_map = {'profile': 'organization.name', 'membership': 'uuid_b58'}
@@ -167,7 +169,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
         return obj
 
     def after_loader(self):
-        g.profile = self.obj.organization.profile
+        self.profile = self.obj.organization.profile
         super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
@@ -411,7 +413,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
 ProjectMembershipView.init_app(app)
 
 
-class ProjectCrewMembershipMixin(object):
+class ProjectCrewMembershipMixin(ProfileCheckMixin):
     model = ProjectCrewMembership
 
     route_model_map = {
@@ -433,7 +435,7 @@ class ProjectCrewMembershipMixin(object):
         return obj
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
+        self.profile = self.obj.project.profile
         super().after_loader()
 
 

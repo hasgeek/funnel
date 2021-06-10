@@ -1,4 +1,4 @@
-from flask import abort, flash, g, redirect
+from flask import abort, flash, redirect
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -17,6 +17,7 @@ from .. import app
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
 from .login_session import requires_login, requires_sudo
+from .mixins import ProfileCheckMixin
 from .notification import dispatch_notification
 from .project import ProjectViewMixin
 
@@ -77,7 +78,7 @@ def update_publishable(obj):
 
 @Update.views('project')
 @route('/<profile>/<project>/updates/<update>')
-class UpdateView(UrlChangeCheck, UrlForView, ModelView):
+class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = Update
     route_model_map = {
         'profile': 'project.profile.name',
@@ -93,9 +94,11 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-
-        g.profile = obj.project.profile
         return obj
+
+    def after_loader(self):
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
