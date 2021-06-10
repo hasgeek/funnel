@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from flask import abort, flash, g, jsonify, redirect, request
+from flask import abort, flash, jsonify, redirect, request
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form
@@ -26,7 +26,7 @@ from ..models import (
 )
 from .jobs import import_tickets
 from .login_session import requires_login, requires_sudo
-from .mixins import ProjectViewMixin, TicketEventViewMixin
+from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
 
 
 @Project.views('ticket_event')
@@ -213,7 +213,7 @@ TicketEventView.init_app(app)
 
 @TicketType.views('main')
 @route('/<profile>/<project>/ticket_type/<name>')
-class TicketTypeView(UrlForView, ModelView):
+class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = TicketType
     route_model_map = {
@@ -235,7 +235,7 @@ class TicketTypeView(UrlForView, ModelView):
         return ticket_type
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
+        self.profile = self.obj.project.profile
         return super().after_loader()
 
     @route('')
@@ -291,7 +291,7 @@ TicketTypeView.init_app(app)
 
 @TicketClient.views('main')
 @route('/<profile>/<project>/ticket_client/<client_id>')
-class TicketClientView(UrlForView, ModelView):
+class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = TicketClient
     route_model_map = {
@@ -313,7 +313,7 @@ class TicketClientView(UrlForView, ModelView):
         return ticket_client
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
+        self.profile = self.obj.project.profile
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
