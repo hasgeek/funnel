@@ -124,10 +124,10 @@
             {% if proposal.views.video %}
               <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}" id="pane-justified-{{ seq }}">
                 <div class="details__box__video mui--bg-primary-dark embed-video-wrapper" data-cy="proposal-video">
-                  {{ embed_video_player(proposal.video) }}
+                  {{ embed_video_player(proposal.views.video) }}
                 </div>
                 <div class="details__box__control mui--clearfix">
-                  {{ video_action_bar(proposal.video, proposal, '', false) }}
+                  {{ video_action_bar(proposal.views.video, proposal, '', false) }}
                 </div>
               </div>
             {%- elif proposal.current_roles.editor %}
@@ -163,7 +163,7 @@
               {% if proposal.views.video %}
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
                   <a class="mui--d-inlineblock" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ seq }}">
-                    <img src="{{ proposal.video.thumbnail }}" class="img-responsive" data-cy="proposal-video-thumbnail">
+                    <img src="{{ proposal.views.video.thumbnail }}" class="img-responsive" data-cy="proposal-video-thumbnail">
                     <div class="overlay"></div>
                     <div class="gallery__thumbnail__play-icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
                   </a>
