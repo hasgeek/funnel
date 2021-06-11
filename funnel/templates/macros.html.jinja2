@@ -590,11 +590,11 @@
             {%- endif %}{% endfor %}
           {%- endif %}
         </div>
-        <div class="proposal-card__body__inner {%- if full_width and proposal.views.video and proposal.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
-          {% if proposal.views.video and proposal.video.thumbnail %}
+        <div class="proposal-card__body__inner {%- if full_width and proposal.views.video and proposal.views.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
+          {% if proposal.views.video and proposal.views.video.thumbnail %}
             <div class="proposal-card__body__inner__details">
               <div class="proposal-card__body__inner__details__video">
-                <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.video.thumbnail }}"></div>
+                <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.views.video.thumbnail }}"></div>
                 <div class="proposal-card__body__inner__details__video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
               </div>
             </div>
