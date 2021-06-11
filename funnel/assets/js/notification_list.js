@@ -84,9 +84,8 @@ const Notification = {
         },
         updateReadStatus(notification) {
           if ($(notification).attr('data-visible-time')) {
-            let notificationItem = this.notifications[
-              $(notification).attr('data-index')
-            ];
+            let notificationItem =
+              this.notifications[$(notification).attr('data-index')];
             let url = this.markReadUrl.replace(
               'eventid_b58',
               notificationItem.notification.eventid_b58

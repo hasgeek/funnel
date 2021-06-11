@@ -127,7 +127,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                 'video',
                 'proposal',
             },
-            'call': {'url_for'},
+            'call': {'url_for', 'views'},
         }
     }
 
