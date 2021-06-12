@@ -49,6 +49,7 @@ SQLAlchemy-Utils==0.37.6
 tweepy==3.10.0
 twilio==6.59.0
 typing-extensions==3.10.0.0
+url-normalize==1.4.3
 user-agents==2.2.0
 Werkzeug==2.0.1
 zxcvbn==4.4.28
