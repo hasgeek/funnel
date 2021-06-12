@@ -1,6 +1,7 @@
+from unittest.mock import patch
+
 from flask import Response
 
-from mock import patch
 import requests
 
 from funnel.transports.base import TransportConnectionError, TransportRecipientError
