@@ -11,12 +11,12 @@ from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
-import pyshorteners
 
 from baseframe import cache, statsd
 
-from .. import app
+from .. import app, shortlinkapp
 from ..forms import supported_locales
+from ..models import Shortlink, db
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
 
@@ -297,20 +297,11 @@ def cleanurl_filter(url):
 
 
 @app.template_filter('shortlink')
-def shortlink(url):
-    """Return a short link suitable for SMS."""
-    cache_key = 'shortlink/' + blake2b(url.encode(), digest_size=16).hexdigest()
-    shorty = cache.get(cache_key)
-    if shorty:
-        return shorty
-    try:
-        shorty = pyshorteners.Shortener().isgd.short(url)
-        cache.set(cache_key, shorty, timeout=86400)
-    except pyshorteners.exceptions.ShorteningErrorException as e:
-        error = str(e)
-        current_app.logger.error("Shortlink exception %s", error)
-        shorty = url
-    return shorty
+def shortlink(url, actor=None):
+    """Return a short link suitable for SMS. Caller must perform a database commit."""
+    sl = Shortlink.new(url, reuse=True, shorter=True, actor=actor)
+    db.session.add(sl)
+    return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
 # --- Request/response handlers --------------------------------------------------------
