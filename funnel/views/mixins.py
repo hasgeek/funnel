@@ -157,11 +157,7 @@ class SessionViewMixin(ProfileCheckMixin):
     def loader(self, profile, project, session):
         session = (
             self.model.query.join(Project, Profile)
-            .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
-                Project.name == project,
-                Session.url_name_uuid_b58 == session,
-            )
+            .filter(Session.url_name_uuid_b58 == session)
             .first_or_404()
         )
         return session
