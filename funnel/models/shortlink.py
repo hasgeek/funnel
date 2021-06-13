@@ -331,9 +331,12 @@ class Shortlink(NoIdMixin, db.Model):
         :param bool ignore_enabled: Don't check if existing shortlink is enabled
         """
         try:
-            obj = cls.query.get(name_to_bigint(name))
+            idv = name_to_bigint(name)
         except (ValueError, TypeError):
             return None
+        obj = db.session.get(
+            cls, idv, options=[db.load_only(cls.id, cls.url, cls.enabled)]
+        )
         if obj is not None and (ignore_enabled or obj.enabled):
             return obj
         return None

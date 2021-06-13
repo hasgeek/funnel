@@ -2,12 +2,12 @@
 SITE_TITLE = 'Hasgeek Funnel'
 #: Support contact email
 SITE_SUPPORT_EMAIL = 'test@example.com'
-#: TypeKit code for fonts
-TYPEKIT_CODE = ''
 #: Google Analytics code UA-XXXXXX-X
 GA_CODE = ''
 #: Database backend
-SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
+SQLALCHEMY_DATABASE_URI = 'postgresql://host/database'
+#: Shortlink domain for SMS links (must be served via wsgi:shortlinkapp)
+SHORTLINK_DOMAIN = 'domain.tld'
 #: Secret keys
 SECRET_KEYS = ['make this something random']
 #: Timezone

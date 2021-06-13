@@ -75,10 +75,6 @@ def db_session(database, db_connection):
 @pytest.fixture(autouse=True)
 def client(request, db_session):
     """Provide a test client."""
-    if 'noclient' in request.keywords:
-        # To use this, annotate a test with:
-        # @pytest.mark.noclient
-        return None
     with app.app_context():  # Not required for test_client, but required for autouse
         with app.test_client() as test_client:
             yield test_client

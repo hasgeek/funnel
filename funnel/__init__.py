@@ -20,6 +20,7 @@ from ._version import __version__
 
 # App. Add additional apps here
 app = Flask(__name__, instance_relative_config=True)
+shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
 
 mail = Mail()
 pages = FlatPages()
@@ -54,6 +55,7 @@ from .models import db  # isort:skip
 
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
+coaster.app.init_app(shortlinkapp)
 # For additional apps, do not install additional log handlers:
 # coaster.app.init_app(hasjobapp, init_logging=False)
 
@@ -61,6 +63,7 @@ coaster.app.init_app(app)
 # inside the `instance/` directory. Sample config files are
 # provided as example.
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
+shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
 
 # TODO: Move this into Baseframe
 app.jinja_env.globals['get_locale'] = get_locale
@@ -70,11 +73,13 @@ app.jinja_env.globals['get_locale'] = get_locale
 app.login_manager = views.login_session.LoginManager()
 
 db.init_app(app)
+db.init_app(shortlinkapp)
 db.app = app
 
 migrate = Migrate(app, db)
 
 mail.init_app(app)
+mail.init_app(shortlinkapp)  # Required for email error reports
 
 app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
 pages.init_app(app)

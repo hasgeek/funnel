@@ -33,7 +33,8 @@ def test_random_bigint():
         # Bigints are 64-bit (8 bytes). That gives us 63 bits + 1 bit for sign
         assert -(2 ** 63) <= num <= 2 ** 63 - 1
         randset.add(num)
-    assert len(randset) == 1000
+    # Ignore up to 2 collisions
+    assert 998 <= len(randset) <= 1000
 
 
 def test_smaller_random_int():
@@ -45,7 +46,8 @@ def test_smaller_random_int():
         # Smaller ids are 24-bit (3 bytes). That gives us 23 bits + 1 bit for sign
         assert -(2 ** 23) <= num <= 2 ** 23 - 1
         randset.add(num)
-    assert len(randset) == 1000
+    # Ignore up to 2 collisions
+    assert 998 <= len(randset) <= 1000
 
 
 def test_mock_random_bigint():
