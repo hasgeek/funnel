@@ -58,7 +58,10 @@ def random_bigint(smaller: bool = False) -> int:
         val = int.from_bytes(
             urandom(SHORT_LINK_BYTES if smaller else FULL_LINK_BYTES),
             'little',
-            signed=True,
+            # Must use `signed=True` when full-size because PostgreSQL only supports
+            # signed integers. However, smaller numbers must not be signed as negative
+            # integers have the high bit set, and then they are no longer small bitwise
+            signed=False if smaller else True,
         )
     return val
 
