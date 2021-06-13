@@ -42,9 +42,9 @@ def test_smaller_random_int():
     randset = set()
     for loop in range(1000):
         num = shortlink.random_bigint(True)
-        assert num != 0
-        # Smaller ids are 24-bit (3 bytes). That gives us 23 bits + 1 bit for sign
-        assert -(2 ** 23) <= num <= 2 ** 23 - 1
+        # Smaller ids are 24-bit (3 bytes) and not signed, since they are significantly
+        # within bigint sign bit range
+        assert 0 < num <= 2 ** 24 - 1
         randset.add(num)
     # Ignore up to 2 collisions
     assert 998 <= len(randset) <= 1000
