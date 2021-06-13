@@ -24,8 +24,8 @@ def link(name):
     response.cache_control.max_age = 90
     response.expires = datetime.utcnow() + timedelta(seconds=90)
     # These two borrowed from Bitly and TinyURL's response headers. They tell the
-    # user-agent to reproduce the HTTP Referer header that was sent to this endpoint to
-    # be sent again to the destination website
+    # browser to reproduce the HTTP Referer header that was sent to this endpoint, to
+    # send it again to the destination URL
     response.content_security_policy = {'referrer': 'always'}
     response.headers['Referrer-Policy'] = 'unsafe-url'
     # TODO: Perform analytics here: log client, set session cookie, etc

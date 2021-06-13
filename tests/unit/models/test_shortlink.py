@@ -209,7 +209,8 @@ def test_shortlink_constructor_with_reuse(db_session):
     assert sl1 != sl2
 
     # db_session.add(...) is not required because Shortlink already adds to session
-    # db_session.commit() is not required because Shortlink does not disable autoflush
+    # db_session.commit() is not required for this test because Shortlink does not
+    # disable autoflush
     sl3 = shortlink.Shortlink.new('example.com/', reuse=True)
     assert sl3 == sl1
     assert sl3.id == sl1.id
@@ -291,7 +292,7 @@ def test_shortlink_constructor_handle_collisions(db_session):
 
 
 def test_shortlink_name_available(db_session):
-    """Shortlink has a name_available classmethod to test for availability."""
+    """Shortlink has a `name_available` classmethod to test for availability."""
     assert shortlink.Shortlink.name_available('example') is True
     shortlink.Shortlink.new('example.org', name='example')
     assert shortlink.Shortlink.name_available('example') is False
@@ -300,7 +301,7 @@ def test_shortlink_name_available(db_session):
 
 
 def test_shortlink_get(db_session):
-    """Shortlink has a get classmethod."""
+    """Shortlink has a `get` classmethod."""
     assert shortlink.Shortlink.get('example') is None
     shortlink.Shortlink.new('example.org', name='example')
     sl = shortlink.Shortlink.get('example')
@@ -330,7 +331,7 @@ def test_shortlink_lookup_multiple():
     sl2 = shortlink.Shortlink.new('example.com', name='example_com')
     assert shortlink.Shortlink.query.filter_by(name='example').all() == [sl1]
     assert shortlink.Shortlink.query.filter_by(name='example_com').all() == [sl2]
-    assert shortlink.Shortlink.query.filter_by(name='example_org').all() == []
+    assert shortlink.Shortlink.query.filter_by(name='unknown').all() == []
     assert shortlink.Shortlink.query.filter(
-        shortlink.Shortlink.name.in_(['example', 'example_com', 'example_org'])
+        shortlink.Shortlink.name.in_(['example', 'example_com', 'unknown'])
     ).all() == [sl1, sl2]

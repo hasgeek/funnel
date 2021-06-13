@@ -38,11 +38,12 @@ MAX_NAME_LENGTH = 11
 #: Base64 rendering of 8 null bytes, used to expand a short link to full bigint size
 NAME_MASK = b'AAAAAAAAAAA='  # 11 bytes + 1 padding byte
 
-
 #: Regex for requiring a name to have only URL-safe Base64 characters, used by
 #: func:`name_to_bigint`. This deliberately allows zero length strings. The string ''
 #: will map to id 0. The restriction on using id 0 is in :class:`Shortlink`.
 _valid_name_re = re.compile('^[A-Za-z0-9_-]*$')
+
+
 # --- Helpers --------------------------------------------------------------------------
 
 
@@ -50,7 +51,7 @@ def random_bigint(smaller: bool = False) -> int:
     """
     Return a random signed bigint that is guaranteed to not be zero.
 
-    :param bool shorter: Return a smaller number (currently 24 bits instead of 64)
+    :param bool smaller: Return a smaller number (with 24 bits instead of 64)
     """
     val = 0
     while val == 0:
@@ -63,7 +64,12 @@ def random_bigint(smaller: bool = False) -> int:
 
 
 def name_to_bigint(value: Union[str, bytes]) -> int:
-    """Convert from a Base64-encoded shortlink name to bigint."""
+    """
+    Convert from a URL-safe Base64-encoded shortlink name to bigint.
+
+    :raises ValueError: If the name doesn't map to a bigint
+    :raises TypeError: If the name isn't of type `str` or `bytes`
+    """
     if isinstance(value, str):
         bvalue = value.encode()
     elif isinstance(value, bytes):
@@ -110,7 +116,7 @@ def name_to_bigint(value: Union[str, bytes]) -> int:
 
 
 def bigint_to_name(value: int) -> str:
-    """Convert a bigint into Base64, returning the shortest possible representation."""
+    """Convert a bigint into URL-safe Base64, returning a compact representation."""
     # Must use `signed=True` because PostgreSQL only supports signed integers
     return (
         urlsafe_b64encode(value.to_bytes(8, 'little', signed=True))
@@ -131,9 +137,8 @@ def url_blake2b160_hash(value: Union[str, furl], normalize=True) -> bytes:
     2. However, indexing the URL itself will let us perform LIKE queries to find
        URLs matching paths or origins. Since an index is necessary for this, having
        another index for the hash may degrade overall INSERT performance.
-    3. Hash index performance may be even better if it uses 128 bits and is indexed as
-       a UUID integer rather than a string/binary, but this is speculative and needs
-       additional testing.
+    3. Hash index performance may be better if it uses 128 bits and is indexed as a UUID
+       integer rather than a string/binary, but this is speculative and needs homework.
     """
     if normalize:
         value = url_normalize(str(value))
@@ -143,7 +148,11 @@ def url_blake2b160_hash(value: Union[str, furl], normalize=True) -> bytes:
 
 
 class ShortLinkToBigIntComparator(Comparator):
-    """Comparator to allow lookup by shortlink name instead of numeric id."""
+    """
+    Comparator to allow lookup by shortlink name instead of numeric id.
+
+    If the provided name is invalid, :func:`name_to_bigint` will raise exceptions.
+    """
 
     def __eq__(self, value):
         """Return an expression for column == value."""
@@ -163,7 +172,7 @@ class Shortlink(NoIdMixin, db.Model):
     # id of this shortlink, saved as a bigint (8 bytes)
     id = with_roles(  # NOQA: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
-        # handling collisions.
+        # handling collisions. This needs an "immutable after commit" handler
         db.Column(db.BigInteger, autoincrement=False, nullable=False, primary_key=True),
         read={'all'},
     )
@@ -259,7 +268,6 @@ class Shortlink(NoIdMixin, db.Model):
 
         This method MUST be used instead of the default constructor. It ensures the
         generated Shortlink instance has a unique id.
-
         """
         # This method is not named __new__ because SQLAlchemy depends on the default
         # implementation of __new__ when loading instances from the database.
