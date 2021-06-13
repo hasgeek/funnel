@@ -31,6 +31,7 @@ from . import (
     schedule,
     search,
     session,
+    shortlink,
     siteadmin,
     sitemap,
     sms_events,
