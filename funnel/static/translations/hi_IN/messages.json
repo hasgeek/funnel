@@ -1107,6 +1107,12 @@
         null,
         "लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें"
       ],
+      "Add username": [null, ""],
+      "Organizations": [null, "संगठन"],
+      "%(count)s more": [null, ""],
+      "Account settings": [null, ""],
+      "Notification settings": [null, ""],
+      "Saved projects": [null, ""],
       "Merge accounts": [null, "अकाउंट जोड़ें"],
       "Name:": [null, "नाम:"],
       "Username:": [null, "यूजरनेम:"],
@@ -1119,7 +1125,6 @@
       "Logged in account": [null, "अकाउंट में लॉग इन हो गया"],
       "Other account": [null, "अन्य अकाउंट"],
       "Skip": [null, "बाद में"],
-      "Organizations": [null, "संगठन"],
       "Add new organization": [null, ""],
       "Admin": [null, ""],
       "Client application information": [null, "क्लाइंट एप्लीकेशन की जानकारी"],
@@ -1233,11 +1238,6 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "Add username": [null, ""],
-      "%(count)s more": [null, ""],
-      "Account settings": [null, ""],
-      "Notification settings": [null, ""],
-      "Saved projects": [null, ""],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
@@ -2131,8 +2131,6 @@
         null,
         "अपने संगठनों में टीमों की सूची पढ़ें"
       ],
-      "Your vote has been recorded": [null, "आपका वोट रिकॉर्ड कर लिया गया है"],
-      "Your vote has been withdrawn": [null, "आपका वोट वापस ले लिया गया है"],
       "Your comment has been posted": [null, "आपका कमेंट पोस्ट कर दिया गया है"],
       "Post comment": [null, "कमेंट पोस्ट करें"],
       "Subscribed to this comment thread": [null, ""],
@@ -2557,9 +2555,9 @@
         null,
         "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
       ],
-      "Delete your submission ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone": [
+      "Delete your submission ‘{title}’? This will remove all comments as well. This operation is permanent and cannot be undone": [
         null,
-        ""
+        "अपना ‘{title}’ प्रस्ताव मिटाएं? यह सभी कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
       "Your submission has been deleted": [null, ""],
       "Invalid transition for this submission": [null, ""],
@@ -2854,7 +2852,7 @@
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस प्रोजेक्ट के संपादक हैं"
       ],
       "New submission in {project}: {proposal}": [null, ""],
-      "New submission in {project}: {proposal} {url}": [null, ""],
+      "New submission in {project}:\r\n\r\n{proposal} {url}": [null, ""],
       "You are receiving this because you have submitted this submission": [
         null,
         ""
@@ -2890,10 +2888,7 @@
         "आपने {project} के लिए अपना रजिस्ट्रेशन रद्द कर दिया है"
       ],
       "{update} ({project})": [null, "{update} ({project})"],
-      "Update in {project}: {update} {url}": [
-        null,
-        "{project} में अपडेट: {update} {url}"
-      ]
+      "Update in {project}:\r\n\r\n{update} {url}": [null, ""]
     }
   }
 }

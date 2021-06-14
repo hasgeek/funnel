@@ -14,7 +14,7 @@ from . import (
     UuidMixin,
     db,
 )
-from .commentvote import SET_TYPE, Commentset, Voteset
+from .comment import SET_TYPE, Commentset
 from .helpers import (
     add_search_trigger,
     markdown_content_options,
@@ -157,11 +157,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
-    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = db.relationship(
-        Voteset, uselist=False, lazy='joined', cascade='all', single_parent=True
-    )
-
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(
         Commentset,
@@ -259,7 +254,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
         # Assume self.user is set. Fail if not.
         db.session.add(
@@ -448,9 +442,6 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             .order_by(Proposal.seq.desc())
             .first()
         )
-
-    def votes_count(self):
-        return len(self.voteset.votes)
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)

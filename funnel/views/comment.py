@@ -1,8 +1,8 @@
 from collections import namedtuple
 
-from flask import abort, flash, jsonify, redirect, request
+from flask import flash, jsonify, redirect, request
 
-from baseframe import _, forms, request_is_xhr
+from baseframe import _, forms
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
@@ -16,12 +16,9 @@ from ..models import (
     CommentReportReceivedNotification,
     Commentset,
     NewCommentNotification,
-    Proposal,
-    Voteset,
     db,
 )
 from .login_session import requires_login
-from .mixins import ProposalViewMixin
 from .notification import dispatch_notification
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
@@ -38,67 +35,12 @@ def comment_url(obj):
 
 @Commentset.views('json_comments')
 def commentset_json(obj):
-    toplevel_comments = obj.toplevel_comments.join(Voteset).order_by(
-        Voteset.count, Comment.created_at.desc()
-    )
+    toplevel_comments = obj.toplevel_comments.order_by(Comment.created_at.desc())
     return [
         comment.current_access(datasets=('json', 'related'))
         for comment in toplevel_comments
         if comment.state.PUBLIC or comment.replies
     ]
-
-
-@Proposal.views('vote')
-@route('/<profile>/<project>/proposals/<proposal>')
-@route('/<profile>/<project>/sub/<proposal>')
-class ProposalVoteView(ProposalViewMixin, UrlForView, ModelView):
-    @route('voteup', methods=['POST'])
-    @requires_login
-    @requires_roles({'reader'})
-    def voteup(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.voteset.vote(current_auth.user, votedown=False)
-        db.session.commit()
-        message = _("Your vote has been recorded")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.url_for(), code=303)
-
-    @route('votedown', methods=['POST'])
-    @requires_login
-    @requires_roles({'reader'})
-    def votedown(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.voteset.vote(current_auth.user, votedown=True)
-        db.session.commit()
-        message = _("Your vote has been recorded")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.url_for(), code=303)
-
-    @route('delete_vote', methods=['POST'])
-    @requires_login
-    @requires_roles({'reader'})
-    def delete_vote(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.voteset.cancelvote(current_auth.user)
-        db.session.commit()
-        message = _("Your vote has been withdrawn")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.url_for(), code=303)
-
-
-ProposalVoteView.init_app(app)
 
 
 @Commentset.views('url')
@@ -139,7 +81,6 @@ class CommentsetView(UrlForView, ModelView):
             )
 
             self.obj.count = Commentset.count + 1
-            comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
 
             if not self.obj.current_roles.document_subscriber:
@@ -276,7 +217,6 @@ class CommentView(UrlForView, ModelView):
             )
 
             self.obj.commentset.count = Commentset.count + 1
-            comment.voteset.vote(current_auth.user)  # Vote for your own comment
             db.session.add(comment)
             db.session.commit()
             dispatch_notification(
@@ -352,51 +292,6 @@ class CommentView(UrlForView, ModelView):
             with_chrome=False,
         )
         return {'form': delcommentform_html}
-
-    @route('voteup', methods=['POST'])
-    @requires_login
-    @requires_roles({'reader'})
-    def voteup(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.voteset.vote(current_auth.user, votedown=False)
-        db.session.commit()
-        message = _("Your vote has been recorded")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.url_for(), code=303)
-
-    @route('votedown', methods=['POST'])
-    @requires_login
-    @requires_roles({'reader'})
-    def votedown(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.voteset.vote(current_auth.user, votedown=True)
-        db.session.commit()
-        message = _("Your vote has been recorded")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.url_for(), code=303)
-
-    @route('delete_vote', methods=['POST'])
-    @requires_login
-    @requires_roles({'reader'})
-    def delete_vote(self):
-        csrf_form = forms.Form()
-        if not csrf_form.validate_on_submit():
-            abort(403)
-        self.obj.voteset.cancelvote(current_auth.user)
-        db.session.commit()
-        message = _("Your vote has been withdrawn")
-        if request_is_xhr():
-            return jsonify(message=message, code=200)
-        flash(message, 'info')
-        return redirect(self.obj.url_for(), code=303)
 
     @route('report_spam', methods=['GET', 'POST'])
     @requires_login

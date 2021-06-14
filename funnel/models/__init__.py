@@ -40,7 +40,7 @@ from .email_address import *  # isort:skip
 from .auth_client import *  # isort:skip
 from .notification import *  # isort:skip
 from .utils import *  # isort:skip
-from .commentvote import *  # isort:skip
+from .comment import *  # isort:skip
 from .draft import *  # isort:skip
 from .sync_ticket import *  # isort:skip
 from .contact_exchange import *  # isort:skip
