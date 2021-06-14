@@ -77,9 +77,6 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 form.populate_obj(proposal)
             proposal.name = make_name(proposal.title)
             proposal.update_description()
-            proposal.voteset.vote(
-                current_auth.user
-            )  # Vote up your own proposal by default
             db.session.commit()
             dispatch_notification(
                 ProposalSubmittedNotification(document=proposal),
@@ -206,8 +203,8 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db,
             title=_("Confirm delete"),
             message=_(
-                "Delete your submission ‘{title}’? This will remove all votes and"
-                " comments as well. This operation is permanent and cannot be undone"
+                "Delete your submission ‘{title}’? This will remove all comments as"
+                " well. This operation is permanent and cannot be undone"
             ).format(title=self.obj.title),
             success=_("Your submission has been deleted"),
             next=self.obj.project.url_for(),

@@ -7,7 +7,7 @@ from . import (
     auth_notify,
     auth_oauth,
     auth_resource,
-    commentvote,
+    comment,
     contact,
     decorators,
     email,
