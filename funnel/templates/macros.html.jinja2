@@ -506,9 +506,9 @@
 
 {% macro video_thumbnail(session) %}
   <div class="video">
-    <a class="video__thumbnail {%- if not (session.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}"  data-ga="view session video">
-      {%- if session.video.thumbnail %}
-        <img src="{{ session.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
+    <a class="video__thumbnail {%- if not (session.views.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}"  data-ga="view session video">
+      {%- if session.views.video.thumbnail %}
+        <img src="{{ session.views.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
         <div class="video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
       {%- elif session.banner_image_url.url %}
         <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail">
@@ -516,10 +516,10 @@
     </a>
     <p class="mui--text-subhead mui--text-bold video__txt" data-cy="title">{{ session.title }}</p>
     {%- if session.speaker %}<p class="mui--text-body2 mui--text-light video__txt">{{ session.speaker }}</p>{%- endif %}
-    {%- if session.video %}
+    {%- if session.views.video %}
       <div class="mui--text-caption mui--text-light">
-        {%- if session.video.duration %}<span>{{ session.video.duration|timedelta }}</span>{%- endif %}
-        {%- if session.video.uploaded_at %}<span class="mui--pull-right">{{ session.video.uploaded_at|longdate }}</span>{%- endif %}
+        {%- if session.views.video.duration %}<span>{{ session.views.video.duration|timedelta }}</span>{%- endif %}
+        {%- if session.views.video.uploaded_at %}<span class="mui--pull-right">{{ session.views.video.uploaded_at|longdate }}</span>{%- endif %}
       </div>
     {%- else %}
     <div class="mui--text-caption mui--text-light">
@@ -593,11 +593,11 @@
             {{ faicon(icon='grip-vertical', baseline=false, css_class='drag-handle') }}
           {%- endif %}
         </div>
-        <div class="proposal-card__body__inner {%- if full_width and proposal.video and proposal.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
-          {% if proposal.video and proposal.video.thumbnail %}
+        <div class="proposal-card__body__inner {%- if full_width and proposal.views.video and proposal.views.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
+          {% if proposal.views.video and proposal.views.video.thumbnail %}
             <div class="proposal-card__body__inner__details">
               <div class="proposal-card__body__inner__details__video">
-                <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.video.thumbnail }}"></div>
+                <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.views.video.thumbnail }}"></div>
                 <div class="proposal-card__body__inner__details__video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
               </div>
             </div>
@@ -620,7 +620,7 @@
                     {{ proposal.state.label.title }}
                   </li>
                   <li class="no-border">{{ proposal.datetime|datetime(format='dd MMM YYYY') }}</li>
-                  {% if proposal.video %}
+                  {% if proposal.views.video %}
                     <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
                       {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
                     </li>

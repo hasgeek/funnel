@@ -31,6 +31,7 @@ from . import (
     schedule,
     search,
     session,
+    shortlink,
     siteadmin,
     sitemap,
     sms_events,
@@ -38,4 +39,5 @@ from . import (
     ticket_participant,
     update,
     venue,
+    video,
 )

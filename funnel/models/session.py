@@ -124,10 +124,9 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                 'start_at_localized',
                 'end_at_localized',
                 'scheduled',
-                'video',
                 'proposal',
             },
-            'call': {'url_for'},
+            'call': {'url_for', 'views'},
         }
     }
 

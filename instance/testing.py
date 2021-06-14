@@ -7,6 +7,7 @@ LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SERVER_NAME = 'funnel.travis.local:3002'
+SHORTLINK_DOMAIN = 'funnel.travis.local:3002'
 DEFAULT_DOMAIN = 'funnel.travis.local'
 STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
