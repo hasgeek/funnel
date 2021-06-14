@@ -15,11 +15,11 @@ from .user import DuckTypeUser, User, deleted_user, removed_user
 __all__ = ['Comment', 'Commentset']
 
 
-# --- Constants ---------------------------------------------------------------
+# --- Constants ------------------------------------------------------------------------
 
 
 class COMMENT_STATE(LabeledEnum):  # NOQA: N801
-    # If you add any new state, you need to add a migration to modify the check constraint
+    # If you add any new state, you need to migrate the check constraint as well
     SUBMITTED = (0, 'submitted', __("Submitted"))
     SCREENED = (1, 'screened', __("Screened"))
     HIDDEN = (2, 'hidden', __("Hidden"))
@@ -43,7 +43,7 @@ class SET_TYPE:  # NOQA: N801
     UPDATE = 4
 
 
-# --- Models ------------------------------------------------------------------
+# --- Models ---------------------------------------------------------------------------
 
 
 class Commentset(UuidMixin, BaseMixin, db.Model):
@@ -102,8 +102,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    _user = db.relationship(
-        User, backref=db.backref('comments', lazy='dynamic', cascade='all')
+    _user = with_roles(
+        db.relationship(
+            User, backref=db.backref('comments', lazy='dynamic', cascade='all')
+        ),
+        grants={'author'},
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
@@ -216,12 +219,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     with_roles(message, read={'all'}, datasets={'primary', 'related', 'json'})
 
-    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property
     def absolute_url(self) -> str:
         return self.url_for()
 
-    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
+    with_roles(absolute_url, read={'all'}, datasets={'primary', 'related', 'json'})
+
     @property
     def title(self) -> str:
         obj = self.commentset.parent
@@ -231,7 +234,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             )
         return _("{user} commented").format(user=self.user.pickername)
 
-    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
+    with_roles(title, read={'all'}, datasets={'primary', 'related', 'json'})
+
     @property
     def badges(self) -> Set[str]:
         badges = set()
@@ -244,6 +248,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             if 'crew' in self.commentset.proposal.project.roles_for(self._user):
                 badges.add(_("Crew"))
         return badges
+
+    with_roles(badges, read={'all'}, datasets={'related', 'json'})
 
     @state.transition(None, state.DELETED)
     def delete(self) -> None:
@@ -273,9 +279,6 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         roles.add('reader')
-        if actor is not None:
-            if actor == self._user:
-                roles.add('author')
         return roles
 
 

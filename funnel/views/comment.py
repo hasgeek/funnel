@@ -117,13 +117,12 @@ class CommentsetView(UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("Subscribed to this comment thread"),
             }
-        else:
-            return {
-                'status': 'error',
-                'error_code': 'subscribe_error',
-                'error_description': _("This page timed out. Reload and try again"),
-                'error_details': csrf_form.errors,
-            }, 422
+        return {
+            'status': 'error',
+            'error_code': 'subscribe_error',
+            'error_description': _("This page timed out. Reload and try again"),
+            'error_details': csrf_form.errors,
+        }, 422
 
     @route('unsubscribe', methods=['POST'])
     @requires_login
@@ -137,13 +136,12 @@ class CommentsetView(UrlForView, ModelView):
                 'status': 'ok',
                 'message': _("Unsubscribed from this comment thread"),
             }
-        else:
-            return {
-                'status': 'error',
-                'error_code': 'unsubscribe_error',
-                'error_description': _("This page timed out. Reload and try again"),
-                'error_details': csrf_form.errors,
-            }, 422
+        return {
+            'status': 'error',
+            'error_code': 'unsubscribe_error',
+            'error_description': _("This page timed out. Reload and try again"),
+            'error_details': csrf_form.errors,
+        }, 422
 
     @route('seen', methods=['POST'])
     @requires_login
@@ -154,13 +152,12 @@ class CommentsetView(UrlForView, ModelView):
             self.obj.update_last_seen_at(user=current_auth.user)
             db.session.commit()
             return {'status': 'ok'}
-        else:
-            return {
-                'status': 'error',
-                'error_code': 'update_seen_at_error',
-                'error_description': _("This page timed out. Reload and try again"),
-                'error_details': csrf_form.errors,
-            }, 422
+        return {
+            'status': 'error',
+            'error_code': 'update_seen_at_error',
+            'error_description': _("This page timed out. Reload and try again"),
+            'error_details': csrf_form.errors,
+        }, 422
 
 
 CommentsetView.init_app(app)
@@ -171,7 +168,7 @@ class CommentView(UrlForView, ModelView):
     model = Comment
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
 
-    def loader(self, commentset, comment, profile=None):
+    def loader(self, commentset, comment):
         comment = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
@@ -313,22 +310,21 @@ class CommentView(UrlForView, ModelView):
                     'message': _("The comment has been reported as spam"),
                     'comments': self.obj.commentset.views.json_comments(),
                 }
-            else:
-                flash(
-                    _("There was an issue reporting this comment. Please try again"),
-                    'error',
-                )
-                return (
-                    {
-                        'status': 'error',
-                        'error_code': 'report_spam_error',
-                        'error_description': _(
-                            "There was an issue reporting this comment. Please try again"
-                        ),
-                        'error_details': csrf_form.errors,
-                    },
-                    400,
-                )
+            flash(
+                _("There was an issue reporting this comment. Please try again"),
+                'error',
+            )
+            return (
+                {
+                    'status': 'error',
+                    'error_code': 'report_spam_error',
+                    'error_description': _(
+                        "There was an issue reporting this comment. Please try again"
+                    ),
+                    'error_details': csrf_form.errors,
+                },
+                400,
+            )
         reportspamform_html = render_form(
             form=csrf_form,
             title='Do you want to mark this comment as spam?',
