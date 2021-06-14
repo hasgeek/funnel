@@ -1,40 +1,30 @@
-.label-box {
+.drag-box {
   margin: $mui-grid-padding 0;
   padding: $mui-grid-padding;
 
-  .label-box__inner {
+  .drag-box__header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+  }
 
-    .label-box__inner__drag-icon {
-      margin-right: $mui-grid-padding/2;
-    }
-
-    .label-box__inner__heading {
-      width: calc(100% - 30px);
-    }
-
-    .label-box__inner__icon {
-      padding: 0 0 0 $mui-grid-padding;
-      box-shadow: none;
-      border: none;
-      cursor: pointer;
-    }
-
-    .label-box__inner__icon-wrapper {
-      display: flex;
+  .drag-box__body {
+    padding-bottom: $mui-grid-padding/2;
+    .drag-box__body__options {
+      margin-right: $mui-grid-padding/4;
     }
   }
 
-  .label-box__inner__options {
-    padding-left: 20px;
-    .label-box__inner__options__option {
-      margin-right: $mui-grid-padding/4;
+  .drag-box__action {
+    display: flex;
+    float: right;
+    .drag-box__action-btn {
+      padding-right: $mui-grid-padding/4;
     }
   }
 }
 
-.label-box--no-border {
+.drag-box--no-border {
   border: none;
   border-radius: 0;
 }
@@ -47,4 +37,8 @@
   a:hover {
     text-decoration: none;
   }
+}
+
+.drag-handle {
+  cursor: move;
 }

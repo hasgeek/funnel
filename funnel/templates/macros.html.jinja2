@@ -535,7 +535,7 @@
       {%- with reorderable=project and project.features.reorder_proposals() %}
       {% for proposal in proposals %}
         <tr id="{{ proposal.uuid_b58 }}" {%- if reorderable %}class="sortable" data-drag-placeholder="proposal-placeholder" draggable="true"{%- endif %}>
-          <td class="js-searchable {%- if reorderable %} label-box label-box--no-border ui-draggable-box{%- endif %}">
+          <td class="js-searchable {%- if reorderable %} drag-box drag-box--no-border ui-draggable-box{%- endif %}">
             {%- if project and reorderable %}
               {{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=project, draggable=true) }}
             {%- else %}
@@ -574,7 +574,7 @@
   <a class="card clickable-card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
-        <div class="label-box__inner flex-wrapper flex-wrapper--center flex-wrapper--wrap">
+        <div class="drag-box__header">
           {% if not project %}
             <p class="mui--text-title margin-bottom">{{ proposal.project.title }}</p>
           {%- else -%}
@@ -588,6 +588,9 @@
                 </div>
               </div>
             {%- endif %}{% endfor %}
+          {%- endif %}
+          {% if draggable %}
+            {{ faicon(icon='grip-vertical', baseline=false, css_class='drag-handle') }}
           {%- endif %}
         </div>
         <div class="proposal-card__body__inner {%- if full_width and proposal.video and proposal.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">

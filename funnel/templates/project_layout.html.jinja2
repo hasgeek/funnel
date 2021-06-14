@@ -385,7 +385,9 @@
             <div class="project-banner {% if current_page != 'project' %}project-banner--inner{%- endif %}">
               {{ project_header(project) }}
             </div>
-            {% block project_banner_inner %}{% endblock %}
+            <div class="project-banner">
+              {% block project_banner_inner %}{% endblock %}
+            </div>
           </div>
         </div>
       </div>
