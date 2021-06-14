@@ -5281,7 +5281,7 @@ body > .proposal-box.ui-draggable {
 }
 .drag-box .drag-box__header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
 }
 .drag-box .drag-box__body {

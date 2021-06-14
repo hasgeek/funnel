@@ -574,10 +574,11 @@
   <a class="card clickable-card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
-        <div class="drag-box__header">
+        <div {% if draggable %}class="drag-box__header"{%- endif %}>
           {% if not project %}
             <p class="mui--text-title margin-bottom">{{ proposal.project.title }}</p>
           {%- else -%}
+            <div class="flex-wrapper flex-wrapper--wrap">
             {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
               <div class="user user--smaller right-padding">
                 <div class="user__box">
@@ -588,6 +589,7 @@
                 </div>
               </div>
             {%- endif %}{% endfor %}
+            </div>
           {%- endif %}
           {% if draggable %}
             {{ faicon(icon='grip-vertical', baseline=false, css_class='drag-handle') }}
