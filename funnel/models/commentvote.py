@@ -317,14 +317,20 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @property
     def badges(self) -> Set[str]:
         badges = set()
+        roles = set()
         if self.commentset.project is not None:
-            if 'crew' in self.commentset.project.roles_for(self._user):
-                badges.add(_("Crew"))
+            roles = self.commentset.project.roles_for(self._user)
         elif self.commentset.proposal is not None:
-            if self.commentset.proposal.user == self._user:
-                badges.add(_("Proposer"))
-            if 'crew' in self.commentset.proposal.project.roles_for(self._user):
-                badges.add(_("Crew"))
+            roles = self.commentset.proposal.project.roles_for(self._user)
+            if 'submitter' in self.commentset.proposal.roles_for(self._user):
+                badges.add(_("Submitter"))
+        if 'editor' in roles:
+            if 'promoter' in roles:
+                badges.add(_("Editor & Promoter"))
+            else:
+                badges.add(_("Editor"))
+        elif 'promoter' in roles:
+            badges.add(_("Promoter"))
         return badges
 
     @state.transition(None, state.DELETED)
