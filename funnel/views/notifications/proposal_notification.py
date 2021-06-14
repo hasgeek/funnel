@@ -50,7 +50,7 @@ class RenderProposalReceivedNotification(RenderNotification):
         )
 
     def sms(self):
-        return _("New submission in {project}: {proposal} {url}").format(
+        return _("New submission in {project}:\r\n\r\n{proposal} {url}").format(
             proposal=self.proposal.title,
             project=self.project.joined_title('>'),
             url=shortlink(
