@@ -2,33 +2,24 @@ from __future__ import annotations
 
 from typing import Iterable, List, Optional, Set, Union
 
-from flask import Markup, current_app
+from flask import Markup
 
 from baseframe import _, __
-from coaster.sqlalchemy import RoleAccessProxy, StateManager, cached, with_roles
+from coaster.sqlalchemy import RoleAccessProxy, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..typing import OptionalMigratedTables
-from . import (
-    BaseMixin,
-    MarkdownColumn,
-    NoIdMixin,
-    TSVectorType,
-    UuidMixin,
-    db,
-    hybrid_property,
-)
+from . import BaseMixin, MarkdownColumn, TSVectorType, UuidMixin, db, hybrid_property
 from .helpers import add_search_trigger, reopen
 from .user import DuckTypeUser, User, deleted_user, removed_user
 
-__all__ = ['Comment', 'Commentset', 'Vote', 'Voteset']
+__all__ = ['Comment', 'Commentset']
 
 
-# --- Constants ---------------------------------------------------------------
+# --- Constants ------------------------------------------------------------------------
 
 
 class COMMENT_STATE(LabeledEnum):  # NOQA: N801
-    # If you add any new state, you need to add a migration to modify the check constraint
+    # If you add any new state, you need to migrate the check constraint as well
     SUBMITTED = (0, 'submitted', __("Submitted"))
     SCREENED = (1, 'screened', __("Screened"))
     HIDDEN = (2, 'hidden', __("Hidden"))
@@ -43,7 +34,7 @@ class COMMENT_STATE(LabeledEnum):  # NOQA: N801
     VERIFIABLE = {SUBMITTED, SCREENED, HIDDEN, SPAM}
 
 
-# What is this Voteset or Commentset attached to?
+# What is this Commentset attached to?
 # TODO: Deprecated, doesn't help as much as we thought it would
 class SET_TYPE:  # NOQA: N801
     PROJECT = 0
@@ -52,76 +43,7 @@ class SET_TYPE:  # NOQA: N801
     UPDATE = 4
 
 
-# --- Models ------------------------------------------------------------------
-
-
-class Voteset(BaseMixin, db.Model):
-    __tablename__ = 'voteset'
-    settype = db.Column('type', db.Integer, nullable=True)
-    count = cached(db.Column(db.Integer, default=0, nullable=False))
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.count = 0
-
-    def vote(self, user: User, votedown: bool = False) -> Vote:
-        voteob = Vote.query.filter_by(user=user, voteset=self).first()
-        if voteob is None:
-            voteob = Vote(user=user, voteset=self, votedown=votedown)
-            self.count += 1 if not votedown else -1
-            db.session.add(voteob)
-        else:
-            if voteob.votedown != votedown:
-                self.count += 2 if not votedown else -2
-            voteob.votedown = votedown
-        return voteob
-
-    def cancelvote(self, user: User) -> None:
-        voteob = Vote.query.filter_by(user=user, voteset=self).first()
-        if voteob is not None:
-            self.count += 1 if voteob.votedown else -1
-            db.session.delete(voteob)
-
-    def getvote(self, user: User) -> Optional[Vote]:
-        return Vote.query.filter_by(user=user, voteset=self).first()
-
-
-class Vote(NoIdMixin, db.Model):
-    __tablename__ = 'vote'
-    voteset_id = db.Column(
-        None, db.ForeignKey('voteset.id'), nullable=False, primary_key=True
-    )
-    voteset = db.relationship(
-        Voteset,
-        primaryjoin=voteset_id == Voteset.id,
-        backref=db.backref('votes', cascade='all'),
-    )
-    user_id = db.Column(
-        None, db.ForeignKey('user.id'), nullable=False, primary_key=True, index=True
-    )
-    user = db.relationship(
-        User,
-        primaryjoin=user_id == User.id,
-        backref=db.backref('votes', lazy='dynamic', cascade='all'),
-    )
-    votedown = db.Column(db.Boolean, default=False, nullable=False)
-
-    @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
-        votesets = {vote.voteset for vote in new_user.votes}
-        for vote in list(old_user.votes):
-            if vote.voteset not in votesets:
-                vote.user = new_user
-            else:
-                # Discard conflicting vote
-                current_app.logger.warning(
-                    "Discarding conflicting vote (down %r) from %r on voteset %d",
-                    vote.votedown,
-                    vote.user,
-                    vote.voteset_id,
-                )
-                db.session.delete(vote)
-        return None
+# --- Models ---------------------------------------------------------------------------
 
 
 class Commentset(UuidMixin, BaseMixin, db.Model):
@@ -180,8 +102,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    _user = db.relationship(
-        User, backref=db.backref('comments', lazy='dynamic', cascade='all')
+    _user = with_roles(
+        db.relationship(
+            User, backref=db.backref('comments', lazy='dynamic', cascade='all')
+        ),
+        grants={'author'},
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
@@ -204,9 +129,6 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         nullable=False,
     )
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
-
-    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = db.relationship(Voteset, uselist=False)
 
     edited_at = with_roles(
         db.Column(db.TIMESTAMP(timezone=True), nullable=True),
@@ -246,7 +168,6 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.COMMENT)
         self.commentset.last_comment_at = db.func.utcnow()
 
     @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
@@ -298,12 +219,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     with_roles(message, read={'all'}, datasets={'primary', 'related', 'json'})
 
-    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
     @property
     def absolute_url(self) -> str:
         return self.url_for()
 
-    @with_roles(read={'all'}, datasets={'primary', 'related', 'json'})  # type: ignore[misc]
+    with_roles(absolute_url, read={'all'}, datasets={'primary', 'related', 'json'})
+
     @property
     def title(self) -> str:
         obj = self.commentset.parent
@@ -313,7 +234,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             )
         return _("{user} commented").format(user=self.user.pickername)
 
-    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
+    with_roles(title, read={'all'}, datasets={'primary', 'related', 'json'})
+
     @property
     def badges(self) -> Set[str]:
         badges = set()
@@ -332,6 +254,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         elif 'promoter' in roles:
             badges.add(_("Promoter"))
         return badges
+
+    with_roles(badges, read={'all'}, datasets={'related', 'json'})
 
     @state.transition(None, state.DELETED)
     def delete(self) -> None:
@@ -358,15 +282,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def mark_not_spam(self) -> None:
         """Mark this comment as not spam."""
 
-    def sorted_replies(self) -> List[Comment]:
-        return sorted(self.replies, key=lambda comment: comment.voteset.count)
-
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         roles.add('reader')
-        if actor is not None:
-            if actor == self._user:
-                roles.add('author')
         return roles
 
 
