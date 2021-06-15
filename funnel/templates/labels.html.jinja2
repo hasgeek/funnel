@@ -23,30 +23,30 @@
     <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
       {{ form.hidden_tag() }}
       {%- for label in labels %}
-        <div class="ui-draggable-box label-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
-          <div class="label-box__inner">
-            {{ faicon(icon='grip-vertical', baseline=false, css_class='label-box__inner__drag-icon') }}
+        <div class="ui-draggable-box drag-box mui--clearfix" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+          <div class="drag-box__header">
             <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
             {% if label.has_options %}
-              <h3 class="mui--text-title mui--text-bold label-box__inner__heading">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
+              <h3 class="mui--text-title mui--text-bold label-box__inner__heading zero-top-margin">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
             {% else %}
-              <h3 class="mui--text-title mui--text-bold label-box__inner__heading">{{ label.title }}</h3>
+              <h3 class="mui--text-title mui--text-bold drag-box__inner__heading zero-top-margin">{{ label.title }}</h3>
             {% endif %}
-            <div class="label-box__inner__icon-wrapper">
-              <a class="label-box__inner__icon" href="{{ label.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='title') }}</a>
-              {% if label.has_proposals %}
-                <a class="label-box__inner__icon js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}" title="{% trans %}Archive{% endtrans %}">{{ faicon(icon='archive', icon_size='title') }}</a>
-              {% else %}
-                <a class="label-box__inner__icon js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}" title="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
-              {% endif %}
-            </div>
+            {{ faicon(icon='grip-vertical', baseline=false, css_class='drag-handle') }}
           </div>
-          <div class="label-box__inner__options">
+          <div class="drag-box__body">
             {%- for option in label.options %}
-              <span class="mui--text-subhead mui--text-light label-box__inner__options__option">{% if option.icon_emoji %}{{ option.icon_emoji }} {% endif %}{{ option.title }}</span>
+              <span class="mui--text-subhead mui--text-light label-box__body__options">{% if option.icon_emoji %}{{ option.icon_emoji }} {% endif %}{{ option.title }}</span>
             {% else %}
               <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
             {%- endfor %}
+          </div>
+          <div class="drag-box__action">
+            <a class="drag-box__action-btn" href="{{ label.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='title') }}</a>
+            {% if label.has_proposals %}
+              <a class="label-box__action-btn js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}" title="{% trans %}Archive{% endtrans %}">{{ faicon(icon='archive', icon_size='title') }}</a>
+            {% else %}
+              <a class="js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}" title="{% trans %}Delete{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
+            {% endif %}
           </div>
         </div>
       {%- endfor %}
