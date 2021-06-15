@@ -1027,6 +1027,7 @@ a.loginbutton.hidden,
   border-radius: 0;
   background: #ffffff;
   padding: 0;
+  cursor: auto;
 }
 .page-card li:last-child .page-card__card {
   border-bottom: none;
@@ -1090,7 +1091,7 @@ a.loginbutton.hidden,
 
 .ui-draggable-box {
   cursor: move;
-  padding: 25px 10px 10px 20px;
+  padding: 16px;
   border-radius: 3px;
   border: 1px solid #c0ccda;
   background: #ffffff;
@@ -1100,7 +1101,7 @@ a.loginbutton.hidden,
 }
 .ui-draggable-box .drag-icon {
   position: absolute;
-  left: 5px;
+  right: 5px;
   top: 5px;
 }
 
@@ -1139,17 +1140,15 @@ a.loginbutton.hidden,
 
 .seq-input {
   position: absolute;
-  right: 0px;
   width: 20px;
   border: 0;
   top: 5px;
+  left: 5px;
   font-size: 14px;
   line-height: 1;
   color: #1f2d3d;
-}
-
-.seq-input--bg {
-  background: #f1f1f1;
+  background: transparent;
+  z-index: 2;
 }
 
 .seq-input:focus,
@@ -2941,7 +2940,7 @@ a.loginbutton.hidden,
   text-decoration: none;
 }
 
-.clickable-card {
+.card.clickable-card {
   cursor: pointer;
 }
 
@@ -4782,10 +4781,6 @@ a.loginbutton.hidden,
   overflow: hidden;
 }
 
-.ui-draggable-box .clickable-card {
-  cursor: move;
-}
-
 .proposal-placeholder {
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   background: #f9f9f9;
@@ -5281,37 +5276,30 @@ body > .proposal-box.ui-draggable {
   margin-top: 10px;
 }
 
-.label-box {
+.drag-box {
   margin: 16px 0;
   padding: 16px;
 }
-.label-box .label-box__inner {
+.drag-box .drag-box__header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  justify-content: space-between;
 }
-.label-box .label-box__inner .label-box__inner__drag-icon {
-  margin-right: 8px;
+.drag-box .drag-box__body {
+  padding-bottom: 8px;
 }
-.label-box .label-box__inner .label-box__inner__heading {
-  width: calc(100% - 30px);
-}
-.label-box .label-box__inner .label-box__inner__icon {
-  padding: 0 0 0 16px;
-  box-shadow: none;
-  border: none;
-  cursor: pointer;
-}
-.label-box .label-box__inner .label-box__inner__icon-wrapper {
-  display: flex;
-}
-.label-box .label-box__inner__options {
-  padding-left: 20px;
-}
-.label-box .label-box__inner__options .label-box__inner__options__option {
+.drag-box .drag-box__body .drag-box__body__options {
   margin-right: 4px;
 }
+.drag-box .drag-box__action {
+  display: flex;
+  float: right;
+}
+.drag-box .drag-box__action .drag-box__action-btn {
+  padding-right: 4px;
+}
 
-.label-box--no-border {
+.drag-box--no-border {
   border: none;
   border-radius: 0;
 }
@@ -5323,6 +5311,10 @@ body > .proposal-box.ui-draggable {
 }
 .label-box--new a:hover {
   text-decoration: none;
+}
+
+.drag-handle {
+  cursor: move;
 }
 
 .snippets {

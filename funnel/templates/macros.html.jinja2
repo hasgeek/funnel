@@ -535,7 +535,7 @@
       {%- with reorderable=project and project.features.reorder_proposals() %}
       {% for proposal in proposals %}
         <tr id="{{ proposal.uuid_b58 }}" {%- if reorderable %}class="sortable" data-drag-placeholder="proposal-placeholder" draggable="true"{%- endif %}>
-          <td class="js-searchable {%- if reorderable %} label-box label-box--no-border ui-draggable-box{%- endif %}">
+          <td class="js-searchable {%- if reorderable %} drag-box drag-box--no-border ui-draggable-box{%- endif %}">
             {%- if project and reorderable %}
               {{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=project, draggable=true) }}
             {%- else %}
@@ -571,23 +571,36 @@
 {%- endmacro %}
 
 {%- macro proposal_card(proposal, full_width=false, details=false, css_class='', project='', draggable=false) %}
-  <a class="card clickable-card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
+  {% if draggable %}
+    <div class="card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}">
+  {%- else -%}
+    <a class="card clickable-card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
+  {%- endif %}
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
-        <div class="label-box__inner flex-wrapper flex-wrapper--center flex-wrapper--wrap">
+        <div {% if draggable %}class="drag-box__header"{%- endif %}>
           {% if not project %}
             <p class="mui--text-title margin-bottom">{{ proposal.project.title }}</p>
           {%- else -%}
+            <div class="flex-wrapper flex-wrapper--wrap">
             {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
               <div class="user user--smaller right-padding">
                 <div class="user__box">
-                  {{ useravatar(member.user, add_profile_link=false, size='small') }}
+                  {% if draggable %}
+                    {{ useravatar(member.user, add_profile_link=true, size='small') }}
+                  {%- else -%}
+                    {{ useravatar(member.user, add_profile_link=false, size='small') }}
+                  {%- endif %}
                   <div class="user__box__header">
                     <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
                   </div>
                 </div>
               </div>
             {%- endif %}{% endfor %}
+            </div>
+          {%- endif %}
+          {% if draggable %}
+            {{ faicon(icon='grip-vertical', baseline=false, css_class='drag-handle') }}
           {%- endif %}
         </div>
         <div class="proposal-card__body__inner {%- if full_width and proposal.views.video and proposal.views.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
@@ -600,9 +613,13 @@
             </div>
           {%- endif -%}
           <div class="proposal-card__body__inner__headline">
-            <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
+            {% if draggable %}
+              <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark" href="{{ proposal.url_for() }}" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
+            {%- else -%}
+              <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
+            {%- endif %}
             {% if proposal.body.html %}
-              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=400) }} <span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span></div>
+              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=400) }} {% if draggable %}<a class="nounderline" href="{{ proposal.url_for() }}">{%- endif %}<span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span>{% if draggable %}</a>{%- endif %}</div>
             {%- endif -%}
             {% if details %}
               <div class="proposal-card__body__inner__headline__info">

@@ -20,7 +20,7 @@ $(() => {
     if (sort.permission) {
       let oldList, target, other, before, newList, newPosition;
       $('.proposal-list-table tbody').sortable({
-        cursor: 'drag',
+        handle: '.drag-handle',
         placeholder: 'proposal-placeholder',
         forcePlaceholderSize: true,
         revert: true,

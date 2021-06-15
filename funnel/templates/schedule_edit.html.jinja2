@@ -61,11 +61,11 @@
             <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
             {% for venue in venues %}
               <div class="ui-draggable-box ui-draggable-box--header">
-                <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{ venue.uuid_b58 }}">
+                <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input" data-venue="{{ venue.uuid_b58 }}">
                 <div class="collapsible">
                   <div class="collapsible__header" data-cy-collapsible="open">
                     <input type="hidden" name="uuid" value="{{ venue.uuid_b58 }}">
-                    {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
+                    {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon drag-handle') }}
                     <span class="mui--text-subhead">{{ venue.title }}</span>
                     {{ faicon(icon='angle-down', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable') }}
                     {{ faicon(icon='angle-up', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable mui--hide') }}
