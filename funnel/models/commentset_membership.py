@@ -5,7 +5,7 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import User, db
-from .commentvote import Commentset
+from .comment import Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 

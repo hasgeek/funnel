@@ -17,10 +17,9 @@ from . import (
     TSVectorType,
     User,
     UuidMixin,
-    Voteset,
     db,
 )
-from .commentvote import SET_TYPE
+from .comment import SET_TYPE
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 
 __all__ = ['Update']
@@ -132,9 +131,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = with_roles(db.relationship(Voteset, uselist=False), read={'all'})
-
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
         db.relationship(
@@ -196,7 +192,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.UPDATE)
         self.commentset = Commentset(settype=SET_TYPE.UPDATE)
 
     def __repr__(self) -> str:

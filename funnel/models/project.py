@@ -24,7 +24,7 @@ from . import (
     UuidMixin,
     db,
 )
-from .commentvote import SET_TYPE, Commentset, Voteset
+from .comment import SET_TYPE, Commentset
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
@@ -197,9 +197,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     hasjob_embed_url = with_roles(db.Column(UrlType, nullable=True), read={'all'})
     hasjob_embed_limit = with_roles(db.Column(db.Integer, default=8), read={'all'})
-
-    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = db.relationship(Voteset, uselist=False)
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(
@@ -425,7 +422,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.PROJECT)
         self.commentset = Commentset(settype=SET_TYPE.PROJECT)
         # Add the creator as editor and promoter
         new_membership = ProjectCrewMembership(

@@ -4,7 +4,7 @@ from baseframe import __
 from funnel.models.moderation import CommentModeratorReport
 
 from . import db
-from .commentvote import Comment, Commentset
+from .comment import Comment, Commentset
 from .notification import Notification, notification_categories
 from .organization_membership import OrganizationMembership
 from .profile import Profile

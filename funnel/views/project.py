@@ -732,27 +732,31 @@ class ProjectView(
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2')
+    @render_with(
+        {
+            'text/html': 'project_comments.html.jinja2',
+            'application/json': lambda params: jsonify(
+                {'subscribed': params['subscribed'], 'comments': params['comments']}
+            ),
+        }
+    )
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
-            return jsonify(
-                {
-                    'subscribed': subscribed,
-                    'comments': comments,
-                }
-            )
-        else:
-            commentform = CommentForm(model=Comment)
             return {
-                'project': self.obj,
                 'subscribed': subscribed,
                 'comments': comments,
-                'commentform': commentform,
-                'delcommentform': forms.Form(),
             }
+        commentform = CommentForm(model=Comment)
+        return {
+            'project': self.obj,
+            'subscribed': subscribed,
+            'comments': comments,
+            'commentform': commentform,
+            'delcommentform': forms.Form(),
+        }
 
     @route('update_featured', methods=['POST'])
     def update_featured(self):
