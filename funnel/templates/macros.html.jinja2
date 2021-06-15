@@ -614,7 +614,7 @@
           {%- endif -%}
           <div class="proposal-card__body__inner__headline">
             {% if draggable %}
-              <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark" href="{{ proposal.url_for() }}">{{ proposal.title }}</a></h3>
+              <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark" href="{{ proposal.url_for() }}" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
             {%- else -%}
               <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
             {%- endif %}
