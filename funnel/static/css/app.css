@@ -1027,6 +1027,7 @@ a.loginbutton.hidden,
   border-radius: 0;
   background: #ffffff;
   padding: 0;
+  cursor: auto;
 }
 .page-card li:last-child .page-card__card {
   border-bottom: none;
@@ -2939,7 +2940,7 @@ a.loginbutton.hidden,
   text-decoration: none;
 }
 
-.clickable-card {
+.card.clickable-card {
   cursor: pointer;
 }
 
