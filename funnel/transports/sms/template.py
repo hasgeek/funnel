@@ -259,13 +259,15 @@ class OneLineTemplate(SmsTemplate):
     url: str
     unsubscribe_url: str
 
-    def process(self) -> None:
-        """Process variables."""
-        # '{text1} {url}' has a length limit of VAR_MAX_LENGTH*4. Truncate text to fit
-        # -1 is for the space char between text1 and url
-        max_text_length = VAR_MAX_LENGTH * 4 - 1 - len(self.url)
-        if len(self.text1) > max_text_length:
-            self.text1 = self.text1[: max_text_length - 3] + '...'
+    # Disabled because {#var#}  length limits aren't enforced
+
+    # def process(self) -> None:
+    #     """Process variables."""
+    #     # '{text1} {url}' has a length limit of VAR_MAX_LENGTH*4. Truncate text to fit
+    #     # -1 is for the space char between text1 and url
+    #     max_text_length = VAR_MAX_LENGTH * 4 - 1 - len(self.url)
+    #     if len(self.text1) > max_text_length:
+    #         self.text1 = self.text1[: max_text_length - 3] + '...'
 
 
 class TwoLineTemplate(SmsTemplate):
@@ -281,16 +283,18 @@ class TwoLineTemplate(SmsTemplate):
     url: str
     unsubscribe_url: str
 
-    def process(self) -> None:
-        """Process variables."""
-        # '{text1}' and '{text2} {url}' both have a length limit of VAR_MAX_LENGTH*2
-        max_text1_length = VAR_MAX_LENGTH * 2
-        # -1 is for the space char between text2 and url
-        max_text2_length = VAR_MAX_LENGTH * 2 - 1 - len(self.url)
-        if len(self.text1) > max_text1_length:
-            self.text1 = self.text1[: max_text1_length - 3] + '...'
-        if len(self.text2) > max_text2_length:
-            self.text2 = self.text2[: max_text2_length - 3] + '...'
+    # Disabled because {#var#}  length limits aren't enforced
+
+    # def process(self) -> None:
+    #     """Process variables."""
+    #     # '{text1}' and '{text2} {url}' both have a length limit of VAR_MAX_LENGTH*2
+    #     max_text1_length = VAR_MAX_LENGTH * 2
+    #     # -1 is for the space char between text2 and url
+    #     max_text2_length = VAR_MAX_LENGTH * 2 - 1 - len(self.url)
+    #     if len(self.text1) > max_text1_length:
+    #         self.text1 = self.text1[: max_text1_length - 3] + '...'
+    #     if len(self.text2) > max_text2_length:
+    #         self.text2 = self.text2[: max_text2_length - 3] + '...'
 
 
 class MessageTemplate(OneLineTemplate):
@@ -299,9 +303,11 @@ class MessageTemplate(OneLineTemplate):
     message: str
     unsubscribe_url: str
 
-    def process(self) -> None:
-        """Process variables."""
-        # '{message}' has a length limit of VAR_MAX_LENGTH*4. Truncate text to fit
-        max_text_length = VAR_MAX_LENGTH * 4
-        if len(self.message) > max_text_length:
-            self.message = self.message[: max_text_length - 3] + '...'
+    # Disabled because {#var#} length limits aren't enforced
+
+    # def process(self) -> None:
+    #     """Process variables."""
+    #     # '{message}' has a length limit of VAR_MAX_LENGTH*4. Truncate text to fit
+    #     max_text_length = VAR_MAX_LENGTH * 4
+    #     if len(self.message) > max_text_length:
+    #         self.message = self.message[: max_text_length - 3] + '...'

@@ -182,18 +182,19 @@ def test_one_line_template():
         '12345678901234567890 https://example.com/\n\n'
         'https://unsubscribe.example/ to stop - Hasgeek'
     )
-    # Truncated for length
-    msg = OneLineTemplate(
-        text1='1234567890' * 10,
-        url='https://example.com/',
-        unsubscribe_url='https://unsubscribe.example/',
-    )
-    assert str(msg) == (
-        '1234567890123456789012345678901234567890123456789012345678901234567890'
-        '12345678901234567890123456... https://example.com/\n\n'
-        'https://unsubscribe.example/ to stop - Hasgeek'
-    )
-    assert len(msg.text1) + 1 + len(msg.url) == 120
+    # Disabled because {#var#}  length limits aren't enforced
+    # # Truncated for length
+    # msg = OneLineTemplate(
+    #     text1='1234567890' * 10,
+    #     url='https://example.com/',
+    #     unsubscribe_url='https://unsubscribe.example/',
+    # )
+    # assert str(msg) == (
+    #     '1234567890123456789012345678901234567890123456789012345678901234567890'
+    #     '12345678901234567890123456... https://example.com/\n\n'
+    #     'https://unsubscribe.example/ to stop - Hasgeek'
+    # )
+    # assert len(msg.text1) + 1 + len(msg.url) == 120
 
 
 def test_two_line_template():
@@ -210,20 +211,21 @@ def test_two_line_template():
         'abcdefghijabcdefghij https://example.com/\n\n'
         'https://unsubscribe.example/ to stop - Hasgeek'
     )
-    # Truncated for length
-    msg = TwoLineTemplate(
-        text1='1234567890' * 10,
-        text2='abcdefghij' * 10,
-        url='https://example.com/',
-        unsubscribe_url='https://unsubscribe.example/',
-    )
-    assert str(msg) == (
-        '123456789012345678901234567890123456789012345678901234567...\n\n'
-        'abcdefghijabcdefghijabcdefghijabcdef... https://example.com/\n\n'
-        'https://unsubscribe.example/ to stop - Hasgeek'
-    )
-    assert len(msg.text1) == 60
-    assert len(msg.text2) + 1 + len(msg.url) == 60
+    # Disabled because {#var#}  length limits aren't enforced
+    # # Truncated for length
+    # msg = TwoLineTemplate(
+    #     text1='1234567890' * 10,
+    #     text2='abcdefghij' * 10,
+    #     url='https://example.com/',
+    #     unsubscribe_url='https://unsubscribe.example/',
+    # )
+    # assert str(msg) == (
+    #     '123456789012345678901234567890123456789012345678901234567...\n\n'
+    #     'abcdefghijabcdefghijabcdefghijabcdef... https://example.com/\n\n'
+    #     'https://unsubscribe.example/ to stop - Hasgeek'
+    # )
+    # assert len(msg.text1) == 60
+    # assert len(msg.text2) + 1 + len(msg.url) == 60
 
 
 def test_message_template():
@@ -237,14 +239,15 @@ def test_message_template():
         )
         == ('12345678901234567890\n\n' 'https://unsubscribe.example/ to stop - Hasgeek')
     )
-    # Truncated for length
-    msg = MessageTemplate(
-        message='1234567890' * 20,
-        unsubscribe_url='https://unsubscribe.example/',
-    )
-    assert str(msg) == (
-        '1234567890123456789012345678901234567890123456789012345678901234567890'
-        '12345678901234567890123456789012345678901234567...\n\n'
-        'https://unsubscribe.example/ to stop - Hasgeek'
-    )
-    assert len(msg.message) == 120
+    # Disabled because {#var#}  length limits aren't enforced
+    # # Truncated for length
+    # msg = MessageTemplate(
+    #     message='1234567890' * 20,
+    #     unsubscribe_url='https://unsubscribe.example/',
+    # )
+    # assert str(msg) == (
+    #     '1234567890123456789012345678901234567890123456789012345678901234567890'
+    #     '12345678901234567890123456789012345678901234567...\n\n'
+    #     'https://unsubscribe.example/ to stop - Hasgeek'
+    # )
+    # assert len(msg.message) == 120
