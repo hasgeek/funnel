@@ -76,30 +76,26 @@ class SmsTemplate:
 
     # Type hints for mypy
     _text: Optional[str]
-    format_kwargs: Dict[str, Any]
+    _format_kwargs: Dict[str, Any]
 
     def __init__(self, **kwargs) -> None:
         """Initialize template with variables."""
         object.__setattr__(self, '_text', None)
-        object.__setattr__(self, 'format_kwargs', kwargs)
+        object.__setattr__(self, '_format_kwargs', kwargs)
 
     def process(self) -> None:
         """Process variables (subclasses may override as necessary)."""
 
     def format(self) -> None:  # NOQA: A003
-        """
-        Process template with variables.
-
-        Subclasses may override this method to pre-process variables before
-        calling ``super().process()``.
-        """
+        """Format template with variables."""
         self.process()
-        object.__setattr__(self, '_text', self.template.format(**self.format_kwargs))
+        object.__setattr__(self, '_text', self.template.format(**self._format_kwargs))
 
     @property
     def text(self) -> str:
         if self._text is None:
             self.format()
+        # self.format() ensures `_text` is str, but mypy doesn't know
         return cast(str, self._text)
 
     def validate(self) -> bool:
@@ -107,6 +103,8 @@ class SmsTemplate:
         # TODO: This validator does not check for length limits in {#var#} segments
         return (
             len(self.text) <= 2000
+            # validate_template ensures self.registered_template_re is a pattern,
+            # but mypy doesn't know
             and cast(Pattern, self.registered_template_re).fullmatch(self.text)
             is not None
         )
@@ -121,11 +119,11 @@ class SmsTemplate:
 
     def __getattr__(self, attr):
         """Get a format variable."""
-        return self.format_kwargs[attr]
+        return self._format_kwargs[attr]
 
     def __setattr__(self, attr, value):
         """Set a format variable."""
-        self.format_kwargs[attr] = value
+        self._format_kwargs[attr] = value
         object.__setattr__(self, '_text', None)
 
     @staticmethod
@@ -156,7 +154,10 @@ class SmsTemplate:
         for _literal_text, field_name, _format_spec, _conversion in Formatter().parse(
             cls.template
         ):
-            if field_name == '_text' or field_name in SmsTemplate.__dict__:
+            if (
+                field_name in ('_text', '_format_kwargs')
+                or field_name in SmsTemplate.__dict__
+            ):
                 raise ValueError(
                     f"Template keyword '{field_name}' in {cls.__name__} is reserved and"
                     f" cannot be used"
@@ -171,7 +172,7 @@ class SmsTemplate:
         registered_template_re = re.escape(
             _var_repeat_re.sub('{#var#}', cls.registered_template)
         ).replace(
-            # re.escape will convert to {#var#} into \{\#var\#\}
+            # re.escape will convert {#var#} to \{\#var\#\}
             r'\{\#var\#\}',
             '.*?',
         )
