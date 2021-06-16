@@ -4,6 +4,7 @@ from baseframe import _
 
 from ... import app
 from ...models import AccountPasswordNotification, User
+from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 
@@ -37,13 +38,13 @@ class RenderAccountPasswordNotification(RenderNotification):
             'notifications/user_password_set_email.html.jinja2', view=self
         )
 
-    def sms(self):
-        return _(
-            "Your password has been updated. If this was not authorized, reset your"
-            " password or contact support at {email}. {reset_url}"
-        ).format(
-            email=app.config['SITE_SUPPORT_EMAIL'],
-            reset_url=shortlink(
+    def sms(self) -> OneLineTemplate:
+        return OneLineTemplate(
+            text1=_(
+                "Your password has been updated. If this was not authorized, reset"
+                " your password or contact support at {email}."
+            ).format(email=app.config['SITE_SUPPORT_EMAIL']),
+            url=shortlink(
                 url_for('reset', _external=True, **self.tracking_tags('sms'))
             ),
         )
