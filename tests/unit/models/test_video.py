@@ -50,7 +50,7 @@ def test_youtube(db_session, new_proposal):
 
     # the first returned value of .video will be calculated values
     # and then it'll cache everything in redis
-    check_video = check_proposal.video
+    check_video = check_proposal.views.video
     assert check_video['source'] == check_proposal.video_source
     assert check_video['id'] == check_proposal.video_id
     assert check_video['url'] == check_proposal.video_url
@@ -107,13 +107,16 @@ def test_vimeo(db_session, new_proposal):
 
     # the first returned value of .video will be calculated values
     # and then it'll cache everything in redis
-    check_video = check_proposal.video
+    check_video = check_proposal.views.video
     assert check_video['source'] == check_proposal.video_source
     assert check_video['id'] == check_proposal.video_id
     assert check_video['url'] == check_proposal.video_url
     assert check_video['duration'] == 212
-    assert check_video['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 15, 48, 2))
-    assert check_video['thumbnail'] == 'https://i.vimeocdn.com/video/783856813_200x150'
+    assert check_video['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 19, 48, 2))
+    assert (
+        check_video['thumbnail']
+        == 'https://i.vimeocdn.com/video/783856813_200x150?r=pad'
+    )
 
     # let's try to check the cache directly
     check_cached = check_proposal._video_cache
@@ -122,5 +125,8 @@ def test_vimeo(db_session, new_proposal):
     assert check_cached['id'] == check_proposal.video_id
     assert check_cached['url'] == check_proposal.video_url
     assert check_cached['duration'] == 212
-    assert check_cached['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 15, 48, 2))
-    assert check_cached['thumbnail'] == 'https://i.vimeocdn.com/video/783856813_200x150'
+    assert check_cached['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 19, 48, 2))
+    assert (
+        check_cached['thumbnail']
+        == 'https://i.vimeocdn.com/video/783856813_200x150?r=pad'
+    )
