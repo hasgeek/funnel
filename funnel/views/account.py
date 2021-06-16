@@ -19,7 +19,7 @@ from flask import (
 import geoip2.errors
 import user_agents
 
-from baseframe import _, cache
+from baseframe import _, cache, request_is_xhr
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -782,6 +782,17 @@ class AccountView(ClassView):
         if emailclaim is None:
             abort(404)
         verify_form = VerifyEmailForm()
+        if request_is_xhr():
+            return make_response(
+                render_template(
+                    'verify_email.html.jinja2',
+                    form=verify_form,
+                    title=_("Resend the verification email?"),
+                    useremail=emailclaim.email,
+                    formid='email_verify',
+                    ref_id='form-emailverify',
+                )
+            )
         if verify_form.validate_on_submit():
             send_email_verify_link(emailclaim)
             db.session.commit()

@@ -144,7 +144,9 @@
       {%- endif %}
       {% if not current_auth.is_anonymous %}
         <div>
-          {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
+          {% if not current_auth.is_anonymous and not current_auth.user.has_verified_contact_info -%}
+            <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn" href="{{ url_for('verify_email', email_hash=current_auth.user.emailclaims[0].email_address.email_hash) }}" rel="modal:open"  role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
+          {% elif project.features.rsvp_unregistered() -%}
             <a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__right__btn js-register-btn" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
             <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">
               <div class="modal__header">
