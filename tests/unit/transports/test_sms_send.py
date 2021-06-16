@@ -4,8 +4,13 @@ from flask import Response
 
 import requests
 
-from funnel.transports.base import TransportConnectionError, TransportRecipientError
-from funnel.transports.sms import make_exotel_token, send, validate_exotel_token
+from funnel.transports import TransportConnectionError, TransportRecipientError
+from funnel.transports.sms import (
+    OneLineTemplate,
+    make_exotel_token,
+    send,
+    validate_exotel_token,
+)
 
 # Target Numbers (Test Only). See this
 # https://www.twilio.com/docs/iam/test-credentials
@@ -20,7 +25,11 @@ EXOTEL_TO = "+919999999999"
 EXOTEL_CALLBACK_TO = "09999999999"
 
 # Dummy Message
-MESSAGE = "Test Message"
+MESSAGE = OneLineTemplate(
+    text1="Test Message",
+    url='https://example.com/',
+    unsubscribe_url='https://unsubscribe.example/',
+)
 
 
 def test_twilio_success():

@@ -14,7 +14,7 @@ from baseframe import statsd
 
 from ... import app
 from ...models import EmailAddress, EmailAddressBlockedError, User
-from ..base import TransportRecipientError
+from ..exc import TransportRecipientError
 
 __all__ = [
     'EmailAttachment',
