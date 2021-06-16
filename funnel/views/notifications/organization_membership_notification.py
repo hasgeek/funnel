@@ -14,6 +14,7 @@ from ...models import (
     OrganizationMembership,
     User,
 )
+from ...transports.sms import MessageTemplate
 from ..notification import RenderNotification
 
 
@@ -223,12 +224,14 @@ class RenderShared:
             actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
 
-    def sms(self) -> str:
+    def sms(self) -> MessageTemplate:
         actor = self.membership_actor()
-        return self.activity_template().format(
-            user=self.membership.user.pickername,
-            organization=self.organization.pickername,
-            actor=(actor.pickername if actor is not None else _("(unknown)")),
+        return MessageTemplate(
+            message=self.activity_template().format(
+                user=self.membership.user.pickername,
+                organization=self.organization.pickername,
+                actor=(actor.pickername if actor is not None else _("(unknown)")),
+            )
         )
 
 

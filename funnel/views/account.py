@@ -815,15 +815,18 @@ class AccountView(ClassView):
             current_auth.user.main_notification_preferences.by_sms = (
                 form.enable_notifications.data
             )
+            template_message = sms.WebOtpTemplate(
+                otp=userphone.verification_code,
+                helpline_text="call +917676332020",  # TODO: Replace with report URL
+                domain=current_app.config['SERVER_NAME'],
+            )
             msg = SMSMessage(
                 phone_number=userphone.phone,
-                message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
-                    code=userphone.verification_code
-                ),
+                message=str(template_message),
             )
             try:
                 # Now send this
-                msg.transactionid = sms.send(msg.phone_number, msg.message)
+                msg.transactionid = sms.send(msg.phone_number, template_message)
             except TransportRecipientError as e:
                 flash(str(e), 'error')
             except TransportConnectionError:

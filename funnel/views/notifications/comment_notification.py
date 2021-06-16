@@ -13,6 +13,7 @@ from ...models import (
     NewCommentNotification,
     User,
 )
+from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 
@@ -40,8 +41,9 @@ class RenderCommentReportReceivedNotification(RenderNotification):
             'notifications/comment_report_received_email.html.jinja2', view=self
         )
 
-    def sms(self) -> str:
-        return _("A comment has been reported as spam. {url}").format(
+    def sms(self) -> OneLineTemplate:
+        return OneLineTemplate(
+            text1=_("A comment has been reported as spam."),
             url=shortlink(
                 url_for(
                     'siteadmin_review_comment',
@@ -49,7 +51,7 @@ class RenderCommentReportReceivedNotification(RenderNotification):
                     _external=True,
                     **self.tracking_tags('sms'),
                 )
-            )
+            ),
         )
 
 
@@ -152,11 +154,10 @@ class CommentNotification(RenderNotification):
             'notifications/comment_received_email.html.jinja2', view=self
         )
 
-    def sms(self) -> str:
-        return (
-            self.activity_template_inline().format(actor=self.actor.pickername)
-            + " "
-            + shortlink(
+    def sms(self) -> OneLineTemplate:
+        return OneLineTemplate(
+            text1=self.activity_template_inline().format(actor=self.actor.pickername),
+            url=shortlink(
                 self.comment.url_for(_external=True, **self.tracking_tags('sms'))
-            )
+            ),
         )

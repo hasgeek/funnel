@@ -63,7 +63,7 @@ GA_CODE = environ.get('GA_CODE')
 SMS_EXOTEL_SID = environ.get('SMS_EXOTEL_SID')
 SMS_EXOTEL_TOKEN = environ.get('SMS_EXOTEL_TOKEN')
 SMS_EXOTEL_FROM = environ.get('SMS_EXOTEL_FROM')
-SMS_EXOTEL_DLT_ID = environ.get('SMS_EXOTEL_DLT_ID')
+SMS_DLT_ENTITY_ID = environ.get('SMS_DLT_ENTITY_ID')
 
 #: Twilio support for non-indian numbers
 SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
