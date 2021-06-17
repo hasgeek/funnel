@@ -45,9 +45,11 @@ def test_comment_report_same(
     assert bool(comment.state.PUBLIC) is True
 
     # report the comment as new_user_admin
-    report1 = CommentModeratorReport(user=new_user_admin, comment=comment)
-    db_session.add(report1)
-    db_session.commit()
+    report1, created = CommentModeratorReport.submit(
+        actor=new_user_admin, comment=comment
+    )
+    if created:
+        db_session.commit()
     report1_id = report1.id
 
     assert comment.is_reviewed_by(new_user_admin)
@@ -110,9 +112,11 @@ def test_comment_report_opposing(
     assert bool(comment2.state.PUBLIC) is True
 
     # report the comment as new_user_admin
-    report2 = CommentModeratorReport(user=new_user_admin, comment=comment2)
-    db_session.add(report2)
-    db_session.commit()
+    report2, created = CommentModeratorReport.submit(
+        actor=new_user_admin, comment=comment2
+    )
+    if created:
+        db_session.commit()
 
     with client.session_transaction() as session:
         session['userid'] = new_user.userid
@@ -178,9 +182,11 @@ def test_comment_report_majority_spam(
     assert bool(comment3.state.PUBLIC) is True
 
     # report the comment as spam as new_user_admin
-    report3 = CommentModeratorReport(user=new_user_admin, comment=comment3)
-    db_session.add(report3)
-    db_session.commit()
+    report3, created = CommentModeratorReport.submit(
+        actor=new_user_admin, comment=comment3
+    )
+    if created:
+        db_session.commit()
     report3_id = report3.id
 
     # report the comment as not spam as new_user_owner
@@ -253,9 +259,11 @@ def test_comment_report_majority_ok(
     assert bool(comment4.state.PUBLIC) is True
 
     # report the comment as spam as new_user_admin
-    report5 = CommentModeratorReport(user=new_user_admin, comment=comment4)
-    db_session.add(report5)
-    db_session.commit()
+    report5, created = CommentModeratorReport.submit(
+        actor=new_user_admin, comment=comment4
+    )
+    if created:
+        db_session.commit()
     report5_id = report5.id
 
     # report the comment as not spam as new_user_owner

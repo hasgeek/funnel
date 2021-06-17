@@ -299,8 +299,8 @@ class CommentView(UrlForView, ModelView):
                 report, created = CommentModeratorReport.submit(
                     actor=current_auth.user, comment=self.obj
                 )
-                db.session.commit()
                 if created:
+                    db.session.commit()
                     dispatch_notification(
                         CommentReportReceivedNotification(
                             document=self.obj, fragment=report
