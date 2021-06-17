@@ -77,11 +77,13 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def submit(cls, actor, comment):
+        created = False
         report = cls.query.filter_by(user=actor, comment=comment).one_or_none()
         if report is None:
             report = cls(user=actor, comment=comment)
             db.session.add(report)
-        return report
+            created = True
+        return report, created
 
     @property
     def users_who_are_comment_moderators(self):

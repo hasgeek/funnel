@@ -296,15 +296,16 @@ class CommentView(UrlForView, ModelView):
         csrf_form = forms.Form()
         if request.method == 'POST':
             if csrf_form.validate():
-                report = CommentModeratorReport.submit(
+                report, created = CommentModeratorReport.submit(
                     actor=current_auth.user, comment=self.obj
                 )
                 db.session.commit()
-                dispatch_notification(
-                    CommentReportReceivedNotification(
-                        document=self.obj, fragment=report
+                if created:
+                    dispatch_notification(
+                        CommentReportReceivedNotification(
+                            document=self.obj, fragment=report
+                        )
                     )
-                )
                 return {
                     'status': 'ok',
                     'message': _("The comment has been reported as spam"),
