@@ -56,11 +56,15 @@ def test_comment_report_same(
 
     with client.session_transaction() as session:
         session['userid'] = new_user.userid
+
     # if new_user also reports it as spam,
     # the report will be removed, and comment will be in Spam state
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report1.uuid_b58),
-        data=MultiDict({'report_type': MODERATOR_REPORT_TYPE.SPAM}),
+        data=MultiDict(
+            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.SPAM}
+        ),
         follow_redirects=True,
     )
     assert (
@@ -122,9 +126,12 @@ def test_comment_report_opposing(
         session['userid'] = new_user.userid
     # if new_user reports it as not a spam,
     # a new report will be created, and comment will stay in public state
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report2.uuid_b58),
-        data=MultiDict({'report_type': MODERATOR_REPORT_TYPE.OK}),
+        data=MultiDict(
+            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.OK}
+        ),
         follow_redirects=True,
     )
     assert (
@@ -201,9 +208,12 @@ def test_comment_report_majority_spam(
         session['userid'] = new_user.userid
     # if new_user reports it as a spam,
     # the comment will be marked as spam as that's the majority vote
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report3.uuid_b58),
-        data=MultiDict({'report_type': MODERATOR_REPORT_TYPE.SPAM}),
+        data=MultiDict(
+            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.SPAM}
+        ),
         follow_redirects=True,
     )
     assert (
@@ -279,9 +289,12 @@ def test_comment_report_majority_ok(
     # if new_user reports it as not a spam,
     # the comment will not be marked as spam as that's the majority vote,
     # but all the reports will be deleted
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report5.uuid_b58),
-        data=MultiDict({'report_type': MODERATOR_REPORT_TYPE.OK}),
+        data=MultiDict(
+            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.OK}
+        ),
         follow_redirects=True,
     )
     assert (
