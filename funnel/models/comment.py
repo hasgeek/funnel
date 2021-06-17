@@ -71,24 +71,27 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         super().__init__(**kwargs)
         self.count = 0
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
-    def parent(self) -> Optional[db.Model]:
+    def parent(self) -> db.Model:
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
-        parent = None  # project or proposal object
         if self.project is not None:
-            parent = self.project
+            return self.project
         elif self.proposal is not None:
-            parent = self.proposal
-        return parent
+            return self.proposal
+        elif self.update is not None:
+            return self.update
+        raise TypeError("Commentset has an unknown parent")
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(parent, read={'all'})
+
     @property
     def parent_type(self) -> Optional[str]:
         parent = self.parent
         if parent is not None:
             return parent.__tablename__
         return None
+
+    with_roles(parent_type, read={'all'})
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
@@ -170,7 +173,6 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         super().__init__(**kwargs)
         self.commentset.last_comment_at = db.func.utcnow()
 
-    @with_roles(read={'all'}, datasets={'related', 'json'})  # type: ignore[misc]
     @property
     def current_access_replies(self) -> List[RoleAccessProxy]:
         return [
@@ -178,6 +180,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
             for reply in self.replies
             if reply.state.PUBLIC
         ]
+
+    with_roles(current_access_replies, read={'all'}, datasets={'related', 'json'})
 
     @hybrid_property
     def user(self) -> Union[User, DuckTypeUser]:

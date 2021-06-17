@@ -1,6 +1,6 @@
 """Organization admin and project crew membership notifications."""
 
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, cast
 
 from flask import Markup, escape, render_template
 
@@ -198,7 +198,7 @@ class RenderShared:
             else escape(membership.user.pickername),
             organization=Markup(
                 '<a href="{url}">{title}</a>'.format(
-                    url=escape(self.organization.profile_url),
+                    url=escape(cast(str, self.organization.profile_url)),
                     title=escape(self.organization.pickername),
                 )
             ),

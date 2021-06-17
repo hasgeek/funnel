@@ -421,11 +421,11 @@ class Notification(NoIdMixin, db.Model):
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter  # type: ignore[no-redef]
+    @eventid_b58.setter
     def eventid_b58(self, value: str) -> None:
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator  # type: ignore[no-redef]
+    @eventid_b58.comparator
     def eventid_b58(cls):  # NOQA: N805
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -562,22 +562,25 @@ class UserNotificationMixin:
 
     notification: Notification
 
-    @with_roles(read={'owner'})  # type: ignore[misc]
     @property
     def notification_type(self) -> str:
         return self.notification.type
 
-    @with_roles(read={'owner'})  # type: ignore[misc]
+    with_roles(notification_type, read={'owner'})
+
     @property
     def document(self) -> Optional[db.Model]:
         """Document that this notification is for."""
         return self.notification.document
 
-    @with_roles(read={'owner'})  # type: ignore[misc]
+    with_roles(document, read={'owner'})
+
     @property
     def fragment(self) -> Optional[db.Model]:
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
+
+    with_roles(fragment, read={'owner'})
 
     # This dummy property is required because of a pending mypy issue:
     # https://github.com/python/mypy/issues/4125
@@ -739,11 +742,11 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter  # type: ignore[no-redef]
+    @eventid_b58.setter
     def eventid_b58(self, value: str):
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator  # type: ignore[no-redef]
+    @eventid_b58.comparator
     def eventid_b58(cls):  # NOQA: N805
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -773,7 +776,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
-    @is_revoked.setter  # type: ignore[no-redef]
+    @is_revoked.setter
     def is_revoked(self, value: bool) -> None:
         if value:
             if not self.revoked_at:
@@ -781,7 +784,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         else:
             self.revoked_at = None
 
-    @is_revoked.expression  # type: ignore[no-redef]
+    @is_revoked.expression
     def is_revoked(cls):  # NOQA: N805
         return cls.revoked_at.isnot(None)
 
