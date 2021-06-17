@@ -94,8 +94,10 @@ class ReorderMixin:
 
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
-        self.seq = db.select([db.func.coalesce(db.func.max(cls.seq) + 1, 1)]).where(
-            self.parent_scoped_reorder_query_filter
+        self.seq = (
+            db.select([db.func.coalesce(db.func.max(cls.seq) + 1, 1)])
+            .where(self.parent_scoped_reorder_query_filter)
+            .scalar_subquery()
         )
         # Flush it so the db doesn't complain when there's a unique constraint
         db.session.flush()
