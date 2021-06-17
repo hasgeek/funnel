@@ -83,7 +83,6 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
             db.session.add(report)
         return report
 
-    @with_roles(grants={'comment_moderator'})  # type: ignore[misc]
     @property
     def users_who_are_comment_moderators(self):
         return User.query.join(
@@ -92,6 +91,8 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
             SiteMembership.is_active.is_(True),
             SiteMembership.is_comment_moderator.is_(True),
         )
+
+    with_roles(users_who_are_comment_moderators, grants={'comment_moderator'})
 
 
 @reopen(Comment)

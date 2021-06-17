@@ -200,15 +200,17 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             title=self.title, uuid_b58=self.uuid_b58
         )
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def visibility_label(self) -> str:
         return self.visibility_state.label.title
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(visibility_label, read={'all'})
+
     @property
     def state_label(self) -> str:
         return self.state.label.title
+
+    with_roles(state_label, read={'all'})
 
     state.add_conditional_state(
         'UNPUBLISHED',
@@ -235,9 +237,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             first_publishing = True
             self.published_at = db.func.utcnow()
         if self.number is None:
-            self.number = db.select(
-                [db.func.coalesce(db.func.max(Update.number), 0) + 1]
-            ).where(Update.project == self.project)
+            self.number = (
+                db.select([db.func.coalesce(db.func.max(Update.number), 0) + 1])
+                .where(Update.project == self.project)
+                .scalar_subquery()
+            )
         return first_publishing
 
     @with_roles(call={'editor'})
@@ -272,7 +276,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     def make_restricted(self) -> None:
         pass
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_restricted(self) -> bool:
         return bool(self.visibility_state.RESTRICTED)
@@ -284,10 +287,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         elif not value and self.visibility_state.RESTRICTED:
             self.make_public()
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(is_restricted, read={'all'})
+
     @property
     def is_currently_restricted(self) -> bool:
         return self.is_restricted and not self.current_roles.reader
+
+    with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
@@ -341,19 +347,20 @@ auto_init_default(Update._state)
 class __Project:
     updates: BaseQuery
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def published_updates(self) -> BaseQuery:
         return self.updates.filter(Update.state.PUBLISHED).order_by(
             Update.is_pinned.desc(), Update.published_at.desc()
         )
 
-    @with_roles(read={'editor'})  # type: ignore[misc]
+    with_roles(published_updates, read={'all'})
+
     @property
     def draft_updates(self) -> BaseQuery:
         return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(draft_updates, read={'editor'})
+
     @property
     def pinned_update(self) -> Optional[Update]:
         return (
@@ -361,3 +368,5 @@ class __Project:
             .order_by(Update.published_at.desc())
             .first()
         )
+
+    with_roles(pinned_update, read={'all'})

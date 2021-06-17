@@ -170,13 +170,13 @@ class Label(BaseScopedNameMixin, db.Model):
     def restricted(self):
         return self.main_label._restricted if self.main_label else self._restricted
 
-    @restricted.setter  # type: ignore[no-redef]
+    @restricted.setter
     def restricted(self, value):
         if self.main_label:
             raise ValueError("This flag must be set on the parent")
         self._restricted = value
 
-    @restricted.expression  # type: ignore[no-redef]
+    @restricted.expression
     def restricted(cls):  # NOQA: N805
         return case(
             [
@@ -196,11 +196,11 @@ class Label(BaseScopedNameMixin, db.Model):
             self.main_label._archived if self.main_label else False
         )
 
-    @archived.setter  # type: ignore[no-redef]
+    @archived.setter
     def archived(self, value):
         self._archived = value
 
-    @archived.expression  # type: ignore[no-redef]
+    @archived.expression
     def archived(cls):  # NOQA: N805
         return case(
             [
@@ -219,7 +219,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def has_options(self):
         return bool(self.options)
 
-    @has_options.expression  # type: ignore[no-redef]
+    @has_options.expression
     def has_options(cls):  # NOQA: N805
         return exists().where(Label.main_label_id == cls.id)
 
@@ -231,7 +231,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def required(self):
         return self._required if self.has_options else False
 
-    @required.setter  # type: ignore[no-redef]
+    @required.setter
     def required(self, value):
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")

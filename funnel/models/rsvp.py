@@ -68,11 +68,12 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
 
     __datasets__ = {'primary': {'project', 'user', 'response'}, 'related': {'response'}}
 
-    @with_roles(read={'owner', 'project_promoter'})  # type: ignore[misc]
     @property
     def response(self):
         """Return RSVP response as a raw value."""
         return self._state
+
+    with_roles(response, read={'owner', 'project_promoter'})
 
     @with_roles(call={'owner'})
     @state.transition(
@@ -164,10 +165,11 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
 
 @reopen(Project)
 class __Project:
-    @with_roles(grants_via={Rsvp.user: {'participant'}})  # type: ignore[misc]
     @property
     def active_rsvps(self):
         return self.rsvps.join(User).filter(Rsvp.state.YES, User.state.ACTIVE)
+
+    with_roles(active_rsvps, grants_via={Rsvp.user: {'participant'}})
 
     @overload
     def rsvp_for(self, user: User, create: Literal[True]) -> Rsvp:

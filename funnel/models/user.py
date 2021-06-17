@@ -95,11 +95,12 @@ class SharedProfileMixin:
             else None
         )
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self) -> Optional[str]:
         profile = self.profile
         return profile.url_for() if profile is not None else None
+
+    with_roles(profile_url, read={'all'})
 
 
 class USER_STATE(LabeledEnum):  # NOQA: N801
@@ -328,7 +329,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """Return picker name for user."""
         return self.pickername
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pickername(self) -> str:
         if self.username:
@@ -337,6 +337,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         else:
             return self.fullname
+
+    with_roles(pickername, read={'all'})
 
     def add_email(
         self,
@@ -514,7 +516,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         return getattr(self, 'transport_for_' + transport)(context)
 
-    @with_roles(grants={'owner', 'admin'})  # type: ignore[misc]
     @property
     def _self_is_owner_and_admin_of_self(self):
         """
@@ -524,6 +525,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         user is owner and admin of their own account.
         """
         return self
+
+    with_roles(_self_is_owner_and_admin_of_self, grants={'owner', 'admin'})
 
     def organizations_as_owner_ids(self) -> List[int]:
         """

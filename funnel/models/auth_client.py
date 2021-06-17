@@ -202,10 +202,11 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             )
         return False
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def owner(self):
         return self.user or self.organization
+
+    with_roles(owner, read={'all'})
 
     def owner_is(self, user: User) -> bool:
         # Legacy method for ownership test
