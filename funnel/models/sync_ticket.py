@@ -318,11 +318,22 @@ class TicketEventParticipant(BaseMixin, db.Model):
     )
     ticket_participant = db.relationship(
         TicketParticipant,
-        backref=db.backref('ticket_event_participants', cascade='all'),
+        backref=db.backref(
+            'ticket_event_participants',
+            cascade='all',
+            overlaps='ticket_events,ticket_participants',
+        ),
+        overlaps='ticket_events,ticket_participants',
     )
     ticket_event_id = db.Column(None, db.ForeignKey('ticket_event.id'), nullable=False)
     ticket_event = db.relationship(
-        TicketEvent, backref=db.backref('ticket_event_participants', cascade='all')
+        TicketEvent,
+        backref=db.backref(
+            'ticket_event_participants',
+            cascade='all',
+            overlaps='ticket_events,ticket_participants',
+        ),
+        overlaps='ticket_events,ticket_participants',
     )
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
