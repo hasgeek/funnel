@@ -19,8 +19,9 @@ import coaster.app
 
 from ._version import __version__
 
-# App. Add additional apps here
+#: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
+#: Shortlink app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
 
 mail = Mail()
@@ -44,21 +45,19 @@ assets['schedule-print.css'][version] = 'css/schedule-print.css'
 # --- Import rest of the app --------------------------------------------------
 
 from . import (  # NOQA  # isort:skip
-    cli,
     models,
     signals,
     forms,
     loginproviders,
     transports,
     views,
+    cli,
 )
 from .models import db  # isort:skip
 
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
 coaster.app.init_app(shortlinkapp, init_logging=False)
-# For additional apps, do not install additional log handlers:
-# coaster.app.init_app(hasjobapp, init_logging=False)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are

@@ -13,6 +13,7 @@ from . import (
     email,
     email_events,
     errors,
+    geoname,
     helpers,
     index,
     label,
