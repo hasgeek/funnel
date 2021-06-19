@@ -20,6 +20,7 @@ DataSource = namedtuple('DataSource', ['basequery', 'datecolumn'])
 
 
 def data_sources():
+    """Return sources for daily growth report."""
     return {
         # `user_sessions`, `app_user_sessions` and `returning_users` (added below) are
         # lookup keys, while the others are titles
@@ -193,6 +194,7 @@ def growthstats():
     )
 
     def trend_symbol(current, previous):
+        """Return a trend symbol based on difference between current and previous."""
         if current > previous * 1.5:
             return '⏫'
         if current > previous:

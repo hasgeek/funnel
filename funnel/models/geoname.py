@@ -30,6 +30,8 @@ continent_codes = {
 
 
 class GeoCountryInfo(BaseNameMixin, db.Model):
+    """Geoname record for a country."""
+
     __tablename__ = 'geo_country_info'
     __bind_key__ = 'geoname'
 
@@ -72,6 +74,8 @@ class GeoCountryInfo(BaseNameMixin, db.Model):
 
 
 class GeoAdmin1Code(BaseMixin, db.Model):
+    """Geoname record for 1st level administrative division (state, province)."""
+
     __tablename__ = 'geo_admin1_code'
     __bind_key__ = 'geoname'
 
@@ -97,6 +101,8 @@ class GeoAdmin1Code(BaseMixin, db.Model):
 
 
 class GeoAdmin2Code(BaseMixin, db.Model):
+    """Geoname record for 2nd level administrative division (disrict, county)."""
+
     __tablename__ = 'geo_admin2_code'
     __bind_key__ = 'geoname'
 
@@ -123,6 +129,8 @@ class GeoAdmin2Code(BaseMixin, db.Model):
 
 
 class GeoName(BaseNameMixin, db.Model):
+    """Geographical name record."""
+
     __tablename__ = 'geo_name'
     __bind_key__ = 'geoname'
 
@@ -189,12 +197,11 @@ class GeoName(BaseNameMixin, db.Model):
     def short_title(self) -> str:
         if self.has_country:
             return self.has_country.title
-        elif self.has_admin1code:
+        if self.has_admin1code:
             return self.admin1code.title if self.admin1code else self.admin1_ref.title
-        elif self.has_admin2code:
+        if self.has_admin2code:
             return self.admin2code.title if self.admin2code else self.admin2_ref.title
-        else:
-            return self.ascii_title or self.title
+        return self.ascii_title or self.title
 
     @property
     def picker_title(self) -> str:
@@ -234,8 +241,7 @@ class GeoName(BaseNameMixin, db.Model):
             title = '%s, %s' % (title, country)
         if suffix:
             return '%s (%s)' % (title, suffix)
-        else:
-            return title
+        return title
 
     @property
     def geoname(self) -> GeoName:
@@ -260,6 +266,7 @@ class GeoName(BaseNameMixin, db.Model):
         return usetitle
 
     def make_name(self, reserved: Optional[List[str]] = None) -> None:
+        """Create a unique name for this geoname record."""
         if not reserved:
             reserved = []
         if self.ascii_title:
@@ -295,6 +302,7 @@ class GeoName(BaseNameMixin, db.Model):
         )
 
     def related_geonames(self) -> Dict[str, GeoName]:
+        """Return related geonames based on superior hierarchy (country, state, etc)."""
         related = {}
         if self.admin2code and self.admin2code.geonameid != self.geonameid:
             related['admin2'] = self.admin2code.geoname
@@ -309,6 +317,7 @@ class GeoName(BaseNameMixin, db.Model):
         return related
 
     def as_dict(self, related=True, alternate_titles=True) -> dict:
+        """Convert this record into a dictionary suitable for casting to JSON."""
         return {
             'geonameid': self.geonameid,
             'name': self.name,
@@ -349,12 +358,18 @@ class GeoName(BaseNameMixin, db.Model):
 
     @classmethod
     def get(cls, name) -> Optional[GeoName]:
+        """Get geoname record matching given URL stub name."""
         return cls.query.filter_by(name=name).one_or_none()
 
     @classmethod
     def get_by_title(
         cls, titles: Union[str, List[str]], lang: Optional[str] = None
     ) -> List[GeoName]:
+        """
+        Get geoname records matching the given titles.
+
+        :param lang: Limit results to names in this language
+        """
         results = set()
         if isinstance(titles, str):
             titles = [titles]
@@ -417,7 +432,7 @@ class GeoName(BaseNameMixin, db.Model):
             # Do a case-insensitive match
             ltoken = token.lower()
             # Ignore punctuation, only query for tokens containing text
-            # Special-case 'or' and 'in' to prevent matching against Oregon and Indiana, USA.
+            # Special-case 'or' and 'in' to prevent matching against Oregon and Indiana
             if ltoken not in ('or', 'in', 'to', 'the') and WORDS_RE.match(token):
                 # Find a GeoAltName matching token, add GeoAltName.geoname to results
                 if lang:
@@ -463,7 +478,8 @@ class GeoName(BaseNameMixin, db.Model):
                         maxmatch = max(f[0] for f in fullmatch)
                         accepted = list({f[1] for f in fullmatch if f[0] == maxmatch})
                         # Filter accepted down to one match.
-                        # Sort by (a) bias, (b) language match, (c) city over state and (d) population
+                        # Sort by (a) bias, (b) language match, (c) city over state and
+                        # (d) population
                         accepted.sort(
                             key=lambda a: (
                                 {
@@ -497,6 +513,12 @@ class GeoName(BaseNameMixin, db.Model):
 
     @classmethod
     def autocomplete(cls, q: str, lang: Optional[str] = None) -> Query:
+        """
+        Autocomplete a geoname record.
+
+        :param q: Partial title to complete
+        :param lang: Limit results to names in this language
+        """
         query = (
             cls.query.join(cls.alternate_titles)
             .filter(db.func.lower(GeoAltName.title).like(quote_like(q.lower())))
@@ -510,6 +532,8 @@ class GeoName(BaseNameMixin, db.Model):
 
 
 class GeoAltName(BaseMixin, db.Model):
+    """Additional names for any :class:`GeoName`."""
+
     __tablename__ = 'geo_alt_name'
     __bind_key__ = 'geoname'
 
@@ -541,6 +565,7 @@ class GeoAltName(BaseMixin, db.Model):
         )
 
     def as_dict(self) -> dict:
+        """Convert this record into a dictionary suitable for casting to JSON."""
         return {
             'geonameid': self.geonameid,
             'lang': self.lang,

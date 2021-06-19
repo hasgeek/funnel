@@ -105,6 +105,7 @@ GeoAltNameRecord = namedtuple(
 
 
 def get_progressbar():
+    """Create a progressbar."""
     return ProgressBar(
         widgets=[
             progressbar.widgets.Percentage(),
@@ -118,6 +119,7 @@ def get_progressbar():
 
 
 def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
+    """Download a geoname record file."""
     if not folder:
         folder_file = filename
     else:
@@ -159,6 +161,7 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
 
 
 def load_country_info(fd):
+    """Load country geonames from the given file descriptor."""
     print("Loading country info...")  # NOQA: T001
     progress = get_progressbar()
     countryinfo = [
@@ -200,6 +203,7 @@ def load_country_info(fd):
 
 
 def load_geonames(fd):
+    """Load geonames matching fixed criteria from the given file descriptor."""
     progress = get_progressbar()
     print("Loading geonames...")  # NOQA: T001
     size = sum(1 for line in fd)
@@ -327,6 +331,7 @@ def load_geonames(fd):
 
 
 def load_alt_names(fd):
+    """Load alternative names for geonames from the given file descriptor."""
     progress = get_progressbar()
     print("Loading alternate names...")  # NOQA: T001
     size = sum(1 for line in fd)
@@ -344,6 +349,7 @@ def load_alt_names(fd):
     ).start()
 
     def update_progress(counter):
+        """Update the progressbar, converting a statement into an expression."""
         loadprogress.update(counter + 1)
         return True
 
@@ -379,6 +385,7 @@ def load_alt_names(fd):
 
 
 def load_admin1_codes(fd):
+    """Load admin1 codes from the given file descriptor."""
     print("Loading admin1 codes...")  # NOQA: T001
     progress = get_progressbar()
     admincodes = [
@@ -402,6 +409,7 @@ def load_admin1_codes(fd):
 
 
 def load_admin2_codes(fd):
+    """Load admin2 codes from the given file descriptor."""
     print("Loading admin2 codes...")  # NOQA: T001
     progress = get_progressbar()
     admincodes = [

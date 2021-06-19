@@ -14,6 +14,7 @@ from ..typing import ReturnRenderWith
 def geo_get_by_name(
     name: str, related: bool = False, alternate_titles: bool = False
 ) -> ReturnRenderWith:
+    """Get a geoname record given a single URL stub name or geoname id."""
     if name.isdigit():
         geoname = GeoName.query.get(int(name))
     else:
@@ -36,6 +37,7 @@ def geo_get_by_name(
 def geo_get_by_names(
     name: List[str], related: bool = False, alternate_titles: bool = False
 ) -> ReturnRenderWith:
+    """Get geoname records matching given URL stub names or geonameids."""
     geonames = []
     for n in name:
         if n.isdigit():
@@ -57,6 +59,7 @@ def geo_get_by_names(
 @render_with(json=True)
 @requestargs('title[]', 'lang')
 def geo_get_by_title(title: List[str], lang: Optional[str] = None) -> ReturnRenderWith:
+    """Get locations matching given titles."""
     return {
         'status': 'ok',
         'result': [g.as_dict() for g in GeoName.get_by_title(title, lang)],
@@ -73,6 +76,7 @@ def geo_parse_location(
     bias: List[str] = None,
     alternate_titles: bool = False,
 ) -> ReturnRenderWith:
+    """Parse locations from a string of locations."""
     result = GeoName.parse_locations(q, special, lang, bias)
     for item in result:
         if 'geoname' in item:
@@ -86,6 +90,7 @@ def geo_parse_location(
 def geo_autocomplete(
     q: str, lang: Optional[str] = None, limit: int = 100
 ) -> ReturnRenderWith:
+    """Autocomplete a geoname record."""
     return {
         'status': 'ok',
         'result': [

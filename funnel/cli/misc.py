@@ -6,6 +6,7 @@ from ..models import db
 
 @app.shell_context_processor
 def shell_context():
+    """Insert variables into flask shell locals."""
     return {'db': db, 'models': models}
 
 
