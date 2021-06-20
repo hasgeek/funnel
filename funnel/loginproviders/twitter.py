@@ -51,9 +51,11 @@ class TwitterProvider(LoginProvider):
         request_token = request.args.get('oauth_token')
         request_verifier = request.args.get('oauth_verifier')
 
-        if not request_token or request_verifier:
+        if not request_token or not request_verifier:
             # No request token or verifier? Not a real callback then
-            raise LoginCallbackError(_("Twitter login failed. Try again?"))
+            raise LoginCallbackError(
+                _("If you were trying to use Twitter, please try again")
+            )
 
         auth.request_token = {
             'oauth_token': request_token,
@@ -68,7 +70,7 @@ class TwitterProvider(LoginProvider):
                 include_entities='false', skip_status='true', include_email='true'
             )
         except tweepy.TweepError:
-            raise LoginCallbackError(_("Twitter login failed. Try again?"))
+            raise LoginCallbackError(_("Twitter could not be reached. Try again?"))
 
         return {
             'email': getattr(twuser, 'email', None),
