@@ -6,6 +6,9 @@ SITE_SUPPORT_EMAIL = 'test@example.com'
 GA_CODE = ''
 #: Database backend
 SQLALCHEMY_DATABASE_URI = 'postgresql://host/database'
+SQLALCHEMY_BINDS = {
+    'geoname': 'postgresql://host/geoname',
+}
 #: Shortlink domain for SMS links (must be served via wsgi:shortlinkapp)
 SHORTLINK_DOMAIN = 'domain.tld'
 #: Secret keys
