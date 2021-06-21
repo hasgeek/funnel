@@ -38,7 +38,7 @@ from . import (
     hybrid_property,
 )
 from .email_address import EmailAddress, EmailAddressMixin
-from .helpers import ImgeeFurl, add_search_trigger
+from .helpers import ImgeeFurl, add_search_trigger, quote_like
 
 __all__ = [
     'USER_STATE',
@@ -95,11 +95,12 @@ class SharedProfileMixin:
             else None
         )
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self) -> Optional[str]:
         profile = self.profile
         return profile.url_for() if profile is not None else None
+
+    with_roles(profile_url, read={'all'})
 
 
 class USER_STATE(LabeledEnum):  # NOQA: N801
@@ -328,7 +329,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """Return picker name for user."""
         return self.pickername
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pickername(self) -> str:
         if self.username:
@@ -337,6 +337,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         else:
             return self.fullname
+
+    with_roles(pickername, read={'all'})
 
     def add_email(
         self,
@@ -514,7 +516,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         return getattr(self, 'transport_for_' + transport)(context)
 
-    @with_roles(grants={'owner', 'admin'})  # type: ignore[misc]
     @property
     def _self_is_owner_and_admin_of_self(self):
         """
@@ -524,6 +525,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         user is owner and admin of their own account.
         """
         return self
+
+    with_roles(_self_is_owner_and_admin_of_self, grants={'owner', 'admin'})
 
     def organizations_as_owner_ids(self) -> List[int]:
         """
@@ -667,13 +670,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         # Escape the '%' and '_' wildcards in SQL LIKE clauses.
         # Some SQL dialects respond to '[' and ']', so remove them.
-        like_query = (
-            query.replace('%', r'\%')
-            .replace('_', r'\_')
-            .replace('[', '')
-            .replace(']', '')
-            + '%'
-        )
+        like_query = quote_like(query)
 
         # We convert to lowercase and use the LIKE operator since ILIKE isn't standard
         # and doesn't use an index in PostgreSQL. There's a functional index for lower()

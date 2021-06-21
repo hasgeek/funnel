@@ -1,5 +1,4 @@
-"""Support functions for sending a short text message."""
-
+"""Support functions for sending an SMS."""
 
 from flask import url_for
 import itsdangerous.exc
@@ -10,15 +9,22 @@ import requests
 
 from baseframe import _
 
-from .. import app
-from ..serializers import token_serializer
-from .base import (
+from ... import app
+from ...serializers import token_serializer
+from ..exc import (
     TransportConnectionError,
     TransportRecipientError,
     TransportTransactionError,
 )
+from .template import SmsTemplate
 
-__all__ = ['validate_exotel_token', 'send_via_exotel', 'send_via_twilio', 'send']
+__all__ = [
+    'make_exotel_token',
+    'validate_exotel_token',
+    'send_via_exotel',
+    'send_via_twilio',
+    'send',
+]
 
 
 def make_exotel_token(to: str) -> str:
@@ -53,7 +59,7 @@ def validate_exotel_token(token: str, to: str) -> bool:
     return True
 
 
-def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
+def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> str:
     """
     Send the SMS using Exotel, for Indian phone numbers.
 
@@ -67,9 +73,11 @@ def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
     payload = {
         'From': app.config['SMS_EXOTEL_FROM'],
         'To': phone,
-        'Body': message,
-        'DltEntityId': app.config['SMS_EXOTEL_DLT_ID'],
+        'Body': str(message),
+        'DltEntityId': message.registered_entityid,
     }
+    if message.registered_templateid:
+        payload['DltTemplateId'] = message.registered_templateid
     if callback:
         payload['StatusCallback'] = url_for(
             'process_exotel_event',
@@ -100,7 +108,7 @@ def send_via_exotel(phone: str, message: str, callback: bool = True) -> str:
         raise TransportConnectionError(_("Exotel not reachable"))
 
 
-def send_via_twilio(phone: str, message: str, callback: bool = True) -> str:
+def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> str:
     """
     Send the SMS via Twilio, for international phone numbers.
 
@@ -123,7 +131,7 @@ def send_via_twilio(phone: str, message: str, callback: bool = True) -> str:
         msg = client.messages.create(
             from_=sender,
             to=phone,
-            body=message,
+            body=str(message),
             status_callback=url_for(
                 'process_twilio_event', _external=True, _method='POST'
             )
@@ -163,7 +171,7 @@ def send_via_twilio(phone: str, message: str, callback: bool = True) -> str:
 senders_by_prefix = [('+91', send_via_exotel), ('+', send_via_twilio)]
 
 
-def send(phone: str, message: str, callback: bool = True) -> str:
+def send(phone: str, message: SmsTemplate, callback: bool = True) -> str:
     """
     Send an SMS message to a given phone number and return a transaction id.
 

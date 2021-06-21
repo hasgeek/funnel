@@ -209,17 +209,18 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
                 roles.add('scanner')
         return roles
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def avatar(self):
         return self.user.avatar if self.user else ''
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(avatar, read={'all'})
+
     @property
     def has_public_profile(self):
         return self.user.has_public_profile if self.user else False
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(has_public_profile, read={'all'})
+
     @property
     def profile_url(self):
         return (
@@ -227,6 +228,8 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             if self.user and self.user.has_public_profile
             else None
         )
+
+    with_roles(profile_url, read={'all'})
 
     @classmethod
     def get(cls, current_project, current_email):
@@ -315,11 +318,22 @@ class TicketEventParticipant(BaseMixin, db.Model):
     )
     ticket_participant = db.relationship(
         TicketParticipant,
-        backref=db.backref('ticket_event_participants', cascade='all'),
+        backref=db.backref(
+            'ticket_event_participants',
+            cascade='all',
+            overlaps='ticket_events,ticket_participants',
+        ),
+        overlaps='ticket_events,ticket_participants',
     )
     ticket_event_id = db.Column(None, db.ForeignKey('ticket_event.id'), nullable=False)
     ticket_event = db.relationship(
-        TicketEvent, backref=db.backref('ticket_event_participants', cascade='all')
+        TicketEvent,
+        backref=db.backref(
+            'ticket_event_participants',
+            cascade='all',
+            overlaps='ticket_events,ticket_participants',
+        ),
+        overlaps='ticket_events,ticket_participants',
     )
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 

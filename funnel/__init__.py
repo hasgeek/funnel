@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 import os.path
 
 from flask import Flask
@@ -18,8 +19,9 @@ import coaster.app
 
 from ._version import __version__
 
-# App. Add additional apps here
+#: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
+#: Shortlink app at has.gy
 shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True)
 
 mail = Mail()
@@ -43,21 +45,19 @@ assets['schedule-print.css'][version] = 'css/schedule-print.css'
 # --- Import rest of the app --------------------------------------------------
 
 from . import (  # NOQA  # isort:skip
-    cli,
     models,
     signals,
     forms,
     loginproviders,
     transports,
     views,
+    cli,
 )
 from .models import db  # isort:skip
 
 # --- Configuration------------------------------------------------------------
 coaster.app.init_app(app)
-coaster.app.init_app(shortlinkapp)
-# For additional apps, do not install additional log handlers:
-# coaster.app.init_app(hasjobapp, init_logging=False)
+coaster.app.init_app(shortlinkapp, init_logging=False)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
@@ -65,11 +65,17 @@ coaster.app.init_app(shortlinkapp)
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
 shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
 
+# Downgrade logging from default WARNING level to INFO
+for _logging_app in (app, shortlinkapp):
+    if not _logging_app.debug:
+        _logging_app.logger.setLevel(logging.INFO)
+
 # TODO: Move this into Baseframe
 app.jinja_env.globals['get_locale'] = get_locale
 
 # TODO: Replace this with something cleaner. The `login_manager` attr expectation is
-# from coaster.auth. It attempts to call `current_app.login_manager._load_user`
+# from coaster.auth. It attempts to call `current_app.login_manager._load_user`, an
+# API it borrows from the Flask-Login extension
 app.login_manager = views.login_session.LoginManager()
 
 db.init_app(app)

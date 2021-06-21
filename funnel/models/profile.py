@@ -224,7 +224,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_user_profile(self) -> bool:
         return self.user_id is not None
 
-    @is_user_profile.expression  # type: ignore[no-redef]
+    @is_user_profile.expression
     def is_user_profile(cls):  # NOQA: N805
         return cls.user_id.isnot(None)
 
@@ -232,14 +232,15 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_organization_profile(self) -> bool:
         return self.organization_id is not None
 
-    @is_organization_profile.expression  # type: ignore[no-redef]
+    @is_organization_profile.expression
     def is_organization_profile(cls):  # NOQA: N805
         return cls.organization_id.isnot(None)
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_public(self) -> bool:
         return bool(self.state.PUBLIC)
+
+    with_roles(is_public, read={'all'})
 
     @hybrid_property
     def title(self) -> str:
@@ -250,7 +251,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             return ''
 
-    @title.setter  # type: ignore[no-redef]
+    @title.setter
     def title(self, value: str) -> None:
         if self.user:
             self.user.fullname = value
@@ -259,7 +260,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             raise ValueError("Reserved profiles do not have titles")
 
-    @title.expression  # type: ignore[no-redef]
+    @title.expression
     def title(cls):  # NOQA: N805
         return db.case(
             [

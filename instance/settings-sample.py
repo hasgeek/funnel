@@ -6,6 +6,9 @@ SITE_SUPPORT_EMAIL = 'test@example.com'
 GA_CODE = ''
 #: Database backend
 SQLALCHEMY_DATABASE_URI = 'postgresql://host/database'
+SQLALCHEMY_BINDS = {
+    'geoname': 'postgresql://host/geoname',
+}
 #: Shortlink domain for SMS links (must be served via wsgi:shortlinkapp)
 SHORTLINK_DOMAIN = 'domain.tld'
 #: Secret keys
@@ -43,7 +46,6 @@ CACHE_TYPE = 'redis'
 RQ_REDIS_URL = 'redis://localhost:6379/0'
 RQ_SCHEDULER_INTERVAL = 1
 DEBUG = True
-SMS_VERIFICATION_TEMPLATE = "Hello from Hasgeek. Your verification code is {code}."
 
 #: Twitter integration
 OAUTH_TWITTER_KEY = ''  # nosec
@@ -78,7 +80,15 @@ SMS_SMSGUPSHUP_PASS = ''  # nosec
 SMS_EXOTEL_SID = ''  # nosec
 SMS_EXOTEL_TOKEN = ''  # nosec
 SMS_EXOTEL_FROM = ''  # nosec
-SMS_EXOTEL_DLT_ID = ''  # nosec
+
+#: DLT registered entity id and template ids
+SMS_DLT_ENTITY_ID = ''  # nosec
+SMS_DLT_TEMPLATE_IDS = {
+    'web_otp_template': '',
+    'one_line_template': '',
+    'two_line_template': '',
+}
+
 #: Twilio support for non-indian numbers
 SMS_TWILIO_SID = ''  # nosec
 SMS_TWILIO_TOKEN = ''  # nosec

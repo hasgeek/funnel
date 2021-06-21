@@ -10,6 +10,7 @@ from ...models import (
     Rsvp,
 )
 from ...transports import email
+from ...transports.sms import MessageTemplate, OneLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
@@ -74,23 +75,25 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             ),
         )
 
-    def sms(self) -> str:
+    def sms(self) -> OneLineTemplate:
         project = self.rsvp.project
         next_at = project.next_starting_at()
         if next_at:
             template = _(
                 "You have registered for {project}."
                 " The next session starts {datetime}."
-                " You will get a reminder 10m prior. {url}"
+                " You will get a reminder 10m prior."
             )
         else:
-            template = _("You have registered for {project} {url}")
-        return template.format(
-            project=project.joined_title('>'),
-            url=shortlink(project.url_for(_external=True, **self.tracking_tags('sms'))),
-            datetime=datetime_filter(
-                next_at, self.datetime_format_sms, locale=get_locale()
+            template = _("You have registered for {project}")
+        return OneLineTemplate(
+            text1=template.format(
+                project=project.joined_title('>'),
+                datetime=datetime_filter(
+                    next_at, self.datetime_format_sms, locale=get_locale()
+                ),
             ),
+            url=shortlink(project.url_for(_external=True, **self.tracking_tags('sms'))),
         )
 
 
@@ -122,7 +125,9 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
             ),
         )
 
-    def sms(self):
-        return _("You have cancelled your registration for {project}").format(
-            project=self.rsvp.project.joined_title('>'),
+    def sms(self) -> MessageTemplate:
+        return MessageTemplate(
+            message=_("You have cancelled your registration for {project}").format(
+                project=self.rsvp.project.joined_title('>'),
+            ),
         )

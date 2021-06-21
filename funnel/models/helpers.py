@@ -34,6 +34,7 @@ __all__ = [
     'password_policy',
     'valid_name',
     'valid_username',
+    'quote_like',
     'ImgeeFurl',
     'ImgeeType',
 ]
@@ -299,6 +300,22 @@ def pgquote(identifier: str) -> str:
     """Add double quotes to the given identifier if required (PostgreSQL only)."""
     return (
         ('"%s"' % identifier) if identifier in POSTGRESQL_RESERVED_WORDS else identifier
+    )
+
+
+def quote_like(query):
+    """
+    Construct a LIKE query.
+
+    Usage::
+
+        column.like(quote_like(q))
+    """
+    # Escape the '%' and '_' wildcards in SQL LIKE clauses.
+    # Some SQL dialects respond to '[' and ']', so remove them.
+    return (
+        query.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
+        + '%'
     )
 
 

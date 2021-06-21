@@ -132,7 +132,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             and self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
         )
 
-    @is_active.expression  # type: ignore[no-redef]
+    @is_active.expression
     def is_active(cls):  # NOQA: N805
         return db.and_(
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
@@ -537,9 +537,11 @@ class ReorderMembershipMixin(ReorderMixin):
         super().__init__(**kwargs)  # type: ignore[call-arg]
         # Assign a default value to `seq`
         if self.seq is None:
-            self.seq = db.select(
-                [db.func.coalesce(db.func.max(self.__class__.seq) + 1, 1)]
-            ).where(self.parent_scoped_reorder_query_filter)
+            self.seq = (
+                db.select([db.func.coalesce(db.func.max(self.__class__.seq) + 1, 1)])
+                .where(self.parent_scoped_reorder_query_filter)
+                .scalar_subquery()
+            )
 
     @property
     def parent_scoped_reorder_query_filter(self) -> ClauseList:
