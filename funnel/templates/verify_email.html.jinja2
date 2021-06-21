@@ -1,16 +1,56 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import csrf_tag %}
 {% from "baseframe/mui/forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts %}
 
 <div class="modal__header">
   <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   <p class="mui--text-title mui--text-bold mui--text-dark"><span class="profile-avatar profile-avatar--bigger">{{ faicon(icon='envelope-open-text', baseline=false, icon_size='heading') }}</span></p>
+</div>
+<div class="modal__body">
   <p class="mui--text-subhead mui--text-bold mui--text-dark margin-bottom">{% trans %}Verify your email address{% endtrans %}</p>
   <p class="mui--text-light mui--text-body2 margin-bottom">{% trans email=useremail %}To start using Hasgeek, we need to verify your email ID - <b>{{ email }}</b>{% endtrans %}</p>
   <p class="mui--text-caption margin-bottom"><a class="nounderline mui--text-light" href="{{ url_for('account') }}">{% trans %}Not the right email address? You can change this info in Account settings</a>{% endtrans %}</a></p>
-</div>
-<div class="modal__body">
-  <form data-parsley-validate="true" data-parsley-trigger="keyup" id="{{ ref_id }}" method="POST" class="mui-form" accept-charset="UTF-8">
+  <form id="js-form-emailverify" method="POST" class="mui-form" accept-charset="UTF-8">
+    {{ csrf_tag() }}
     {{ renderform_inner(form, formid) }}
-    {{ rendersubmit([(none, "Send", 'mui-btn--primary')]) }}
+    {{ rendersubmit([(none, "Send verification email", 'mui-btn--primary')]) }}
   </form>
 </div>
+
+<div class="modal mui--hide" id="verification-modal" role="dialog" aria-labelledby="make-private-title" aria-modal="true" tabindex="-1">
+  <div class="modal__header">
+    <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+    <p class="mui--text-title mui--text-bold mui--text-dark"><span class="profile-avatar profile-avatar--bigger">{{ faicon(icon='envelope-open-text', baseline=false, icon_size='heading') }}</span></p>
+  </div>
+  <div class="modal__body">
+    <p class="mui--text-subhead mui--text-bold mui--text-dark margin-bottom">{% trans %}Verification email sent{% endtrans %} {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success input-align-icon") }}</p>
+    <p class="mui--text-light mui--text-body2 margin-bottom">{% trans email=useremail %}To start using Hasgeek, we need to verify your email ID - <b>{{ email }}</b>{% endtrans %}</p>
+  </div>
+</div>
+
+<div class="modal mui--hide" id="unverified-modal" role="dialog" aria-labelledby="make-private-title" aria-modal="true" tabindex="-1">
+  <div class="modal__header">
+    <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+    <p class="mui--text-title mui--text-bold mui--text-dark"><span class="profile-avatar profile-avatar--bigger">{{ faicon(icon='envelope-open-text', baseline=false, icon_size='heading') }}</span></p>
+  </div>
+  <div class="modal__body">
+    <p class="mui--text-subhead mui--text-bold mui--text-dark margin-bottom">{% trans %}Unable to send verification email right now. Try again later.{% endtrans %}</p>
+    <p class="mui--text-light mui--text-body2 margin-bottom">{% trans email=useremail %}To start using Hasgeek, we need to verify your email ID - <b>{{ email }}</b>{% endtrans %}</p>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('#js-form-emailverify').submit(function(event) {
+    event.preventDefault();
+    $.ajax({
+      type: 'POST',
+      timeout: window.Hasgeek.config.ajaxTimeout,
+      success: function (remoteData) {
+        $('#verification-modal').removeClass('mui--hide').modal('show');
+      },
+      error: function (response) {
+        $('#unverified-modal').removeClass('mui--hide').modal('show');
+      }
+    });
+  });
+</script>

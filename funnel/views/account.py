@@ -782,7 +782,7 @@ class AccountView(ClassView):
         if emailclaim is None:
             abort(404)
         verify_form = VerifyEmailForm()
-        if request_is_xhr():
+        if request_is_xhr() and request.method == 'GET':
             return make_response(
                 render_template(
                     'verify_email.html.jinja2',
@@ -790,12 +790,18 @@ class AccountView(ClassView):
                     title=_("Resend the verification email?"),
                     useremail=emailclaim.email,
                     formid='email_verify',
-                    ref_id='form-emailverify',
                 )
             )
         if verify_form.validate_on_submit():
             send_email_verify_link(emailclaim)
             db.session.commit()
+            # if request_is_xhr():
+            #     # return {'status': 'ok'}
+            # else:
+            #     flash(
+            #         _("The verification email has been sent to this address"), 'success'
+            #     )
+            #     return render_redirect(url_for('account'), code=303)
             flash(_("The verification email has been sent to this address"), 'success')
             return render_redirect(url_for('account'), code=303)
         return render_form(
