@@ -31,7 +31,7 @@ def rooms_list(project):
         return [("", _("Select Room"))] + [
             (
                 room.id,
-                "{venue} – {room}".format(venue=room.venue.title, room=room.title),
+                f"{room.venue.title} – {room.title}",
             )
             for room in project.rooms
         ]

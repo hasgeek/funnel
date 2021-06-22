@@ -149,7 +149,7 @@ class Label(BaseScopedNameMixin, db.Model):
     @property
     def title_for_name(self):
         if self.main_label:
-            return "%s/%s" % (self.main_label.title, self.title)
+            return f"{self.main_label.title}/{self.title}"
         else:
             return self.title
 
@@ -258,7 +258,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def __repr__(self):
         """Represent :class:`Label` as a string."""
         if self.main_label:
-            return "<Label %s/%s>" % (self.main_label.name, self.name)
+            return f"<Label {self.main_label.name}/{self.name}>"
         else:
             return "<Label %s>" % self.name
 

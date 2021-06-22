@@ -170,7 +170,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`AuthClient` as a string."""
-        return '<AuthClient "{title}" {buid}>'.format(title=self.title, buid=self.buid)
+        return f'<AuthClient "{self.title}" {self.buid}>'
 
     def secret_is(self, candidate: str, name: str) -> bool:
         """Check if the provided client secret is valid."""

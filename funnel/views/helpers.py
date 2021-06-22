@@ -82,9 +82,9 @@ def mask_email(email):
     'not-em***'
     """
     if '@' not in email:
-        return '{e}***'.format(e=email[:-3])
+        return f'{email[:-3]}***'
     username, domain = email.split('@')
-    return '{u}***@{d}'.format(u=username[:-3], d=domain)
+    return f'{username[:-3]}***@{domain}'
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
@@ -196,7 +196,7 @@ def validate_rate_limit(
         rate=1,
         tags={'resource': resource},
     )
-    cache_key = 'rate_limit/v1/%s/%s' % (resource, identifier)
+    cache_key = f'rate_limit/v1/{resource}/{identifier}'
     cache_value = cache.get(cache_key)
     if cache_value is None:
         count, cache_token = None, None

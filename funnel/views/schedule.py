@@ -169,7 +169,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
     # If for some reason it is used somewhere else and called with an unscheduled
     # session, this function should fail.
     if not session.scheduled:
-        raise Exception("{0!r} is not scheduled".format(session))
+        raise Exception(f"{session!r} is not scheduled")
 
     event = Event()
     event.add('summary', session.title)

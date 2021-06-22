@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from flask import url_for
-import itsdangerous.exc
+import itsdangerous
 
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
@@ -43,11 +43,11 @@ def validate_exotel_token(token: str, to: str) -> bool:
     try:
         # Allow 7 days validity for the callback token
         payload = token_serializer().loads(token, max_age=86400 * 7)
-    except itsdangerous.exc.SignatureExpired:
+    except itsdangerous.SignatureExpired:
         # Token has expired
         app.logger.warning("Received expired Exotel token: %s", token)
         return False
-    except itsdangerous.exc.BadData:
+    except itsdangerous.BadData:
         # Token is invalid
         app.logger.debug("Received invalid Exotel token: %s", token)
         return False
@@ -89,7 +89,7 @@ def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> 
         )
     try:
         r = requests.post(
-            'https://twilix.exotel.in/v1/Accounts/{sid}/Sms/send.json'.format(sid=sid),
+            f'https://twilix.exotel.in/v1/Accounts/{sid}/Sms/send.json',
             auth=(sid, token),
             data=payload,
         )

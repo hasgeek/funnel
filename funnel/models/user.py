@@ -975,7 +975,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @property
     def pickername(self) -> str:
         if self.name:
-            return '{title} (@{name})'.format(title=self.title, name=self.name)
+            return f'{self.title} (@{self.name})'
         return self.title
 
     with_roles(pickername, read={'all'})

@@ -55,7 +55,7 @@ class TestEventModels(unittest.TestCase):
         # Initial Setup
         random_user_id = uuid_b58()
         self.user = User(
-            username='lukes{userid}'.format(userid=random_user_id.lower()),
+            username=f'lukes{random_user_id.lower()}',
             fullname="Luke Skywalker",
         )
 

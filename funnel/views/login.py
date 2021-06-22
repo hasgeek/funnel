@@ -602,7 +602,7 @@ def hasjob_login(cookietest=False):
 #     # 2. Verify signature of code
 #     try:
 #         request_code = crossapp_serializer().loads(code)
-#     except itsdangerous.exc.BadData:
+#     except itsdangerous.BadData:
 #         current_app.logger.warning("hasjobapp login code is bad: %s", code)
 #         return redirect(url_for('index'))
 #     # 3. Create token
@@ -628,7 +628,7 @@ def hasjobapp_login_callback(token):
         # Valid up to 30 seconds for slow connections. This is the time gap between
         # `app` returning a redirect response and user agent loading `hasjobapp`'s URL
         request_token = crossapp_serializer().loads(token, max_age=30)
-    except itsdangerous.exc.BadData:
+    except itsdangerous.BadData:
         current_app.logger.warning("hasjobapp received bad login token: %s", token)
         flash(_("Your attempt to login failed. Please try again"), 'error')
         return metarefresh_redirect(url_for('index'))

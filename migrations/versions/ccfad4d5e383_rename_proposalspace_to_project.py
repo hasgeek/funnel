@@ -188,9 +188,7 @@ def upgrade():
         op.rename_table(old, new)
 
     for old, new in renamed_sequences:
-        op.execute(
-            sa.DDL('ALTER SEQUENCE {old} RENAME TO {new}'.format(old=old, new=new))
-        )
+        op.execute(sa.DDL(f'ALTER SEQUENCE {old} RENAME TO {new}'))
 
     for table, old, new in renamed_columns:
         op.alter_column(table, old, new_column_name=new)
@@ -219,9 +217,7 @@ def downgrade():
         op.alter_column(table, new, new_column_name=old)
 
     for old, new in renamed_sequences:
-        op.execute(
-            sa.DDL('ALTER SEQUENCE {new} RENAME TO {old}'.format(old=old, new=new))
-        )
+        op.execute(sa.DDL(f'ALTER SEQUENCE {new} RENAME TO {old}'))
 
     for old, new in renamed_tables:
         op.rename_table(new, old)

@@ -91,7 +91,7 @@ class LoginManager:
                 ) = lastuser_serializer().loads(
                     request.cookies['lastuser'], return_header=True
                 )
-            except itsdangerous.exc.BadSignature:
+            except itsdangerous.BadSignature:
                 lastuser_cookie = {}
 
         add_auth_attribute('cookie', lastuser_cookie)

@@ -236,11 +236,11 @@ class GeoName(BaseNameMixin, db.Model):
                 suffix = 'district'
 
         if state:
-            title = '%s, %s' % (title, state)
+            title = f'{title}, {state}'
         if country:
-            title = '%s, %s' % (title, country)
+            title = f'{title}, {country}'
         if suffix:
-            return '%s (%s)' % (title, suffix)
+            return f'{title} ({suffix})'
         return title
 
     @property
@@ -558,7 +558,7 @@ class GeoAltName(BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoAltName %s "%s" of %s>' % (
+        return '<GeoAltName {} "{}" of {}>'.format(
             self.lang,
             self.title,
             repr(self.geoname)[1:-1] if self.geoname else None,

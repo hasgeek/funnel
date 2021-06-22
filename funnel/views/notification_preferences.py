@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import Optional
 
 from flask import abort, flash, redirect, request, session, url_for
-import itsdangerous.exc
+import itsdangerous
 
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
@@ -174,11 +174,11 @@ class AccountNotificationView(ClassView):
             payload = token_serializer().loads(
                 token, max_age=365 * 24 * 60 * 60  # Validity 1 year (365 days)
             )
-        except itsdangerous.exc.SignatureExpired:
+        except itsdangerous.SignatureExpired:
             # Link has expired. It's been over a year!
             flash(unsubscribe_link_expired, 'error')
             return redirect(url_for('notification_preferences'), code=303)
-        except itsdangerous.exc.BadData:
+        except itsdangerous.BadData:
             flash(unsubscribe_link_invalid, 'error')
             return redirect(url_for('notification_preferences'), code=303)
 
@@ -309,12 +309,12 @@ class AccountNotificationView(ClassView):
                     session.get('temp_token') or request.form['token'],
                     max_age=365 * 24 * 60 * 60,  # Validity 1 year (365 days)
                 )
-            except itsdangerous.exc.SignatureExpired:
+            except itsdangerous.SignatureExpired:
                 # Link has expired. It's been over a year!
                 discard_temp_token()
                 flash(unsubscribe_link_expired, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
-            except itsdangerous.exc.BadData:
+            except itsdangerous.BadData:
                 discard_temp_token()
                 flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)

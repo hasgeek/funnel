@@ -6,7 +6,7 @@ from uuid import uuid4
 from flask import current_app, redirect, request, session
 
 from sentry_sdk import capture_exception
-from simplejson.errors import JSONDecodeError
+from simplejson import JSONDecodeError
 import requests
 
 from baseframe import _

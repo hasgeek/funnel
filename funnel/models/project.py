@@ -435,7 +435,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`Project` as a string."""
-        return '<Project %s/%s "%s">' % (
+        return '<Project {}/{} "{}">'.format(
             self.profile.name if self.profile else '(none)',
             self.name,
             self.title,
@@ -775,7 +775,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`ProjectRedirect` as a string."""
-        return '<ProjectRedirect %s/%s: %s>' % (
+        return '<ProjectRedirect {}/{}: {}>'.format(
             self.profile.name,
             self.name,
             self.project.name if self.project else '(none)',
