@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Set, Union, cast, overload
+from typing import List, Optional, Set, Union, cast, overload
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -350,7 +350,7 @@ class EmailAddress(BaseMixin, db.Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: Any) -> bool:
+    def is_available_for(self, owner: object) -> bool:
         """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -544,7 +544,7 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Optional[Any], email: str) -> EmailAddress:
+    def add_for(cls, owner: Optional[object], email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -565,7 +565,7 @@ class EmailAddress(BaseMixin, db.Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[Any],
+        owner: Optional[object],
         email: str,
         check_dns: bool = False,
         new: bool = False,
@@ -746,7 +746,7 @@ auto_init_default(EmailAddress._is_blocked)
 
 
 @event.listens_for(EmailAddress.email, 'set')
-def _validate_email(target, value: Any, old_value: Any, initiator):
+def _validate_email(target, value: object, old_value: object, initiator):
     # First: check if value is acceptable and email attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
@@ -776,7 +776,9 @@ def _validate_email(target, value: Any, old_value: Any, initiator):
 
     # Second: If we have a value, does it look like an email address?
     # This does not check if it's a reachable mailbox; merely if it has valid syntax
-    if value and not EmailAddress.is_valid_email_address(value):
+    if value is not None and not (
+        isinstance(value, str) and EmailAddress.is_valid_email_address(value)
+    ):
         raise ValueError("Value is not an email address")
 
     # All clear? Now check against the hash

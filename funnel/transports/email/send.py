@@ -1,7 +1,7 @@
 """Support functions for sending an email."""
 
 from email.utils import formataddr, getaddresses, parseaddr
-from typing import Any, Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import Dict, List, NamedTuple, Optional, Tuple, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -36,7 +36,7 @@ class EmailAttachment(NamedTuple):
     mimetype: str
 
 
-def jsonld_view_action(description: str, url: str, title: str) -> Dict[str, Any]:
+def jsonld_view_action(description: str, url: str, title: str) -> Dict[str, object]:
     return {
         "@context": "http://schema.org",
         "@type": "EmailMessage",
@@ -50,7 +50,7 @@ def jsonld_view_action(description: str, url: str, title: str) -> Dict[str, Any]
     }
 
 
-def jsonld_confirm_action(description: str, url: str, title: str) -> Dict[str, Any]:
+def jsonld_confirm_action(description: str, url: str, title: str) -> Dict[str, object]:
     return {
         "@context": "http://schema.org",
         "@type": "EmailMessage",

@@ -76,7 +76,6 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 from typing import (
-    Any,
     Callable,
     Dict,
     Generator,
@@ -1152,7 +1151,7 @@ class NotificationPreferences(BaseMixin, db.Model):
         return None
 
     @db.validates('notification_type')
-    def _valid_notification_type(self, key: str, value: Any) -> str:
+    def _valid_notification_type(self, key: str, value: Optional[str]) -> str:
         if value == '':  # Special-cased name for main preferences
             return value
         if value is None or value not in notification_type_registry:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -424,7 +424,7 @@ class GeoName(BaseNameMixin, db.Model):
         while '' in tokens:
             tokens.remove('')  # Remove blank tokens from beginning and end
         ltokens = [t.lower() for t in tokens]
-        results: List[Dict[str, Any]] = []
+        results: List[Dict[str, object]] = []
         counter = 0
         limit = len(tokens)
         while counter < limit:

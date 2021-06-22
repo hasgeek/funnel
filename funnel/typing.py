@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Set, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Set, Tuple, TypeVar, Union
 
 from werkzeug.wrappers import Response  # Base class for Flask Response
 
@@ -12,7 +12,7 @@ OptionalMigratedTables = Optional[Union[List[str], Tuple[str], Set[str]]]
 #: structure can have a nested dict with the same rules, requiring recursion. Mypy does
 #: not support recursive types: https://github.com/python/mypy/issues/731. Both JSON
 #: and Jinja2 templates require the dictionary key to be a string.
-RenderWithDict = Dict[str, Any]
+RenderWithDict = Dict[str, object]
 
 #: Flask response headers can be a dict or list of key-value pairs
 ResponseHeaders = Union[Dict[str, str], List[Tuple[str, str]]]

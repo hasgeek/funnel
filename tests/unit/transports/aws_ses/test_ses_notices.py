@@ -1,3 +1,4 @@
+from typing import cast
 import json
 import os
 
@@ -27,7 +28,7 @@ def test_empty_json(client) -> None:
     """Test empty JSON."""
     resp: Response = client.post(URL)
     assert resp.status_code == 422
-    rdata = resp.get_json()
+    rdata = cast(dict, resp.get_json())
     assert rdata['status'] == 'error'
 
 
@@ -37,7 +38,7 @@ def test_bad_message(client) -> None:
         data = file.read()
     resp: Response = client.post(URL, json=json.loads(data), headers=HEADERS)
     assert resp.status_code == 422
-    rdata = resp.get_json()
+    rdata = cast(dict, resp.get_json())
     assert rdata['status'] == 'error'
     assert rdata['error'] == 'validation_failure'
 

@@ -1,5 +1,5 @@
 from string import Formatter
-from typing import Any, Dict, Optional, Pattern, cast
+from typing import Dict, Optional, Pattern, cast
 import re
 
 from flask import Flask
@@ -76,7 +76,7 @@ class SmsTemplate:
 
     # Type hints for mypy
     _text: Optional[str]
-    _format_kwargs: Dict[str, Any]
+    _format_kwargs: Dict[str, object]
 
     def __init__(self, **kwargs) -> None:
         """Initialize template with variables."""

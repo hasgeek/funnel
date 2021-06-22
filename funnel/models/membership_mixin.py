@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Set, TypeVar
+from typing import Iterable, Set, TypeVar
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
@@ -176,7 +176,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'editor'})
     def replace(
-        self: MembershipType, actor: User, accept=False, **roles: Any
+        self: MembershipType, actor: User, accept=False, **roles: object
     ) -> MembershipType:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:
