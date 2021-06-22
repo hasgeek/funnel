@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import phonenumbers
 
 from baseframe import _, __

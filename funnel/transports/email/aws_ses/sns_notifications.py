@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum, IntFlag
 from typing import Dict, Pattern, Sequence, cast
 import base64

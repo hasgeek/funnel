@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from types import SimpleNamespace

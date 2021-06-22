@@ -1,5 +1,7 @@
 """Organization admin and project crew membership notifications."""
 
+from __future__ import annotations
+
 from typing import List, NamedTuple, Optional, cast
 
 from flask import Markup, escape, render_template

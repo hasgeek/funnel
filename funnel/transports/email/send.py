@@ -1,5 +1,7 @@
 """Support functions for sending an email."""
 
+from __future__ import annotations
+
 from email.utils import formataddr, getaddresses, parseaddr
 from typing import Dict, List, NamedTuple, Optional, Tuple, Union
 

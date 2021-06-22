@@ -1,5 +1,7 @@
 """Support functions for sending an SMS."""
 
+from __future__ import annotations
+
 from flask import url_for
 import itsdangerous.exc
 

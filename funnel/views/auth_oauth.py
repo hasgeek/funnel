@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Iterable, List, Optional, cast
 
 from flask import get_flashed_messages, jsonify, redirect, render_template, request

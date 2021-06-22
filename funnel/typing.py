@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Dict, List, Optional, Set, Tuple, TypeVar, Union
 
 from werkzeug.wrappers import Response  # Base class for Flask Response

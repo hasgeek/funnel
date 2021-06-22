@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ..models import AuthToken
 from ..signals import (
     org_data_changed,

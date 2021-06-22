@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
 

@@ -1,5 +1,7 @@
 # flake8: noqa
 
+from __future__ import annotations
+
 from .account import *
 from .auth_client import *
 from .comment import *

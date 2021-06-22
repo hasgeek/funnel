@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from baseframe import __
 from coaster.sqlalchemy import with_roles
 from coaster.utils import LabeledEnum

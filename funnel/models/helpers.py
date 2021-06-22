@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from textwrap import dedent
 from typing import Dict, Iterable, Optional, Set, Type

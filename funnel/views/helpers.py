@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from base64 import urlsafe_b64encode
 from datetime import datetime
 from hashlib import blake2b

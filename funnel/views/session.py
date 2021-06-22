@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional, cast
 
 from flask import jsonify, redirect, render_template, request

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from baseframe import baseframe_translations
 
 from .. import app, models

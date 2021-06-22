@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import baseframe.forms as forms
 
 from ..models import Comment
