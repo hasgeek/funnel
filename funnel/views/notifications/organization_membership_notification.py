@@ -183,7 +183,7 @@ class RenderShared:
     def record_type(self):
         """Membership record type as a string, for templates."""
         # There are four record types: invite, accept, direct_add, amend
-        return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name  # type: ignore[misc]
+        return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name
 
     def activity_html(self, membership: OrganizationMembership = None) -> str:
         if membership is None:

@@ -78,7 +78,7 @@ def name_to_bigint(value: Union[str, bytes]) -> int:
     elif isinstance(value, bytes):
         bvalue = value
         value = value.decode()
-    else:  # type: ignore[unreachable]
+    else:
         raise TypeError(f"Unknown type for shortlink name: {value!r}")
 
     if len(bvalue) > MAX_NAME_LENGTH:

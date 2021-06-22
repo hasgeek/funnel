@@ -45,7 +45,7 @@ class ScopeMixin:
 
     @declared_attr  # type: ignore[no-redef]
     def scope(cls):
-        @property  # type: ignore[misc]  # Ignore complaint about non-method property
+        @property
         def scope(self) -> Tuple[str, ...]:
             if not self._scope:
                 return ()

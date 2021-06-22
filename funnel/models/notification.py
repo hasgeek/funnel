@@ -429,7 +429,7 @@ class Notification(NoIdMixin, db.Model):
         return SqlUuidB58Comparator(cls.eventid)
 
     @cached_property  # type: ignore[no-redef]
-    def document(self):  # type: ignore
+    def document(self):
         """
         Retrieve the document referenced by this Notification, if any.
 
@@ -442,7 +442,7 @@ class Notification(NoIdMixin, db.Model):
         return None
 
     @cached_property  # type: ignore[no-redef]
-    def fragment(self):  # type: ignore
+    def fragment(self):
         """
         Retrieve the fragment within a document referenced by this Notification, if any.
 

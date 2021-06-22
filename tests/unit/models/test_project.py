@@ -1,8 +1,5 @@
 from datetime import datetime, timedelta
 
-# FIXME: For unknown reasons, mypy thinks this attribute does not exist
-from werkzeug.utils import invalidate_cached_property  # type: ignore[attr-defined]
-
 import pytest
 
 from coaster.utils import utcnow
@@ -18,7 +15,7 @@ def invalidate_cache(project):
         'end_at_localized',
     ):
         try:
-            invalidate_cached_property(project, attr)
+            delattr(project, attr)
         except KeyError:
             # Not in cache, ignore
             pass
