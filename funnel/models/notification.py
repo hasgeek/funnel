@@ -284,7 +284,7 @@ class Notification(NoIdMixin, db.Model):
     preference_context: db.Model = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
-    type = immutable(db.Column(db.Unicode, nullable=False))  # NOQA: A003
+    type_ = immutable(db.Column('type', db.Unicode, nullable=False))
 
     #: Id of user that triggered this notification
     user_id = immutable(
@@ -313,7 +313,7 @@ class Notification(NoIdMixin, db.Model):
         # present. Hence the naming convention of `_key` suffix rather than `ix_` prefix
         db.Index(
             'notification_type_document_uuid_fragment_uuid_key',
-            type,
+            type_,
             document_uuid,
             fragment_uuid,
             unique=True,
@@ -323,7 +323,7 @@ class Notification(NoIdMixin, db.Model):
 
     __mapper_args__ = {
         # 'polymorphic_identity' from subclasses is stored in the type column
-        'polymorphic_on': type,
+        'polymorphic_on': type_,
         # When querying the Notification model, cast automatically to all subclasses
         'with_polymorphic': '*',
     }
@@ -532,6 +532,11 @@ class Notification(NoIdMixin, db.Model):
                 )
                 db.session.add(user_notification)
                 yield user_notification
+
+    # Make :attr:`type_` available under the name `type`, but declare this at the very
+    # end of the class to avoid conflicts with the Python `type` global that is
+    # used for type-hinting
+    type = db.synonym('type_')  # NOQA: A003
 
 
 class PreviewNotification:
@@ -1111,8 +1116,8 @@ class NotificationPreferences(BaseMixin, db.Model):
             else:
                 for t_attr, d_attr in transport_attrs:
                     if getattr(self, t_attr) is None:
-                        # If this transport is enabled for any existing notification type,
-                        # also enable here.
+                        # If this transport is enabled for any existing notification
+                        # type, also enable here.
                         setattr(
                             self,
                             t_attr,
