@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Optional
 
 from flask import abort, flash, redirect, request, session, url_for
@@ -7,7 +7,7 @@ import itsdangerous.exc
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
@@ -246,8 +246,7 @@ class AccountNotificationView(ClassView):
         if token and not cookietest:
             session['temp_token'] = token
             session['temp_token_type'] = token_type
-            # Use naive datetime as the session can't handle tz-aware datetimes
-            session['temp_token_at'] = datetime.utcnow()
+            session['temp_token_at'] = utcnow()
             # These values are removed from the session in 10 minutes by
             # :func:`funnel.views.login_session.clear_expired_temp_token` if the user
             # abandons this page.
@@ -267,7 +266,7 @@ class AccountNotificationView(ClassView):
         if token and 'temp_token' not in session:
             session['temp_token'] = token
             session['temp_token_type'] = token_type
-            session['temp_token_at'] = datetime.utcnow()
+            session['temp_token_at'] = utcnow()
             return metarefresh_redirect(
                 url_for('notification_unsubscribe_do')
                 + ('?' + request.query_string.decode())
@@ -335,9 +334,7 @@ class AccountNotificationView(ClassView):
                 discard_temp_token()
                 flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
-            if payload['timestamp'].replace(
-                tzinfo=None
-            ) < datetime.utcnow() - timedelta(days=7):
+            if payload['timestamp'] < utcnow() - timedelta(days=7):
                 # Link older than a week. Expire it
                 discard_temp_token()
                 flash(unsubscribe_link_expired, 'error')

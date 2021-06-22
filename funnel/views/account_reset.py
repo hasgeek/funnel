@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask import (
     Markup,
     current_app,
@@ -17,7 +15,7 @@ from pytz import utc
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import requestargs
 
 from .. import app
@@ -132,8 +130,7 @@ def reset_email(token: str, cookietest=False) -> ReturnView:
     """Move token into session cookie and redirect to a token-free URL."""
     if not cookietest:
         session['temp_token'] = token
-        # Use naive datetime as the session can't handle tz-aware datetimes
-        session['temp_token_at'] = datetime.utcnow()
+        session['temp_token_at'] = utcnow()
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
         # and reload the page
         if request.query_string:
@@ -143,7 +140,7 @@ def reset_email(token: str, cookietest=False) -> ReturnView:
         # Browser is refusing to set cookies on 302 redirects. Set it again and use
         # the less secure meta-refresh redirect (browser extensions can read the URL)
         session['temp_token'] = token
-        session['temp_token_at'] = datetime.utcnow()
+        session['temp_token_at'] = utcnow()
         return metarefresh_redirect(url_for('reset_email_do'))
     # implicit: cookietest is True and 'temp_token' in session
     return redirect(url_for('reset_email_do'))
