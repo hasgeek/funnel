@@ -140,16 +140,22 @@ def do_migrate_instances(
                         )
                         return False
 
-        # TODO: If this table uses Flask-SQLAlchemy's bind_key mechanism,
+        # This following code is disabled but preserved because we don't fully
+        # understand multi-db bind setups. It isn't a current requirement because we
+        # don't have fkeys spanning databases, but we may in future (in which case it's
+        # a relationship and not a db-enforced foreign key). Original comment follows:
+
+        # If this table uses Flask-SQLAlchemy's bind_key mechanism,
         # session.execute won't bind to the correct engine, so the table cannot be
         # migrated. If we attempt to retrieve and connect to the correct engine, we may
         # lose the transaction. We need to confirm this.
-        if table.info.get('bind_key'):
-            current_app.logger.error(
-                "do_migrate_table interrupted because table has bind_key: %s",
-                table.name,
-            )
-            return False
+
+        # if table.info.get('bind_key'):
+        #     current_app.logger.error(
+        #         "do_migrate_table interrupted because table has bind_key: %s",
+        #         table.name,
+        #     )
+        #     return False
 
         for column in target_columns:
             session.execute(
