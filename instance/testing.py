@@ -73,6 +73,12 @@ SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
 SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
 SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
 
+#: Vimeo API key
+VIMEO_CLIENT_ID = environ.get('VIMEO_CLIENT_ID')
+VIMEO_CLIENT_SECRET = environ.get('VIMEO_CLIENT_SECRET')
+VIMEO_ACCESS_TOKEN = environ.get('VIMEO_ACCESS_TOKEN')
+
+
 # SES Notification Topic
 SES_NOTIFICATION_TOPICS = [  # nosec
     'arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com'

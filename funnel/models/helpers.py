@@ -1,6 +1,6 @@
 from copy import deepcopy
 from textwrap import dedent
-from typing import Dict, Iterable, Optional, Set, Type, Union
+from typing import Dict, Iterable, Optional, Set, Type
 import re
 
 from sqlalchemy import DDL, event
@@ -11,6 +11,7 @@ from sqlalchemy.dialects.postgresql.base import (
 from flask import current_app
 
 from furl import furl
+from typing_extensions import TypedDict
 from zxcvbn import zxcvbn
 import pymdownx.superfences
 
@@ -120,6 +121,13 @@ RESERVED_NAMES: Set[str] = {
 }
 
 
+class PasswordPolicyType(TypedDict):
+    is_weak: bool
+    score: str
+    warning: str
+    suggestions: str
+
+
 class PasswordPolicy:
     def __init__(self, min_length: int, min_score: int) -> None:
         self.min_length = min_length
@@ -127,7 +135,7 @@ class PasswordPolicy:
 
     def test_password(
         self, password: str, user_inputs: Optional[Iterable] = None
-    ) -> Dict[str, Union[bool, str]]:
+    ) -> PasswordPolicyType:
         result = zxcvbn(password, user_inputs)
         return {
             'is_weak': (
