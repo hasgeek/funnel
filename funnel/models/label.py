@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
 
@@ -147,7 +149,7 @@ class Label(BaseScopedNameMixin, db.Model):
     @property
     def title_for_name(self):
         if self.main_label:
-            return "%s/%s" % (self.main_label.title, self.title)
+            return f"{self.main_label.title}/{self.title}"
         else:
             return self.title
 
@@ -177,7 +179,7 @@ class Label(BaseScopedNameMixin, db.Model):
         self._restricted = value
 
     @restricted.expression
-    def restricted(cls):  # NOQA: N805
+    def restricted(cls):  # noqa: N805
         return case(
             [
                 (
@@ -201,7 +203,7 @@ class Label(BaseScopedNameMixin, db.Model):
         self._archived = value
 
     @archived.expression
-    def archived(cls):  # NOQA: N805
+    def archived(cls):  # noqa: N805
         return case(
             [
                 (cls._archived.is_(True), cls._archived),
@@ -220,7 +222,7 @@ class Label(BaseScopedNameMixin, db.Model):
         return bool(self.options)
 
     @has_options.expression
-    def has_options(cls):  # NOQA: N805
+    def has_options(cls):  # noqa: N805
         return exists().where(Label.main_label_id == cls.id)
 
     @property
@@ -256,7 +258,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def __repr__(self):
         """Represent :class:`Label` as a string."""
         if self.main_label:
-            return "<Label %s/%s>" % (self.main_label.name, self.name)
+            return f"<Label {self.main_label.name}/{self.name}>"
         else:
             return "<Label %s>" % self.name
 

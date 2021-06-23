@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import (
     Markup,
     current_app,
@@ -180,7 +182,7 @@ def reset_email_do() -> ReturnView:
     try:
         # Allow 24 hours (86k seconds) validity for the reset token
         token = token_serializer().loads(session['temp_token'], max_age=86400)
-    except itsdangerous.exc.SignatureExpired:
+    except itsdangerous.SignatureExpired:
         # Link has expired (timeout).
         session.pop('temp_token', None)
         session.pop('temp_token_at', None)
@@ -192,7 +194,7 @@ def reset_email_do() -> ReturnView:
             'error',
         )
         return redirect(url_for('reset'), code=303)
-    except itsdangerous.exc.BadData:
+    except itsdangerous.BadData:
         # Link is invalid
         session.pop('temp_token', None)
         session.pop('temp_token_at', None)

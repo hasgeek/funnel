@@ -21,7 +21,7 @@ class TestSesEventJson:
 
         :return: None
         """
-        with open(os.path.join(self.data_dir, "delivery.json"), 'r') as file:
+        with open(os.path.join(self.data_dir, "delivery.json")) as file:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
         assert obj.event_type == "Delivery"
@@ -42,7 +42,7 @@ class TestSesEventJson:
 
     def test_bounce(self) -> None:
         """Check if Data classes for bounce is parsed correctly."""
-        with open(os.path.join(self.data_dir, "bounce.json"), 'r') as file:
+        with open(os.path.join(self.data_dir, "bounce.json")) as file:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
         assert obj.bounce
@@ -55,7 +55,7 @@ class TestSesEventJson:
 
     def test_complaint(self) -> None:
         """Check if Data classes for complaint is parsed correctly."""
-        with open(os.path.join(self.data_dir, "complaint.json"), 'r') as file:
+        with open(os.path.join(self.data_dir, "complaint.json")) as file:
             data = file.read()
         obj: SesEvent = SesEvent.from_json(data)
         assert obj.complaint
@@ -68,7 +68,7 @@ class TestSesEventJson:
 
     def test_signature_good_message(self) -> None:
         """Check if Signature Verification works."""
-        with open(os.path.join(self.data_dir, "full-message.json"), 'r') as file:
+        with open(os.path.join(self.data_dir, "full-message.json")) as file:
             data = file.read()
 
         # Decode the JSON
@@ -85,7 +85,7 @@ class TestSesEventJson:
 
     def test_signature_bad_message(self) -> None:
         """Checks if Signature Verification works."""
-        with open(os.path.join(self.data_dir, "bad-message.json"), 'r') as file:
+        with open(os.path.join(self.data_dir, "bad-message.json")) as file:
             data = file.read()
 
         # Decode the JSON

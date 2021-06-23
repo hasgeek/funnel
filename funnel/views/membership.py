@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import abort, redirect, request
 
 from baseframe import _

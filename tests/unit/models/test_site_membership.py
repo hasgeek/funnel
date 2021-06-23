@@ -1,7 +1,5 @@
 from sqlalchemy.exc import IntegrityError
 
-from werkzeug.utils import invalidate_cached_property  # type: ignore[attr-defined]
-
 import pytest
 
 from funnel.models import SiteMembership
@@ -16,7 +14,7 @@ def invalidate_cache(user):
         'is_site_editor',
     ):
         try:
-            invalidate_cached_property(user, attr)
+            delattr(user, attr)
         except KeyError:
             # Not cached, ignore
             pass

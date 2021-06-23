@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 from io import StringIO
 from typing import Dict, Optional
@@ -99,7 +101,7 @@ class ContactView(ClassView):
             headers=[
                 (
                     'Content-Disposition',
-                    'attachment;filename="{filename}.csv"'.format(filename=filename),
+                    f'attachment;filename="{filename}.csv"',
                 )
             ],
         )
@@ -136,7 +138,7 @@ class ContactView(ClassView):
         return self.contacts_to_csv(
             contacts,
             timezone=project.timezone,
-            filename='contacts-{project}'.format(project=make_name(project.title)),
+            filename=f'contacts-{make_name(project.title)}',
         )
 
     @route('scan', endpoint='scan_contact')

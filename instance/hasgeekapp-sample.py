@@ -2,7 +2,7 @@ SITE_TITLE = 'Hasgeek App'
 #: Lastuser client id
 LASTUSER_CLIENT_ID = ''
 #: Lastuser client secret
-LASTUSER_CLIENT_SECRET = ''  # nosec
+LASTUSER_CLIENT_SECRET = ''  # nosec  # noqa: S105
 LASTUSER_COOKIE_DOMAIN = ''
 #: Flat pages
 FLATPAGES_AUTO_RELOAD = False

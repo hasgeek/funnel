@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import namedtuple
 from datetime import timedelta
 import sys
@@ -110,7 +112,7 @@ def growthstats():
     if not app.config.get('TELEGRAM_STATS_BOT_TOKEN') or not app.config.get(
         'TELEGRAM_STATS_CHAT_ID'
     ):
-        print(  # NOQA: T001
+        print(  # noqa: T001
             "Configure TELEGRAM_STATS_BOT_TOKEN and TELEGRAM_STATS_CHAT_ID in settings",
             file=sys.stderr,
         )

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum, IntFlag
 from typing import Dict, Pattern, Sequence, cast
 import base64
@@ -188,7 +190,12 @@ class SnsValidator:
         plaintext = self._get_text_to_sign(message).encode()
         signature = base64.b64decode(message.get('Signature', ''))
         try:
-            public_key.verify(signature, plaintext, PKCS1v15(), SHA1())  # nosec
+            public_key.verify(  # nosec
+                signature,
+                plaintext,
+                PKCS1v15(),
+                SHA1(),  # noqa: S303  # skipcq: PTC-W1003
+            )
         except InvalidSignature:
             raise SnsSignatureFailureException("Signature mismatch")
 

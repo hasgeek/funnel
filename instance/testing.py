@@ -14,7 +14,7 @@ SHORTLINK_DOMAIN = 'funnel.travis.local:3002'
 DEFAULT_DOMAIN = 'funnel.travis.local'
 STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
-UPLOAD_FOLDER = '/tmp'  # nosec
+UPLOAD_FOLDER = '/tmp'  # nosec  # noqa: S108
 TIMEZONE = 'Asia/Kolkata'
 ASSET_BASE_PATH = "build"
 HASCORE_SERVER = 'https://api.hasgeek.com'
@@ -72,6 +72,12 @@ SMS_DLT_ENTITY_ID = environ.get('SMS_DLT_ENTITY_ID')
 SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
 SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
 SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
+
+#: Vimeo API key
+VIMEO_CLIENT_ID = environ.get('VIMEO_CLIENT_ID')
+VIMEO_CLIENT_SECRET = environ.get('VIMEO_CLIENT_SECRET')
+VIMEO_ACCESS_TOKEN = environ.get('VIMEO_ACCESS_TOKEN')
+
 
 # SES Notification Topic
 SES_NOTIFICATION_TOPICS = [  # nosec

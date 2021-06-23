@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from base64 import urlsafe_b64encode
 from datetime import datetime
 from hashlib import blake2b
@@ -32,7 +34,14 @@ def metarefresh_redirect(url):
 
 
 def app_url_for(
-    app, endpoint, _external=True, _method='GET', _anchor=None, _scheme=None, **values
+    target_app,
+    endpoint,
+    /,
+    _external=True,
+    _method='GET',
+    _anchor=None,
+    _scheme=None,
+    **values,
 ):
     """
     Equivalent of calling `url_for` in another app's context, with some differences.
@@ -44,7 +53,7 @@ def app_url_for(
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
     # 'app' here is the parameter, not the module-level import
-    if current_app and current_app._get_current_object() is app:
+    if current_app and current_app._get_current_object() is target_app:
         return url_for(
             endpoint,
             _external=_external,
@@ -53,7 +62,7 @@ def app_url_for(
             _scheme=_scheme,
             **values,
         )
-    url_adapter = app.create_url_adapter(None)
+    url_adapter = target_app.create_url_adapter(None)
     old_scheme = None
     if _scheme is not None:
         old_scheme = url_adapter.url_scheme
@@ -80,9 +89,9 @@ def mask_email(email):
     'not-em***'
     """
     if '@' not in email:
-        return '{e}***'.format(e=email[:-3])
+        return f'{email[:-3]}***'
     username, domain = email.split('@')
-    return '{u}***@{d}'.format(u=username[:-3], d=domain)
+    return f'{username[:-3]}***@{domain}'
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
@@ -194,7 +203,7 @@ def validate_rate_limit(
         rate=1,
         tags={'resource': resource},
     )
-    cache_key = 'rate_limit/v1/%s/%s' % (resource, identifier)
+    cache_key = f'rate_limit/v1/{resource}/{identifier}'
     cache_value = cache.get(cache_key)
     if cache_value is None:
         count, cache_token = None, None
@@ -246,7 +255,7 @@ def validate_rate_limit(
 # Text token length in bytes
 # 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities
 TOKEN_BYTES_LEN = 3
-text_token_prefix = 'temp_token/v1/'  # nosec
+text_token_prefix = 'temp_token/v1/'  # nosec  # noqa: S105
 
 
 def make_cached_token(payload, timeout=24 * 60 * 60, reserved=None):

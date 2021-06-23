@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
@@ -144,7 +146,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def scoped_name(self):
-        return '{parent}/{name}'.format(parent=self.parent.name, name=self.name)
+        return f'{self.parent.name}/{self.name}'
 
 
 add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')

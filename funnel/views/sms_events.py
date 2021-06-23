@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import request
 
 from twilio.request_validator import RequestValidator

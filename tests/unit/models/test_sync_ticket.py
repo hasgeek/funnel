@@ -55,7 +55,7 @@ class TestEventModels(unittest.TestCase):
         # Initial Setup
         random_user_id = uuid_b58()
         self.user = User(
-            username='lukes{userid}'.format(userid=random_user_id.lower()),
+            username=f'lukes{random_user_id.lower()}',
             fullname="Luke Skywalker",
         )
 
@@ -79,7 +79,7 @@ class TestEventModels(unittest.TestCase):
         self.project.make_name()
         self.db_session.commit()
 
-        self.ticket_client = TicketClient(
+        self.ticket_client = TicketClient(  # noqa: S106
             name="test client",
             client_eventid='123',
             clientid='123',
