@@ -23,7 +23,7 @@
     <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
       {{ form.hidden_tag() }}
       {%- for label in labels %}
-        <div class="ui-draggable-box drag-box mui--clearfix" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+        <div class="ui-draggable-box drag-box mui--clearfix" data-drag-placeholder="label-placeholder" draggable="true">
           <div class="drag-box__header">
             <input name="name" value="{{ label.name }}" type="hidden" class="id-input">
             {% if label.has_options %}
@@ -52,7 +52,7 @@
       {%- endfor %}
       <div class="mui-form form-actions mui--clearfix">
         <div>
-          <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject" data-cy="save-label-seq">{% trans %}Save{% endtrans %}</button>
+          <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject" data-cy="save-label-seq">{% trans %}Save label sequence{% endtrans %}</button>
           <span class="loading mui--hide"></span>
         </div>
       </div>
@@ -65,52 +65,10 @@
   {% assets "js_sortable" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
+  <script src="{{ url_for('static', filename=asset_path('labels')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      function applySortable() {
-        $(this).sortable({
-          placeholder: $(this).data('drag-placeholder'),
-          cursor: 'move',
-          update: function() {
-              $(this).children().each(function(index) {
-                $(this).children('input[name$="seq"]').val(++index);
-              });
-          }
-        });
-      }
-      $("#label-form").each(applySortable);
-
-      $('.js-delete-btn').click(function(event) {
-        event.preventDefault();
-        var btnTitle = $(this).attr('title').toLowerCase();
-        var url = $(this).attr('href');
-        var text = "Are you sure you want to " + btnTitle + "?";
-        var csrftoken = 'csrf_token=' + document.head.querySelector("[name=csrf-token]").content;
-        if(window.confirm(text)) {
-          $.ajax({
-            type: 'POST',
-            url: url,
-            data : csrftoken,
-            success: function() {
-              window.location.href = window.location.href;
-            },
-            error(response) {
-              var errorMsg = '';
-              if (response.readyState === 4) {
-                if (response.status === 500) {
-                  errorMsg ='Internal Server Error. Please reload and try again.';
-                } else {
-                  errorMsg = JSON.parse(response.responseText).error_description;
-                }
-              } else {
-                errorMsg = 'Unable to connect. Please reload and try again.';
-              }
-              window.toastr.error(errorMsg);
-            }
-          });
-        }
-      })
-
+      window.Hasgeek.LabelsInit();
     });
   </script>
 {% endblock %}
