@@ -173,9 +173,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 
     event = Event()
     event.add('summary', session.title)
-    organizer = vCalAddress(
-        f'MAILTO:no-reply@{current_app.config["DEFAULT_DOMAIN"]}'  # NOQA
-    )
+    organizer = vCalAddress(f'MAILTO:no-reply@{current_app.config["DEFAULT_DOMAIN"]}')
     organizer.params['cn'] = vText(session.project.profile.title)
     event['organizer'] = organizer
     if rsvp:
@@ -186,8 +184,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
         attendee.params['X-NUM-GUESTS'] = vText('0')
         event.add('attendee', attendee, encode=0)
     event.add(
-        'uid',
-        f'session/{session.uuid_b58}@{current_app.config["DEFAULT_DOMAIN"]}',  # NOQA
+        'uid', f'session/{session.uuid_b58}@{current_app.config["DEFAULT_DOMAIN"]}'
     )
     # Using localized timestamps will require a `VTIMEZONE` entry in the ics file
     # Using `session.start_at` without `astimezone` causes it to be localized to

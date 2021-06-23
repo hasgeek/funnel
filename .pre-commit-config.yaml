@@ -86,7 +86,6 @@ repos:
     hooks:
       - id: flake8
         additional_dependencies:
-          - toml
           - flake8-assertive
           - flake8-blind-except
           - flake8-builtins
@@ -97,6 +96,7 @@ repos:
           - flake8-mutable
           - flake8-print
           - pep8-naming
+          - toml
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.0
     hooks:
