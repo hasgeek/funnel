@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import current_app, flash
 
 from baseframe import _, __
@@ -31,7 +33,7 @@ class EmailAddressAvailable:
             obj = form.edit_obj
             if obj and hasattr(obj, '__email_for__'):
                 actor = getattr(obj, obj.__email_for__)
-        if not actor:
+        if actor is None:
             actor = current_auth.actor
 
         # Call validator
@@ -41,7 +43,7 @@ class EmailAddressAvailable:
 
         # Interpret code
         if not is_valid:
-            if actor:
+            if actor is not None:
                 raise forms.validators.StopValidation(
                     _("This email address has been claimed by someone else")
                 )
@@ -53,14 +55,14 @@ class EmailAddressAvailable:
             )
         elif is_valid == 'invalid':
             raise forms.validators.StopValidation(
-                _("This does not appear to be a valid email address.")
+                _("This does not appear to be a valid email address")
             )
         elif is_valid == 'nomx':
             raise forms.validators.StopValidation(
                 _(
                     "The domain name of this email address is missing a DNS MX record."
                     " We require an MX record as missing MX is a strong indicator of"
-                    " spam. Please ask your tech person to add MX to DNS."
+                    " spam. Please ask your tech person to add MX to DNS"
                 )
             )
         elif is_valid == 'not_new':
@@ -109,3 +111,10 @@ def image_url_validator():
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )
+
+
+def tostr(value: Any) -> str:
+    """Cast truthy values to a string."""
+    if value:
+        return str(value)
+    return ''

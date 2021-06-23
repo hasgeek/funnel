@@ -73,7 +73,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
     }
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(ContactExchange, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
                 roles.add('owner')

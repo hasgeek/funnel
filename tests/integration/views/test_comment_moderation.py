@@ -19,9 +19,13 @@ def test_comment_report_same(
     new_project,
 ):
     # Let's give new_user site_editor role
-    sm = SiteMembership(user=new_user, is_comment_moderator=True)
-    sm2 = SiteMembership(user=new_user_admin, is_comment_moderator=True)
-    sm3 = SiteMembership(user=new_user_owner, is_comment_moderator=True)
+    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
+    sm2 = SiteMembership(
+        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+    )
+    sm3 = SiteMembership(
+        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+    )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
 
@@ -41,18 +45,26 @@ def test_comment_report_same(
     assert bool(comment.state.PUBLIC) is True
 
     # report the comment as new_user_admin
-    report1 = CommentModeratorReport(user=new_user_admin, comment=comment)
-    db_session.add(report1)
-    db_session.commit()
+    report1, created = CommentModeratorReport.submit(
+        actor=new_user_admin, comment=comment
+    )
+    if created:
+        db_session.commit()
     report1_id = report1.id
+
+    assert comment.is_reviewed_by(new_user_admin)
 
     with client.session_transaction() as session:
         session['userid'] = new_user.userid
+
     # if new_user also reports it as spam,
     # the report will be removed, and comment will be in Spam state
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report1.uuid_b58),
-        data=MultiDict({'report_type': MODERATOR_REPORT_TYPE.SPAM}),
+        data=MultiDict(
+            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.SPAM}
+        ),
         follow_redirects=True,
     )
     assert (
@@ -77,6 +89,21 @@ def test_comment_report_opposing(
     new_user_owner,
     new_project,
 ):
+    # Let's give new_user site_editor role
+    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
+    sm2 = SiteMembership(
+        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+    )
+    sm3 = SiteMembership(
+        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+    )
+    db_session.add_all([sm, sm2, sm3])
+    db_session.commit()
+
+    assert new_user.is_comment_moderator is True
+    assert new_user_admin.is_comment_moderator is True
+    assert new_user_owner.is_comment_moderator is True
+
     # Let's make another comment
     comment2 = Comment(
         user=new_user2,
@@ -89,17 +116,22 @@ def test_comment_report_opposing(
     assert bool(comment2.state.PUBLIC) is True
 
     # report the comment as new_user_admin
-    report2 = CommentModeratorReport(user=new_user_admin, comment=comment2)
-    db_session.add(report2)
-    db_session.commit()
+    report2, created = CommentModeratorReport.submit(
+        actor=new_user_admin, comment=comment2
+    )
+    if created:
+        db_session.commit()
 
     with client.session_transaction() as session:
         session['userid'] = new_user.userid
     # if new_user reports it as not a spam,
     # a new report will be created, and comment will stay in public state
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report2.uuid_b58),
-        data=MultiDict({'report_type': MODERATOR_REPORT_TYPE.OK}),
+        data=MultiDict(
+            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.OK}
+        ),
         follow_redirects=True,
     )
     assert (
@@ -110,6 +142,7 @@ def test_comment_report_opposing(
     assert bool(comment2_refetched.state.SPAM) is False
     assert bool(comment2_refetched.state.PUBLIC) is True
     # a new report will be created
+    assert comment2_refetched.is_reviewed_by(new_user)
     assert (
         CommentModeratorReport.query.filter_by(
             comment=comment2_refetched,
@@ -129,6 +162,21 @@ def test_comment_report_majority_spam(
     new_user_owner,
     new_project,
 ):
+    # Let's give new_user site_editor role
+    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
+    sm2 = SiteMembership(
+        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+    )
+    sm3 = SiteMembership(
+        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+    )
+    db_session.add_all([sm, sm2, sm3])
+    db_session.commit()
+
+    assert new_user.is_comment_moderator is True
+    assert new_user_admin.is_comment_moderator is True
+    assert new_user_owner.is_comment_moderator is True
+
     # Let's make another comment
     comment3 = Comment(
         user=new_user2,
@@ -141,9 +189,11 @@ def test_comment_report_majority_spam(
     assert bool(comment3.state.PUBLIC) is True
 
     # report the comment as spam as new_user_admin
-    report3 = CommentModeratorReport(user=new_user_admin, comment=comment3)
-    db_session.add(report3)
-    db_session.commit()
+    report3, created = CommentModeratorReport.submit(
+        actor=new_user_admin, comment=comment3
+    )
+    if created:
+        db_session.commit()
     report3_id = report3.id
 
     # report the comment as not spam as new_user_owner
@@ -158,9 +208,12 @@ def test_comment_report_majority_spam(
         session['userid'] = new_user.userid
     # if new_user reports it as a spam,
     # the comment will be marked as spam as that's the majority vote
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report3.uuid_b58),
-        data=MultiDict({'report_type': MODERATOR_REPORT_TYPE.SPAM}),
+        data=MultiDict(
+            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.SPAM}
+        ),
         follow_redirects=True,
     )
     assert (
@@ -189,6 +242,21 @@ def test_comment_report_majority_ok(
     new_user_owner,
     new_project,
 ):
+    # Let's give new_user site_editor role
+    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
+    sm2 = SiteMembership(
+        user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+    )
+    sm3 = SiteMembership(
+        user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+    )
+    db_session.add_all([sm, sm2, sm3])
+    db_session.commit()
+
+    assert new_user.is_comment_moderator is True
+    assert new_user_admin.is_comment_moderator is True
+    assert new_user_owner.is_comment_moderator is True
+
     # Let's make another comment
     comment4 = Comment(
         user=new_user2,
@@ -201,9 +269,11 @@ def test_comment_report_majority_ok(
     assert bool(comment4.state.PUBLIC) is True
 
     # report the comment as spam as new_user_admin
-    report5 = CommentModeratorReport(user=new_user_admin, comment=comment4)
-    db_session.add(report5)
-    db_session.commit()
+    report5, created = CommentModeratorReport.submit(
+        actor=new_user_admin, comment=comment4
+    )
+    if created:
+        db_session.commit()
     report5_id = report5.id
 
     # report the comment as not spam as new_user_owner
@@ -219,9 +289,12 @@ def test_comment_report_majority_ok(
     # if new_user reports it as not a spam,
     # the comment will not be marked as spam as that's the majority vote,
     # but all the reports will be deleted
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report5.uuid_b58),
-        data=MultiDict({'report_type': MODERATOR_REPORT_TYPE.OK}),
+        data=MultiDict(
+            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.OK}
+        ),
         follow_redirects=True,
     )
     assert (

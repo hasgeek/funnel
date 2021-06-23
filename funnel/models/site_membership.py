@@ -1,15 +1,17 @@
+from typing import Set
+
 from sqlalchemy.ext.declarative import declared_attr
 
 from werkzeug.utils import cached_property
 
 from . import User, db
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin
 
 __all__ = ['SiteMembership']
 
 
-class SiteMembership(ImmutableMembershipMixin, db.Model):
+class SiteMembership(ImmutableUserMembershipMixin, db.Model):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
@@ -58,7 +60,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         return tuple(args)
 
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set[str]:
         """
         Roles offered by this membership record.
 

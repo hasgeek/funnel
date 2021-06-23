@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Iterable, List, Optional, Set, Union, cast, overload
+from typing import Iterable, List, Optional, Union, cast, overload
 from uuid import UUID
 import hashlib
 
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.expression import Select
 
 from werkzeug.utils import cached_property
 
 from passlib.hash import argon2, bcrypt
+from typing_extensions import Literal
 import base58
 import phonenumbers
 
@@ -28,9 +28,17 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
-from . import BaseMixin, LocaleType, TimezoneType, TSVectorType, UuidMixin, db
+from . import (
+    BaseMixin,
+    LocaleType,
+    TimezoneType,
+    TSVectorType,
+    UuidMixin,
+    db,
+    hybrid_property,
+)
 from .email_address import EmailAddress, EmailAddressMixin
-from .helpers import add_search_trigger
+from .helpers import ImgeeFurl, add_search_trigger, quote_like
 
 __all__ = [
     'USER_STATE',
@@ -70,27 +78,29 @@ class SharedProfileMixin:
 
     @property
     def has_public_profile(self) -> bool:
-        """Return the visibility state of a public profile."""
-        return self.profile is not None and self.profile.state.PUBLIC
+        """Return the visibility state of a profile."""
+        profile = self.profile
+        return profile is not None and bool(profile.state.PUBLIC)
 
     with_roles(has_public_profile, read={'all'}, write={'owner'})
 
     @property
-    def avatar(self) -> str:
+    def avatar(self) -> Optional[ImgeeFurl]:
+        profile = self.profile
         return (
-            self.profile.logo_url
-            if self.profile and self.profile.logo_url and self.profile.logo_url.url
-            else ''
+            profile.logo_url
+            if profile is not None
+            and profile.logo_url is not None
+            and profile.logo_url.url != ''
+            else None
         )
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def profile_url(self) -> Optional[str]:
-        # Use a cast because mypy does not recognise that self.has_public_profile
-        # already asserts `self.profile is not None`
-        return (
-            cast(Profile, self.profile).url_for() if self.has_public_profile else None
-        )
+        profile = self.profile
+        return profile.url_for() if profile is not None else None
+
+    with_roles(profile_url, read={'all'})
 
 
 class USER_STATE(LabeledEnum):  # NOQA: N801
@@ -112,8 +122,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
 
-    # XXX: Deprecated, still here for Baseframe compatibility
-    userid = db.synonym('buid')
     #: The user's fullname
     fullname: db.Column = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
@@ -233,19 +241,17 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def __init__(self, password: str = None, **kwargs) -> None:
         self.password = password
-        super(User, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
-    name: Optional[str]
-
-    @hybrid_property  # type: ignore[no-redef]
-    def name(self) -> Optional[str]:  # skipcq: PYL-E0102
+    @hybrid_property  # type: ignore[override]
+    def name(self) -> Optional[str]:  # type: ignore[override]
         if self.profile:
             return self.profile.name
         return None
 
-    @name.setter  # type: ignore[no-redef]
+    @name.setter
     def name(self, value: Optional[str]):
-        if not value:
+        if value is None or not value.strip():
             if self.profile is not None:
                 raise ValueError("Name is required")
         else:
@@ -254,12 +260,12 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             else:
                 self.profile = Profile(name=value, user=self, uuid=self.uuid)
 
-    @name.expression  # type: ignore[no-redef]
+    @name.expression
     def name(cls):  # NOQA: N805
         return db.select([Profile.name]).where(Profile.user_id == cls.id).label('name')
 
     with_roles(name, read={'all'})
-    username = name
+    username: Optional[str] = name  # type: ignore[assignment]
 
     @cached_property
     def verified_contact_count(self) -> int:
@@ -323,7 +329,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """Return picker name for user."""
         return self.pickername
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def pickername(self) -> str:
         if self.username:
@@ -332,6 +337,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         else:
             return self.fullname
+
+    with_roles(pickername, read={'all'})
 
     def add_email(
         self,
@@ -351,7 +358,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def del_email(self, email: str) -> None:
         useremail = UserEmail.get_for(user=self, email=email)
-        if useremail:
+        if useremail is not None:
             if self.primary_email in (useremail, None):
                 self.primary_email = (
                     UserEmail.query.filter(
@@ -363,15 +370,15 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             db.session.delete(useremail)
 
     @property
-    def email(self) -> Union[str, UserEmail]:
+    def email(self) -> Union[Literal[''], UserEmail]:
         """Return primary email address for user."""
         # Look for a primary address
         useremail = self.primary_email
-        if useremail:
+        if useremail is not None:
             return useremail
         # No primary? Maybe there's one that's not set as primary?
         useremail = UserEmail.query.filter_by(user=self).first()
-        if useremail:
+        if useremail is not None:
             # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_email = useremail
@@ -401,7 +408,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def del_phone(self, phone: str) -> None:
         userphone = UserPhone.get_for(user=self, phone=phone)
-        if userphone:
+        if userphone is not None:
             if self.primary_phone in (userphone, None):
                 self.primary_phone = (
                     UserPhone.query.filter(
@@ -413,15 +420,15 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             db.session.delete(userphone)
 
     @property
-    def phone(self) -> Union[str, UserPhone]:
+    def phone(self) -> Union[Literal[''], UserPhone]:
         """Return primary phone number for user."""
         # Look for a primary phone number
         userphone = self.primary_phone
-        if userphone:
+        if userphone is not None:
             return userphone
         # No primary? Maybe there's one that's not set as primary?
         userphone = UserPhone.query.filter_by(user=self).first()
-        if userphone:
+        if userphone is not None:
             # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_phone = userphone
@@ -509,7 +516,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         return getattr(self, 'transport_for_' + transport)(context)
 
-    @with_roles(grants={'owner', 'admin'})  # type: ignore[misc]
     @property
     def _self_is_owner_and_admin_of_self(self):
         """
@@ -519,6 +525,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         user is owner and admin of their own account.
         """
         return self
+
+    with_roles(_self_is_owner_and_admin_of_self, grants={'owner', 'admin'})
 
     def organizations_as_owner_ids(self) -> List[int]:
         """
@@ -662,13 +670,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         # Escape the '%' and '_' wildcards in SQL LIKE clauses.
         # Some SQL dialects respond to '[' and ']', so remove them.
-        like_query = (
-            query.replace('%', r'\%')
-            .replace('_', r'\_')
-            .replace('[', '')
-            .replace(']', '')
-            + '%'
-        )
+        like_query = quote_like(query)
 
         # We convert to lowercase and use the LIKE operator since ILIKE isn't standard
         # and doesn't use an index in PostgreSQL. There's a functional index for lower()
@@ -735,19 +737,18 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             )
         elif '@' in query and not query.startswith('@'):
             # Query has an @ in the middle. Match email address (exact match only).
-            # Use `query` instead of `like_query` because it's not a LIKE query.
+            # Use param `query` instead of `like_query` because it's not a LIKE query.
             # Combine results with regular user search
             users = (
-                cls.query.join(UserEmail, EmailAddress)
+                cls.query.join(UserEmail)
+                .join(EmailAddress)
                 .filter(
-                    UserEmail.user_id == cls.id,
-                    UserEmail.email_address_id == EmailAddress.id,
                     EmailAddress.get_filter(email=query),
                     cls.state.ACTIVE,
                 )
                 .options(*cls._defercols)
                 .limit(20)
-                .union(base_users)
+                # .union(base_users)  # FIXME: Broken in SQLAlchemy 1.4.17
                 .all()
             )
         else:
@@ -763,6 +764,9 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def organization_links(self) -> List:
         return []
 
+
+# XXX: Deprecated, still here for Baseframe compatibility
+User.userid = User.uuid_b64
 
 auto_init_default(User._state)  # skipcq: PYL-W0212
 add_search_trigger(User, 'search_vector')
@@ -871,6 +875,8 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'organization'
     __title_length__ = 80
 
+    profile: Profile
+
     title = with_roles(
         db.Column(db.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
@@ -926,33 +932,31 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     _defercols = [db.defer('created_at'), db.defer('updated_at')]
 
     def __init__(self, owner: User, *args, **kwargs) -> None:
-        super(Organization, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         db.session.add(
             OrganizationMembership(
                 organization=self, user=owner, granted_by=owner, is_owner=True
             )
         )
 
-    name: Optional[str]
+    @hybrid_property  # type: ignore[override]
+    def name(self) -> str:  # type: ignore[override]
+        return self.profile.name
 
-    @hybrid_property  # type: ignore[no-redef]
-    def name(self) -> Optional[str]:  # skipcq: PYL-E0102
-        if self.profile:
-            return self.profile.name
-        return None
-
-    @name.setter  # type: ignore[no-redef]
+    @name.setter
     def name(self, value: Optional[str]) -> None:
-        if not value:
-            if self.profile is not None:
-                raise ValueError("Name is required")
+        if value is None or not value.strip():
+            raise ValueError("Name is required")
         else:
             if self.profile is not None:
                 self.profile.name = value
             else:
-                self.profile = Profile(name=value, organization=self, uuid=self.uuid)
+                # This code will only be reachable during `__init__`
+                self.profile = Profile(  # type: ignore[unreachable]
+                    name=value, organization=self, uuid=self.uuid
+                )
 
-    @name.expression  # type: ignore[no-redef]
+    @name.expression
     def name(cls) -> Select:  # NOQA: N805
         return (
             db.select([Profile.name])
@@ -985,24 +989,6 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             .options(db.joinedload(User.teams))
             .order_by(db.func.lower(User.fullname))
         )
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super().permissions(user, inherited)
-        if 'view' in perms:
-            perms.remove('view')
-        if 'edit' in perms:
-            perms.remove('edit')
-        if 'delete' in perms:
-            perms.remove('delete')
-
-        if user and user in self.admin_users:
-            perms.add('view')
-            perms.add('edit')
-            perms.add('view-teams')
-            perms.add('new-team')
-        if user and user in self.owner_users:
-            perms.add('delete')
-        return perms
 
     @overload
     @classmethod
@@ -1112,13 +1098,6 @@ class Team(UuidMixin, BaseMixin, db.Model):
     @property
     def pickername(self) -> str:
         return self.title
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Team, self).permissions(user, inherited)
-        if user and user in self.organization.admin_users:
-            perms.add('edit')
-            perms.add('delete')
-        return perms
 
     @classmethod
     def migrate_user(cls, olduser: User, newuser: User) -> Optional[Iterable[str]]:
@@ -1356,12 +1335,6 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         """Return email as a string."""
         return self.email
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserEmailClaim, self).permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('verify')
-        return perms
-
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
         emails = {claim.email for claim in new_user.emailclaims}
@@ -1522,7 +1495,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     type = db.Column(db.Unicode(30), nullable=True)  # NOQA: A003
 
     def __init__(self, phone, **kwargs) -> None:
-        super(UserPhone, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._phone = phone
 
     @hybrid_property
@@ -1606,7 +1579,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     __table_args__ = (db.UniqueConstraint('user_id', 'phone'),)
 
     def __init__(self, phone, **kwargs) -> None:
-        super(UserPhoneClaim, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.verification_code = newpin()
         self._phone = phone
 
@@ -1648,12 +1621,6 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     @hybrid_property
     def verification_expired(self) -> bool:
         return self.verification_attempts >= 3
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserPhoneClaim, self).permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('verify')
-        return perms
 
     @classmethod
     def get_for(cls, user: User, phone: str) -> Optional[UserPhoneClaim]:
@@ -1761,12 +1728,6 @@ class UserExternalId(BaseMixin, db.Model):
         """
         param, value = require_one_of(True, userid=userid, username=username)
         return cls.query.filter_by(**{param: value, 'service': service}).one_or_none()
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(UserExternalId, self).permissions(user, inherited)
-        if user and user == self.user:
-            perms.add('delete_extid')
-        return perms
 
 
 user_email_primary_table = add_primary_relationship(

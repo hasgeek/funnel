@@ -11,17 +11,18 @@ from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
-import pyshorteners
 
 from baseframe import cache, statsd
 
-from .. import app, funnelapp, lastuserapp
+from .. import app, shortlinkapp
 from ..forms import supported_locales
+from ..models import Shortlink, db
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
 
+nocache_expires = utc.localize(datetime(1990, 1, 1))
 
 # --- Utilities ------------------------------------------------------------------------
 
@@ -245,7 +246,7 @@ def validate_rate_limit(
 # Text token length in bytes
 # 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities
 TOKEN_BYTES_LEN = 3
-text_token_prefix = 'temp_token/v1/'
+text_token_prefix = 'temp_token/v1/'  # nosec
 
 
 def make_cached_token(payload, timeout=24 * 60 * 60, reserved=None):
@@ -283,15 +284,11 @@ def delete_cached_token(token):
 
 
 @app.template_filter('url_join')
-@funnelapp.template_filter('url_join')
-@lastuserapp.template_filter('url_join')
 def url_join(base, url=''):
     return urljoin(base, url)
 
 
 @app.template_filter('cleanurl')
-@funnelapp.template_filter('cleanurl')
-@lastuserapp.template_filter('cleanurl')
 def cleanurl_filter(url):
     if not isinstance(url, furl):
         url = furl(url)
@@ -299,48 +296,23 @@ def cleanurl_filter(url):
     return furl().set(netloc=url.netloc, path=url.path).url.lstrip('//').rstrip('/')
 
 
-@funnelapp.url_defaults
-def add_profile_parameter(endpoint, values):
-    if funnelapp.url_map.is_endpoint_expecting(endpoint, 'profile'):
-        if 'profile' not in values:
-            values['profile'] = g.profile.name if g.profile else None
-
-
 @app.template_filter('shortlink')
-@funnelapp.template_filter('shortlink')
-@lastuserapp.template_filter('shortlink')
-def shortlink(url):
-    """Return a short link suitable for SMS."""
-    cache_key = 'shortlink/' + blake2b(url.encode(), digest_size=16).hexdigest()
-    shorty = cache.get(cache_key)
-    if shorty:
-        return shorty
-    try:
-        shorty = pyshorteners.Shortener().isgd.short(url)
-        cache.set(cache_key, shorty, timeout=86400)
-    except pyshorteners.exceptions.ShorteningErrorException as e:
-        error = str(e)
-        current_app.logger.error("Shortlink exception %s", error)
-        shorty = url
-    return shorty
+def shortlink(url, actor=None):
+    """Return a short link suitable for SMS. Caller must perform a database commit."""
+    sl = Shortlink.new(url, reuse=True, shorter=True, actor=actor)
+    db.session.add(sl)
+    return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
 # --- Request/response handlers --------------------------------------------------------
 
 
 @app.after_request
-@funnelapp.after_request
-@lastuserapp.after_request
 def cache_expiry_headers(response):
-    if 'Expires' not in response.headers:
-        response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
-    if 'Cache-Control' in response.headers:
-        if 'private' not in response.headers['Cache-Control']:
-            response.headers['Cache-Control'] = (
-                'private, ' + response.headers['Cache-Control']
-            )
-    else:
-        response.headers['Cache-Control'] = 'private'
+    if response.expires is None:
+        response.expires = nocache_expires
+    if not response.cache_control.max_age:
+        response.cache_control.max_age = 0
     return response
 
 
@@ -364,8 +336,6 @@ def forget_email_in_request_teardown(sender):
 
 
 @app.after_request
-@funnelapp.after_request
-@lastuserapp.after_request
 def forget_email_in_background_job(response):
     if hasattr(g, 'forget_email_hashes'):
         for email_hash in g.forget_email_hashes:

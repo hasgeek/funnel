@@ -2,7 +2,7 @@ import phonenumbers
 
 from baseframe import _, __
 from coaster.auth import current_auth
-from coaster.utils import nullstr, sorted_timezones
+from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
 from ..models import (
@@ -15,7 +15,7 @@ from ..models import (
     getuser,
     password_policy,
 )
-from .helpers import EmailAddressAvailable
+from .helpers import EmailAddressAvailable, tostr
 
 __all__ = [
     'RegisterForm',
@@ -47,11 +47,14 @@ supported_locales = {
     'hi': __("Hindi (beta; incomplete)"),
 }
 
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MAX_LENGTH = 100
+
 
 class PasswordStrengthValidator:
     default_message = _(
-        "This password is too simple. Add complexity by making it longer and using "
-        "a mix of upper and lower case letters, numbers and symbols"
+        "This password is too simple. Add complexity by making it longer and using"
+        " a mix of upper and lower case letters, numbers and symbols"
     )
 
     def __init__(self, user_input_fields=(), message=None) -> None:
@@ -106,6 +109,7 @@ class RegisterForm(forms.RecaptchaForm):
             "This account is for you as an individual. We’ll make one for your organization later"
         ),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
+        filters=[forms.filters.strip()],
     )
     email = forms.EmailField(
         __("Email address"),
@@ -113,13 +117,14 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.DataRequired(),
             EmailAddressAvailable(purpose='register'),
         ],
+        filters=[tostr, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(
         __("Password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
         ],
     )
@@ -127,7 +132,7 @@ class RegisterForm(forms.RecaptchaForm):
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -139,7 +144,10 @@ class PasswordForm(forms.Form):
 
     password = forms.PasswordField(
         __("Password"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=PASSWORD_MAX_LENGTH),
+        ],
     )
 
     def validate_password(self, field):
@@ -151,7 +159,10 @@ class PasswordForm(forms.Form):
 class PasswordPolicyForm(forms.Form):
     password = forms.PasswordField(
         __("Password"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=PASSWORD_MAX_LENGTH),
+        ],
     )
 
 
@@ -179,7 +190,7 @@ class PasswordCreateForm(forms.Form):
         __("New password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
     )
@@ -187,7 +198,7 @@ class PasswordCreateForm(forms.Form):
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -208,7 +219,7 @@ class PasswordResetForm(forms.RecaptchaForm):
         __("New password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(user_input_fields=['username']),
         ],
     )
@@ -216,7 +227,7 @@ class PasswordResetForm(forms.RecaptchaForm):
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -226,8 +237,8 @@ class PasswordResetForm(forms.RecaptchaForm):
         if user is None or user != self.edit_user:
             raise forms.ValidationError(
                 _(
-                    "This username or email does not match the user the reset code is "
-                    "for"
+                    "This username or email does not match the user the reset code is"
+                    " for"
                 )
             )
 
@@ -239,13 +250,16 @@ class PasswordChangeForm(forms.Form):
 
     old_password = forms.PasswordField(
         __("Current password"),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=40)],
+        validators=[
+            forms.validators.DataRequired(),
+            forms.validators.Length(max=PASSWORD_MAX_LENGTH),
+        ],
     )
     password = forms.PasswordField(
         __("New password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
     )
@@ -253,7 +267,7 @@ class PasswordChangeForm(forms.Form):
         __("Confirm password"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(min=8, max=40),
+            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
     )
@@ -295,6 +309,7 @@ class AccountForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=User.__title_length__),
         ],
+        filters=[forms.filters.strip()],
     )
     email = forms.EmailField(
         __("Email address"),
@@ -303,13 +318,14 @@ class AccountForm(forms.Form):
             forms.validators.DataRequired(),
             EmailAddressAvailable(purpose='use'),
         ],
+        filters=[tostr, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
         __("Username"),
         description=__(
-            "Single word that can contain letters, numbers and dashes. "
-            "You need a username to have a public profile"
+            "Single word that can contain letters, numbers and dashes."
+            " You need a username to have a public profile"
         ),
         validators=[
             forms.validators.DataRequired(),
@@ -322,8 +338,8 @@ class AccountForm(forms.Form):
     timezone = forms.SelectField(
         __("Timezone"),
         description=__(
-            "Where in the world are you? Dates and times will be shown in your local "
-            "timezone"
+            "Where in the world are you? Dates and times will be shown in your local"
+            " timezone"
         ),
         validators=[forms.validators.DataRequired()],
         choices=timezones,
@@ -350,6 +366,7 @@ class UsernameAvailableForm(forms.Form):
     username = forms.StringField(
         __("Username"),
         validators=[forms.validators.DataRequired(__("This is required"))],
+        filters=[forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
@@ -378,12 +395,13 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             validate_emailclaim,
             EmailAddressAvailable(purpose='claim'),
         ],
+        filters=[tostr, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     type = forms.RadioField(  # NOQA: A003
         __("Type"),
-        coerce=nullstr,
         validators=[forms.validators.Optional()],
+        filters=[forms.filters.strip()],
         choices=[
             (__("Home"), __("Home")),
             (__("Work"), __("Work")),
@@ -397,6 +415,7 @@ class EmailPrimaryForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         validators=[forms.validators.DataRequired()],
+        filters=[tostr, forms.filters.strip()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
@@ -411,14 +430,16 @@ class NewPhoneForm(forms.RecaptchaForm):
     phone = forms.TelField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
+        filters=[tostr, forms.filters.strip()],
         description=__("Mobile numbers only, in Indian or international format"),
     )
 
     # Temporarily removed since we only support mobile numbers at this time. When phone
     # call validation is added, we can ask for other types of numbers:
 
-    # type = forms.RadioField(__("Type"), coerce=nullstr,
+    # type = forms.RadioField(__("Type"),
     #     validators=[forms.validators.Optional()],
+    #     filters=[forms.filters.strip()],
     #     choices=[
     #         (__("Mobile"), __("Mobile")),
     #         (__("Home"), __("Home")),
@@ -481,6 +502,7 @@ class VerifyPhoneForm(forms.Form):
     verification_code = forms.StringField(
         __("Verification code"),
         validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()],
         widget_attrs={'pattern': '[0-9]*', 'autocomplete': 'off'},
     )
 

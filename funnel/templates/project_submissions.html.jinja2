@@ -3,14 +3,13 @@
 {%- from "macros.html.jinja2" import proposal_list %}
 {% block title %}{% trans %}Submissions{% endtrans %}{% endblock %}
 
-{% block base_content_inner %}
+{% block left_col %}
   <div class="page-card  page-card--nomargin">
     <div class="project-section">
      {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
       <div class="about__details" id="call-for-proposal">
         {%- if project.instructions and project.instructions != "None" %}
-          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Submission guidelines{% endtrans %}</h2>
-          <div class="about__details__description">
+          <div class="about__details__description bottom-padding">
             {% if project.view_for('cfp').is_available() -%}
               <p>
                 <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">
@@ -22,11 +21,11 @@
                 </a>
               </p>
             {%- endif %}
-            {% if project.instructions.html|length > 300 %}
-              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|preview(max=300) }}<span class="mui--text-hyperlink">{% trans %}more{% endtrans %}</span></div>
-              <div class="js-htmltruncate-full mui--hide">{{ project.instructions.html }}</div>
+            {% if project.instructions.html and project.instructions.html|length > 300 %}
+              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|preview(min=200, max=300) }} <span class="chip">{% trans %}expand{% endtrans %} {{ faicon(icon='caret-down-solid', baseline=false, css_class='mui--align-middle') }}</span></div>
+              <div class="js-htmltruncate-full mui--hide markdown">{{ project.instructions.html }}</div>
             {%- else %}
-              <div>{{ project.instructions.html }}</div>
+              <div class="markdown">{{ project.instructions.html }}</div>
             {% endif %}
           </div>
         {%- elif project.view_for('cfp').is_available() %}
@@ -36,12 +35,12 @@
         {%- endif %}
         {% if project.cfp_state.OPEN -%}
           <div class="bottom-padding">
-            <a class="mui-btn mui-btn--raised mui-btn--primary" href="{{ project.url_for('new_proposal') }}">{% trans %}Make a submission{% endtrans %}</a>
+            <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}">{% trans %}Make a submission{% endtrans %}</a>
             {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
           </div>
         {%- elif project.cfp_state.UNAVAILABLE %}
           <div class="bottom-padding">
-            <a class="mui-btn mui-btn--raised mui-btn--dark mui-btn--strike">{% trans %}Make a submission{% endtrans %}</a>
+            <a class="mui-btn mui-btn--raised mui-btn--accent mui-btn--strike">{% trans %}Make a submission{% endtrans %}</a>
             <p class="mui--text-light mui--text-caption">{% trans %}Submissions are closed for this project{% endtrans %}</p>
           </div>
         {%- endif %}
@@ -53,30 +52,37 @@
   <div class="page-card">
     {% if project.cfp_state.HAS_PROPOSALS -%}
       <div class="project-section" id="submissions">
-        <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
         {%- if project.current_roles.editor %}
           <div>
             <form class="mui-form mui--pull-left search search--50 mui--z1">
               <div class="mui-textfield">
-                <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search" />
+                <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search titles…" />
               </div>
             </form>
           </div>
         {%- endif %}
       </div>
-      {{ proposal_list(project.proposals, project) }}
+      {{ proposal_list(project.proposals, project, css_class='page-card__card') }}
     {%- endif %}
   </div>
 {% endblock %}
 
 {% block footerinnerscripts %}
+  {% assets "js_sortable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('proposals')) }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var config = {};
-      config.search = {
-        tableId: 'submissions-table',
-        inputId: 'search'
+      var config = {
+        search: {
+          tableId: 'submissions-table',
+          inputId: 'search'
+        },
+        sort: {
+          url: '{{ project.url_for("reorder_proposals") }}',
+          permission: {{ project.current_roles.editor|tojson }},
+        }
       };
       window.Hasgeek.ProposalsInit(config);
     });

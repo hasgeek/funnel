@@ -16,15 +16,6 @@ class TestUserEmailClaim(TestDatabaseFixture):
             email=new_email, user=repr(crusoe)[1:-1]
         ) in (repr(result))
 
-    def test_useremailclaim_permissions(self):
-        """Test that user has verify permission on a UserEmailClaim instance."""
-        crusoe = self.fixtures.crusoe
-        email = 'crusoe@batdogs.ca'
-        email_claim = models.UserEmailClaim(user=crusoe, email=email)
-        permissions_expected = {'verify'}
-        permissions_received = email_claim.permissions(crusoe)
-        assert permissions_expected == permissions_received
-
     def test_useremailclaim_get(self):
         """Test for retrieving a UserEmailClaim instance given a user."""
         katnis = models.User(username='katnis', fullname='Katnis Everdeen')

@@ -35,12 +35,12 @@ class SesProcessor(SesProcessorAbc):
         :param address: Email Address
         :returns: EmailAddress object
         """
-        _name, email = parseaddr(address)
-        if not email:
+        _name, emailaddr = parseaddr(address)
+        if not emailaddr:
             raise ValueError(f"Unable to parse email address {address!r}")
-        email_address = EmailAddress.get(email)
-        if not email_address:
-            email_address = EmailAddress.add(email)
+        email_address = EmailAddress.get(emailaddr)
+        if email_address is None:
+            email_address = EmailAddress.add(emailaddr)
         return email_address
 
     def bounce(self, ses_event: SesEvent) -> None:

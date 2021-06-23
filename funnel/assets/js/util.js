@@ -1,4 +1,4 @@
-/* global gettext */
+/* global gettext, vegaEmbed */
 
 import Gettext from './gettext';
 import * as timeago from 'timeago.js';
@@ -90,6 +90,74 @@ export const Utils = {
         !$.contains($('.js-search-show')[0], event.target)
       ) {
         $('.js-search-form').removeClass('search-form--show');
+      }
+    });
+  },
+  headerMenuDropdown() {
+    let menuBtn = $('.js-menu-btn');
+    let menuWrapper = '.js-account-menu-wrapper';
+    let menu = '.js-account-menu';
+    let topMargin = 1;
+    let headerHeight = $('.header').height() + topMargin;
+
+    let openMenu = function () {
+      if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+        $(menuWrapper).find(menu).animate({ top: '0' });
+      } else {
+        $(menuWrapper).find(menu).animate({ top: headerHeight });
+      }
+      menuBtn.addClass('header__nav-links--active');
+      $('body').addClass('body-scroll-lock');
+    };
+
+    let closeMenu = function () {
+      if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+        $(menuWrapper).find(menu).animate({ top: '100vh' });
+      } else {
+        $(menuWrapper).find(menu).animate({ top: '-100vh' });
+      }
+      menuBtn.removeClass('header__nav-links--active');
+      $('body').removeClass('body-scroll-lock');
+    };
+
+    var fetchMenu = function (openMenuFn = '') {
+      $.ajax({
+        type: 'GET',
+        url: window.Hasgeek.config.accountMenu,
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          $(menuWrapper).empty().append(responseData);
+          if (openMenuFn) {
+            openMenuFn();
+          }
+        },
+      });
+    };
+
+    //If user logged in, preload menu
+    if ($(menuWrapper).length) {
+      fetchMenu();
+    }
+
+    // Open full screen account menu in mobile
+    menuBtn.on('click', function (event) {
+      event.stopPropagation();
+      if ($(this).hasClass('header__nav-links--active')) {
+        closeMenu();
+      } else if (!$(menuWrapper).find(menu).length) {
+        fetchMenu(openMenu);
+      } else {
+        openMenu();
+      }
+    });
+
+    $('body').on('click', function (event) {
+      if (
+        $('.js-menu-btn').hasClass('header__nav-links--active') &&
+        !$(event.target).is('.js-menu-btn') &&
+        !$.contains($('.js-menu-btn')[0], event.target)
+      ) {
+        closeMenu();
       }
     });
   },
@@ -208,7 +276,7 @@ export const Utils = {
     if (response.readyState === 4) {
       if (response.status === 500) {
         errorMsg = gettext(
-          'An internal server error occurred. Our support team has been notified and will investigate.'
+          'An internal server error occurred. Our support team has been notified and will investigate'
         );
       } else if (
         response.status === 422 &&
@@ -222,7 +290,7 @@ export const Utils = {
       }
     } else {
       errorMsg = gettext(
-        'Unable to connect. Check connection and tap to reload.'
+        'Unable to connect. Check connection and tap to reload'
       );
     }
     return errorMsg;
@@ -402,6 +470,44 @@ export const Utils = {
         },
       });
     });
+
+    $('.js-dropdown-toggle').on('click', function (event) {
+      event.stopPropagation();
+    });
+  },
+  addVegaSupport() {
+    if ($('.language-vega-lite').length > 0) {
+      let vegaliteCDN = [
+        'https://cdn.jsdelivr.net/npm/vega@5',
+        'https://cdn.jsdelivr.net/npm/vega-lite@5',
+        'https://cdn.jsdelivr.net/npm/vega-embed@6',
+      ];
+      let vegaliteUrl = 0;
+      let loadVegaScript = function () {
+        $.getScript({ url: vegaliteCDN[vegaliteUrl], cache: true }).success(
+          function () {
+            if (vegaliteUrl < vegaliteCDN.length) {
+              vegaliteUrl += 1;
+              loadVegaScript();
+            }
+            // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
+            if (vegaliteUrl === vegaliteCDN.length) {
+              $('.language-vega-lite').each(function () {
+                vegaEmbed(this, JSON.parse($(this).find('code').text()), {
+                  renderer: 'svg',
+                  actions: {
+                    source: false,
+                    editor: false,
+                    compiled: false,
+                  },
+                });
+              });
+            }
+          }
+        );
+      };
+      loadVegaScript();
+    }
   },
   handleCommentsSidebar() {
     let firstLoad = true;
@@ -548,7 +654,7 @@ export const SaveProject = function ({
           if ($(this).hasClass('animate-btn--saved')) {
             $(this).addClass('animate-btn--animate');
             window.toastr.success(
-              gettext('Project added to Account > My saves')
+              gettext('Project added to Account > Saved projects')
             );
           }
         }

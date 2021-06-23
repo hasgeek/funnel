@@ -1,23 +1,20 @@
-from flask import flash, g, redirect, request
+from flask import flash, redirect, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
 from ..utils import abort_null
-from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProjectViewMixin
+from .mixins import ProfileCheckMixin, ProjectViewMixin
 
 
 @Project.views('label')
 @route('/<profile>/<project>/labels')
 class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('', methods=['GET', 'POST'])
     @render_with('labels.html.jinja2')
     @requires_login
@@ -60,9 +57,8 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             )
             label.restricted = form.data.get('restricted')
             label.make_name()
-            self.obj.labels.append(label)
-            self.obj.labels.reorder()
-            db.session.add(label)
+            self.obj.all_labels.append(label)
+            self.obj.all_labels.reorder()
 
             for idx in range(len(titlelist)):
                 subform = LabelOptionForm(
@@ -93,19 +89,13 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/labels', subdomain='<profile>')
-class FunnelProjectLabelView(ProjectLabelView):
-    pass
-
-
 ProjectLabelView.init_app(app)
-FunnelProjectLabelView.init_app(funnelapp)
 
 
 @Label.views('main')
 @route('/<profile>/<project>/labels/<label>')
-class LabelView(UrlForView, ModelView):
-    __decorators__ = [requires_login, legacy_redirect]
+class LabelView(ProfileCheckMixin, UrlForView, ModelView):
+    __decorators__ = [requires_login]
     model = Label
     route_model_map = {
         'profile': 'project.profile.name',
@@ -123,8 +113,11 @@ class LabelView(UrlForView, ModelView):
             .first_or_404()
         )
         label = self.model.query.filter_by(project=proj, name=label).first_or_404()
-        g.profile = proj.profile
         return label
+
+    def after_loader(self):
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -238,10 +231,4 @@ class LabelView(UrlForView, ModelView):
         return redirect(self.obj.project.url_for('labels'), code=303)
 
 
-@route('/<project>/labels/<label>', subdomain='<profile>')
-class FunnelLabelView(LabelView):
-    pass
-
-
 LabelView.init_app(app)
-FunnelLabelView.init_app(funnelapp)

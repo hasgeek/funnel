@@ -8,6 +8,7 @@ from coaster.views import render_with
 from .. import app
 from ..models import SMS_STATUS, SMSMessage, db
 from ..transports.sms import validate_exotel_token
+from ..utils import abort_null
 
 
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
@@ -97,8 +98,15 @@ def process_exotel_event(secret_token: str):
     # If there are too many rejects, then most likely a hack attempt.
     statsd.incr('phone_number.event', tags={'engine': 'exotel', 'stage': 'received'})
 
-    # We need to verify the token first.
-    if not validate_exotel_token(secret_token, request.form.get('To', '')):
+    exotel_to = abort_null(request.form.get('To', ''))
+    # Exotel sends back 0-prefixed phone numbers, not plus-prefixed intl. numbers
+    if exotel_to.startswith('00'):
+        exotel_to = '+' + exotel_to[2:]
+    elif exotel_to.startswith('0'):
+        exotel_to = '+91' + exotel_to[1:]
+
+    # Verify the token based on the normalized number.
+    if not validate_exotel_token(secret_token, exotel_to):
         statsd.incr(
             'phone_number.event',
             tags={

@@ -1,9 +1,25 @@
-from flask import Markup, abort, current_app, escape, flash, redirect, request, url_for
+from datetime import datetime, timedelta
+from hashlib import blake2b
+from types import SimpleNamespace
+from typing import List, Optional, Union
+
+from flask import (
+    Markup,
+    abort,
+    current_app,
+    escape,
+    flash,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
 import geoip2.errors
 import user_agents
 
-from baseframe import _
+from baseframe import _, cache
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -11,9 +27,10 @@ from baseframe.forms import (
     render_redirect,
 )
 from coaster.auth import current_auth
+from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, get_next_url, render_with, route
 
-from .. import app, funnelapp, lastuserapp
+from .. import app
 from ..forms import (
     AccountForm,
     EmailPrimaryForm,
@@ -34,6 +51,8 @@ from ..forms import (
 from ..models import (
     AccountPasswordNotification,
     AuthClient,
+    Organization,
+    OrganizationMembership,
     SMSMessage,
     User,
     UserEmail,
@@ -95,6 +114,55 @@ def user_timezone(obj):
     )
 
 
+@User.views()
+def organizations_as_admin(
+    obj: User,
+    owner: bool = False,
+    limit: Optional[int] = None,
+    order_by_grant: bool = False,
+) -> List[RoleAccessProxy]:
+    if owner:
+        orgmems = obj.active_organization_owner_memberships
+    else:
+        orgmems = obj.active_organization_admin_memberships
+    orgmems = orgmems.join(Organization)
+    if order_by_grant:
+        orgmems = orgmems.order_by(OrganizationMembership.granted_at.desc())
+    else:
+        orgmems = orgmems.order_by(db.func.lower(Organization.title))
+
+    if limit is not None:
+        orgmems = orgmems.limit(limit)
+
+    orgs = [_om.current_access() for _om in orgmems]
+    return orgs
+
+
+@User.views()
+def organizations_as_owner(
+    obj: User, limit: Optional[int] = None, order_by_grant: bool = False
+) -> List[RoleAccessProxy]:
+    return obj.views.organizations_as_admin(
+        owner=True, limit=limit, order_by_grant=order_by_grant
+    )
+
+
+@User.views()
+def recent_organization_memberships(
+    obj: User, recent: int = 3, overflow: int = 4
+) -> SimpleNamespace:
+    orgs = obj.views.organizations_as_admin(
+        limit=recent + overflow, order_by_grant=True
+    )
+    return SimpleNamespace(
+        recent=orgs[:recent],
+        overflow=orgs[recent : recent + overflow],
+        extra_count=max(
+            0, obj.active_organization_admin_memberships.count() - recent - overflow
+        ),
+    )
+
+
 @UserSession.views('user_agent_details')
 def user_agent_details(obj):
     ua = user_agents.parse(obj.user_agent)
@@ -143,7 +211,6 @@ def user_session_login_service(obj):
 
 
 @app.route('/api/1/account/password_policy', methods=['POST'])
-@lastuserapp.route('/api/1/account/password_policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check():
     policy_form = PasswordPolicyForm()
@@ -196,7 +263,6 @@ def password_policy_check():
 
 
 @app.route('/api/1/account/username_available', methods=['POST'])
-@lastuserapp.route('/api/1/account/username_available', methods=['POST'])
 @render_with(json=True)
 def account_username_availability():
     form = UsernameAvailableForm(edit_user=current_auth.user)
@@ -298,6 +364,66 @@ class AccountView(ClassView):
     @render_with('account_saved.html.jinja2')
     def saved(self) -> ReturnRenderWith:
         return {'saved_projects': current_auth.user.saved_projects}
+
+    @route('menu', endpoint='account_menu')
+    def menu(self):
+        """Render account menu."""
+        # This is an experimental implementation of caching with ETag. It needs to be
+        # generalized into a view decorator
+        max_age = 900  # 900 seconds = 15 minutes
+        template_version = 1  # Update this number when the template changes
+        cache_key = f'account_menu/{template_version}/{current_auth.user.uuid_b64}'
+        cache_data = cache.get(cache_key)
+        rendered_template = None
+        if cache_data:
+            try:
+                rendered_template = cache_data['rendered_template']
+                chash = cache_data['blake2b']
+                etag = cache_data['etag']
+                last_modified = cache_data['last_modified']
+                # TODO: Decorator version's ETag hash should be based on request Accept
+                # headers as well, as that changes the response. Or, all headers
+                # that are in `response.vary`, although some values for that header are
+                # set in `after_request` processors and won't be available here.
+                if (
+                    etag
+                    != blake2b(
+                        f'{current_auth.user.uuid_b64}/{chash}'.encode()
+                    ).hexdigest()
+                ):
+                    rendered_template = None
+            except KeyError:
+                # If any of `rendered_template`, `chash`, `etag` or `last_modified` are
+                # missing, discard the cache
+                rendered_template = None
+        if rendered_template is None:
+            rendered_template = render_template('account_menu.html.jinja2')
+            chash = blake2b(rendered_template.encode()).hexdigest()
+            etag = blake2b(f'{current_auth.user.uuid_b64}/{chash}'.encode()).hexdigest()
+            last_modified = datetime.utcnow()
+            cache.set(
+                cache_key,
+                {
+                    'rendered_template': rendered_template,
+                    'blake2b': chash,
+                    'etag': etag,
+                    'last_modified': last_modified,
+                },
+                timeout=max_age,
+            )
+        response = make_response(rendered_template)
+        response.set_etag(etag)
+        response.last_modified = last_modified
+        response.cache_control.max_age = max_age
+        response.expires = (response.last_modified or datetime.utcnow()) + timedelta(
+            seconds=max_age
+        )
+        return response.make_conditional(request)
+
+    @route('organizations', endpoint='organizations')
+    @render_with('account_organizations.html.jinja2')
+    def organizations(self) -> ReturnRenderWith:
+        return {}
 
     @route(
         'edit',
@@ -439,8 +565,9 @@ class AccountView(ClassView):
                     title=_("Email address verified"),
                     message=Markup(
                         _(
-                            "Hello, {fullname}! "
-                            "Your email address <code>{email}</code> has now been verified"
+                            "Hello, {fullname}!"
+                            " Your email address <code>{email}</code> has now been"
+                            " verified"
                         ).format(
                             fullname=escape(useremail.user.fullname),
                             email=escape(useremail.email),
@@ -452,14 +579,14 @@ class AccountView(ClassView):
                 message=_(
                     "You’ve opened an email verification link that was meant for"
                     " another user. If you are managing multiple accounts, please login"
-                    " with the correct account and open the link again."
+                    " with the correct account and open the link again"
                 ),
                 code=403,
             )
         return render_message(
             title=_("Expired confirmation link"),
             message=_(
-                "The confirmation link you clicked on is either invalid or has expired."
+                "The confirmation link you clicked on is either invalid or has expired"
             ),
             code=404,
         )
@@ -581,13 +708,14 @@ class AccountView(ClassView):
         endpoint='remove_email',
     )
     def remove_email(self, email_hash: str) -> ReturnView:
+        useremail: Union[None, UserEmail, UserEmailClaim]
         try:
             useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
-            if not useremail:
+            if useremail is None:
                 useremail = UserEmailClaim.get_for(
                     user=current_auth.user, email_hash=email_hash
                 )
-            if not useremail:
+            if useremail is None:
                 abort(404)
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
@@ -636,7 +764,7 @@ class AccountView(ClassView):
             useremail = UserEmail.get(email_hash=email_hash)
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
-        if useremail and useremail.user == current_auth.user:
+        if useremail is not None and useremail.user == current_auth.user:
             # If an email address is already verified (this should not happen unless the
             # user followed a stale link), tell them it's done -- but only if the email
             # address belongs to this user, to prevent this endpoint from being used as
@@ -651,7 +779,7 @@ class AccountView(ClassView):
             )
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
-        if not emailclaim:
+        if emailclaim is None:
             abort(404)
         verify_form = VerifyEmailForm()
         if verify_form.validate_on_submit():
@@ -663,7 +791,7 @@ class AccountView(ClassView):
             form=verify_form,
             title=_("Resend the verification email?"),
             message=_(
-                "We will resend the verification email to {email}.".format(
+                "We will resend the verification email to {email}".format(
                     email=emailclaim.email
                 )
             ),
@@ -687,15 +815,18 @@ class AccountView(ClassView):
             current_auth.user.main_notification_preferences.by_sms = (
                 form.enable_notifications.data
             )
+            template_message = sms.WebOtpTemplate(
+                otp=userphone.verification_code,
+                helpline_text="call +917676332020",  # TODO: Replace with report URL
+                domain=current_app.config['SERVER_NAME'],
+            )
             msg = SMSMessage(
                 phone_number=userphone.phone,
-                message=current_app.config['SMS_VERIFICATION_TEMPLATE'].format(
-                    code=userphone.verification_code
-                ),
+                message=str(template_message),
             )
             try:
                 # Now send this
-                msg.transactionid = sms.send(msg.phone_number, msg.message)
+                msg.transactionid = sms.send(msg.phone_number, template_message)
             except TransportRecipientError as e:
                 flash(str(e), 'error')
             except TransportConnectionError:
@@ -724,10 +855,11 @@ class AccountView(ClassView):
     @route('phone/<number>/remove', methods=['GET', 'POST'], endpoint='remove_phone')
     @requires_sudo
     def remove_phone(self, number: str) -> ReturnView:
+        userphone: Union[None, UserPhone, UserPhoneClaim]
         userphone = UserPhone.get(phone=number)
         if userphone is None or userphone.user != current_auth.user:
             userphone = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
-            if not userphone:
+            if userphone is None:
                 abort(404)
             if userphone.verification_expired:
                 flash(
@@ -847,51 +979,13 @@ class AccountView(ClassView):
         )
 
 
-@route('/account')
-class OtherAppAccountView(ClassView):
-    """Redirect /account from Talkfunnel to Hasgeek."""
-
-    @route('', endpoint='account')
-    @requires_login
-    def account(self) -> ReturnResponse:
-        return redirect(app_url_for(app, 'account', _external=True))
-
-
 AccountView.init_app(app)
-OtherAppAccountView.init_app(funnelapp)
-OtherAppAccountView.init_app(lastuserapp)
-
-
-# --- Lastuserapp legacy routes --------------------------------------------------------
-
-# Redirect from old URL in previously sent out verification emails
-@lastuserapp.route('/profile/email/<email_hash>/verify')
-def verify_email_old(email_hash) -> ReturnResponse:
-    return redirect(app_url_for(app, 'verify_email', email_hash=email_hash), code=301)
-
-
-# Redirect from Lastuser's account edit page
-@lastuserapp.route(
-    '/account/edit',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': False},
-    endpoint='account_edit',
-)
-@lastuserapp.route(
-    '/account/new',
-    methods=['GET', 'POST'],
-    defaults={'newprofile': True},
-    endpoint='account_new',
-)
-def lastuser_account_edit(newprofile: bool) -> ReturnResponse:
-    return redirect(app_url_for(app, 'account_new' if newprofile else 'account_edit'))
 
 
 # --- Compatibility routes -------------------------------------------------------------
 
-
-@funnelapp.route('/account/sudo', endpoint='account_sudo')
-@lastuserapp.route('/account/sudo', endpoint='account_sudo')
+# Retained for future hasjob integration
+# @hasjobapp.route('/account/sudo', endpoint='account_sudo')
 def otherapp_account_sudo() -> ReturnResponse:
     next_url = request.args.get('next')
     if next_url:

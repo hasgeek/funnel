@@ -13,6 +13,7 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AuthToken, UserExternalId
+from .typing import ReturnLoginProvider
 
 # Bearer token, as per http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
 auth_bearer_re = re.compile('^Bearer ([a-zA-Z0-9_.~+/-]+=*)$')
@@ -65,7 +66,7 @@ class ResourceRegistry(OrderedDict):
                     token_match = auth_bearer_re.search(
                         request.headers['Authorization']
                     )
-                    if token_match:
+                    if token_match is not None:
                         token = token_match.group(1)
                     else:
                         # Unrecognized Authorization header
@@ -78,7 +79,7 @@ class ResourceRegistry(OrderedDict):
                         _("An access token is required to access this resource")
                     )
                 authtoken = AuthToken.get(token=token)
-                if not authtoken:
+                if authtoken is None:
                     return resource_auth_error(_("Unknown access token"))
                 if not authtoken.is_valid():
                     return resource_auth_error(_("Access token has expired"))
@@ -104,7 +105,7 @@ class ResourceRegistry(OrderedDict):
                 try:
                     result = f(authtoken, args, request.files)
                     response = jsonify({'status': 'ok', 'result': result})
-                except Exception as exception:
+                except Exception as exception:  # NOQA: B902
                     exception_catchall.send(exception)
                     response = jsonify(
                         {
@@ -165,7 +166,7 @@ class LoginCallbackError(Exception):
     """External service login failure (during callback)."""
 
 
-class LoginProvider(object):
+class LoginProvider:
     """
     Base class for login providers.
 
@@ -217,7 +218,7 @@ class LoginProvider(object):
     def do(self, callback_url: str):
         raise NotImplementedError
 
-    def callback(self, *args, **kwargs):
+    def callback(self) -> ReturnLoginProvider:
         raise NotImplementedError
 
         # Template for subclasses:

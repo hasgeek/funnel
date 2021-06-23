@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from flask import abort, flash, g, jsonify, redirect, request, url_for
+from flask import abort, flash, jsonify, redirect, request, url_for
 
 from baseframe import _, forms, request_is_xhr
 from baseframe.forms import render_form
@@ -14,7 +14,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import TicketParticipantForm
 from ..models import (
     Profile,
@@ -26,10 +26,9 @@ from ..models import (
     db,
 )
 from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
-from .decorators import legacy_redirect
 from .helpers import mask_email
 from .login_session import requires_login
-from .mixins import ProjectViewMixin, TicketEventViewMixin
+from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
 
 
 def ticket_participant_badge_data(ticket_participants, project):
@@ -50,13 +49,16 @@ def ticket_participant_badge_data(ticket_participants, project):
                         puk=ticket_participant.puk, key=ticket_participant.key
                     )
                 ),
-                'order_no': ticket.order_no if ticket else '',
+                'order_no': ticket.order_no if ticket is not None else '',
             }
         )
     return badges
 
 
-def ticket_participant_data(ticket_participant, project_id, full=False):
+# FIXME: Do not process integer primary keys
+def ticket_participant_data(
+    ticket_participant: TicketParticipant, project_id: int, full=False
+):
     data = {
         '_id': ticket_participant.id,
         'puk': ticket_participant.puk,
@@ -117,8 +119,6 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
 @Project.views('ticket_participant')
 @route('/<profile>/<project>/ticket_participants')
 class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('json')
     @requires_login
     @requires_roles({'promoter', 'usher'})
@@ -145,26 +145,20 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This participant already exists."), 'info')
+                flash(_("This participant already exists"), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
             form=form, title=_("New ticketed participant"), submit=_("Add participant")
         )
 
 
-@route('/<project>/ticket_participants', subdomain='<profile>')
-class FunnelProjectTicketParticipantView(ProjectTicketParticipantView):
-    pass
-
-
 ProjectTicketParticipantView.init_app(app)
-FunnelProjectTicketParticipantView.init_app(funnelapp)
 
 
 @TicketParticipant.views('main')
 @route('/<profile>/<project>/ticket_participant/<ticket_participant>')
-class TicketParticipantView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
+    __decorators__ = [requires_login]
 
     model = TicketParticipant
     route_model_map = {
@@ -186,8 +180,8 @@ class TicketParticipantView(UrlForView, ModelView):
         return ticket_participant
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        return super(TicketParticipantView, self).after_loader()
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})
@@ -216,19 +210,13 @@ class TicketParticipantView(UrlForView, ModelView):
         return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
 
 
-@route('/<project>/ticket_participant/<uuid_b58>', subdomain='<profile>')
-class FunnelTicketParticipantView(TicketParticipantView):
-    pass
-
-
 TicketParticipantView.init_app(app)
-FunnelTicketParticipantView.init_app(funnelapp)
 
 
 @TicketEvent.views('ticket_participant')
 @route('/<profile>/<project>/ticket_event/<name>')
 class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+    __decorators__ = [requires_login]
 
     @route('ticket_participants/checkin', methods=['GET', 'POST'])
     @requires_roles({'project_promoter', 'project_usher'})
@@ -309,13 +297,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/ticket_event/<name>', subdomain='<profile>')
-class FunnelTicketEventParticipantView(TicketEventParticipantView):
-    pass
-
-
 TicketEventParticipantView.init_app(app)
-FunnelTicketEventParticipantView.init_app(funnelapp)
 
 
 # FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
@@ -348,7 +330,7 @@ class TicketEventParticipantCheckinView(ClassView):
             .first_or_404()
         )
         attendee = TicketEventParticipant.get(ticket_event, ticket_participant.uuid_b58)
-        if not attendee:
+        if attendee is None:
             return (
                 {'error': 'not_found', 'error_description': "Attendee not found"},
                 404,

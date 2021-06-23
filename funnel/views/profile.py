@@ -1,4 +1,12 @@
-from flask import Response, abort, flash, redirect, render_template, request
+from flask import (
+    Response,
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+)
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -15,10 +23,9 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
-from ..models import Profile, Project, Proposal, db
-from .decorators import legacy_redirect
+from ..models import Profile, Project, db
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
 
@@ -55,8 +62,6 @@ def template_switcher(templateargs):
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with({'*/*': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
@@ -67,9 +72,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_user_profile:
             template_name = 'user_profile.html.jinja2'
 
-            submitted_proposals = self.obj.user.speaker_at.filter(
-                ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-            ).all()
+            submitted_proposals = self.obj.user.public_proposals
 
             tagged_sessions = [
                 proposal.session
@@ -90,36 +93,44 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
             # `order_by(None)` clears any existing order defined in relationship.
             # We're using it because we want to define our own order here.
+            # listed_projects already includes a filter on Project.state.PUBLISHED
             projects = self.obj.listed_projects.order_by(None)
             all_projects = (
                 projects.filter(
-                    Project.state.PUBLISHED,
                     db.or_(
-                        Project.schedule_state.LIVE, Project.schedule_state.UPCOMING
+                        Project.state.LIVE,
+                        Project.state.UPCOMING,
+                        db.and_(
+                            Project.start_at.is_(None), Project.published_at.isnot(None)
+                        ),
                     ),
                 )
-                .order_by(Project.schedule_start_at.asc())
+                .order_by(Project.order_by_date())
                 .all()
             )
+
             upcoming_projects = all_projects[:3]
             all_projects = all_projects[3:]
             featured_project = (
                 projects.filter(
-                    Project.state.PUBLISHED,
                     db.or_(
-                        Project.schedule_state.LIVE, Project.schedule_state.UPCOMING
+                        Project.state.LIVE,
+                        Project.state.UPCOMING,
+                        db.and_(
+                            Project.start_at.is_(None), Project.published_at.isnot(None)
+                        ),
                     ),
-                    Project.featured.is_(True),
+                    Project.site_featured.is_(True),
                 )
-                .order_by(Project.schedule_start_at.asc())
+                .order_by(Project.order_by_date())
                 .limit(1)
                 .first()
             )
             if featured_project in upcoming_projects:
                 upcoming_projects.remove(featured_project)
             open_cfp_projects = (
-                projects.filter(Project.state.PUBLISHED, Project.cfp_state.OPEN)
-                .order_by(Project.schedule_start_at.asc())
+                projects.filter(Project.cfp_state.OPEN)
+                .order_by(Project.order_by_date())
                 .all()
             )
 
@@ -128,7 +139,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             if self.obj.current_roles.admin:
                 draft_projects = self.obj.draft_projects
                 unscheduled_projects = self.obj.projects.filter(
-                    Project.schedule_state.PUBLISHED_WITHOUT_SESSIONS
+                    Project.state.PUBLISHED_WITHOUT_SESSIONS
                 ).all()
             else:
                 draft_projects = self.obj.draft_projects_for(current_auth.user)
@@ -179,19 +190,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_organization_profile:
             abort(404)
 
-        submitted_proposals = self.obj.user.speaker_at.filter(
-            ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-        ).all()
-
-        participated_project_ids = [
-            proposal.project_id for proposal in submitted_proposals
-        ] + [project.id for project in self.obj.user.projects_as_crew]
-
-        participated_projects = Project.query.filter(
-            Project.state.PUBLISHED,
-            Project.schedule_start_at.isnot(None),
-            Project.id.in_(set(participated_project_ids)),
-        ).order_by(Project.schedule_start_at.desc())
+        participated_projects = set(self.obj.user.projects_as_crew) | {
+            _p.project for _p in self.obj.user.public_proposals
+        }
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
@@ -201,16 +202,15 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ],
         }
 
-    @route('in/proposals')
+    @route('in/submissions')
+    @route('in/proposals')  # Legacy route, will be auto-redirected to `in/submissions`
     @render_with('user_profile_proposals.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
     def user_proposals(self):
         if self.obj.is_organization_profile:
             abort(404)
 
-        submitted_proposals = self.obj.user.speaker_at.filter(
-            ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-        ).all()
+        submitted_proposals = self.obj.user.public_proposals
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
@@ -224,9 +224,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requestargs(('page', int), ('per_page', int))
     def past_projects_json(self, page=1, per_page=10):
         projects = self.obj.listed_projects.order_by(None)
-        past_projects = projects.filter(
-            Project.state.PUBLISHED, Project.schedule_state.PAST
-        ).order_by(Project.schedule_start_at.desc())
+        past_projects = projects.filter(Project.state.PAST).order_by(
+            Project.order_by_date()
+        )
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {
             'status': 'ok',
@@ -239,9 +239,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'past_projects': [
                 {
                     'title': p.title,
-                    'datetime': date_filter(
-                        p.schedule_end_at_localized, format='dd MMM yyyy'
-                    ),
+                    'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
                     'venue': p.primary_venue.city if p.primary_venue else p.location,
                     'url': p.url_for(),
                 }
@@ -274,8 +272,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def update_logo(self):
         form = ProfileLogoForm(profile=self.obj)
         edit_logo_url = self.obj.url_for('edit_logo_url')
+        delete_logo_url = self.obj.url_for('remove_logo')
         return {
             'edit_logo_url': edit_logo_url,
+            'delete_logo_url': delete_logo_url,
             'form': form,
         }
 
@@ -301,14 +301,35 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             template='img_upload_formlayout.html.jinja2',
         )
 
+    @route('remove_logo', methods=['POST'])
+    @render_with(json=True)
+    @requires_login
+    @requires_roles({'admin'})
+    def remove_logo(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.logo_url = None
+            db.session.commit()
+            return render_redirect(self.obj.url_for(), code=303)
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing profile logo"
+            )
+            flash(
+                _("Were you trying to remove the logo? Try again to confirm"), 'error'
+            )
+            return render_redirect(self.obj.url_for(), code=303)
+
     @route('update_banner', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self):
         form = ProfileBannerForm(profile=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
+        delete_logo_url = self.obj.url_for('remove_banner')
         return {
             'edit_logo_url': edit_logo_url,
+            'delete_logo_url': delete_logo_url,
             'form': form,
         }
 
@@ -334,6 +355,25 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             template='img_upload_formlayout.html.jinja2',
         )
 
+    @route('remove_banner', methods=['POST'])
+    @requires_login
+    @requires_roles({'admin'})
+    def remove_banner(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.banner_image_url = None
+            db.session.commit()
+            return render_redirect(self.obj.url_for(), code=303)
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing profile banner"
+            )
+            flash(
+                _("Were you trying to remove the banner? Try again to confirm"),
+                'error',
+            )
+            return render_redirect(self.obj.url_for(), code=303)
+
     @route('transition', methods=['POST'])
     @requires_login
     @requires_roles({'owner'})
@@ -351,14 +391,4 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return redirect(get_next_url(referrer=True), code=303)
 
 
-@route('/', subdomain='<profile>')
-class FunnelProfileView(ProfileView):
-    @route('')
-    @render_with('funnelindex.html.jinja2')
-    @requires_roles({'reader'})
-    def view(self):
-        return {'profile': self.obj, 'projects': self.obj.listed_projects}
-
-
 ProfileView.init_app(app)
-FunnelProfileView.init_app(funnelapp)

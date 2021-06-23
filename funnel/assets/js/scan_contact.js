@@ -180,7 +180,7 @@ const badgeScan = {
           this.set(
             'error',
             window.gettext(
-              'Unable to access video stream. Please make sure you have camera enabled or try a different browser.'
+              'Unable to access video stream. Please make sure you have camera enabled or try a different browser'
             )
           );
         }

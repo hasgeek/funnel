@@ -36,7 +36,9 @@ def init_models():
         user2 = User(username='hg-user', fullname='hg-user')
         user2._set_password('hg-user5_HE')
 
-        sm = SiteMembership(user=profile_owner, is_site_editor=True)
+        sm = SiteMembership(
+            user=profile_owner, is_site_editor=True, granted_by=profile_owner
+        )
 
         db.session.add_all(
             [

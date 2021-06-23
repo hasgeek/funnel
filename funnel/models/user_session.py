@@ -73,7 +73,17 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         User, backref=db.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
 
+    #: User's last known IP address
     ipaddr = db.Column(db.String(45), nullable=False)
+    #: City geonameid from IP address
+    geonameid_city = db.Column(db.Integer, nullable=True)
+    #: State/subdivision geonameid from IP address
+    geonameid_subdivision = db.Column(db.Integer, nullable=True)
+    #: Country geonameid from IP address
+    geonameid_country = db.Column(db.Integer, nullable=True)
+    #: User's network, from IP address
+    geoip_asn = db.Column(db.Integer, nullable=True)
+    #: User agent
     user_agent = db.Column(db.UnicodeText, nullable=False)
     #: The login service that was used to make this session
     login_service = db.Column(db.Unicode, nullable=True)
@@ -121,7 +131,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
         # Not silent? Raise exceptions on expired and revoked sessions
         user_session = cls.query.filter(cls.buid == buid).one_or_none()
-        if user_session:
+        if user_session is not None:
             if user_session.accessed_at <= utcnow() - user_session_validity_period:
                 raise UserSessionExpired(user_session)
             if user_session.revoked_at is not None:
@@ -140,4 +150,5 @@ class __User:
             UserSession.revoked_at.is_(None),
         ),
         order_by=UserSession.accessed_at.desc(),
+        viewonly=True,
     )

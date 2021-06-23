@@ -17,6 +17,7 @@ from .. import app, rq
 from ..models import Notification, UserNotification, db
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
+from ..transports.sms import SmsTemplate
 from .helpers import make_cached_token
 
 __all__ = ['RenderNotification', 'dispatch_notification']
@@ -260,7 +261,7 @@ class RenderNotification:
             )
         return "Hasgeek"
 
-    def sms(self):
+    def sms(self) -> SmsTemplate:
         """
         Render a short text message. Templates must use a single line with a link.
 
@@ -268,12 +269,12 @@ class RenderNotification:
         """
         raise NotImplementedError("Subclasses must implement `sms`")
 
-    def sms_with_unsubscribe(self):
-        """Add a template prefix and an unsubscribe link to the SMS message."""
+    def sms_with_unsubscribe(self) -> SmsTemplate:
+        """Add an unsubscribe link to the SMS message."""
         # SMS templates can't be translated, so the "Hi!" and "to stop" are static
-        return (
-            "Hi! " + self.sms() + f"\r\n\r\n{self.unsubscribe_short_url('sms')} to stop"
-        )
+        msg = self.sms()
+        msg.unsubscribe_url = self.unsubscribe_short_url('sms')
+        return msg
 
     def webpush(self):
         """
@@ -281,7 +282,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.emoji_prefix + self.sms()
+        raise NotImplementedError("Subclasses must implement `webpush`")
 
     def telegram(self):
         """
@@ -289,7 +290,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.emoji_prefix + self.sms()
+        raise NotImplementedError("Subclasses must implement `telegram`")
 
     def whatsapp(self):
         """
@@ -297,7 +298,7 @@ class RenderNotification:
 
         Default implementation uses SMS render.
         """
-        return self.emoji_prefix + self.sms()
+        raise NotImplementedError("Subclasses must implement `whatsapp`")
 
 
 # --- Dispatch functions ---------------------------------------------------------------

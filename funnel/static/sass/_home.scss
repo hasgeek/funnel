@@ -1,3 +1,45 @@
+.homepage.hg-app {
+  .logo-about {
+    position: fixed !important;
+    width: 100%;
+    left: 0;
+    top: 0;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.33;
+    letter-spacing: 0.43px;
+    text-align: left;
+    color: $mui-primary-color;
+    position: relative;
+    background-color: $mui-primary-color-lighter;
+    text-decoration: none;
+    z-index: 997; // Less than mobile menu
+  }
+
+  .logo-about:hover,
+  .logo-about:focus,
+  .logo-about:active {
+    text-decoration: none;
+  }
+
+  .content-wrapper {
+    padding-top: 37px;
+  }
+}
+
+@media (min-width: 768px) {
+  .homepage.hg-app {
+    .logo-about {
+      display: none;
+    }
+
+    .content-wrapper {
+      padding-top: 52px; //Height of header
+    }
+  }
+}
+
 .projects-wrapper {
   padding: $mui-grid-padding 0;
 }
@@ -46,63 +88,6 @@
     .mui-divider--banner {
       margin: $mui-grid-padding auto 0;
     }
-  }
-}
-
-.funnel-banner {
-  position: relative;
-  overflow: hidden;
-
-  .banner__img {
-    width: 100%;
-    display: block;
-  }
-
-  .banner__headline {
-    color: #816894;
-    font-size: 32px;
-    line-height: 40px;
-    padding: 0 $mui-grid-padding;
-    z-index: 2;
-  }
-
-  .banner__headline-txt {
-    color: #f0a40c;
-  }
-}
-
-@media (min-width: 992px) {
-  .funnel-banner {
-    border-bottom: 2px solid rgba(132, 146, 166, 0.3);
-
-    .banner__headline {
-      position: absolute;
-      top: 50%;
-      left: $mui-grid-padding;
-      right: 0;
-      transform: translate(0%, -50%);
-      font-size: 24px;
-      line-height: 32px;
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .funnel-banner {
-    .banner__headline {
-      font-size: 29px;
-      line-height: 40px;
-      left: -40px;
-    }
-  }
-}
-
-.funnel-notice .alert__text {
-  font-size: 24px;
-  line-height: 32px;
-
-  .funnel-notice-txt {
-    color: #f0a40c;
   }
 }
 
@@ -172,7 +157,7 @@
     .profile__logo {
       position: absolute;
       bottom: -60px;
-      left: 10px;
+      left: $mui-grid-padding;
       width: 120px;
       height: 120px;
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
@@ -235,7 +220,7 @@
 }
 
 .profile-create-btn--mobile {
-  width: calc(100% - 58px);
+  width: calc(100% - 65px);
   .mui-btn {
     width: 100%;
   }
@@ -295,7 +280,7 @@
         }
       }
       .profile__logo {
-        left: $mui-grid-padding * 2;
+        left: 0;
         bottom: -72px;
 
         .profile__logo__details {
@@ -314,7 +299,7 @@
     }
   }
   .profile-details {
-    padding: 2 * $mui-grid-padding $mui-grid-padding 0;
+    padding: 2 * $mui-grid-padding 0 0;
   }
 }
 

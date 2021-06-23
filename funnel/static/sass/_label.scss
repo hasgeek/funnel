@@ -1,46 +1,32 @@
-.label-box {
-  margin: 10px 0;
-  padding: 10px;
+.drag-box {
+  margin: $mui-grid-padding 0;
+  padding: $mui-grid-padding;
 
-  .label-box__icon {
-    float: left;
-    margin-top: 22px;
+  .drag-box__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
   }
 
-  .label-box__icon--right {
-    padding: 0 $mui-grid-padding;
-    box-shadow: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  .label-box__heading {
-    margin: $mui-grid-padding 10px;
-    display: inline-block;
-  }
-
-  @media (min-width: 1200px) {
-    .sublabel-wrapper {
-      display: inline-block;
-      max-width: 80%;
-      vertical-align: middle;
-      margin-top: -5px;
+  .drag-box__body {
+    padding-bottom: $mui-grid-padding/2;
+    .drag-box__body__options {
+      margin-right: $mui-grid-padding/4;
     }
   }
 
-  .label-box__subheading {
-    margin-right: 10px;
-  }
-
-  .label-box__action {
+  .drag-box__action {
+    display: flex;
     float: right;
+    .drag-box__action-btn {
+      padding-right: $mui-grid-padding/4;
+    }
   }
+}
 
-  .label-box__icon-wrapper {
-    position: absolute;
-    top: 10px;
-    right: 0;
-  }
+.drag-box--no-border {
+  border: none;
+  border-radius: 0;
 }
 
 .label-box--new {
@@ -51,4 +37,8 @@
   a:hover {
     text-decoration: none;
   }
+}
+
+.drag-handle {
+  cursor: move;
 }

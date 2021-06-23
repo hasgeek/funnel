@@ -1,16 +1,18 @@
+from typing import Set
+
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import User, db
-from .commentvote import Commentset
+from .comment import Commentset
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin
 
 __all__ = ['CommentsetMembership']
 
 
-class CommentsetMembership(ImmutableMembershipMixin, db.Model):
+class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'
@@ -46,8 +48,8 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
         )
     )
 
-    parent = immutable(db.synonym('commentset'))
-    parent_id = immutable(db.synonym('commentset_id'))
+    parent = db.synonym('commentset')
+    parent_id = db.synonym('commentset_id')
 
     #: Flag to indicate notifications are muted
     is_muted = db.Column(db.Boolean, nullable=False, default=False)
@@ -57,7 +59,7 @@ class CommentsetMembership(ImmutableMembershipMixin, db.Model):
     )
 
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set[str]:
         """
         Roles offered by this membership record.
 

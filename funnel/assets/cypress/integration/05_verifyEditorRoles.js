@@ -21,8 +21,5 @@ describe('Verify roles of editor', function () {
     cy.get('a[data-cy="manage-labels"]').should('exist');
     cy.get('a[data-cy="setup-ticket-events"]').should('not.exist');
     cy.get('a[data-cy="scan-checkin"]').should('not.exist');
-    cy.get('a[data-cy="download-csv"]').should('exist');
-    cy.get('a[data-cy="download-json"]').should('exist');
-    cy.get('a[data-cy="download-schedule-json"]').should('exist');
   });
 });

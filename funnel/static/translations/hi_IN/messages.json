@@ -28,6 +28,12 @@
         null,
         "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
       ],
+      "Changes saved but not published": [null, ""],
+      "These changes have not been published yet": [null, ""],
+      "You have unsaved changes on this page. Do you want to leave this page?": [
+        null,
+        ""
+      ],
       "The server is experiencing difficulties. Try again in a few minutes": [
         null,
         ""
@@ -36,11 +42,11 @@
         null,
         "इस उपकरण का कोई इंटरनेट कनेक्शन नहीं है"
       ],
-      "Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com ": [
+      "Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com": [
         null,
         ""
       ],
-      "Unable to access video stream. Please make sure you have camera enabled or try a different browser.": [
+      "Unable to access video stream. Please make sure you have camera enabled or try a different browser": [
         null,
         ""
       ],
@@ -52,13 +58,13 @@
       "Tomorrow": [null, ""],
       "Day after": [null, ""],
       "In %d days": [null, ""],
-      "An internal server error occurred. Our support team has been notified and will investigate.": [
+      "An internal server error occurred. Our support team has been notified and will investigate": [
         null,
         ""
       ],
-      "Unable to connect. Check connection and tap to reload.": [null, ""],
+      "Unable to connect. Check connection and tap to reload": [null, ""],
       "Link copied": [null, ""],
-      "Project added to Account > My saves": [null, ""],
+      "Project added to Account > Saved projects": [null, ""],
       "English": [null, "अंग्रेज़ी"],
       "Hindi (beta; incomplete)": [null, "हिंदी (बीटा; अधूरा)"],
       "This password is too simple. Add complexity by making it longer and using a mix of upper and lower case letters, numbers and symbols": [
@@ -190,20 +196,10 @@
         null,
         "वेबसाइट जहां यूजर इस ऐप्लिकेशन का उपयोग कर सकते हैं"
       ],
-      "Client namespace": [null, "क्लाइंट नेमस्पेस"],
-      "A dot-based namespace that uniquely identifies your client application. For example, if your client website is <code>https://auth.hasgeek.com</code>, use <code>com.hasgeek.auth</code>. Only required if your client app provides resources": [
-        null,
-        "एक डॉट-आधारित नेमस्पेस जो विचित्र रूप से आपके क्लाइंट ऐप्लिकेशन की पहचान करता है"
-      ],
       "Redirect URLs": [null, "रीडायरेक्ट URLs"],
       "OAuth2 Redirect URL. If your app is available on multiple hostnames, list each redirect URL on a separate line": [
         null,
         "OAuth2 रीडायरेक्ट URL. अगर आपका ऐप कई होस्टनेम पर उपलब्ध है, तो हर अलग-अलग लाइन पर प्रत्येक रीडायरेक्ट URLलिस्ट करें"
-      ],
-      "Notification URL": [null, "नोटिफिकेशन URL"],
-      "When the user's data changes, Lastuser will POST a notice to this URL. Other notices may be posted too": [
-        null,
-        "जब यूजर का डेटा बदल जाता है, तो Lastuser इस URL को एक नोटिस पोस्ट करेगा"
       ],
       "Allow anyone to login": [null, "किसी को भी लॉगिन करने दें"],
       "If your application requires access to be restricted to specific users, uncheck this, and only users who have been assigned a permission to the app will be able to login": [
@@ -214,14 +210,6 @@
       "The scheme, domain and port must match that of the website URL": [
         null,
         "स्कीम, डोमेन और पोर्ट वेबसाइट URL से मेल खाना चाहिए"
-      ],
-      "The namespace should be derived from your application’s website domain": [
-        null,
-        "नेमस्पेस आपके ऐप्लिकेशन के वेबसाइट डोमेन से लिया जाना चाहिए"
-      ],
-      "This namespace has been claimed by another client app": [
-        null,
-        "इस नेमस्पेस को एक अन्य ग्राहक ऐप द्वारा इस्तेमाल कर लिया गया है"
       ],
       "What’s this for?": [null, "यह किस लिए है?"],
       "Add a description to help yourself remember why this was generated": [
@@ -252,13 +240,13 @@
         null,
         "यह ईमेल पता पहले से रजिस्टर है. आपको लॉगिन करनी चाहिए या फिर अपने पासवर्ड को रीसेट करनी चाहिए"
       ],
-      "This does not appear to be a valid email address.": [
+      "This does not appear to be a valid email address": [
         null,
-        "यह ईमेल पता सही नहीं लग रहा है."
+        "यह ईमेल पता सही नहीं लग रहा है"
       ],
-      "The domain name of this email address is missing a DNS MX record. We require an MX record as missing MX is a strong indicator of spam. Please ask your tech person to add MX to DNS.": [
+      "The domain name of this email address is missing a DNS MX record. We require an MX record as missing MX is a strong indicator of spam. Please ask your tech person to add MX to DNS": [
         null,
-        "इस ईमेल पते के डोमेन का DNS MX रिकॉर्ड मौजूद नहीं है. हमें MX record की आवश्यकता होती है क्योंकि गैर-मौजूद MX वाले ईमेल को फर्ज़ी माना जाता है. कृपया अपने वेबसाइट निर्माणकर्ता से DNS में MX जोड़ने को बोलें."
+        "इस ईमेल पते के डोमेन का DNS MX रिकॉर्ड मौजूद नहीं है. हमें MX record की आवश्यकता होती है क्योंकि गैर-मौजूद MX वाले ईमेल को फर्ज़ी माना जाता है. कृपया अपने वेबसाइट निर्माणकर्ता से DNS में MX जोड़ने को बोलें"
       ],
       "You have already registered this email address": [
         null,
@@ -576,6 +564,11 @@
         "यदि यह प्रोजेक्ट केवल-ऑनलाइन हो, तो “ऑनलाइन” का इस्तेमाल करें"
       ],
       "%(max)d characters maximum": [null, "अधिकतर %(max)d वर्ण"],
+      "Optional - Starting time": [null, ""],
+      "Optional - Ending time": [null, ""],
+      "This is required when starting time is specified": [null, ""],
+      "This requires a starting time too": [null, ""],
+      "This must be after the starting time": [null, ""],
       "The timezone in which this event occurs": [
         null,
         "वह समय-क्षेत्र जिसमें यह ईवेंट होगा"
@@ -600,9 +593,9 @@
         null,
         "अपने प्रोजेक्ट के URL को अपने अनुकूल बनाएं. केवल लोअरकेस अक्षर, नंबर और डैश का ही इस्तेमाल करें. आप इसमें कोई तिथि भी जोड़ सकते हैं"
       ],
-      "This URL contains unsupported characters. It can contain lowercase letters, numbers and hyphens only.": [
+      "This URL contains unsupported characters. It can contain lowercase letters, numbers and hyphens only": [
         null,
-        "इस URL में कुछ गैर-उपयोगी वर्ण मौजूद हैं. इसमें केवल लोअरकेस अक्षर, नंबर और हायफ़न ही रह सकते हैं."
+        "इस URL में कुछ गैर-उपयोगी वर्ण मौजूद हैं. इसमें केवल लोअरकेस अक्षर, नंबर और हायफ़न ही रह सकते हैं"
       ],
       "Guidelines": [null, "दिशानिर्देश"],
       "Set guidelines for the type of submissions your project is accepting, your review process, and anything else relevant to the submission": [
@@ -611,16 +604,10 @@
       ],
       "Submissions open at": [null, "सबमिशन खुलने का समय"],
       "Submissions close at": [null, "सबमिशन बंद होने का समय"],
-      "This requires an opening time to be specified": [
-        null,
-        "इस के लिए शुरू होने का के समय को उल्लिखित करना ज़रूरी है"
-      ],
-      "Submissions cannot close before they open": [
-        null,
-        "जमा करने के प्रक्रिया खुलने से पहले बंद नहीं की जा सकती"
-      ],
+      "Optional – Leave blank to have no closing date": [null, ""],
+      "This requires an opening date to be specified": [null, ""],
+      "This must be after the opening date and time": [null, ""],
       "Status": [null, "स्थिति"],
-      "Schedule status": [null, "कार्यक्रम की स्तिथि"],
       "CfP status": [null, "CfP की स्थिति"],
       "Save this project?": [null, "इस प्रोजेक्ट को सहेजें?"],
       "Note to self": [null, "खुद याद रखने की बात"],
@@ -643,7 +630,7 @@
         null,
         "इस प्रस्ताव को दूसरे प्रोजेक्ट में भेजें"
       ],
-      "Get notification": [null, ""],
+      "Get notifications": [null, ""],
       "Room": [null, "रूम"],
       "Speaker": [null, "स्पीकर"],
       "Banner image URL": [null, "बैनर चित्र का URL"],
@@ -704,9 +691,9 @@
         "कमरे के बारे में एक वैकल्पिक नोट"
       ],
       "Room colour": [null, "कमरे का रंग"],
-      "RGB colour for the room. Enter without the '#'. E.g. CCCCCC.": [
+      "RGB colour for the room. Enter without the '#'. E.g. CCCCCC": [
         null,
-        "कमरे का RGB रंग. बगैर ‘#’ के दर्ज करें. जैसे CCCCCC."
+        "कमरे का RGB रंग. बगैर ‘#’ के दर्ज करें. जैसे CCCCCC"
       ],
       "Please enter a valid color code": [
         null,
@@ -766,14 +753,9 @@
         null,
         "LinkedIn से ईमेल प्राप्त करने में असमर्थ रहा. आंतरिक विवरण: {error}"
       ],
-      "Twitter had an intermittent error. Please try again": [
-        null,
-        "Twitter में कुछ वक्ती समस्या है. कृपया फिर से कोशिश करें"
-      ],
-      "You denied the request to login": [
-        null,
-        "आपने लॉग इन के अनुरोध को ख़ारिज कर दिया"
-      ],
+      "Twitter had a temporary problem. Try again?": [null, ""],
+      "If you were trying to use Twitter, please try again": [null, ""],
+      "Twitter could not be reached. Try again?": [null, ""],
       "Unrecognized algorithm ‘{value}’": [null, "अज्ञात ऍल्गोरिथम ‘{value}’"],
       "Submitted": [null, "जमा कर दिया गए"],
       "Screened": [null, "समीक्षा समाप्त"],
@@ -785,8 +767,8 @@
       "[removed]": [null, "[हटाए हुए]"],
       "{user} commented on {obj}": [null, "{user} ने  {obj} पर कमेंट किया"],
       "{user} commented": [null, "{user} ने कमेंट किया"],
-      "Crew": [null, "दल"],
-      "Proposer": [null, "प्रस्तावक"],
+      "Submitter": [null, ""],
+      "Editor & Promoter": [null, ""],
       "Invite": [null, "आमंत्रण"],
       "Direct add": [null, "सीधा जोड़ें"],
       "Amend": [null, "संसोधन"],
@@ -902,29 +884,10 @@
       "Private draft": [null, "निजी ड्राफ्ट"],
       "Open": [null, "जारी"],
       "Expired": [null, "अवधि समाप्त"],
-      "Enable proposal submissions": [
-        null,
-        "प्रस्ताव जामा करने की सुविधा सक्षम करें"
-      ],
-      "Proposals can be now submitted": [
-        null,
-        "अब प्रस्ताव जमा किए जा सकते हैं"
-      ],
-      "Disable proposal submissions": [
-        null,
-        "प्रस्ताव जमा करने की सुविधा अक्षम करें"
-      ],
-      "Proposals will no longer be accepted": [
-        null,
-        "अब प्रस्ताव जमा नहीं किए जा सकते"
-      ],
-      "Publish schedule": [null, "समय सूची प्रकाशित करें"],
-      "The schedule has been published": [null, "समय-सूची प्रकाशित कर दी गई"],
-      "Unpublish schedule": [null, "समय सूची को प्रकाशित न करें"],
-      "The schedule has been moved to draft state": [
-        null,
-        "समय सूची को अप्रकाशित कर दिया गया"
-      ],
+      "Enable submissions": [null, ""],
+      "Submissions will be accepted within valid dates": [null, ""],
+      "Disable submissions": [null, ""],
+      "Submissions will no longer be accepted": [null, ""],
       "Publish project": [null, "प्रोजेक्ट प्रकाशित करें"],
       "The project has been published": [
         null,
@@ -1006,7 +969,7 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
-      "The room sequence and colours have been updated.": [null, ""],
+      "The room sequence and colours have been updated": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
         ""
@@ -1065,9 +1028,9 @@
         null,
         "वेबसाइट मरम्मत के लिए बंद की गई है"
       ],
-      "We should be back in a few seconds. If it is taking longer, write to us at <a href=\"mailto:%(support_email)s\">%(support_email)s</a> for updates.": [
+      "We should be back in a few seconds. If it is taking longer, write to us at <a href=\"mailto:%(support_email)s\">%(support_email)s</a> for updates": [
         null,
-        "हम कुछ ही देर में इसे शुरू कर देंगे. पर यदि देरी होती है, तो जानकारी पाने के लिए हमें <a href=\"mailto:%(support_email)s\">%(support_email)s</a> पर ईमेल करें."
+        "हम कुछ ही देर में इसे शुरू कर देंगे. पर यदि देरी होती है, तो जानकारी पाने के लिए हमें <a href=\"mailto:%(support_email)s\">%(support_email)s</a> पर ईमेल करें"
       ],
       "About Hasgeek": [null, "Hasgeek का परिचय"],
       "It’s 2021, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.": [
@@ -1124,9 +1087,6 @@
         "%(since)s से स्थापित – आखरी बार इस्तेमाल %(last_used)s"
       ],
       "Since %(since)s": [null, "%(since)s से स्थापित"],
-      "Organizations": [null, "संगठन"],
-      "New": [null, ""],
-      "Open profile": [null, "प्रोफाइल खोलें"],
       "Login sessions": [null, "लॉगिन सेशन"],
       "Since %(since)s via %(login_service)s – last active %(last_active)s": [
         null,
@@ -1141,10 +1101,16 @@
         "%(location)s – %(ipaddr)s से अनुमानित"
       ],
       "Close": [null, "बंद करें"],
-      "Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.": [
+      "Cookies are required to login. Please enable cookies in your browser’s settings and reload this page": [
         null,
-        "लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें."
+        "लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें"
       ],
+      "Add username": [null, ""],
+      "Organizations": [null, "संगठन"],
+      "%(count)s more": [null, ""],
+      "Account settings": [null, ""],
+      "Notification settings": [null, ""],
+      "Saved projects": [null, ""],
       "Merge accounts": [null, "अकाउंट जोड़ें"],
       "Name:": [null, "नाम:"],
       "Username:": [null, "यूजरनेम:"],
@@ -1157,6 +1123,8 @@
       "Logged in account": [null, "अकाउंट में लॉग इन हो गया"],
       "Other account": [null, "अन्य अकाउंट"],
       "Skip": [null, "बाद में"],
+      "Add new organization": [null, ""],
+      "Admin": [null, ""],
       "Client application information": [null, "क्लाइंट एप्लीकेशन की जानकारी"],
       "Admin panel": [null, "एडमिन पैनल"],
       "Edit this application": [null, "इस एप्लीकेशन को संपादित करें"],
@@ -1166,7 +1134,7 @@
       "OAuth2 Type": [null, "OAuth2 प्रकार"],
       "Confidential": [null, "कॉन्फिडेंशियल"],
       "Website": [null, "वेबसाइट"],
-      "Namespace": [null, "नेमस्पेस"],
+      "Notification URL (deprecated)": [null, "नोटिफिकेशन URL (पुराना)"],
       "Active?": [null, "सक्रिय है?"],
       "Allow anyone to login?": [null, "लॉगिन की किसी को अनुमति दें?"],
       "Registered date": [null, "स्थापित डेट"],
@@ -1183,20 +1151,20 @@
         null,
         "इस एप्लीकेशन के पास कोई एक्सेस कीज़ नहीं हैं"
       ],
-      "The following users have permissions to this app.": [
+      "The following users have permissions to this app": [
         null,
-        "निम्न यूजर्स को इस ऐप की अनुमति है."
+        "निम्न यूजर्स को इस ऐप की अनुमति है"
       ],
-      "The following teams have permissions to this app.": [
+      "The following teams have permissions to this app": [
         null,
-        "निम्न टीम को इस ऐप की अनुमति है."
+        "निम्न टीम को इस ऐप की अनुमति है"
       ],
       "Permissions: %(access)s": [null, "अनुमतियां: %(access)s"],
       "No permissions assigned": [null, "कोई अनुमति नहीं दी गई है"],
       "Client access key": [null, "क्लाइंट एक्सेस की"],
-      "Here is your new application access key. Save this somewhere safe. You will not be able to view this secret again.": [
+      "Here is your new application access key. Save this somewhere safe. You will not be able to view this secret again": [
         null,
-        "ये आपके नए एप्लीकेशन की एक्सेस की (कुंजी ) है. इसे कहीं सुरक्षित जगह रख दें. आप दोबारा से इस सीक्रेट को नहीं देख पाएंगे."
+        "ये आपके नए एप्लीकेशन की एक्सेस की (कुंजी ) है. इसे कहीं सुरक्षित जगह रख दें. आप दोबारा से इस सीक्रेट को नहीं देख पाएंगे"
       ],
       "Access key for": [null, "इसके लिए एक्सेस की (कुंजी)"],
       "Client secret": [null, "क्लाइंट सीक्रेट"],
@@ -1211,9 +1179,9 @@
       "%(active)s monthly active users": [null, "%(active)s मासिक सक्रीय यूजर"],
       "%(count)s total users": [null, "%(count)s कुल यूजर"],
       "Authorization error": [null, "प्रमाणीकरण त्रुटी"],
-      "An error occured when logging you in.": [
+      "An error occured when logging you in": [
         null,
-        "आपके लॉग इन के दौरान कोई समस्या उत्पन्न हुई."
+        "आपके लॉग इन के दौरान कोई समस्या उत्पन्न हुई"
       ],
       "Error": [null, "त्रुटी"],
       "Error URI": [null, "त्रुटी URI"],
@@ -1222,14 +1190,14 @@
       "Download CSV": [null, "CSV डाउनलोड करें"],
       "CSV": [null, "CSV"],
       "Download contacts CSV": [null, "कॉन्टैक्ट की CSV फाइल डाउनलोड करें"],
-      "This form timed out because it was open for a long time. Please submit again.": [
+      "This form timed out because it was open for a long time. Please submit again": [
         null,
-        "इस फॉर्म की समय सीमा समाप्त हो गई क्योंकि यह काफी देर से खुली हुई थी. कृपया दोबारा जमा करें."
+        "इस फॉर्म की समय सीमा समाप्त हो गई क्योंकि यह काफी देर से खुली हुई थी. कृपया दोबारा जमा करें"
       ],
       "Hello %(fullname)s,": [null, "नमस्ते %(fullname)s,"],
       "You &ndash; or someone claiming to be you &ndash; asked for your password to be reset. This link is valid for 24 hours.": [
         null,
-        "आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति;  ने आपके पासवर्ड को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
+        "आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति &ndash; ने आपके पासवर्ड को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
       ],
       "Reset your password": [null, "अपना पासवर्ड रिसेट करें"],
       "If you did not ask for this, you may safely ignore this email.": [
@@ -1254,28 +1222,12 @@
         null,
         "\n    %(actor)s ने आपको ‘%(project)s’ के दल के सदस्य से हटा दिया है.\n  "
       ],
-      "Talkfunnel hosts proposal submissions and reviews for events.": [
+      "Explore your passions with communities of like-minded geeks": [
         null,
-        "Talkfunnel, ईवेंट के लिए प्रस्ताव शामिल करने और उसकी समीक्षा करने का काम करता है."
-      ],
-      "Talkfunnel will be discontinued in 2020 and is no longer accepting new projects. Please use ": [
-        null,
-        "Talkfunnel के सेवा 2020 में ख़त्म हो जाएगी और यह नए प्रोजेक्ट स्वीकार नहीं करेगा. कृपया इसका उपयोग करे "
-      ],
-      "Talkfunnel is a space for peer review for technology and critical infrastructure projects. Submit a proposal to any of the events to get started.": [
-        null,
-        "Talkfunnel, तकनीकी और महत्वपूर्ण बुनियादी ढांचे वाले प्रोजेक्ट की सामूहिक समीक्षा की एक जगह है. इससे जुड़ने के लिए नीचे मौजूद किसी भी इवेंट में एक प्रस्ताव जमा करें."
-      ],
-      "There are no projects at this time.": [
-        null,
-        "फिलहाल कोई प्रोजेक्ट उपलब्ध नहीं है."
-      ],
-      "Create one": [null, "एक प्रोजेक्ट बनाएं"],
-      "Explore your passions with communities of like-minded geeks.": [
-        null,
-        "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें."
+        "अपने जैसे रुझान वाले व्यक्तियों के समुदाय के संग अपना जूनून पूरा करें"
       ],
       "Spotlight:": [null, "सुर्खियां:"],
+      "What’s this about?": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाएं"],
       "(No labels)": [null, "(कोई लेबल नहीं है)"],
@@ -1284,14 +1236,11 @@
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
-      "What’s this about?": [null, ""],
       "Search the site": [null, "साइट पर खोजें"],
       "Search…": [null, "खोजें…"],
-      "Search project (%(project)s)": [null, ""],
-      "Search profile (%(profile)s)": [null, ""],
-      "Search website": [null, ""],
-      "Comments": [null, "कमेंट"],
+      "Search": [null, "खोजें"],
       "Updates": [null, "अपडेट"],
+      "Account menu": [null, ""],
       "Account": [null, "अकाउंट"],
       "Login": [null, "लॉगिन"],
       "or use your password instead": [
@@ -1301,31 +1250,16 @@
       "Don’t have an account?": [null, "अकाउंट नहीं है?"],
       "Sign up with email": [null, "ईमेल के ज़रिए साइन अप करें"],
       "Logging out…": [null, "लॉग आउट हो रहा है…"],
+      "Login to save this project": [null, ""],
+      "Save this project": [null, ""],
+      "Unsave this project": [null, ""],
       "Copy link": [null, "लिंक कॉपी करें"],
       "Facebook": [null, "Facebook"],
-      "Edit URL": [null, ""],
-      "Edit description": [null, ""],
-      "Settings": [null, "सेटिंग्स"],
-      "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
-      "Featured projects appear under Spotlight on the home page": [null, ""],
-      "Tickets available": [null, ""],
-      "Sales closed": [null, ""],
-      "Get tickets": [null, "टिकट पाएं"],
-      "Free": [null, ""],
-      "Register": [null, "रजिस्टर करें"],
-      "This will share your name and email address with the project’s crew so they can keep you updated. You can cancel your registration at any time.": [
-        null,
-        "इसे करने से आपके नाम और ईमेल पते को प्रोजेक्ट के दल के सदस्यों के साथ साझा किया जाएगा ताकि आपको इससे जुड़ी जानकारियों से अवगत रख सकें. आप किसी भी समय अपना रजिस्ट्रेशन रद्द कर सकते हैं."
-      ],
-      "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
-      "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
-      "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
-      "View participants": [null, "प्रतिभागियों को देखें"],
       "Preview video": [null, "प्रीव्यू वीडियो"],
       "Edit submission video": [null, "सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": [null, "सेशन का वीडियो संपादित करें"],
+      "Share": [null, "साझा करें"],
       "Notifications": [null, "नोटिफिकेशन"],
-      "My saves": [null, "मेरी सेव किये गए प्रोजेक्ट"],
       "Scan badge": [null, "बैज स्कैन करें"],
       "Contacts": [null, "कॉन्टैक्ट"],
       "Submissions close %(date)s": [null, ""],
@@ -1339,6 +1273,7 @@
       "Accepting submissions": [null, "सब्मिशन स्वीकार कर रहे हैं"],
       "Show more": [null, "और दिखाएं"],
       "All projects": [null, "सभी प्रोजेक्ट"],
+      "Profile menu": [null, ""],
       "Manage admins": [null, "एडमिंस को प्रबंधित करें"],
       "View admins": [null, "एडमिंस को देखें"],
       "Edit this profile": [null, "इस प्रोफाइल को संपादित करें"],
@@ -1381,9 +1316,6 @@
       "Sessions": [null, "सेशन"],
       "Projects": [null, "प्रोजेक्ट"],
       "Submissions": [null, "सबमिशन"],
-      "Tickets": [null, "टिकटें"],
-      "Attend": [null, "हिस्सा लें"],
-      "Make a submission": [null, "एक सबमिशन भेजें"],
       "Team &amp; careers": [null, "टीम &amp; करियर"],
       "Contact": [null, "संपर्क"],
       "Site policies": [null, "साइट नीतियां"],
@@ -1391,20 +1323,18 @@
         null,
         "(सेशन की कोई जानकारी नहीं दी गई है)"
       ],
-      "(proposing)": [null, "(प्रस्तुत कर रहे हैं)"],
       "more": [null, ""],
       "This proposal has a preview video": [
         null,
         "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
       ],
-      "This proposal has slides": [null, "इस प्रस्ताव में स्लाइड मौजूद है"],
-      "Outstation speaker": [null, "दूसरे शहर से आने वाले स्पीकर"],
       "Manage membership": [null, "सदस्यता प्रबंधित करें"],
-      "You have been invited to %(project)s.": [
+      "You have been invited to %(project)s": [
         null,
-        "आपको %(project)s में आमंत्रित किया गया है."
+        "आपको %(project)s में आमंत्रित किया गया है"
       ],
       "Loading…": [null, "लोडिंग…"],
+      "Unread updates": [null, "अपठित अपडेट"],
       "To receive timely notifications by SMS, add a phone number": [
         null,
         "SMS के द्वारा समय-समय पर नोटिफिकेशन पाने के लिए, एक फोन नंबर जोड़ें"
@@ -1413,25 +1343,20 @@
         null,
         "इस श्रेणी में कोई भी नोटिफिकेशन नहीं है"
       ],
-      "Forbidden": [null, "निषिद्ध"],
       "There was an error in the authorization request:": [
         null,
         "ऑथराइजेशन की अनुरोध में कोई समस्या उत्पन्न हुई:"
       ],
       "Authorization Required": [null, "ऑथराइजेशन आवश्यक"],
-      "An application is requesting access to your data.": [
+      "An application is requesting access to your data": [
         null,
-        "एक एप्लीकेशन आपके डेटा को एक्सेस करने का अनुरोध करा रहा है."
+        "एक एप्लीकेशन आपके डेटा को एक्सेस करने का अनुरोध करा रहा है"
       ],
       "Application name": [null, "ऐप्लिकेशन का नाम"],
       "Access scope": [null, "एक्सेस की सीमा"],
-      "Full access to all your data in %(title)s (%(website)s)": [
+      "You should authorize this only if you initiated the request and trust the application with your data": [
         null,
-        "%(title)s (%(website)s) में आपके पूरे डेटा का एक्सेस"
-      ],
-      "You should authorize this only if you initiated the request and trust the application with your data.": [
-        null,
-        "आपको इसे अपने डेटा की अनुमति तभी देनी चाहिए, अगर आपने ही इसकी अनुरोध की थी और आपको इस एप्लीकेशन पर यकीन हो."
+        "आपको इसे अपने डेटा की अनुमति तभी देनी चाहिए, अगर आपने ही इसकी अनुरोध की थी और आपको इस एप्लीकेशन पर यकीन हो"
       ],
       "This form has timed out. Please submit again to confirm": [
         null,
@@ -1457,19 +1382,19 @@
       "New team": [null, "नया टीम"],
       "Linked apps": [null, "जुड़े हुए ऐप्स"],
       "Forgot password?": [null, "पासवर्ड भूल गए हैं?"],
-      "By signing in, you agree to Hasgeek’s <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">terms of service</a> and <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">privacy policy</a>.": [
+      "By signing in, you agree to Hasgeek’s <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">terms of service</a> and <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">privacy policy</a>": [
         null,
-        "साइन इन करने पर, आप Hasgeek की <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">सेवा की शर्तों</a> और <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">गोपनीयता निति</a> की सहमती देते हैं."
+        "साइन इन करने पर, आप Hasgeek की <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">सेवा की शर्तों</a> और <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">गोपनीयता निति</a> की सहमती देते हैं"
       ],
       "People": [null, "सदस्य"],
       "Drafts": [null, "ड्राफ्ट"],
       "Create a new project": [null, "नया प्रोजेक्ट बनाएं"],
-      "Write, collaborate and get feedback.": [
+      "Write, collaborate and get feedback": [
         null,
-        "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं."
+        "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं"
       ],
       "Unscheduled projects": [null, "अनिर्धारित प्रोजेक्ट"],
-      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
+      "Back to the home": [null, ""],
       "See all": [null, "सारे देखें"],
       "Videos": [null, "वीडियो"],
       "Related jobs": [null, "सम्बंधित नौकरियां"],
@@ -1487,6 +1412,7 @@
         null,
         "जिन प्रतिभागियों के पास टिकट है उन्हें जोड़ें"
       ],
+      "Tickets": [null, "टिकटें"],
       "New ticket": [null, "नया टिकट"],
       "Ticket clients": [null, "टिकट क्लाइंट्स"],
       "Add ticket client to import tickets": [
@@ -1501,20 +1427,43 @@
       ],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
-      "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
-      "Update banner image": [null, "बैनर इमेज को बदलें"],
+      "Comments": [null, "कमेंट"],
+      "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "Pinned update": [null, ""],
       "This update is for participants only": [
         null,
         "यह जानकारी केवल प्रतिभागियों के लिए है"
       ],
-      "This project will not be listed as it has no sessions in the schedule": [
+      "Update livestream URLs": [null, "लाइवस्ट्रीम URLs को बदलें"],
+      "Update banner image": [null, "बैनर इमेज को बदलें"],
+      "Tickets available": [null, ""],
+      "Sales closed": [null, ""],
+      "Get tickets": [null, "टिकट पाएं"],
+      "Free updates": [null, ""],
+      "Free": [null, ""],
+      "Register": [null, "रजिस्टर करें"],
+      "This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time": [
         null,
         ""
       ],
+      "Registration menu": [null, ""],
+      "Stop following": [null, ""],
+      "Cancel registration": [null, "रजिस्ट्रेशन रद्द करें"],
+      "No longer interested?": [null, ""],
+      "Can’t make it?": [null, "आप मदद नहीं कर सकते?"],
+      "Confirm cancellation": [null, "रद्द करने की पुष्टि करें"],
+      "View participants": [null, "प्रतिभागियों को देखें"],
+      "Share this project": [null, ""],
+      "Menu": [null, ""],
+      "Edit URL": [null, ""],
+      "Edit description": [null, ""],
+      "Settings": [null, "सेटिंग्स"],
+      "Update venue": [null, "ईवेंट का स्थान अपडेट करें"],
+      "Featured projects appear under Spotlight on the home page": [null, ""],
       "This project is not published. Visit settings to publish": [null, ""],
       "Related events": [null, "सम्बंधित ईवेंट"],
       "Add schedule": [null, ""],
+      "Make a submission": [null, "एक सबमिशन भेजें"],
       "Open submissions": [null, "सबमिशन को खोलें"],
       "Add submission guidelines": [
         null,
@@ -1524,10 +1473,12 @@
         null,
         "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
       ],
-      "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
+      "Hosted by": [null, ""],
+      "Supported by": [null, ""],
+      "Promoted": [null, ""],
       "Project overview": [null, ""],
       "Jobs": [null, "नौकरियां"],
-      "Hosted by": [null, ""],
+      "Crew": [null, "दल"],
       "Participants": [null, "प्रतिभागी"],
       "%(title)s by %(speaker)s, %(project)s": [
         null,
@@ -1552,66 +1503,50 @@
         "टिकट वाले ईवेंट को चेक-इन के लिए सेटअप करें"
       ],
       "Scan badges to check-in": [null, "चेक-इन के लिए बैच स्कैन करें"],
-      "Downloads": [null, "डाउनलोड"],
-      "Download JSON": [null, "JSON डाउनलोड करें"],
-      "JSON": [null, "JSON"],
-      "View schedule JSON": [null, "कार्यक्रम की JSON फाइल देखें"],
-      "Schedule JSON": [null, "कार्यक्रम की JSON फाइल"],
-      "Submission guidelines": [null, ""],
       "Modify guidelines and timing": [null, ""],
       "Modify guidelines": [null, ""],
+      "expand": [null, ""],
       "Add guidelines and timing": [null, ""],
       "Add new update": [null, "नई जानकारी डालें"],
       "Post an update…": [null, "नई जानकारी पोस्ट करें…"],
-      "This project has not posted any updates yet.": [
+      "This project has not posted any updates yet": [
         null,
-        "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है."
+        "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है"
       ],
       "No videos": [null, ""],
       "Create a promotion": [null, ""],
       "Select promotion destination": [null, ""],
-      "Proposal menu": [null, ""],
+      "Stop notifications": [null, ""],
+      "Edit submission": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
       "Add video": [null, "वीडियो जोड़ें"],
       "Editor panel": [null, ""],
-      "Featured submissions appear on the project page": [null, ""],
+      "Featured submissions appear in the overview": [null, ""],
       "Replace session video": [null, ""],
       "Add session video": [null, "सेशन की वीडियो जोड़ें"],
-      "Mute this submission": [null, ""],
-      "This is a featured submission": [null, "यह मुख्य सबमिशन है"],
-      "Up next": [null, "अगला आने वाला"],
+      "Previous": [null, ""],
+      "Next": [null, "आगे"],
+      "All submissions": [null, ""],
+      "This submission has been added to the schedule": [null, ""],
       "No video": [null, "कोई वीडियो नहीं है"],
       "Session video": [null, "सेशन वीडियो"],
       "Proposal video": [null, "प्रस्ताव वीडियो"],
-      "Submitted by %(speaker)s on %(date)s": [
-        null,
-        "%(speaker)s के द्वारा %(date)s पर"
-      ],
-      "This is a proposal requesting for someone to present on this topic.\n                    If you’d like to present, leave a comment.": [
-        null,
-        ""
-      ],
       "Submitted %(date)s ": [null, "%(date)s को सबमिट "],
-      "This proposal has been added to the schedule": [
-        null,
-        "यह प्रस्ताव कार्यक्रम में जोड़ दिया गया है"
-      ],
       "Move": [null, "दूसरी जगह भेजें"],
       "Transfer": [null, "ट्रांसफर"],
       "Change status of proposal": [null, "प्रस्ताव की स्थिति बदलें"],
       "Select date": [null, "डेट चुनें"],
       "Select a date to add sessions": [null, "सेशन जोड़ने के लिए डेट चुनें"],
-      "Unscheduled proposals": [null, ""],
+      "Unscheduled submissions": [null, ""],
       "Revert": [null, "वापस करें"],
       "Save session": [null, "सेशन सेव करें"],
       "Subscribe to the schedule": [null, "कार्यक्रम को सूचीपत्र में जोड़ें"],
       "Download": [null, "डाउनलोड करें"],
       "Add to Google Calendar": [null, "Google Calendar में जोड़ें"],
-      "Search": [null, "खोजें"],
-      "This session has not been scheduled yet.": [
+      "This session has not been scheduled yet": [
         null,
-        "इस सेशन की समय-सूची अभी नहीं बनाई गई है."
+        "इस सेशन की समय-सूची अभी नहीं बनाई गई है"
       ],
       "The session has no attached video": [
         null,
@@ -1647,16 +1582,16 @@
         "प्रतिभागियों को चेक-इन करने के लिए एक ईवेंट चुनें"
       ],
       " View %(title)s attendees": [null, "%(title)s प्रतिभागियों को देखें"],
+      "No comments posted…": [null, ""],
+      "All updates": [null, ""],
       "New image": [null, "नया इमेज"],
       "Remove image": [null, "इमेज हटाएं"],
-      "No tagged sessions yet.": [
-        null,
-        "फिलहाल कोई सेशन टैग किया हुआ नहीं है."
-      ],
-      "No participation yet.": [null, "अब तक कहीं हिस्सा नहीं लिया गया है."],
+      "No tagged sessions yet": [null, "फिलहाल कोई सेशन टैग किया हुआ नहीं है"],
+      "No participation yet": [null, "अब तक कहीं हिस्सा नहीं लिया गया है"],
       "No submissions": [null, "कोई भी सबमिशन नही"],
       "Venues": [null, "ईवेंट का स्थान"],
       "(No venues)": [null, "(कोई ईवेंट का स्थान मौजूद नहीं है)"],
+      "Add venue": [null, "ईवेंट का स्थान जोड़ें"],
       "(No rooms)": [null, "(कोई रूम मौजूद नहीं है)"],
       "Add room": [null, "रूम जोड़ें"],
       "Select camera": [null, ""],
@@ -1672,10 +1607,10 @@
       "Login to leave a comment": [null, ""],
       "Post a comment…": [null, "कमेंट पोस्ट करें…"],
       "New comment": [null, ""],
+      "No comments posted yet": [null, ""],
       "edited %s": [null, ""],
       "Reply": [null, ""],
       "Report": [null, ""],
-      "Share": [null, "साझा करें"],
       "More": [null, ""],
       "Show badge": [null, ""],
       "Show label badge": [null, ""],
@@ -1687,39 +1622,37 @@
       "No members found": [null, ""],
       "Members you add will appear here…": [null, ""],
       "Remove this member": [null, ""],
-      "Admin": [null, ""],
       "+ %d more role": [null, ""],
       "+ %d more roles": [null, ""],
       "Agenda view": [null, ""],
-      "Calender view": [null, ""],
+      "Calendar view": [null, ""],
       "Update": [null, "अपडेट करें"],
-      "Read more": [null, ""],
-      "Hide": [null, ""],
+      "collapse": [null, ""],
       "You wrote:": [null, "आपने लिखा:"],
       "View comment": [null, "कमेंट देखें"],
       "View in context": [null, "संदर्भ के साथ देखें"],
-      "%(actor)s left comments.": [null, "%(actor)s ने कमेंट किया है."],
-      "%(actor1)s and %(actor2)s left comments.": [
+      "%(actor)s left comments": [null, "%(actor)s ने कमेंट किया है"],
+      "%(actor1)s and %(actor2)s left comments": [
         null,
-        "%(actor1)s और %(actor2)s ने कमेंट किया है."
+        "%(actor1)s और %(actor2)s ने कमेंट किया है"
       ],
-      "%(actor1)s, %(actor2)s and one other left comments.": [
+      "%(actor1)s, %(actor2)s and one other left comments": [
         null,
-        "%(actor1)s, %(actor2)s और एक और व्यक्ति ने कमेंट किया है."
+        "%(actor1)s, %(actor2)s और एक और व्यक्ति ने कमेंट किया है"
       ],
-      "%(actor1)s, %(actor2)s and %(count)s others left comments.": [
+      "%(actor1)s, %(actor2)s and %(count)s others left comments": [
         null,
-        "%(actor1)s, %(actor2)s और  %(count)s अन्य लोगों ने कमेंट किया है."
+        "%(actor1)s, %(actor2)s और  %(count)s अन्य लोगों ने कमेंट किया है"
       ],
       "See all comments": [null, "सभी कमेंट देखें"],
-      "A comment has been reported as spam.": [
+      "A comment has been reported as spam": [
         null,
-        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है."
+        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है"
       ],
       "Review comment": [null, "कमेंट की समीक्षा करें"],
-      "A comment has been reported as spam. <a href=\"%(url)s\">Review comment</a>.": [
+      "A comment has been reported as spam. <a href=\"%(url)s\">Review comment</a>": [
         null,
-        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है. <a href=\"%(url)s\">कमेंट की समीक्षा करें</a>."
+        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है. <a href=\"%(url)s\">कमेंट की समीक्षा करें</a>"
       ],
       "Unsubscribe or manage preferences": [
         null,
@@ -1729,25 +1662,25 @@
         null,
         "(इस टेम्पलेट की विषय-सूची मौजूद नहीं है)"
       ],
-      "This update is no longer available.": [
+      "This update is no longer available": [
         null,
-        "यह अपडेट अब उपलब्ध नहीं है."
+        "यह अपडेट अब उपलब्ध नहीं है"
       ],
       "Update #%(number)s": [null, "अपडेट #%(number)s"],
       "Posted by %(editor)s %(age)s": [null, "%(age)s %(editor)s के द्वारा"],
       "See all admins": [null, "सभी एडमिन को देखें"],
-      "<b>%(project)s</b> starts at %(start_time)s.": [
+      "<b>%(project)s</b> starts at %(start_time)s": [
         null,
-        "<b>%(project)s</b> शुरू होने का समय %(start_time)s."
+        "<b>%(project)s</b> शुरू होने का समय %(start_time)s"
       ],
       "Join now": [null, "अभी जुड़ें"],
-      "<a href=\"%(url)s\">%(project)s</a> starts at %(start_time)s.": [
+      "<a href=\"%(url)s\">%(project)s</a> starts at %(start_time)s": [
         null,
-        "<a href=\"%(url)s\">%(project)s</a> शुरू होने का समय %(start_time)s."
+        "<a href=\"%(url)s\">%(project)s</a> शुरू होने का समय %(start_time)s"
       ],
-      "Your project <b>%(project)s</b> has a new submission: <b>%(proposal)s</b>.": [
+      "Your project <b>%(project)s</b> has a new submission: <b>%(proposal)s</b>": [
         null,
-        "आपके प्रोजेक्ट <b>%(project)s</b> में एक नया सबमिशन आया हैं: <b>%(proposal)s</b>."
+        "आपके प्रोजेक्ट <b>%(project)s</b> में एक नया सबमिशन आया हैं: <b>%(proposal)s</b>"
       ],
       "Submission page": [null, "सबमिशन पेज"],
       "\n        Your project <a href=\"%(project_url)s\">%(project)s</a> has received %(count)s new submissions:": [
@@ -1758,35 +1691,35 @@
         null,
         "\n        <a href=\"%(url)s\">%(proposal)s</a> %(age)s %(actor)s के द्वारा\n          "
       ],
-      "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new submission: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s.": [
+      "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new submission: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s": [
         null,
-        "आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में एक नया सबमिशन आया है: <a href=\"%(proposal_url)s\">%(proposal)s</a> %(actor)s की ओर से."
+        "आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में एक नया सबमिशन आया है: <a href=\"%(proposal_url)s\">%(proposal)s</a> %(actor)s की ओर से"
       ],
-      "You have submitted a new proposal <b>%(proposal)s</b> to the project <b>%(project)s</b>.": [
+      "You have submitted a new proposal <b>%(proposal)s</b> to the project <b>%(project)s</b>": [
         null,
-        "आपने <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव <b>%(proposal)s</b> भेजा है."
+        "आपने <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव <b>%(proposal)s</b> भेजा है"
       ],
       "View proposal": [null, "प्रस्ताव देखें"],
-      "You submitted <a href=\"%(proposal_url)s\">%(proposal)s</a> to <a href=\"%(project_url)s\">%(project)s</a>.": [
+      "You submitted <a href=\"%(proposal_url)s\">%(proposal)s</a> to <a href=\"%(project_url)s\">%(project)s</a>": [
         null,
-        "आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a href=\"%(proposal_url)s\">%(proposal)s</a> जमा किया है."
+        "आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a href=\"%(proposal_url)s\">%(proposal)s</a> जमा किया है"
       ],
-      "You have cancelled your registration for <b>%(project)s</b>. If this was accidental, you can register again.": [
+      "You have cancelled your registration for <b>%(project)s</b>. If this was accidental, you can register again": [
         null,
-        "आपने <b>%(project)s</b> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है. अगर यह गलती से हुआ है, तो फिर आप दोबारा रजिस्टर कर सकते हैं."
+        "आपने <b>%(project)s</b> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है. अगर यह गलती से हुआ है, तो फिर आप दोबारा रजिस्टर कर सकते हैं"
       ],
       "Project page": [null, "प्रोजेक्ट पेज"],
       "You cancelled your registration for <a href=\"%(url)s\">%(project)s</a>": [
         null,
         "आपने <a href=\"%(url)s\">%(project)s</a> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है"
       ],
-      "You have registered for <b>%(project)s</b>.": [
+      "You have registered for <b>%(project)s</b>": [
         null,
-        "आप <b>%(project)s</b> के लिए रजिस्टर हो चुके हैं."
+        "आप <b>%(project)s</b> के लिए रजिस्टर हो चुके हैं"
       ],
-      "The next session in the schedule starts %(date_and_time)s.": [
+      "The next session in the schedule starts %(date_and_time)s": [
         null,
-        "इस कार्यक्रम का अगला सेशन %(date_and_time)s पर शुरू होगा."
+        "इस कार्यक्रम का अगला सेशन %(date_and_time)s पर शुरू होगा"
       ],
       "You registered for <a href=\"%(url)s\">%(project)s</a>": [
         null,
@@ -1886,14 +1819,14 @@
         "नमस्ते {fullname}! आपका ईमेल पता <code>{email}</code> अब वेरिफाई हो चुका"
       ],
       "This was not for you": [null, "यह आपके लिए नहीं था"],
-      "You’ve opened an email verification link that was meant for another user. If you are managing multiple accounts, please login with the correct account and open the link again.": [
+      "You’ve opened an email verification link that was meant for another user. If you are managing multiple accounts, please login with the correct account and open the link again": [
         null,
-        "आपने एक ईमेल वेरिफिकेशन लिंक खोला है जो किसी अन्य यूजर के लिए था."
+        "आपने एक ईमेल वेरिफिकेशन लिंक खोला है जो किसी अन्य यूजर के लिए था"
       ],
       "Expired confirmation link": [null, "एक्स्पायर हुई पुष्टि लिंक"],
-      "The confirmation link you clicked on is either invalid or has expired.": [
+      "The confirmation link you clicked on is either invalid or has expired": [
         null,
-        "आपके द्वारा क्लिक की गई पुष्टि लिंक या तो अमान्य है या एक्स्पायर हो गई है."
+        "आपके द्वारा क्लिक की गई पुष्टि लिंक या तो अमान्य है या एक्स्पायर हो गई है"
       ],
       "Set password": [null, "पासवर्ड सेट करें"],
       "Your new password has been saved": [
@@ -1956,9 +1889,9 @@
         null,
         "वेरिफिकेशन ईमेल दोबारा भेजना चाहते हैं?"
       ],
-      "We will resend the verification email to {email}.": [
+      "We will resend the verification email to {email}": [
         null,
-        "हम वेरिफिकेशन ईमेल को {email} पर दोबारा भेज देंगे."
+        "हम वेरिफिकेशन ईमेल को {email} पर दोबारा भेज देंगे"
       ],
       "Send": [null, "भेजें"],
       "Unable to send a message right now. Try again later": [
@@ -2005,23 +1938,23 @@
         null,
         "आपने {service} खाता ‘{username}’ हटा दिया है"
       ],
-      "Your password has expired. Please enter your username or email address to request a reset code and set a new password.": [
+      "Your password has expired. Please enter your username or email address to request a reset code and set a new password": [
         null,
-        "आपका पासवर्ड एक्स्पायर हो चुका है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें."
+        "आपका पासवर्ड एक्स्पायर हो चुका है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें"
       ],
       "Cannot reset password": [null, "पासवर्ड रीसेट नहीं किया जा सकता"],
-      "Your account does not have an email address. However, it is linked to {service} with the ID {username}. You can use that to login.": [
+      "Your account does not have an email address. However, it is linked to {service} with the ID {username}. You can use that to login": [
         null,
-        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ {service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं."
+        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ {service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं"
       ],
-      "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance.": [
+      "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance": [
         null,
-        "आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया <a href=\"mailto:{email}\">{email}</a> से संपर्क करें."
+        "आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया <a href=\"mailto:{email}\">{email}</a> से संपर्क करें"
       ],
       "Email sent": [null, "ईमेल भेज दिया गया है"],
-      "You have been sent an email with a link to reset your password, to your address {masked_email}. If it doesn’t arrive in a few minutes, it may have landed in your spam or junk folder. The reset link is valid for 24 hours.": [
+      "You have been sent an email with a link to reset your password, to your address {masked_email}. If it doesn’t arrive in a few minutes, it may have landed in your spam or junk folder. The reset link is valid for 24 hours": [
         null,
-        "आपको अपना पासवर्ड रीसेट करने के लिए एक लिंक के साथ एक ईमेल भेजा गया है, आपके {masked_email} पते पर. अगर यह कुछ मिनटों में नहीं आता है, तो यह आपके स्पैम या जंक फोल्डर में जा सकता है. रीसेट लिंक 24 घंटे के लिए मान्य है."
+        "आपको अपना पासवर्ड रीसेट करने के लिए एक लिंक के साथ एक ईमेल भेजा गया है, आपके {masked_email} पते पर. अगर यह कुछ मिनटों में नहीं आता है, तो यह आपके स्पैम या जंक फोल्डर में जा सकता है. रीसेट लिंक 24 घंटे के लिए मान्य है"
       ],
       "Send reset link": [null, "रीसेट लिंक भेजें"],
       "This password reset link is invalid. If you still need to reset your password, you may request a new link": [
@@ -2029,9 +1962,9 @@
         "यह पासवर्ड रीसेट लिंक अमान्य है. अगर आपको अभी भी अपना पासवर्ड रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
       ],
       "Please try again": [null, "कृपया दोबारा प्रयास करें"],
-      "This page timed out. Please open the reset link again.": [
+      "This page timed out. Please open the reset link again": [
         null,
-        "इस पेज की समय-सीमा समााप्त हो चुकी है. कृपया रीसेट लिंक दोबारा खोलें."
+        "इस पेज की समय-सीमा समााप्त हो चुकी है. कृपया रीसेट लिंक दोबारा खोलें"
       ],
       "This password reset link has expired. If you still need to reset your password, you may request a new link": [
         null,
@@ -2047,17 +1980,17 @@
         "इस पासवर्ड रीसेट लिंक का उपयोग किया जा चुका है. अगर आपको अपना पासवर्ड फिर से रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
       ],
       "Password reset complete": [null, "पासवर्ड रीसेट पूरा हुआ"],
-      "Your password has been changed. You may now login with your new password.": [
+      "Your password has been changed. You may now login with your new password": [
         null,
-        "आपका पासवर्ड बदल दिया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं."
+        "आपका पासवर्ड बदल दिया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं"
       ],
-      "Your password has been changed. As a precaution, you have been logged out of one other device. You may now login with your new password.": [
+      "Your password has been changed. As a precaution, you have been logged out of one other device. You may now login with your new password": [
         null,
-        "आपका पासवर्ड बदल दिया गया है. एहतियात के तौर पर, आपको एक अन्य डिवाइस से लॉग आउट किया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं."
+        "आपका पासवर्ड बदल दिया गया है. एहतियात के तौर पर, आपको एक अन्य डिवाइस से लॉग आउट किया गया है. अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं"
       ],
-      "Hello, {fullname}. You may now choose a new password.": [
+      "Hello, {fullname}. You may now choose a new password": [
         null,
-        "नमस्ते, {fullname}. अब आप एक नया पासवर्ड चुन सकते हैं."
+        "नमस्ते, {fullname}. अब आप एक नया पासवर्ड चुन सकते हैं"
       ],
       "Register a new client application": [
         null,
@@ -2070,18 +2003,18 @@
       ],
       "Edit application": [null, "ऐप्लिकेशन संपादित करें"],
       "Confirm delete": [null, "मिटाने की पुष्टि करें"],
-      "Delete application ‘{title}’? This will also delete all associated content including access tokens issued on behalf of users. This operation is permanent and cannot be undone.": [
+      "Delete application ‘{title}’? This will also delete all associated content including access tokens issued on behalf of users. This operation is permanent and cannot be undone": [
         null,
-        "‘{title}’ ऐप्लिकेशन मिटाएं? यह यूज़र की ओर से जारी एक्सेस टोकन सहित सभी जुड़ी सामग्री को भी हटा देगा. यह प्रक्रिया स्थाई है और इसे वापस नहीं लाया जा सकता है."
+        "‘{title}’ ऐप्लिकेशन मिटाएं? यह यूज़र की ओर से जारी एक्सेस टोकन सहित सभी जुड़ी सामग्री को भी हटा देगा. यह प्रक्रिया स्थाई है और इसे वापस नहीं लाया जा सकता है"
       ],
       "You have deleted application ‘{title}’ and all its associated resources and permission assignments": [
         null,
         "आपने ‘{title}’ ऐप्लिकेशन और उससे जुड़ी सभी संसाधनों और सौंपी गई अनुमति को मिटा दिया है"
       ],
       "Disconnect {app}": [null, "{app} डिस्कनेक्ट करें"],
-      "Disconnect application {app}? This will not remove any of your data in this app, but will prevent it from accessing any further data from your Hasgeek account.": [
+      "Disconnect application {app}? This will not remove any of your data in this app, but will prevent it from accessing any further data from your Hasgeek account": [
         null,
-        "{app} एप्लिकेशन डिस्कनेक्ट करना चाहते हैं? यह इस ऐप में आपके किसी भी डेटा को नहीं हटाएगा, बल्कि इसे आपके Hasgeek खाते से किसी और डेटा को एक्सेस करने से रोकेगा."
+        "{app} एप्लिकेशन डिस्कनेक्ट करना चाहते हैं? यह इस ऐप में आपके किसी भी डेटा को नहीं हटाएगा, बल्कि इसे आपके Hasgeek खाते से किसी और डेटा को एक्सेस करने से रोकेगा"
       ],
       "You have disconnected {app} from your account": [
         null,
@@ -2098,9 +2031,9 @@
         "अनुमतियां टीम ‘{pname}’ को सौंप दी गई हैं"
       ],
       "Assign permissions": [null, "अनुमतियां सौंपें"],
-      "Add and edit teams from <a href=\"{url}\">your organization’s teams page</a>.": [
+      "Add and edit teams from <a href=\"{url}\">your organization’s teams page</a>": [
         null,
-        "<a href=\"{url}\">आपके संगठन के टीम पेज</a> से टीम जोड़ें और संपादित करें."
+        "<a href=\"{url}\">आपके संगठन के टीम पेज</a> से टीम जोड़ें और संपादित करें"
       ],
       "Delete access key ‘{title}’? ": [null, "ऐक्सेस की ‘{title}’ मिटाएं?"],
       "You have deleted access key ‘{title}’": [
@@ -2148,26 +2081,6 @@
         null,
         "साधन {scope} केवल ट्रस्टेड क्लाइंट के लिए उपलब्ध है"
       ],
-      "No namespace specified for external resource ‘{scope}’ in scope": [
-        null,
-        "स्कोप में बाहरी संसाधन ‘{scope}’ के लिए कोई नेमस्पेस निर्दिष्ट नहीं है"
-      ],
-      "Too many ‘:’ characters in ‘{scope}’ in scope": [
-        null,
-        "स्कोप में ‘{scope}’ में बहुत सारे ‘:’ वर्ण"
-      ],
-      "Too many ‘/’ characters in ‘{scope}’ in scope": [
-        null,
-        "स्कोप में ‘{scope}’ में बहुत सारे ‘/‘ वर्ण"
-      ],
-      "This application does not have access to all resources of app ‘{title}’": [
-        null,
-        "इस एप्लिकेशन के पास ‘{title}’ ऐप के सभी संसाधनों तक ऐक्सेस नहीं है"
-      ],
-      "Unknown resource namespace ‘{namespace}’ in scope": [
-        null,
-        "स्कोप में अज्ञात संसाधन ‘{namespace}’ नेमस्पेस"
-      ],
       "Missing client_id": [null, "नामौजूद client_id"],
       "Unknown client_id": [null, "अज्ञात client_id"],
       "No redirect URI specified": [
@@ -2186,6 +2099,7 @@
       "Scope not specified": [null, "स्कोप निर्दिष्ट नहीं है"],
       "Missing grant_type": [null, "grant_type नामौजूद"],
       "Untrusted client app": [null, "अविश्वसनीय क्लाइंट ऐप"],
+      "Auth code not specified": [null, ""],
       "Unknown auth code": [null, "अज्ञात ऑथ कोड"],
       "Expired auth code": [null, "एक्स्पायर्ड ऑथ कोड"],
       "Scope is blank": [null, "स्कोप खाली है"],
@@ -2220,8 +2134,6 @@
         null,
         "अपने संगठनों में टीमों की सूची पढ़ें"
       ],
-      "Your vote has been recorded": [null, "आपका वोट रिकॉर्ड कर लिया गया है"],
-      "Your vote has been withdrawn": [null, "आपका वोट वापस ले लिया गया है"],
       "Your comment has been posted": [null, "आपका कमेंट पोस्ट कर दिया गया है"],
       "Post comment": [null, "कमेंट पोस्ट करें"],
       "Subscribed to this comment thread": [null, ""],
@@ -2271,8 +2183,6 @@
       "Date": [null, "डेट"],
       "Project": [null, "प्रोजेक्ट"],
       "Discussion spaces for geeks": [null, "लोगों के लिए चर्चा की जगह"],
-      "Internet": [null, "इंटरनेट"],
-      "Online": [null, "ऑनलाइन"],
       "Your changes have been saved": [
         null,
         "आपके परिवर्तनों को सेव किया गया है"
@@ -2332,9 +2242,9 @@
       "Your accounts have been merged": [null, "आपके खाते जोड़ दिए गए हैं"],
       "Account merger failed": [null, "खाता जोड़ना विफल रहा"],
       "Cookies required": [null, "कुकीज़ की ज़रूरत"],
-      "Please enable cookies in your browser.": [
+      "Please enable cookies in your browser": [
         null,
-        "कृपया अपने ब्राउज़र में कुकीज़ को सक्षम करें."
+        "कृपया अपने ब्राउज़र में कुकीज़ को सक्षम करें"
       ],
       "Your attempt to login failed. Please try again": [
         null,
@@ -2424,21 +2334,21 @@
         null,
         "इस प्रोजेक्ट से एडमिन के रूप में {member} को हटाना चाहते हैं?"
       ],
-      "There is no draft for the given object.": [
+      "There is no draft for the given object": [
         null,
-        "दिए गए ऑब्जेक्ट का कोई ड्राफ्ट नहीं है."
+        "दिए गए ऑब्जेक्ट का कोई ड्राफ्ट नहीं है"
       ],
-      "Form must contain a revision ID.": [
+      "Form must contain a revision ID": [
         null,
-        "फॉर्म में एक संशोधन ID होना चाहिए."
+        "फॉर्म में एक संशोधन ID होना चाहिए"
       ],
-      "There have been changes to this draft since you last edited it. Please reload.": [
+      "There have been changes to this draft since you last edited it. Please reload": [
         null,
-        "आपके पिछले संपादन के बाद से इस ड्राफ्ट में बदलाव किए गए हैं. कृपया रीलोड करें."
+        "आपके पिछले संपादन के बाद से इस ड्राफ्ट में बदलाव किए गए हैं. कृपया रीलोड करें"
       ],
-      "Invalid revision ID or the existing changes have been submitted already. Please reload.": [
+      "Invalid revision ID or the existing changes have been submitted already. Please reload": [
         null,
-        "अमान्य संशोधन ID या मौजूदा परिवर्तन पहले ही जमा किए जा चुके हैं. कृपया रीलोड करें."
+        "अमान्य संशोधन ID या मौजूदा परिवर्तन पहले ही जमा किए जा चुके हैं. कृपया रीलोड करें"
       ],
       "Invalid CSRF token": [null, "अमान्य CSRF टोकन"],
       "You are receiving this because you have an account at hasgeek.com": [
@@ -2465,9 +2375,9 @@
         null,
         "अनधिकृत सदस्यता समाप्त वाली लिंक"
       ],
-      "This unsubscribe link is for someone else’s account. Please logout or use an incognito/private browsing session to use this link.": [
+      "This unsubscribe link is for someone else’s account. Please logout or use an incognito/private browsing session to use this link": [
         null,
-        "यह सदस्यता समाप्त वाली लिंक किसी और के खाते के लिए है. इस लिंक का उपयोग करने के लिए कृपया किसी गुप्त/निजी ब्राउज़िंग सेशन का उपयोग करें या लॉग आउट हो जाएं."
+        "यह सदस्यता समाप्त वाली लिंक किसी और के खाते के लिए है. इस लिंक का उपयोग करने के लिए कृपया किसी गुप्त/निजी ब्राउज़िंग सेशन का उपयोग करें या लॉग आउट हो जाएं"
       ],
       "Unknown user account": [null, "अज्ञात यूजर खाता"],
       "Preferences saved": [null, "प्राथमिकताएं सहेजी गईं"],
@@ -2482,23 +2392,22 @@
         "संगठन बनाने के लिए आपके पास एक वेरिफाइड ईमेल पता या फोन नंबर होना चाहिए"
       ],
       "Create a new organization": [null, "एक नया संगठन बनाएं"],
-      "Next": [null, "आगे"],
       "Protected profile": [null, "संरक्षित प्रोफाइल"],
-      "This organization has a protected profile and cannot be deleted.": [
+      "This organization has a protected profile and cannot be deleted": [
         null,
-        "इस संगठन की एक संरक्षित प्रोफाइल है और इसे हटाया नहीं जा सकता है."
+        "इस संगठन की एक संरक्षित प्रोफाइल है और इसे हटाया नहीं जा सकता है"
       ],
       "This organization has projects": [
         null,
         "इस संगठन के पास कुछ प्रोजेक्ट है"
       ],
-      "Projects must be deleted or transferred before the organization can be deleted.": [
+      "Projects must be deleted or transferred before the organization can be deleted": [
         null,
-        "संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना चाहिए."
+        "संगठन मिटाए जाने से पहले प्रोजेक्ट को हटाया या स्थानांतरित किया जाना चाहिए"
       ],
-      "Delete organization ‘{title}’? This will delete everything including projects, proposals and videos. This operation is permanent and cannot be undone.": [
+      "Delete organization ‘{title}’? This will delete everything including projects, proposals and videos. This operation is permanent and cannot be undone": [
         null,
-        "‘{title}’ संगठन मिटाएं? यह प्रोजेक्ट, प्रस्ताव और वीडियो सहित सब कुछ मिटा देगा. यह प्रक्रिया स्थाई है और इसे वापस पहले जैसा नहीं किया जा सकता है."
+        "‘{title}’ संगठन मिटाएं? यह प्रोजेक्ट, प्रस्ताव और वीडियो सहित सब कुछ मिटा देगा. यह प्रक्रिया स्थाई है और इसे वापस पहले जैसा नहीं किया जा सकता है"
       ],
       "You have deleted organization ‘{title}’ and all its associated content": [
         null,
@@ -2513,7 +2422,9 @@
       ],
       "Edit profile details": [null, "प्रोफाइल विवरण संपादित करें"],
       "Save logo": [null, "लोगो सेव करें"],
+      "Were you trying to remove the logo? Try again to confirm": [null, ""],
       "Save banner": [null, "बैनर सेव करें"],
+      "Were you trying to remove the banner? Try again to confirm": [null, ""],
       "There was a problem saving your changes. Please try again": [
         null,
         "आपके परिवर्तनों को सेव करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
@@ -2522,58 +2433,82 @@
         null,
         "रजिस्टर करने वाले पहले व्यक्ति बनें!"
       ],
+      "Be the first follower!": [null, ""],
       "One registration so far": [null, "अब तक एक रजिस्ट्रेशन"],
       "You have registered": [null, "आपने रजिस्टर कर लिया है"],
+      "One follower so far": [null, ""],
+      "You are following this": [null, ""],
       "Two registrations so far": [null, "अब तक दो रजिस्ट्रेशन"],
       "You and one other have registered": [
         null,
         "आपने और एक अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Two followers so far": [null, ""],
+      "You and one other are following": [null, ""],
       "Three registrations so far": [null, "अब तक तीन रजिस्ट्रेशन"],
       "You and two others have registered": [
         null,
         "आपने और दो अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Three followers so far": [null, ""],
+      "You and two others are following": [null, ""],
       "Four registrations so far": [null, "अब तक चार रजिस्ट्रेशन"],
       "You and three others have registered": [
         null,
         "आपने और तीन अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Four followers so far": [null, ""],
+      "You and three others are following": [null, ""],
       "Five registrations so far": [null, "अब तक पांच रजिस्ट्रेशन"],
       "You and four others have registered": [
         null,
         "आपने और चार अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Five followers so far": [null, ""],
+      "You and four others are following": [null, ""],
       "Six registrations so far": [null, "अब तक छे रजिस्ट्रेशन"],
       "You and five others have registered": [
         null,
         "आपने और पांच अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Six followers so far": [null, ""],
+      "You and five others are following": [null, ""],
       "Seven registrations so far": [null, "अब तक सात रजिस्ट्रेशन"],
       "You and six others have registered": [
         null,
         "आपने और छे अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Seven followers so far": [null, ""],
+      "You and six others are following": [null, ""],
       "Eight registrations so far": [null, ""],
       "You and seven others have registered": [
         null,
         "आपने और सात अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Eight followers so far": [null, ""],
+      "You and seven others are following": [null, ""],
       "Nine registrations so far": [null, "अब तक नौ रजिस्ट्रेशन"],
       "You and eight others have registered": [
         null,
         "आपने और आठ अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Nine followers so far": [null, ""],
+      "You and eight others are following": [null, ""],
       "Ten registrations so far": [null, "अब तक दस रजिस्ट्रेशन"],
       "You and nine others have registered": [
         null,
         "आपने और नौ अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
+      "Ten followers so far": [null, ""],
+      "You and nine others are following": [null, ""],
+      "{num} registrations so far": [null, "अब तक {num} रजिस्ट्रेशन"],
       "You and {num} others have registered": [
         null,
         "आपने और {num} अन्य व्यक्ति ने रजिस्टर कर लिया है"
       ],
-      "{num} registrations so far": [null, "अब तक {num} रजिस्ट्रेशन"],
+      "{num} followers so far": [null, ""],
+      "You and {num} others are following": [null, ""],
+      "Follow": [null, ""],
       "Your new project has been created": [
         null,
         "आपका नया प्रोजेक्ट बना दिया गया है"
@@ -2582,13 +2517,13 @@
       "Customize the URL": [null, "URL कस्टमाइज़ करें"],
       "Edit project": [null, "प्रोजेक्ट संपादित करें"],
       "This project has submissions": [null, ""],
-      "Submissions must be deleted or transferred before the project can be deleted.": [
+      "Submissions must be deleted or transferred before the project can be deleted": [
         null,
         ""
       ],
-      "Delete project ‘{title}’? This will delete everything in the project. This operation is permanent and cannot be undone.": [
+      "Delete project ‘{title}’? This will delete everything in the project. This operation is permanent and cannot be undone": [
         null,
-        "‘{title}’ प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "‘{title}’ प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
       "You have deleted project ‘{title}’ and all its associated content": [
         null,
@@ -2599,68 +2534,51 @@
         null,
         "इस प्रोजेक्ट के लिए अमान्य परिवर्तन"
       ],
-      "Invalid transition for this project's CfP": [
+      "Invalid transition for this project’s CfP": [
         null,
         "इस प्रोजेक्ट के CfP के लिए अमान्य परिवर्तन"
       ],
-      "Invalid transition for this project's schedule": [
+      "Were you trying to register? Try again to confirm": [null, ""],
+      "Were you trying to cancel your registration? Try again to confirm": [
         null,
-        "इस प्रोजेक्ट के शेड्यूल के लिए अमान्य परिवर्तन"
-      ],
-      "This response is not valid": [null, "यह प्रतिक्रिया मान्य नहीं है"],
-      "You have successfully registered": [
-        null,
-        "आपने सफलतापूर्वक रजिस्टर कर लिया है"
-      ],
-      "There was a problem registering. Please try again": [
-        null,
-        "रजिस्टर करने में समस्या थी. कृपया दोबारा प्रयास करें"
-      ],
-      "Your registration has been cancelled": [
-        null,
-        "आपका रजिस्ट्रेशन रद्द कर दिया गया है"
-      ],
-      "There was a problem cancelling your registration. Please try again": [
-        null,
-        "आपका रजिस्ट्रेशन रद्द करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
+        ""
       ],
       "Importing tickets from vendors… Reload the page in about 30 seconds…": [
         null,
         "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिलोड करें…"
       ],
-      "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting.": [
+      "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting": [
         null,
-        "यह फॉर्म फॉर्मेटिंग के लिए <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> का उपयोग करता है."
+        "यह फॉर्म फॉर्मेटिंग के लिए <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> का उपयोग करता है"
       ],
       "This project is not accepting submissions": [
         null,
         "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
       ],
-      "Your submission has been submitted": [null, ""],
-      "Subscribed": [null, ""],
-      "Unsubscribed": [null, ""],
+      "Subscribed to notifications": [null, ""],
+      "Unsubscribed from notifications": [null, ""],
       "Request expired. Reload and try again": [null, ""],
-      "Edit submission": [null, ""],
-      "Delete your submission ‘{title}’? This will remove all votes and comments as well. This operation is permanent and cannot be undone.": [
+      "Delete your submission ‘{title}’? This will remove all comments as well. This operation is permanent and cannot be undone": [
         null,
-        ""
+        "अपना ‘{title}’ प्रस्ताव मिटाएं? यह सभी कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
       "Your submission has been deleted": [null, ""],
-      "Invalid transition for this submission.": [null, ""],
-      "You were at the last submission": [null, ""],
-      "You were at the first submission": [null, ""],
-      "This submission has been moved to {project}.": [null, ""],
-      "Please choose the project you want to move this submission to.": [
+      "Invalid transition for this submission": [null, ""],
+      "This submission has been moved to {project}": [null, ""],
+      "Please choose the project you want to move this submission to": [
         null,
         ""
       ],
-      "This submission has been transfered.": [null, ""],
-      "Please choose the user you want to transfer this submission to.": [
+      "This submission has been transferred": [
+        null,
+        "यह प्रस्ताव भेज दिया गया है"
+      ],
+      "Please choose the user you want to transfer this submission to": [
         null,
         ""
       ],
-      "Labels have been saved for this submission.": [null, ""],
-      "Labels could not be saved for this submission.": [null, ""],
+      "Labels have been saved for this submission": [null, ""],
+      "Labels could not be saved for this submission": [null, ""],
       "Edit labels for '{}'": [null, "'{}' के लिए लेबल संपादित करें"],
       "{session} in {venue} in 5 minutes": [
         null,
@@ -2668,8 +2586,11 @@
       ],
       "{session} in 5 minutes": [null, "5 मिनट में {session}"],
       "Profiles": [null, "प्रोफाइल"],
-      "Proposals": [null, "प्रस्ताव"],
       "Select Room": [null, "रूम का चयन करें"],
+      "This project will not be listed as it has no sessions in the schedule": [
+        null,
+        ""
+      ],
       "Something went wrong, please reload and try again": [
         null,
         "कुछ गड़बड़ी हुई है, कृपया दोबारा लोड करें और दोबारा प्रयास करें"
@@ -2686,56 +2607,56 @@
         null,
         "इस समय समीक्षा करने के लिए कोई कमेंट रिपोर्ट नहीं है"
       ],
-      "You cannot review your own report": [
-        null,
-        "आप अपने रिपोर्ट की समीक्षा नहीं कर सकते"
-      ],
       "You cannot review same comment twice": [
         null,
         "आप एक ही कमेंट की दो बार समीक्षा नहीं कर सकते"
+      ],
+      "You cannot review your own report": [
+        null,
+        "आप अपने रिपोर्ट की समीक्षा नहीं कर सकते"
       ],
       "This comment has already been marked as spam": [
         null,
         "इस कमेंट को पहले ही स्पैम के रूप में चिह्नित किया जा चुका है"
       ],
-      "This event already exists.": [null, "यह ईवेंट पहले से मौजूद है."],
+      "This event already exists": [null, "यह ईवेंट पहले से मौजूद है"],
       "New Event": [null, "नया ईवेंट"],
       "Add event": [null, "ईवेंट जोड़ें"],
-      "This ticket type already exists.": [
+      "This ticket type already exists": [
         null,
-        "यह टिकट टाइप पहले से मौजूद है."
+        "यह टिकट टाइप पहले से मौजूद है"
       ],
       "New Ticket Type": [null, "नया टिकट टाइप"],
       "Add ticket type": [null, "टिकट टाइप जोड़ें"],
-      "This ticket client already exists.": [
+      "This ticket client already exists": [
         null,
-        "यह टिकट क्लाइंट पहले से मौजूद है."
+        "यह टिकट क्लाइंट पहले से मौजूद है"
       ],
       "New Ticket Client": [null, "नया टिकट क्लाइंट"],
       "Add ticket client": [null, "टिकट क्लाइंट जोड़ें"],
       "Edit event": [null, "ईवेंट संपादित करें"],
-      "Delete event ‘{title}’? This operation is permanent and cannot be undone.": [
+      "Delete event ‘{title}’? This operation is permanent and cannot be undone": [
         null,
-        "‘{title}’ ईवेंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "‘{title}’ ईवेंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
       "This event has been deleted": [null, "इस ईवेंट को मिटा दिया गया है"],
       "Edit ticket type": [null, "टिकट टाइप संपादित करें"],
-      "Delete ticket type ‘{title}’? This operation is permanent and cannot be undone.": [
+      "Delete ticket type ‘{title}’? This operation is permanent and cannot be undone": [
         null,
-        "‘{title}’ टिकट टाइप मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "‘{title}’ टिकट टाइप मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
       "This ticket type has been deleted": [
         null,
         "यह टिकट टाइप मिटा दिया गया है"
       ],
       "Edit ticket client": [null, "टिकट क्लाइंट संपादित करें"],
-      "Delete ticket client ‘{title}’? This operation is permanent and cannot be undone.": [
+      "Delete ticket client ‘{title}’? This operation is permanent and cannot be undone": [
         null,
-        "‘{title}’ टिकट क्लाइंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "‘{title}’ टिकट क्लाइंट मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
-      "This participant already exists.": [
+      "This participant already exists": [
         null,
-        "यह प्रतिभागी पहले से मौजूद है."
+        "यह प्रतिभागी पहले से मौजूद है"
       ],
       "New ticketed participant": [null, "नए टिकट वाले प्रतिभागी"],
       "Add participant": [null, "प्रतिभागी जोड़ें"],
@@ -2750,13 +2671,13 @@
       "The update has been edited": [null, "अपडेट को संपादित किया गया है"],
       "Edit update": [null, "अपडेट संपादित करें"],
       "The update has been deleted": [null, "अपडेट मिटा दिया गया है"],
-      "Delete this draft update? This operation is permanent and cannot be undone.": [
+      "Delete this draft update? This operation is permanent and cannot be undone": [
         null,
-        "इस ड्राफ्ट अपडेट को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "इस ड्राफ्ट अपडेट को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
-      "Delete this update? This update’s number (#{number}) will be skipped for the next update.": [
+      "Delete this update? This update’s number (#{number}) will be skipped for the next update": [
         null,
-        "इस अपडेट को मिटाएं? नंबर (#{number}) का यह अपडेट अगले अपडेट के लिए छोड़ दिया जाएगा."
+        "इस अपडेट को मिटाएं? नंबर (#{number}) का यह अपडेट अगले अपडेट के लिए छोड़ दिया जाएगा"
       ],
       "You have added a new venue to the project": [
         null,
@@ -2778,9 +2699,9 @@
         "इस ईवेंट के स्थान पर परिवर्तन सेव किए गए"
       ],
       "Edit venue": [null, "ईवेंट का स्थान संपादित करें"],
-      "Delete venue “{title}”? This operation is permanent and cannot be undone.": [
+      "Delete venue “{title}”? This operation is permanent and cannot be undone": [
         null,
-        "“{title}” ईवेंट का स्थान मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "“{title}” ईवेंट का स्थान मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
       "You have deleted venue “{title}”": [
         null,
@@ -2793,42 +2714,37 @@
       "New room": [null, "नया रूम"],
       "Saved changes to this room": [null, "इस रूम में परिवर्तन सेव किए गए"],
       "Edit room": [null, "रूम को संपादित करें"],
-      "Delete room “{title}”? This operation is permanent and cannot be undone.": [
+      "Delete room “{title}”? This operation is permanent and cannot be undone": [
         null,
-        "“{title}” रूम को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता."
+        "“{title}” रूम को मिटाएं? ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
       "You have deleted room “{title}”": [
         null,
         "आपने “{title}” रूम मिटा दिया है"
       ],
-      "Your password has been updated. If this was not authorized, reset your password or contact support at {email}. {reset_url}": [
+      "Your password has been updated. If this was not authorized, reset your password or contact support at {email}.": [
         null,
-        "आपका पासवर्ड अपडेट हो चुका है. अगर यह अधिकृत नहीं था, तो अपना पासवर्ड रीसेट करें या {email} पर सहयोगी दल से संपर्क करें. {reset_url}"
+        ""
       ],
       "You are receiving this because you are a site admin": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप साइट एडमिन हैं"
       ],
-      "A comment has been reported as spam": [
-        null,
-        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है"
-      ],
-      "A comment has been reported as spam. {url}": [
-        null,
-        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है. {url}"
-      ],
+      "A comment has been reported as spam.": [null, ""],
       "{actor} replied to your comment": [
         null,
         "{actor} ने आपके कमेंट का जवाब दिया"
       ],
       "{actor} commented on a project you are in": [null, ""],
       "{actor} commented on your submission": [null, ""],
+      "{actor} replied to you": [null, ""],
       "{actor} replied to your comment:": [
         null,
         "{actor} ने आपके कमेंट का जवाब दिया:"
       ],
       "{actor} commented on a project you are in:": [null, ""],
       "{actor} commented on your submission:": [null, ""],
+      "{actor} replied to you:": [null, ""],
       "You have been invited as an owner of {organization} by {actor}": [
         null,
         "आपको {actor} द्वारा {organization} के ओनर के रूप में आमंत्रित किया गया है"
@@ -2927,38 +2843,26 @@
         "आप इसे प्राप्त कर रहे हैं क्योंकि आपने इस प्रोजेक्ट के लिए रजिस्टर किया है"
       ],
       "{project} starts at {time}": [null, "{project} {time} शुरू होगा"],
-      "{project} starts at {time}. {url}": [
-        null,
-        "{project} {time} शुरू होगा. {url}"
-      ],
+      "{project} starts at {time}.": [null, ""],
       "You are receiving this because you are an editor of this project": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस प्रोजेक्ट के संपादक हैं"
       ],
       "New submission in {project}: {proposal}": [null, ""],
-      "New submission in {project}: {proposal} {url}": [null, ""],
-      "You are receiving this because you have submitted this submission": [
-        null,
-        ""
-      ],
-      "Proposal submitted to {project}: {proposal}": [
-        null,
-        "प्रस्ताव को {project} में जमा किया गया: {proposal}"
-      ],
-      "Your submission has been submitted to {project} {url}": [null, ""],
+      "New submission in {project}:": [null, ""],
+      "You are receiving this because you made this submission": [null, ""],
+      "Submission made to {project}: {proposal}": [null, ""],
+      "Your submission has been received in {project}:": [null, ""],
       "Registration confirmation for {project}": [
         null,
         "{project} के लिए रजिस्ट्रेशन की पुष्टि"
       ],
       "View project": [null, "प्रोजेक्ट देखें"],
-      "You have registered for {project}. The next session starts {datetime}. You will get a reminder 10m prior. {url}": [
+      "You have registered for {project}. The next session starts {datetime}. You will get a reminder 10m prior.": [
         null,
-        "आपने {project} के लिए रजिस्टर किया है. अगला सेशन {datetime} शुरू होगा. आपको 10 मिनट पहले का रिमाइंडर मिल जाएगा. {url}"
+        ""
       ],
-      "You have registered for {project} {url}": [
-        null,
-        "आपने {project} {url} के लिए रजिस्टर किया है"
-      ],
+      "You have registered for {project}": [null, ""],
       "You are receiving this because you had registered for this project": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आपने इस प्रोजेक्ट के लिए रजिस्टर किया था"
@@ -2972,10 +2876,7 @@
         "आपने {project} के लिए अपना रजिस्ट्रेशन रद्द कर दिया है"
       ],
       "{update} ({project})": [null, "{update} ({project})"],
-      "Update in {project}: {update} {url}": [
-        null,
-        "{project} में अपडेट: {update} {url}"
-      ]
+      "Update in {project}:": [null, ""]
     }
   }
 }

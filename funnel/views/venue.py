@@ -4,10 +4,9 @@ from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_redirect
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
-from .. import app, funnelapp
+from .. import app
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
 from ..models import Project, Venue, VenueRoom, db
-from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
 
@@ -18,8 +17,6 @@ RESERVED_VENUEROOM = ['new', 'edit', 'delete']
 @Project.views('venue')
 @route('/<profile>/<project>/venues')
 class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with('venues.html.jinja2')
     @requires_login
@@ -74,11 +71,8 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
                         room_obj.bgcolor = room['color'].lstrip('#')
                         room_obj.seq = room['seq']
                         db.session.add(room_obj)
-        try:
-            db.session.commit()
-            return {'status': True}
-        except Exception as e:
-            return {'error': str(e)}, 400
+        db.session.commit()
+        return {'status': True}
 
     @route('makeprimary', methods=['POST'])
     @requires_login
@@ -98,20 +92,12 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         return render_redirect(self.obj.url_for('venues'), code=303)
 
 
-@route('/<project>/venues', subdomain='<profile>')
-class FunnelProjectVenueView(ProjectVenueView):
-    pass
-
-
 ProjectVenueView.init_app(app)
-FunnelProjectVenueView.init_app(funnelapp)
 
 
 @Venue.views('main')
 @route('/<profile>/<project>/venues/<venue>')
 class VenueView(VenueViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
@@ -141,7 +127,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             title="Confirm delete",
             message=_(
                 "Delete venue “{title}”? This operation is permanent and cannot be"
-                " undone."
+                " undone"
             ).format(title=self.obj.title),
             success=_("You have deleted venue “{title}”".format(title=self.obj.title)),
             next=self.obj.project.url_for('venues'),
@@ -169,20 +155,12 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         )
 
 
-@route('/<project>/venues/<venue>', subdomain='<profile>')
-class FunnelVenueView(VenueView):
-    pass
-
-
 VenueView.init_app(app)
-FunnelVenueView.init_app(funnelapp)
 
 
 @VenueRoom.views('main')
 @route('/<profile>/<project>/venues/<venue>/<room>')
 class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
@@ -212,17 +190,11 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             title="Confirm delete",
             message=_(
                 "Delete room “{title}”? This operation is permanent and cannot be"
-                " undone."
+                " undone"
             ).format(title=self.obj.title),
             success=_("You have deleted room “{title}”".format(title=self.obj.title)),
             next=self.obj.venue.project.url_for('venues'),
         )
 
 
-@route('/<project>/venues/<venue>/<room>', subdomain='<profile>')
-class FunnelVenueRoomView(VenueRoomView):
-    pass
-
-
 VenueRoomView.init_app(app)
-FunnelVenueRoomView.init_app(funnelapp)

@@ -2,12 +2,12 @@
 {% from "baseframe/mui/forms.html.jinja2" import renderfield %}
 <div class="modal__inner img-upload-modal">
   <div class="modal__header">
-    <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+    <a class="modal__close mui--text-dark" data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   </div>
   <ul class="mui-list--unstyled mui-list--border mui-list--aligned grid-no-left-padding zero-bottom-margin">
     <li class="top-padding bottom-padding"><a href="{{ edit_logo_url }}" class="mui--text-title mui--text-dark nounderline" rel="modal:open">{{ faicon(icon='image', icon_size='title', baseline=true, css_class='icon-img--smaller') }} {% trans %}New image{% endtrans %}</a></li>
     <li class="top-padding bottom-padding">
-      <form method="POST" action="{{ edit_logo_url }}">
+      <form method="POST" action="{{ delete_logo_url }}">
         {{ form.hidden_tag() }}
         {% for field in form -%}
           {%- if field.type not in ['CSRFTokenField', 'HiddenField', 'NonceField'] -%}

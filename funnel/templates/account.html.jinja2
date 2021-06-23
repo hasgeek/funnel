@@ -6,21 +6,13 @@
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
+  <body class="mui--bg-primary hg-app tabs-navbar">
 {% endblock %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          {{ account_tabs(active_tab='account') }}
-        </div>
-      </div>
+      {{ account_tabs(active_tab='account') }}
     </div>
   </div>
 {%- endblock %}
@@ -37,7 +29,7 @@
               {% if current_auth.user.username %}
                 <p class="mui--text-subhead mui--text-light user__box__userid">@{{ current_auth.user.username }}</p>
               {% else %}
-                <p class="mui--text-subhead mui--text-light user__box__userid">{{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}">Add username <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a></p>
+                <p class="mui--text-subhead mui--text-light user__box__userid">{{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}" data-cy="add-username">Add username <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a></p>
               {%- endif %}
               {% if current_auth.user.profile %}<a href="{{ current_auth.user.profile.url_for() }}" data-cy="my-profile">{% trans %}Go to profile{% endtrans %} <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>{%- endif %}
             </div>
@@ -69,7 +61,7 @@
           <form action="{{ url_for('account_logout') }}" method="POST" id="logout-form">
             {{ logout_form.hidden_tag() }}
             <div class="card__footer card__footer--smallerbtn">
-              <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
+              <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" href="{{ url_for('account_edit') }}">{% trans %}Edit{% endtrans %}</a>
               <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" href="{{ url_for('change_password') }}" data-cy="change-password">{% trans %}Change password{% endtrans %}</a>
               <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" type="submit" data-cy="Logout">{% trans %}Logout{% endtrans %}</button>
             </div>
@@ -220,29 +212,6 @@
           </div>
         </div>
       {%- endif %}
-
-      <div class="grid__col-xs-12">
-        <div class="card">
-          <div class="card__header mui--clearfix">
-            <h3 class="mui--text-title margin-top mui--text-bold mui--pull-left">{% trans %}Organizations{% endtrans %}</h3>
-            <a class="mui--text-subhead margin-top mui--pull-right" href="/new">{{ faicon(icon='plus', css_class='fa-icon--margin') }}<span>{% trans %}New{% endtrans %}</span></a>
-          </div>
-          <div class="card__body">
-            <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
-              {% for org in current_auth.user.organizations_as_admin %}
-              <li class="top-padding bottom-padding">
-                <p class="mui--text-body2 zero-bottom-margin">
-                  <a href="{{ org.profile.url_for() }}" title="{% trans %}Open profile{% endtrans %}">{{ org.title }}</a>
-                  {% if not org.profile.state.PUBLIC %}
-                    <span class="mui--pull-right">{{ faicon(icon='lock-alt') }} {% trans %}Private{% endtrans %}</span>
-                  {% endif %}
-                </p>
-              </li>
-              {%- endfor %}
-            </ol>
-          </div>
-        </div>
-      </div>
 
       <div class="grid__col-xs-12">
         <div class="card">

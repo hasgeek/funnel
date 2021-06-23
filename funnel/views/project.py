@@ -13,7 +13,7 @@ from flask import (
     request,
 )
 
-from baseframe import _, forms, request_is_xhr
+from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -27,13 +27,12 @@ from coaster.views import (
     UrlChangeCheck,
     UrlForView,
     get_next_url,
-    jsonp,
     render_with,
     requires_roles,
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import (
     CfpForm,
     CommentForm,
@@ -43,7 +42,6 @@ from ..forms import (
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
-    ProjectScheduleTransitionForm,
     ProjectTransitionForm,
     RsvpTransitionForm,
 )
@@ -52,7 +50,6 @@ from ..models import (
     Comment,
     Profile,
     Project,
-    Proposal,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
     Rsvp,
@@ -60,169 +57,187 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change
-from .decorators import legacy_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
-from .proposal import proposal_data, proposal_data_flat, proposal_headers
-from .schedule import schedule_data
 
-CountWords = namedtuple('CountWords', ['unregistered', 'registered'])
+CountWords = namedtuple(
+    'CountWords', ['unregistered', 'registered', 'not_following', 'following']
+)
 
 registration_count_messages = [
-    CountWords(_("Be the first to register!"), None),
-    CountWords(_("One registration so far"), _("You have registered")),
     CountWords(
-        _("Two registrations so far"),
-        _("You and one other have registered"),
+        __("Be the first to register!"), None, __("Be the first follower!"), None
     ),
     CountWords(
-        _("Three registrations so far"),
-        _("You and two others have registered"),
+        __("One registration so far"),
+        __("You have registered"),
+        __("One follower so far"),
+        __("You are following this"),
     ),
     CountWords(
-        _("Four registrations so far"),
-        _("You and three others have registered"),
+        __("Two registrations so far"),
+        __("You and one other have registered"),
+        __("Two followers so far"),
+        __("You and one other are following"),
     ),
     CountWords(
-        _("Five registrations so far"),
-        _("You and four others have registered"),
+        __("Three registrations so far"),
+        __("You and two others have registered"),
+        __("Three followers so far"),
+        __("You and two others are following"),
     ),
     CountWords(
-        _("Six registrations so far"),
-        _("You and five others have registered"),
+        __("Four registrations so far"),
+        __("You and three others have registered"),
+        __("Four followers so far"),
+        __("You and three others are following"),
     ),
     CountWords(
-        _("Seven registrations so far"),
-        _("You and six others have registered"),
+        __("Five registrations so far"),
+        __("You and four others have registered"),
+        __("Five followers so far"),
+        __("You and four others are following"),
     ),
     CountWords(
-        _("Eight registrations so far"),
-        _("You and seven others have registered"),
+        __("Six registrations so far"),
+        __("You and five others have registered"),
+        __("Six followers so far"),
+        __("You and five others are following"),
     ),
     CountWords(
-        _("Nine registrations so far"),
-        _("You and eight others have registered"),
+        __("Seven registrations so far"),
+        __("You and six others have registered"),
+        __("Seven followers so far"),
+        __("You and six others are following"),
     ),
     CountWords(
-        _("Ten registrations so far"),
-        _("You and nine others have registered"),
+        __("Eight registrations so far"),
+        __("You and seven others have registered"),
+        __("Eight followers so far"),
+        __("You and seven others are following"),
+    ),
+    CountWords(
+        __("Nine registrations so far"),
+        __("You and eight others have registered"),
+        __("Nine followers so far"),
+        __("You and eight others are following"),
+    ),
+    CountWords(
+        __("Ten registrations so far"),
+        __("You and nine others have registered"),
+        __("Ten followers so far"),
+        __("You and nine others are following"),
     ),
 ]
+greater_than_10_count = CountWords(
+    __("{num} registrations so far"),
+    __("You and {num} others have registered"),
+    __("{num} followers so far"),
+    __("You and {num} others are following"),
+)
 
 
-def get_registration_text(count, registered=False):
+def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
     if count <= 10:
-        if registered:
+        if registered and not follow_mode:
             return registration_count_messages[count].registered
-        else:
+        elif not registered and not follow_mode:
             return registration_count_messages[count].unregistered
-    else:
-        if registered:
-            return _("You and {num} others have registered").format(num=count - 1)
-        else:
-            return _("{num} registrations so far").format(num=count)
-
-
-def project_data(project):
-    return {
-        'id': project.id,
-        'name': project.name,
-        'title': project.title,
-        'datelocation': project.datelocation,
-        'timezone': project.timezone.zone,
-        'start_at': (
-            project.schedule_start_at.astimezone(project.timezone).date().isoformat()
-            if project.schedule_start_at
-            else None
-        ),
-        'end_at': (
-            project.schedule_end_at.astimezone(project.timezone).date().isoformat()
-            if project.schedule_end_at
-            else None
-        ),
-        'status': project.state.value,
-        'state': project.state.label.name,
-        'url': project.url_for(_external=True),
-        'website': project.website.url if project.website is not None else "",
-        'json_url': project.url_for('json', _external=True),
-        'bg_image': project.bg_image.url if project.bg_image is not None else "",
-        'calendar_weeks_full': project.calendar_weeks_full,
-        'calendar_weeks_compact': project.calendar_weeks_compact,
-        'rsvp_count_going': project.rsvp_count_going,
-        'registration_header_text': project.views.registration_text(),
-    }
+        elif registered and follow_mode:
+            return registration_count_messages[count].following
+        return registration_count_messages[count].not_following
+    if registered and not follow_mode:
+        return greater_than_10_count.registered.format(num=count - 1)
+    elif not registered and not follow_mode:
+        return greater_than_10_count.unregistered.format(num=count)
+    elif registered and follow_mode:
+        return greater_than_10_count.following.format(num=count - 1)
+    return greater_than_10_count.not_following.format(num=count)
 
 
 @Project.features('rsvp')
-def feature_project_rsvp(obj):
+def feature_project_rsvp(obj: Project) -> bool:
     return (
-        obj.schedule_state.PUBLISHED
+        obj.state.PUBLISHED
         and (
             obj.boxoffice_data is None
             or 'item_collection_id' not in obj.boxoffice_data
             or not obj.boxoffice_data['item_collection_id']
         )
-        and not obj.schedule_state.PAST
+        and (obj.start_at is None or not obj.state.PAST)
     )
 
 
 @Project.features('tickets')
-def feature_project_tickets(obj):
+def feature_project_tickets(obj: Project) -> bool:
     return (
-        obj.schedule_state.PUBLISHED
+        obj.start_at is not None
         and obj.boxoffice_data is not None
         and 'item_collection_id' in obj.boxoffice_data
         and obj.boxoffice_data['item_collection_id']
-        and not obj.schedule_state.PAST
+        and not obj.state.PAST
     )
 
 
 @Project.features('tickets_or_rsvp')
-def feature_project_tickets_or_rsvp(obj):
+def feature_project_tickets_or_rsvp(obj: Project) -> bool:
     return obj.features.tickets() or obj.features.rsvp()
 
 
 @Project.features('rsvp_unregistered')
-def feature_project_register(obj):
+def feature_project_register(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is None or not rsvp.state.YES
 
 
 @Project.features('rsvp_registered')
-def feature_project_deregister(obj):
+def feature_project_deregister(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
     return rsvp is not None and rsvp.state.YES
 
 
 @Project.features('schedule_no_sessions')
-def feature_project_has_no_sessions(obj):
-    return obj.schedule_state.PUBLISHED and not obj.schedule_start_at
+def feature_project_has_no_sessions(obj: Project) -> bool:
+    return obj.state.PUBLISHED and not obj.start_at
 
 
 @Project.features('comment_new')
-def feature_project_comment_new(obj):
+def feature_project_comment_new(obj: Project) -> bool:
     return obj.current_roles.participant
 
 
 @Project.features('post_update')
-def feature_project_post_update(obj):
+def feature_project_post_update(obj: Project) -> bool:
     return obj.current_roles.editor
 
 
+@Project.features('follow_mode')
+def project_follow_mode(obj: Project) -> bool:
+    return obj.start_at is None
+
+
 @Project.views('registration_text')
-def project_registration_text(obj):
+def project_registration_text(obj: Project) -> str:
     return get_registration_text(
-        count=obj.rsvp_count_going, registered=obj.features.rsvp_registered()
+        count=obj.rsvp_count_going,
+        registered=obj.features.rsvp_registered(),
+        follow_mode=obj.features.follow_mode(),
     )
+
+
+@Project.views('register_button_text')
+def project_register_button_text(obj: Project) -> str:
+    if obj.features.follow_mode():
+        return _("Follow")
+    else:
+        return _("Register")
 
 
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'admin'})
@@ -252,13 +267,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         )
 
 
-@route('/', subdomain='<profile>')
-class FunnelProfileProjectView(ProfileProjectView):
-    pass
-
-
 ProfileProjectView.init_app(app)
-FunnelProfileProjectView.init_app(funnelapp)
 
 
 @Project.views('main')
@@ -266,14 +275,11 @@ FunnelProfileProjectView.init_app(funnelapp)
 class ProjectView(
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with('project.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         rsvp_form = RsvpTransitionForm()
         current_rsvp = self.obj.rsvp_for(current_auth.user)
         featured_proposals = self.obj.proposals.filter_by(featured=True)
@@ -282,7 +288,6 @@ class ProjectView(
             'current_rsvp': current_rsvp,
             'rsvp_form': rsvp_form,
             'transition_form': transition_form,
-            'schedule_transition_form': schedule_transition_form,
             'featured_proposals': featured_proposals,
         }
 
@@ -304,76 +309,22 @@ class ProjectView(
             'project': self.obj,
         }
 
-    @route('json')
-    @render_with(json=True)
-    @requires_roles({'reader'})
-    def json(self):
-        proposals = (
-            Proposal.query.filter_by(project=self.obj)
-            .order_by(db.desc('created_at'))
-            .all()
-        )
-        return jsonp(
-            **{
-                'project': project_data(self.obj),
-                'venues': [
-                    venue.current_access(datasets=('without_parent',))
-                    for venue in self.obj.venues
-                ],
-                'rooms': [
-                    room.current_access(datasets=('without_parent',))
-                    for room in self.obj.rooms
-                ],
-                'proposals': [proposal_data(proposal) for proposal in proposals],
-                'schedule': schedule_data(self.obj),
-            }
-        )
-
-    @route('csv')
-    @requires_roles({'reader'})
-    def csv(self):
-        proposals = (
-            Proposal.query.filter_by(project=self.obj)
-            .order_by(db.desc('created_at'))
-            .all()
-        )
-        outfile = io.StringIO()
-        out = csv.writer(outfile)
-        out.writerow(proposal_headers + ['status'])
-        for proposal in proposals:
-            out.writerow(proposal_data_flat(proposal))
-        outfile.seek(0)
-        return Response(
-            outfile.getvalue(),
-            content_type='text/csv',
-            headers=[
-                (
-                    'Content-Disposition',
-                    'attachment;filename="{profile}-{project}.csv"'.format(
-                        profile=self.obj.profile.name, project=self.obj.name
-                    ),
-                )
-            ],
-        )
-
     @route('editslug', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
     def edit_slug(self):
         form = ProjectNameForm(obj=self.obj)
-        # Profile URLs:
-        # Hasgeek: https://hasgeek.com/rootconf (no /)
-        # Talkfunnel: https://rootconf.talkfunnel.com/ (has /)
         form.name.prefix = self.obj.profile.url_for(_external=True)
+        # Hasgeek profile URLs currently do not have a trailing slash, but this form
+        # should not depend on this being guaranteed. Add a trailing slash if one is
+        # required.
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             return redirect(self.obj.url_for())
-        return render_form(
-            form=form, title=_("Customize the URL"), submit=_("Save changes")
-        )
+        return render_form(form=form, title=_("Customize the URL"), submit=_("Save"))
 
     @route('editlivestream', methods=['GET', 'POST'])
     @requires_login
@@ -444,6 +395,7 @@ class ProjectView(
                         title=_("Edit project"),
                         submit=_("Save changes"),
                         autosave=True,
+                        draft_revision=request.form.get('form.revision'),
                     )
 
     @route('delete', methods=['GET', 'POST'])
@@ -456,7 +408,7 @@ class ProjectView(
                 title=_("This project has submissions"),
                 message=_(
                     "Submissions must be deleted or transferred before the project"
-                    " can be deleted."
+                    " can be deleted"
                 ),
             )
         return render_delete_sqla(
@@ -465,7 +417,7 @@ class ProjectView(
             title=_("Confirm delete"),
             message=_(
                 "Delete project ‘{title}’? This will delete everything in the project."
-                " This operation is permanent and cannot be undone."
+                " This operation is permanent and cannot be undone"
             ).format(title=self.obj.title),
             success=_(
                 "You have deleted project ‘{title}’ and all its associated content"
@@ -480,8 +432,10 @@ class ProjectView(
     def update_banner(self):
         form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         edit_logo_url = self.obj.url_for('edit_banner')
+        delete_logo_url = self.obj.url_for('remove_banner')
         return {
             'edit_logo_url': edit_logo_url,
+            'delete_logo_url': delete_logo_url,
             'form': form,
         }
 
@@ -507,6 +461,26 @@ class ProjectView(
             ajax=True,
             template='img_upload_formlayout.html.jinja2',
         )
+
+    @route('remove_banner', methods=['POST'])
+    @render_with(json=True)
+    @requires_login
+    @requires_roles({'editor'})
+    def remove_banner(self):
+        form = self.CsrfForm()
+        if form.validate_on_submit():
+            self.obj.bg_image = None
+            db.session.commit()
+            return render_redirect(self.obj.url_for(), code=303)
+        else:
+            current_app.logger.error(
+                "CSRF form validation error when removing project banner"
+            )
+            flash(
+                _("Were you trying to remove the banner? Try again to confirm"),
+                'error',
+            )
+            return render_redirect(self.obj.url_for(), code=303)
 
     @route('cfp', methods=['GET', 'POST'])
     @requires_login
@@ -568,29 +542,9 @@ class ProjectView(
             db.session.commit()
             flash(transition.data['message'], 'success')
         else:
-            flash(_("Invalid transition for this project's CfP"), 'error')
+            flash(_("Invalid transition for this project’s CfP"), 'error')
             abort(403)
         return redirect(self.obj.url_for('view_proposals'))
-
-    @route('schedule_transition', methods=['POST'])
-    @requires_login
-    @requires_roles({'editor'})
-    def schedule_transition(self):
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
-        if (
-            schedule_transition_form.validate_on_submit()
-        ):  # check if the provided transition is valid
-            transition = getattr(
-                self.obj.current_access(),
-                schedule_transition_form.schedule_transition.data,
-            )
-            transition()  # call the transition
-            db.session.commit()
-            flash(transition.data['message'], 'success')
-        else:
-            flash(_("Invalid transition for this project's schedule"), 'error')
-            abort(403)
-        return redirect(self.obj.url_for())
 
     @route('register', methods=['POST'])
     @requires_login
@@ -607,7 +561,7 @@ class ProjectView(
                     RegistrationConfirmationNotification(document=rsvp)
                 )
         else:
-            flash(_("There was a problem registering. Please try again"), 'error')
+            flash(_("Were you trying to register? Try again to confirm"), 'error')
         return redirect(get_next_url(referrer=request.referrer), code=303)
 
     @route('deregister', methods=['POST'])
@@ -619,14 +573,12 @@ class ProjectView(
             if rsvp is not None and not rsvp.state.NO:
                 rsvp.rsvp_no()
                 db.session.commit()
-                project_role_change.send(self.obj, current_auth.user)
-                db.session.commit()
                 dispatch_notification(
                     RegistrationCancellationNotification(document=rsvp)
                 )
         else:
             flash(
-                _("There was a problem cancelling your registration. Please try again"),
+                _("Were you trying to cancel your registration? Try again to confirm"),
                 'error',
             )
         return redirect(get_next_url(referrer=request.referrer), code=303)
@@ -642,7 +594,7 @@ class ProjectView(
         }
 
     def get_rsvp_state_csv(self, state):
-        outfile = io.StringIO()
+        outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(['fullname', 'email', 'created_at'])
         for rsvp in self.obj.rsvps_with(state):
@@ -760,20 +712,26 @@ class ProjectView(
     @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
-        schedule_transition_form = ProjectScheduleTransitionForm(obj=self.obj)
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj,
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
-            'schedule_transition_form': schedule_transition_form,
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2')
+    @render_with(
+        {
+            'text/html': 'project_comments.html.jinja2',
+            'application/json': lambda params: jsonify(
+                {'subscribed': params['subscribed'], 'comments': params['comments']}
+            ),
+        }
+    )
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
+        subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
             return jsonify(
                 {
@@ -784,6 +742,7 @@ class ProjectView(
             commentform = CommentForm(model=Comment)
             return {
                 'project': self.obj,
+                'subscribed': subscribed,
                 'comments': comments,
                 'commentform': commentform,
                 'delcommentform': forms.Form(),
@@ -797,7 +756,7 @@ class ProjectView(
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()
-            if self.obj.featured:
+            if self.obj.site_featured:
                 return {'status': 'ok', 'message': 'This project has been featured.'}
             else:
                 return {
@@ -807,10 +766,4 @@ class ProjectView(
         return redirect(get_next_url(referrer=True), 303)
 
 
-@route('/<project>/', subdomain='<profile>')
-class FunnelProjectView(ProjectView):
-    pass
-
-
 ProjectView.init_app(app)
-FunnelProjectView.init_app(funnelapp)

@@ -15,10 +15,14 @@ def invalidate_cache(user):
         'is_user_moderator',
         'is_site_editor',
     ):
-        invalidate_cached_property(user, attr)
+        try:
+            invalidate_cached_property(user, attr)
+        except KeyError:
+            # Not cached, ignore
+            pass
 
 
-def test_siteadmin_roles(db_session, user_mort):
+def test_siteadmin_roles(db_session, user_mort, user_death):
     """`SiteMembership` grants siteadmin roles."""
     assert user_mort.active_site_membership is None
     assert user_mort.is_site_admin is False
@@ -29,6 +33,7 @@ def test_siteadmin_roles(db_session, user_mort):
     # Create membership granting all siteadmin roles
     membership = SiteMembership(
         user=user_mort,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
         is_site_editor=True,
@@ -90,6 +95,7 @@ def test_site_membership_migrate_user_transfer(db_session, user_death, user_mort
     # Create membership granting all siteadmin roles to Mort
     membership = SiteMembership(
         user=user_mort,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
         is_site_editor=True,
@@ -123,6 +129,7 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort):
     # Create membership granting all siteadmin roles to Mort and then revoke it
     old_membership = SiteMembership(
         user=user_mort,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
         is_site_editor=True,
@@ -135,6 +142,7 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort):
     # Create membership granting all siteadmin roles to Death
     membership = SiteMembership(
         user=user_death,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
         is_site_editor=True,
@@ -174,6 +182,7 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort):
     # Create membership granting one siteadmin role to Mort
     mort_membership = SiteMembership(
         user=user_mort,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=False,
         is_site_editor=False,
@@ -184,6 +193,7 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort):
     # Create membership granting one siteadmin role to Death
     death_membership = SiteMembership(
         user=user_death,
+        granted_by=user_death,
         is_comment_moderator=False,
         is_user_moderator=True,
         is_site_editor=False,

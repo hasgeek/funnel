@@ -12,9 +12,9 @@ from premailer import transform
 
 from baseframe import statsd
 
-from ... import app, mail
+from ... import app
 from ...models import EmailAddress, EmailAddressBlockedError, User
-from ..base import TransportRecipientError
+from ..exc import TransportRecipientError
 
 __all__ = [
     'EmailAttachment',
@@ -24,7 +24,7 @@ __all__ = [
     'send_email',
 ]
 
-# Short Type
+# Email recipient type
 EmailRecipient = Union[User, Tuple[Optional[str], str], str]
 
 
@@ -88,22 +88,22 @@ def process_recipient(recipient: EmailRecipient) -> str:
             " (realname, email), or a preformatted string with Name <email>"
         )
 
-    realname, email_address = parseaddr(formatted)
-    if not email_address:
+    realname, emailaddr = parseaddr(formatted)
+    if not emailaddr:
         raise ValueError("No email address to sanitize")
 
     while True:
         try:
             # try to sanitize the address to check
-            sanitize_address((realname, email_address), 'utf-8')
+            sanitize_address((realname, emailaddr), 'utf-8')
             break
         except ValueError:
             # `realname` is too long, call this function again but
             # truncate realname by 1 character
             realname = realname[:-1]
 
-    # `realname` and `addr` are valid, return formatted string
-    return formataddr((realname, email_address))
+    # `realname` and `emailaddr` are valid, return formatted string
+    return formataddr((realname, emailaddr))
 
 
 def send_email(
@@ -157,13 +157,13 @@ def send_email(
     # catch that, remove the recipient, and notify the user via the upcoming
     # notification centre. (Raise a TransportRecipientError)
 
-    result = mail.send(msg)
+    result = msg.send()
 
-    # After sending, mark the address as having received an email and also update the statistics counters.
-    # Note that this will only track emails sent by *this app*. However SES events will track statistics
-    # across all apps and hence the difference between this counter and SES event counters will be emails
-    # sent by other apps.
-    statsd.incr("email_address.ses_email.sent", count=len(emails))
+    # After sending, mark the address as having received an email and also update the
+    # statistics counters. Note that this will only track emails sent by *this app*.
+    # However SES events will track statistics across all apps and hence the difference
+    # between this counter and SES event counters will be emails sent by other apps.
+    statsd.incr('email_address.sent', count=len(emails))
     for ea in emails:
         ea.mark_sent()
 

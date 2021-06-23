@@ -1,16 +1,18 @@
+from typing import Set
+
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin
 from .user import Organization, User
 
 __all__ = ['OrganizationMembership']
 
 
-class OrganizationMembership(ImmutableMembershipMixin, db.Model):
+class OrganizationMembership(ImmutableUserMembershipMixin, db.Model):
     """
     A user can be an administrator of an organization and optionally an owner.
 
@@ -21,7 +23,10 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
 
     __tablename__ = 'organization_membership'
 
-    # List of role columns in this model
+    # Legacy data has no granted_by
+    __null_granted_by__ = True
+
+    #: List of role columns in this model
     __data_columns__ = ('is_owner',)
 
     __roles__ = {
@@ -36,6 +41,8 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
                 'user',
                 'is_active',
                 'is_invite',
+                'is_self_granted',
+                'is_self_revoked',
             }
         },
     }
@@ -69,14 +76,14 @@ class OrganizationMembership(ImmutableMembershipMixin, db.Model):
             grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
         )
     )
-    parent = immutable(db.synonym('organization'))
-    parent_id = immutable(db.synonym('organization_id'))
+    parent = db.synonym('organization')
+    parent_id = db.synonym('organization_id')
 
     # Organization roles:
     is_owner = immutable(db.Column(db.Boolean, nullable=False, default=False))
 
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set[str]:
         """Roles offered by this membership record."""
         roles = {'admin'}
         if self.is_owner:
@@ -124,8 +131,12 @@ class __Organization:
         viewonly=True,
     )
 
-    owner_users = DynamicAssociationProxy('active_owner_memberships', 'user')
-    admin_users = DynamicAssociationProxy('active_admin_memberships', 'user')
+    owner_users = with_roles(
+        DynamicAssociationProxy('active_owner_memberships', 'user'), read={'all'}
+    )
+    admin_users = with_roles(
+        DynamicAssociationProxy('active_admin_memberships', 'user'), read={'all'}
+    )
 
 
 # User.active_organization_memberships is a future possibility.

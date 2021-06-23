@@ -6,21 +6,13 @@
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
+  <body class="mui--bg-primary hg-app tabs-navbar">
 {% endblock %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          {{ account_tabs(active_tab='notification_preferences') }}
-        </div>
-      </div>
+      {{ account_tabs(active_tab='notification_preferences') }}
     </div>
   </div>
 {%- endblock %}
@@ -32,7 +24,7 @@
         <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps mui--text-capitalize" role="tablist">
           {% for transport in transports %}
             <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-              <a href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_details[transport]['title'] }}</a>
+              <a class="mui--text-body2" href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_details[transport]['title'] }}</a>
             </li>
           {%- endfor %}
         </ul>

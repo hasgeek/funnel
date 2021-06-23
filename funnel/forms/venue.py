@@ -90,7 +90,7 @@ class VenueRoomForm(forms.Form):
     bgcolor = forms.StringField(
         __("Room colour"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=6)],
-        description=__("RGB colour for the room. Enter without the '#'. E.g. CCCCCC."),
+        description=__("RGB colour for the room. Enter without the '#'. E.g. CCCCCC"),
         default="CCCCCC",
     )
 

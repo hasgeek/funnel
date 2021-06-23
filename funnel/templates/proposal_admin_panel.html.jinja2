@@ -3,7 +3,7 @@
 {%- from "macros.html.jinja2" import csrf_tag %}
 
 <div class="modal__header">
-  <a class="modal__close mui--text-dark" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a></p>
+  <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a></p>
   <h3 class="mui--text-title mui--text-bold mui--text-uppercase" data-cy="admin-panel">{% trans %}Admin panel{% endtrans %}</h3>
 </div>
 <div class="modal__body">

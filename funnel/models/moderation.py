@@ -3,6 +3,7 @@ from coaster.sqlalchemy import with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, Comment, SiteMembership, User, UuidMixin, db
+from .helpers import reopen
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
@@ -60,7 +61,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
         Get all reports.
 
         If ``exclude_user`` is provided, exclude all reports for
-        the comments that the given user has reviewed/reported.
+        the comments that the given user has already reviewed/reported.
         """
         reports = cls.query.filter(cls.resolved_at.is_(None))
         if exclude_user is not None:
@@ -76,13 +77,14 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def submit(cls, actor, comment):
+        created = False
         report = cls.query.filter_by(user=actor, comment=comment).one_or_none()
         if report is None:
             report = cls(user=actor, comment=comment)
             db.session.add(report)
-        return report
+            created = True
+        return report, created
 
-    @with_roles(grants={'comment_moderator'})  # type: ignore[misc]
     @property
     def users_who_are_comment_moderators(self):
         return User.query.join(
@@ -91,3 +93,19 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
             SiteMembership.is_active.is_(True),
             SiteMembership.is_comment_moderator.is_(True),
         )
+
+    with_roles(users_who_are_comment_moderators, grants={'comment_moderator'})
+
+
+@reopen(Comment)
+class __Comment:
+    def is_reviewed_by(self, user: User) -> bool:
+        return db.session.query(
+            db.session.query(CommentModeratorReport)
+            .filter(
+                CommentModeratorReport.comment == self,
+                CommentModeratorReport.resolved_at.is_(None),
+                CommentModeratorReport.user == user,
+            )
+            .exists()
+        ).scalar()

@@ -1,13 +1,13 @@
 from sqlalchemy.exc import IntegrityError
 
-from flask import abort, flash, g, jsonify, redirect, request
+from flask import abort, flash, jsonify, redirect, request
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form
 from coaster.utils import getbool
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import (
     TicketClientForm,
     TicketEventForm,
@@ -24,17 +24,14 @@ from ..models import (
     TicketType,
     db,
 )
-from .decorators import legacy_redirect
 from .jobs import import_tickets
 from .login_session import requires_login, requires_sudo
-from .mixins import ProjectViewMixin, TicketEventViewMixin
+from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
 
 
 @Project.views('ticket_event')
 @route('/<profile>/<project>/ticket_event')
 class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('')
     @render_with('ticket_event_list.html.jinja2')
     @requires_login
@@ -70,7 +67,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This event already exists."), 'info')
+                flash(_("This event already exists"), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(form=form, title=_("New Event"), submit=_("Add event"))
 
@@ -89,7 +86,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This ticket type already exists."), 'info')
+                flash(_("This ticket type already exists"), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
             form=form, title=_("New Ticket Type"), submit=_("Add ticket type")
@@ -108,26 +105,20 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This ticket client already exists."), 'info')
+                flash(_("This ticket client already exists"), 'info')
             return redirect(self.obj.url_for('admin'), code=303)
         return render_form(
             form=form, title=_("New Ticket Client"), submit=_("Add ticket client")
         )
 
 
-@route('/<project>/ticket_event', subdomain='<profile>')
-class FunnelProjectTicketEventView(ProjectTicketEventView):
-    pass
-
-
 ProjectTicketEventView.init_app(app)
-FunnelProjectTicketEventView.init_app(funnelapp)
 
 
 @TicketEvent.views('main')
 @route('/<profile>/<project>/ticket_event/<name>')
 class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+    __decorators__ = [requires_login]
 
     @route('', methods=['GET', 'POST'])
     @render_with('ticket_event.html.jinja2')
@@ -147,8 +138,8 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                             import_tickets.queue(ticket_client.id)
                     flash(
                         _(
-                            "Importing tickets from vendors… "
-                            "Reload the page in about 30 seconds…"
+                            "Importing tickets from vendors…"
+                            " Reload the page in about 30 seconds…"
                         ),
                         'info',
                     )
@@ -199,7 +190,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Delete event ‘{title}’? This operation is permanent and cannot be"
-                " undone."
+                " undone"
             ).format(title=self.obj.title),
             success=_("This event has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -217,19 +208,13 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/ticket_event/<name>', subdomain='<profile>')
-class FunnelTicketEventView(TicketEventView):
-    pass
-
-
 TicketEventView.init_app(app)
-FunnelTicketEventView.init_app(funnelapp)
 
 
 @TicketType.views('main')
 @route('/<profile>/<project>/ticket_type/<name>')
-class TicketTypeView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
+    __decorators__ = [requires_login]
     model = TicketType
     route_model_map = {
         'profile': 'project.profile.name',
@@ -250,8 +235,8 @@ class TicketTypeView(UrlForView, ModelView):
         return ticket_type
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        return super(TicketTypeView, self).after_loader()
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('')
     @render_with('ticket_type.html.jinja2')
@@ -293,7 +278,7 @@ class TicketTypeView(UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Delete ticket type ‘{title}’? This operation is permanent and cannot"
-                " be undone."
+                " be undone"
             ).format(title=self.obj.title),
             success=_("This ticket type has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -301,19 +286,13 @@ class TicketTypeView(UrlForView, ModelView):
         )
 
 
-@route('/<project>/ticket_type/<name>', subdomain='<profile>', methods=['GET'])
-class FunnelTicketTypeView(TicketTypeView):
-    pass
-
-
 TicketTypeView.init_app(app)
-FunnelTicketTypeView.init_app(funnelapp)
 
 
 @TicketClient.views('main')
 @route('/<profile>/<project>/ticket_client/<client_id>')
-class TicketClientView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
+    __decorators__ = [requires_login]
     model = TicketClient
     route_model_map = {
         'profile': 'project.profile.name',
@@ -334,8 +313,8 @@ class TicketClientView(UrlForView, ModelView):
         return ticket_client
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        return super(TicketClientView, self).after_loader()
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})
@@ -360,7 +339,7 @@ class TicketClientView(UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Delete ticket client ‘{title}’? This operation is permanent and cannot"
-                " be undone."
+                " be undone"
             ).format(title=self.obj.name),
             success=_("This event has been deleted"),
             next=self.obj.project.url_for('admin'),
@@ -368,10 +347,4 @@ class TicketClientView(UrlForView, ModelView):
         )
 
 
-@route('/<project>/ticket_client/<client_id>', subdomain='<profile>')
-class FunnelTicketClientView(TicketClientView):
-    pass
-
-
 TicketClientView.init_app(app)
-FunnelTicketClientView.init_app(funnelapp)

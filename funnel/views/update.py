@@ -1,4 +1,4 @@
-from flask import abort, flash, g, redirect
+from flask import abort, flash, redirect
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -13,11 +13,11 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
-from ..forms import UpdateForm
+from .. import app
+from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
-from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
+from .mixins import ProfileCheckMixin
 from .notification import dispatch_notification
 from .project import ProjectViewMixin
 
@@ -25,8 +25,6 @@ from .project import ProjectViewMixin
 @Project.views('updates')
 @route('/<profile>/<project>/updates')
 class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('', methods=['GET'])
     @render_with('project_updates.html.jinja2', json=True)
     @requires_roles({'reader'})
@@ -70,13 +68,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         )
 
 
-@route('/<project>/updates', subdomain='<profile>')
-class FunnelProjectUpdatesView(ProjectUpdatesView):
-    pass
-
-
 ProjectUpdatesView.init_app(app)
-FunnelProjectUpdatesView.init_app(funnelapp)
 
 
 @Update.features('publish')
@@ -86,14 +78,14 @@ def update_publishable(obj):
 
 @Update.views('project')
 @route('/<profile>/<project>/updates/<update>')
-class UpdateView(UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
+class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = Update
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
+    SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, update):
         obj = (
@@ -102,9 +94,11 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-
-        g.profile = obj.project.profile
         return obj
+
+    def after_loader(self):
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
@@ -172,22 +166,16 @@ class UpdateView(UrlChangeCheck, UrlForView, ModelView):
             title=_("Confirm delete"),
             message=_(
                 "Delete this draft update? This operation is permanent and cannot be"
-                " undone."
+                " undone"
             )
             if self.obj.state.UNPUBLISHED
             else _(
                 "Delete this update? This update’s number (#{number}) will be skipped"
-                " for the next update."
+                " for the next update"
             ).format(number=self.obj.number),
             submit=_("Delete"),
             cancel_url=self.obj.url_for(),
         )
 
 
-@route('/<project>/updates/<update>', subdomain='<profile>')
-class FunnelUpdateView(UpdateView):
-    pass
-
-
 UpdateView.init_app(app)
-FunnelUpdateView.init_app(funnelapp)

@@ -99,7 +99,7 @@
       position: -webkit-sticky;
       top: 52px;
       order: 1;
-      z-index: 3;
+      z-index: 2;
       border: none;
       display: flex;
       box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
@@ -233,7 +233,7 @@
       }
       .schedule__row--sticky {
         overflow: visible;
-        top: 110px;
+        top: 112px;
 
         .schedule__row__column--header {
           padding: $mui-grid-padding 10px;
@@ -432,13 +432,12 @@
 
 .proposal-box,
 body > .proposal-box.ui-draggable {
-  margin: 10px 0;
-  padding: 2px 4px;
+  margin: $mui-grid-padding/2 0;
+  padding: $mui-grid-padding/4 $mui-grid-padding/2;
   background: $mui-bg-color-primary;
   color: $mui-text-dark;
-  border-radius: 3px;
+  border-radius: 4px;
   border: 1px solid $mui-divider-color;
-  font-size: 0.85em;
   cursor: pointer;
 }
 

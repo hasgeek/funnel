@@ -1,3 +1,5 @@
+from typing import Optional
+
 from flask import abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
@@ -21,6 +23,7 @@ from .. import app
 from ..forms import OrganizationForm, TeamForm
 from ..models import Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
+from ..typing import ReturnView
 from .login_session import requires_login, requires_sudo
 
 # --- Routes: Organizations ---------------------------------------------------
@@ -54,23 +57,24 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     # Map <organization> in URL to attribute `name`, for `url_for` automation
     route_model_map = {'organization': 'name'}
 
-    def loader(self, organization=None):
+    def loader(self, organization: Optional[str] = None) -> Optional[Organization]:
         """Load an organization if the view requires it."""
         if organization:
             obj = Organization.get(name=organization)
-            if not obj:
+            if obj is None:
                 abort(404)
             return obj
+        return None
 
     # The /new root URL is intentional
     @route('/new', methods=['GET', 'POST'])
-    def new(self):
+    def new(self) -> ReturnView:
         """Create a new organization."""
         if not current_auth.user.has_verified_contact_info:
             flash(
                 _(
-                    "You need to have a verified email address "
-                    "or phone number to create an organization"
+                    "You need to have a verified email address"
+                    " or phone number to create an organization"
                 ),
                 'error',
             )
@@ -96,13 +100,13 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'owner'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         """Delete organization if safe to do so."""
         if self.obj.profile.is_protected:
             return render_message(
                 title=_("Protected profile"),
                 message=_(
-                    "This organization has a protected profile and cannot be deleted."
+                    "This organization has a protected profile and cannot be deleted"
                 ),
             )
         if not self.obj.profile.is_safe_to_delete():
@@ -110,7 +114,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                 title=_("This organization has projects"),
                 message=_(
                     "Projects must be deleted or transferred before the organization"
-                    " can be deleted."
+                    " can be deleted"
                 ),
             )
 
@@ -124,7 +128,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             message=_(
                 "Delete organization ‘{title}’? This will delete everything including"
                 " projects, proposals and videos. This operation is permanent and"
-                " cannot be undone."
+                " cannot be undone"
             ).format(title=self.obj.title),
             success=_(
                 "You have deleted organization ‘{title}’ and all its associated content"
@@ -135,13 +139,13 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
 
     @route('teams')
     @requires_roles({'admin'})
-    def teams(self):
+    def teams(self) -> ReturnView:
         """Render list of teams."""
         return render_template('organization_teams.html.jinja2', org=self.obj)
 
     @route('teams/new', methods=['GET', 'POST'])
     @requires_roles({'admin'})
-    def new_team(self):
+    def new_team(self) -> ReturnView:
         """Create a new team."""
         form = TeamForm()
         if form.validate_on_submit():
@@ -172,16 +176,16 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
         'team': 'buid',
     }
 
-    def loader(self, organization, team):
+    def loader(self, organization: str, team: str) -> Team:
         """Load a team."""
         obj = Team.get(buid=team, with_parent=True)
-        if not obj or obj.organization.name != organization:
+        if obj is None or obj.organization.name != organization:
             abort(404)
         return obj
 
     @route('', methods=['GET', 'POST'])
     @requires_roles({'admin'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         """Edit team."""
         form = TeamForm(obj=self.obj)
         if form.validate_on_submit():
@@ -201,7 +205,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'admin'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         """Delete team."""
         if request.method == 'POST':
             team_data_changed.send(self.obj, changes=['delete'], user=current_auth.user)

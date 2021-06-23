@@ -1,7 +1,47 @@
+.project-footer {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  padding: $mui-grid-padding/4 $mui-grid-padding !important;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  z-index: 1000;
+  display: none;
+  min-height: 53px;
+
+  .mui-dropdown__menu {
+    top: -54px !important;
+    border-radius: 16px 16px 0px;
+    z-index: 6;
+  }
+}
+
+.project-footer--main {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .project-footer {
+    position: static;
+    box-shadow: none;
+    padding: $mui-grid-padding $mui-grid-padding 0 !important;
+    min-height: auto;
+    display: flex;
+    margin-bottom: $mui-grid-padding;
+
+    .mui-dropdown__menu {
+      top: auto !important;
+      border-radius: 16px 0 16px 16px;
+    }
+  }
+}
+
 .register-block {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   .register-block__txt {
     font-size: 12px;
     margin: 0 $mui-grid-padding 0 0;
@@ -29,22 +69,6 @@
     .register-block__txt--longer {
       max-width: calc(100% - 20px);
     }
-  }
-}
-
-.project-footer {
-  position: fixed;
-  width: calc(100% - 32px);
-  bottom: 0;
-  padding: 16px;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
-  z-index: 1000;
-
-  .mui-dropdown__menu {
-    top: -54px !important;
-    border-radius: 16px 16px 0px;
-    z-index: 6;
   }
 }
 
@@ -169,7 +193,7 @@
       position: absolute;
       bottom: $mui-grid-padding;
       right: $mui-grid-padding;
-      z-index: 3;
+      z-index: 2;
     }
     .project-banner__box__add-btn--second {
       right: 60px;
@@ -191,13 +215,20 @@
   }
 
   .project-details__box {
-    padding: $mui-grid-padding 0;
     position: relative;
 
-    .card__calendar {
-      padding-top: 0;
-      padding-bottom: $mui-grid-padding/2;
+    .project-details__box__content {
+      padding: $mui-grid-padding 0;
+    }
+    .project-details__box__content--lesspadding {
+      padding: 0;
+    }
+    .project-details__box__content--nopadding {
+      padding: 0 !important;
+    }
 
+    .card__calendar {
+      padding: 0;
       .calendar {
         .calendar__month--unique {
           display: none;
@@ -218,26 +249,17 @@
         }
       }
     }
-    .register-block {
-      margin-top: $mui-grid-padding-double;
-    }
     .project-venue {
-      margin: 10px 0;
+      margin: $mui-grid-padding 0;
     }
     .propose {
-      margin: 8px 0 0;
+      margin: $mui-grid-padding 0;
       .propose__txt {
         font-size: 12px;
         svg {
           width: 12px;
           height: 12px;
         }
-      }
-      .propose__btn--strike {
-        text-decoration: line-through;
-      }
-      .propose-btn--strike:hover {
-        text-decoration: line-through;
       }
     }
   }
@@ -264,8 +286,13 @@
       }
     }
     .project-details__box {
-      padding: $mui-grid-padding;
       width: 100%;
+      .project-details__box__content {
+        padding: $mui-grid-padding;
+      }
+      .project-details__box__content--lesspadding {
+        padding: 0 $mui-grid-padding;
+      }
       .propose {
         .propose__txt {
           font-size: 14px;
@@ -278,7 +305,7 @@
     }
     .project-banner__left {
       width: 67%;
-      margin: 0;
+      margin: 0 $mui-grid-padding 0 0;
       .embed-video-wrapper--shaped {
         border-radius: 16px;
       }
@@ -286,6 +313,8 @@
     .project-banner__right {
       width: 33%;
     }
+  }
+  .project-banner.project-banner--inner {
     .project-banner__left--smaller {
       width: 25%;
     }
@@ -298,7 +327,7 @@
 @media (min-width: 992px) {
   .project-banner {
     .profile-text {
-      margin: 0 0 5px;
+      margin: 0 0 $mui-grid-padding/4;
 
       p {
         margin: 0;
@@ -306,22 +335,6 @@
     }
     .project-details__box {
       margin: 0;
-      .propose {
-        align-items: baseline;
-        margin-left: $mui-grid-padding;
-        width: calc(100% - #{$mui-grid-padding});
-      }
-      .propose--lessmargin {
-        margin: 10px 0 0;
-        padding: 0;
-        width: 100%;
-      }
-      .propose--lessmargin.mui--d-inlineblock {
-        width: auto;
-      }
-      .propose__btn-wrapper {
-        padding-left: 10px;
-      }
     }
   }
 }
@@ -395,52 +408,8 @@
   justify-content: space-between;
 }
 
-.jquery-modal.blocker.current .modal.reg-modal {
-  padding: $mui-grid-padding 0 0 0;
-  .reg-modal__txt {
-    margin-bottom: $mui-grid-padding;
-    width: calc(100% - 16px);
-    position: relative;
-    top: -5px;
-  }
-  .reg-modal__txt,
-  .reg-modal__body {
-    padding: 0 $mui-grid-padding;
-  }
-  .reg-modal__btn {
-    padding: $mui-grid-padding;
-  }
-}
-
 .about {
-  word-break: break-word;
   padding-bottom: $mui-grid-padding;
-
-  .about__details h1,
-  .about__details h2,
-  .about__details h3,
-  .about__details h4,
-  .about__details h5 {
-    font-weight: 400;
-    font-size: 18px;
-    line-height: 27px;
-  }
-
-  .about__details img {
-    width: 100%;
-  }
-}
-
-@media (min-width: 768px) {
-  .about {
-    .about__details {
-      float: none;
-
-      hr {
-        overflow: hidden;
-      }
-    }
-  }
 }
 
 .tickets-wrapper {
@@ -463,7 +432,7 @@
     left: 0;
     right: 0;
     padding: $mui-grid-padding;
-    z-index: 100001;
+    z-index: 1001;
     bottom: 0;
     overflow: auto;
 
@@ -586,7 +555,7 @@
   height: 400px;
   width: 100%;
   z-index: 0;
-  margin: $mui-grid-padding 0;
+  margin: 0 0 $mui-grid-padding;
   position: relative;
   outline: none;
 }

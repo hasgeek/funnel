@@ -45,7 +45,7 @@
 {% endblock %}
 
 {% block description -%}
-  {% trans %}Explore your passions with communities of like-minded geeks.{% endtrans %}
+  {% trans %}Explore your passions with communities of like-minded geeks{% endtrans %}
   {%- if featured_project %} {% trans %}Spotlight:{% endtrans %} {{ featured_project.title_inline }} {{ featured_project.tagline }}
   {%- endif %}
 {%- endblock %}
@@ -57,6 +57,7 @@
 {% endblock %}
 
 {% block basecontent %}
+  <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
   {{ featured_section(featured_project) }}
   {{ upcoming_section(upcoming_projects) }}
   {{ open_cfp_section(open_cfp_projects) }}

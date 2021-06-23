@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Optional
 
 from flask import abort, flash, redirect, request, session, url_for
@@ -7,7 +7,7 @@ import itsdangerous.exc
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
@@ -181,7 +181,7 @@ class AccountNotificationView(ClassView):
             return redirect(url_for('notification_preferences'), code=303)
 
         user = User.get(buid=payload['buid'])
-        if not user:
+        if user is None:
             app.logger.error(
                 "Auto unsubscribe view cannot find user with buid %s", payload['buid']
             )
@@ -192,7 +192,7 @@ class AccountNotificationView(ClassView):
         # Check transport again in case this endpoint is extended to other transports
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
-            if not email_address:
+            if email_address is None:
                 app.logger.error(
                     "Auto unsubscribe view cannot find email address with hash %s",
                     payload['hash'],
@@ -246,8 +246,7 @@ class AccountNotificationView(ClassView):
         if token and not cookietest:
             session['temp_token'] = token
             session['temp_token_type'] = token_type
-            # Use naive datetime as the session can't handle tz-aware datetimes
-            session['temp_token_at'] = datetime.utcnow()
+            session['temp_token_at'] = utcnow()
             # These values are removed from the session in 10 minutes by
             # :func:`funnel.views.login_session.clear_expired_temp_token` if the user
             # abandons this page.
@@ -267,7 +266,7 @@ class AccountNotificationView(ClassView):
         if token and 'temp_token' not in session:
             session['temp_token'] = token
             session['temp_token_type'] = token_type
-            session['temp_token_at'] = datetime.utcnow()
+            session['temp_token_at'] = utcnow()
             return metarefresh_redirect(
                 url_for('notification_unsubscribe_do')
                 + ('?' + request.query_string.decode())
@@ -335,7 +334,7 @@ class AccountNotificationView(ClassView):
                 discard_temp_token()
                 flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
-            if payload['timestamp'] < datetime.utcnow() - timedelta(days=7):
+            if payload['timestamp'] < utcnow() - timedelta(days=7):
                 # Link older than a week. Expire it
                 discard_temp_token()
                 flash(unsubscribe_link_expired, 'error')
@@ -352,14 +351,14 @@ class AccountNotificationView(ClassView):
                 title=_("Unauthorized unsubscribe link"),
                 message=_(
                     "This unsubscribe link is for someone else’s account. Please logout"
-                    " or use an incognito/private browsing session to use this link."
+                    " or use an incognito/private browsing session to use this link"
                 ),
             )
 
         # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
         user = User.get(buid=payload['buid'])
-        if not user:
+        if user is None:
             app.logger.error(
                 "Unsubscribe view cannot find user with buid %s", payload['buid']
             )
@@ -369,7 +368,7 @@ class AccountNotificationView(ClassView):
             )
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
-            if not email_address:
+            if email_address is None:
                 app.logger.error(
                     "Unsubscribe view cannot find email address with hash %s",
                     payload['hash'],

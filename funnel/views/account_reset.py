@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask import (
     Markup,
     current_app,
@@ -17,14 +15,15 @@ from pytz import utc
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import requestargs
 
-from .. import app, lastuserapp
+from .. import app
 from ..forms import PasswordResetForm, PasswordResetRequestForm
 from ..models import AccountPasswordNotification, User, db
 from ..registry import login_registry
 from ..serializers import token_serializer
+from ..typing import ReturnView
 from ..utils import abort_null, mask_email
 from .email import send_password_reset_link
 from .helpers import metarefresh_redirect, validate_rate_limit
@@ -40,7 +39,6 @@ def str_pw_set_at(user):
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])
-@lastuserapp.route('/reset', methods=['GET', 'POST'])
 def reset():
     # User wants to reset password
     # Ask for username or email, verify it, and send a reset code
@@ -48,7 +46,7 @@ def reset():
     if getbool(request.args.get('expired')):
         message = _(
             "Your password has expired. Please enter your username or email address to"
-            " request a reset code and set a new password."
+            " request a reset code and set a new password"
         )
     else:
         message = None
@@ -79,7 +77,7 @@ def reset():
                         _(
                             "Your account does not have an email address. However, it"
                             " is linked to {service} with the ID {username}. You can"
-                            " use that to login."
+                            " use that to login"
                         ).format(
                             service=login_registry[extid.service].title,
                             username=extid.username or extid.userid,
@@ -93,7 +91,7 @@ def reset():
                     _(
                         'Your account does not have an email address. Please'
                         ' contact <a href="mailto:{email}">{email}</a> for'
-                        ' assistance.'
+                        ' assistance'
                     ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
                 ),
             )
@@ -113,7 +111,7 @@ def reset():
                 "You have been sent an email with a link to reset your password, to"
                 " your address {masked_email}. If it doesn’t arrive in a few minutes,"
                 " it may have landed in your spam or junk folder. The reset link is"
-                " valid for 24 hours."
+                " valid for 24 hours"
             ).format(masked_email=mask_email(email)),
         )
     return render_form(
@@ -127,14 +125,12 @@ def reset():
 
 
 @app.route('/account/reset/<token>')
-@lastuserapp.route('/reset/<token>')
 @requestargs(('cookietest', getbool))
-def reset_email(token, cookietest=False):
+def reset_email(token: str, cookietest=False) -> ReturnView:
     """Move token into session cookie and redirect to a token-free URL."""
     if not cookietest:
         session['temp_token'] = token
-        # Use naive datetime as the session can't handle tz-aware datetimes
-        session['temp_token_at'] = datetime.utcnow()
+        session['temp_token_at'] = utcnow()
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
         # and reload the page
         if request.query_string:
@@ -144,14 +140,13 @@ def reset_email(token, cookietest=False):
         # Browser is refusing to set cookies on 302 redirects. Set it again and use
         # the less secure meta-refresh redirect (browser extensions can read the URL)
         session['temp_token'] = token
-        session['temp_token_at'] = datetime.utcnow()
+        session['temp_token_at'] = utcnow()
         return metarefresh_redirect(url_for('reset_email_do'))
     # implicit: cookietest is True and 'temp_token' in session
     return redirect(url_for('reset_email_do'))
 
 
 @app.route('/account/reset/<buid>/<secret>')
-@lastuserapp.route('/reset/<buid>/<secret>')
 def reset_email_legacy(buid, secret):
     flash(
         _(
@@ -164,8 +159,7 @@ def reset_email_legacy(buid, secret):
 
 
 @app.route('/account/reset/do', methods=['GET', 'POST'])
-@lastuserapp.route('/reset/do', methods=['GET', 'POST'])
-def reset_email_do():
+def reset_email_do() -> ReturnView:
 
     # Validate the token
     # 1. Do we have a token? User may have accidentally landed here
@@ -179,7 +173,7 @@ def reset_email_do():
         # the form in time. We no longer know what user this is for. Inform the user
         return render_message(
             title=_("Please try again"),
-            message=_("This page timed out. Please open the reset link again."),
+            message=_("This page timed out. Please open the reset link again"),
         )
 
     # 2. There's a token in the session. Is it valid?
@@ -213,7 +207,7 @@ def reset_email_do():
 
     # 3. We have a token and it's not expired. Is there a user?
     user = User.get(buid=token['buid'])
-    if not user:
+    if user is None:
         # If the user has disappeared, it's likely because of account deletion.
         session.pop('temp_token', None)
         session.pop('temp_token_at', None)
@@ -258,15 +252,15 @@ def reset_email_do():
             title=_("Password reset complete"),
             message=_(
                 "Your password has been changed. You may now login with your new"
-                " password."
+                " password"
             )
             if counter is None
             else ngettext(
                 "Your password has been changed. As a precaution, you have been logged"
-                " out of one other device. You may now login with your new password.",
+                " out of one other device. You may now login with your new password",
                 "Your password has been changed. As a precaution, you have been logged"
                 " out of %(num)d other devices. You may now login with your new"
-                " password.",
+                " password",
                 counter + 1,
             ),
         )
@@ -277,7 +271,7 @@ def reset_email_do():
         formid='password-change',
         submit=_("Reset password"),
         message=Markup(
-            _("Hello, {fullname}. You may now choose a new password.").format(
+            _("Hello, {fullname}. You may now choose a new password").format(
                 fullname=escape(user.fullname)
             )
         ),

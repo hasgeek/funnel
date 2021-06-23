@@ -1,6 +1,6 @@
 """Organization admin and project crew membership notifications."""
 
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, cast
 
 from flask import Markup, escape, render_template
 
@@ -14,6 +14,7 @@ from ...models import (
     OrganizationMembership,
     User,
 )
+from ...transports.sms import MessageTemplate
 from ..notification import RenderNotification
 
 
@@ -31,10 +32,7 @@ class DecisionFactor(NamedTuple):
             (self.is_subject is is_subject)
             and (not self.rtypes or record_type in self.rtypes)
             and (self.is_owner is None or self.is_owner is membership.is_owner)
-            and (
-                self.is_actor is None
-                or (self.is_actor is bool(membership.user == membership.granted_by))
-            )
+            and (self.is_actor is None or (self.is_actor is membership.is_self_granted))
         )
 
 
@@ -185,8 +183,8 @@ class RenderShared:
         # There are four record types: invite, accept, direct_add, amend
         return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name  # type: ignore[misc]
 
-    def activity_html(self, membership: OrganizationMembership = None) -> Markup:
-        if not membership:
+    def activity_html(self, membership: OrganizationMembership = None) -> str:
+        if membership is None:
             membership = self.membership
         actor = self.membership_actor(membership)
         return Markup(self.activity_template(membership)).format(
@@ -200,7 +198,7 @@ class RenderShared:
             else escape(membership.user.pickername),
             organization=Markup(
                 '<a href="{url}">{title}</a>'.format(
-                    url=escape(self.organization.profile_url),
+                    url=escape(cast(str, self.organization.profile_url)),
                     title=escape(self.organization.pickername),
                 )
             ),
@@ -223,15 +221,17 @@ class RenderShared:
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=(actor.pickername if actor else _("(unknown)")),
+            actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
 
-    def sms(self) -> str:
+    def sms(self) -> MessageTemplate:
         actor = self.membership_actor()
-        return self.activity_template().format(
-            user=self.membership.user.pickername,
-            organization=self.organization.pickername,
-            actor=(actor.pickername if actor else _("(unknown)")),
+        return MessageTemplate(
+            message=self.activity_template().format(
+                user=self.membership.user.pickername,
+                organization=self.organization.pickername,
+                actor=(actor.pickername if actor is not None else _("(unknown)")),
+            )
         )
 
 
@@ -256,7 +256,7 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
 
         Accepts an optional membership object for use in rollups.
         """
-        if not membership:
+        if membership is None:
             membership = self.membership
         for df in decision_factors:
             if df.match(
@@ -298,7 +298,7 @@ class RenderOrganizationAdminMembershipRevokedNotification(
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
         """Return a single line summary of changes."""
-        if not membership:
+        if membership is None:
             membership = self.membership
         # LHS = user object, RHS = role proxy, so compare uuid
         if self.user_notification.user.uuid == membership.user.uuid:

@@ -20,6 +20,10 @@
     top: -12px;
     right: 0;
     height: 0;
+    margin: 0;
+    .comment-new-mobile {
+      font-size: 18px;
+    }
   }
 }
 
@@ -27,11 +31,12 @@
   margin: $mui-grid-padding 0 0;
 
   .comment__header {
-    display: inline-block;
+    display: flex;
     width: 100%;
+    align-content: center;
 
-    button {
-      vertical-align: bottom;
+    .comment__header__expand {
+      margin-right: $mui-grid-padding/4;
     }
     .mui-btn--nostyle + .mui-btn--nostyle {
       margin-left: 0;
@@ -45,12 +50,12 @@
       }
       .comment__header__details__user {
         min-height: 40px;
-        .badge {
-          margin-right: 4px;
-        }
       }
       .user__box {
         padding-bottom: 0;
+      }
+      .badge {
+        margin-left: $mui-grid-padding/4;
       }
     }
   }
@@ -65,13 +70,13 @@
 
     blockquote {
       border-left: 3px solid $mui-text-accent;
-      margin: 0;
-      padding: $mui-grid-padding/2 0 0 $mui-grid-padding/2;
+      padding: 0 0 0 $mui-grid-padding/2;
     }
     .comment__body__inner,
     .comment--children {
       padding-left: $mui-grid-padding/2;
       word-break: break-word;
+      margin-bottom: 14px;
     }
     .js-comment-form {
       .ajax-form {
@@ -88,6 +93,16 @@
   }
   .comment__body:hover {
     border-left: 1px solid $mui-accent-color;
+  }
+}
+
+@media (min-width: 1200px) {
+  .comment {
+    .comment__body {
+      .comment--children {
+        margin-bottom: 16px;
+      }
+    }
   }
 }
 

@@ -33,12 +33,12 @@ install:
   - pip install -r test_requirements.txt
   - pip install idna --upgrade
   - make
-  - pip install six --upgrade --ignore-installed
 before_script:
   - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
   - psql -c 'create database funnel_testing;' -U postgres
-  - './manage.py dbconfig | sudo -u postgres psql funnel_testing'
-  - python -c "import six; print('Six:', six.__version__)"
+  - 'flask dbconfig | sudo -u postgres psql funnel_testing'
+  - psql -c 'create database geoname_testing;' -U postgres
+  - 'flask dbconfig | sudo -u postgres psql geoname_testing'
 script:
   - './runtests.sh'
   - './runfrontendtests.sh'

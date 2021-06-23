@@ -12,4 +12,24 @@
   tbody > tr > td {
     padding: 0;
   }
+  .ui-sortable-helper .ui-draggable-box {
+    width: inherit;
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  }
+}
+
+.page-card {
+  .proposal-list-table {
+    tbody > tr:last-child > td {
+      border-radius: 0 0 16px 16px;
+      overflow: hidden;
+    }
+  }
+}
+
+.proposal-placeholder {
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  background: $mui-bg-color-accent;
 }

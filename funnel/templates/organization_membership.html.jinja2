@@ -5,11 +5,7 @@
 {%- from "js/membership.js.jinja2" import membership_template, profile_member_template %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
+  <body class="mui--bg-primary hg-app no-sticky-header mobile-header">
 {% endblock %}
 
 {% block contenthead %}{% endblock %}

@@ -1,11 +1,7 @@
 {% extends "account_formlayout.html.jinja2" %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="login-page login-page--artwork hg-app no-sticky-header">
-  {%- else %}
-    <body class="login-page login-page--artwork no-sticky-header">
-  {%- endif %}
+  <body class="login-page login-page--artwork hg-app no-sticky-header">
 {% endblock %}
 
 {% block beforeformcontent %}
@@ -25,7 +21,7 @@
 {% endblock %}
 
 {% block afterformcontent %}
-  <p class="mui--text-caption">{% trans %}By signing in, you agree to Hasgeek’s <a href="/about/policy/terms" target="_blank" rel="noopener">terms of service</a> and <a href="/about/policy/privacy" target="_blank" rel="noopener">privacy policy</a>.{% endtrans %}</p>
+  <p class="mui--text-caption">{% trans %}By signing in, you agree to Hasgeek’s <a href="/about/policy/terms" target="_blank" rel="noopener">terms of service</a> and <a href="/about/policy/privacy" target="_blank" rel="noopener">privacy policy</a>{% endtrans %}</p>
   <p class="mui--text-subhead login-page__box__note">{% trans %}Already have an account?{% endtrans %} <a href="{{ url_for('login') }}">{% trans %}Login{% endtrans %}</a></p>
 {% endblock %}
 

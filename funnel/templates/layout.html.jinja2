@@ -1,6 +1,6 @@
 {% extends "baseframe.html.jinja2" -%}
 {% from "baseframe/components.html.jinja2" import hgtopnav, faicon %}
-{%- from "macros.html.jinja2" import useravatar %}
+{%- from "macros.html.jinja2" import useravatar, csrf_tag %}
 
 {%- block titletags %}
   <title>{% block titleblock %}{% block title %}{{ title }}{% endblock %}{% if title_suffix %} – {{ title_suffix }}{% elif title_suffix == '' %}{% elif self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}{% endif %}{%- endblock %}</title>
@@ -34,19 +34,14 @@
     <link rel="image_src" href="{{ profile.logo_url }}" />
     <meta property="og:image" content="{{ profile.logo_url }}" />
     <meta name="twitter:image" content="{{ profile.logo_url }}" />
-  {%- elif not config['LEGACY'] %}
+  {%- else %}
     <link rel="image_src" href="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
     <meta property="og:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
     <meta name="twitter:image" content="{{ url_for('static', filename='img/hg-banner.png', v=2, _external=true) }}" />
-  {%- else  %}
-    <link rel="image_src" href="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
-    <meta property="og:image" content="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
-    <meta name="twitter:image" content="{{ url_for('static', filename='img/funnel-banner.png', v=2, _external=true) }}" />
   {% endif -%}
 {%- endblock %}
 
 {%- block layoutheaders %}
-  {%- if not config['LEGACY'] %}
   <link rel="manifest" href="/manifest.webmanifest" />
   <!-- Repeat manifest in upper case for filters -->
   <LINK REL="MANIFEST" HREF="/manifest.webmanifest" />
@@ -55,120 +50,62 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="#e3e1e1" />
   <meta name="apple-mobile-web-app-title" content="js" />
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png', v=2, _external=true) }}" />
-  {%- endif -%}
   {% block pageheaders %}{% endblock %}
 {%- endblock %}
 
 {% block sidedrawer -%}
 {%- endblock %}
 
-{% macro search_keyword() %}
-  <li class="js-search-keyword">{{ faicon(icon='history', css_class='mui--text-light right-margin') }}keyword-replace<span class="mui--pull-right js-clear-search-keyword">{{ faicon(icon='times') }}</span></li>
-{% endmacro %}
-
-
-{% block headerbox -%}
+{% block header -%}
   {% macro site_title() %}
-    {%- if config['LEGACY'] -%}
-      {%- if g.profile -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}" data-ga="Home">
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
+    <a href="{{ url_for('index') }}" class="header__site-title__title__home mui--hidden-xs mui--hidden-sm" data-cy="home-desktop" data-ga="Home" aria-label="Home">
+      <img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>
+    </a>
+    <a href="/about" class="header__site-title__title__about nounderline"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
+    <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-ga="Home">
+      {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
+    </a>
+    <form action="/search" class="search-form js-search-form">
+      <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">
+      {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
+      <input type="text" name="type" value="project" hidden>
+      <button type="submit" class="search-form__submit"></button>
+    </form>
+    <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-ga="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
+    {% if not current_auth.is_anonymous -%}
+      <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
+      <div class="header__nav-links">
+        <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone js-menu-btn" data-menu-size="mobile" data-menu-id="acc-mobile-menu" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
+          <div class="user__box">
+            {{ useravatar(current_auth.user, css_class='header__nav-links__icon header__nav-links__icon--user', add_profile_link=false) }}
+          </div>
+          <span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span>
         </a>
-        {{ faicon(icon='chevron-right', icon_size='subhead') }}
-        <a href="{{ g.profile.url_for() }}" class="header__site-title__item mui--text-dark" aria-label="{{ g.profile.title }}">{{ g.profile.title }}</a>
-        {%- if project %}
-          {%- if project.parent_project %}
-            {{ faicon(icon='chevron-right', icon_size='subhead') }}
-            <a href="{{ project.parent_project.url_for() }}" class="header__site-title__item" aria-label="{{ project.parent_project.short_title }}">{{ project.parent_project.short_title }}</a>
-          {%- endif %}
-          {{ faicon(icon='chevron-right', icon_size='subhead') }}
-          <a href="{{ project.url_for() }}" class="header__site-title__item" aria-label="{{ project.short_title }}">{{ project.short_title }}</a>
-        {%- endif %}
-      {%- else -%}
-        <a href="{{ url_for('index') }}" class="header__site-title__item" aria-label="{{ config['SITE_TITLE'] }}">
-          <img src="{{ url_for('static', filename='img/funnel-logo.png') }}" class="header__site-title__home__logo header__site-title__home__logo--funnel"/>
-          {{ config['SITE_TITLE'] }}
-        </a>
-      {%- endif %}
-    {%- else -%}
-      <a href="{{ url_for('index') }}" class="header__site-title__title__home mui--hidden-xs mui--hidden-sm" data-cy="home-desktop" data-ga="Home" aria-label="Home">
-        <img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>
-      </a>
-      <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
-      <a href="{{ url_for('index') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'home' %}header__nav-links--active{% endif %}" aria-label="Home" data-cy="home" data-ga="Home">
-        {% if  current_view.current_section == 'home' %}<img src="/static/img/hg-logo.svg" class="header__site-title__home__logo"/>{%- else %}<img src="/static/img/hg-logo-grey.svg" class="header__site-title__home__logo"/>{%- endif %}<span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
-      </a>
-      <form action="/search" class="search-form js-search-form" autocomplete="off">
-        <input type="text" name="q" aria-label="{% trans %}Search the site{% endtrans %}" placeholder="{% trans %}Search…{% endtrans %}" class="search-form__field js-search-field" id="header-search">
-        {{ faicon(icon='search', baseline=false, css_class='search-form__field__icon') }}
-        <ul class="search-form__dropdown js-search-dropdown">
-          {%- if project -%}
-            <li><input type="radio" name="search-domain" id="search-project" class="right-margin" value="/{{ g.profile.name }}/{{ project.name }}/search"><label for="search-project" class="search-form__dropdown__label">{% trans project=project.title %}Search project ({{ project }}){% endtrans %}</label></li>
-          {%- endif %}
-          {%- if g.profile -%}
-            <li><input type="radio" name="search-domain" id="search-profile" class="right-margin" value="/{{ g.profile.name }}/search"><label for="search-profile" class="search-form__dropdown__label">{% trans profile=g.profile.title %}Search profile ({{ profile }}){% endtrans %}</label></li>
-          {%- endif %}
-          <li class="search-form__dropdown__item--border"><input type="radio" name="search-domain" id="search-global" class="right-margin" value="/search" checked="checked"><label for="search-global" class="search-form__dropdown__label">{% trans %}Search website{% endtrans %}</label></li>
-        </ul>
-        <button type="submit" class="search-form__submit"></button>
-      </form>
-      {% if not current_auth.is_anonymous -%}
-        {%- if config['ENABLE_COMMENT_SIDEBAR'] %}<a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" >{{ faicon(icon='comment-alt-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>{% endif %}
-        <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
-        <a href="{{ url_for('account') }}" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links {% if current_view.current_section == 'account' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account">{{ faicon(icon='user-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Account{% endtrans %}</span></a>
-        <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-          {%- if config['ENABLE_COMMENT_SIDEBAR'] %}<a href="javascript:void(0)" class="header__nav-links header__nav-links--right js-comments-button" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar">{{ faicon(icon='comment-alt', css_class='header__nav-links__icon') }}</a>{% endif %}
-          <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false, css_class='header__nav-links__icon') }}</a>
-          <a href="{{ url_for('account') }}" class="header__nav-links header__nav-links--right header__nav-links--right--settings" aria-label="{% trans %}Account{% endtrans %}" data-ga="Account" data-cy="my-account">{{ faicon(icon='cog', baseline=false, css_class='header__nav-links__icon') }}</a>
-          {% if current_auth.user.profile %}
-            <a href="{{ current_auth.user.profile.url_for() }}" class="header__nav-links user user--standalone js-account-dropdown  {% if  current_view.current_section == 'account' %}header__nav-links--active{% endif %}" data-cy="profile" data-ga="Profile">
-              <div class="user__box">
-                {{ useravatar(current_auth.user, add_profile_link=false) }}
-              </div>
-            </a>
-          {%- endif %}
+      </div>
+      <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
+        <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
+        <div class="header__nav-links--dropdown">
+          <a class="header__nav-links user user--standalone js-menu-btn" data-cy="my-account" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
+            <div class="user__box">
+              {{ useravatar(current_auth.user, add_profile_link=false) }}
+            </div>
+          </a>
         </div>
-      {%- elif request.endpoint != 'login' %}
-        <a href="{{ url_for('login') }}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
-      {%- else %}
-        {#- On the login page, remove the login button but occupy the spot #}
-        <div></div>
-      {%- endif %}
+      </div>
+      <div class="js-account-menu-wrapper"></div>
+    {%- elif request.endpoint != 'login' %}
+      <a href="{{ url_for('login') }}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
+    {%- else %}
+      {#- On the login page, remove the login button but occupy the spot #}
+      <div></div>
     {%- endif %}
   {% endmacro %}
 
-  <header class="header header--fixed mui--z1" id="js-header">
-    <div class="mui-container">
-      {%- if config['LEGACY'] -%}
-        {{ hgtopnav(site_title=site_title()) }}
-      {%- else %}
-        {{ hgtopnav(site_title=site_title(), site_links=[], auth=false, network=false) }}
-      {%- endif %}
-    </div>
-  </header>
-  <div class="comments-sidebar" id="js-comments-dropdown">
-    <div class="comments-sidebar__header mui--z1">
-      <span class="js-close-comments mui--text-dark comments-sidebar__header__close">{{ faicon(icon='arrow-left', icon_size='title') }}</span><span class="mui--text-dark mui--text-heading comments-sidebar__header__title">{% trans %}Comments{% endtrans %}</span></div>
-    <hr class="zero-bottom-margin zero-top-margin">
-    <span class="loading js-loading left-padding separator"></span>
-    <ul class="comments-list" id="js-unread-comments">
-      <li class="js-no-comments mui--hide">
-        <div class="top-padding bottom-padding mui--text-center">
-          <div class="comment-sidebar__nocomment-icon">{{ faicon(icon='comment-alt', icon_size='headline', css_class='') }}</div>
-          <p class="mui--text-title margin-bottom">{% trans %}No comments yet{% endtrans %}</p>
-          <p class="mui--text-subhead mui--text-light margin-bottom">{% trans %}Join a project to start a discussion{% endtrans %}</p>
-        </div>
-      </li>
-    </ul>
-  </div>
+  {{ hgtopnav(site_title=site_title(), site_links=[], auth=false, network=false) }}
 {%- endblock %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
+  <body class="mui--bg-primary hg-app">
 {% endblock %}
 
 {% block contenthead %}
@@ -178,7 +115,7 @@
         <div class="grid">
           <div class="grid__col-xs-12">
             {% block top_title %}
-            <h1 class="mui--text-display1">
+            <h1 class="mui--text-headline">
               {{ self.title()|e }}
             </h1>
             {% endblock %}
@@ -194,13 +131,15 @@
   {%- block messages %}
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="mui-container alert-wrapper">
-          {% for category, message in messages %}
-            <div class="alert alert--{{category}} alert--dismissable">
-              <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='subhead') }}</a>
-              <p class="alert__text">{{ message }}</p>
-            </div>
-          {% endfor %}
+        <div class="alert-wrapper">
+          <div class="mui-container">
+            {% for category, message in messages %}
+              <div class="alert alert--{{category}} alert--dismissable">
+                <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='subhead') }}</a>
+                <p class="alert__text">{{ message }}</p>
+              </div>
+            {% endfor %}
+          </div>
         </div>
       {% endif %}
     {% endwith %}
@@ -243,21 +182,12 @@
     window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
     window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
     window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
-    {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
-      window.Hasgeek.config.commentSidebarElem = '#js-unread-comments';
-      window.Hasgeek.config.unreadCommentUrl = {{ url_for('comments')|tojson }};
-    {% endif %}
-    {% if not current_auth.is_anonymous -%}
-      window.Hasgeek.config.loggedInUser = true;
-    {%- else %}
-      window.Hasgeek.config.loggedInUser = false;
-    {% endif %}
+    window.Hasgeek.config.accountMenu = {{ url_for('account_menu')|tojson }};
   </script>
   {% assets "js_jquerytruncate" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
-  {%- if not config['LEGACY'] -%}
   <script type="text/javascript">
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -281,78 +211,5 @@
       });
     }
   </script>
-  <script type="text/javascript">
-    $('.js-search-field').on('click', function(e) {
-      e.preventDefault();
-      $(this).addClass('search-form__field--selected');
-      $('.js-search-dropdown').addClass('search-form__dropdown--show');
-    });
-
-    $('body').on('click', function (e) {
-      if (
-        $('.js-search-dropdown').hasClass('search-form__dropdown--show') &&
-        !$(e.target).is('.js-search-field') &&
-        !$.contains($('.js-search-dropdown')[0], e.target)
-      ) {
-        $('.js-search-field').removeClass('search-form__field--selected');
-        $('.js-search-dropdown').removeClass('search-form__dropdown--show');
-      }
-    });
-
-    if(window.Hasgeek.config.loggedInUser) {
-      const Store = {
-        // Local storage can only save strings, so value is converted into strings and stored.
-        add(key, value) {
-          return localStorage.setItem(key, JSON.stringify(value));
-        },
-        // Reads from LocalStorage.
-        read(key) {
-          return JSON.parse(localStorage.getItem(key));
-        },
-      };
-
-      var searchKeys = Store.read('search-keys');
-
-      if(searchKeys && searchKeys.length > 0) {
-        var autocompleteHtml = {{ search_keyword()|tojson }};
-        var KeywordHtml;
-        searchKeys.forEach(function(keyword) {
-          KeywordHtml = autocompleteHtml.replace('keyword-replace', keyword);
-          $('.js-search-dropdown').append(KeywordHtml);
-        });
-
-        $('.js-search-keyword').on('click', function (e) {
-          e.preventDefault();
-          $('.js-search-field').val($(this).text());
-        });
-
-        $('.js-clear-search-keyword').on('click', function (e) {
-          e.stopPropagation();
-          var keyword = $(this).parents('.js-search-keyword').text();
-          var autocompleteList = Store.read('search-keys');
-          autocompleteList.splice(autocompleteList.indexOf(keyword), 1);
-          Store.add('search-keys', autocompleteList);
-          $(this).parent('.js-search-keyword').remove();
-        });
-      }
-
-      $('input[type=radio][name=search-domain]').change(function() {
-         $('.js-search-form').attr('action', this.value);
-      });
-
-      $('.js-search-form').on('submit', function() {
-        var searchKeys = Store.read('search-keys');
-        var keyword = $('.js-search-field').val();
-        if(!searchKeys) {
-          searchKeys = [];
-        }
-        if(searchKeys.indexOf(keyword) === -1) {
-          searchKeys.push(keyword);
-        }
-        Store.add('search-keys', searchKeys);
-      });
-    }
-  </script>
-  {%- endif -%}
   {% block footerscripts %}{% endblock %}
 {% endblock %}

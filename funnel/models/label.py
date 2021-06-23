@@ -1,10 +1,9 @@
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, TSVectorType, db
+from . import BaseScopedNameMixin, TSVectorType, db, hybrid_property
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -171,13 +170,13 @@ class Label(BaseScopedNameMixin, db.Model):
     def restricted(self):
         return self.main_label._restricted if self.main_label else self._restricted
 
-    @restricted.setter  # type: ignore[no-redef]
+    @restricted.setter
     def restricted(self, value):
         if self.main_label:
             raise ValueError("This flag must be set on the parent")
         self._restricted = value
 
-    @restricted.expression  # type: ignore[no-redef]
+    @restricted.expression
     def restricted(cls):  # NOQA: N805
         return case(
             [
@@ -197,11 +196,11 @@ class Label(BaseScopedNameMixin, db.Model):
             self.main_label._archived if self.main_label else False
         )
 
-    @archived.setter  # type: ignore[no-redef]
+    @archived.setter
     def archived(self, value):
         self._archived = value
 
-    @archived.expression  # type: ignore[no-redef]
+    @archived.expression
     def archived(cls):  # NOQA: N805
         return case(
             [
@@ -220,7 +219,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def has_options(self):
         return bool(self.options)
 
-    @has_options.expression  # type: ignore[no-redef]
+    @has_options.expression
     def has_options(cls):  # NOQA: N805
         return exists().where(Label.main_label_id == cls.id)
 
@@ -232,7 +231,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def required(self):
         return self._required if self.has_options else False
 
-    @required.setter  # type: ignore[no-redef]
+    @required.setter
     def required(self, value):
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
@@ -290,7 +289,7 @@ class Label(BaseScopedNameMixin, db.Model):
 add_search_trigger(Label, 'search_vector')
 
 
-class ProposalLabelProxyWrapper(object):
+class ProposalLabelProxyWrapper:
     def __init__(self, obj) -> None:
         object.__setattr__(self, '_obj', obj)
 
@@ -306,7 +305,7 @@ class ProposalLabelProxyWrapper(object):
         label = Label.query.filter(
             Label.name == name, Label.project == self._obj.project
         ).one_or_none()
-        if not label:
+        if label is None:
             raise AttributeError
 
         if not label.has_options:
@@ -324,7 +323,7 @@ class ProposalLabelProxyWrapper(object):
             Label.project == self._obj.project,
             Label._archived.is_(False),
         ).one_or_none()
-        if not label:
+        if label is None:
             raise AttributeError
 
         if not label.has_options:
@@ -340,7 +339,7 @@ class ProposalLabelProxyWrapper(object):
             option_label = Label.query.filter_by(
                 main_label=label, _archived=False, name=value
             ).one_or_none()
-            if not option_label:
+            if option_label is None:
                 raise ValueError("Invalid option for this label")
 
             # Scan for conflicting labels and remove them. Iterate over a copy
@@ -356,13 +355,32 @@ class ProposalLabelProxyWrapper(object):
                 self._obj.labels.append(option_label)
 
 
-class ProposalLabelProxy(object):
+class ProposalLabelProxy:
     def __get__(self, obj, cls=None):
         """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)
         else:
             return self
+
+
+@reopen(Project)
+class __Project:
+    labels = db.relationship(
+        Label,
+        primaryjoin=db.and_(
+            Label.project_id == Project.id,
+            Label.main_label_id.is_(None),
+            Label._archived.is_(False),
+        ),
+        order_by=Label.seq,
+        viewonly=True,
+    )
+    all_labels = db.relationship(
+        Label,
+        collection_class=ordering_list('seq', count_from=1),
+        back_populates='project',
+    )
 
 
 @reopen(Proposal)

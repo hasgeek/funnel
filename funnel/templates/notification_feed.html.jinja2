@@ -3,10 +3,10 @@
 {% from "baseframe/components.html.jinja2" import faicon %}
 {%- from "js/notification.js.jinja2" import notification_template %}
 
-{% block title %}{% trans %}Updates{% endtrans %}{% endblock %}
+{% block title %}{% if unread_only %}{% trans %}Unread updates{% endtrans %}{% else %}{% trans %}Updates{% endtrans %}{% endif %}{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1">{{ self.title()|e }}</h1>
+  <h1 class="mui--text-headline">{{ self.title()|e }}</h1>
 {% endblock %}
 
 {% block basecontent %}
@@ -17,7 +17,7 @@
           <div class="alert alert--info">
             <p class="alert__text">
               <a href="{{ url_for('add_phone') }}">
-                {{ faicon(icon='exclamation-circle', css_class='fa-icon--margin') }}
+                {{ faicon(icon='exclamation-circle', css_class='fa-icon--right-margin') }}
                 {%- trans %}To receive timely notifications by SMS, add a phone number{% endtrans %}
                 {{ faicon(icon='arrow-right') }}
               </a>

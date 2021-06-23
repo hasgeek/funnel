@@ -1,4 +1,7 @@
 from datetime import datetime
+from types import SimpleNamespace
+
+from sqlalchemy import event
 
 from pytz import utc
 import pytest
@@ -6,6 +9,7 @@ import pytest
 from funnel import app
 from funnel.models import (
     AuthClient,
+    AuthClientCredential,
     Label,
     Organization,
     OrganizationMembership,
@@ -34,19 +38,66 @@ def database(request):
 
 
 @pytest.fixture(scope='session')
-def _db(database):
-    """Dependency for db_session and db_engine fixtures."""
-    return database
+def db_connection(database):
+    """Return a database connection."""
+    return database.engine.connect()
+
+
+# This fixture borrowed from
+# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46#issuecomment-829694672
+@pytest.fixture(scope='function')
+def db_session(database, db_connection):
+    """Create a nested transaction for the test and roll it back after."""
+    original_session = database.session
+    transaction = db_connection.begin()
+    database.session = database.create_scoped_session(
+        options={'bind': db_connection, 'binds': {}}
+    )
+    database.session.begin_nested()
+
+    # for handling tests that actually call `session.rollback()`
+    # https://docs.sqlalchemy.org/en/13/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
+    @event.listens_for(database.session, 'after_transaction_end')
+    def restart_savepoint(session, transaction_in):
+        if transaction_in.nested and not transaction_in._parent.nested:
+            session.expire_all()
+            session.begin_nested()
+
+    yield database.session
+
+    database.session.close()
+    transaction.rollback()
+    database.session = original_session
 
 
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
 @pytest.fixture(autouse=True)
-def client(db_session):
+def client(request, db_session):
     """Provide a test client."""
     with app.app_context():  # Not required for test_client, but required for autouse
         with app.test_client() as test_client:
             yield test_client
+
+
+@pytest.fixture
+def varfixture(request):
+    """
+    Return a variable fixture.
+
+    Usage::
+
+        @pytest.mark.parametrize('varfixture', ['fixture1', 'fixture2'], indirect=True)
+        def test_me(varfixture):
+            ...
+
+    This fixture can also be ignored, and a test can access a variable fixture directly:
+
+    1. Don't use `indirect=True`
+    2. Accept `request` as a parameter
+    3. Get the actual fixture with `request.getfixturevalue(varfixture)`
+    """
+    return request.getfixturevalue(request.param)
 
 
 # --- Sample data: users, organizations, projects, etc ---------------------------------
@@ -320,7 +371,7 @@ def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
 
 
 @pytest.fixture
-def org_citywatch(db_session, user_vetinari, user_vimes):
+def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
     """
     City Watch of Ankh-Morpork (a sub-organization).
 
@@ -354,6 +405,8 @@ def org_citywatch(db_session, user_vetinari, user_vimes):
 @pytest.fixture
 def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2010 expo."""
+    db_session.flush()
+
     project = Project(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
@@ -368,6 +421,8 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
 @pytest.fixture
 def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2011 expo."""
+    db_session.flush()
+
     project = Project(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
@@ -386,6 +441,8 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
 
     Based on Soul Music, which features the first appearance of Hex, published 1994.
     """
+    db_session.flush()
+
     project = Project(
         profile=org_uu.profile,
         user=user_ponder_stibbons,
@@ -409,6 +466,8 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
 
     Based on Interesting Times.
     """
+    db_session.flush()
+
     project = Project(
         profile=org_uu.profile,
         user=user_ponder_stibbons,
@@ -437,9 +496,17 @@ def client_hex(db_session, org_uu):
         organization=org_uu,
         confidential=True,
         website='https://example.org/',
+        redirect_uris=['https://example.org/callback'],
     )
     db_session.add(client)
     return client
+
+
+@pytest.fixture
+def client_hex_credential(db_session, client_hex):
+    cred, secret = AuthClientCredential.new(client_hex)
+    db_session.add(cred)
+    return SimpleNamespace(cred=cred, secret=secret)
 
 
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -557,14 +624,9 @@ def new_main_label(db_session, new_project):
     main_label_a = Label(
         title="Parent Label A", project=new_project, description="A test parent label"
     )
-    new_project.labels.append(main_label_a)
-    db_session.add(main_label_a)
-
+    new_project.all_labels.append(main_label_a)
     label_a1 = Label(title="Label A1", icon_emoji="👍", project=new_project)
-    db_session.add(label_a1)
-
     label_a2 = Label(title="Label A2", project=new_project)
-    db_session.add(label_a2)
 
     main_label_a.options.append(label_a1)
     main_label_a.options.append(label_a2)
@@ -580,14 +642,9 @@ def new_main_label_unrestricted(db_session, new_project):
     main_label_b = Label(
         title="Parent Label B", project=new_project, description="A test parent label"
     )
-    new_project.labels.append(main_label_b)
-    db_session.add(main_label_b)
-
+    new_project.all_labels.append(main_label_b)
     label_b1 = Label(title="Label B1", icon_emoji="👍", project=new_project)
-    db_session.add(label_b1)
-
     label_b2 = Label(title="Label B2", project=new_project)
-    db_session.add(label_b2)
 
     main_label_b.options.append(label_b1)
     main_label_b.options.append(label_b2)
@@ -601,7 +658,7 @@ def new_main_label_unrestricted(db_session, new_project):
 @pytest.fixture
 def new_label(db_session, new_project):
     label_b = Label(title="Label B", icon_emoji="🔟", project=new_project)
-    new_project.labels.append(label_b)
+    new_project.all_labels.append(label_b)
     db_session.add(label_b)
     db_session.commit()
     return label_b
@@ -611,11 +668,9 @@ def new_label(db_session, new_project):
 def new_proposal(db_session, new_user, new_project):
     proposal = Proposal(
         user=new_user,
-        speaker=new_user,
         project=new_project,
         title="Test Proposal",
-        outline="Test proposal description",
-        location="Bangalore",
+        body="Test proposal description",
     )
     db_session.add(proposal)
     db_session.commit()

@@ -24,7 +24,7 @@
                 <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Role') }}</button>
             </div>
           </div>
-          <div v-if="view == 'role'" class="membership-wrapper__members">
+          <div v-if="view == 'role'" class="membership-wrapper__members bottom-padding margin-bottom">
             <div v-for="role in roles">
               <p class="mui--text-subhead membership-wrapper__members__collapsible__header" @click="collapse($event, role)"> {{ role.roleName }}
                 <faicon :icon="'angle-right'" :icon_size="'title'" :css_class="'mui--pull-right collapsible__icon'" v-if="!role.showMembers"></faicon>
@@ -33,7 +33,7 @@
               <transition name="slide-fade">
                 <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
                   <div v-if="isUserProfileAdmin">
-                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="gettext('Edit')" role="dialog" v-if="member[role.roleKey]">
+                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="gettext('Edit')" v-if="member[role.roleKey]" role="button" aria-haspopup="true">
                       <member :member="member"></member>
                     </div>
                   </div>
@@ -48,7 +48,7 @@
           </div>
           <div v-if="view == 'name'" class="membership-wrapper__members">
             <div v-if="isUserProfileAdmin">
-              <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" :aria-label=" gettext('Edit')" role="dialog">
+              <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" :aria-label=" gettext('Edit')" role="button" aria-haspopup="true">
                 <member :member="member"></member>
               </div>
             </div>
@@ -66,8 +66,8 @@
           <p class="mui--text-body2 mui--text-bold mui--text-center zero-bottom-margin">{{ gettext('No members found') }}</p>
           <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">{{ gettext('Members you add will appear here…') }}</p>
         </div>
-        <div id="member-form" class="modal modal--form" :class="[activeMember ? 'modal--form--edit' : '']">
-          <a class="modal__close mui--text-dark" href="javascript:void(0);" :aria-label="gettext('Close')" rel="modal:close"  data-ga="close view member modal">
+        <div id="member-form" class="modal modal--form" :class="[activeMember ? 'modal--form--edit' : '']" role="dialog" aria-modal="true" tabindex="-1">
+          <a class="modal__close mui--text-dark" href="javascript:void(0);" :aria-label="gettext('Close')" rel="modal:close"  data-ga="close view member modal" role="button" tabindex="0">
             <faicon :icon="'times'" :icon_size="'title'"></faicon>
           </a>
           <component :is="Form"></component>

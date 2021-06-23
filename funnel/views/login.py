@@ -21,7 +21,7 @@ from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import get_next_url, requestargs
 
-from .. import app, funnelapp, lastuserapp
+from .. import app
 from ..forms import (
     LoginForm,
     LoginPasswordResetException,
@@ -42,7 +42,7 @@ from ..models import (
     merge_users,
 )
 from ..registry import LoginCallbackError, LoginInitError, login_registry
-from ..serializers import talkfunnel_serializer
+from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
 from ..utils import abort_null
 from .email import send_email_verify_link
@@ -52,7 +52,6 @@ from .login_session import (
     logout_internal,
     register_internal,
     requires_login,
-    requires_login_no_message,
     set_loginmethod_cookie,
 )
 
@@ -111,15 +110,15 @@ def login():
                 db.session.commit()
                 if loginform.weak_password:
                     current_app.logger.info(
-                        "Login successful for %r, but weak password detected. "
-                        "Possible redirect URL is '%s' after password change",
+                        "Login successful for %r, but weak password detected."
+                        " Possible redirect URL is '%s' after password change",
                         user,
                         session.get('next', ''),
                     )
                     flash(
                         _(
-                            "You have a weak password. To ensure the safety of "
-                            "your account, please choose a stronger password"
+                            "You have a weak password. To ensure the safety of"
+                            " your account, please choose a stronger password"
                         ),
                         category='danger',
                     )
@@ -129,15 +128,15 @@ def login():
                     )
                 elif user.password_has_expired():
                     current_app.logger.info(
-                        "Login successful for %r, but password has expired. "
-                        "Possible redirect URL is '%s' after password change",
+                        "Login successful for %r, but password has expired."
+                        " Possible redirect URL is '%s' after password change",
                         user,
                         session.get('next', ''),
                     )
                     flash(
                         _(
-                            "Your password is a year old. To ensure the safety of "
-                            "your account, please choose a new password"
+                            "Your password is a year old. To ensure the safety of"
+                            " your account, please choose a new password"
                         ),
                         category='warning',
                     )
@@ -159,9 +158,9 @@ def login():
         except LoginPasswordResetException:
             flash(
                 _(
-                    "Your account does not have a password set. Please enter your "
-                    "username or email address to request a reset code and set a "
-                    "new password"
+                    "Your account does not have a password set. Please enter your"
+                    " username or email address to request a reset code and set a"
+                    " new password"
                 ),
                 category='danger',
             )
@@ -171,9 +170,9 @@ def login():
         except LoginPasswordWeakException:
             flash(
                 _(
-                    "Your account has a weak password. Please enter your "
-                    "username or email address to request a reset code and set a "
-                    "new password"
+                    "Your account has a weak password. Please enter your"
+                    " username or email address to request a reset code and set a"
+                    " new password"
                 )
             )
             return render_redirect(
@@ -214,7 +213,7 @@ logout_errormsg = __("Are you trying to logout? Please try again to confirm")
 def logout_client():
     """Process auth client-initiated logout."""
     cred = AuthClientCredential.get(abort_null(request.args['client_id']))
-    auth_client = cred.auth_client if cred else None
+    auth_client = cred.auth_client if cred is not None else None
 
     if (
         auth_client is None
@@ -239,7 +238,6 @@ def logout_client():
 
 
 @app.route('/logout')
-@lastuserapp.route('/logout')
 def logout():
 
     # Logout, but protect from CSRF attempts
@@ -255,7 +253,6 @@ def logout():
 
 
 @app.route('/account/logout', methods=['POST'])
-@lastuserapp.route('/account/logout', methods=['POST'])
 @requires_login
 def account_logout():
     form = LogoutForm(user=current_auth.user)
@@ -331,7 +328,6 @@ def login_service(service):
 
 
 @app.route('/login/<service>/callback', methods=['GET', 'POST'])
-@lastuserapp.route('/login/<service>/callback', methods=['GET', 'POST'])
 def login_service_callback(service):
     """Handle callback from a login service."""
     if service not in login_registry:
@@ -461,7 +457,7 @@ def login_service_postcallback(service, userdata):
     if userdata.get('emails'):
         for email in userdata['emails']:
             existing = UserEmail.get(email)
-            if existing:
+            if existing is not None:
                 if existing.user != user and 'merge_buid' not in session:
                     session['merge_buid'] = existing.user.buid
             else:
@@ -507,7 +503,6 @@ def login_service_postcallback(service, userdata):
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
-@lastuserapp.route('/account/merge', methods=['GET', 'POST'])
 @requires_login
 def account_merge():
     if 'merge_buid' not in session:
@@ -520,7 +515,7 @@ def account_merge():
     if form.validate_on_submit():
         if 'merge' in request.form:
             new_user = merge_users(current_auth.user, other_user)
-            if new_user:
+            if new_user is not None:
                 login_internal(
                     new_user,
                     login_service=current_auth.session.login_service
@@ -550,48 +545,32 @@ def account_merge():
     )
 
 
-# --- Lastuser login legacy endpoints --------------------------------------------------
+# --- Future Hasjob login --------------------------------------------------------------
 
+# Hasjob login flow:
 
-@lastuserapp.route('/login', endpoint='login')
-def lastuserapp_login():
-    return redirect(app_url_for(app, 'login'), code=301)
-
-
-@lastuserapp.route('/register', endpoint='register')
-def lastuserapp_register():
-    return redirect(app_url_for(app, 'register'), code=301)
-
-
-@lastuserapp.route('/login/<service>', endpoint='login_service')
-def lastuserapp_login_service(service):
-    return redirect(app_url_for(app, 'login_service', service=service), code=301)
-
-
-# --- Talkfunnel login -----------------------------------------------------------------
-
-# Talkfunnel login flow:
-
-# 1. `funnelapp` /login does:
+# 1. `hasjobapp` /login does:
 #     1. Set nonce cookie if not already present
 #     2. Create a signed request code using nonce
-#     3. Redirect user to `app` /login/talkfunnel?code={code}
+#     3. Redirect user to `app` /login/hasjob?code={code}
 
-# 2. `app` /login/talkfunnel does:
+# 2. `app` /login/hasjob does:
 #     1. Ask user to login if required (@requires_login_no_message)
 #     2. Verify signature of code
 #     3. Create a timestamped token using (nonce, user_session.buid)
-#     4. Redirect user to `funnelapp` /login/callback?token={token}
+#     4. Redirect user to `hasjobapp` /login/callback?token={token}
 
-# 3. `funnelapp` /login/callback does:
+# 3. `hasjobapp` /login/callback does:
 #     1. Verify token (signature valid, nonce valid, timestamp < 30s)
 #     2. Loads user session and sets session cookie (calling login_internal)
 #     3. Redirects user back to where they came from, or '/'
 
 
-@funnelapp.route('/login', endpoint='login')
+# Retained for future hasjob integration
+
+# @hasjobapp.route('/login', endpoint='login')
 @requestargs(('cookietest', getbool))
-def funnelapp_login(cookietest=False):
+def hasjob_login(cookietest=False):
     # 1. Create a login nonce (single use, unlike CSRF)
     session['login_nonce'] = str(uuid.uuid4())
     if not cookietest:
@@ -604,66 +583,69 @@ def funnelapp_login(cookietest=False):
         # No support for cookies. Abort login
         return render_message(
             title=_("Cookies required"),
-            message=_("Please enable cookies in your browser."),
+            message=_("Please enable cookies in your browser"),
         )
     # 2. Nonce has been set. Create a request code
-    request_code = talkfunnel_serializer().dumps({'nonce': session['login_nonce']})
+    request_code = crossapp_serializer().dumps({'nonce': session['login_nonce']})
     # 3. Redirect user
-    return redirect(app_url_for(app, 'login_talkfunnel', code=request_code))
+    return redirect(app_url_for(app, 'login_hasjob', code=request_code))
 
 
-@app.route('/login/talkfunnel')
-@requires_login_no_message  # 1. Ensure user login
-@requestargs('code')
-def login_talkfunnel(code):
-    # 2. Verify signature of code
-    try:
-        request_code = talkfunnel_serializer().loads(code)
-    except itsdangerous.exc.BadData:
-        current_app.logger.warning("funnelapp login code is bad: %s", code)
-        return redirect(url_for('index'))
-    # 3. Create token
-    token = talkfunnel_serializer().dumps(
-        {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
-    )
-    # 4. Redirect user
-    return redirect(app_url_for(funnelapp, 'login_callback', token=token))
+# Retained for future hasjob integration
+
+# @app.route('/login/hasjob')
+# @requires_login_no_message  # 1. Ensure user login
+# @requestargs('code')
+# def login_hasjob(code):
+#     # 2. Verify signature of code
+#     try:
+#         request_code = crossapp_serializer().loads(code)
+#     except itsdangerous.exc.BadData:
+#         current_app.logger.warning("hasjobapp login code is bad: %s", code)
+#         return redirect(url_for('index'))
+#     # 3. Create token
+#     token = crossapp_serializer().dumps(
+#         {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
+#     )
+#     # 4. Redirect user
+#     return redirect(app_url_for(hasjobapp, 'login_callback', token=token))
 
 
-@funnelapp.route('/login/callback', endpoint='login_callback')
+# Retained for future hasjob integration
+# @hasjobapp.route('/login/callback', endpoint='login_callback')
 @requestargs('token')
-def funnelapp_login_callback(token):
+def hasjobapp_login_callback(token):
     nonce = session.pop('login_nonce', None)
     if not nonce:
         # Can't proceed if this happens
-        current_app.logger.warning("funnelapp is missing an expected login nonce")
+        current_app.logger.warning("hasjobapp is missing an expected login nonce")
         return redirect(url_for('index'), code=303)
 
     # 1. Verify token
     try:
         # Valid up to 30 seconds for slow connections. This is the time gap between
-        # `app` returning a redirect response and user agent loading `funnelapp`'s URL
-        request_token = talkfunnel_serializer().loads(token, max_age=30)
+        # `app` returning a redirect response and user agent loading `hasjobapp`'s URL
+        request_token = crossapp_serializer().loads(token, max_age=30)
     except itsdangerous.exc.BadData:
-        current_app.logger.warning("funnelapp received bad login token: %s", token)
+        current_app.logger.warning("hasjobapp received bad login token: %s", token)
         flash(_("Your attempt to login failed. Please try again"), 'error')
         return metarefresh_redirect(url_for('index'))
     if request_token['nonce'] != nonce:
         current_app.logger.warning(
-            "funnelapp received invalid nonce in %r", request_token
+            "hasjobapp received invalid nonce in %r", request_token
         )
         flash(_("If you were attempting to login, please try again"), 'error')
         return metarefresh_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
     user_session = UserSession.get(request_token['sessionid'])
-    if user_session:
+    if user_session is not None:
         user = user_session.user
         login_internal(user, user_session)
         db.session.commit()
         flash(_("You are now logged in"), category='success')
         current_app.logger.debug(
-            "funnelapp login succeeded for %r, %r", user, user_session
+            "hasjobapp login succeeded for %r, %r", user, user_session
         )
         return metarefresh_redirect(get_next_url(session=True))
 
@@ -674,8 +656,9 @@ def funnelapp_login_callback(token):
     return redirect(url_for('index'))
 
 
-@funnelapp.route('/logout', endpoint='logout')
-def funnelapp_logout():
+# Retained for future hasjob integration
+# @hasjobapp.route('/logout', endpoint='logout')
+def hasjob_logout():
     # Revoke session and redirect to homepage. Don't bother to ask `app` to logout
     # as well since the session is revoked. `app` will notice and drop cookies on
     # the next request there

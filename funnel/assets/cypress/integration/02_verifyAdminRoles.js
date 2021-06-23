@@ -4,6 +4,9 @@ describe('Profile admin roles', function () {
   const profile = require('../fixtures/profile.json');
 
   it('Check roles of profile admins', function () {
+    cy.server();
+    cy.route('GET', '**/updates?*').as('fetch-updates');
+
     cy.login('/' + profile.title, admin.username, admin.password);
 
     cy.get('a[data-cy="admin-dropdown"]:visible').click();
@@ -26,6 +29,7 @@ describe('Profile admin roles', function () {
     cy.get('#member-form', { timeout: 10000 }).should('not.be.visible');
     cy.wait(1000);
     cy.visit('/updates');
+    cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(profile.title);
   });
 });

@@ -9,10 +9,10 @@ describe('Add a new submission', function () {
   it('Add submission', function () {
     cy.server();
     cy.route('GET', '**/admin').as('fetch-admin-panel');
-    cy.route('GET', '**/updates/*').as('fetch-updates');
+    cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
 
-    cy.login('/' + profile.title, user.username, user.password);
+    cy.login('/', user.username, user.password);
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
@@ -32,7 +32,7 @@ describe('Add a new submission', function () {
       .should('exist')
       .contains(proposal.title);
     cy.get('[data-cy="proposal-video"]').find('iframe').should('be.visible');
-    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
     cy.get('[data-cy-admin="edit"]').should('exist');
     cy.get('[data-cy-admin="delete"]').should('exist');

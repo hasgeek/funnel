@@ -45,12 +45,3 @@ class TestUserPhoneClaim(TestDatabaseFixture):
         result = str(models.UserPhoneClaim(phone=phone))
         assert isinstance(result, str)
         assert phone in result
-
-    def test_userphoneclaim_permissions(self):
-        """Verify that user has verify permission on a UserPhoneClaim instance."""
-        coin = models.User(username='coin', fullname='President Alma Coin')
-        phone = '9191919191'
-        phone_claim = models.UserPhoneClaim(phone=phone, user=coin)
-        permissions_expected = {'verify'}
-        permissions_received = phone_claim.permissions(coin)
-        assert permissions_expected == permissions_received

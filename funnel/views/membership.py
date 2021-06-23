@@ -1,4 +1,4 @@
-from flask import abort, g, redirect, request
+from flask import abort, redirect, request
 
 from baseframe import _
 from baseframe.forms import Form, render_form
@@ -12,7 +12,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp, signals
+from .. import app, signals
 from ..forms import (
     OrganizationMembershipForm,
     ProjectCrewMembershipForm,
@@ -29,17 +29,14 @@ from ..models import (
     ProjectCrewMembership,
     db,
 )
-from .decorators import legacy_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileViewMixin, ProjectViewMixin
+from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
 
 @Profile.views('members')
 @route('/<profile>/members')
 class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('', methods=['GET', 'POST'])
     @render_with('organization_membership.html.jinja2')
     def members(self):
@@ -152,9 +149,10 @@ OrganizationMembersView.init_app(app)
 
 @OrganizationMembership.views('main')
 @route('/<profile>/members/<membership>')
-class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
+class OrganizationMembershipView(
+    ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView
+):
     model = OrganizationMembership
-    __decorators__ = [legacy_redirect]
 
     route_model_map = {'profile': 'organization.name', 'membership': 'uuid_b58'}
 
@@ -171,7 +169,7 @@ class OrganizationMembershipView(UrlChangeCheck, UrlForView, ModelView):
         return obj
 
     def after_loader(self):
-        g.profile = self.obj.organization.profile
+        self.profile = self.obj.organization.profile
         super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
@@ -315,8 +313,6 @@ OrganizationMembershipView.init_app(app)
 @Project.views('crew')
 @route('/<profile>/<project>/crew')
 class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('', methods=['GET', 'POST'])
     @render_with('project_membership.html.jinja2')
     def crew(self):
@@ -416,16 +412,10 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
         return {'form': membership_form_html}
 
 
-@route('/<project>/crew', subdomain='<profile>')
-class FunnelProjectMembershipView(ProjectMembershipView):
-    pass
-
-
 ProjectMembershipView.init_app(app)
-FunnelProjectMembershipView.init_app(funnelapp)
 
 
-class ProjectCrewMembershipMixin(object):
+class ProjectCrewMembershipMixin(ProfileCheckMixin):
     model = ProjectCrewMembership
 
     route_model_map = {
@@ -447,8 +437,8 @@ class ProjectCrewMembershipMixin(object):
         return obj
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        super(ProjectCrewMembershipMixin, self).after_loader()
+        self.profile = self.obj.project.profile
+        super().after_loader()
 
 
 @ProjectCrewMembership.views('invite')
@@ -456,8 +446,6 @@ class ProjectCrewMembershipMixin(object):
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    __decorators__ = [legacy_redirect]
-
     def loader(self, profile, project, membership):
         obj = super().loader(profile, project, membership)
         if not obj.is_invite or obj.user != current_auth.user:
@@ -487,13 +475,7 @@ class ProjectCrewMembershipInviteView(
         return redirect(self.obj.project.url_for(), 303)
 
 
-@route('/<project>/crew/<membership>/invite', subdomain='<profile>')
-class FunnelProjectCrewMembershipInviteView(ProjectCrewMembershipInviteView):
-    pass
-
-
 ProjectCrewMembershipInviteView.init_app(app)
-FunnelProjectCrewMembershipInviteView.init_app(funnelapp)
 
 
 @ProjectCrewMembership.views('main')
@@ -501,8 +483,6 @@ FunnelProjectCrewMembershipInviteView.init_app(funnelapp)
 class ProjectCrewMembershipView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    __decorators__ = [legacy_redirect]
-
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
     @requires_login
@@ -612,10 +592,4 @@ class ProjectCrewMembershipView(
         return {'form': form_html}
 
 
-@route('/<project>/crew/<membership>', subdomain='<profile>')
-class FunnelProjectCrewMembershipView(ProjectCrewMembershipView):
-    pass
-
-
 ProjectCrewMembershipView.init_app(app)
-FunnelProjectCrewMembershipView.init_app(funnelapp)

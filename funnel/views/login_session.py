@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from functools import wraps
-from typing import Type
+from typing import Optional, Type
 
 from flask import (
     Response,
@@ -16,15 +16,18 @@ from flask import (
 )
 import itsdangerous
 
+import geoip2.errors
+
 from baseframe import _, request_is_xhr, statsd
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url
 
-from .. import app, funnelapp, lastuserapp
+from .. import app
 from ..forms import PasswordForm
 from ..models import (
+    AuthClient,
     AuthClientCredential,
     User,
     UserSession,
@@ -162,7 +165,12 @@ LoginManager.usermanager = LoginManager
 
 
 @UserSession.views('mark_accessed')
-def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
+def session_mark_accessed(
+    obj: UserSession,
+    auth_client: Optional[AuthClient] = None,
+    ipaddr: Optional[str] = None,
+    user_agent: Optional[str] = None,
+):
     """
     Mark a session as currently active.
 
@@ -174,10 +182,10 @@ def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
     # `accessed_at` won't be updated at that time.
     obj.accessed_at = db.func.utcnow()
     with db.session.no_autoflush:
-        if auth_client:
+        if auth_client is not None:
             if (
                 auth_client not in obj.auth_clients
-            ):  # self.auth_clients is defined via Client.user_sessions
+            ):  # self.auth_clients is defined via AuthClient.user_sessions
                 obj.auth_clients.append(auth_client)
             else:
                 # If we've seen this client in this session before, only update the
@@ -189,12 +197,40 @@ def session_mark_accessed(obj, auth_client=None, ipaddr=None, user_agent=None):
                     .values(accessed_at=db.func.utcnow())
                 )
         else:
-            obj.ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
-            obj.user_agent = (
+            ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
+            # Attempt to save geonameid and ASN from IP address
+            try:
+                if app.geoip_city is not None and (
+                    obj.geonameid_city is None or ipaddr != obj.ipaddr
+                ):
+                    city_lookup = app.geoip_city.city(ipaddr)
+                    obj.geonameid_city = city_lookup.city.geoname_id
+                    obj.geonameid_subdivision = (
+                        city_lookup.subdivisions.most_specific.geoname_id
+                    )
+                    obj.geonameid_country = city_lookup.country.geoname_id
+            except (ValueError, geoip2.errors.GeoIP2Error):
+                obj.geonameid_city = None
+                obj.geonameid_subdivision = None
+                obj.geonameid_country = None
+            try:
+                if app.geoip_asn is not None and (
+                    obj.geoip_asn is None or ipaddr != obj.ipaddr
+                ):
+                    asn_lookup = app.geoip_asn.asn(ipaddr)
+                    obj.geoip_asn = asn_lookup.autonomous_system_number
+            except (ValueError, geoip2.errors.GeoIP2Error):
+                obj.geoip_asn = None
+            # Save IP address and user agent if they've changed
+            if ipaddr != obj.ipaddr:
+                obj.ipaddr = ipaddr
+            user_agent = (
                 (str(request.user_agent.string[:250]) or '')
                 if user_agent is None
                 else user_agent
             )
+            if user_agent != obj.user_agent:
+                obj.user_agent = user_agent
 
     # Use integer id instead of uuid_b58 here because statsd documentation is
     # unclear on what data types a set accepts. Applies to both etsy's and telegraf.
@@ -208,9 +244,8 @@ def discard_temp_token():
     session.pop('temp_token_at', None)
 
 
+# Also add future hasjob app here
 @app.before_request
-@funnelapp.before_request
-@lastuserapp.before_request
 def clear_expired_temp_token():
     """
     Clear temp_token from session if it's not used (user abandoned the attempt).
@@ -219,10 +254,9 @@ def clear_expired_temp_token():
     :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`.
     """
     if 'temp_token_at' in session:
-        # Use naive datetime as the session can't handle tz-aware datetimes
         # Give the user 10 minutes to complete the action. Remove the token if it's
         # been longer than 10 minutes.
-        if session['temp_token_at'] < datetime.utcnow() - timedelta(minutes=10):
+        if session['temp_token_at'] < utcnow() - timedelta(minutes=10):
             discard_temp_token()
             current_app.logger.info("Cleared expired temp_token from session cookie")
     elif 'temp_token' in session:
@@ -230,9 +264,8 @@ def clear_expired_temp_token():
         session.pop('temp_token')
 
 
+# Also add future hasjob app here
 @app.after_request
-@funnelapp.after_request
-@lastuserapp.after_request
 def clear_old_session(response):
     for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
         if cookie_name in request.cookies:
@@ -243,12 +276,12 @@ def clear_old_session(response):
     return response
 
 
+# Also add future hasjob app here
 @app.after_request
-@funnelapp.after_request
-@lastuserapp.after_request
 def set_lastuser_cookie(response):
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if request_has_auth() and hasattr(current_auth, 'cookie'):
+        response.vary.add('Cookie')
         expires = utcnow() + timedelta(days=365)
         response.set_cookie(
             'lastuser',
@@ -287,9 +320,8 @@ def set_lastuser_cookie(response):
     return response
 
 
+# Also add future hasjob app here
 @app.after_request
-@funnelapp.after_request
-@lastuserapp.after_request
 def update_user_session_timestamp(response):
     """Mark a user session as accessed at the end of every request."""
     if request_has_auth() and current_auth.session:
@@ -448,7 +480,7 @@ def _client_login_inner():
             401,
             {'WWW-Authenticate': 'Basic realm="Client credentials"'},
         )
-    if credential:
+    if credential is not None:
         credential.accessed_at = db.func.utcnow()
         db.session.commit()
     add_auth_attribute('auth_client', credential.auth_client, actor=True)
@@ -543,7 +575,7 @@ def login_internal(user, user_session=None, login_service=None):
     """
     Login a user and create a session.
 
-    If the login is from funnelapp, reuse the existing session.
+    If the login is from funnelapp (future hasjob), reuse the existing session.
     """
     add_auth_attribute('user', user)
     if not user_session or user_session.user != user:
@@ -568,7 +600,7 @@ def logout_internal():
     session.pop('merge_buid', None)
     session.pop('userid_external', None)
     session.pop('avatar_url', None)
-    session.pop('login_nonce', None)  # Used by funnelapp
+    session.pop('login_nonce', None)  # Used by funnelapp (future: hasjob)
     current_auth.cookie.pop('sessionid', None)
     current_auth.cookie.pop('userid', None)
     session.permanent = False

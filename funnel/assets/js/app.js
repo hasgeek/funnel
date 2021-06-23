@@ -26,6 +26,7 @@ $(() => {
   Utils.collapse();
   Utils.smoothScroll();
   Utils.navSearchForm();
+  Utils.headerMenuDropdown();
   Utils.scrollTabs();
   Utils.truncate();
   Utils.showTimeOnCalendar();
@@ -46,6 +47,7 @@ $(() => {
   ) {
     Utils.handleCommentsSidebar();
   }
+  Utils.addVegaSupport();
 
   const intersectionObserverComponents = function () {
     if (document.querySelector('#page-navbar')) {
@@ -111,20 +113,6 @@ $(() => {
   if ($.cookie('timezone') === null) {
     $.cookie('timezone', jstz.determine().name(), { path: '/' });
   }
-
-  $.ajax({
-    type: 'GET',
-    url: window.Hasgeek.config.notificationCount,
-    dataType: 'json',
-    timeout: window.Hasgeek.config.ajaxTimeout,
-    success: function (responseData) {
-      if (responseData.unread) {
-        $('.header__nav-links--updates').addClass(
-          'header__nav-links--updates--unread'
-        );
-      }
-    },
-  });
 });
 
 if (

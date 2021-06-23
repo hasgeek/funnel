@@ -10,7 +10,7 @@
 .webassets-cache
 __pycache__
 
-# MacOS File
+# MacOS file
 .DS_Store
 
 # Assets and static files
@@ -26,6 +26,9 @@ node_modules
 .webassets-cache
 baseframe-packed.*
 
+# Download files
+geoname_data
+
 # Log files
 error.log
 error.log.*
@@ -33,9 +36,7 @@ ghostdriver.log
 
 # Instance Files that should not be checked-in.
 instance/development.py
-instance/funnelapp.py
 instance/hasgeekapp.py
-instance/lastuserapp.py
 instance/production.py
 instance/settings.py
 

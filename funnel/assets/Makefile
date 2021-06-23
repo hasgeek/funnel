@@ -9,7 +9,7 @@ assetsonly:
 
 source_dir = ../translations
 target_dir = ../static/translations
-baseframe_dir := $(shell python ../../manage.py baseframe_translations_path)
+baseframe_dir := $(shell cd ../../; flask baseframe_translations_path)
 
 babel:
 	@mkdir -p $(target_dir)

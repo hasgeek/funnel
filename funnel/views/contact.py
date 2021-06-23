@@ -1,6 +1,6 @@
-import six
-
 from datetime import datetime, timedelta
+from io import StringIO
+from typing import Dict, Optional
 import csv
 
 from sqlalchemy.exc import IntegrityError
@@ -10,7 +10,6 @@ from flask import (
     current_app,
     jsonify,
     make_response,
-    redirect,
     render_template,
     request,
 )
@@ -20,22 +19,20 @@ from coaster.auth import current_auth
 from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
-from .. import app, funnelapp
+from .. import app
 from ..models import ContactExchange, Project, TicketParticipant, db
 from ..utils import abort_null, format_twitter_handle
-from .helpers import app_url_for
 from .login_session import requires_login
 
 
-def contact_details(ticket_participant):
-    if ticket_participant:
-        return {
-            'fullname': ticket_participant.fullname,
-            'company': ticket_participant.company,
-            'email': ticket_participant.email,
-            'twitter': format_twitter_handle(ticket_participant.twitter),
-            'phone': ticket_participant.phone,
-        }
+def contact_details(ticket_participant: TicketParticipant) -> Dict[str, Optional[str]]:
+    return {
+        'fullname': ticket_participant.fullname,
+        'company': ticket_participant.company,
+        'email': ticket_participant.email,
+        'twitter': format_twitter_handle(ticket_participant.twitter),
+        'phone': ticket_participant.phone,
+    }
 
 
 @route('/account/contacts')
@@ -63,7 +60,7 @@ class ContactView(ClassView):
 
     def contacts_to_csv(self, contacts, timezone, filename):
         """Return a CSV of given contacts."""
-        outfile = six.StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(
             [
@@ -154,16 +151,14 @@ class ContactView(ClassView):
     def connect(self, puk, key):
         """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
-        if not ticket_participant:
+        if ticket_participant is None:
             return make_response(
                 jsonify(status='error', message="Attendee details not found"), 404
             )
         project = ticket_participant.project
-        if project.schedule_end_at:
+        if project.end_at:
             if (
-                midnight_to_utc(
-                    project.schedule_end_at + timedelta(days=1), project.timezone
-                )
+                midnight_to_utc(project.end_at + timedelta(days=1), project.timezone)
                 < utcnow()
             ):
                 return make_response(
@@ -188,16 +183,4 @@ class ContactView(ClassView):
             )
 
 
-@route('/account/contacts')
-class FunnelContactView(ClassView):
-    @route('', endpoint='contacts')
-    def contacts(self):
-        return redirect(app_url_for(app, 'contacts', _external=True))
-
-    @route('', endpoint='scan_contact')
-    def scan(self):
-        return redirect(app_url_for(app, 'scan_contact', _external=True))
-
-
 ContactView.init_app(app)
-FunnelContactView.init_app(funnelapp)

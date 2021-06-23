@@ -6,7 +6,6 @@ from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
 from coaster.auth import current_auth
-from coaster.utils import require_one_of
 
 from ..forms import SavedProjectForm
 from ..models import (
@@ -15,7 +14,6 @@ from ..models import (
     Project,
     ProjectRedirect,
     Proposal,
-    ProposalRedirect,
     ProposalSuuidRedirect,
     Session,
     TicketEvent,
@@ -27,10 +25,27 @@ from ..models import (
 from ..typing import ReturnRenderWith
 
 
-class ProjectViewMixin(object):
+class ProfileCheckMixin:
+    """Base class checks for suspended profiles."""
+
+    profile = None
+
+    def after_loader(self):
+        profile = self.profile
+        if profile is None:
+            raise ValueError("Subclass must set self.profile")
+        g.profile = profile
+        if profile.user is not None and not profile.user.state.ACTIVE:
+            abort(410)
+
+        return super().after_loader()
+
+
+class ProjectViewMixin(ProfileCheckMixin):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
     SavedProjectForm = SavedProjectForm
+    CsrfForm = forms.Form
 
     def loader(self, profile, project, session=None):
         proj = (
@@ -58,100 +73,79 @@ class ProjectViewMixin(object):
     def after_loader(self):
         if isinstance(self.obj, ProjectRedirect):
             if self.obj.project:
-                g.profile = self.obj.project.profile
+                self.profile = self.obj.project.profile
                 return redirect(self.obj.project.url_for())
             else:
                 abort(410)
-        g.profile = self.obj.profile
-        return super(ProjectViewMixin, self).after_loader()
+        self.profile = self.obj.profile
+        return super().after_loader()
 
     @property
     def project_currently_saved(self):
         return self.obj.is_saved_by(current_auth.user)
 
 
-class ProfileViewMixin(object):
+class ProfileViewMixin(ProfileCheckMixin):
     model = Profile
     route_model_map = {'profile': 'name'}
     SavedProjectForm = SavedProjectForm
+    CsrfForm = forms.Form
 
     def loader(self, profile):
         profile = self.model.get(profile)
-        if not profile:
+        if profile is None:
             abort(404)
-        g.profile = profile
         return profile
 
+    def after_loader(self):
+        self.profile = self.obj
+        return super().after_loader()
 
-class ProposalViewMixin(object):
+
+class ProposalViewMixin(ProfileCheckMixin):
     model = Proposal
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'url_name_uuid_b58': 'url_name_uuid_b58',
-        'url_id_name': 'url_id_name',
+        'proposal': 'url_name_uuid_b58',
     }
 
-    def loader(self, profile, project, url_name_uuid_b58=None, url_id_name=None):
-        require_one_of(url_name_uuid_b58=url_name_uuid_b58, url_id_name=url_id_name)
-        if url_name_uuid_b58:
-            proposal = (
-                self.model.query.join(Project, Profile)
-                .filter(Proposal.url_name_uuid_b58 == url_name_uuid_b58)
-                .first()
-            )
-            if proposal is None:
-                if request.method == 'GET':
-                    return (
-                        ProposalSuuidRedirect.query.join(Proposal)
-                        .filter(
-                            ProposalSuuidRedirect.suuid
-                            == url_name_uuid_b58.split('-')[-1]
-                        )
-                        .first_or_404()
-                    )
-                else:
-                    abort(404)
-        else:
-            proposal = (
-                self.model.query.join(Project, Profile)
-                .filter(
-                    db.func.lower(Profile.name) == db.func.lower(profile),
-                    Project.name == project,
-                    Proposal.url_name == url_id_name,
+    def loader(
+        self, profile: str, project: str, proposal: str  # skipcq: PYL-W0613
+    ) -> Union[Proposal, ProposalSuuidRedirect]:
+        # `profile` and `project` are part of the URL, but unnecessary for loading
+        # a proposal since it has a unique id embedded. The function parameters are not
+        # used in the query.
+        obj = (
+            self.model.query.join(Project, Profile)
+            .filter(Proposal.url_name_uuid_b58 == proposal)
+            .first()
+        )
+        if obj is None:
+            if request.method == 'GET':
+                return (
+                    ProposalSuuidRedirect.query.join(Proposal)
+                    .filter(ProposalSuuidRedirect.suuid == proposal.split('-')[-1])
+                    .first_or_404()
                 )
-                .first()
-            )
-            if proposal is None:
-                if request.method == 'GET':
-                    redirect = (
-                        ProposalRedirect.query.join(Project, Profile)
-                        .filter(
-                            db.func.lower(Profile.name) == db.func.lower(profile),
-                            Project.name == project,
-                            ProposalRedirect.url_name == url_id_name,
-                        )
-                        .first_or_404()
-                    )
-                    return redirect
-                else:
-                    abort(404)
-        if proposal.project.state.DELETED or proposal.state.DELETED:
+            abort(404)
+
+        if obj.project.state.DELETED or obj.state.DELETED:
             abort(410)
-        return proposal
+        return obj
 
     def after_loader(self):
-        if isinstance(self.obj, (ProposalRedirect, ProposalSuuidRedirect)):
+        if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
-                g.profile = self.obj.proposal.project.profile
+                self.profile = self.obj.proposal.project.profile
                 return redirect(self.obj.proposal.url_for())
             else:
                 abort(410)
-        g.profile = self.obj.project.profile
-        return super(ProposalViewMixin, self).after_loader()
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
 
-class SessionViewMixin(object):
+class SessionViewMixin(ProfileCheckMixin):
     model = Session
     route_model_map = {
         'profile': 'project.profile.name',
@@ -163,25 +157,21 @@ class SessionViewMixin(object):
     def loader(self, profile, project, session):
         session = (
             self.model.query.join(Project, Profile)
-            .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
-                Project.name == project,
-                Session.url_name_uuid_b58 == session,
-            )
+            .filter(Session.url_name_uuid_b58 == session)
             .first_or_404()
         )
         return session
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        return super(SessionViewMixin, self).after_loader()
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @property
     def project_currently_saved(self):
         return self.obj.project.is_saved_by(current_auth.user)
 
 
-class VenueViewMixin(object):
+class VenueViewMixin(ProfileCheckMixin):
     model = Venue
     route_model_map = {
         'profile': 'project.profile.name',
@@ -199,11 +189,14 @@ class VenueViewMixin(object):
             )
             .first_or_404()
         )
-        g.profile = venue.project.profile
         return venue
 
+    def after_loader(self):
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
-class VenueRoomViewMixin(object):
+
+class VenueRoomViewMixin(ProfileCheckMixin):
     model = VenueRoom
     route_model_map = {
         'profile': 'venue.project.profile.name',
@@ -223,11 +216,14 @@ class VenueRoomViewMixin(object):
             )
             .first_or_404()
         )
-        g.profile = room.venue.project.profile
         return room
 
+    def after_loader(self):
+        self.profile = self.obj.venue.project.profile
+        return super().after_loader()
 
-class TicketEventViewMixin(object):
+
+class TicketEventViewMixin(ProfileCheckMixin):
     model = TicketEvent
     route_model_map = {
         'profile': 'project.profile.name',
@@ -247,11 +243,11 @@ class TicketEventViewMixin(object):
         )
 
     def after_loader(self):
-        g.profile = self.obj.project.profile
-        return super(TicketEventViewMixin, self).after_loader()
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
 
-class DraftViewMixin(object):
+class DraftViewMixin:
     obj: UuidMixin
     model: Type[UuidMixin]
 
@@ -270,7 +266,7 @@ class DraftViewMixin(object):
         if draft is not None:
             db.session.delete(draft)
         else:
-            raise ValueError(_("There is no draft for the given object."))
+            raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
         self, obj: Optional[UuidMixin] = None
@@ -295,7 +291,7 @@ class DraftViewMixin(object):
                 {
                     'status': 'error',
                     'error': 'form_missing_revision_field',
-                    'error_description': _("Form must contain a revision ID."),
+                    'error_description': _("Form must contain a revision ID"),
                 },
                 400,
             )
@@ -323,7 +319,8 @@ class DraftViewMixin(object):
                             'status': 'error',
                             'error': 'missing_or_invalid_revision',
                             'error_description': _(
-                                "There have been changes to this draft since you last edited it. Please reload."
+                                "There have been changes to this draft since you last"
+                                " edited it. Please reload"
                             ),
                         },
                         400,
@@ -347,7 +344,8 @@ class DraftViewMixin(object):
                         'status': 'error',
                         'error': 'invalid_or_expired_revision',
                         'error_description': _(
-                            "Invalid revision ID or the existing changes have been submitted already. Please reload."
+                            "Invalid revision ID or the existing changes have been"
+                            " submitted already. Please reload"
                         ),
                     },
                     400,

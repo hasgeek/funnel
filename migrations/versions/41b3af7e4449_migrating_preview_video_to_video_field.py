@@ -9,12 +9,11 @@ Create Date: 2020-04-15 10:36:15.558161
 from textwrap import dedent
 import csv
 import re
+import urllib.parse
 
 from alembic import op
 from sqlalchemy.sql import column, table
 import sqlalchemy as sa
-
-from funnel.models.video import make_video_url, parse_video_url
 
 # revision identifiers, used by Alembic.
 revision = '41b3af7e4449'
@@ -22,7 +21,7 @@ down_revision = '530c22761e27'
 branch_labels = None
 depends_on = None
 
-
+# --- Tables ---------------------------------------------------------------------------
 proposal = table(
     'proposal',
     column('id', sa.Integer()),
@@ -32,7 +31,102 @@ proposal = table(
 )
 
 
+# --- Functions ------------------------------------------------------------------------
+
 troublesome_filename = 'preview-video-troublesome.csv'
+
+
+def parse_video_url(video_url: str):
+    video_source = 'raw'
+    video_id = video_url
+
+    parsed = urllib.parse.urlparse(video_url)
+    if parsed.netloc is None:
+        raise ValueError("Invalid video URL")
+
+    if parsed.netloc in ['youtube.com', 'www.youtube.com', 'm.youtube.com']:
+        if parsed.path == '/watch':
+            queries = urllib.parse.parse_qs(parsed.query)
+            if 'v' in queries and queries['v']:
+                video_id = queries['v'][0]
+                video_source = 'youtube'
+            else:
+                raise ValueError(
+                    f"{video_url}: YouTube video URLs need to be in the format: "
+                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                )
+        elif parsed.path.startswith('/embed'):
+            video_id = parsed.path.lstrip('/embed/')
+            if video_id:
+                video_id = video_id
+                video_source = 'youtube'
+            else:
+                raise ValueError(
+                    f"{video_url}: YouTube video URLs need to be in the format: "
+                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                )
+        else:
+            raise ValueError(
+                f"{video_url}: YouTube video URLs need to be in the format: "
+                "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            )
+    elif parsed.netloc == 'youtu.be':
+        video_id = parsed.path.lstrip('/')
+        if video_id:
+            video_id = video_id
+            video_source = 'youtube'
+        else:
+            raise ValueError(
+                "YouTube short URLs need to be in the format: "
+                "https://youtu.be/dQw4w9WgXcQ"
+            )
+    elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
+        video_id = parsed.path.lstrip('/')
+        if video_id:
+            video_id = video_id
+            video_source = 'vimeo'
+        else:
+            raise ValueError(
+                "Vimeo video URLs need to be in the format: "
+                "https://vimeo.com/336892869"
+            )
+    elif parsed.netloc == 'drive.google.com':
+        if parsed.path.startswith('/open'):
+            queries = urllib.parse.parse_qs(parsed.query)
+            if 'id' in queries and queries['id']:
+                video_id = queries['id'][0]
+                video_source = 'googledrive'
+            else:
+                raise ValueError(
+                    f"{video_url}: Google drive video URLs need to be in the format: "
+                    "https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or "
+                    "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
+                )
+        elif parsed.path.startswith('/file/d/'):
+            video_id = parsed.path.lstrip('/file/d/').rstrip('/view').rstrip('/preview')
+            video_source = 'googledrive'
+        else:
+            raise ValueError(
+                f"{video_url}: Google drive video URLs need to be in the format: "
+                "https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or "
+                "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
+            )
+    return video_source, video_id
+
+
+def make_video_url(video_source: str, video_id: str):
+    if video_source == 'youtube':
+        return f'https://www.youtube.com/watch?v={video_id}'
+    elif video_source == 'vimeo':
+        return f'https://vimeo.com/{video_id}'
+    elif video_source == 'googledrive':
+        return f'https://drive.google.com/file/d/{video_id}/view'
+    elif video_source == 'raw':
+        return video_id
+    raise ValueError("Unknown video source")
+
+
+# --- Migrations -----------------------------------------------------------------------
 
 
 def upgrade():

@@ -241,6 +241,10 @@ const Schedule = {
         this.animateWindowScrollWithHeader();
         this.handleBrowserResize();
         this.handleBrowserHistory();
+        $('#session-modal').on($.modal.OPEN, () => {
+          Utils.addVegaSupport();
+          window.activateZoomPopup();
+        });
       },
     });
 

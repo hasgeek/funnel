@@ -23,11 +23,3 @@ class TestTeam(TestDatabaseFixture):
         pickername = dachshunds.pickername
         assert isinstance(pickername, str)
         assert title == pickername
-
-    def test_team_permissions(self):
-        """Test for retrieving permissions for owner of a team."""
-        crusoe = self.fixtures.crusoe
-        dachshunds = self.fixtures.dachshunds
-        permissions_expected = {'edit', 'delete'}
-        permissions_received = dachshunds.permissions(crusoe)
-        assert permissions_expected == permissions_received

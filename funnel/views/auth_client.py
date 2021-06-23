@@ -8,7 +8,7 @@ from coaster.views import (
     ModelView,
     UrlForView,
     render_with,
-    requires_permission,
+    requires_roles,
     route,
 )
 
@@ -29,6 +29,7 @@ from ..models import (
     User,
     db,
 )
+from ..typing import ReturnView
 from .login_session import requires_login, requires_sudo
 
 # --- Routes: client apps -----------------------------------------------------
@@ -103,7 +104,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('', methods=['GET'])
     @render_with('auth_client.html.jinja2')
-    @requires_permission('view')
+    @requires_roles({'all'})
     def view(self):
         if self.obj.user:
             permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
@@ -113,7 +114,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit')
+    @requires_roles({'owner'})
     def edit(self):
         form = AuthClientForm(obj=self.obj, model=AuthClient)
         form.edit_user = current_auth.user
@@ -156,7 +157,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('delete')
+    @requires_roles({'owner'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -165,7 +166,7 @@ class AuthClientView(UrlForView, ModelView):
             message=_(
                 "Delete application ‘{title}’? This will also delete all associated"
                 " content including access tokens issued on behalf of users. This"
-                " operation is permanent and cannot be undone."
+                " operation is permanent and cannot be undone"
             ).format(title=self.obj.title),
             success=_(
                 "You have deleted application ‘{title}’ and all its associated"
@@ -176,9 +177,9 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('disconnect', methods=['GET', 'POST'])
     @requires_sudo
-    def disconnect(self):
+    def disconnect(self) -> ReturnView:
         auth_token = self.obj.authtoken_for(current_auth.user)
-        if not auth_token:
+        if auth_token is None:
             return redirect(self.obj.url_for())
 
         return render_delete_sqla(
@@ -188,7 +189,7 @@ class AuthClientView(UrlForView, ModelView):
             message=_(
                 "Disconnect application {app}? This will not remove any of your data in"
                 " this app, but will prevent it from accessing any further data from"
-                " your Hasgeek account."
+                " your Hasgeek account"
             ).format(app=self.obj.title),
             delete_text=_("Disconnect"),
             success=_("You have disconnected {app} from your account").format(
@@ -199,7 +200,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('cred', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit')
+    @requires_roles({'owner'})
     def cred_new(self):
         form = AuthClientCredentialForm()
         if request.method == 'GET' and not self.obj.credentials:
@@ -224,7 +225,7 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('perms/new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
+    @requires_roles({'owner'})
     def permission_user_new(self):
         if self.obj.user:
             form = UserPermissionAssignForm()
@@ -242,7 +243,7 @@ class AuthClientView(UrlForView, ModelView):
                 permassign = AuthClientUserPermissions.get(
                     auth_client=self.obj, user=form.user.data
                 )
-                if permassign:
+                if permassign is not None:
                     perms.update(permassign.access_permissions.split())
                 else:
                     permassign = AuthClientUserPermissions(
@@ -253,7 +254,7 @@ class AuthClientView(UrlForView, ModelView):
                 permassign = AuthClientTeamPermissions.get(
                     auth_client=self.obj, team=form.team
                 )
-                if permassign:
+                if permassign is not None:
                     perms.update(permassign.access_permissions.split())
                 else:
                     permassign = AuthClientTeamPermissions(
@@ -284,7 +285,7 @@ class AuthClientView(UrlForView, ModelView):
             message=Markup(
                 _(
                     'Add and edit teams from <a href="{url}">your organization’s teams'
-                    ' page</a>.'
+                    ' page</a>'
                 ).format(url=self.obj.organization.url_for('teams'))
             )
             if self.obj.organization
@@ -315,7 +316,7 @@ class AuthClientCredentialView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('delete')
+    @requires_roles({'owner'})
     def delete(self):
         return render_delete_sqla(
             self.obj,
@@ -341,23 +342,22 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
     route_model_map = {'app': 'auth_client.buid', 'user': 'user.buid'}
 
-    def loader(self, app, user):
-        user = User.get(buid=user)
+    def loader(self, app: str, user: str) -> AuthClientUserPermissions:
+        userobj = User.get(buid=user)
         perm = (
             self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == app, self.model.user == user)
+            .filter(AuthClient.buid == app, self.model.user == userobj)
             .one_or_404()
         )
         return perm
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
-    def edit(self):
+    @requires_roles({'owner'})
+    def edit(self) -> ReturnView:
         form = AuthClientPermissionEditForm()
-        if request.method == 'GET':
-            if self.obj:
-                form.perms.data = self.obj.access_permissions
+        if request.method == 'GET' and self.obj:
+            form.perms.data = self.obj.access_permissions
         if form.validate_on_submit():
             perms = ' '.join(sorted(form.perms.data.split()))
             if not perms:
@@ -390,8 +390,8 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('assign-permissions')
-    def delete(self):
+    @requires_roles({'owner'})
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,
@@ -415,23 +415,22 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
     route_model_map = {'app': 'auth_client.buid', 'team': 'team.buid'}
 
-    def loader(self, app, team):
-        team = Team.get(buid=team)
+    def loader(self, app: str, team: str) -> AuthClientTeamPermissions:
+        teamobj = Team.get(buid=team)
         perm = (
             self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == app, self.model.team == team)
+            .filter(AuthClient.buid == app, self.model.team == teamobj)
             .one_or_404()
         )
         return perm
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
-    def edit(self):
+    @requires_roles({'owner'})
+    def edit(self) -> ReturnView:
         form = AuthClientPermissionEditForm()
-        if request.method == 'GET':
-            if self.obj:
-                form.perms.data = self.obj.access_permissions
+        if request.method == 'GET' and self.obj:
+            form.perms.data = self.obj.access_permissions
         if form.validate_on_submit():
             perms = ' '.join(sorted(form.perms.data.split()))
             if not perms:
@@ -464,8 +463,8 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('assign-permissions')
-    def delete(self):
+    @requires_roles({'owner'})
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,

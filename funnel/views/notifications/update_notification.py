@@ -3,6 +3,7 @@ from flask import render_template
 from baseframe import _, __
 
 from ...models import NewUpdateNotification, Update
+from ...transports.sms import TwoLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 
@@ -38,10 +39,12 @@ class RenderNewUpdateNotification(RenderNotification):
     def email_content(self):
         return render_template('notifications/update_new_email.html.jinja2', view=self)
 
-    def sms(self):
-        return _("Update in {project}: {update} {url}").format(
-            project=self.update.project.joined_title('>'),
-            update=self.update.title,
+    def sms(self) -> TwoLineTemplate:
+        return TwoLineTemplate(
+            text1=_("Update in {project}:").format(
+                project=self.update.project.joined_title('>')
+            ),
+            text2=self.update.title,
             url=shortlink(
                 self.update.url_for(_external=True, **self.tracking_tags('sms'))
             ),

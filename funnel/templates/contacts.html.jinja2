@@ -5,21 +5,13 @@
 {% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
+  <body class="mui--bg-primary hg-app tabs-navbar">
 {% endblock %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          {{ account_tabs(active_tab='contacts') }}
-        </div>
-      </div>
+      {{ account_tabs(active_tab='contacts') }}
     </div>
   </div>
 {%- endblock %}

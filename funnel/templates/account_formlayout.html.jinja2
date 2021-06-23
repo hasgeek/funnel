@@ -4,11 +4,7 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="login-page hg-app no-sticky-header">
-  {%- else %}
-    <body class="login-page no-sticky-header">
-  {%- endif %}
+  <body class="login-page hg-app no-sticky-header">
 {% endblock %}
 
 {% block headline %}{% endblock %}
@@ -20,7 +16,7 @@
 
   <div class="alert alert--error cookies-required-alert alert--dismissable">
     <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-    <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
+    <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page{% endtrans %}</p>
   </div>
 
   <div class="login-page-wrapper">
@@ -45,6 +41,15 @@
 {% endblock %}
 
 {% block layoutscripts %}
+  <script type="text/javascript">
+    window.Hasgeek = {};
+    window.Hasgeek.config = {};
+    window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
+    window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
+    window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
+    window.Hasgeek.config.accountMenu = {{ url_for('account_menu')|tojson }};
+  </script>
+  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
   {{ widget_ext_scripts(form) }}
   <script type="text/javascript">
     $(function() {

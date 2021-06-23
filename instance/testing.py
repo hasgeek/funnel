@@ -6,7 +6,11 @@ SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
+SQLALCHEMY_BINDS = {
+    'geoname': 'postgresql:///geoname_testing',
+}
 SERVER_NAME = 'funnel.travis.local:3002'
+SHORTLINK_DOMAIN = 'funnel.travis.local:3002'
 DEFAULT_DOMAIN = 'funnel.travis.local'
 STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
@@ -24,7 +28,7 @@ RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = environ.get('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = environ.get('RECAPTCHA_PRIVATE_KEY')
 RECAPTCHA_OPTIONS = ''
-WTF_CSRF_ENABLED = False
+WTF_CSRF_ENABLED = True
 
 YOUTUBE_API_KEY = environ.get('YOUTUBE_API_KEY', '')
 
@@ -62,7 +66,7 @@ GA_CODE = environ.get('GA_CODE')
 SMS_EXOTEL_SID = environ.get('SMS_EXOTEL_SID')
 SMS_EXOTEL_TOKEN = environ.get('SMS_EXOTEL_TOKEN')
 SMS_EXOTEL_FROM = environ.get('SMS_EXOTEL_FROM')
-SMS_EXOTEL_DLT_ID = environ.get('SMS_EXOTEL_DLT_ID')
+SMS_DLT_ENTITY_ID = environ.get('SMS_DLT_ENTITY_ID')
 
 #: Twilio support for non-indian numbers
 SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')

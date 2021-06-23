@@ -5,6 +5,9 @@ describe('Test updates feature', function () {
   const project = require('../fixtures/project.json');
 
   it('Post update on project page', function () {
+    cy.server();
+    cy.route('GET', '**/updates?*').as('fetch-updates');
+
     cy.login('/', editor.username, editor.password);
     cy.get('.upcoming')
       .find('.card--upcoming')
@@ -62,7 +65,7 @@ describe('Test updates feature', function () {
     cy.wait(2000);
     cy.login('/', user.username, user.password);
     cy.visit('/updates');
-    cy.wait(1000);
+    cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(project.update_title);
   });
 });

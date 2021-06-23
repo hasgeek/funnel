@@ -1,3 +1,4 @@
+from copy import deepcopy
 from textwrap import dedent
 from typing import Dict, Iterable, Optional, Set, Type, Union
 import re
@@ -11,6 +12,13 @@ from flask import current_app
 
 from furl import furl
 from zxcvbn import zxcvbn
+import pymdownx.superfences
+
+from coaster.utils import (
+    default_markdown_extension_configs,
+    default_markdown_extensions,
+    make_name,
+)
 
 from ..typing import T
 from . import UrlType, db
@@ -18,6 +26,7 @@ from . import UrlType, db
 __all__ = [
     'RESERVED_NAMES',
     'password_policy',
+    'markdown_content_options',
     'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
@@ -25,6 +34,8 @@ __all__ = [
     'password_policy',
     'valid_name',
     'valid_username',
+    'quote_like',
+    'ImgeeFurl',
     'ImgeeType',
 ]
 
@@ -141,6 +152,36 @@ _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
 visual_field_delimiter = ' ¦ '
+
+markdown_content_options: dict = {
+    'extensions': deepcopy(default_markdown_extensions),
+    'extension_configs': deepcopy(default_markdown_extension_configs),
+}
+
+markdown_content_options['extensions'].append('toc')  # Allow a table of contents
+markdown_content_options['extension_configs']['toc'] = {
+    # Make headings link to themselves, for easier sharing
+    'anchorlink': True,
+    # Add a `h:` prefix to the heading id, to avoid conflict with template identifiers
+    'slugify': lambda value, separator: ('h:' + make_name(value, delim=separator)),
+}
+
+# Custom fences must use <pre><code> blocks and not <div> blocks, as linkify will mess
+# with links inside <div> blocks
+markdown_content_options['extension_configs'].setdefault('pymdownx.superfences', {})[
+    'custom_fences'
+] = [
+    {
+        'name': 'mermaid',
+        'class': 'language-placeholder language-mermaid',
+        'format': pymdownx.superfences.fence_code_format,
+    },
+    {
+        'name': 'vega-lite',
+        'class': 'language-placeholder language-vega-lite',
+        'format': pymdownx.superfences.fence_code_format,
+    },
+]
 
 
 def add_to_class(cls: Type, name: Optional[str] = None):
@@ -262,6 +303,22 @@ def pgquote(identifier: str) -> str:
     )
 
 
+def quote_like(query):
+    """
+    Construct a LIKE query.
+
+    Usage::
+
+        column.like(quote_like(q))
+    """
+    # Escape the '%' and '_' wildcards in SQL LIKE clauses.
+    # Some SQL dialects respond to '[' and ']', so remove them.
+    return (
+        query.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
+        + '%'
+    )
+
+
 def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
@@ -291,7 +348,7 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
 
     To extract the SQL required in a migration:
 
-        $ python manage.py shell
+        $ flask shell
         >>> print(models.add_search_trigger(models.MyModel, 'search_vector')['trigger'])
 
     Available keys: ``update``, ``trigger`` (for upgrades) and ``drop`` (for downgrades).
@@ -413,7 +470,7 @@ class ImgeeType(UrlType):
     url_parser = ImgeeFurl
 
     def process_bind_param(self, value, dialect):
-        value = super(UrlType, self).process_bind_param(value, dialect)
+        value = super().process_bind_param(value, dialect)
         if value:
             allowed_domains = current_app.config.get('IMAGE_URL_DOMAINS', [])
             allowed_schemes = current_app.config.get('IMAGE_URL_SCHEMES', [])

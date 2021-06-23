@@ -9,11 +9,11 @@ describe('Confirm submission', function () {
   it('Confirm submission', function () {
     cy.server();
     cy.route('GET', '**/admin').as('fetch-admin-panel');
-    cy.route('GET', '**/updates/*').as('fetch-updates');
+    cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
     cy.route('GET', '**/comments').as('fetch-comment-sidebar');
 
-    cy.login('/' + profile.title, editor.username, editor.password);
+    cy.login('/', editor.username, editor.password);
 
     cy.get('a[data-cy-title="' + project.title + '"]').click();
     cy.location('pathname').should('contain', project.url);
@@ -21,12 +21,12 @@ describe('Confirm submission', function () {
     cy.get('#search').type(proposal.title);
     cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
 
-    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
+    cy.get('a[data-cy="editor-panel"]:visible').click();
     cy.wait('@fetch-admin-panel');
     cy.get('#label-select').click();
-    cy.get('#label-dropdown label').contains(labels[2].title).click();
+    cy.get('#label-dropdown label').contains(labels[1].title).click();
     cy.get('#label-dropdown label').contains(labels[3].title).click();
     cy.get('#label-select').click();
     cy.get('form.add-label-form')
@@ -42,30 +42,30 @@ describe('Confirm submission', function () {
       });
     });
 
-    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
+    cy.get('a[data-cy="editor-panel"]:visible').click();
     cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="awaiting_details"]')
       .click();
 
-    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
+    cy.get('a[data-cy="editor-panel"]:visible').click();
     cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="under_evaluation"]')
       .click();
 
-    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('.proposal__section').find('a[data-cy="editor-panel"]').click();
+    cy.get('a[data-cy="editor-panel"]:visible').click();
     cy.wait('@fetch-admin-panel');
     cy.get('[data-cy="proposal-status"]')
       .find('button[value="confirm"]')
       .click();
-    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
     cy.get('input#featured-proposal-desktop').click({ force: true });
 
@@ -82,7 +82,7 @@ describe('Confirm submission', function () {
 
     cy.get('a[data-cy="project-page"]').click();
     cy.get('[data-cy="proposal-card"]').contains(proposal.title).click();
-    cy.get('.proposal__section').find('a[data-cy="proposal-menu"]').click();
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
     cy.get('input#featured-proposal-desktop').click({ force: true });
     cy.get('a[data-cy="project-page"]').click();

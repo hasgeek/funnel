@@ -27,14 +27,14 @@ def getuser(name: str) -> Optional[User]:
         # EmailAddress model directly, doing a join with UserEmail and UserEmailClaim.
         useremail: Union[None, UserEmail, UserEmailClaim]
         useremail = UserEmail.get(email=name)
-        if not useremail:
+        if useremail is None:
             # If there's no verified email address, look for a claim.
             useremail = (
                 UserEmailClaim.all(email=name)
                 .order_by(UserEmailClaim.created_at)
                 .first()
             )
-        if useremail and useremail.user is not None and useremail.user.state.ACTIVE:
+        if useremail is not None and useremail.user.state.ACTIVE:
             # Return user only if in active state
             return useremail.user
         return None
@@ -134,8 +134,8 @@ def do_migrate_instances(
                         # The target column (typically user_id) is part of a unique
                         # or primary key constraint. We can't migrate automatically.
                         current_app.logger.error(
-                            "do_migrate_table interrupted because column is part of a "
-                            "unique constraint: %s",
+                            "do_migrate_table interrupted because column is part of a"
+                            " unique constraint: %s",
                             column,
                         )
                         return False
@@ -177,8 +177,8 @@ def do_migrate_instances(
                 except IncompleteUserMigration:
                     safe_to_remove_instance = False
                     current_app.logger.error(
-                        "_do_merge_into interrupted because IncompleteUserMigration "
-                        "raised by %s",
+                        "_do_merge_into interrupted because IncompleteUserMigration"
+                        " raised by %s",
                         model,
                     )
             else:

@@ -11,7 +11,7 @@
 
 {% macro labelformfields(lform, subform=false, empty=false) %}
   {%- if subform %}
-    <div class="ui-dragable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+    <div class="ui-draggable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
       {{ lform.hidden_tag() }}
       {{ faicon(icon='grip-vertical', css_class='mui--text-light  mui--align-middle') }}
       {{ renderfield(lform.seq, css_class="seq-input") }}
@@ -117,7 +117,7 @@
       $("#child-form").each(applySortable);
 
       $('#label-form').on('submit', function(event) {
-        var optionCount = $("#child-form").find('.ui-dragable-box').length;
+        var optionCount = $("#child-form").find('.ui-draggable-box').length;
         if(optionCount === 1) {
           event.preventDefault();
           window.toastr.error('Minimum 2 or more options are needed');

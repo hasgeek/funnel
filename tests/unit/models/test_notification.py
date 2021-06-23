@@ -292,6 +292,7 @@ def test_user_notification_preferences(notification_types, db_session):
     # Preferences cannot be set for invalid types
     with pytest.raises(ValueError):
         NotificationPreferences(user=user, notification_type='invalid')
+    db_session.rollback()
 
     # Preferences can be set for other notification types though
     np2 = NotificationPreferences(

@@ -2,18 +2,25 @@ from __future__ import annotations
 
 from typing import Iterable, List, Optional, Set, Union
 
-from sqlalchemy.ext.hybrid import hybrid_property
-
 from baseframe import __
 from coaster.sqlalchemy import Query, StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import BaseMixin, MarkdownColumn, TSVectorType, UrlType, UuidMixin, db
+from . import (
+    BaseMixin,
+    MarkdownColumn,
+    TSVectorType,
+    UrlType,
+    UuidMixin,
+    db,
+    hybrid_property,
+)
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
+    markdown_content_options,
     valid_username,
     visual_field_delimiter,
 )
@@ -94,12 +101,12 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     )
     state = StateManager('_state', PROFILE_STATE, doc="Current state of the profile")
 
-    description = MarkdownColumn('description', default='', nullable=False)
+    description = MarkdownColumn(
+        'description', default='', nullable=False, options=markdown_content_options
+    )
     website = db.Column(UrlType, nullable=True)
     logo_url = db.Column(ImgeeType, nullable=True)
     banner_image_url = db.Column(ImgeeType, nullable=True)
-    #: Legacy profiles are available via funnelapp, non-legacy in the main app
-    legacy = db.Column(db.Boolean, default=False, nullable=False)
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
@@ -164,7 +171,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'is_user_profile',
                 'owner',
             },
-            'call': {'url_for', 'features', 'forms'},
+            'call': {'url_for', 'features', 'forms', 'state'},
         }
     }
 
@@ -217,7 +224,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_user_profile(self) -> bool:
         return self.user_id is not None
 
-    @is_user_profile.expression  # type: ignore[no-redef]
+    @is_user_profile.expression
     def is_user_profile(cls):  # NOQA: N805
         return cls.user_id.isnot(None)
 
@@ -225,14 +232,15 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_organization_profile(self) -> bool:
         return self.organization_id is not None
 
-    @is_organization_profile.expression  # type: ignore[no-redef]
+    @is_organization_profile.expression
     def is_organization_profile(cls):  # NOQA: N805
         return cls.organization_id.isnot(None)
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_public(self) -> bool:
         return bool(self.state.PUBLIC)
+
+    with_roles(is_public, read={'all'})
 
     @hybrid_property
     def title(self) -> str:
@@ -243,7 +251,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             return ''
 
-    @title.setter  # type: ignore[no-redef]
+    @title.setter
     def title(self, value: str) -> None:
         if self.user:
             self.user.fullname = value
@@ -252,7 +260,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         else:
             raise ValueError("Reserved profiles do not have titles")
 
-    @title.expression  # type: ignore[no-redef]
+    @title.expression
     def title(cls):  # NOQA: N805
         return db.case(
             [
@@ -326,7 +334,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             )
             .one_or_none()
         )
-        if existing:
+        if existing is not None:
             if existing.reserved:
                 return 'reserved'
             elif existing.user_id:
@@ -351,16 +359,17 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
-        if old_user.profile and not new_user.profile:
+        if old_user.profile is not None and new_user.profile is None:
             # New user doesn't have a profile. Simply transfer ownership.
             new_user.profile = old_user.profile
-        elif old_user.profile and new_user.profile:
+        elif old_user.profile is not None and new_user.profile is not None:
             # Both have profiles. Move everything that refers to old profile
             done = do_migrate_instances(
                 old_user.profile, new_user.profile, 'migrate_profile'
             )
             if done:
                 db.session.delete(old_user.profile)
+        # Do nothing if old_user.profile is None and new_user.profile is not None
         return None
 
     @property
@@ -369,16 +378,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return self.organization.teams
         else:
             return []
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Profile, self).permissions(user, inherited)
-        perms.add('view')
-        if 'admin' in self.roles_for(user):
-            perms.add('edit-profile')
-            perms.add('new_project')
-            perms.add('delete-project')
-            perms.add('edit_project')
-        return perms
 
     @with_roles(call={'owner'})
     @state.transition(None, state.PUBLIC, title=__("Make public"))

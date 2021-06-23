@@ -60,16 +60,16 @@
   transition: 200ms linear;
   -webkit-transition: 200ms linear;
 
+  .card__body__location {
+    float: left;
+  }
+
   .card__body__bookmark {
     float: right;
-    position: relative;
-    top: 10px;
-    height: 0;
-    z-index: 4;
-    line-height: 1;
+    margin-top: 4px;
   }
   .card__calendar {
-    padding: 0 0 25px;
+    padding: 0 0 40px;
   }
   .card__image-wrapper {
     border-radius: 0 0 0 20px;
@@ -142,7 +142,7 @@
   text-decoration: none;
 }
 
-.clickable-card {
+.card.clickable-card {
   cursor: pointer;
 }
 
@@ -233,6 +233,7 @@
         flex-wrap: wrap;
         padding: 0;
         position: relative;
+        margin: 0 4px;
 
         .calendar__weekdays__dates__date {
           position: relative;
@@ -407,13 +408,13 @@
         }
         .calendar__weekdays__dates__icon--left {
           position: absolute;
-          left: -$mui-grid-padding/4;
+          left: -4px;
           line-height: 30px;
           height: 36px;
         }
         .calendar__weekdays__dates__icon--right {
           position: absolute;
-          right: -$mui-grid-padding/4;
+          right: -4px;
           line-height: 30px;
           height: 36px;
         }
@@ -470,6 +471,7 @@
 
     .card__body__subtitle {
       margin: 8px 0;
+      max-width: calc(100% - 20px);
     }
 
     .card__body__location {
@@ -600,6 +602,10 @@
 
 .card--small {
   max-width: 400px;
+}
+
+.card--lessmargin {
+  margin-bottom: $mui-grid-padding;
 }
 
 .card__body {

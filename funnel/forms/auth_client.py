@@ -1,9 +1,7 @@
 from urllib.parse import urlparse
 
-from flask import Markup
-
 from baseframe import _, __
-from coaster.utils import domain_namespace_match, getbool
+from coaster.utils import getbool
 import baseframe.forms as forms
 
 from ..models import (
@@ -30,6 +28,7 @@ class AuthClientForm(forms.Form):
     title = forms.StringField(
         __("Application title"),
         validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()],
         description=__("The name of your application"),
     )
     description = forms.TextAreaField(
@@ -41,8 +40,8 @@ class AuthClientForm(forms.Form):
         __("Owner"),
         validators=[forms.validators.DataRequired()],
         description=__(
-            "User or organization that owns this application. Changing the owner "
-            "will revoke all currently assigned permissions for this app"
+            "User or organization that owns this application. Changing the owner"
+            " will revoke all currently assigned permissions for this app"
         ),
     )
     confidential = forms.RadioField(
@@ -69,19 +68,6 @@ class AuthClientForm(forms.Form):
         validators=[forms.validators.DataRequired(), forms.validators.URL()],
         description=__("Website where users may access this application"),
     )
-    namespace = forms.StringField(
-        __("Client namespace"),
-        validators=[forms.validators.Optional()],
-        filters=[forms.filters.none_if_empty()],
-        description=Markup(
-            __(
-                "A dot-based namespace that uniquely identifies your client application. "
-                "For example, if your client website is <code>https://auth.hasgeek.com</code>, "
-                "use <code>com.hasgeek.auth</code>. Only required if your client app provides resources"
-            )
-        ),
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
-    )
     redirect_uris = forms.TextListField(
         __("Redirect URLs"),
         validators=[
@@ -90,24 +76,17 @@ class AuthClientForm(forms.Form):
         ],
         filters=[forms.strip_each()],
         description=__(
-            "OAuth2 Redirect URL. If your app is available on multiple hostnames, "
-            "list each redirect URL on a separate line"
-        ),
-    )
-    notification_uri = forms.URLField(
-        __("Notification URL"),
-        validators=[forms.validators.Optional(), forms.validators.URL()],
-        description=__(
-            "When the user's data changes, Lastuser will POST a notice to this URL. "
-            "Other notices may be posted too"
+            "OAuth2 Redirect URL. If your app is available on multiple hostnames,"
+            " list each redirect URL on a separate line"
         ),
     )
     allow_any_login = forms.BooleanField(
         __("Allow anyone to login"),
         default=True,
         description=__(
-            "If your application requires access to be restricted to specific users, uncheck this, "
-            "and only users who have been assigned a permission to the app will be able to login"
+            "If your application requires access to be restricted to specific users,"
+            " uncheck this, and only users who have been assigned a permission to the"
+            " app will be able to login"
         ),
     )
 
@@ -144,34 +123,6 @@ class AuthClientForm(forms.Form):
                 _("The scheme, domain and port must match that of the website URL")
             )
 
-    def validate_notification_uri(self, field):
-        if not self._urls_match(self.website.data, field.data):
-            raise forms.ValidationError(
-                _("The scheme, domain and port must match that of the website URL")
-            )
-
-    def validate_resource_uri(self, field):
-        if not self._urls_match(self.website.data, field.data):
-            raise forms.ValidationError(
-                _("The scheme, domain and port must match that of the website URL")
-            )
-
-    def validate_namespace(self, field):
-        if field.data:
-            if not domain_namespace_match(self.website.data, field.data):
-                raise forms.ValidationError(
-                    _(
-                        "The namespace should be derived from your application’s website domain"
-                    )
-                )
-            auth_client = self.edit_model.get(namespace=field.data)
-            if auth_client:
-                if auth_client == self.edit_obj:
-                    return
-                raise forms.ValidationError(
-                    _("This namespace has been claimed by another client app")
-                )
-
 
 @AuthClientCredential.forms('main')
 class AuthClientCredentialForm(forms.Form):
@@ -180,6 +131,7 @@ class AuthClientCredentialForm(forms.Form):
     title = forms.StringField(
         __("What’s this for?"),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=250)],
+        filters=[forms.filters.strip()],
         description=__(
             "Add a description to help yourself remember why this was generated"
         ),

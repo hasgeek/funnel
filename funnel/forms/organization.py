@@ -20,19 +20,21 @@ class OrganizationForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=Organization.__title_length__),
         ],
+        filters=[forms.filters.strip()],
     )
     name = forms.AnnotatedTextField(
         __("Username"),
         description=__(
-            "A short name for your organization’s profile page. "
-            "Single word containing letters, numbers and dashes only. "
-            "Pick something permanent: changing it will break existing links from "
-            "around the web"
+            "A short name for your organization’s profile page."
+            " Single word containing letters, numbers and dashes only."
+            " Pick something permanent: changing it will break existing links from"
+            " around the web"
         ),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=Profile.__name_length__),
         ],
+        filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/",
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -44,8 +46,8 @@ class OrganizationForm(forms.Form):
         if reason == 'invalid':
             raise forms.ValidationError(
                 _(
-                    "Names can only have letters, numbers and dashes (except at the "
-                    "ends)"
+                    "Names can only have letters, numbers and dashes (except at the"
+                    " ends)"
                 )
             )
         if reason == 'reserved':
@@ -62,9 +64,9 @@ class OrganizationForm(forms.Form):
                 raise forms.ValidationError(
                     Markup(
                         _(
-                            "This is <em>your</em> current username. "
-                            'You must change it first from <a href="{account}">your '
-                            "account</a> before you can assign it to an organization"
+                            "This is <em>your</em> current username."
+                            ' You must change it first from <a href="{account}">your'
+                            " account</a> before you can assign it to an organization"
                         ).format(account=url_for('account'))
                     )
                 )
@@ -85,6 +87,7 @@ class TeamForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=Team.__title_length__),
         ],
+        filters=[forms.filters.strip()],
     )
     users = forms.UserSelectMultiField(
         __("Users"),

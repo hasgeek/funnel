@@ -42,7 +42,7 @@ class SavedProject(NoIdMixin, db.Model):
     description = db.Column(db.UnicodeText, nullable=True)
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(SavedProject, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('owner')
         return roles
@@ -88,7 +88,7 @@ class SavedSession(NoIdMixin, db.Model):
     description = db.Column(db.UnicodeText, nullable=True)
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(SavedSession, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('owner')
         return roles

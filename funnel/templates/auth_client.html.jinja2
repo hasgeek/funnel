@@ -44,10 +44,6 @@
         <dd class="mui--text-subhead">{% if auth_client.confidential %}{% trans %}Confidential{% endtrans %}{% else %}{% trans %}Public{% endtrans %}{% endif %}
         <dt class="mui--text-subhead">{% trans %}Website{% endtrans %}</dt>
         <dd class="mui--text-subhead"><a rel="nofollow" href="{{ auth_client.website }}">{{ auth_client.website }}</a></d>
-        {%- if auth_client.namespace %}
-          <dt class="mui--text-subhead">{% trans %}Namespace{% endtrans %}</dt>
-          <dd class="mui--text-subhead">{{ auth_client.namespace }}</dd>
-        {%- endif %}
         {%- if auth_client.owner_is(current_auth.user) %}
           <dt class="mui--text-subhead">{% trans %}Redirect URLs{% endtrans %}</dt>
           <dd class="mui--text-subhead">
@@ -55,8 +51,10 @@
               {{ r }}{% if not loop.last %}<br>{% endif %}
             {%- endfor -%}
           </dd class="mui--text-subhead">
-          <dt class="mui--text-subhead">{% trans %}Notification URL{% endtrans %}</dt>
-          <dd class="mui--text-subhead">{{ auth_client.notification_uri }}</dd>
+          {%- if auth_client.notification_uri %}
+            <dt class="mui--text-subhead">{% trans %}Notification URL (deprecated){% endtrans %}</dt>
+            <dd class="mui--text-subhead">{{ auth_client.notification_uri }}</dd>
+          {%- endif %}
         {%- endif %}
         <dt class="mui--text-subhead">{% trans %}Active?{% endtrans %}</dt>
         <dd class="mui--text-subhead">{{ auth_client.active }}</dd>
@@ -151,9 +149,9 @@
       <div class="grid__col--bleed-y">
         <h2>{% trans %}Permissions{% endtrans %}</h2>
         {% if auth_client.user %}
-          <p>{% trans %}The following users have permissions to this app.{% endtrans %}</p>
+          <p>{% trans %}The following users have permissions to this app{% endtrans %}</p>
         {% else %}
-          <p>{% trans %}The following teams have permissions to this app.{% endtrans %}</p>
+          <p>{% trans %}The following teams have permissions to this app{% endtrans %}</p>
         {% endif %}
       </div>
       <div class="grid grid--align-baseline">

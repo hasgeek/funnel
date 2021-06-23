@@ -13,25 +13,7 @@
 {% endblock %}
 
 {% block top_title %}
-  {% if project.features.schedule_no_sessions() %}
-    <div id="schedule-publish-alert">
-      {{ alertbox('warning', 'This project will not be listed as it has no sessions in the schedule') }}
-    </div>
-  {% endif %}
   <h1 class="mui--text-headline"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
-  {%- if schedule_transition_form %}
-    <div>
-      <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="schedule-state">{% trans %}Schedule status{% endtrans %}: {{ project.schedule_state.label.title }}</p>
-      <form action="{{ project.url_for('schedule_transition') }}" method="post" class="form-inline">
-        {{ schedule_transition_form.hidden_tag() }}
-        <p class="btn-group">
-          {% for name, transition in schedule_transition_form.schedule_transition.choices %}
-            <button name="schedule_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %}  mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}"  data-cy-schedule="{{ name }}">{{ transition.data['title'] }}</button>
-          {% endfor %}
-        </p>
-      </form>
-    </div>
-  {%- endif %}
 {% endblock %}
 
 {% block basecontent %}
@@ -51,31 +33,46 @@
       </div>
       <div id="proposals-tab" class="grid__col-xs-12  grid__col-sm-3">
         <ul class="tab-container">
-          <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab" data-cy-tab="proposals">{% trans %}Unscheduled proposals{% endtrans %}</a></li>
+          <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab" data-cy-tab="proposals">{% trans %}Unscheduled submissions{% endtrans %}</a></li>
           <li class="tab-container__tab mui--text-subhead"><a href="#settings" data-toggle="tab" data-cy-tab="settings">{% trans %}Settings{% endtrans %}</a></li>
         </ul>
         <div id="list" class="schedule-settings">
           {%- for proposal in proposals['unscheduled'] %}
-            <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">{{ proposal.title }}</div>
+            <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">
+              {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
+                <div class="user user--smaller">
+                  <div class="user__box">
+                    {{ useravatar(member.user) }}
+                    <div class="user__box__header">
+                      <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
+                    </div>
+                  </div>
+                </div>
+              {%- endif %}{% endfor %}
+              <p class="mui--text-subhead margin-bottom">{{ proposal.title }}</p>
+              {%- for label in proposal.labels %}
+                <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+              {%- endfor %}
+            </div>
           {%- endfor %}
         </div>
         <div id="settings" class="schedule-settings">
           <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
             <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
             {% for venue in venues %}
-              <div class="ui-dragable-box ui-dragable-box--header">
-                <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input seq-input--bg" data-venue="{{ venue.uuid_b58 }}">
+              <div class="ui-draggable-box ui-draggable-box--header">
+                <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input" data-venue="{{ venue.uuid_b58 }}">
                 <div class="collapsible">
                   <div class="collapsible__header" data-cy-collapsible="open">
                     <input type="hidden" name="uuid" value="{{ venue.uuid_b58 }}">
-                    {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
+                    {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon drag-handle') }}
                     <span class="mui--text-subhead">{{ venue.title }}</span>
                     {{ faicon(icon='angle-down', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable') }}
                     {{ faicon(icon='angle-up', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable mui--hide') }}
                   </div>
                   <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
                     {% for room in venue.rooms %}
-                      <p class="ui-dragable-box" draggable="true">
+                      <p class="ui-draggable-box" draggable="true">
                         {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
                         <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{ room.uuid_b58 }}">
                         <label for="room-color-input-{{ room.uuid_b58 }}" class="h5">
@@ -97,9 +94,9 @@
         </div>
       </div>
     </div>
-    <div id="popup" class="modal modal-form session-modal">
+    <div id="popup" class="modal modal-form session-modal" role="dialog" aria-modal="true" tabindex="-1">
       <div class="modal__header">
-        <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
         <h3 class="js-modal-title mui--text-headline session-modal__title">{{ session.title }}</h3>
       </div>
       <hr class="mui-divider mui-divider--custom">

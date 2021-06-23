@@ -120,7 +120,7 @@ class SiteadminView(ClassView):
             .order_by('month')
         )
 
-        outfile = StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile, 'excel')
         out.writerow(['month', 'count'])
         for month, count in users_by_month:
@@ -195,7 +195,7 @@ class SiteadminView(ClassView):
             reverse=True,
         )
 
-        outfile = StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile, 'excel')
         out.writerow(
             ['title', 'hour', 'day', 'week', 'month', 'quarter', 'halfyear', 'year']
@@ -300,6 +300,10 @@ class SiteadminView(ClassView):
             uuid_b58=report
         ).one_or_404()
 
+        if comment_report.comment.is_reviewed_by(current_auth.user):
+            flash(_("You cannot review same comment twice"), 'error')
+            return redirect(url_for('siteadmin_review_comments_random'))
+
         if comment_report.user == current_auth.user:
             flash(_("You cannot review your own report"), 'error')
             return redirect(url_for('siteadmin_review_comments_random'))
@@ -308,11 +312,6 @@ class SiteadminView(ClassView):
         existing_reports = CommentModeratorReport.get_all(
             exclude_user=current_auth.user
         ).filter_by(comment_id=comment_report.comment_id)
-
-        if comment_report not in existing_reports:
-            # current report should be in the existing unreviewed reports
-            flash(_("You cannot review same comment twice"), 'error')
-            return redirect(url_for('siteadmin_review_comments_random'))
 
         if comment_report.comment.state.SPAM:
             # if a comment is marked as spam by some other mechanism, like direct
@@ -356,9 +355,12 @@ class SiteadminView(ClassView):
                 elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
                     if not comment_report.comment.state.DELETED:
                         comment_report.comment.mark_not_spam()
-                CommentModeratorReport.query.filter_by(
-                    comment=comment_report.comment
-                ).update({'resolved_at': db.func.utcnow()}, synchronize_session='fetch')
+                with db.session.no_autoflush:
+                    CommentModeratorReport.query.filter_by(
+                        comment=comment_report.comment
+                    ).update(
+                        {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
+                    )
             else:
                 # current report is different from existing report and
                 # no report has majority frequency.

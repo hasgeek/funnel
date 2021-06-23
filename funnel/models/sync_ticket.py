@@ -54,7 +54,7 @@ ticket_event_ticket_type = db.Table(
 class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
     def get(cls, parent, current_name=None, current_title=None):
-        if not bool(current_name) ^ bool(current_title):
+        if not (bool(current_name) ^ bool(current_title)):
             raise TypeError("Expects current_name xor current_title")
         if current_name:
             return cls.query.filter_by(parent=parent, name=current_name).one_or_none()
@@ -64,7 +64,7 @@ class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
     def upsert(cls, parent, current_name=None, current_title=None, **fields):
         instance = cls.get(parent, current_name, current_title)
-        if instance:
+        if instance is not None:
             instance._set_fields(fields)
         else:
             fields.pop('title', None)
@@ -184,7 +184,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     )
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
-        db.relationship(Project),
+        db.relationship(Project, back_populates='ticket_participants'),
         read={'promoter', 'subject', 'scanner'},
         grants_via={None: project_child_role_map},
     )
@@ -200,7 +200,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     }
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(TicketParticipant, self).roles_for(actor, anchors)
+        roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
                 roles.add('subject')
@@ -209,23 +209,18 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
                 roles.add('scanner')
         return roles
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(TicketParticipant, self).permissions(user, inherited)
-        if self.project is not None:
-            return self.project.permissions(user) | perms
-        return perms
-
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def avatar(self):
         return self.user.avatar if self.user else ''
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(avatar, read={'all'})
+
     @property
     def has_public_profile(self):
         return self.user.has_public_profile if self.user else False
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(has_public_profile, read={'all'})
+
     @property
     def profile_url(self):
         return (
@@ -233,6 +228,8 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             if self.user and self.user.has_public_profile
             else None
         )
+
+    with_roles(profile_url, read={'all'})
 
     @classmethod
     def get(cls, current_project, current_email):
@@ -244,11 +241,11 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
     def upsert(cls, current_project, current_email, **fields):
         ticket_participant = cls.get(current_project, current_email)
         useremail = UserEmail.get(current_email)
-        if useremail:
+        if useremail is not None:
             user = useremail.user
         else:
             user = None
-        if ticket_participant:
+        if ticket_participant is not None:
             ticket_participant.user = user
             ticket_participant._set_fields(fields)
         else:
@@ -321,11 +318,22 @@ class TicketEventParticipant(BaseMixin, db.Model):
     )
     ticket_participant = db.relationship(
         TicketParticipant,
-        backref=db.backref('ticket_event_participants', cascade='all'),
+        backref=db.backref(
+            'ticket_event_participants',
+            cascade='all',
+            overlaps='ticket_events,ticket_participants',
+        ),
+        overlaps='ticket_events,ticket_participants',
     )
     ticket_event_id = db.Column(None, db.ForeignKey('ticket_event.id'), nullable=False)
     ticket_event = db.relationship(
-        TicketEvent, backref=db.backref('ticket_event_participants', cascade='all')
+        TicketEvent,
+        backref=db.backref(
+            'ticket_event_participants',
+            cascade='all',
+            overlaps='ticket_events,ticket_participants',
+        ),
+        overlaps='ticket_events,ticket_participants',
     )
     checked_in = db.Column(db.Boolean, default=False, nullable=False)
 
@@ -404,12 +412,6 @@ class TicketClient(BaseMixin, db.Model):
                 # Ensure that the new or updated participant has access to events
                 ticket.ticket_participant.add_events(ticket_type.ticket_events)
 
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(TicketClient, self).permissions(user, inherited)
-        if self.project is not None:
-            return self.project.permissions(user) | perms
-        return perms
-
 
 class SyncTicket(BaseMixin, db.Model):
     """Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
@@ -452,7 +454,7 @@ class SyncTicket(BaseMixin, db.Model):
         was previously associated with or None if there was no earlier participant.
         """
         ticket = cls.get(ticket_client, order_no, ticket_no)
-        if ticket:
+        if ticket is not None:
             ticket._set_fields(fields)
         else:
             fields.pop('ticket_client', None)
@@ -481,7 +483,9 @@ class __Project:
     # expose a new edge case in future in case the TicketParticipant model adds an
     # `offered_roles` method, as only the first matching record's method will be called
     ticket_participants = with_roles(
-        db.relationship(TicketParticipant, lazy='dynamic', cascade='all'),
+        db.relationship(
+            TicketParticipant, lazy='dynamic', cascade='all', back_populates='project'
+        ),
         grants_via={'user': {'participant'}},
     )
 

@@ -1,20 +1,20 @@
 [
   {
     "title": "Section",
-    "label1": "Full talk",
-    "label2": "Crisp talk"
+    "label1": "Crisp talk",
+    "label2": "Full talk"
+  },
+  {
+    "title": "Status",
+    "label1": "Need more information",
+    "label2": "Under review",
+    "label3": "Waiting for review comments",
+    "adminLabel": true
   },
   {
     "title": "Technical level",
-    "label1": "Beginner",
-    "label2": "Advanced"
-  },
-  {
-    "title": "Review stage",
-    "label1": "Under review",
-    "label2": "Need more information",
-    "label3": "Waiting for review comments",
-    "adminLabel": true
+    "label1": "Advanced",
+    "label2": "Beginner"
   },
   {
     "title": "Talk"

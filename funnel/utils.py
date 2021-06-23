@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional, Set
+from typing import List, Optional, Set, overload
 import io
 import urllib.parse
 
@@ -13,6 +13,16 @@ import requests
 from baseframe import cache
 
 # --- Utilities ---------------------------------------------------------------
+
+
+@overload
+def abort_null(text: str) -> str:
+    ...
+
+
+@overload
+def abort_null(text: None) -> None:
+    ...
 
 
 def abort_null(text: Optional[str]) -> Optional[str]:

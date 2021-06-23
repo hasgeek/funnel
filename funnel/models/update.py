@@ -17,10 +17,9 @@ from . import (
     TSVectorType,
     User,
     UuidMixin,
-    Voteset,
     db,
 )
-from .commentvote import SET_TYPE
+from .comment import SET_TYPE
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 
 __all__ = ['Update']
@@ -132,9 +131,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = with_roles(db.relationship(Voteset, uselist=False), read={'all'})
-
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
         db.relationship(
@@ -196,7 +192,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.UPDATE)
         self.commentset = Commentset(settype=SET_TYPE.UPDATE)
 
     def __repr__(self) -> str:
@@ -205,15 +200,17 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             title=self.title, uuid_b58=self.uuid_b58
         )
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def visibility_label(self) -> str:
         return self.visibility_state.label.title
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(visibility_label, read={'all'})
+
     @property
     def state_label(self) -> str:
         return self.state.label.title
+
+    with_roles(state_label, read={'all'})
 
     state.add_conditional_state(
         'UNPUBLISHED',
@@ -240,9 +237,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             first_publishing = True
             self.published_at = db.func.utcnow()
         if self.number is None:
-            self.number = db.select(
-                [db.func.coalesce(db.func.max(Update.number), 0) + 1]
-            ).where(Update.project == self.project)
+            self.number = (
+                db.select([db.func.coalesce(db.func.max(Update.number), 0) + 1])
+                .where(Update.project == self.project)
+                .scalar_subquery()
+            )
         return first_publishing
 
     @with_roles(call={'editor'})
@@ -277,7 +276,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     def make_restricted(self) -> None:
         pass
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_restricted(self) -> bool:
         return bool(self.visibility_state.RESTRICTED)
@@ -289,10 +287,13 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         elif not value and self.visibility_state.RESTRICTED:
             self.make_public()
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(is_restricted, read={'all'})
+
     @property
     def is_currently_restricted(self) -> bool:
         return self.is_restricted and not self.current_roles.reader
+
+    with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
@@ -310,6 +311,32 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )
 
+    @with_roles(read={'all'})
+    def getnext(self):
+        if self.state.PUBLISHED:
+            return (
+                Update.query.filter(
+                    Update.project == self.project,
+                    Update.state.PUBLISHED,
+                    Update.number > self.number,
+                )
+                .order_by(Update.number.asc())
+                .first()
+            )
+
+    @with_roles(read={'all'})
+    def getprev(self):
+        if self.state.PUBLISHED:
+            return (
+                Update.query.filter(
+                    Update.project == self.project,
+                    Update.state.PUBLISHED,
+                    Update.number < self.number,
+                )
+                .order_by(Update.number.desc())
+                .first()
+            )
+
 
 add_search_trigger(Update, 'search_vector')
 auto_init_default(Update._visibility_state)
@@ -320,19 +347,20 @@ auto_init_default(Update._state)
 class __Project:
     updates: BaseQuery
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def published_updates(self) -> BaseQuery:
         return self.updates.filter(Update.state.PUBLISHED).order_by(
             Update.is_pinned.desc(), Update.published_at.desc()
         )
 
-    @with_roles(read={'editor'})  # type: ignore[misc]
+    with_roles(published_updates, read={'all'})
+
     @property
     def draft_updates(self) -> BaseQuery:
         return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(draft_updates, read={'editor'})
+
     @property
     def pinned_update(self) -> Optional[Update]:
         return (
@@ -340,3 +368,5 @@ class __Project:
             .order_by(Update.published_at.desc())
             .first()
         )
+
+    with_roles(pinned_update, read={'all'})

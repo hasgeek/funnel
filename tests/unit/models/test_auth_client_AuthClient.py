@@ -31,24 +31,9 @@ class TestClient(TestDatabaseFixture):
         """Test if client's owner is a user."""
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
-        with pytest.raises(AttributeError):
-            assert not auth_client.owner_is(self.fixtures.batdog)
+        assert not auth_client.owner_is(self.fixtures.batdog)
         assert auth_client.owner_is(crusoe)
         assert not auth_client.owner_is(None)
-
-    def test_client_permissions(self):
-        """Test that the owner of an AuthClient has appropriate permissions."""
-        crusoe = self.fixtures.crusoe
-        auth_client = self.fixtures.auth_client
-        permissions_expected = {
-            'view',
-            'edit',
-            'delete',
-            'assign-permissions',
-            'new-resource',
-        }
-        permissions_received = auth_client.permissions(crusoe)
-        assert permissions_expected == permissions_received
 
     def test_client_authtoken_for(self):
         """Test for retrieving authtoken for confidential auth clients."""
@@ -98,7 +83,7 @@ class TestClient(TestDatabaseFixture):
         auth_client = self.fixtures.auth_client
         batdog = self.fixtures.batdog
         key = auth_client.buid
-        # scenario 1: when no key or namespace
+        # scenario 1: without key
         with pytest.raises(TypeError):
             models.AuthClient.get()  # type: ignore[call-overload]
         # scenario 2: when given key
@@ -106,9 +91,3 @@ class TestClient(TestDatabaseFixture):
         assert isinstance(result1, models.AuthClient)
         assert result1.buid == key
         assert result1.owner == batdog
-        # scenario 3: when given namespace
-        namespace = 'fun.batdogadventures.com'
-        result2 = models.AuthClient.get(namespace=namespace)
-        assert isinstance(result2, models.AuthClient)
-        assert result2.namespace == namespace
-        assert result2.owner == batdog
