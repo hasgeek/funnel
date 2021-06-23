@@ -191,7 +191,10 @@ class SnsValidator:
         signature = base64.b64decode(message.get('Signature', ''))
         try:
             public_key.verify(  # nosec
-                signature, plaintext, PKCS1v15(), SHA1()  # noqa: S303
+                signature,
+                plaintext,
+                PKCS1v15(),
+                SHA1(),  # noqa: S303  # skipcq: PTC-W1003
             )
         except InvalidSignature:
             raise SnsSignatureFailureException("Signature mismatch")

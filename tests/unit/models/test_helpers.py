@@ -122,7 +122,7 @@ def test_add_to_class():
 
     # New methods can be added
     @add_to_class(ReferenceClass)
-    def bar(self):
+    def bar(self):  # skipcq: PTC-W0065
         return 'is_bar'
 
     assert hasattr(ReferenceClass, 'bar')
