@@ -122,7 +122,7 @@ class __Commentset:
             existing.last_seen_at = db.func.utcnow()
 
     def add_subscriber(self, actor: User, user: User) -> bool:
-        """Return True is subscriber is added, False if already exists."""
+        """Return True is subscriber is added or unmuted, False if already exists."""
         existing = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
@@ -134,6 +134,19 @@ class __Commentset:
                     granted_by=actor,
                 )
             )
+            return True
+        elif existing.is_muted:
+            existing.replace(actor=actor, is_muted=False)
+            return True
+        return False
+
+    def mute_subscriber(self, actor: User, user: User) -> bool:
+        """Return True if subscriber was muted, False if already muted or missing."""
+        existing = CommentsetMembership.query.filter_by(
+            commentset=self, user=user, is_active=True
+        ).one_or_none()
+        if not existing.is_muted:
+            existing.replace(actor=actor, is_muted=True)
             return True
         return False
 

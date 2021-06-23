@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from flask import Markup, abort, escape, flash, jsonify, redirect
-
-from bleach import linkify
+from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, __, request_is_xhr
 from baseframe.forms import Form, render_delete_sqla, render_form
@@ -139,16 +137,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if request_is_xhr():
             return jsonify({'comments': self.obj.commentset.views.json_comments()})
 
-        links = [
-            Markup(linkify(str(escape(link))))
-            for link in self.obj.links.replace('\r\n', '\n').split('\n')
-            if link
-        ]
         return {
             'project': self.obj.project,
             'proposal': self.obj,
-            'links': links,
-            'subscribed': bool(self.obj.commentset.current_roles.document_subscriber),
+            'subscribed': self.obj.commentset.current_roles.document_subscriber,
         }
 
     @route('subscribe', methods=['POST'])
@@ -168,7 +160,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     'form_nonce': subscribe_form.form_nonce.data,
                 }
             else:
-                self.obj.commentset.remove_subscriber(
+                self.obj.commentset.mute_subscriber(
                     actor=current_auth.user, user=current_auth.user
                 )
                 db.session.commit()

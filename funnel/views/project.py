@@ -740,15 +740,14 @@ class ProjectView(
                     'comments': comments,
                 }
             )
-        else:
-            commentform = CommentForm(model=Comment)
-            return {
-                'project': self.obj,
-                'subscribed': subscribed,
-                'comments': comments,
-                'commentform': commentform,
-                'delcommentform': forms.Form(),
-            }
+        commentform = CommentForm(model=Comment)
+        return {
+            'project': self.obj,
+            'subscribed': subscribed,
+            'comments': comments,
+            'commentform': commentform,
+            'delcommentform': forms.Form(),
+        }
 
     @route('update_featured', methods=['POST'])
     def update_featured(self):

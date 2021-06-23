@@ -70,6 +70,7 @@ from ..registry import login_registry
 from ..signals import user_data_changed
 from ..transports import TransportConnectionError, TransportRecipientError, sms
 from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
+from .decorators import xhr_only
 from .email import send_email_verify_link
 from .helpers import (
     app_url_for,
@@ -368,6 +369,7 @@ class AccountView(ClassView):
         return {'saved_projects': current_auth.user.saved_projects}
 
     @route('menu', endpoint='account_menu')
+    @xhr_only(lambda: url_for('account'))
     def menu(self):
         """Render account menu."""
         # This is an experimental implementation of caching with ETag. It needs to be

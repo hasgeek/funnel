@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import namedtuple
 from typing import Optional
 
-from flask import flash, jsonify, make_response, redirect, render_template, request
+from flask import flash, jsonify, redirect, render_template, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
@@ -33,6 +33,7 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change, proposal_role_change
+from .decorators import xhr_only
 from .login_session import requires_login
 from .notification import dispatch_notification
 
@@ -74,12 +75,7 @@ def commentset_json(obj):
     return [
         comment.current_access(datasets=('json', 'related'))
         for comment in toplevel_comments
-        if (
-            comment.state.PUBLIC
-            or db.session.query(
-                comment.replies.filter(Comment.state.PUBLIC).exists()
-            ).scalar()
-        )
+        if comment.state.PUBLIC or comment.has_replies
     ]
 
 
@@ -93,12 +89,9 @@ def parent_comments_url(obj):
     return url
 
 
-def get_last_comment(commentset: Commentset) -> Optional[Comment]:
-    comment = (
-        commentset.comments.filter(Comment.state.PUBLIC)
-        .order_by(Comment.created_at.desc())
-        .first()
-    )
+@Commentset.views('last_comment', cached_property=True)
+def last_comment(obj: Commentset) -> Optional[Comment]:
+    comment = obj.last_comment
     if comment:
         return comment.current_access(datasets=('primary', 'related'))
     return None
@@ -109,8 +102,8 @@ class AllCommentsView(ClassView):
     current_section = 'comments'
 
     @route('', endpoint='comments')
+    @xhr_only(lambda: url_for('index', _anchor='comments'))
     @requires_login
-    @render_with(json=True)
     def view(self):
         commentset_memberships = [
             {
@@ -125,7 +118,7 @@ class AllCommentsView(ClassView):
                     .filter(Comment.created_at > cm.last_seen_at)
                     .count()
                 ),
-                'last_comment': get_last_comment(cm.commentset),
+                'last_comment': cm.commentset.views.last_comment,
             }
             for cm in (
                 current_auth.user.active_commentset_memberships.join(
@@ -141,20 +134,9 @@ class AllCommentsView(ClassView):
             if ms['new_comments_count'] > 0:
                 pass
 
-        # return jsonify(
-        #     {
-        #         'new_comment': new_comment,
-        #         'data': render_template(
-        #             'unread_comments.html.jinja2',
-        #             commentset_memberships=commentset_memberships,
-        #         ),
-        #     }
-        # )
-        return make_response(
-            render_template(
-                'unread_comments.html.jinja2',
-                commentset_memberships=commentset_memberships,
-            )
+        return render_template(
+            'unread_comments.html.jinja2',
+            commentset_memberships=commentset_memberships,
         )
 
 

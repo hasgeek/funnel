@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, Callable, TypeVar, Union, cast
 
-from flask import Response
+from flask import Response, redirect, url_for
+
+from baseframe import request_is_xhr
 
 from ..models import db
+from ..typing import ReturnView
 
 # https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators
 F = TypeVar('F', bound=Callable[..., Any])
@@ -33,7 +36,7 @@ def remove_db_session(f: F) -> F:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> Response:
+    def wrapper(*args, **kwargs) -> ReturnView:
         try:
             result = f(*args, **kwargs)
         finally:
@@ -41,3 +44,24 @@ def remove_db_session(f: F) -> F:
         return result
 
     return cast(F, wrapper)
+
+
+def xhr_only(redirect_to: Union[str, Callable[[], str], None] = None):
+    """Render a view only when it's an XHR request."""
+
+    def decorator(f: F) -> F:
+        @wraps(f)
+        def wrapper(*args, **kwargs) -> ReturnView:
+            if not request_is_xhr():
+                if redirect_to is None:
+                    destination = url_for('index')
+                elif callable(redirect_to):
+                    destination = redirect_to()
+                else:
+                    destination = redirect_to
+                return redirect(destination)
+            return f(*args, **kwargs)
+
+        return cast(F, wrapper)
+
+    return decorator

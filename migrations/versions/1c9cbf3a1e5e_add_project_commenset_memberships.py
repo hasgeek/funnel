@@ -1,7 +1,7 @@
 """Add project commentset memberships.
 
 Revision ID: 1c9cbf3a1e5e
-Revises: 6835596b1eee
+Revises: 7d5b77aada1e
 Create Date: 2021-03-11 09:07:56.611054
 
 """
@@ -18,7 +18,7 @@ import progressbar.widgets
 
 # revision identifiers, used by Alembic.
 revision = '1c9cbf3a1e5e'
-down_revision = '6835596b1eee'
+down_revision = '7d5b77aada1e'
 branch_labels = None
 depends_on = None
 
@@ -106,7 +106,17 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade(engine_name=''):
+    # Do not modify. Edit `upgrade_` instead
+    globals().get('upgrade_%s' % engine_name, lambda: None)()
+
+
+def downgrade(engine_name=''):
+    # Do not modify. Edit `downgrade_` instead
+    globals().get('downgrade_%s' % engine_name, lambda: None)()
+
+
+def upgrade_():
     conn = op.get_bind()
 
     count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
@@ -238,7 +248,7 @@ def upgrade():
     progress.finish()
 
 
-def downgrade():
+def downgrade_():
     conn = op.get_bind()
 
     count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
