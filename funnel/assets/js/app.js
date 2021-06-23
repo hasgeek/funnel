@@ -27,7 +27,7 @@ $(() => {
   Utils.smoothScroll();
   Utils.navSearchForm();
   Utils.headerMenuDropdown(
-    $('.js-menu-btn'),
+    '.js-menu-btn',
     '.js-account-menu-wrapper',
     '.js-account-menu',
     window.Hasgeek.config.accountMenu
@@ -48,7 +48,7 @@ $(() => {
   Utils.activateToggleSwitch();
   if (window.Hasgeek.config.commentSidebarElem) {
     Utils.headerMenuDropdown(
-      $('.js-comments-btn'),
+      '.js-comments-btn',
       '.js-comments-wrapper',
       '.js-comment-sidebar',
       window.Hasgeek.config.unreadCommentUrl,

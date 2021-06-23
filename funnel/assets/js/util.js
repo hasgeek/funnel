@@ -93,7 +93,8 @@ export const Utils = {
       }
     });
   },
-  headerMenuDropdown(menuBtn, menuWrapper, menu, url, lazyLoad = false) {
+  headerMenuDropdown(menuBtnClass, menuWrapper, menu, url, lazyLoad = false) {
+    let menuBtn = $(menuBtnClass);
     let topMargin = 1;
     let headerHeight = $('.header').height() + topMargin;
 
@@ -123,7 +124,7 @@ export const Utils = {
         url: url,
         timeout: window.Hasgeek.config.ajaxTimeout,
         success: function (responseData) {
-          $(menuWrapper).append(responseData);
+          $(menuWrapper).find(menu).append(responseData);
           if (openMenuFn) {
             openMenuFn();
           }
@@ -150,9 +151,9 @@ export const Utils = {
 
     $('body').on('click', function (event) {
       if (
-        $('.js-menu-btn').hasClass('header__nav-links--active') &&
-        !$(event.target).is('.js-menu-btn') &&
-        !$.contains($('.js-menu-btn')[0], event.target)
+        $(menuBtn).hasClass('header__nav-links--active') &&
+        !$(event.target).is(menuBtn) &&
+        !$.contains($(menuBtn)[0], event.target)
       ) {
         closeMenu();
       }

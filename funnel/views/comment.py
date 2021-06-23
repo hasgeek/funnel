@@ -1,7 +1,7 @@
 from collections import namedtuple
 from typing import Optional
 
-from flask import flash, jsonify, redirect, render_template, request
+from flask import flash, jsonify, make_response, redirect, render_template, request
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
@@ -135,19 +135,24 @@ class AllCommentsView(ClassView):
             )
         ]
 
-        new_comment = False
         for ms in commentset_memberships:
             if ms['new_comments_count'] > 0:
-                new_comment = True
+                pass
 
-        return jsonify(
-            {
-                'new_comment': new_comment,
-                'data': render_template(
-                    'unread_comments.html.jinja2',
-                    commentset_memberships=commentset_memberships,
-                ),
-            }
+        # return jsonify(
+        #     {
+        #         'new_comment': new_comment,
+        #         'data': render_template(
+        #             'unread_comments.html.jinja2',
+        #             commentset_memberships=commentset_memberships,
+        #         ),
+        #     }
+        # )
+        return make_response(
+            render_template(
+                'unread_comments.html.jinja2',
+                commentset_memberships=commentset_memberships,
+            )
         )
 
 

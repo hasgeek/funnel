@@ -98,9 +98,12 @@
           </a>
         </div>
       </div>
-      <div class="js-account-menu-wrapper"></div>
+      <div class="js-account-menu-wrapper">
+        <ul class="header__dropdown js-account-menu" role="menu">
+        </ul>
+      </div>
       <div class="js-comments-wrapper">
-        <ul class="comments-sidebar js-comment-sidebar">
+        <ul class="comments-sidebar js-comment-sidebar" role="menu">
         </ul>
       </div>
     {%- elif request.endpoint != 'login' %}

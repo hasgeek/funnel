@@ -7,11 +7,6 @@
         <div class="user__box">
           <div class="user__box__banner">
             <div class="user__box__banner__wrapper">
-              {% if membership.parent.bg_image.url %}
-                <img src="{{ membership.parent.bg_image }}" alt="{{ membership.parent.title }}" />
-              {% else %}
-                <img src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ membership.parent.title }}" />
-              {% endif %}
               {% if membership.parent_type == 'project' %}
                 {{ faicon(icon='file-solid', baseline=false, css_class='user__box__banner__wrapper__icon') }}
               {% endif %}
