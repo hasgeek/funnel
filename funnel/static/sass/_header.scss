@@ -60,6 +60,8 @@
             }
             .search-form__submit {
               visibility: hidden;
+              padding: 0;
+              margin: 0;
             }
           }
           .search-form--show {
@@ -137,7 +139,14 @@
     top: 0;
     z-index: -1;
   }
-  .header__dropdown {
+  .js-comments-wrapper {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+  }
+  .header__dropdown,
+  .comments-sidebar {
     position: fixed;
     top: 100vh;
     left: 0;
@@ -356,8 +365,9 @@
         }
       }
     }
-    .header__dropdown {
-      max-width: 300px;
+    .header__dropdown,
+    .comments-sidebar {
+      width: 300px;
       max-height: 90vh;
       box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
       border-radius: 16px 0 16px 16px;

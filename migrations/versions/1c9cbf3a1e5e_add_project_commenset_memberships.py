@@ -1,7 +1,7 @@
 """Add project commentset memberships.
 
 Revision ID: 1c9cbf3a1e5e
-Revises: a23e88f06478
+Revises: 6835596b1eee
 Create Date: 2021-03-11 09:07:56.611054
 
 """
@@ -18,7 +18,7 @@ import progressbar.widgets
 
 # revision identifiers, used by Alembic.
 revision = '1c9cbf3a1e5e'
-down_revision = 'a23e88f06478'
+down_revision = '6835596b1eee'
 branch_labels = None
 depends_on = None
 

@@ -93,10 +93,7 @@ export const Utils = {
       }
     });
   },
-  headerMenuDropdown() {
-    let menuBtn = $('.js-menu-btn');
-    let menuWrapper = '.js-account-menu-wrapper';
-    let menu = '.js-account-menu';
+  headerMenuDropdown(menuBtn, menuWrapper, menu, url, lazyLoad = false) {
     let topMargin = 1;
     let headerHeight = $('.header').height() + topMargin;
 
@@ -123,10 +120,10 @@ export const Utils = {
     var fetchMenu = function (openMenuFn = '') {
       $.ajax({
         type: 'GET',
-        url: window.Hasgeek.config.accountMenu,
+        url: url,
         timeout: window.Hasgeek.config.ajaxTimeout,
         success: function (responseData) {
-          $(menuWrapper).empty().append(responseData);
+          $(menuWrapper).append(responseData);
           if (openMenuFn) {
             openMenuFn();
           }
@@ -144,7 +141,7 @@ export const Utils = {
       event.stopPropagation();
       if ($(this).hasClass('header__nav-links--active')) {
         closeMenu();
-      } else if (!$(menuWrapper).find(menu).length) {
+      } else if (lazyLoad || !$(menuWrapper).find(menu).length) {
         fetchMenu(openMenu);
       } else {
         openMenu();
@@ -508,49 +505,6 @@ export const Utils = {
       };
       loadVegaScript();
     }
-  },
-  handleCommentsSidebar() {
-    let firstLoad = true;
-    $('.js-comments-button').on('click', function (e) {
-      e.stopPropagation();
-      $('#js-comments-dropdown').addClass('open');
-      if (firstLoad) {
-        $.ajax({
-          type: 'GET',
-          url: window.Hasgeek.config.unreadCommentUrl,
-          timeout: window.Hasgeek.config.ajaxTimeout,
-          success(responseData) {
-            $('.js-loading').addClass('mui--hide');
-            if (responseData.data) {
-              $(window.Hasgeek.config.commentSidebarElem).append(
-                responseData.data.trim()
-              );
-            } else {
-              $(window.Hasgeek.config.commentSidebarElem)
-                .find('li')
-                .first()
-                .removeClass('mui--hide');
-            }
-            firstLoad = false;
-          },
-        });
-      }
-    });
-
-    $('.js-close-comments').on('click', function (e) {
-      e.stopPropagation();
-      $('#js-comments-dropdown').removeClass('open');
-    });
-
-    $('body').on('click', function (e) {
-      if (
-        $('#js-comments-dropdown').hasClass('open') &&
-        !$(e.target).is('#js-comments-button') &&
-        !$.contains($('#js-comments-dropdown')[0], e.target)
-      ) {
-        $('#js-comments-dropdown').removeClass('open');
-      }
-    });
   },
 };
 

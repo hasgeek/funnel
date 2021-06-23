@@ -74,8 +74,11 @@
     <a href="javascript:void(0)" data-target="search" class="header__nav-links js-search-show header__nav-links--search {% if  current_view.current_section == 'search' %}header__nav-links--active{% endif %}" aria-label="{% trans %}Search{% endtrans %}" data-ga="Search">{{ faicon(icon='search-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
     {% if not current_auth.is_anonymous -%}
       <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
+      {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
+        <a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-btn" data-ga="Comments" data-cy="comment-sidebar" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='comment-alt-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>
+      {% endif %}
       <div class="header__nav-links">
-        <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone js-menu-btn" data-menu-size="mobile" data-menu-id="acc-mobile-menu" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
+        <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone js-menu-btn" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
           <div class="user__box">
             {{ useravatar(current_auth.user, css_class='header__nav-links__icon header__nav-links__icon--user', add_profile_link=false) }}
           </div>
@@ -84,6 +87,9 @@
       </div>
       <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
         <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
+        {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
+          <a href="javascript:void(0)" class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='comment-alt', baseline=false) }}</a>
+        {% endif %}
         <div class="header__nav-links--dropdown">
           <a class="header__nav-links user user--standalone js-menu-btn" data-cy="my-account" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
             <div class="user__box">
@@ -93,6 +99,10 @@
         </div>
       </div>
       <div class="js-account-menu-wrapper"></div>
+      <div class="js-comments-wrapper">
+        <ul class="comments-sidebar js-comment-sidebar">
+        </ul>
+      </div>
     {%- elif request.endpoint != 'login' %}
       <a href="{{ url_for('login') }}" class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
     {%- else %}
@@ -183,6 +193,10 @@
     window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
     window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
     window.Hasgeek.config.accountMenu = {{ url_for('account_menu')|tojson }};
+    {% if config['ENABLE_COMMENT_SIDEBAR'] %}
+      window.Hasgeek.config.commentSidebarElem = '#js-unread-comments';
+      window.Hasgeek.config.unreadCommentUrl = {{ url_for('comments')|tojson }};
+    {% endif %}
   </script>
   {% assets "js_jquerytruncate" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>

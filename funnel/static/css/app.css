@@ -1255,6 +1255,8 @@ a.loginbutton.hidden,
   .search-form
   .search-form__submit {
   visibility: hidden;
+  padding: 0;
+  margin: 0;
 }
 .hg-app
   .header--fixed
@@ -1395,7 +1397,14 @@ a.loginbutton.hidden,
   top: 0;
   z-index: -1;
 }
-.hg-app .header__dropdown {
+.hg-app .js-comments-wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
+.hg-app .header__dropdown,
+.hg-app .comments-sidebar {
   position: fixed;
   top: 100vh;
   left: 0;
@@ -1415,32 +1424,42 @@ a.loginbutton.hidden,
   background: #ffffff;
   z-index: -1;
 }
-.hg-app .header__dropdown .user__box__header {
+.hg-app .header__dropdown .user__box__header,
+.hg-app .comments-sidebar .user__box__header {
   justify-content: space-between;
   align-items: baseline;
   width: calc(100% - 50px);
   flex-direction: row;
 }
-.hg-app .header__dropdown .user__box__header .user__box__header__details {
+.hg-app .header__dropdown .user__box__header .user__box__header__details,
+.hg-app .comments-sidebar .user__box__header .user__box__header__details {
   width: 90%;
 }
-.hg-app .header__dropdown .user__box__header .user__box__header__details p {
+.hg-app .header__dropdown .user__box__header .user__box__header__details p,
+.hg-app .comments-sidebar .user__box__header .user__box__header__details p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.hg-app .header__dropdown .user__box__header .user__box__header__icon {
+.hg-app .header__dropdown .user__box__header .user__box__header__icon,
+.hg-app .comments-sidebar .user__box__header .user__box__header__icon {
   position: relative;
   top: 3px;
 }
-.hg-app .header__dropdown li .header__dropdown__item {
+.hg-app .header__dropdown li .header__dropdown__item,
+.hg-app .comments-sidebar li .header__dropdown__item {
   padding: 8px 16px 8px;
 }
-.hg-app .header__dropdown li .header__dropdown__item--morepadding {
+.hg-app .header__dropdown li .header__dropdown__item--morepadding,
+.hg-app .comments-sidebar li .header__dropdown__item--morepadding {
   padding-left: 24px;
 }
 .hg-app
   .header__dropdown
+  li
+  .header__dropdown__item.header__dropdown__item--flex,
+.hg-app
+  .comments-sidebar
   li
   .header__dropdown__item.header__dropdown__item--flex {
   display: flex;
@@ -1450,25 +1469,31 @@ a.loginbutton.hidden,
   color: #4d5763;
   box-sizing: border-box;
 }
-.hg-app .header__dropdown .header__dropdown__item.header__dropdown__item:hover {
+.hg-app .header__dropdown .header__dropdown__item.header__dropdown__item:hover,
+.hg-app .comments-sidebar .header__dropdown__item.header__dropdown__item:hover {
   background-color: #f9f9f9;
 }
-.hg-app .header__dropdown li:last-child .header__dropdown__item {
+.hg-app .header__dropdown li:last-child .header__dropdown__item,
+.hg-app .comments-sidebar li:last-child .header__dropdown__item {
   padding-bottom: 16px;
 }
-.hg-app .header__dropdown .header__dropdown__item__more-icon {
+.hg-app .header__dropdown .header__dropdown__item__more-icon,
+.hg-app .comments-sidebar .header__dropdown__item__more-icon {
   position: relative;
   left: -28px;
   z-index: 2;
   line-height: 1;
 }
-.hg-app .header__dropdown .header__dropdown__item__more-icon--align {
+.hg-app .header__dropdown .header__dropdown__item__more-icon--align,
+.hg-app .comments-sidebar .header__dropdown__item__more-icon--align {
   top: 2px;
 }
-.hg-app .header__dropdown .header__dropdown__item__more-icon--ellipsis {
+.hg-app .header__dropdown .header__dropdown__item__more-icon--ellipsis,
+.hg-app .comments-sidebar .header__dropdown__item__more-icon--ellipsis {
   position: relative;
 }
-.hg-app .header__dropdown .header__dropdown__item__more-icon--ellipsis:before {
+.hg-app .header__dropdown .header__dropdown__item__more-icon--ellipsis:before,
+.hg-app .comments-sidebar .header__dropdown__item__more-icon--ellipsis:before {
   content: '';
   display: block;
   position: absolute;
@@ -1688,8 +1713,9 @@ a.loginbutton.hidden,
     .header__nav-links--dropdown {
     height: 40px;
   }
-  .hg-app .header__dropdown {
-    max-width: 300px;
+  .hg-app .header__dropdown,
+  .hg-app .comments-sidebar {
+    width: 300px;
     max-height: 90vh;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
     border-radius: 16px 0 16px 16px;
