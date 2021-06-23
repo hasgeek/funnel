@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from coaster.views import render_with
 
 from .. import app

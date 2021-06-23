@@ -18,7 +18,7 @@ __all__ = ['Comment', 'Commentset']
 # --- Constants ------------------------------------------------------------------------
 
 
-class COMMENT_STATE(LabeledEnum):  # NOQA: N801
+class COMMENT_STATE(LabeledEnum):  # noqa: N801
     # If you add any new state, you need to migrate the check constraint as well
     SUBMITTED = (0, 'submitted', __("Submitted"))
     SCREENED = (1, 'screened', __("Screened"))
@@ -36,7 +36,7 @@ class COMMENT_STATE(LabeledEnum):  # NOQA: N801
 
 # What is this Commentset attached to?
 # TODO: Deprecated, doesn't help as much as we thought it would
-class SET_TYPE:  # NOQA: N801
+class SET_TYPE:  # noqa: N801
     PROJECT = 0
     PROPOSAL = 2
     COMMENT = 3
@@ -203,7 +203,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         self._user = value
 
     @user.expression
-    def user(cls):  # NOQA: N805
+    def user(cls):  # noqa: N805
         return cls._user
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
@@ -223,7 +223,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         self._message = value
 
     @message.expression
-    def message(cls):  # NOQA: N805
+    def message(cls):  # noqa: N805
         return cls._message
 
     with_roles(

@@ -1,29 +1,77 @@
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Dict, Optional, Union, cast
+from typing import Optional, Union, cast
 
 from flask import current_app
 
 from pytz import utc
 from simplejson import JSONDecodeError
+from typing_extensions import TypedDict
 import requests
 import vimeo
 
 from coaster.utils import parse_duration, parse_isoformat
 
-from ..models import Proposal, Session
+from .. import redis_store
+from ..models import Proposal, Session, VideoException, VideoMixin
 
 
 class YoutubeApiException(Exception):
     pass
 
 
+class VideoData(TypedDict):
+    """Dictionary for video data, as used in templates."""
+
+    source: str
+    id: str  # noqa: A003
+    url: str
+    embeddable_url: str
+    duration: float
+    uploaded_at: Union[str, datetime]
+    thumbnail: str
+
+
+def video_cache_key(obj: VideoMixin) -> str:
+    if obj.video_source and obj.video_id:
+        return 'video_cache/' + obj.video_source + '/' + obj.video_id
+    raise VideoException("No video source or ID to create a cache key")
+
+
+def get_video_cache(obj: VideoMixin) -> Optional[VideoData]:
+    data = redis_store.hgetall(video_cache_key(obj))
+    if data:
+        if 'uploaded_at' in data and data['uploaded_at']:
+            data['uploaded_at'] = parse_isoformat(data['uploaded_at'], naive=False)
+        if 'duration' in data and data['duration']:
+            data['duration'] = float(data['duration'])
+    return data
+
+
+def set_video_cache(obj: VideoMixin, data: VideoData, exists: bool = True) -> None:
+    cache_key = video_cache_key(obj)
+
+    copied_data = data.copy()
+    if copied_data['uploaded_at']:
+        copied_data['uploaded_at'] = cast(
+            datetime, copied_data['uploaded_at']
+        ).isoformat()
+    redis_store.hmset(cache_key, copied_data)
+
+    # if video exists at source, cache for 2 days, if not, for 6 hours
+    hours_to_cache = 2 * 24 if exists else 6
+    redis_store.expire(cache_key, 60 * 60 * hours_to_cache)
+
+
 @Proposal.views('video', cached_property=True)
 @Session.views('video', cached_property=True)
-def video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
-    data = None
+def video_property(obj: VideoMixin) -> Optional[VideoData]:
+    data: Optional[VideoData] = None
+    exists = True
     if obj.video_source and obj.video_id:
         # Check for cached data
-        data = obj._video_cache
+        data = get_video_cache(obj)
 
         if not data:
             data = {
@@ -48,7 +96,7 @@ def video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
                         elif not youtube_video['items']:
                             # Response has zero item for our given video ID.
                             # This will happen if the video has been removed from YouTube.
-                            obj._source_video_exists = False
+                            exists = False
                         else:
                             youtube_video = youtube_video['items'][0]
 
@@ -86,7 +134,7 @@ def video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
                 if vimeo_resp.status_code == 200:
                     vimeo_video = vimeo_resp.json()
 
-                    data['duration'] = vimeo_video['duration']
+                    data['duration'] = float(vimeo_video['duration'])
                     # Vimeo returns naive datetime, we will add utc timezone to it
                     data['uploaded_at'] = utc.localize(
                         parse_isoformat(vimeo_video['release_time'])
@@ -94,14 +142,14 @@ def video_property(obj) -> Optional[Dict[str, Union[str, float, datetime]]]:
                     data['thumbnail'] = vimeo_video['pictures']['sizes'][1]['link']
                 elif vimeo_resp.status_code == 404:
                     # Video doesn't exist on Vimeo anymore
-                    obj._source_video_exists = False
+                    exists = False
                 else:
                     # Vimeo API down or returning unexpected values
-                    obj._source_video_exists = False
+                    exists = False
                     current_app.logger.error(
                         "HTTP %s: Vimeo API request failed for url '%s'",
                         vimeo_resp.status_code,
                         video_url,
                     )
-            obj._video_cache = data  # using _video_cache setter to set cache
+            set_video_cache(obj, data, exists)
     return data

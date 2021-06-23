@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import redirect, request, session
 
 from oauth2client import client

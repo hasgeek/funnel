@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from string import Formatter
-from typing import Any, Dict, Optional, Pattern, cast
+from typing import Dict, Optional, Pattern, cast
 import re
 
 from flask import Flask
@@ -76,7 +78,7 @@ class SmsTemplate:
 
     # Type hints for mypy
     _text: Optional[str]
-    _format_kwargs: Dict[str, Any]
+    _format_kwargs: Dict[str, object]
 
     def __init__(self, **kwargs) -> None:
         """Initialize template with variables."""
@@ -86,7 +88,7 @@ class SmsTemplate:
     def process(self) -> None:
         """Process variables (subclasses may override as necessary)."""
 
-    def format(self) -> None:  # NOQA: A003
+    def format(self) -> None:  # noqa: A003
         """Format template with variables."""
         self.process()
         object.__setattr__(self, '_text', self.template.format(**self._format_kwargs))

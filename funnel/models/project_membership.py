@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Dict, Iterable, Optional, Set
 
 from sqlalchemy.ext.declarative import declared_attr

@@ -85,10 +85,7 @@ class TestOrganization(TestDatabaseFixture):
         self.db_session.add(olympic_coven)
         self.db_session.commit()
         assert isinstance(olympic_coven.pickername, str)
-        assert (
-            '{title} (@{name})'.format(title=title, name=name)
-            in olympic_coven.pickername
-        )
+        assert f'{title} (@{name})' in olympic_coven.pickername
 
     def test_organization_name(self):
         """Test for retrieving and setting an Organization's name."""

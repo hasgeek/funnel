@@ -112,7 +112,7 @@ def email_normalized(email):
     mailbox, domain = email.split('@', 1)
     mailbox = mailbox.lower()
     domain = idna.encode(domain, uts46=True).decode()
-    return '{}@{}'.format(mailbox, domain)
+    return f'{mailbox}@{domain}'
 
 
 def email_blake2b160_hash(email):

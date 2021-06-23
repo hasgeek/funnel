@@ -73,9 +73,9 @@ def mask_email(email: str) -> str:
     'n****'
     """
     if '@' not in email:
-        return '{e}****'.format(e=email[0])
+        return f'{email[0]}****'
     username, domain = email.split('@')
-    return '{u}****@{d}****'.format(u=username[0], d=domain[0])
+    return f'{username[0]}****@{domain[0]}****'
 
 
 @cache.memoize(timeout=86400)
@@ -138,7 +138,7 @@ def extract_twitter_handle(handle: str) -> Optional[str]:
 
 
 def format_twitter_handle(handle: str) -> str:
-    return "@{handle}".format(handle=handle) if handle else ""
+    return f"@{handle}" if handle else ""
 
 
 def split_name(fullname: str) -> List:

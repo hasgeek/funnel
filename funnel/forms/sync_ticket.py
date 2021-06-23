@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.widgets import CheckboxInput, ListWidget
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from html import unescape as html_unescape
 from typing import Optional
 from urllib.parse import quote as urlquote

@@ -126,7 +126,7 @@ def email_normalized(email):
     mailbox, domain = email.split('@', 1)
     mailbox = mailbox.lower()
     domain = idna.encode(domain, uts46=True).decode()
-    return '{}@{}'.format(mailbox, domain)
+    return f'{mailbox}@{domain}'
 
 
 def email_blake2b160_hash(email):
@@ -144,7 +144,7 @@ def email_blake2b128_hash(email):
 def email_md5sum(email):
     # This does not perform IDNA encoding as the original code that used 128-bit hashes
     # did not process IDNA encoding either
-    return hashlib.md5(email.lower().encode('utf-8')).hexdigest()  # nosec
+    return hashlib.md5(email.lower().encode('utf-8')).hexdigest()  # nosec  # noqa: S303
 
 
 def email_domain(email):

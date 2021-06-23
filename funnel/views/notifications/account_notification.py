@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import render_template, url_for
 
 from baseframe import _

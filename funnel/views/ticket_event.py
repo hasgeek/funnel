@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.exc import IntegrityError
 
 from flask import abort, flash, jsonify, redirect, request

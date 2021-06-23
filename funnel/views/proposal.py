@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import Markup, abort, escape, flash, jsonify, redirect
 
 from bleach import linkify

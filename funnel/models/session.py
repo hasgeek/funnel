@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
 from typing import Optional, Type, cast

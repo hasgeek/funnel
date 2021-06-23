@@ -45,7 +45,7 @@ class ScopeMixin:
 
     @declared_attr  # type: ignore[no-redef]
     def scope(cls):
-        @property  # type: ignore[misc]  # Ignore complaint about non-method property
+        @property
         def scope(self) -> Tuple[str, ...]:
             if not self._scope:
                 return ()
@@ -170,7 +170,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`AuthClient` as a string."""
-        return '<AuthClient "{title}" {buid}>'.format(title=self.title, buid=self.buid)
+        return f'<AuthClient "{self.title}" {self.buid}>'
 
     def secret_is(self, candidate: str, name: str) -> bool:
         """Check if the provided client secret is valid."""
@@ -580,7 +580,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
             ).one_or_none()
 
     @classmethod
-    def all(  # NOQA: A003
+    def all(  # noqa: A003
         cls, users: Union[QueryBaseClass, Sequence[User]]
     ) -> List[AuthToken]:
         """Return all AuthToken for the specified users."""

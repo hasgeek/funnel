@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import NamedTuple
 import os.path
 
@@ -115,7 +117,7 @@ IndexView.init_app(app)
 @app.route('/api/whoami')
 def whoami():
     if current_auth.user:
-        return jsonify(message="Hey {0}!".format(current_auth.user.fullname), code=200)
+        return jsonify(message=f"Hey {current_auth.user.fullname}!", code=200)
     else:
         return jsonify(message="Hmm, so who _are_ you?", code=401)
 

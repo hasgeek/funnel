@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional, cast
 
 from flask import jsonify, redirect, render_template, request
@@ -29,7 +31,7 @@ def rooms_list(project):
         return [("", _("Select Room"))] + [
             (
                 room.id,
-                "{venue} – {room}".format(venue=room.venue.title, room=room.title),
+                f"{room.venue.title} – {room.title}",
             )
             for room in project.rooms
         ]

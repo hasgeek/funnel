@@ -1,5 +1,7 @@
 """Encryption serializers."""
 
+from __future__ import annotations
+
 import itsdangerous
 
 from coaster.app import KeyRotationWrapper

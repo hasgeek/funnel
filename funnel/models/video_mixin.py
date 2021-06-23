@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Dict, Optional, Tuple, Union
+from typing import Optional, Tuple
 import urllib.parse
 
-from coaster.utils import parse_isoformat
-
-from .. import redis_store
 from . import db
+
+__all__ = ['VideoMixin', 'VideoException']
 
 
 class VideoException(Exception):
@@ -105,42 +103,6 @@ class VideoMixin:
     video_id: db.Column = db.Column(db.UnicodeText, nullable=True)
     video_source: db.Column = db.Column(db.UnicodeText, nullable=True)
 
-    # We'll assume that the video exists at the source.
-    # We'll get to know whether it actually exists when
-    # we make API calls for thumbnails etc.
-    _source_video_exists = True
-
-    @property
-    def video_cache_key(self) -> str:
-        if self.video_source and self.video_id:
-            return 'video_cache/' + self.video_source + '/' + self.video_id
-        raise VideoException("No video source or ID to create a cache key")
-
-    @property
-    def _video_cache(self) -> Dict[str, Union[str, float, datetime]]:
-        data = redis_store.hgetall(self.video_cache_key)
-        if data:
-            if 'uploaded_at' in data and data['uploaded_at']:
-                data['uploaded_at'] = parse_isoformat(data['uploaded_at'], naive=False)
-            if 'duration' in data and data['duration']:
-                data['duration'] = float(data['duration'])
-        return data
-
-    @_video_cache.setter
-    def _video_cache(self, data: dict):
-        copied_data = data.copy()
-        if copied_data['uploaded_at']:
-            copied_data['uploaded_at'] = copied_data['uploaded_at'].isoformat()
-        if copied_data['duration'] and not isinstance(copied_data['duration'], float):
-            copied_data['duration'] = float(copied_data['duration'])
-        redis_store.hmset(self.video_cache_key, copied_data)
-
-        # if video exists at source, cache for 2 days, if not, for 6 hours
-        hours_to_cache = 2 * 24 if self._source_video_exists else 6
-        redis_store.expire(self.video_cache_key, 60 * 60 * hours_to_cache)
-
-    # TODO: Create a dataclass for data
-
     @property
     def video_url(self) -> Optional[str]:
         if self.video_source and self.video_id:
@@ -150,12 +112,6 @@ class VideoMixin:
     @video_url.setter
     def video_url(self, value: str):
         if not value:
-            if (
-                self.video_id
-                and self.video_source
-                and redis_store.exists(self.video_cache_key)
-            ):
-                redis_store.delete(self.video_cache_key)
             self.video_source, self.video_id = None, None
         else:
             self.video_source, self.video_id = parse_video_url(value)

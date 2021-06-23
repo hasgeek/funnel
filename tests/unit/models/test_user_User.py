@@ -91,7 +91,7 @@ def test_user_del_email(db_session, user_twoflower):
     user_twoflower.add_email('twoflower@example.net')
     db_session.commit()
 
-    assert len(user_twoflower.emails) == 3  # type: ignore[unreachable]
+    assert len(user_twoflower.emails) == 3
     assert user_twoflower.primary_email is not None
     assert str(user_twoflower.primary_email) == 'twoflower@example.org'  # type: ignore[unreachable]
     assert {str(e) for e in user_twoflower.emails} == {
@@ -163,7 +163,7 @@ def test_user_del_phone(db_session, user_twoflower):
     user_twoflower.add_phone('+12345678902')
     db_session.commit()
 
-    assert len(user_twoflower.phones) == 3  # type: ignore[unreachable]
+    assert len(user_twoflower.phones) == 3
     assert user_twoflower.primary_phone is not None
     assert str(user_twoflower.primary_phone) == '+12345678900'  # type: ignore[unreachable]
     assert {str(e) for e in user_twoflower.phones} == {
@@ -332,9 +332,7 @@ def test_user_add_email(db_session, user_rincewind):
     assert user_rincewind.email == useremail2  # type: ignore[unreachable]
 
     # scenario 3: when primary flag is True but user has that existing email
-    useremail3 = user_rincewind.add_email(  # type: ignore[unreachable]
-        email1, primary=True
-    )
+    useremail3 = user_rincewind.add_email(email1, primary=True)
     db_session.commit()
     assert useremail3 == useremail1
     assert useremail3.primary is True

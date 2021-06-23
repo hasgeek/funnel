@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from logging.config import fileConfig
 import logging
 
@@ -135,7 +137,7 @@ def run_migrations_online():
             # introduced.
             rec = list(engines.values())[0]
             # Bandit thinks '_upgrades' is a password, so `# nosec` is required
-            context.configure(  # nosec
+            context.configure(  # nosec  # noqa: S106
                 connection=rec['connection'],
                 upgrade_token='_upgrades',
                 downgrade_token='_downgrades',
