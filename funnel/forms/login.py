@@ -3,8 +3,13 @@ from __future__ import annotations
 from baseframe import _, __
 import baseframe.forms as forms
 
-from ..models import User, UserSession, getuser
-from .account import PASSWORD_MAX_LENGTH, password_policy
+from ..models import (
+    PASSWORD_MAX_LENGTH,
+    User,
+    UserSession,
+    check_password_strength,
+    getuser,
+)
 
 __all__ = [
     'LoginPasswordResetException',
@@ -53,7 +58,7 @@ class LoginForm(forms.Form):
         if self.user is None:
             raise forms.ValidationError(_("This user could not be identified"))
 
-    def validate_password(self, field):
+    def validate_password(self, field) -> None:
         # If there is already an error in the password field, don't bother validating.
         # This will be a `Length` validation error, but that one unfortunately does not
         # raise `StopValidation`, so we'll get called with potentially too much data
@@ -96,8 +101,8 @@ class LoginForm(forms.Form):
         # LoginPasswordWeakException after the test. The calling code in views/login.py
         # supports both outcomes.
 
-        # password_policy.test_password(<password>)['is_weak'] returns True/False
-        self.weak_password = password_policy.test_password(field.data)['is_weak']
+        # check_password_strength(<password>)['is_weak'] returns True/False
+        self.weak_password: bool = check_password_strength(field.data)['is_weak']
 
 
 @User.forms('logout')

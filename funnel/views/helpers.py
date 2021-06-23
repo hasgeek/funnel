@@ -34,7 +34,14 @@ def metarefresh_redirect(url):
 
 
 def app_url_for(
-    app, endpoint, _external=True, _method='GET', _anchor=None, _scheme=None, **values
+    target_app,
+    endpoint,
+    /,
+    _external=True,
+    _method='GET',
+    _anchor=None,
+    _scheme=None,
+    **values,
 ):
     """
     Equivalent of calling `url_for` in another app's context, with some differences.
@@ -46,7 +53,7 @@ def app_url_for(
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
     # 'app' here is the parameter, not the module-level import
-    if current_app and current_app._get_current_object() is app:
+    if current_app and current_app._get_current_object() is target_app:
         return url_for(
             endpoint,
             _external=_external,
@@ -55,7 +62,7 @@ def app_url_for(
             _scheme=_scheme,
             **values,
         )
-    url_adapter = app.create_url_adapter(None)
+    url_adapter = target_app.create_url_adapter(None)
     old_scheme = None
     if _scheme is not None:
         old_scheme = url_adapter.url_scheme

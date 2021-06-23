@@ -10,6 +10,8 @@ __all__ = ['UpdateForm']
 
 @Update.forms('main')
 class UpdateForm(forms.Form):
+    """Post an update in a project."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],

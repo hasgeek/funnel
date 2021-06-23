@@ -22,6 +22,8 @@ class YoutubeApiException(Exception):
 
 
 class VideoData(TypedDict):
+    """Dictionary for video data, as used in templates."""
+
     source: str
     id: str  # NOQA: A003
     url: str

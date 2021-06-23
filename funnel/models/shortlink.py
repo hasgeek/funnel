@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from os import urandom
-from typing import Optional, Union, overload
+from typing import Iterable, Optional, Union, overload
 import hashlib
 import re
 
@@ -61,7 +61,7 @@ def random_bigint(smaller: bool = False) -> int:
             # Must use `signed=True` when full-size because PostgreSQL only supports
             # signed integers. However, smaller numbers must not be signed as negative
             # integers have the high bit set, and then they are no longer small bitwise
-            signed=False if smaller else True,
+            signed=not smaller,  # signed=False if smaller
         )
     return val
 
@@ -157,19 +157,21 @@ class ShortLinkToBigIntComparator(Comparator):
     If the provided name is invalid, :func:`name_to_bigint` will raise exceptions.
     """
 
-    def __eq__(self, value):
-        """Return an expression for column == value."""
-        return self.__clause_element__() == name_to_bigint(value)
+    def __eq__(self, other: Union[str, bytes]):  # type: ignore[override]
+        """Return an expression for column == other."""
+        return self.__clause_element__() == name_to_bigint(other)
 
-    def in_(self, value):
-        """Return an expression for value IN column."""
-        return self.__clause_element__().in_([name_to_bigint(v) for v in value])
+    def in_(self, other: Iterable[Union[str, bytes]]):  # type: ignore[override]
+        """Return an expression for other IN column."""
+        return self.__clause_element__().in_([name_to_bigint(v) for v in other])
 
 
 # --- Models ---------------------------------------------------------------------------
 
 
 class Shortlink(NoIdMixin, db.Model):
+    """A short link to a full-size link, for use over SMS."""
+
     __tablename__ = 'shortlink'
 
     # id of this shortlink, saved as a bigint (8 bytes)
@@ -212,13 +214,13 @@ class Shortlink(NoIdMixin, db.Model):
     # --- Validators
 
     @db.validates('id')
-    def _validate_id_not_zero(self, key, value: int) -> int:
+    def _validate_id_not_zero(self, key, value: int) -> int:  # skipcq: PYL-R0201
         if value == 0:
             raise ValueError("Id cannot be zero")
         return value
 
     @db.validates('url')
-    def _validate_url(self, key, value) -> str:
+    def _validate_url(self, key, value) -> str:  # skipcq: PYL-R0201
         value = url_normalize(str(value))
         # If URL hashes are added to the model, the value must be set here using
         # `url_blake2b160_hash(value, normalize=False)`

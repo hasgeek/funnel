@@ -35,6 +35,7 @@ class SiteMembership(ImmutableUserMembershipMixin, db.Model):
 
     #: SiteMembership doesn't have a container limiting its scope
     parent_id = None
+    parent = None
 
     # Site admin roles (at least one must be True):
 
@@ -60,6 +61,14 @@ class SiteMembership(ImmutableUserMembershipMixin, db.Model):
             )
         )
         return tuple(args)
+
+    def __repr__(self):
+        """Return representation of membership."""
+        return (
+            f'<{self.__class__.__name__} {self.subject!r} '
+            + ('active' if self.is_active else 'revoked')
+            + '>'
+        )
 
     @cached_property
     def offered_roles(self) -> Set[str]:

@@ -63,8 +63,8 @@ from ..models import (
     UserPhone,
     UserPhoneClaim,
     UserSession,
+    check_password_strength,
     db,
-    password_policy,
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
@@ -235,7 +235,7 @@ def password_policy_check():
             for phoneclaim in current_auth.user.phoneclaims:
                 user_inputs.append(str(phoneclaim))
 
-        tested_password = password_policy.test_password(
+        tested_password = check_password_strength(
             policy_form.password.data,
             user_inputs=user_inputs if user_inputs else None,
         )

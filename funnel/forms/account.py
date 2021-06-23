@@ -9,13 +9,15 @@ import baseframe.forms as forms
 
 from ..models import (
     MODERATOR_REPORT_TYPE,
+    PASSWORD_MAX_LENGTH,
+    PASSWORD_MIN_LENGTH,
     Profile,
     User,
     UserEmailClaim,
     UserPhone,
     UserPhoneClaim,
+    check_password_strength,
     getuser,
-    password_policy,
 )
 from .helpers import EmailAddressAvailable, tostr
 
@@ -49,9 +51,6 @@ supported_locales = {
     'hi': __("Hindi (beta; incomplete)"),
 }
 
-PASSWORD_MIN_LENGTH = 8
-PASSWORD_MAX_LENGTH = 100
-
 
 class PasswordStrengthValidator:
     default_message = _(
@@ -82,7 +81,7 @@ class PasswordStrengthValidator:
             for phoneclaim in form.edit_user.phoneclaims:
                 user_inputs.append(str(phoneclaim))
 
-        tested_password = password_policy.test_password(
+        tested_password = check_password_strength(
             field.data, user_inputs=user_inputs if user_inputs else None
         )
         # Stick password strength into the form for logging in the view and possibly
