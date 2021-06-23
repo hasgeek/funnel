@@ -580,7 +580,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
             ).one_or_none()
 
     @classmethod
-    def all(  # NOQA: A003
+    def all(  # noqa: A003
         cls, users: Union[QueryBaseClass, Sequence[User]]
     ) -> List[AuthToken]:
         """Return all AuthToken for the specified users."""

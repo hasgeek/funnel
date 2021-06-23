@@ -81,7 +81,7 @@ def test_getextid(db_session, user_rincewind):
     service = 'sample-service'
     userid = 'rincewind@sample-service'
 
-    externalid = models.UserExternalId(  # NOQA: S106
+    externalid = models.UserExternalId(  # noqa: S106
         service=service,
         user=user_rincewind,
         userid=userid,

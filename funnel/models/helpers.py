@@ -421,7 +421,7 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
     )
 
     update_statement = dedent(  # nosec
-        '''
+        '''  # noqa: S608
         UPDATE {table_name} SET {column_name} = {update_expr};
         '''.format(  # nosec
             table_name=pgquote(model.__tablename__),

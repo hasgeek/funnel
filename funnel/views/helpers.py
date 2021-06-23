@@ -255,7 +255,7 @@ def validate_rate_limit(
 # Text token length in bytes
 # 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities
 TOKEN_BYTES_LEN = 3
-text_token_prefix = 'temp_token/v1/'  # nosec
+text_token_prefix = 'temp_token/v1/'  # nosec  # noqa: S105
 
 
 def make_cached_token(payload, timeout=24 * 60 * 60, reserved=None):

@@ -365,12 +365,12 @@ def oauth_make_token(
         if auth_client.confidential:
             if user is None:
                 raise ValueError("User not provided")
-            token = AuthToken(  # nosec
+            token = AuthToken(  # nosec  # noqa: S106
                 user=user, auth_client=auth_client, scope=scope, token_type='bearer'
             )
             token = failsafe_add(db.session, token, user=user, auth_client=auth_client)
         elif user_session is not None:
-            token = AuthToken(  # nosec
+            token = AuthToken(  # nosec  # noqa: S106
                 user_session=user_session,
                 auth_client=auth_client,
                 scope=scope,
