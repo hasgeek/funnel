@@ -104,7 +104,7 @@ repos:
       - id: no-commit-to-branch
       - id: requirements-txt-fixer
       - id: trailing-whitespace
-  # Enable after {% block bodytag %} is fixed in Jinja2 templates
+  # Enable after auditing existing templates
   # - repo: https://github.com/thibaudcolas/curlylint
   #   rev: v0.13.0
   #   hooks:
