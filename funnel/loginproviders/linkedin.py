@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 from urllib.parse import quote
 from uuid import uuid4
 
 from flask import current_app, redirect, request, session
 
 from sentry_sdk import capture_exception
-from simplejson.errors import JSONDecodeError
+from simplejson import JSONDecodeError
 import requests
 
 from baseframe import _
@@ -17,7 +19,7 @@ __all__ = ['LinkedInProvider']
 
 class LinkedInProvider(LoginProvider):
     auth_url = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id={client_id}&scope={scope}&redirect_uri={redirect_uri}&state={state}'
-    token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'  # nosec
+    token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'  # nosec  # noqa: S105
     user_info = 'https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName)'
     user_email = 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))'
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Set
 
 from werkzeug.utils import cached_property
@@ -146,7 +148,7 @@ class __Profile:
             lazy='dynamic',
             primaryjoin=db.and_(
                 SponsorMembership.profile_id == Profile.id,
-                SponsorMembership.record_type == MEMBERSHIP_RECORD_TYPE.INVITE,  # type: ignore[has-type]
+                SponsorMembership.record_type == MEMBERSHIP_RECORD_TYPE.INVITE,
                 SponsorMembership.is_active,
             ),
             order_by=SponsorMembership.granted_at.desc(),

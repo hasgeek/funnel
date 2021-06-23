@@ -43,7 +43,7 @@ __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 # --- Constants ---------------------------------------------------------------
 
 
-class PROJECT_STATE(LabeledEnum):  # NOQA: N801
+class PROJECT_STATE(LabeledEnum):  # noqa: N801
     DRAFT = (0, 'draft', __("Draft"))
     PUBLISHED = (1, 'published', __("Published"))
     WITHDRAWN = (2, 'withdrawn', __("Withdrawn"))
@@ -52,7 +52,7 @@ class PROJECT_STATE(LabeledEnum):  # NOQA: N801
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
-class CFP_STATE(LabeledEnum):  # NOQA: N801
+class CFP_STATE(LabeledEnum):  # noqa: N801
     NONE = (0, 'none', __("None"))
     PUBLIC = (1, 'public', __("Public"))
     CLOSED = (2, 'closed', __("Closed"))
@@ -435,7 +435,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`Project` as a string."""
-        return '<Project %s/%s "%s">' % (
+        return '<Project {}/{} "{}">'.format(
             self.profile.name if self.profile else '(none)',
             self.name,
             self.title,
@@ -663,8 +663,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """Return query of all published projects, without ordering criteria."""
         return cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
 
-    @classmethod  # NOQA: A003
-    def all(cls):  # NOQA: A003
+    @classmethod
+    def all(cls):  # noqa: A003
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 
@@ -704,7 +704,7 @@ add_search_trigger(Project, 'search_vector')
 
 @reopen(Profile)
 class __Profile:
-    id: db.Column  # NOQA: A003
+    id: db.Column  # noqa: A003
 
     listed_projects = db.relationship(
         Project,
@@ -775,7 +775,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`ProjectRedirect` as a string."""
-        return '<ProjectRedirect %s/%s: %s>' % (
+        return '<ProjectRedirect {}/{}: {}>'.format(
             self.profile.name,
             self.name,
             self.project.name if self.project else '(none)',

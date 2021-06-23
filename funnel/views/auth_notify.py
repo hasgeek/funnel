@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ..models import AuthToken
 from ..signals import (
     org_data_changed,
@@ -69,7 +71,7 @@ def notify_user_data_changed(user, changes):
                     ]:
                         if {'phone', 'phone/*'}.intersection(tokenscope):
                             notify_changes.append(change)
-                    elif change in ['team-membership']:
+                    elif change in ['team-membership']:  # skipcq: PTC-W0048
                         if {
                             'organizations',
                             'organizations/*',

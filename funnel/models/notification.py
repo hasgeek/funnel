@@ -76,7 +76,6 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 from typing import (
-    Any,
     Callable,
     Dict,
     Generator,
@@ -184,7 +183,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
 # --- Flags ----------------------------------------------------------------------------
 
 
-class SMS_STATUS(LabeledEnum):  # NOQA: N801
+class SMS_STATUS(LabeledEnum):  # noqa: N801
     QUEUED = (0, __("Queued"))
     PENDING = (1, __("Pending"))
     DELIVERED = (2, __("Delivered"))
@@ -239,7 +238,7 @@ class Notification(NoIdMixin, db.Model):
     )
 
     #: Notification id
-    id = immutable(  # NOQA: A003
+    id = immutable(  # noqa: A003
         db.Column(
             UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
         )
@@ -285,7 +284,7 @@ class Notification(NoIdMixin, db.Model):
     preference_context: db.Model = None
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
-    type = immutable(db.Column(db.Unicode, nullable=False))  # NOQA: A003
+    type_ = immutable(db.Column('type', db.Unicode, nullable=False))
 
     #: Id of user that triggered this notification
     user_id = immutable(
@@ -314,7 +313,7 @@ class Notification(NoIdMixin, db.Model):
         # present. Hence the naming convention of `_key` suffix rather than `ix_` prefix
         db.Index(
             'notification_type_document_uuid_fragment_uuid_key',
-            type,
+            type_,
             document_uuid,
             fragment_uuid,
             unique=True,
@@ -324,7 +323,7 @@ class Notification(NoIdMixin, db.Model):
 
     __mapper_args__ = {
         # 'polymorphic_identity' from subclasses is stored in the type column
-        'polymorphic_on': type,
+        'polymorphic_on': type_,
         # When querying the Notification model, cast automatically to all subclasses
         'with_polymorphic': '*',
     }
@@ -426,11 +425,11 @@ class Notification(NoIdMixin, db.Model):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator
-    def eventid_b58(cls):  # NOQA: N805
+    def eventid_b58(cls):  # noqa: N805
         return SqlUuidB58Comparator(cls.eventid)
 
     @cached_property  # type: ignore[no-redef]
-    def document(self):  # type: ignore
+    def document(self):
         """
         Retrieve the document referenced by this Notification, if any.
 
@@ -443,7 +442,7 @@ class Notification(NoIdMixin, db.Model):
         return None
 
     @cached_property  # type: ignore[no-redef]
-    def fragment(self):  # type: ignore
+    def fragment(self):
         """
         Retrieve the fragment within a document referenced by this Notification, if any.
 
@@ -533,6 +532,11 @@ class Notification(NoIdMixin, db.Model):
                 )
                 db.session.add(user_notification)
                 yield user_notification
+
+    # Make :attr:`type_` available under the name `type`, but declare this at the very
+    # end of the class to avoid conflicts with the Python `type` global that is
+    # used for type-hinting
+    type = db.synonym('type_')  # noqa: A003
 
 
 class PreviewNotification:
@@ -747,7 +751,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator
-    def eventid_b58(cls):  # NOQA: N805
+    def eventid_b58(cls):  # noqa: N805
         return SqlUuidB58Comparator(cls.eventid)
 
     with_roles(eventid_b58, read={'owner'})
@@ -766,7 +770,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             self.read_at = None
 
     @is_read.expression
-    def is_read(cls):  # NOQA: N805
+    def is_read(cls):  # noqa: N805
         return cls.read_at.isnot(None)
 
     with_roles(is_read, rw={'owner'})
@@ -785,7 +789,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             self.revoked_at = None
 
     @is_revoked.expression
-    def is_revoked(cls):  # NOQA: N805
+    def is_revoked(cls):  # noqa: N805
         return cls.revoked_at.isnot(None)
 
     with_roles(is_revoked, rw={'owner'})
@@ -1112,8 +1116,8 @@ class NotificationPreferences(BaseMixin, db.Model):
             else:
                 for t_attr, d_attr in transport_attrs:
                     if getattr(self, t_attr) is None:
-                        # If this transport is enabled for any existing notification type,
-                        # also enable here.
+                        # If this transport is enabled for any existing notification
+                        # type, also enable here.
                         setattr(
                             self,
                             t_attr,
@@ -1152,7 +1156,7 @@ class NotificationPreferences(BaseMixin, db.Model):
         return None
 
     @db.validates('notification_type')
-    def _valid_notification_type(self, key: str, value: Any) -> str:
+    def _valid_notification_type(self, key: str, value: Optional[str]) -> str:
         if value == '':  # Special-cased name for main preferences
             return value
         if value is None or value not in notification_type_registry:

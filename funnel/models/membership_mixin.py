@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Set, TypeVar
+from typing import Iterable, Set, TypeVar
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
@@ -30,7 +30,7 @@ __all__ = [
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
 
 
-class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # NOQA: N801
+class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
     """Membership record types."""
 
     INVITE = (0, 'invite', __("Invite"))
@@ -133,7 +133,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
 
     @is_active.expression
-    def is_active(cls):  # NOQA: N805
+    def is_active(cls):  # noqa: N805
         return db.and_(
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
         )
@@ -176,7 +176,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'editor'})
     def replace(
-        self: MembershipType, actor: User, accept=False, **roles: Any
+        self: MembershipType, actor: User, accept=False, **roles: object
     ) -> MembershipType:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:

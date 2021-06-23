@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import annotations
+
 import logging
 import os.path
 
@@ -44,7 +46,7 @@ assets['schedule-print.css'][version] = 'css/schedule-print.css'
 
 # --- Import rest of the app --------------------------------------------------
 
-from . import (  # NOQA  # isort:skip
+from . import (  # isort:skip  # noqa: F401
     models,
     signals,
     forms,

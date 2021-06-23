@@ -1,5 +1,7 @@
 # flake8: noqa
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
@@ -54,6 +56,7 @@ from .saved import *  # isort:skip
 from .session import *  # isort:skip
 from .shortlink import *  # isort:skip
 from .venue import *  # isort:skip
+from .video_mixin import *  # isort:skip
 from .membership_mixin import *  # isort:skip
 from .organization_membership import *  # isort:skip
 from .project_membership import *  # isort:skip

@@ -1,5 +1,7 @@
 """Signals for user/org models."""
 
+from __future__ import annotations
+
 from sqlalchemy import event
 
 from ..signals import (

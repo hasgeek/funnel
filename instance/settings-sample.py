@@ -49,21 +49,21 @@ DEBUG = True
 
 #: Twitter integration
 OAUTH_TWITTER_KEY = ''  # nosec
-OAUTH_TWITTER_SECRET = ''  # nosec
+OAUTH_TWITTER_SECRET = ''  # nosec  # noqa: S105
 
 #: GitHub integration
 OAUTH_GITHUB_KEY = ''  # nosec
-OAUTH_GITHUB_SECRET = ''  # nosec
+OAUTH_GITHUB_SECRET = ''  # nosec  # noqa: S105
 
 #: Google integration. Get an app here: https://console.developers.google.com/
 OAUTH_GOOGLE_KEY = ''  # nosec
-OAUTH_GOOGLE_SECRET = ''  # nosec
+OAUTH_GOOGLE_SECRET = ''  # nosec  # noqa: S105
 #: Default is ['email', 'profile']
 OAUTH_GOOGLE_SCOPE = ['email', 'profile']  # nosec
 
 #: LinkedIn integration
 OAUTH_LINKEDIN_KEY = ''  # nosec
-OAUTH_LINKEDIN_SECRET = ''  # nosec
+OAUTH_LINKEDIN_SECRET = ''  # nosec  # noqa: S105
 
 #: Recaptcha for the registration form
 RECAPTCHA_USE_SSL = True  # nosec
@@ -75,10 +75,10 @@ RECAPTCHA_OPTIONS = ''
 #: SMSGupShup support is deprecated
 SMS_SMSGUPSHUP_MASK = ''
 SMS_SMSGUPSHUP_USER = ''  # nosec
-SMS_SMSGUPSHUP_PASS = ''  # nosec
+SMS_SMSGUPSHUP_PASS = ''  # nosec  # noqa: S105
 #: Exotel support is active
 SMS_EXOTEL_SID = ''  # nosec
-SMS_EXOTEL_TOKEN = ''  # nosec
+SMS_EXOTEL_TOKEN = ''  # nosec  # noqa: S105
 SMS_EXOTEL_FROM = ''  # nosec
 
 #: DLT registered entity id and template ids
@@ -91,7 +91,7 @@ SMS_DLT_TEMPLATE_IDS = {
 
 #: Twilio support for non-indian numbers
 SMS_TWILIO_SID = ''  # nosec
-SMS_TWILIO_TOKEN = ''  # nosec
+SMS_TWILIO_TOKEN = ''  # nosec  # noqa: S105
 SMS_TWILIO_FROM = ''  # nosec
 
 #: Unsubscribe token domain

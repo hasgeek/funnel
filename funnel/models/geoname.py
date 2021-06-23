@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -236,11 +236,11 @@ class GeoName(BaseNameMixin, db.Model):
                 suffix = 'district'
 
         if state:
-            title = '%s, %s' % (title, state)
+            title = f'{title}, {state}'
         if country:
-            title = '%s, %s' % (title, country)
+            title = f'{title}, {country}'
         if suffix:
-            return '%s (%s)' % (title, suffix)
+            return f'{title} ({suffix})'
         return title
 
     @property
@@ -424,7 +424,7 @@ class GeoName(BaseNameMixin, db.Model):
         while '' in tokens:
             tokens.remove('')  # Remove blank tokens from beginning and end
         ltokens = [t.lower() for t in tokens]
-        results: List[Dict[str, Any]] = []
+        results: List[Dict[str, object]] = []
         counter = 0
         limit = len(tokens)
         while counter < limit:
@@ -558,7 +558,7 @@ class GeoAltName(BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoAltName %s "%s" of %s>' % (
+        return '<GeoAltName {} "{}" of {}>'.format(
             self.lang,
             self.title,
             repr(self.geoname)[1:-1] if self.geoname else None,

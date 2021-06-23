@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import Markup, url_for
 
 from baseframe import _, __

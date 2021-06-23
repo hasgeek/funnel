@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from baseframe import _, __
 from coaster.utils import getbool
 import baseframe.forms as forms

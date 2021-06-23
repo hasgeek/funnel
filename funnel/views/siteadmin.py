@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import Counter, namedtuple
 from dataclasses import dataclass, field
 from datetime import timedelta

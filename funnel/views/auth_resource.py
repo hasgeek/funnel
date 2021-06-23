@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import abort, jsonify, render_template, request
 
 from baseframe import __
