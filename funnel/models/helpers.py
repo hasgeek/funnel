@@ -91,6 +91,8 @@ RESERVED_NAMES: Set[str] = {
     'notification',
     'notifications',
     'org',
+    'organisation',
+    'organisations',
     'organization',
     'organizations',
     'orgs',
