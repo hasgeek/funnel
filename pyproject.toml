@@ -61,7 +61,8 @@ filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
 mocked-sessions = 'coaster.db.db.session'
 
 [tool.curlylint]
-include = '\.jinja2$'
+include = '\.html.jinja2$'
+template_tags = [['set'], ['trans', 'pluralize', 'endtrans']]
 exclude = '''
 /(
     \.eggs
@@ -81,11 +82,18 @@ exclude = '''
 '''
 
 [tool.curlylint.rules]
-# Indent 2 spaces
-indent = 2
 # All role attributes must be valid.
-# See https://www.curlylint.org/docs/rules/aria_role.
+# See https://www.curlylint.org/docs/rules/aria_role
 aria_role = true
+# HTML lang attribute must be set
+# See https://www.curlylint.org/docs/rules/html_has_lang
+html_has_lang = true
 # The `alt` attribute must be present.
-# See https://www.curlylint.org/docs/rules/image_alt.
+# See https://www.curlylint.org/docs/rules/image_alt
 image_alt = true
+# Indent 2 spaces
+# See https://www.curlylint.org/docs/rules/indent
+# Enable after issue 6 is fixed: https://github.com/thibaudcolas/curlylint/issues/6
+# indent = 2
+# Avoid positive `tabindex` values
+tabindex_no_positive = true
