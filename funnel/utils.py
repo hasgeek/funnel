@@ -1,18 +1,15 @@
 from __future__ import annotations
 
-from typing import List, Optional, Set, overload
+from typing import List, Optional, overload
 import io
 import urllib.parse
 
-from flask import abort, current_app
+from flask import abort
 
 import qrcode
 import qrcode.image.svg
-import requests
 
-from baseframe import cache
-
-# --- Utilities ---------------------------------------------------------------
+# --- Utilities ------------------------------------------------------------------------
 
 
 @overload
@@ -78,34 +75,6 @@ def mask_email(email: str) -> str:
     return f'{username[0]}****@{domain[0]}****'
 
 
-@cache.memoize(timeout=86400)
-def geonameid_from_location(text: str) -> Set[int]:
-    """
-    Convert location string into a set of matching geonameids.
-
-    Eg: "Bangalore" -> {1277333}
-
-    Returns an empty set if the request timed out, or if the Hascore config
-    wasn't set.
-    To detect multiple locations, split them up and pass each location individually
-    """
-    if 'HASCORE_SERVER' in current_app.config:
-        url = urllib.parse.urljoin(
-            current_app.config['HASCORE_SERVER'], '/1/geo/parse_locations'
-        )
-        try:
-            response = requests.get(url, params={'q': text}, timeout=2.0).json()
-            geonameids = [
-                field['geoname']['geonameid']
-                for field in response['result']
-                if 'geoname' in field
-            ]
-            return set(geonameids)
-        except requests.exceptions.Timeout:
-            pass
-    return set()
-
-
 def extract_twitter_handle(handle: str) -> Optional[str]:
     """
     Extract a twitter handle from a user input.
@@ -118,7 +87,8 @@ def extract_twitter_handle(handle: str) -> Optional[str]:
     **Notes**
 
     - Returns `None` for invalid cases.
-    - Twitter restricts the length of handles to 15. 16 is the threshold here, since a user might prefix their handle with an '@', a valid case.
+    - Twitter restricts the length of handles to 15. 16 is the threshold here, since a
+      user might prefix their handle with an '@', a valid case.
     - Tests in `tests/test_util.py`.
     """
     if not handle:
