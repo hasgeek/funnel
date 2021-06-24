@@ -33,6 +33,7 @@ def test_getuser(db_session, user_twoflower, user_rincewind, user_mort, user_wol
     assert user_twoflower.username is None
     assert user_rincewind.username == 'rincewind'
     assert user_mort.username is None
+    assert user_wolfgang.username == 'wolfgang'
 
     # Add additional fixtures
 
@@ -74,6 +75,13 @@ def test_getuser(db_session, user_twoflower, user_rincewind, user_mort, user_wol
 
     # Using an unknown email address retrieves nothing
     assert models.getuser('unknown@example.org') is None
+
+    # Suspending an account causes lookup to fail
+    user_rincewind.mark_suspended()
+    assert models.getuser('rincewind') is None
+    assert models.getuser('@rincewind') is None
+    assert models.getuser('~rincewind') is None
+    assert models.getuser('rincewind@example.com') is None
 
 
 def test_getextid(db_session, user_rincewind):
