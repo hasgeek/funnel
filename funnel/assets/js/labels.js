@@ -23,9 +23,9 @@ $(() => {
     $('.js-delete-btn').click(function (event) {
       event.preventDefault();
       let url = $(this).attr('href');
-      let confirmationText = `Are you sure you want to ${$(this)
-        .attr('title')
-        .toLowerCase()}?`;
+      let confirmationText = window.gettext('Are you sure you want to %s?', [
+        $(this).attr('title').toLowerCase(),
+      ]);
 
       if (window.confirm(confirmationText)) {
         $.ajax({
