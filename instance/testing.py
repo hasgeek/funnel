@@ -17,7 +17,6 @@ LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
 UPLOAD_FOLDER = '/tmp'  # nosec  # noqa: S108
 TIMEZONE = 'Asia/Kolkata'
 ASSET_BASE_PATH = "build"
-HASCORE_SERVER = 'https://api.hasgeek.com'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
 BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
 
