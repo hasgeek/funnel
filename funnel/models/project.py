@@ -12,7 +12,6 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from ..typing import OptionalMigratedTables
-from ..utils import geonameid_from_location
 from . import (
     BaseScopedNameMixin,
     JsonDict,
@@ -609,10 +608,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             if self.cfp_end_at
             else None
         )
-
-    @cached_property
-    def location_geonameid(self):
-        return geonameid_from_location(self.location) if self.location else set()
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
     @cached_property

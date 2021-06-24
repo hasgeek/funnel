@@ -6,7 +6,6 @@ from funnel.utils import (
     abort_null,
     extract_twitter_handle,
     format_twitter_handle,
-    geonameid_from_location,
     make_redirect_url,
     mask_email,
     split_name,
@@ -43,12 +42,6 @@ def test_extract_twitter_handle():
     assert extract_twitter_handle('seriouslylongstring') is None
     assert extract_twitter_handle('https://facebook.com/shreyas') is None
     assert extract_twitter_handle('') is None
-
-
-def test_geonameid_from_location():
-    location = "Bangalore"
-    expected_geonameid = 1277333
-    assert expected_geonameid in geonameid_from_location(location)
 
 
 def test_split_name():

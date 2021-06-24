@@ -41,7 +41,6 @@ ADMINS = []  # type: ignore[var-annotated]  # Remove this comment when editing
 #: Log file
 LOGFILE = 'error.log'
 
-HASCORE_SERVER = 'https://api.hasgeek.com/'
 CACHE_TYPE = 'redis'
 RQ_REDIS_URL = 'redis://localhost:6379/0'
 RQ_SCHEDULER_INTERVAL = 1
