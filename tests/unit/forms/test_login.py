@@ -173,3 +173,17 @@ def test_login_pass(user):
         assert form.user == user
         assert form.username.errors == []
         assert form.password.errors == []
+
+
+def test_login_user_suspended(user):
+    """Login fails if the user account has been suspended."""
+    user.mark_suspended()
+    with app.test_request_context(
+        method='POST', data={'username': 'user', 'password': 'test_password'}
+    ):
+        form = LoginForm(meta={'csrf': False})
+        assert form.validate() is False
+        assert form.user is None
+        # FIXME: The user should be informed that their account has been suspended
+        assert form.username.errors == ["This user could not be identified"]
+        assert form.password.errors == []

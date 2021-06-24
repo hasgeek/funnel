@@ -14,6 +14,7 @@ __all__ = [
     'UserSessionInvalid',
     'UserSessionExpired',
     'UserSessionRevoked',
+    'UserSessionInactiveUser',
     'auth_client_user_session',
     'user_session_validity_period',
 ]
@@ -28,6 +29,10 @@ class UserSessionExpired(UserSessionInvalid):
 
 
 class UserSessionRevoked(UserSessionInvalid):
+    pass
+
+
+class UserSessionInactiveUser(UserSessionInvalid):
     pass
 
 
@@ -121,23 +126,37 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def authenticate(cls, buid, silent=False):
+        """
+        Retrieve a user session that is supposed to be active.
+
+        If a session is invalid, exceptions will be raised to indicate the problem,
+        unless silent mode is enabled.
+        """
         if silent:
-            return cls.query.filter(
-                # Session key must match.
-                cls.buid == buid,
-                # Sessions are valid for one year...
-                cls.accessed_at > db.func.utcnow() - user_session_validity_period,
-                # ...unless explicitly revoked (or user logged out)
-                cls.revoked_at.is_(None),
-            ).one_or_none()
+            return (
+                cls.query.join(User)
+                .filter(
+                    # Session key must match.
+                    cls.buid == buid,
+                    # Sessions are valid for one year...
+                    cls.accessed_at > db.func.utcnow() - user_session_validity_period,
+                    # ...unless explicitly revoked (or user logged out).
+                    cls.revoked_at.is_(None),
+                    # User account must be active
+                    User.state.ACTIVE,
+                )
+                .one_or_none()
+            )
 
         # Not silent? Raise exceptions on expired and revoked sessions
-        user_session = cls.query.filter(cls.buid == buid).one_or_none()
+        user_session = cls.query.join(User).filter(cls.buid == buid).one_or_none()
         if user_session is not None:
             if user_session.accessed_at <= utcnow() - user_session_validity_period:
                 raise UserSessionExpired(user_session)
             if user_session.revoked_at is not None:
                 raise UserSessionRevoked(user_session)
+            if not user_session.user.state.ACTIVE:
+                raise UserSessionInactiveUser(user_session)
         return user_session
 
 
