@@ -34,6 +34,7 @@ from ..models import (
     User,
     UserSession,
     UserSessionExpired,
+    UserSessionInactiveUser,
     UserSessionRevoked,
     auth_client_user_session,
     db,
@@ -136,6 +137,19 @@ class LoginManager:
                     'info',
                 )
                 current_app.logger.info("Got a revoked user session; logging out")
+                add_auth_attribute('session', None)
+                logout_internal()
+            except UserSessionInactiveUser as exc:
+                inactive_user = exc.args[0].user
+                if inactive_user.state.SUSPENDED:
+                    flash(_("Your account has been suspended"))
+                elif inactive_user.state.DELETED:
+                    flash(
+                        _("This login is for a user account that is no longer present")
+                    )
+                else:
+                    flash(_("Your account is not active"))
+                current_app.logger.info("Got an inactive user; logging out")
                 add_auth_attribute('session', None)
                 logout_internal()
 
