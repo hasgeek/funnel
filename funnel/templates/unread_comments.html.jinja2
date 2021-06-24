@@ -7,14 +7,19 @@
         <div class="user__box">
           <div class="user__box__banner">
             <div class="user__box__banner__wrapper">
-              {% if membership.parent_type == 'project' %}
+              {% if membership.parent.bg_image.url %}
+                <img src="{{ membership.parent.bg_image }}" alt="{{ membership.parent.title }}" />
+              {% else %}
+                <img src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ membership.parent.title }}" />
+              {% endif %}
+              {% if membership.parent_type == 'proposal' %}
                 {{ faicon(icon='file-solid', baseline=false, css_class='user__box__banner__wrapper__icon') }}
               {% endif %}
             </div>
           </div>
           <div class="user__box__header comment__details" data-cy="unread-comment">
             {% if membership.last_comment %}
-              <h3 class="mui--text-body2 user__box__fullname"><span class="mui--text-bold truncated-text" data-cy="comment-username">{{ membership.parent.title }}</span><span class="mui--text-caption mui--pull-right comment__details__age">{{ membership.last_comment.created_at|age }}</span></h3>
+              <h3 class="mui--text-body2 user__box__fullname"><span class="mui--text-bold comment__details__title" data-cy="comment-username">{{ membership.parent.title }}</span><span class="mui--text-body1 mui--pull-right comment__details__age">{{ membership.last_comment.created_at|age }}</span></h3>
               <h3 class="mui--text-caption mui--text-light user__box__subcontent"><span class="truncated-text">{{ membership.last_comment.user.fullname }}: {{ membership.last_comment.message.text }}</span>{% if membership.new_comments_counts %}<span class="badge badge--round badge--round-smaller">{{ membership.new_comments_counts }}</span>{% endif %}</h3>
             {%- else %}
               <h3 class="mui--text-body2 user__box__fullname"><span class="mui--text-bold truncated-text" data-cy="comment-username">{{ membership.parent.title }}</span></h3>
