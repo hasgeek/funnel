@@ -36,7 +36,6 @@ def metarefresh_redirect(url):
 def app_url_for(
     target_app,
     endpoint,
-    /,
     _external=True,
     _method='GET',
     _anchor=None,
