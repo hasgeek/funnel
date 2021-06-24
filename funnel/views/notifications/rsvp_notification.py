@@ -81,11 +81,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
         project = self.rsvp.project
         next_at = project.next_starting_at()
         if next_at:
-            template = _(
-                "You have registered for {project}."
-                " The next session starts {datetime}."
-                " You will get a reminder 10m prior."
-            )
+            template = _("You have registered for {project}. Next session: {datetime}.")
         else:
             template = _("You have registered for {project}")
         return OneLineTemplate(
