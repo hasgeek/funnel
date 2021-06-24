@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from textwrap import dedent
-from typing import Dict, Iterable, Optional, Set, Type, Union
+from typing import Dict, Iterable, Optional, Set, Type
 import re
 
 from sqlalchemy import DDL, event
@@ -11,6 +13,7 @@ from sqlalchemy.dialects.postgresql.base import (
 from flask import current_app
 
 from furl import furl
+from typing_extensions import TypedDict
 from zxcvbn import zxcvbn
 import pymdownx.superfences
 
@@ -25,13 +28,14 @@ from . import UrlType, db
 
 __all__ = [
     'RESERVED_NAMES',
-    'password_policy',
+    'PASSWORD_MIN_LENGTH',
+    'PASSWORD_MAX_LENGTH',
+    'check_password_strength',
     'markdown_content_options',
     'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
     'add_search_trigger',
-    'password_policy',
     'valid_name',
     'valid_username',
     'quote_like',
@@ -87,6 +91,8 @@ RESERVED_NAMES: Set[str] = {
     'notification',
     'notifications',
     'org',
+    'organisation',
+    'organisations',
     'organization',
     'organizations',
     'orgs',
@@ -120,30 +126,39 @@ RESERVED_NAMES: Set[str] = {
 }
 
 
-class PasswordPolicy:
-    def __init__(self, min_length: int, min_score: int) -> None:
-        self.min_length = min_length
-        self.min_score = min_score
+class PasswordCheckType(TypedDict):
+    """Typed dictionary for :func:`check_password_strength`."""
 
-    def test_password(
-        self, password: str, user_inputs: Optional[Iterable] = None
-    ) -> Dict[str, Union[bool, str]]:
-        result = zxcvbn(password, user_inputs)
-        return {
-            'is_weak': (
-                len(password) < self.min_length
-                or result['score'] < self.min_score
-                or bool(result['feedback']['warning'])
-            ),
-            'score': result['score'],
-            'warning': result['feedback']['warning'],
-            'suggestions': result['feedback']['suggestions'],
-        }
+    is_weak: bool
+    score: str
+    warning: str
+    suggestions: str
 
 
-# Strong passwords require a strength of at least 3 as per the zxcvbn
-# project documentation.
-password_policy = PasswordPolicy(min_length=8, min_score=3)
+#: Minimum length for a password
+PASSWORD_MIN_LENGTH = 8
+#: Maximum length for a password
+PASSWORD_MAX_LENGTH = 100
+#: Strong passwords require a strength of at least 3 as per the zxcvbn
+#: project documentation.
+PASSWORD_MIN_SCORE = 3
+
+
+def check_password_strength(
+    password: str, user_inputs: Optional[Iterable] = None
+) -> PasswordCheckType:
+    result = zxcvbn(password, user_inputs)
+    return {
+        'is_weak': (
+            len(password) < PASSWORD_MIN_LENGTH
+            or result['score'] < PASSWORD_MIN_SCORE
+            or bool(result['feedback']['warning'])
+        ),
+        'score': result['score'],
+        'warning': result['feedback']['warning'],
+        'suggestions': result['feedback']['suggestions'],
+    }
+
 
 # re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.
 # https://docs.python.org/3/library/re.html#re.I
@@ -406,7 +421,7 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
     )
 
     update_statement = dedent(  # nosec
-        '''
+        '''  # noqa: S608
         UPDATE {table_name} SET {column_name} = {update_expr};
         '''.format(  # nosec
             table_name=pgquote(model.__tablename__),

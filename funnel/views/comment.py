@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import namedtuple
 
 from flask import flash, jsonify, redirect, request

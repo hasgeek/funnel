@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import abort, flash, jsonify, redirect
 
 from baseframe import _, __, request_is_xhr

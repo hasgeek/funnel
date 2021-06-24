@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from baseframe import __
 
 from ..registry import login_registry

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import flash, redirect, request
 from werkzeug.datastructures import MultiDict
 

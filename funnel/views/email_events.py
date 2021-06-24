@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from email.utils import parseaddr
 from typing import List
 

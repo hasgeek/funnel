@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 
 from flask import abort, flash, redirect, render_template, request, url_for

@@ -7,7 +7,9 @@ from funnel.models import User
 
 @pytest.fixture
 def user(db_session):
-    user = User(username='user', fullname="User", password='test_password')
+    user = User(  # noqa: S106
+        username='user', fullname="User", password='test_password'
+    )
     db_session.add(user)
     db_session.commit()
     return user
@@ -15,7 +17,9 @@ def user(db_session):
 
 @pytest.fixture
 def user_nameless(db_session):
-    user = User(fullname="Nameless User", password='test_password_nameless')
+    user = User(  # noqa: S106
+        fullname="Nameless User", password='test_password_nameless'
+    )
     db_session.add(user)
     user.add_email('nameless@example.com')
     db_session.commit()
@@ -24,7 +28,7 @@ def user_nameless(db_session):
 
 @pytest.fixture
 def user_named(db_session):
-    user = User(
+    user = User(  # noqa: S106
         username='user-named', fullname="Named User", password='test_password_named'
     )
     db_session.add(user)
@@ -168,4 +172,18 @@ def test_login_pass(user):
         assert form.validate() is True
         assert form.user == user
         assert form.username.errors == []
+        assert form.password.errors == []
+
+
+def test_login_user_suspended(user):
+    """Login fails if the user account has been suspended."""
+    user.mark_suspended()
+    with app.test_request_context(
+        method='POST', data={'username': 'user', 'password': 'test_password'}
+    ):
+        form = LoginForm(meta={'csrf': False})
+        assert form.validate() is False
+        assert form.user is None
+        # FIXME: The user should be informed that their account has been suspended
+        assert form.username.errors == ["This user could not be identified"]
         assert form.password.errors == []

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import Markup, abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
@@ -94,13 +96,13 @@ AuthClientCreateView.init_app(app)
 
 
 @AuthClient.views('main')
-@route('/apps/info/<app>')
+@route('/apps/info/<client>')
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
-    route_model_map = {'app': 'buid'}
+    route_model_map = {'client': 'buid'}
 
-    def loader(self, app):
-        return self.model.query.filter(AuthClient.buid == app).one_or_404()
+    def loader(self, client):
+        return self.model.query.filter(AuthClient.buid == client).one_or_404()
 
     @route('', methods=['GET'])
     @render_with('auth_client.html.jinja2')
@@ -301,15 +303,15 @@ AuthClientView.init_app(app)
 
 
 @AuthClientCredential.views('main')
-@route('/apps/info/<app>/cred/<name>')
+@route('/apps/info/<client>/cred/<name>')
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
-    route_model_map = {'app': 'auth_client.buid', 'name': 'name'}
+    route_model_map = {'client': 'auth_client.buid', 'name': 'name'}
 
-    def loader(self, app, name):
+    def loader(self, client, name):
         cred = (
             self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == app, AuthClientCredential.name == name)
+            .filter(AuthClient.buid == client, AuthClientCredential.name == name)
             .first_or_404()
         )
         return cred
@@ -337,16 +339,16 @@ AuthClientCredentialView.init_app(app)
 
 
 @AuthClientUserPermissions.views('main')
-@route('/apps/info/<app>/perms/u/<user>')
+@route('/apps/info/<client>/perms/u/<user>')
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
-    route_model_map = {'app': 'auth_client.buid', 'user': 'user.buid'}
+    route_model_map = {'client': 'auth_client.buid', 'user': 'user.buid'}
 
-    def loader(self, app: str, user: str) -> AuthClientUserPermissions:
+    def loader(self, client: str, user: str) -> AuthClientUserPermissions:
         userobj = User.get(buid=user)
         perm = (
             self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == app, self.model.user == userobj)
+            .filter(AuthClient.buid == client, self.model.user == userobj)
             .one_or_404()
         )
         return perm
@@ -410,16 +412,16 @@ AuthClientUserPermissionsView.init_app(app)
 
 
 @AuthClientTeamPermissions.views('main')
-@route('/apps/info/<app>/perms/t/<team>')
+@route('/apps/info/<client>/perms/t/<team>')
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
-    route_model_map = {'app': 'auth_client.buid', 'team': 'team.buid'}
+    route_model_map = {'client': 'auth_client.buid', 'team': 'team.buid'}
 
-    def loader(self, app: str, team: str) -> AuthClientTeamPermissions:
+    def loader(self, client: str, team: str) -> AuthClientTeamPermissions:
         teamobj = Team.get(buid=team)
         perm = (
             self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == app, self.model.team == teamobj)
+            .filter(AuthClient.buid == client, self.model.team == teamobj)
             .one_or_404()
         )
         return perm

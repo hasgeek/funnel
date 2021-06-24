@@ -1,4 +1,4 @@
-from datetime import datetime
+from __future__ import annotations
 
 from flask import (
     Markup,
@@ -17,7 +17,7 @@ from pytz import utc
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import requestargs
 
 from .. import app
@@ -132,8 +132,7 @@ def reset_email(token: str, cookietest=False) -> ReturnView:
     """Move token into session cookie and redirect to a token-free URL."""
     if not cookietest:
         session['temp_token'] = token
-        # Use naive datetime as the session can't handle tz-aware datetimes
-        session['temp_token_at'] = datetime.utcnow()
+        session['temp_token_at'] = utcnow()
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
         # and reload the page
         if request.query_string:
@@ -143,7 +142,7 @@ def reset_email(token: str, cookietest=False) -> ReturnView:
         # Browser is refusing to set cookies on 302 redirects. Set it again and use
         # the less secure meta-refresh redirect (browser extensions can read the URL)
         session['temp_token'] = token
-        session['temp_token_at'] = datetime.utcnow()
+        session['temp_token_at'] = utcnow()
         return metarefresh_redirect(url_for('reset_email_do'))
     # implicit: cookietest is True and 'temp_token' in session
     return redirect(url_for('reset_email_do'))
@@ -183,7 +182,7 @@ def reset_email_do() -> ReturnView:
     try:
         # Allow 24 hours (86k seconds) validity for the reset token
         token = token_serializer().loads(session['temp_token'], max_age=86400)
-    except itsdangerous.exc.SignatureExpired:
+    except itsdangerous.SignatureExpired:
         # Link has expired (timeout).
         session.pop('temp_token', None)
         session.pop('temp_token_at', None)
@@ -195,7 +194,7 @@ def reset_email_do() -> ReturnView:
             'error',
         )
         return redirect(url_for('reset'), code=303)
-    except itsdangerous.exc.BadData:
+    except itsdangerous.BadData:
         # Link is invalid
         session.pop('temp_token', None)
         session.pop('temp_token_at', None)

@@ -85,7 +85,7 @@ class TestClient(TestDatabaseFixture):
         key = auth_client.buid
         # scenario 1: without key
         with pytest.raises(TypeError):
-            models.AuthClient.get()  # type: ignore[call-overload]
+            models.AuthClient.get()
         # scenario 2: when given key
         result1 = models.AuthClient.get(buid=key)
         assert isinstance(result1, models.AuthClient)

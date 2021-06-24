@@ -61,21 +61,6 @@ def test_youtube(db_session, new_proposal):
         == f'https://i.ytimg.com/vi/{check_proposal.video_id}/mqdefault.jpg'
     )
 
-    # let's try to check the cache directly
-    check_cached = check_proposal._video_cache
-    assert check_cached is not None
-    assert check_cached['source'] == check_proposal.video_source
-    assert check_cached['id'] == check_proposal.video_id
-    assert check_cached['url'] == check_proposal.video_url
-    assert check_cached['duration'] == 213
-    assert check_cached['uploaded_at'] == utc.localize(
-        datetime(2009, 10, 25, 6, 57, 33)
-    )
-    assert (
-        check_cached['thumbnail']
-        == f'https://i.ytimg.com/vi/{check_proposal.video_id}/mqdefault.jpg'
-    )
-
 
 def test_vimeo_video_delete(db_session, new_proposal):
     assert new_proposal.title == "Test Proposal"
@@ -115,18 +100,5 @@ def test_vimeo(db_session, new_proposal):
     assert check_video['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 19, 48, 2))
     assert (
         check_video['thumbnail']
-        == 'https://i.vimeocdn.com/video/783856813_200x150?r=pad'
-    )
-
-    # let's try to check the cache directly
-    check_cached = check_proposal._video_cache
-    assert check_cached is not None
-    assert check_cached['source'] == check_proposal.video_source
-    assert check_cached['id'] == check_proposal.video_id
-    assert check_cached['url'] == check_proposal.video_url
-    assert check_cached['duration'] == 212
-    assert check_cached['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 19, 48, 2))
-    assert (
-        check_cached['thumbnail']
         == 'https://i.vimeocdn.com/video/783856813_200x150?r=pad'
     )

@@ -122,7 +122,7 @@ def test_add_to_class():
 
     # New methods can be added
     @add_to_class(ReferenceClass)
-    def bar(self):
+    def bar(self):  # skipcq: PTC-W0065
         return 'is_bar'
 
     assert hasattr(ReferenceClass, 'bar')
@@ -153,7 +153,7 @@ def test_add_to_class():
 def image_models(database):
     class MyImageModel(db.Model):
         __tablename__ = 'my_image_model'
-        id = db.Column(db.Integer, primary_key=True)  # NOQA: A003
+        id = db.Column(db.Integer, primary_key=True)  # noqa: A003
         image_url = db.Column(ImgeeType)
 
     database.create_all()

@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta
+from __future__ import annotations
+
+from datetime import timedelta
 from functools import wraps
 from typing import Optional, Type
 
@@ -32,6 +34,7 @@ from ..models import (
     User,
     UserSession,
     UserSessionExpired,
+    UserSessionInactiveUser,
     UserSessionRevoked,
     auth_client_user_session,
     db,
@@ -89,7 +92,7 @@ class LoginManager:
                 ) = lastuser_serializer().loads(
                     request.cookies['lastuser'], return_header=True
                 )
-            except itsdangerous.exc.BadSignature:
+            except itsdangerous.BadSignature:
                 lastuser_cookie = {}
 
         add_auth_attribute('cookie', lastuser_cookie)
@@ -134,6 +137,19 @@ class LoginManager:
                     'info',
                 )
                 current_app.logger.info("Got a revoked user session; logging out")
+                add_auth_attribute('session', None)
+                logout_internal()
+            except UserSessionInactiveUser as exc:
+                inactive_user = exc.args[0].user
+                if inactive_user.state.SUSPENDED:
+                    flash(_("Your account has been suspended"))
+                elif inactive_user.state.DELETED:
+                    flash(
+                        _("This login is for a user account that is no longer present")
+                    )
+                else:
+                    flash(_("Your account is not active"))
+                current_app.logger.info("Got an inactive user; logging out")
                 add_auth_attribute('session', None)
                 logout_internal()
 
@@ -254,13 +270,9 @@ def clear_expired_temp_token():
     :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`.
     """
     if 'temp_token_at' in session:
-        # Use naive datetime as Flask 1.0 sessions can't handle tz-aware datetimes,
-        # while Flask 2.0 sessions convert naive datetimes into UTC.
         # Give the user 10 minutes to complete the action. Remove the token if it's
         # been longer than 10 minutes.
-        if session['temp_token_at'].replace(
-            tzinfo=None
-        ) < datetime.utcnow() - timedelta(minutes=10):
+        if session['temp_token_at'] < utcnow() - timedelta(minutes=10):
             discard_temp_token()
             current_app.logger.info("Cleared expired temp_token from session cookie")
     elif 'temp_token' in session:

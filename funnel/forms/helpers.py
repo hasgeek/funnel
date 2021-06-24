@@ -1,4 +1,4 @@
-from typing import Any
+from __future__ import annotations
 
 from flask import current_app, flash
 
@@ -113,7 +113,7 @@ def image_url_validator():
     )
 
 
-def tostr(value: Any) -> str:
+def tostr(value: object) -> str:
     """Cast truthy values to a string."""
     if value:
         return str(value)

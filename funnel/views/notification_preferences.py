@@ -1,13 +1,15 @@
-from datetime import datetime, timedelta
+from __future__ import annotations
+
+from datetime import timedelta
 from typing import Optional
 
 from flask import abort, flash, redirect, request, session, url_for
-import itsdangerous.exc
+import itsdangerous
 
 from baseframe import _, __
 from baseframe.forms import render_form, render_message
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
@@ -172,11 +174,11 @@ class AccountNotificationView(ClassView):
             payload = token_serializer().loads(
                 token, max_age=365 * 24 * 60 * 60  # Validity 1 year (365 days)
             )
-        except itsdangerous.exc.SignatureExpired:
+        except itsdangerous.SignatureExpired:
             # Link has expired. It's been over a year!
             flash(unsubscribe_link_expired, 'error')
             return redirect(url_for('notification_preferences'), code=303)
-        except itsdangerous.exc.BadData:
+        except itsdangerous.BadData:
             flash(unsubscribe_link_invalid, 'error')
             return redirect(url_for('notification_preferences'), code=303)
 
@@ -246,8 +248,7 @@ class AccountNotificationView(ClassView):
         if token and not cookietest:
             session['temp_token'] = token
             session['temp_token_type'] = token_type
-            # Use naive datetime as the session can't handle tz-aware datetimes
-            session['temp_token_at'] = datetime.utcnow()
+            session['temp_token_at'] = utcnow()
             # These values are removed from the session in 10 minutes by
             # :func:`funnel.views.login_session.clear_expired_temp_token` if the user
             # abandons this page.
@@ -267,7 +268,7 @@ class AccountNotificationView(ClassView):
         if token and 'temp_token' not in session:
             session['temp_token'] = token
             session['temp_token_type'] = token_type
-            session['temp_token_at'] = datetime.utcnow()
+            session['temp_token_at'] = utcnow()
             return metarefresh_redirect(
                 url_for('notification_unsubscribe_do')
                 + ('?' + request.query_string.decode())
@@ -300,7 +301,7 @@ class AccountNotificationView(ClassView):
             token_type = session.get('temp_token_type') or request.form['token_type']
 
         # --- Signed tokens (email)
-        if token_type == 'signed':  # nosec
+        if token_type == 'signed':  # nosec  # noqa: S105
             try:
                 # Token will be in session in the GET request, and in request.form
                 # in the POST request because we'll move it over during the GET request.
@@ -308,18 +309,18 @@ class AccountNotificationView(ClassView):
                     session.get('temp_token') or request.form['token'],
                     max_age=365 * 24 * 60 * 60,  # Validity 1 year (365 days)
                 )
-            except itsdangerous.exc.SignatureExpired:
+            except itsdangerous.SignatureExpired:
                 # Link has expired. It's been over a year!
                 discard_temp_token()
                 flash(unsubscribe_link_expired, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
-            except itsdangerous.exc.BadData:
+            except itsdangerous.BadData:
                 discard_temp_token()
                 flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
 
         # --- Cached tokens (SMS)
-        elif token_type == 'cached':  # nosec
+        elif token_type == 'cached':  # nosec  # noqa: S105
 
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
@@ -335,9 +336,7 @@ class AccountNotificationView(ClassView):
                 discard_temp_token()
                 flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
-            if payload['timestamp'].replace(
-                tzinfo=None
-            ) < datetime.utcnow() - timedelta(days=7):
+            if payload['timestamp'] < utcnow() - timedelta(days=7):
                 # Link older than a week. Expire it
                 discard_temp_token()
                 flash(unsubscribe_link_expired, 'error')

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from baseframe import __
 from coaster.sqlalchemy import with_roles
 from coaster.utils import LabeledEnum
@@ -8,7 +10,7 @@ from .helpers import reopen
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
 
-class MODERATOR_REPORT_TYPE(LabeledEnum):  # NOQA: N801
+class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
     OK = (0, 'ok', __("Not spam"))
     SPAM = (1, 'spam', __("Spam"))
 

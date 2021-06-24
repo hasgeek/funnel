@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flask import abort
 
 from coaster.auth import current_auth
