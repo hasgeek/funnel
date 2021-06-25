@@ -54,6 +54,7 @@ module.exports = {
     project: path.resolve(__dirname, 'js/project.js'),
     proposals: path.resolve(__dirname, 'js/proposals.js'),
     proposal: path.resolve(__dirname, 'js/proposal.js'),
+    labels: path.resolve(__dirname, 'js/labels.js'),
     schedule_view: path.resolve(__dirname, 'js/schedule_view.js'),
     event: path.resolve(__dirname, 'js/event.js'),
     scan_badge: path.resolve(__dirname, 'js/scan_badge.js'),

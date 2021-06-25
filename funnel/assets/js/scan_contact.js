@@ -82,16 +82,12 @@ const badgeScan = {
 
             if (response.readyState === 4) {
               if (response.status === 500) {
-                errorMsg = window.gettext(
-                  'The server is experiencing difficulties. Try again in a few minutes'
-                );
+                errorMsg = window.Hasgeek.config.errorMsg.serverError;
               } else {
                 errorMsg = JSON.parse(response.responseText).message;
               }
             } else {
-              errorMsg = window.gettext(
-                'This device has no internet connection'
-              );
+              errorMsg = window.Hasgeek.config.errorMsg.networkError;
             }
 
             badgeScanComponent.set({
