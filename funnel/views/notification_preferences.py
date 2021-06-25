@@ -326,7 +326,7 @@ class AccountNotificationView(ClassView):
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per
             # 10 minutes (600s) per IP address.
-            validate_rate_limit('sms_unsubscribe', request.remote_addr, 100, 600)
+            validate_rate_limit('sms_unsubscribe', str(request.remote_addr), 100, 600)
 
             payload = retrieve_cached_token(
                 session.get('temp_token') or request.form['token']

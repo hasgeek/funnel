@@ -33,7 +33,7 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change, proposal_role_change
-from .decorators import xhr_only
+from .decorators import etag_cache_for_user, xhr_only
 from .login_session import requires_login
 from .notification import dispatch_notification
 
@@ -102,8 +102,9 @@ class AllCommentsView(ClassView):
     current_section = 'comments'
 
     @route('', endpoint='comments')
-    @xhr_only(lambda: url_for('index', _anchor='comments'))
     @requires_login
+    @etag_cache_for_user('comment_sidebar', 1, 300)
+    @xhr_only(lambda: url_for('index', _anchor='comments'))
     def view(self):
         commentset_memberships = [
             {
