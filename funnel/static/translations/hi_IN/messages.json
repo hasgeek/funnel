@@ -28,6 +28,18 @@
         null,
         "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
       ],
+      "An internal server error occurred. Our support team has been notified and will investigate": [
+        null,
+        ""
+      ],
+      "Unable to connect. Check connection and tap to reload": [null, ""],
+      "Changes saved but not published": [null, ""],
+      "These changes have not been published yet": [null, ""],
+      "You have unsaved changes on this page. Do you want to leave this page?": [
+        null,
+        ""
+      ],
+      "Are you sure you want to %s?": [null, ""],
       "The server is experiencing difficulties. Try again in a few minutes": [
         null,
         ""
@@ -53,11 +65,6 @@
       "Tomorrow": [null, ""],
       "Day after": [null, ""],
       "In %d days": [null, ""],
-      "An internal server error occurred. Our support team has been notified and will investigate": [
-        null,
-        ""
-      ],
-      "Unable to connect. Check connection and tap to reload": [null, ""],
       "Link copied": [null, ""],
       "Project added to Account > Saved projects": [null, ""],
       "English": [null, "अंग्रेज़ी"],
@@ -747,14 +754,9 @@
         null,
         "LinkedIn से ईमेल प्राप्त करने में असमर्थ रहा. आंतरिक विवरण: {error}"
       ],
-      "Twitter had an intermittent error. Please try again": [
-        null,
-        "Twitter में कुछ वक्ती समस्या है. कृपया फिर से कोशिश करें"
-      ],
-      "You denied the request to login": [
-        null,
-        "आपने लॉग इन के अनुरोध को ख़ारिज कर दिया"
-      ],
+      "Twitter had a temporary problem. Try again?": [null, ""],
+      "If you were trying to use Twitter, please try again": [null, ""],
+      "Twitter could not be reached. Try again?": [null, ""],
       "Unrecognized algorithm ‘{value}’": [null, "अज्ञात ऍल्गोरिथम ‘{value}’"],
       "Submitted": [null, "जमा कर दिया गए"],
       "Screened": [null, "समीक्षा समाप्त"],
@@ -766,8 +768,8 @@
       "[removed]": [null, "[हटाए हुए]"],
       "{user} commented on {obj}": [null, "{user} ने  {obj} पर कमेंट किया"],
       "{user} commented": [null, "{user} ने कमेंट किया"],
-      "Crew": [null, "दल"],
-      "Proposer": [null, "प्रस्तावक"],
+      "Submitter": [null, ""],
+      "Editor & Promoter": [null, ""],
       "Invite": [null, "आमंत्रण"],
       "Direct add": [null, "सीधा जोड़ें"],
       "Amend": [null, "संसोधन"],
@@ -968,9 +970,6 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
-      "${}": [null, ""],
-      ".": [null, ""],
-      "@": [null, ""],
       "The room sequence and colours have been updated": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1232,8 +1231,9 @@
       "What’s this about?": [null, ""],
       "Manage labels": [null, "लेबल संपादित करें"],
       "Create new label": [null, "नया लेबल बनाएं"],
-      "Archive": [null, "पुरालेख"],
       "(No labels)": [null, "(कोई लेबल नहीं है)"],
+      "Archive": [null, "पुरालेख"],
+      "Save label sequence": [null, ""],
       "Please review the indicated issues": [
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
@@ -1480,6 +1480,7 @@
       "Promoted": [null, ""],
       "Project overview": [null, ""],
       "Jobs": [null, "नौकरियां"],
+      "Crew": [null, "दल"],
       "Participants": [null, "प्रतिभागी"],
       "%(title)s by %(speaker)s, %(project)s": [
         null,
@@ -2180,8 +2181,6 @@
       "Date": [null, "डेट"],
       "Project": [null, "प्रोजेक्ट"],
       "Discussion spaces for geeks": [null, "लोगों के लिए चर्चा की जगह"],
-      "Internet": [null, "इंटरनेट"],
-      "Online": [null, "ऑनलाइन"],
       "Your changes have been saved": [
         null,
         "आपके परिवर्तनों को सेव किया गया है"
@@ -2261,6 +2260,9 @@
         null,
         "आपका लॉगिन सेशन अन्य डिवाइस से रद्द कर दिया गया था. कृपया दोबारा लॉगिन करें"
       ],
+      "Your account has been suspended": [null, ""],
+      "This login is for a user account that is no longer present": [null, ""],
+      "Your account is not active": [null, ""],
       "You need to be logged in for that page": [
         null,
         "आपको उस पेज के लिए लॉगिन होना चाहिए"
@@ -2719,18 +2721,15 @@
         null,
         "आपने “{title}” रूम मिटा दिया है"
       ],
-      "Your password has been updated. If this was not authorized, reset your password or contact support at {email}. {reset_url}": [
+      "Your password has been updated. If this was not authorized, reset your password or contact support at {email}.": [
         null,
-        "आपका पासवर्ड अपडेट हो चुका है. अगर यह अधिकृत नहीं था, तो अपना पासवर्ड रीसेट करें या {email} पर सहयोगी दल से संपर्क करें. {reset_url}"
+        ""
       ],
       "You are receiving this because you are a site admin": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप साइट एडमिन हैं"
       ],
-      "A comment has been reported as spam. {url}": [
-        null,
-        "एक कमेंट को स्पैम के रूप में रिपोर्ट किया गया है. {url}"
-      ],
+      "A comment has been reported as spam.": [null, ""],
       "{actor} replied to your comment": [
         null,
         "{actor} ने आपके कमेंट का जवाब दिया"
@@ -2843,38 +2842,26 @@
         "आप इसे प्राप्त कर रहे हैं क्योंकि आपने इस प्रोजेक्ट के लिए रजिस्टर किया है"
       ],
       "{project} starts at {time}": [null, "{project} {time} शुरू होगा"],
-      "{project} starts at {time}. {url}": [
-        null,
-        "{project} {time} शुरू होगा. {url}"
-      ],
+      "{project} starts at {time}.": [null, ""],
       "You are receiving this because you are an editor of this project": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस प्रोजेक्ट के संपादक हैं"
       ],
       "New submission in {project}: {proposal}": [null, ""],
-      "New submission in {project}:\r\n\r\n{proposal} {url}": [null, ""],
-      "You are receiving this because you have submitted this submission": [
-        null,
-        ""
-      ],
-      "Proposal submitted to {project}: {proposal}": [
-        null,
-        "प्रस्ताव को {project} में जमा किया गया: {proposal}"
-      ],
-      "Your submission has been submitted to {project} {url}": [null, ""],
+      "New submission in {project}:": [null, ""],
+      "You are receiving this because you made this submission": [null, ""],
+      "Submission made to {project}: {proposal}": [null, ""],
+      "Your submission has been received in {project}:": [null, ""],
       "Registration confirmation for {project}": [
         null,
         "{project} के लिए रजिस्ट्रेशन की पुष्टि"
       ],
       "View project": [null, "प्रोजेक्ट देखें"],
-      "You have registered for {project}. The next session starts {datetime}. You will get a reminder 10m prior. {url}": [
+      "You have registered for {project}. Next session: {datetime}.": [
         null,
-        "आपने {project} के लिए रजिस्टर किया है. अगला सेशन {datetime} शुरू होगा. आपको 10 मिनट पहले का रिमाइंडर मिल जाएगा. {url}"
+        ""
       ],
-      "You have registered for {project} {url}": [
-        null,
-        "आपने {project} {url} के लिए रजिस्टर किया है"
-      ],
+      "You have registered for {project}": [null, ""],
       "You are receiving this because you had registered for this project": [
         null,
         "आप इसे प्राप्त कर रहे हैं क्योंकि आपने इस प्रोजेक्ट के लिए रजिस्टर किया था"
@@ -2888,7 +2875,7 @@
         "आपने {project} के लिए अपना रजिस्ट्रेशन रद्द कर दिया है"
       ],
       "{update} ({project})": [null, "{update} ({project})"],
-      "Update in {project}:\r\n\r\n{update} {url}": [null, ""]
+      "Update in {project}:": [null, ""]
     }
   }
 }

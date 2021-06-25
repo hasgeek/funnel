@@ -1090,7 +1090,6 @@ a.loginbutton.hidden,
 }
 
 .ui-draggable-box {
-  cursor: move;
   padding: 16px;
   border-radius: 3px;
   border: 1px solid #c0ccda;
@@ -4782,7 +4781,7 @@ a.loginbutton.hidden,
 }
 
 .proposal-placeholder {
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  border-bottom: 1px solid #c0ccda;
   background: #f9f9f9;
 }
 
@@ -5272,6 +5271,11 @@ body > .proposal-box.ui-draggable {
   cursor: pointer;
 }
 
+.venue-placeholder {
+  border: 1px solid #c0ccda;
+  background: #f9f9f9;
+}
+
 .schedule-settings {
   margin-top: 10px;
 }
@@ -5299,6 +5303,10 @@ body > .proposal-box.ui-draggable {
   padding-right: 4px;
 }
 
+.drag-box:hover {
+  cursor: auto;
+}
+
 .drag-box--no-border {
   border: none;
   border-radius: 0;
@@ -5315,6 +5323,11 @@ body > .proposal-box.ui-draggable {
 
 .drag-handle {
   cursor: move;
+}
+
+.label-placeholder {
+  border: 1px solid #c0ccda;
+  background: #f9f9f9;
 }
 
 .snippets {
