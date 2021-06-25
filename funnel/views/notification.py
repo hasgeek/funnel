@@ -178,7 +178,7 @@ class RenderNotification:
         if unsubscribe_domain:
             # For this to work, a web server must listen on the unsubscribe domain and
             # redirect all paths to url_for('notification_unsubscribe_short') + path
-            return 'https://' + unsubscribe_domain + '/' + token
+            return f'https://{unsubscribe_domain}/{token}'
         return url_for('notification_unsubscribe_short', token=token, _external=True)
 
     @cached_property

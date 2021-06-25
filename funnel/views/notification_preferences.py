@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Optional
 
 from flask import abort, flash, redirect, request, session, url_for
@@ -336,7 +336,13 @@ class AccountNotificationView(ClassView):
                 discard_temp_token()
                 flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
-            if payload['timestamp'] < utcnow() - timedelta(days=7):
+
+            # Flask-Caching still returns naive datetimes (unlike Flask 2.0 session),
+            # so we must compare with a naive datetime. We do a `.replace(tzinfo=None)`
+            # anyway as a safety catch in case this changes without notice later.
+            if payload['timestamp'].replace(
+                tzinfo=None
+            ) < datetime.utcnow() - timedelta(days=7):
                 # Link older than a week. Expire it
                 discard_temp_token()
                 flash(unsubscribe_link_expired, 'error')
