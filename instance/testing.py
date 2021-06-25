@@ -1,7 +1,7 @@
 from os import environ
 
 TESTING = True
-CACHE_TYPE = 'null'
+CACHE_TYPE = 'SimpleCache'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
@@ -16,12 +16,12 @@ STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
 UPLOAD_FOLDER = '/tmp'  # nosec  # noqa: S108
 TIMEZONE = 'Asia/Kolkata'
-ASSET_BASE_PATH = "build"
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
 BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
 
-ASSET_MANIFEST_PATH = "static/build/manifest.json"
-ASSET_BASE_PATH = "build"
+ASSET_MANIFEST_PATH = 'static/build/manifest.json'
+ASSET_BASE_PATH = 'build'
+UNSUBSCRIBE_DOMAIN = 'bye.test'
 #: Recaptcha for the registration form
 RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = environ.get('RECAPTCHA_PUBLIC_KEY')

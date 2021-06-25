@@ -1,8 +1,13 @@
 from datetime import datetime
-from types import SimpleNamespace
+from types import MethodType, SimpleNamespace
+from typing import List, Optional
 
 from sqlalchemy import event
 
+from flask.testing import FlaskClient
+from flask.wrappers import Response
+
+from lxml.html import FormElement, HtmlElement, fromstring  # noqa: S410
 from pytz import utc
 import pytest
 
@@ -19,6 +24,95 @@ from funnel.models import (
     User,
     db,
 )
+
+# --- ResponseWithForms, to make form submission in the test client testing easier
+# --- Adapted from the abandoned Flask-Fillin package
+
+
+class ResponseWithForms(Response):
+    """
+    Wrapper for the test client response that makes form submission easier.
+
+    Usage::
+
+        def test_mytest(client):
+            response = client.get('/page_with_forms')
+            form = response.form('login')
+            form.fields['username'] = 'my username'
+            form.fields['password'] = 'secret'
+            form.fields['remember'] = True
+            next_response = form.submit(client)
+    """
+
+    _parsed_html = None
+
+    @property
+    def html(self) -> HtmlElement:
+        """Return the parsed HTML tree."""
+        if self._parsed_html is None:
+            self._parsed_html = fromstring(self.data)
+
+            # add click method to all links
+            def _click(self, client, **kwargs):
+                # `self` is the `a` element here
+                path = self.attrib['href']
+                return client.get(path, **kwargs)
+
+            for link in self._parsed_html.iter('a'):
+                setattr(link, 'click', MethodType(_click, link))
+
+            # add submit method to all forms
+            def _submit(self, client, path=None, **kwargs):
+                # `self` is the `form` element here
+                data = dict(self.form_values())
+                if 'data' in kwargs:
+                    data.update(kwargs['data'])
+                    del kwargs['data']
+                if path is None:
+                    path = self.action
+                if 'method' not in kwargs:
+                    kwargs['method'] = self.method
+                return client.open(path, data=data, **kwargs)
+
+            for form in self._parsed_html.forms:
+                setattr(form, 'submit', MethodType(_submit, form))
+        return self._parsed_html
+
+    @property
+    def forms(self) -> List[FormElement]:
+        """
+        Return list of all forms in the document.
+
+        Contains the LXML form type as documented at http://lxml.de/lxmlhtml.html#forms
+        with an additional `.submit(client)` method to submit the form.
+        """
+        return self.html.forms
+
+    def form(
+        self, id_: Optional[str] = None, name: Optional[str] = None
+    ) -> Optional[FormElement]:
+        """Return the first form matching given id or name in the document."""
+        if id_:
+            forms = self.html.cssselect(f'form#{id_}')
+        elif name:
+            forms = self.html.cssselect(f'form[name={name}]')
+        else:
+            forms = self.forms
+        if forms:
+            return forms[0]
+        return None
+
+    def links(self, selector: str = 'a') -> List[HtmlElement]:
+        """Get all the links matching the given CSS selector."""
+        return self.html.cssselect(selector)
+
+    def link(self, selector: str = 'a') -> Optional[HtmlElement]:
+        """Get first link matching the given CSS selector."""
+        links = self.links(selector)
+        if links:
+            return links[0]
+        return None
+
 
 # --- New fixtures, to replace the legacy tests below as tests are updated
 
@@ -76,7 +170,7 @@ def db_session(database, db_connection):
 def client(request, db_session):
     """Provide a test client."""
     with app.app_context():  # Not required for test_client, but required for autouse
-        with app.test_client() as test_client:
+        with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
             yield test_client
 
 
