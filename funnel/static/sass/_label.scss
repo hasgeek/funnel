@@ -24,6 +24,10 @@
   }
 }
 
+.drag-box:hover {
+  cursor: auto;
+}
+
 .drag-box--no-border {
   border: none;
   border-radius: 0;
@@ -41,4 +45,9 @@
 
 .drag-handle {
   cursor: move;
+}
+
+.label-placeholder {
+  border: 1px solid $mui-text-accent;
+  background: $mui-bg-color-accent;
 }

@@ -273,9 +273,7 @@ export const Utils = {
     // Add server error strings for translations in server_error.js.jinja2
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg = gettext(
-          'An internal server error occurred. Our support team has been notified and will investigate'
-        );
+        errorMsg = window.Hasgeek.config.errorMsg.serverError;
       } else if (
         response.status === 422 &&
         response.responseJSON.error === 'requires_sudo'
@@ -287,9 +285,7 @@ export const Utils = {
         errorMsg = response.responseJSON.error_description;
       }
     } else {
-      errorMsg = gettext(
-        'Unable to connect. Check connection and tap to reload'
-      );
+      errorMsg = window.Hasgeek.config.errorMsg.networkError;
     }
     return errorMsg;
   },

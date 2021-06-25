@@ -28,12 +28,12 @@
         null,
         "इस सामग्री को सिर्फ ट्रस्टेड क्लाइंट ही एक्सेस कर सकते हैं"
       ],
-      "Changes saved but not published": [null, ""],
-      "These changes have not been published yet": [null, ""],
-      "You have unsaved changes on this page. Do you want to leave this page?": [
+      "An internal server error occurred. Our support team has been notified and will investigate": [
         null,
         ""
       ],
+      "Unable to connect. Check connection and tap to reload": [null, ""],
+      "Are you sure you want to %s?": [null, ""],
       "The server is experiencing difficulties. Try again in a few minutes": [
         null,
         ""
@@ -58,11 +58,6 @@
       "Tomorrow": [null, ""],
       "Day after": [null, ""],
       "In %d days": [null, ""],
-      "An internal server error occurred. Our support team has been notified and will investigate": [
-        null,
-        ""
-      ],
-      "Unable to connect. Check connection and tap to reload": [null, ""],
       "Link copied": [null, ""],
       "Project added to Account > Saved projects": [null, ""],
       "English": [null, "अंग्रेज़ी"],
@@ -969,6 +964,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1232,6 +1230,7 @@
       "Create new label": [null, "नया लेबल बनाएं"],
       "(No labels)": [null, "(कोई लेबल नहीं है)"],
       "Archive": [null, "पुरालेख"],
+      "Save label sequence": [null, ""],
       "Please review the indicated issues": [
         null,
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
@@ -1240,6 +1239,7 @@
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
       "Updates": [null, "अपडेट"],
+      "Comments": [null, "कमेंट"],
       "Account menu": [null, ""],
       "Account": [null, "अकाउंट"],
       "Login": [null, "लॉगिन"],
@@ -1427,7 +1427,6 @@
       ],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
-      "Comments": [null, "कमेंट"],
       "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "Pinned update": [null, ""],
       "This update is for participants only": [
@@ -1514,8 +1513,6 @@
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है"
       ],
       "No videos": [null, ""],
-      "Create a promotion": [null, ""],
-      "Select promotion destination": [null, ""],
       "Stop notifications": [null, ""],
       "Edit submission": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
@@ -2262,6 +2259,9 @@
         null,
         "आपका लॉगिन सेशन अन्य डिवाइस से रद्द कर दिया गया था. कृपया दोबारा लॉगिन करें"
       ],
+      "Your account has been suspended": [null, ""],
+      "This login is for a user account that is no longer present": [null, ""],
+      "Your account is not active": [null, ""],
       "You need to be logged in for that page": [
         null,
         "आपको उस पेज के लिए लॉगिन होना चाहिए"
@@ -2858,7 +2858,7 @@
         "{project} के लिए रजिस्ट्रेशन की पुष्टि"
       ],
       "View project": [null, "प्रोजेक्ट देखें"],
-      "You have registered for {project}. The next session starts {datetime}. You will get a reminder 10m prior.": [
+      "You have registered for {project}. Next session: {datetime}.": [
         null,
         ""
       ],

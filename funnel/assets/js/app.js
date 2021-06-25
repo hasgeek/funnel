@@ -20,8 +20,15 @@ $(() => {
     medium: '80',
     small: '48',
   };
-
   Utils.loadLangTranslations();
+  window.Hasgeek.config.errorMsg = {
+    serverError: window.gettext(
+      'An internal server error occurred. Our support team has been notified and will investigate'
+    ),
+    networkError: window.gettext(
+      'Unable to connect. Check connection and tap to reload'
+    ),
+  };
 
   Utils.collapse();
   Utils.smoothScroll();
