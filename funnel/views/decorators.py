@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
-from typing import Any, Callable, TypeVar, Union, cast
+from typing import Any, Callable, Optional, Set, TypeVar, Union, cast
 
 from flask import Response, make_response, redirect, request, url_for
 
@@ -71,8 +71,17 @@ def xhr_only(redirect_to: Union[str, Callable[[], str], None] = None):
     return decorator
 
 
-def etag_cache_for_user(identifier: str, template_version: int, max_age: int):
-    """Cache and compress a response, and add an ETag header for browser cache."""
+def etag_cache_for_user(
+    identifier: str, view_version: int, max_age: int, query_params: Optional[Set] = None
+):
+    """
+    Cache and compress a response, and add an ETag header for browser cache.
+
+    :param identifier: Distinct name for this view (typically same as endpoint name)
+    :param view_version: A version number for this view. Increment when templates change
+    :param max_age: Maximum age for cache, in seconds
+    :param query_params: Request query parameters that influence response
+    """
 
     def decorator(f: F) -> F:
         @wraps(f)
@@ -81,7 +90,6 @@ def etag_cache_for_user(identifier: str, template_version: int, max_age: int):
             if request.method not in ('GET', 'HEAD'):
                 return f(*args, **kwargs)
 
-            cache_key = f'{identifier}/{template_version}/{current_auth.user.uuid_b64}'
             rendered_content = None
             # Hash of (common) headers that influence output. May need to be expanded
             # to also add headers from Vary (which must be specified in the decorator)
@@ -93,9 +101,22 @@ def etag_cache_for_user(identifier: str, template_version: int, max_age: int):
                         request.headers.get('Accept-Encoding', ''),
                         request.headers.get('X-Requested-With', ''),
                     ]
+                    + (
+                        [
+                            qp + '=' + str(request.args.getlist(qp))
+                            for qp in query_params
+                        ]
+                        if query_params is not None
+                        else []
+                    )
                 ).encode()
             ).hexdigest()
-
+            # Include the header hash in the cache key to support:
+            # 1. Cache per-page for paginated responses
+            # 2. Cache per unique set of headers for the same user (say desktop+mobile)
+            cache_key = (
+                f'{identifier}/{view_version}/{current_auth.user.uuid_b64}/{hhash}'
+            )
             cache_data = cache.get(cache_key)
             if cache_data:
                 try:
@@ -108,7 +129,8 @@ def etag_cache_for_user(identifier: str, template_version: int, max_age: int):
                     if (
                         etag
                         != blake2b(
-                            f'{current_auth.user.uuid_b64}/{chash}/{hhash}'.encode()
+                            f'{identifier}/{view_version}/{current_auth.user.uuid_b64}'
+                            f'/{chash}/{hhash}'.encode()
                         ).hexdigest()
                     ):
                         rendered_content = None
@@ -126,7 +148,8 @@ def etag_cache_for_user(identifier: str, template_version: int, max_age: int):
                 rendered_content = response.get_data(True)
                 chash = blake2b(response.get_data()).hexdigest()
                 etag = blake2b(
-                    f'{current_auth.user.uuid_b64}/{chash}/{hhash}'.encode()
+                    f'{identifier}/{view_version}/{current_auth.user.uuid_b64}'
+                    f'/{chash}/{hhash}'.encode()
                 ).hexdigest()
                 last_modified = datetime.utcnow()
                 cache.set(

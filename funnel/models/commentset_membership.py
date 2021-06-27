@@ -4,12 +4,14 @@ from typing import Set
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.sqlalchemy import DynamicAssociationProxy, Query, immutable, with_roles
 
 from . import User, db
-from .comment import Commentset
+from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
+from .project import Project
+from .proposal import Proposal
 
 __all__ = ['CommentsetMembership']
 
@@ -29,6 +31,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
                 'commentset',
                 'is_muted',
                 'last_seen_at',
+                'new_comment_count',
             }
         }
     }
@@ -60,6 +63,15 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
 
+    new_comment_count = db.column_property(
+        db.select(db.func.count(Comment.id))
+        .where(Comment.commentset_id == commentset_id)
+        .where(Comment.state.PUBLIC)
+        .where(Comment.created_at > last_seen_at)
+        .correlate_except(Comment)
+        .scalar_subquery()
+    )
+
     @cached_property
     def offered_roles(self) -> Set[str]:
         """
@@ -68,6 +80,32 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
         It won't be used though because relationship below ignores it.
         """
         return {'document_subscriber'}
+
+    @classmethod
+    def for_user(cls, user: User) -> Query:
+        """
+        Return a query representing all active commentset memberships for a user.
+
+        This classmethod mirrors the functionality in
+        :attr:`User.active_commentset_memberships` with the difference that since it's
+        a query on the class, it returns an instance of the query subclass from
+        Flask-SQLAlchemy and Coaster. Relationships use the main class from SQLAlchemy
+        which is missing pagination and the empty/notempty methods.
+        """
+        return (
+            cls.query.filter(
+                cls.user == user,
+                CommentsetMembership.is_active,
+            )
+            .join(Commentset)
+            .outerjoin(Project, Project.commentset_id == Commentset.id)
+            .outerjoin(Proposal, Proposal.commentset_id == Commentset.id)
+            .order_by(
+                Commentset.last_comment_at.is_(None),
+                Commentset.last_comment_at.desc(),
+                cls.granted_at.desc(),
+            )
+        )
 
 
 @reopen(User)

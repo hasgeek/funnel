@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import namedtuple
 from typing import Optional
 
-from flask import flash, jsonify, redirect, render_template, request, url_for
+from flask import flash, jsonify, redirect, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
@@ -13,6 +13,7 @@ from coaster.views import (
     ModelView,
     UrlForView,
     render_with,
+    requestargs,
     requires_roles,
     route,
 )
@@ -33,6 +34,7 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change, proposal_role_change
+from ..typing import ReturnRenderWith
 from .decorators import etag_cache_for_user, xhr_only
 from .login_session import requires_login
 from .notification import dispatch_notification
@@ -103,42 +105,38 @@ class AllCommentsView(ClassView):
 
     @route('', endpoint='comments')
     @requires_login
-    @etag_cache_for_user('comment_sidebar', 1, 300)
     @xhr_only(lambda: url_for('index', _anchor='comments'))
-    def view(self):
-        commentset_memberships = [
-            {
-                'parent': cm.commentset.parent.current_access(
-                    datasets=('primary', 'related')
-                ),
-                'parent_type': cm.commentset.parent_type,
-                'commentset_url': cm.commentset.url_for(_external=True),
-                'last_seen_at': cm.last_seen_at,
-                'new_comments_count': (
-                    cm.commentset.comments.filter(Comment.state.PUBLIC)
-                    .filter(Comment.created_at > cm.last_seen_at)
-                    .count()
-                ),
-                'last_comment': cm.commentset.views.last_comment,
-            }
-            for cm in (
-                current_auth.user.active_commentset_memberships.join(
-                    Commentset
-                ).order_by(
-                    Commentset.last_comment_at.desc(),
-                    CommentsetMembership.granted_at.desc(),
-                )
-            )
-        ]
-
-        for ms in commentset_memberships:
-            if ms['new_comments_count'] > 0:
-                pass
-
-        return render_template(
-            'unread_comments.html.jinja2',
-            commentset_memberships=commentset_memberships,
-        )
+    @etag_cache_for_user('comment_sidebar', 1, 300, query_params={'page', 'per_page'})
+    @render_with('unread_comments.html.jinja2', json=True)
+    @requestargs(('page', int), ('per_page', int))
+    def view(self, page: int = 1, per_page: int = 20) -> ReturnRenderWith:
+        query = CommentsetMembership.for_user(current_auth.user)
+        pagination = query.paginate(page=page, per_page=per_page, max_per_page=100)
+        result = {
+            'commentset_memberships': [
+                {
+                    'parent_type': cm.commentset.parent_type,
+                    'parent': cm.commentset.parent.current_access(
+                        datasets=('primary', 'related')
+                    ),
+                    'commentset_url': cm.commentset.url_for(),
+                    'last_seen_at': cm.last_seen_at,
+                    'new_comment_count': cm.new_comment_count,
+                    'last_comment_at': cm.commentset.last_comment_at,
+                    'last_comment': cm.commentset.views.last_comment,
+                }
+                for cm in pagination.items
+            ],
+            'has_next': pagination.has_next,
+            'has_prev': pagination.has_prev,
+            'page': pagination.page,
+            'per_page': pagination.per_page,
+            'pages': pagination.pages,
+            'next_num': pagination.next_num,
+            'prev_num': pagination.prev_num,
+            'count': pagination.total,
+        }
+        return result
 
 
 AllCommentsView.init_app(app)

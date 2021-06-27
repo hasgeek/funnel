@@ -1,4 +1,4 @@
-"""Add project commentset memberships.
+"""Add commentset memberships.
 
 Revision ID: 1c9cbf3a1e5e
 Revises: 7d5b77aada1e
@@ -77,6 +77,15 @@ project_crew_membership = table(
     column('id', UUIDType(binary=False)),
     column('user_id', sa.Integer()),
     column('project_id', sa.Integer()),
+    column('revoked_at', sa.TIMESTAMP(timezone=True)),
+)
+
+
+proposal_membership = table(
+    'proposal_membership',
+    column('id', UUIDType(binary=False)),
+    column('user_id', sa.Integer()),
+    column('proposal_id', sa.Integer()),
     column('revoked_at', sa.TIMESTAMP(timezone=True)),
 )
 
@@ -209,15 +218,25 @@ def upgrade_():
         progress.update(counter)
     progress.finish()
 
-    # Create commentset membershir for existing proposal proposers
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(proposal))
+    # Create commentset membership for existing proposal memberships
+    count = conn.scalar(
+        sa.select([sa.func.count('*')]).select_from(proposal_membership)
+    )
     progress = get_progressbar("Proposals", count)
     progress.start()
 
     proposals = conn.execute(
         sa.select(
-            [proposal.c.id, proposal.c.user_id, proposal.c.commentset_id]
-        ).order_by(proposal.c.id.desc())
+            [
+                proposal.c.id,
+                proposal.c.commentset_id,
+                proposal_membership.c.user_id,
+            ]
+        )
+        .where(proposal_membership.c.proposal_id == proposal.c.id)
+        .where(proposal_membership.c.revoked_at.is_(None))
+        .select_from(proposal_membership, proposal)
+        .order_by(proposal.c.id.desc())
     )
     for counter, proposal_item in enumerate(proposals):
         existing_counter = conn.scalar(
