@@ -28,6 +28,8 @@ __all__ = ['Shortlink']
 #: Size for for SMS and other length-sensitive uses. This can be raised from 3 to 4
 #: bytes as usage grows
 SHORT_LINK_BYTES = 3
+#: This is used to find existing short ids
+SHORT_LINK_ID_UPPER_BOUND = 2 ** (SHORT_LINK_BYTES * 8)
 
 #: Length limit for bigint. This is a constant and should not be revised
 FULL_LINK_BYTES = 8
@@ -286,7 +288,16 @@ class Shortlink(NoIdMixin, db.Model):
                 raise TypeError(
                     "Custom name cannot be provided when reusing an existing shortlink"
                 )
-            existing = cls.query.filter_by(url=url, enabled=True).first()
+
+            if shorter:
+                existing = cls.query.filter(
+                    Shortlink.url == url,
+                    Shortlink.enabled.is_(True),
+                    Shortlink.id > 0,
+                    Shortlink.id < SHORT_LINK_ID_UPPER_BOUND,
+                ).first()
+            else:
+                existing = cls.query.filter_by(url=url, enabled=True).first()
             if existing:
                 return existing
         # First time we're seeing this URL? Process it.

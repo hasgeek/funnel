@@ -33,12 +33,6 @@
         ""
       ],
       "Unable to connect. Check connection and tap to reload": [null, ""],
-      "Changes saved but not published": [null, ""],
-      "These changes have not been published yet": [null, ""],
-      "You have unsaved changes on this page. Do you want to leave this page?": [
-        null,
-        ""
-      ],
       "Are you sure you want to %s?": [null, ""],
       "The server is experiencing difficulties. Try again in a few minutes": [
         null,
@@ -970,6 +964,9 @@
       "Suspended": [null, "निलंबित"],
       "Merged": [null, "संयोजित"],
       "Invited": [null, "आमंत्रित"],
+      "${}": [null, ""],
+      ".": [null, ""],
+      "@": [null, ""],
       "The room sequence and colours have been updated": [null, ""],
       "The server could not be reached. Check connection and try again": [
         null,
@@ -1702,9 +1699,9 @@
         null,
         "आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a href=\"%(proposal_url)s\">%(proposal)s</a> जमा किया है"
       ],
-      "You have cancelled your registration for <b>%(project)s</b>. If this was accidental, you can register again": [
+      "You have cancelled your registration for <b>%(project)s</b>. If this was accidental, you can register again.": [
         null,
-        "आपने <b>%(project)s</b> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है. अगर यह गलती से हुआ है, तो फिर आप दोबारा रजिस्टर कर सकते हैं"
+        "आपने <b>%(project)s</b> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है. अगर यह गलती से हुआ है, तो फिर आप दोबारा रजिस्टर कर सकते हैं."
       ],
       "Project page": [null, "प्रोजेक्ट पेज"],
       "You cancelled your registration for <a href=\"%(url)s\">%(project)s</a>": [
