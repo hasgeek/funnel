@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-06-26 04:30+0530\n"
+"POT-Creation-Date: 2021-06-28 02:14+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -4069,10 +4069,10 @@ msgstr ""
 #, python-format
 msgid ""
 "You have cancelled your registration for <b>%(project)s</b>. If this was "
-"accidental, you can register again"
+"accidental, you can register again."
 msgstr ""
 "आपने <b>%(project)s</b> के लिए अपनी रजिस्ट्रेशन रद्द कर दी है. अगर यह "
-"गलती से हुआ है, तो फिर आप दोबारा रजिस्टर कर सकते हैं"
+"गलती से हुआ है, तो फिर आप दोबारा रजिस्टर कर सकते हैं."
 
 #: funnel/templates/notifications/rsvp_no_email.html.jinja2:7
 #: funnel/templates/notifications/rsvp_yes_email.html.jinja2:12

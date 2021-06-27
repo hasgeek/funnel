@@ -3,7 +3,7 @@
     {%- if update -%}
 
       <p>
-        {%- trans number=update.number -%}Update #{{number}}{%- endtrans -%} &bull; {%- trans age=update.published_at|age, editor=update.user.pickername -%}Posted by {{ editor }} {{ age }}{%- endtrans -%}
+        {%- trans number=update.number -%}Update #{{number}}{%- endtrans %} &bull; {% trans age=update.published_at|age, editor=update.user.pickername -%}Posted by {{ editor }} {{ age }}{%- endtrans -%}
       </p>
       <h2><a href="{{ update.url_for(_external=true, **view.tracking_tags()) }}">{{ update.title }}</a></h2>
 
