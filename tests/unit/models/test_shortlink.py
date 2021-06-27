@@ -218,6 +218,17 @@ def test_shortlink_constructor_with_reuse(db_session):
     assert sl3.id != sl2.id
 
 
+@pytest.mark.parametrize(
+    ['longid', 'match'], [(146727516324, False), (-1, False), (4235324, True)]
+)
+def test_shortlink_reuse_with_shorter(db_session, longid, match):
+    """Shortlink reuse with shorter will avoid longer ids."""
+    sl1 = shortlink.Shortlink(id=longid, url='example.com')
+    db_session.add(sl1)
+    sl2 = shortlink.Shortlink.new(url='example.com', shorter=True, reuse=True)
+    assert (sl2.id == sl1.id) is match
+
+
 @pytest.mark.filterwarnings('ignore:New instance')
 def test_shortlink_constructor_with_name(db_session):
     """Shortlink constructor will accept a name."""
