@@ -97,6 +97,7 @@ export const Utils = {
     let menuBtn = $(menuBtnClass);
     let topMargin = 1;
     let headerHeight = $('.header').height() + topMargin;
+    let page = 1;
 
     let openMenu = function () {
       if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
@@ -118,10 +119,10 @@ export const Utils = {
       $('body').removeClass('body-scroll-lock');
     };
 
-    var fetchMenu = function (openMenuFn = '') {
+    var fetchMenu = function (pageNo = 1, openMenuFn = '') {
       $.ajax({
         type: 'GET',
-        url: url,
+        url: `${url}?page=${pageNo}`,
         timeout: window.Hasgeek.config.ajaxTimeout,
         success: function (responseData) {
           $(menuWrapper).find(menu).append(responseData);
@@ -143,7 +144,9 @@ export const Utils = {
       if ($(this).hasClass('header__nav-links--active')) {
         closeMenu();
       } else if (lazyLoad || !$(menuWrapper).find(menu).length) {
-        fetchMenu(openMenu);
+        page += 1;
+        openMenu();
+        fetchMenu(page);
       } else {
         openMenu();
       }
