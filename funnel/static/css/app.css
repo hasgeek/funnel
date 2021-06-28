@@ -1526,7 +1526,7 @@ a.loginbutton.hidden,
   position: absolute;
   object-fit: cover;
   width: 100%;
-  font-size: 10px;
+  font-size: 0;
 }
 .hg-app
   .comments-sidebar
