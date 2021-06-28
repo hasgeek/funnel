@@ -33,6 +33,10 @@
 @media (max-width: 767px) {
   .update {
     .update__action-btn {
+      position: fixed;
+      top: $mui-grid-padding;
+      z-index: 1000;
+      right: $mui-grid-padding;
       .mui-dropdown__menu {
         right: 0;
         left: unset;
