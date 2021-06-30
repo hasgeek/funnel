@@ -136,7 +136,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
     @render_with('project_schedule.html.jinja2', json=True)
     # @requires_roles({'reader'})
-    def view(self):
+    def view(self) -> ReturnRenderWith:
         scheduled_sessions_list = session_list_data(
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
         )
@@ -166,7 +166,9 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 for room in self.obj.project.rooms
             },
             'schedule': schedule_data(
-                self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
+                self.obj.project,
+                with_slots=False,
+                scheduled_sessions=scheduled_sessions_list,
             ),
         }
 

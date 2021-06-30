@@ -168,6 +168,7 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
         'project': 'project.name',
         'ticket_participant': 'uuid_b58',
     }
+    obj: TicketParticipant
 
     def loader(self, profile, project, ticket_participant):
         ticket_participant = (
