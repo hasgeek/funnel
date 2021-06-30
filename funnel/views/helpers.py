@@ -21,6 +21,7 @@ from flask import (
 )
 from werkzeug.routing import BuildError
 from werkzeug.urls import url_quote
+from werkzeug.wrappers import Response as ResponseBase
 
 from furl import furl
 from pytz import common_timezones
@@ -341,6 +342,35 @@ def decompress(data: bytes, algorithm: str) -> bytes:
     if algorithm == 'br':
         return brotli.decompress(data)
     raise ValueError("Unknown compression algorithm")
+
+
+def compress_response(response: ResponseBase) -> None:
+    """
+    Conditionally compress a response based on request parameters.
+
+    This function should ideally be used with a cache layer, such as
+    :func:`~funnel.views.decorators.etag_cache_for_user`.
+    """
+    if (
+        response.content_length is not None
+        and response.content_length > 500
+        and 200 <= response.status_code < 300
+        and 'Content-Encoding' not in response.headers
+        and response.mimetype is not None
+        and (
+            response.mimetype.startswith('text/')
+            or response.mimetype
+            in (
+                'application/json',
+                'application/javascript',
+            )
+        )
+    ):
+        algorithm = request.accept_encodings.best_match(('br', 'gzip', 'deflate'))
+        if algorithm is not None:
+            response.set_data(compress(response.get_data(), algorithm))
+            response.headers['Content-Encoding'] = algorithm
+            response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
 
 
 # --- Filters and URL constructors -----------------------------------------------------

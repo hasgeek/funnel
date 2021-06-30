@@ -110,7 +110,9 @@ class AllCommentsView(ClassView):
     @route('', endpoint='comments')
     @requires_login
     @xhr_only(lambda: url_for('index', _anchor='comments'))
-    @etag_cache_for_user('comment_sidebar', 1, 300, query_params={'page', 'per_page'})
+    @etag_cache_for_user(
+        'comment_sidebar', 1, 300, 60, query_params={'page', 'per_page'}
+    )
     @render_with('unread_comments.html.jinja2', json=True)
     @requestargs(('page', int), ('per_page', int))
     def view(self, page: int = 1, per_page: int = 20) -> ReturnRenderWith:
