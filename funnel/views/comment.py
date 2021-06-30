@@ -59,6 +59,7 @@ def parent_comments_url(obj):
 class CommentsetView(UrlForView, ModelView):
     model = Commentset
     route_model_map = {'commentset': 'uuid_b58'}
+    obj: Commentset
 
     def loader(self, commentset):
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
@@ -169,6 +170,7 @@ CommentsetView.init_app(app)
 class CommentView(UrlForView, ModelView):
     model = Comment
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
+    obj: Comment
 
     def loader(self, commentset, comment):
         comment = (

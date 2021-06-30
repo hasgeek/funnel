@@ -100,6 +100,7 @@ AuthClientCreateView.init_app(app)
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
     route_model_map = {'client': 'buid'}
+    obj: AuthClient
 
     def loader(self, client):
         return self.model.query.filter(AuthClient.buid == client).one_or_404()
@@ -307,6 +308,7 @@ AuthClientView.init_app(app)
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
     route_model_map = {'client': 'auth_client.buid', 'name': 'name'}
+    obj: AuthClientCredential
 
     def loader(self, client, name):
         cred = (
@@ -343,6 +345,7 @@ AuthClientCredentialView.init_app(app)
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
     route_model_map = {'client': 'auth_client.buid', 'user': 'user.buid'}
+    obj: AuthClientUserPermissions
 
     def loader(self, client: str, user: str) -> AuthClientUserPermissions:
         userobj = User.get(buid=user)
@@ -416,6 +419,7 @@ AuthClientUserPermissionsView.init_app(app)
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
     route_model_map = {'client': 'auth_client.buid', 'team': 'team.buid'}
+    obj: AuthClientTeamPermissions
 
     def loader(self, client: str, team: str) -> AuthClientTeamPermissions:
         teamobj = Team.get(buid=team)

@@ -763,7 +763,7 @@ class ProjectView(
     @route('update_featured', methods=['POST'])
     def update_featured(self):
         if not current_auth.user.is_site_editor:
-            return abort(403)
+            abort(403)
         featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)

@@ -58,6 +58,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     model = Organization
     # Map <organization> in URL to attribute `name`, for `url_for` automation
     route_model_map = {'organization': 'name'}
+    obj: Organization
 
     def loader(self, organization: Optional[str] = None) -> Optional[Organization]:
         """Load an organization if the view requires it."""
@@ -177,6 +178,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
         'organization': 'organization.name',
         'team': 'buid',
     }
+    obj: Team
 
     def loader(self, organization: str, team: str) -> Team:
         """Load a team."""

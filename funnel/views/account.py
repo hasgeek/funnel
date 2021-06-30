@@ -331,6 +331,7 @@ class AccountView(ClassView):
 
     __decorators__ = [requires_login]
 
+    obj: User
     current_section = 'account'  # needed for showing active tab
     SavedProjectForm = SavedProjectForm
 

@@ -46,6 +46,7 @@ class ProfileCheckMixin:
 class ProjectViewMixin(ProfileCheckMixin):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
+    obj: Union[Project, ProjectRedirect]
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
@@ -90,6 +91,7 @@ class ProjectViewMixin(ProfileCheckMixin):
 class ProfileViewMixin(ProfileCheckMixin):
     model = Profile
     route_model_map = {'profile': 'name'}
+    obj: Profile
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
@@ -111,6 +113,7 @@ class ProposalViewMixin(ProfileCheckMixin):
         'project': 'project.name',
         'proposal': 'url_name_uuid_b58',
     }
+    obj: Union[Proposal, ProposalSuuidRedirect]
 
     def loader(
         self, profile: str, project: str, proposal: str  # skipcq: PYL-W0613
@@ -154,6 +157,7 @@ class SessionViewMixin(ProfileCheckMixin):
         'project': 'project.name',
         'session': 'url_name_uuid_b58',
     }
+    obj: Session
     SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, session):
@@ -180,6 +184,7 @@ class VenueViewMixin(ProfileCheckMixin):
         'project': 'project.name',
         'venue': 'name',
     }
+    obj: Venue
 
     def loader(self, profile, project, venue):
         venue = (
@@ -206,6 +211,7 @@ class VenueRoomViewMixin(ProfileCheckMixin):
         'venue': 'venue.name',
         'room': 'name',
     }
+    obj: VenueRoom
 
     def loader(self, profile, project, venue, room):
         room = (
@@ -232,6 +238,7 @@ class TicketEventViewMixin(ProfileCheckMixin):
         'project': 'project.name',
         'name': 'name',
     }
+    obj: TicketEvent
 
     def loader(self, profile, project, name):
         return (
