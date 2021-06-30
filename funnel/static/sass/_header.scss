@@ -270,25 +270,32 @@
               display: inline-block;
             }
             .comment__details__title {
-              width: calc(100% - 80px);
+              width: calc(100% - 88px);
               margin-right: $mui-grid-padding/2;
             }
             .comment__details__title--long {
               width: 100%;
             }
             .comment__details__age {
-              max-width: 72px;
+              max-width: 80px;
             }
           }
           .user__box__subcontent {
             margin: 0 0 $mui-grid-padding/4;
             line-height: 1;
-            .truncated-text {
-              width: calc(100% - 25px);
+            .comment__details__user {
+              width: 100%;
+            }
+            .comment__details__user--truncated {
+              width: calc(100% - 24px);
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
               display: inline-block;
+              margin-right: $mui-grid-padding/2;
+            }
+            .badge {
+              vertical-align: bottom;
             }
           }
         }

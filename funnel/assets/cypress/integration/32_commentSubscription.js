@@ -8,7 +8,6 @@ describe('Confirm submission comment subscription', function () {
   it('Confirm proposal', function () {
     cy.server();
     cy.route('POST', '**/new').as('post-comment');
-    cy.route('GET', '**/comments').as('fetch-comment-sidebar');
     cy.route('POST', '**/subscribe').as('post-subscribe');
 
     cy.login('/', member.username, member.password);
@@ -28,7 +27,7 @@ describe('Confirm submission comment subscription', function () {
 
     cy.login('/', editor.username, editor.password);
     cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait('@fetch-comment-sidebar');
+    cy.wait(1000);
     cy.get('[data-cy="unread-comment"]').should('exist');
     cy.get('.upcoming')
       .find('.card--upcoming')
@@ -62,7 +61,7 @@ describe('Confirm submission comment subscription', function () {
 
     cy.login('/', editor.username, editor.password);
     cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait('@fetch-comment-sidebar');
+    cy.wait(1000);
     cy.get('[data-cy="unread-comment"]')
       .contains(member.username)
       .should('not.exist');

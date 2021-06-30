@@ -1581,7 +1581,7 @@ a.loginbutton.hidden,
   .user__box__header.comment__details
   .user__box__fullname
   .comment__details__title {
-  width: calc(100% - 80px);
+  width: calc(100% - 88px);
   margin-right: 8px;
 }
 .hg-app
@@ -1600,7 +1600,7 @@ a.loginbutton.hidden,
   .user__box__header.comment__details
   .user__box__fullname
   .comment__details__age {
-  max-width: 72px;
+  max-width: 80px;
 }
 .hg-app
   .comments-sidebar
@@ -1617,12 +1617,31 @@ a.loginbutton.hidden,
   .user__box
   .user__box__header.comment__details
   .user__box__subcontent
-  .truncated-text {
-  width: calc(100% - 25px);
+  .comment__details__user {
+  width: 100%;
+}
+.hg-app
+  .comments-sidebar
+  li.user
+  .user__box
+  .user__box__header.comment__details
+  .user__box__subcontent
+  .comment__details__user--truncated {
+  width: calc(100% - 24px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: inline-block;
+  margin-right: 8px;
+}
+.hg-app
+  .comments-sidebar
+  li.user
+  .user__box
+  .user__box__header.comment__details
+  .user__box__subcontent
+  .badge {
+  vertical-align: bottom;
 }
 
 .hg-app .header--fixed.header--lowzindex {

@@ -75,7 +75,7 @@
     {% if not current_auth.is_anonymous -%}
       <a href="{{ url_for('notifications') }}" class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if  current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class='header__nav-links__icon') }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
       {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
-        <a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-btn" data-ga="Comments" data-cy="comment-sidebar" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='comment-alt-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>
+        <a href="javascript:void(0)" class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-btn" data-ga="Comments" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='comment-alt-solid', css_class='header__nav-links__icon') }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>
       {% endif %}
       <div class="header__nav-links">
         <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone js-menu-btn" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">

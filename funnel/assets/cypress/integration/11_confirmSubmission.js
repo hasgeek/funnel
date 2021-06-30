@@ -11,7 +11,6 @@ describe('Confirm submission', function () {
     cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
-    cy.route('GET', '**/comments').as('fetch-comment-sidebar');
 
     cy.login('/', editor.username, editor.password);
 
@@ -98,7 +97,7 @@ describe('Confirm submission', function () {
     cy.get('[data-cy="notification-box"]').contains(proposal.title);
     cy.get('[data-cy="notification-box"]').contains(proposal.comment);
     cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait('@fetch-comment-sidebar');
+    cy.wait(1000);
     cy.get('[data-cy="unread-comment"]').should('exist');
   });
 });

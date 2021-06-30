@@ -24,41 +24,41 @@ describe('Test comments feature', function () {
     cy.get('a[data-cy="login-btn"]').click();
     cy.fill_login_details(user.username, user.password);
 
-    cy.get('[data-cy="post-comment"]').click();
-    cy.get('[data-cy="new-form"]')
-      .find('.CodeMirror textarea')
-      .type(project.comment, { force: true });
-    cy.wait(1000);
-    cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();
-    cy.wait('@post-comment');
-    var cid = window.location.hash;
-    cy.get('.comment__body').contains(project.comment);
-    cy.get('.comment__header').contains(user.username);
+    // cy.get('[data-cy="post-comment"]').click();
+    // cy.get('[data-cy="new-form"]')
+    //   .find('.CodeMirror textarea')
+    //   .type(project.comment, { force: true });
+    // cy.wait(1000);
+    // cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();
+    // cy.wait('@post-comment');
+    // var cid = window.location.hash;
+    // cy.get('.comment__body').contains(project.comment);
+    // cy.get('.comment__header').contains(user.username);
 
-    cy.wait(2000);
-    cy.get('a[data-cy="comment-menu"]:visible').click();
-    cy.wait(1000);
-    cy.get('a[data-cy="edit"]').click();
-    cy.get('[data-cy="edit-form"]')
-      .find('.CodeMirror textarea')
-      .type(project.edit_comment, { force: true });
-    cy.wait(1000);
-    cy.get('[data-cy="edit-form"]').find('[data-cy="edit-comment"]').click();
-    cy.wait('@edit-comment');
-    cy.get(`${cid} .comment__body`).contains(project.edit_comment);
+    // cy.wait(2000);
+    // cy.get('a[data-cy="comment-menu"]:visible').click();
+    // cy.wait(1000);
+    // cy.get('a[data-cy="edit"]').click();
+    // cy.get('[data-cy="edit-form"]')
+    //   .find('.CodeMirror textarea')
+    //   .type(project.edit_comment, { force: true });
+    // cy.wait(1000);
+    // cy.get('[data-cy="edit-form"]').find('[data-cy="edit-comment"]').click();
+    // cy.wait('@edit-comment');
+    // cy.get(`${cid} .comment__body`).contains(project.edit_comment);
 
-    cy.get('a[data-cy="reply"]').click();
-    cy.get('[data-cy="reply-form"]')
-      .find('.CodeMirror textarea')
-      .type(project.reply_comment, { force: true });
-    cy.wait(1000);
-    cy.get('[data-cy="reply-form"]').find('[data-cy="reply-comment"]').click();
-    cy.wait('@reply-comment');
-    cid = window.location.hash;
-    cy.get(`${cid} .comment__body`).contains(project.reply_comment);
-    cy.wait(1000);
+    // cy.get('a[data-cy="reply"]').click();
+    // cy.get('[data-cy="reply-form"]')
+    //   .find('.CodeMirror textarea')
+    //   .type(project.reply_comment, { force: true });
+    // cy.wait(1000);
+    // cy.get('[data-cy="reply-form"]').find('[data-cy="reply-comment"]').click();
+    // cy.wait('@reply-comment');
+    // cid = window.location.hash;
+    // cy.get(`${cid} .comment__body`).contains(project.reply_comment);
+    // cy.wait(1000);
     cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait('@fetch-comment-sidebar');
+    cy.wait(1000);
     cy.get('[data-cy="unread-comment"]').should('exist');
 
     /*
