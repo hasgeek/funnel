@@ -71,7 +71,7 @@
         <transition name="slide">
           <div class="comment__body" v-if="!hide">
             <div class="comment__body__inner">
-              <div v-if="!comment.state" v-html="comment.message.html"></div>
+              <div v-if="!comment.state" v-html="comment.message.html" class="markdown"></div>
               <a class="mui--text-caption mui--text-light comment--permalink hg-link-btn" :href="'#c-' + comment.uuid_b58">Posted {{ created_at_age }}</a>
               <span class="mui--text-caption mui--text-light" v-if="comment.edited_at">({{ gettext('edited %s', edited_at_age) }})</span>
               <div class="js-comment-form">
