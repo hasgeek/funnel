@@ -557,7 +557,9 @@ class ProjectView(
             if not rsvp.state.YES:
                 rsvp.rsvp_yes()
                 db.session.commit()
-                project_role_change.send(self.obj, user=current_auth.user)
+                project_role_change.send(
+                    self.obj, actor=current_auth.user, user=current_auth.user
+                )
                 db.session.commit()
                 dispatch_notification(
                     RegistrationConfirmationNotification(document=rsvp)
