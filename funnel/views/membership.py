@@ -374,7 +374,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                     db.session.add(new_membership)
                     # TODO: Once invite is introduced, send invite email here
                     db.session.commit()
-                    signals.project_role_change.send(self.obj, new_membership.user)
+                    signals.project_role_change.send(self.obj, user=new_membership.user)
                     signals.project_crew_membership_added.send(
                         self.obj,
                         project=self.obj,
@@ -515,7 +515,7 @@ class ProjectCrewMembershipView(
                         400,
                     )
                 db.session.commit()
-                signals.project_role_change.send(self.obj.project, self.obj.user)
+                signals.project_role_change.send(self.obj.project, user=self.obj.user)
                 db.session.commit()
                 return {
                     'status': 'ok',
@@ -566,7 +566,9 @@ class ProjectCrewMembershipView(
                         user=previous_membership.user,
                     )
                     db.session.commit()
-                    signals.project_role_change.send(self.obj.project, self.obj.user)
+                    signals.project_role_change.send(
+                        self.obj.project, user=self.obj.user
+                    )
                     db.session.commit()
                 return {
                     'status': 'ok',
