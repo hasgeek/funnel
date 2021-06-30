@@ -1,6 +1,7 @@
 describe('Confirm submission comment subscription', function () {
   const editor = require('../fixtures/user.json').editor;
   const member = require('../fixtures/user.json').user;
+  const newuser = require('../fixtures/user.json').newuser;
   const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
@@ -11,6 +12,8 @@ describe('Confirm submission comment subscription', function () {
     cy.route('POST', '**/subscribe').as('post-subscribe');
 
     cy.login('/', member.username, member.password);
+    cy.get('#hgnav').find('a[data-cy="my-account"]').click();
+    cy.wait(1000);
     cy.get('a[data-cy="profile"]').click();
     cy.get('a[data-cy="submissions"]').click();
     cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
@@ -29,6 +32,11 @@ describe('Confirm submission comment subscription', function () {
     cy.get('[data-cy="comment-sidebar"]').click();
     cy.wait(1000);
     cy.get('[data-cy="unread-comment"]').should('exist');
+    cy.logout();
+    cy.wait(1000);
+
+    cy.login('/', newuser.username, newuser.password);
+    cy.get('[data-cy="comment-sidebar"]').click();
     cy.get('.upcoming')
       .find('.card--upcoming')
       .contains(project.title)
@@ -37,8 +45,10 @@ describe('Confirm submission comment subscription', function () {
     cy.get('#search').type(proposal.title);
     cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
     cy.get('a[data-cy="subscribe-proposal"]:visible').click();
-    cy.wait(1000);
+    cy.wait('@post-subscribe');
     cy.get('[data-cy="cancel-subscription"]:visible').click();
+    cy.wait('@post-subscribe');
+    cy.get('a[data-cy="subscribe-proposal"]:visible').click();
     cy.wait('@post-subscribe');
     cy.visit('/');
     cy.logout();
@@ -59,11 +69,11 @@ describe('Confirm submission comment subscription', function () {
     cy.logout();
     cy.wait(1000);
 
-    cy.login('/', editor.username, editor.password);
+    cy.login('/', newuser.username, newuser.password);
     cy.get('[data-cy="comment-sidebar"]').click();
     cy.wait(1000);
     cy.get('[data-cy="unread-comment"]')
       .contains(member.username)
-      .should('not.exist');
+      .should('exist');
   });
 });

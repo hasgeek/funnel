@@ -119,6 +119,10 @@ export const Utils = {
       $('body').removeClass('body-scroll-lock');
     };
 
+    let updatePageNumber = function () {
+      page += 1;
+    };
+
     var fetchMenu = function (pageNo = 1, openMenuFn = '') {
       $.ajax({
         type: 'GET',
@@ -126,6 +130,7 @@ export const Utils = {
         timeout: window.Hasgeek.config.ajaxTimeout,
         success: function (responseData) {
           $(menuWrapper).find(menu).append(responseData);
+          updatePageNumber();
           if (openMenuFn) {
             openMenuFn();
           }
@@ -139,12 +144,10 @@ export const Utils = {
     }
 
     // Open full screen account menu in mobile
-    menuBtn.on('click', function (event) {
-      event.stopPropagation();
+    menuBtn.on('click', function () {
       if ($(this).hasClass('header__nav-links--active')) {
         closeMenu();
       } else if (lazyLoad || !$(menuWrapper).find(menu).length) {
-        page += 1;
         openMenu();
         fetchMenu(page);
       } else {
@@ -153,10 +156,15 @@ export const Utils = {
     });
 
     $('body').on('click', function (event) {
+      let totalBtn = $(menuBtn).toArray();
+      let isChildElem = false;
+      totalBtn.forEach(function (element) {
+        isChildElem = isChildElem || $.contains(element, event.target);
+      });
       if (
         $(menuBtn).hasClass('header__nav-links--active') &&
         !$(event.target).is(menuBtn) &&
-        !$.contains($(menuBtn)[0], event.target)
+        !isChildElem
       ) {
         closeMenu();
       }

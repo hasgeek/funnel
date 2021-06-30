@@ -30,7 +30,7 @@
           <div class="user__box__header comment__details" data-cy="unread-comment">
             {% if membership.last_comment %}
               <h3 class="mui--text-body2 user__box__fullname"><span class="mui--text-bold comment__details__title" data-cy="comment-username">{{ membership.parent.title }}</span><span class="mui--text-body1 mui--pull-right comment__details__age">{{ membership.last_comment.created_at|age }}</span></h3>
-              <h3 class="mui--text-caption mui--text-light user__box__subcontent"><span class="{% if membership.new_comment_count %}comment__details__user--truncated{% else %}comment__details__user{% endif %}">{{ membership.last_comment.user.fullname }}: {{ membership.last_comment.message.text }}</span>{% if membership.new_comment_count %}<span class="badge badge--round badge--round-smaller">{{ membership.new_comment_count }}</span>{% endif %}</h3>
+              <h3 class="mui--text-caption mui--text-light user__box__subcontent"><span class="comment__details__user {% if membership.new_comment_count %}comment__details__user--truncated{% endif %}">{{ membership.last_comment.user.fullname }}: {{ membership.last_comment.message.text }}</span>{% if membership.new_comment_count %}<span class="badge badge--round badge--round-smaller">{{ membership.new_comment_count }}</span>{% endif %}</h3>
             {%- else %}
               <h3 class="mui--text-body2 user__box__fullname"><span class="mui--text-bold comment__details__title comment__details__title--long" data-cy="comment-username">{{ membership.parent.title }}</span></h3>
               <h3 class="mui--text-caption mui--text-light user__box__subcontent">{% trans %}No comments posted…{% endtrans %}</h3>

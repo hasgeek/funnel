@@ -1552,8 +1552,12 @@ a.loginbutton.hidden,
   .user__box
   .user__box__header.comment__details
   .user__box__fullname {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   line-height: 1;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
 }
 .hg-app
   .comments-sidebar
@@ -1610,6 +1614,10 @@ a.loginbutton.hidden,
   .user__box__subcontent {
   margin: 0 0 4px;
   line-height: 1;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 .hg-app
   .comments-sidebar
@@ -1619,6 +1627,10 @@ a.loginbutton.hidden,
   .user__box__subcontent
   .comment__details__user {
   width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
 }
 .hg-app
   .comments-sidebar
@@ -1628,20 +1640,7 @@ a.loginbutton.hidden,
   .user__box__subcontent
   .comment__details__user--truncated {
   width: calc(100% - 24px);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
   margin-right: 8px;
-}
-.hg-app
-  .comments-sidebar
-  li.user
-  .user__box
-  .user__box__header.comment__details
-  .user__box__subcontent
-  .badge {
-  vertical-align: bottom;
 }
 
 .hg-app .header--fixed.header--lowzindex {

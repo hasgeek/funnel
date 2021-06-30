@@ -260,8 +260,12 @@
         .user__box__header.comment__details {
           width: calc(100% - 70px);
           .user__box__fullname {
-            margin: 0 0 6px;
+            margin: 0 0 $mui-grid-padding/4;
             line-height: 1;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
             .comment__details__title,
             .comment__details__age {
               white-space: nowrap;
@@ -283,19 +287,20 @@
           .user__box__subcontent {
             margin: 0 0 $mui-grid-padding/4;
             line-height: 1;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: flex-end;
             .comment__details__user {
               width: 100%;
-            }
-            .comment__details__user--truncated {
-              width: calc(100% - 24px);
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
               display: inline-block;
-              margin-right: $mui-grid-padding/2;
             }
-            .badge {
-              vertical-align: bottom;
+            .comment__details__user--truncated {
+              width: calc(100% - 24px);
+              margin-right: $mui-grid-padding/2;
             }
           }
         }

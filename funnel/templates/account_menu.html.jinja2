@@ -9,7 +9,7 @@
           <div class="user__box">
             {{ useravatar(current_auth.user, add_profile_link=true, size='big') }}
             {% if current_auth.user.profile_url %}
-              <a href="{{ current_auth.user.profile_url }}" class="user__box__header nounderline">
+              <a href="{{ current_auth.user.profile_url }}" class="user__box__header nounderline" data-cy="profile">
             {%- else %}
               <div class="user__box__header">
             {% endif %}

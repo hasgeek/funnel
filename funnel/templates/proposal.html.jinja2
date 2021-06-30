@@ -33,8 +33,8 @@
       <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
         <form action="{{ proposal.url_for('subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
           {{ proposal.forms.subscribe().hidden_tag() }}
-          <li class="js-subscribed {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label for="cancel-subscription" data-cy="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Stop notifications{% endtrans %}</label></li>
-          <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--margin') }}{% trans %}Get notifications{% endtrans %}</label></li>
+          <li class="js-subscribed {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label class="link" for="cancel-subscription" data-cy="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Stop notifications{% endtrans %}</label></li>
+          <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label class="link" for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Get notifications{% endtrans %}</label></li>
         </form>
       </ul>
     </div>
@@ -286,6 +286,7 @@
       };
       window.Hasgeek.Comments(commentsConfig);
       window.Hasgeek.ProjectHeaderInit();
+      window.Hasgeek.ProposalInit();
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
