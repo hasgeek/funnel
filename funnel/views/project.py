@@ -557,7 +557,9 @@ class ProjectView(
             if not rsvp.state.YES:
                 rsvp.rsvp_yes()
                 db.session.commit()
-                project_role_change.send(self.obj, user=current_auth.user)
+                project_role_change.send(
+                    self.obj, actor=current_auth.user, user=current_auth.user
+                )
                 db.session.commit()
                 dispatch_notification(
                     RegistrationConfirmationNotification(document=rsvp)
@@ -752,7 +754,7 @@ class ProjectView(
     @route('update_featured', methods=['POST'])
     def update_featured(self):
         if not current_auth.user.is_site_editor:
-            return abort(403)
+            abort(403)
         featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)

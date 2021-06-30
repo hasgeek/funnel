@@ -155,8 +155,8 @@ class OrganizationMembershipView(
     ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     model = OrganizationMembership
-
     route_model_map = {'profile': 'organization.name', 'membership': 'uuid_b58'}
+    obj: OrganizationMembership
 
     def loader(self, profile, membership):
         obj = (
@@ -374,7 +374,9 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                     db.session.add(new_membership)
                     # TODO: Once invite is introduced, send invite email here
                     db.session.commit()
-                    signals.project_role_change.send(self.obj, user=new_membership.user)
+                    signals.project_role_change.send(
+                        self.obj, actor=current_auth.user, user=new_membership.user
+                    )
                     signals.project_crew_membership_added.send(
                         self.obj,
                         project=self.obj,
@@ -419,12 +421,12 @@ ProjectMembershipView.init_app(app)
 
 class ProjectCrewMembershipMixin(ProfileCheckMixin):
     model = ProjectCrewMembership
-
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
         'membership': 'uuid_b58',
     }
+    obj: ProjectCrewMembership
 
     def loader(self, profile, project, membership):
         obj = (
@@ -451,7 +453,7 @@ class ProjectCrewMembershipInviteView(
     def loader(self, profile, project, membership):
         obj = super().loader(profile, project, membership)
         if not obj.is_invite or obj.user != current_auth.user:
-            raise abort(404)
+            abort(404)
 
         return obj
 
@@ -515,7 +517,9 @@ class ProjectCrewMembershipView(
                         400,
                     )
                 db.session.commit()
-                signals.project_role_change.send(self.obj.project, user=self.obj.user)
+                signals.project_role_change.send(
+                    self.obj.project, actor=current_auth.user, user=self.obj.user
+                )
                 db.session.commit()
                 return {
                     'status': 'ok',
@@ -567,7 +571,7 @@ class ProjectCrewMembershipView(
                     )
                     db.session.commit()
                     signals.project_role_change.send(
-                        self.obj.project, user=self.obj.user
+                        self.obj.project, actor=current_auth.user, user=self.obj.user
                     )
                     db.session.commit()
                 return {

@@ -223,6 +223,7 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
         'project': 'project.name',
         'name': 'name',
     }
+    obj: TicketType
 
     def loader(self, profile, project, name):
         ticket_type = (
@@ -301,6 +302,7 @@ class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
         'project': 'project.name',
         'client_id': 'id',
     }
+    obj: TicketClient
 
     def loader(self, profile, project, client_id):
         ticket_client = (

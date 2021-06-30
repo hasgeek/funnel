@@ -43,17 +43,21 @@ ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
 
 
 @project_role_change.connect
-def update_project_commentset_membership(project: Project, user: User) -> None:
+def update_project_commentset_membership(
+    project: Project, actor: User, user: User
+) -> None:
     if 'participant' in project.roles_for(user):
-        project.commentset.add_subscriber(user)
+        project.commentset.add_subscriber(actor=actor, user=user)
     else:
-        project.commentset.remove_subscriber(user)
+        project.commentset.remove_subscriber(actor=actor, user=user)
 
 
 @proposal_role_change.connect
-def update_proposal_commentset_membership(proposal: Proposal, user: User) -> None:
+def update_proposal_commentset_membership(
+    proposal: Proposal, actor: User, user: User
+) -> None:
     if 'participant' in proposal.roles_for(user):
-        proposal.commentset.add_subscriber(user)
+        proposal.commentset.add_subscriber(actor=actor, user=user)
 
     # TODO: Removal is pending a switch to ProposalMembership and the grant of
     # 'participant' role from there. For now, users will have to mute notifications
@@ -146,6 +150,7 @@ AllCommentsView.init_app(app)
 class CommentsetView(UrlForView, ModelView):
     model = Commentset
     route_model_map = {'commentset': 'uuid_b58'}
+    obj: Commentset
 
     def loader(self, commentset):
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
@@ -258,6 +263,7 @@ CommentsetView.init_app(app)
 class CommentView(UrlForView, ModelView):
     model = Comment
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
+    obj: Comment
 
     def loader(self, commentset, comment):
         comment = (

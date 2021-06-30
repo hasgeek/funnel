@@ -65,7 +65,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
 
     new_comment_count = db.column_property(
         db.select(db.func.count(Comment.id))
-        .where(Comment.commentset_id == commentset_id)
+        .where(Comment.commentset_id == commentset_id)  # type: ignore[has-type]
         .where(Comment.state.PUBLIC)  # type: ignore[has-type]
         .where(Comment.created_at > last_seen_at)
         .correlate_except(Comment)

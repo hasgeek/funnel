@@ -87,6 +87,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
+    obj: Update
     SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, update):

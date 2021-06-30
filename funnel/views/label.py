@@ -104,6 +104,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
         'project': 'project.name',
         'label': 'name',
     }
+    obj: Label
 
     def loader(self, profile, project, label):
         proj = (
