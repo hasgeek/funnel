@@ -7,7 +7,7 @@ from furl import furl
 import pytest
 
 from funnel import app
-from funnel.views.helpers import app_url_for, cleanurl_filter
+from funnel.views.helpers import app_url_for, cleanurl_filter, compress, decompress
 
 
 @pytest.fixture
@@ -90,3 +90,12 @@ def test_urlclean_filter():
     assert cleanurl_filter("//test/") == "test"
     assert cleanurl_filter("foobar") == "foobar"
     assert cleanurl_filter("") == ""
+
+
+def test_compress_decompress():
+    """Test compress and decompress function on sample data."""
+    # Compression is only effective on larger inputs, so the outputs here may be
+    # larger than inputs.
+    sample = b"This is a sample string to be compressed."
+    for algorithm in ('gzip', 'deflate', 'br'):
+        assert decompress(compress(sample, algorithm), algorithm) == sample

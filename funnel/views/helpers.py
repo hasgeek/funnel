@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from base64 import urlsafe_b64encode
 from datetime import datetime
-from gzip import GzipFile
 from hashlib import blake2b
-from io import BytesIO
 from os import urandom
 from typing import Callable, Optional, Set, Tuple
 from urllib.parse import unquote, urljoin, urlsplit
+import gzip
 import zlib
 
 from flask import (
@@ -315,16 +314,32 @@ def delete_cached_token(token: str):
 
 
 def compress(data: bytes, algorithm: str) -> bytes:
-    """Compress data for a HTTP Response."""
+    """
+    Compress data using Gzip, Deflate or Brotli.
+
+    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    """
     if algorithm == 'gzip':
-        gzip_buffer = BytesIO()
-        with GzipFile(mode='wb', compresslevel=6, fileobj=gzip_buffer) as gzip_file:
-            gzip_file.write(data)
-        return gzip_buffer.getvalue()
-    elif algorithm == 'deflate':
-        return zlib.compress(data, -1)
-    elif algorithm == 'br':
-        return brotli.compress(data, mode=0, quality=4, lgwin=22, lgblock=0)
+        return gzip.compress(data)
+    if algorithm == 'deflate':
+        return zlib.compress(data)
+    if algorithm == 'br':
+        return brotli.compress(data)
+    raise ValueError("Unknown compression algorithm")
+
+
+def decompress(data: bytes, algorithm: str) -> bytes:
+    """
+    Uncompress data using Gzip, Deflate or Brotli.
+
+    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    """
+    if algorithm == 'gzip':
+        return gzip.decompress(data)
+    if algorithm == 'deflate':
+        return zlib.decompress(data)
+    if algorithm == 'br':
+        return brotli.decompress(data)
     raise ValueError("Unknown compression algorithm")
 
 
