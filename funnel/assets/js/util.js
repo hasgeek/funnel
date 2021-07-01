@@ -105,6 +105,7 @@ export const Utils = {
       } else {
         $(menuWrapper).find(menu).animate({ top: headerHeight });
       }
+      $('.header__nav-links--active').addClass('header__nav-links--menuOpen');
       menuBtn.addClass('header__nav-links--active');
       $('body').addClass('body-scroll-lock');
     };
@@ -117,6 +118,9 @@ export const Utils = {
       }
       menuBtn.removeClass('header__nav-links--active');
       $('body').removeClass('body-scroll-lock');
+      $('.header__nav-links--active').removeClass(
+        'header__nav-links--menuOpen'
+      );
     };
 
     let updatePageNumber = function () {
