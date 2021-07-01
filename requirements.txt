@@ -40,7 +40,7 @@ pymdown-extensions==8.2
 python-dateutil==2.8.1
 pytz==2021.1
 PyVimeo==1.1.0
-qrcode==6.1
+qrcode==7.0
 requests==2.25.1
 rq==1.8.1
 SQLAlchemy==1.4.17
