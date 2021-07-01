@@ -44,7 +44,7 @@ qrcode==7.0
 requests==2.25.1
 rq==1.9.0
 SQLAlchemy==1.4.20
-SQLAlchemy-Utils==0.37.6
+SQLAlchemy-Utils==0.37.8
 tweepy==3.10.0
 twilio==6.59.0
 typing-extensions==3.10.0.0
