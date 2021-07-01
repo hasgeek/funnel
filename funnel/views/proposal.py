@@ -160,7 +160,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     'form_nonce': subscribe_form.form_nonce.data,
                 }
             else:
-                self.obj.commentset.mute_subscriber(
+                self.obj.commentset.remove_subscriber(
                     actor=current_auth.user, user=current_auth.user
                 )
                 db.session.commit()

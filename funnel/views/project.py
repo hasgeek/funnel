@@ -577,6 +577,10 @@ class ProjectView(
             if rsvp is not None and not rsvp.state.NO:
                 rsvp.rsvp_no()
                 db.session.commit()
+                project_role_change.send(
+                    self.obj, actor=current_auth.user, user=current_auth.user
+                )
+                db.session.commit()
                 dispatch_notification(
                     RegistrationCancellationNotification(document=rsvp)
                 )
@@ -737,11 +741,11 @@ class ProjectView(
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
-            return jsonify(
-                {
-                    'comments': comments,
-                }
-            )
+            return {
+                'subscribed': subscribed,
+                'comments': comments,
+            }
+
         commentform = CommentForm(model=Comment)
         return {
             'project': self.obj,

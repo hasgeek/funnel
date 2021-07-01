@@ -111,7 +111,7 @@ class AllCommentsView(ClassView):
     @requires_login
     @xhr_only(lambda: url_for('index', _anchor='comments'))
     @etag_cache_for_user(
-        'comment_sidebar', 1, 300, 60, query_params={'page', 'per_page'}
+        'comment_sidebar', 1, 60, 60, query_params={'page', 'per_page'}
     )
     @render_with('unread_comments.html.jinja2', json=True)
     @requestargs(('page', int), ('per_page', int))
@@ -179,8 +179,6 @@ class CommentsetView(UrlForView, ModelView):
             self.obj.count = Commentset.count + 1
             db.session.add(comment)
 
-            # TODO: Replace this with a 'participant' or 'commenter' role in
-            # ProposalMembership
             if not self.obj.current_roles.document_subscriber:
                 self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
 

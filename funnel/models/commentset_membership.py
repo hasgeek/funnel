@@ -12,6 +12,7 @@ from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
 from .proposal import Proposal
+from .update import Update
 
 __all__ = ['CommentsetMembership']
 
@@ -100,6 +101,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
             .join(Commentset)
             .outerjoin(Project, Project.commentset_id == Commentset.id)
             .outerjoin(Proposal, Proposal.commentset_id == Commentset.id)
+            .outerjoin(Update, Update.commentset_id == Commentset.id)
             .order_by(
                 Commentset.last_comment_at.is_(None),
                 Commentset.last_comment_at.desc(),
@@ -173,9 +175,6 @@ class __Commentset:
                 )
             )
             return True
-        elif existing.is_muted:
-            existing.replace(actor=actor, is_muted=False)
-            return True
         return False
 
     def mute_subscriber(self, actor: User, user: User) -> bool:
@@ -185,6 +184,16 @@ class __Commentset:
         ).one_or_none()
         if not existing.is_muted:
             existing.replace(actor=actor, is_muted=True)
+            return True
+        return False
+
+    def unmute_subscriber(self, actor: User, user: User) -> bool:
+        """Return True if subscriber was unmuted, False if not muted or missing."""
+        existing = CommentsetMembership.query.filter_by(
+            commentset=self, user=user, is_active=True
+        ).one_or_none()
+        if existing.is_muted:
+            existing.replace(actor=actor, is_muted=False)
             return True
         return False
 

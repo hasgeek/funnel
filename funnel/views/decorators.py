@@ -40,7 +40,7 @@ def remove_db_session(f: F) -> F:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs) -> ReturnView:
+    def wrapper(*args, **kwargs):
         try:
             result = f(*args, **kwargs)
         finally:

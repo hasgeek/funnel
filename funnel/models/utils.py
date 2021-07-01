@@ -91,10 +91,7 @@ def do_migrate_instances(
     )  # 'id' is from IdMixin via BaseMixin
 
     # Session (for queries)
-    # This used to retrieve session from the model's query, but that affects testing,
-    # so, we're back to using the global session.
-    # Old: session = old_instance.query.session
-    session = db.session
+    session = old_instance.query.session
 
     # Keep track of all migrated tables
     migrated_tables: Set[str] = set()

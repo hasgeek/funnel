@@ -50,21 +50,31 @@ class SET_TYPE:  # noqa: N801
 class Commentset(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'commentset'
     #: Type of parent object
-    settype = db.Column('type', db.Integer, nullable=True)
+    settype = with_roles(
+        db.Column('type', db.Integer, nullable=True), read={'all'}, datasets={'primary'}
+    )
     #: Count of comments, stored to avoid count(*) queries
-    count = db.Column(db.Integer, default=0, nullable=False)
+    count = with_roles(
+        db.Column(db.Integer, default=0, nullable=False),
+        read={'all'},
+        datasets={'primary'},
+    )
     #: Timestamp of last comment, for ordering.
-    last_comment_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    last_comment_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True),
+        read={'all'},
+        datasets={'primary'},
+    )
 
     __roles__ = {
         'all': {
-            'read': {'settype', 'count', 'project', 'proposal', 'urls'},
+            'read': {'project', 'proposal', 'update', 'urls'},
             'call': {'url_for'},
         }
     }
 
     __datasets__ = {
-        'primary': {'parent', 'urls'},
+        'primary': {'uuid_b58', 'url_name_uuid_b58', 'urls'},
         'related': {'uuid_b58', 'url_name_uuid_b58'},
     }
 
@@ -83,7 +93,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             return self.update
         raise TypeError("Commentset has an unknown parent")
 
-    with_roles(parent, read={'all'})
+    with_roles(parent, read={'all'}, datasets={'primary'})
 
     @cached_property
     def parent_type(self) -> Optional[str]:
@@ -101,6 +111,8 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             .order_by(Comment.created_at.desc())
             .first()
         )
+
+    with_roles(last_comment, read={'all'}, datasets={'primary'})
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
