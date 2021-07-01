@@ -18,6 +18,7 @@ from url_normalize import url_normalize
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import NoIdMixin, UrlType, db, hybrid_property
+from .helpers import profanity
 from .user import User
 
 __all__ = ['Shortlink']
@@ -321,6 +322,9 @@ class Shortlink(NoIdMixin, db.Model):
         # Not a custom name. Keep trying ids until one succeeds
         shortlink = cls(id=random_bigint(shorter), url=url, user=actor)
         while True:
+            if profanity.contains_profanity(shortlink.name):
+                shortlink.id = random_bigint(shorter)
+                continue
             try:
                 savepoint = db.session.begin_nested()
                 db.session.add(shortlink)

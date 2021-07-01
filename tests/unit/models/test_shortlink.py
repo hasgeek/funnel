@@ -302,6 +302,31 @@ def test_shortlink_constructor_handle_collisions(db_session):
     assert sl4.url == 'https://example.org/'
 
 
+def test_shortlink_new_profanity_filter(db_session):
+    """Generated shortlink ids are tested against a profanity filter."""
+    prngids = MockRandomBigint(
+        [
+            shortlink.name_to_bigint('works'),
+            shortlink.name_to_bigint('xxx'),
+            shortlink.name_to_bigint('sexy'),
+            shortlink.name_to_bigint('okay'),
+        ]
+    )
+    with patch(
+        'funnel.models.shortlink.random_bigint',
+        wraps=prngids,
+    ) as mockid:
+        sl1 = shortlink.Shortlink.new('example.org')
+        assert sl1.name == 'works'
+        assert mockid.call_count == 1
+        mockid.reset_mock()
+
+        sl2 = shortlink.Shortlink.new('example.com')
+        assert sl2.name == 'okay'
+        assert mockid.call_count == 3  # Middle mocks got dropped by profanity filter
+        mockid.reset_mock()
+
+
 def test_shortlink_name_available(db_session):
     """Shortlink has a `name_available` classmethod to test for availability."""
     assert shortlink.Shortlink.name_available('example') is True
