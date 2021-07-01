@@ -95,20 +95,15 @@ const Schedule = {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            window.history.pushState('', '', this.pageDetails.url);
             this.updateMetaTags(this.pageDetails);
+            if (window.history.state.openModal) {
+              window.history.back();
+            }
           });
           // Event listener for back key press since opening modal update browser history
           $(window).on('popstate', () => {
             if (this.modalHtml) {
               $.modal.close();
-            } else if (window.history.state) {
-              // Open the modal with previous session viewed
-              this.openModal(
-                window.history.state.html,
-                window.history.state.backPage,
-                window.history.state.pageDetails
-              );
             }
           });
         },
@@ -117,9 +112,7 @@ const Schedule = {
           $('#session-modal').modal('show');
           window.history.pushState(
             {
-              html: sessionHtml,
-              backpage: backPage,
-              pageDetails,
+              openModal: true,
             },
             '',
             backPage
