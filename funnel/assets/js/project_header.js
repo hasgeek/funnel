@@ -124,11 +124,7 @@ const Ticketing = {
     });
 
     $(window).on('popstate', () => {
-      if (window.history.state.openModal) {
-        this.hideTicketModal();
-      } else if (window.history.state) {
-        this.openTicketModal();
-      }
+      this.hideTicketModal();
     });
   },
 
@@ -147,11 +143,13 @@ const Ticketing = {
   },
 
   hideTicketModal() {
-    if (window.history.state.openModal) {
-      window.history.pushState('', '', window.history.state.prevUrl);
+    if ($('.tickets-wrapper__modal').hasClass('tickets-wrapper__modal--show')) {
       $('.header').removeClass('header--lowzindex');
       $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
       $('.tickets-wrapper__modal').hide();
+      if (window.history.state.openModal) {
+        window.history.back();
+      }
     }
   },
 };
