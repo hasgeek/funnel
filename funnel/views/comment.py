@@ -56,14 +56,10 @@ def update_project_commentset_membership(
 def update_proposal_commentset_membership(
     proposal: Proposal, actor: User, user: User
 ) -> None:
-    if 'participant' in proposal.roles_for(user):
+    if 'submitter' in proposal.roles_for(user):
         proposal.commentset.add_subscriber(actor=actor, user=user)
-
-    # TODO: Removal is pending a switch to ProposalMembership and the grant of
-    # 'participant' role from there. For now, users will have to mute notifications
-
-    # else:
-    #     proposal.commentset.remove_subscriber(user)
+    else:
+        proposal.commentset.remove_subscriber(actor=actor, user=user)
 
 
 @Comment.views('url')
