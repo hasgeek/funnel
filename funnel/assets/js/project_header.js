@@ -109,7 +109,8 @@ const Ticketing = {
   },
 
   initTicketModal() {
-    if (window.location.hash.indexOf('#tickets') > -1) {
+    this.urlHash = '#tickets';
+    if (window.location.hash.indexOf(this.urlHash) > -1) {
       this.openTicketModal();
     }
 
@@ -124,11 +125,7 @@ const Ticketing = {
     });
 
     $(window).on('popstate', () => {
-      if (window.history.state.openModal) {
-        this.hideTicketModal();
-      } else if (window.history.state) {
-        this.openTicketModal();
-      }
+      this.hideTicketModal();
     });
   },
 
@@ -136,10 +133,9 @@ const Ticketing = {
     window.history.pushState(
       {
         openModal: true,
-        prevUrl: window.location.href,
       },
       '',
-      '#tickets'
+      this.urlHash
     );
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');
@@ -147,11 +143,13 @@ const Ticketing = {
   },
 
   hideTicketModal() {
-    if (window.history.state.openModal) {
-      window.history.pushState('', '', window.history.state.prevUrl);
+    if ($('.tickets-wrapper__modal').hasClass('tickets-wrapper__modal--show')) {
       $('.header').removeClass('header--lowzindex');
       $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
       $('.tickets-wrapper__modal').hide();
+      if (window.history.state.openModal) {
+        window.history.back();
+      }
     }
   },
 };
