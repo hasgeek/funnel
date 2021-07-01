@@ -96,7 +96,7 @@ const Schedule = {
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
             this.updateMetaTags(this.pageDetails);
-            if (window.history.state.backpage) {
+            if (window.history.state.openModal) {
               window.history.back();
             }
           });
@@ -112,9 +112,7 @@ const Schedule = {
           $('#session-modal').modal('show');
           window.history.pushState(
             {
-              html: sessionHtml,
-              backpage: backPage,
-              pageDetails,
+              openModal: true,
             },
             '',
             backPage

@@ -109,7 +109,8 @@ const Ticketing = {
   },
 
   initTicketModal() {
-    if (window.location.hash.indexOf('#tickets') > -1) {
+    this.urlHash = '#tickets';
+    if (window.location.hash.indexOf(this.urlHash) > -1) {
       this.openTicketModal();
     }
 
@@ -132,10 +133,9 @@ const Ticketing = {
     window.history.pushState(
       {
         openModal: true,
-        prevUrl: window.location.href,
       },
       '',
-      '#tickets'
+      this.urlHash
     );
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');
