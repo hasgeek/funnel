@@ -101,6 +101,7 @@ def test_urlclean_filter():
 
 
 def test_cached_token():
+    """Test simplistic use of cached tokens (for SMS unsubscribe)."""
     test_payload = {
         'hello': 'world',
         'dt_aware': datetime(2010, 12, 15, tzinfo=utc),
