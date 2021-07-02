@@ -14,7 +14,6 @@ __all__ = [
     'ProposalLabelsAdminForm',
     'ProposalLabelsForm',
     'ProposalMoveForm',
-    'ProposalSubscribeForm',
     'ProposalTransferForm',
     'ProposalTransitionForm',
 ]
@@ -195,12 +194,3 @@ class ProposalMoveForm(forms.Form):
 
     def set_queries(self):
         self.target.query = current_auth.user.projects_as_editor
-
-
-@Proposal.forms('subscribe')
-class ProposalSubscribeForm(forms.Form):
-    subscribe = forms.BooleanField(
-        '',
-        description=__("Get notifications"),
-        validators=[forms.validators.InputRequired()],
-    )

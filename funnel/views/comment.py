@@ -19,7 +19,7 @@ from coaster.views import (
 )
 
 from .. import app
-from ..forms import CommentForm
+from ..forms import CommentForm, CommentsetSubscribeForm
 from ..models import (
     Comment,
     CommentModeratorReport,
@@ -201,39 +201,34 @@ class CommentsetView(UrlForView, ModelView):
     @requires_login
     @render_with(json=True)
     def subscribe(self):
-        csrf_form = forms.Form()
-        if csrf_form.validate_on_submit():
-            self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
-            db.session.commit()
+        subscribe_form = CommentsetSubscribeForm()
+        subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
+        if subscribe_form.validate_on_submit():
+            if subscribe_form.subscribe.data:
+                self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("You will be notified of new comments"),
+                    'form_nonce': subscribe_form.form_nonce.data,
+                }
+            else:
+                self.obj.remove_subscriber(
+                    actor=current_auth.user, user=current_auth.user
+                )
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("You will no longer be notified for new comments"),
+                    'form_nonce': subscribe_form.form_nonce.data,
+                }
+        else:
             return {
-                'status': 'ok',
-                'message': _("Subscribed to this comment thread"),
-            }
-        return {
-            'status': 'error',
-            'error_code': 'subscribe_error',
-            'error_description': _("This page timed out. Reload and try again"),
-            'error_details': csrf_form.errors,
-        }, 422
-
-    @route('unsubscribe', methods=['POST'])
-    @requires_login
-    @render_with(json=True)
-    def unsubscribe(self):
-        csrf_form = forms.Form()
-        if csrf_form.validate_on_submit():
-            self.obj.remove_subscriber(actor=current_auth.user, user=current_auth.user)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("Unsubscribed from this comment thread"),
-            }
-        return {
-            'status': 'error',
-            'error_code': 'unsubscribe_error',
-            'error_description': _("This page timed out. Reload and try again"),
-            'error_details': csrf_form.errors,
-        }, 422
+                'status': 'error',
+                'details': subscribe_form.errors,
+                'message': _("Request expired. Reload and try again"),
+                'form_nonce': subscribe_form.form_nonce.data,
+            }, 400
 
     @route('seen', methods=['POST'])
     @requires_login

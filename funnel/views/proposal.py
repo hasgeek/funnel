@@ -21,7 +21,6 @@ from ..forms import (
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMoveForm,
-    ProposalSubscribeForm,
     ProposalTransferForm,
     ProposalTransitionForm,
     SavedProjectForm,
@@ -142,40 +141,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'proposal': self.obj,
             'subscribed': self.obj.commentset.current_roles.document_subscriber,
         }
-
-    @route('subscribe', methods=['POST'])
-    @requires_login
-    def subscribe(self):
-        subscribe_form = ProposalSubscribeForm()
-        subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
-        if subscribe_form.validate_on_submit():
-            if subscribe_form.subscribe.data:
-                self.obj.commentset.add_subscriber(
-                    actor=current_auth.user, user=current_auth.user
-                )
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'message': __("Subscribed to notifications"),
-                    'form_nonce': subscribe_form.form_nonce.data,
-                }
-            else:
-                self.obj.commentset.remove_subscriber(
-                    actor=current_auth.user, user=current_auth.user
-                )
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'message': __("Unsubscribed from notifications"),
-                    'form_nonce': subscribe_form.form_nonce.data,
-                }
-        else:
-            return {
-                'status': 'error',
-                'details': subscribe_form.errors,
-                'message': __("Request expired. Reload and try again"),
-                'form_nonce': subscribe_form.form_nonce.data,
-            }, 400
 
     @route('admin')
     @render_with('proposal_admin_panel.html.jinja2')
