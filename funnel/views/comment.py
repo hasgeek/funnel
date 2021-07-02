@@ -5,7 +5,7 @@ from typing import Optional
 
 from flask import flash, jsonify, redirect, request, url_for
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import (
@@ -155,12 +155,17 @@ class CommentsetView(UrlForView, ModelView):
 
     @route('', methods=['GET'])
     def view(self):
+        subscribed = bool(self.obj.current_roles.document_subscriber)
+        if request_is_xhr():
+            return jsonify(
+                {'subscribed': subscribed, 'comments': self.obj.views.json_comments()}
+            )
         return redirect(self.obj.views.url(), code=303)
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
-    def new_comment(self):
+    def new(self):
         if self.obj.parent is None:
             return redirect('/')
 

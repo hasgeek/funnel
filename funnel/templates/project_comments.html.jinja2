@@ -30,8 +30,8 @@
   <script type="text/javascript">
     $(function() {
       var commentsConfig = {
-        newCommentUrl: "{{ project.commentset.url_for('new_comment') }}",
-        commentsUrl: "{{ project.url_for('comments') }}",
+        newCommentUrl: "{{ project.commentset.url_for('new') }}",
+        commentsUrl: "{{ project.commentset.url_for() }}",
         comments: [],
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',

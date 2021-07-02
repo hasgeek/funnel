@@ -9,13 +9,12 @@ from flask import (
     abort,
     current_app,
     flash,
-    jsonify,
     redirect,
     render_template,
     request,
 )
 
-from baseframe import _, __, forms, request_is_xhr
+from baseframe import _, __, forms
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -37,7 +36,6 @@ from coaster.views import (
 from .. import app
 from ..forms import (
     CfpForm,
-    CommentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
@@ -49,7 +47,6 @@ from ..forms import (
 )
 from ..models import (
     RSVP_STATUS,
-    Comment,
     Profile,
     Project,
     RegistrationCancellationNotification,
@@ -728,31 +725,15 @@ class ProjectView(
         }
 
     @route('comments', methods=['GET'])
-    @render_with(
-        {
-            'text/html': 'project_comments.html.jinja2',
-            'application/json': lambda params: jsonify(
-                {'subscribed': params['subscribed'], 'comments': params['comments']}
-            ),
-        }
-    )
+    @render_with('project_comments.html.jinja2')
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
-        if request_is_xhr():
-            return {
-                'subscribed': subscribed,
-                'comments': comments,
-            }
-
-        commentform = CommentForm(model=Comment)
         return {
             'project': self.obj,
             'subscribed': subscribed,
             'comments': comments,
-            'commentform': commentform,
-            'delcommentform': forms.Form(),
         }
 
     @route('update_featured', methods=['POST'])
