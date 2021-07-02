@@ -1,13 +1,21 @@
+from datetime import datetime
 from urllib.parse import urlsplit
 
 from flask import Flask
 from werkzeug.routing import BuildError
 
 from furl import furl
+from pytz import utc
 import pytest
 
 from funnel import app
-from funnel.views.helpers import app_url_for, cleanurl_filter
+from funnel.views.helpers import (
+    app_url_for,
+    cleanurl_filter,
+    delete_cached_token,
+    make_cached_token,
+    retrieve_cached_token,
+)
 
 
 @pytest.fixture
@@ -90,3 +98,19 @@ def test_urlclean_filter():
     assert cleanurl_filter("//test/") == "test"
     assert cleanurl_filter("foobar") == "foobar"
     assert cleanurl_filter("") == ""
+
+
+def test_cached_token():
+    """Test simplistic use of cached tokens (for SMS unsubscribe)."""
+    test_payload = {
+        'hello': 'world',
+        'dt_aware': datetime(2010, 12, 15, tzinfo=utc),
+        'dt_naive': datetime(2010, 12, 15),
+    }
+    token = make_cached_token(test_payload)
+    assert token is not None
+    return_payload = retrieve_cached_token(token)
+    # The cache round-trips both naive and aware datetimes without a problem
+    assert return_payload == test_payload
+    delete_cached_token(token)
+    assert retrieve_cached_token(token) is None

@@ -337,9 +337,10 @@ class AccountNotificationView(ClassView):
                 flash(unsubscribe_link_invalid, 'error')
                 return redirect(url_for('notification_preferences'), code=303)
 
-            # Flask-Caching still returns naive datetimes (unlike Flask 2.0 session),
-            # so we must compare with a naive datetime. We do a `.replace(tzinfo=None)`
-            # anyway as a safety catch in case this changes without notice later.
+            # Do `.replace(tzinfo=None)` on the datetime because -- while we use
+            # naive timestamps when making the token -- there was a period of confusion
+            # on whether the underlying cache supported both naive and aware datetimes.
+            # (It does, because it stores Python pickles, not JSON.)
             if payload['timestamp'].replace(
                 tzinfo=None
             ) < datetime.utcnow() - timedelta(days=7):
