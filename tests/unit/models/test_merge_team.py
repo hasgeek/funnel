@@ -69,10 +69,10 @@ def test_team_migrate_user3(team_merge_data):
     team_merge_data.team.users.append(team_merge_data.user1)
     team_merge_data.team.users.append(team_merge_data.user2)
     team_merge_data.db_session.commit()
-    assert list(team_merge_data.team.users) == [
+    assert set(team_merge_data.team.users) == {
         team_merge_data.user1,
         team_merge_data.user2,
-    ]
+    }
     assert team_merge_data.user1.teams == [team_merge_data.team]
     assert team_merge_data.user2.teams == [team_merge_data.team]
 
