@@ -4,7 +4,7 @@ from base64 import urlsafe_b64encode
 from datetime import datetime
 from hashlib import blake2b
 from os import urandom
-from typing import Callable, Optional, Set, Tuple
+from typing import Callable, Optional, Tuple
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -33,7 +33,7 @@ from baseframe import cache, statsd
 
 from .. import app, shortlinkapp
 from ..forms import supported_locales
-from ..models import Shortlink, User, db
+from ..models import Shortlink, User, db, profanity
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
 
@@ -276,42 +276,48 @@ def validate_rate_limit(
 
 
 # Text token length in bytes
-# 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities
+# 3 bytes will be 4 characters in base64 and will have 2**3 = 16.7m possibilities.
+# This number can be increased to 4 as volumes grow, but will result in a 6 char token
 TOKEN_BYTES_LEN = 3
-text_token_prefix = 'temp_token/v1/'  # nosec  # noqa: S105
+# Changing this prefix will break existing tokens. Do not change
+TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec  # noqa: S105
 
 
-def make_cached_token(
-    payload: dict, timeout: int = 24 * 60 * 60, reserved: Optional[Set] = None
-) -> str:
+def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
     """
-    Make a short text token that caches data with a timeout period.
+    Make a short text token that references data in cache with a timeout period.
 
-    :param dict payload: Data to save against the token
-    :param int timeout: Timeout period for token in seconds (default 24 hours)
-    :param set reserved: Reserved words that should not be used as token
+    This is currently used for SMS unsubscribe links, but can also be used elsewhere.
+    The complementary :func:`retrieve_cached_token` and :func:`delete_cached_token`
+    functions can be used to retrieve and discard data.
+
+    :param payload: Data to save against the token
+    :param timeout: Timeout period for token in seconds (default 24 hours)
     """
     while True:
         token = urlsafe_b64encode(urandom(TOKEN_BYTES_LEN)).decode().rstrip('=')
-        if reserved and token in reserved:
-            continue  # Reserved word, try again
-
-        existing = cache.get(text_token_prefix + token)
+        if profanity.contains_profanity(token):
+            # Contains profanity, try another
+            continue
+        existing = cache.get(TEXT_TOKEN_PREFIX + token)
         if existing:
-            continue  # Token in use, try again
-
+            # Token in use, try another
+            continue
+        # All good? Use it
         break
 
-    cache.set(text_token_prefix + token, payload, timeout=timeout)
+    cache.set(TEXT_TOKEN_PREFIX + token, payload, timeout=timeout)
     return token
 
 
-def retrieve_cached_token(token: str):
-    return cache.get(text_token_prefix + token)
+def retrieve_cached_token(token):
+    """Retrieve cached data given a token generated using :func:`make_cached_token`."""
+    return cache.get(TEXT_TOKEN_PREFIX + token)
 
 
-def delete_cached_token(token: str):
-    return cache.delete(text_token_prefix + token)
+def delete_cached_token(token):
+    """Delete cached data for a token generated using :func:`make_cached_token`."""
+    return cache.delete(TEXT_TOKEN_PREFIX + token)
 
 
 def compress(data: bytes, algorithm: str) -> bytes:
