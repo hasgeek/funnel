@@ -1,4 +1,6 @@
+from base64 import urlsafe_b64decode
 from datetime import datetime
+from unittest.mock import patch
 from urllib.parse import urlsplit
 
 from flask import Flask
@@ -31,6 +33,19 @@ def testapp():
         return 'test_index'
 
     return testapp
+
+
+class MockUrandom:
+    """Mock for urandom."""
+
+    def __init__(self, sequence):
+        self.sequence = sequence
+        self.counter = 0
+
+    def __call__(self, length: int):
+        value = self.sequence[self.counter % len(self.sequence)]
+        self.counter += 1
+        return value
 
 
 def test_app_url_for(testapp):
@@ -125,3 +140,30 @@ def test_cached_token():
     assert return_payload == test_payload
     delete_cached_token(token)
     assert retrieve_cached_token(token) is None
+
+
+def test_cached_token_profanity_reuse():
+    mockids = MockUrandom(
+        [
+            urlsafe_b64decode(b'sexy'),
+            urlsafe_b64decode(b'okay'),
+            urlsafe_b64decode(b'okay'),
+            urlsafe_b64decode(b'new0'),
+        ]
+    )
+    test_payload = {'foo': 'bar'}
+    with patch(
+        'funnel.views.helpers.urandom',
+        wraps=mockids,
+    ) as mockid:
+        token = make_cached_token(test_payload)
+        assert token == 'okay'  # noqa: S105
+        # Profanity filter skipped the first candidate
+        assert mockid.call_count == 2
+        mockid.reset_mock()
+
+        token = make_cached_token(test_payload)
+        assert token == 'new0'  # noqa: S105
+        # Dupe filter passed over the second 'okay'
+        assert mockid.call_count == 2
+        mockid.reset_mock()

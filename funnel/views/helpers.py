@@ -299,8 +299,7 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
         if profanity.contains_profanity(token):
             # Contains profanity, try another
             continue
-        existing = cache.get(TEXT_TOKEN_PREFIX + token)
-        if existing:
+        if cache.get(TEXT_TOKEN_PREFIX + token) is not None:
             # Token in use, try another
             continue
         # All good? Use it
@@ -310,12 +309,12 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
     return token
 
 
-def retrieve_cached_token(token):
+def retrieve_cached_token(token: str) -> Optional[dict]:
     """Retrieve cached data given a token generated using :func:`make_cached_token`."""
     return cache.get(TEXT_TOKEN_PREFIX + token)
 
 
-def delete_cached_token(token):
+def delete_cached_token(token: str) -> bool:
     """Delete cached data for a token generated using :func:`make_cached_token`."""
     return cache.delete(TEXT_TOKEN_PREFIX + token)
 
