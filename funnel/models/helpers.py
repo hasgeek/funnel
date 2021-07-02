@@ -33,6 +33,7 @@ __all__ = [
     'PASSWORD_MIN_LENGTH',
     'PASSWORD_MAX_LENGTH',
     'check_password_strength',
+    'profanity',
     'markdown_content_options',
     'add_to_class',
     'add_search_trigger',
