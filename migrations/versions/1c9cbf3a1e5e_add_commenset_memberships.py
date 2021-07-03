@@ -35,6 +35,7 @@ rsvp = table(
     column('project_id', sa.Integer()),
     column('user_id', sa.Integer()),
     column('state', sa.CHAR(1)),
+    column('created_at', sa.TIMESTAMP(timezone=True)),
 )
 
 
@@ -77,6 +78,7 @@ project_crew_membership = table(
     column('id', UUIDType(binary=False)),
     column('user_id', sa.Integer()),
     column('project_id', sa.Integer()),
+    column('granted_at', sa.TIMESTAMP(timezone=True)),
     column('revoked_at', sa.TIMESTAMP(timezone=True)),
 )
 
@@ -86,6 +88,7 @@ proposal_membership = table(
     column('id', UUIDType(binary=False)),
     column('user_id', sa.Integer()),
     column('proposal_id', sa.Integer()),
+    column('granted_at', sa.TIMESTAMP(timezone=True)),
     column('revoked_at', sa.TIMESTAMP(timezone=True)),
 )
 
@@ -146,7 +149,9 @@ def upgrade_():
             continue
 
         rsvps = conn.execute(
-            sa.select([rsvp.c.project_id, rsvp.c.user_id, rsvp.c.state])
+            sa.select(
+                [rsvp.c.project_id, rsvp.c.user_id, rsvp.c.state, rsvp.c.created_at]
+            )
             .where(rsvp.c.project_id == project_item.id)
             .where(rsvp.c.state == 'Y')
             .select_from(rsvp)
@@ -171,7 +176,7 @@ def upgrade_():
                             'commentset_id': project_item.commentset_id,
                             'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
                             'granted_by_id': rsvp_item.user_id,  # because user registered
-                            'granted_at': sa.func.utcnow(),
+                            'granted_at': rsvp_item.created_at,
                             'created_at': sa.func.utcnow(),
                             'updated_at': sa.func.utcnow(),
                             'is_muted': sa.sql.expression.false(),
@@ -182,7 +187,12 @@ def upgrade_():
 
         # Create membership for existing project crew
         crews = conn.execute(
-            sa.select([project_crew_membership.c.user_id])
+            sa.select(
+                [
+                    project_crew_membership.c.user_id,
+                    project_crew_membership.c.granted_at,
+                ]
+            )
             .where(project_crew_membership.c.project_id == project_item.id)
             .where(project_crew_membership.c.revoked_at.is_(None))
             .select_from(project_crew_membership)
@@ -206,8 +216,8 @@ def upgrade_():
                             'user_id': crew.user_id,
                             'commentset_id': project_item.commentset_id,
                             'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
-                            'granted_by_id': crew.user_id,  # because user registered
-                            'granted_at': sa.func.utcnow(),
+                            'granted_by_id': crew.user_id,
+                            'granted_at': crew.granted_at,
                             'created_at': sa.func.utcnow(),
                             'updated_at': sa.func.utcnow(),
                             'is_muted': sa.sql.expression.false(),
@@ -231,6 +241,7 @@ def upgrade_():
                 proposal.c.id,
                 proposal.c.commentset_id,
                 proposal_membership.c.user_id,
+                proposal_membership.c.granted_at,
             ]
         )
         .where(proposal_membership.c.proposal_id == proposal.c.id)
@@ -254,8 +265,8 @@ def upgrade_():
                         'user_id': proposal_item.user_id,
                         'commentset_id': proposal_item.commentset_id,
                         'record_type': MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
-                        'granted_by_id': proposal_item.user_id,  # because user registered
-                        'granted_at': sa.func.utcnow(),
+                        'granted_by_id': proposal_item.user_id,
+                        'granted_at': proposal_item.granted_at,
                         'created_at': sa.func.utcnow(),
                         'updated_at': sa.func.utcnow(),
                         'is_muted': sa.sql.expression.false(),
