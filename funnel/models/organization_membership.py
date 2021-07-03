@@ -32,7 +32,20 @@ class OrganizationMembership(ImmutableUserMembershipMixin, db.Model):
     __data_columns__ = ('is_owner',)
 
     __roles__ = {
-        'all': {'read': {'urls', 'user', 'is_owner', 'organization'}},
+        'all': {
+            'read': {
+                'urls',
+                'user',
+                'is_owner',
+                'organization',
+                'granted_by',
+                'revoked_by',
+                'granted_at',
+                'revoked_at',
+                'is_self_granted',
+                'is_self_revoked',
+            }
+        },
         'profile_admin': {
             'read': {
                 'record_type',
