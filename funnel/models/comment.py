@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Iterable, List, Optional, Set, Union
 
 from flask import Markup
+from werkzeug.utils import cached_property
 
 from baseframe import _, __
 from coaster.sqlalchemy import RoleAccessProxy, StateManager, with_roles
@@ -49,21 +50,31 @@ class SET_TYPE:  # noqa: N801
 class Commentset(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'commentset'
     #: Type of parent object
-    settype = db.Column('type', db.Integer, nullable=True)
+    settype = with_roles(
+        db.Column('type', db.Integer, nullable=True), read={'all'}, datasets={'primary'}
+    )
     #: Count of comments, stored to avoid count(*) queries
-    count = db.Column(db.Integer, default=0, nullable=False)
+    count = with_roles(
+        db.Column(db.Integer, default=0, nullable=False),
+        read={'all'},
+        datasets={'primary'},
+    )
     #: Timestamp of last comment, for ordering.
-    last_comment_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    last_comment_at = with_roles(
+        db.Column(db.TIMESTAMP(timezone=True), nullable=True),
+        read={'all'},
+        datasets={'primary'},
+    )
 
     __roles__ = {
         'all': {
-            'read': {'settype', 'count', 'project', 'proposal'},
+            'read': {'project', 'proposal', 'update', 'urls'},
             'call': {'url_for'},
         }
     }
 
     __datasets__ = {
-        'primary': {'settype', 'count'},
+        'primary': {'uuid_b58', 'url_name_uuid_b58', 'urls'},
         'related': {'uuid_b58', 'url_name_uuid_b58'},
     }
 
@@ -71,7 +82,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         super().__init__(**kwargs)
         self.count = 0
 
-    @property
+    @cached_property
     def parent(self) -> db.Model:
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         if self.project is not None:
@@ -82,9 +93,9 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             return self.update
         raise TypeError("Commentset has an unknown parent")
 
-    with_roles(parent, read={'all'})
+    with_roles(parent, read={'all'}, datasets={'primary'})
 
-    @property
+    @cached_property
     def parent_type(self) -> Optional[str]:
         parent = self.parent
         if parent is not None:
@@ -92,6 +103,16 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         return None
 
     with_roles(parent_type, read={'all'})
+
+    @cached_property
+    def last_comment(self):
+        return (
+            self.comments.filter(Comment.state.PUBLIC)
+            .order_by(Comment.created_at.desc())
+            .first()
+        )
+
+    with_roles(last_comment, read={'all'}, datasets={'primary'})
 
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
@@ -113,7 +134,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     )
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
-        db.relationship(Commentset, backref=db.backref('comments', cascade='all')),
+        db.relationship(
+            Commentset, backref=db.backref('comments', lazy='dynamic', cascade='all')
+        ),
         grants_via={None: {'document_subscriber'}},
     )
 
@@ -141,7 +164,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     __roles__ = {
         'all': {
-            'read': {'created_at', 'urls', 'uuid_b58'},
+            'read': {'created_at', 'urls', 'uuid_b58', 'has_replies'},
             'call': {'state', 'commentset', 'view_for', 'url_for'},
         },
         'replied_to_commenter': {'granted_via': {'in_reply_to': '_user'}},
@@ -151,6 +174,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'primary': {'created_at', 'urls', 'uuid_b58'},
         'related': {'created_at', 'urls', 'uuid_b58'},
         'json': {'created_at', 'urls', 'uuid_b58'},
+        'minimal': {'created_at', 'uuid_b58'},
     }
 
     search_vector = db.deferred(
@@ -172,6 +196,10 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.commentset.last_comment_at = db.func.utcnow()
+
+    @cached_property
+    def has_replies(self):
+        return bool(self.replies)
 
     @property
     def current_access_replies(self) -> List[RoleAccessProxy]:
@@ -201,7 +229,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def user(cls):  # noqa: N805
         return cls._user
 
-    with_roles(user, read={'all'}, datasets={'primary', 'related', 'json'})
+    with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
 
     @hybrid_property
     def message(self) -> Union[str, Markup]:
@@ -221,7 +249,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def message(cls):  # noqa: N805
         return cls._message
 
-    with_roles(message, read={'all'}, datasets={'primary', 'related', 'json'})
+    with_roles(
+        message, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'}
+    )
 
     @property
     def absolute_url(self) -> str:

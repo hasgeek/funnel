@@ -57,6 +57,9 @@ describe('Test comments feature', function () {
     cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(project.reply_comment);
     cy.wait(1000);
+    cy.get('[data-cy="comment-sidebar"]').click();
+    cy.wait(1000);
+    cy.get('[data-cy="unread-comment"]').should('exist');
 
     /*
     The test for deleting comments has been disabled as it
@@ -90,5 +93,8 @@ describe('Test comments feature', function () {
     cy.visit('/updates');
     cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(project.title);
+    cy.get('[data-cy="comment-sidebar"]').click();
+    cy.wait('@fetch-comment-sidebar');
+    cy.get('[data-cy="unread-comment"]').should('exist');
   });
 });

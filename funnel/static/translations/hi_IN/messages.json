@@ -46,7 +46,6 @@
         null,
         ""
       ],
-      "Do you really want to delete this proposal?": [null, ""],
       "Unable to access video stream. Please make sure you have camera enabled or try a different browser": [
         null,
         ""
@@ -626,6 +625,7 @@
         null,
         "इस प्रस्ताव को दूसरे प्रोजेक्ट में भेजें"
       ],
+      "Get notifications": [null, ""],
       "Room": [null, "रूम"],
       "Speaker": [null, "स्पीकर"],
       "Banner image URL": [null, "बैनर चित्र का URL"],
@@ -1239,6 +1239,7 @@
       "Search…": [null, "खोजें…"],
       "Search": [null, "खोजें"],
       "Updates": [null, "अपडेट"],
+      "Comments": [null, "कमेंट"],
       "Account menu": [null, ""],
       "Account": [null, "अकाउंट"],
       "Login": [null, "लॉगिन"],
@@ -1426,7 +1427,6 @@
       ],
       "Open now": [null, "अभी खोलें"],
       "Open later": [null, "बाद में खोलें"],
-      "Comments": [null, "कमेंट"],
       "Back to the project": [null, "प्रोजेक्ट पर वापस जाएं"],
       "Pinned update": [null, ""],
       "This update is for participants only": [
@@ -1513,6 +1513,7 @@
         "इस प्रोजेक्ट में अब तक कोई नई जानकारी पोस्ट नहीं की गई है"
       ],
       "No videos": [null, ""],
+      "Stop notifications": [null, ""],
       "Edit submission": [null, ""],
       "Add proposal video": [null, "प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [null, ""],
@@ -1578,6 +1579,7 @@
         "प्रतिभागियों को चेक-इन करने के लिए एक ईवेंट चुनें"
       ],
       " View %(title)s attendees": [null, "%(title)s प्रतिभागियों को देखें"],
+      "No comments posted…": [null, ""],
       "All updates": [null, ""],
       "New image": [null, "नया इमेज"],
       "Remove image": [null, "इमेज हटाएं"],
@@ -2536,7 +2538,6 @@
         null,
         "इस प्रोजेक्ट के CfP के लिए अमान्य परिवर्तन"
       ],
-      "This response is not valid": [null, "यह प्रतिक्रिया मान्य नहीं है"],
       "Were you trying to register? Try again to confirm": [null, ""],
       "Were you trying to cancel your registration? Try again to confirm": [
         null,
@@ -2554,6 +2555,9 @@
         null,
         "ये प्रोजेक्ट इस वक्त कोई सबमिशनों को स्वीकार नहीं कर रह"
       ],
+      "Subscribed to notifications": [null, ""],
+      "Unsubscribed from notifications": [null, ""],
+      "Request expired. Reload and try again": [null, ""],
       "Delete your submission ‘{title}’? This will remove all comments as well. This operation is permanent and cannot be undone": [
         null,
         "अपना ‘{title}’ प्रस्ताव मिटाएं? यह सभी कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"

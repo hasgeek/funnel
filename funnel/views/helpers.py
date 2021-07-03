@@ -4,21 +4,36 @@ from base64 import urlsafe_b64encode
 from datetime import datetime
 from hashlib import blake2b
 from os import urandom
+from typing import Callable, Optional, Tuple
 from urllib.parse import unquote, urljoin, urlsplit
+import gzip
+import zlib
 
-from flask import Response, abort, current_app, g, render_template, request, url_for
+from flask import (
+    Flask,
+    Response,
+    abort,
+    current_app,
+    g,
+    render_template,
+    request,
+    url_for,
+)
+from werkzeug.routing import BuildError
 from werkzeug.urls import url_quote
+from werkzeug.wrappers import Response as ResponseBase
 
 from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
+import brotli
 
 from baseframe import cache, statsd
 
 from .. import app, shortlinkapp
 from ..forms import supported_locales
-from ..models import Shortlink, db, profanity
+from ..models import Shortlink, User, db, profanity
 from ..signals import emailaddress_refcount_dropping
 from .jobs import forget_email
 
@@ -29,19 +44,19 @@ nocache_expires = utc.localize(datetime(1990, 1, 1))
 # --- Utilities ------------------------------------------------------------------------
 
 
-def metarefresh_redirect(url):
+def metarefresh_redirect(url: str):
     return Response(render_template('meta_refresh.html.jinja2', url=url))
 
 
 def app_url_for(
-    target_app,
-    endpoint,
-    _external=True,
-    _method='GET',
-    _anchor=None,
-    _scheme=None,
-    **values,
-):
+    target_app: Flask,
+    endpoint: str,
+    _external: bool = True,
+    _method: str = 'GET',
+    _anchor: str = None,
+    _scheme: str = None,
+    **values: str,
+) -> str:
     """
     Equivalent of calling `url_for` in another app's context, with some differences.
 
@@ -52,7 +67,7 @@ def app_url_for(
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
     # 'app' here is the parameter, not the module-level import
-    if current_app and current_app._get_current_object() is target_app:
+    if current_app and current_app._get_current_object() is target_app:  # type: ignore[attr-defined]
         return url_for(
             endpoint,
             _external=_external,
@@ -62,6 +77,8 @@ def app_url_for(
             **values,
         )
     url_adapter = target_app.create_url_adapter(None)
+    if url_adapter is None:
+        raise BuildError(endpoint, values, _method)
     old_scheme = None
     if _scheme is not None:
         old_scheme = url_adapter.url_scheme
@@ -78,7 +95,7 @@ def app_url_for(
     return result
 
 
-def mask_email(email):
+def mask_email(email: str) -> str:
     """
     Masks an email address to obfuscate it while (hopefully) keeping it recognisable.
 
@@ -113,12 +130,12 @@ def localize_date(date, from_tz=utc, to_tz=utc):
     return date
 
 
-def get_scheme_netloc(uri):
+def get_scheme_netloc(uri: str) -> Tuple[str, str]:
     parsed_uri = urlsplit(uri)
     return (parsed_uri.scheme, parsed_uri.netloc)
 
 
-def autoset_timezone_and_locale(user):
+def autoset_timezone_and_locale(user: User) -> None:
     # Set the user's timezone and locale automatically if required
     if (
         user.auto_timezone
@@ -126,7 +143,7 @@ def autoset_timezone_and_locale(user):
         or str(user.timezone) not in valid_timezones
     ):
         if request.cookies.get('timezone'):
-            timezone = unquote(request.cookies.get('timezone'))
+            timezone = unquote(request.cookies['timezone'])
             if timezone in valid_timezones:
                 user.timezone = timezone
     if (
@@ -139,7 +156,9 @@ def autoset_timezone_and_locale(user):
         )
 
 
-def progressive_rate_limit_validator(token, prev_token):
+def progressive_rate_limit_validator(
+    token: str, prev_token: Optional[str]
+) -> Tuple[bool, bool]:
     """
     Validate for :func:`validate_rate_limit` on autocomplete-type resources.
 
@@ -150,7 +169,7 @@ def progressive_rate_limit_validator(token, prev_token):
     """
     # prev_token will be None on the first call to the validator. Count the first
     # call, but don't retain the previous token
-    if not prev_token:
+    if prev_token is None:
         return (True, False)
 
     # User is typing, so current token is previous token plus extra chars. Don't
@@ -169,7 +188,12 @@ def progressive_rate_limit_validator(token, prev_token):
 
 
 def validate_rate_limit(
-    resource, identifier, attempts, timeout, token=None, validator=None
+    resource: str,
+    identifier: str,
+    attempts: int,
+    timeout: int,
+    token: Optional[str] = None,
+    validator: Callable[[str, Optional[str]], Tuple[bool, bool]] = None,
 ):
     """
     Validate a rate limit on API-endpoint resources.
@@ -203,7 +227,7 @@ def validate_rate_limit(
         tags={'resource': resource},
     )
     cache_key = f'rate_limit/v1/{resource}/{identifier}'
-    cache_value = cache.get(cache_key)
+    cache_value: Optional[Tuple[int, str]] = cache.get(cache_key)
     if cache_value is None:
         count, cache_token = None, None
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 201})
@@ -214,7 +238,7 @@ def validate_rate_limit(
     if count >= attempts:
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 429})
         abort(429)
-    if validator is not None:
+    if validator is not None and token is not None:
         do_increment, retain_token = validator(token, cache_token)
         if retain_token:
             token = cache_token
@@ -275,8 +299,7 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
         if profanity.contains_profanity(token):
             # Contains profanity, try another
             continue
-        existing = cache.get(TEXT_TOKEN_PREFIX + token)
-        if existing:
+        if cache.get(TEXT_TOKEN_PREFIX + token) is not None:
             # Token in use, try another
             continue
         # All good? Use it
@@ -286,14 +309,73 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
     return token
 
 
-def retrieve_cached_token(token):
+def retrieve_cached_token(token: str) -> Optional[dict]:
     """Retrieve cached data given a token generated using :func:`make_cached_token`."""
     return cache.get(TEXT_TOKEN_PREFIX + token)
 
 
-def delete_cached_token(token):
+def delete_cached_token(token: str) -> bool:
     """Delete cached data for a token generated using :func:`make_cached_token`."""
     return cache.delete(TEXT_TOKEN_PREFIX + token)
+
+
+def compress(data: bytes, algorithm: str) -> bytes:
+    """
+    Compress data using Gzip, Deflate or Brotli.
+
+    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    """
+    if algorithm == 'gzip':
+        return gzip.compress(data)
+    if algorithm == 'deflate':
+        return zlib.compress(data)
+    if algorithm == 'br':
+        return brotli.compress(data)
+    raise ValueError("Unknown compression algorithm")
+
+
+def decompress(data: bytes, algorithm: str) -> bytes:
+    """
+    Uncompress data using Gzip, Deflate or Brotli.
+
+    :param algorithm: One of ``gzip``, ``deflate`` or ``br``
+    """
+    if algorithm == 'gzip':
+        return gzip.decompress(data)
+    if algorithm == 'deflate':
+        return zlib.decompress(data)
+    if algorithm == 'br':
+        return brotli.decompress(data)
+    raise ValueError("Unknown compression algorithm")
+
+
+def compress_response(response: ResponseBase) -> None:
+    """
+    Conditionally compress a response based on request parameters.
+
+    This function should ideally be used with a cache layer, such as
+    :func:`~funnel.views.decorators.etag_cache_for_user`.
+    """
+    if (
+        response.content_length is not None
+        and response.content_length > 500
+        and 200 <= response.status_code < 300
+        and 'Content-Encoding' not in response.headers
+        and response.mimetype is not None
+        and (
+            response.mimetype.startswith('text/')
+            or response.mimetype
+            in (
+                'application/json',
+                'application/javascript',
+            )
+        )
+    ):
+        algorithm = request.accept_encodings.best_match(('br', 'gzip', 'deflate'))
+        if algorithm is not None:
+            response.set_data(compress(response.get_data(), algorithm))
+            response.headers['Content-Encoding'] = algorithm
+            response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
 
 
 # --- Filters and URL constructors -----------------------------------------------------

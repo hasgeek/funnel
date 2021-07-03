@@ -19,6 +19,26 @@
     <a href="javascript:void(0)" class="project-links mui--text-dark" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', baseline=false, icon_size=icon_size, css_class='mui--align-middle') }}</a>
     {{ share_dropdown(proposal.url_for(_external=true), proposal.title, css_class='mui-dropdown__menu--right') }}
   </div>
+  {%- if current_auth.is_authenticated %}
+    <div class="mui-dropdown">
+      <a href="javascript:void(0)" class="mui--text-title mui--text-dark"" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">
+        {% if subscribed %}
+          {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin js-subscribed mui--hide') }}
+          {{ faicon(icon='bell-solid', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin js-unsubscribed') }}
+        {% else %}
+          {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin js-subscribed') }}
+          {{ faicon(icon='bell-solid', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin js-unsubscribed mui--hide') }}
+        {% endif %}
+      </a>
+      <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
+        <form action="{{ proposal.commentset.url_for('subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
+          {{ proposal.commentset.forms.subscribe().hidden_tag() }}
+          <li class="js-subscribed {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label class="link" for="cancel-subscription" data-cy="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Stop notifications{% endtrans %}</label></li>
+          <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label class="link" for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Get notifications{% endtrans %}</label></li>
+        </form>
+      </ul>
+    </div>
+  {%- endif %}
   {% if proposal.current_roles.editor or proposal.current_roles.project_editor %}
     <div class="mui--d-inlineblock mui-dropdown">
       <a href="javascript:void(0)" class="mui--text-dark" data-mui-toggle="dropdown" aria-label="{% trans %}Menu{% endtrans %}" data-cy="proposal-menu" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', baseline=false, icon_size=icon_size, css_class='mui--align-middle fa-icon--left-margin') }}</a>
@@ -64,7 +84,7 @@
         {%- endif %}
       </ul>
     </div>
-  {% endif %}
+  {%- endif %}
 {% endmacro %}
 
 {% macro prev_next_btn(proposal, prev_icon='caret-left-solid', next_icon='caret-right-solid') %}
@@ -255,8 +275,8 @@
   <script type="text/javascript">
     $(function() {
       var commentsConfig = {
-        newCommentUrl: "{{ proposal.commentset.url_for('new_comment') }}",
-        commentsUrl: "{{ proposal.url_for('comments') }}",
+        newCommentUrl: "{{ proposal.commentset.url_for('new') }}",
+        commentsUrl: "{{ proposal.commentset.url_for() }}",
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
@@ -264,9 +284,9 @@
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };
-
       window.Hasgeek.Comments(commentsConfig);
       window.Hasgeek.ProjectHeaderInit();
+      window.Hasgeek.ProposalInit();
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>

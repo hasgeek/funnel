@@ -175,7 +175,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     bg_image = with_roles(
         db.Column(ImgeeType, nullable=True),
         read={'all'},
-        datasets={'primary', 'without_parent'},
+        datasets={'primary', 'without_parent', 'related'},
     )
     allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
     buy_tickets_url = db.Column(UrlType, nullable=True)

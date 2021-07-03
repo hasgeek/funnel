@@ -33,7 +33,12 @@ $(() => {
   Utils.collapse();
   Utils.smoothScroll();
   Utils.navSearchForm();
-  Utils.headerMenuDropdown();
+  Utils.headerMenuDropdown(
+    '.js-menu-btn',
+    '.js-account-menu-wrapper',
+    '.js-account-menu',
+    window.Hasgeek.config.accountMenu
+  );
   Utils.scrollTabs();
   Utils.truncate();
   Utils.showTimeOnCalendar();
@@ -48,6 +53,15 @@ $(() => {
   }
   Utils.addWebShare();
   Utils.activateToggleSwitch();
+  if (window.Hasgeek.config.commentSidebarElem) {
+    Utils.headerMenuDropdown(
+      '.js-comments-btn',
+      '.js-comments-wrapper',
+      '.js-comment-sidebar',
+      window.Hasgeek.config.unreadCommentUrl,
+      true
+    );
+  }
   Utils.addVegaSupport();
 
   const intersectionObserverComponents = function () {

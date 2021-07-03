@@ -1,4 +1,4 @@
-describe('Confirm proposal', function () {
+describe('Confirm submission', function () {
   const editor = require('../fixtures/user.json').editor;
   const member = require('../fixtures/user.json').user;
   const profile = require('../fixtures/profile.json');
@@ -6,7 +6,7 @@ describe('Confirm proposal', function () {
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
-  it('Confirm proposal', function () {
+  it('Confirm submission', function () {
     cy.server();
     cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('GET', '**/updates?*').as('fetch-updates');
@@ -96,5 +96,8 @@ describe('Confirm proposal', function () {
     cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(proposal.title);
     cy.get('[data-cy="notification-box"]').contains(proposal.comment);
+    cy.get('[data-cy="comment-sidebar"]').click();
+    cy.wait(1000);
+    cy.get('[data-cy="unread-comment"]').should('exist');
   });
 });

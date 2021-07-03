@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from flask import abort, flash, jsonify, redirect
+from flask import abort, flash, redirect
 
-from baseframe import _, __, request_is_xhr
+from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
@@ -131,14 +131,10 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('proposal.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
-        # FIXME: Use a separate endpoint for comments as this is messing with browser
-        # cache. View Source on proposal pages shows comments tree instead of source
-        if request_is_xhr():
-            return jsonify({'comments': self.obj.commentset.views.json_comments()})
-
         return {
             'project': self.obj.project,
             'proposal': self.obj,
+            'subscribed': self.obj.commentset.current_roles.document_subscriber,
         }
 
     @route('admin')
@@ -164,15 +160,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'proposal_transfer_form': proposal_transfer_form,
             'proposal_label_admin_form': proposal_label_admin_form,
         }
-
-    @route('comments', methods=['GET'])
-    @render_with(json=True)
-    @requires_roles({'reader'})
-    def comments(self):
-        if request_is_xhr():
-            return {'comments': self.obj.commentset.views.json_comments()}
-        else:
-            return redirect(self.obj.commentset.views.url(), code=303)
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login

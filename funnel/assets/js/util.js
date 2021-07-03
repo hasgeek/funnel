@@ -93,12 +93,11 @@ export const Utils = {
       }
     });
   },
-  headerMenuDropdown() {
-    let menuBtn = $('.js-menu-btn');
-    let menuWrapper = '.js-account-menu-wrapper';
-    let menu = '.js-account-menu';
+  headerMenuDropdown(menuBtnClass, menuWrapper, menu, url, lazyLoad = false) {
+    let menuBtn = $(menuBtnClass);
     let topMargin = 1;
     let headerHeight = $('.header').height() + topMargin;
+    let page = 1;
 
     let openMenu = function () {
       if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
@@ -106,6 +105,7 @@ export const Utils = {
       } else {
         $(menuWrapper).find(menu).animate({ top: headerHeight });
       }
+      $('.header__nav-links--active').addClass('header__nav-links--menuOpen');
       menuBtn.addClass('header__nav-links--active');
       $('body').addClass('body-scroll-lock');
     };
@@ -118,15 +118,23 @@ export const Utils = {
       }
       menuBtn.removeClass('header__nav-links--active');
       $('body').removeClass('body-scroll-lock');
+      $('.header__nav-links--active').removeClass(
+        'header__nav-links--menuOpen'
+      );
     };
 
-    var fetchMenu = function (openMenuFn = '') {
+    let updatePageNumber = function () {
+      page += 1;
+    };
+
+    var fetchMenu = function (pageNo = 1, openMenuFn = '') {
       $.ajax({
         type: 'GET',
-        url: window.Hasgeek.config.accountMenu,
+        url: `${url}?page=${pageNo}`,
         timeout: window.Hasgeek.config.ajaxTimeout,
         success: function (responseData) {
-          $(menuWrapper).empty().append(responseData);
+          $(menuWrapper).find(menu).append(responseData);
+          updatePageNumber();
           if (openMenuFn) {
             openMenuFn();
           }
@@ -140,22 +148,27 @@ export const Utils = {
     }
 
     // Open full screen account menu in mobile
-    menuBtn.on('click', function (event) {
-      event.stopPropagation();
+    menuBtn.on('click', function () {
       if ($(this).hasClass('header__nav-links--active')) {
         closeMenu();
-      } else if (!$(menuWrapper).find(menu).length) {
-        fetchMenu(openMenu);
+      } else if (lazyLoad || !$(menuWrapper).find(menu).length) {
+        openMenu();
+        fetchMenu(page);
       } else {
         openMenu();
       }
     });
 
     $('body').on('click', function (event) {
+      let totalBtn = $(menuBtn).toArray();
+      let isChildElem = false;
+      totalBtn.forEach(function (element) {
+        isChildElem = isChildElem || $.contains(element, event.target);
+      });
       if (
-        $('.js-menu-btn').hasClass('header__nav-links--active') &&
-        !$(event.target).is('.js-menu-btn') &&
-        !$.contains($('.js-menu-btn')[0], event.target)
+        $(menuBtn).hasClass('header__nav-links--active') &&
+        !$(event.target).is(menuBtn) &&
+        !isChildElem
       ) {
         closeMenu();
       }
@@ -298,7 +311,7 @@ export const Utils = {
     return errorMsg;
   },
   formErrorHandler(formId, errorResponse) {
-    $(`#${formId}`).find('button[type="submit"]').prop('disabled', false);
+    $(`#${formId}`).find('button[type="submit"]').attr('disabled', false);
     $(`#${formId}`).find('.loading').addClass('mui--hide');
     return Utils.handleAjaxError(errorResponse);
   },
