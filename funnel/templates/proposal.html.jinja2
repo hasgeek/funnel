@@ -21,8 +21,14 @@
   </div>
   {%- if current_auth.is_authenticated %}
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="mui--text-title" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">
-        {{ faicon(icon='bell-solid', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin') }}
+      <a href="javascript:void(0)" class="mui--text-title mui--text-dark"" data-mui-toggle="dropdown" data-ga="Subscribe" data-cy="subscribe-proposal">
+        {% if subscribed %}
+          {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin js-subscribed mui--hide') }}
+          {{ faicon(icon='bell-solid', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin js-unsubscribed') }}
+        {% else %}
+          {{ faicon(icon='bell', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin js-subscribed') }}
+          {{ faicon(icon='bell-solid', icon_size='title', baseline=false, css_class='mui--align-middle fa-icon--left-margin js-unsubscribed mui--hide') }}
+        {% endif %}
       </a>
       <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
         <form action="{{ proposal.commentset.url_for('subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
