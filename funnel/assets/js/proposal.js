@@ -1,13 +1,28 @@
+import { Utils } from './util';
+
 export const Proposal = {
   init() {
-    $('button[name="transition"][value="delete"]').click(function (e) {
-      if (
-        !window.confirm(
-          window.gettext('Do you really want to delete this proposal?')
-        )
-      ) {
-        e.preventDefault();
-      }
+    $('.js-subscribe-btn').on('click', function (event) {
+      event.preventDefault();
+      let form = $(this).parents('form');
+      let formData = $(form).serializeArray();
+      $.ajax({
+        type: 'POST',
+        url: $(form).attr('action'),
+        data: formData,
+        dataType: 'json',
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success: function (responseData) {
+          if (responseData && responseData.message) {
+            window.toastr.success(responseData.message);
+          }
+          $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
+          Utils.updateFormNonce(responseData);
+        },
+        error: function (response) {
+          Utils.handleAjaxError(response);
+        },
+      });
     });
   },
 };
@@ -94,8 +109,6 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.Hasgeek.ProposalInit = function () {
-    Proposal.init();
-    LabelsWidget.init();
-  };
+  window.Hasgeek.ProposalInit = Proposal.init.bind(Proposal);
+  window.Hasgeek.LabelsWidget = LabelsWidget.init.bind(LabelsWidget);
 });

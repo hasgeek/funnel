@@ -91,3 +91,5 @@ IMAGE_URL_SCHEMES = ('https',)
 # Must be added to a fixture for unit tests
 # RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
 # RQ_ASYNC = False
+
+ENABLE_COMMENT_SIDEBAR = True

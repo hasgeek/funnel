@@ -484,7 +484,7 @@
           {% else %}
           <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for() }}">{% trans %}Sessions{% endtrans %}</a>
           <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'projects' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_participated_projects') }}">{% trans %}Projects{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
-          <a class="sub-navbar__item mui--text-subhead  mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_proposals') }}">{% trans %}Submissions{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+          <a class="sub-navbar__item mui--text-subhead  mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_proposals') }}" data-cy="submissions">{% trans %}Submissions{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {% endif %}
         </nav>
       </div>

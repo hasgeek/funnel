@@ -118,9 +118,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             primaryjoin=user_id == User.id,
             backref=db.backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
-        grants={'creator'},
+        grants={'creator', 'participant'},
     )
-
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(
@@ -479,13 +478,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
 
 @reopen(Commentset)
 class __Commentset:
-    proposal = with_roles(
-        db.relationship(Proposal, uselist=False, back_populates='commentset'),
-        # TODO: Remove creator to subscriber mapping when proposals use memberships
-        grants_via={
-            None: {'presenter': 'document_subscriber', 'creator': 'document_subscriber'}
-        },
-    )
+    proposal = db.relationship(Proposal, uselist=False, back_populates='commentset')
 
 
 @reopen(Project)

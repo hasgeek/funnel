@@ -467,3 +467,12 @@
     }
   }
 }
+
+.proposal-subscribe-form {
+  label {
+    padding: $mui-grid-padding/2 $mui-grid-padding;
+    text-transform: none;
+    display: block;
+    min-width: 200px;
+  }
+}

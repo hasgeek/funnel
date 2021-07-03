@@ -24,42 +24,6 @@ exclude = '''
 )/
 '''
 
-[tool.isort]
-profile = 'black'
-multi_line_output = 3
-include_trailing_comma = true
-line_length = 88
-order_by_type = true
-use_parentheses = true
-from_first = true
-# add_imports = 'from __future__ import annotations'
-known_future_library = ['__future__', 'six']
-known_first_party = ['baseframe', 'coaster', 'flask_lastuser', 'funnel']
-known_sqlalchemy = ['alembic', 'sqlalchemy', 'sqlalchemy_utils', 'flask_sqlalchemy', 'psycopg2']
-known_flask = [
-  'flask',
-  'click',
-  'werkzeug',
-  'itsdangerous',
-  'wtforms',
-  'webassets',
-  'flask_assets',
-  'flask_babelhg',
-  'flask_executor',
-  'flask_flatpages',
-  'flask_mailman',
-  'flask_migrate',
-  'flask_redis',
-  'flask_rq2',
-]
-default_section = 'THIRDPARTY'
-sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
-
-[tool.pytest.ini_options]
-addopts = '--cov-report=term-missing'
-filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
-mocked-sessions = 'coaster.db.db.session'
-
 [tool.curlylint]
 include = '\.html.jinja2$'
 template_tags = [['set'], ['trans', 'pluralize', 'endtrans']]
@@ -97,3 +61,39 @@ image_alt = true
 # indent = 2
 # Avoid positive `tabindex` values
 tabindex_no_positive = true
+
+[tool.isort]
+profile = 'black'
+multi_line_output = 3
+include_trailing_comma = true
+line_length = 88
+order_by_type = true
+use_parentheses = true
+from_first = true
+# add_imports = 'from __future__ import annotations'
+known_future_library = ['__future__', 'six']
+known_first_party = ['baseframe', 'coaster', 'flask_lastuser', 'funnel']
+known_sqlalchemy = ['alembic', 'sqlalchemy', 'sqlalchemy_utils', 'flask_sqlalchemy', 'psycopg2']
+known_flask = [
+  'flask',
+  'click',
+  'werkzeug',
+  'itsdangerous',
+  'wtforms',
+  'webassets',
+  'flask_assets',
+  'flask_babelhg',
+  'flask_executor',
+  'flask_flatpages',
+  'flask_mailman',
+  'flask_migrate',
+  'flask_redis',
+  'flask_rq2',
+]
+default_section = 'THIRDPARTY'
+sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
+
+[tool.pytest.ini_options]
+addopts = '--cov-report=term-missing'
+filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
+mocked-sessions = 'coaster.db.db.session'

@@ -96,6 +96,7 @@ describe('Add labels to project', function () {
 
     cy.get('.ui-draggable-box')
       .eq(0)
+      .find('.drag-handle')
       .trigger('mouseover', { which: 1, force: true, view: window })
       .trigger('mousedown', { which: 1, force: true, view: window })
       .trigger('mousemove', {

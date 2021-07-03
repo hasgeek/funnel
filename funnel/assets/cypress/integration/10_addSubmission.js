@@ -1,4 +1,4 @@
-describe('Add a new proposal', function () {
+describe('Add a new submission', function () {
   const user = require('../fixtures/user.json').user;
   const editor = require('../fixtures/user.json').editor;
   const profile = require('../fixtures/profile.json');
@@ -6,7 +6,7 @@ describe('Add a new proposal', function () {
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
-  it('Add proposal', function () {
+  it('Add submission', function () {
     cy.server();
     cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('GET', '**/updates?*').as('fetch-updates');

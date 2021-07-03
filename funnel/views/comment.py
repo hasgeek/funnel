@@ -1,29 +1,65 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from typing import Optional
 
-from flask import flash, jsonify, redirect, request
+from flask import flash, jsonify, redirect, request, url_for
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
+from coaster.views import (
+    ClassView,
+    ModelView,
+    UrlForView,
+    render_with,
+    requestargs,
+    requires_roles,
+    route,
+)
 
 from .. import app
-from ..forms import CommentForm
+from ..forms import CommentForm, CommentsetSubscribeForm
 from ..models import (
     Comment,
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
     Commentset,
+    CommentsetMembership,
     NewCommentNotification,
+    Project,
+    Proposal,
+    User,
     db,
 )
+from ..signals import project_role_change, proposal_role_change
+from ..typing import ReturnRenderWith
+from .decorators import etag_cache_for_user, xhr_only
 from .login_session import requires_login
 from .notification import dispatch_notification
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
+
+
+@project_role_change.connect
+def update_project_commentset_membership(
+    project: Project, actor: User, user: User
+) -> None:
+    if 'participant' in project.roles_for(user):
+        project.commentset.add_subscriber(actor=actor, user=user)
+    else:
+        project.commentset.remove_subscriber(actor=actor, user=user)
+
+
+@proposal_role_change.connect
+def update_proposal_commentset_membership(
+    proposal: Proposal, actor: User, user: User
+) -> None:
+    if 'submitter' in proposal.roles_for(user):
+        proposal.commentset.add_subscriber(actor=actor, user=user)
+    else:
+        proposal.commentset.remove_subscriber(actor=actor, user=user)
 
 
 @Comment.views('url')
@@ -41,7 +77,7 @@ def commentset_json(obj):
     return [
         comment.current_access(datasets=('json', 'related'))
         for comment in toplevel_comments
-        if comment.state.PUBLIC or comment.replies
+        if comment.state.PUBLIC or comment.has_replies
     ]
 
 
@@ -55,8 +91,65 @@ def parent_comments_url(obj):
     return url
 
 
+@Commentset.views('last_comment', cached_property=True)
+def last_comment(obj: Commentset) -> Optional[Comment]:
+    comment = obj.last_comment
+    if comment:
+        return comment.current_access(datasets=('primary', 'related'))
+    return None
+
+
+@route('/comments')
+class AllCommentsView(ClassView):
+    """View for index of commentsets."""
+
+    current_section = 'comments'
+
+    @route('', endpoint='comments')
+    @requires_login
+    @xhr_only(lambda: url_for('index', _anchor='comments'))
+    @etag_cache_for_user(
+        'comment_sidebar', 1, 60, 60, query_params={'page', 'per_page'}
+    )
+    @render_with('unread_comments.html.jinja2', json=True)
+    @requestargs(('page', int), ('per_page', int))
+    def view(self, page: int = 1, per_page: int = 20) -> ReturnRenderWith:
+        query = CommentsetMembership.for_user(current_auth.user)
+        pagination = query.paginate(page=page, per_page=per_page, max_per_page=100)
+        result = {
+            'commentset_memberships': [
+                {
+                    'parent_type': cm.commentset.parent_type,
+                    'parent': cm.commentset.parent.current_access(
+                        datasets=('primary', 'related')
+                    ),
+                    'commentset_url': cm.commentset.url_for(),
+                    'last_seen_at': cm.last_seen_at,
+                    'new_comment_count': cm.new_comment_count,
+                    'last_comment_at': cm.commentset.last_comment_at,
+                    'last_comment': cm.commentset.views.last_comment,
+                }
+                for cm in pagination.items
+            ],
+            'has_next': pagination.has_next,
+            'has_prev': pagination.has_prev,
+            'page': pagination.page,
+            'per_page': pagination.per_page,
+            'pages': pagination.pages,
+            'next_num': pagination.next_num,
+            'prev_num': pagination.prev_num,
+            'count': pagination.total,
+        }
+        return result
+
+
+AllCommentsView.init_app(app)
+
+
 @route('/comments/<commentset>')
 class CommentsetView(UrlForView, ModelView):
+    """Views for commentset display within a host document."""
+
     model = Commentset
     route_model_map = {'commentset': 'uuid_b58'}
     obj: Commentset
@@ -66,12 +159,17 @@ class CommentsetView(UrlForView, ModelView):
 
     @route('', methods=['GET'])
     def view(self):
+        subscribed = bool(self.obj.current_roles.document_subscriber)
+        if request_is_xhr():
+            return jsonify(
+                {'subscribed': subscribed, 'comments': self.obj.views.json_comments()}
+            )
         return redirect(self.obj.views.url(), code=303)
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @render_with(json=True)
-    def new_comment(self):
+    def new(self):
         if self.obj.parent is None:
             return redirect('/')
 
@@ -88,7 +186,8 @@ class CommentsetView(UrlForView, ModelView):
 
             if not self.obj.current_roles.document_subscriber:
                 self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
-
+            else:
+                self.obj.update_last_seen_at(user=current_auth.user)
             db.session.commit()
             dispatch_notification(
                 NewCommentNotification(document=comment.commentset, fragment=comment)
@@ -112,39 +211,30 @@ class CommentsetView(UrlForView, ModelView):
     @requires_login
     @render_with(json=True)
     def subscribe(self):
-        csrf_form = forms.Form()
-        if csrf_form.validate_on_submit():
-            self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("Subscribed to this comment thread"),
-            }
-        return {
-            'status': 'error',
-            'error_code': 'subscribe_error',
-            'error_description': _("This page timed out. Reload and try again"),
-            'error_details': csrf_form.errors,
-        }, 422
-
-    @route('unsubscribe', methods=['POST'])
-    @requires_login
-    @render_with(json=True)
-    def unsubscribe(self):
-        csrf_form = forms.Form()
-        if csrf_form.validate_on_submit():
+        subscribe_form = CommentsetSubscribeForm()
+        subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
+        if subscribe_form.validate_on_submit():
+            if subscribe_form.subscribe.data:
+                self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("You will be notified of new comments"),
+                    'form_nonce': subscribe_form.form_nonce.data,
+                }
             self.obj.remove_subscriber(actor=current_auth.user, user=current_auth.user)
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("Unsubscribed from this comment thread"),
+                'message': _("You will no longer be notified for new comments"),
+                'form_nonce': subscribe_form.form_nonce.data,
             }
         return {
             'status': 'error',
-            'error_code': 'unsubscribe_error',
-            'error_description': _("This page timed out. Reload and try again"),
-            'error_details': csrf_form.errors,
-        }, 422
+            'details': subscribe_form.errors,
+            'message': _("Request expired. Reload and try again"),
+            'form_nonce': subscribe_form.form_nonce.data,
+        }, 400
 
     @route('seen', methods=['POST'])
     @requires_login
@@ -168,6 +258,8 @@ CommentsetView.init_app(app)
 
 @route('/comments/<commentset>/<comment>')
 class CommentView(UrlForView, ModelView):
+    """Views for a single comment."""
+
     model = Comment
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
     obj: Comment
@@ -332,7 +424,7 @@ class CommentView(UrlForView, ModelView):
             )
         reportspamform_html = render_form(
             form=csrf_form,
-            title='Do you want to mark this comment as spam?',
+            title=_("Do you want to mark this comment as spam?"),
             submit=_("Confirm"),
             ajax=False,
             with_chrome=False,

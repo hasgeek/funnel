@@ -9,13 +9,12 @@ from flask import (
     abort,
     current_app,
     flash,
-    jsonify,
     redirect,
     render_template,
     request,
 )
 
-from baseframe import _, __, forms, request_is_xhr
+from baseframe import _, __, forms
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -37,7 +36,6 @@ from coaster.views import (
 from .. import app
 from ..forms import (
     CfpForm,
-    CommentForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
@@ -49,7 +47,6 @@ from ..forms import (
 )
 from ..models import (
     RSVP_STATUS,
-    Comment,
     Profile,
     Project,
     RegistrationCancellationNotification,
@@ -58,6 +55,7 @@ from ..models import (
     SavedProject,
     db,
 )
+from ..signals import project_role_change
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -547,21 +545,6 @@ class ProjectView(
             abort(403)
         return redirect(self.obj.url_for('view_proposals'))
 
-    @route('rsvp', methods=['POST'])
-    @requires_login
-    @requires_roles({'reader'})
-    def rsvp_transition(self):
-        form = RsvpTransitionForm()
-        if form.validate_on_submit():
-            rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
-            transition = getattr(rsvp, form.transition.data)
-            transition()
-            db.session.commit()
-            flash(transition.data['message'], 'success')
-        else:
-            flash(_("This response is not valid"), 'error')
-        return redirect(self.obj.url_for(), code=303)
-
     @route('register', methods=['POST'])
     @requires_login
     def register(self):
@@ -569,7 +552,11 @@ class ProjectView(
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             if not rsvp.state.YES:
-                rsvp.rsvp_yes(subscribe_comments=True)
+                rsvp.rsvp_yes()
+                db.session.commit()
+                project_role_change.send(
+                    self.obj, actor=current_auth.user, user=current_auth.user
+                )
                 db.session.commit()
                 dispatch_notification(
                     RegistrationConfirmationNotification(document=rsvp)
@@ -586,6 +573,10 @@ class ProjectView(
             rsvp = Rsvp.get_for(self.obj, current_auth.user)
             if rsvp is not None and not rsvp.state.NO:
                 rsvp.rsvp_no()
+                db.session.commit()
+                project_role_change.send(
+                    self.obj, actor=current_auth.user, user=current_auth.user
+                )
                 db.session.commit()
                 dispatch_notification(
                     RegistrationCancellationNotification(document=rsvp)
@@ -734,30 +725,15 @@ class ProjectView(
         }
 
     @route('comments', methods=['GET'])
-    @render_with(
-        {
-            'text/html': 'project_comments.html.jinja2',
-            'application/json': lambda params: jsonify(
-                {'subscribed': params['subscribed'], 'comments': params['comments']}
-            ),
-        }
-    )
+    @render_with('project_comments.html.jinja2')
     @requires_roles({'reader'})
     def comments(self):
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
-        if request_is_xhr():
-            return {
-                'subscribed': subscribed,
-                'comments': comments,
-            }
-        commentform = CommentForm(model=Comment)
         return {
             'project': self.obj,
             'subscribed': subscribed,
             'comments': comments,
-            'commentform': commentform,
-            'delcommentform': forms.Form(),
         }
 
     @route('update_featured', methods=['POST'])

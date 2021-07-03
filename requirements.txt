@@ -6,6 +6,7 @@ git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 bcrypt==3.2.0
 better_profanity<0.7  # https://github.com/snguyenthanh/better_profanity/issues/19
 blinker==1.4
+Brotli==1.0.9
 click==8.0.1
 git+https://github.com/hasgeek/coaster.git#egg=coaster
 cryptography==3.4.7

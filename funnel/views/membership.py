@@ -373,6 +373,10 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                     membership_form.populate_obj(new_membership)
                     db.session.add(new_membership)
                     # TODO: Once invite is introduced, send invite email here
+                    db.session.commit()
+                    signals.project_role_change.send(
+                        self.obj, actor=current_auth.user, user=new_membership.user
+                    )
                     signals.project_crew_membership_added.send(
                         self.obj,
                         project=self.obj,
@@ -513,6 +517,10 @@ class ProjectCrewMembershipView(
                         400,
                     )
                 db.session.commit()
+                signals.project_role_change.send(
+                    self.obj.project, actor=current_auth.user, user=self.obj.user
+                )
+                db.session.commit()
                 return {
                     'status': 'ok',
                     'message': _("The member’s roles have been updated"),
@@ -560,6 +568,10 @@ class ProjectCrewMembershipView(
                         membership=previous_membership,
                         actor=current_auth.user,
                         user=previous_membership.user,
+                    )
+                    db.session.commit()
+                    signals.project_role_change.send(
+                        self.obj.project, actor=current_auth.user, user=self.obj.user
                     )
                     db.session.commit()
                 return {
