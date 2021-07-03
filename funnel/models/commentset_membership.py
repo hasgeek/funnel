@@ -82,6 +82,10 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
         """
         return {'document_subscriber'}
 
+    def update_last_seen_at(self) -> None:
+        """Mark the subject user as having last seen this commentset just now."""
+        self.last_seen_at = db.func.utcnow()
+
     @classmethod
     def for_user(cls, user: User) -> Query:
         """
@@ -155,54 +159,56 @@ class __Commentset:
     )
 
     def update_last_seen_at(self, user: User) -> None:
-        existing = CommentsetMembership.query.filter_by(
+        subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
-        if existing is not None:
-            existing.last_seen_at = db.func.utcnow()
+        if subscription is not None:
+            subscription.update_last_seen_at()
 
     def add_subscriber(self, actor: User, user: User) -> bool:
         """Return True is subscriber is added or unmuted, False if already exists."""
-        existing = CommentsetMembership.query.filter_by(
+        subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
-        if existing is None:
-            db.session.add(
-                CommentsetMembership(
-                    commentset=self,
-                    user=user,
-                    granted_by=actor,
-                )
+        if subscription is None:
+            subscription = CommentsetMembership(
+                commentset=self,
+                user=user,
+                granted_by=actor,
             )
+            subscription.update_last_seen_at()
+            db.session.add(subscription)
             return True
+        else:
+            subscription.update_last_seen_at()
         return False
 
     def mute_subscriber(self, actor: User, user: User) -> bool:
         """Return True if subscriber was muted, False if already muted or missing."""
-        existing = CommentsetMembership.query.filter_by(
+        subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
-        if not existing.is_muted:
-            existing.replace(actor=actor, is_muted=True)
+        if not subscription.is_muted:
+            subscription.replace(actor=actor, is_muted=True)
             return True
         return False
 
     def unmute_subscriber(self, actor: User, user: User) -> bool:
         """Return True if subscriber was unmuted, False if not muted or missing."""
-        existing = CommentsetMembership.query.filter_by(
+        subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
-        if existing.is_muted:
-            existing.replace(actor=actor, is_muted=False)
+        if subscription.is_muted:
+            subscription.replace(actor=actor, is_muted=False)
             return True
         return False
 
     def remove_subscriber(self, actor: User, user: User) -> bool:
         """Return True is subscriber is removed, False if already removed."""
-        existing = CommentsetMembership.query.filter_by(
+        subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
-        if existing is not None:
-            existing.revoke(actor=actor)
+        if subscription is not None:
+            subscription.revoke(actor=actor)
             return True
         return False

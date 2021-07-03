@@ -186,7 +186,8 @@ class CommentsetView(UrlForView, ModelView):
 
             if not self.obj.current_roles.document_subscriber:
                 self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
-
+            else:
+                self.obj.update_last_seen_at(user=current_auth.user)
             db.session.commit()
             dispatch_notification(
                 NewCommentNotification(document=comment.commentset, fragment=comment)
