@@ -117,15 +117,6 @@ def test_urlclean_filter():
     assert cleanurl_filter("") == ""
 
 
-def test_compress_decompress():
-    """Test compress and decompress function on sample data."""
-    # Compression is only effective on larger inputs, so the outputs here may be
-    # larger than inputs.
-    sample = b"This is a sample string to be compressed."
-    for algorithm in ('gzip', 'deflate', 'br'):
-        assert decompress(compress(sample, algorithm), algorithm) == sample
-
-
 def test_cached_token():
     """Test simplistic use of cached tokens (for SMS unsubscribe)."""
     test_payload = {
@@ -143,6 +134,7 @@ def test_cached_token():
 
 
 def test_cached_token_profanity_reuse():
+    """Test with a mock for the profanity filter and reuse filter in cached tokens."""
     mockids = MockUrandom(
         [
             urlsafe_b64decode(b'sexy'),
@@ -167,3 +159,12 @@ def test_cached_token_profanity_reuse():
         # Dupe filter passed over the second 'okay'
         assert mockid.call_count == 2
         mockid.reset_mock()
+
+
+def test_compress_decompress():
+    """Test compress and decompress function on sample data."""
+    # Compression is only effective on larger inputs, so the outputs here may be
+    # larger than inputs.
+    sample = b"This is a sample string to be compressed."
+    for algorithm in ('gzip', 'deflate', 'br'):
+        assert decompress(compress(sample, algorithm), algorithm) == sample

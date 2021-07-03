@@ -101,6 +101,8 @@ def last_comment(obj: Commentset) -> Optional[Comment]:
 
 @route('/comments')
 class AllCommentsView(ClassView):
+    """View for index of commentsets."""
+
     current_section = 'comments'
 
     @route('', endpoint='comments')
@@ -146,6 +148,8 @@ AllCommentsView.init_app(app)
 
 @route('/comments/<commentset>')
 class CommentsetView(UrlForView, ModelView):
+    """Views for commentset display within a host document."""
+
     model = Commentset
     route_model_map = {'commentset': 'uuid_b58'}
     obj: Commentset
@@ -217,23 +221,19 @@ class CommentsetView(UrlForView, ModelView):
                     'message': _("You will be notified of new comments"),
                     'form_nonce': subscribe_form.form_nonce.data,
                 }
-            else:
-                self.obj.remove_subscriber(
-                    actor=current_auth.user, user=current_auth.user
-                )
-                db.session.commit()
-                return {
-                    'status': 'ok',
-                    'message': _("You will no longer be notified for new comments"),
-                    'form_nonce': subscribe_form.form_nonce.data,
-                }
-        else:
+            self.obj.remove_subscriber(actor=current_auth.user, user=current_auth.user)
+            db.session.commit()
             return {
-                'status': 'error',
-                'details': subscribe_form.errors,
-                'message': _("Request expired. Reload and try again"),
+                'status': 'ok',
+                'message': _("You will no longer be notified for new comments"),
                 'form_nonce': subscribe_form.form_nonce.data,
-            }, 400
+            }
+        return {
+            'status': 'error',
+            'details': subscribe_form.errors,
+            'message': _("Request expired. Reload and try again"),
+            'form_nonce': subscribe_form.form_nonce.data,
+        }, 400
 
     @route('seen', methods=['POST'])
     @requires_login
@@ -257,6 +257,8 @@ CommentsetView.init_app(app)
 
 @route('/comments/<commentset>/<comment>')
 class CommentView(UrlForView, ModelView):
+    """Views for a single comment."""
+
     model = Comment
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
     obj: Comment
@@ -421,7 +423,7 @@ class CommentView(UrlForView, ModelView):
             )
         reportspamform_html = render_form(
             form=csrf_form,
-            title='Do you want to mark this comment as spam?',
+            title=_("Do you want to mark this comment as spam?"),
             submit=_("Confirm"),
             ajax=False,
             with_chrome=False,

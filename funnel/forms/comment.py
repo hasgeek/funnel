@@ -10,6 +10,8 @@ __all__ = ['CommentForm', 'CommentsetSubscribeForm']
 
 @Comment.forms('main')
 class CommentForm(forms.Form):
+    """Post or edit a comment."""
+
     message = forms.MarkdownField(
         "",
         id="comment_message",
@@ -19,6 +21,8 @@ class CommentForm(forms.Form):
 
 @Commentset.forms('subscribe')
 class CommentsetSubscribeForm(forms.Form):
+    """Subscribe to comments."""
+
     subscribe = forms.BooleanField(
         '',
         description=__("Get notifications"),
