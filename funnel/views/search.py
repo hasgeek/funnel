@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from html import unescape as html_unescape
-from typing import Optional
+from typing import Any, List, Optional
 from urllib.parse import quote as urlquote
 import re
 
 import sqlalchemy.sql.expression as expression
 
 from flask import Markup, redirect, request, url_for
+
+from typing_extensions import TypedDict
 
 from baseframe import __
 from coaster.sqlalchemy import Query
@@ -21,7 +23,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app
+from .. import app, executor
 from ..models import (
     Comment,
     Commentset,
@@ -37,6 +39,7 @@ from ..models import (
     visual_field_delimiter,
 )
 from ..utils import abort_null
+from .decorators import remove_db_session
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 # --- Definitions -------------------------------------------------------------
@@ -76,6 +79,11 @@ class SearchProvider:
         """Search entire site."""
         ...
 
+    @classmethod
+    def all_query_count(cls, q: str) -> int:
+        """Return count of results for :meth:`all_query`."""
+        return cls.all_query(q).options(db.load_only(cls.model.id)).count()
+
 
 class SearchInProfileProvider(SearchProvider):
     """Protocol class for search providers that support searching in a profile."""
@@ -85,6 +93,11 @@ class SearchInProfileProvider(SearchProvider):
         """Search in a profile."""
         ...
 
+    @classmethod
+    def profile_query_count(cls, q: str, profile: Profile) -> int:
+        """Return count of results for :meth:`profile_query`."""
+        return cls.profile_query(q, profile).options(db.load_only(cls.model.id)).count()
+
 
 class SearchInProjectProvider(SearchInProfileProvider):
     """Protocol class for search providers that support searching in a profile."""
@@ -93,6 +106,11 @@ class SearchInProjectProvider(SearchInProfileProvider):
     def project_query(q: str, project: Project) -> Query:
         """Search in a project."""
         ...
+
+    @classmethod
+    def project_query_count(cls, q: str, project: Project) -> int:
+        """Return count of results for :meth:`project_query`."""
+        return cls.project_query(q, project).options(db.load_only(cls.model.id)).count()
 
 
 class ProjectSearch(SearchInProfileProvider):
@@ -541,44 +559,59 @@ def clean_matched_text(text: str) -> str:
 
 # --- Search functions --------------------------------------------------------
 
+
+class SearchCountType(TypedDict, total=False):
+    """Typed dictionary for :func:`search_counts`."""
+
+    type: str  # noqa: A003
+    label: str
+    count: int
+    job: Any
+
+
 # @cache.memoize(timeout=300)
 def search_counts(
     squery: str, profile: Optional[Profile] = None, project: Optional[Project] = None
-):
+) -> List[SearchCountType]:
     """Return counts of search results."""
+    results: List[SearchCountType]
     if project is not None:
-        return [
+        results = [
             {
                 'type': stype,
                 'label': sp.label,
-                'count': sp.project_query(squery, project)
-                .options(db.load_only(sp.model.id))
-                .count(),
+                'job': executor.submit(
+                    remove_db_session(sp.project_query_count), squery, project
+                ),
             }
             for stype, sp in search_providers.items()
             if isinstance(sp, SearchInProjectProvider)
         ]
     if profile is not None:
-        return [
+        results = [
             {
                 'type': stype,
                 'label': sp.label,
-                'count': sp.profile_query(squery, profile)
-                .options(db.load_only(sp.model.id))
-                .count(),
+                'job': executor.submit(
+                    remove_db_session(sp.profile_query_count), squery, profile
+                ),
             }
             for stype, sp in search_providers.items()
             if isinstance(sp, SearchInProfileProvider)
         ]
-    # Not scoped to profile or project:
-    return [
-        {
-            'type': stype,
-            'label': sp.label,
-            'count': sp.all_query(squery).options(db.load_only(sp.model.id)).count(),
-        }
-        for stype, sp in search_providers.items()
-    ]
+    else:
+        # Not scoped to profile or project:
+        results = [
+            {
+                'type': stype,
+                'label': sp.label,
+                'job': executor.submit(remove_db_session(sp.all_query_count), squery),
+            }
+            for stype, sp in search_providers.items()
+        ]
+    for counter in range(len(results)):
+        results[counter]['count'] = results[counter].pop('job').result()
+    return results
 
 
 # @cache.memoize(timeout=300)

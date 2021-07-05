@@ -94,6 +94,7 @@ redis_store.init_app(app)
 
 rq.init_app(app)
 
+app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
 executor.init_app(app)
 
 baseframe.init_app(
