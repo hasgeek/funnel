@@ -76,6 +76,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     project = with_roles(
         db.relationship(Project, backref=db.backref('updates', lazy='dynamic')),
         read={'all'},
+        datasets={'primary'},
         grants_via={
             None: {
                 'editor': {'editor', 'project_editor'},

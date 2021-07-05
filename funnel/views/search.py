@@ -125,11 +125,6 @@ class ProjectSearch(SearchInProfileProvider):
                         Profile.user_id == User.id,
                         User.search_vector.match(q),
                     ).exists(),
-                    # 4. Update has search terms
-                    Update.query.filter(
-                        Update.project_id == Project.id,
-                        Update.search_vector.match(q),
-                    ).exists(),
                 ),
             )
             # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
@@ -171,16 +166,7 @@ class ProjectSearch(SearchInProfileProvider):
             .filter(
                 Project.profile == profile,
                 Project.state.PUBLISHED,
-                db.or_(
-                    # Search conditions. Any of:
-                    # 1. Project has search terms
-                    Project.search_vector.match(q),
-                    # 2. Update has search terms
-                    Update.query.filter(
-                        Update.project_id == Project.id,
-                        Update.search_vector.match(q),
-                    ).exists(),
-                ),
+                Project.search_vector.match(q),
             )
             .order_by(
                 # Order by:
@@ -357,6 +343,45 @@ class ProposalSearch(SearchInProjectProvider):
         )
 
 
+class UpdateSearch(SearchInProjectProvider):
+    """Search for project updates."""
+
+    label = __("Updates")
+    model = Update
+    has_title = True
+    has_order = False
+
+    @staticmethod
+    def all_query(q: str) -> Query:
+        return (
+            Update.query.join(Project, Update.project)
+            .join(Profile, Project.profile)
+            .filter(
+                Profile.state.PUBLIC,
+                Project.state.PUBLISHED,
+                Update.state.PUBLISHED,
+                Update.search_vector.match(q),
+            )
+        )
+
+    @staticmethod
+    def profile_query(q: str, profile: Profile) -> Query:
+        return Update.query.join(Project, Update.project).filter(
+            Project.state.PUBLISHED,
+            Project.profile == profile,
+            Update.state.PUBLISHED,
+            Update.search_vector.match(q),
+        )
+
+    @staticmethod
+    def project_query(q: str, project: Project) -> Query:
+        return Update.query.filter(
+            Update.project == project,
+            Update.state.PUBLISHED,
+            Update.search_vector.match(q),
+        )
+
+
 class CommentSearch(SearchInProjectProvider):
     """Search for comments."""
 
@@ -475,6 +500,7 @@ search_providers = {
     'profile': ProfileSearch(),
     'session': SessionSearch(),
     'submission': ProposalSearch(),
+    'update': UpdateSearch(),
     'comment': CommentSearch(),
 }
 

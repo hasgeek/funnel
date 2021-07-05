@@ -102,10 +102,23 @@
                         <div class="user__box__header comment__header__details__user">
                           <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h4>
                           <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
-                            {{#if obj.first_user.fullname }}<span>{{ obj.first_user.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.title }} </span>
+                            {{#if obj.first_user.fullname }}<span>{{ obj.first_user.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.full_title }} </span>
                             {{#if obj.session}}{{#if obj.session.start_at}}
                               <span><span class="mui--text-light">at</span> {{ formatTime(obj.session.start_at) }}–{{ formatTime(obj.session.end_at) }} <span class="mui--text-light">on</span> {{ formatDate(obj.session.start_at) }}</span>
                             {{/if}}{{/if}}
+                          </h3>
+                        </div>
+                      </div>
+                      <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
+                    </div>
+                  {{elseif result == 'update'}}
+                    <div>
+                      <div class="user__box">
+                        <useravatar user={{ obj.user }}></useravatar>
+                        <div class="user__box__header comment__header__details__user">
+                          <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ url }}">{{{ title_html }}}</a></h4>
+                          <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
+                            {{#if obj.user.fullname }}<span>{{ obj.user.fullname }}</span> <span class="mui--text-light">in</span>{{/if}} <span>{{ obj.project.full_title }} </span>
                           </h3>
                         </div>
                       </div>

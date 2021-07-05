@@ -522,6 +522,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         # Project title extends profile title, so profile title is not needed
         return self.title
 
+    @property
+    def full_title(self) -> str:
+        """Return :meth:`joined_title` as a property."""
+        return self.joined_title()
+
+    with_roles(
+        full_title, read={'all'}, datasets={'primary', 'without_parent', 'related'}
+    )
+
     @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
     @cached_property
     def datelocation(self) -> str:
