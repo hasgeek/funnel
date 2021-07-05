@@ -227,18 +227,17 @@ class ProfileSearch(SearchProvider):
 
     @staticmethod
     def all_query(q: str) -> Query:
-        return Profile.query.filter(
-            Profile.state.PUBLIC,
-            db.or_(
-                Profile.search_vector.match(q),
-                User.query.filter(
-                    Profile.user_id == User.id, User.search_vector.match(q)
-                ).exists(),
-                Organization.query.filter(
-                    Profile.organization_id == Organization.id,
+        return (
+            Profile.query.outerjoin(User)
+            .outerjoin(Organization)
+            .filter(
+                Profile.state.PUBLIC,
+                db.or_(
+                    Profile.search_vector.match(q),
+                    User.search_vector.match(q),
                     Organization.search_vector.match(q),
-                ).exists(),
-            ),
+                ),
+            )
         )
 
 
