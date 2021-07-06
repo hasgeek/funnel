@@ -72,7 +72,7 @@ class SearchProvider:
     #: Does this model have a title column?
     has_title: bool
     #: Do these queries return ordered results? If not, an `order_by` is added
-    has_order: bool
+    has_orderby: bool
 
     @staticmethod
     def all_query(q: str) -> Query:
@@ -119,7 +119,7 @@ class ProjectSearch(SearchInProfileProvider):
     label = __("Projects")
     model = Project
     has_title = True
-    has_order = True
+    has_orderby = True
 
     @staticmethod
     def all_query(q: str) -> Query:
@@ -223,7 +223,7 @@ class ProfileSearch(SearchProvider):
     label = __("Profiles")
     model = Profile
     has_title = True
-    has_order = False
+    has_orderby = False
 
     @staticmethod
     def all_query(q: str) -> Query:
@@ -247,7 +247,7 @@ class SessionSearch(SearchInProjectProvider):
     label = __("Sessions")
     model = Session
     has_title = True
-    has_order = False
+    has_orderby = False
 
     @staticmethod
     def all_query(q: str) -> Query:
@@ -291,7 +291,7 @@ class ProposalSearch(SearchInProjectProvider):
     label = __("Submissions")
     model = Proposal
     has_title = True
-    has_order = False
+    has_orderby = False
 
     @staticmethod
     def all_query(q: str) -> Query:
@@ -366,7 +366,7 @@ class UpdateSearch(SearchInProjectProvider):
     label = __("Updates")
     model = Update
     has_title = True
-    has_order = False
+    has_orderby = False
 
     @staticmethod
     def all_query(q: str) -> Query:
@@ -405,7 +405,7 @@ class CommentSearch(SearchInProjectProvider):
     label = __("Comments")
     model = Comment
     has_title = False  # Comments don't have titles
-    has_order = True  # Queries return ordered results
+    has_orderby = True  # Queries return ordered results
 
     @staticmethod
     def all_query(q: str) -> Query:
@@ -633,7 +633,7 @@ def search_results(
         if not isinstance(sp, SearchInProjectProvider):
             raise TypeError(f"No project search for {sp.label}")
         query = sp.project_query(squery, project)
-        if not sp.has_order:
+        if not sp.has_orderby:
             query = query.order_by(
                 db.desc(db.func.ts_rank_cd(sp.model.search_vector, squery)),
                 sp.model.created_at.desc(),
@@ -642,14 +642,14 @@ def search_results(
         if not isinstance(sp, SearchInProfileProvider):
             raise TypeError(f"No profile search for {sp.label}")
         query = sp.profile_query(squery, profile)
-        if not sp.has_order:
+        if not sp.has_orderby:
             query = query.order_by(
                 db.desc(db.func.ts_rank_cd(sp.model.search_vector, squery)),
                 sp.model.created_at.desc(),
             )
     else:
         query = sp.all_query(squery)
-        if not sp.has_order:
+        if not sp.has_orderby:
             query = query.order_by(
                 db.desc(db.func.ts_rank_cd(sp.model.search_vector, squery)),
                 sp.model.created_at.desc(),
