@@ -10,7 +10,6 @@ from flask import Response, make_response, redirect, request, url_for
 from baseframe import cache, request_is_xhr
 from coaster.auth import current_auth
 
-from ..models import db
 from ..typing import ReturnView
 from .helpers import compress_response
 
@@ -24,28 +23,6 @@ def xml_response(f: F) -> F:
     @wraps(f)
     def wrapper(*args, **kwargs) -> Response:
         return Response(f(*args, **kwargs), mimetype='application/xml')
-
-    return cast(F, wrapper)
-
-
-def remove_db_session(f: F) -> F:
-    """
-    Remove the database session after calling the wrapped function.
-
-    A transaction error in a background job will affect future queries, so the
-    transaction must be rolled back.
-
-    Required until this underlying issue is resolved:
-    https://github.com/dchevell/flask-executor/issues/15
-    """
-
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            result = f(*args, **kwargs)
-        finally:
-            db.session.remove()
-        return result
 
     return cast(F, wrapper)
 

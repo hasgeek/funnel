@@ -39,7 +39,6 @@ from ..models import (
     visual_field_delimiter,
 )
 from ..utils import abort_null
-from .decorators import remove_db_session
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 # --- Definitions -------------------------------------------------------------
@@ -684,9 +683,7 @@ def search_counts(
             {
                 'type': stype,
                 'label': sp.label,
-                'job': executor.submit(
-                    remove_db_session(sp.project_count), squery, project
-                ),
+                'job': executor.submit(sp.project_count, squery, project),
             }
             for stype, sp in search_providers.items()
             if isinstance(sp, SearchInProjectProvider)
@@ -696,9 +693,7 @@ def search_counts(
             {
                 'type': stype,
                 'label': sp.label,
-                'job': executor.submit(
-                    remove_db_session(sp.profile_count), squery, profile
-                ),
+                'job': executor.submit(sp.profile_count, squery, profile),
             }
             for stype, sp in search_providers.items()
             if isinstance(sp, SearchInProfileProvider)
@@ -709,7 +704,7 @@ def search_counts(
             {
                 'type': stype,
                 'label': sp.label,
-                'job': executor.submit(remove_db_session(sp.all_count), squery),
+                'job': executor.submit(sp.all_count, squery),
             }
             for stype, sp in search_providers.items()
         ]

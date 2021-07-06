@@ -16,7 +16,7 @@ from coaster.views import ClassView, route
 
 from .. import app, executor
 from ..models import Profile, Project, Proposal, Session, Update
-from .decorators import remove_db_session, xml_response
+from .decorators import xml_response
 from .index import policy_pages
 
 # --- Sitemap models -------------------------------------------------------------------
@@ -161,7 +161,6 @@ def changefreq_for_age(age: timedelta) -> ChangeFreq:
 
 
 @executor.job
-@remove_db_session
 def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -176,7 +175,6 @@ def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 
 @executor.job
-@remove_db_session
 def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -199,7 +197,6 @@ def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 
 @executor.job
-@remove_db_session
 def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -214,7 +211,6 @@ def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> 
 
 
 @executor.job
-@remove_db_session
 def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -229,7 +225,6 @@ def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -
 
 
 @executor.job
-@remove_db_session
 def query_session(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
