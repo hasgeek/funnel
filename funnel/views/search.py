@@ -296,10 +296,10 @@ class ProfileSearch(SearchProvider):
 
     @property
     def title_column(self) -> ColumnElement:
-        # FIXME: Figure out how to get title from user or organization
+        """Return title from user or organization that the profile is attached to."""
         return db.case(
             [
-                (Profile.user_id.isnot(None), User.title),
+                (Profile.user_id.isnot(None), User.fullname),
                 (Profile.organization_id.isnot(None), Organization.title),
             ],
             else_=Profile.name,
