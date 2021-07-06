@@ -5,6 +5,7 @@ from typing import Any, List, Optional
 from urllib.parse import quote as urlquote
 import re
 
+from sqlalchemy.sql.elements import ColumnElement
 import sqlalchemy.sql.expression as expression
 
 from flask import Markup, redirect, request, url_for
@@ -80,7 +81,7 @@ class SearchProvider:
         return self.model.title
 
     @property
-    def hltext(self):  # TODO: Add return type
+    def hltext(self) -> ColumnElement:
         """Return text concatenating all text in search_vector, for highlighting."""
         model_hltext = self.model.search_vector.type.options.get('hltext')
         if model_hltext is not None:
@@ -92,7 +93,7 @@ class SearchProvider:
             *(getattr(self.model, c) for c in self.model.search_vector.type.columns),
         )
 
-    def hltitle_column(self, q: str):  # TODO: Add return type
+    def hltitle_column(self, q: str) -> ColumnElement:
         """Return a column for title with search terms highlighted."""
         return db.func.ts_headline(
             self.regconfig,
@@ -103,7 +104,7 @@ class SearchProvider:
             type_=db.UnicodeText,
         )
 
-    def hlsnippet_column(self, q: str):  # TODO: Add return type
+    def hlsnippet_column(self, q: str) -> ColumnElement:
         """Return a column for a snippet of the item's text with highlights."""
         return db.func.ts_headline(
             self.regconfig,
@@ -115,7 +116,7 @@ class SearchProvider:
             type_=db.UnicodeText,
         )
 
-    def matched_text_column(self, q: str):  # TODO: Add return type
+    def matched_text_column(self, q: str) -> ColumnElement:
         """Return a column for a snippet of item's text, without highlighting."""
         return db.func.ts_headline(
             self.regconfig,
@@ -293,6 +294,23 @@ class ProfileSearch(SearchProvider):
     label = __("Profiles")
     model = Profile
 
+    @property
+    def title_column(self) -> ColumnElement:
+        # FIXME: Figure out how to get title from user or organization
+        return db.case(
+            [
+                (Profile.user_id.isnot(None), User.title),
+                (Profile.organization_id.isnot(None), Organization.title),
+            ],
+            else_=Profile.name,
+        )
+
+    @property
+    def hltext(self) -> ColumnElement:
+        return db.func.concat_ws(
+            visual_field_delimiter, self.title_column, Profile.description_html
+        )
+
     def all_query(self, q: str) -> Query:
         return self.add_order_by(
             q,
@@ -306,17 +324,6 @@ class ProfileSearch(SearchProvider):
                     Organization.search_vector.match(q),
                 ),
             ),
-        )
-
-    @property
-    def title_column(self):
-        # FIXME: Figure out how to get title from user or organization
-        return Profile.name
-
-    @property
-    def hltext(self):
-        return db.func.concat_ws(
-            visual_field_delimiter, self.title_column, Profile.description_html
         )
 
 
@@ -462,7 +469,14 @@ class UpdateSearch(SearchInProjectProvider):
     label = __("Updates")
     model = Update
 
-    # def add_order_by TODO
+    def add_order_by(self, q: str, query: Query) -> Query:
+        return query.order_by(
+            db.desc(db.func.ts_rank_cd(Update.search_vector, q)),
+            db.case(
+                [(Update.published_at.isnot(None), Update.published_at)],
+                else_=Update.created_at,
+            ).desc(),
+        )
 
     def all_query(self, q: str) -> Query:
         return self.add_order_by(
@@ -726,8 +740,6 @@ def search_results(
     # Pick up model data for the given type string
     sp = search_providers[stype]
 
-    # Construct a basic query, sorted by matching column priority followed by date.
-    # TODO: Pick a better date column than "created_at".
     if project is not None:
         if not isinstance(sp, SearchInProjectProvider):
             raise TypeError(f"No project search for {sp.label}")
