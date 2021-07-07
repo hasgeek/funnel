@@ -41,6 +41,9 @@
     </li>
   {%- endif %}
 {% endfor %}
+{% if has_next %}
+  <li class="left-padding js-load-comments loading"></li>
+{%- endif %}
 
 {%- if page == 1 and not commentset_memberships|length %}
   <li class="left-padding right-padding margin-top mui--text-center">

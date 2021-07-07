@@ -58,8 +58,7 @@ $(() => {
       '.js-comments-btn',
       '.js-comments-wrapper',
       '.js-comment-sidebar',
-      window.Hasgeek.config.unreadCommentUrl,
-      true
+      window.Hasgeek.config.unreadCommentUrl
     );
   }
   Utils.addVegaSupport();

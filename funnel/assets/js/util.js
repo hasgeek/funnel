@@ -93,11 +93,13 @@ export const Utils = {
       }
     });
   },
-  headerMenuDropdown(menuBtnClass, menuWrapper, menu, url, lazyLoad = false) {
+  headerMenuDropdown(menuBtnClass, menuWrapper, menu, url) {
     let menuBtn = $(menuBtnClass);
     let topMargin = 1;
     let headerHeight = $('.header').height() + topMargin;
     let page = 1;
+    let lazyLoader;
+    let observer;
 
     let openMenu = function () {
       if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
@@ -127,7 +129,7 @@ export const Utils = {
       page += 1;
     };
 
-    var fetchMenu = function (pageNo = 1, openMenuFn = '') {
+    let fetchMenu = function (pageNo = 1) {
       $.ajax({
         type: 'GET',
         url: `${url}?page=${pageNo}`,
@@ -135,8 +137,24 @@ export const Utils = {
         success: function (responseData) {
           $(menuWrapper).find(menu).append(responseData);
           updatePageNumber();
-          if (openMenuFn) {
-            openMenuFn();
+          lazyLoader = document.querySelector('.js-load-comments');
+          if (lazyLoader) {
+            observer = new IntersectionObserver(
+              function (entries) {
+                entries.forEach((entry) => {
+                  if (entry.isIntersecting) {
+                    observer.unobserve(lazyLoader);
+                    $('.js-load-comments').remove();
+                    fetchMenu(page);
+                  }
+                });
+              },
+              {
+                rootMargin: '0px',
+                threshold: 0,
+              }
+            );
+            observer.observe(lazyLoader);
           }
         },
       });
@@ -151,9 +169,6 @@ export const Utils = {
     menuBtn.on('click', function () {
       if ($(this).hasClass('header__nav-links--active')) {
         closeMenu();
-      } else if (lazyLoad || !$(menuWrapper).find(menu).length) {
-        openMenu();
-        fetchMenu(page);
       } else {
         openMenu();
       }
