@@ -138,14 +138,11 @@ export const Utils = {
           $(menuWrapper).find(menu).append(responseData);
           updatePageNumber();
           lazyLoader = document.querySelector('.js-load-comments');
-          console.log('lazyLoader', lazyLoader);
           if (lazyLoader) {
             observer = new IntersectionObserver(
               function (entries) {
-                console.log('IntersectionObserver');
                 entries.forEach((entry) => {
                   if (entry.isIntersecting) {
-                    console.log('intersected');
                     observer.unobserve(lazyLoader);
                     $('.js-load-comments').remove();
                     fetchMenu(page);
