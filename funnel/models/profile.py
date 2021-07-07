@@ -130,7 +130,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 weights={'name': 'A', 'description_text': 'B'},
                 regconfig='english',
                 hltext=lambda: db.func.concat_ws(
-                    visual_field_delimiter, Profile.title, Profile.description_html
+                    visual_field_delimiter, Profile.name, Profile.description_html
                 ),
             ),
             nullable=False,
