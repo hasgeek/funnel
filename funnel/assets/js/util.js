@@ -135,6 +135,10 @@ export const Utils = {
         url: `${url}?page=${pageNo}`,
         timeout: window.Hasgeek.config.ajaxTimeout,
         success: function (responseData) {
+          if (observer) {
+            observer.unobserve(lazyLoader);
+            $('.js-load-comments').remove();
+          }
           $(menuWrapper).find(menu).append(responseData);
           updatePageNumber();
           lazyLoader = document.querySelector('.js-load-comments');
@@ -143,8 +147,6 @@ export const Utils = {
               function (entries) {
                 entries.forEach((entry) => {
                   if (entry.isIntersecting) {
-                    observer.unobserve(lazyLoader);
-                    $('.js-load-comments').remove();
                     fetchMenu(page);
                   }
                 });
