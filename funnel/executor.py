@@ -22,7 +22,7 @@ def remove_db_session(f: F) -> F:
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-
+        """Remove database session regardless of outcome."""
         try:
             result = f(*args, **kwargs)
         finally:

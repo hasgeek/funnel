@@ -545,6 +545,7 @@ class CommentSearch(SearchInProjectProvider):
     has_title = False  # Comments don't have titles
 
     def hltitle_column(self, squery: str):
+        """Comments don't have titles, so return a null expression here."""
         return expression.null()
 
     def all_query(self, squery: str) -> Query:
@@ -767,8 +768,10 @@ def search_counts(
             }
             for stype, sp in search_providers.items()
         ]
-    for counter, resultset in enumerate(results):
+    # Collect results from all the background jobs
+    for resultset in results:
         resultset['count'] = resultset.pop('job').result()
+    # Return collected counts
     return results
 
 
