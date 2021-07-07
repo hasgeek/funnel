@@ -603,6 +603,39 @@ def client_hex_credential(db_session, client_hex):
     return SimpleNamespace(cred=cred, secret=secret)
 
 
+@pytest.fixture
+def all_fixtures(
+    db_session,
+    user_twoflower,
+    user_rincewind,
+    user_death,
+    user_mort,
+    user_susan,
+    user_lutze,
+    user_ridcully,
+    user_librarian,
+    user_ponder_stibbons,
+    user_vetinari,
+    user_vimes,
+    user_carrot,
+    user_angua,
+    user_dibbler,
+    user_wolfgang,
+    user_om,
+    org_ankhmorpork,
+    org_uu,
+    org_citywatch,
+    project_expo2010,
+    project_expo2011,
+    project_ai1,
+    project_ai2,
+    client_hex,
+):
+    """Return All Discworld fixtures at once."""
+    db_session.commit()
+    return SimpleNamespace(**locals())
+
+
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 # --- Old fixtures, to be removed when tests are updated -------------------------------
 
