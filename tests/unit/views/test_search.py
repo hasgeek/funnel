@@ -94,10 +94,6 @@ def test_search_counts(org_ankhmorpork, project_expo2010, all_fixtures):
                 assert 'count' in typeset
 
 
-def test_search_results(org_ankhmorpork, project_expo2010, all_fixtures):
-    pass  # TODO
-
-
 # --- Test views -----------------------------------------------------------------------
 
 
@@ -123,10 +119,10 @@ def test_view_search_counts(client, org_ankhmorpork, project_expo2010, all_fixtu
     for resultset in (r1, r2, r3):
         assert isinstance(resultset, dict)
         assert 'counts' in resultset
-        for typeset in resultset['counts']:
-            assert 'type' in typeset
-            assert 'label' in typeset
-            assert 'count' in typeset
+        for countset in resultset['counts']:
+            assert 'type' in countset
+            assert 'label' in countset
+            assert 'count' in countset
 
 
 @pytest.mark.parametrize('stype', search_all_types)
