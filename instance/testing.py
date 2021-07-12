@@ -9,11 +9,11 @@ SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
 SQLALCHEMY_BINDS = {
     'geoname': 'postgresql:///geoname_testing',
 }
-SERVER_NAME = 'funnel.travis.local:3002'
-SHORTLINK_DOMAIN = 'funnel.travis.local:3002'
-DEFAULT_DOMAIN = 'funnel.travis.local'
+SERVER_NAME = 'funnel.test:3002'
+SHORTLINK_DOMAIN = 'funnel.test:3002'
+DEFAULT_DOMAIN = 'funnel.test'
 STATIC_SUBDOMAIN = 'static'
-LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
+LASTUSER_COOKIE_DOMAIN = '.funnel.test:3002'
 UPLOAD_FOLDER = '/tmp'  # nosec  # noqa: S108
 TIMEZONE = 'Asia/Kolkata'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')

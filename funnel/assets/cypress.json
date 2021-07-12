@@ -1,7 +1,7 @@
 {
   "projectId": "1kvcow",
   "chromeWebSecurity": false,
-  "baseUrl": "http://funnel.travis.local:3002",
+  "baseUrl": "http://funnel.test:3002",
   "pageLoadTimeout": 150000,
   "video": false
 }

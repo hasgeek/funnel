@@ -34,7 +34,7 @@ install:
   - pip install idna --upgrade
   - make
 before_script:
-  - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
+  - sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
   - psql -c 'create database funnel_testing;' -U postgres
   - 'flask dbconfig | sudo -u postgres psql funnel_testing'
   - psql -c 'create database geoname_testing;' -U postgres
