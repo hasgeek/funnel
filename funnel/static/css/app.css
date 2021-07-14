@@ -4841,7 +4841,7 @@ a.loginbutton.hidden,
     position: fixed;
     top: 16px;
     right: 16px;
-    z-index: 1000;
+    z-index: 999;
   }
   .post-form-block .comment-new-mobile {
     font-size: 20px;
@@ -5046,7 +5046,6 @@ a.loginbutton.hidden,
 }
 .schedule-grid .schedule .schedule__date {
   margin-bottom: 16px;
-  padding-left: 16px;
   margin-top: 0;
 }
 .schedule-grid .schedule .schedule__row {
@@ -5059,7 +5058,7 @@ a.loginbutton.hidden,
   .schedule__row__column__content {
   background-color: #ffffff;
   width: 100%;
-  padding: 5px 16px;
+  padding: 16px 0;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   word-break: break-word;
 }
@@ -5122,10 +5121,7 @@ a.loginbutton.hidden,
   .schedule
   .schedule__row
   .schedule__row__column
-  .schedule__row__column__content__title__duration {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 165px;
+  p.schedule__row__column__content__title__duration {
   background-color: #f2deda;
   color: #1b3a44;
   z-index: 1;
@@ -5133,6 +5129,7 @@ a.loginbutton.hidden,
   padding: 5px;
   border-radius: 3px;
   line-height: 1;
+  margin-top: 4px;
 }
 .schedule-grid .schedule .schedule__row .schedule__row__column.js-active {
   display: block;
@@ -5153,7 +5150,6 @@ a.loginbutton.hidden,
 }
 .schedule-grid .schedule .schedule__row--sticky {
   display: flex;
-  max-width: 100%;
   overflow-x: auto;
   position: sticky;
   position: -webkit-sticky;
@@ -5224,19 +5220,20 @@ a.loginbutton.hidden,
   }
 }
 @media (min-width: 768px) {
-  .schedule-grid {
-    padding: 0 16px;
-  }
   .schedule-grid .schedule {
     margin: 32px 0;
   }
   .schedule-grid .schedule .schedule__date {
     padding-left: 0;
   }
+  .schedule-grid .schedule .schedule__row {
+    overflow: auto;
+  }
   .schedule-grid .schedule .schedule__row .schedule__row__column {
     position: relative;
     background-image: url('../img/schedule-box-background.png?1598540764');
     background-size: 20px 10px;
+    min-width: 200px;
   }
   .schedule-grid
     .schedule
@@ -5274,7 +5271,6 @@ a.loginbutton.hidden,
     .schedule__row
     .schedule__row__column
     .schedule__row__column__content {
-    outline: 1px solid rgba(132, 146, 166, 0.3);
     width: calc(100% - 1px);
     height: 100%;
   }
@@ -5315,7 +5311,7 @@ a.loginbutton.hidden,
     height: 100%;
   }
   .schedule-grid .schedule .schedule__row--sticky {
-    overflow: visible;
+    overflow: auto;
     top: 112px;
   }
   .schedule-grid
