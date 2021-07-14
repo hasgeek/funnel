@@ -170,6 +170,14 @@ const Search = {
           },
           { defer: true }
         );
+        $('.js-search-form').submit((event) => {
+          event.preventDefault();
+          this.set(
+            'queryString',
+            document.querySelector('.js-search-field').value
+          );
+          this.fetchResult(this.getQueryString('type'));
+        });
       },
     });
   },
