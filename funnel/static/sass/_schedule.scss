@@ -10,7 +10,6 @@
 
     .schedule__date {
       margin-bottom: $mui-grid-padding;
-      padding-left: $mui-grid-padding;
       margin-top: 0;
     }
 
@@ -21,7 +20,7 @@
         .schedule__row__column__content {
           background-color: $mui-bg-color-primary;
           width: 100%;
-          padding: 5px $mui-grid-padding;
+          padding: $mui-grid-padding 0;
           border-bottom: 1px solid rgba(132, 146, 166, 0.3);
           word-break: break-word;
 
@@ -54,10 +53,7 @@
           }
         }
 
-        .schedule__row__column__content__title__duration {
-          position: -webkit-sticky;
-          position: sticky;
-          top: 165px;
+        p.schedule__row__column__content__title__duration {
           background-color: $mui-accent-color-lighter;
           color: $mui-text-accent-lighter;
           z-index: 1;
@@ -65,6 +61,7 @@
           padding: 5px;
           border-radius: 3px;
           line-height: 1;
+          margin-top: 4px;
         }
       }
 
@@ -93,7 +90,6 @@
 
     .schedule__row--sticky {
       display: flex;
-      max-width: 100%;
       overflow-x: auto;
       position: sticky;
       position: -webkit-sticky;
@@ -164,18 +160,18 @@
 
 @media (min-width: 768px) {
   .schedule-grid {
-    padding: 0 $mui-grid-padding;
-
     .schedule {
       margin: $mui-grid-padding-double 0;
       .schedule__date {
         padding-left: 0;
       }
       .schedule__row {
+        overflow: auto;
         .schedule__row__column {
           position: relative;
           background-image: image-url('schedule-box-background.png');
           background-size: 20px 10px;
+          min-width: 200px;
 
           .schedule__row__column__content--calendar {
             position: absolute;
@@ -201,7 +197,6 @@
             padding: 20px 0 0;
           }
           .schedule__row__column__content {
-            outline: 1px solid rgba(132, 146, 166, 0.3);
             width: calc(100% - 1px);
             height: 100%;
             .schedule__row__column__content__title__duration {
@@ -232,7 +227,7 @@
         }
       }
       .schedule__row--sticky {
-        overflow: visible;
+        overflow: auto;
         top: 112px;
 
         .schedule__row__column--header {
