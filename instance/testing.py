@@ -19,8 +19,6 @@ TIMEZONE = 'Asia/Kolkata'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
 BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
 
-ASSET_MANIFEST_PATH = 'static/build/manifest.json'
-ASSET_BASE_PATH = 'build'
 UNSUBSCRIBE_DOMAIN = 'bye.test'
 #: Recaptcha for the registration form
 RECAPTCHA_USE_SSL = True
@@ -34,9 +32,9 @@ YOUTUBE_API_KEY = environ.get('YOUTUBE_API_KEY', '')
 SITE_SUPPORT_EMAIL = environ.get('SITE_SUPPORT_EMAIL')
 MAIL_SUPPRESS_SEND = True
 MAIL_SERVER = environ.get('MAIL_SERVER')
-MAIL_PORT = environ.get('MAIL_PORT')
-MAIL_USE_SSL = environ.get('MAIL_USE_SSL')
-MAIL_USE_TLS = environ.get('MAIL_USE_TLS')
+MAIL_PORT = int(environ.get('MAIL_PORT', 25))
+MAIL_USE_SSL = bool(environ.get('MAIL_USE_SSL', False))
+MAIL_USE_TLS = bool(environ.get('MAIL_USE_TLS', False))
 MAIL_DEFAULT_SENDER = environ.get('MAIL_DEFAULT_SENDER', 'test@example.com')
 MAIL_USERNAME = environ.get('MAIL_USERNAME')
 MAIL_PASSWORD = environ.get('MAIL_PASSWORD')

@@ -1,50 +1,58 @@
 process.traceDeprecation = true;
 
 const webpack = require('webpack');
-const nodeEnv = process.env.NODE_ENV || 'production';
+const ESLintPlugin = require('eslint-webpack-plugin');
 const path = require('path');
-const cleanWebpackPlugin = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { InjectManifest } = require('workbox-webpack-plugin');
+const { writeFileSync } = require('fs');
 
-function ManifestPlugin(options) {
-  this.manifestPath = options.manifestPath
-    ? options.manifestPath
-    : 'build/manifest.json';
-}
+const nodeEnv = process.env.NODE_ENV || 'production';
 
-ManifestPlugin.prototype.apply = function (compiler) {
-  compiler.plugin('done', (stats) => {
-    var stats_json = stats.toJson();
-    var parsed_stats = {
-      assets: stats_json.assetsByChunkName,
-    };
-    if (stats && stats.hasErrors()) {
-      stats_json.errors.forEach((err) => {
-        console.error(err);
-      });
-    }
-    Object.keys(parsed_stats.assets).forEach(function (key) {
-      if (typeof parsed_stats.assets[key] == 'object') {
-        for (var index in parsed_stats.assets[key]) {
-          if (
-            parsed_stats.assets[key][index].indexOf('.js') !== -1 &&
-            parsed_stats.assets[key][index].indexOf('.map') == -1
-          ) {
-            parsed_stats.assets[key] = parsed_stats.assets[key][index];
+class ManifestPlugin {
+  constructor(options) {
+    this.manifestPath = options.manifestPath
+      ? options.manifestPath
+      : 'build/manifest.json';
+  }
+
+  apply(compiler) {
+    compiler.plugin('done', (stats) => {
+      const statsJson = stats.toJson();
+      const parsedStats = {
+        assets: statsJson.assetsByChunkName,
+      };
+      if (stats && stats.hasErrors()) {
+        statsJson.errors.forEach((err) => {
+          // eslint-disable-next-line no-console
+          console.error(err);
+        });
+      }
+      Object.keys(parsedStats.assets).forEach((key) => {
+        if (typeof parsedStats.assets[key] === 'object') {
+          for (var index in parsedStats.assets[key]) {
+            if (
+              parsedStats.assets[key][index].indexOf('.js') !== -1 &&
+              parsedStats.assets[key][index].indexOf('.map') == -1
+            ) {
+              parsedStats.assets[key] = parsedStats.assets[key][index];
+            }
           }
         }
-      }
+      });
+      writeFileSync(
+        path.join(__dirname, this.manifestPath),
+        JSON.stringify(parsedStats)
+      );
     });
-    require('fs').writeFileSync(
-      path.join(__dirname, this.manifestPath),
-      JSON.stringify(parsed_stats)
-    );
-  });
-};
+  }
+}
 
 module.exports = {
-  node: {
-    fs: 'empty',
+  resolve: {
+    fallback: {
+      fs: false,
+    },
   },
   devtool: 'source-map',
   entry: {
@@ -84,26 +92,20 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
-        query: {
-          plugins: ['@babel/plugin-syntax-dynamic-import'],
-        },
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'eslint-loader',
         options: {
-          fix: true,
-          formatter: require('eslint/lib/cli-engine/formatters/stylish'),
+          plugins: ['@babel/plugin-syntax-dynamic-import'],
         },
       },
     ],
   },
   plugins: [
+    new ESLintPlugin({
+      fix: true,
+    }),
     new webpack.DefinePlugin({
       'process.env': { NODE_ENV: JSON.stringify(nodeEnv) },
     }),
-    new cleanWebpackPlugin(['build'], {
+    new CleanWebpackPlugin({
       root: path.join(__dirname, '../static'),
     }),
     new ManifestPlugin({ manifestPath: '../static/build/manifest.json' }),

@@ -88,6 +88,7 @@ mail.init_app(app)
 mail.init_app(shortlinkapp)  # Required for email error reports
 
 app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
+app.config['FLATPAGES_EXTENSION'] = '.md'
 pages.init_app(app)
 
 redis_store.init_app(app)
@@ -97,6 +98,8 @@ rq.init_app(app)
 app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
 executor.init_app(app)
 
+app.config['ASSET_MANIFEST_PATH'] = 'static/build/manifest.json'
+app.config['ASSET_BASE_PATH'] = 'build'
 baseframe.init_app(
     app,
     requires=['funnel'],
