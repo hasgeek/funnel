@@ -217,6 +217,9 @@
               <li><a class="mui--text-subhead" href="{{ project.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--right-margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
             {% endif %}
             <li><a class="mui--text-subhead" href="{{ project.url_for('settings') }}" data-cy-navbar="settings">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--right-margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Settings{% endtrans %}</span></a></li>
+            {% if project.view_for('labels').is_available() %}
+              <li><a class="mui--text-subhead" href="{{ project.url_for('labels') }}" data-cy-navbar="labels">{{ faicon(icon='tag', baseline=false, css_class='mui--text-light fa-icon--right-margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Manage labels{% endtrans %}</span></a></li>
+            {% endif %}
             {% if project.view_for('venues').is_available() %}
               <li><a class="mui--text-subhead" href="{{ project.url_for('venues') }}" data-cy-navbar="edit-venue">{{ faicon(icon='map-marker-alt', icon_size='subhead', baseline=false, css_class='mui--text-light fa-icon--right-margin mui--align-middle') }}<span class="mui--text-body2">{% trans %}Update venue{% endtrans %}</span></a></li>
             {% endif %}
