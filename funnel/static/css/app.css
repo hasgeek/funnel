@@ -4221,54 +4221,6 @@ a.loginbutton.hidden,
 .tickets-wrapper .tickets-wrapper__modal--show .tickets-wrapper__modal__back {
   display: block;
 }
-.tickets-wrapper #boxoffice-widget {
-  padding: 16px 0;
-  max-width: 100%;
-  margin: 0;
-}
-.tickets-wrapper #boxoffice-widget .category-heading:after {
-  border-width: 23px;
-}
-.tickets-wrapper #boxoffice-widget .ticket-booking {
-  border-bottom: 1px solid #ccc;
-}
-.tickets-wrapper #boxoffice-widget .ticket-booking:last-child {
-  border-bottom: none;
-}
-.tickets-wrapper #boxoffice-widget .ticket-details {
-  margin: 0;
-  width: 100%;
-}
-.tickets-wrapper #boxoffice-widget .ticket-price-qty {
-  float: left;
-  width: 100%;
-  margin-top: 32px;
-}
-.tickets-wrapper #boxoffice-widget .ticket-description .few-ticket {
-  left: 0;
-  top: -21px;
-}
-.tickets-wrapper #boxoffice-widget .price-details-wrapper,
-.tickets-wrapper #boxoffice-widget .ticket-total,
-.tickets-wrapper #boxoffice-widget .proceed-button-wrapper {
-  float: left;
-}
-.tickets-wrapper #boxoffice-widget .ticket-total {
-  margin-left: -10px;
-  margin-right: -10px;
-}
-.tickets-wrapper #boxoffice-widget .item-amount,
-.tickets-wrapper #boxoffice-widget .valid-upto,
-.tickets-wrapper #boxoffice-widget .discount {
-  text-align: left;
-}
-.tickets-wrapper #boxoffice-widget .checkout-confirmation {
-  padding: 0;
-}
-.tickets-wrapper #boxoffice-widget .fa {
-  display: none;
-  padding: 0 !important;
-}
 
 @media (min-width: 768px) {
   .tickets-wrapper .tickets-wrapper__modal {
@@ -4285,30 +4237,15 @@ a.loginbutton.hidden,
     min-height: auto;
     border-radius: 16px;
     background-color: #ffffff;
+    overflow: auto;
   }
   .tickets-wrapper
     .tickets-wrapper__modal__body
     .tickets-wrapper__modal__body__close {
     display: block;
     float: right;
-    margin-right: 4px;
-    margin-top: 4px;
-  }
-  .tickets-wrapper .tickets-wrapper__modal__body #boxoffice-widget {
-    padding: 0;
-  }
-  .tickets-wrapper
-    .tickets-wrapper__modal__body
-    #boxoffice-widget
-    .payment-progress-wrapper {
-    border-radius: 16px 16px 0 0;
-  }
-  .tickets-wrapper
-    .tickets-wrapper__modal__body
-    #boxoffice-widget
-    .boxoffice-section {
-    padding: 16px;
-    border: none;
+    margin-right: 8px;
+    margin-top: 8px;
   }
 }
 .about .rsvp-wrapper {
