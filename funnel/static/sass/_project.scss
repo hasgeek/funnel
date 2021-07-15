@@ -440,66 +440,6 @@
       display: block;
     }
   }
-
-  #boxoffice-widget {
-    padding: $mui-grid-padding 0;
-    max-width: 100%;
-    margin: 0;
-
-    .category-heading:after {
-      border-width: 23px;
-    }
-
-    .ticket-booking {
-      border-bottom: 1px solid #ccc;
-    }
-
-    .ticket-booking:last-child {
-      border-bottom: none;
-    }
-
-    .ticket-details {
-      margin: 0;
-      width: 100%;
-    }
-
-    .ticket-price-qty {
-      float: left;
-      width: 100%;
-      margin-top: $mui-grid-padding-double;
-    }
-
-    .ticket-description .few-ticket {
-      left: 0;
-      top: -21px;
-    }
-
-    .price-details-wrapper,
-    .ticket-total,
-    .proceed-button-wrapper {
-      float: left;
-    }
-
-    .ticket-total {
-      margin-left: -10px;
-      margin-right: -10px;
-    }
-
-    .item-amount,
-    .valid-upto,
-    .discount {
-      text-align: left;
-    }
-
-    .checkout-confirmation {
-      padding: 0;
-    }
-
-    .fa {
-      display: none;
-      padding: 0 !important;
-    }
-  }
 }
 
 @media (min-width: 768px) {
@@ -519,21 +459,12 @@
       min-height: auto;
       border-radius: 16px;
       background-color: $mui-bg-color-primary;
+      overflow: auto;
       .tickets-wrapper__modal__body__close {
         display: block;
         float: right;
-        margin-right: 4px;
-        margin-top: 4px;
-      }
-      #boxoffice-widget {
-        padding: 0;
-        .payment-progress-wrapper {
-          border-radius: 16px 16px 0 0;
-        }
-        .boxoffice-section {
-          padding: $mui-grid-padding;
-          border: none;
-        }
+        margin-right: $mui-grid-padding/2;
+        margin-top: $mui-grid-padding/2;
       }
     }
   }
