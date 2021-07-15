@@ -184,7 +184,7 @@ const Search = {
 };
 
 $(() => {
-  window.Hasgeek.Search = function (config) {
+  window.Hasgeek.searchInit = function searchInit(config) {
     Search.init(config);
   };
 });

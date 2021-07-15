@@ -101,7 +101,7 @@ const Updates = {
 };
 
 $(() => {
-  window.Hasgeek.UpdatesInit = function (config) {
+  window.Hasgeek.updatesInit = function updatesInit(config) {
     Updates.init(config);
   };
 });

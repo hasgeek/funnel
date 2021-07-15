@@ -76,8 +76,7 @@ const badgeScan = {
 
       startRenderFrameLoop(event) {
         if (event) event.original.preventDefault();
-        let timerId;
-        timerId = window.requestAnimationFrame(this.renderFrame);
+        const timerId = window.requestAnimationFrame(this.renderFrame);
         this.set('timerId', timerId);
       },
 
@@ -207,7 +206,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.Hasgeek.BadgeScanInit = function (ticketEventConfig) {
+  window.Hasgeek.badgeScanInit = function badgeScanInit(ticketEventConfig) {
     badgeScan.init(ticketEventConfig);
   };
 });

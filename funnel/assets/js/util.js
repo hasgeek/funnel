@@ -101,7 +101,7 @@ export const Utils = {
     let lazyLoader;
     let observer;
 
-    const openMenu = function () {
+    const openMenu = () => {
       if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
         $(menuWrapper).find(menu).animate({ top: '0' });
       } else {
@@ -112,7 +112,7 @@ export const Utils = {
       $('body').addClass('body-scroll-lock');
     };
 
-    const closeMenu = function () {
+    const closeMenu = () => {
       if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
         $(menuWrapper).find(menu).animate({ top: '100vh' });
       } else {
@@ -125,11 +125,11 @@ export const Utils = {
       );
     };
 
-    const updatePageNumber = function () {
+    const updatePageNumber = () => {
       page += 1;
     };
 
-    const fetchMenu = function (pageNo = 1) {
+    const fetchMenu = (pageNo = 1) => {
       $.ajax({
         type: 'GET',
         url: `${url}?page=${pageNo}`,
@@ -168,7 +168,7 @@ export const Utils = {
     }
 
     // Open full screen account menu in mobile
-    menuBtn.on('click', function () {
+    menuBtn.on('click', function clickOpenCloseMenu() {
       if ($(this).hasClass('header__nav-links--active')) {
         closeMenu();
       } else {
@@ -207,14 +207,14 @@ export const Utils = {
       'read more'
     )}</span>`;
 
-    $('.js-truncate').each(function () {
+    $('.js-truncate').each(function truncateLines() {
       const linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
         lines: linesLimit,
       });
     });
 
-    $('.js-truncate-readmore').each(function () {
+    $('.js-truncate-readmore').each(function truncateLinesReadMore() {
       const linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
         lines: linesLimit,
@@ -223,14 +223,14 @@ export const Utils = {
       });
     });
 
-    $('body').on('click', '.js-read-more', function () {
+    $('body').on('click', '.js-read-more', function clickReadMore() {
       $(this).parent('.js-truncate-readmore').trunk8('revert');
     });
   },
   showTimeOnCalendar() {
     const singleDay = 24 * 60 * 60 * 1000;
 
-    $('body .card__calendar').each(function () {
+    $('body .card__calendar').each(function setupCardCalendar() {
       const firstActiveWeek = $(this).find(
         '.calendar__weekdays__dates--upcoming'
       ).length
@@ -245,7 +245,7 @@ export const Utils = {
 
       $(this)
         .find('.calendar__weekdays__dates__date--showtime')
-        .hover(function () {
+        .hover(function hoverCardDate() {
           $(this)
             .parents('.calendar__weekdays')
             .find('.calendar__weekdays__dates__date--showtime')
@@ -352,7 +352,7 @@ export const Utils = {
     });
   },
   handleModalForm() {
-    $('.js-modal-form').click(function () {
+    $('.js-modal-form').click(function addModalToWindowHash() {
       window.location.hash = $(this).data('hash');
     });
 
@@ -410,7 +410,7 @@ export const Utils = {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
 
-      $('body').on('click', '.hg-link-btn', function (event) {
+      $('body').on('click', '.hg-link-btn', function clickWebShare(event) {
         event.preventDefault();
         navigator.share({
           title: $(this).data('title') || document.title,
@@ -423,7 +423,7 @@ export const Utils = {
         });
       });
     } else {
-      $('body').on('click', '.js-copy-link', function (event) {
+      $('body').on('click', '.js-copy-link', function clickCopyLink(event) {
         event.preventDefault();
         const selection = window.getSelection();
         const range = document.createRange();
@@ -474,7 +474,7 @@ export const Utils = {
     return timeago;
   },
   activateToggleSwitch() {
-    $('.js-toggle').on('change', function () {
+    $('.js-toggle').on('change', function submitToggleSwitch() {
       const checkbox = $(this);
       const currentState = this.checked;
       const previousState = !currentState;
@@ -512,7 +512,7 @@ export const Utils = {
         'https://cdn.jsdelivr.net/npm/vega-embed@6',
       ];
       let vegaliteUrl = 0;
-      const loadVegaScript = function () {
+      const loadVegaScript = () => {
         $.getScript({ url: vegaliteCDN[vegaliteUrl], cache: true }).success(
           () => {
             if (vegaliteUrl < vegaliteCDN.length) {
@@ -521,7 +521,7 @@ export const Utils = {
             }
             // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
             if (vegaliteUrl === vegaliteCDN.length) {
-              $('.language-vega-lite').each(function () {
+              $('.language-vega-lite').each(function embedVegaChart() {
                 vegaEmbed(this, JSON.parse($(this).find('code').text()), {
                   renderer: 'svg',
                   actions: {
@@ -619,12 +619,12 @@ export const LazyloadImg = {
     });
   },
 };
-export const SaveProject = function ({
+export const SaveProject = ({
   formId,
   postUrl = $(`#${formId}`).attr('action'),
   config = {},
-}) {
-  const onSuccess = function (response) {
+}) => {
+  const onSuccess = (response) => {
     $(`#${formId}`)
       .find('button')
       .prop('disabled', false)
@@ -632,7 +632,7 @@ export const SaveProject = function ({
 
     $(`#${formId}`)
       .find('button')
-      .each(function () {
+      .each(function showSaveProgress() {
         if ($(this).hasClass('animate-btn--show')) {
           $(this).removeClass('animate-btn--show');
         } else {
@@ -648,9 +648,7 @@ export const SaveProject = function ({
     Utils.updateFormNonce(response);
   };
 
-  const onError = function (response) {
-    return Utils.handleAjaxError(response);
-  };
+  const onError = (response) => Utils.handleAjaxError(response);
 
   window.Baseframe.Forms.handleFormSubmit(
     formId,
@@ -707,64 +705,66 @@ export const Video = {
   },
 };
 
-export const TableSearch = function (tableId) {
-  // a little library that takes a table id
-  // and provides a method to search the table's rows for a given query.
-  // the row's td must contain the class 'js-searchable' to be considered
-  // for searching.
-  // Eg:
-  // var tableSearch = new TableSearch('tableId');
-  // var hits = tableSearch.searchRows('someQuery');
-  // 'hits' is a list of ids of the table's rows which contained 'someQuery'
-  this.tableId = tableId;
-  this.rowData = [];
-  this.allMatchedIds = [];
-};
+export class TableSearch {
+  constructor(tableId) {
+    // a little library that takes a table id
+    // and provides a method to search the table's rows for a given query.
+    // the row's td must contain the class 'js-searchable' to be considered
+    // for searching.
+    // Eg:
+    // var tableSearch = new TableSearch('tableId');
+    // var hits = tableSearch.searchRows('someQuery');
+    // 'hits' is a list of ids of the table's rows which contained 'someQuery'
+    this.tableId = tableId;
+    this.rowData = [];
+    this.allMatchedIds = [];
+  }
 
-TableSearch.prototype.getRows = function () {
-  const tablerow = `#${this.tableId} tbody tr`;
-  return $(tablerow);
-};
+  getRows() {
+    const tablerow = `#${this.tableId} tbody tr`;
+    return $(tablerow);
+  }
 
-TableSearch.prototype.setRowData = function () {
-  // Builds a list of objects and sets it the object's rowData
-  const rowMap = [];
-  $.each(this.getRows(), (rowIndex, row) => {
-    const rowid = $(row).attr('id');
-    rowMap.push({
-      rid: `#${rowid}`,
-      text: $(row).find('td.js-searchable').text().toLowerCase(),
+  setRowData() {
+    // Builds a list of objects and sets it the object's rowData
+    const rowMap = [];
+    $.each(this.getRows(), (rowIndex, row) => {
+      const rowid = $(row).attr('id');
+      rowMap.push({
+        rid: `#${rowid}`,
+        text: $(row).find('td.js-searchable').text().toLowerCase(),
+      });
     });
-  });
-  this.rowData = rowMap;
-};
-
-TableSearch.prototype.setAllMatchedIds = function (ids) {
-  this.allMatchedIds = ids;
-};
-
-TableSearch.prototype.searchRows = function (q) {
-  // Search the rows of the table for a supplied query.
-  // reset data collection on first search or if table has changed
-  if (this.rowData.length !== this.getRows().length) {
-    this.setRowData();
-  } // return cached matched ids if query is blank
-
-  if (q === '' && this.allMatchedIds.length !== 0) {
-    return this.allMatchedIds;
+    this.rowData = rowMap;
   }
 
-  const matchedIds = [];
+  setAllMatchedIds(ids) {
+    this.allMatchedIds = ids;
+  }
 
-  for (let i = this.rowData.length - 1; i >= 0; i -= 1) {
-    if (this.rowData[i].text.indexOf(q.toLowerCase()) !== -1) {
-      matchedIds.push(this.rowData[i].rid);
+  searchRows(q) {
+    // Search the rows of the table for a supplied query.
+    // reset data collection on first search or if table has changed
+    if (this.rowData.length !== this.getRows().length) {
+      this.setRowData();
+    } // return cached matched ids if query is blank
+
+    if (q === '' && this.allMatchedIds.length !== 0) {
+      return this.allMatchedIds;
     }
-  } // cache ids if query is blank
 
-  if (q === '') {
-    this.setAllMatchedIds(matchedIds);
+    const matchedIds = [];
+
+    for (let i = this.rowData.length - 1; i >= 0; i -= 1) {
+      if (this.rowData[i].text.indexOf(q.toLowerCase()) !== -1) {
+        matchedIds.push(this.rowData[i].rid);
+      }
+    } // cache ids if query is blank
+
+    if (q === '') {
+      this.setAllMatchedIds(matchedIds);
+    }
+
+    return matchedIds;
   }
-
-  return matchedIds;
-};
+}

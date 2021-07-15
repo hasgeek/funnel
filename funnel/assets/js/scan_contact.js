@@ -100,8 +100,9 @@ const badgeScan = {
       },
 
       startRenderFrameLoop() {
-        let timerId;
-        timerId = window.requestAnimationFrame(badgeScanComponent.renderFrame);
+        const timerId = window.requestAnimationFrame(
+          badgeScanComponent.renderFrame
+        );
         this.set('timerId', timerId);
       },
 
@@ -190,7 +191,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.Hasgeek.BadgeScanInit = function (scanConfig) {
+  window.Hasgeek.badgeScanInit = function badgeScanInit(scanConfig) {
     badgeScan.init(scanConfig);
   };
 });

@@ -24,7 +24,7 @@
         results: {{results|default("")|tojson}},
         defaultImage: "{{url_for('static', filename='img/default-banner.png')}}",
       };
-      Hasgeek.Search(searchConfig);
+      Hasgeek.searchInit(searchConfig);
     });
   </script>
 {% endblock %}
