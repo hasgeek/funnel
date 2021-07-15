@@ -2,8 +2,6 @@
 SITE_TITLE = "Hasgeek"
 #: Site id
 SITE_ID = 'hasgeek'
-#: Server name (required to generate URLs)
-SERVER_NAME = 'funnel.test:3000'
 #: Auth cookie domain (must be dot-prefixed to serve auth for subdomains)
 LASTUSER_COOKIE_DOMAIN = '.funnel.test'
 #: Session cookies must be domain-local

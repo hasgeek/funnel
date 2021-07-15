@@ -10,7 +10,7 @@ SQLALCHEMY_BINDS = {
     'geoname': 'postgresql:///geoname_testing',
 }
 SERVER_NAME = 'funnel.test:3002'
-SHORTLINK_DOMAIN = 'funnel.test:3002'
+SHORTLINK_DOMAIN = 'f.test:3002'
 DEFAULT_DOMAIN = 'funnel.test'
 STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.test:3002'
